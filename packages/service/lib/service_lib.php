@@ -95,6 +95,8 @@ function Service_Signal_handler($signo)
  */
 function Service_Register_Signal_handler()
 {
+    // Prevent zombie (defunct) php children.
+    pcntl_signal(SIGCHLD, SIG_IGN);
     pcntl_signal(SIGHUP, 'Service_Signal_handler');
     pcntl_signal(SIGINT, 'Service_Signal_handler');
     pcntl_signal(SIGQUIT, 'Service_Signal_handler');
