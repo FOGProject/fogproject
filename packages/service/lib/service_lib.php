@@ -109,6 +109,7 @@ function Service_Register_Signal_handler()
  */
 function Service_Unregister_Signal_handler()
 {
+    pcntl_signal(SIGCHLD, SIG_DFL);
     pcntl_signal(SIGHUP, SIG_DFL);
     pcntl_signal(SIGINT, SIG_DFL);
     pcntl_signal(SIGQUIT, SIG_DFL);
