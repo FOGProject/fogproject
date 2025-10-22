@@ -1309,6 +1309,9 @@ class Route extends FOGBase
                         $w = " OR `settingValue` LIKE :item3";
                         $params['item3'] = $like;
                         break;
+                    case 'storagenode':
+                        $w = " OR `ngmHostname` LIKE :item3";
+                        $params['item3'] = $like;
                 }
                 $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
                     . "`{$classVars['databaseFields']['name']}`

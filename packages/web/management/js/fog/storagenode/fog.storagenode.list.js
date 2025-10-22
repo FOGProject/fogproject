@@ -30,6 +30,7 @@
             {data: 'storagegroupLink'},
             {data: 'isEnabled'},
             {data: 'isMaster'},
+            {data: 'ip', visible: false},
             {data: 'maxClients'}
         ],
         rowId: 'id',
