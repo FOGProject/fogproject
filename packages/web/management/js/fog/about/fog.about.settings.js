@@ -11,7 +11,7 @@
           orderable: false
         },
         {
-          data: 'inputValue',
+          data: 'value',
           orderable: false
         },
         {
