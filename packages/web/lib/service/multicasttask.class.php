@@ -457,6 +457,10 @@ class MulticastTask extends FOGService
             false,
             ''
         );
+        $maxwait = int($maxwait);
+        if (!$maxwait || $maxwait <= 0) {
+            $maxwait = 10;
+        }
         if ($address) {
             $address = long2ip(
                 ip2long($address) + (
@@ -657,7 +661,7 @@ class MulticastTask extends FOGService
                     (
                         $i == 0 ?
                         $maxwait * 60 :
-                        $maxwait * 6
+                        $maxwait * 60
                     )
                 ),
                 rtrim(
