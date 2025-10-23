@@ -618,6 +618,15 @@ configureUDPCast() {
     dots "Installing UDPCast"
     make install >>$error_log 2>&1
     errorStat $?
+    if [[ -f "/usr/local/sbin/udp-sender" ]]; then
+        if [[ ! -f "/usr/sbin/udp-sender" ]]; then
+            ln -sf "/usr/local/sbin/udp-sender" "/usr/sbin/udp-sender"
+        fi
+    elif [[ -f "/usr/sbin/udp-sender" ]]; then
+        if [[ ! -f "/usr/local/sbin/udp-sender" ]]; then
+            ln -sf "/usr/sbin/udp-sender" "/usr/local/sbin/udp-sender"
+        fi
+    fi
     cd $cur
 }
 configureFTP() {
