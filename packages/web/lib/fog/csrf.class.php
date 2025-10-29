@@ -33,7 +33,7 @@ class CSRF
         return $_SESSION[self::SESSION_KEY];
     }
 
-    public static function validate(?string $provided): bool
+    public static function validate(string $provided = null): bool
     {
         if (!isset($_SESSION[self::SESSION_KEY]) || !is_string($provided)) {
             return false;
