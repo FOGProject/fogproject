@@ -23,7 +23,7 @@
  */
 class CSRF
 {
-    private const SESSION_KEY = '_csrf_token';
+    const SESSION_KEY = '_csrf_token';
     // Rotate per session (good). If you want per-form/per-request, extend this.
     public static function token(): string
     {
