@@ -457,7 +457,7 @@ class MulticastTask extends FOGService
             false,
             ''
         );
-        $maxwait = int($maxwait);
+        $maxwait = (int)$maxwait;
         if (!$maxwait || $maxwait <= 0) {
             $maxwait = 10;
         }
