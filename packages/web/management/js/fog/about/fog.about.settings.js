@@ -11,8 +11,12 @@
           orderable: false
         },
         {
-          data: 'value',
+          data: 'inputValue',
           orderable: false
+        },
+        {
+          data: 'value',
+          visible: false
         },
         {
           data: 'category',
