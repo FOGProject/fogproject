@@ -280,16 +280,18 @@ class Registration extends FOGBase
      * Commonize method to deploy tasks for either
      * quickreg or full reg.
      *
+     * @param $quickReg bool Is this from quick registration
+     *
      * @throws Exception
      * @return void
      */
-    private static function _deployHost()
+    private static function _deployHost($quickReg = false)
     {
         $stripped = self::stripAndDecode($_POST);
         $username = filter_var($stripped['username'] ?? '');
         $password = filter_var($stripped['password'] ?? '');
         $userTest = self::getClass('User')->passwordValidate($username, $password);
-        if (!$userTest) {
+        if (!$userTest && !$quickReg) {
             throw new Exception(
                 _('Done, without imaging: Invalid Login.')
             );
@@ -451,7 +453,7 @@ class Registration extends FOGBase
                         _('Done, without imaging!')
                     );
                 }
-                self::_deployHost();
+                self::_deployHost(true);
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
