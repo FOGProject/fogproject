@@ -1595,11 +1595,7 @@ class GroupManagement extends FOGPage
             $this->obj->setAlo($tme);
         }
         if (isset($_POST['confirmenforcesend'])) {
-            $enforce = (
-                filter_input(INPUT_POST, $_POST['enforce']) >= 1 ?
-                1 :
-                0
-            );
+            $enforce = (int)filter_input(INPUT_POST, 'enforce');
             self::getClass('HostManager')->update(
                 ['id' => $this->obj->get('hosts')],
                 '',

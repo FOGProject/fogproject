@@ -986,7 +986,7 @@ class HostManagement extends FOGPage
             )
         );
         $productKey = substr($productKey, 0, 29);
-        $enforce = (int)isset($_POST['enforce']);
+        $enforce = (int)filter_input(INPUT_POST, 'enforce');
         $image = (int)filter_input(INPUT_POST, 'image');
         $kernel = trim(
             filter_input(INPUT_POST, 'kernel')
@@ -2544,10 +2544,7 @@ class HostManagement extends FOGPage
         }
 
         // Hostname changer reboot/domain join reboot forced.
-        $enforce = (
-            (int)isset($_POST['enforce']) ?:
-            $this->obj->get('enforce')
-        );
+        $enforce = (int)filter_input(INPUT_POST, 'enforce') ?: $this->obj->get('enforce');
         $fields = [
             self::makeLabel(
                 $labelClass,
