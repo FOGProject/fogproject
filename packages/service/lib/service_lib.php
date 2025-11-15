@@ -95,6 +95,7 @@ function Service_Signal_handler($signo)
  */
 function Service_Register_Signal_handler()
 {
+    pcntl_signal(SIGCHLD, SIG_IGN);
     pcntl_signal(SIGHUP, 'Service_Signal_handler');
     pcntl_signal(SIGINT, 'Service_Signal_handler');
     pcntl_signal(SIGQUIT, 'Service_Signal_handler');
@@ -107,6 +108,7 @@ function Service_Register_Signal_handler()
  */
 function Service_Unregister_Signal_handler()
 {
+    pcntl_signal(SIGCHLD, SIG_DFL);
     pcntl_signal(SIGHUP, SIG_DFL);
     pcntl_signal(SIGINT, SIG_DFL);
     pcntl_signal(SIGQUIT, SIG_DFL);

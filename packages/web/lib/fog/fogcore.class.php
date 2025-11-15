@@ -227,16 +227,7 @@ class FOGCore extends FOGBase
         if (isset($fog_settings[5])) {
             self::$defaultscreen = $fog_settings[5];
         }
-        $defTz = ini_get('date.timezone');
-        if (empty($defTz)) {
-            if (empty($fog_settings[4])) {
-                $GLOBALS['TimeZone'] = 'UTC';
-            } else {
-                $GLOBALS['TimeZone'] = $fog_settings[4];
-            }
-        } else {
-            $GLOBALS['TimeZone'] = $defTz;
-        }
+        $GLOBALS['TimeZone'] = $fog_settings[4] ?? (ini_get('date.timezone') ?: 'UTC');
         ini_set('max_input_vars', 10000);
         $memorySet = preg_replace('#M#', '', ini_get('memory_limit'));
         if (isset($fog_settings[4]) && $memorySet < $fog_settings[4]) {

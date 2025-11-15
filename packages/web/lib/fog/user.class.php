@@ -412,14 +412,17 @@ class User extends FOGController
         }
         $regenTime = $this->_regenerateSessionTimeout * 60 * 60;
         if ($authTime > $regenTime) {
-            $sessionid = session_id();
-            if (session_id() !== '') {
-                session_write_close();
+            // Ensure a session exists before touching $_SESSION
+            if (session_status() !== PHP_SESSION_ACTIVE) {
+                session_start();
             }
-            session_id(session_regenerate_id());
-            session_start();
+
+            // Rotate the session ID and delete the old session to prevent fixation
+            // Note: this does NOT return the new ID; it returns bool
+            session_regenerate_id(true);
+
             $_SESSION['sessioncreated'] = time();
-            $_SESSION['authtime'] = time();
+            $_SESSION['authtime']      = time();
         }
 
         if (!isset($_SESSION['FOG_USER'])) {

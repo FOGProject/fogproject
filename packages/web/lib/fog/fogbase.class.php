@@ -828,7 +828,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function redirect($url = '')
+    public static function redirect($url = '')
     {
         if (self::$service) {
             return;
