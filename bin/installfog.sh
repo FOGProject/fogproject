@@ -397,7 +397,6 @@ echo "   #                    or our new documentation at:                    #"
 echo "   ######################################################################"
 echo "   #               https://docs.fogproject.org/en/latest/               #"
 echo "   ######################################################################"
-
 echo
 echo " * Here are the settings FOG will use:"
 echo " * Base Linux: $osname"
