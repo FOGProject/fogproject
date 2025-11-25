@@ -1907,7 +1907,7 @@ abstract class FOGPage extends FOGBase
         global $sub;
         global $node;
         $this->title = sprintf(
-            "%s's to remove",
+            "%ss to remove",
             (
                 $this->childClass !== 'Storage' ?
                 $this->childClass :
