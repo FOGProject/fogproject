@@ -127,7 +127,7 @@ class BootMenu extends FOGBase
         parent::__construct();
         $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub.exe '
             . '--config-file="%s"';
-        $sanboot = 'sanboot --no-describe --drive 0x80';
+        $sanboot = 'console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82';
         $refind = sprintf(
             'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
             . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
