@@ -865,29 +865,37 @@ abstract class FOGController extends FOGBase
     public function isValid()
     {
         try {
-            foreach ($this->databaseFieldsRequired as &$key) {
-                $key = $this->key($key);
+            foreach ($this->databaseFieldsRequired as $reqKey) {
+                $key = $this->key($reqKey);
                 $val = $this->get($key);
-                if (!is_numeric($val) && !$val) {
+
+                // If key ends with ID (case-insensitive), require integer >= 1
+                if (strtolower(substr($key, -2)) === 'id') {
+                    if (filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+                        throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
+                    }
+                    continue; // don't fall through to the generic empty-check
+                }
+
+                // Generic "required" check for non-ID fields:
+                // treat null / empty string as missing, but allow 0 / "0"
+                if ($val === null || (is_string($val) && trim($val) === '')) {
                     throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
                 }
-                unset($key);
             }
-            if ($this->get('id') < 1) {
+
+            // Validate the model's own 'id' field
+            if (filter_var($this->get('id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
                 throw new Exception(_('Invalid ID passed'));
             }
+
             if (array_key_exists('name', $this->databaseFields)) {
                 $val = trim($this->get('name'));
             }
-        } catch (Exception $e) {
-            $str = sprintf(
-                '%s: %s: %s',
-                _('Failed'),
-                _('Error'),
-                $e->getMessage()
-            );
-            self::debug($str);
 
+        } catch (Exception $e) {
+            $str = sprintf('%s: %s: %s', _('Failed'), _('Error'), $e->getMessage());
+            self::debug($str);
             return false;
         }
 
