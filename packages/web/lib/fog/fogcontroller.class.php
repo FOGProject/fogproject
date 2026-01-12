@@ -388,21 +388,56 @@ abstract class FOGController extends FOGBase
     {
         try {
             $insertKeys = array();
-            $insertValKeys = $updateValKeys = array();
-            $insertValues = $updateValues = array();
-            $updateData = $fieldData = array();
+            $insertValKeys = array();
+            $insertValues = array();
+            $updateData = array();
+
             if (count($this->aliasedFields) > 0) {
                 self::arrayRemove($this->aliasedFields, $this->databaseFields);
             }
-            foreach ($this->databaseFields as $key => &$column) {
-                $key = $this->key($key);
+
+            // Build a lookup of required keys (normalized the same way isValid() does)
+            $required = array();
+            foreach ($this->databaseFieldsRequired as $reqKey) {
+                $reqKeyNorm = $this->key($reqKey);
+                $required[$reqKeyNorm] = true;
+            }
+
+            foreach ($this->databaseFields as $rawKey => $column) {
+                $key = $this->key($rawKey);
                 $column = trim($column);
+
+                if ($column === '') {
+                    continue;
+                }
+
                 $eColumn = sprintf('`%s`', $column);
                 $paramInsert = sprintf(':%s_insert', $column);
                 $val = $this->get($key);
+
+                // Primary key 'id': allow null/empty/0 so DB auto-increments.
+                // If it's not a valid positive int, exclude it from INSERT/UPDATE.
+                if (strtolower($key) === 'id') {
+                    $validId = filter_var($val, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+                    if ($validId === false) {
+                        continue;
+                    }
+                    $val = (int)$validId;
+                }
+
+                // Enforce "*id" only when it's in requiredDatabaseFields
+                elseif (strtolower(substr($key, -2)) === 'id' && isset($required[$key])) {
+                    $validated = filter_var($val, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+                    if ($validated === false) {
+                        throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
+                    }
+                    $val = (int)$validated;
+                }
+
                 switch ($key) {
                 case 'createdBy':
-                    if (!$val) {
+                    // Only treat null/empty-string as missing (don't treat "0" as empty)
+                    if ($val === null || (is_string($val) && trim($val) === '')) {
                         if (self::$FOGUser->isValid()) {
                             $val = trim(self::$FOGUser->get('name'));
                         } else {
@@ -410,47 +445,37 @@ abstract class FOGController extends FOGBase
                         }
                     }
                     break;
+
                 case 'createdTime':
                     if (!($val && self::validDate($val))) {
                         $val = self::formatTime('now', 'Y-m-d H:i:s');
                     }
                     break;
-                case 'id':
-                    if (!(is_numeric($val) && $val > 0)) {
-                        continue 2;
-                    }
-                    break;
                 }
-                if (is_null($val)) {
-                    $val = '';
+
+                // Preserve NULLs; normalize strings
+                if ($val !== null && is_string($val)) {
+                    $val = trim($val);
                 }
+
                 $insertKeys[] = $eColumn;
                 $insertValKeys[] = $paramInsert;
                 $insertValues[] = $val;
-                $updateData[] = sprintf(
-                    '%s=VALUES(%s)',
-                    $eColumn,
-                    $eColumn
-                );
-                unset(
-                    $column,
-                    $eColumn,
-                    $key,
-                    $val
-                );
+
+                $updateData[] = sprintf('%s=VALUES(%s)', $eColumn, $eColumn);
             }
+
             $query = sprintf(
                 $this->insertQueryTemplate,
                 $this->databaseTable,
-                implode(',', (array) $insertKeys),
-                implode(',', (array) $insertValKeys),
+                implode(',', (array)$insertKeys),
+                implode(',', (array)$insertValKeys),
                 'ON DUPLICATE KEY UPDATE',
-                implode(',', (array) $updateData)
+                implode(',', (array)$updateData)
             );
-            $queryArray = array_combine(
-                $insertValKeys,
-                $insertValues
-            );
+
+            $queryArray = array_combine($insertValKeys, $insertValues);
+
             $msg = sprintf(
                 '%s %s %s',
                 _('Saving data for'),
@@ -458,10 +483,13 @@ abstract class FOGController extends FOGBase
                 _('object')
             );
             self::info($msg);
+
             self::$DB->query($query, array(), $queryArray);
+
             if (!$this->get('id') || $this->get('id') < 1) {
                 $this->set('id', self::$DB->insertId());
             }
+
             if (!$this instanceof History) {
                 if ($this->get('name')) {
                     $msg = sprintf(
@@ -484,6 +512,7 @@ abstract class FOGController extends FOGBase
                 }
                 self::logHistory($msg);
             }
+
         } catch (Exception $e) {
             if (!$this instanceof History) {
                 if ($this->get('name')) {
@@ -511,6 +540,7 @@ abstract class FOGController extends FOGBase
                 }
                 self::logHistory($msg);
             }
+
             $msg = sprintf(
                 '%s: %s: %s, %s: %s',
                 _('Database save failed'),
