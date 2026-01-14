@@ -5028,6 +5028,11 @@ msgstr "Caminho SSL"
 msgid "Save Changes"
 msgstr "Salvar alterações"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Salvando dados para %s objeto"
@@ -6454,6 +6459,10 @@ msgid "Unknown"
 msgstr "Desconhecido"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
@@ -7287,10 +7296,6 @@ msgstr "Nenhuma imagem especificada"
 msgid "n/a"
 msgstr "n / D"
 
-#, fuzzy
-msgid "no database to"
-msgstr "Nenhum banco de dados para trabalhar fora"
-
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -7834,6 +7839,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "is required"
 #~ msgstr "%s é necessária"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "Nenhum banco de dados para trabalhar fora"
 
 #, fuzzy
 #~ msgid "version"

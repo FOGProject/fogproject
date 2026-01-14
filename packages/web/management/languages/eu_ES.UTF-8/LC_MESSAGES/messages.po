@@ -5029,6 +5029,11 @@ msgstr "SSL-Pfad"
 msgid "Save Changes"
 msgstr "Änderungen speichern"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Speichern von Daten für %s Objekt"
@@ -6460,6 +6465,10 @@ msgid "Unknown"
 msgstr "Unbekannt"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
@@ -7297,10 +7306,6 @@ msgstr "muss angegeben werden"
 msgid "n/a"
 msgstr "nicht verfügbar"
 
-#, fuzzy
-msgid "no database to"
-msgstr "Keine Datenbank zum"
-
 msgid "node is the distributor of the images"
 msgstr "welcher Knoten die Images verteilt."
 
@@ -7847,6 +7852,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "is required"
 #~ msgstr "%s ist erforderlich"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "Keine Datenbank zum"
 
 #, fuzzy
 #~ msgid "version"

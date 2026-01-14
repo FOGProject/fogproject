@@ -4227,6 +4227,11 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 msgid "Saving data for"
 msgstr ""
 
@@ -5416,6 +5421,9 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
+msgid "Unknown DB error"
+msgstr ""
+
 msgid "Unknown upload error occurred"
 msgstr ""
 
@@ -6128,9 +6136,6 @@ msgid "must be specified"
 msgstr ""
 
 msgid "n/a"
-msgstr ""
-
-msgid "no database to"
 msgstr ""
 
 msgid "node is the distributor of the images"

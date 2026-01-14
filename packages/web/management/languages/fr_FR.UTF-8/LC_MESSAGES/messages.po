@@ -5031,6 +5031,11 @@ msgstr "SSL Chemin"
 msgid "Save Changes"
 msgstr "Sauvegarder les modifications"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Enregistrement des données pour %s l'objet"
@@ -6458,6 +6463,10 @@ msgid "Unknown"
 msgstr "Inconnu"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
@@ -7291,10 +7300,6 @@ msgstr "Aucune image spécifiée"
 msgid "n/a"
 msgstr "n / a"
 
-#, fuzzy
-msgid "no database to"
-msgstr "Aucune base de données de travailler hors"
-
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -7838,6 +7843,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "is required"
 #~ msgstr "%s est requis"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "Aucune base de données de travailler hors"
 
 #, fuzzy
 #~ msgid "version"

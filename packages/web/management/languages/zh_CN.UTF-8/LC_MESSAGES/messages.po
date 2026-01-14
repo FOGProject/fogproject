@@ -5024,6 +5024,11 @@ msgstr "SSL通道"
 msgid "Save Changes"
 msgstr "保存更改"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "保存数据%s对象"
@@ -6445,6 +6450,10 @@ msgid "Unknown"
 msgstr "未知"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "发生未知上传错误。返回代码："
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "发生未知上传错误。返回代码："
 
@@ -7276,10 +7285,6 @@ msgstr "没有指定的图像"
 msgid "n/a"
 msgstr "N / A"
 
-#, fuzzy
-msgid "no database to"
-msgstr "没有数据库工作关闭"
-
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -7819,6 +7824,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "is required"
 #~ msgstr "%s是必需的"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "没有数据库工作关闭"
 
 #, fuzzy
 #~ msgid "version"

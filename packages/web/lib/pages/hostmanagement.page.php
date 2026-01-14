@@ -4906,6 +4906,7 @@ class HostManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
+            self::var_dump_log($e);
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -4931,6 +4932,7 @@ class HostManagement extends FOGPage
             ]
         );
         http_response_code($code);
+        self::var_dump_log($msg);
         echo $msg;
         exit;
     }

@@ -744,6 +744,7 @@ class Host extends FOGController
             ->set('TaskState', new TaskState(self::getQueuedState()))
             ->set('StorageGroup', $this->getImage()->getStorageGroup())
             ->set('StorageNode', new StorageNode())
+            ->set('NFSLastMemberID', $groupID)
             ->set('bypassbitlocker', ($bypassbitlocker ? '1' : '0'));
         if ($imagingTask) {
             $Task->set('imageID', $this->getImage()->get('id'));
@@ -1169,7 +1170,7 @@ class Host extends FOGController
                 _('Message'),
                 $message
             ));
-            if (preg_match('#/service/ipxe/boot.php', self::$scriptname)) {
+            if (preg_match('#/service/ipxe/boot.php#', self::$scriptname)) {
                 throw new Exception($message);
             }
             http_response_code($errcode);

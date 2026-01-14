@@ -4792,6 +4792,11 @@ msgstr "Percorso SSL"
 msgid "Save Changes"
 msgstr "Salva i cambiamenti"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 msgid "Saving data for"
 msgstr "Salvataggio dei dati per"
 
@@ -6139,6 +6144,10 @@ msgstr "Unità di tempo deve essere una stringa"
 msgid "Unknown"
 msgstr "Sconosciuto"
 
+#, fuzzy
+msgid "Unknown DB error"
+msgstr "Si è verificato errore di caricamento sconosciuto"
+
 msgid "Unknown upload error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
@@ -6920,9 +6929,6 @@ msgstr "deve essere specificato"
 msgid "n/a"
 msgstr "n/d"
 
-msgid "no database to"
-msgstr "Nessun database a"
-
 msgid "node is the distributor of the images"
 msgstr "nodo è il distributore delle immagini"
 
@@ -7433,6 +7439,9 @@ msgstr ""
 
 #~ msgid "is required"
 #~ msgstr "è richiesto"
+
+#~ msgid "no database to"
+#~ msgstr "Nessun database a"
 
 #~ msgid "version"
 #~ msgstr "versione"

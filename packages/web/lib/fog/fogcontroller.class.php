@@ -467,10 +467,9 @@ abstract class FOGController extends FOGBase
                     $val = (int)$validId;
                 }
 
-                // Keys ending with "id" (case-insensitive) - enforce only if REQUIRED
+                // Keys ending with "id" (case-insensitive)
                 elseif (strtolower(substr($key, -2)) === 'id') {
                     $isRequired = isset($required[$key]);
-
                     $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
 
                     if ($isRequired) {
@@ -545,10 +544,20 @@ abstract class FOGController extends FOGBase
             self::info($msg);
 
             self::$DB->query($query, [], $queryArray);
+            $lastInsertID = self::$DB->insertId();
 
-            // If we didn't have a valid id going in, DB should have assigned one
-            if (filter_var($this->get('id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
-                $this->set('id', self::$DB->insertId());
+            // Force ID correctness: if we still don't have a valid ID, this wasn't created properly.
+            $currentId = $this->get('id');
+            $validCurrentId = filter_var($currentId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+            if ($validCurrentId === false) {
+                $newId = (int)$lastInsertID;
+                if ($newId > 0) {
+                    $this->set('id', $newId);
+                } else {
+                    // This prevents "Task ID: 0 ... successfully updated" lies.
+                    throw new Exception(_('Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment.'));
+                }
             }
 
             if (!$this instanceof History && !$this instanceof Plugin) {

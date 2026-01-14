@@ -5155,6 +5155,11 @@ msgstr "Camino"
 msgid "Save Changes"
 msgstr "Guardar cambios"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Guardar los datos de %s objeto"
@@ -6603,6 +6608,10 @@ msgid "Unknown"
 msgstr "Desconocido"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "Se produjo un error de carga desconocida. Código de retorno: "
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
@@ -7438,9 +7447,6 @@ msgid "must be specified"
 msgstr "No hay imagen especificada"
 
 msgid "n/a"
-msgstr ""
-
-msgid "no database to"
 msgstr ""
 
 msgid "node is the distributor of the images"
