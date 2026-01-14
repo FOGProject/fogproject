@@ -137,7 +137,7 @@ class PDODB extends DatabaseManager
      * @return void|PDODB
      * @throws PDOException
      */
-    public function __construct(array $options = [])
+    public function __construct($options = [])
     {
         ignore_user_abort(true);
         set_time_limit(0);
@@ -205,7 +205,7 @@ class PDODB extends DatabaseManager
      * @return object
      * @throws PDOException
      */
-    private function _connect(bool $dbexists = true)
+    private function _connect($dbexists = true)
     {
         try {
             if (self::$_link) {
@@ -273,7 +273,7 @@ class PDODB extends DatabaseManager
      * @return object
      * @throws PDOException
      */
-    public static function currentDb(object $main)
+    public static function currentDb($main)
     {
         try {
             if (!self::$_link) {
@@ -320,9 +320,9 @@ class PDODB extends DatabaseManager
      * @throws PDOException
      */
     public function query(
-        string $sql,
-        array  $data = [],
-        array  $paramvals = []
+        $sql,
+        $data = [],
+        $paramvals = []
     ) {
         // Save for diagnostics even if we fail early
         $this->lastSql = $sql;
@@ -444,8 +444,8 @@ class PDODB extends DatabaseManager
      * @throws PDOException
      */
     public function fetch(
-        int    $type = PDO::FETCH_ASSOC,
-        string $fetchType = 'fetch_assoc',
+        $type = PDO::FETCH_ASSOC,
+        $fetchType = 'fetch_assoc',
         $params = false
     ) {
         try {
