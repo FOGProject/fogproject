@@ -486,7 +486,7 @@ abstract class FOGController extends FOGBase
                         } else {
                             $validated = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                             if ($validated === false) {
-                                throw new Exception(self::$foglang['RequiredDB'] . ": " . $key . " -> val: " . $val);
+                                $validated = 0;
                             }
                             $val = (int)$validated;
                         }
