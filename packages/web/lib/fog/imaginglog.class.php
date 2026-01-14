@@ -49,9 +49,7 @@ class ImagingLog extends FOGController
     protected $databaseFieldsRequired = [
         'hostID',
         'start',
-        'finish',
         'image',
-        'type'
     ];
     /**
      * Additional fields.
