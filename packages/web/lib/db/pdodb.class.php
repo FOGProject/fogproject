@@ -34,7 +34,7 @@ class PDODB extends DatabaseManager
      *
      * @var bool
      */
-    public static $throwOnQueryError = true;
+    public static $throwOnQueryError = false;
 
     /**
      * Stores last errorcode for query.
