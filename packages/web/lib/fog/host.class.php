@@ -744,7 +744,7 @@ class Host extends FOGController
             ->set('TaskState', new TaskState(self::getQueuedState()))
             ->set('StorageGroup', $this->getImage()->getStorageGroup())
             ->set('StorageNode', new StorageNode())
-            ->set('NFSLastMemberID', $groupID)
+            ->set('NFSLastMemberID', $memID)
             ->set('bypassbitlocker', ($bypassbitlocker ? '1' : '0'));
         if ($imagingTask) {
             $Task->set('imageID', $this->getImage()->get('id'));

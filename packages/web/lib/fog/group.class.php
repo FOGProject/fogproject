@@ -685,7 +685,7 @@ class Group extends FOGController
                         $shutdown,
                         $debug,
                         $passreset,
-                        $StorageNode->getStorageGroup()->get('id')
+                        $StorageNode->get('id')
                     ];
                 }
                 if (count($batchTask ?: []) > 0) {
