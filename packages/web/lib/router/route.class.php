@@ -1573,7 +1573,7 @@ class Route extends FOGBase
                 $classVars['databaseFields']['id']
             )
             . '` ASC';
-        $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+        $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = [
                 'id' => $val[$classVars['databaseFields']['id']],
@@ -1643,7 +1643,7 @@ class Route extends FOGBase
                 $classVars['databaseFields']['id']
             )
             . '` ASC';
-        $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+        $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = $val[$classVars['databaseFields'][$getField]];
             unset($val);

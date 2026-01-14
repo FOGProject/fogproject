@@ -387,22 +387,85 @@ abstract class FOGController extends FOGBase
     public function save()
     {
         try {
-            $insertKeys = array();
-            $insertValKeys = $updateValKeys = array();
-            $insertValues = $updateValues = array();
-            $updateData = $fieldData = array();
-            if (count($this->aliasedFields) > 0) {
+            $insertKeys = [];
+            $insertValKeys = [];
+            $insertValues = [];
+            $updateData = [];
+
+            if (count($this->aliasedFields ?: []) > 0) {
                 self::arrayRemove($this->aliasedFields, $this->databaseFields);
             }
-            foreach ($this->databaseFields as $key => &$column) {
-                $key = $this->key($key);
+
+            // Build a lookup of required keys (normalized the same way isValid() does)
+            $required = [];
+            foreach ($this->databaseFieldsRequired as $reqKey) {
+                $reqKeyNorm = $this->key($reqKey);
+                $required[$reqKeyNorm] = true;
+            }
+
+            foreach ($this->databaseFields as $rawKey => $column) {
+                $key = $this->key($rawKey);
                 $column = trim($column);
+
+                if ($column === '') {
+                    continue;
+                }
+
                 $eColumn = sprintf('`%s`', $column);
                 $paramInsert = sprintf(':%s_insert', $column);
+
                 $val = $this->get($key);
+
+                // Primary key 'id': allow null/empty/0 so DB auto-increments.
+                // If it's not a valid positive int, we exclude it from INSERT/UPDATE.
+                if (strtolower($key) === 'id') {
+                    $validId = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                    if ($validId === false) {
+                        continue; // omit id column entirely
+                    }
+                    $val = (int)$validId;
+                }
+
+                // Keys ending with "id" (case-insensitive)
+                elseif (strtolower(substr($key, -2)) === 'id') {
+                    $isRequired = isset($required[$key]);
+                    $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
+
+                    if ($isRequired) {
+                        // Required *id must be integer >= 1
+                        $validated = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                        if ($validated === false) {
+                            throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
+                        }
+                        $val = (int)$validated;
+                    } else {
+                        // Optional *id: allow empty -> NULL; if present, require integer >= 1
+                        if ($isEmpty) {
+                            $val = null;
+                        } else {
+                            $validated = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                            if ($validated === false) {
+                                $validated = 0;
+                            }
+                            $val = (int)$validated;
+                        }
+                    }
+                }
+                else {
+                    $isRequired = isset($required[$key]);
+                    $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
+                    if ($isEmpty) {
+                        if ($isRequired) {
+                            throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
+                        }
+                        $val = '';
+                    }
+                }
+
                 switch ($key) {
                     case 'createdBy':
-                        if (!$val) {
+                        // Only treat null/empty-string as missing (don't treat "0" as empty)
+                        if ($val === null || (is_string($val) && trim($val) === '')) {
                             if (self::$FOGUser->isValid()) {
                                 $val = trim(self::$FOGUser->get('name'));
                             } else {
@@ -410,47 +473,37 @@ abstract class FOGController extends FOGBase
                             }
                         }
                         break;
+
                     case 'createdTime':
                         if (!($val && self::validDate($val))) {
                             $val = self::formatTime('now', 'Y-m-d H:i:s');
                         }
                         break;
-                    case 'id':
-                        if (!(is_numeric($val) && $val > 0)) {
-                            continue 2;
-                        }
-                        break;
                 }
-                if (is_null($val)) {
-                    $val = '';
+
+                // Normalize strings (but preserve NULL)
+                if ($val !== null && is_string($val)) {
+                    $val = trim($val);
                 }
+
                 $insertKeys[] = $eColumn;
                 $insertValKeys[] = $paramInsert;
                 $insertValues[] = $val;
-                $updateData[] = sprintf(
-                    '%s=VALUES(%s)',
-                    $eColumn,
-                    $eColumn
-                );
-                unset(
-                    $column,
-                    $eColumn,
-                    $key,
-                    $val
-                );
+
+                $updateData[] = sprintf('%s=VALUES(%s)', $eColumn, $eColumn);
             }
+
             $query = sprintf(
                 $this->insertQueryTemplate,
                 $this->databaseTable,
-                implode(',', (array) $insertKeys),
-                implode(',', (array) $insertValKeys),
+                implode(',', (array)$insertKeys),
+                implode(',', (array)$insertValKeys),
                 'ON DUPLICATE KEY UPDATE',
-                implode(',', (array) $updateData)
+                implode(',', (array)$updateData)
             );
-            $queryArray = array_combine(
-                $insertValKeys,
-                $insertValues
-            );
+
+            $queryArray = array_combine($insertValKeys, $insertValues);
+
             $msg = sprintf(
                 '%s %s %s',
                 _('Saving data for'),
@@ -458,10 +511,24 @@ abstract class FOGController extends FOGBase
                 _('object')
             );
             self::info($msg);
-            self::$DB->query($query, array(), $queryArray);
-            if (!$this->get('id') || $this->get('id') < 1) {
-                $this->set('id', self::$DB->insertId());
+
+            self::$DB->query($query, [], $queryArray);
+            $lastInsertID = self::$DB->insertId();
+
+            // Force ID correctness: if we still don't have a valid ID, this wasn't created properly.
+            $currentId = $this->get('id');
+            $validCurrentId = filter_var($currentId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+            if ($validCurrentId === false) {
+                $newId = (int)$lastInsertID;
+                if ($newId > 0) {
+                    $this->set('id', $newId);
+                } else {
+                    // This prevents "Task ID: 0 ... successfully updated" lies.
+                    throw new Exception(_('Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment.'));
+                }
             }
+
             if (!$this instanceof History) {
                 if ($this->get('name')) {
                     $msg = sprintf(
@@ -511,6 +578,7 @@ abstract class FOGController extends FOGBase
                 }
                 self::logHistory($msg);
             }
+
             $msg = sprintf(
                 '%s: %s: %s, %s: %s',
                 _('Database save failed'),
@@ -519,6 +587,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
+            self::var_dump_log($msg);
             self::debug($msg);
 
             return false;

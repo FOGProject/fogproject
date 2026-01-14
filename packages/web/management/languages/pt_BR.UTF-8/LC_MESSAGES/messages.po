@@ -1309,10 +1309,6 @@ msgid "Database changes reverted!"
 msgstr "alterações banco de dados revertido"
 
 #, fuzzy
-msgid "Database connection unavailable"
-msgstr "atualização de banco de dados falhou"
-
-#, fuzzy
 msgid "Database imported and added successfully!"
 msgstr "Banco de dados importado e adicionado com sucesso"
 
@@ -5197,6 +5193,11 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Núcleo"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Salvando dados para %s objeto"
@@ -6568,6 +6569,10 @@ msgid "Unknown"
 msgstr "Desconhecido"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
@@ -7545,10 +7550,6 @@ msgstr "Nenhuma imagem especificada"
 msgid "n/a"
 msgstr "n / D"
 
-#, fuzzy
-msgid "no database to"
-msgstr "Nenhum banco de dados para trabalhar fora"
-
 msgid "no login will appear"
 msgstr ""
 
@@ -7879,6 +7880,10 @@ msgstr ""
 #~ msgstr "Criar novo %s"
 
 #, fuzzy
+#~ msgid "Database connection unavailable"
+#~ msgstr "atualização de banco de dados falhou"
+
+#, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Hosts de exportação"
 
@@ -7977,3 +7982,7 @@ msgstr ""
 #, fuzzy
 #~ msgid "file to"
 #~ msgstr "Falhei em"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "Nenhum banco de dados para trabalhar fora"

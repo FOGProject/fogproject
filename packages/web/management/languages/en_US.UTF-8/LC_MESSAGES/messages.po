@@ -1305,10 +1305,6 @@ msgid "Database changes reverted!"
 msgstr "Database changes reverted"
 
 #, fuzzy
-msgid "Database connection unavailable"
-msgstr "Database update failed"
-
-#, fuzzy
 msgid "Database imported and added successfully!"
 msgstr "Database Imported and added successfully"
 
@@ -5190,6 +5186,11 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Kernel"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Saving data for %s object"
@@ -6561,6 +6562,10 @@ msgid "Unknown"
 msgstr "Unknown"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "Unknown upload error occurred.  Return code: "
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Unknown upload error occurred.  Return code: "
 
@@ -7538,10 +7543,6 @@ msgstr "No image specified"
 msgid "n/a"
 msgstr "n/a"
 
-#, fuzzy
-msgid "no database to"
-msgstr "No database to work off"
-
 msgid "no login will appear"
 msgstr ""
 
@@ -7871,6 +7872,10 @@ msgstr ""
 #~ msgstr "Create New %s"
 
 #, fuzzy
+#~ msgid "Database connection unavailable"
+#~ msgstr "Database update failed"
+
+#, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Export Hosts"
 
@@ -7972,3 +7977,7 @@ msgstr ""
 #, fuzzy
 #~ msgid "file to"
 #~ msgstr "file to"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "No database to work off"
