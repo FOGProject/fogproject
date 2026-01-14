@@ -587,7 +587,6 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            self::var_dump_log($msg);
             self::debug($msg);
 
             return false;
