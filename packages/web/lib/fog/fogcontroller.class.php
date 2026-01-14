@@ -491,6 +491,15 @@ abstract class FOGController extends FOGBase
                             $val = (int)$validated;
                         }
                     }
+                } else {
+                    $isRequired = isset($required[$key]);
+                    $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
+                    if ($isEmpty) {
+                        if ($isRequired) {
+                            throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
+                        }
+                        $val = '';
+                    }
                 }
 
                 switch ($key) {
