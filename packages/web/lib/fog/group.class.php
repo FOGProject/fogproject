@@ -552,12 +552,14 @@ class Group extends FOGController
                     'isForced',
                     'stateID',
                     'typeID',
+                    'storagegroupID',
                     'storagenodeID',
                     'wol',
                     'imageID',
                     'shutdown',
                     'isDebug',
                     'passreset',
+                    'NFSLastMemberID'
                 );
                 $batchTask = array();
                 for ($i = 0; $i < $hostCount; ++$i) {
@@ -568,12 +570,14 @@ class Group extends FOGController
                         0,
                         self::getQueuedState(),
                         $TaskType->get('id'),
+                        $StorageNode->getStorageGroup()->get('id'),
                         $StorageNode->get('id'),
                         $wol,
                         $Image->get('id'),
                         $shutdown,
                         $debug,
                         $passreset,
+                        $StorageNode->get('id')
                     );
                 }
                 if (count($batchTask) > 0) {

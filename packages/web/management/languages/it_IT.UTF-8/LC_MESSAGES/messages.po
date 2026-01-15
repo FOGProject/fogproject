@@ -1159,10 +1159,6 @@ msgstr "Aggiornamento del database non riuscito"
 msgid "Database changes reverted!"
 msgstr "Modifiche al database ripristinate"
 
-#, fuzzy
-msgid "Database connection unavailable"
-msgstr "Database non disponibile"
-
 msgid "Database imported and added successfully!"
 msgstr "Database importati e aggiunti con successo"
 
@@ -4670,6 +4666,11 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Save Kernel"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 msgid "Saving data for"
 msgstr "Salvataggio dei dati per"
 
@@ -5899,6 +5900,10 @@ msgstr "Unità di tempo deve essere una stringa"
 msgid "Unknown"
 msgstr "Sconosciuto"
 
+#, fuzzy
+msgid "Unknown DB error"
+msgstr "Si è verificato errore di caricamento sconosciuto"
+
 msgid "Unknown upload error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
@@ -6764,9 +6769,6 @@ msgstr "deve essere specificato"
 msgid "n/a"
 msgstr "n/d"
 
-msgid "no database to"
-msgstr "Nessun database a"
-
 msgid "no login will appear"
 msgstr "nessun login appare"
 
@@ -7065,6 +7067,10 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 #~ msgstr "NON UTILIZZARE QUESTO SE UTILIZZATE IL NUOVO CLIENT"
 
 #, fuzzy
+#~ msgid "Database connection unavailable"
+#~ msgstr "Database non disponibile"
+
+#, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Host Export"
 
@@ -7183,6 +7189,9 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
 #~ msgid "file to"
 #~ msgstr "File con"
+
+#~ msgid "no database to"
+#~ msgstr "Nessun database a"
 
 #~ msgid "or features you may request"
 #~ msgstr "c le funzionalità che puoi richiedere"

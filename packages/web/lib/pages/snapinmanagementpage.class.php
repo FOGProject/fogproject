@@ -586,7 +586,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
             . 'name="rwa" id="snaprwa" value="'
-            . $rwa
+            . htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<label for="snapinfile">'
@@ -624,7 +624,7 @@ class SnapinManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="args" id="args" class='
             . '"snapinargs-input cmdlet4 form-control" value="'
-            . $args
+            . htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>'
             . '</span>',
@@ -1074,7 +1074,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
             . 'name="rwa" id="snaprwa" value="'
-            . $rwa
+            . htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<label for="snapinfile">'
@@ -1114,7 +1114,7 @@ class SnapinManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="args" id="args" class='
             . '"snapinargs-input cmdlet4 form-control" value="'
-            . $args
+            . htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>'
             . '</span>',
@@ -1467,7 +1467,7 @@ class SnapinManagementPage extends FOGPage
         $desc = filter_input(INPUT_POST, 'description');
         $packtype = filter_input(INPUT_POST, 'packtype');
         $runWith = filter_input(INPUT_POST, 'rw');
-        $runWithArgs = filter_input(INPUT_POST, 'rwa');
+        $runWithArgs = htmlspecialchars_decode(filter_input(INPUT_POST, 'rwa'), ENT_COMPAT);
         $snapinfile = basename(
             filter_input(INPUT_POST, 'snapinfileexist')
         );
@@ -1483,7 +1483,7 @@ class SnapinManagementPage extends FOGPage
         $hide = (int)isset($_POST['isHidden']);
         $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
-        $args = filter_input(INPUT_POST, 'args');
+        $args = htmlspecialchars_decode(filter_input(INPUT_POST, 'args'), ENT_COMPAT);
         $phpPostMaxSize = ini_get('post_max_size');
         switch (strtolower(substr($phpPostMaxSize, -1))) {
             case 'g':

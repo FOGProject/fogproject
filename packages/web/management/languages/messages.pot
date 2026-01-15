@@ -1102,9 +1102,6 @@ msgstr ""
 msgid "Database changes reverted!"
 msgstr ""
 
-msgid "Database connection unavailable"
-msgstr ""
-
 msgid "Database imported and added successfully!"
 msgstr ""
 
@@ -4514,6 +4511,11 @@ msgstr ""
 msgid "Save Kernel"
 msgstr ""
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 msgid "Saving data for"
 msgstr ""
 
@@ -5687,6 +5689,9 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
+msgid "Unknown DB error"
+msgstr ""
+
 msgid "Unknown upload error occurred"
 msgstr ""
 
@@ -6522,9 +6527,6 @@ msgid "must be specified"
 msgstr ""
 
 msgid "n/a"
-msgstr ""
-
-msgid "no database to"
 msgstr ""
 
 msgid "no login will appear"

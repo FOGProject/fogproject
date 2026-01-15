@@ -1309,10 +1309,6 @@ msgid "Database changes reverted!"
 msgstr "Datenbankänderungen rückgängig gemacht"
 
 #, fuzzy
-msgid "Database connection unavailable"
-msgstr "Datenbank nicht verfügbar"
-
-#, fuzzy
 msgid "Database imported and added successfully!"
 msgstr "Datenbank erfolgreich importiert und hinzugefügt"
 
@@ -5203,6 +5199,11 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Kernel speichern"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Speichern von Daten für %s Objekt"
@@ -6572,6 +6573,10 @@ msgid "Unknown"
 msgstr "Unbekannt"
 
 #, fuzzy
+msgid "Unknown DB error"
+msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
+
+#, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
@@ -7552,10 +7557,6 @@ msgstr "muss angegeben werden"
 msgid "n/a"
 msgstr "nicht verfügbar"
 
-#, fuzzy
-msgid "no database to"
-msgstr "Keine Datenbank zum"
-
 msgid "no login will appear"
 msgstr "wird kein Login erscheinen."
 
@@ -7889,6 +7890,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgstr "BENUTZEN SIE DIESE DATEI NICHT, WENN SIE EINEN NEUEN CLIENT NUTZEN!"
 
 #, fuzzy
+#~ msgid "Database connection unavailable"
+#~ msgstr "Datenbank nicht verfügbar"
+
+#, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Hosts exportieren"
 
@@ -8009,6 +8014,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #, fuzzy
 #~ msgid "file to"
 #~ msgstr "Datei nach"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "Keine Datenbank zum"
 
 #~ msgid "or features you may request"
 #~ msgstr "die Sie gerne hätten,"

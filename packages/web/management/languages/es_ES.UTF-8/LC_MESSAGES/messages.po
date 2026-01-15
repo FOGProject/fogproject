@@ -1281,10 +1281,6 @@ msgstr "Fallo al actualziar la base de datos"
 msgid "Database changes reverted!"
 msgstr "Guardar Cambios"
 
-#, fuzzy
-msgid "Database connection unavailable"
-msgstr "Campo obligatorio está vacio"
-
 msgid "Database imported and added successfully!"
 msgstr ""
 
@@ -5166,6 +5162,11 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Guardar Cambios"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 msgid "Saving data for"
 msgstr ""
 
@@ -6507,6 +6508,10 @@ msgstr ""
 msgid "Unknown"
 msgstr "Desconocida"
 
+#, fuzzy
+msgid "Unknown DB error"
+msgstr "Desconocida"
+
 msgid "Unknown upload error occurred"
 msgstr ""
 
@@ -7464,10 +7469,6 @@ msgid "n/a"
 msgstr ""
 
 #, fuzzy
-msgid "no database to"
-msgstr "Fallo al actualziar la base de datos"
-
-#, fuzzy
 msgid "no login will appear"
 msgstr "Gestión de login"
 
@@ -7780,6 +7781,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #~ msgstr "Crear Nuevo %s"
 
 #, fuzzy
+#~ msgid "Database connection unavailable"
+#~ msgstr "Campo obligatorio está vacio"
+
+#, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Exportar equipos"
 
@@ -7879,6 +7884,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "no clients are included"
 #~ msgstr "Nodo Almacenamiento Clientes Max"
+
+#, fuzzy
+#~ msgid "no database to"
+#~ msgstr "Fallo al actualziar la base de datos"
 
 #, fuzzy
 #~ msgid "task"

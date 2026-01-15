@@ -399,7 +399,7 @@ abstract class FOGManagerController extends FOGBase
             array(),
             $findVals
         )->fetch(
-            '',
+            PDO::FETCH_ASSOC,
             'fetch_all'
         );
         if ($idField) {

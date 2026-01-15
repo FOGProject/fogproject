@@ -1130,9 +1130,6 @@ msgstr "Mise à jour de base de données a échoué"
 msgid "Database changes reverted!"
 msgstr "Les modifications de la base de données ont été rétablies !"
 
-msgid "Database connection unavailable"
-msgstr "Connexion à la base de données indisponible"
-
 msgid "Database imported and added successfully!"
 msgstr "Base de données importée et ajoutée avec succès !"
 
@@ -4587,6 +4584,11 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Sauvegarder le noyau"
 
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr ""
+
 msgid "Saving data for"
 msgstr "Sauvegarde des données pour"
 
@@ -5791,6 +5793,10 @@ msgstr "L'unité de temps doit être une chaîne de caractères"
 msgid "Unknown"
 msgstr "Inconnu"
 
+#, fuzzy
+msgid "Unknown DB error"
+msgstr "Une erreur de téléchargement inconnue s'est produite"
+
 msgid "Unknown upload error occurred"
 msgstr "Une erreur de téléchargement inconnue s'est produite"
 
@@ -6641,9 +6647,6 @@ msgstr "doit être précisé"
 msgid "n/a"
 msgstr "n/a"
 
-msgid "no database to"
-msgstr "aucune base de données pour"
-
 msgid "no login will appear"
 msgstr "aucun login n'apparaîtra"
 
@@ -6939,6 +6942,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgid "Create New Host Ext"
 #~ msgstr "Création nouveau Host Ext"
 
+#~ msgid "Database connection unavailable"
+#~ msgstr "Connexion à la base de données indisponible"
+
 #~ msgid "Export Host Exts"
 #~ msgstr "Exportation Host ext"
 
@@ -7044,3 +7050,6 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #, fuzzy
 #~ msgid "file to"
 #~ msgstr "Échec de"
+
+#~ msgid "no database to"
+#~ msgstr "aucune base de données pour"

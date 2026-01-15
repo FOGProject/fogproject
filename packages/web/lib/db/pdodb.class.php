@@ -26,68 +26,118 @@
 class PDODB extends DatabaseManager
 {
     /**
+     * If true, query() will throw on error instead of swallowing it.
+     * Default false to preserve legacy behavior.
+     *
+     * Toggle at runtime via:
+     *   PDODB::$throwOnQueryError = true;
+     *
+     * @var bool
+     */
+    public static $throwOnQueryError = false;
+
+    /**
      * Stores last errorcode for query.
      *
      * @var bool|int
      */
     public $errorCode;
+
     /**
      * Stores last error for query.
      *
      * @var bool|string
      */
     public $error;
+
+    /**
+     * Stores last errorInfo() array for the most recent statement.
+     *
+     * @var array
+     */
+    public $lastErrorInfo = array();
+
+    /**
+     * Stores the last SQL query (after vsprintf substitution).
+     *
+     * @var string
+     */
+    public $lastSql = '';
+
+    /**
+     * Stores the last bound params for debugging.
+     *
+     * @var array
+     */
+    public $lastParams = array();
+
     /**
      * Stores the current connection
      *
      * @var resource
      */
     private static $_link;
+
     /**
      * Stores the query string
      *
      * @var string
      */
     private static $_query;
+
     /**
      * Stores the query results
      *
      * @var object
      */
     private static $_queryResult;
+
     /**
      * Stores the returned results
      *
      * @var mixed
      */
     private static $_result;
+
     /**
      * Stores the database name
      *
      * @var string
      */
     private static $_dbName;
+
+    /**
+     * Stores last affected rows (since statements may be closed/nulled later)
+     *
+     * @var int
+     */
+    private static $_lastAffectedRows = 0;
+
     /**
      * Options for the connection
      *
      * @var array
      */
-    private static $_options = array(
+    private static $_options = [
         PDO::ATTR_PERSISTENT => false,
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => true,
+        PDO::ATTR_EMULATE_PREPARES => false,
+
+        // Keep unbuffered by default (what you had).
+        // Cursor closing below prevents SQLSTATE[HY000] 2014 in most cases.
         PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false
-    );
+    ];
+
     /**
      * Initializes the PDODB class
      *
      * @param array $options any custom options
      *
+     * @return void|PDODB
      * @throws PDOException
-     * @return void
      */
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         ignore_user_abort(true);
         set_time_limit(0);
@@ -96,7 +146,7 @@ class PDODB extends DatabaseManager
         }
         parent::__construct();
         try {
-            if (count($options) > 0) {
+            if (count($options ?: []) > 0) {
                 self::$_options = $options;
             }
             self::$_dbName = DATABASE_NAME;
@@ -114,8 +164,15 @@ class PDODB extends DatabaseManager
                 _('SQL Error'),
                 $this->sqlerror()
             );
+            self::debug($msg);
+            self::error($msg);
+
+            if (self::$throwOnQueryError) {
+                throw $e;
+            }
         }
     }
+
     /**
      * Uninitializes the PDODB Class
      *
@@ -124,20 +181,29 @@ class PDODB extends DatabaseManager
     public function __destruct()
     {
         self::$_result = null;
+
+        if (self::$_queryResult instanceof PDOStatement) {
+            try {
+                self::$_queryResult->closeCursor();
+            } catch (Exception $e) {
+                // ignore
+            }
+        }
         self::$_queryResult = null;
+
         if (!self::$_link) {
             return;
         }
         self::$_link = null;
     }
+
     /**
      * Connects the database as needed.
      *
      * @param bool $dbexists does db exist
-     * @param bool $always   always test connection.
      *
-     * @throws PDOException
      * @return object
+     * @throws PDOException
      */
     private function _connect($dbexists = true)
     {
@@ -170,7 +236,7 @@ class PDODB extends DatabaseManager
             );
             if (self::$_link && !self::currentDb($this)) {
                 if (preg_match('#schema#', self::$querystring)) {
-                    self::redirect('?node=schema');
+                    self::redirect('../management/index.php?node=schema');
                 }
             }
             self::query("SET SESSION sql_mode=''");
@@ -188,19 +254,26 @@ class PDODB extends DatabaseManager
                     _('Error Message'),
                     $this->sqlerror()
                 );
+                self::debug($msg);
+                self::error($msg);
+
+                if (self::$throwOnQueryError) {
+                    throw $e;
+                }
             }
         }
         return $this;
     }
+
     /**
      * Gets the current database.
      *
      * @param object $main Static method so we need the main element.
      *
+     * @return object
      * @throws PDOException
-     * @return bool|object
      */
-    public static function currentDb(&$main)
+    public static function currentDb($main)
     {
         try {
             if (!self::$_link) {
@@ -230,9 +303,12 @@ class PDODB extends DatabaseManager
                 $main->sqlerror()
             );
             self::$_dbName = false;
+            self::debug($msg);
+            self::error($msg);
         }
         return $main;
     }
+
     /**
      * The query method.
      *
@@ -240,34 +316,78 @@ class PDODB extends DatabaseManager
      * @param array  $data      the data as needed
      * @param array  $paramvals the bound param variables
      *
+     * @return PDODB
      * @throws PDOException
-     * @return object|bool
      */
     public function query(
         $sql,
-        $data = array(),
-        $paramvals = array()
+        $data = [],
+        $paramvals = []
     ) {
+        // Save for diagnostics even if we fail early
+        $this->lastSql = $sql;
+        $this->lastParams = $paramvals;
+        $this->lastErrorInfo = array();
+        self::$_lastAffectedRows = 0;
+
         try {
             if (!self::$_link) {
                 throw new PDOException($this->sqlerror());
             }
-            self::$_queryResult = null;
-            if (isset($data) && !is_array($data)) {
-                $data = array($data);
+
+            // Prevent "Cannot execute queries while other unbuffered queries are active"
+            if (self::$_queryResult instanceof PDOStatement) {
+                try {
+                    self::$_queryResult->closeCursor();
+                } catch (Exception $e) {
+                    // best effort
+                }
             }
-            if (count($data)) {
+            self::$_queryResult = null;
+
+            if (isset($data) && !is_array($data)) {
+                $data = [$data];
+            }
+            if (count($data ?: [])) {
                 $sql = vsprintf($sql, $data);
             }
             if (!$sql) {
-                throw new PDOException(
-                    _('No query passed')
-                );
+                throw new PDOException(_('No query passed'));
             }
+
             self::$_query = $sql;
+            $this->lastSql = $sql;
+
             self::_prepare();
-            self::_execute($paramvals);
-            $this->info($sql);
+
+            $ok = self::_execute($paramvals);
+            if ($ok === false) {
+                // execute() can return false without throwing (driver-dependent edge cases)
+                $info = (self::$_queryResult instanceof PDOStatement)
+                    ? self::$_queryResult->errorInfo()
+                    : array(null, null, _('Unknown DB error'));
+
+                $this->lastErrorInfo = $info;
+                $this->errorCode = isset($info[1]) ? $info[1] : false;
+
+                $msg = sprintf(
+                    "Failed to %s: %s\nSQL: %s\nParams: %s\nErrorInfo: %s\nDebug: %s",
+                    __FUNCTION__,
+                    (isset($info[2]) ? $info[2] : _('Unknown DB error')),
+                    self::$_query,
+                    print_r($paramvals, true),
+                    print_r($info, true),
+                    self::_debugDumpParams()
+                );
+
+                throw new PDOException($msg);
+            }
+
+            // Capture affected rows while statement is alive
+            if (self::$_queryResult instanceof PDOStatement) {
+                self::$_lastAffectedRows = (int) self::$_queryResult->rowCount();
+            }
+
             if (!self::$_dbName) {
                 self::currentDb($this);
             }
@@ -276,28 +396,43 @@ class PDODB extends DatabaseManager
                     _('No database to work off')
                 );
             }
+
             $this->error = false;
         } catch (PDOException $e) {
+            // Capture PDO errorInfo if possible
+            if (self::$_queryResult instanceof PDOStatement) {
+                $this->lastErrorInfo = self::$_queryResult->errorInfo();
+                if (isset($this->lastErrorInfo[1])) {
+                    $this->errorCode = $this->lastErrorInfo[1];
+                }
+            }
+
             $msg = sprintf(
-                '%s %s: %s: %s %s: %s',
-                _('Failed to'),
+                "Failed to %s: %s: %s %s: %s\nSQL: %s\nParams: %s\nErrorInfo: %s\nDebug: %s",
                 __FUNCTION__,
                 _('Error'),
                 $e->getMessage(),
                 _('Error Message'),
-                $this->sqlerror()
+                $this->sqlerror(),
+                self::$_query,
+                print_r($paramvals, true),
+                print_r($this->lastErrorInfo, true),
+                self::_debugDumpParams()
             );
-            if (stripos($e->getMessage(), _('no database to'))) {
-                $msg = sprintf(
-                    '%s %s',
-                    $msg,
-                    self::_debugDumpParams()
-                );
-            }
+
+            self::debug(self::$_query);
+            self::error($msg);
+
             $this->error = $msg;
+
+            if (self::$throwOnQueryError) {
+                throw $e;
+            }
         }
+
         return $this;
     }
+
     /**
      * Fetches the information into a statement object to paarse.
      *
@@ -305,8 +440,8 @@ class PDODB extends DatabaseManager
      * @param string $fetchType the type in function calling
      * @param mixed  $params    any additional parameters needed.
      *
-     * @throws PDOException
      * @return object
+     * @throws PDOException
      */
     public function fetch(
         $type = PDO::FETCH_ASSOC,
@@ -314,7 +449,7 @@ class PDODB extends DatabaseManager
         $params = false
     ) {
         try {
-            self::$_result = array();
+            self::$_result = [];
             if (empty($type)) {
                 $type = PDO::FETCH_ASSOC;
             }
@@ -346,12 +481,27 @@ class PDODB extends DatabaseManager
                 $this->sqlerror()
             );
             self::$_result = false;
+
+            if (self::$throwOnQueryError) {
+                throw $e;
+            }
+        }
+
+        // Close cursor to avoid unbuffered-query issues later.
+        if (self::$_queryResult instanceof PDOStatement) {
+            try {
+                self::$_queryResult->closeCursor();
+            } catch (Exception $e) {
+                // ignore
+            }
         }
         self::$_queryResult = null;
+
         return $this;
     }
+
     /**
-     * Gets the relevant items or item as needed.
+     * Get's the relevante items or item as needed.
      *
      * @param string $field the field to get
      *
@@ -374,7 +524,7 @@ class PDODB extends DatabaseManager
             if (self::$_result === true) {
                 return self::$_result;
             }
-            $result = array();
+            $result = [];
             if ($field) {
                 foreach ((array)$field as &$key) {
                     $key = trim($key);
@@ -388,7 +538,7 @@ class PDODB extends DatabaseManager
                     }
                 }
             }
-            if (count($result)) {
+            if (count($result ?: [])) {
                 return $result;
             }
         } catch (Exception $e) {
@@ -404,6 +554,7 @@ class PDODB extends DatabaseManager
         }
         return self::$_result;
     }
+
     /**
      * Returns error of the last sql command
      *
@@ -420,6 +571,8 @@ class PDODB extends DatabaseManager
                 $errCode = self::$_queryResult->errorCode();
                 $errInfo = self::$_queryResult->errorInfo();
                 $this->errorCode = $errInfo[1];
+
+                $this->lastErrorInfo = $errInfo;
             }
             if (isset($errCode) && $errCode !== '00000') {
                 $msg = sprintf(
@@ -436,8 +589,11 @@ class PDODB extends DatabaseManager
             $msg = _('Cannot connect to database');
             self::$_link = false;
         }
+        self::debug($msg);
+        self::error($msg);
         return $msg;
     }
+
     /**
      * Returns the last insert ID
      *
@@ -447,11 +603,18 @@ class PDODB extends DatabaseManager
     {
         if (is_bool(self::$_link)) {
             if (!self::$_link) {
-                die(_('Database connection unavailable'));
+                $this->sqlerror();
             }
         }
-        return self::$_link->lastInsertId();
+        if (!self::$_link) {
+            $this->sqlerror();
+        }
+
+        // Do NOT run a new SQL query here; it can trigger SQLSTATE[HY000] 2014
+        // when unbuffered queries are still active. Use PDO's built-in method.
+        return (int) self::$_link->lastInsertId();
     }
+
     /**
      * Returns the field count
      *
@@ -464,6 +627,7 @@ class PDODB extends DatabaseManager
         }
         return 0;
     }
+
     /**
      * Returns affected rows
      *
@@ -471,11 +635,9 @@ class PDODB extends DatabaseManager
      */
     public function affectedRows()
     {
-        if (self::$_queryResult instanceof PDOStatement) {
-            return self::$_queryResult->rowCount();
-        }
-        return 0;
+        return (int) self::$_lastAffectedRows;
     }
+
     /**
      * Escapes data passed
      *
@@ -487,6 +649,7 @@ class PDODB extends DatabaseManager
     {
         return $this->sanitize($data);
     }
+
     /**
      * Cleans data passed
      *
@@ -505,8 +668,9 @@ class PDODB extends DatabaseManager
         }
         return self::$_link->quote($data);
     }
+
     /**
-     * Sanitizes data passed
+     * Santizes data passed
      *
      * @param mixed $data the data to be sanitized
      *
@@ -528,6 +692,7 @@ class PDODB extends DatabaseManager
         }
         return $data;
     }
+
     /**
      * Returns the database name
      *
@@ -537,6 +702,7 @@ class PDODB extends DatabaseManager
     {
         return self::$_dbName;
     }
+
     /**
      * Returns the primary link
      *
@@ -544,14 +710,12 @@ class PDODB extends DatabaseManager
      */
     public function link()
     {
-        if ($this->ping()) {
-            return self::$_link;
-        }
-        $this->_connect(true);
+        $this->_connect(true, true);
         return self::$_link;
     }
+
     /**
-     * Returns the DB Link object
+     * Returns the DB link object
      *
      * @return boolean
      */
@@ -559,14 +723,15 @@ class PDODB extends DatabaseManager
     {
         try {
             if (self::$_link) {
-                if (self::$_link->query('SELECT 1')) {
-                    return true;
-                }
+                return self::$_link->query('SELECT 1') ? true : false;
             }
         } catch (PDOException $e) {
+            self::debug($e->getMessage());
+            self::error($e->getMessage());
         }
         return (self::$_link = false);
     }
+
     /**
      * Returns the item whatever this is
      * Could be database manager or pdodb.
@@ -577,6 +742,7 @@ class PDODB extends DatabaseManager
     {
         return $this;
     }
+
     /**
      * Dump PDO specific debug information
      *
@@ -589,7 +755,9 @@ class PDODB extends DatabaseManager
             self::$_queryResult->debugDumpParams();
             return ob_get_clean();
         }
+        return '';
     }
+
     /**
      * Executes the query.
      *
@@ -597,7 +765,7 @@ class PDODB extends DatabaseManager
      *
      * @return bool
      */
-    private static function _execute($paramvals = array())
+    private static function _execute($paramvals = [])
     {
         if (count($paramvals ?: []) > 0) {
             foreach ((array)$paramvals as $param => &$value) {
@@ -611,6 +779,7 @@ class PDODB extends DatabaseManager
         }
         return self::$_queryResult->execute();
     }
+
     /**
      * Fetch all items
      *
@@ -622,6 +791,7 @@ class PDODB extends DatabaseManager
     {
         self::$_result = self::$_queryResult->fetchAll($type);
     }
+
     /**
      * Fetch single item
      *
@@ -633,6 +803,7 @@ class PDODB extends DatabaseManager
     {
         self::$_result = self::$_queryResult->fetch($type);
     }
+
     /**
      * Prepare the query
      *
@@ -642,6 +813,7 @@ class PDODB extends DatabaseManager
     {
         self::$_queryResult = self::$_link->prepare(self::$_query);
     }
+
     /**
      * Bind the values as needed
      *
