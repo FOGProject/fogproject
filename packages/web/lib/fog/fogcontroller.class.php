@@ -527,7 +527,7 @@ abstract class FOGController extends FOGBase
                 }
 
                 // Don't make an entry if the value isn't set
-                if (!$val) {
+                if ($val === null || (is_string($val) && trim($val) === '')) {
                     continue;
                 }
 
