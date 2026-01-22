@@ -65,9 +65,8 @@ if (isset($_REQUEST['client'])) {
 
     // Only allow other storage nodes:
     $allowedStorageNodes = FOGCore::getSubObjectIDs('StorageNode', '', 'ip');
-    $allowedStorageNodes[] = $_SERVER['HTTP_HOST'];
     $host = strtolower($parts['host']);
-    if (!in_array($host, array_map('strtolower', $allowedHosts), true)) {
+    if (!in_array($host, array_map('strtolower', $allowedStorageNodes), true)) {
         http_response_code(403);
         echo 'Host not allowed';
         exit;
