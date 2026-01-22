@@ -1123,18 +1123,18 @@ class Host extends FOGController
             ->set('isForced', 0)
             ->set('stateID', self::getQueuedState())
             ->set('typeID', $taskTypeID)
-            ->set('storagegroupID', $groupID)
-            ->set('storagenodeID', $memID)
             ->set('wol', (string)intval($wol))
             ->set('host', $this)
             ->set('tasktype', new TaskType($taskTypeID))
-            ->set('TaskState', new TaskState(self::getQueuedState()))
-            ->set('StorageGroup', $this->getImage()->getStorageGroup())
-            ->set('StorageNode', new StorageNode())
-            ->set('NFSLastMemberID', $memID);
+            ->set('TaskState', new TaskState(self::getQueuedState()));
         if ($imagingTask) {
-            $Task->set('image', $this->getImage());
-            $Task->set('imageID', $this->get('imageID'));
+            $Task->set('StorageGroup', $this->getImage()->getStorageGroup())
+                ->set('StorageNode', new StorageNode())
+                ->set('storagegroupID', $groupID)
+                ->set('storagenodeID', $memID)
+                ->set('image', $this->getImage())
+                ->set('NFSLastMemberID', $memID)
+                ->set('imageID', $this->get('imageID'));
         }
         if ($shutdown) {
             $Task->set('shutdown', $shutdown);
@@ -1246,7 +1246,7 @@ class Host extends FOGController
             foreach ((array)$snapin as &$snapinID) {
                 $insert_values[] = array(
                     $SnapinJob->get('id'),
-                    $this->getQUeuedState(),
+                    $this->getQueuedState(),
                     $snapinID
                 );
                 unset($snapinID);
