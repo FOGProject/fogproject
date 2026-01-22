@@ -44,8 +44,53 @@ if (isset($_REQUEST['client'])) {
     );
 } elseif (isset($_REQUEST['url'])) {
     $url = $_REQUEST['url'];
-    $res = $FOGURLRequests
-        ->process($_REQUEST['url']);
+
+    $parts = parse_url($url);
+    if (!$parts || empty($parts['host']) || empty($parts['path'])) {
+        http_response_code(400);
+        echo 'Invalid url';
+        exit;
+    }
+
+    // Require http(s)
+    $scheme = strtolower($parts['scheme'] ?? '');
+    if (!in_array($scheme, ['http', 'https'], true)) {
+        http_response_code(400);
+        echo 'Invalid scheme';
+        exit;
+    }
+
+    // Only allow other storage nodes:
+    Route::ids('storagenode', [], 'ip');
+    $allowedStorageNodes = json_decode(Route::getData(), true);
+    $host = $strtolower($parts['host']);
+    if (!in_array($host, array_map('strtolower', $allowedStorageNodes, true))) {
+        http_response_code(403);
+        echo 'Host not allowed';
+        exit;
+    }
+
+    // Require getversion.php only
+    if (basename($parts['path']) !== 'getversion.php') {
+        http_response_code(403);
+        echo 'Path not allowed';
+        exit;
+    }
+
+    // restrict query params to known ones
+    if (!empty($parts['query'])) {
+        parse_str($parts['query'], $q);
+        $allowedKeys = ['client', 'clientVer'];
+        foreach (array_keys($q) as $k) {
+            if (!in_array($k, $allowedKeys, true)) {
+                http_response_code(403);
+                echo 'Query not allowed';
+                exit;
+            }
+        }
+    }
+
+    $res = $FOGURLRequests->process($_REQUEST['url']);
     $ver = array_shift($res);
 } else {
     $ver = FOG_VERSION;
