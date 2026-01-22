@@ -526,6 +526,11 @@ abstract class FOGController extends FOGBase
                     $val = trim($val);
                 }
 
+                // Don't make an entry if the value isn't set
+                if (!$val) {
+                    continue;
+                }
+
                 $insertKeys[] = $eColumn;
                 $insertValKeys[] = $paramInsert;
                 $insertValues[] = $val;
