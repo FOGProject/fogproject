@@ -28,7 +28,6 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::checkAuthAndCSRF();
 $clientUpdate = (bool)FOGCore::getSetting('FOG_CLIENT_AUTOUPDATE');
 if (isset($_REQUEST['client'])) {
     $ver = (
@@ -43,6 +42,7 @@ if (isset($_REQUEST['client'])) {
         '0.0.0'
     );
 } elseif (isset($_REQUEST['url'])) {
+    FOGCore::checkAuthAndCSRF();
     $url = $_REQUEST['url'];
 
     $parts = parse_url($url);
@@ -63,8 +63,8 @@ if (isset($_REQUEST['client'])) {
     // Only allow other storage nodes:
     Route::ids('storagenode', [], 'ip');
     $allowedStorageNodes = json_decode(Route::getData(), true);
-    $host = $strtolower($parts['host']);
-    if (!in_array($host, array_map('strtolower', $allowedStorageNodes, true))) {
+    $host = strtolower($parts['host']);
+    if (!in_array($host, array_map('strtolower', $allowedStorageNodes), true)) {
         http_response_code(403);
         echo 'Host not allowed';
         exit;
