@@ -12,6 +12,8 @@ COMMA	:= ,
 EMPTY	:=
 SPACE	:= $(EMPTY) $(EMPTY)
 HASH	:= \#
+LPAREN	:= (
+RPAREN	:= )
 define NEWLINE
 
 
@@ -224,10 +226,10 @@ BIN_ELEMENTS	:= $(subst -,$(SPACE),$(BIN))
 BIN_APS		:= $(wordlist 2,4,$(BIN_ELEMENTS))
 ifeq ($(lastword $(BIN_APS)),sb)
 BIN_AP		:= $(wordlist 2,$(words $(BIN_APS)),discard $(BIN_APS))
-BIN_SECUREBOOT	:= 1
+BIN_SECUREBOOT	:= sb
 else
 BIN_AP		:= $(BIN_APS)
-BIN_SECUREBOOT	:= 0
+BIN_SECUREBOOT	:=
 endif
 ifeq ($(BIN_AP),efi)
 BIN_ARCH	:= i386
@@ -257,15 +259,18 @@ platform :
 	@$(ECHO) $(PLATFORM)
 
 # Determine security flag
-DEFAULT_SECUREBOOT := 0
-SECUREBOOT	:= $(firstword $(BIN_SECUREBOOT) $(DEFAULT_SECUREBOOT))
-CFLAGS		+= -DSECUREBOOT=$(SECUREBOOT)
+SECUREBOOT	:= $(BIN_SECUREBOOT)
 secureboot :
 	@$(ECHO) $(SECUREBOOT)
 
 # Set cross-compilation prefix automatically if not specified
 ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE	:= $(CROSS_COMPILE_$(ARCH))
+endif
+
+# Set cross-compilation sysroot automatically if not specified
+ifeq ($(SYSROOT),)
+SYSROOT		:= $(SYSROOT_$(ARCH))
 endif
 
 endif # defined(BIN)
@@ -325,7 +330,7 @@ endif
 # Check for various tool workarounds
 #
 
-WORKAROUND_CFLAGS := -Wno-error=maybe-uninitialized
+WORKAROUND_CFLAGS :=
 WORKAROUND_ASFLAGS :=
 WORKAROUND_LDFLAGS :=
 
@@ -436,11 +441,6 @@ endif
 #
 # Source file handling
 
-# Exclude known-insecure files from Secure Boot builds
-ifeq ($(SECUREBOOT),0)
-SRCDIRS		+= $(SRCDIRS_INSEC)
-endif
-
 # SRCDIRS lists all directories containing source files.
 srcdirs :
 	@$(ECHO) $(SRCDIRS)
@@ -483,7 +483,7 @@ CFLAGS		+= -Os
 CFLAGS		+= -g
 ifeq ($(CCTYPE),gcc)
 CFLAGS		+= -ffreestanding
-CFLAGS		+= -fcommon
+CFLAGS		+= -fno-common
 CFLAGS		+= -Wall -W -Wformat-nonliteral
 CFLAGS		+= -Wno-array-bounds -Wno-dangling-pointer
 HOST_CFLAGS	+= -Wall -W -Wformat-nonliteral
@@ -503,17 +503,14 @@ ASFLAGS		+= --fatal-warnings
 HOST_CFLAGS	+= -Werror
 endif
 
-# Enable per-item sections and section garbage collection.  Note that
-# some older versions of gcc support -fdata-sections but treat it as
-# implying -fno-common, which would break our build.  Some other older
-# versions issue a spurious and uninhibitable warning if
-# -ffunction-sections is used with -g, which would also break our
-# build since we use -Werror.
+# Enable per-item sections and section garbage collection.  Some older
+# versions of gcc issue a spurious and uninhibitable warning if
+# -ffunction-sections is used with -g, which would break our build
+# since we use -Werror.
 #
 ifeq ($(CCTYPE),gcc)
-DS_TEST		= $(ECHO) 'char x;' | \
-		  $(CC) -fdata-sections -S -x c - -o - 2>/dev/null | \
-		  grep -E '\.comm' > /dev/null
+DS_TEST		= $(CC) -fdata-sections -c -x c /dev/null \
+		  -o /dev/null 2>/dev/null
 DS_FLAGS	:= $(shell $(DS_TEST) && $(ECHO) '-fdata-sections')
 FS_TEST		= $(CC) -ffunction-sections -g -c -x c /dev/null \
 		  -o /dev/null 2>/dev/null
@@ -1233,8 +1230,6 @@ BUILD_ID_CMD = cat $^ | cksum | awk '{print $$1}'
 #
 ifdef SOURCE_DATE_EPOCH
 BUILD_TIMESTAMP := $(SOURCE_DATE_EPOCH)
-else ifdef GITVERSION
-BUILD_TIMESTAMP := $(shell git log -1 --pretty=%ct)
 else
 BUILD_TIMESTAMP := $(shell date +%s)
 endif
@@ -1302,15 +1297,25 @@ endef
 $(BIN)/%.nodeps : $(BIN)/%.tmp
 	$(Q)$(ECHO) $(call nodeps_list,$<)
 
-# Get licensing verdict for the specified target
+# Get annotated dependency list for the specified target
 #
-define licensable_deps_list
+define annotated_deps_list
 	$(filter-out config/local/%.h,\
 	  $(filter-out $(BIN)/.%.list,\
 	    $(call deps_list,$(1))))
 endef
+
+# Get dependency list missing specified declaration for the specified target
+#
+define undeclared_deps_list
+	$(shell grep -L '^[[:space:]]*$(2)[[:space:]]*$(LPAREN)' \
+		$(call annotated_deps_list,$(1)))
+endef
+
+# Get licensing verdict for the specified target
+#
 define unlicensed_deps_list
-	$(shell grep -L FILE_LICENCE $(call licensable_deps_list,$(1)))
+	$(call undeclared_deps_list,$(1),FILE_LICENCE)
 endef
 define licence_list
 	$(sort $(foreach LICENCE,\
@@ -1322,11 +1327,33 @@ $(BIN)/%.licence_list : $(BIN)/%.tmp
 $(BIN)/%.licence : $(BIN)/%.tmp
 	$(QM)$(ECHO) "  [LICENCE] $@"
 	$(Q)$(if $(strip $(call unlicensed_deps_list,$<)),\
-		echo -n "Unable to determine licence because the following " ;\
-		echo "files are missing a licence declaration:" ;\
+		echo -n "The following files are missing a FILE_LICENCE() " ;\
+		echo "declaration:" ;\
 		echo $(call unlicensed_deps_list,$<);\
-		exit 1,\
-		$(PERL) $(LICENCE) $(call licence_list,$<))
+		exit 1)
+	$(PERL) $(LICENCE) $(call licence_list,$<)
+
+# Get Secure Boot permissibility verdict for the specified target
+#
+define nosecboot_deps_list
+	$(call undeclared_deps_list,$(1),FILE_SECBOOT)
+endef
+define secboot_list
+	$(sort $(foreach SECBOOT,\
+		 $(filter __secboot__%,$(shell $(NM) $(1) | cut -d" " -f3)),\
+		 $(word 2,$(subst __, ,$(SECBOOT)))))
+endef
+$(BIN)/%.secboot : $(BIN)/%.tmp
+	$(QM)$(ECHO) "  [SECBOOT] $@"
+	$(Q)$(if $(strip $(call nosecboot_deps_list,$<)),\
+		echo -n "The following files are missing a FILE_SECBOOT() " ;\
+		echo "declaration:" ;\
+		echo $(call nosecboot_deps_list,$<);\
+		exit 1)
+	$(Q)$(if $(strip $(filter-out permitted,$(call secboot_list,$<))),\
+		echo -n "This build includes files that are not permitted " ;\
+		echo "to be signed for UEFI Secure Boot" ;\
+		exit 1)
 
 # Extract compression information from intermediate object file
 #
@@ -1634,3 +1661,4 @@ clean :
 
 veryclean : clean
 	$(RM) -r $(VERYCLEANUP)
+
