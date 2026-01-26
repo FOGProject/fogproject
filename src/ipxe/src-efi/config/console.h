@@ -39,7 +39,7 @@ FILE_SECBOOT ( PERMITTED );
 
 /* Console types supported only on EFI platforms */
 #if defined ( PLATFORM_efi )
-  //#define CONSOLE_EFI		/* Default EFI console */
+  #define CONSOLE_EFI		/* Default EFI console */
 #endif
 
 /* Console types supported only on RISC-V SBI platforms */
