@@ -110,6 +110,13 @@ class PowerManagement extends FOGController
      */
     public function save()
     {
+        if ($this->get('pmOndemand') == '1') {
+			$this->set('pmMin', date('i'));
+			$this->set('pmHour', date('H'));
+			$this->set('pmDom', date('d'));
+			$this->set('pmMonth', date('m'));
+			$this->set('pmDow', date('w'));
+		}
         parent::save();
         return $this
             ->assocSetter('PowerManagement', 'host', true)
