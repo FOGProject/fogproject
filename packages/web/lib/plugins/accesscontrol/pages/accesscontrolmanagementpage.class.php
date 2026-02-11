@@ -1018,7 +1018,7 @@ class AccessControlManagementPage extends FOGPage
             $exists = self::getClass('AccessControlRuleManager')
                 ->exists($value);
             if ($exists) {
-                throw new Exception(_('A rule already exists with this name.'));
+                throw new Exception(_('A rule already exists with this name'));
             }
             $AccessControlRule = self::getClass('AccessControlRule')
                 ->set('type', $type)

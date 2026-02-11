@@ -68,7 +68,7 @@ class LDAPManagementPage extends FOGPage
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
-            _('LDAP Connection  Name'),
+            _('LDAP Connection Name'),
             _('LDAP Server Description'),
             _('LDAP Server'),
             _('Port'),
