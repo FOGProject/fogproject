@@ -798,7 +798,7 @@ class TaskManagementPage extends FOGPage
             $this->attributes,
             $this->templates
         );
-        $this->title = _('Active Multi-cast Tasks');
+        $this->title = _('Active Multicast Tasks');
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler1"/>'
