@@ -350,7 +350,7 @@ class WOLBroadcastManagementPage extends FOGPage
             )
         ) {
             throw new Exception(
-                _('A broadcast already exists with this name')
+                _('A broadcast already exists with this name!')
             );
         }
         $this->obj
