@@ -493,7 +493,7 @@ class Image extends FOGController
                 'imageID' => $this->get('id')
             )
         );
-        $assocID = @min((array) $assocID);
+        $assocID = count((array)$assocID ?: []) ? min($assocID) : 0;
 
         return self::getClass('ImageAssociation', $assocID)->isPrimary();
     }

@@ -1123,18 +1123,18 @@ class Host extends FOGController
             ->set('isForced', 0)
             ->set('stateID', self::getQueuedState())
             ->set('typeID', $taskTypeID)
-            ->set('storagegroupID', $groupID)
-            ->set('storagenodeID', $memID)
             ->set('wol', (string)intval($wol))
             ->set('host', $this)
-            ->set('image', $this->getImage())
             ->set('tasktype', new TaskType($taskTypeID))
-            ->set('TaskState', new TaskState(self::getQueuedState()))
-            ->set('StorageGroup', $this->getImage()->getStorageGroup())
-            ->set('StorageNode', new StorageNode())
-            ->set('NFSLastMemberID', $memID);
+            ->set('TaskState', new TaskState(self::getQueuedState()));
         if ($imagingTask) {
-            $Task->set('imageID', $this->getImage()->get('id'));
+            $Task->set('StorageGroup', $this->getImage()->getStorageGroup())
+                ->set('StorageNode', new StorageNode())
+                ->set('storagegroupID', $groupID)
+                ->set('storagenodeID', $memID)
+                ->set('image', $this->getImage())
+                ->set('NFSLastMemberID', $memID)
+                ->set('imageID', $this->get('imageID'));
         }
         if ($shutdown) {
             $Task->set('shutdown', $shutdown);
@@ -1246,7 +1246,7 @@ class Host extends FOGController
             foreach ((array)$snapin as &$snapinID) {
                 $insert_values[] = array(
                     $SnapinJob->get('id'),
-                    $this->getQUeuedState(),
+                    $this->getQueuedState(),
                     $snapinID
                 );
                 unset($snapinID);
@@ -1348,9 +1348,9 @@ class Host extends FOGController
                 }
             }
             unset($iTaskType);
-            $Image = $this->getImage();
             $imagingTypes = $TaskType->isImagingTask();
             if ($imagingTypes) {
+                $Image = $this->getImage();
                 if (!$Image->isValid()) {
                     throw new Exception(self::$foglang['ImageNotValid']);
                 }
@@ -1392,7 +1392,6 @@ class Host extends FOGController
                 }
                 $this->set('imageID', $imageTaskImgID);
             }
-            $isCapture = $TaskType->isCapture();
             $username = ($username ? $username : self::$FOGUser->get('name'));
             if (!$Task->isValid()) {
                 $Task = $this->_createTasking(
@@ -1407,7 +1406,6 @@ class Host extends FOGController
                     $debug,
                     $wol
                 );
-                $Task->set('imageID', $this->get('imageID'));
                 if (!$Task->save()) {
                     throw new Exception(self::$foglang['FailedTask']);
                 }
