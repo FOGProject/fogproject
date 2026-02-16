@@ -571,7 +571,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . $rw
+            . htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
@@ -1059,7 +1059,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . $rw
+            . htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
