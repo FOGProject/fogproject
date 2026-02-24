@@ -56,6 +56,15 @@ updateStorageNodeCredentials() {
     echo "Done"
 }
 backupDB() {
+    # ---------------------------------------------------------
+    # External Unprivileged Database Implementation
+    # Skip database backup for external databases
+    # ---------------------------------------------------------
+    if [[ "${snmysqlexternal}" == "1" ]]; then
+        echo " * Skipping database backup (External Database Mode)"
+        return 0
+    fi
+    # ---------------------------------------------------------
     dots "Backing up database"
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$error_log 2>&1
