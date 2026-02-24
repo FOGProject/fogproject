@@ -94,6 +94,16 @@ updateDB() {
             echo
             ;;
     esac
+    # ---------------------------------------------------------
+    # External Unprivileged Database Implementation
+    # Bypass DB user management (fogstorage) requiring root GRANT
+    # ---------------------------------------------------------
+    if [[ "${snmysqlexternal}" == "1" ]]; then
+        echo " * Skipping fogstorage DB user management (External Database Mode)"
+        # Return cleanly, skipping the GRANT/ALTER commands below
+        return 0 
+    fi
+    # ---------------------------------------------------------
     dots "Update fogstorage database password"
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$error_log 2>&1
     errorStat $?
@@ -1176,6 +1186,28 @@ installInitScript() {
     enableInitScript
 }
 configureMySql() {
+    # ---------------------------------------------------------
+    # External Unprivileged Database Implementation
+    # ---------------------------------------------------------
+    if [[ "${snmysqlexternal}" == "1" ]]; then
+        dots "Verifying external database connection"
+        
+        # Test connection and ensure the database exists and is accessible
+        mysql -h "${snmysqlhost}" -u "${snmysqluser}" -p"${snmysqlpass}" -e "USE ${snmysqldb};" >/dev/null 2>&1
+        
+        if [[ $? -ne 0 ]]; then
+            echo "Failed!"
+            echo " * Error: Cannot connect to the external database '${snmysqldb}' at '${snmysqlhost}'."
+            echo " * Please verify your credentials in /opt/fog/.fogsettings and ensure the DB exists."
+            exit 1
+        fi
+        
+        echo "OK"
+        
+        # Return early to skip local DB configuration, preserving existing logic
+        return 0
+    fi
+    # ---------------------------------------------------------
     stopInitScript
     dots "Setting up and starting MySQL"
     dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
@@ -1646,6 +1678,7 @@ writeUpdateFile() {
     escdhcpd=$(echo $dhcpd | sed -e $replace)
     escblexports=$(echo $blexports | sed -e $replace)
     escinstalltype=$(echo $installtype | sed -e $replace)
+    escsnmysqlexternal=$(echo $snmysqlexternal | sed -e $replace)
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
     escsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\"\'\"\'/g)  # replace every ' with '"'"' for full bash escaping
     sedescsnmysqlpass=$(echo "$escsnmysqlpass" | sed -e 's/[\&/]/\\&/g')  # then prefix every \ & and / with \ for sed escaping
@@ -1723,6 +1756,9 @@ writeUpdateFile() {
             grep -q "installtype=" $fogprogramdir/.fogsettings && \
                 sed -i "s/installtype=.*/installtype='$escinstalltype'/g" $fogprogramdir/.fogsettings || \
                 echo "installtype='$installtype'" >> $fogprogramdir/.fogsettings
+            grep -q "snmysqlexternal=" $fogprogramdir/.fogsettings && \
+                sed -i "s/snmysqlexternal=.*/snmysqlexternal='$escsnmysqlexternal'/g" $fogprogramdir/.fogsettings || \
+                echo "snmysqlexternal='$snmysqlexternal'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqluser=" $fogprogramdir/.fogsettings && \
                 sed -i "s/snmysqluser=.*/snmysqluser='$escsnmysqluser'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
@@ -1823,6 +1859,7 @@ writeUpdateFile() {
             echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
             echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
             echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
+            echo "snmysqlexternal='${snmysqlexternal:-0}'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
@@ -1870,6 +1907,7 @@ writeUpdateFile() {
         echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
         echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
         echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
+        echo "snmysqlexternal='${snmysqlexternal:-0}'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
@@ -1901,16 +1939,12 @@ displayBanner() {
     echo
     echo
     echo "   +------------------------------------------+"
-    echo "   |     ..#######:.    ..,#,..     .::##::.  |"
-    echo "   |.:######          .:;####:......;#;..     |"
-    echo "   |...##...        ...##;,;##::::.##...      |"
-    echo "   |   ,#          ...##.....##:::##     ..:: |"
-    echo "   |   ##    .::###,,##.   . ##.::#.:######::.|"
-    echo "   |...##:::###::....#. ..  .#...#. #...#:::. |"
-    echo "   |..:####:..    ..##......##::##  ..  #     |"
-    echo "   |    #  .      ...##:,;##;:::#: ... ##..   |"
-    echo "   |   .#  .       .:;####;::::.##:::;#:..    |"
-    echo "   |    #                     ..:;###..       |"
+    echo "   |        #######    ######      ######     |"
+    echo "   |       ##         ##    ##    ##    ##    |"
+    echo "   |      #####      ##    ##    ##           |"
+    echo "   |     ##         ##    ##    ##   ####     |"
+    echo "   |    ##         ##    ##    ##     ##      |"
+    echo "   |   ##           ######      ######        |"
     echo "   |                                          |"
     echo "   +------------------------------------------+"
     echo "   |      Free Computer Imaging Solution      |"
