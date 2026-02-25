@@ -685,6 +685,10 @@ class LDAPManagementPage extends FOGPage
             ' checked' :
             ''
         );
+        $enableNestedGroup = (
+            isset($_POST['enableNestedGroup']) ?: $this->obj->get('enableNestedGroup')
+        );
+        $nestedGroupChecked = ($enableNestedGroup ? ' checked' : '');
         $fields = array(
             '<label for="name">'
             . _('LDAP Connection Name')
