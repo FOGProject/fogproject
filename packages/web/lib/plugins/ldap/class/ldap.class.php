@@ -60,7 +60,6 @@ class LDAP extends FOGController
         'bindPwd' => 'lsBindPwd',
         'grpSearchDN' => 'lsGrpSearchDN',
         'useGroupMatch' => 'lsUseGroupMatch',
-        'enableNestedGroup' => 'lsEnableNestedGroup',
     );
     /**
      * The required fields
@@ -552,25 +551,6 @@ class LDAP extends FOGController
          */
         $userDN = $entries[0]['dn'];
         /**
-         * For Active Directory connections (where 'memberOf' is the group member attribute),
-         * check the userAccountControl attribute after successfully binding as the user.
-         * If the ACCOUNTDISABLE bit is set, the account is disabled and login will be denied.
-         */
-        $attr = array('userAccountControl');
-        $filter = sprintf('(&(|(objectcategory=person)(objectclass=person))(%s=%s))', $usrNamAttr, $user);
-        $result = $this->_result($searchDN, $filter, $attr);
-        if ($result !== false) {
-            $entries = $this->get_entries($result);
-            if (!empty($entries[0]['useraccountcontrol'])) {
-                $uac = $entries[0]['useraccountcontrol'][0];
-                if ($uac & 2) { // ACCOUNTDISABLE bit
-                    error_log('User account disabled');
-                    @$this->unbind();
-                    return false;
-                }
-            }
-        }
-        /**
          * If use group match is used, get access level,
          * otherwise group scanning isn't used. Assume all
          * are admins.
@@ -642,37 +622,6 @@ class LDAP extends FOGController
         if (!$grpSearchDN) {
             $parsedDN = $this->_ldapParseDn($userDN);
             $grpSearchDN = 'dc='.implode(',dc=', $parsedDN['DC']);
-        }
-        /**
-         * Nested group logic start
-         */
-        $enableNestedGroup = $this->get('enableNestedGroup');
-        // For AD, nested group is supported via memberOf and the OID
-        if ($enableNestedGroup && strtolower($grpMemAttr) === 'memberof') {
-            // Try admin group first
-            $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=%s))',
-                $adminGroup
-            );
-            $attr = [$grpMemAttr];
-            $result = $this->_result($grpSearchDN, $filter, $attr);
-            if ($result !== false) {
-                return 2;
-            }
-
-            // Try user group second
-            $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=%s))',
-                $userGroup
-            );
-            $attr = [$grpMemAttr];
-            $result = $this->_result($grpSearchDN, $filter, $attr);
-            if ($result !== false) {
-                return 1;
-            }
-
-            // Fallback to 0
-            return 0;
         }
         /**
          * Setup our new filter

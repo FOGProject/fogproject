@@ -60,8 +60,7 @@ class LDAPManager extends FOGManagerController
                 'lsBindPwd',
                 'lsGrpSearchDN',
                 'lsUseGroupMatch',
-                'lsUserFilter',
-                'lsEnableNestedGroup'
+                'lsUserFilter'
             ),
             array(
                 'INTEGER',
@@ -82,10 +81,8 @@ class LDAPManager extends FOGManagerController
                 'LONGTEXT',
                 "ENUM('0', '1')",
                 'VARCHAR(40)',
-                "ENUM('0', '1')"
             ),
             array(
-                false,
                 false,
                 false,
                 false,
@@ -124,7 +121,6 @@ class LDAPManager extends FOGManagerController
                 false,
                 '0',
                 false,
-                '0'
             ),
             array(
                 'lsID',

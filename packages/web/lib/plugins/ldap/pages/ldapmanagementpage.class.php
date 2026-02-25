@@ -257,10 +257,6 @@ class LDAPManagementPage extends FOGPage
             . _('Use Group Matching (recommended)')
             . '</label>' => '<input type="checkbox" '
             . 'name="useGroupMatch" id="groupmatch" checked/>',
-            '<label for="nestedgroupmatch">'
-            . _('Enable Nested Group Matching (Active Directory only)')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="enableNestedGroup" id="nestedgroupmatch"/>',
             '<label for="searchDN">'
             . _('Search Base DN')
             . '</label>' => '<div class="input-group">'
