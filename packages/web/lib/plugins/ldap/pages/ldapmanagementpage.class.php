@@ -456,6 +456,7 @@ class LDAPManagementPage extends FOGPage
             'bindPwd'
         );
         $useGroupMatch = (int)isset($_POST['useGroupMatch']);
+        $enableNestedGroup = (int)isset($_POST['enableNestedGroup']);
         try {
             if (!isset($_POST['add'])) {
                 throw new Exception(_('Not able to add'));
@@ -522,6 +523,7 @@ class LDAPManagementPage extends FOGPage
                 ->set('bindDN', $bindDN)
                 ->set('bindPwd', $bindPwd)
                 ->set('useGroupMatch', $useGroupMatch)
+                ->set('enableNestedGroup', $enableNestedGroup)
                 ->set('grpSearchDN', $grpSearchDN);
             if (!$LDAP->save()) {
                 throw new Exception(_('Add LDAP server failed!'));
@@ -715,6 +717,12 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<input type="checkbox" '
             . 'name="useGroupMatch" id="groupmatch"'
             . $useMatch
+            . '/>',
+            '<label for="nestedgroupmatch">'
+            . _('Enable Nested Group Matching (Active Directory only)')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="enableNestedGroup" id="nestedgroupmatch"'
+            . $nestedGroupChecked
             . '/>',
             '<label for="searchDN">'
             . _('Search Base DN')
@@ -934,6 +942,7 @@ class LDAPManagementPage extends FOGPage
             'bindPwd'
         );
         $useGroupMatch = (int)isset($_POST['useGroupMatch']);
+        $enableNestedGroup = (int)isset($_POST['enableNestedGroup']);
         try {
             if (!is_numeric($searchScope)) {
                 $searchScope = 0;
@@ -999,6 +1008,7 @@ class LDAPManagementPage extends FOGPage
                 ->set('bindDN', $bindDN)
                 ->set('bindPwd', $bindPwd)
                 ->set('useGroupMatch', $useGroupMatch)
+                ->set('enableNestedGroup', $enableNestedGroup)
                 ->set('grpSearchDN', $grpSearchDN);
             if (!$LDAP->save()) {
                 throw new Exception(_('Update LDAP server failed!'));
