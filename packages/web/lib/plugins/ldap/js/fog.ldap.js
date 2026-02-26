@@ -40,6 +40,13 @@ $(function() {
         // e.preventDefault();
         ldapUseGroupToggle(this.checked);
     }).trigger('change');
+    $('#nestedgroupmatch').on('click',function(e) {
+        var el = jQuery(e.target);
+        if(el.prop('readonly')) {
+            // prevent it from changing state
+            e.preventDefault();
+        }
+    });
 });
 function ldapSetFields(indx) {
     switch (indx) {
@@ -65,14 +72,12 @@ function ldapSetFields(indx) {
 }
 function ldapUseGroupToggle(indx) {
     if (indx == 0) {
-        $("#nestedgroupmatch").prop('disabled', true);
         $('#nestedgroupmatch,#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
             .prop('readonly', true)
-            .css({'background-color': 'lightgrey'});
+            .css({'accent-color': 'lightgrey', 'background-color': 'lightgrey', 'cursor': 'not-allowed'});
     } else {
-        $("#nestedgroupmatch").prop('disabled', false);
-        $('#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
+        $('#nestedgroupmatch,#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
             .prop('readonly', false)
-            .css({'background-color': 'white'});
+            .css({'accent-color': '', 'background-color': '', 'cursor': ''});
     }
 }
