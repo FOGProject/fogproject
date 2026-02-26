@@ -557,7 +557,11 @@ class LDAP extends FOGController
          * If the ACCOUNTDISABLE bit is set, the account is disabled and login will be denied.
          */
         $attr = array('userAccountControl');
-        $filter = sprintf('(&(|(objectcategory=person)(objectclass=person))(%s=%s))', $usrNamAttr, $user);
+        $filter = sprintf(
+            '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
+            $usrNamAttr,
+            $this->escape($user, null, LDAP_ESCAPE_FILTER)
+        );
         $result = $this->_result($searchDN, $filter, $attr);
         if ($result !== false) {
             $entries = $this->get_entries($result);
@@ -656,8 +660,8 @@ class LDAP extends FOGController
         if ($enableNestedGroup) {
             $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=';
             $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(|(%s)))',
-                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
+                '(&(objectCategory=person)(objectClass=user)(|%s))',
+                '(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
                     . implode($grpMemAttr_forimplode, (array)$adminGroups)
                     . ',' . $grpSearchDN . ')'
             );
@@ -698,8 +702,8 @@ class LDAP extends FOGController
         // For AD nested group match
         if ($enableNestedGroup) {
             $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(|(%s)))',
-                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
+                '(&(objectCategory=person)(objectClass=user)(|%s))',
+                '(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
                     . implode($grpMemAttr_forimplode, (array)$userGroups)
                     . ',' . $grpSearchDN . ')'
             );
