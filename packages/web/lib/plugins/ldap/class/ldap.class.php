@@ -552,8 +552,7 @@ class LDAP extends FOGController
          */
         $userDN = $entries[0]['dn'];
         /**
-         * For Active Directory connections (where 'memberOf' is the group member attribute),
-         * check the userAccountControl attribute after successfully binding as the user.
+         * For Active Directory connections, check the userAccountControl attribute after successfully binding as the user.
          * If the ACCOUNTDISABLE bit is set, the account is disabled and login will be denied.
          */
         $attr = array('userAccountControl');
@@ -658,10 +657,10 @@ class LDAP extends FOGController
         $adminGroups = array_map('trim', $adminGroups);
         // For AD nested group match
         if ($enableNestedGroup) {
-            $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=';
+            $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(memberOf:1.2.840.113556.1.4.1941:=CN=';
             $filter = sprintf(
                 '(&(objectCategory=person)(objectClass=user)(|%s))',
-                '(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
+                '(memberOf:1.2.840.113556.1.4.1941:=CN='
                     . implode($grpMemAttr_forimplode, (array)$adminGroups)
                     . ',' . $grpSearchDN . ')'
             );
@@ -703,7 +702,7 @@ class LDAP extends FOGController
         if ($enableNestedGroup) {
             $filter = sprintf(
                 '(&(objectCategory=person)(objectClass=user)(|%s))',
-                '(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
+                '(memberOf:1.2.840.113556.1.4.1941:=CN='
                     . implode($grpMemAttr_forimplode, (array)$userGroups)
                     . ',' . $grpSearchDN . ')'
             );
