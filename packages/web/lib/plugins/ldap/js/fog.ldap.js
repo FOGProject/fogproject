@@ -33,12 +33,12 @@ $(function() {
         $('input[name="ldapIDArray"]').val(ldapIDArray.join(','));
     });
     $('#inittemplate').on('change',function(e) {
-        e.preventDefault();
+        // e.preventDefault();
         ldapSetFields(this.options[this.selectedIndex].value);
     });
-    $('#useGroupMatch').on('change',function(e) {
-        e.preventDefault();
-        ldapUseGroupToggle(this.options[this.selectedIndex].value);
+    $('#groupmatch').on('change',function(e) {
+        // e.preventDefault();
+        ldapUseGroupToggle(this.checked);
     }).trigger('change');
 });
 function ldapSetFields(indx) {
@@ -65,10 +65,12 @@ function ldapSetFields(indx) {
 }
 function ldapUseGroupToggle(indx) {
     if (indx == 0) {
-        $('#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
+        $("#nestedgroupmatch").prop('disabled', true);
+        $('#nestedgroupmatch,#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
             .prop('readonly', true)
             .css({'background-color': 'lightgrey'});
     } else {
+        $("#nestedgroupmatch").prop('disabled', false);
         $('#adminGroup,#userGroup,#userNamAttr,#grpMemberAttr,#bindDN,#bindPwd')
             .prop('readonly', false)
             .css({'background-color': 'white'});
