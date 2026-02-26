@@ -111,7 +111,7 @@ class LDAPManagementPage extends FOGPage
                 'name' => $LDAP->name,
                 'description' => $LDAP->description,
                 'address' => $LDAP->address,
-                'searchDN' => $LDAP->SearchDN,
+                'searchDN' => $LDAP->searchDN,
                 'port' => $LDAP->port,
                 'userNamAttr' => $LDAP->userNamAttr,
                 'grpMemberAttr' => $LDAP->grpMemberAttr,

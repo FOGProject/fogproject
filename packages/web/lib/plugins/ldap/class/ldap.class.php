@@ -657,12 +657,11 @@ class LDAP extends FOGController
         $adminGroups = array_map('trim', $adminGroups);
         // For AD nested group match
         if ($enableNestedGroup) {
-            $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(memberOf:1.2.840.113556.1.4.1941:=CN=';
             $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(|%s))',
-                '(memberOf:1.2.840.113556.1.4.1941:=CN='
-                    . implode($grpMemAttr_forimplode, (array)$adminGroups)
-                    . ',' . $grpSearchDN . ')'
+                '(&(|(name=%s))(%s:1.2.840.113556.1.4.1941:=%s))',
+                implode(')(name=', (array)$adminGroups),
+                $grpMemAttr,
+                $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
             );
         } else {
             $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
@@ -701,10 +700,10 @@ class LDAP extends FOGController
         // For AD nested group match
         if ($enableNestedGroup) {
             $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(|%s))',
-                '(memberOf:1.2.840.113556.1.4.1941:=CN='
-                    . implode($grpMemAttr_forimplode, (array)$userGroups)
-                    . ',' . $grpSearchDN . ')'
+                '(&(|(name=%s))(%s:1.2.840.113556.1.4.1941:=%s))',
+                implode(')(name=', (array)$userGroups),
+                $grpMemAttr,
+                $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
             );
         } else {
             $filter = sprintf(
@@ -764,7 +763,6 @@ class LDAP extends FOGController
                     $grpSearchDN
                 )
             );
-            @$this->unbind();
             return false;
         }
         /**
