@@ -624,6 +624,10 @@ class LDAP extends FOGController
          */
         $accessLevel = false;
         /**
+         * Check if nested group matching (recursion) is enabled
+         */
+        $enableNestedGroup = $this->get('enableNestedGroup');
+        /**
          * Get our admin group
          */
         $adminGroup = $this->get('adminGroup');
@@ -644,55 +648,36 @@ class LDAP extends FOGController
             $grpSearchDN = 'dc='.implode(',dc=', $parsedDN['DC']);
         }
         /**
-         * Nested group logic start
-         */
-        $enableNestedGroup = $this->get('enableNestedGroup');
-        // For AD, nested group is supported via memberOf and the OID
-        if ($enableNestedGroup && strtolower($grpMemAttr) === 'memberof') {
-            // Try admin group first
-            $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=%s))',
-                $adminGroup
-            );
-            $attr = [$grpMemAttr];
-            $result = $this->_result($grpSearchDN, $filter, $attr);
-            if ($result !== false) {
-                return 2;
-            }
-
-            // Try user group second
-            $filter = sprintf(
-                '(&(objectCategory=person)(objectClass=user)(memberOf:1.2.840.113556.1.4.1941:=%s))',
-                $userGroup
-            );
-            $attr = [$grpMemAttr];
-            $result = $this->_result($grpSearchDN, $filter, $attr);
-            if ($result !== false) {
-                return 1;
-            }
-
-            // Fallback to 0
-            return 0;
-        }
-        /**
          * Setup our new filter
          */
         $adminGroups = explode(',', $adminGroup);
         $adminGroups = array_map('trim', $adminGroups);
-        $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
-        $filter = sprintf(
-            '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
-            implode(')(name=', (array)$adminGroups),
-            $grpMemAttr,
-            implode($grpMemAttr_forimplode, (array)$adminGroups),
-            $grpMemAttr,
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
-            $grpMemAttr,
-            $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER),
-            $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER)
-        );
+        // For AD nested group match
+        if ($enableNestedGroup) {
+            $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=';
+
+            $filter = sprintf(
+                '(&(objectCategory=person)(objectClass=user)(|(%s)))',
+                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=' . 
+                implode($grpMemAttr_forimplode, (array)$adminGroups)
+                . ',' . $grpSearchDN . ')'
+            );
+        } else {
+            $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
+            $filter = sprintf(
+                '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
+                implode(')(name=', (array)$adminGroups),
+                $grpMemAttr,
+                implode($grpMemAttr_forimplode, (array)$adminGroups),
+                $grpMemAttr,
+                $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
+                $grpMemAttr,
+                $usrNamAttr,
+                $this->escape($user, null, LDAP_ESCAPE_FILTER),
+                $usrNamAttr,
+                $this->escape($user, null, LDAP_ESCAPE_FILTER)
+            );
+        }
         /**
          * The attribute to get.
          */
@@ -711,19 +696,31 @@ class LDAP extends FOGController
          */
         $userGroups = explode(',', $userGroup);
         $userGroups = array_map('trim', $userGroups);
-        $filter = sprintf(
-            '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
-            implode(')(name=', (array)$userGroups),
-            $grpMemAttr,
-            implode($grpMemAttr_forimplode, (array)$userGroups),
-            $grpMemAttr,
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
-            $grpMemAttr,
-            $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER),
-            $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER)
-        );
+        // For AD nested group match
+        if ($enableNestedGroup) {
+            $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=';
+
+            $filter = sprintf(
+                '(&(objectCategory=person)(objectClass=user)(|(%s)))',
+                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=' . 
+                implode($grpMemAttr_forimplode, (array)$userGroups)
+                . ',' . $grpSearchDN . ')'
+            );
+        } else {
+            $filter = sprintf(
+                '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
+                implode(')(name=', (array)$userGroups),
+                $grpMemAttr,
+                implode($grpMemAttr_forimplode, (array)$userGroups),
+                $grpMemAttr,
+                $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
+                $grpMemAttr,
+                $usrNamAttr,
+                $this->escape($user, null, LDAP_ESCAPE_FILTER),
+                $usrNamAttr,
+                $this->escape($user, null, LDAP_ESCAPE_FILTER)
+            );
+        }
         /**
          * The attribute to get.
          */
