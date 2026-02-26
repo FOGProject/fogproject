@@ -552,28 +552,6 @@ class LDAP extends FOGController
          */
         $userDN = $entries[0]['dn'];
         /**
-         * For Active Directory connections, check the userAccountControl attribute after successfully binding as the user.
-         * If the ACCOUNTDISABLE bit is set, the account is disabled and login will be denied.
-         */
-        $attr = array('userAccountControl');
-        $filter = sprintf(
-            '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
-            $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER)
-        );
-        $result = $this->_result($searchDN, $filter, $attr);
-        if ($result !== false) {
-            $entries = $this->get_entries($result);
-            if (!empty($entries[0]['useraccountcontrol'])) {
-                $uac = $entries[0]['useraccountcontrol'][0];
-                if ($uac & 2) { // ACCOUNTDISABLE bit
-                    error_log('User account disabled');
-                    @$this->unbind();
-                    return false;
-                }
-            }
-        }
-        /**
          * If use group match is used, get access level,
          * otherwise group scanning isn't used. Assume all
          * are admins.
