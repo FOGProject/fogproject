@@ -655,7 +655,6 @@ class LDAP extends FOGController
          */
         $adminGroups = explode(',', $adminGroup);
         $adminGroups = array_map('trim', $adminGroups);
-        // For AD nested group match
         $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
         $filter = sprintf(
             '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
@@ -688,7 +687,6 @@ class LDAP extends FOGController
          */
         $userGroups = explode(',', $userGroup);
         $userGroups = array_map('trim', $userGroups);
-        // For AD nested group match
         $filter = sprintf(
             '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$userGroups),
