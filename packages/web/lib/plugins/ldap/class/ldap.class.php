@@ -655,12 +655,11 @@ class LDAP extends FOGController
         // For AD nested group match
         if ($enableNestedGroup) {
             $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=';
-
             $filter = sprintf(
                 '(&(objectCategory=person)(objectClass=user)(|(%s)))',
-                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=' . 
-                implode($grpMemAttr_forimplode, (array)$adminGroups)
-                . ',' . $grpSearchDN . ')'
+                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
+                    . implode($grpMemAttr_forimplode, (array)$adminGroups)
+                    . ',' . $grpSearchDN . ')'
             );
         } else {
             $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
@@ -698,13 +697,11 @@ class LDAP extends FOGController
         $userGroups = array_map('trim', $userGroups);
         // For AD nested group match
         if ($enableNestedGroup) {
-            $grpMemAttr_forimplode = ',' . $grpSearchDN . ')(' . $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=';
-
             $filter = sprintf(
                 '(&(objectCategory=person)(objectClass=user)(|(%s)))',
-                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN=' . 
-                implode($grpMemAttr_forimplode, (array)$userGroups)
-                . ',' . $grpSearchDN . ')'
+                $grpMemAttr . ':1.2.840.113556.1.4.1941:=CN='
+                    . implode($grpMemAttr_forimplode, (array)$userGroups)
+                    . ',' . $grpSearchDN . ')'
             );
         } else {
             $filter = sprintf(
