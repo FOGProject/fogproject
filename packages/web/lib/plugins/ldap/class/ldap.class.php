@@ -60,6 +60,7 @@ class LDAP extends FOGController
         'bindPwd' => 'lsBindPwd',
         'grpSearchDN' => 'lsGrpSearchDN',
         'useGroupMatch' => 'lsUseGroupMatch',
+        'enableNestedGroup' => 'lsEnableNestedGroup',
     );
     /**
      * The required fields
@@ -604,6 +605,10 @@ class LDAP extends FOGController
          */
         $accessLevel = false;
         /**
+         * Check if nested group matching (recursion) is enabled
+         */
+        $enableNestedGroup = $this->get('enableNestedGroup');
+        /**
          * Get our admin group
          */
         $adminGroup = $this->get('adminGroup');
@@ -632,11 +637,11 @@ class LDAP extends FOGController
         $filter = sprintf(
             '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$adminGroups),
-            $grpMemAttr,
+            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             implode($grpMemAttr_forimplode, (array)$adminGroups),
-            $grpMemAttr,
+            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
-            $grpMemAttr,
+            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $usrNamAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER),
             $usrNamAttr,
@@ -663,11 +668,11 @@ class LDAP extends FOGController
         $filter = sprintf(
             '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$userGroups),
-            $grpMemAttr,
+            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             implode($grpMemAttr_forimplode, (array)$userGroups),
-            $grpMemAttr,
+            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
-            $grpMemAttr,
+            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $usrNamAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER),
             $usrNamAttr,
@@ -716,7 +721,6 @@ class LDAP extends FOGController
                     $grpSearchDN
                 )
             );
-            @$this->unbind();
             return false;
         }
         /**
