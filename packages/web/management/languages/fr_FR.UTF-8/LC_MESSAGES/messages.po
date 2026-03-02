@@ -108,9 +108,6 @@ msgstr "Une clé Windows portant ce nom existe déjà !"
 msgid "A broadcast address is required"
 msgstr "Une adresse de broadcast est requise"
 
-msgid "A broadcast already exists with this name"
-msgstr "Un broadcast existe déjà avec ce nom"
-
 msgid "A broadcast already exists with this name!"
 msgstr "Un broadcast existe déjà avec ce nom !"
 
@@ -174,7 +171,8 @@ msgstr "Un nom d'imprimante est nécessaire !"
 msgid "A role already exists with this name!"
 msgstr "Un rôle avec ce nom existe déjà !"
 
-msgid "A rule already exists with this name."
+#, fuzzy
+msgid "A rule already exists with this name"
 msgstr "Une règle existe déjà avec ce nom."
 
 msgid "A site already exists with this name!"
@@ -298,9 +296,6 @@ msgstr "Actif"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-msgid "Active Multi-cast Tasks"
-msgstr "Tâches Multicast actives"
 
 msgid "Active Multicast Tasks"
 msgstr "Tâches Multicast actives"
@@ -505,9 +500,6 @@ msgstr "Toutes les machines"
 
 msgid "All Pending MACs approved"
 msgstr "Tous les MACs en attente approuvés"
-
-msgid "All Pending MACs approved."
-msgstr "Tous les MACs en attente approuvés."
 
 msgid "All Storage Groups"
 msgstr "Tous les groupes de stockage"
@@ -1368,6 +1360,9 @@ msgstr "L'action de redémarrage ou d'arrêt doit être utilisée."
 
 msgid "Email"
 msgstr "Courriel"
+
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
 
 msgid "Enable location Sending"
 msgstr "Activer l'envoi de localisation"
@@ -2997,9 +2992,6 @@ msgstr "La clé doit être un tableau de clés ou une chaîne de caractères."
 
 msgid "Kill"
 msgstr "Tuer"
-
-msgid "LDAP Connection  Name"
-msgstr "Nom de la connexion LDAP"
 
 msgid "LDAP Connection Name"
 msgstr "Nom de la connexion LDAP"
@@ -6927,14 +6919,23 @@ msgstr "souhaitez-vous l'installer maintenant"
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 
+#~ msgid "A broadcast already exists with this name"
+#~ msgstr "Un broadcast existe déjà avec ce nom"
+
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Une Host ext existe déjà avec ce nom !"
 
 #~ msgid "A site alread exists with this name!"
 #~ msgstr "Un site existe déjà avec ce nom !"
 
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Tâches Multicast actives"
+
 #~ msgid "Add ou failed!"
 #~ msgstr "L'ajout OU a échoué !"
+
+#~ msgid "All Pending MACs approved."
+#~ msgstr "Tous les MACs en attente approuvés."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Impossible de lire le fichier temporaire"
@@ -7014,6 +7015,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 
 #~ msgid "Inventory Desc"
 #~ msgstr "Inventaire Desc"
+
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "Nom de la connexion LDAP"
 
 #~ msgid "Legacy Client and Utilities"
 #~ msgstr "Client hérité et utilitaires"

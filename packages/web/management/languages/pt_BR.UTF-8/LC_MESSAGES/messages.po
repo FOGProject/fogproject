@@ -107,9 +107,6 @@ msgstr "Uma Chave do Windows já existe com este nome!"
 msgid "A broadcast address is required"
 msgstr "Um endereço de broadcast é obrigatório"
 
-msgid "A broadcast already exists with this name"
-msgstr "Um broadcast já existe com este nome"
-
 msgid "A broadcast already exists with this name!"
 msgstr "Um broadcast já existe com este nome!"
 
@@ -173,7 +170,8 @@ msgstr "Um nome de impressora é obrigatório!"
 msgid "A role already exists with this name!"
 msgstr "Uma função (role) já existe com este nome!"
 
-msgid "A rule already exists with this name."
+#, fuzzy
+msgid "A rule already exists with this name"
 msgstr "Uma regra já existe com este nome."
 
 msgid "A site already exists with this name!"
@@ -295,9 +293,6 @@ msgstr "Ativo"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-msgid "Active Multi-cast Tasks"
-msgstr "Tarefas de Multicast Ativas"
 
 msgid "Active Multicast Tasks"
 msgstr "Tarefas de Multicast Ativas"
@@ -503,9 +498,6 @@ msgstr "Todos os Hosts"
 msgid "All Pending MACs approved"
 msgstr "Todos os MACs Pendentes aprovados"
 
-msgid "All Pending MACs approved."
-msgstr "Todos os MACs Pendentes aprovados."
-
 msgid "All Storage Groups"
 msgstr "Todos os Grupos de Armazenamento"
 
@@ -522,10 +514,12 @@ msgid "All snapins"
 msgstr "Todos os snapins"
 
 msgid "Allows editing/creating of Task States fog currently has."
-msgstr "Permite a edição/criação de Estados de Tarefa que o FOG possui atualmente."
+msgstr ""
+"Permite a edição/criação de Estados de Tarefa que o FOG possui atualmente."
 
 msgid "Allows editing/creating of Task Types fog currently has."
-msgstr "Permite a edição/criação de Tipos de Tarefa que o FOG possui atualmente."
+msgstr ""
+"Permite a edição/criação de Tipos de Tarefa que o FOG possui atualmente."
 
 msgid "Already created"
 msgstr "Já criado"
@@ -825,7 +819,8 @@ msgid "Check here to see what snapins can be added"
 msgstr "Verifique aqui para ver quais snapins podem ser adicionados"
 
 msgid "Check here to see what storage groups can be added"
-msgstr "Verifique aqui para ver quais grupos de armazenamento podem ser adicionados"
+msgstr ""
+"Verifique aqui para ver quais grupos de armazenamento podem ser adicionados"
 
 msgid "Check here to see what users can be added"
 msgstr "Verifique aqui para ver quais usuários podem ser adicionados"
@@ -1355,6 +1350,9 @@ msgstr "Ação de reiniciar ou desligar deve ser usada."
 
 msgid "Email"
 msgstr "E-mail"
+
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
 
 msgid "Enable location Sending"
 msgstr "Ativar Envio de localização"
@@ -2258,7 +2256,9 @@ msgid "Host Status"
 msgstr "Status do Host"
 
 msgid "Host Status is a plugin that adds a new entry in the Host edit Page"
-msgstr "Host Status é um plugin que adiciona uma nova entrada na Página de edição do Host"
+msgstr ""
+"Host Status é um plugin que adiciona uma nova entrada na Página de edição do "
+"Host"
 
 msgid "Host Unassociated Snapins"
 msgstr "Snapins Não Associados ao Host"
@@ -2417,7 +2417,9 @@ msgid "If you are looking to configure settings for a specific host"
 msgstr "Se você está procurando configurar definições para um host específico"
 
 msgid "If you need help understanding what items are needed please"
-msgstr "Se você precisar de ajuda para entender quais itens são necessários, por favor"
+msgstr ""
+"Se você precisar de ajuda para entender quais itens são necessários, por "
+"favor"
 
 msgid "If you would like to backup your"
 msgstr "Se você gostaria de fazer backup do seu"
@@ -2894,7 +2896,8 @@ msgid "It can be used on Windows"
 msgstr "Pode ser usado no Windows"
 
 msgid "It is primarily geared for the smart installer methodology now"
-msgstr "É voltado principalmente para a metodologia de instalador inteligente agora"
+msgstr ""
+"É voltado principalmente para a metodologia de instalador inteligente agora"
 
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr "Opera obtendo a configuração de largura de banda máxima do nó"
@@ -2963,9 +2966,6 @@ msgid "Kill"
 msgstr "Matar (Kill)"
 
 msgid "LDAP Connection Name"
-msgstr "Nome da Conexão LDAP"
-
-msgid "LDAP Connection  Name"
 msgstr "Nome da Conexão LDAP"
 
 msgid "LDAP Create Fail"
@@ -3446,7 +3446,8 @@ msgid "Needs a 256-bit key"
 msgstr "Precisa de uma chave de 256 bits"
 
 msgid "Needs action string of ask, get, or list"
-msgstr "Precisa de string de ação de perguntar (ask), obter (get) ou listar (list)"
+msgstr ""
+"Precisa de string de ação de perguntar (ask), obter (get) ou listar (list)"
 
 msgid "Network Information"
 msgstr "Informações de Rede"
@@ -3740,7 +3741,8 @@ msgid "Not able to add"
 msgstr "Não foi capaz de adicionar"
 
 msgid "Not all elements in filter or ports setting are integer"
-msgstr "Nem todos os elementos no filtro ou configuração de portas são inteiros"
+msgstr ""
+"Nem todos os elementos no filtro ou configuração de portas são inteiros"
 
 msgid "Not allowed here"
 msgstr "Não permitido aqui"
@@ -3995,7 +3997,9 @@ msgid "Please Select an option"
 msgstr "Por favor, selecione uma opção"
 
 msgid "Please be very careful changing any of the following settings"
-msgstr "Por favor, tenha muito cuidado ao alterar qualquer uma das seguintes configurações"
+msgstr ""
+"Por favor, tenha muito cuidado ao alterar qualquer uma das seguintes "
+"configurações"
 
 msgid "Please check your credentials in"
 msgstr "Por favor, verifique suas credenciais em"
@@ -4040,7 +4044,8 @@ msgid "Please enter a valid CIDR subnet."
 msgstr "Por favor, insira uma sub-rede CIDR válida."
 
 msgid "Please enter a valid CIDR subnets comma separated list"
-msgstr "Por favor, insira uma lista de sub-redes CIDR válidas separadas por vírgula"
+msgstr ""
+"Por favor, insira uma lista de sub-redes CIDR válidas separadas por vírgula"
 
 msgid "Please enter a valid hostname"
 msgstr "Por favor, insira um nome de host válido"
@@ -4073,7 +4078,8 @@ msgid "Please select the snapin you want to install"
 msgstr "Por favor, selecione o snapin que você deseja instalar"
 
 msgid "Please select the storage group this location relates to."
-msgstr "Por favor, selecione o grupo de armazenamento ao qual este local se refere."
+msgstr ""
+"Por favor, selecione o grupo de armazenamento ao qual este local se refere."
 
 msgid "Please update your FOG Client, this is old and insecure"
 msgstr "Por favor, atualize seu Cliente FOG, este é antigo e inseguro"
@@ -4532,11 +4538,11 @@ msgid "Save Kernel"
 msgstr "Salvar Kernel"
 
 msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update "
-"or missing auto-increment."
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
 msgstr ""
-"Salvamento concluído, mas nenhum ID válido foi atribuído (insertId=0). Possível "
-"atualização de chave duplicada ou auto-incremento ausente."
+"Salvamento concluído, mas nenhum ID válido foi atribuído (insertId=0). "
+"Possível atualização de chave duplicada ou auto-incremento ausente."
 
 msgid "Saving data for"
 msgstr "Salvando dados para"
@@ -5565,7 +5571,8 @@ msgid "This node does not appear to be online"
 msgstr "Este nó não parece estar online"
 
 msgid "This page allows you to upload a CSV file into FOG to ease"
-msgstr "Esta página permite que você envie um arquivo CSV para o FOG para facilitar"
+msgstr ""
+"Esta página permite que você envie um arquivo CSV para o FOG para facilitar"
 
 msgid "This plugin is not installed"
 msgstr "Este plugin não está instalado"
@@ -5574,11 +5581,11 @@ msgid "This section allows you to customize or alter"
 msgstr "Esta seção permite personalizar ou alterar"
 
 msgid ""
-"This section allows you to import known mac address makers into the FOG database for "
-"easier identification"
+"This section allows you to import known mac address makers into the FOG "
+"database for easier identification"
 msgstr ""
-"Esta seção permite importar fabricantes de endereços MAC conhecidos para o banco de "
-"dados FOG para facilitar a identificação"
+"Esta seção permite importar fabricantes de endereços MAC conhecidos para o "
+"banco de dados FOG para facilitar a identificação"
 
 msgid "This section allows you to update"
 msgstr "Esta seção permite atualizar"
@@ -5602,25 +5609,27 @@ msgid "This setting limits the bandwidth for replication between nodes"
 msgstr "Esta configuração limita a largura de banda para replicação entre nós"
 
 msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the printer "
-"exists in printer management but is not assigned to a host, it will remove the printer "
-"if it exists on the unassigned host. It will add printers to the host that are assigned."
+"This setting only adds and removes printers that are managed by FOG. If the "
+"printer exists in printer management but is not assigned to a host, it will "
+"remove the printer if it exists on the unassigned host. It will add printers "
+"to the host that are assigned."
 msgstr ""
-"Esta configuração apenas adiciona e remove impressoras gerenciadas pelo FOG. Se a "
-"impressora existir no gerenciamento de impressoras, mas não estiver atribuída a um host, "
-"ela removerá a impressora se existir no host não atribuído. Ela adicionará impressoras "
-"ao host que estão atribuídas."
+"Esta configuração apenas adiciona e remove impressoras gerenciadas pelo FOG. "
+"Se a impressora existir no gerenciamento de impressoras, mas não estiver "
+"atribuída a um host, ela removerá a impressora se existir no host não "
+"atribuído. Ela adicionará impressoras ao host que estão atribuídas."
 
 msgid "This setting turns off all FOG Printer Management"
 msgstr "Esta configuração desativa todo o Gerenciamento de Impressoras FOG"
 
 msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. Any printer "
-"that is not assigned will be removed including non-FOG managed printers."
+"This setting will only allow FOG Assigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
 msgstr ""
-"Esta configuração permitirá apenas que impressoras atribuídas pelo FOG sejam adicionadas "
-"ao host. Qualquer impressora que não estiver atribuída será removida, incluindo "
-"impressoras não gerenciadas pelo FOG."
+"Esta configuração permitirá apenas que impressoras atribuídas pelo FOG sejam "
+"adicionadas ao host. Qualquer impressora que não estiver atribuída será "
+"removida, incluindo impressoras não gerenciadas pelo FOG."
 
 msgid "This will allow you to configure how services"
 msgstr "Isso permitirá configurar como os serviços"
@@ -6214,7 +6223,8 @@ msgid "but there are"
 msgstr "mas existem"
 
 msgid "check to ensure your filesystem has enough space"
-msgstr "verifique para garantir que seu sistema de arquivos tenha espaço suficiente"
+msgstr ""
+"verifique para garantir que seu sistema de arquivos tenha espaço suficiente"
 
 msgid "client"
 msgstr "cliente"
@@ -6332,6 +6342,10 @@ msgstr "foi concluído"
 
 msgid "has been killed"
 msgstr "foi morto (killed)"
+
+#, fuzzy
+msgid "has been started on port"
+msgstr "Tarefa iniciada para"
 
 msgid "has been successfully destroyed"
 msgstr "foi destruído com sucesso"
@@ -6669,8 +6683,11 @@ msgstr "tarefa encontrada"
 msgid "tasks in queue"
 msgstr "tarefas na fila"
 
-msgid "that detects the status on the fly, poweron or poweroff and the OS, of the client"
-msgstr "que detecta o status em tempo real, ligado ou desligado e o SO, do cliente"
+msgid ""
+"that detects the status on the fly, poweron or poweroff and the OS, of the "
+"client"
+msgstr ""
+"que detecta o status em tempo real, ligado ou desligado e o SO, do cliente"
 
 msgid "the Initrd (initial ramdisk) which is used alongside the"
 msgstr "o Initrd (initial ramdisk) que é usado junto com o"
@@ -6730,7 +6747,8 @@ msgid "to all nodes in the group"
 msgstr "para todos os nós no grupo"
 
 msgid "to be booted if no keys are pressed when the menu is"
-msgstr "a ser inicializado se nenhuma tecla for pressionada quando o menu estiver"
+msgstr ""
+"a ser inicializado se nenhuma tecla for pressionada quando o menu estiver"
 
 msgid "to get the requested Initrd"
 msgstr "para obter o Initrd solicitado"
@@ -6821,3 +6839,15 @@ msgstr "você gostaria de instalá-lo agora"
 
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "você define o campo de largura de banda naquele nó para 1000"
+
+#~ msgid "A broadcast already exists with this name"
+#~ msgstr "Um broadcast já existe com este nome"
+
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Tarefas de Multicast Ativas"
+
+#~ msgid "All Pending MACs approved."
+#~ msgstr "Todos os MACs Pendentes aprovados."
+
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "Nome da Conexão LDAP"

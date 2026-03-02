@@ -116,9 +116,6 @@ msgstr "¡Ya existe un rol con este nombre!"
 msgid "A broadcast address is required"
 msgstr "Campo obligatorio está vacio"
 
-msgid "A broadcast already exists with this name"
-msgstr ""
-
 #, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "¡Ya existe un rol con este nombre!"
@@ -198,7 +195,8 @@ msgstr "Impresora"
 msgid "A role already exists with this name!"
 msgstr "¡Ya existe un rol con este nombre!"
 
-msgid "A rule already exists with this name."
+#, fuzzy
+msgid "A rule already exists with this name"
 msgstr "Ya existe una regla con este nombre."
 
 #, fuzzy
@@ -337,10 +335,6 @@ msgstr "Activa"
 
 msgid "Active Directory"
 msgstr "Directorio Activo"
-
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "Tareas multicast activas"
 
 msgid "Active Multicast Tasks"
 msgstr "Tareas multicast activas"
@@ -581,9 +575,6 @@ msgid "All Hosts"
 msgstr "Todos los equipos"
 
 msgid "All Pending MACs approved"
-msgstr ""
-
-msgid "All Pending MACs approved."
 msgstr ""
 
 msgid "All Storage Groups"
@@ -1533,6 +1524,9 @@ msgid "Either reboot or shutdown action must be used."
 msgstr ""
 
 msgid "Email"
+msgstr ""
+
+msgid "Enable Nested Group Matching (Active Directory only)"
 msgstr ""
 
 msgid "Enable location Sending"
@@ -3411,10 +3405,6 @@ msgstr ""
 
 msgid "Kill"
 msgstr "Matar"
-
-#, fuzzy
-msgid "LDAP Connection  Name"
-msgstr "Nombre de imagen"
 
 #, fuzzy
 msgid "LDAP Connection Name"
@@ -7773,6 +7763,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #~ msgstr "Ya existe un host con este nombre"
 
 #, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Tareas multicast activas"
+
+#, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "¡Error al añadir un rol!"
 
@@ -7856,6 +7850,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "It is recommended to not use this file but"
 #~ msgstr "Extreme la precaución con esta configuración"
+
+#, fuzzy
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "Nombre de imagen"
 
 #, fuzzy
 #~ msgid "Legacy Client and Utilities"

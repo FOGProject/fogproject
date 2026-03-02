@@ -87,9 +87,6 @@ msgstr ""
 msgid "A broadcast address is required"
 msgstr ""
 
-msgid "A broadcast already exists with this name"
-msgstr ""
-
 msgid "A broadcast already exists with this name!"
 msgstr ""
 
@@ -153,7 +150,7 @@ msgstr ""
 msgid "A role already exists with this name!"
 msgstr ""
 
-msgid "A rule already exists with this name."
+msgid "A rule already exists with this name"
 msgstr ""
 
 msgid "A site already exists with this name!"
@@ -274,9 +271,6 @@ msgid "Active"
 msgstr ""
 
 msgid "Active Directory"
-msgstr ""
-
-msgid "Active Multi-cast Tasks"
 msgstr ""
 
 msgid "Active Multicast Tasks"
@@ -481,9 +475,6 @@ msgid "All Hosts"
 msgstr ""
 
 msgid "All Pending MACs approved"
-msgstr ""
-
-msgid "All Pending MACs approved."
 msgstr ""
 
 msgid "All Storage Groups"
@@ -1334,6 +1325,9 @@ msgid "Either reboot or shutdown action must be used."
 msgstr ""
 
 msgid "Email"
+msgstr ""
+
+msgid "Enable Nested Group Matching (Active Directory only)"
 msgstr ""
 
 msgid "Enable location Sending"
@@ -2940,9 +2934,6 @@ msgid "Key must be an array of keys or a string."
 msgstr ""
 
 msgid "Kill"
-msgstr ""
-
-msgid "LDAP Connection  Name"
 msgstr ""
 
 msgid "LDAP Connection Name"

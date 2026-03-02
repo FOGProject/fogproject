@@ -112,9 +112,6 @@ msgstr "Un host già esiste con questo nome!"
 msgid "A broadcast address is required"
 msgstr "È necessario un indirizzo di broadcast"
 
-msgid "A broadcast already exists with this name"
-msgstr "Un broadcast esiste già con questo nome"
-
 msgid "A broadcast already exists with this name!"
 msgstr "Un broadcast esiste già con questo nome!"
 
@@ -181,7 +178,7 @@ msgid "A role already exists with this name!"
 msgstr "Esiste già un ruolo con questo nome!"
 
 #, fuzzy
-msgid "A rule already exists with this name."
+msgid "A rule already exists with this name"
 msgstr "Esiste già un ruolo con questo nome!"
 
 #, fuzzy
@@ -308,9 +305,6 @@ msgstr "Attivo"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-msgid "Active Multi-cast Tasks"
-msgstr "Attività multi-cast attive"
 
 msgid "Active Multicast Tasks"
 msgstr "Compiti multicast attivi"
@@ -526,9 +520,6 @@ msgstr "tutti gli host"
 
 msgid "All Pending MACs approved"
 msgstr "Tutti i MAC in sospeso approvati"
-
-msgid "All Pending MACs approved."
-msgstr "Tutti i Mac in sospeso approvati."
 
 msgid "All Storage Groups"
 msgstr "Tutti i gruppi di archiviazione"
@@ -1397,6 +1388,9 @@ msgstr "È necessario utilizzare l'azione di riavvio o di arresto."
 
 msgid "Email"
 msgstr "E-mail"
+
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
 
 msgid "Enable location Sending"
 msgstr "Abilita invio posizione "
@@ -3053,9 +3047,6 @@ msgstr "Chiave deve essere un array o una stringa."
 
 msgid "Kill"
 msgstr "Uccidere"
-
-msgid "LDAP Connection  Name"
-msgstr "Nome connessione LDAP"
 
 msgid "LDAP Connection Name"
 msgstr "Nome connessione LDAP"
@@ -7044,6 +7035,9 @@ msgstr "ti piacerebbe installarlo ora"
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
+#~ msgid "A broadcast already exists with this name"
+#~ msgstr "Un broadcast esiste già con questo nome"
+
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Un host già esiste con questo nome!"
@@ -7052,9 +7046,15 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 #~ msgid "A site alread exists with this name!"
 #~ msgstr "Un host già esiste con questo nome!"
 
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Attività multi-cast attive"
+
 #, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Aggiunta gruppo non riuscito!"
+
+#~ msgid "All Pending MACs approved."
+#~ msgstr "Tutti i Mac in sospeso approvati."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Impossibile leggere il file temporaneo"
@@ -7147,6 +7147,9 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
 #~ msgid "It is recommended to not use this file but"
 #~ msgstr "Si raccomanda di non utilizzare questo file ma"
+
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "Nome connessione LDAP"
 
 #~ msgid "Legacy Client and Utilities"
 #~ msgstr "Client legacy e utilità"

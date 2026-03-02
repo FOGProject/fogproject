@@ -112,10 +112,6 @@ msgid "A broadcast address is required"
 msgstr "Eine Broadcast-Adresse ist erforderlich"
 
 #, fuzzy
-msgid "A broadcast already exists with this name"
-msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
 
@@ -197,7 +193,7 @@ msgid "A role already exists with this name!"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "A rule already exists with this name."
+msgid "A rule already exists with this name"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
@@ -337,10 +333,6 @@ msgstr "Aktiv"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "Aktive Multicast Tasks"
 
 msgid "Active Multicast Tasks"
 msgstr "Aktive Multicast-Tasks"
@@ -582,9 +574,6 @@ msgstr "Alle Hosts"
 
 #, fuzzy
 msgid "All Pending MACs approved"
-msgstr "Alle ausstehenden MACs freigegeben."
-
-msgid "All Pending MACs approved."
 msgstr "Alle ausstehenden MACs freigegeben."
 
 msgid "All Storage Groups"
@@ -1572,6 +1561,9 @@ msgstr "Entweder neustarten oder herunterfahren"
 
 msgid "Email"
 msgstr "E-Mail"
+
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
 
 msgid "Enable location Sending"
 msgstr "Standort senden aktivieren"
@@ -3407,10 +3399,6 @@ msgstr ""
 
 msgid "Kill"
 msgstr "sofort abbrechen"
-
-#, fuzzy
-msgid "LDAP Connection  Name"
-msgstr "LDAP Verbindungsname"
 
 #, fuzzy
 msgid "LDAP Connection Name"
@@ -7868,6 +7856,10 @@ msgid "you set the bandwidth field on that node to 1000"
 msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #, fuzzy
+#~ msgid "A broadcast already exists with this name"
+#~ msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
@@ -7876,8 +7868,15 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Aktive Multicast Tasks"
+
+#, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Gruppe hinzufügen fehlgeschlagen!"
+
+#~ msgid "All Pending MACs approved."
+#~ msgstr "Alle ausstehenden MACs freigegeben."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Temporäre Datei konnte nicht gelesen werden."
@@ -7970,6 +7969,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "It is recommended to not use this file but"
 #~ msgstr "Es wird empfohlen, diese Datei nicht zu nutzen, "
+
+#, fuzzy
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "LDAP Verbindungsname"
 
 #~ msgid "Legacy Client and Utilities"
 #~ msgstr "Legacy Client und Dienstprogramme"
