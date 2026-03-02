@@ -50,11 +50,6 @@ class PowerManagement extends FOGController
      */
     protected $databaseFieldsRequired = array(
         'hostID',
-        'min',
-        'hour',
-        'dom',
-        'month',
-        'dow',
         'action',
     );
     /**
