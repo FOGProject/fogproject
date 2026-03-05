@@ -596,7 +596,7 @@ class Route extends FOGBase
                                     . '&sub=edit&id='
                                     . $row[$tmpcolumns['id']]
                                     . '">'
-                                    . $d
+                                    . '(' . $row[$tmpcolumns['id']] . ') - ' . $d
                                     . '</a>';
                             }
                         ];

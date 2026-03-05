@@ -1514,9 +1514,11 @@ class LDAPManagement extends FOGPage
     public function edit()
     {
         $this->title = sprintf(
-            '%s: %s',
+            '%s: %s %s: %s',
             _('Edit'),
-            $this->obj->get('name')
+            $this->obj->get('name'),
+            _('ID'),
+            $this->obj->get('id')
         );
 
         $tabData = [];
