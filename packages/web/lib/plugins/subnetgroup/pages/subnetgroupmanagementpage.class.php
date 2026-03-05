@@ -75,11 +75,11 @@ class SubnetgroupManagementPage extends FOGPage
             . '</label>',
             '<a href="?node=subnetgroup&sub=edit&id=${id}" title="'
             . _('Edit')
-            . '">${name}</a>',
+            . '">(${id}) - ${name}</a>',
             '${subnets}',
             '<a href="?node=group&sub=edit&id=${groupID}" title="'
             . _('Group')
-            . '">${groupName}</a>',
+            . '">(${groupID}) - ${groupName}</a>',
         );
         $this->attributes = array(
             array(

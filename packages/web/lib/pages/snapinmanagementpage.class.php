@@ -184,7 +184,7 @@ class SnapinManagementPage extends FOGPage
             . 'data-toggle="tooltip" data-placement="right" '
             . 'title="'
             . _('Edit')
-            . ': ${name}">${name} - ${id}</a>',
+            . ': ${name}">(${id}) - ${name}</a>',
             '${packtype}',
             '${storageGroup}',
         );
@@ -1244,7 +1244,7 @@ class SnapinManagementPage extends FOGPage
             . 'value="${storageGroup_id}"/>'
             . '</label>',
             '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
+            . '(${storageGroup_id}) - ${storageGroup_name}'
             . '</a>'
         );
         $this->attributes = array(
@@ -1356,7 +1356,7 @@ class SnapinManagementPage extends FOGPage
             . '</label>'
             . '</div>',
             '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
+            . '(${storageGroup_id}) - ${storageGroup_name}'
             . '</a>'
         );
         $this->attributes = array(

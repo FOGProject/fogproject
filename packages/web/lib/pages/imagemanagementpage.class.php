@@ -168,7 +168,7 @@ class ImageManagementPage extends FOGPage
             . _('Edit')
             . ': ${name} '
             . _('Last captured')
-            . ': ${deployed}">${name} - ${id}</a>'
+            . ': ${deployed}">(${id}) - ${name}</a>'
             . '<br/>'
             . '<small>${image_type}</small>'
             . '<br/>'

@@ -339,7 +339,11 @@ abstract class FOGPage extends FOGBase
                 $this->name .= ' '
                     . _('Edit')
                     . ': '
-                    . $this->obj->get('name');
+                    . $this->obj->get('name')
+                    . ' '
+                    . _('ID')
+                    . ': '
+                    . $this->obj->get('id');
             }
         }
         $this->reportString = '<h4 class="title">'
@@ -1075,9 +1079,9 @@ abstract class FOGPage extends FOGBase
             )
         );
         $this->templates = array(
-            '<a href="${host_link}">${host_name}</a>',
+            '<a href="${host_link}">(${host_id}) - ${host_name}</a>',
             '${host_mac}',
-            '<a href="${image_link}">${image_name}</a>'
+            '<a href="${image_link}">(${image_id}) - ${image_name}</a>'
             . '<input type="hidden" name="taskhosts[]" value="${host_id}"/>',
         );
         if ($this->obj instanceof Host) {
@@ -1178,16 +1182,18 @@ abstract class FOGPage extends FOGBase
                 $this->data[] = array(
                     'host_link' => '?node=host&sub=edit&id=${host_id}',
                     'host_title' => sprintf(
-                        '%s: ${host_name}',
-                        _('Edit')
+                        '%s: ${host_name} %s: ${host_id}',
+                        _('Edit'),
+                        _('ID')
                     ),
                     'host_id' => $Host->id,
                     'host_name' => $Host->name,
                     'host_mac' => $Host->primac,
                     'image_link' => '?node=image&sub=edit&id=${image_id}',
                     'image_title' => sprintf(
-                        '%s: ${image_name}',
-                        _('Edit')
+                        '%s: ${image_name} %s: ${image_id}',
+                        _('Edit'),
+                        _('ID')
                     ),
                     'image_id' => $imageID,
                     'image_name' => $imageName,
@@ -1986,6 +1992,7 @@ abstract class FOGPage extends FOGBase
                 . '&sub=edit&id='
                 . $object->id
                 . '">'
+                . '(' . $object->id . ') - '
                 . $object->name
                 . '</a>'
             );
@@ -3594,7 +3601,7 @@ abstract class FOGPage extends FOGBase
             . '</label>',
             '<a href="?node='
             . $objType
-            . '&sub=edit&id=${host_id}">${host_name}</a>'
+            . '&sub=edit&id=${host_id}">(${host_id}) - ${host_name}</a>'
         );
         $this->attributes = array(
             array(
@@ -3719,7 +3726,7 @@ abstract class FOGPage extends FOGBase
             . '</label>',
             '<a href="?node='
             . $objType
-            . '&sub=edit&id=${host_id}">${host_name}</a>'
+            . '&sub=edit&id=${host_id}">(${host_id}) - ${host_name}</a>'
         );
         foreach ((array)$namesinme as $item) {
             $this->data[] = [

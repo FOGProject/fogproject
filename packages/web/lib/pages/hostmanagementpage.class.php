@@ -225,7 +225,7 @@ class HostManagementPage extends FOGPage
             . _('Edit')
             . ': ${host_name}" id="host-${host_name}" '
             . 'data-toggle="tooltip" data-placement="right">'
-            . '${host_name}'
+            . '(${id}) - ${host_name}'
             . '</a>'
             . '<br/>'
             . '<small>${host_mac}</small>',
@@ -3186,9 +3186,11 @@ class HostManagementPage extends FOGPage
     public function edit()
     {
         $this->title = sprintf(
-            '%s: %s',
+            '%s: %s %s: %s',
             _('Edit'),
-            $this->obj->get('name')
+            $this->obj->get('name'),
+            _('ID'),
+            $this->obj->get('id')
         );
         $approve = filter_input(INPUT_GET, 'approveHost');
         if ($approve) {

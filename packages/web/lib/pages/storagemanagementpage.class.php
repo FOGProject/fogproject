@@ -232,7 +232,7 @@ class StorageManagementPage extends FOGPage
             . '"${id}" class="toggle-action" id="node-${id}"/>'
             . '<label for="node-${id}"></label>',
             sprintf(
-                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
+                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">(${id}) - ${name}</a>',
                 $this->node,
                 $this->id,
                 self::$foglang['Edit']

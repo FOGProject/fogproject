@@ -81,7 +81,7 @@ class LDAPManagementPage extends FOGPage
             . 'data-placement="right" title="'
             . _('Edit')
             . ' '
-            . '${name}">${name}</a>',
+            . '${name}">(${id}) - ${name}</a>',
             '${description}',
             '${address}',
             '${port}',

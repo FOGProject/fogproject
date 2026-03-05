@@ -69,7 +69,7 @@ class TaskstateeditManagementPage extends FOGPage
             '<i class="fa fa-${icon} fa-1x"></i>',
             sprintf(
                 '<a href="?node=%s&sub=edit&id=${id}" title='
-                . '"%s">&nbsp;&nbsp;${name}</a>',
+                . '"%s">(${id}) - &nbsp;&nbsp;${name}</a>',
                 $this->node,
                 _('Edit')
             ),

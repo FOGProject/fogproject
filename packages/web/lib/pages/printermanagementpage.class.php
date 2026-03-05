@@ -94,7 +94,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="checkbox" name="printer[]" '
             . 'value="${id}" class="toggle-action" id="host-${id}"/>'
             . '</label>',
-            '<a href="?node=printer&sub=edit&id=${id}" title="Edit">${name}</a>',
+            '<a href="?node=printer&sub=edit&id=${id}" title="Edit">(${id}) - ${name}</a>',
             '${config}',
             '${model}',
             '${port}',

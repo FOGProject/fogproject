@@ -64,7 +64,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>',
             '<a href="?node=wolbroadcast&sub=edit&id=${id}" title="'
             . _('Edit')
-            . '">${name}</a>',
+            . '">(${id}) - ${name}</a>',
             '${wol_ip}'
         );
         $this->attributes = array(

@@ -251,7 +251,7 @@ class AccessControlManagementPage extends FOGPage
                 '<input type="checkbox" name="accesscontrol[]" value='
                 . '"${id}" class="toggle-action"/>',
                 '<a href="?node=accesscontrol&sub=edit'
-                . '&id=${id}" title="Edit">${name}</a>',
+                . '&id=${id}" title="Edit">(${id}) - ${name}</a>',
                 '${description}',
             );
             $this->attributes = array(

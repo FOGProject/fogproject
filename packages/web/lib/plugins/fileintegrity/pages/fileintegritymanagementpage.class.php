@@ -68,7 +68,7 @@ class FileIntegrityManagementPage extends FOGPage
             '${modtime}',
             '<a href="?node=storage&sub=edit&id=${storagenodeID}" '
             . 'title="Edit: ${storage_name}" id="node-${storage_name}">'
-            . '${storage_name}</a>',
+            . '(${storagenodeID}) - ${storage_name}</a>',
             '${file_path}',
         );
         $this->attributes = array(
