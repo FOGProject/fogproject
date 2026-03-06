@@ -23,7 +23,30 @@ require '../commons/base.inc.php';
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: application/json');
-FOGCore::checkAuthAndCSRF();
+
+// Allow local authenticated users and trusted node-to-node requests.
+$isAuthorizedUser = FOGCore::is_authorized(true);
+$remoteIP = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
+Route::ids('storagenode', [], 'ip');
+$storageNodeIPs = json_decode(Route::getData(), true) ?: [];
+$trustedIPs = array_merge(
+    (array)$storageNodeIPs,
+    ['127.0.0.1', '::1']
+);
+$isTrustedCaller = is_string($remoteIP)
+    && in_array($remoteIP, $trustedIPs, true);
+if (!$isAuthorizedUser && !$isTrustedCaller) {
+    http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
+    echo json_encode(
+        [
+            'free' => 0,
+            'used' => 0,
+            'error' => _('Unauthorized'),
+            'title' => _('Access Denied')
+        ]
+    );
+    exit;
+}
 $decodePath = filter_input(INPUT_GET, 'path');
 $path = base64_decode((string)$decodePath, true);
 if (!$path) {
