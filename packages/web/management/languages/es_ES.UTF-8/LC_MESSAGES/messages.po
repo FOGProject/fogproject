@@ -277,6 +277,10 @@ msgstr "impresora iPrint"
 msgid "Access Controls"
 msgstr "impresora iPrint"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "impresora iPrint"
+
 msgid "Access Token"
 msgstr ""
 
@@ -3274,6 +3278,10 @@ msgstr ""
 msgid "Invalid Multicast Session"
 msgstr "Iniciar la sesión de multidifusión"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "identificación invalida"
+
 msgid "Invalid Server Information!"
 msgstr "Información de servidor no válido!"
 
@@ -3337,6 +3345,10 @@ msgstr "está estableciendo tecla no válida"
 #, fuzzy
 msgid "Invalid method called"
 msgstr "Valor no válido Tiempo de espera"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "host no válido"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4560,6 +4572,9 @@ msgstr "Tipo de CPU"
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "No se dispone de hash"
+
+msgid "Path not allowed"
+msgstr ""
 
 #, fuzzy
 msgid "Pause"

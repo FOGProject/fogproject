@@ -276,6 +276,10 @@ msgstr "所有访问控制"
 msgid "Access Controls"
 msgstr "所有访问控制"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "访问令牌"
+
 msgid "Access Token"
 msgstr "访问令牌"
 
@@ -3200,6 +3204,10 @@ msgstr "无效的MAC地址！"
 msgid "Invalid Multicast Session"
 msgstr "开始多播会话"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "无效的ID"
+
 msgid "Invalid Server Information!"
 msgstr "无效的服务器信息！"
 
@@ -3257,6 +3265,10 @@ msgstr "无效的关键字设定"
 
 msgid "Invalid method called"
 msgstr "所谓的无效方法"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "无效的主机"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4442,6 +4454,10 @@ msgstr "CPU类型"
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "没有可用的散列"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "这里不允许"
 
 #, fuzzy
 msgid "Pause"

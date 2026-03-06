@@ -277,6 +277,10 @@ msgstr "Tous les contrôles d'accès"
 msgid "Access Controls"
 msgstr "Tous les contrôles d'accès"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "Jeton d'accès"
+
 msgid "Access Token"
 msgstr "Jeton d'accès"
 
@@ -3203,6 +3207,10 @@ msgstr "Invalid Adresse MAC!"
 msgid "Invalid Multicast Session"
 msgstr "Démarrez Multicast session"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "ID invalide"
+
 msgid "Invalid Server Information!"
 msgstr "Informations sur le serveur invalide!"
 
@@ -3260,6 +3268,10 @@ msgstr "Clé non valide étant réglée"
 
 msgid "Invalid method called"
 msgstr "Méthode invalide appelé"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "hôte non valide"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4447,6 +4459,10 @@ msgstr "Type de processeur"
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "Pas de hachage disponible"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "Non autorisé ici"
 
 #, fuzzy
 msgid "Pause"

@@ -28,9 +28,47 @@ $file = filter_input(
     INPUT_POST,
     'file'
 );
-$file = base64_decode($file);
-if (!file_exists($file)) {
+$file = base64_decode((string)$file, true);
+if (!$file) {
     return 0;
 }
+$file = realpath($file);
+if (!is_string($file) || !is_file($file) || !is_readable($file)) {
+    return 0;
+}
+
+Route::ids('storagenode', [], 'path');
+$imagePaths = json_decode(Route::getData(), true) ?: [];
+Route::ids('storagenode', [], 'snapinpath');
+$snapinPaths = json_decode(Route::getData(), true) ?: [];
+
+$validPaths = array_merge(
+    (array)$imagePaths,
+    (array)$snapinPaths
+);
+$realValidPaths = [];
+foreach ((array)$validPaths as $validPath) {
+    foreach ((array)glob($validPath) as $expandedPath) {
+        $realPath = realpath($expandedPath);
+        if (!is_string($realPath) || !is_dir($realPath)) {
+            continue;
+        }
+        $realValidPaths[] = rtrim($realPath, DS) . DS;
+    }
+}
+
+$allowed = false;
+$compareFile = rtrim($file, DS) . DS;
+foreach (array_unique($realValidPaths) as $realValidPath) {
+    if (strpos($compareFile, $realValidPath) === 0) {
+        $allowed = true;
+        break;
+    }
+}
+
+if (!$allowed) {
+    return 0;
+}
+
 echo FOGCore::getFilesize($file);
 exit;

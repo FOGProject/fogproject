@@ -214,6 +214,9 @@ msgstr ""
 msgid "Access Controls"
 msgstr ""
 
+msgid "Access Denied"
+msgstr ""
+
 msgid "Access Token"
 msgstr ""
 
@@ -2664,6 +2667,9 @@ msgstr ""
 msgid "Invalid Multicast Session"
 msgstr ""
 
+msgid "Invalid Path"
+msgstr ""
+
 msgid "Invalid Server Information!"
 msgstr ""
 
@@ -2713,6 +2719,9 @@ msgid "Invalid key being set"
 msgstr ""
 
 msgid "Invalid method called"
+msgstr ""
+
+msgid "Invalid path"
 msgstr ""
 
 msgid "Invalid scheduling type"
@@ -3725,6 +3734,9 @@ msgid "Path Type"
 msgstr ""
 
 msgid "Path is unavailable"
+msgstr ""
+
+msgid "Path not allowed"
 msgstr ""
 
 msgid "Pause"

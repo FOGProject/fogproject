@@ -20,6 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+FOGCore::checkAuthAndCSRF();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
