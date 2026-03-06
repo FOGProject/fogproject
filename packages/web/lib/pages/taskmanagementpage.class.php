@@ -83,12 +83,12 @@ class TaskManagementPage extends FOGPage
             '${startedby}',
             sprintf(
                 '<p><a href="?node=host&sub=edit&id=${host_id}" title='
-                . '"%s">${host_name}</a></p><small>${host_mac}</small>',
+                . '"%s">(${host_id}) - ${host_name}</a></p><small>${host_mac}</small>',
                 _('Edit Host')
             ),
             sprintf(
                 '<p><a href="?node=image&sub=edit&id=${image_id}" title='
-                . '"%s">${image_name}</a></p>',
+                . '"%s">(${image_id}) - ${image_name}</a></p>',
                 _('Edit Image')
             ),
             '<small>${time}</small>',
@@ -347,7 +347,7 @@ class TaskManagementPage extends FOGPage
             _('Tasking'),
         );
         $this->templates = array(
-            '<a href="?node=host&sub=edit&id=${id}">${name}</a>'
+            '<a href="?node=host&sub=edit&id=${id}">(${id}) - ${name}</a>'
             . '<br/><small>${mac}</small>',
             '<small>${imagename}</small>',
             sprintf(
@@ -450,7 +450,7 @@ class TaskManagementPage extends FOGPage
             _('Tasking'),
         );
         $this->templates = array(
-            '<a href="?node=group&sub=edit&id=${id}">${name}</a>',
+            '<a href="?node=group&sub=edit&id=${id}">(${id}) - ${name}</a>',
             sprintf(
                 '%s %s %s',
                 $mc,

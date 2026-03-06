@@ -1174,7 +1174,7 @@ class StorageManagementPage extends FOGPage
             . '<label for="group-${id}"></label>',
             sprintf(
                 '<a href="?node=%s&sub=editStorageGroup&%s=${id}" title='
-                . '"%s">${name}</a>',
+                . '"%s">(${id}) - ${name}</a>',
                 $this->node,
                 $this->id,
                 self::$foglang['Edit']
