@@ -295,6 +295,10 @@ msgid "Access Controls"
 msgstr ""
 
 #, fuzzy
+msgid "Access Denied"
+msgstr "Reglas de acceso"
+
+#, fuzzy
 msgid "Access Token"
 msgstr "Reglas de acceso"
 
@@ -2050,6 +2054,10 @@ msgid "File Integrity Management"
 msgstr "Gestión de impresoras"
 
 #, fuzzy
+msgid "File Not Found"
+msgstr "Archivo de icono no encontrado"
+
+#, fuzzy
 msgid "File System Information"
 msgstr "Información de hardware"
 
@@ -2066,6 +2074,10 @@ msgstr "Debe de ser un archivo CSV"
 
 msgid "File or path cannot be reached"
 msgstr ""
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Método no existe"
 
 #, fuzzy
 msgid "File size mismatch"
@@ -3165,6 +3177,10 @@ msgid "Invalid Multicast Session"
 msgstr "Multicast"
 
 #, fuzzy
+msgid "Invalid Path"
+msgstr "Fecha"
+
+#, fuzzy
 msgid "Invalid Plugin Passed"
 msgstr "Gestión de plugins"
 
@@ -3256,6 +3272,10 @@ msgstr ""
 #, fuzzy
 msgid "Invalid operational mode"
 msgstr "Modo"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "Fecha"
 
 msgid "Invalid scheduling type"
 msgstr ""
@@ -4106,6 +4126,10 @@ msgstr "No disponible"
 msgid "No connection to the database"
 msgstr "Campo obligatorio está vacio"
 
+#, fuzzy
+msgid "No data found"
+msgstr "No encontrado"
+
 msgid "No data returned"
 msgstr ""
 
@@ -4486,6 +4510,10 @@ msgstr ""
 
 msgid "Path is unavailable"
 msgstr ""
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "No permitido aquí"
 
 msgid "Pause"
 msgstr ""

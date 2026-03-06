@@ -298,6 +298,10 @@ msgstr "All Access Controls"
 msgid "Access Controls"
 msgstr "All Access Controls"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "Access Token"
+
 msgid "Access Token"
 msgstr "Access Token"
 
@@ -2059,6 +2063,10 @@ msgstr "File"
 msgid "File Integrity Management"
 msgstr "Printer Management"
 
+#, fuzzy
+msgid "File Not Found"
+msgstr "Icon File not found"
+
 msgid "File System Information"
 msgstr "File System Information"
 
@@ -2076,6 +2084,10 @@ msgstr "Event must be a string"
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr "File or path cannot be reached"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "File does not exist"
 
 #, fuzzy
 msgid "File size mismatch"
@@ -3145,6 +3157,10 @@ msgstr "Invalid MAC Address!"
 msgid "Invalid Multicast Session"
 msgstr "Start Multicast Session"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "Invalid type"
+
 msgid "Invalid Plugin Passed"
 msgstr "Invalid Plugin Passed"
 
@@ -3235,6 +3251,10 @@ msgstr "Invalid object type passed"
 
 msgid "Invalid operational mode"
 msgstr "Invalid operational mode"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "Invalid type"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4083,6 +4103,10 @@ msgstr "No connection available"
 msgid "No connection to the database"
 msgstr "No connection to the database"
 
+#, fuzzy
+msgid "No data found"
+msgstr "Not found"
+
 msgid "No data returned"
 msgstr "No data returned"
 
@@ -4486,6 +4510,10 @@ msgstr "Path"
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "No hash available"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "Not allowed here"
 
 #, fuzzy
 msgid "Pause"

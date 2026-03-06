@@ -298,6 +298,10 @@ msgstr "所有访问控制"
 msgid "Access Controls"
 msgstr "所有访问控制"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "访问令牌"
+
 msgid "Access Token"
 msgstr "访问令牌"
 
@@ -2060,6 +2064,10 @@ msgstr "文件"
 msgid "File Integrity Management"
 msgstr "打印机管理"
 
+#, fuzzy
+msgid "File Not Found"
+msgstr "图标文件未找到"
+
 msgid "File System Information"
 msgstr "文件系统信息"
 
@@ -2077,6 +2085,10 @@ msgstr "事件必须是字符串"
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr "|文件或无法达成通道"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "文件不存在"
 
 #, fuzzy
 msgid "File size mismatch"
@@ -3147,6 +3159,10 @@ msgstr "无效的MAC地址！"
 msgid "Invalid Multicast Session"
 msgstr "开始多播会话"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "无效类型"
+
 msgid "Invalid Plugin Passed"
 msgstr "无效的插件传递"
 
@@ -3237,6 +3253,10 @@ msgstr "无效的对象类型传递"
 
 msgid "Invalid operational mode"
 msgstr "无效的操作模式"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "无效类型"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4083,6 +4103,10 @@ msgstr "没有可用的连接"
 msgid "No connection to the database"
 msgstr "没有连接到数据库"
 
+#, fuzzy
+msgid "No data found"
+msgstr "未找到"
+
 msgid "No data returned"
 msgstr "无数据返回"
 
@@ -4486,6 +4510,10 @@ msgstr "路径"
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "没有可用的散列"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "这里不允许"
 
 #, fuzzy
 msgid "Pause"

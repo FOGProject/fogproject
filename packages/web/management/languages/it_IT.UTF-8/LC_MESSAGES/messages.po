@@ -267,6 +267,10 @@ msgstr "Regole controllo accessi"
 msgid "Access Controls"
 msgstr "Controllo accessi"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "Token di accesso"
+
 msgid "Access Token"
 msgstr "Token di accesso"
 
@@ -1860,6 +1864,10 @@ msgstr "File"
 msgid "File Integrity Management"
 msgstr "Printer Management"
 
+#, fuzzy
+msgid "File Not Found"
+msgstr "File Icona non trovato"
+
 msgid "File System Information"
 msgstr "File System Information"
 
@@ -1875,6 +1883,10 @@ msgstr "Il file deve essere un csv"
 
 msgid "File or path cannot be reached"
 msgstr "Impossibile raggiungere il file o il percorso"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Il file non esiste"
 
 #, fuzzy
 msgid "File size mismatch"
@@ -2825,6 +2837,10 @@ msgstr "Non valido Indirizzo MAC!"
 msgid "Invalid Multicast Session"
 msgstr "Sessione multicast non valida"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "Data non valida"
+
 msgid "Invalid Plugin Passed"
 msgstr "Plugin non valido passato"
 
@@ -2907,6 +2923,10 @@ msgstr "tipo di oggetto non valido passato"
 
 msgid "Invalid operational mode"
 msgstr "modalità operativa non valido"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "Data non valida"
 
 msgid "Invalid scheduling type"
 msgstr "Tipo di scheduling non valido"
@@ -3668,6 +3688,10 @@ msgstr "Nessuna connessione disponibile"
 msgid "No connection to the database"
 msgstr "Nessuna connessione al database"
 
+#, fuzzy
+msgid "No data found"
+msgstr "Non trovato"
+
 msgid "No data returned"
 msgstr "Non ci sono dati restituiti"
 
@@ -4032,6 +4056,10 @@ msgstr "Percorso"
 
 msgid "Path is unavailable"
 msgstr "Percorso non disponibile"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "Non ammessi qui"
 
 msgid "Pause"
 msgstr "Pausa"
