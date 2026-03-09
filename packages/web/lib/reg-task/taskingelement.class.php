@@ -315,8 +315,8 @@ abstract class TaskingElement extends FOGBase
         }
         $find = [
             'hostID' => self::$Host->get('id'),
+            'image' => $this->Image->get('name'),
             'finish' => '0000-00-00 00:00:00',
-            'image' => $this->Image->get('name')
         ];
         Route::ids(
             'imaginglog',
@@ -326,7 +326,7 @@ abstract class TaskingElement extends FOGBase
             Route::getData(),
             true
         );
-        $ilID = @max($ilID);
+        $ilID = @max($ilID ?? 0);
         return self::getClass('ImagingLog', $ilID)
             ->set('finish', self::formatTime('', 'Y-m-d H:i:s'))
             ->save();
