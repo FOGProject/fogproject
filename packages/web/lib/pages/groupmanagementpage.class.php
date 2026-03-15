@@ -108,7 +108,7 @@ class GroupManagementPage extends FOGPage
             . '<label for="group-${id}"></label>',
             sprintf(
                 '<a href="?node=group&sub=edit&%s=${id}" '
-                . 'title="Edit">${name}</a>',
+                . 'title="Edit">(${id}) - ${name}</a>',
                 $this->id
             ),
             '${count}',

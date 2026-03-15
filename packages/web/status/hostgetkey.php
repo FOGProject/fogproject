@@ -36,15 +36,16 @@ try {
         throw new Exception(_('Host token is currently in use'));
     }
     if (!FOGCore::$Host->get('token')) {
+        $newToken = FOGCore::createSecToken();
         FOGCore::getClass('HostManager')->update(
             ['id' => FOGCore::$Host->get('id')],
             '',
             [
-                'token' => FOGCore::createSecToken(),
+                'token' => $newToken,
                 'tokenlock' => true
             ]
         );
-        throw new Exception(FOGCore::$Host->get('token'));
+        throw new Exception($newToken);
     }
     if (FOGCore::$Host->isValid() && !FOGCore::$Host->get('tokenlock')) {
         FOGCore::getClass('HostManager')->update(

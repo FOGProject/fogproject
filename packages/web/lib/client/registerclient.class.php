@@ -70,6 +70,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
                 'Host',
                 array('name' => $hostname)
             )->load('name');
+            // Host is INVALID or Host IS pending
             if (!(self::$Host->isValid() && !self::$Host->get('pending'))) {
                 if (!self::getClass('Host')->isHostnameSafe($hostname)) {
                     if (!self::$json) {
@@ -85,6 +86,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
                         'description',
                         _('Pending Registration created by FOG_CLIENT')
                     )
+                    ->set('imageID', 0)
                     ->set('pending', (string)1)
                     ->set('enforce', (string)$enforce)
                     ->set(
@@ -96,7 +98,8 @@ class RegisterClient extends FOGClient implements FOGClientSend
                     )
                     ->addPriMAC($PriMAC)
                     ->addAddMAC($MACs);
-                if (!self::$Host->save()) {
+                self::$Host->save();
+                if (!self::$Host->isValid()) {
                     return array('error' => 'db');
                 }
                 return array('complete' => true);

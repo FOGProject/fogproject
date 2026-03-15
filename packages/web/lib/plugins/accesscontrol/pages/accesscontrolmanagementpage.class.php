@@ -251,7 +251,7 @@ class AccessControlManagementPage extends FOGPage
                 '<input type="checkbox" name="accesscontrol[]" value='
                 . '"${id}" class="toggle-action"/>',
                 '<a href="?node=accesscontrol&sub=edit'
-                . '&id=${id}" title="Edit">${name}</a>',
+                . '&id=${id}" title="Edit">(${id}) - ${name}</a>',
                 '${description}',
             );
             $this->attributes = array(
@@ -1018,7 +1018,7 @@ class AccessControlManagementPage extends FOGPage
             $exists = self::getClass('AccessControlRuleManager')
                 ->exists($value);
             if ($exists) {
-                throw new Exception(_('A rule already exists with this name.'));
+                throw new Exception(_('A rule already exists with this name'));
             }
             $AccessControlRule = self::getClass('AccessControlRule')
                 ->set('type', $type)

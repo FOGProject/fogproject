@@ -94,7 +94,7 @@ class UserManagementPage extends FOGPage
             . '</label>',
             '${apiYes}',
             sprintf(
-                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
+                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">(${id}) - ${name}</a>',
                 $this->node,
                 $this->id,
                 _('Edit User')

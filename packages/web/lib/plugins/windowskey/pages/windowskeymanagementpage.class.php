@@ -71,7 +71,7 @@ class WindowsKeyManagementPage extends FOGPage
         $this->templates = array(
             '<input type="checkbox" name="windowskey[]" value="${id}" '
             . 'class="toggle-action"/>',
-            '<a href="?node=windowskey&sub=edit&id=${id}">${name}</a>'
+            '<a href="?node=windowskey&sub=edit&id=${id}">(${id}) - ${name}</a>'
         );
         $this->attributes = array(
             array(

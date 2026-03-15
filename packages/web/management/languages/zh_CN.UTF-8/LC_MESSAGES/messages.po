@@ -117,10 +117,6 @@ msgid "A broadcast address is required"
 msgstr "MAC地址是必需的"
 
 #, fuzzy
-msgid "A broadcast already exists with this name"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -202,7 +198,7 @@ msgid "A role already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "A rule already exists with this name."
+msgid "A rule already exists with this name"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
@@ -302,6 +298,10 @@ msgstr "所有访问控制"
 msgid "Access Controls"
 msgstr "所有访问控制"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "访问令牌"
+
 msgid "Access Token"
 msgstr "访问令牌"
 
@@ -342,10 +342,6 @@ msgstr "活性"
 
 msgid "Active Directory"
 msgstr "活动目录"
-
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "活动组播任务"
 
 msgid "Active Multicast Tasks"
 msgstr "活动组播任务"
@@ -587,9 +583,6 @@ msgstr "所有主机"
 
 #, fuzzy
 msgid "All Pending MACs approved"
-msgstr "所有待定的MAC批准。"
-
-msgid "All Pending MACs approved."
 msgstr "所有待定的MAC批准。"
 
 msgid "All Storage Groups"
@@ -1570,6 +1563,9 @@ msgstr ""
 msgid "Email"
 msgstr "电子邮件"
 
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
+
 msgid "Enable location Sending"
 msgstr ""
 
@@ -2068,6 +2064,10 @@ msgstr "文件"
 msgid "File Integrity Management"
 msgstr "打印机管理"
 
+#, fuzzy
+msgid "File Not Found"
+msgstr "图标文件未找到"
+
 msgid "File System Information"
 msgstr "文件系统信息"
 
@@ -2085,6 +2085,10 @@ msgstr "事件必须是字符串"
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr "|文件或无法达成通道"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "文件不存在"
 
 #, fuzzy
 msgid "File size mismatch"
@@ -3155,6 +3159,10 @@ msgstr "无效的MAC地址！"
 msgid "Invalid Multicast Session"
 msgstr "开始多播会话"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "无效类型"
+
 msgid "Invalid Plugin Passed"
 msgstr "无效的插件传递"
 
@@ -3245,6 +3253,10 @@ msgstr "无效的对象类型传递"
 
 msgid "Invalid operational mode"
 msgstr "无效的操作模式"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "无效类型"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -3400,10 +3412,6 @@ msgstr ""
 
 msgid "Kill"
 msgstr "杀"
-
-#, fuzzy
-msgid "LDAP Connection  Name"
-msgstr "地点名称"
 
 #, fuzzy
 msgid "LDAP Connection Name"
@@ -4095,6 +4103,10 @@ msgstr "没有可用的连接"
 msgid "No connection to the database"
 msgstr "没有连接到数据库"
 
+#, fuzzy
+msgid "No data found"
+msgstr "未找到"
+
 msgid "No data returned"
 msgstr "无数据返回"
 
@@ -4498,6 +4510,10 @@ msgstr "路径"
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "没有可用的散列"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "这里不允许"
 
 #, fuzzy
 msgid "Pause"
@@ -7834,6 +7850,10 @@ msgid "you set the bandwidth field on that node to 1000"
 msgstr ""
 
 #, fuzzy
+#~ msgid "A broadcast already exists with this name"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "图像已经存在具有此名称！"
 
@@ -7842,8 +7862,15 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "活动组播任务"
+
+#, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "添加管理单元失败！"
+
+#~ msgid "All Pending MACs approved."
+#~ msgstr "所有待定的MAC批准。"
 
 #~ msgid "Could not read temp file"
 #~ msgstr "无法读取临时文件"
@@ -7930,6 +7957,10 @@ msgstr ""
 
 #~ msgid "Inventory Desc"
 #~ msgstr "库存说明"
+
+#, fuzzy
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "地点名称"
 
 #~ msgid "Legacy Client and Utilities"
 #~ msgstr "旧客户端和实用程序"

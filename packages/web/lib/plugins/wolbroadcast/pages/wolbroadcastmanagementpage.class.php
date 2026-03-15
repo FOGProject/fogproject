@@ -64,7 +64,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>',
             '<a href="?node=wolbroadcast&sub=edit&id=${id}" title="'
             . _('Edit')
-            . '">${name}</a>',
+            . '">(${id}) - ${name}</a>',
             '${wol_ip}'
         );
         $this->attributes = array(
@@ -350,7 +350,7 @@ class WOLBroadcastManagementPage extends FOGPage
             )
         ) {
             throw new Exception(
-                _('A broadcast already exists with this name')
+                _('A broadcast already exists with this name!')
             );
         }
         $this->obj

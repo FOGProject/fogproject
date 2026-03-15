@@ -184,7 +184,7 @@ class SnapinManagementPage extends FOGPage
             . 'data-toggle="tooltip" data-placement="right" '
             . 'title="'
             . _('Edit')
-            . ': ${name}">${name} - ${id}</a>',
+            . ': ${name}">(${id}) - ${name}</a>',
             '${packtype}',
             '${storageGroup}',
         );
@@ -571,7 +571,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . $rw
+            . htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
@@ -1059,7 +1059,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . $rw
+            . htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
@@ -1244,7 +1244,7 @@ class SnapinManagementPage extends FOGPage
             . 'value="${storageGroup_id}"/>'
             . '</label>',
             '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
+            . '(${storageGroup_id}) - ${storageGroup_name}'
             . '</a>'
         );
         $this->attributes = array(
@@ -1356,7 +1356,7 @@ class SnapinManagementPage extends FOGPage
             . '</label>'
             . '</div>',
             '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
+            . '(${storageGroup_id}) - ${storageGroup_name}'
             . '</a>'
         );
         $this->attributes = array(
@@ -1466,7 +1466,7 @@ class SnapinManagementPage extends FOGPage
         $name = filter_input(INPUT_POST, 'name');
         $desc = filter_input(INPUT_POST, 'description');
         $packtype = filter_input(INPUT_POST, 'packtype');
-        $runWith = filter_input(INPUT_POST, 'rw');
+        $runWith = htmlspecialchars_decode(filter_input(INPUT_POST, 'rw'), ENT_COMPAT);
         $runWithArgs = htmlspecialchars_decode(filter_input(INPUT_POST, 'rwa'), ENT_COMPAT);
         $snapinfile = basename(
             filter_input(INPUT_POST, 'snapinfileexist')

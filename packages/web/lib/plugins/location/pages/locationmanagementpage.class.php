@@ -83,7 +83,7 @@ class LocationManagementPage extends FOGPage
             . 'data-placement="right" title="'
             . _('Edit')
             . ' '
-            . '${name}">${name}</a>',
+            . '${name}">(${id}) - ${name}</a>',
             '${storageGroup}',
             '${storageNode}',
             '${storageNodeProtocol}',

@@ -70,7 +70,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '"${id}" class="toggle-action"/>',
             sprintf(
                 '<a href="?node=%s&sub=edit&id=${id}" title='
-                . '"Edit"><i class="fa fa-${icon} fa-1x"> ${name}</i></a>',
+                . '"Edit">(${id}) - <i class="fa fa-${icon} fa-1x"> ${name}</i></a>',
                 $this->node
             ),
             '${access}',

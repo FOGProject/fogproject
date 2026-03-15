@@ -112,10 +112,6 @@ msgid "A broadcast address is required"
 msgstr "Eine Broadcast-Adresse ist erforderlich"
 
 #, fuzzy
-msgid "A broadcast already exists with this name"
-msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
 
@@ -197,7 +193,7 @@ msgid "A role already exists with this name!"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "A rule already exists with this name."
+msgid "A rule already exists with this name"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
@@ -297,6 +293,10 @@ msgstr "Zugriffskontrollregeln"
 msgid "Access Controls"
 msgstr "Zugriffskontrollen"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "Zugangs-Token"
+
 msgid "Access Token"
 msgstr "Zugangs-Token"
 
@@ -337,10 +337,6 @@ msgstr "Aktiv"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "Aktive Multicast Tasks"
 
 msgid "Active Multicast Tasks"
 msgstr "Aktive Multicast-Tasks"
@@ -582,9 +578,6 @@ msgstr "Alle Hosts"
 
 #, fuzzy
 msgid "All Pending MACs approved"
-msgstr "Alle ausstehenden MACs freigegeben."
-
-msgid "All Pending MACs approved."
 msgstr "Alle ausstehenden MACs freigegeben."
 
 msgid "All Storage Groups"
@@ -1573,6 +1566,9 @@ msgstr "Entweder neustarten oder herunterfahren"
 msgid "Email"
 msgstr "E-Mail"
 
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
+
 msgid "Enable location Sending"
 msgstr "Standort senden aktivieren"
 
@@ -2071,6 +2067,10 @@ msgstr "Datei"
 msgid "File Integrity Management"
 msgstr "Druckerverwaltung"
 
+#, fuzzy
+msgid "File Not Found"
+msgstr "Icon-Datei nicht gefunden"
+
 msgid "File System Information"
 msgstr "Dateisystem-Informationen"
 
@@ -2088,6 +2088,10 @@ msgstr "Datei muss eine CSV-Datei sein."
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr " | Datei oder Pfad ist nicht erreichbar"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Datei existiert nicht"
 
 #, fuzzy
 msgid "File size mismatch"
@@ -3160,6 +3164,10 @@ msgstr "Ungültige MAC-Adresse!"
 msgid "Invalid Multicast Session"
 msgstr "ungültige Multicast-Sitzung"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "Ungültiges Datum"
+
 msgid "Invalid Plugin Passed"
 msgstr "Ungültiges Plugin übergeben"
 
@@ -3250,6 +3258,10 @@ msgstr "Ungültiger Objekttyp übergeben"
 
 msgid "Invalid operational mode"
 msgstr "Ungültiger Betriebsmodus"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "Ungültiges Datum"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -3407,10 +3419,6 @@ msgstr ""
 
 msgid "Kill"
 msgstr "sofort abbrechen"
-
-#, fuzzy
-msgid "LDAP Connection  Name"
-msgstr "LDAP Verbindungsname"
 
 #, fuzzy
 msgid "LDAP Connection Name"
@@ -4103,6 +4111,10 @@ msgstr "Keine Verbindung verfügbar"
 msgid "No connection to the database"
 msgstr "Keine Verbindung zur Datenbank"
 
+#, fuzzy
+msgid "No data found"
+msgstr "Nicht gefunden"
+
 msgid "No data returned"
 msgstr "Keine Daten zurückgegeben"
 
@@ -4506,6 +4518,10 @@ msgstr "Pfad"
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "Pfad ist nicht verfügbar"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "Hier nicht erlaubt"
 
 #, fuzzy
 msgid "Pause"
@@ -7868,6 +7884,10 @@ msgid "you set the bandwidth field on that node to 1000"
 msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #, fuzzy
+#~ msgid "A broadcast already exists with this name"
+#~ msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
@@ -7876,8 +7896,15 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Aktive Multicast Tasks"
+
+#, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Gruppe hinzufügen fehlgeschlagen!"
+
+#~ msgid "All Pending MACs approved."
+#~ msgstr "Alle ausstehenden MACs freigegeben."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Temporäre Datei konnte nicht gelesen werden."
@@ -7970,6 +7997,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "It is recommended to not use this file but"
 #~ msgstr "Es wird empfohlen, diese Datei nicht zu nutzen, "
+
+#, fuzzy
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "LDAP Verbindungsname"
 
 #~ msgid "Legacy Client and Utilities"
 #~ msgstr "Legacy Client und Dienstprogramme"

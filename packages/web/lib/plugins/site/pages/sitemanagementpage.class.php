@@ -86,7 +86,7 @@ class SiteManagementPage extends FOGPage
         $this->templates = array(
             '<input type="checkbox" name="location[]" value='
             . '"${id}" class="toggle-action"/>',
-            '<a href="?node=site&sub=edit&id=${id}" title="Edit">${name}</a>',
+            '<a href="?node=site&sub=edit&id=${id}" title="Edit">(${id}) - ${name}</a>',
             '${description}',
             '${hosts}'
         );

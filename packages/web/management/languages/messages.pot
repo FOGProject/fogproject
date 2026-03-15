@@ -87,9 +87,6 @@ msgstr ""
 msgid "A broadcast address is required"
 msgstr ""
 
-msgid "A broadcast already exists with this name"
-msgstr ""
-
 msgid "A broadcast already exists with this name!"
 msgstr ""
 
@@ -153,7 +150,7 @@ msgstr ""
 msgid "A role already exists with this name!"
 msgstr ""
 
-msgid "A rule already exists with this name."
+msgid "A rule already exists with this name"
 msgstr ""
 
 msgid "A site already exists with this name!"
@@ -237,6 +234,9 @@ msgstr ""
 msgid "Access Controls"
 msgstr ""
 
+msgid "Access Denied"
+msgstr ""
+
 msgid "Access Token"
 msgstr ""
 
@@ -274,9 +274,6 @@ msgid "Active"
 msgstr ""
 
 msgid "Active Directory"
-msgstr ""
-
-msgid "Active Multi-cast Tasks"
 msgstr ""
 
 msgid "Active Multicast Tasks"
@@ -481,9 +478,6 @@ msgid "All Hosts"
 msgstr ""
 
 msgid "All Pending MACs approved"
-msgstr ""
-
-msgid "All Pending MACs approved."
 msgstr ""
 
 msgid "All Storage Groups"
@@ -1336,6 +1330,9 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
+
 msgid "Enable location Sending"
 msgstr ""
 
@@ -1784,6 +1781,9 @@ msgstr ""
 msgid "File Integrity Management"
 msgstr ""
 
+msgid "File Not Found"
+msgstr ""
+
 msgid "File System Information"
 msgstr ""
 
@@ -1797,6 +1797,9 @@ msgid "File must be a csv"
 msgstr ""
 
 msgid "File or path cannot be reached"
+msgstr ""
+
+msgid "File or path does not exist"
 msgstr ""
 
 msgid "File size mismatch"
@@ -2723,6 +2726,9 @@ msgstr ""
 msgid "Invalid Multicast Session"
 msgstr ""
 
+msgid "Invalid Path"
+msgstr ""
+
 msgid "Invalid Plugin Passed"
 msgstr ""
 
@@ -2802,6 +2808,9 @@ msgid "Invalid object type passed"
 msgstr ""
 
 msgid "Invalid operational mode"
+msgstr ""
+
+msgid "Invalid path"
 msgstr ""
 
 msgid "Invalid scheduling type"
@@ -2940,9 +2949,6 @@ msgid "Key must be an array of keys or a string."
 msgstr ""
 
 msgid "Kill"
-msgstr ""
-
-msgid "LDAP Connection  Name"
 msgstr ""
 
 msgid "LDAP Connection Name"
@@ -3560,6 +3566,9 @@ msgstr ""
 msgid "No connection to the database"
 msgstr ""
 
+msgid "No data found"
+msgstr ""
+
 msgid "No data returned"
 msgstr ""
 
@@ -3915,6 +3924,9 @@ msgid "Path"
 msgstr ""
 
 msgid "Path is unavailable"
+msgstr ""
+
+msgid "Path not allowed"
 msgstr ""
 
 msgid "Pause"

@@ -35,12 +35,7 @@ class DatabaseManager extends FOGCore
          * so we skip connecting to the DB entirely for those.
          */
         $noDBpattern = array(
-            'status\/bandwidth\.php$',
-            'status\/freespace\.php$',
-            'status\/gethash\.php$',
             'status\/getservertime\.php$',
-            'status\/getsize\.php$',
-            'status\/hw\.php$',
             'status\/newtoken\.php$'
         );
         $noDBpattern = '#'.implode("|", $noDBpattern).'#';
