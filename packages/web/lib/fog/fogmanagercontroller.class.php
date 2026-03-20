@@ -963,7 +963,7 @@ abstract class FOGManagerController extends FOGBase
         $id = 0,
         $idField = 'name'
     ) {
-        $idSpecField = 'name';
+        $idSpecField = 'id';
         if (empty($id)) {
             $id = 0;
         }
