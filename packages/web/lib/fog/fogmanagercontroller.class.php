@@ -963,6 +963,7 @@ abstract class FOGManagerController extends FOGBase
         $id = 0,
         $idField = 'name'
     ) {
+        $idSpecField = 'name';
         if (empty($id)) {
             $id = 0;
         }
@@ -973,6 +974,10 @@ abstract class FOGManagerController extends FOGBase
             $idField => $val,
             'id' => $id,
         );
+
+        if (!in_array($idSpecField, array_keys($this->databaseFields))) {
+            $idSpecField = 'id';
+        }
         $query = sprintf(
             $this->existsQueryTemplate,
             $this->databaseTable,
@@ -982,7 +987,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields[$idField],
             sprintf(':%s', $idField),
             $this->databaseTable,
-            $this->databaseFields[$idField],
+            $this->databaseFields[$idSpecField],
             ':id'
         );
 
