@@ -975,9 +975,6 @@ abstract class FOGManagerController extends FOGBase
             'id' => $id,
         );
 
-        if (!in_array($idSpecField, array_keys($this->databaseFields))) {
-            $idSpecField = 'id';
-        }
         $query = sprintf(
             $this->existsQueryTemplate,
             $this->databaseTable,
