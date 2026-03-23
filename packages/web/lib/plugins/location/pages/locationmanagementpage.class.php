@@ -110,11 +110,11 @@ class LocationManagementPage extends FOGPage
         self::$returnData = function (&$Location) {
             $sn = empty($Location->storagenode->name) ? '*' : $Location->storagenode->name;
             $this->data[] = array(
-                'id' => $Location->id,
-                'name' => $Location->name,
-                'storageGroup' => $Location->storagegroup->name,
-                'storageNode' => $sn,
-                'storageNodeProtocol' => $Location->protocol,
+                'id' => Initiator::e($Location->id),
+                'name' => Initiator::e($Location->name),
+                'storageGroup' => Initiator::e($Location->storagegroup->name),
+                'storageNode' => Initiator::e($sn),
+                'storageNodeProtocol' => Initiator::e($Location->protocol),
                 'tftp' => $Location->tftp ? _('Yes') : _('No'),
             );
             unset($Location);

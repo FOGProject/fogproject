@@ -274,9 +274,9 @@ class AccessControlManagementPage extends FOGPage
                 );
             self::$returnData = function (&$AccessControl) {
                 $this->data[] = array(
-                    'id' => $AccessControl->id,
-                    'name' => $AccessControl->name,
-                    'description' => $AccessControl->description,
+                    'id' => Initiator::e($AccessControl->id),
+                    'name' => Initiator::e($AccessControl->name),
+                    'description' => Initiator::e($AccessControl->description),
                     'createdBy' => $AccessControl->createdBy,
                     'createdTime' => $AccessControl->createdTime
                 );
@@ -286,11 +286,11 @@ class AccessControlManagementPage extends FOGPage
         case 'accesscontrolrule':
             self::$returnData = function (&$AccessControlRule) {
                 $this->data[] = array(
-                    'type' => $AccessControlRule->type,
-                    'id' => $AccessControlRule->id,
-                    'value' => $AccessControlRule->value,
-                    'parent' => $AccessControlRule->parent,
-                    'node' => $AccessControlRule->node
+                    'type' => Initiator::e($AccessControlRule->type),
+                    'id' => Initiator::e($AccessControlRule->id),
+                    'value' => Initiator::e($AccessControlRule->value),
+                    'parent' => Initiator::e($AccessControlRule->parent),
+                    'node' => Initiator::e($AccessControlRule->node)
                 );
                 unset($AccessControlRule);
             };

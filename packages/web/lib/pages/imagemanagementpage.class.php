@@ -261,23 +261,23 @@ class ImageManagementPage extends FOGPage
             /**
              * The id.
              */
-            $id = $Image->id;
+            $id = Initiator::e($Image->id);
             /**
              * The name.
              */
-            $name = $Image->name;
+            $name = Initiator::e($Image->name);
             /**
              * The description.
              */
-            $description = $Image->description;
+            $description = Initiator::e($Image->description);
             /**
              * The storage group name.
              */
-            $storageGroup = $Image->storagegroupname;
+            $storageGroup = Initiator::e($Image->storagegroupname);
             /**
              * The os name.
              */
-            $os = $Image->osname;
+            $os = Initiator::e($Image->osname);
             /**
              * If no os is set/found set to not set.
              */
@@ -300,11 +300,11 @@ class ImageManagementPage extends FOGPage
             /**
              * The image type name.
              */
-            $imageType = $Image->imagetypename;
+            $imageType = Initiator::e($Image->imagetypename);
             /**
              * The image partition type name.
              */
-            $imagePartitionType = $Image->imageparttypename;
+            $imagePartitionType = Initiator::e($Image->imageparttypename);
             /**
              * The path.
              */

@@ -95,8 +95,8 @@ class WindowsKeyManagementPage extends FOGPage
          */
         self::$returnData = function (&$WindowsKey) {
             $this->data[] = array(
-                'id' => $WindowsKey->id,
-                'name' => $WindowsKey->name
+                'id' => Initiator::e($WindowsKey->id),
+                'name' => Initiator::e($WindowsKey->name),
             );
             unset($WindowsKey);
         };

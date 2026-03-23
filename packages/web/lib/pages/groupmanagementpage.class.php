@@ -152,9 +152,9 @@ class GroupManagementPage extends FOGPage
          */
         self::$returnData = function (&$Group) {
             $this->data[] = array(
-                'id' => $Group->id,
-                'name' => $Group->name,
-                'description' => $Group->description,
+                'id' => Initiator::e($Group->id),
+                'name' => Initiator::e($Group->name),
+                'description' => Initiator::e($Group->description),
                 'count' => $Group->hostcount
             );
             unset($Group);

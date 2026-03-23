@@ -94,8 +94,8 @@ class TaskstateeditManagementPage extends FOGPage
          */
         self::$returnData = function (&$TaskState) {
             $this->data[] = array(
-                'id' => $TaskState->id,
-                'name' => $TaskState->name,
+                'id' => Initiator::e($TaskState->id),
+                'name' => Initiator::e($TaskState->name),
                 'icon' => $TaskState->icon,
             );
             unset($TaskState);

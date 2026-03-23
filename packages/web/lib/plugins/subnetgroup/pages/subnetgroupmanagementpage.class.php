@@ -109,11 +109,11 @@ class SubnetgroupManagementPage extends FOGPage
             );
 
             $this->data[] = array(
-                'id' => $Subnetgroup->id,
-                'groupName' => isset($Group->groups[0]) ? $Group->groups[0]->name : '',
-                'groupID'   => $Subnetgroup->groupID,
-                'subnets' => $Subnetgroup->subnets,
-                'name' => $Subnetgroup->name,
+                'id' => Initiator::e($Subnetgroup->id),
+                'groupName' => isset($Group->groups[0]) ? Initiator::e($Group->groups[0]->name) : '',
+                'groupID'   => Initiator::e($Subnetgroup->groupID),
+                'subnets' => Initiator::e($Subnetgroup->subnets),
+                'name' => Initiator::e($Subnetgroup->name),
             );
             unset($Subnetgroup);
         };

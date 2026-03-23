@@ -135,15 +135,15 @@ class PrinterManagementPage extends FOGPage
                 $config = $Printer->config;
             }
             $this->data[] = array(
-                'id' => $Printer->id,
-                'name' => $Printer->name,
-                'config' => $config,
-                'model' => $Printer->model,
-                'port' => $Printer->port,
-                'file' => $Printer->file,
-                'ip' => $Printer->ip,
-                'configFile' => $Printer->configFile,
-                'desc' => $Printer->description
+                'id' => Initiator::e($Printer->id),
+                'name' => Initiator::e($Printer->name),
+                'config' => Initiator::e($config),
+                'model' => Initiator::e($Printer->model),
+                'port' => Initiator::e($Printer->port),
+                'file' => Initiator::e($Printer->file),
+                'ip' => Initiator::e($Printer->ip),
+                'configFile' => Initiator::e($Printer->configFile),
+                'desc' => Initiator::e($Printer->description)
             );
             unset($Printer);
         };

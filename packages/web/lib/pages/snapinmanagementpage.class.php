@@ -287,12 +287,12 @@ class SnapinManagementPage extends FOGPage
              * Store the data.
              */
             $this->data[] = array(
-                'id' => $id,
-                'name' => $name,
-                'description' => $description,
-                'file' => $file,
+                'id' => Initiator::e($id),
+                'name' => Initiator::e($name),
+                'description' => Initiator::e($description),
+                'file' => Initiator::e($file),
                 'packtype' => $packtype,
-                'storageGroup' => $storageGroup,
+                'storageGroup' => Initiator::e($storageGroup),
                 'protected' => $protected,
                 'enabled' => $enabled
             );

@@ -95,10 +95,10 @@ class TasktypeeditManagementPage extends FOGPage
         self::$returnData = function (&$TaskType) {
             $this->data[] = array(
                 'icon' => $TaskType->icon,
-                'id' => $TaskType->id,
-                'name' => $TaskType->name,
-                'access' => $TaskType->access,
-                'args' => $TaskType->kernelArgs,
+                'id' => Initiator::e($TaskType->id),
+                'name' => Initiator::e($TaskType->name),
+                'access' => Initiator::e($TaskType->access),
+                'args' => Initiator::e($TaskType->kernelArgs),
             );
             unset($TaskType);
         };

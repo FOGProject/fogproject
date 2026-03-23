@@ -178,15 +178,15 @@ class TaskManagementPage extends FOGPage
             $this->data[] = array(
                 'startedby' => $Task->createdBy,
                 'details_taskforce' => isset($forcetask) ? $forcetask : '',
-                'id' => $Task->id,
-                'name' => $Task->name,
+                'id' => Initiator::e($Task->id),
+                'name' => Initiator::e($Task->name),
                 'time' => self::formatTime(
                     $Task->createdTime,
                     'Y-m-d H:i:s'
                 ),
-                'state' => $Task->state->name,
+                'state' => Initiator::e($Task->state->name),
                 'forced' => $Task->isForced,
-                'type' => $Task->type->name,
+                'type' => Initiator::e($Task->type->name),
                 'elapsed' => isset($Task->timeElapsed) ? $Task->timeElapsed : '',
                 'remains' => isset($Task->timeRemaining) ? $Task->timeRemaining : '',
                 'percent' => isset($Task->pct) ? $Task->pct : '',
@@ -197,19 +197,19 @@ class TaskManagementPage extends FOGPage
                     (isset($Task->name) && $Task->name) ?
                     sprintf(
                         '<div class="task-name">%s</div>',
-                        $Task->name
+                        Initiator::e($Task->name)
                     ) :
                     ''
                 ),
-                'host_id' => isset($Task->host->id) ? $Task->host->id : '',
-                'host_name' => isset($Task->host->name) ? $Task->host->name : '',
-                'host_mac' => isset($Task->host->mac) ? $Task->host->mac : '',
+                'host_id' => isset($Task->host->id) ? Initiator::e($Task->host->id) : '',
+                'host_name' => isset($Task->host->name) ? Initiator::e($Task->host->name) : '',
+                'host_mac' => isset($Task->host->mac) ? Initiator::e($Task->host->mac) : '',
                 'icon_state' => isset($Task->state->icon) ? $Task->state->icon : '',
                 'icon_type' => isset($Task->type->icon) ? $Task->type->icon : '',
-                'state_id' => isset($Task->state->id) ? $Task->state->id : '',
-                'image_name' => isset($Task->image->name) ? $Task->image->name : '',
-                'image_id' => isset($Task->image->id) ? $Task->image->id : '',
-                'node_name' => isset($Task->storagenode->name) ? $Task->storagenode->name : ''
+                'state_id' => isset($Task->state->id) ? Initiator::e($Task->state->id) : '',
+                'image_name' => isset($Task->image->name) ? Initiator::e($Task->image->name) : '',
+                'image_id' => isset($Task->image->id) ? Initiator::e($Task->image->id) : '',
+                'node_name' => isset($Task->storagenode->name) ? Initiator::e($Task->storagenode->name) : ''
             );
             unset($tmpTask, $Task);
         };

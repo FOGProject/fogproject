@@ -85,10 +85,10 @@ class SlackManagementPage extends FOGPage
                 $Slack->id
             )->call('auth.test');
             $this->data[] = array(
-                'id' => $Slack->id,
-                'team' => $team_name['team'],
-                'createdBy' => $team_name['user'],
-                'name' => $Slack->name,
+                'id' => Initiator::e($Slack->id),
+                'team' => Initiator::e($team_name['team']),
+                'createdBy' => Initiator::e($team_name['user']),
+                'name' => Initiator::e($Slack->name),
             );
             unset($Slack);
         };

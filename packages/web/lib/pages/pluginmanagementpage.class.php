@@ -144,13 +144,13 @@ class PluginManagementPage extends FOGPage
                 break;
             }
             $this->data[] = array(
-                'type' => self::$_plugintype,
+                'type' => Initiator::e(self::$_plugintype),
                 'encname' => md5($Plugin->name),
-                'id' => (isset($Plugin->id) ? $Plugin->id : ''),
-                'name' => $Plugin->name,
-                'icon' => $Plugin->icon,
-                'desc' => $Plugin->description,
-                'location' => $Plugin->location
+                'id' => (isset($Plugin->id) ? Initiator::e($Plugin->id) : ''),
+                'name' => Initiator::e($Plugin->name),
+                'icon' => Initiator::e($Plugin->icon),
+                'desc' => Initiator::e($Plugin->description),
+                'location' => Initiator::e($Plugin->location)
             );
             unset($Plugin);
         };

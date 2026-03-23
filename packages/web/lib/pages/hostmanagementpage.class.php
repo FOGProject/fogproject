@@ -295,16 +295,16 @@ class HostManagementPage extends FOGPage
          */
         self::$returnData = function ($Host) {
             $this->data[] = array(
-                'id' => $Host->id,
+                'id' => Initiator::e($Host->id),
                 'deployed' => self::formatTime(
                     $Host->deployed,
                     'Y-m-d H:i:s'
                 ),
-                'host_name' => $Host->name,
-                'host_mac' => $Host->primac,
-                'host_desc' => $Host->description,
-                'image_id' => $Host->imageID,
-                'image_name' => $Host->imagename,
+                'host_name' => Initiator::e($Host->name),
+                'host_mac' => Initiator::e($Host->primac),
+                'host_desc' => Initiator::e($Host->description),
+                'image_id' => Initiator::e($Host->imageID),
+                'image_name' => Initiator::e($Host->imagename),
                 'pingstatus' => $Host->pingstatus,
             );
             unset($Host);

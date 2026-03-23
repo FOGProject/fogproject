@@ -108,9 +108,9 @@ class SiteManagementPage extends FOGPage
          */
         self::$returnData = function (&$Site) {
             $this->data[] = array(
-                'id' => $Site->id,
-                'name' => $Site->name,
-                'description' => $Site->description,
+                'id' => Initiator::e($Site->id),
+                'name' => Initiator::e($Site->name),
+                'description' => Initiator::e($Site->description),
 //                'hosts' => $Site->getHostCount()
                 'hosts' => self::getClass('SiteHostAssociationManager')
                         ->count(

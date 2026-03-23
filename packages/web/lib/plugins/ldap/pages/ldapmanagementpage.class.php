@@ -107,21 +107,21 @@ class LDAPManagementPage extends FOGPage
          */
         self::$returnData = function (&$LDAP) {
             $this->data[] = array(
-                'id' => $LDAP->id,
-                'name' => $LDAP->name,
-                'description' => $LDAP->description,
-                'address' => $LDAP->address,
-                'searchDN' => $LDAP->searchDN,
-                'port' => $LDAP->port,
-                'userNamAttr' => $LDAP->userNamAttr,
-                'grpMemberAttr' => $LDAP->grpMemberAttr,
-                'grpSearchDN' => $LDAP->grpSearchDN,
-                'adminGroup' => $LDAP->adminGroup,
-                'userGroup' => $LDAP->userGroup,
-                'searchScope' => $LDAP->searchScope,
-                'bindDN' => $LDAP->bindDN,
-                'bindPwd' => $LDAP->bindPwd,
-                'useGroupMatch' => $LDAP->useGroupMatch,
+                'id' => Initiator::e($LDAP->id),
+                'name' => Initiator::e($LDAP->name),
+                'description' => Initiator::e($LDAP->description),
+                'address' => Initiator::e($LDAP->address),
+                'searchDN' => Initiator::e($LDAP->searchDN),
+                'port' => Initiator::e($LDAP->port),
+                'userNamAttr' => Initiator::e($LDAP->userNamAttr),
+                'grpMemberAttr' => Initiator::e($LDAP->grpMemberAttr),
+                'grpSearchDN' => Initiator::e($LDAP->grpSearchDN),
+                'adminGroup' => Initiator::e($LDAP->adminGroup),
+                'userGroup' => Initiator::e($LDAP->userGroup),
+                'searchScope' => Initiator::e($LDAP->searchScope),
+                'bindDN' => Initiator::e($LDAP->bindDN),
+                'bindPwd' => Initiator::e($LDAP->bindPwd),
+                'useGroupMatch' => Initiator::e($LDAP->useGroupMatch),
             );
             unset($LDAP);
         };

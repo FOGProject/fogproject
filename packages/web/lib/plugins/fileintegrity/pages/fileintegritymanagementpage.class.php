@@ -86,11 +86,11 @@ class FileIntegrityManagementPage extends FOGPage
          */
         self::$returnData = function (&$FileIntegrity) {
             $this->data[] = array(
-                'checksum' => $FileIntegrity->checksum,
+                'checksum' => Initiator::e($FileIntegrity->checksum),
                 'modtime' => $FileIntegrity->modtime,
-                'storagenodeID' => $FileIntegrity->storagenode->id,
-                'storage_name' => $FileIntegrity->storagenode->name,
-                'file_path' => $FileIntegrity->path,
+                'storagenodeID' => Initiator::e($FileIntegrity->storagenode->id),
+                'storage_name' => Initiator::e($FileIntegrity->storagenode->name),
+                'file_path' => Initiator::e($FileIntegrity->path),
             );
             unset($FileIntegrity);
         };
