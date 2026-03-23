@@ -966,8 +966,7 @@ abstract class FOGPage extends FOGBase
                 '${%s}',
                 $name
             );
-            $val = trim($val);
-            $this->dataReplace[] = Initiator::e($val);
+            $this->dataReplace[] = $val;
             unset($val);
         }
     }
