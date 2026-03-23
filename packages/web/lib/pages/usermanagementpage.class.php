@@ -59,7 +59,7 @@ class UserManagementPage extends FOGPage
             $this->notes = array(
                 _('Friendly Name') => (
                     $this->obj->get('display') ?
-                    $this->obj->get('display') :
+                    Initiator::e($this->obj->get('display')) :
                     _('No friendly name defined')
                 ),
                 self::$foglang['User'] => $this->obj->get('name'),
@@ -134,10 +134,10 @@ class UserManagementPage extends FOGPage
                 return;
             }
             $this->data[] = array(
-                'id' => $User->id,
+                'id' => Initiator::e($User->id),
                 'apiYes' => $User->api ? _('Yes') : _('No'),
-                'name' => $User->name,
-                'friendly' => $User->display
+                'name' => Initiator::e($User->name),
+                'friendly' => Initiator::e($User->display)
             );
             unset($User);
         };
