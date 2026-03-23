@@ -120,7 +120,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-name" type='
             . '"text" name="name" id="name" required value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="broadcast">'
@@ -128,7 +128,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-ip" type='
             . '"text" name="broadcast" id="broadcast" required value="'
-            . $broadcast
+            . Initiator::e($broadcast)
             . '"/>',
             '<label for="add">'
             . _('Create WOL Broadcast?')
@@ -265,7 +265,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-name" type='
             . '"text" name="name" id="name" required value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="broadcast">'
@@ -273,7 +273,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-ip" type='
             . '"text" name="broadcast" id="broadcast" required value="'
-            . $broadcast
+            . Initiator::e($broadcast)
             . '"/>',
             '<label for="updategen">'
             . _('Make Changes?')

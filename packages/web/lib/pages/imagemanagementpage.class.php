@@ -570,7 +570,7 @@ class ImageManagementPage extends FOGPage
             . '<input class="form-control imagename-input" type="text" '
             . 'name="name" id="iName" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="description">'
@@ -578,7 +578,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control imagedesc-input" '
             . 'id="description">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>',
             '<label for="storagegroup">'
             . _('Storage Group')
@@ -590,13 +590,13 @@ class ImageManagementPage extends FOGPage
             . _('Image Path')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
-            . $StorageNode->get('path')
+            . Initiator::e($StorageNode->get('path'))
             . '/'
             . '</span>'
             . '<input type="text" class="form-control imagefile-input" '
             . 'name="file" id="iFile" '
             . 'value="'
-            . $file
+            . Initiator::e($file)
             . '"/>',
             '<label for="imagetype">'
             . _('Image Type')
@@ -628,7 +628,7 @@ class ImageManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="compress" class="form-control '
             . 'showVal pigz" maxsize="2" value="'
-            . $compression
+            . Initiator::e($compression)
             . '" id="pigzcomp" readonly/>'
             . '</div>'
             . '</div>',
@@ -935,7 +935,7 @@ class ImageManagementPage extends FOGPage
             . '<input class="form-control imagename-input" type="text" '
             . 'name="name" id="iName" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="description">'
@@ -943,7 +943,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control imagedesc-input" '
             . 'id="description">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>',
             '<label for="os">'
             . _('Operating System')
@@ -952,13 +952,13 @@ class ImageManagementPage extends FOGPage
             . _('Image Path')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
-            . $StorageNode->get('path')
+            . Initiator::e($StorageNode->get('path'))
             . '/'
             . '</span>'
             . '<input type="text" class="form-control imagefile-input" '
             . 'name="file" id="iFile" '
             . 'value="'
-            . $file
+            . Initiator::e($file)
             . '"/>',
             '<label for="imagetype">'
             . _('Image Type')
@@ -1000,7 +1000,7 @@ class ImageManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="compress" class="form-control '
             . 'showVal pigz" maxsize="2" value="'
-            . $compression
+            . Initiator::e($compression)
             . '" id="pigzcomp" readonly/>'
             . '</div>'
             . '</div>',
@@ -1491,7 +1491,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="name" id="iName" '
             . 'autocomplete="off" value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="iCount">'
@@ -1499,7 +1499,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="number" name="count" id="iCount" '
             . 'autocomplete="off" value="'
-            . $count
+            . Initiator::e($count)
             . '"/>'
             . '</div>',
             '<label for="iTimeout">'
@@ -1510,7 +1510,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="number" name=timeout" '
             . 'id="iTimeout" autocomplete="off" value="'
-            . $timeout
+            . Initiator::e($timeout)
             . '"/>'
             . '</div>',
             '<label for="image">'

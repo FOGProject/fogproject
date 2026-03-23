@@ -401,7 +401,7 @@ class FOGConfigurationPage extends FOGPage
             $formstr;
             echo '">';
             echo '<input type="hidden" name="file" value="';
-            echo $tmpFile;
+            echo Initiator::e($tmpFile);
             echo '"/>';
             echo '<div class="col-xs-4">';
             echo '<label class="control-label" for="dstName">';
@@ -412,7 +412,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="input-group">';
             echo '<input class="form-control" type="text" name="dstName" id='
                 . '"dstName" value="'
-                . $tmpArch
+                . Initiator::e($tmpArch)
                 . '"/>';
             echo '</div>';
             echo '</div>';
@@ -551,7 +551,7 @@ class FOGConfigurationPage extends FOGPage
             $formstr;
             echo '">';
             echo '<input type="hidden" name="file" value="';
-            echo $tmpFile;
+            echo Initiator::e($tmpFile);
             echo '"/>';
             echo '<div class="col-xs-4">';
             echo '<label class="control-label" for="dstName">';
@@ -562,7 +562,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="input-group">';
             echo '<input class="form-control" type="text" name="dstName" id='
                 . '"dstName" value="'
-                . $tmpArch
+                . Initiator::e($tmpArch)
                 . '"/>';
             echo '</div>';
             echo '</div>';
@@ -697,7 +697,7 @@ class FOGConfigurationPage extends FOGPage
             . '</label>' => array(
                 '<div class="input-group">'
                 . '<textarea id="mainColors" name="mainColors" class="form-control">'
-                . $mainColors
+                . Initiator::e($mainColors)
                 . '</textarea>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -709,7 +709,7 @@ class FOGConfigurationPage extends FOGPage
             . '<label>' => array(
                 '<div class="input-group">'
                 . '<textarea id="hostValid" class="form-control" name="hostValid">'
-                . $hostValid
+                . Initiator::e($hostValid)
                 . '</textarea>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -724,7 +724,7 @@ class FOGConfigurationPage extends FOGPage
                 '<div class="input-group">'
                 . '<textarea name="hostInvalid" class="form-control" id='
                 . '"hostInvalid">'
-                . $hostInvalid
+                . Initiator::e($hostInvalid)
                 . '</textarea>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -739,7 +739,7 @@ class FOGConfigurationPage extends FOGPage
                 '<div class="input-group">'
                 . '<textarea id="mainCpairs" name="mainCpairs" class='
                 . '"form-control">'
-                . $mainCpairs
+                . Initiator::e($mainCpairs)
                 . '</textarea>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -754,7 +754,7 @@ class FOGConfigurationPage extends FOGPage
                 '<div class="input-group">'
                 . '<textarea class="form-control" id="mainFallback" name='
                 . '"mainFallback">'
-                . $mainFallback
+                . Initiator::e($mainFallback)
                 . '</textarea>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -766,7 +766,7 @@ class FOGConfigurationPage extends FOGPage
             . '</label>' => array(
                 '<div class="input-group">'
                 . '<textarea class="form-control" id="hostCPairs" name="hostCpairs">'
-                . $hostCpairs
+                . Initiator::e($hostCpairs)
                 . '</textarea>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -781,7 +781,7 @@ class FOGConfigurationPage extends FOGPage
             . '</label>' => array(
                 '<div class="input-group">'
                 . '<input type="text" id="timeout" name="timeout" value="'
-                . $timeout
+                . Initiator::e($timeout)
                 . '" class="form-control"/>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -799,7 +799,7 @@ class FOGConfigurationPage extends FOGPage
             . '</label>' => array(
                 '<div class="input-group">'
                 . '<input type="text" id="bgfile" name="bgfile" value="'
-                . $bgfile
+                . Initiator::e($bgfile)
                 . '" class="form-control"/>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -900,7 +900,7 @@ class FOGConfigurationPage extends FOGPage
                 '<div class="input-group">'
                 . '<input type="text" id="hidetimeout" name="hidetimeout" '
                 . 'value="'
-                . $hideTimeout
+                . Initiator::e($hideTimeout)
                 . '" class="form-control"/>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -1030,7 +1030,7 @@ class FOGConfigurationPage extends FOGPage
             . '</label>' => array(
                 '<div class="input-group">'
                 . '<textarea id="advtext" class="form-control" name="adv">'
-                . $advanced
+                . Initiator::e($advanced)
                 . '</textarea>'
                 . '</div>',
                 '<i class="fa fa-question hand" title="'
@@ -1297,7 +1297,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Menu Item')
                 . '</label>' => '<div class="input-group">'
                 . '<input type="text" class="form-control" value="'
-                . $Menu->name
+                . Initiator::e($Menu->name)
                 . '" name="menu_item" id="menu_item'
                 . $divTab
                 . '"/>'
@@ -1310,7 +1310,7 @@ class FOGConfigurationPage extends FOGPage
                 . '<textarea name="menu_description" id="menu_description'
                 . $divTab
                 . '" class="form-control">'
-                . $Menu->description
+                . Initiator::e($Menu->description)
                 . '</textarea>'
                 . '</div>',
                 '<label for="menu_params'
@@ -1321,7 +1321,7 @@ class FOGConfigurationPage extends FOGPage
                 . '<textarea name="menu_params" id="menu_params'
                 . $divTab
                 . '" class="form-control">'
-                . $Menu->params
+                . Initiator::e($Menu->params)
                 . '</textarea>'
                 . '</div>',
                 '<label for="menu_options'
@@ -1333,7 +1333,7 @@ class FOGConfigurationPage extends FOGPage
                 . 'menu_options'
                 . $divTab
                 . '" value="'
-                . $Menu->args
+                . Initiator::e($Menu->args)
                 . '" class="form-control"/>'
                 . '</div>',
                 '<label for="menudef'
@@ -1361,7 +1361,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Hot Key to use')
                 . '</label>' => '<div class="input-group">'
                 . '<input type="text" name="keysequence" value="'
-                . $keySeq
+                . Initiator::e($keySeq)
                 . '" class="form-control" id="menu_hotkey'
                 . $divTab
                 . '"/>'
@@ -1385,7 +1385,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Make Changes?')
                 . '</label>'
                 . '<input type="hidden" name="menu_id" value="'
-                . $Menu->id
+                . Initiator::e($Menu->id)
                 . '"/>' => '<button name="saveform" type="submit" class="'
                 . 'btn btn-info btn-block" id="menu_id'
                 . $divTab
@@ -1400,7 +1400,7 @@ class FOGConfigurationPage extends FOGPage
                     . _('Delete Menu Item')
                     . '</label>'
                     . '<input type="hidden" name="rmid" value="'
-                    . $Menu->id
+                    . Initiator::e($Menu->id)
                     . '"/>' :
                     ''
                 ) => (
@@ -1646,7 +1646,7 @@ class FOGConfigurationPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="menu_description" id="menu_description'
             . '" class="form-control">'
-            . $menu_desc
+            . Initiator::e($menu_desc)
             . '</textarea>'
             . '</div>',
             '<label for="menu_params">'
@@ -1654,7 +1654,7 @@ class FOGConfigurationPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="menu_params" id="menu_params'
             . '" class="form-control">'
-            . $menu_params
+            . Initiator::e($menu_params)
             . '</textarea>'
             . '</div>',
             '<label for="menu_options">'
@@ -1663,7 +1663,7 @@ class FOGConfigurationPage extends FOGPage
             . '<input type="text" name="menu_options" id="'
             . 'menu_options'
             . '" value="'
-            . $menu_options
+            . Initiator::e($menu_options)
             . '" class="form-control"/>'
             . '</div>',
             '<label for="menudef">'
@@ -1683,7 +1683,7 @@ class FOGConfigurationPage extends FOGPage
             . _('Hot Key to use')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="keysequence" value="'
-            . $menu_key
+            . Initiator::e($menu_key)
             . '" class="form-control" id="menu_hotkey'
             . '"/>'
             . '</div>',
@@ -2457,13 +2457,13 @@ class FOGConfigurationPage extends FOGPage
                 foreach ((array)$vals as $view => &$value) {
                     printf(
                         '<option value="%s"%s>%s</option>',
-                        $value,
+                        Initiator::e($value),
                         (
                             $Service->value == $value ?
                             ' selected' :
                             ''
                         ),
-                        $view
+                        Initiator::e($view)
                     );
                     unset($value);
                 }
@@ -2482,13 +2482,13 @@ class FOGConfigurationPage extends FOGPage
                 foreach ((array)$screens as &$viewop) {
                     printf(
                         '<option value="%s"%s>%s</option>',
-                        strtolower($viewop),
+                        Initiator::e(strtolower($viewop)),
                         (
                             $Service->value == strtolower($viewop) ?
                             ' selected' :
                             ''
                         ),
-                        $viewop
+                        Initiator::e($viewop)
                     );
                     unset($viewop);
                 }
@@ -2510,13 +2510,13 @@ class FOGConfigurationPage extends FOGPage
                 foreach ((array)$duplexTypes as $types => &$val) {
                     printf(
                         '<option value="%s"%s>%s</option>',
-                        $val,
+                        Initiator::e($val),
                         (
                             $Service->value == $val ?
                             ' selected' :
                             ''
                         ),
-                        $types
+                        Initiator::e($types)
                     );
                     unset($val);
                 }
@@ -2547,14 +2547,14 @@ class FOGConfigurationPage extends FOGPage
                 foreach ($langs as $lang => &$humanreadable) {
                     printf(
                         '<option value="%s"%s>%s</option>',
-                        $lang,
+                        Initiator::e($lang),
                         (
                             $locale == $lang
                             || $locale == $foglangt['Language'][$lang] ?
                             ' selected' :
                             ''
                         ),
-                        $humanreadable
+                        Initiator::e($humanreadable)
                     );
                     unset($humanreadable);
                 }
@@ -2625,13 +2625,13 @@ class FOGConfigurationPage extends FOGPage
                     );
                     printf(
                         '<option value="%s"%s>%s [%s %s]</option>',
-                        $tz,
+                        Initiator::e($tz),
                         (
                             $Service->value == $tz ?
                             ' selected' :
                             ''
                         ),
-                        $tz,
+                        Initiator::e($tz),
                         $abbr,
                         $offset
                     );
@@ -3421,14 +3421,14 @@ class FOGConfigurationPage extends FOGPage
                 }
                 printf(
                     '<option value="%s||%s"%s>%s</option>',
-                    base64_encode($ip[$nodename]),
-                    $file,
+                    Initiator::e(base64_encode($ip[$nodename])),
+                    Initiator::e($file),
                     (
                         (isset($_POST['logtype']) && $value == $_POST['logtype']) ?
                         ' selected' :
                         ''
                     ),
-                    $value
+                    Initiator::e($value)
                 );
                 unset($file);
             }
@@ -3449,13 +3449,13 @@ class FOGConfigurationPage extends FOGPage
         foreach ((array)$vals as $i => &$value) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                $value,
+                Initiator::e($value),
                 (
                     (isset($_POST['n']) && $value == $_POST['n']) ?
                     ' selected' :
                     ''
                 ),
-                $value
+                Initiator::e($value)
             );
             unset($value);
         }

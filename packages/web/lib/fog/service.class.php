@@ -241,13 +241,13 @@ class Service extends FOGController
             }
             $options .= sprintf(
                 '<option value="%s"%s>%s</option>',
-                $value,
+                Initiator::e($value),
                 (
                     strtolower($selected) == $value ?
                     ' selected' :
                     ''
                 ),
-                $show
+                Initiator::e($show)
             );
             unset($viewop);
         }

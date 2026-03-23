@@ -174,7 +174,7 @@ class TasktypeeditManagementPage extends FOGPage
             . _('Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -182,7 +182,7 @@ class TasktypeeditManagementPage extends FOGPage
             . _('Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="description" class="form-control">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="icon">'
@@ -193,7 +193,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="kernel" id="kernel" '
             . 'value="'
-            . $kernel
+            . Initiator::e($kernel)
             . '"/>'
             . '</div>',
             '<label for="kernargs">'
@@ -201,7 +201,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="kernelargs" id='
             . '"kernargs" value="'
-            . $kernelargs
+            . Initiator::e($kernelargs)
             . '"/>'
             . '</div>',
             '<label for="initrd">'
@@ -209,7 +209,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="initrd" class='
             . '"form-control" id="initrd">'
-            . $initrd
+            . Initiator::e($initrd)
             . '</textarea>'
             . '</div>',
             '<label for="type">'
@@ -217,7 +217,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="type" id='
             . '"type" value="'
-            . $type
+            . Initiator::e($type)
             . '"/>'
             . '</div>',
             '<label for="isAd">'
@@ -450,7 +450,7 @@ class TasktypeeditManagementPage extends FOGPage
             . _('Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -458,7 +458,7 @@ class TasktypeeditManagementPage extends FOGPage
             . _('Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="description" class="form-control">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="icon">'
@@ -469,7 +469,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="kernel" id="kernel" '
             . 'value="'
-            . $kernel
+            . Initiator::e($kernel)
             . '"/>'
             . '</div>',
             '<label for="kernargs">'
@@ -477,7 +477,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="kernelargs" id='
             . '"kernargs" value="'
-            . $kernelargs
+            . Initiator::e($kernelargs)
             . '"/>'
             . '</div>',
             '<label for="initrd">'
@@ -485,7 +485,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="initrd" class='
             . '"form-control" id="initrd">'
-            . $initrd
+            . Initiator::e($initrd)
             . '</textarea>'
             . '</div>',
             '<label for="type">'
@@ -493,7 +493,7 @@ class TasktypeeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="type" id='
             . '"type" value="'
-            . $type
+            . Initiator::e($type)
             . '"/>'
             . '</div>',
             '<label for="isAd">'

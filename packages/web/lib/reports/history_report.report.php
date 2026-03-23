@@ -70,7 +70,7 @@ class History_Report extends ReportManagementPage
                 . '<input type="text" class="'
                 . 'form-control text-input" name='
                 . '"info" value="'
-                . (isset($info) ? $info : '')
+                . (isset($info) ? Initiator::e($info) : '')
                 . '" autocomplete="off" id="info" />'
                 . '</div>',
                 '<label for="performsearch">'

@@ -102,9 +102,9 @@ class TaskType extends FOGController
         foreach ((array) $icons as $name => &$unicode) {
             printf(
                 '<option value="%s"%s> %s</option>',
-                $name,
+                Initiator::e($name),
                 $selected == $name ? ' selected' : '',
-                $name
+                Initiator::e($name)
             );
             unset($unicode, $name);
         }

@@ -910,7 +910,7 @@ abstract class FOGManagerController extends FOGBase
             }
             printf(
                 '<option value="%s"%s>%s</option>',
-                $Object->get('id'),
+                Initiator::e($Object->get('id')),
                 (
                     $matchID == $Object->get('id') ?
                     ' selected' :
@@ -920,11 +920,11 @@ abstract class FOGManagerController extends FOGBase
                         ''
                     )
                 ),
-                sprintf(
+                Initiator::e(sprintf(
                     '%s - (%d)',
                     $Object->get('name'),
                     $Object->get('id')
-                )
+                ))
             );
             unset($Object);
         }

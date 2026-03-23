@@ -119,7 +119,7 @@ class PushbulletManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" '
             . 'name="apiToken" id="apiToken" value="'
-            . $value
+            . Initiator::e($value)
             . '"/>'
             . '</div>',
             '<label for="add">'

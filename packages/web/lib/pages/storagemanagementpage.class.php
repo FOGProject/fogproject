@@ -320,7 +320,7 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['SNName']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="desc">'
@@ -328,28 +328,28 @@ class StorageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desc" autocomplete="off" '
             . 'class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="ip">'
             . self::$foglang['IPAdr']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" id="ip" value="'
-            . $ip
+            . Initiator::e($ip)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="webroot">'
             . _('Web root')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="webroot" id="webroot" value="'
-            . $webroot
+            . Initiator::e($webroot)
             . '" class="form-control" autocomplete="off"/>'
             . '</div>',
             '<label for="maxClients">'
             . self::$foglang['MaxClients']
             . '</div>' => '<div class="input-group">'
             . '<input type="number" name="maxClients" id="maxClients" value="'
-            . $maxClients
+            . Initiator::e($maxClients)
             . '" class="form-control" autocomplete="off" required/>'
             . '</div>',
             '<label for="ismaster">'
@@ -374,7 +374,7 @@ class StorageManagementPage extends FOGPage
             . '" data-toggle="tooltip" data-placement="left"></i>'
             . '<input type="number" name="bandwidth" id="bandwidth" '
             . 'value="'
-            . $bandwidth
+            . Initiator::e($bandwidth)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="storagegroupID">'
@@ -387,49 +387,49 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['ImagePath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="path" id="path" value="'
-            . $path
+            . Initiator::e($path)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="ftppath">'
             . self::$foglang['FTPPath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ftppath" id="ftppath" value="'
-            . $ftppath
+            . Initiator::e($ftppath)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="snapinpath">'
             . self::$foglang['SnapinPath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="snapinpath" id="snapinpath" value="'
-            . $snapinpath
+            . Initiator::e($snapinpath)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="sslpath">'
             . self::$foglang['SSLPath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="sslpath" id="sslpath" value="'
-            . $sslpath
+            . Initiator::e($sslpath)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="bitrate">'
             . _('Bitrate')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="bitrate" id="bitrate" value="'
-            . $bitrate
+            . Initiator::e($bitrate)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="helloInterval">'
             . _('Rexmit Hello Interval')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="helloInterval" id="helloInterval" value="'
-            . $helloInterval
+            . Initiator::e($helloInterval)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="interface">'
             . self::$foglang['Interface']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="interface" id="interface" value="'
-            . $interface
+            . Initiator::e($interface)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="isen">'
@@ -448,14 +448,14 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['ManUser']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="user" id="user" value="'
-            . $user
+            . Initiator::e($user)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="pass">'
             . self::$foglang['ManPass']
             . '</label>' => '<div class="input-group">'
             . '<input type="password" name="pass" id="pass" value="'
-            . $pass
+            . Initiator::e($pass)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="add">'
@@ -697,7 +697,7 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['SNName']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="desc">'
@@ -705,28 +705,28 @@ class StorageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desc" autocomplete="off" '
             . 'class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="ip">'
             . self::$foglang['IPAdr']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" id="ip" value="'
-            . $ip
+            . Initiator::e($ip)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="webroot">'
             . _('Web root')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="webroot" id="webroot" value="'
-            . $webroot
+            . Initiator::e($webroot)
             . '" class="form-control" autocomplete="off"/>'
             . '</div>',
             '<label for="maxClients">'
             . self::$foglang['MaxClients']
             . '</div>' => '<div class="input-group">'
             . '<input type="number" name="maxClients" id="maxClients" value="'
-            . $maxClients
+            . Initiator::e($maxClients)
             . '" class="form-control" autocomplete="off" required/>'
             . '</div>',
             '<label for="ismaster">'
@@ -751,7 +751,7 @@ class StorageManagementPage extends FOGPage
             . '" data-toggle="tooltip" data-placement="left"></i>'
             . '<input type="number" name="bandwidth" id="bandwidth" '
             . 'value="'
-            . $bandwidth
+            . Initiator::e($bandwidth)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="storagegroupID">'
@@ -764,49 +764,49 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['ImagePath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="path" id="path" value="'
-            . $path
+            . Initiator::e($path)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="ftppath">'
             . self::$foglang['FTPPath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ftppath" id="ftppath" value="'
-            . $ftppath
+            . Initiator::e($ftppath)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="snapinpath">'
             . self::$foglang['SnapinPath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="snapinpath" id="snapinpath" value="'
-            . $snapinpath
+            . Initiator::e($snapinpath)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="sslpath">'
             . self::$foglang['SSLPath']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="sslpath" id="sslpath" value="'
-            . $sslpath
+            . Initiator::e($sslpath)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="bitrate">'
             . _('Bitrate')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="bitrate" id="bitrate" value="'
-            . $bitrate
+            . Initiator::e($bitrate)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="helloInterval">'
             . _('Remit Hello Interval')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="helloInterval" id="helloInterval" value="'
-            . $helloInterval
+            . Initiator::e($helloInterval)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="interface">'
             . self::$foglang['Interface']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="interface" id="interface" value="'
-            . $interface
+            . Initiator::e($interface)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="isen">'
@@ -828,14 +828,14 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['ManUser']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="user" id="user" value="'
-            . $user
+            . Initiator::e($user)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="pass">'
             . self::$foglang['ManPass']
             . '</label>' => '<div class="input-group">'
             . '<input type="password" name="pass" id="pass" value="'
-            . $pass
+            . Initiator::e($pass)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
             '<label for="update">'
@@ -1037,7 +1037,7 @@ class StorageManagementPage extends FOGPage
             . $this->title
             . '</label>' => '<input type="hidden" name="remitems[]" '
             . 'value="'
-            . $this->obj->get('id')
+            . Initiator::e($this->obj->get('id'))
             . '"/>'
             . '<button type="submit" name="delete" id="delete" '
             . 'class="btn btn-danger btn-block">'
@@ -1236,14 +1236,14 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['SGName']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control" required/>'
             . '</div>',
             '<label for="description">'
             . self::$foglang['SGDesc']
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="description" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="add">'
@@ -1361,14 +1361,14 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['SGName']
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control" autocomplete="off" required/>'
             . '</div>',
             '<label for="description">'
             . self::$foglang['SGDesc']
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="description" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="update">'
@@ -1491,7 +1491,7 @@ class StorageManagementPage extends FOGPage
             . $this->title
             . '</label>' => '<input type="hidden" name="remitems[]" '
             . 'value="'
-            . $this->obj->get('id')
+            . Initiator::e($this->obj->get('id'))
             . '"/>'
             . '<button type="submit" name="delete" id="delete" '
             . 'class="btn btn-danger btn-block">'

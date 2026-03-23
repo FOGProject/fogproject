@@ -345,7 +345,7 @@ class AccessControlManagementPage extends FOGPage
             . _('Role Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" class="form-control" value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="desc">'
@@ -353,7 +353,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" name="description" '
             . 'id="desc">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="add">'
@@ -494,7 +494,7 @@ class AccessControlManagementPage extends FOGPage
             . _('Role Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" class="form-control" value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="desc">'
@@ -502,7 +502,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" name="description" '
             . 'id="desc">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="update">'
@@ -778,7 +778,7 @@ class AccessControlManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'field' => '<input type="hidden" value="'
-                . $object->id
+                . Initiator::e($object->id)
                 . '" name="remitems[]"/>',
                 'input' => '<a href="?node='
                 . $node
@@ -913,7 +913,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control ruletype-input" type='
             . '"text" name="type" id="type" required value="'
-            . $type
+            . Initiator::e($type)
             . '"/>'
             . '</div>',
             '<label for="parent">'
@@ -921,7 +921,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control ruleparent-input" type='
             . '"text" name="parent" id="parent" required value="'
-            . $parent
+            . Initiator::e($parent)
             . '"/>'
             . '</div>',
             '<label for="nodeParent">'
@@ -929,7 +929,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control rulenodeparent-input" '
             . 'type="text" name="nodeParent" id="nodeParent" value="'
-            . $node
+            . Initiator::e($node)
             . '"/>'
             . '</div>',
             '<label for="value">'
@@ -937,7 +937,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control rulevalue-input" '
             . 'type="text" name="value" id="value" required value="'
-            . $value
+            . Initiator::e($value)
             . '"/>'
             . '</div>',
             '<label for="add">'
@@ -1095,7 +1095,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control ruletype-input" type='
             . '"text" name="type" id="type" required value="'
-            . $type
+            . Initiator::e($type)
             . '"/>'
             . '</div>',
             '<label for="parent">'
@@ -1103,7 +1103,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control ruleparent-input" type='
             . '"text" name="parent" id="parent" required value="'
-            . $parent
+            . Initiator::e($parent)
             . '"/>'
             . '</div>',
             '<label for="nodeParent">'
@@ -1111,7 +1111,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control rulenodeparent-input" '
             . 'type="text" name="nodeParent" id="nodeParent" value="'
-            . $node
+            . Initiator::e($node)
             . '"/>'
             . '</div>',
             '<label for="value">'
@@ -1119,7 +1119,7 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control rulevalue-input" '
             . 'type="text" name="value" id="value" required value="'
-            . $value
+            . Initiator::e($value)
             . '"/>'
             . '</div>',
             '<label for="updaterule">'
@@ -1271,7 +1271,7 @@ class AccessControlManagementPage extends FOGPage
             . $this->title
             . '</label>' => '<input type="hidden" name="remitems[]" '
             . 'value="'
-            . $this->obj->get('id')
+            . Initiator::e($this->obj->get('id'))
             . '"/>'
             . '<button type="submit" name="delete" id="delete" '
             . 'class="btn btn-danger btn-block">'

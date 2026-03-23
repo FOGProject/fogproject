@@ -176,7 +176,7 @@ class LocationManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control locationname-input" name='
             . '"name" value="'
-            . $name
+            . Initiator::e($name)
             . '" autocomplete="off" id="name" required/>'
             . '</div>',
             '<label for="storagegroup">'
@@ -357,7 +357,7 @@ class LocationManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control locationname-input" name='
             . '"name" value="'
-            . $name
+            . Initiator::e($name)
             . '" autocomplete="off" id="name" required/>'
             . '</div>',
             '<label for="storagegroup">'

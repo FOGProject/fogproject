@@ -140,14 +140,14 @@ class TaskstateeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="name" id='
             . '"name" value="'
-            . $name
+            . Initiator::e($name)
             . '" required/>'
             . '</div>',
             '<label for="desc">'
             . _('Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control" id="desc">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="icon">'
@@ -158,7 +158,7 @@ class TaskstateeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="additional" id='
             . '"additional" value="'
-            . $additional
+            . Initiator::e($additional)
             . '"/>'
             . '</div>',
             '<label for="add">'
@@ -329,14 +329,14 @@ class TaskstateeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="name" id='
             . '"name" value="'
-            . $name
+            . Initiator::e($name)
             . '" required/>'
             . '</div>',
             '<label for="desc">'
             . _('Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control" id="desc">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="icon">'
@@ -347,7 +347,7 @@ class TaskstateeditManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="additional" id='
             . '"additional" value="'
-            . $additional
+            . Initiator::e($additional)
             . '"/>'
             . '</div>',
             '<label for="update">'

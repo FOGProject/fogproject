@@ -280,7 +280,7 @@ class ServiceConfigurationPage extends FOGPage
                 . '"/>'
                 . _('Make Changes?')
                 . '</label>' => '<input type="hidden" name="name" value="'
-                . $modNames[$Module->shortName]
+                . Initiator::e($modNames[$Module->shortName])
                 . '"/>'
             );
             array_walk($fields, $this->fieldsToData);
@@ -547,7 +547,7 @@ class ServiceConfigurationPage extends FOGPage
                     . '</label>' => '<div class="input-group">'
                     . '<input type="text" class="form-control" name="width" '
                     . 'value="'
-                    . $x
+                    . Initiator::e($x)
                     . '" id="width"/>'
                     . '</div>',
                     '<label for="height">'
@@ -555,7 +555,7 @@ class ServiceConfigurationPage extends FOGPage
                     . '</label>' => '<div class="input-group">'
                     . '<input type="text" class="form-control" name="height" '
                     . 'value="'
-                    . $y
+                    . Initiator::e($y)
                     . '" id="height"/>'
                     . '</div>',
                     '<label for="refresh">'
@@ -563,7 +563,7 @@ class ServiceConfigurationPage extends FOGPage
                     . '</label>' => '<div class="input-group">'
                     . '<input type="text" class="form-control" name="refresh" '
                     . 'value="'
-                    . $r
+                    . Initiator::e($r)
                     . '" id="refresh"/>'
                     . '</div>',
                     '<label for="updatescreen">'

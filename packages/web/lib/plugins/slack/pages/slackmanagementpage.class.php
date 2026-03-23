@@ -131,7 +131,7 @@ class SlackManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" '
             . 'name="apiToken" id="apiToken" value="'
-            . $value
+            . Initiator::e($value)
             . '" required/>'
             . '</div>',
             '<label for="user">'
@@ -139,7 +139,7 @@ class SlackManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" '
             . 'name="user" id="user" value="'
-            . $user
+            . Initiator::e($user)
             . '" required/>'
             . '</div>',
             '<label for="add">'

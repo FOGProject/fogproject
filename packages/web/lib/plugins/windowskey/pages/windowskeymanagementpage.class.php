@@ -142,14 +142,14 @@ class WindowsKeyManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="name" name="name" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '" required/>'
             . '</div>',
             '<label for="desc">'
             . _('Windows Key Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control" id="desc">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="productKey">'
@@ -157,7 +157,7 @@ class WindowsKeyManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="productKey" name="key" '
             . 'value="'
-            . $key
+            . Initiator::e($key)
             . '" required/>'
             . '</div>',
             '<label for="add">'
@@ -322,14 +322,14 @@ class WindowsKeyManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="name" name="name" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '" required/>'
             . '</div>',
             '<label for="desc">'
             . _('Windows Key Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control" id="desc">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="productKey">'
@@ -337,7 +337,7 @@ class WindowsKeyManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="productKey" name="key" '
             . 'value="'
-            . $key
+            . Initiator::e($key)
             . '" required/>'
             . '</div>',
             '<label for="update">'

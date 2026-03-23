@@ -232,14 +232,14 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="name" name="name" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '" required/>'
             . '</div>',
             '<label for="desc">'
             . _('LDAP Server Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control" id="desc">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="address">'
@@ -247,7 +247,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="address" name="address" '
             . 'value="'
-            . $address
+            . Initiator::e($address)
             . '" required/>'
             . '</div>',
             '<label for="port">'
@@ -266,7 +266,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="searchDN" name='
             . '"searchDN" value="'
-            . $searchDN
+            . Initiator::e($searchDN)
             . '" required/>'
             . '</div>',
             '<label for="grpSearchDN">'
@@ -274,7 +274,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="grpSearchDN" name='
             . '"grpSearchDN" value="'
-            . $grpSearchDN
+            . Initiator::e($grpSearchDN)
             . '"/>'
             . '</div>',
             '<label for="adminGroup">'
@@ -282,7 +282,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="adminGroup" name='
             . '"adminGroup" value="'
-            . $adminGroup
+            . Initiator::e($adminGroup)
             . '"/>'
             . '</div>',
             '<label for="userGroup">'
@@ -290,7 +290,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="userGroup" name='
             . '"userGroup" value="'
-            . $userGroup
+            . Initiator::e($userGroup)
             . '"/>'
             . '</div>',
             '<label for="inittemplate">'
@@ -314,7 +314,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="userNamAttr" name='
             . '"userNamAttr" value="'
-            . $userNamAttr
+            . Initiator::e($userNamAttr)
             . '" required/>'
             . '</div>',
             '<label for="grpMemberAttr">'
@@ -322,7 +322,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="grpMemberAttr" name='
             . '"grpMemberAttr" value="'
-            . $grpMemberAttr
+            . Initiator::e($grpMemberAttr)
             . '"/>'
             . '</div>',
             '<label for="searchScope">'
@@ -333,7 +333,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="bindDN" name="bindDN" '
             . 'value="'
-            . $bindDN
+            . Initiator::e($bindDN)
             . '"/>'
             . '</div>',
             '<label for="bindPwd">'
@@ -341,7 +341,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="password" id="bindPwd" name='
             . '"bindPwd" value="'
-            . $bindPwd
+            . Initiator::e($bindPwd)
             . '"/>'
             . '</div>',
             '<label for="add">'
@@ -695,14 +695,14 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="name" name="name" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '" required/>'
             . '</div>',
             '<label for="desc">'
             . _('LDAP Server Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control" id="desc">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="address">'
@@ -710,7 +710,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="address" name="address" '
             . 'value="'
-            . $address
+            . Initiator::e($address)
             . '" required/>'
             . '</div>',
             '<label for="port">'
@@ -733,7 +733,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="searchDN" name='
             . '"searchDN" value="'
-            . $searchDN
+            . Initiator::e($searchDN)
             . '" required/>'
             . '</div>',
             '<label for="grpSearchDN">'
@@ -741,7 +741,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="grpSearchDN" name='
             . '"grpSearchDN" value="'
-            . $grpSearchDN
+            . Initiator::e($grpSearchDN)
             . '"/>'
             . '</div>',
             '<label for="adminGroup">'
@@ -749,7 +749,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="adminGroup" name='
             . '"adminGroup" value="'
-            . $adminGroup
+            . Initiator::e($adminGroup)
             . '"/>'
             . '</div>',
             '<label for="userGroup">'
@@ -757,7 +757,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="userGroup" name='
             . '"userGroup" value="'
-            . $userGroup
+            . Initiator::e($userGroup)
             . '"/>'
             . '</div>',
             '<label for="inittemplate">'
@@ -781,7 +781,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="userNamAttr" name='
             . '"userNamAttr" value="'
-            . $userNamAttr
+            . Initiator::e($userNamAttr)
             . '" required/>'
             . '</div>',
             '<label for="grpMemberAttr">'
@@ -789,7 +789,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="grpMemberAttr" name='
             . '"grpMemberAttr" value="'
-            . $grpMemberAttr
+            . Initiator::e($grpMemberAttr)
             . '"/>'
             . '</div>',
             '<label for="searchScope">'
@@ -800,7 +800,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" id="bindDN" name="bindDN" '
             . 'value="'
-            . $bindDN
+            . Initiator::e($bindDN)
             . '"/>'
             . '</div>',
             '<label for="bindPwd">'
@@ -808,7 +808,7 @@ class LDAPManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="password" id="bindPwd" name='
             . '"bindPwd" value="'
-            . $bindPwd
+            . Initiator::e($bindPwd)
             . '"/>'
             . '</div>',
             '<label for="update">'
@@ -1069,14 +1069,14 @@ class LDAPManagementPage extends FOGPage
             . _('User Filter')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="filter" id="filter" class="form-control" value="'
-            . $filter
+            . Initiator::e($filter)
             . '"/>'
             . '</div>',
             '<label for="ports">'
             . _('LDAP Ports')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ports" id="ports" class="form-control" value="'
-            . $ports
+            . Initiator::e($ports)
             . '"/>'
             . '</div>',
             '<label for="update">'

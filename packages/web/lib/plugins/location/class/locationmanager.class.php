@@ -171,13 +171,13 @@ class LocationManager extends FOGManagerController
         foreach ((array)$protocols as $short => &$long) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                $short,
+                Initiator::e($short),
                 (
                     $preselection === $short ?
                     ' selected' :
                     ''
                 ),
-                $long
+                Initiator::e($long)
             );
             unset($short, $long);
         }

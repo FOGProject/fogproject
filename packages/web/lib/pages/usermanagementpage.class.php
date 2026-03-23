@@ -181,7 +181,7 @@ class UserManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control username-input" name='
             . '"name" value="'
-            . $name
+            . Initiator::e($name)
             . '" autocomplete="off" id="name" required/>'
             . '</div>',
             '<label for="display">'
@@ -190,7 +190,7 @@ class UserManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
             . 'display" value="'
-            . $display
+            . Initiator::e($display)
             . '" autocomplete="off" id="display"/>'
             . '</div>',
             '<label for="password">'
@@ -376,7 +376,7 @@ class UserManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control username-input" name='
             . '"name" value="'
-            . $this->obj->get('name')
+            . Initiator::e($this->obj->get('name'))
             . '" autocomplete="off" id="name" required/>'
             . '</div>',
             '<label for="display">'
@@ -385,7 +385,7 @@ class UserManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
             . 'display" value="'
-            . $this->obj->get('display')
+            . Initiator::e($this->obj->get('display'))
             . '" autocomplete="off" id="display"/>'
             . '</div>',
             '<label for="updategen">'
@@ -559,9 +559,9 @@ class UserManagementPage extends FOGPage
             . '<input type="password" class="'
             . 'form-control token" name="'
             . 'apitoken" id="token" readonly value="'
-            . base64_encode(
+            . Initiator::e(base64_encode(
                 $this->obj->get('token')
-            )
+            ))
             . '"/>'
             . '<div class="input-group-btn">'
             . '<button class="btn btn-warning resettoken" type="button">'

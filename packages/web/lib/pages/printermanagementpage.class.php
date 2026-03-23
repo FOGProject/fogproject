@@ -245,7 +245,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="namenetwork" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -253,7 +253,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="descnetwork" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>'
         );
@@ -285,7 +285,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="nameiprint" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -293,7 +293,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desciprint" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="portiprint">'
@@ -301,7 +301,7 @@ class PrinterManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="port" id="portiprint" '
             . 'value="'
-            . $port
+            . Initiator::e($port)
             . '" class="form-control printerport-input" autocomplete="off" '
             . '/>'
             . '</div>'
@@ -334,7 +334,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="namecups" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -342,14 +342,14 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desccups" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="infcups">'
             . _('Printer INF File')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="inf" value="'
-            . $inf
+            . Initiator::e($inf)
             . '" id="infcups" class="printerinf-input form-control" '
             . '/>'
             . '</div>',
@@ -357,7 +357,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer IP')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
-            . $ip
+            . Initiator::e($ip)
             . '" id="ipcups" class="printerip-input form-control" '
             . '/>'
             . '</div>'
@@ -390,7 +390,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="namelocal" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -398,7 +398,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desclocal" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="portlocal">'
@@ -406,7 +406,7 @@ class PrinterManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="port" id="portlocal" '
             . 'value="'
-            . $port
+            . Initiator::e($port)
             . '" class="form-control printerport-input" autocomplete="off" '
             . '/>'
             . '</div>',
@@ -414,7 +414,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer INF File')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="inf" value="'
-            . $inf
+            . Initiator::e($inf)
             . '" id="inflocal" class="printerinf-input form-control" '
             . '/>'
             . '</div>',
@@ -422,7 +422,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer IP/Hostname')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
-            . $ip
+            . Initiator::e($ip)
             . '" id="iplocal" class="printerip-input form-control" '
             . '/>'
             . '</div>',
@@ -430,7 +430,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Model')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="model" value="'
-            . $model
+            . Initiator::e($model)
             . '" id="modellocal" class="printermodel-input form-control" '
             . '/>'
             . '</div>',
@@ -438,7 +438,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Config File')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="configFile" value="'
-            . $configFile
+            . Initiator::e($configFile)
             . '" id="configFilelocal" class="printerconfigfile-input form-control" '
             . '/>'
             . '</div>'
@@ -653,7 +653,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="namenetwork" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -661,7 +661,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="descnetwork" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>'
         );
@@ -693,7 +693,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="nameiprint" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -701,7 +701,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desciprint" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="portiprint">'
@@ -709,7 +709,7 @@ class PrinterManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="port" id="portiprint" '
             . 'value="'
-            . $port
+            . Initiator::e($port)
             . '" class="form-control printerport-input" autocomplete="off" '
             . '/>'
             . '</div>'
@@ -742,7 +742,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="namecups" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -750,14 +750,14 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desccups" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="infcups">'
             . _('Printer INF File')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="inf" value="'
-            . $inf
+            . Initiator::e($inf)
             . '" id="infcups" class="printerinf-input form-control" '
             . '/>'
             . '</div>',
@@ -765,7 +765,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer IP/Hostname')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
-            . $ip
+            . Initiator::e($ip)
             . '" id="ipcups" class="printerip-input form-control" '
             . '/>'
             . '</div>'
@@ -798,7 +798,7 @@ class PrinterManagementPage extends FOGPage
             . _('e.g.')
             . ' \\\\printerserver\\printername' => '<div class="input-group">'
             . '<input type="text" name="alias" id="namelocal" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control printername-input" autocomplete="off" '
             . 'required/>'
             . '</div>',
@@ -806,7 +806,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desclocal" class="form-control">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="portlocal">'
@@ -814,7 +814,7 @@ class PrinterManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="port" id="portlocal" '
             . 'value="'
-            . $port
+            . Initiator::e($port)
             . '" class="form-control printerport-input" autocomplete="off" '
             . '/>'
             . '</div>',
@@ -822,7 +822,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer INF File')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="inf" value="'
-            . $inf
+            . Initiator::e($inf)
             . '" id="inflocal" class="printerinf-input form-control" '
             . '/>'
             . '</div>',
@@ -830,7 +830,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer IP')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
-            . $ip
+            . Initiator::e($ip)
             . '" id="iplocal" class="printerip-input form-control" '
             . '/>'
             . '</div>',
@@ -838,7 +838,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Model')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="model" value="'
-            . $model
+            . Initiator::e($model)
             . '" id="modellocal" class="printermodel-input form-control" '
             . '/>'
             . '</div>',
@@ -846,7 +846,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Config File')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="configFile" value="'
-            . $configFile
+            . Initiator::e($configFile)
             . '" id="configFilelocal" class="printerconfigfile-input form-control" '
             . '/>'
             . '</div>'
