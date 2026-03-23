@@ -1016,7 +1016,7 @@ abstract class FOGManagerController extends FOGBase
                 continue;
             }
             echo '<option value="'
-                . $Item->{$useKey}
+                . Initiator::e($Item->{$useKey})
                 . '"'
                 . (
                     $matchID == $Item->{$useKey} ?
@@ -1028,8 +1028,8 @@ abstract class FOGManagerController extends FOGBase
                     )
                 )
                 . '>'
-                . $Item->name
-                . ' - (' . $Item->id . ')'
+                . Initiator::e($Item->name)
+                . ' - (' . Initiator::e($Item->id) . ')'
                 . '</option>';
             unset($Item);
         }

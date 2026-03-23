@@ -92,10 +92,10 @@ class SnapinManagement extends FOGPage
         foreach (self::$_argTypes as $type => &$cmd) {
             printf(
                 '<option value="%s" rwargs="%s" args="%s">%s</option>',
-                $cmd[0],
-                $cmd[1],
-                $cmd[2],
-                $type
+                Initiator::e($cmd[0]),
+                Initiator::e($cmd[1]),
+                Initiator::e($cmd[2]),
+                Initiator::e($type)
             );
             unset($cmd);
         }
@@ -172,13 +172,13 @@ class SnapinManagement extends FOGPage
         foreach ($args as $type => &$cmd) {
             printf(
                 '<option file="%s" args="%s">%s</option>',
-                $cmd[0],
+                Initiator::e($cmd[0]),
                 (
                     isset($cmd[1]) ?
-                    $cmd[1] :
+                    Initiator::e($cmd[1]) :
                     ''
                 ),
-                $type
+                Initiator::e($type)
             );
             unset($cmd);
         }

@@ -128,9 +128,9 @@ class LocationManager extends FOGManagerController
         foreach ($protocols as $short => $long) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                $short,
+                Initiator::e($short),
                 ($preselection === $short ? ' selected' : ''),
-                $long
+                Initiator::e($long)
             );
         }
         return '<select class="form-control" name="storagenodeprotocol" '

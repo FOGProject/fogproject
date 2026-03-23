@@ -398,9 +398,9 @@ abstract class FOGBase
             }
             printf(
                 '<option value="%s"%s>%s</option>',
-                $value,
+                Initiator::e($value),
                 (self::$selected == $value ? ' selected' : ''),
-                $option
+                Initiator::e($option)
             );
         };
         /**

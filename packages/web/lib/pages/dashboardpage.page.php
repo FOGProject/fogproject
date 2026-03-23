@@ -108,8 +108,8 @@ class DashboardPage extends FOGPage
             $url = self::$httpproto.'://' . $url;
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s">%s%s</option>',
-                $StorageNode->id,
-                $StorageNode->name,
+                Initiator::e($StorageNode->id),
+                Initiator::e($StorageNode->name),
                 (
                     $StorageNode->isMaster ?
                     ' *' :
@@ -133,8 +133,8 @@ class DashboardPage extends FOGPage
         foreach ((array)$Groups as &$StorageGroup) {
             self::$_groupOpts .= sprintf(
                 '<option value="%s">%s</option>',
-                $StorageGroup->id,
-                $StorageGroup->name
+                Initiator::e($StorageGroup->id),
+                Initiator::e($StorageGroup->name)
             );
             unset($StorageGroup);
         }

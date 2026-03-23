@@ -193,13 +193,13 @@ class Printer extends FOGController
         foreach ((array)$printerTypes as $short => &$long) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                $short,
+                Initiator::e($short),
                 (
                     filter_input(INPUT_POST, 'printertype') === $short ?
                     ' selected' :
                     ''
                 ),
-                $long
+                Initiator::e($long)
             );
             unset($short, $long);
         }

@@ -1609,14 +1609,14 @@ class FOGConfigurationPage extends FOGPage
                 }
                 printf(
                     '<option value="%s||%s"%s>%s</option>',
-                    base64_encode($ip[$nodename]),
-                    $file,
+                    Initiator::e(base64_encode($ip[$nodename])),
+                    Initiator::e($file),
                     (
                         isset($_POST['logtype']) && $value == $_POST['logtype'] ?
                         ' selected' :
                         ''
                     ),
-                    $value
+                    Initiator::e($value)
                 );
                 unset($file);
             }
@@ -1641,7 +1641,7 @@ class FOGConfigurationPage extends FOGPage
         foreach ((array)$vals as $i => &$value) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                $value,
+                Initiator::e($value),
                 (
                     $value == filter_input(
                         INPUT_POST,
@@ -1651,7 +1651,7 @@ class FOGConfigurationPage extends FOGPage
                     ' selected' :
                     ''
                 ),
-                $value
+                Initiator::e($value)
             );
             unset($value);
         }
@@ -2122,7 +2122,7 @@ class FOGConfigurationPage extends FOGPage
                                 . '">';
                             foreach ($vals as $text => &$val) {
                                 echo '<option value="'
-                                    . $val
+                                    . Initiator::e($val)
                                     . '"'
                                     . (
                                         $val == $row['settingValue'] ?
@@ -2130,7 +2130,7 @@ class FOGConfigurationPage extends FOGPage
                                         ''
                                     )
                                     . '>';
-                                echo $text;
+                                echo Initiator::e($text);
                                 echo '</option>';
                                 unset($val);
                             }
@@ -2155,7 +2155,7 @@ class FOGConfigurationPage extends FOGPage
                                 . '">';
                             foreach ($vals as $text => &$val) {
                                 echo '<option value="'
-                                    . $val
+                                    . Initiator::e($val)
                                     . '"'
                                     . (
                                         $val == $row['settingValue'] ?
@@ -2163,7 +2163,7 @@ class FOGConfigurationPage extends FOGPage
                                         ''
                                     )
                                     . '>';
-                                echo $text;
+                                echo Initiator::e($text);
                                 echo '</option>';
                                 unset($val);
                             }
@@ -2184,7 +2184,7 @@ class FOGConfigurationPage extends FOGPage
                                 . '">';
                             foreach ($vals as $text => &$val) {
                                 echo '<option value="'
-                                    . $val
+                                    . Initiator::e($val)
                                     . '"'
                                     . (
                                         $val == $row['settingValue'] ?
@@ -2192,7 +2192,7 @@ class FOGConfigurationPage extends FOGPage
                                         ''
                                     )
                                     . '>';
-                                echo $text;
+                                echo Initiator::e($text);
                                 echo '</option>';
                                 unset($val);
                             }
@@ -2211,7 +2211,7 @@ class FOGConfigurationPage extends FOGPage
                                 . '">';
                             foreach ($vals as $text => &$val) {
                                 echo '<option value="'
-                                    . $val
+                                    . Initiator::e($val)
                                     . '"'
                                     . (
                                         $val == $row['settingValue'] ?
@@ -2219,7 +2219,7 @@ class FOGConfigurationPage extends FOGPage
                                         ''
                                     )
                                     . '>';
-                                echo $text;
+                                echo Initiator::e($text);
                                 echo '</option>';
                                 unset($val);
                             }
@@ -2278,15 +2278,15 @@ class FOGConfigurationPage extends FOGPage
                                 );
                                 printf(
                                     '<option value="%s"%s>%s [%s %s]</option>',
-                                    $tz,
+                                    Initiator::e($tz),
                                     (
                                         $row['settingValue'] == $tz ?
                                         ' selected' :
                                         ''
                                     ),
-                                    $tz,
-                                    $abbr,
-                                    $offset
+                                    Initiator::e($tz),
+                                    Initiator::e($abbr),
+                                    Initiator::e($offset)
                                 );
                                 unset(
                                     $current_tz,

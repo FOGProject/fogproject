@@ -35,7 +35,12 @@ class Initiator
 
     public static function e(mixed $value): string
     {
-        return htmlspecialchars((string)($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return htmlspecialchars(
+            (string)($value ?? ''),
+            ENT_QUOTES | ENT_SUBSTITUTE,
+            'UTF-8',
+            false
+        );
     }
 
     public function __construct()
@@ -56,7 +61,7 @@ class Initiator
         ]);
 
         self::setSanitize();
-        $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_STRING);
+        $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS);
         define('DS', DIRECTORY_SEPARATOR);
         define('BASEPATH', self::_determineBasePath());
 

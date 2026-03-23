@@ -1591,11 +1591,11 @@ abstract class FOGPage extends FOGBase
                     $optFound = $ou;
                 }
                 echo '<option value="'
-                    . $ou
+                    . Initiator::e($ou)
                     . '"'
                     . ($optFound == $ou ? ' selected' : '')
                     . '>'
-                    . $ou
+                    . Initiator::e($ou)
                     . '</option>';
                 unset($OU);
             }
@@ -3006,8 +3006,8 @@ abstract class FOGPage extends FOGBase
                 '<option value="%s"%s>%s</option>',
                 (
                     $useidsel ?
-                    $id :
-                    $item
+                    Initiator::e($id) :
+                    Initiator::e($item)
                 ),
                 (
                     $useidsel ? (
@@ -3020,7 +3020,11 @@ abstract class FOGPage extends FOGBase
                         ''
                     )
                 ),
-                ($addidtodisplay ? $item . ' - (' . $id . ')' : $item)
+                (
+                    $addidtodisplay ?
+                    Initiator::e($item) . ' - (' . Initiator::e($id) . ')' :
+                    Initiator::e($item)
+                )
             );
             unset($item);
         }
@@ -3502,7 +3506,7 @@ abstract class FOGPage extends FOGBase
             . 'placeholder="' . $placeholder . '" '
             . 'type="' . $type . '" '
             . 'id="' . $id . '" '
-            . 'value="' . filter_var($value, FILTER_SANITIZE_STRING) . '" '
+            . 'value="' . Initiator::e($value) . '" '
             . ($required ? 'required ' : '')
             . ($readonly ? 'readonly ' : '')
             . ($disabled ? 'disabled ' : '')
@@ -3609,7 +3613,7 @@ abstract class FOGPage extends FOGBase
             . 'autocomplete="' . ($autocomplete ? 'on' : 'off') . '"'
             . ($extra ? " $extra" : '')
             . '>'
-            . $value
+            . Initiator::e($value)
             . '</textarea>';
     }
     /**

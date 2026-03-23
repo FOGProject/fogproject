@@ -53,11 +53,11 @@ class ProcessLogin extends FOGPage
         $langmenu = '<select class="form-control fog-select2" name="ulang" id="ulang">';
         foreach ($foglang['Language'] as $base => &$lang) {
             $langmenu .= '<option value="'
-                . $base
+                . Initiator::e($base)
                 . '"'
                 . ($base == $selected ? ' selected' : '')
                 . '>'
-                . $lang
+                . Initiator::e($lang)
                 . '</option>';
             unset($lang);
         }
