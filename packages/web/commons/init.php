@@ -20,15 +20,22 @@ class Initiator
     private static function setSanitize(): void
     {
         if (!self::$sanitizeItems) {
-            self::$sanitizeItems = function (&$val, $key) {
-                if (is_string($val)) {
-                    $val = filter_var($val, FILTER_SANITIZE_SPECIAL_CHARS);
-                }
+            self::$sanitizeItems = function (&$val, $key): void {
                 if (is_array($val)) {
                     array_walk($val, self::$sanitizeItems);
+                    return;
+                }
+
+                if (is_string($val)) {
+                    $val = trim(str_replace("\0", '', $val));
                 }
             };
         }
+    }
+
+    public static function e(mixed $value): string
+    {
+        return htmlspecialchars((string)($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     public function __construct()

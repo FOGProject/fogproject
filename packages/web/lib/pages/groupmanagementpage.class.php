@@ -152,9 +152,9 @@ class GroupManagementPage extends FOGPage
          */
         self::$returnData = function (&$Group) {
             $this->data[] = array(
-                'id' => $Group->id,
-                'name' => $Group->name,
-                'description' => $Group->description,
+                'id' => Initiator::e($Group->id),
+                'name' => Initiator::e($Group->name),
+                'description' => Initiator::e($Group->description),
                 'count' => $Group->hostcount
             );
             unset($Group);
@@ -189,7 +189,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" '
             . 'value="'
-            . filter_input(INPUT_POST, 'name')
+            . Initiator::e(filter_input(INPUT_POST, 'name'))
             . '" class="groupname-input form-control" '
             . 'id="name" required/>'
             . '</div>',
@@ -198,7 +198,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" '
             . 'id="description" name="description">'
-            . filter_input(INPUT_POST, 'description')
+            . Initiator::e(filter_input(INPUT_POST, 'description'))
             . '</textarea>'
             . '</div>',
             '<label for="kern">'
@@ -206,7 +206,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" '
             . 'value="'
-            . filter_input(INPUT_POST, 'kern')
+            . Initiator::e(filter_input(INPUT_POST, 'kern'))
             . '" class="groupkern-input form-control" '
             . 'id="kern"/>'
             . '</div>',
@@ -215,7 +215,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="args" '
             . 'value="'
-            . filter_input(INPUT_POST, 'args')
+            . Initiator::e(filter_input(INPUT_POST, 'args'))
             . '" class="groupargs-input form-control" '
             . 'id="args"/>'
             . '</div>',
@@ -224,7 +224,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" '
             . 'value="'
-            . filter_input(INPUT_POST, 'dev')
+            . Initiator::e(filter_input(INPUT_POST, 'dev'))
             . '" class="groupdev-input form-control" '
             . 'id="dev"/>'
             . '</div>',
@@ -467,7 +467,7 @@ class GroupManagementPage extends FOGPage
             . _('Group Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="groupname-input form-control" '
             . 'id="name" required/>'
             . '</div>',
@@ -476,7 +476,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" id="description" '
             . 'name="description">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="productKey">'
@@ -484,7 +484,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input id="productKey" type="text" '
             . 'name="key" value="'
-            . $productKey
+            . Initiator::e($productKey)
             .'" class="form-control"/>'
             . '</div>',
             '<label for="kern">'
@@ -492,7 +492,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" id="kern" '
             . 'class="form-control" value="'
-            . $kern
+            . Initiator::e($kern)
             . '"/>'
             . '</div>',
             '<label for="args">'
@@ -500,7 +500,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' =>'<div class="input-group">'
             . '<input type="text" name="args" id="args" '
             . 'class="form-control" value="'
-            . $args
+            . Initiator::e($args)
             . '"/>'
             . '</div>',
             '<label for="dev">'
@@ -508,7 +508,7 @@ class GroupManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" id="dev" '
             . 'class="form-control" value="'
-            . $dev
+            . Initiator::e($dev)
             . '"/>'
             . '</div>',
             '<label for="bootTypeExit">'
@@ -1236,13 +1236,11 @@ class GroupManagementPage extends FOGPage
                     . '</div>',
                     $Module->shortName,
                     (
-                        ($moduleName[$Module->shortName]
-                        || $moduleName[$Module->shortName])
-                        && $Module->isDefault ?
+                        $moduleName[$Module->shortName] && $Module->isDefault ?
                         ' class="checkboxes" ':
                         ''
                     ),
-                    $Module->id,
+                    Initiator::e($Module->id),
                     (
                         in_array($Module->id, $ModuleOn) ?
                         ' checked' :
@@ -1262,17 +1260,17 @@ class GroupManagementPage extends FOGPage
                     . 'title="%s"></span>'
                     . '</div>'
                     . '%s',
-                    str_replace(
+                    Initiator::e(str_replace(
                         '"',
                         '\"',
                         $Module->description
-                    ),
-                    $note
+                    )),
+                    Initiator::e($note)
                 ),
                 'mod_name' => '<label for="'
-                . $Module->shortName
+                . Initiator::e($Module->shortName)
                 . '">'
-                . $Module->name
+                . Initiator::e($Module->name)
                 . '</label>',
             );
             unset($Module);
@@ -1416,8 +1414,8 @@ class GroupManagementPage extends FOGPage
                     . 'class="form-control"/>'
                     . '</div>',
                     $name,
-                    $name,
-                    $val
+                    Initiator::e($name),
+                    Initiator::e($val)
                 ),
                 'span' => sprintf(
                     '<div class="col-xs-2">'
@@ -1425,7 +1423,7 @@ class GroupManagementPage extends FOGPage
                     . 'data-toggle="tooltip" data-placement="right" '
                     . 'title="%s"></span>'
                     . '</div>',
-                    $get[1]
+                    Initiator::e($get[1])
                 ),
                 'field' => '<label for="'
                 . $name

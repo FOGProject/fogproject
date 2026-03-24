@@ -261,23 +261,23 @@ class ImageManagementPage extends FOGPage
             /**
              * The id.
              */
-            $id = $Image->id;
+            $id = Initiator::e($Image->id);
             /**
              * The name.
              */
-            $name = $Image->name;
+            $name = Initiator::e($Image->name);
             /**
              * The description.
              */
-            $description = $Image->description;
+            $description = Initiator::e($Image->description);
             /**
              * The storage group name.
              */
-            $storageGroup = $Image->storagegroupname;
+            $storageGroup = Initiator::e($Image->storagegroupname);
             /**
              * The os name.
              */
-            $os = $Image->osname;
+            $os = Initiator::e($Image->osname);
             /**
              * If no os is set/found set to not set.
              */
@@ -300,11 +300,11 @@ class ImageManagementPage extends FOGPage
             /**
              * The image type name.
              */
-            $imageType = $Image->imagetypename;
+            $imageType = Initiator::e($Image->imagetypename);
             /**
              * The image partition type name.
              */
-            $imagePartitionType = $Image->imageparttypename;
+            $imagePartitionType = Initiator::e($Image->imageparttypename);
             /**
              * The path.
              */
@@ -570,7 +570,7 @@ class ImageManagementPage extends FOGPage
             . '<input class="form-control imagename-input" type="text" '
             . 'name="name" id="iName" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="description">'
@@ -578,7 +578,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control imagedesc-input" '
             . 'id="description">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>',
             '<label for="storagegroup">'
             . _('Storage Group')
@@ -590,13 +590,13 @@ class ImageManagementPage extends FOGPage
             . _('Image Path')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
-            . $StorageNode->get('path')
+            . Initiator::e($StorageNode->get('path'))
             . '/'
             . '</span>'
             . '<input type="text" class="form-control imagefile-input" '
             . 'name="file" id="iFile" '
             . 'value="'
-            . $file
+            . Initiator::e($file)
             . '"/>',
             '<label for="imagetype">'
             . _('Image Type')
@@ -628,7 +628,7 @@ class ImageManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="compress" class="form-control '
             . 'showVal pigz" maxsize="2" value="'
-            . $compression
+            . Initiator::e($compression)
             . '" id="pigzcomp" readonly/>'
             . '</div>'
             . '</div>',
@@ -935,7 +935,7 @@ class ImageManagementPage extends FOGPage
             . '<input class="form-control imagename-input" type="text" '
             . 'name="name" id="iName" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="description">'
@@ -943,7 +943,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control imagedesc-input" '
             . 'id="description">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>',
             '<label for="os">'
             . _('Operating System')
@@ -952,13 +952,13 @@ class ImageManagementPage extends FOGPage
             . _('Image Path')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
-            . $StorageNode->get('path')
+            . Initiator::e($StorageNode->get('path'))
             . '/'
             . '</span>'
             . '<input type="text" class="form-control imagefile-input" '
             . 'name="file" id="iFile" '
             . 'value="'
-            . $file
+            . Initiator::e($file)
             . '"/>',
             '<label for="imagetype">'
             . _('Image Type')
@@ -1000,7 +1000,7 @@ class ImageManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="compress" class="form-control '
             . 'showVal pigz" maxsize="2" value="'
-            . $compression
+            . Initiator::e($compression)
             . '" id="pigzcomp" readonly/>'
             . '</div>'
             . '</div>',
@@ -1491,7 +1491,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" name="name" id="iName" '
             . 'autocomplete="off" value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="iCount">'
@@ -1499,7 +1499,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="number" name="count" id="iCount" '
             . 'autocomplete="off" value="'
-            . $count
+            . Initiator::e($count)
             . '"/>'
             . '</div>',
             '<label for="iTimeout">'
@@ -1510,7 +1510,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="number" name=timeout" '
             . 'id="iTimeout" autocomplete="off" value="'
-            . $timeout
+            . Initiator::e($timeout)
             . '"/>'
             . '</div>',
             '<label for="image">'

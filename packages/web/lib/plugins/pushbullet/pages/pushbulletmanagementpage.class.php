@@ -78,9 +78,9 @@ class PushbulletManagementPage extends FOGPage
          */
         self::$returnData = function (&$PushBullet) {
             $this->data[] = array(
-                'name'    => $PushBullet->name,
-                'email'   => $PushBullet->email,
-                'id'      => $PushBullet->id,
+                'name'    => Initiator::e($PushBullet->name),
+                'email'   => Initiator::e($PushBullet->email),
+                'id'      => Initiator::e($PushBullet->id),
             );
             unset($PushBullet);
         };
@@ -119,7 +119,7 @@ class PushbulletManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" '
             . 'name="apiToken" id="apiToken" value="'
-            . $value
+            . Initiator::e($value)
             . '"/>'
             . '</div>',
             '<label for="add">'

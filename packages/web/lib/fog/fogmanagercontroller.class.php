@@ -910,7 +910,7 @@ abstract class FOGManagerController extends FOGBase
             }
             printf(
                 '<option value="%s"%s>%s</option>',
-                $Object->get('id'),
+                Initiator::e($Object->get('id')),
                 (
                     $matchID == $Object->get('id') ?
                     ' selected' :
@@ -920,11 +920,11 @@ abstract class FOGManagerController extends FOGBase
                         ''
                     )
                 ),
-                sprintf(
+                Initiator::e(sprintf(
                     '%s - (%d)',
                     $Object->get('name'),
                     $Object->get('id')
-                )
+                ))
             );
             unset($Object);
         }
@@ -963,6 +963,7 @@ abstract class FOGManagerController extends FOGBase
         $id = 0,
         $idField = 'name'
     ) {
+        $idSpecField = 'id';
         if (empty($id)) {
             $id = 0;
         }
@@ -973,6 +974,7 @@ abstract class FOGManagerController extends FOGBase
             $idField => $val,
             'id' => $id,
         );
+
         $query = sprintf(
             $this->existsQueryTemplate,
             $this->databaseTable,
@@ -982,7 +984,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields[$idField],
             sprintf(':%s', $idField),
             $this->databaseTable,
-            $this->databaseFields[$idField],
+            $this->databaseFields[$idSpecField],
             ':id'
         );
 

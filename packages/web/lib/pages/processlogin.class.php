@@ -77,9 +77,9 @@ class ProcessLogin extends FOGPage
         foreach ($foglangt['Language'] as $base => &$lang) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                $base,
+                Initiator::e($base),
                 ($base == $selected ? ' selected' : ''),
-                $lang
+                Initiator::e($lang)
             );
             unset($lang);
         }

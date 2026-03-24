@@ -108,9 +108,9 @@ class SiteManagementPage extends FOGPage
          */
         self::$returnData = function (&$Site) {
             $this->data[] = array(
-                'id' => $Site->id,
-                'name' => $Site->name,
-                'description' => $Site->description,
+                'id' => Initiator::e($Site->id),
+                'name' => Initiator::e($Site->name),
+                'description' => Initiator::e($Site->description),
 //                'hosts' => $Site->getHostCount()
                 'hosts' => self::getClass('SiteHostAssociationManager')
                         ->count(
@@ -151,7 +151,7 @@ class SiteManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '" class="form-control" '
             . 'id="site" required/>',
             '<label for="description">'
@@ -159,7 +159,7 @@ class SiteManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" '
             . 'id="description" name="description">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="add">'
@@ -294,7 +294,7 @@ class SiteManagementPage extends FOGPage
             . '<input class="form-control sitename-input" type="text" '
             . 'name="name" id="name" '
             . 'value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="description">'
@@ -302,7 +302,7 @@ class SiteManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control sitedesc-input" '
             . 'id="description">'
-            . $description
+            . Initiator::e($description)
             . '</textarea>'
             . '</div>',
             '<label for="updategen">'

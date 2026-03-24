@@ -738,7 +738,7 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</label>';
                     $actionbox .= '<div class="col-xs-8">';
                     $actionbox .= '<input type="hidden" name="'
-                        . strtolower($node)
+                        . Initiator::e(strtolower($node))
                         . 'IDArray"/>';
                     $actionbox .= '<button type="submit" class='
                         . '"btn btn-danger btn-block" id="'
@@ -966,7 +966,6 @@ abstract class FOGPage extends FOGBase
                 '${%s}',
                 $name
             );
-            $val = trim($val);
             $this->dataReplace[] = $val;
             unset($val);
         }
@@ -1108,11 +1107,11 @@ abstract class FOGPage extends FOGBase
             $snapins = $snapins->snapins;
             foreach ((array)$snapins as &$Snapin) {
                 echo '<option value="'
-                    . $Snapin->id
+                    . Initiator::e($Snapin->id)
                     . '">';
-                echo $Snapin->name;
+                echo Initiator::e($Snapin->name);
                 echo ' - (';
-                echo $Snapin->id;
+                echo Initiator::e($Snapin->id);
                 echo ')';
                 echo '</option>';
                 unset($Snapin);
@@ -1135,11 +1134,11 @@ abstract class FOGPage extends FOGBase
             $snapins = $snapins->snapins;
             foreach ((array)$snapins as &$Snapin) {
                 echo '<option value="'
-                    . $Snapin->id
+                    . Initiator::e($Snapin->id)
                     . '">';
-                echo $Snapin->name;
+                echo Initiator::e($Snapin->name);
                 echo ' - (';
-                echo $Snapin->id;
+                echo Initiator::e($Snapin->id);
                 echo ')';
                 echo '</option>';
                 unset($Snapin);
@@ -1364,9 +1363,9 @@ abstract class FOGPage extends FOGBase
             ob_start();
             foreach ($specialCrons as $val => &$name) {
                 echo '<option value="'
-                    . $val
+                    . Initiator::e($val)
                     . '">'
-                    . $name
+                    . Initiator::e($name)
                     . '</option>';
                 unset($name);
             }
@@ -1985,7 +1984,7 @@ abstract class FOGPage extends FOGBase
             }
             $this->data[] = array(
                 'field' => '<input type="hidden" value="'
-                . $object->id
+                . Initiator::e($object->id)
                 . '" name="remitems[]"/>',
                 'input' => '<a href="?node='
                 . $node
@@ -2297,13 +2296,13 @@ abstract class FOGPage extends FOGBase
                 }
                 printf(
                     '<option value="%s"%s>%s</option>',
-                    $ou,
+                    Initiator::e($ou),
                     (
                         $optFound === $ou ?
                         ' selected' :
                         ''
                     ),
-                    $ou
+                    Initiator::e($ou)
                 );
             }
             $OUOptions = sprintf(
@@ -2315,7 +2314,7 @@ abstract class FOGPage extends FOGBase
             $OUOptions = sprintf(
                 '<input id="adOU" class="form-control" type="text" name='
                 . '"ou" value="%s" autocomplete="off"/>',
-                $ADOU
+                Initiator::e($ADOU)
             );
         }
         $fields = array(
@@ -2344,7 +2343,7 @@ abstract class FOGPage extends FOGBase
                 . '<input id="adDomain" class="form-control" type="text" '
                 . 'name="domainname" value="%s" autocomplete="off"/>'
                 . '</div>',
-                $ADDomain
+                Initiator::e($ADDomain)
             ),
             sprintf(
                 '<label for="adOU">%s'
@@ -2361,7 +2360,7 @@ abstract class FOGPage extends FOGBase
                 . '<input id="adUsername" class="form-control" type="text" '
                 . 'name="domainuser" value="%s" autocomplete="off"/>'
                 . '</div>',
-                $ADUser
+                Initiator::e($ADUser)
             ),
             sprintf(
                 '<label for="adPassword">%s'
@@ -2373,7 +2372,7 @@ abstract class FOGPage extends FOGBase
                 . '"password" '
                 . 'name="domainpassword" value="%s" autocomplete="off"/>'
                 . '</div>',
-                $ADPass
+                Initiator::e($ADPass)
             ),
             sprintf(
                 '<label for="adPasswordLegacy">%s'
@@ -2387,7 +2386,7 @@ abstract class FOGPage extends FOGBase
                 . 'type="password" name="domainpasswordlegacy" '
                 . 'value="%s" autocomplete="off"/>'
                 . '</div>',
-                $ADPassLegacy
+                Initiator::e($ADPassLegacy)
             ),
             sprintf(
                 '<label for="ensel">'
@@ -2943,7 +2942,7 @@ abstract class FOGPage extends FOGBase
                 . $this->title
                 . '</label>' => '<input type="hidden" name="remitems[]" '
                 . 'value="'
-                . $this->obj->get('id')
+                . Initiator::e($this->obj->get('id'))
                 . '"/>'
                 . '<button type="submit" name="delete" id="delete" '
                 . 'class="btn btn-danger btn-block">'
@@ -4241,8 +4240,8 @@ abstract class FOGPage extends FOGBase
             )
             . '" id="%s" name="%s">'
             . '<option value="">- %s -</option>',
-            $name,
-            $name,
+            Initiator::e($name),
+            Initiator::e($name),
             _('Please select an option')
         );
         foreach ($items as $id => &$item) {
@@ -4250,8 +4249,8 @@ abstract class FOGPage extends FOGBase
                 '<option value="%s"%s>%s</option>',
                 (
                     $useidsel ?
-                    $id :
-                    $item
+                    Initiator::e($id) :
+                    Initiator::e($item)
                 ),
                 (
                     $useidsel ? (

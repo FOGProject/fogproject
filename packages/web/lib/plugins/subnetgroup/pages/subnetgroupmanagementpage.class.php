@@ -109,11 +109,11 @@ class SubnetgroupManagementPage extends FOGPage
             );
 
             $this->data[] = array(
-                'id' => $Subnetgroup->id,
-                'groupName' => isset($Group->groups[0]) ? $Group->groups[0]->name : '',
-                'groupID'   => $Subnetgroup->groupID,
-                'subnets' => $Subnetgroup->subnets,
-                'name' => $Subnetgroup->name,
+                'id' => Initiator::e($Subnetgroup->id),
+                'groupName' => isset($Group->groups[0]) ? Initiator::e($Group->groups[0]->name) : '',
+                'groupID'   => Initiator::e($Subnetgroup->groupID),
+                'subnets' => Initiator::e($Subnetgroup->subnets),
+                'name' => Initiator::e($Subnetgroup->name),
             );
             unset($Subnetgroup);
         };
@@ -160,7 +160,7 @@ class SubnetgroupManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control sgsubnet-input" name='
             . '"name" value="'
-            . $name
+            . Initiator::e($name)
             . '" autocomplete="off" id="name" required'
             . '</div>',
           '<label for="subnets">'
@@ -169,7 +169,7 @@ class SubnetgroupManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control sgsubnet-input" name='
             . '"subnets" value="'
-            . $subnets
+            . Initiator::e($subnets)
             . '" autocomplete="off" id="subnets" required'
             . ' placeholder="192.168.1.0/24, 10.1.0.0/16"/>'
             . '</div>',
@@ -343,7 +343,7 @@ class SubnetgroupManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control sgsubnet-input" name='
             . '"name" value="'
-            . $name
+            . Initiator::e($name)
             . '" autocomplete="off" id="name"/>'
             . '</div>',
           '<label for="subnets">'
@@ -352,7 +352,7 @@ class SubnetgroupManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control sgsubnet-input" name='
             . '"subnets" value="'
-            . $subnets
+            . Initiator::e($subnets)
             . '" autocomplete="off" id="subnets"/>'
             . '</div>',
           '<label for="group">'

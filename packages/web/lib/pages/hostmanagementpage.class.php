@@ -295,16 +295,16 @@ class HostManagementPage extends FOGPage
          */
         self::$returnData = function ($Host) {
             $this->data[] = array(
-                'id' => $Host->id,
+                'id' => Initiator::e($Host->id),
                 'deployed' => self::formatTime(
                     $Host->deployed,
                     'Y-m-d H:i:s'
                 ),
-                'host_name' => $Host->name,
-                'host_mac' => $Host->primac,
-                'host_desc' => $Host->description,
-                'image_id' => $Host->imageID,
-                'image_name' => $Host->imagename,
+                'host_name' => Initiator::e($Host->name),
+                'host_mac' => Initiator::e($Host->primac),
+                'host_desc' => Initiator::e($Host->description),
+                'image_id' => Initiator::e($Host->imageID),
+                'image_name' => Initiator::e($Host->imagename),
                 'pingstatus' => $Host->pingstatus,
             );
             unset($Host);
@@ -439,7 +439,7 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="host" '
             . 'value="'
-            . filter_input(INPUT_POST, 'host')
+            . Initiator::e(filter_input(INPUT_POST, 'host'))
             . '" maxlength="15" '
             . 'class="hostname-input form-control" '
             . 'id="host" required/>'
@@ -451,7 +451,7 @@ class HostManagementPage extends FOGPage
             . '</span>'
             . '<input type="text" name="mac" class="macaddr form-control" '
             . 'id="mac" value="'
-            . filter_input(INPUT_POST, 'mac')
+            . Initiator::e(filter_input(INPUT_POST, 'mac'))
             . '" maxlength="17" required/>'
             . '</div>',
             '<label for="description">'
@@ -459,7 +459,7 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" '
             . 'id="description" name="description">'
-            . filter_input(INPUT_POST, 'description')
+            . Initiator::e(filter_input(INPUT_POST, 'description'))
             . '</textarea>'
             . '</div>',
             '<label for="productKey">'
@@ -467,7 +467,7 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input id="productKey" type="text" '
             . 'name="key" value="'
-            . filter_input(INPUT_POST, 'key')
+            . Initiator::e(filter_input(INPUT_POST, 'key'))
             . '" class="form-control"/>'
             . '</div>',
             '<label for="image">'
@@ -484,27 +484,27 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" '
             . 'value="'
-            . filter_input(INPUT_POST, 'kern')
+            . Initiator::e(filter_input(INPUT_POST, 'kern'))
             . '" class="form-control" id="kern"/>'
             . '</div>',
             '<label for="args">'
             . _('Host Kernel Arguments')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="args" id="args" value="'
-            . filter_input(INPUT_POST, 'args')
+            . Initiator::e(filter_input(INPUT_POST, 'args'))
             . '" class="form-control"/>'
             . '</div>',
             '<label for="init">'
             . _('Host Init')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="init" value="'
-            . filter_input(INPUT_POST, 'init')
+            . Initiator::e(filter_input(INPUT_POST, 'init'))
             . '" id="init" class="form-control"/>',
             '<label for="dev">'
             . _('Host Primary Disk')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" value="'
-            . filter_input(INPUT_POST, 'dev')
+            . Initiator::e(filter_input(INPUT_POST, 'dev'))
             . '" id="dev" class="form-control"/>'
             . '</div>',
             '<label for="bootTypeExit">'
@@ -922,7 +922,7 @@ class HostManagementPage extends FOGPage
             echo '<input type="text" class="macaddr additionalMAC form-control" '
                 . 'name="additionalMACs[]" '
                 . 'value="'
-                . $MAC
+                . Initiator::e($MAC)
                 . '" maxlength="17"/>';
             echo '<span class="icon remove-mac fa fa-minus-circle hand '
                 . 'input-group-addon" '
@@ -944,7 +944,7 @@ class HostManagementPage extends FOGPage
             echo '<div class="checkbox">';
             echo '<label>';
             echo '<input type="checkbox" name="igclient[]" value="'
-                . $MAC
+                . Initiator::e($MAC)
                 . '"'
                 . $this->obj->clientMacCheck($MAC)
                 . '/>';
@@ -963,7 +963,7 @@ class HostManagementPage extends FOGPage
             echo '<div class="checkbox">';
             echo '<label>';
             echo '<input type="checkbox" name="igimage[]" value="'
-                . $MAC
+                . Initiator::e($MAC)
                 . '"'
                 . $this->obj->imageMacCheck($MAC)
                 . '/>';
@@ -982,7 +982,7 @@ class HostManagementPage extends FOGPage
             echo '<input type="text" class="macaddr pending-mac form-control" '
                 . 'name="pendingMACs[]" '
                 . 'value="'
-                . $MAC
+                . Initiator::e($MAC)
                 . '" maxlength="17"/>';
             echo '<a class="input-group-addon" href="'
                 . $this->formAction
@@ -1059,7 +1059,7 @@ class HostManagementPage extends FOGPage
             . _('Host Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="host" value="'
-            . $name
+            . Initiator::e($name)
             . '" maxlength="15" class="hostname-input form-control" '
             . 'id="name" required/>'
             . '</div>',
@@ -1071,7 +1071,7 @@ class HostManagementPage extends FOGPage
             . '<input type="text" class="macaddr form-control" '
             . 'name="mac" '
             . 'value="'
-            . $mac
+            . Initiator::e($mac)
             . '" id="mac" '
             . 'maxlength="17" required/>'
             . '<span class="icon add-mac fa fa-plus-circle hand '
@@ -1093,7 +1093,7 @@ class HostManagementPage extends FOGPage
             . '<div class="checkbox">'
             . '<label>'
             . '<input type="checkbox" name="igclient[]" value="'
-            . $mac
+            . Initiator::e($mac)
             . '"'
             . $this->obj->clientMacCheck()
             . '/>'
@@ -1112,7 +1112,7 @@ class HostManagementPage extends FOGPage
             . '<div class="checkbox">'
             . '<label>'
             . '<input type="checkbox" name="igimage[]" value="'
-            . $mac
+            . Initiator::e($mac)
             . '"'
             . $this->obj->imageMacCheck()
             . '/>'
@@ -1139,14 +1139,14 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" id="description" '
             . 'name="description">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="productKey">'
             . _('Host Product Key')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="key" value="'
-            . $productKey
+            . Initiator::e($productKey)
             . '" id="productKey" class="form-control"/>'
             . '</div>',
             '<label for="image">'
@@ -1157,7 +1157,7 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" id="kern" '
             . 'class="form-control" value="'
-            . $kern
+            . Initiator::e($kern)
             . '"/>'
             . '</div>',
             '<label for="args">'
@@ -1165,7 +1165,7 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="args" id="args" '
             . 'class="form-control" value="'
-            . $args
+            . Initiator::e($args)
             . '"/>'
             . '</div>',
             '<label for="init">'
@@ -1173,7 +1173,7 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="init" id="init" '
             . 'class="form-control" value="'
-            . $init
+            . Initiator::e($init)
             . '"/>'
             . '</div>',
             '<label for="dev">'
@@ -1181,7 +1181,7 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" id="dev" '
             . 'class="form-control" value="'
-            . $dev
+            . Initiator::e($dev)
             . '"/>'
             . '</div>',
             '<label for="bootTypeExit">'
@@ -2092,9 +2092,7 @@ class HostManagementPage extends FOGPage
                     . '</div>',
                     $Module->shortName,
                     (
-                        ($moduleName[$Module->shortName]
-                        || $moduleName[$Module->shortName])
-                        && $Module->isDefault ?
+                        $moduleName[$Module->shortName] && $Module->isDefault ?
                         ' class="checkboxes" ':
                         ''
                     ),
@@ -2244,9 +2242,9 @@ class HostManagementPage extends FOGPage
                     . '<input type="number" id="%s" name="%s" value="%s" '
                     . 'class="form-control"/>'
                     . '</div>',
-                    $name,
-                    $name,
-                    $this->obj->getDispVals($get[0])
+                    Initiator::e($name),
+                    Initiator::e($name),
+                    Initiator::e($this->obj->getDispVals($get[0]))
                 ),
                 'span' => sprintf(
                     '<div class="col-xs-2">'
@@ -2254,12 +2252,12 @@ class HostManagementPage extends FOGPage
                     . 'data-toggle="tooltip" data-placement="right" '
                     . 'title="%s"></span>'
                     . '</div>',
-                    $get[1]
+                    Initiator::e($get[1])
                 ),
                 'field' => '<label for="'
                 . $name
                 . '">'
-                . $get[2]
+                . Initiator::e($get[2])
                 . '</label>',
             );
             unset($get);
@@ -2459,21 +2457,21 @@ class HostManagementPage extends FOGPage
             . _('Primary User')
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" value="'
-            . $puser
+            . Initiator::e($puser)
             . '" name="pu" id="pu"/>'
             . '</div>',
             '<label for="other1"/>'
             . _('Other Tag #1')
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" value="'
-            . $other1
+            . Initiator::e($other1)
             . '" name="other1" id="other1"/>'
             . '</div>',
             '<label for="other2"/>'
             . _('Other Tag #2')
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" value="'
-            . $other2
+            . Initiator::e($other2)
             . '" name="other2" id="other2"/>'
             . '</div>',
             '<label for="updateinv">'

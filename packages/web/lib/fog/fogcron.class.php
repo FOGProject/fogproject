@@ -302,9 +302,9 @@ class FOGCron extends FOGBase
         ob_start();
         foreach ($specialCrons as $val => &$name) {
             echo '<option value="'
-                . $val
+                . Initiator::e($val)
                 . '">'
-                . $name
+                . Initiator::e($name)
                 . '</option>';
             unset($name);
         }

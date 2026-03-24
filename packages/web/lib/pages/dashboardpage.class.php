@@ -124,12 +124,12 @@ class DashboardPage extends FOGPage
             unset($ip);
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s" class="fogversion" urlcall="%s">%s%s ()</option>',
-                $StorageNode->id,
+                Initiator::e($StorageNode->id),
                 sprintf(
                     '%sservice/getversion.php',
                     $url
                 ),
-                $StorageNode->name,
+                Initiator::e($StorageNode->name),
                 (
                     $StorageNode->isMaster ?
                     ' *' :
@@ -152,8 +152,8 @@ class DashboardPage extends FOGPage
         foreach ((array)$Groups as &$StorageGroup) {
             self::$_groupOpts .= sprintf(
                 '<option value="%s">%s</option>',
-                $StorageGroup->id,
-                $StorageGroup->name
+                Initiator::e($StorageGroup->id),
+                Initiator::e($StorageGroup->name)
             );
             unset($StorageGroup);
         }
@@ -345,8 +345,8 @@ class DashboardPage extends FOGPage
         printf(
             '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
             . '<input type="hidden" id="nodeNames" type="hidden" value="%s"/>',
-            implode(',', self::$_nodeURLs),
-            implode(',', self::$_nodeNames)
+            Initiator::e(implode(',', self::$_nodeURLs)),
+            Initiator::e(implode(',', self::$_nodeNames))
         );
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading">';

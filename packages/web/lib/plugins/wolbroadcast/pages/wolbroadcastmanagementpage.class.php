@@ -84,9 +84,9 @@ class WOLBroadcastManagementPage extends FOGPage
          */
         self::$returnData = function (&$WOLBroadcast) {
             $this->data[] = array(
-                'id'    => $WOLBroadcast->id,
-                'name'  => $WOLBroadcast->name,
-                'wol_ip' => $WOLBroadcast->broadcast,
+                'id'    => Initiator::e($WOLBroadcast->id),
+                'name'  => Initiator::e($WOLBroadcast->name),
+                'wol_ip' => Initiator::e($WOLBroadcast->broadcast),
             );
             unset($WOLBroadcast);
         };
@@ -120,7 +120,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-name" type='
             . '"text" name="name" id="name" required value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="broadcast">'
@@ -128,7 +128,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-ip" type='
             . '"text" name="broadcast" id="broadcast" required value="'
-            . $broadcast
+            . Initiator::e($broadcast)
             . '"/>',
             '<label for="add">'
             . _('Create WOL Broadcast?')
@@ -265,7 +265,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-name" type='
             . '"text" name="name" id="name" required value="'
-            . $name
+            . Initiator::e($name)
             . '"/>'
             . '</div>',
             '<label for="broadcast">'
@@ -273,7 +273,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control wolinput-ip" type='
             . '"text" name="broadcast" id="broadcast" required value="'
-            . $broadcast
+            . Initiator::e($broadcast)
             . '"/>',
             '<label for="updategen">'
             . _('Make Changes?')

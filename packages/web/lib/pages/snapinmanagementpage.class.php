@@ -94,10 +94,10 @@ class SnapinManagementPage extends FOGPage
         foreach (self::$_argTypes as $type => &$cmd) {
             printf(
                 '<option value="%s" rwargs="%s" args="%s">%s</option>',
-                $cmd[0],
-                $cmd[1],
-                $cmd[2],
-                $type
+                Initiator::e($cmd[0]),
+                Initiator::e($cmd[1]),
+                Initiator::e($cmd[2]),
+                Initiator::e($type)
             );
             unset($cmd);
         }
@@ -287,12 +287,12 @@ class SnapinManagementPage extends FOGPage
              * Store the data.
              */
             $this->data[] = array(
-                'id' => $id,
-                'name' => $name,
-                'description' => $description,
-                'file' => $file,
+                'id' => Initiator::e($id),
+                'name' => Initiator::e($name),
+                'description' => Initiator::e($description),
+                'file' => Initiator::e($file),
                 'packtype' => $packtype,
-                'storageGroup' => $storageGroup,
+                'storageGroup' => Initiator::e($storageGroup),
                 'protected' => $protected,
                 'enabled' => $enabled
             );
@@ -364,13 +364,13 @@ class SnapinManagementPage extends FOGPage
         foreach ($args as $type => &$cmd) {
             printf(
                 '<option file="%s" args="%s">%s</option>',
-                $cmd[0],
+                Initiator::e($cmd[0]),
                 (
                     isset($cmd[1]) ?
-                    $cmd[1] :
+                    Initiator::e($cmd[1]) :
                     ''
                 ),
-                $type
+                Initiator::e($type)
             );
             unset($cmd);
         }
@@ -507,7 +507,7 @@ class SnapinManagementPage extends FOGPage
             . _('Snapin Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="snapinname-input form-control"/>'
             . '</div>',
             '<label for="desc">'
@@ -515,7 +515,7 @@ class SnapinManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desc" class='
             . '"form-control snapindescription-input">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="storagegroup">'
@@ -571,7 +571,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false)
+            . Initiator::e(htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false))
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
@@ -586,7 +586,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
             . 'name="rwa" id="snaprwa" value="'
-            . htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false)
+            . Initiator::e(htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false))
             . '"/>'
             . '</div>',
             '<label for="snapinfile">'
@@ -624,7 +624,7 @@ class SnapinManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="args" id="args" class='
             . '"snapinargs-input cmdlet4 form-control" value="'
-            . htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false)
+            . Initiator::e(htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false))
             . '"/>'
             . '</div>'
             . '</span>',
@@ -642,7 +642,7 @@ class SnapinManagementPage extends FOGPage
             . '<input type="number" class='
             . '"snapintimeout-input form-control" name="timeout" '
             . 'id="timeout" value="'
-            . $timeout
+            . Initiator::e($timeout)
             . '"/>'
             . '</div>',
             '<label for="toRep">'
@@ -998,7 +998,7 @@ class SnapinManagementPage extends FOGPage
             . _('Snapin Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" id="name" value="'
-            . $name
+            . Initiator::e($name)
             . '" class="snapinname-input form-control"/>'
             . '</div>',
             '<label for="desc">'
@@ -1006,7 +1006,7 @@ class SnapinManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" id="desc" class='
             . '"form-control snapindescription-input">'
-            . $desc
+            . Initiator::e($desc)
             . '</textarea>'
             . '</div>',
             '<label for="snapinpack">'
@@ -1059,7 +1059,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false)
+            . Initiator::e(htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false))
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
@@ -1074,7 +1074,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
             . 'name="rwa" id="snaprwa" value="'
-            . htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false)
+            . Initiator::e(htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false))
             . '"/>'
             . '</div>',
             '<label for="snapinfile">'
@@ -1092,7 +1092,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>'
             . '</label>'
             . '<input type="text" class="form-control filedisp cmdlet3" value="'
-            . $snapinfileexists
+            . Initiator::e($snapinfileexists)
             . '" readonly/>'
             . '</div>',
             (
@@ -1114,7 +1114,7 @@ class SnapinManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="args" id="args" class='
             . '"snapinargs-input cmdlet4 form-control" value="'
-            . htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false)
+            . Initiator::e(htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false))
             . '"/>'
             . '</div>'
             . '</span>',
@@ -1142,7 +1142,7 @@ class SnapinManagementPage extends FOGPage
             . '<input type="number" class='
             . '"snapintimeout-input form-control" name="timeout" '
             . 'id="timeout" value="'
-            . $timeout
+            . Initiator::e($timeout)
             . '"/>'
             . '</div>',
             '<label for="toRep">'

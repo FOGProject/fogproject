@@ -85,10 +85,10 @@ class SlackManagementPage extends FOGPage
                 $Slack->id
             )->call('auth.test');
             $this->data[] = array(
-                'id' => $Slack->id,
-                'team' => $team_name['team'],
-                'createdBy' => $team_name['user'],
-                'name' => $Slack->name,
+                'id' => Initiator::e($Slack->id),
+                'team' => Initiator::e($team_name['team']),
+                'createdBy' => Initiator::e($team_name['user']),
+                'name' => Initiator::e($Slack->name),
             );
             unset($Slack);
         };
@@ -131,7 +131,7 @@ class SlackManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" '
             . 'name="apiToken" id="apiToken" value="'
-            . $value
+            . Initiator::e($value)
             . '" required/>'
             . '</div>',
             '<label for="user">'
@@ -139,7 +139,7 @@ class SlackManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" '
             . 'name="user" id="user" value="'
-            . $user
+            . Initiator::e($user)
             . '" required/>'
             . '</div>',
             '<label for="add">'
