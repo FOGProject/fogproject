@@ -571,7 +571,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . Initiator::e(htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false))
+            . Initiator::e($rw, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
@@ -586,7 +586,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
             . 'name="rwa" id="snaprwa" value="'
-            . Initiator::e(htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false))
+            . Initiator::e($rwa, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<label for="snapinfile">'
@@ -624,7 +624,7 @@ class SnapinManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="args" id="args" class='
             . '"snapinargs-input cmdlet4 form-control" value="'
-            . Initiator::e(htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false))
+            . Initiator::e($args, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>'
             . '</span>',
@@ -1059,7 +1059,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
             . 'name="rw" id="snaprw" value="'
-            . Initiator::e(htmlspecialchars($rw, ENT_COMPAT, 'UTF-8', false))
+            . Initiator::e($rw, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<span class="hiddeninitially packnochangerwa">'
@@ -1074,7 +1074,7 @@ class SnapinManagementPage extends FOGPage
             . '</span>' => '<div class="input-group">'
             . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
             . 'name="rwa" id="snaprwa" value="'
-            . Initiator::e(htmlspecialchars($rwa, ENT_COMPAT, 'UTF-8', false))
+            . Initiator::e($rwa, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>',
             '<label for="snapinfile">'
@@ -1114,7 +1114,7 @@ class SnapinManagementPage extends FOGPage
             . '<div class="input-group">'
             . '<input type="text" name="args" id="args" class='
             . '"snapinargs-input cmdlet4 form-control" value="'
-            . Initiator::e(htmlspecialchars($args, ENT_COMPAT, 'UTF-8', false))
+            . Initiator::e($args, ENT_COMPAT, 'UTF-8', false)
             . '"/>'
             . '</div>'
             . '</span>',
@@ -1466,8 +1466,8 @@ class SnapinManagementPage extends FOGPage
         $name = filter_input(INPUT_POST, 'name');
         $desc = filter_input(INPUT_POST, 'description');
         $packtype = filter_input(INPUT_POST, 'packtype');
-        $runWith = htmlspecialchars_decode(filter_input(INPUT_POST, 'rw'), ENT_COMPAT);
-        $runWithArgs = htmlspecialchars_decode(filter_input(INPUT_POST, 'rwa'), ENT_COMPAT);
+        $runWith = htmlspecialchars_decode(filter_input(INPUT_POST, 'rw'), ENT_QUOTES | ENT_SUBSTITUTE);
+        $runWithArgs = htmlspecialchars_decode(filter_input(INPUT_POST, 'rwa'), ENT_QUOTES | ENT_SUBSTITUTE);
         $snapinfile = basename(
             filter_input(INPUT_POST, 'snapinfileexist')
         );
@@ -1483,7 +1483,7 @@ class SnapinManagementPage extends FOGPage
         $hide = (int)isset($_POST['isHidden']);
         $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
-        $args = htmlspecialchars_decode(filter_input(INPUT_POST, 'args'), ENT_COMPAT);
+        $args = htmlspecialchars_decode(filter_input(INPUT_POST, 'args'), ENT_QUOTES | ENT_SUBSTITUTE);
         $phpPostMaxSize = ini_get('post_max_size');
         switch (strtolower(substr($phpPostMaxSize, -1))) {
             case 'g':
