@@ -5013,8 +5013,8 @@ msgstr "Snapin ajouté !"
 
 msgid "Snapin file is too big, increase post_max_size in php.ini."
 msgstr ""
-"Le fichier Snapin est trop gros, augmentez post_max_size dans le fichier "
-"php.ini."
+"Le fichier Snapin est trop gros, augmentez post_max_size dans le fichier php."
+"ini."
 
 msgid "Snapin is invalid"
 msgstr "Snapin n'est pas valide"
