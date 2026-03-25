@@ -64,10 +64,30 @@ class PersistentGroupsManager extends FOGManagerController
             FROM `printerAssoc` WHERE `paHostID`=@myTemplateID
             ON DUPLICATE KEY UPDATE `paHostID`=VALUES(`paHostID`),`paPrinterID`=VALUES(`paPrinterID`),`paIsDefault`=VALUES(`paIsDefault`),`paAnon1`=VALUES(`paAnon1`),`paAnon2`=VALUES(`paAnon2`),`paAnon3`=VALUES(`paAnon3`),`paAnon4`=VALUES(`paAnon4`),`paAnon5`=VALUES(`paAnon5`);
 
-        INSERT INTO `snapinAssoc` (`saHostID`,`saSnapinID`)
-            SELECT @myHostID as `saHostID`,`saSnapinID` 
-            FROM `snapinAssoc` WHERE `saHostID`=@myTemplateID
-            ON DUPLICATE KEY UPDATE `saHostID`=VALUES(`saHostID`),`saSnapinID`=VALUES(`saSnapinID`);
+        SET @myDBTest = (SELECT count(`saSnapinID`) FROM `snapinAssoc` WHERE `saHostID`=@myTemplateID LIMIT 1);
+        IF (@myDBTest > 0) THEN
+            INSERT INTO `snapinAssoc` (`saHostID`,`saSnapinID`)
+                SELECT @myHostID as `saHostID`,`saSnapinID` 
+                FROM `snapinAssoc` WHERE `saHostID`=@myTemplateID
+                ON DUPLICATE KEY UPDATE `saHostID`=VALUES(`saHostID`),`saSnapinID`=VALUES(`saSnapinID`);
+
+            -- Check if there's already an active snapin job for this host
+            SET @existingJob = (SELECT `sjID` FROM `snapinJobs` WHERE `sjHostID`=@myHostID AND `sjStateID` IN (1,2) LIMIT 1);
+            
+            IF (@existingJob IS NULL) THEN
+                INSERT INTO `snapinJobs` (`sjHostID`,`sjStateID`,`sjCreateTime`)
+                    VALUES (@myHostID, 1, NOW());
+                SET @mysjID = LAST_INSERT_ID();
+            ELSE
+                SET @mysjID = @existingJob;
+            END IF;
+            
+            -- Add tasks for any snapins that don't already have tasks in this job
+            INSERT INTO `snapinTasks` (`stJobID`,`stState`,`stCheckinDate`,`stSnapinID`)
+                SELECT @mysjID as `stJobID`, 1 as `stState`, NOW() as `stCheckinDate`, `saSnapinID` as `stSnapinID`
+                FROM `snapinAssoc` WHERE `saHostID`=@myHostID
+                AND `saSnapinID` NOT IN (SELECT `stSnapinID` FROM `snapinTasks` WHERE `stJobID`=@mysjID);
+        END IF;
 
         INSERT INTO `moduleStatusByHost` (`msHostID`,`msModuleID`,`msState`)
             SELECT @myHostID as `msHostID`,`msModuleID`,`msState`
