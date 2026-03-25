@@ -97,12 +97,14 @@ class RegisterClient extends FOGClient
                         'description',
                         _('Pending Registration created by FOG_CLIENT')
                     )
+                    ->set('imageID', 0)
                     ->set('pending', "1")
                     ->set('enforce', (string)$enforce)
                     ->set('modules', $modules)
                     ->addPriMAC($PriMAC)
                     ->addMAC($MACs);
-                if (!self::$Host->save()) {
+                self::$Host->save();
+                if (!self::$Host->isValid()) {
                     return ['error' => 'db'];
                 }
                 return ['complete' => true];
