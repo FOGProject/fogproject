@@ -690,7 +690,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . self::getClass('group', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::getClass('group', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -711,7 +711,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . self::getClass('host', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::getClass('host', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -745,7 +745,7 @@ class Route extends FOGBase
                                         . 'sub=edit&id='
                                         . $d
                                         . '">'
-                                        . $imageName
+                                        . '(' . $d . ') - ' . $imageName
                                         . '</a>';
                                 }
                                 return $imageName;
@@ -768,8 +768,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . self::getClass('Snapin', $d)->get('name')
-                                    . ' - ('. $d .')'
+                                    . '(' . $d . ') - ' . self::getClass('Snapin', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -802,7 +801,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . self::getClass('storagegroup', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::getClass('storagegroup', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -823,7 +822,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . self::getClass('storagenode', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::getClass('storagenode', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -844,7 +843,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . self::getClass('user', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::getClass('user', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -892,7 +891,7 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . $row['hostName']
+                                . '(' . $d . ') - ' . $row['hostName']
                                 . '</a>';
                         }
                     ];
@@ -902,27 +901,17 @@ class Route extends FOGBase
                         'db' => 'stGroupHostID',
                         'dt' => 'hostLink',
                         'formatter' => function ($d, $row) {
-                            if ($row['stIsGroup']) {
-                                $groupName = self::getClass('Group', $d)->get('name');
-                                return '<a href="'
-                                    . '../management/index.php?node=group&sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . _('Group')
-                                    . ': '
-                                    . $groupName
-                                    . '</a>';
-                            } else {
-                                $hostName = self::getClass('Host', $d)->get('name');
-                                return '<a href="'
-                                    . '../management/index.php?node=host&sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . _('Host')
-                                    . ': '
-                                    . $hostName
-                                    . '</a>';
-                            }
+                            $linkName = $row['stIsGroup'] ? 'group' : 'host';
+                            $capName = $row['stIsGroup'] ? 'Group' : 'Host';
+                            $itemName = self::getClass($capName, $d)->get('name');
+                            return sprintf(
+                                '<a href="../management/index.php?node=%s&sub=edit&id=%s">%s: (%s) - %s</a>',
+                                $linkName,
+                                $d,
+                                _($capName),
+                                $d,
+                                $itemName
+                            );
                         }
                     ];
                     $columns[] = [
@@ -1028,7 +1017,7 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $tmphost->get('id')
                                 . '">'
-                                . $tmphost->get('name')
+                                . '(' . $tmphost->get('id') . ') - ' . $tmphost->get('name')
                                 . '</a>';
                         }
                     ];
@@ -1071,8 +1060,7 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . self::getClass('Snapin', $d)->get('name')
-                                . ' - ('. $d .')'
+                                . '(' . $d . ') - ' . self::getClass('Snapin', $d)->get('name')
                                 . '</a>';
                         }
                     ];
