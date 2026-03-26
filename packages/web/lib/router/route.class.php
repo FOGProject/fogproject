@@ -502,6 +502,22 @@ class Route extends FOGBase
                 $orderby = 'name';
             }
             $whereItems = self::handleWhereItems($whereItems);
+            if ('snapintask' === strtolower($class)
+                && isset($whereItems['jobID'])
+            ) {
+                $jobIDs = array_filter(
+                    array_map('intval', (array)$whereItems['jobID']),
+                    function ($id) {
+                        return $id > 0;
+                    }
+                );
+                if (count($jobIDs) > 0) {
+                    $whereItems['jobID'] = $jobIDs;
+                } else {
+                    // Force an empty result set for invalid job filters.
+                    $whereItems['jobID'] = [-1];
+                }
+            }
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($class);
             }

@@ -3676,7 +3676,28 @@ class GroupManagement extends FOGPage
             ['hostID' => $hostID]
         );
 
-        $snapinJobs = json_decode(Route::getData());
+        $snapinJobs = json_decode(Route::getData(), true);
+        $snapinJobs = array_filter(
+            array_map('intval', (array)$snapinJobs),
+            function ($id) {
+                return $id > 0;
+            }
+        );
+
+        // If there are no jobs for this group's hosts, return an empty
+        // datatable payload and avoid an unscoped snapintask lookup.
+        if (count($snapinJobs) < 1) {
+            echo json_encode(
+                [
+                    'draw' => (int)filter_input(INPUT_POST, 'draw') ?: 0,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                    '_lang' => 'snapintask'
+                ]
+            );
+            exit;
+        }
 
         Route::listem(
             'snapintask',

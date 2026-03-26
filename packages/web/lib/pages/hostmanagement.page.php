@@ -5005,7 +5005,26 @@ class HostManagement extends FOGPage
             ['hostID' => $hostID]
         );
 
-        $snapinJobs = json_decode(Route::getData());
+        $snapinJobs = json_decode(Route::getData(), true);
+        $snapinJobs = array_filter(
+            array_map('intval', (array)$snapinJobs),
+            function ($id) {
+                return $id > 0;
+            }
+        );
+
+        if (count($snapinJobs) < 1) {
+            echo json_encode(
+                [
+                    'draw' => (int)filter_input(INPUT_POST, 'draw') ?: 0,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                    '_lang' => 'snapintask'
+                ]
+            );
+            exit;
+        }
 
         Route::listem(
             'snapintask',

@@ -257,16 +257,18 @@ abstract class FOGController extends FOGBase
         if (!$this->isLoaded($key)) {
             $this->loadItem($key);
         }
+
+        $retVal = isset($this->data[$key]) ? $this->data[$key] : '';
         $msg = sprintf(
             '%s: %s, %s: %s',
             _('Returning value of key'),
             $key,
             _('Value'),
-            print_r(isset($this->data[$key]) ? $this->data[$key] : '', 1)
+            print_r($retVal, 1)
         );
         self::info($msg);
 
-        return isset($this->data[$key]) ? $this->data[$key] : '';
+        return $retVal;
     }
     /**
      * Set value to key.
