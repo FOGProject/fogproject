@@ -179,7 +179,7 @@ class AltoRouter
      */
     public function getDefaultParams()
     {
-        return $this->getDefaultParams();
+        return $this->defaultParams;
     }
     /**
      * Returns ignore case value.

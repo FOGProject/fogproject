@@ -18,16 +18,18 @@ FOG Project is an open-source network imaging and endpoint management system. It
 
 There are two scripts that sync between the **git repo** (`~/fogproject/`) and the **live web server** (`/var/www/fog/` or `/var/www/html/fog-1.6/`).
 
-**`/usr/local/bin/copytosvn.sh`** — Git → Web (deploy for live testing)
-- rsync's `~/fogproject/packages/web/` → `/var/www/html/fog-1.6/`
-- Copies config, sets symlinks and permissions
-- Use this after editing in the git repo to test changes live
+**`/usr/local/bin/copybacktrunk.sh`** — Git → Web (deploy for live testing)
+- rsync's `~/fogproject/packages/web/` → `/var/www/html/fog-{ver}/`
+- Copies config, sets symlinks, permissions, and regenerates SSL cert
+- Use this after editing in the git repo to deploy and test changes live
+- Usage: `copybacktrunk.sh "" "" "1.6"`
 
-**`/usr/local/bin/copybacktrunk.sh`** — Web → Git (pull live edits back)
+**`/usr/local/bin/copytosvn.sh`** — Web → Git (pull live edits back)
 - rsync's `/var/www/fog/` → `~/fogproject/packages/web/`
-- Use this after editing files live on the web server
+- Use this ONLY after editing files directly on the live web server
 - Also updates language `.pot`/`.po` files via `xgettext`/`msgmerge`
 - Strips generated/runtime files (`config.class.php`, cache, ssl certs, logs)
+- **Do NOT run this after `copybacktrunk.sh`** — it will overwrite git with the web copy
 
 The web root the user edits live is `/var/www/fog/` (symlinked to `/var/www/html/fog-1.6/`).
 

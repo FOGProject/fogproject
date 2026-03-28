@@ -434,8 +434,8 @@ class Route extends FOGBase
             return;
         }
         $auth = self::$FOGUser->passwordValidate(
-            $_SERVER['PHP_AUTH_USER'],
-            $_SERVER['PHP_AUTH_PW']
+            filter_input(INPUT_SERVER, 'PHP_AUTH_USER'),
+            filter_input(INPUT_SERVER, 'PHP_AUTH_PW')
         );
         if (!$auth) {
             self::sendResponse(
@@ -1765,7 +1765,7 @@ class Route extends FOGBase
                 ($task->debug ?? false),
                 (($deploySnapins) === true ? -1 : $deploySnapins),
                 $class instanceof Group,
-                $_SERVER['PHP_AUTH_USER'] ?? 'API',
+                filter_input(INPUT_SERVER, 'PHP_AUTH_USER') ?? 'API',
                 $task->passreset ?? '',
                 $task->sessionjoin ?? '',
                 $task->wol ?? 1
