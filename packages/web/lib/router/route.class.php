@@ -1353,18 +1353,12 @@ class Route extends FOGBase
                             continue;
                         }
                     }
-                    if (!($val[$classVars['databaseFields']['id']] ?? '')) {
-                        continue;
-                    }
-                    if (!($val[$classVars['databaseFields']['name']] ?? '')) {
-                        continue;
-                    }
                     $data[$search][] = [
                         'id' => $val[$classVars['databaseFields']['id']],
                         'name' => $val[$classVars['databaseFields']['name']]
                     ];
                 }
-                if (array_search($search, $data)) {
+                if (array_key_exists($search, $data)) {
                     $data['_results'][$search] = count(isset($data[$search]) ? $data[$search] : []);
                 }
                 unset($items);
@@ -2426,7 +2420,7 @@ class Route extends FOGBase
      *
      * @return mixed
      */
-    public function bandwidth($dev)
+    public static function bandwidth($dev)
     {
         if (!$dev) {
             echo json_encode(
@@ -2930,9 +2924,6 @@ class Route extends FOGBase
                                 if (isset($vars->modules)) {
                                     $c->addModule($vars->modules);
                                 }
-                                if (isset($vars->hosts)) {
-                                    $c->addHost($vars->hosts);
-                                }
                                 if ($vars->imageID) {
                                     $c->addImage($vars->imageID);
                                 }
@@ -3042,6 +3033,7 @@ class Route extends FOGBase
         if ($type != 'kernel' && $type != 'initrd') {
             return [];
         }
+        $jsonData = [];
         foreach ($data as &$release) {
             if ($type == 'kernel') {
                 $patt = '/Linux kernel (.*)?/';

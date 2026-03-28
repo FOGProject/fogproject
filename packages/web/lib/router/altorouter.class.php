@@ -499,7 +499,6 @@ class AltoRouter
                             $params[$key]
                                 = $this->transformers[$type]->fromUrl($value);
                         }
-                        unset($values);
                     }
                     /**
                      * Send the request method so we can test.
