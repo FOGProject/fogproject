@@ -97,3 +97,4 @@ packages/web/lib/plugins/hostext
 .php-cs-fixer.cache
 
 **/*/.claude
+**/.claude
