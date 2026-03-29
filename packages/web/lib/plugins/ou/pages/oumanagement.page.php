@@ -134,7 +134,7 @@ class OUManagement extends FOGPage
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Create New Site');
+        echo _('Create New OU');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';

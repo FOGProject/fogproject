@@ -64,6 +64,7 @@ class TaskManagement extends FOGPage
             [],
             [],
             [],
+            [],
             []
         ];
         $props = ' method="post" action="'
@@ -193,7 +194,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getclass('TaskStateManager')
+        foreach (self::getClass('TaskStateManager')
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -428,11 +429,7 @@ class TaskManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
                 [
@@ -538,11 +535,7 @@ class TaskManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
                 [
@@ -572,7 +565,7 @@ class TaskManagement extends FOGPage
      */
     public function activesnapins()
     {
-        $this->title = 'Active Snapin Tasks';
+        $this->title = _('Active Snapin Tasks');
         $this->headerData = [
             _('Snapin Name'),
             _('Host Name'),
@@ -636,11 +629,7 @@ class TaskManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
                 [
@@ -736,11 +725,7 @@ class TaskManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
                 [
@@ -840,11 +825,7 @@ class TaskManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'QUEUED_DELETION_CANCEL_FAIL';
             $msg = json_encode(
                 [

@@ -71,8 +71,8 @@ class FileDeleteQueueManager extends FOGManagerController
             [],
             'InnoDB',
             'utf8',
-            'fqdID',
-            'fqdID'
+            'fdqID',
+            'fdqID'
         );
     }
     /**

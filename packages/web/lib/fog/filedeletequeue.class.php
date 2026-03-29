@@ -49,7 +49,7 @@ class FileDeleteQueue extends FOGController
      */
     protected $databaseFieldsRequired = [
         'path',
-        'pathType',
+        'pathtype',
         'storagegroupID'
     ];
 }

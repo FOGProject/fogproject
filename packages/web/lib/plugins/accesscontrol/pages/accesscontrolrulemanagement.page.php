@@ -346,7 +346,7 @@ class AccessControlRuleManagement extends FOGPage
                 'serverFault' => &$serverFault
             ]
         );
-        http_response_Code($code);
+        http_response_code($code);
         unset($AccessControlRule);
         echo $msg;
         exit;

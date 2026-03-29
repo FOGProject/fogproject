@@ -596,12 +596,12 @@ class PushbulletHandler extends Pushbullet
     {
         if (!empty($recipient)) {
             if (filter_var($recipient, FILTER_VALIDATE_EMAIL) !== false) {
-                $data[email] = $recipient;
+                $data['email'] = $recipient;
             } else {
                 if (substr($recipient, 0, 1) == "#") {
-                    $data[channel_tag] = substr($recipient, 1);
+                    $data['channel_tag'] = substr($recipient, 1);
                 } else {
-                    $data[device_iden] = $recipient;
+                    $data['device_iden'] = $recipient;
                 }
             }
         }

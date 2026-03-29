@@ -215,7 +215,7 @@ class LDAP extends FOGController
                     $data
                 ) = explode('=', $value);
                 $prefix = strtoupper($prefix);
-                preg_replace_callback(
+                $data = preg_replace_callback(
                     "/\\\([0-9A-Fa-f]{2})/",
                     function ($matches) {
                         foreach ((array)$matches as $match) {

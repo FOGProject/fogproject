@@ -284,7 +284,7 @@ class Task extends TaskType
         if ($this->isMulticast()) {
             $find = ['taskID' => $this->get('id')];
             Route::ids(
-                'multicastsessionsassociation',
+                'multicastsessionassociation',
                 $find,
                 'msID'
             );

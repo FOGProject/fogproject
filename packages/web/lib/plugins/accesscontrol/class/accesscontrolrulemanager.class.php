@@ -173,7 +173,7 @@ class AccessControlRuleManager extends FOGManagerController
             . '"config", "menu", "fog", NOW(), "about")';
         if (self::$DB->query($sql)) {
             $sql = "CREATE UNIQUE INDEX `indexmul` "
-                    . "`rules` (`ruleValue`, `ruleNode`)";
+                    . "ON `rules` (`ruleValue`, `ruleNode`)";
             self::$DB->query($sql);
             return self::getClass('AccessControlRuleAssociationManager')->install();
         } else {
