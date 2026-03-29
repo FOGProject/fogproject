@@ -107,9 +107,6 @@ msgstr "此主机已存在一个Windows激活密钥!"
 msgid "A broadcast address is required"
 msgstr "需要多播地址"
 
-msgid "A broadcast already exists with this name"
-msgstr "该主机已分入多播"
-
 msgid "A broadcast already exists with this name!"
 msgstr "该主机已分入多播!"
 
@@ -173,7 +170,8 @@ msgstr "请输入打印机名!"
 msgid "A role already exists with this name!"
 msgstr "已有同名规则!"
 
-msgid "A rule already exists with this name."
+#, fuzzy
+msgid "A rule already exists with this name"
 msgstr "已有同名规则."
 
 msgid "A site already exists with this name!"
@@ -257,6 +255,10 @@ msgstr "访问控制规则"
 msgid "Access Controls"
 msgstr "访问控制"
 
+#, fuzzy
+msgid "Access Denied"
+msgstr "访问令牌"
+
 msgid "Access Token"
 msgstr "访问令牌"
 
@@ -295,9 +297,6 @@ msgstr "活性"
 
 msgid "Active Directory"
 msgstr "活动目录"
-
-msgid "Active Multi-cast Tasks"
-msgstr "活动组播任务"
 
 msgid "Active Multicast Tasks"
 msgstr "活动组播任务"
@@ -501,9 +500,6 @@ msgid "All Hosts"
 msgstr "所有主机"
 
 msgid "All Pending MACs approved"
-msgstr "所有待定的MAC批准"
-
-msgid "All Pending MACs approved."
 msgstr "所有待定的MAC批准"
 
 msgid "All Storage Groups"
@@ -1356,6 +1352,9 @@ msgstr "必须重启或者关机"
 msgid "Email"
 msgstr "电子邮件"
 
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr ""
+
 msgid "Enable location Sending"
 msgstr "启动地点递送"
 
@@ -1804,6 +1803,10 @@ msgstr "文件"
 msgid "File Integrity Management"
 msgstr "文件完整性管理"
 
+#, fuzzy
+msgid "File Not Found"
+msgstr "图标文件未找到"
+
 msgid "File System Information"
 msgstr "文件系统信息"
 
@@ -1818,6 +1821,10 @@ msgstr "需要CSV文件"
 
 msgid "File or path cannot be reached"
 msgstr "文件/路径不可达"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "文件不存在"
 
 msgid "File size mismatch"
 msgstr "文件大小不匹配"
@@ -2743,6 +2750,10 @@ msgstr "无效的MAC地址！"
 msgid "Invalid Multicast Session"
 msgstr "无效多播会话"
 
+#, fuzzy
+msgid "Invalid Path"
+msgstr "无效时间"
+
 msgid "Invalid Plugin Passed"
 msgstr "无效的插件传递"
 
@@ -2823,6 +2834,10 @@ msgstr "无效的对象类型传递"
 
 msgid "Invalid operational mode"
 msgstr "无效的操作模式"
+
+#, fuzzy
+msgid "Invalid path"
+msgstr "无效时间"
 
 msgid "Invalid scheduling type"
 msgstr "无效调度类型"
@@ -2961,9 +2976,6 @@ msgstr "键必须是键数组或字符串。"
 
 msgid "Kill"
 msgstr "中止"
-
-msgid "LDAP Connection  Name"
-msgstr "LDAP连接名称"
 
 msgid "LDAP Connection Name"
 msgstr "LDAP连接名称"
@@ -3580,6 +3592,10 @@ msgstr "没有可用的连接"
 msgid "No connection to the database"
 msgstr "没有连接到数据库"
 
+#, fuzzy
+msgid "No data found"
+msgstr "未找到"
+
 msgid "No data returned"
 msgstr "无数据返回"
 
@@ -3936,6 +3952,10 @@ msgstr "路径"
 
 msgid "Path is unavailable"
 msgstr "路径不可达"
+
+#, fuzzy
+msgid "Path not allowed"
+msgstr "这里不允许"
 
 msgid "Pause"
 msgstr "暂停"
@@ -6823,6 +6843,9 @@ msgstr "要现在安装?"
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "你将该节点的带宽字段设置为1000"
 
+#~ msgid "A broadcast already exists with this name"
+#~ msgstr "该主机已分入多播"
+
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "图像已经存在具有此名称！"
@@ -6831,9 +6854,15 @@ msgstr "你将该节点的带宽字段设置为1000"
 #~ msgid "A site alread exists with this name!"
 #~ msgstr "图像已经存在具有此名称！"
 
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "活动组播任务"
+
 #, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "添加管理单元失败！"
+
+#~ msgid "All Pending MACs approved."
+#~ msgstr "所有待定的MAC批准"
 
 #~ msgid "Could not read temp file"
 #~ msgstr "无法读取临时文件"
@@ -6920,6 +6949,9 @@ msgstr "你将该节点的带宽字段设置为1000"
 
 #~ msgid "Inventory Desc"
 #~ msgstr "库存说明"
+
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "LDAP连接名称"
 
 #~ msgid "Legacy Client and Utilities"
 #~ msgstr "旧客户端和实用程序"
