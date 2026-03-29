@@ -601,11 +601,6 @@ class PDODB extends DatabaseManager
      */
     public function insertId()
     {
-        if (is_bool(self::$_link)) {
-            if (!self::$_link) {
-                $this->sqlerror();
-            }
-        }
         if (!self::$_link) {
             $this->sqlerror();
         }
@@ -660,11 +655,8 @@ class PDODB extends DatabaseManager
     private function _clean($data)
     {
         $data = trim($data);
-        $eData = Initiator::sanitizeItems(
-            $data
-        );
         if (!self::$_link) {
-            return $eData;
+            return $data;
         }
         return self::$_link->quote($data);
     }
@@ -710,7 +702,7 @@ class PDODB extends DatabaseManager
      */
     public function link()
     {
-        $this->_connect(true, true);
+        $this->_connect(true);
         return self::$_link;
     }
 
@@ -828,6 +820,8 @@ class PDODB extends DatabaseManager
         if (is_null($type)) {
             $type = PDO::PARAM_STR;
         }
-        self::$_queryResult->bindParam($param, $value, $type);
+        // bindValue() copies the value immediately; bindParam() would bind by
+        // reference to a local variable that goes out of scope before execute().
+        self::$_queryResult->bindValue($param, $value, $type);
     }
 }

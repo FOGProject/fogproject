@@ -126,20 +126,11 @@ class DatabaseManager extends FOGCore
             'authorize',
             'requestClientInfo'
         ];
-        $test = false;
         /**
-         * If sub is in the passthru,
-         * set the test to true.
+         * If sub is in the passthru, let people know the db
+         * is unavailable for now, as the db needs an update.
          */
         if (in_array($sub, $subs)) {
-            $test = true;
-        }
-        /**
-         * If the test is true let people know the db
-         * is unavailable for now, as the db needs an
-         * update.
-         */
-        if (true === $test) {
             /**
              * If the caller is requiring json send
              * the data in json format.
@@ -204,24 +195,18 @@ class DatabaseManager extends FOGCore
     public static function getColumns(
         string $table_name,
         string $column_name
-    ) {
+    ): int {
         $sql = sprintf(
-            "SELECT COUNT(`%s`)AS`%s`FROM`%s`.`%s`WHERE`%s`='%s'%s",
-            'COLUMN_NAME',
-            'total',
-            'information_schema',
-            'COLUMNS',
-            'TABLE_SCHEMA',
-            self::$DB->dbName(),
-            sprintf(
-                str_repeat("AND`%s`='%s'", 2),
-                'TABLE_NAME',
-                $table_name,
-                'COLUMN_NAME',
-                $column_name
-            )
+            "SELECT COUNT(`COLUMN_NAME`) AS `total`"
+            . " FROM `information_schema`.`COLUMNS`"
+            . " WHERE `TABLE_SCHEMA` = %s"
+            . " AND `TABLE_NAME` = %s"
+            . " AND `COLUMN_NAME` = %s",
+            self::$DB->escape(self::$DB->dbName()),
+            self::$DB->escape($table_name),
+            self::$DB->escape($column_name)
         );
-        return self::$DB
+        return (int) self::$DB
             ->query($sql)
             ->fetch()
             ->get('total');
@@ -240,18 +225,22 @@ class DatabaseManager extends FOGCore
             $sql_modes = "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION'";
             self::$DB->query($sql_modes);
         }
-        $sql = "SELECT CONCAT('ALTER TABLE "
-            . "',TABLE_SCHEMA,'.',TABLE_NAME,' ENGINE=InnoDB') AS Q "
-            . "FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE='MyISAM' AND "
-            . "TABLE_SCHEMA = '"
-            . self::$DB->dbName()
-            . "'";
+        $sql = sprintf(
+            "SELECT CONCAT('ALTER TABLE ',TABLE_SCHEMA,'.',TABLE_NAME,' ENGINE=InnoDB') AS Q"
+            . " FROM INFORMATION_SCHEMA.TABLES"
+            . " WHERE ENGINE='MyISAM'"
+            . " AND TABLE_SCHEMA = %s",
+            self::$DB->escape(self::$DB->dbName())
+        );
         $convert = self::$DB
             ->query($sql)
             ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
             ->get('Q');
         if (false !== $sql_modes) {
-            $sql_modes = "SET GLOBAL sql_mode = '$sql_modeo'";
+            $sql_modes = sprintf(
+                "SET GLOBAL sql_mode = %s",
+                self::$DB->escape($sql_modeo)
+            );
             self::$DB->query($sql_modes);
         }
         if (!count($convert ?: [])) {
