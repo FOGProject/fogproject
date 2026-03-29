@@ -148,7 +148,7 @@ class PluginManagementPage extends FOGPage
                 'encname' => md5($Plugin->name),
                 'id' => (isset($Plugin->id) ? Initiator::e($Plugin->id) : ''),
                 'name' => Initiator::e($Plugin->name),
-                'icon' => Initiator::e($Plugin->icon),
+                'icon' => $Plugin->icon,
                 'desc' => Initiator::e($Plugin->description),
                 'location' => Initiator::e($Plugin->location)
             );
