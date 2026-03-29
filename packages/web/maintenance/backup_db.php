@@ -20,6 +20,20 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+
+// Restrict to same-machine requests only. The installer calls this via the
+// server's own IP, so loopback and SERVER_ADDR are both permitted.
+$_remoteIp = $_SERVER['REMOTE_ADDR'] ?? '';
+$_serverIp = $_SERVER['SERVER_ADDR'] ?? '';
+if ($_remoteIp !== '127.0.0.1'
+    && $_remoteIp !== '::1'
+    && $_remoteIp !== $_serverIp
+) {
+    http_response_code(403);
+    exit;
+}
+unset($_remoteIp, $_serverIp);
+
 $backup_name = 'fog_backup_'
     . FOGCore::formatTime('', 'Ymd_His');
 $tmpfile = '/tmp/' . $backup_name;
