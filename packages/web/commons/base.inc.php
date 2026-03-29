@@ -35,7 +35,6 @@ require 'init.php';
 
 // Output buffering with custom output sanitization for performance and security.
 ob_start(['Initiator', 'sanitizeOutput']);
-Initiator::sanitizeItems();
 Initiator::startInit();
 
 // Load global constants and functions.

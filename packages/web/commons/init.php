@@ -63,7 +63,6 @@ class Initiator
         ]);
 
         self::setSanitize();
-        $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_SPECIAL_CHARS);
         define('DS', DIRECTORY_SEPARATOR);
         define('BASEPATH', self::_determineBasePath());
 
@@ -110,9 +109,10 @@ class Initiator
     {
         error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
         new self;
+        self::sanitizeItems();
         self::_verCheck();
         self::_extCheck();
-        $globalVars = ['newService', 'json', 'node', 'sub', 'printertype', 'id', 'groupid', 'sub', 'crit', 'sort', 'confirm', 'tab', 'type'];
+        $globalVars = ['newService', 'json', 'node', 'sub', 'printertype', 'id', 'groupid', 'crit', 'sort', 'confirm', 'tab', 'type'];
         foreach ($globalVars as $var) {
             global $$var;
             $$var = filter_input(INPUT_GET, $var) ?? filter_input(INPUT_POST, $var);
@@ -150,6 +150,6 @@ class Initiator
     {
         $search = ['/>\s+</', '/(\s)+/'];
         $replace = ['> <', '\\1'];
-        return preg_replace($search, $replace, $buffer);
+        return preg_replace($search, $replace, $buffer) ?? $buffer;
     }
 }
