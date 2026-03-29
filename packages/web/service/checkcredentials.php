@@ -28,7 +28,7 @@ $lockoutFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'fog_auth_ratelimit_' 
 $maxAttempts = 5;
 $lockoutDuration = 300; // 5 minutes in seconds
 
-$getAttemptData = function() use ($lockoutFile) {
+$getAttemptData = function () use ($lockoutFile) {
     if (!file_exists($lockoutFile)) {
         return ['attempts' => 0, 'timestamp' => time()];
     }
@@ -36,7 +36,7 @@ $getAttemptData = function() use ($lockoutFile) {
     return is_array($data) ? $data : ['attempts' => 0, 'timestamp' => time()];
 };
 
-$recordBadAttempt = function() use ($lockoutFile, $lockoutDuration) {
+$recordBadAttempt = function () use ($lockoutFile, $lockoutDuration) {
     $data = ['attempts' => 0, 'timestamp' => time()];
     if (file_exists($lockoutFile)) {
         $data = json_decode(@file_get_contents($lockoutFile), true);
@@ -54,7 +54,7 @@ $recordBadAttempt = function() use ($lockoutFile, $lockoutDuration) {
     @file_put_contents($lockoutFile, json_encode($data), LOCK_EX);
 };
 
-$clearAttempts = function() use ($lockoutFile) {
+$clearAttempts = function () use ($lockoutFile) {
     @unlink($lockoutFile);
 };
 
@@ -95,4 +95,3 @@ try {
     }
     echo $e->getMessage();
 }
-

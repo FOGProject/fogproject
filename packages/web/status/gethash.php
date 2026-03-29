@@ -72,4 +72,3 @@ if (!$allowed) {
 
 echo FOGCore::getHash($file);
 exit;
-

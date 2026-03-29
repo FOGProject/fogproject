@@ -55,137 +55,137 @@ class AccessControlManagementPage extends FOGPage
          * Customize our settings as needed.
          */
         switch ($sub) {
-        case 'edit':
-        case 'delete':
-            parent::__construct($this->name);
-            if ($id) {
-                $this->subMenu = array(
-                    "$this->linkformat#role-general" => self::$foglang['General'],
-                    $this->membership => self::$foglang['Members'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'assocRule',
-                        $id
-                    ) => _('Rule Association'),
-                        "$this->delformat" => self::$foglang['Delete'],
+            case 'edit':
+            case 'delete':
+                parent::__construct($this->name);
+                if ($id) {
+                    $this->subMenu = array(
+                        "$this->linkformat#role-general" => self::$foglang['General'],
+                        $this->membership => self::$foglang['Members'],
+                        sprintf(
+                            '?node=%s&sub=%s&id=%s',
+                            $this->node,
+                            'assocRule',
+                            $id
+                        ) => _('Rule Association'),
+                            "$this->delformat" => self::$foglang['Delete'],
+                        );
+                    $this->notes = array(
+                        _('Role Name') => $this->obj->get('name'),
+                        _('Description') => $this->obj->get('description'),
                     );
-                $this->notes = array(
-                    _('Role Name') => $this->obj->get('name'),
-                    _('Description') => $this->obj->get('description'),
+                }
+                break;
+            case 'deletemulti':
+                parent::__construct($this->name);
+                /**
+                 * Setup our matching elements.
+                 */
+                /**
+                 * Association Rules
+                 */
+                $assocrule = preg_match(
+                    '#items=assocRule#i',
+                    self::$querystring
                 );
-            }
-            break;
-        case 'deletemulti':
-            parent::__construct($this->name);
-            /**
-             * Setup our matching elements.
-             */
-            /**
-             * Association Rules
-             */
-            $assocrule = preg_match(
-                '#items=assocRule#i',
-                self::$querystring
-            );
-            /**
-             * User associations
-             */
-            $user = preg_match(
-                '#items=user#i',
-                self::$querystring
-            );
-            /**
-             * Roles
-             */
-            $role = preg_match(
-                '#items=role#i',
-                self::$querystring
-            );
-            /**
-             * Rules
-             */
-            $rule = preg_match(
-                '#items=rule#i',
-                self::$querystring
-            );
-            /**
-             * Set our child class based on
-             * what is found above.
-             */
-            if ($assocrule) {
-                $this->childClass = 'AccessControlRuleAssociation';
-            } elseif ($user) {
-                $this->childClass = 'AccessControlAssociation';
-            } elseif ($role) {
-                $this->childClass = 'AccessControl';
-            } elseif ($rule) {
+                /**
+                 * User associations
+                 */
+                $user = preg_match(
+                    '#items=user#i',
+                    self::$querystring
+                );
+                /**
+                 * Roles
+                 */
+                $role = preg_match(
+                    '#items=role#i',
+                    self::$querystring
+                );
+                /**
+                 * Rules
+                 */
+                $rule = preg_match(
+                    '#items=rule#i',
+                    self::$querystring
+                );
+                /**
+                 * Set our child class based on
+                 * what is found above.
+                 */
+                if ($assocrule) {
+                    $this->childClass = 'AccessControlRuleAssociation';
+                } elseif ($user) {
+                    $this->childClass = 'AccessControlAssociation';
+                } elseif ($role) {
+                    $this->childClass = 'AccessControl';
+                } elseif ($rule) {
+                    $this->childClass = 'AccessControlRule';
+                } else {
+                    $this->childClass = 'AccessControl';
+                }
+                break;
+            case 'membership':
+            case 'assocRule':
+                parent::__construct($this->name);
+                if ($id) {
+                    $this->subMenu = array(
+                        "$this->linkformat#role-general" => self::$foglang['General'],
+                        $this->membership => self::$foglang['Members'],
+                        sprintf(
+                            '?node=%s&sub=%s&id=%s',
+                            $this->node,
+                            'assocRule',
+                            $id
+                        ) => _('Rule Association'),
+                            "$this->delformat" => self::$foglang['Delete'],
+                        );
+                    $this->notes = array(
+                        _('Role Name') => $this->obj->get('name'),
+                        _('Description') => $this->obj->get('description'),
+                    );
+                }
+                break;
+            case 'editRule':
+            case 'deleteRule':
                 $this->childClass = 'AccessControlRule';
-            } else {
-                $this->childClass = 'AccessControl';
-            }
-            break;
-        case 'membership':
-        case 'assocRule':
-            parent::__construct($this->name);
-            if ($id) {
-                $this->subMenu = array(
-                    "$this->linkformat#role-general" => self::$foglang['General'],
-                    $this->membership => self::$foglang['Members'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
+                if ($id) {
+                    $this->obj = new $this->childClass($id);
+                    $link = sprintf(
+                        '?node=%s&sub=%s&%s=%d',
                         $this->node,
-                        'assocRule',
+                        '%s',
+                        $this->id,
                         $id
-                    ) => _('Rule Association'),
-                        "$this->delformat" => self::$foglang['Delete'],
                     );
-                $this->notes = array(
-                    _('Role Name') => $this->obj->get('name'),
-                    _('Description') => $this->obj->get('description'),
-                );
-            }
-            break;
-        case 'editRule':
-        case 'deleteRule':
-            $this->childClass = 'AccessControlRule';
-            if ($id) {
-                $this->obj = new $this->childClass($id);
-                $link = sprintf(
-                    '?node=%s&sub=%s&%s=%d',
-                    $this->node,
-                    '%s',
-                    $this->id,
-                    $id
-                );
-                $this->linkformat = sprintf(
-                    $link,
-                    'editRule'
-                );
-                $this->subMenu = array(
-                    "$this->linkformat" => self::$foglang['General'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'deleteRule',
-                        $id
-                    ) => self::$foglang['Delete'],
-                );
-                $this->notes = array(
-                    _('Rule type') => $this->obj->get('type'),
-                    _('Rule value') => $this->obj->get('value'),
-                    _('Parent Node') => $this->obj->get('parent'),
-                );
-            }
-            break;
-        case 'addRule':
-        case 'ruleList':
-        case 'addRuleGroup':
-            parent::__construct($this->name);
-            $this->childClass = 'AccessControlRule';
-            break;
-        default:
-            parent::__construct($this->name);
+                    $this->linkformat = sprintf(
+                        $link,
+                        'editRule'
+                    );
+                    $this->subMenu = array(
+                        "$this->linkformat" => self::$foglang['General'],
+                        sprintf(
+                            '?node=%s&sub=%s&id=%s',
+                            $this->node,
+                            'deleteRule',
+                            $id
+                        ) => self::$foglang['Delete'],
+                    );
+                    $this->notes = array(
+                        _('Rule type') => $this->obj->get('type'),
+                        _('Rule value') => $this->obj->get('value'),
+                        _('Parent Node') => $this->obj->get('parent'),
+                    );
+                }
+                break;
+            case 'addRule':
+            case 'ruleList':
+            case 'addRuleGroup':
+                parent::__construct($this->name);
+                $this->childClass = 'AccessControlRule';
+                break;
+            default:
+                parent::__construct($this->name);
         }
         /**
          * Set title to our initiator name.
@@ -240,61 +240,61 @@ class AccessControlManagementPage extends FOGPage
             'import' => $this->menu['import']
         );
         switch (strtolower($this->childClass)) {
-        case 'accesscontrol':
-            $this->headerData = array(
-                '<input type="checkbox" name="toggle-checkbox" class='
-                . '"toggle-checkboxAction"/>',
-                _('Role Name'),
-                _('Role Description'),
-            );
-            $this->templates = array(
-                '<input type="checkbox" name="accesscontrol[]" value='
-                . '"${id}" class="toggle-action"/>',
-                '<a href="?node=accesscontrol&sub=edit'
-                . '&id=${id}" title="Edit">(${id}) - ${name}</a>',
-                '${description}',
-            );
-            $this->attributes = array(
-                array(
-                    'class' => 'parser-false filter-false',
-                    'width' => 16
-                ),
-                array(),
-                array()
-            );
-            self::$HookManager
-                ->processEvent(
-                    'ACCESSCONTROL_DATA',
+            case 'accesscontrol':
+                $this->headerData = array(
+                    '<input type="checkbox" name="toggle-checkbox" class='
+                    . '"toggle-checkboxAction"/>',
+                    _('Role Name'),
+                    _('Role Description'),
+                );
+                $this->templates = array(
+                    '<input type="checkbox" name="accesscontrol[]" value='
+                    . '"${id}" class="toggle-action"/>',
+                    '<a href="?node=accesscontrol&sub=edit'
+                    . '&id=${id}" title="Edit">(${id}) - ${name}</a>',
+                    '${description}',
+                );
+                $this->attributes = array(
                     array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
+                        'class' => 'parser-false filter-false',
+                        'width' => 16
+                    ),
+                    array(),
+                    array()
                 );
-            self::$returnData = function (&$AccessControl) {
-                $this->data[] = array(
-                    'id' => Initiator::e($AccessControl->id),
-                    'name' => Initiator::e($AccessControl->name),
-                    'description' => Initiator::e($AccessControl->description),
-                    'createdBy' => $AccessControl->createdBy,
-                    'createdTime' => $AccessControl->createdTime
-                );
-                unset($AccessControl);
-            };
-            break;
-        case 'accesscontrolrule':
-            self::$returnData = function (&$AccessControlRule) {
-                $this->data[] = array(
-                    'type' => Initiator::e($AccessControlRule->type),
-                    'id' => Initiator::e($AccessControlRule->id),
-                    'value' => Initiator::e($AccessControlRule->value),
-                    'parent' => Initiator::e($AccessControlRule->parent),
-                    'node' => Initiator::e($AccessControlRule->node)
-                );
-                unset($AccessControlRule);
-            };
-            break;
+                self::$HookManager
+                    ->processEvent(
+                        'ACCESSCONTROL_DATA',
+                        array(
+                            'headerData' => &$this->headerData,
+                            'data' => &$this->data,
+                            'templates' => &$this->templates,
+                            'attributes' => &$this->attributes
+                        )
+                    );
+                self::$returnData = function (&$AccessControl) {
+                    $this->data[] = array(
+                        'id' => Initiator::e($AccessControl->id),
+                        'name' => Initiator::e($AccessControl->name),
+                        'description' => Initiator::e($AccessControl->description),
+                        'createdBy' => $AccessControl->createdBy,
+                        'createdTime' => $AccessControl->createdTime
+                    );
+                    unset($AccessControl);
+                };
+                break;
+            case 'accesscontrolrule':
+                self::$returnData = function (&$AccessControlRule) {
+                    $this->data[] = array(
+                        'type' => Initiator::e($AccessControlRule->type),
+                        'id' => Initiator::e($AccessControlRule->id),
+                        'value' => Initiator::e($AccessControlRule->value),
+                        'parent' => Initiator::e($AccessControlRule->parent),
+                        'node' => Initiator::e($AccessControlRule->node)
+                    );
+                    unset($AccessControlRule);
+                };
+                break;
         }
     }
     /**

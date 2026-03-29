@@ -106,15 +106,15 @@ class Virus_History extends ReportManagementPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell($hostName);
-                    break;
-                case _('Mode'):
-                    $this->ReportMaker->addCSVCell($virusMode);
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Virus->$classGet);
-                    break;
+                    case _('Host name'):
+                        $this->ReportMaker->addCSVCell($hostName);
+                        break;
+                    case _('Mode'):
+                        $this->ReportMaker->addCSVCell($virusMode);
+                        break;
+                    default:
+                        $this->ReportMaker->addCSVCell($Virus->$classGet);
+                        break;
                 }
                 unset($classGet);
             }

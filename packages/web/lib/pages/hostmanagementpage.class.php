@@ -2039,45 +2039,45 @@ class HostManagementPage extends FOGPage
         $Modules = $Modules->modules;
         foreach ((array)$Modules as &$Module) {
             switch ($Module->shortName) {
-            case 'dircleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $dcnote
-                );
-                break;
-            case 'greenfog':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $gfnote
-                );
-                break;
-            case 'usercleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $ucnote
-                );
-                break;
-            case 'clientupdater':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $cunote
-                );
-                break;
-            default:
-                $note = '';
-                break;
+                case 'dircleanup':
+                    $note = sprintf(
+                        '<i class="icon fa fa-exclamation-triangle '
+                        . 'fa-1x hand" '
+                        . 'data-toggle="tooltip" data-placement="right" '
+                        . 'title="%s"></i>',
+                        $dcnote
+                    );
+                    break;
+                case 'greenfog':
+                    $note = sprintf(
+                        '<i class="icon fa fa-exclamation-triangle '
+                        . 'fa-1x hand" '
+                        . 'data-toggle="tooltip" data-placement="right" '
+                        . 'title="%s"></i>',
+                        $gfnote
+                    );
+                    break;
+                case 'usercleanup':
+                    $note = sprintf(
+                        '<i class="icon fa fa-exclamation-triangle '
+                        . 'fa-1x hand" '
+                        . 'data-toggle="tooltip" data-placement="right" '
+                        . 'title="%s"></i>',
+                        $ucnote
+                    );
+                    break;
+                case 'clientupdater':
+                    $note = sprintf(
+                        '<i class="icon fa fa-exclamation-triangle '
+                        . 'fa-1x hand" '
+                        . 'data-toggle="tooltip" data-placement="right" '
+                        . 'title="%s"></i>',
+                        $cunote
+                    );
+                    break;
+                default:
+                    $note = '';
+                    break;
             }
             if ($note) {
                 $note = '<div class="col-xs-2">'
@@ -2635,15 +2635,15 @@ class HostManagementPage extends FOGPage
                 continue;
             }
             switch (strtolower($Virus->mode)) {
-            case 'q':
-                $mode = _('Quarantine');
-                break;
-            case 's':
-                $mode = _('Report');
-                break;
-            default:
-                $mode = _('N/A');
-                break;
+                case 'q':
+                    $mode = _('Quarantine');
+                    break;
+                case 's':
+                    $mode = _('Report');
+                    break;
+                default:
+                    $mode = _('N/A');
+                    break;
             }
             $this->data[] = array(
                 'virus_name' => $Virus->name,
@@ -3653,77 +3653,77 @@ class HostManagementPage extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'host-general':
-                $this->hostGeneralPost();
-                break;
-            case 'host-active-directory':
-                $this->hostADPost();
-                break;
-            case 'host-powermanagement':
-                $this->hostPMPost();
-                break;
-            case 'host-printers':
-                $this->hostPrinterPost();
-                break;
-            case 'host-snapins':
-                $this->hostSnapinPost();
-                break;
-            case 'host-service':
-                $this->hostServicePost();
-                break;
-            case 'host-hardware-inventory':
-                $pu = filter_input(INPUT_POST, 'pu');
-                $other1 = filter_input(INPUT_POST, 'other1');
-                $other2 = filter_input(INPUT_POST, 'other2');
-                if (isset($_POST['update'])) {
-                    $this->obj
-                        ->get('inventory')
-                        ->set('primaryUser', $pu)
-                        ->set('other1', $other1)
-                        ->set('other2', $other2)
-                        ->set('hostID', $this->obj->get('id'))
-                        ->save();
-                }
-                break;
-            case 'host-login-history':
-                $dte = filter_input(INPUT_POST, 'dte');
-                self::redirect(
-                    '?node='
-                    . $this->node
-                    . '&sub=edit&id='
-                    . $this->obj->get('id')
-                    . '&dte='
-                    . $dte
-                    . '#'
-                    . $tab
-                );
-                break;
-            case 'host-virus-history':
-                $delvid = filter_input(INPUT_POST, 'delvid');
-                $delvidarr = filter_input_array(
-                    INPUT_POST,
-                    array(
-                        'delvidarr' => array(
-                            'flags' => FILTER_REQUIRE_ARRAY
-                        )
-                    )
-                );
-                $delvidarr = isset($delvidarr['delvidarr']) ? $delvidarr['delvidarr'] : array();
-                if ($delvid == 'all') {
-                    $this->obj->clearAVRecordsForHost();
-                } else {
-                    self::getClass('VirusManager')
-                        ->destroy(
-                            array(
-                                'id' => $delvidarr
+                case 'host-general':
+                    $this->hostGeneralPost();
+                    break;
+                case 'host-active-directory':
+                    $this->hostADPost();
+                    break;
+                case 'host-powermanagement':
+                    $this->hostPMPost();
+                    break;
+                case 'host-printers':
+                    $this->hostPrinterPost();
+                    break;
+                case 'host-snapins':
+                    $this->hostSnapinPost();
+                    break;
+                case 'host-service':
+                    $this->hostServicePost();
+                    break;
+                case 'host-hardware-inventory':
+                    $pu = filter_input(INPUT_POST, 'pu');
+                    $other1 = filter_input(INPUT_POST, 'other1');
+                    $other2 = filter_input(INPUT_POST, 'other2');
+                    if (isset($_POST['update'])) {
+                        $this->obj
+                            ->get('inventory')
+                            ->set('primaryUser', $pu)
+                            ->set('other1', $other1)
+                            ->set('other2', $other2)
+                            ->set('hostID', $this->obj->get('id'))
+                            ->save();
+                    }
+                    break;
+                case 'host-login-history':
+                    $dte = filter_input(INPUT_POST, 'dte');
+                    self::redirect(
+                        '?node='
+                        . $this->node
+                        . '&sub=edit&id='
+                        . $this->obj->get('id')
+                        . '&dte='
+                        . $dte
+                        . '#'
+                        . $tab
+                    );
+                    break;
+                case 'host-virus-history':
+                    $delvid = filter_input(INPUT_POST, 'delvid');
+                    $delvidarr = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'delvidarr' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
                             )
-                        );
-                }
-                $msg = json_encode(
-                    array('msg' => _('Virus items removed!'))
-                );
-                echo $msg;
-                exit;
+                        )
+                    );
+                    $delvidarr = isset($delvidarr['delvidarr']) ? $delvidarr['delvidarr'] : array();
+                    if ($delvid == 'all') {
+                        $this->obj->clearAVRecordsForHost();
+                    } else {
+                        self::getClass('VirusManager')
+                            ->destroy(
+                                array(
+                                    'id' => $delvidarr
+                                )
+                            );
+                    }
+                    $msg = json_encode(
+                        array('msg' => _('Virus items removed!'))
+                    );
+                    echo $msg;
+                    exit;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Host Update Failed'));

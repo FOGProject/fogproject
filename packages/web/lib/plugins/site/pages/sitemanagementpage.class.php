@@ -390,21 +390,21 @@ class SiteManagementPage extends FOGPage
         );
         try {
             switch ($tab) {
-            case 'site-gen':
-                if ($this->obj->get('name') != $name
-                    && self::getClass('SiteManager')->exists(
-                        $name,
-                        $this->obj->get('id')
-                    )
-                ) {
-                    throw new Exception(
-                        _('A site already exists with this name!')
-                    );
-                }
-                $this->obj
-                    ->set('name', $name)
-                    ->set('description', $description);
-                break;
+                case 'site-gen':
+                    if ($this->obj->get('name') != $name
+                        && self::getClass('SiteManager')->exists(
+                            $name,
+                            $this->obj->get('id')
+                        )
+                    ) {
+                        throw new Exception(
+                            _('A site already exists with this name!')
+                        );
+                    }
+                    $this->obj
+                        ->set('name', $name)
+                        ->set('description', $description);
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Site update failed!'));

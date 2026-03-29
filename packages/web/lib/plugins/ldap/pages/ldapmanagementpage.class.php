@@ -50,11 +50,11 @@ class LDAPManagementPage extends FOGPage
         global $sub;
         $this->menu['PluginConfiguration'] = _('Plugin Configuration');
         switch ($sub) {
-        case 'PluginConfiguration':
-            parent::__construct($this->name);
-            break;
-        default:
-    }
+            case 'PluginConfiguration':
+                parent::__construct($this->name);
+                break;
+            default:
+        }
         if ($id) {
             $this->subMenu = array(
                 "$this->linkformat#ldap-gen" => self::$foglang['General'],

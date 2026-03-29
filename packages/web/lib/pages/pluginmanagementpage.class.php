@@ -124,24 +124,24 @@ class PluginManagementPage extends FOGPage
          */
         self::$returnData = function (&$Plugin) {
             switch (self::$_plugintype) {
-            case 'install':
-                if (!(isset($Plugin->state) && $Plugin->state) ||
-                    (isset($Plugin->installed) && $Plugin->installed)) {
-                    return;
-                }
-                break;
-            case 'installed':
-                if (!(isset($Plugin->state) && $Plugin->state) ||
-                    !(isset($Plugin->installed) && $Plugin->installed)) {
-                    return;
-                }
-                break;
-            case 'activate':
-                if ((isset($Plugin->state) && $Plugin->state) ||
-                    (isset($Plugin->installed) && $Plugin->installed)) {
-                    return;
-                }
-                break;
+                case 'install':
+                    if (!(isset($Plugin->state) && $Plugin->state) ||
+                        (isset($Plugin->installed) && $Plugin->installed)) {
+                        return;
+                    }
+                    break;
+                case 'installed':
+                    if (!(isset($Plugin->state) && $Plugin->state) ||
+                        !(isset($Plugin->installed) && $Plugin->installed)) {
+                        return;
+                    }
+                    break;
+                case 'activate':
+                    if ((isset($Plugin->state) && $Plugin->state) ||
+                        (isset($Plugin->installed) && $Plugin->installed)) {
+                        return;
+                    }
+                    break;
             }
             $this->data[] = array(
                 'type' => Initiator::e(self::$_plugintype),

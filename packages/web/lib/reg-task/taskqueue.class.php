@@ -157,7 +157,7 @@ class TaskQueue extends TaskingElement
                         throw new Exception($msg);
                     }
                     
-                    if ($groupOpenSlots <= $inFront) {   
+                    if ($groupOpenSlots <= $inFront) {
                         $msg = sprintf(
                             $msgFormat,
                             _('There are open slots'),

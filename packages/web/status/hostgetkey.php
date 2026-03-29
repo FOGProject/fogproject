@@ -59,4 +59,3 @@ try {
     echo $e->getMessage();
     exit(1);
 }
-

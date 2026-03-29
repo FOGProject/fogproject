@@ -67,7 +67,7 @@ $interfaces = [];
 // Loop the captured data and set up interfaces
 foreach ($dir_interfaces as &$iface) {
     $operstateFile = "/sys/class/net/$iface/operstate";
-    if (file_exists($operstateFile)){
+    if (file_exists($operstateFile)) {
         $content = file_get_contents($operstateFile);
         $content = trim($content);
         if ($content !== 'up') {

@@ -118,18 +118,15 @@ class AddSiteAPI extends Hook
         }
         
         // is create or edit call
-        if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT']))
-        {
+        if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT'])) {
             $vars = json_decode(
                 file_get_contents('php://input')
             );
             
-            if (isset($vars->siteID))
-            {
-                switch ($arguments['classname'])
-                {
+            if (isset($vars->siteID)) {
+                switch ($arguments['classname']) {
                     case 'host':
-                        $this->addHostToUniqueSite($vars->siteID, $arguments['data']['id']);                        
+                        $this->addHostToUniqueSite($vars->siteID, $arguments['data']['id']);
                         break;
                     
                     case 'group':
@@ -149,12 +146,11 @@ class AddSiteAPI extends Hook
         }
         
         // add siteID to result object
-        switch ($arguments['classname'])
-        {
+        switch ($arguments['classname']) {
             case 'host':
                 
                 $ids = $this->getSubObjectIDs(
-                    'SiteHostAssociation', 
+                    'SiteHostAssociation',
                     ['hostID' => $arguments['data']['id']],
                     'siteID'
                 );
@@ -177,14 +173,12 @@ class AddSiteAPI extends Hook
         }
         
         // add siteID to result object
-        switch ($arguments['classname'])
-        {
+        switch ($arguments['classname']) {
             case 'host':
                 
-                for ($i = 0; $i < $arguments['data']['count']; $i++)
-                {
+                for ($i = 0; $i < $arguments['data']['count']; $i++) {
                     $ids = $this->getSubObjectIDs(
-                        'SiteHostAssociation', 
+                        'SiteHostAssociation',
                         ['hostID' => $arguments['data']['hosts'][$i]['id']],
                         'siteID'
                     );
@@ -208,48 +202,44 @@ class AddSiteAPI extends Hook
             return;
         }
         switch ($arguments['classname']) {
-        case 'sitehostassociation':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'site' => $arguments['class']->get('site')->get(),
-                    'host' => $arguments['class']->get('host')->get()
-                )
-            );
-            break;
+            case 'sitehostassociation':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    array(
+                        'site' => $arguments['class']->get('site')->get(),
+                        'host' => $arguments['class']->get('host')->get()
+                    )
+                );
+                break;
         }
     }
     
     /**
      * This function add site to a host, removing any other site association to host if exists
-     * 
+     *
      * @param int $siteID Site id to associate
-     * 
+     *
      * @param int $hostID Host id to associate
-     * 
+     *
      * @return void
      */
     public function addHostToUniqueSite($siteID, $hostID)
     {
         $ids = $this->getSubObjectIDs(
-            'SiteHostAssociation', 
+            'SiteHostAssociation',
             ['hostID' => $hostID],
             'id'
         );
         
         $count = count($ids);
 
-        if ($count === 0)
-        {
+        if ($count === 0) {
             $this->getClass('SiteHostAssociation')
                 ->set('siteID', $siteID)
                 ->set('hostID', $hostID)
                 ->save();
-        }
-        else
-        {
-            for ($i = 1; $i < $count; $i++)
-            {
+        } else {
+            for ($i = 1; $i < $count; $i++) {
                 $this->getClass('SiteHostAssociation', $ids[$i])
                     ->destroy();
             }

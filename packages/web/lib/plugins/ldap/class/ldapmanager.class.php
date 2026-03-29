@@ -139,7 +139,7 @@ class LDAPManager extends FOGManagerController
             'lsID',
             'lsID'
         );
-//        return self::$DB->query($sql);
+        //        return self::$DB->query($sql);
         if (!self::$DB->query($sql)) {
             return false;
         } else {

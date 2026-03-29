@@ -168,7 +168,7 @@ class TaskType extends FOGController
                     $this->get('kernelArgs')
                 )
             )
-            ;
+        ;
     }
     /**
      * Returns if the task needs the inits.
@@ -243,7 +243,7 @@ class TaskType extends FOGController
                 )
                 || in_array($this->get($id), array(12, 13))
             )
-            ;
+        ;
     }
     /**
      * Returns if this is a deploy tasking.
@@ -273,7 +273,7 @@ class TaskType extends FOGController
                     $this->get('kernelArgs')
                 )
             )
-            ;
+        ;
     }
     /**
      * Returns if this is a multicast tasking.
@@ -303,7 +303,7 @@ class TaskType extends FOGController
                     $this->get('kernelArgs')
                 )
             )
-            ;
+        ;
     }
     /**
      * Returns if this is a debug tasking.
@@ -325,6 +325,6 @@ class TaskType extends FOGController
                 || preg_match('#mode=debug#i', $this->get('kernelArgs'))
                 || preg_match('#mode=onlydebug#i', $this->get('kernelArgs'))
             )
-            ;
+        ;
     }
 }

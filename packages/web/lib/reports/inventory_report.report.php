@@ -23,11 +23,11 @@ class Inventory_Report extends ReportManagementPage
     {
         $this->title = _('FOG Host Inventory - Search');
         unset(
-                $this->data,
-                $this->form,
-                $this->headerData,
-                $this->templates,
-                $this->attributes
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->templates = array(
                 '${field}',
@@ -295,26 +295,26 @@ class Inventory_Report extends ReportManagementPage
             );
             foreach (self::$inventoryCsvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Host ID'):
-                    $this->ReportMaker->addCSVCell($Host->id);
-                    break;
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell($Host->name);
-                    break;
-                case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell($Host->primac);
-                    break;
-                case _('Host Desc'):
-                    $this->ReportMaker->addCSVCell($Host->description);
-                    break;
-                case _('Memory'):
-                    $this->ReportMaker->addCSVCell($Inventory->memory);
-                    break;
-                default:
-                    if (property_exists($Inventory, $classGet)) {
-                        $this->ReportMaker->addCSVCell($Inventory->$classGet);
-                    }
-                    break;
+                    case _('Host ID'):
+                        $this->ReportMaker->addCSVCell($Host->id);
+                        break;
+                    case _('Host name'):
+                        $this->ReportMaker->addCSVCell($Host->name);
+                        break;
+                    case _('Host MAC'):
+                        $this->ReportMaker->addCSVCell($Host->primac);
+                        break;
+                    case _('Host Desc'):
+                        $this->ReportMaker->addCSVCell($Host->description);
+                        break;
+                    case _('Memory'):
+                        $this->ReportMaker->addCSVCell($Inventory->memory);
+                        break;
+                    default:
+                        if (property_exists($Inventory, $classGet)) {
+                            $this->ReportMaker->addCSVCell($Inventory->$classGet);
+                        }
+                        break;
                 }
                 unset($classGet, $head);
             }

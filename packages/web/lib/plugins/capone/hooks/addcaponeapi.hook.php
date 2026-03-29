@@ -122,15 +122,15 @@ class AddCaponeAPI extends Hook
             return;
         }
         switch ($arguments['classname']) {
-        case 'capone':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'image' => $arguments['class']->get('image')->get(),
-                    'os' => $arguments['class']->get('os')->get()
-                )
-            );
-            break;
+            case 'capone':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    array(
+                        'image' => $arguments['class']->get('image')->get(),
+                        'os' => $arguments['class']->get('os')->get()
+                    )
+                );
+                break;
         }
     }
 }

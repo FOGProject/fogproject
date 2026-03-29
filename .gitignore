@@ -88,3 +88,5 @@ packages/web/lib/plugins/hostext
 *Image*
 *.cache*
 *.idea*
+
+**/*/.claude
