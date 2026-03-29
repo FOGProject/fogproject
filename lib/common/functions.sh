@@ -52,7 +52,7 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
     dots "Ensuring node username and passwords match"
-    curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}maintenance/create_update_node.php
+    curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}/maintenance/create_update_node.php
     echo "Done"
 }
 backupDB() {
@@ -199,8 +199,7 @@ mask2cidr() {
                 break
                 ;;
             224)
-                let
-                nbits+=3
+                let nbits+=3
                 break
                 ;;
             192)
@@ -240,7 +239,7 @@ cidr2mask() {
     echo $mask
 }
 mask2network() {
-    OIFS=$IFS
+    local OIFS=$IFS
     IFS='.'
     read -r i1 i2 i3 i4 <<< "$1"
     read -r m1 m2 m3 m4 <<< "$2"
@@ -265,7 +264,7 @@ subtract1fromAddress() {
         echo "Invalid IP Passed"
         return 1
     fi
-    oIFS=$IFS
+    local oIFS=$IFS
     IFS='.'
     read ip1 ip2 ip3 ip4 <<< "$ip"
     IFS=$oIFS
@@ -298,7 +297,7 @@ subtractFromAddress() {
     local octet2=""
     local octet3=""
     local octet4=""
-    oIFS=$IFS
+    local oIFS=$IFS
     IFS='.' read octet1 octet2 octet3 octet4 <<< "$ipaddress"
     IFS=$oIFS
     let octet4-=$decreaseby
@@ -306,17 +305,11 @@ subtractFromAddress() {
         printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/-//g'
         return 0
     fi
-    echo $octet4
-    echo $maxOctetValue
     octet4=$(echo $octet4 | sed 's/-//g')
     numRollOver=$((octet4 / maxOctetValue))
-    echo $numRollOver
     let octet4-=$((numRollOver * maxOctetValue))
-    echo $((numRollOver - octet3))
     let octet3-=$numRollOver
-    echo $octet3
     if [[ $octet3 -lt $maxOctetValue && $octet3 -ge 0 ]]; then
-        echo 'here'
         printf "%d.%d.%d.%d\n" $octet1 $octet2 $octet3 $octet4 | sed 's/-//g'
         return 0
     fi
@@ -344,7 +337,7 @@ addToAddress() {
     local octet2=""
     local octet3=""
     local octet4=""
-    oIFS=$IFS
+    local oIFS=$IFS
     IFS='.' read octet1 octet2 octet3 octet4 <<< "$ipaddress"
     IFS=$oIFS
     let octet4+=$increaseby

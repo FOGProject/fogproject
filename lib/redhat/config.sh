@@ -78,7 +78,7 @@ if [[ $webserver == httpd ]]; then
     [[ -z $apacheuser ]] && apacheuser="apache"
     httperrlog="error_log"
     httpacclog="access_log"
-elif [[ $websever == nginx ]]; then
+elif [[ $webserver == nginx ]]; then
     [[ -z $apacheuser ]] && apacheuser="nginx"
     httperrlog="error.log"
     httpacclog="access.log"

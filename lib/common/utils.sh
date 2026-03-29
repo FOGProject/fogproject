@@ -36,7 +36,7 @@ case $osid in
         ;;
 esac
 [[ ! -d $webdirdest ]] && handleError "    No fog web directory found" 3
-[[ -f ${webdirdest}lib/fog/system.class.php ]] && configpath=${webdirdest}lib/fog/system.class.php || configpath=${webdirdest}lib/fog/System.clss.php
+[[ -f ${webdirdest}lib/fog/system.class.php ]] && configpath=${webdirdest}lib/fog/system.class.php || configpath=${webdirdest}lib/fog/system.class.php
 [[ ! -f $configpath ]] && handleError "    No config file found" 4
 OS=$(uname -s)
 [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx]$ ]] && handleError "    We only support these utilities on Linux OS's" 6

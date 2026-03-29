@@ -21,7 +21,7 @@
 [[ -z $packmanUpdate ]] && packmanUpdate="$packageinstaller"
 [[ -z $packageQuery ]] && packageQuery="apk info -e \$x "
 [[ -z $langPackages ]] && langPackages="iso-codes"
-[[ -z $dhcpname ]] && dhcpname=""
+[[ -z $dhcpname ]] && dhcpname="dhcpd"
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then
         docroot="/var/www/"
