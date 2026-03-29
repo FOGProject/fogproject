@@ -405,6 +405,7 @@ class TaskManagement extends FOGPage
         self::$HookManager->processEvent(
             'TASK_ACTIVE_CANCEL'
         );
+        $serverFault = false;
         try {
             if (isset($_POST['cancelconfirm'])) {
                 $tasks = filter_input_array(
@@ -513,21 +514,21 @@ class TaskManagement extends FOGPage
                         ]
                     ]
                 );
+                $tasks = $tasks['tasks'];
+                $mtasks = $tasks;
+                $find = ['msID' => $mtasks];
+                Route::ids(
+                    'multicastsessionassociation',
+                    $find,
+                    'taskID'
+                );
+                $tasks = json_decode(
+                    Route::getData(),
+                    true
+                );
+                self::getClass('TaskManager')->cancel($tasks);
+                self::getClass('MulticastSessionManager')->cancel($mtasks);
             }
-            $tasks = $tasks['tasks'];
-            $mtasks = $tasks;
-            $find = ['msID' => $mtasks];
-            Route::ids(
-                'multicastsessionassociation',
-                $find,
-                'taskID'
-            );
-            $tasks = json_decode(
-                Route::getData(),
-                true
-            );
-            self::getClass('TaskManager')->cancel($tasks);
-            self::getClass('MulticastSessionManager')->cancel($mtasks);
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
@@ -623,9 +624,9 @@ class TaskManagement extends FOGPage
                         ]
                     ]
                 );
+                $tasks = $tasks['tasks'];
+                self::getClass('SnapinTaskManager')->cancel($tasks);
             }
-            $tasks = $tasks['tasks'];
-            self::getClass('SnapinTaskManager')->cancel($tasks);
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
@@ -712,6 +713,7 @@ class TaskManagement extends FOGPage
         self::$HookManager->processEvent(
             'TASK_ACTIVESCHEDULED_CANCEL'
         );
+        $serverFault = false;
         try {
             if (isset($_POST['cancelconfirm'])) {
                 $tasks = filter_input_array(
@@ -815,6 +817,7 @@ class TaskManagement extends FOGPage
         self::$HookManager->processEvent(
             'QUEUED_DELETION_CANCEL'
         );
+        $serverFault = false;
         try {
             if (isset($_POST['cancelconfirm'])) {
                 $tasks = filter_input_array(

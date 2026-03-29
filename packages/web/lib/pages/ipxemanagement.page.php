@@ -779,7 +779,7 @@ class IpxeManagement extends FOGPage
             );
         }
         self::$HookManager->processEvent(
-            $event,
+            $hook,
             [
                 'Ipxe' => &$this->obj,
                 'hook' => &$hook,

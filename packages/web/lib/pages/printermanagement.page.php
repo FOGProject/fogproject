@@ -934,6 +934,9 @@ class PrinterManagement extends FOGPage
                     break;
                 case 'network':
                     $printertype = 'Network';
+                    break;
+                default:
+                    $printertype = '';
             }
             $Printer = self::getClass('Printer')
                 ->set('name', $printer)
@@ -1519,6 +1522,9 @@ class PrinterManagement extends FOGPage
                 break;
             case 'network':
                 $printertype = 'Network';
+                break;
+            default:
+                $printertype = '';
         }
         $this->obj
             ->set('name', $printer)
@@ -1553,6 +1559,7 @@ class PrinterManagement extends FOGPage
             )
             . '" ';
 
+        $buttons = '';
         $buttons .= self::makeButton(
             'printer-host-send',
             _('Add selected'),

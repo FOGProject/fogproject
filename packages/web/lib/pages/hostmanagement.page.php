@@ -2776,65 +2776,59 @@ class HostManagement extends FOGPage
     {
         $flags = ['flags' => FILTER_REQUIRE_ARRAY];
         if (isset($_POST['pmupdate'])) {
-            $onDemand = (int)isset($_POST['onDemand']);
-            $items = [];
-            if (isset($_POST['pmupdate'])) {
-                $items = filter_input_array(
-                    INPUT_POST,
-                    [
-                        'scheduleCronMin' => $flags,
-                        'scheduleCronHour' => $flags,
-                        'scheduleCronDOM' => $flags,
-                        'scheduleCronMonth' => $flags,
-                        'scheduleCronDOW' => $flags,
-                        'pmid' => $flags,
-                        'action' => $flags
-                    ]
+            $items = filter_input_array(
+                INPUT_POST,
+                [
+                    'scheduleCronMin' => $flags,
+                    'scheduleCronHour' => $flags,
+                    'scheduleCronDOM' => $flags,
+                    'scheduleCronMonth' => $flags,
+                    'scheduleCronDOW' => $flags,
+                    'pmid' => $flags,
+                    'onDemand' => $flags,
+                    'action' => $flags
+                ]
+            );
+            extract($items);
+            if (!$action) {
+                throw new Exception(
+                    _('You must select an action to perform')
                 );
-                extract($items);
-                if (!$action) {
-                    throw new Exception(
-                        _('You must select an action to perform')
-                    );
-                }
-                $items = [];
-                foreach ((array)$pmid as $index => &$pm) {
-                    $onDemandItem = array_search(
-                        $pm,
-                        $onDemand
-                    );
-                    $items[] = [
-                        $pm,
-                        $this->obj->get('id'),
-                        $scheduleCronMin[$index],
-                        $scheduleCronHour[$index],
-                        $scheduleCronDOM[$index],
-                        $scheduleCronMonth[$index],
-                        $scheduleCronDOW[$index],
-                        $onDemandItem !== -1
-                        && $onDemand[$onDemandItem] === $pm ?
-                        1 :
-                        0,
-                        $action[$index]
-                    ];
-                    unset($pm);
-                }
-                self::getClass('PowerManagementManager')
-                    ->insertBatch(
-                        [
-                            'id',
-                            'hostID',
-                            'min',
-                            'hour',
-                            'dom',
-                            'month',
-                            'dow',
-                            'onDemand',
-                            'action'
-                        ],
-                        $items
-                    );
             }
+            $items = [];
+            foreach ((array)$pmid as $index => &$pm) {
+                $onDemandItem = array_search(
+                    $pm,
+                    (array)$onDemand
+                );
+                $items[] = [
+                    $pm,
+                    $this->obj->get('id'),
+                    $scheduleCronMin[$index],
+                    $scheduleCronHour[$index],
+                    $scheduleCronDOM[$index],
+                    $scheduleCronMonth[$index],
+                    $scheduleCronDOW[$index],
+                    $onDemandItem !== false ? 1 : 0,
+                    $action[$index]
+                ];
+                unset($pm);
+            }
+            self::getClass('PowerManagementManager')
+                ->insertBatch(
+                    [
+                        'id',
+                        'hostID',
+                        'min',
+                        'hour',
+                        'dom',
+                        'month',
+                        'dow',
+                        'onDemand',
+                        'action'
+                    ],
+                    $items
+                );
         }
         if (isset($_POST['pmadd']) || isset($_POST['pmaddod'])) {
             $min = trim(

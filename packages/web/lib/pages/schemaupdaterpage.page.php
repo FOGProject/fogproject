@@ -50,7 +50,7 @@ class SchemaUpdaterPage extends FOGPage
      */
     public function index(...$args)
     {
-        if (isset($_REQUEST['confirm']) && isset($_REQUEST['fogverified'])) {
+        if (isset($_POST['confirm']) && isset($_POST['fogverified'])) {
             return $this->indexPost();
         }
         $this->title = _('Database Schema Installer / Updater');

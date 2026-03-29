@@ -1186,7 +1186,7 @@ class SnapinManagement extends FOGPage
                 )
             );
         }
-        $reboot = $shutdown = '';
+        $reboot = $shutdown = $noaction = '';
         switch ($action) {
             case 'reboot':
                 $reboot = 'checked';

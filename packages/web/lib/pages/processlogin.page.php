@@ -104,16 +104,15 @@ class ProcessLogin extends FOGPage
             self::$HookManager->processEvent(
                 'LoginSuccess',
                 [
-                    'username' => $uname,
-                    'password' => $upass
+                    'username' => $uname
                 ]
             );
             error_log(
                 sprintf(
                     "[%s] - %s - %s - %s - %s: %s %s\n",
                     FOGService::getDateTime(),
-                    $_SERVER['REMOTE_ADDR'],
-                    $_SERVER['HTTP_USER_AGENT'],
+                    filter_input(INPUT_SERVER, 'REMOTE_ADDR'),
+                    filter_input(INPUT_SERVER, 'HTTP_USER_AGENT'),
                     _('Login accepted'),
                     _('username'),
                     $uname,
@@ -135,8 +134,8 @@ class ProcessLogin extends FOGPage
                 sprintf(
                     "[%s] - %s - %s - %s - %s: %s %s\n",
                     FOGService::getDateTime(),
-                    $_SERVER['REMOTE_ADDR'],
-                    $_SERVER['HTTP_USER_AGENT'],
+                    filter_input(INPUT_SERVER, 'REMOTE_ADDR'),
+                    filter_input(INPUT_SERVER, 'HTTP_USER_AGENT'),
                     _('Login failed'),
                     _('username'),
                     $uname,

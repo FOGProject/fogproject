@@ -1549,7 +1549,7 @@ class ImageManagement extends FOGPage
     {
         $sessionname = filter_input(INPUT_POST, 'sessionname');
         $sessioncount = filter_input(INPUT_POST, 'sessioncount');
-        $timeout = (int)filter_input(INPUT_POST, 'sessiontimeout');
+        $sessiontimeout = (int)filter_input(INPUT_POST, 'sessiontimeout');
         $shutdown = (
             isset($_POST['sessionshutdown']) ?
             ' checked' :
