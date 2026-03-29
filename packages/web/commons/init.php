@@ -49,15 +49,17 @@ class Initiator
         ini_set('session.use_only_cookies', '1');
         ini_set('session.use_strict_mode', '1');
 
-        // Ensure secure session cookie flags (adjust SameSite as needed for your flows)
-        $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+        // 'secure' is intentionally false so the same session cookie is valid
+        // over both HTTP and HTTPS. If you want HTTPS-only, set this to true
+        // and add a hard HTTP→HTTPS redirect at the web-server level so the
+        // PHP session path is never reached over plain HTTP.
         session_set_cookie_params([
             'lifetime' => 0,
             'path'     => '/',
             'domain'   => '',            // default current host
-            'secure'   => $https,        // true in production over HTTPS
+            'secure'   => false,         // false = dual HTTP+HTTPS support
             'httponly' => true,
-            'samesite' => 'Lax',         // 'Strict' if it doesn’t break your flows
+            'samesite' => 'Lax',
         ]);
 
         self::setSanitize();

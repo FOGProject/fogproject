@@ -22,7 +22,12 @@ if (!function_exists('str_contains')) {
 header('X-Frame-Options: sameorigin');
 header('X-XSS-Protection: 1; mode=block');
 header('X-Content-Type-Options: nosniff');
-header('Strict-Transport-Security: max-age=31536000');
+// HSTS must only be sent over HTTPS (RFC 6797 §8.1). Sending it over HTTP
+// causes browsers to cache the upgrade directive and silently convert
+// subsequent HTTP requests to HTTPS, breaking dual HTTP+HTTPS setups.
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    header('Strict-Transport-Security: max-age=31536000');
+}
 header("Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' https://fogproject.org; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:;");
 
 // Include required initialization script.
