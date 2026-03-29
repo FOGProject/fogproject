@@ -2,7 +2,7 @@
 /**
  * Creates our routes for api configuration.
  *
- * PHP Version 5
+ * PHP Version 7.4
  *
  * @category Route
  * @package  FOGProject
@@ -1326,7 +1326,7 @@ class Route extends FOGBase
                 ${w}
                 ${g}";
                 if ($limit > 0) {
-                    $sql .= " LIMIT $limit";
+                    $sql .= " LIMIT " . (int)$limit;
                 }
                 $vals = self::$DB->query(
                     $sql,
@@ -2085,7 +2085,6 @@ class Route extends FOGBase
                 . '` = :id';
 
             return self::$DB->query($sql, [], $whereItems);
-            self::$data = '';
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
@@ -2422,7 +2421,7 @@ class Route extends FOGBase
      */
     public static function bandwidth($dev)
     {
-        if (!$dev) {
+        if (!$dev || !preg_match('/^[a-zA-Z0-9._-]+$/', $dev)) {
             echo json_encode(
                 [
                     'dev' => _('Unknown'),
@@ -2499,7 +2498,7 @@ class Route extends FOGBase
                 . $classVars['databaseTable']
                 . '`';
 
-            $sql = self::_buildSql(
+            $sqlResult = self::_buildSql(
                 $sql,
                 $classVars,
                 $whereItems,
@@ -2508,7 +2507,7 @@ class Route extends FOGBase
                 $orderby
             );
 
-            $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 $data[] = $val[$classVars['databaseFields'][$getField]];
                 unset($val);
@@ -2678,7 +2677,7 @@ class Route extends FOGBase
                 . $classVars['databaseTable']
                 . '`';
 
-            $sql = self::_buildSql(
+            $sqlResult = self::_buildSql(
                 $sql,
                 $classVars,
                 $whereItems,
@@ -2687,7 +2686,7 @@ class Route extends FOGBase
                 $orderby
             );
 
-            return self::$DB->query($sql);
+            return self::$DB->query($sqlResult['sql'], [], $sqlResult['params']);
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
@@ -2698,13 +2697,19 @@ class Route extends FOGBase
     /**
      * Builds the sql query with the where.
      *
+     * When $retWhere is false, returns ['sql' => string, 'params' => array]
+     * where params contains named PDO placeholders (e.g. 'where_0' => value).
+     * When $retWhere is true, returns only the WHERE clause string with values
+     * safely escaped via PDO::quote() for use with the DataTables complex() path.
+     *
      * @param string $sql        The sql string we need to adjust.
      * @param array  $classVars  The current class variables.
      * @param mixed  $whereItems The where items to build up.
      * @param bool   $retWhere   Only return where element.
+     * @param string $operator   The logical operator between conditions.
      * @param string $orderby    How to order the returned values.
      *
-     * @return string
+     * @return string|array
      */
     private static function _buildSql(
         $sql,
@@ -2721,10 +2726,12 @@ class Route extends FOGBase
             if (empty($orderby)) {
                 $orderby = 'name';
             }
-            
+
             $whereItems = self::handleWhereItems($whereItems);
+            $params = [];
             if (count($whereItems ?: []) > 0) {
                 $where = '';
+                $paramIdx = 0;
                 foreach ($whereItems as $key => &$field) {
                     if (!$where) {
                         $where = (!$retWhere ? ' WHERE `' : ' `')
@@ -2736,9 +2743,19 @@ class Route extends FOGBase
                             . '`';
                     }
                     if (is_array($field)) {
-                        $where .= " IN ('"
-                            . implode("','", $field)
-                            . "')";
+                        if ($retWhere) {
+                            $db = DatabaseManager::getLink();
+                            $escaped = array_map([$db, 'quote'], $field);
+                            $where .= ' IN (' . implode(',', $escaped) . ')';
+                        } else {
+                            $placeholders = [];
+                            foreach ($field as $idx => $val) {
+                                $pname = 'where_' . $paramIdx . '_' . $idx;
+                                $placeholders[] = ':' . $pname;
+                                $params[$pname] = $val;
+                            }
+                            $where .= ' IN (' . implode(',', $placeholders) . ')';
+                        }
                     } else {
                         $field = str_replace(
                             ['+', '*'],
@@ -2746,10 +2763,16 @@ class Route extends FOGBase
                             $field
                         );
                         $oper = false !== strpos($field, '%') ? 'LIKE' : '=';
-                        $where .= " $oper '"
-                            . $field
-                            . "'";
+                        if ($retWhere) {
+                            $db = DatabaseManager::getLink();
+                            $where .= ' ' . $oper . ' ' . $db->quote($field);
+                        } else {
+                            $pname = 'where_' . $paramIdx;
+                            $params[$pname] = $field;
+                            $where .= ' ' . $oper . ' :' . $pname;
+                        }
                     }
+                    $paramIdx++;
                 }
                 $sql .= $where;
             }
@@ -2764,7 +2787,7 @@ class Route extends FOGBase
                 )
                 . '` ASC';
 
-            return $sql;
+            return ['sql' => $sql, 'params' => $params];
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
@@ -2817,7 +2840,7 @@ class Route extends FOGBase
                 $whereItems = self::getsearchbody($classname);
             }
 
-            $sql = self::_buildSql(
+            $sqlResult = self::_buildSql(
                 $sql,
                 $classVars,
                 $whereItems,
@@ -2825,7 +2848,7 @@ class Route extends FOGBase
                 $operator,
                 $orderby
             );
-            $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 $data[] = [
                     'id' => $val[$classVars['databaseFields']['id']],
@@ -3028,6 +3051,13 @@ class Route extends FOGBase
             ['pending' => [1]]
         );
     }
+    /**
+     * Presents the kernel or initrd listing from github
+     * @param array $data The data from github to parse.
+     * @param string $type The type of data to parse, either kernel or initrd
+     *
+     * @return array The parsed data to present in the frontend
+     */
     public static function kernelOrInitJson($data, $type)
     {
         if ($type != 'kernel' && $type != 'initrd') {
@@ -3082,7 +3112,8 @@ class Route extends FOGBase
                     $download_url = base64_encode($asset->browser_download_url);
                     switch (substr($release->name, 0, 3)) {
                         case 'FOG':
-                            $k_hint = ' (FOG '. explode(' ', $release->name) [1].')';
+                            $_fogParts = explode(' ', $release->name);
+                            $k_hint = ' (FOG ' . ($_fogParts[1] ?? '?') . ')';
                             break;
                         case 'Lat':
                             $k_hint = ' (devel)';
