@@ -92,10 +92,11 @@ class SetSnapinTaskState extends Hook
      *
      * @return void
      */
-    public function setCheckinState($arguments)
+    public function setCheckedInState($arguments)
     {
-        if (isset($_REQUEST['stateid'])) {
-            $arguments['checkedInState'] = $_REQUEST['stateid'];
+        $stateid = filter_input(INPUT_POST, 'stateid');
+        if ($stateid !== null) {
+            $arguments['checkedInState'] = $stateid;
         }
     }
     /**
@@ -107,8 +108,9 @@ class SetSnapinTaskState extends Hook
      */
     public function setProgressState($arguments)
     {
-        if (isset($_REQUEST['stateid'])) {
-            $arguments['progressState'] = $_REQUEST['stateid'];
+        $stateid = filter_input(INPUT_POST, 'stateid');
+        if ($stateid !== null) {
+            $arguments['progressState'] = $stateid;
         }
     }
     /**
