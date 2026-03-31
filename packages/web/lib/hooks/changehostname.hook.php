@@ -66,8 +66,8 @@ class ChangeHostname extends Hook
         }
         foreach ($arguments['data']['data'] as $i => &$data) {
             $arguments['data']['data'][$i]['mainlink'] = preg_replace(
-                "/${data['name']}/",
-                "Chicken-${data['name']}",
+                '/' . preg_quote($data['name'], '/') . '/',
+                'Chicken-' . $data['name'],
                 $data['mainlink']
             );
             $arguments['data']['data'][$i]['name'] = sprintf(

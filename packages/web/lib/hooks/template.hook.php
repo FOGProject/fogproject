@@ -49,7 +49,7 @@ class Template extends Hook
         parent::__construct();
         self::$HookManager->register(
             'HOST_DATA',
-            [$this, 'HostData']
+            [$this, 'hostData']
         );
     }
     /**
@@ -64,9 +64,9 @@ class Template extends Hook
         self::log(
             print_r($arguments, 1),
             0,
-            0,
-            $this,
-            0
+            false,
+            true,
+            $this
         );
     }
 }

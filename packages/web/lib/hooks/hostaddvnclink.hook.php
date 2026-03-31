@@ -74,10 +74,10 @@ class HostAddVNCLink extends Hook
             $arguments['data']['data'][$i]['vnclink'] = sprintf(
                 '<a href="vnc://%s:%d" target="_blank" title='
                 . '"%s: %s">%s</a>',
-                $data['name'],
+                Initiator::e($data['name']),
                 self::$_port,
                 _('Open VNC Connection To'),
-                $data['name'],
+                Initiator::e($data['name']),
                 _('VNC')
             );
             unset($data);
