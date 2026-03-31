@@ -63,13 +63,28 @@ class FOGCron extends FOGBase
      */
     public static function parse($cron, $lastrun = false)
     {
+        $parts = array_values(
+            array_filter(
+                array_map('trim', preg_split('/\s+/', trim($cron))),
+                'strlen'
+            )
+        );
+        if (count($parts) !== 5) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid cron expression (expected 5 fields, got %d): "%s"',
+                    count($parts),
+                    $cron
+                )
+            );
+        }
         list(
             $min,
             $hour,
             $dom,
             $month,
             $dow
-        ) = array_map('trim', preg_split('/\s+/', $cron));
+        ) = $parts;
         if (is_numeric($dow) && $dow == 0) {
             $dow = 7;
         }
