@@ -850,6 +850,12 @@ abstract class FOGService extends FOGBase
                 proc_close($this->procRef);
                 return (bool)$this->isRunning($this->procRef);
             }
+            // Process already exited — release the resource.
+            if (is_resource($this->procRef[$index])) {
+                proc_close($this->procRef[$index]);
+            } elseif (is_resource($this->procRef)) {
+                proc_close($this->procRef);
+            }
         } else {
             if (isset($this->procRef[$itemType])
                 && isset($this->procRef[$itemType][$filename])
@@ -867,29 +873,23 @@ abstract class FOGService extends FOGBase
             } else {
                 return true;
             }
-            $isRunning = $this->isRunning(
-                $procRef
-            );
+            $isRunning = $this->isRunning($procRef);
             if ($isRunning) {
-                $pid = $this->getPID(
-                    $procRef
-                );
+                $pid = $this->getPID($procRef);
                 if ($pid) {
                     $this->killAll($pid, SIGTERM);
                 }
                 proc_terminate($procRef, SIGTERM);
-            } else {
-                return true;
             }
-            proc_close($procRef);
+            // Always close pipes and release the process resource,
+            // whether it was still running or had already exited.
             foreach ((array)$pipes as $i => &$close) {
                 fclose($close);
                 unset($close);
             }
             unset($pipes);
-            return (bool)$this->isRunning(
-                $procRef
-            );
+            proc_close($procRef);
+            return !$isRunning;
         }
     }
     /**
@@ -943,7 +943,7 @@ abstract class FOGService extends FOGBase
                     $flags
                 )
             );
-            unset($file);
+            unset($dir);
         }
         return $files;
     }
@@ -972,9 +972,15 @@ abstract class FOGService extends FOGBase
                             . _('Sync finished - ')
                             . print_r($images[$i], true)
                         );
-                        fclose($this->procPipes[$item][$image][$i]);
+                        foreach (
+                            (array)$this->procPipes[$item][$image][$i]
+                            as &$pipe
+                        ) {
+                            fclose($pipe);
+                            unset($pipe);
+                        }
                         unset($this->procPipes[$item][$image][$i]);
-                        fclose($images[$i]);
+                        proc_close($images[$i]);
                         unset($images[$i]);
                     }
                     unset($ref);
@@ -982,8 +988,8 @@ abstract class FOGService extends FOGBase
                 if (!count($itemTypes[$image])) {
                     unset($itemTypes[$image]);
                 }
-                if (!count($this->procPipes[$item[$image]])) {
-                    unset($this->procPipes[$item[$image]]);
+                if (!count($this->procPipes[$item][$image])) {
+                    unset($this->procPipes[$item][$image]);
                 }
                 unset($images);
             }
