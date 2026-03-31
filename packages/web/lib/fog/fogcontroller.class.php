@@ -528,8 +528,9 @@ abstract class FOGController extends FOGBase
                     $val = trim($val);
                 }
 
-                // Don't make an entry if the value isn't set
-                if ($val === null || (is_string($val) && trim($val) === '')) {
+                // Don't make an entry if the value isn't set (null = truly unset).
+                // Empty string is a valid user-supplied value and must be written.
+                if ($val === null) {
                     continue;
                 }
 
