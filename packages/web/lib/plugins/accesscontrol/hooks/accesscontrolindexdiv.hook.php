@@ -75,60 +75,60 @@ class AccessControlIndexDiv extends Hook
             return;
         }
         switch (strtolower($arguments['childClass'])) {
-        case 'accesscontrolrule':
-            $arguments['items'] = '';
-            ob_start();
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo $arguments['main']->title;
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $arguments['main']->render(12);
-            echo '</div>';
-            echo '</div>';
-            if (!$arguments['delNeeded']) {
+            case 'accesscontrolrule':
+                $arguments['items'] = '';
+                ob_start();
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo $arguments['main']->title;
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                $arguments['main']->render(12);
+                echo '</div>';
+                echo '</div>';
+                if (!$arguments['delNeeded']) {
+                    $arguments['items'] = ob_get_clean();
+                    return;
+                }
+                echo '<div class="panel panel-warning">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Delete Selected');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo '<form class="form-horizontal" method="post" action="'
+                    . $arguments['main']->formAction
+                    . '&sub=deletemulti">';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="del-'
+                    . $arguments['main']->node
+                    . '">';
+                echo _('Delete Selected');
+                echo ' ';
+                echo strtolower($arguments['childClass'])
+                    . 's';
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<input type="hidden" name="'
+                    . $arguments['main']->node
+                    . 'IDArray"/>';
+                echo '<button type="submit" class='
+                    . '"btn btn-danger btn-block" id="'
+                    . 'del-'
+                    . $arguments['main']->node
+                    . '">';
+                echo _('Delete');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</form>';
+                echo '</div>';
+                echo '</div>';
                 $arguments['items'] = ob_get_clean();
-                return;
-            }
-            echo '<div class="panel panel-warning">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Delete Selected');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo '<form class="form-horizontal" method="post" action="'
-                . $arguments['main']->formAction
-                . '&sub=deletemulti">';
-            echo '<div class="form-group">';
-            echo '<label class="control-label col-xs-4" for="del-'
-                . $arguments['main']->node
-                . '">';
-            echo _('Delete Selected');
-            echo ' ';
-            echo strtolower($arguments['childClass'])
-                . 's';
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<input type="hidden" name="'
-                . $arguments['main']->node
-                . 'IDArray"/>';
-            echo '<button type="submit" class='
-                . '"btn btn-danger btn-block" id="'
-                . 'del-'
-                . $arguments['main']->node
-                . '">';
-            echo _('Delete');
-            echo '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</form>';
-            echo '</div>';
-            echo '</div>';
-            $arguments['items'] = ob_get_clean();
-            break;
+                break;
         }
     }
 }

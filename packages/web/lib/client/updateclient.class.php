@@ -80,88 +80,88 @@ class UpdateClient extends FOGClient implements FOGClientSend
         $ClientUpdateFiles = self::getClass('ClientUpdaterManager')
             ->find($findWhere);
         switch ($action) {
-        case 'ask':
-            $ClientUpdateFile = array_shift($ClientUpdateFiles);
-            if (!($ClientUpdateFile instanceof ClientUpdater
-                && $ClientUpdateFile->isValid())
-            ) {
-                throw new Exception(
-                    sprintf(
-                        '#!er: %s',
-                        _('Invalid data found')
-                    )
-                );
-            }
-            $this->send = $ClientUpdateFile
-                ->get('md5');
-            if (self::$newService) {
-                $this->send = "#!ok\n#md5=$this->send";
-            }
-            break;
-        case 'get':
-            $ClientUpdateFile = array_shift($ClientUpdateFiles);
-            if (!($ClientUpdateFile instanceof ClientUpdater
-                && $ClientUpdateFile->isValid())
-            ) {
-                throw new Exception(
-                    sprintf(
-                        '#!er: %s',
-                        _('Invalid data found')
-                    )
-                );
-            }
-            $filename = basename(
-                $ClientUpdateFile->get('name')
-            );
-            if (!self::$newService) {
-                header(
-                    sprintf(
-                        '%s: %s, %s=%d, %s=%d',
-                        'Cache-control',
-                        'must-revalidate',
-                        'post-check',
-                        0,
-                        'pre-check',
-                        0
-                    )
-                );
-                header('Content-Description: File Transfer');
-                header('ContentType: application/octet-stream');
-                header(
-                    sprintf(
-                        '%s: %s; %s=%s',
-                        'Content-Disposition',
-                        'attachment',
-                        'filename',
-                        $filename
-                    )
-                );
-            }
-            $this->send = $ClientUpdateFile->get('file');
-            if (self::$newService) {
-                $this->send = sprintf(
-                    "#!ok\n#filename=$filename\n#updatefile=%s",
-                    bin2hex($this->send)
-                );
-            }
-            break;
-        case 'list':
-            foreach ((array)$ClientUpdateFiles as $i => &$ClientUpdate) {
-                if (!$ClientUpdate->isValid()) {
-                    continue;
+            case 'ask':
+                $ClientUpdateFile = array_shift($ClientUpdateFiles);
+                if (!($ClientUpdateFile instanceof ClientUpdater
+                    && $ClientUpdateFile->isValid())
+                ) {
+                    throw new Exception(
+                        sprintf(
+                            '#!er: %s',
+                            _('Invalid data found')
+                        )
+                    );
                 }
-                $filename = base64_encode($ClientUpdate->get('name'));
-                $filename .= "\n";
-                $this->send .= $filename;
+                $this->send = $ClientUpdateFile
+                    ->get('md5');
                 if (self::$newService) {
-                    if (!$i) {
-                        $this->send = "#!ok\n";
-                    }
-                    $this->send .= "#update$i=$filename";
+                    $this->send = "#!ok\n#md5=$this->send";
                 }
-                unset($ClientUpdate);
-            }
-            break;
+                break;
+            case 'get':
+                $ClientUpdateFile = array_shift($ClientUpdateFiles);
+                if (!($ClientUpdateFile instanceof ClientUpdater
+                    && $ClientUpdateFile->isValid())
+                ) {
+                    throw new Exception(
+                        sprintf(
+                            '#!er: %s',
+                            _('Invalid data found')
+                        )
+                    );
+                }
+                $filename = basename(
+                    $ClientUpdateFile->get('name')
+                );
+                if (!self::$newService) {
+                    header(
+                        sprintf(
+                            '%s: %s, %s=%d, %s=%d',
+                            'Cache-control',
+                            'must-revalidate',
+                            'post-check',
+                            0,
+                            'pre-check',
+                            0
+                        )
+                    );
+                    header('Content-Description: File Transfer');
+                    header('ContentType: application/octet-stream');
+                    header(
+                        sprintf(
+                            '%s: %s; %s=%s',
+                            'Content-Disposition',
+                            'attachment',
+                            'filename',
+                            $filename
+                        )
+                    );
+                }
+                $this->send = $ClientUpdateFile->get('file');
+                if (self::$newService) {
+                    $this->send = sprintf(
+                        "#!ok\n#filename=$filename\n#updatefile=%s",
+                        bin2hex($this->send)
+                    );
+                }
+                break;
+            case 'list':
+                foreach ((array)$ClientUpdateFiles as $i => &$ClientUpdate) {
+                    if (!$ClientUpdate->isValid()) {
+                        continue;
+                    }
+                    $filename = base64_encode($ClientUpdate->get('name'));
+                    $filename .= "\n";
+                    $this->send .= $filename;
+                    if (self::$newService) {
+                        if (!$i) {
+                            $this->send = "#!ok\n";
+                        }
+                        $this->send .= "#update$i=$filename";
+                    }
+                    unset($ClientUpdate);
+                }
+                break;
         }
     }
 }

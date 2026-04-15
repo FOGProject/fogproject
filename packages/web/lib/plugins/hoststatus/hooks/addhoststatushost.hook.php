@@ -93,25 +93,25 @@ class AddHostStatusHost extends Hook
             . '"></i>';
         ob_start();
         switch ($val) {
-                case 0:
-                        printf($strtoupdate, 'windows', 'windows', 'green', 'Windows');
-                        break;
-                case 111:
-                        $taskID = self::getSubObjectIDs(
-                            'Task',
-                            array('hostID' => $hostID,
-                                      'stateID' => 2
-                                ),
-                            'id'
-                        );
-                        if (is_null($taskID)) {
-                            printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
-                        } else {
-                            printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
-                        }
-                        break;
-                default:
-                        printf($strtoupdate, 'down', 'exclamation-circle', 'red', 'Unknown');
+            case 0:
+                printf($strtoupdate, 'windows', 'windows', 'green', 'Windows');
+                break;
+            case 111:
+                $taskID = self::getSubObjectIDs(
+                    'Task',
+                    array('hostID' => $hostID,
+                              'stateID' => 2
+                        ),
+                    'id'
+                );
+                if (is_null($taskID)) {
+                    printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
+                } else {
+                    printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
+                }
+                break;
+            default:
+                printf($strtoupdate, 'down', 'exclamation-circle', 'red', 'Unknown');
         }
         return ob_get_clean();
     }

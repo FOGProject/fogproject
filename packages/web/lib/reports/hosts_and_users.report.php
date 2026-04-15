@@ -23,11 +23,11 @@ class Hosts_And_Users extends ReportManagementPage
     {
         $this->title = _('FOG Host and Users - Search');
         unset(
-                $this->data,
-                $this->form,
-                $this->headerData,
-                $this->templates,
-                $this->attributes
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->templates = array(
                 '${field}',
@@ -279,41 +279,41 @@ class Hosts_And_Users extends ReportManagementPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Image ID'):
-                    $this->ReportMaker->addCSVCell($imgID);
-                    break;
-                case _('Image Name'):
-                    $this->ReportMaker->addCSVCell($imgName);
-                    break;
-                case _('Image Desc'):
-                    $this->ReportMaker->addCSVCell($imgDesc);
-                    break;
-                case _('AD Join'):
-                    $this->ReportMaker->addCSVCell(
-                        (
-                            $Host->useAD == 1 ?
-                            _('Yes') :
-                            _('No')
-                        )
-                    );
-                    break;
-                case _('Login Users'):
-                    $this->ReportMaker->addCSVCell(
-                        implode(
-                            ' ',
-                            self::getSubObjectIDs(
-                                'UserTracking',
-                                array('hostID' => $Host->id),
-                                'username'
+                    case _('Image ID'):
+                        $this->ReportMaker->addCSVCell($imgID);
+                        break;
+                    case _('Image Name'):
+                        $this->ReportMaker->addCSVCell($imgName);
+                        break;
+                    case _('Image Desc'):
+                        $this->ReportMaker->addCSVCell($imgDesc);
+                        break;
+                    case _('AD Join'):
+                        $this->ReportMaker->addCSVCell(
+                            (
+                                $Host->useAD == 1 ?
+                                _('Yes') :
+                                _('No')
                             )
-                        )
-                    );
-                    break;
-                default:
-                    if (property_exists($Host, $classGet)) {
-                        $this->ReportMaker->addCSVCell($Host->$classGet);
-                    }
-                    break;
+                        );
+                        break;
+                    case _('Login Users'):
+                        $this->ReportMaker->addCSVCell(
+                            implode(
+                                ' ',
+                                self::getSubObjectIDs(
+                                    'UserTracking',
+                                    array('hostID' => $Host->id),
+                                    'username'
+                                )
+                            )
+                        );
+                        break;
+                    default:
+                        if (property_exists($Host, $classGet)) {
+                            $this->ReportMaker->addCSVCell($Host->$classGet);
+                        }
+                        break;
                 }
                 unset($classGet);
             }

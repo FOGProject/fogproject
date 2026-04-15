@@ -452,47 +452,47 @@ class Route extends FOGBase
             self::getsearchbody($classname)
         );
         switch ($classname) {
-        case 'plugin':
-            self::$data['count_active'] = 0;
-            self::$data['count_installed'] = 0;
-            self::$data['count_not_active'] = 0;
-            foreach (self::getClass('Plugin')->getPlugins() as $class) {
-                self::$data[$classname.'s'][] = self::getter(
-                    $classname,
-                    $class,
-                    $item
-                );
-                if ($class->isActive() && !$class->isInstalled()) {
-                    self::$data['count_active']++;
+            case 'plugin':
+                self::$data['count_active'] = 0;
+                self::$data['count_installed'] = 0;
+                self::$data['count_not_active'] = 0;
+                foreach (self::getClass('Plugin')->getPlugins() as $class) {
+                    self::$data[$classname.'s'][] = self::getter(
+                        $classname,
+                        $class,
+                        $item
+                    );
+                    if ($class->isActive() && !$class->isInstalled()) {
+                        self::$data['count_active']++;
+                    }
+                    if ($class->isActive() && $class->isInstalled()) {
+                        self::$data['count_installed']++;
+                    }
+                    if (!$class->isActive() && !$class->isInstalled()) {
+                        self::$data['count_not_active']++;
+                    }
+                    self::$data['count']++;
+                    unset($class);
                 }
-                if ($class->isActive() && $class->isInstalled()) {
-                    self::$data['count_installed']++;
+                break;
+            default:
+                foreach ((array)$classman->find($find, 'AND', $sortby) as &$class) {
+                    $test = stripos(
+                        $class->get('name'),
+                        '_api_'
+                    );
+                    if (!$bypass && false != $test) {
+                        continue;
+                    }
+                    self::$data[$classname.'s'][] = self::getter(
+                        $classname,
+                        $class,
+                        $item
+                    );
+                    self::$data['count']++;
+                    unset($class);
                 }
-                if (!$class->isActive() && !$class->isInstalled()) {
-                    self::$data['count_not_active']++;
-                }
-                self::$data['count']++;
-                unset($class);
-            }
-            break;
-        default:
-            foreach ((array)$classman->find($find, 'AND', $sortby) as &$class) {
-                $test = stripos(
-                    $class->get('name'),
-                    '_api_'
-                );
-                if (!$bypass && false != $test) {
-                    continue;
-                }
-                self::$data[$classname.'s'][] = self::getter(
-                    $classname,
-                    $class,
-                    $item
-                );
-                self::$data['count']++;
-                unset($class);
-            }
-            break;
+                break;
         }
         self::$HookManager
             ->processEvent(
@@ -657,180 +657,180 @@ class Route extends FOGBase
             unset($key);
         }
         switch ($classname) {
-        case 'host':
-            if (isset($vars->macs)) {
-                $macsToAdd = array_diff(
-                    (array)$vars->macs,
-                    $class->getMyMacs()
-                );
-                $primac = array_shift($macsToAdd);
-                $macsToRem = array_diff(
-                    $class->getMyMacs(),
-                    (array)$vars->macs
-                );
-                $class
-                    ->removeAddMAC($macsToRem)
-                    ->addPriMAC($primac)
-                    ->addAddMAC($macsToAdd);
-            }
-            if (isset($vars->snapins)) {
-                $snapinsToAdd = array_diff(
-                    (array)$vars->snapins,
-                    $class->get('snapins')
-                );
-                $snapinsToRem = array_diff(
-                    $class->get('snapins'),
-                    (array)$vars->snapins
-                );
-                $class
-                    ->removeSnapin($snapinsToRem)
-                    ->addSnapin($snapinsToAdd);
-            }
-            if (isset($vars->printers)) {
-                $printersToAdd = array_diff(
-                    (array)$vars->printers,
-                    $class->get('printers')
-                );
-                $printersToRem = array_diff(
-                    $class->get('printers'),
-                    (array)$vars->printers
-                );
-                $class
-                    ->removePrinter($printersToRem)
-                    ->addPrinter($printersToAdd);
-            }
-            if (isset($vars->modules)) {
-                $modulesToAdd = array_diff(
-                    (array)$vars->modules,
-                    $class->get('modules')
-                );
-                $modulesToRem = array_diff(
-                    $class->get('modules'),
-                    (array)$vars->modules
-                );
-                $class
-                    ->removeModule($modulesToRem)
-                    ->addModule($modulesToAdd);
-            }
-            if (isset($vars->groups)) {
-                $groupsToAdd = array_diff(
-                    (array)$vars->groups,
-                    $class->get('groups')
-                );
-                $groupsToRem = array_diff(
-                    $class->get('groups'),
-                    (array)$vars->groups
-                );
-                $class
-                    ->removeGroup($groupsToRem)
-                    ->addGroup($groupsToAdd);
-            }
-            break;
-        case 'group':
-            if (isset($vars->snapins)) {
-                Route::ids('snapin');
-                $snapins = json_decode(
-                    Route::getData(),
-                    true
-                );
-                $snapinsToRem = array_diff(
-                    $snapins,
-                    (array)$vars->snapins
-                );
-                $class
-                    ->removeSnapin($snapinsToRem)
-                    ->addSnapin($vars->snapins);
-            }
-            if (isset($vars->printers)) {
-                Route::ids('printer');
-                $printers = json_decode(
-                    Route::getData(),
-                    true
-                );
-                $printersToRem = array_diff(
-                    $printers,
-                    (array)$vars->printers
-                );
-                $class
-                    ->removePrinter($printersToRem)
-                    ->addPrinter($vars->printers);
-            }
-            if (isset($vars->modules)) {
-                Route::ids('module');
-                $modules = json_decode(
-                    Route::getData(),
-                    true
-                );
-                $modulesToRem = array_diff(
-                    $modules,
-                    (array)$vars->modules
-                );
-                $class
-                    ->removeModule($modulesToRem)
-                    ->addModule($vars->modules);
-            }
-            if (isset($vars->hosts)) {
-                $hostsToAdd = array_diff(
-                    (array)$vars->hosts,
-                    $class->get('hosts')
-                );
-                $hostsToRem = array_diff(
-                    $class->get('hosts'),
-                    (array)$vars->hosts
-                );
-                $class
-                    ->removeHost($hostsToRem)
-                    ->addHost($hostsToAdd);
-            }
-            if ($vars->imageID) {
-                $class
-                    ->addImage($vars->imageID);
-            }
-            break;
-        case 'image':
-        case 'snapin':
-            if (isset($vars->hosts)) {
-                $hostsToAdd = array_diff(
-                    (array)$vars->hosts,
-                    $class->get('hosts')
-                );
-                $hostsToRem = array_diff(
-                    $class->get('hosts'),
-                    (array)$vars->hosts
-                );
-                $class
-                    ->removeHost($hostsToRem)
-                    ->addHost($hostsToAdd);
-            }
-            if (isset($vars->storagegroups)) {
-                $storageGroupsToAdd = array_diff(
-                    (array)$vars->storagegroups,
-                    $class->get('storagegroups')
-                );
-                $storageGroupsToRem = array_diff(
-                    $class->get('storagegroups'),
-                    (array)$vars->storagegroups
-                );
-                $class
-                    ->removeGroup($storageGroupsToRem)
-                    ->addgroup($storageGroupsToAdd);
-            }
-            break;
-        case 'printer':
-            if (isset($vars->hosts)) {
-                $hostsToAdd = array_diff(
-                    (array)$vars->hosts,
-                    $class->get('hosts')
-                );
-                $hostsToRem = array_diff(
-                    $class->get('hosts'),
-                    (array)$vars->hosts
-                );
-                $class
-                    ->removeHost($hostsToRem)
-                    ->addHost($hostsToAdd);
-            }
-            break;
+            case 'host':
+                if (isset($vars->macs)) {
+                    $macsToAdd = array_diff(
+                        (array)$vars->macs,
+                        $class->getMyMacs()
+                    );
+                    $primac = array_shift($macsToAdd);
+                    $macsToRem = array_diff(
+                        $class->getMyMacs(),
+                        (array)$vars->macs
+                    );
+                    $class
+                        ->removeAddMAC($macsToRem)
+                        ->addPriMAC($primac)
+                        ->addAddMAC($macsToAdd);
+                }
+                if (isset($vars->snapins)) {
+                    $snapinsToAdd = array_diff(
+                        (array)$vars->snapins,
+                        $class->get('snapins')
+                    );
+                    $snapinsToRem = array_diff(
+                        $class->get('snapins'),
+                        (array)$vars->snapins
+                    );
+                    $class
+                        ->removeSnapin($snapinsToRem)
+                        ->addSnapin($snapinsToAdd);
+                }
+                if (isset($vars->printers)) {
+                    $printersToAdd = array_diff(
+                        (array)$vars->printers,
+                        $class->get('printers')
+                    );
+                    $printersToRem = array_diff(
+                        $class->get('printers'),
+                        (array)$vars->printers
+                    );
+                    $class
+                        ->removePrinter($printersToRem)
+                        ->addPrinter($printersToAdd);
+                }
+                if (isset($vars->modules)) {
+                    $modulesToAdd = array_diff(
+                        (array)$vars->modules,
+                        $class->get('modules')
+                    );
+                    $modulesToRem = array_diff(
+                        $class->get('modules'),
+                        (array)$vars->modules
+                    );
+                    $class
+                        ->removeModule($modulesToRem)
+                        ->addModule($modulesToAdd);
+                }
+                if (isset($vars->groups)) {
+                    $groupsToAdd = array_diff(
+                        (array)$vars->groups,
+                        $class->get('groups')
+                    );
+                    $groupsToRem = array_diff(
+                        $class->get('groups'),
+                        (array)$vars->groups
+                    );
+                    $class
+                        ->removeGroup($groupsToRem)
+                        ->addGroup($groupsToAdd);
+                }
+                break;
+            case 'group':
+                if (isset($vars->snapins)) {
+                    Route::ids('snapin');
+                    $snapins = json_decode(
+                        Route::getData(),
+                        true
+                    );
+                    $snapinsToRem = array_diff(
+                        $snapins,
+                        (array)$vars->snapins
+                    );
+                    $class
+                        ->removeSnapin($snapinsToRem)
+                        ->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    Route::ids('printer');
+                    $printers = json_decode(
+                        Route::getData(),
+                        true
+                    );
+                    $printersToRem = array_diff(
+                        $printers,
+                        (array)$vars->printers
+                    );
+                    $class
+                        ->removePrinter($printersToRem)
+                        ->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    Route::ids('module');
+                    $modules = json_decode(
+                        Route::getData(),
+                        true
+                    );
+                    $modulesToRem = array_diff(
+                        $modules,
+                        (array)$vars->modules
+                    );
+                    $class
+                        ->removeModule($modulesToRem)
+                        ->addModule($vars->modules);
+                }
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                if ($vars->imageID) {
+                    $class
+                        ->addImage($vars->imageID);
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                if (isset($vars->storagegroups)) {
+                    $storageGroupsToAdd = array_diff(
+                        (array)$vars->storagegroups,
+                        $class->get('storagegroups')
+                    );
+                    $storageGroupsToRem = array_diff(
+                        $class->get('storagegroups'),
+                        (array)$vars->storagegroups
+                    );
+                    $class
+                        ->removeGroup($storageGroupsToRem)
+                        ->addgroup($storageGroupsToAdd);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                break;
         }
         // Store the data and recreate.
         // If failed present so.
@@ -949,69 +949,69 @@ class Route extends FOGBase
             unset($key);
         }
         switch ($classname) {
-        case 'host':
-            if (count($vars->macs)) {
-                $class
-                    ->removeAddMAC($vars->macs)
-                    ->addPriMAC(array_shift($vars->macs))
-                    ->addAddMAC($vars->macs);
-            }
-            if (isset($vars->snapins)) {
-                $class
-                    ->addSnapin($vars->snapins);
-            }
-            if (isset($vars->printers)) {
-                $class
-                    ->addPrinter($vars->printers);
-            }
-            if (isset($vars->modules)) {
-                $class
-                    ->addModule($vars->modules);
-            }
-            if (isset($vars->groups)) {
-                $class
-                    ->addGroup($vars->groups);
-            }
-            break;
-        case 'group':
-            if (isset($vars->snapins)) {
-                $class
-                    ->addSnapin($vars->snapins);
-            }
-            if (isset($vars->printers)) {
-                $class
-                    ->addPrinter($vars->printers);
-            }
-            if (isset($vars->modules)) {
-                $class
-                    ->addModule($vars->modules);
-            }
-            if (isset($vars->hosts)) {
-                $class
-                    ->addHost($vars->hosts);
-                if (isset($vars->imageID)) {
+            case 'host':
+                if (count($vars->macs)) {
                     $class
-                        ->addImage($vars->imageID);
+                        ->removeAddMAC($vars->macs)
+                        ->addPriMAC(array_shift($vars->macs))
+                        ->addAddMAC($vars->macs);
                 }
-            }
-            break;
-        case 'image':
-        case 'snapin':
-            if (isset($vars->hosts)) {
-                $class
-                    ->addHost($vars->hosts);
-            }
-            if (isset($vars->storagegroups)) {
-                $class
-                    ->addGroup($vars->storagegroups);
-            }
-            break;
-        case 'printer':
-            if (isset($vars->hosts)) {
-                $class
-                    ->addHost($vars->hosts);
-            }
-            break;
+                if (isset($vars->snapins)) {
+                    $class
+                        ->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $class
+                        ->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $class
+                        ->addModule($vars->modules);
+                }
+                if (isset($vars->groups)) {
+                    $class
+                        ->addGroup($vars->groups);
+                }
+                break;
+            case 'group':
+                if (isset($vars->snapins)) {
+                    $class
+                        ->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $class
+                        ->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $class
+                        ->addModule($vars->modules);
+                }
+                if (isset($vars->hosts)) {
+                    $class
+                        ->addHost($vars->hosts);
+                    if (isset($vars->imageID)) {
+                        $class
+                            ->addImage($vars->imageID);
+                    }
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $class
+                        ->addHost($vars->hosts);
+                }
+                if (isset($vars->storagegroups)) {
+                    $class
+                        ->addGroup($vars->storagegroups);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $class
+                        ->addHost($vars->hosts);
+                }
+                break;
         }
         global $foglang;
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
@@ -1049,50 +1049,50 @@ class Route extends FOGBase
         $classname = strtolower($class);
         $class = new $class($id);
         switch ($classname) {
-        case 'group':
-            if (!$class->isValid()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_NOT_FOUND
-                );
-            }
-            foreach (self::getClass('HostManager')
-                ->find(array('id' => $class->get('hosts'))) as &$Host
-            ) {
-                if ($Host->get('task') instanceof Task) {
-                    $Host->get('task')->cancel();
+            case 'group':
+                if (!$class->isValid()) {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_NOT_FOUND
+                    );
                 }
-                unset($Host);
-            }
-            break;
-        case 'host':
-            if (!$class->isValid()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_NOT_FOUND
-                );
-            }
-            if ($class->get('task') instanceof Task) {
-                $class->get('task')->cancel();
-            }
-            break;
-        default:
-            $states = self::fastmerge(
-                (array)self::getQueuedStates(),
-                (array)self::getProgressState()
-            );
-            if (!$class->isValid()) {
-                $classman = $class->getManager();
-                $find = self::getsearchbody($classname, $class);
-                $find['stateID'] = $states;
-                $ids = self::getSubObjectIDs(
-                    $classname,
-                    $find
-                );
-                $classman->cancel($ids);
-            } else {
-                if (in_array($class->get('stateID'), $states)) {
-                    $class->cancel();
+                foreach (self::getClass('HostManager')
+                    ->find(array('id' => $class->get('hosts'))) as &$Host
+                ) {
+                    if ($Host->get('task') instanceof Task) {
+                        $Host->get('task')->cancel();
+                    }
+                    unset($Host);
                 }
-            }
+                break;
+            case 'host':
+                if (!$class->isValid()) {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_NOT_FOUND
+                    );
+                }
+                if ($class->get('task') instanceof Task) {
+                    $class->get('task')->cancel();
+                }
+                break;
+            default:
+                $states = self::fastmerge(
+                    (array)self::getQueuedStates(),
+                    (array)self::getProgressState()
+                );
+                if (!$class->isValid()) {
+                    $classman = $class->getManager();
+                    $find = self::getsearchbody($classname, $class);
+                    $find['stateID'] = $states;
+                    $ids = self::getSubObjectIDs(
+                        $classname,
+                        $find
+                    );
+                    $classman->cancel($ids);
+                } else {
+                    if (in_array($class->get('stateID'), $states)) {
+                        $class->cancel();
+                    }
+                }
         }
     }
     /**
@@ -1140,14 +1140,14 @@ class Route extends FOGBase
             (array)self::getProgressState()
         );
         switch ($classname) {
-        case 'scheduledtask':
-            $find['isActive'] = 1;
-            break;
-        case 'multicastsession':
-        case 'snapinjob':
-        case 'snapintask':
-        case 'task':
-            $find['stateID'] = $states;
+            case 'scheduledtask':
+                $find['isActive'] = 1;
+                break;
+            case 'multicastsession':
+            case 'snapinjob':
+            case 'snapintask':
+            case 'task':
+                $find['stateID'] = $states;
         }
         self::$data = array();
         self::$data['count'] = 0;
@@ -1248,263 +1248,263 @@ class Route extends FOGBase
             return;
         }
         switch ($classname) {
-        case 'host':
-            $pass = $class->get('ADPass');
-            $passtest = self::aesdecrypt($pass);
-            if ($test_base64 = base64_decode($passtest)) {
-                if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                    $pass = $test_base64;
-                } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
-                    $pass = $passtest;
+            case 'host':
+                $pass = $class->get('ADPass');
+                $passtest = self::aesdecrypt($pass);
+                if ($test_base64 = base64_decode($passtest)) {
+                    if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                        $pass = $test_base64;
+                    } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
+                        $pass = $passtest;
+                    }
                 }
-            }
-            $productKey = $class->get('productKey');
-            $productKeytest = self::aesdecrypt($productKey);
-            if ($test_base64 = base64_decode($productKeytest)) {
-                if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                    $productKey = $test_base64;
-                } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
-                    $productKey = $productKeytest;
+                $productKey = $class->get('productKey');
+                $productKeytest = self::aesdecrypt($productKey);
+                if ($test_base64 = base64_decode($productKeytest)) {
+                    if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                        $productKey = $test_base64;
+                    } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+                        $productKey = $productKeytest;
+                    }
                 }
-            }
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'ADPass' => $pass,
-                    'productKey' => $productKey,
-                    'hostscreen' => $class->get('hostscreen')->get(),
-                    'hostalo' => $class->get('hostalo')->get(),
-                    'inventory' => self::getter(
-                        'inventory',
-                        $class->get('inventory')
-                    ),
-                    'image' => $class->get('imagename')->get(),
-                    'imagename' => $class->getImageName(),
-                    'pingstatus' => $class->getPingCodeStr(),
-                    'pingstatuscode' => (int)$class->get('pingstatus'),
-                    'pingstatustext' => socket_strerror((int)$class->get('pingstatus')),
-                    'primac' => $class->get('mac')->__toString(),
-                    'macs' => $class->getMyMacs()
-                )
-            );
-            break;
-        case 'inventory':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'memory' => $class->getMem()
-                )
-            );
-            break;
-        case 'group':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'hostcount' => $class->getHostCount()
-                )
-            );
-            break;
-        case 'image':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'os' => $class->get('os')->get(),
-                    'imagepartitiontype' => $class->get('imagepartitiontype')->get(),
-                    'imagetype' => $class->get('imagetype')->get(),
-                    'imagetypename' => $class->getImageType()->get('name'),
-                    'imageparttypename' => $class->getImagePartitionType()->get(
-                        'name'
-                    ),
-                    'osname' => $class->getOS()->get('name'),
-                    'storagegroupname' => $class->getStorageGroup()->get('name')
-                )
-            );
-            break;
-        case 'snapin':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'storagegroupname' => $class->getStorageGroup()->get('name')
-                )
-            );
-            break;
-        case 'storagenode':
-            $extra = array();
-            if ($item == 'all') {
-                $extra = array(
-                   'logfiles' => (
-                       $class->get('online') ?
-                        $class->get('logfiles') :
-                        []
-                   ),
-                    'snapinfiles' => (
-                        $class->get('online') ?
-                        $class->get('snapinfiles') :
-                        []
-                    ),
-                    'images' => (
-                        $class->get('online') ?
-                        $class->get('images') :
-                        []
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'ADPass' => $pass,
+                        'productKey' => $productKey,
+                        'hostscreen' => $class->get('hostscreen')->get(),
+                        'hostalo' => $class->get('hostalo')->get(),
+                        'inventory' => self::getter(
+                            'inventory',
+                            $class->get('inventory')
+                        ),
+                        'image' => $class->get('imagename')->get(),
+                        'imagename' => $class->getImageName(),
+                        'pingstatus' => $class->getPingCodeStr(),
+                        'pingstatuscode' => (int)$class->get('pingstatus'),
+                        'pingstatustext' => socket_strerror((int)$class->get('pingstatus')),
+                        'primac' => $class->get('mac')->__toString(),
+                        'macs' => $class->getMyMacs()
                     )
                 );
-            } elseif (!empty($item)) {
-                $extra = array(
-                   "$item" => (
-                       $class->get('online') ?
-                        $class->get($item) :
-                        []
-                   )
+                break;
+            case 'inventory':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'memory' => $class->getMem()
+                    )
                 );
-            }
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                $extra,
-                array(
-                    'storagegroup' => self::getter(
-                        'storagegroup',
-                        $class->get('storagegroup')
-                    ),
-                    'clientload' => $class->getClientLoad(),
-                    'online' => $class->get('online')
-                )
-            );
-            break;
-        case 'storagegroup':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'totalsupportedclients' => $class->getTotalSupportedClients(),
-                    'enablednodes' => $class->get('enablednodes'),
-                    'allnodes' => $class->get('allnodes')
-                )
-            );
-            break;
-        case 'task':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'image' => $class->get('image')->get(),
-                    'host' => self::getter(
-                        'host',
-                        $class->get('host')
-                    ),
-                    'type' => $class->get('type')->get(),
-                    'state' => $class->get('state')->get(),
-                    'storagenode' => $class->get('storagenode')->get(),
-                    'storagegroup' => $class->get('storagegroup')->get()
-                )
-            );
-            break;
-        case 'plugin':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'location' => $class->getPath(),
-                    'description' => $class->get('description'),
-                    'icon' => $class->getIcon(),
-                    'runinclude' => $class->getRuninclude(md5($class->get('name'))),
-                    'hash' => md5($class->get('name'))
-                )
-            );
-            break;
-        case 'imaginglog':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'host' => self::getter(
-                        'host',
-                        $class->get('host')
-                    ),
-                    'image' => (
-                        $class->get('image')
+                break;
+            case 'group':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'hostcount' => $class->getHostCount()
                     )
-                )
-            );
-            unset($data['images']);
-            break;
-        case 'snapintask':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'snapin' => $class->get('snapin')->get(),
-                    'snapinjob' => self::getter(
-                        'snapinjob',
-                        $class->get('snapinjob')
-                    ),
-                    'state' => $class->get('state')->get()
-                )
-            );
-            break;
-        case 'snapinjob':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'host' => self::getter(
-                        'host',
-                        $class->get('host')
-                    ),
-                    'state' => $class->get('state')->get()
-                )
-            );
-            break;
-        case 'usertracking':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'host' => self::getter(
-                        'host',
-                        $class->get('host')
+                );
+                break;
+            case 'image':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'os' => $class->get('os')->get(),
+                        'imagepartitiontype' => $class->get('imagepartitiontype')->get(),
+                        'imagetype' => $class->get('imagetype')->get(),
+                        'imagetypename' => $class->getImageType()->get('name'),
+                        'imageparttypename' => $class->getImagePartitionType()->get(
+                            'name'
+                        ),
+                        'osname' => $class->getOS()->get('name'),
+                        'storagegroupname' => $class->getStorageGroup()->get('name')
                     )
-                )
-            );
-            break;
-        case 'multicastsession':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'imageID' => $class->get('image'),
-                    'image' => $class->get('imagename')->get(),
-                    'state' => $class->get('state')->get()
-                )
-            );
-            unset($data['imagename']);
-            break;
-        case 'scheduledtask':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    (
-                        $class->isGroupBased() ?
-                        'group' :
-                        'host'
-                    ) => (
-                        $class->isGroupBased() ?
-                        self::getter(
-                            'group',
-                            $class->getGroup()
-                        ) :
-                        self::getter(
-                            'host',
-                            $class->getHost()
+                );
+                break;
+            case 'snapin':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'storagegroupname' => $class->getStorageGroup()->get('name')
+                    )
+                );
+                break;
+            case 'storagenode':
+                $extra = array();
+                if ($item == 'all') {
+                    $extra = array(
+                       'logfiles' => (
+                           $class->get('online') ?
+                            $class->get('logfiles') :
+                            []
+                       ),
+                        'snapinfiles' => (
+                            $class->get('online') ?
+                            $class->get('snapinfiles') :
+                            []
+                        ),
+                        'images' => (
+                            $class->get('online') ?
+                            $class->get('images') :
+                            []
                         )
-                    ),
-                    'tasktype' => $class->getTaskType()->get(),
-                    'runtime' => $class->getTime()
-                )
-            );
-            break;
-        case 'tasktype':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'isSnapinTasking' => $class->isSnapinTasking()
-                )
-            );
-            break;
-        default:
-            $data = $class->get();
-            break;
+                    );
+                } elseif (!empty($item)) {
+                    $extra = array(
+                       "$item" => (
+                           $class->get('online') ?
+                            $class->get($item) :
+                            []
+                       )
+                    );
+                }
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    $extra,
+                    array(
+                        'storagegroup' => self::getter(
+                            'storagegroup',
+                            $class->get('storagegroup')
+                        ),
+                        'clientload' => $class->getClientLoad(),
+                        'online' => $class->get('online')
+                    )
+                );
+                break;
+            case 'storagegroup':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'totalsupportedclients' => $class->getTotalSupportedClients(),
+                        'enablednodes' => $class->get('enablednodes'),
+                        'allnodes' => $class->get('allnodes')
+                    )
+                );
+                break;
+            case 'task':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'image' => $class->get('image')->get(),
+                        'host' => self::getter(
+                            'host',
+                            $class->get('host')
+                        ),
+                        'type' => $class->get('type')->get(),
+                        'state' => $class->get('state')->get(),
+                        'storagenode' => $class->get('storagenode')->get(),
+                        'storagegroup' => $class->get('storagegroup')->get()
+                    )
+                );
+                break;
+            case 'plugin':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'location' => $class->getPath(),
+                        'description' => $class->get('description'),
+                        'icon' => $class->getIcon(),
+                        'runinclude' => $class->getRuninclude(md5($class->get('name'))),
+                        'hash' => md5($class->get('name'))
+                    )
+                );
+                break;
+            case 'imaginglog':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'host' => self::getter(
+                            'host',
+                            $class->get('host')
+                        ),
+                        'image' => (
+                            $class->get('image')
+                        )
+                    )
+                );
+                unset($data['images']);
+                break;
+            case 'snapintask':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'snapin' => $class->get('snapin')->get(),
+                        'snapinjob' => self::getter(
+                            'snapinjob',
+                            $class->get('snapinjob')
+                        ),
+                        'state' => $class->get('state')->get()
+                    )
+                );
+                break;
+            case 'snapinjob':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'host' => self::getter(
+                            'host',
+                            $class->get('host')
+                        ),
+                        'state' => $class->get('state')->get()
+                    )
+                );
+                break;
+            case 'usertracking':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'host' => self::getter(
+                            'host',
+                            $class->get('host')
+                        )
+                    )
+                );
+                break;
+            case 'multicastsession':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'imageID' => $class->get('image'),
+                        'image' => $class->get('imagename')->get(),
+                        'state' => $class->get('state')->get()
+                    )
+                );
+                unset($data['imagename']);
+                break;
+            case 'scheduledtask':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        (
+                            $class->isGroupBased() ?
+                            'group' :
+                            'host'
+                        ) => (
+                            $class->isGroupBased() ?
+                            self::getter(
+                                'group',
+                                $class->getGroup()
+                            ) :
+                            self::getter(
+                                'host',
+                                $class->getHost()
+                            )
+                        ),
+                        'tasktype' => $class->getTaskType()->get(),
+                        'runtime' => $class->getTime()
+                    )
+                );
+                break;
+            case 'tasktype':
+                $data = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'isSnapinTasking' => $class->isSnapinTasking()
+                    )
+                );
+                break;
+            default:
+                $data = $class->get();
+                break;
         }
         self::$HookManager
             ->processEvent(

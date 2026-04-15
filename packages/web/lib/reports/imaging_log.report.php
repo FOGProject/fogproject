@@ -23,12 +23,12 @@ class Imaging_Log extends ReportManagementPage
     {
         $this->title = _('FOG Imaging - Search');
         unset(
-                        $this->data,
-                        $this->form,
-                        $this->headerData,
-                        $this->templates,
-                        $this->attributes
-                );
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->templates = array(
                 '${field}',
                 '${input}'

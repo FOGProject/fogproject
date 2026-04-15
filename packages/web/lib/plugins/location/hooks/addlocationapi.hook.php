@@ -120,18 +120,15 @@ class AddLocationAPI extends Hook
         $requestMethod = $_SERVER['REQUEST_METHOD'] ?? null;
         
         // is create or edit call
-        if (in_array($requestMethod, ['POST', 'PUT']))
-        {
+        if (in_array($requestMethod, ['POST', 'PUT'])) {
             $vars = json_decode(
                 file_get_contents('php://input')
             );
             
-            if (isset($vars->locationID))
-            {
-                switch ($arguments['classname'])
-                {
+            if (isset($vars->locationID)) {
+                switch ($arguments['classname']) {
                     case 'host':
-                        $this->addHostToUniqueLocation($vars->locationID, $arguments['data']['id']);                        
+                        $this->addHostToUniqueLocation($vars->locationID, $arguments['data']['id']);
                         break;
                     
                     case 'group':
@@ -151,12 +148,11 @@ class AddLocationAPI extends Hook
         }
         
         // add locationID to result object
-        switch ($arguments['classname'])
-        {
+        switch ($arguments['classname']) {
             case 'host':
                 
                 $ids = $this->getSubObjectIDs(
-                    'LocationAssociation', 
+                    'LocationAssociation',
                     ['hostID' => $arguments['data']['id']],
                     'locationID'
                 );
@@ -180,14 +176,12 @@ class AddLocationAPI extends Hook
         }
         
         // add locationID to result objects
-        switch ($arguments['classname'])
-        {
+        switch ($arguments['classname']) {
             case 'host':
                 
-                for ($i = 0; $i < $arguments['data']['count']; $i++)
-                {
+                for ($i = 0; $i < $arguments['data']['count']; $i++) {
                     $ids = $this->getSubObjectIDs(
-                        'LocationAssociation', 
+                        'LocationAssociation',
                         ['hostID' => $arguments['data']['hosts'][$i]['id']],
                         'locationID'
                     );
@@ -211,66 +205,62 @@ class AddLocationAPI extends Hook
             return;
         }
         switch ($arguments['classname']) {
-        case 'location':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'storagenode' => $arguments['class']
-                    ->get('storagenode')
-                    ->get(),
-                    'storagegroup' => $arguments['class']
-                    ->get('storagegroup')
-                    ->get()
-                )
-            );
-            break;
-        case 'locationassociation':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'host' => Route::getter(
-                        'host',
-                        $arguments['class']->get('host')
-                    ),
-                    'location' => $arguments['class']
-                    ->get('location')
-                    ->get()
-                )
-            );
-            break;
+            case 'location':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    array(
+                        'storagenode' => $arguments['class']
+                        ->get('storagenode')
+                        ->get(),
+                        'storagegroup' => $arguments['class']
+                        ->get('storagegroup')
+                        ->get()
+                    )
+                );
+                break;
+            case 'locationassociation':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    array(
+                        'host' => Route::getter(
+                            'host',
+                            $arguments['class']->get('host')
+                        ),
+                        'location' => $arguments['class']
+                        ->get('location')
+                        ->get()
+                    )
+                );
+                break;
         }
     }
     
     /**
      * This function add location to a host, removing any other location association to host if exists
-     * 
+     *
      * @param int $locationID Location id to associate
-     * 
+     *
      * @param int $hostID Host id to associate
-     * 
+     *
      * @return void
      */
     public function addHostToUniqueLocation($locationID, $hostID)
     {
         $ids = $this->getSubObjectIDs(
-            'LocationAssociation', 
+            'LocationAssociation',
             ['hostID' => $hostID],
             'id'
         );
         
         $count = count($ids);
 
-        if ($count === 0)
-        {
+        if ($count === 0) {
             $this->getClass('LocationAssociation')
                 ->set('locationID', $locationID)
                 ->set('hostID', $hostID)
                 ->save();
-        }
-        else
-        {
-            for ($i = 1; $i < $count; $i++)
-            {
+        } else {
+            for ($i = 1; $i < $count; $i++) {
                 $this->getClass('LocationAssociation', $ids[$i])
                     ->destroy();
             }

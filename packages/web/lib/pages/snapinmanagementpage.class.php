@@ -1700,14 +1700,14 @@ class SnapinManagementPage extends FOGPage
         global $tab;
         try {
             switch ($tab) {
-            case 'snap-gen':
-                $this->snapinGeneralPost();
-                $updateSuccess = $this->obj->save();
-                break;
-            case 'snap-storage':
-                $this->snapinStoragegroupsPost();
-                $updateSuccess = true;
-                break;
+                case 'snap-gen':
+                    $this->snapinGeneralPost();
+                    $updateSuccess = $this->obj->save();
+                    break;
+                case 'snap-storage':
+                    $this->snapinStoragegroupsPost();
+                    $updateSuccess = true;
+                    break;
             }
             if (!$updateSuccess) {
                 throw new Exception(_('Snapin update failed!'));

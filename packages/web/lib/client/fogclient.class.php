@@ -71,12 +71,12 @@ abstract class FOGClient extends FOGBase
                     $_REQUEST['moduleid']
                 );
                 switch ($this->shortName) {
-                case 'dircleaner':
-                    $this->shortName = 'dircleanup';
-                    break;
-                case 'snapin':
-                    $this->shortName = 'snapinclient';
-                    break;
+                    case 'dircleaner':
+                        $this->shortName = 'dircleanup';
+                        break;
+                    case 'snapin':
+                        $this->shortName = 'snapinclient';
+                        break;
                 }
             }
             $globalInfo = array_intersect_key(
@@ -108,7 +108,7 @@ abstract class FOGClient extends FOGBase
                     $method = 'json';
                 }
             }
-            if (!in_array($this->shortName,['snapin','snapinclient']) && $method != 'json') {
+            if (!in_array($this->shortName, ['snapin','snapinclient']) && $method != 'json') {
                 throw new Exception(
                     _('Please update your FOG Client, this is old and insecure')
                 );

@@ -518,18 +518,18 @@ class PrinterManagementPage extends FOGPage
                 throw new Exception(_('Printer name already exists'));
             }
             switch ($config) {
-            case 'local':
-                $printertype = 'Local';
-                break;
-            case 'cups':
-                $printertype = 'Cups';
-                break;
-            case 'iprint':
-                $printertype = 'iPrint';
-                break;
-            case 'network':
-                $printertype = 'Network';
-                break;
+                case 'local':
+                    $printertype = 'Local';
+                    break;
+                case 'cups':
+                    $printertype = 'Cups';
+                    break;
+                case 'iprint':
+                    $printertype = 'iPrint';
+                    break;
+                case 'network':
+                    $printertype = 'Network';
+                    break;
             }
             $Printer = self::getClass('Printer')
                 ->set('description', $desc)
@@ -937,18 +937,18 @@ class PrinterManagementPage extends FOGPage
             );
         }
         switch ($config) {
-        case 'local':
-            $printertype = 'Local';
-            break;
-        case 'cups':
-            $printertype = 'Cups';
-            break;
-        case 'iprint':
-            $printertype = 'iPrint';
-            break;
-        case 'network':
-            $printertype = 'Network';
-            break;
+            case 'local':
+                $printertype = 'Local';
+                break;
+            case 'cups':
+                $printertype = 'Cups';
+                break;
+            case 'iprint':
+                $printertype = 'iPrint';
+                break;
+            case 'network':
+                $printertype = 'Network';
+                break;
         }
         if ($this->obj->get('name') != $alias
             && self::getClass('PrinterManager')->exists($alias)
@@ -982,9 +982,9 @@ class PrinterManagementPage extends FOGPage
         global $tab;
         try {
             switch ($tab) {
-            case 'printer-gen':
-                $this->printerGeneralPost();
-                break;
+                case 'printer-gen':
+                    $this->printerGeneralPost();
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Printer update failed!'));

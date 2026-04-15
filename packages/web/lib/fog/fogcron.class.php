@@ -31,7 +31,7 @@ class FOGCron extends FOGBase
      */
     private static function _fit($str, $num)
     {
-        if (strpos($str, ',')) {
+        if (strpos($str, ',') !== false) {
             $arr = explode(',', $str);
             $test = array();
             foreach ((array)$arr as &$ar) {
@@ -40,16 +40,17 @@ class FOGCron extends FOGBase
             }
             return in_array(true, $test, true);
         }
-        if (strpos($str, '-')) {
+        if (strpos($str, '-') !== false) {
             list($low, $high) = explode('-', $str);
             return (bool)((int)$num >= (int)$low) && ((int)$num <= (int)$high);
         }
-        if (strpos($str, '/')) {
+        if (strpos($str, '/') !== false) {
             list($pre, $pos) = explode('/', $str);
             if ($pre == '*') {
                 return ((int)$num % (int)$pos == 0);
             }
-            return ((int)$num % (int)$pos == (int)$pre);
+            return ((int)$num >= (int)$pre
+                && ((int)$num - (int)$pre) % (int)$pos === 0);
         }
         return (bool)($str == $num);
     }
@@ -63,13 +64,28 @@ class FOGCron extends FOGBase
      */
     public static function parse($cron, $lastrun = false)
     {
+        $parts = array_values(
+            array_filter(
+                array_map('trim', preg_split('/\s+/', trim($cron))),
+                'strlen'
+            )
+        );
+        if (count($parts) !== 5) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Invalid cron expression (expected 5 fields, got %d): "%s"',
+                    count($parts),
+                    $cron
+                )
+            );
+        }
         list(
             $min,
             $hour,
             $dom,
             $month,
             $dow
-        ) = array_map('trim', preg_split('/\s/', $cron));
+        ) = $parts;
         if (is_numeric($dow) && $dow == 0) {
             $dow = 7;
         }
@@ -157,6 +173,7 @@ class FOGCron extends FOGBase
             return false;
         }
         $v = explode(',', $field);
+        $res = true;
         foreach ($v as &$vv) {
             $vvv = explode('/', $vv);
             $step = !$vvv[1] ? 1 : $vvv[1];
@@ -185,6 +202,9 @@ class FOGCron extends FOGBase
             }
             if ($res) {
                 $res = self::_checkIntValue($_max, $min, $max, true);
+            }
+            if (!$res) {
+                break;
             }
             unset($vv);
         }

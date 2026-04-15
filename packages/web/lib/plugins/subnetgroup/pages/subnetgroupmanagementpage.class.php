@@ -485,9 +485,9 @@ class SubnetgroupManagementPage extends FOGPage
         global $tab;
         try {
             switch ($tab) {
-            case 'subnetgroup-general':
-                $this->subnetgroupGeneralPost();
-                break;
+                case 'subnetgroup-general':
+                    $this->subnetgroupGeneralPost();
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Subnetgroup update failed!'));

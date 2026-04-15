@@ -69,7 +69,7 @@ class SnapinComplete_Slack extends Event
                 'channel' => $Token->get('name'),
                 'text' => sprintf(
                     'Host: %s %s',
-					$data['HostName'],
+                    $data['HostName'],
                     _('completed snapin tasking.')
                 )
             );

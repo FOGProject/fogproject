@@ -52,7 +52,7 @@ class Template extends Hook
                 'HOST_DATA',
                 array(
                     $this,
-                    'HostData'
+                    'hostData'
                 )
             );
     }
@@ -68,9 +68,9 @@ class Template extends Hook
         self::log(
             print_r($arguments, 1),
             0,
-            0,
-            $this,
-            0
+            false,
+            true,
+            $this
         );
     }
 }

@@ -1567,77 +1567,77 @@ abstract class FOGPage extends FOGBase
                 filter_input(INPUT_POST, 'scheduleSingleTime')
             );
             switch ($scheduleType) {
-            case 'single':
-                if ($scheduleDeployTime < self::niceDate()) {
-                    throw new Exception(
-                        sprintf(
-                            '%s<br>%s: %s',
-                            _('Scheduled date is in the past'),
-                            _('Date'),
-                            $scheduleDeployTime->format('Y-m-d H:i:s')
-                        )
+                case 'single':
+                    if ($scheduleDeployTime < self::niceDate()) {
+                        throw new Exception(
+                            sprintf(
+                                '%s<br>%s: %s',
+                                _('Scheduled date is in the past'),
+                                _('Date'),
+                                $scheduleDeployTime->format('Y-m-d H:i:s')
+                            )
+                        );
+                    }
+                    break;
+                case 'cron':
+                    $min = strval(filter_input(INPUT_POST, 'scheduleCronMin'));
+                    $hour = strval(filter_input(INPUT_POST, 'scheduleCronHour'));
+                    $dom = strval(filter_input(INPUT_POST, 'scheduleCronDOM'));
+                    $month = strval(filter_input(INPUT_POST, 'scheduleCronMonth'));
+                    $dow = strval(filter_input(INPUT_POST, 'scheduleCronDOW'));
+                    $valsToSet = array(
+                        'minute' => $min,
+                        'hour' => $hour,
+                        'dayOfMonth' => $dom,
+                        'month' => $month,
+                        'dayOfWeek' => $dow
                     );
-                }
-                break;
-            case 'cron':
-                $min = strval(filter_input(INPUT_POST, 'scheduleCronMin'));
-                $hour = strval(filter_input(INPUT_POST, 'scheduleCronHour'));
-                $dom = strval(filter_input(INPUT_POST, 'scheduleCronDOM'));
-                $month = strval(filter_input(INPUT_POST, 'scheduleCronMonth'));
-                $dow = strval(filter_input(INPUT_POST, 'scheduleCronDOW'));
-                $valsToSet = array(
-                    'minute' => $min,
-                    'hour' => $hour,
-                    'dayOfMonth' => $dom,
-                    'month' => $month,
-                    'dayOfWeek' => $dow
-                );
-                if (!FOGCron::checkMinutesField($min)) {
-                    throw new Exception(
-                        sprintf(
-                            '%s %s invalid',
-                            'checkMinutesField',
-                            _('minute')
-                        )
-                    );
-                }
-                if (!FOGCron::checkHoursField($hour)) {
-                    throw new Exception(
-                        sprintf(
-                            '%s %s invalid',
-                            'checkHoursField',
-                            _('hour')
-                        )
-                    );
-                }
-                if (!FOGCron::checkDOMField($dom)) {
-                    throw new Exception(
-                        sprintf(
-                            '%s %s invalid',
-                            'checkDOMField',
-                            _('day of month')
-                        )
-                    );
-                }
-                if (!FOGCron::checkMonthField($month)) {
-                    throw new Exception(
-                        sprintf(
-                            '%s %s invalid',
-                            'checkMonthField',
-                            _('month')
-                        )
-                    );
-                }
-                if (!FOGCron::checkDOWField($dow)) {
-                    throw new Exception(
-                        sprintf(
-                            '%s %s invalid',
-                            'checkDOWField',
-                            _('day of week')
-                        )
-                    );
-                }
-                break;
+                    if (!FOGCron::checkMinutesField($min)) {
+                        throw new Exception(
+                            sprintf(
+                                '%s %s invalid',
+                                'checkMinutesField',
+                                _('minute')
+                            )
+                        );
+                    }
+                    if (!FOGCron::checkHoursField($hour)) {
+                        throw new Exception(
+                            sprintf(
+                                '%s %s invalid',
+                                'checkHoursField',
+                                _('hour')
+                            )
+                        );
+                    }
+                    if (!FOGCron::checkDOMField($dom)) {
+                        throw new Exception(
+                            sprintf(
+                                '%s %s invalid',
+                                'checkDOMField',
+                                _('day of month')
+                            )
+                        );
+                    }
+                    if (!FOGCron::checkMonthField($month)) {
+                        throw new Exception(
+                            sprintf(
+                                '%s %s invalid',
+                                'checkMonthField',
+                                _('month')
+                            )
+                        );
+                    }
+                    if (!FOGCron::checkDOWField($dow)) {
+                        throw new Exception(
+                            sprintf(
+                                '%s %s invalid',
+                                'checkDOWField',
+                                _('day of week')
+                            )
+                        );
+                    }
+                    break;
             }
             // The type is invalid
             if (!$TaskType->isValid()) {
@@ -1852,24 +1852,24 @@ abstract class FOGPage extends FOGBase
         }
         if (false == empty($success)) {
             switch ($scheduleType) {
-            case 'cron':
-                $time = sprintf(
-                    '%s: %s %s %s %s %s',
-                    _('Cron Schedule'),
-                    $ScheduledTask->get('minute'),
-                    $ScheduledTask->get('hour'),
-                    $ScheduledTask->get('dayOfMonth'),
-                    $ScheduledTask->get('month'),
-                    $ScheduledTask->get('dayOfWeek')
-                );
-                break;
-            case 'single':
-                $time = sprintf(
-                    '%s: %s',
-                    _('Delayed Start'),
-                    $scheduleDeployTime->format('Y-m-d H:i:s')
-                );
-                break;
+                case 'cron':
+                    $time = sprintf(
+                        '%s: %s %s %s %s %s',
+                        _('Cron Schedule'),
+                        $ScheduledTask->get('minute'),
+                        $ScheduledTask->get('hour'),
+                        $ScheduledTask->get('dayOfMonth'),
+                        $ScheduledTask->get('month'),
+                        $ScheduledTask->get('dayOfWeek')
+                    );
+                    break;
+                case 'single':
+                    $time = sprintf(
+                        '%s: %s',
+                        _('Delayed Start'),
+                        $scheduleDeployTime->format('Y-m-d H:i:s')
+                    );
+                    break;
             }
             echo '<div class="col-xs-9">';
             echo '<div class="panel panel-success">';
@@ -3253,24 +3253,24 @@ abstract class FOGPage extends FOGBase
             $array = array();
             foreach ($globalModules as $index => &$key) {
                 switch ($key) {
-                case 'greenfog':
-                    $class='GF';
-                    continue 2;
-                case 'powermanagement':
-                    $class='PM';
-                    break;
-                case 'printermanager':
-                    $class='PrinterClient';
-                    break;
-                case 'taskreboot':
-                    $class='Jobs';
-                    break;
-                case 'usertracker':
-                    $class='UserTrack';
-                    break;
-                default:
-                    $class=$key;
-                    break;
+                    case 'greenfog':
+                        $class='GF';
+                        continue 2;
+                    case 'powermanagement':
+                        $class='PM';
+                        break;
+                    case 'printermanager':
+                        $class='PrinterClient';
+                        break;
+                    case 'taskreboot':
+                        $class='Jobs';
+                        break;
+                    case 'usertracker':
+                        $class='UserTrack';
+                        break;
+                    default:
+                        $class=$key;
+                        break;
                 }
                 $disabled = in_array(
                     $key,

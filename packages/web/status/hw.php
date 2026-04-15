@@ -45,4 +45,3 @@ $hwinfo = FOGCore::getHWInfo();
 foreach ((array)$hwinfo as $index => $val) {
     echo "$val\n";
 }
-

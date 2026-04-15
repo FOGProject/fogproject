@@ -358,27 +358,27 @@ class ImageManagementPage extends FOGPage
              * be using partclone otherwise partimage.
              */
             switch ($Image->format) {
-            case 0:
-                $type = _('Partclone Compressed');
-                break;
-            case 1:
-                $type = _('Partimage');
-                break;
-            case 2:
-                $type = _('Partclone Compressed 200MiB split');
-                break;
-            case 3:
-                $type = _('Partclone Uncompressed');
-                break;
-            case 4:
-                $type = _('Partclone Uncompressed 200MiB split');
-                break;
-            case 5:
-                $type = _('ZSTD Compressed');
-                break;
-            case 6:
-                $type = _('ZSTD Compressed 200MiB split');
-                break;
+                case 0:
+                    $type = _('Partclone Compressed');
+                    break;
+                case 1:
+                    $type = _('Partimage');
+                    break;
+                case 2:
+                    $type = _('Partclone Compressed 200MiB split');
+                    break;
+                case 3:
+                    $type = _('Partclone Uncompressed');
+                    break;
+                case 4:
+                    $type = _('Partclone Uncompressed 200MiB split');
+                    break;
+                case 5:
+                    $type = _('ZSTD Compressed');
+                    break;
+                case 6:
+                    $type = _('ZSTD Compressed 200MiB split');
+                    break;
             }
             /**
              * Store the data.
@@ -1349,84 +1349,84 @@ class ImageManagementPage extends FOGPage
         );
         try {
             switch ($tab) {
-            case 'image-gen':
-                if ($this->obj->get('name') != $name
-                    && self::getClass('ImageManager')->exists(
-                        $name,
-                        $this->obj->get('id')
-                    )
-                ) {
-                    throw new Exception(
-                        _('An image already exists with this name!')
-                    );
-                }
-                if ($file == 'postdownloadscripts'
-                    || $file == 'dev'
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s, %s.',
-                            _('Please choose a different name'),
-                            _('this one is reserved for FOG')
+                case 'image-gen':
+                    if ($this->obj->get('name') != $name
+                        && self::getClass('ImageManager')->exists(
+                            $name,
+                            $this->obj->get('id')
                         )
-                    );
-                }
-                $exists = self::getClass('ImageManager')
-                    ->exists(
-                        $file,
-                        '',
-                        'path'
-                    );
-                if ($this->obj->get('path') != $file
-                    && $exists
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s, %s.',
-                            _('Please choose a different path'),
-                            _('this one is already in use by another image')
-                        )
-                    );
-                }
-                $this
-                    ->obj
-                    ->set('name', $name)
-                    ->set('description', $desc)
-                    ->set('osID', $os)
-                    ->set('path', $file)
-                    ->set('imageTypeID', $imagetype)
-                    ->set('imagePartitionTypeID', $imagepartitiontype)
-                    ->set('format', $imagemanage)
-                    ->set('protected', $protected)
-                    ->set('compress', $compress)
-                    ->set('isEnabled', $isEnabled)
-                    ->set('toReplicate', $toReplicate);
-                break;
-            case 'image-storage':
-                if (isset($_POST['updategroups'])) {
-                    $this->obj->addGroup($storagegroup);
-                } elseif (isset($_POST['primarysel'])) {
-                    $this->obj->setPrimaryGroup($primary);
-                } elseif (isset($_POST['groupdel'])) {
-                    $groupdel = count($storagegrouprm);
-                    $ingroups = count($this->obj->get('storagegroups'));
-                    if ($groupdel < 1) {
+                    ) {
                         throw new Exception(
-                            _('No groups selected to be removed')
+                            _('An image already exists with this name!')
                         );
                     }
-                    if ($ingroups < 2) {
+                    if ($file == 'postdownloadscripts'
+                        || $file == 'dev'
+                    ) {
                         throw new Exception(
-                            _('You must have at least one group associated')
+                            sprintf(
+                                '%s, %s.',
+                                _('Please choose a different name'),
+                                _('this one is reserved for FOG')
+                            )
+                        );
+                    }
+                    $exists = self::getClass('ImageManager')
+                        ->exists(
+                            $file,
+                            '',
+                            'path'
+                        );
+                    if ($this->obj->get('path') != $file
+                        && $exists
+                    ) {
+                        throw new Exception(
+                            sprintf(
+                                '%s, %s.',
+                                _('Please choose a different path'),
+                                _('this one is already in use by another image')
+                            )
                         );
                     }
                     $this
                         ->obj
-                        ->removeGroup(
-                            $storagegrouprm
-                        );
-                }
-                break;
+                        ->set('name', $name)
+                        ->set('description', $desc)
+                        ->set('osID', $os)
+                        ->set('path', $file)
+                        ->set('imageTypeID', $imagetype)
+                        ->set('imagePartitionTypeID', $imagepartitiontype)
+                        ->set('format', $imagemanage)
+                        ->set('protected', $protected)
+                        ->set('compress', $compress)
+                        ->set('isEnabled', $isEnabled)
+                        ->set('toReplicate', $toReplicate);
+                    break;
+                case 'image-storage':
+                    if (isset($_POST['updategroups'])) {
+                        $this->obj->addGroup($storagegroup);
+                    } elseif (isset($_POST['primarysel'])) {
+                        $this->obj->setPrimaryGroup($primary);
+                    } elseif (isset($_POST['groupdel'])) {
+                        $groupdel = count($storagegrouprm);
+                        $ingroups = count($this->obj->get('storagegroups'));
+                        if ($groupdel < 1) {
+                            throw new Exception(
+                                _('No groups selected to be removed')
+                            );
+                        }
+                        if ($ingroups < 2) {
+                            throw new Exception(
+                                _('You must have at least one group associated')
+                            );
+                        }
+                        $this
+                            ->obj
+                            ->removeGroup(
+                                $storagegrouprm
+                            );
+                    }
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(

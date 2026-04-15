@@ -665,7 +665,8 @@ abstract class FOGManagerController extends FOGBase
      * @param $insertData    What we're actually updating.
      * @return bool
      */
-    private function perform_update($findWhere, $whereOperator, $insertData) {
+    private function perform_update($findWhere, $whereOperator, $insertData)
+    {
         $insertArray = array();
         $whereArray = array();
         $updateVals = array();
@@ -1066,261 +1067,261 @@ abstract class FOGManagerController extends FOGBase
             'OR'
         );
         switch (strtolower($this->childClass)) {
-        case 'user':
-            break;
-        case 'host':
-            $macHostIDs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                array(
-                    'mac' => $mac_keyword,
-                    'description' => $keyword,
-                ),
-                'hostID',
-                '',
-                'OR'
-            );
-            $invHostIDs = self::getSubObjectIDs(
-                'Inventory',
-                array(
-                    'sysserial' => $keyword,
-                    'caseserial' => $keyword,
-                    'mbserial' => $keyword,
-                    'primaryUser' => $keyword,
-                    'other1' => $keyword,
-                    'other2' => $keyword,
-                    'sysman' => $keyword,
-                    'sysproduct' => $keyword,
-                ),
-                'hostID',
-                '',
-                'OR'
-            );
-            $HostIDs = self::fastmerge(
-                $HostIDs,
-                $macHostIDs,
-                $invHostIDs
-            );
-            unset($invHostIDs, $macHostIDs);
-            $ImageIDs = self::getSubObjectIDs(
-                'Image',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $GroupIDs = self::getSubObjectIDs(
-                'Group',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $SnapinIDs = self::getSubObjectIDs(
-                'Snapin',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $PrinterIDs = self::getSubObjectIDs(
-                'Printer',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            if (count($ImageIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Host',
-                        array('imageID' => $ImageIDs)
-                    )
+            case 'user':
+                break;
+            case 'host':
+                $macHostIDs = self::getSubObjectIDs(
+                    'MACAddressAssociation',
+                    array(
+                        'mac' => $mac_keyword,
+                        'description' => $keyword,
+                    ),
+                    'hostID',
+                    '',
+                    'OR'
                 );
-            }
-            if (count($GroupIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'GroupAssociation',
-                        array('groupID' => $GroupIDs),
-                        'hostID'
-                    )
+                $invHostIDs = self::getSubObjectIDs(
+                    'Inventory',
+                    array(
+                        'sysserial' => $keyword,
+                        'caseserial' => $keyword,
+                        'mbserial' => $keyword,
+                        'primaryUser' => $keyword,
+                        'other1' => $keyword,
+                        'other2' => $keyword,
+                        'sysman' => $keyword,
+                        'sysproduct' => $keyword,
+                    ),
+                    'hostID',
+                    '',
+                    'OR'
                 );
-            }
-            if (count($SnapinIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'SnapinAssociation',
-                        array('snapinID' => $SnapinIDs),
-                        'hostID'
-                    )
+                $HostIDs = self::fastmerge(
+                    $HostIDs,
+                    $macHostIDs,
+                    $invHostIDs
                 );
-            }
-            if (count($PrinterIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'PrinterAssociation',
-                        array('printerID' => $PrinterIDs),
-                        'hostID'
-                    )
-                );
-            }
-            $itemIDs = self::fastmerge($itemIDs, $HostIDs);
-            $itemIDs = array_filter($itemIDs);
-            $itemIDs = array_unique($itemIDs);
-            break;
-        case 'image':
-            if (count($HostIDs)) {
+                unset($invHostIDs, $macHostIDs);
                 $ImageIDs = self::getSubObjectIDs(
-                    'Host',
-                    array('id' => $HostIDs),
-                    'imageID'
+                    'Image',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
                 );
-                $itemIDs = self::fastmerge($itemIDs, $ImageIDs);
-            }
-            $itemIDs = array_filter($itemIDs);
-            $itemIDs = array_unique($itemIDs);
-            break;
-        case 'task':
-            $TaskStateIDs = self::getSubObjectIDs(
-                'TaskState',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $ImageIDs = self::getSubObjectIDs(
-                'Image',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $GroupIDs = self::getSubObjectIDs(
-                'Group',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $SnapinIDs = self::getSubObjectIDs(
-                'Snapin',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $PrinterIDs = self::getSubObjectIDs(
-                'Printer',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            if (count($ImageIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
+                $GroupIDs = self::getSubObjectIDs(
+                    'Group',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                $SnapinIDs = self::getSubObjectIDs(
+                    'Snapin',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                $PrinterIDs = self::getSubObjectIDs(
+                    'Printer',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                if (count($ImageIDs) > 0) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'Host',
+                            array('imageID' => $ImageIDs)
+                        )
+                    );
+                }
+                if (count($GroupIDs) > 0) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'GroupAssociation',
+                            array('groupID' => $GroupIDs),
+                            'hostID'
+                        )
+                    );
+                }
+                if (count($SnapinIDs) > 0) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'SnapinAssociation',
+                            array('snapinID' => $SnapinIDs),
+                            'hostID'
+                        )
+                    );
+                }
+                if (count($PrinterIDs) > 0) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'PrinterAssociation',
+                            array('printerID' => $PrinterIDs),
+                            'hostID'
+                        )
+                    );
+                }
+                $itemIDs = self::fastmerge($itemIDs, $HostIDs);
+                $itemIDs = array_filter($itemIDs);
+                $itemIDs = array_unique($itemIDs);
+                break;
+            case 'image':
+                if (count($HostIDs)) {
+                    $ImageIDs = self::getSubObjectIDs(
                         'Host',
-                        array('imageID' => $ImageIDs)
-                    )
-                );
-            }
-            if (count($GroupIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'GroupAssociation',
-                        array('groupID' => $GroupIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($SnapinIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'SnapinAssociation',
-                        array('snapinID' => $SnapinIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($PrinterIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'PrinterAssociation',
-                        array('printerID' => $PrinterIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($TaskStateIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Task',
-                        array('stateID' => $TaskStateIDs)
-                    )
-                );
-            }
-            if (count($TaskTypeIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Task',
-                        array('typeID' => $TaskTypeIDs)
-                    )
-                );
-            }
-            if (count($HostIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Task',
-                        array('hostID' => $HostIDs)
-                    )
-                );
-            }
-            break;
-        default:
-            $assoc = sprintf(
-                '%sAssociation',
-                $this->childClass
-            );
-            $objID = sprintf(
-                '%sID',
-                strtolower($this->childClass)
-            );
-            if (!class_exists($assoc, false)) {
+                        array('id' => $HostIDs),
+                        'imageID'
+                    );
+                    $itemIDs = self::fastmerge($itemIDs, $ImageIDs);
+                }
+                $itemIDs = array_filter($itemIDs);
+                $itemIDs = array_unique($itemIDs);
                 break;
-            }
-            if (count($itemIDs) && !count($HostIDs)) {
+            case 'task':
+                $TaskStateIDs = self::getSubObjectIDs(
+                    'TaskState',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                $ImageIDs = self::getSubObjectIDs(
+                    'Image',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                $GroupIDs = self::getSubObjectIDs(
+                    'Group',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                $SnapinIDs = self::getSubObjectIDs(
+                    'Snapin',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                $PrinterIDs = self::getSubObjectIDs(
+                    'Printer',
+                    $find,
+                    'id',
+                    '',
+                    'OR'
+                );
+                if (count($ImageIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'Host',
+                            array('imageID' => $ImageIDs)
+                        )
+                    );
+                }
+                if (count($GroupIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'GroupAssociation',
+                            array('groupID' => $GroupIDs),
+                            'hostID'
+                        )
+                    );
+                }
+                if (count($SnapinIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'SnapinAssociation',
+                            array('snapinID' => $SnapinIDs),
+                            'hostID'
+                        )
+                    );
+                }
+                if (count($PrinterIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'PrinterAssociation',
+                            array('printerID' => $PrinterIDs),
+                            'hostID'
+                        )
+                    );
+                }
+                if (count($TaskStateIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'Task',
+                            array('stateID' => $TaskStateIDs)
+                        )
+                    );
+                }
+                if (count($TaskTypeIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'Task',
+                            array('typeID' => $TaskTypeIDs)
+                        )
+                    );
+                }
+                if (count($HostIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            'Task',
+                            array('hostID' => $HostIDs)
+                        )
+                    );
+                }
                 break;
-            }
-            $HostIDs = self::fastmerge(
-                $HostIDs,
-                self::getSubObjectIDs(
-                    $assoc,
-                    array($objID => $itemIDs),
-                    'hostID'
-                )
-            );
-            if (count($HostIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
+            default:
+                $assoc = sprintf(
+                    '%sAssociation',
+                    $this->childClass
+                );
+                $objID = sprintf(
+                    '%sID',
+                    strtolower($this->childClass)
+                );
+                if (!class_exists($assoc, false)) {
+                    break;
+                }
+                if (count($itemIDs) && !count($HostIDs)) {
+                    break;
+                }
+                $HostIDs = self::fastmerge(
+                    $HostIDs,
                     self::getSubObjectIDs(
                         $assoc,
-                        array('hostID' => $HostIDs),
-                        $objID
+                        array($objID => $itemIDs),
+                        'hostID'
                     )
                 );
-            }
-            break;
+                if (count($HostIDs)) {
+                    $itemIDs = self::fastmerge(
+                        $itemIDs,
+                        self::getSubObjectIDs(
+                            $assoc,
+                            array('hostID' => $HostIDs),
+                            $objID
+                        )
+                    );
+                }
+                break;
         }
         $itemIDs = array_filter($itemIDs);
         $itemIDs = array_unique($itemIDs);

@@ -28,8 +28,8 @@ class History_Report extends ReportManagementPage
             $this->data,
             $this->form,
             $this->headerData,
-                $this->templates,
-                $this->attributes
+            $this->templates,
+            $this->attributes
         );
         $this->templates = array(
             '${field}',

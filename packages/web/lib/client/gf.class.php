@@ -48,12 +48,12 @@ class GF extends FOGClient implements FOGClientSend
             $actionTemp = trim($actionTemp);
             $action = '';
             switch ($actionTemp) {
-            case 's':
-                $action = 'shutdown';
-                break;
-            case 'r':
-                $action = 'reboot';
-                break;
+                case 's':
+                    $action = 'shutdown';
+                    break;
+                case 'r':
+                    $action = 'reboot';
+                    break;
             }
             if (empty($action)) {
                 continue;

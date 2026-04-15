@@ -450,8 +450,7 @@ abstract class FOGController extends FOGBase
                             $val = (int)$validated;
                         }
                     }
-                }
-                else {
+                } else {
                     $isRequired = isset($required[$key]);
                     $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
                     if ($isEmpty) {
@@ -486,8 +485,9 @@ abstract class FOGController extends FOGBase
                     $val = trim($val);
                 }
 
-                // Don't make an entry if the value isn't set.
-                if ($val === null || (is_string($val) && trim($val) === '')) {
+                // Don't make an entry if the value isn't set (null = truly unset).
+                // Empty string is a valid user-supplied value and must be written.
+                if ($val === null) {
                     continue;
                 }
 
@@ -913,18 +913,18 @@ abstract class FOGController extends FOGBase
             return $this;
         }
         switch ($array_type) {
-        case 'merge':
-            foreach ((array)$array as &$a) {
-                $this->add($key, $a);
-                unset($a);
-            }
-            break;
-        case 'diff':
-            foreach ((array)$array as &$a) {
-                $this->remove($key, $a);
-                unset($a);
-            }
-            break;
+            case 'merge':
+                foreach ((array)$array as &$a) {
+                    $this->add($key, $a);
+                    unset($a);
+                }
+                break;
+            case 'diff':
+                foreach ((array)$array as &$a) {
+                    $this->remove($key, $a);
+                    unset($a);
+                }
+                break;
         }
         return $this;
     }

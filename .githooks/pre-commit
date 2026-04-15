@@ -1,13 +1,13 @@
 #!/usr/bin/env sh
 #
-# Exit on error? You had this commented out; leaving it as-is.
+# Exit on error
 # set -e
 
 project_dir=$(git rev-parse --show-toplevel)
 
 psrfix() {
     command -v php-cs-fixer >/dev/null 2>&1 || return
-    "$(command -v php-cs-fixer)" fix "$project_dir/packages/web" --rules=@PSR2
+    "$(command -v php-cs-fixer)" fix "$project_dir/packages/web" --rules=@PSR2 >/dev/null 2>&1
     git add "$project_dir/packages/web"
 }
 
@@ -21,10 +21,11 @@ updateLanguage() {
         msgmerge --update --backup=none "$PO_FILE" "$project_dir/packages/web/management/languages/messages.pot" 2>/dev/null >/dev/null
         msgcat --sort-output -o "$PO_FILE" "$PO_FILE"
     done
+    git add "$project_dir/packages/web/management/languages/"
 }
 
 updateLanguage
-#psrfix
+psrfix
 
 # Get the current branch name
 gitbranch=$(git branch --show-current)
@@ -32,8 +33,8 @@ gitbranch=$(git branch --show-current)
 # Get the latest tag commit
 gitcom=$(git rev-list --tags --no-walk --max-count=1)
 
-# Count commits from the last tag to HEAD (your original logic)
-git fetch origin master:master
+# Count commits from the last tag to HEAD (as you had it)
+git fetch origin master:master 2>/dev/null || true
 gitcount=$(git rev-list master..HEAD --count)
 
 # Extract the first part of the branch name
@@ -46,16 +47,17 @@ branchend=$(echo "$gitbranch" | awk -F'-' '{print $2}')
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
 current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
 
 verbegin=""
-channel=""
+channel="$current_channel"
+trunkversion="$current_version"
 
 case "$branchon" in
     dev)
         # Describe the tag and append the commit count correctly
         tagversion=$(git describe --tags "$gitcom")
         baseversion=${tagversion%.*}   # Retain everything before the last segment
-        lastrevision=${tagversion##*.} # Extracts the last segment
         trunkversion="${baseversion}.${gitcount}"
         channel="Patches"
         ;;
@@ -63,9 +65,8 @@ case "$branchon" in
         # Describe the tag and append the commit count correctly
         tagversion=$(git describe --tags "$gitcom")
         baseversion=${tagversion%.*}   # Retain everything before the last segment
-        lastrevision=${tagversion##*.} # Extracts the last segment
-        trunkversion="${baseversion}.${gitcount}"
         gitcount=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
+        trunkversion="${baseversion}.${gitcount}"
         channel="Patches"
         ;;
     working)
@@ -77,7 +78,7 @@ case "$branchon" in
     rc)
         channel="Release Candidate"
         version_prefix="${branchend}.0-RC"
-        # POSIX replacement for: if [[ $current_version =~ ${version_prefix}-([0-9]+) ]]
+        # POSIX regex replacement for [[ ... =~ ... ]] / BASH_REMATCH
         n=$(printf '%s\n' "$current_version" | sed -n "s/^${version_prefix}-\([0-9][0-9]*\)\$/\1/p")
         if [ -n "$n" ]; then
             last_rc_version=$n
