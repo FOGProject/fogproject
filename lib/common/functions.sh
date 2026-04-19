@@ -864,7 +864,7 @@ installPackages() {
                 done
                 ;;
             php-mysql*)
-                for phpmysql in $(echo php-mysqlnd php-mysql); do
+                for phpmysql in $(echo php-mysql); do
                     eval $packagelist "$phpmysql" >>$error_log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$phpmysql
