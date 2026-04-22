@@ -482,9 +482,9 @@ abstract class FOGController extends FOGBase
                         }
                         $val = (int)$validated;
                     } else {
-                        // Optional *id: allow empty -> 0 (no association); if present, require integer >= 1
+                        // Optional *id: allow empty -> NULL; if present, require integer >= 1
                         if ($isEmpty) {
-                            $val = 0;
+                            $val = null;
                         } else {
                             $validated = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                             if ($validated === false) {
