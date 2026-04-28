@@ -2717,6 +2717,7 @@ class Route extends FOGBase
             }
 
             $whereItems = self::handleWhereItems($whereItems);
+            $inputWasArray = is_array($whereItems);
             // Remove any array values that are empty — they would produce invalid IN () SQL
             $whereItems = array_filter(
                 $whereItems ?: [],
@@ -2724,6 +2725,23 @@ class Route extends FOGBase
                     return !is_array($v) || count($v) > 0;
                 }
             );
+
+            // If caller passed array-based filters but nothing survived normalization,
+            // treat it as an explicit empty result set rather than broadening to all rows.
+            if ($inputWasArray && count($whereItems) < 1) {
+                if (!$retWhere) {
+                    $sql .= ' WHERE 1=0';
+                    $sql .= ' ORDER BY `'
+                        . (
+                            isset($classVars['databaseFields'][$orderby]) ?
+                            $classVars['databaseFields'][$orderby] :
+                            $classVars['databaseFields']['id']
+                        )
+                        . '` ASC';
+                    return ['sql' => $sql, 'params' => []];
+                }
+            }
+
             $params = [];
             if (count($whereItems) > 0) {
                 $where = '';
