@@ -10,15 +10,6 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org/
  */
-/**
- * Creates our routes for api configuration.
- *
- * @category Route
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org/
- */
 class Route extends FOGBase
 {
     /**
@@ -923,12 +914,6 @@ class Route extends FOGBase
                                 case 'c':
                                     return _('Cron');
                                 default:
-                                    $columns[] = [
-                                        'dt' => 'starttime',
-                                        'formatter' => function (&$d, &$row) {
-                                            return self::niceDate($row['stDateTime']);
-                                        }
-                                    ];
                                     return _('Delayed');
                             }
                         }
@@ -1652,7 +1637,7 @@ class Route extends FOGBase
                             ->removeHost($hostsToRem)
                             ->addHost($hostsToAdd);
                     }
-                    if ($vars->imageID) {
+                    if (isset($vars->imageID)) {
                         $class
                             ->addImage($vars->imageID);
                     }
@@ -1750,7 +1735,9 @@ class Route extends FOGBase
             $deploySnapins = false;
             if (isset($task->deploySnapins)) {
                 $deploySnapins = $task->deploySnapins;
-                if (
+                if ($deploySnapins === true) {
+                    $deploySnapins = -1;
+                } elseif (
                     !is_numeric($deploySnapins) || (
                         $deploySnapins < 0 && $deploySnapins != -1
                     )
@@ -1763,7 +1750,7 @@ class Route extends FOGBase
                 ($task->taskName ?? ''),
                 ($task->shutdown ?? false),
                 ($task->debug ?? false),
-                (($deploySnapins) === true ? -1 : $deploySnapins),
+                $deploySnapins,
                 $class instanceof Group,
                 filter_input(INPUT_SERVER, 'PHP_AUTH_USER') ?? 'API',
                 $task->passreset ?? '',
@@ -1978,7 +1965,7 @@ class Route extends FOGBase
         }
     }
     /**
-     * Get's the json body and sets our vars.
+     * Gets the json body and sets our vars.
      *
      * @param string $class The class to get vars for/from.
      *
@@ -2014,7 +2001,7 @@ class Route extends FOGBase
         }
     }
     /**
-     * Get's current/active tasks.
+     * Gets current/active tasks.
      *
      * @param string $class The class to use.
      *
@@ -2147,7 +2134,7 @@ class Route extends FOGBase
     }
     /**
      * This is a commonizing element so list/search/getinfo
-     * will operate in the same fasion.
+     * will operate in the same fashion.
      *
      * @param string $classname The name of the class.
      * @param object $class     The class to work with.
@@ -2291,9 +2278,10 @@ class Route extends FOGBase
                                 $class->get('host')
                             ),
                             'image' => (
-                                $class->get('images')->isValid() ?
-                                $class->get('images')->get() :
-                                $class->get('image')
+                                ($class->get('images') instanceof Image
+                                    && $class->get('images')->isValid())
+                                ? $class->get('images')->get()
+                                : $class->get('image')
                             )
                         ]
                     );
@@ -2632,6 +2620,7 @@ class Route extends FOGBase
                         ]
                     );
                     $snapinjobIDs = json_decode(Route::getData(), true);
+                    $sjIDs = [];
                     foreach ((array)$snapinjobIDs as &$sjID) {
                         Route::count(
                             'snapintask',
@@ -2728,8 +2717,15 @@ class Route extends FOGBase
             }
 
             $whereItems = self::handleWhereItems($whereItems);
+            // Remove any array values that are empty — they would produce invalid IN () SQL
+            $whereItems = array_filter(
+                $whereItems ?: [],
+                function ($v) {
+                    return !is_array($v) || count($v) > 0;
+                }
+            );
             $params = [];
-            if (count($whereItems ?: []) > 0) {
+            if (count($whereItems) > 0) {
                 $where = '';
                 $paramIdx = 0;
                 foreach ($whereItems as $key => &$field) {
@@ -3067,8 +3063,7 @@ class Route extends FOGBase
         foreach ($data as &$release) {
             if ($type == 'kernel') {
                 $patt = '/Linux kernel (.*)?/';
-            }
-            if ($type == 'initrd') {
+            } elseif ($type == 'initrd') {
                 $patt = '/Buildroot (.*)?/';
             }
             $found_match = preg_match(
