@@ -2717,7 +2717,10 @@ class Route extends FOGBase
             }
 
             $whereItems = self::handleWhereItems($whereItems);
-            $inputWasArray = is_array($whereItems);
+            // Distinguish "no filters" from "all filters were empty arrays".
+            // Count BEFORE stripping — if caller passed e.g. ['id' => []] they meant
+            // "match nothing", not "show everything".
+            $hadFilters = is_array($whereItems) && count($whereItems) > 0;
             // Remove any array values that are empty — they would produce invalid IN () SQL
             $whereItems = array_filter(
                 $whereItems ?: [],
@@ -2726,20 +2729,19 @@ class Route extends FOGBase
                 }
             );
 
-            // If caller passed array-based filters but nothing survived normalization,
-            // treat it as an explicit empty result set rather than broadening to all rows.
-            if ($inputWasArray && count($whereItems) < 1) {
-                if (!$retWhere) {
-                    $sql .= ' WHERE 1=0';
-                    $sql .= ' ORDER BY `'
-                        . (
-                            isset($classVars['databaseFields'][$orderby]) ?
-                            $classVars['databaseFields'][$orderby] :
-                            $classVars['databaseFields']['id']
-                        )
-                        . '` ASC';
-                    return ['sql' => $sql, 'params' => []];
+            // Filters were supplied but nothing survived normalization → match nothing.
+            if ($hadFilters && count($whereItems) < 1) {
+                if ($retWhere) {
+                    return '1=0';
                 }
+                $sql .= ' WHERE 1=0 ORDER BY `'
+                    . (
+                        isset($classVars['databaseFields'][$orderby]) ?
+                        $classVars['databaseFields'][$orderby] :
+                        $classVars['databaseFields']['id']
+                    )
+                    . '` ASC';
+                return ['sql' => $sql, 'params' => []];
             }
 
             $params = [];
