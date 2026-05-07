@@ -603,7 +603,7 @@ class Route extends FOGBase
                                     . '&sub=edit&id='
                                     . $row[$tmpcolumns['id']]
                                     . '">'
-                                    . '(' . $row[$tmpcolumns['id']] . ') - ' . $d
+                                    . '(' . $row[$tmpcolumns['id']] . ') - ' . Initiator::e($d)
                                     . '</a>';
                             }
                         ];

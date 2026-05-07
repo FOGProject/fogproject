@@ -1547,14 +1547,14 @@ abstract class FOGPage extends FOGBase
                 $useAD = $this->obj->get('useAD');
             }
             if (empty($ADDomain)) {
-                $ADDomain = $this->obj->get('ADDomain');
+                $ADDomain = Initiator::e($this->obj->get('ADDomain'));
             }
             if (empty($ADOU)) {
                 $ADOU = trim($this->obj->get('ADOU'));
-                $ADOU = str_replace(';', '', $ADOU);
+                $ADOU = str_replace(';', '', Initiator::e($ADOU));
             }
             if (empty($ADUser)) {
-                $ADUser = $this->obj->get('ADUser');
+                $ADUser = Initiator::e($this->obj->get('ADUser'));
             }
             if (empty($ADPass)) {
                 $ADPass = (
@@ -1568,12 +1568,12 @@ abstract class FOGPage extends FOGBase
             array_filter(
                 explode(
                     '|',
-                    self::getSetting('FOG_AD_DEFAULT_OU')
+                    Initiator::e(self::getSetting('FOG_AD_DEFAULT_OU'))
                 )
             )
         );
         $ADOU = trim($ADOU);
-        $ADOU = str_replace(';', '', $ADOU);
+        $ADOU = str_replace(';', '', Initiator::e($ADOU));
         $optFound = $ADOU;
         if (count($OUs ?: []) > 1) {
             ob_start();
@@ -1705,7 +1705,7 @@ abstract class FOGPage extends FOGBase
                 'active-directory-form',
                 self::makeTabUpdateURL(
                     $node . '-active-directory',
-                    $this->obj->get('id')
+                    Initiator::e($this->obj->get('id'))
                 ),
                 'post',
                 'application/x-www-form-urlencoded',
@@ -2160,7 +2160,7 @@ abstract class FOGPage extends FOGBase
             'deleteModal',
             _('Delete')
             . ': '
-            . $this->obj->get('name'),
+            . Initiator::e($this->obj->get('name')),
             _("Confirm you would like to delete this $node")
             . $extra,
             self::makeButton(
@@ -2626,7 +2626,7 @@ abstract class FOGPage extends FOGBase
                 throw new Exception(
                     _('Failed to remove')
                     . ': '
-                    . $this->obj->get('name')
+                    . Initiator::e($this->obj->get('name'))
                 );
             }
             $hook = "{$ucnode}_DELETE_SUCCESS";
@@ -2635,7 +2635,7 @@ abstract class FOGPage extends FOGBase
                 [
                     'msg' => _('Successfully deleted')
                     . ': '
-                    . $this->obj->get('name'),
+                    . Initiator::e($this->obj->get('name')),
                     'title' => _('Delete Success')
                 ]
             );
@@ -3142,7 +3142,7 @@ abstract class FOGPage extends FOGBase
             . '-form',
             self::makeTabUpdateURL(
                 $node . '-powermanagement',
-                $this->obj->get('id')
+                Initiator::e($this->obj->get('id'))
             ),
             'post',
             'application/x-www-form-urlencoded',
