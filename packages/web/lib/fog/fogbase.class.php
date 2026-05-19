@@ -2190,7 +2190,7 @@ abstract class FOGBase
             $tmp = base64_decode($tmp);
             $tmp = trim($tmp);
             if (mb_detect_encoding($tmp, 'utf-8', true)) {
-                $val = $tmp;
+                $val = Initiator::e($tmp);
             }
             unset($tmp);
             $item[$key] = trim($val);

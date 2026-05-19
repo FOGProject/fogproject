@@ -20,6 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+FOGCoree:checkAuthAndCSRF();
 FOGCore::stripAndDecode($_REQUEST);
 try {
     FOGCore::getHostItem(

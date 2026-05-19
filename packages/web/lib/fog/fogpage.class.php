@@ -4263,7 +4263,7 @@ abstract class FOGPage extends FOGBase
                         ''
                     )
                 ),
-                $item
+                Initiator::e($item)
             );
             unset($item);
         }
