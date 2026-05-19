@@ -1378,7 +1378,7 @@ abstract class FOGPage extends FOGBase
                 $name
             );
             $val = trim($val);
-            $this->dataReplace[] = $val;
+            $this->dataReplace[] = Initiator::e($val);
             unset($val);
         }
     }
@@ -2519,6 +2519,7 @@ abstract class FOGPage extends FOGBase
      */
     public function clearAES()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         global $groupid;
         global $id;
@@ -2560,6 +2561,7 @@ abstract class FOGPage extends FOGBase
      */
     public function clearPMTasks()
     {
+        self::checkAuthAndCSRF();
         global $groupid;
         if (!is_numeric($groupid)) {
             return;
