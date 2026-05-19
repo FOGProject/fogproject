@@ -1403,9 +1403,18 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
                 . '>';
+            $escapedReplace = array_map(
+                function ($value) {
+                    if (is_scalar($value) || $value === null) {
+                        return Initiator::e((string)$value);
+                    }
+                    return '';
+                },
+                $this->dataReplace
+            );
             echo str_replace(
                 $this->dataFind,
-                $this->dataReplace,
+                $escapedReplace,
                 $template
             );
             echo '</td>';
