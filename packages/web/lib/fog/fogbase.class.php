@@ -2216,7 +2216,7 @@ abstract class FOGBase
                 $val = $tmp;
             }
             unset($tmp);
-            $item[$key] = trim($val);
+            $item[$key] = Initiator::e(trim($val));
             unset($val);
         }
 
