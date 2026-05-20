@@ -2928,6 +2928,10 @@ msgstr "modalità operativa non valido"
 msgid "Invalid path"
 msgstr "Data non valida"
 
+#, fuzzy
+msgid "Invalid product key supplied"
+msgstr "tipo di oggetto non valido passato"
+
 msgid "Invalid scheduling type"
 msgstr "Tipo di scheduling non valido"
 

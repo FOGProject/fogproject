@@ -140,7 +140,10 @@ class Registration extends FOGBase
                 return;
             }
             self::stripAndDecode($_REQUEST);
-            $productKey = isset($_REQUEST['productKey']) ? $_REQUEST['productKey'] : '';
+            $productKey = filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW);
+            if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+                throw new Exception(_('Invalid product key supplied'));
+            }
             $username = isset($_REQUEST['username']) ? $_REQUEST['username'] : '';
             $password = isset($_REQUEST['password']) ? $_REQUEST['password'] : '';
             $host = isset($_REQUEST['host']) ? $_REQUEST['host'] : '';
@@ -405,7 +408,10 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = base64_decode($_REQUEST['productKey']);
+                $productKey = base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
+                if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+                    throw new Exception(_('Invalid product key supplied'));
+                }
                 self::$Host->set('productKey', $productKey);
             }
             self::$HookManager
@@ -464,7 +470,10 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = base64_decode($_REQUEST['productKey']);
+                $productKey = base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
+                if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+                    throw new Exception(_('Invalid product key supplied'));
+                }
                 self::$Host->set('productKey', $productKey);
             }
             self::$HookManager

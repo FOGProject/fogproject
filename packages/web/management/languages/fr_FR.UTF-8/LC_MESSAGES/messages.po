@@ -2871,6 +2871,10 @@ msgstr "Mode de fonctionnement non valide"
 msgid "Invalid path"
 msgstr "Date invalide"
 
+#, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Le type d'objet transmis est invalide"
+
 msgid "Invalid scheduling type"
 msgstr "Type de programmation non valide"
 

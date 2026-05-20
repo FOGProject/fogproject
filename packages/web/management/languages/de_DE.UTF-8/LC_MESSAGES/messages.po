@@ -3264,6 +3264,10 @@ msgid "Invalid path"
 msgstr "Ungültiges Datum"
 
 #, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Ungültiger Objekttyp übergeben"
+
+#, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Ungültiger Zeitplantyp"
 

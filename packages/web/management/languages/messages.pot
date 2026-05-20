@@ -2813,6 +2813,9 @@ msgstr ""
 msgid "Invalid path"
 msgstr ""
 
+msgid "Invalid product key supplied"
+msgstr ""
+
 msgid "Invalid scheduling type"
 msgstr ""
 

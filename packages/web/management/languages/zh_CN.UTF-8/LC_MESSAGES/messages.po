@@ -2839,6 +2839,10 @@ msgstr "无效的操作模式"
 msgid "Invalid path"
 msgstr "无效时间"
 
+#, fuzzy
+msgid "Invalid product key supplied"
+msgstr "无效的对象类型传递"
+
 msgid "Invalid scheduling type"
 msgstr "无效调度类型"
 

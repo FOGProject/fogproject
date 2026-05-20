@@ -86,7 +86,7 @@ class Product_Keys extends ReportManagementPage
             $this->data[] = array(
                 'host_name' => $Host->name,
                 'host_mac' => $Host->primac,
-                'host_productKey' => $productKey,
+                'host_productKey' => Initiator::e($productKey),
                 'image_name' => $imgName
             );
             foreach ((array)$csvHead as $head => &$classGet) {
@@ -110,7 +110,7 @@ class Product_Keys extends ReportManagementPage
                         );
                         break;
                     case _('Host Product Key'):
-                        $this->ReportMaker->addCSVCell($productKey);
+                        $this->ReportMaker->addCSVCell(htmlentities($productKey, ENT_QUOTES, 'UTF-8'));
                         break;
                     default:
                         if (property_exists($Host, $classGet)) {

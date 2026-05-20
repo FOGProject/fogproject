@@ -2846,6 +2846,10 @@ msgstr "Modo operacional inválido"
 msgid "Invalid path"
 msgstr "Data inválida"
 
+#, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Tipo de objeto passado inválido"
+
 msgid "Invalid scheduling type"
 msgstr "Tipo de agendamento inválido"
 
