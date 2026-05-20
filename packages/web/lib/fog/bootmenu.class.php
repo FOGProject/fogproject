@@ -263,15 +263,12 @@ class BootMenu extends FOGBase
                     $sysuuid = '';
                 }
             }
-            if ($sysuuid) {
-                if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid) {
-                    self::$Host->get('inventory')->getManager()->update(
-                        ['hostID' => self::$Host->get('id')],
-                        '',
-                        ['sysuuid' => $sysuuid]
-                    );
-                    
-                }
+            if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid) {
+                self::$Host->get('inventory')->getManager()->update(
+                    ['hostID' => self::$Host->get('id')],
+                    '',
+                    ['sysuuid' => $sysuuid]
+                );
             }
             Route::indiv('host', self::$Host->get('id'));
             $host = json_decode(Route::getData());
