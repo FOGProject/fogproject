@@ -3130,6 +3130,10 @@ msgstr "Host non valido"
 msgid "Invalid scheduling type"
 msgstr "È passato il tipo di attività non valido"
 
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "Classe non valido"
+
 msgid "Invalid task id"
 msgstr "ID attività non valido"
 

@@ -3278,6 +3278,10 @@ msgid "Invalid scheduling type"
 msgstr "type d'objet non valide passé"
 
 #, fuzzy
+msgid "Invalid status payload"
+msgstr "classe non valide"
+
+#, fuzzy
 msgid "Invalid task id"
 msgstr "tâche non valide"
 

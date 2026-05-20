@@ -3276,6 +3276,10 @@ msgid "Invalid scheduling type"
 msgstr "Ungültiger Tasking Typ übergeben"
 
 #, fuzzy
+msgid "Invalid status payload"
+msgstr "Ungültige Klasse"
+
+#, fuzzy
 msgid "Invalid task id"
 msgstr "Ungültige Task-ID"
 

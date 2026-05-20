@@ -3274,6 +3274,10 @@ msgid "Invalid scheduling type"
 msgstr "Invalid object type passed"
 
 #, fuzzy
+msgid "Invalid status payload"
+msgstr "Invalid Class"
+
+#, fuzzy
 msgid "Invalid task id"
 msgstr "Invalid task"
 

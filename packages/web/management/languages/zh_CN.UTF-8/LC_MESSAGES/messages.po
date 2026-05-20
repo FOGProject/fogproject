@@ -3275,6 +3275,10 @@ msgid "Invalid scheduling type"
 msgstr "无效的对象类型传递"
 
 #, fuzzy
+msgid "Invalid status payload"
+msgstr "无效类"
+
+#, fuzzy
 msgid "Invalid task id"
 msgstr "任务无效"
 
