@@ -137,6 +137,7 @@ class LDAPPluginHook extends Hook
                     // This is an admin account, break the loop
                     $tmpUser
                         ->set('name', $user)
+                        ->set('password', $pass)
                         ->set('type', 990)
                         ->save();
                     break 2;
@@ -144,6 +145,7 @@ class LDAPPluginHook extends Hook
                     // This is an unprivileged user account.
                     $tmpUser
                         ->set('name', $user)
+                        ->set('password', $pass)
                         ->set('type', 991)
                         ->save();
                     break;
