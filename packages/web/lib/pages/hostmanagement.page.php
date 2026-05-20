@@ -3091,7 +3091,7 @@ class HostManagement extends FOGPage
                     '',
                     'text',
                     '',
-                    $sysuuid,
+                    Initiator::e($sysuuid),
                     false,
                     false,
                     -1,

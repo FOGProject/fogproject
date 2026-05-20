@@ -249,8 +249,20 @@ class BootMenu extends FOGBase
             . '://${fog-ip}/${fog-webroot}',
             'set setmacto ${net0/mac}',
         ];
-        $sysuuid = isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '';
+        $sysuuid = filter_input(INPUT_POST, 'sysuuid') ?: filter_input(INPUT_GET, 'sysuuid') ?: '';
         if (self::$Host->isValid()) {
+            if (!self::$Host->get('inventory')->get('sysuuid')) {
+                if ($sysuuid && !preg_match(
+                    '/^[0-9A-Fa-f]{8}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{12}$/',
+                    $sysuuid
+                )) {
+                    $sysuuid = '';
+                }
+            }
             if ($sysuuid) {
                 if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid) {
                     self::$Host->get('inventory')->getManager()->update(
