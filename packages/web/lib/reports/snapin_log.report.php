@@ -233,8 +233,8 @@ class Snapin_Log extends ReportManagementPage
                 'complete' => $SnapinTask->complete,
                 'snap_name' => $Snapin->name,
                 'snap_state' => $State->name,
-                'snap_return' => $SnapinTask->return,
-                'snap_detail' => $SnapinTask->detail,
+                'snap_return' => Initiator::e($SnapinTask->return),
+                'snap_detail' => Initiator::e($SnapinTask->detail),
                 'snap_create' => self::formatTime(
                     $Snapin->createdTime,
                     'Y-m-d'
@@ -257,7 +257,7 @@ class Snapin_Log extends ReportManagementPage
                 ->addCSVCell($Snapin->runWithArgs)
                 ->addCSVCell($State->name)
                 ->addCSVCell($SnapinTask->return)
-                ->addCSVCell($SnapinTask->detail)
+                ->addCSVCell(strip_tags($SnapinTask->detail))
                 ->addCSVCell(
                     self::formatTime(
                         $Snapin->createdTime,
