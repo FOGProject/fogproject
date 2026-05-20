@@ -833,12 +833,12 @@ class HostManagementPage extends FOGPage
                 continue;
             }
             $this->data[] = array(
-                'id' => $PowerManagement->id,
-                'min' => $PowerManagement->min,
-                'hour' => $PowerManagement->hour,
-                'dom' => $PowerManagement->dom,
-                'month' => $PowerManagement->month,
-                'dow' => $PowerManagement->dow,
+                'id' => Initiator::e($PowerManagement->id),
+                'min' => Initiator::e($PowerManagement->min),
+                'hour' => Initiator::e($PowerManagement->hour),
+                'dom' => Initiator::e($PowerManagement->dom),
+                'month' => Initiator::e($PowerManagement->month),
+                'dow' => Initiator::e($PowerManagement->dow),
                 'action' => self::getClass('PowerManagementManager')
                     ->getActionSelect(
                         $PowerManagement->action,
