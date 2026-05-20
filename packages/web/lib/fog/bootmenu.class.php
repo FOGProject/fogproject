@@ -1517,36 +1517,6 @@ class BootMenu extends FOGBase
                     true
                 )
             );
-            $addomain = '';
-            $adou = '';
-            $aduser = '';
-            $adpass = '';
-            if (self::$Host->get('useAD')) {
-                $addomain = preg_replace(
-                    '#\s#',
-                    '+_+',
-                    self::$Host->get('ADDomain')
-                );
-                $adou = str_replace(
-                    ';',
-                    '',
-                    preg_replace(
-                        '#\s#',
-                        '+_+',
-                        self::$Host->get('ADOU')
-                    )
-                );
-                $aduser = preg_replace(
-                    '#\s#',
-                    '+_+',
-                    self::$Host->get('ADUser')
-                );
-                $adpass = preg_replace(
-                    '#\s#',
-                    '+_+',
-                    self::$Host->get('ADPass')
-                );
-            }
             $fdrive = self::$Host->get('kernelDevice');
             $imagingTaskActive = (isset($imagingTasks) && $imagingTasks);
             $kernelArgsArray = [
@@ -1605,16 +1575,6 @@ class BootMenu extends FOGBase
                 [
                     'value' => 'shutdown=1',
                     'active' => $Task->get('shutdown') || (isset($shutdown) ? $shutdown : false),
-                ],
-                [
-                    'value' => "adon=1 addomain=\"$addomain\" "
-                    . "adou=\"$adou\" aduser=\"$aduser\" "
-                    . "adpass=\"$adpass\"",
-                    'active' => (
-                        self::$Host->get('useAD')
-                        && self::$Host->isValid()
-                        && self::$Host->get('id') > 0
-                    )
                 ],
                 [
                     'value' => "fdrive=$fdrive",
