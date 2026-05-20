@@ -3271,6 +3271,10 @@ msgid "Invalid path"
 msgstr "Ungültiger Host"
 
 #, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Ungültiger Token übergeben"
+
+#, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Ungültiger Tasking Typ übergeben"
 

@@ -3274,6 +3274,10 @@ msgid "Invalid path"
 msgstr "hôte non valide"
 
 #, fuzzy
+msgid "Invalid product key supplied"
+msgstr "jeton non valide transmis"
+
+#, fuzzy
 msgid "Invalid scheduling type"
 msgstr "type d'objet non valide passé"
 

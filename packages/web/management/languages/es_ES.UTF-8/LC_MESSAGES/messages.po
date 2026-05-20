@@ -3351,6 +3351,10 @@ msgid "Invalid path"
 msgstr "host no válido"
 
 #, fuzzy
+msgid "Invalid product key supplied"
+msgstr "unidad no válida pasó"
+
+#, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Tipo de objeto no válido pasó"
 

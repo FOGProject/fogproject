@@ -3270,6 +3270,10 @@ msgid "Invalid path"
 msgstr "Invalid Host"
 
 #, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Invalid token passed"
+
+#, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Invalid object type passed"
 
