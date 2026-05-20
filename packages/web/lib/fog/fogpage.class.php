@@ -332,7 +332,7 @@ abstract class FOGPage extends FOGBase
             $data['f'] = $f;
         }
         if (isset($tab) && $tab) {
-            $tabstr = "#$tab";
+            $tabstr = "#". rawurlencode($tab);
         }
         if (count($data ?: []) > 0) {
             $formstr .= http_build_query($data);
@@ -2763,7 +2763,7 @@ abstract class FOGPage extends FOGBase
         echo self::makeFormTag(
             'form-horizontal',
             'import-form',
-            $this->formAction,
+            Initiator::e($this->formAction),
             'post',
             'multipart/form-data',
             true
