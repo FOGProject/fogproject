@@ -449,7 +449,7 @@ abstract class FOGPage extends FOGBase
         if (isset($tabstr) && $tabstr) {
             $formstr .= $tabstr;
         }
-        $this->formAction = $formstr;
+        $this->formAction = Initiator::e($formstr);
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
             array('searchPages' => &self::$searchPages)
@@ -967,7 +967,7 @@ abstract class FOGPage extends FOGBase
                 $name
             );
             $val = trim($val);
-            $this->dataReplace[] = Initiator::e($val);
+            $this->dataReplace[] = $val;
             unset($val);
         }
     }
@@ -995,7 +995,7 @@ abstract class FOGPage extends FOGBase
             $escapedReplace = array_map(
                 function ($value) {
                     if (is_scalar($value) || $value === null) {
-                        return Initiator::e((string)$value);
+                        return (string)$value;
                     }
                     return '';
                 },
@@ -1243,7 +1243,7 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
-            . Initiator::e($this->formAction)
+            . $this->formAction
             . '">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
