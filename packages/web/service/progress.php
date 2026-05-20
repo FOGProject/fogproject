@@ -49,13 +49,13 @@ try {
             && isset($str[4])
             && isset($str[5])
         ) {
-            $Task->set('bpm', $str[0])
-                ->set('timeElapsed', $str[1])
+            $Task->set('bpm', (float)$str[0])
+                ->set('timeElapsed', max(0, (float)$str[1]))
                 ->set('timeRemaining', $str[2])
                 ->set('dataCopied', $str[3])
                 ->set('dataTotal', $str[4])
-                ->set('percent', trim($str[5]))
-                ->set('pct', trim($str[5]))
+                ->set('percent', max(0, min(100, (float)$str[5])))
+                ->set('pct', max(0, min(100, (float)$str[5])))
                 ->save();
         }
         if (!isset($str[6]) || empty(trim($str[6])) || !$Task->isCapture()) {
