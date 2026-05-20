@@ -2517,7 +2517,7 @@ class HostManagementPage extends FOGPage
             _('System Product') => $sysprod,
             _('System Version') => $sysver,
             _('System Serial Number') => $sysser,
-            _('System UUID') => $sysuuid,
+            _('System UUID') => Initiator::e($sysuuid),
             _('System Type') => $systype,
             _('BIOS Vendor') => $biosven,
             _('BIOS Version') => $biosver,

@@ -207,13 +207,26 @@ class BootMenu extends FOGBase
             'set setmacto ${net0/mac}',
         );
         if (self::$Host->isValid()) {
+            $sysuuid = filter_input(INPUT_POST, 'sysuuid')
+                ?: filter_input(INPUT_GET, 'sysuuid')
+                ?: '';
             if (!self::$Host->get('inventory')->get('sysuuid')) {
-                self::$Host
-                    ->get('inventory')
-                    ->set('sysuuid', isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '')
-                    ->set('hostID', self::$Host->get('id'))
-                    ->save();
+                if ($sysuuid && !preg_match(
+                    '/^[0-9A-Fa-f]{8}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{12}$/',
+                    $sysuuid
+                )) {
+                    $sysuuid = '';
+                }
             }
+            self::$Host
+                ->get('inventory')
+                ->set('sysuuid', $sysuuid)
+                ->set('hostID', self::$Host->get('id'))
+                ->save();
         }
         $host_field_test = 'biosexit';
         $global_field_test = 'FOG_BOOT_EXIT_TYPE';
