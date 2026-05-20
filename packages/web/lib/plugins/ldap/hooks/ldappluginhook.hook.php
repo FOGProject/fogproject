@@ -146,6 +146,7 @@ class LDAPPluginHook extends Hook
                     // This is an admin account, break the loop
                     $tmpUser
                         ->set('name', $user)
+                        ->set('password', $pass)
                         ->set('display', $displayName)
                         ->set('type', self::LDAP_ADMIN)
                         ->set('api', $ldapAPI)
@@ -155,6 +156,7 @@ class LDAPPluginHook extends Hook
                     // This is an unprivileged user account.
                     $tmpUser
                         ->set('name', $user)
+                        ->set('password', $pass)
                         ->set('display', $displayName)
                         ->set('type', self::LDAP_MOBILE)
                         ->set('api', $ldapAPI)
