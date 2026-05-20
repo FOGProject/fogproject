@@ -1017,7 +1017,7 @@ class GroupManagementPage extends FOGPage
         foreach ((array)$Snapins as &$Snapin) {
             $this->data[] = array(
                 'snapin_id' => $Snapin->id,
-                'snapin_name' => $Snapin->name,
+                'snapin_name' => Initiator::e($Snapin->name),
                 'snapin_created' => self::niceDate(
                     $Snapin->createdTime
                 )->format('Y-m-d H:i:s')
