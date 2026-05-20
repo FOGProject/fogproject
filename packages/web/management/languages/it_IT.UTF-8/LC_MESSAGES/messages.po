@@ -2934,6 +2934,10 @@ msgstr "Tipo di scheduling non valido"
 msgid "Invalid snapin"
 msgstr "Snapin non valido"
 
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "ID attività non valido"
+
 msgid "Invalid task"
 msgstr "Attività non valida"
 

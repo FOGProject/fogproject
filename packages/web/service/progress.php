@@ -38,7 +38,18 @@ try {
     if (!$Image->isValid()) {
         throw new Exception(_('Invalid image'));
     }
-    $str = explode('@', base64_decode($_REQUEST['status']));
+    $statusRaw = base64_decode(
+        (string)
+        (
+            filter_input(INPUT_POST, 'status')
+            ?: filter_input(INPUT_GET, 'status')
+            ?: ''
+        ),
+        true
+    );
+    if (false === $statusRaw) {
+        throw new Exception(_('Invalid status payload'));
+    }
     $imagingTasks = $TaskType->isImagingTask();
     if ($imagingTasks) {
         if (isset($str)

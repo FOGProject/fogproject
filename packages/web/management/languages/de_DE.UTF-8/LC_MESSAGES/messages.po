@@ -3271,6 +3271,10 @@ msgstr "Ungültiger Zeitplantyp"
 msgid "Invalid snapin"
 msgstr "Ungültiger Snapin"
 
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "Ungültige Task-ID"
+
 msgid "Invalid task"
 msgstr "Ungültiger Task"
 

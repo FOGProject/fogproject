@@ -2877,6 +2877,10 @@ msgstr "Type de programmation non valide"
 msgid "Invalid snapin"
 msgstr "Snapin invalide"
 
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "ID tâche invalide"
+
 msgid "Invalid task"
 msgstr "Tâche non valide"
 

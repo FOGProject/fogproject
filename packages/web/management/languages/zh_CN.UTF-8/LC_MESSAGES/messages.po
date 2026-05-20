@@ -2845,6 +2845,10 @@ msgstr "无效调度类型"
 msgid "Invalid snapin"
 msgstr "无效的Snapin"
 
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "无效任务ID"
+
 msgid "Invalid task"
 msgstr "任务无效"
 

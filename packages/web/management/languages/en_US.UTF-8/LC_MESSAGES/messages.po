@@ -3264,6 +3264,10 @@ msgstr "Invalid type"
 msgid "Invalid snapin"
 msgstr "Invalid Snapin"
 
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "Invalid task"
+
 msgid "Invalid task"
 msgstr "Invalid task"
 

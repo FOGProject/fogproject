@@ -2852,6 +2852,10 @@ msgstr "Tipo de agendamento inválido"
 msgid "Invalid snapin"
 msgstr "Snapin inválido"
 
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "ID de tarefa inválido"
+
 msgid "Invalid task"
 msgstr "Tarefa inválida"
 
