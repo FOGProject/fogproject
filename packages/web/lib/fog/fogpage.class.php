@@ -441,7 +441,7 @@ abstract class FOGPage extends FOGBase
             $data['f'] = $f;
         }
         if (isset($tab) && $tab) {
-            $tabstr = "#$tab";
+            $tabstr = "#" . rawurlencode($tab);
         }
         if (isset($data) && is_array($data) && count($data) > 0) {
             $formstr .= http_build_query($data);
@@ -1243,7 +1243,7 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
+            . Initiator::e($this->formAction)
             . '">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
