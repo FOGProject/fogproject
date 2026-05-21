@@ -31,7 +31,7 @@ class FOGCron extends FOGBase
      *
      * @return string the trimmed value
      */
-    private static function _sanitizeCronField($value)
+    protected static function _sanitizeCronField($value)
     {
         $value = trim((string)$value);
         if (!preg_match('/^[0-9\*\/\-\,]+$/', $value)) {
