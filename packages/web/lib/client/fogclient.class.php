@@ -68,6 +68,7 @@ abstract class FOGClient extends FOGBase
                 $token = filter_input(INPUT_POST, 'token')
                     ?: filter_input(INPUT_GET, 'token')
                     ?: (isset($_SERVER['HTTP_X_FOG_TOKEN']) ? $_SERVER['HTTP_X_FOG_TOKEN'] : null);
+                $expected = (string)self::$Host->get('hostSecToken');
                 if (empty($token) || empty($expected) || !hash_equals($expected, $token)) {
                     throw new Exception('#!auth');
                 }
