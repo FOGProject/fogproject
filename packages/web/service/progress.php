@@ -52,6 +52,7 @@ try {
     }
     $imagingTasks = $TaskType->isImagingTask();
     if ($imagingTasks) {
+        $str = explode('@', $statusRaw);
         if (isset($str)
             && isset($str[0])
             && isset($str[1])
@@ -62,9 +63,9 @@ try {
         ) {
             $Task->set('bpm', (float)$str[0])
                 ->set('timeElapsed', max(0, (float)$str[1]))
-                ->set('timeRemaining', $str[2])
-                ->set('dataCopied', $str[3])
-                ->set('dataTotal', $str[4])
+                ->set('timeRemaining', strip_tags($str[2]))
+                ->set('dataCopied', strip_tags($str[3]))
+                ->set('dataTotal', strip_tags($str[4]))
                 ->set('percent', max(0, min(100, (float)$str[5])))
                 ->set('pct', max(0, min(100, (float)$str[5])))
                 ->save();
