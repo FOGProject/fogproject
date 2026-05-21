@@ -3223,6 +3223,9 @@ msgstr "tipo incorrecto"
 msgid "Invalid URL"
 msgstr "Unidad incorrecto"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr ""
 

@@ -2822,6 +2822,9 @@ msgstr "Type non valide"
 msgid "Invalid URL"
 msgstr "Unité invalide"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr "Des données non valides sont analysées"
 

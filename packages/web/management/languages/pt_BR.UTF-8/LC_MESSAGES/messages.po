@@ -2797,6 +2797,9 @@ msgstr "Tipo Inválido"
 msgid "Invalid URL"
 msgstr "URL Inválida"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr "Dados inválidos sendo analisados"
 
