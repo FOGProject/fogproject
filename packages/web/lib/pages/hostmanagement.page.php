@@ -2804,11 +2804,11 @@ class HostManagement extends FOGPage
                 $items[] = [
                     $pm,
                     $this->obj->get('id'),
-                    $scheduleCronMin[$index],
-                    $scheduleCronHour[$index],
-                    $scheduleCronDOM[$index],
-                    $scheduleCronMonth[$index],
-                    $scheduleCronDOW[$index],
+                    FOGCron::_sanitizeCronField($scheduleCronMin[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronHour[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronDOM[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronMonth[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronDOW[$index]),
                     $onDemandItem !== false ? 1 : 0,
                     $action[$index]
                 ];
@@ -2871,6 +2871,11 @@ class HostManagement extends FOGPage
                 $this->obj->wakeOnLAN();
                 return;
             }
+            $min = FOGCron::_sanitizeCronField($min);
+            $hour = FOGCron::_sanitizeCronField($hour);
+            $dom = FOGCron::_sanitizeCronField($dom);
+            $month = FOGCron::_sanitizeCronField($month);
+            $dow = FOGCron::_sanitizeCronField($dow);
             self::getClass('PowerManagement')
                 ->set('hostID', $this->obj->get('id'))
                 ->set('min', $min)

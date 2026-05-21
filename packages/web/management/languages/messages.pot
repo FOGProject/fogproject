@@ -2697,6 +2697,9 @@ msgstr ""
 msgid "Invalid Unit"
 msgstr ""
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr ""
 

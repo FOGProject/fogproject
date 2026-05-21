@@ -3239,6 +3239,9 @@ msgstr "无效的网址"
 msgid "Invalid Unit"
 msgstr "无效的网址"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "无效的令牌传递"

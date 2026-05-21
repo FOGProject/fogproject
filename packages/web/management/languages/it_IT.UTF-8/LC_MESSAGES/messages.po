@@ -3098,6 +3098,9 @@ msgstr "Unità non valida"
 msgid "Invalid Unit"
 msgstr "Unità non valida"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr "Dati non validi parsati"
 

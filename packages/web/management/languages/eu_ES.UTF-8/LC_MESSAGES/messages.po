@@ -3240,6 +3240,9 @@ msgstr "Ungültige Einheit"
 msgid "Invalid Unit"
 msgstr "Ungültige Einheit"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Ungültige Daten wurden geparst"

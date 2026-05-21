@@ -1,4 +1,9 @@
 (function($) {
+  var escapeHtml = function(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
     // ---------------------------------------------------------------
     // GENERAL TAB
     var originalName = $("#host").val(),
@@ -1382,15 +1387,15 @@
             {
                 targets: 0,
                 render: function(data, type, row) {
-                    return row.min
+                    return escapeHtml(row.min)
                         + ' '
-                        + row.hour
+                        + escapeHtml(row.hour)
                         + ' '
-                        + row.dom
+                        + escapeHtml(row.dom)
                         + ' '
-                        + row.month
+                        + escapeHtml(row.month)
                         + ' '
-                        + row.dow;
+                        + escapeHtml(row.dow);
                 }
             }
         ],

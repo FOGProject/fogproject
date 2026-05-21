@@ -3317,6 +3317,9 @@ msgstr "carpeta no válida"
 msgid "Invalid Unit"
 msgstr "carpeta no válida"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Elemento inválido pasaron"
