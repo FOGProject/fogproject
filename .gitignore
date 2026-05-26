@@ -98,3 +98,11 @@ packages/web/lib/plugins/hostext
 
 **/*/.claude
 **/.claude
+
+# Agent skill docs (local-only, used by mattpocock/skills) #
+###########################################################
+docs/agents/
+CONTEXT.md
+CONTEXT-MAP.md
+docs/adr/
+skills-lock.json

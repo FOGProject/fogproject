@@ -218,3 +218,19 @@ self::$HookManager->processEvent('EVENT_NAME', ['data' => &$data]);
 - Do not remove hooks, events, or plugin integration points without explicit confirmation
 - Do not touch `config.class.php` — it's generated and excluded from git
 - Do not change existing `$databaseFields` key names without understanding the ORM impact
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues at `FOGProject/fogproject`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
