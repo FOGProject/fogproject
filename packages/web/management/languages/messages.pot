@@ -1382,6 +1382,9 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
+msgid "Empty filename in upload"
+msgstr ""
+
 msgid "Enable Domain Joining"
 msgstr ""
 
@@ -1609,6 +1612,9 @@ msgid "Failed to create multicast task"
 msgstr ""
 
 msgid "Failed to create scheduled task"
+msgstr ""
+
+msgid "Failed to create snapin directory"
 msgstr ""
 
 msgid "Failed to create task"
@@ -2760,6 +2766,9 @@ msgstr ""
 msgid "Invalid unit passed"
 msgstr ""
 
+msgid "Invalid upload"
+msgstr ""
+
 msgid "Invalid upload."
 msgstr ""
 
@@ -3438,6 +3447,9 @@ msgstr ""
 msgid "No file was uploaded"
 msgstr ""
 
+msgid "No files provided in the \"snapinfiles[]\" multipart field"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -3665,6 +3677,10 @@ msgid "On Server Size"
 msgstr ""
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "One or more macs are associated with a host"
@@ -4775,7 +4791,13 @@ msgstr ""
 msgid "Storage Group deleted"
 msgstr ""
 
+msgid "Storage Group has no reachable Master Node"
+msgstr ""
+
 msgid "Storage Group name"
+msgstr ""
+
+msgid "Storage Group not found"
 msgstr ""
 
 msgid "Storage Group updated!"

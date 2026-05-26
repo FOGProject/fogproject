@@ -584,4 +584,141 @@ class Snapin extends FOGController
         self::setPrimaryGroup($storagegroup, $Snapin->get('id'));
         return $Snapin;
     }
+    /**
+     * Rejects reserved snapin filenames and returns a filesystem-safe
+     * basename. The 'ssl' substring is reserved for FOG's own SSL
+     * material under the snapin path; allowing it would let an upload
+     * shadow or clobber a cert/key.
+     *
+     * @param string $basename The candidate basename (already
+     *                         basename()'d by the caller)
+     *
+     * @return string Sanitized basename
+     *
+     * @throws \InvalidArgumentException If $basename matches the
+     *                                   reserved 'ssl' pattern
+     */
+    public static function sanitizeSnapinFileName(string $basename): string
+    {
+        if (preg_match('#ssl#i', $basename)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    '%s, %s.',
+                    _('Please choose a different name'),
+                    _('this one is reserved for FOG')
+                )
+            );
+        }
+        return preg_replace('/[^\-\w\.]+/', '_', $basename);
+    }
+    /**
+     * Transfers one or more uploaded files to a Storage Node's snapin
+     * path over SFTP. Pure transport — no Snapin DB rows are created
+     * or modified. Companion to Route::uploadSnapinFiles, which
+     * normally targets the Master Node of a Storage Group so the
+     * FOGSnapinReplicator can propagate from there.
+     *
+     * All files are validated up front; the SFTP session is opened
+     * once, used for every transfer, then closed in a finally so
+     * the connection doesn't leak on a partial failure.
+     *
+     * Collision policy: overwrite. Matches existing UI/createwithfile
+     * behavior. Caller is responsible for whatever protection it
+     * wants on top.
+     *
+     * @param StorageNode $StorageNode The destination node
+     * @param array       $filesArray  $_FILES['snapinfiles']
+     *                                 (multi-file form with 'name',
+     *                                 'tmp_name', 'error' as arrays)
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException Bad/missing filename, reserved
+     *                                   filename, upload error
+     * @throws \RuntimeException         SSH connect / mkdir / delete /
+     *                                   put failure
+     */
+    public static function uploadFilesToNode(
+        StorageNode $StorageNode,
+        array $filesArray
+    ): void {
+        $names = $filesArray['name'] ?? [];
+        $tmpNames = $filesArray['tmp_name'] ?? [];
+        $errors = $filesArray['error'] ?? [];
+        if (!is_array($names) || empty($names)) {
+            throw new \InvalidArgumentException(
+                _('No files provided in the "snapinfiles[]" multipart field')
+            );
+        }
+        $transfers = [];
+        foreach ($names as $idx => $name) {
+            $name = basename(trim((string)$name));
+            $err = (int)($errors[$idx] ?? UPLOAD_ERR_NO_FILE);
+            if ($err !== UPLOAD_ERR_OK) {
+                throw new \InvalidArgumentException(
+                    (new UploadException($err))->getMessage()
+                );
+            }
+            if ('' === $name) {
+                throw new \InvalidArgumentException(
+                    _('Empty filename in upload')
+                );
+            }
+            $sanitized = self::sanitizeSnapinFileName($name);
+            $tmp = (string)($tmpNames[$idx] ?? '');
+            if ('' === $tmp || !is_uploaded_file($tmp)) {
+                throw new \InvalidArgumentException(
+                    sprintf('%s: %s', _('Invalid upload'), $name)
+                );
+            }
+            $transfers[] = ['src' => $tmp, 'basename' => $sanitized];
+        }
+        set_time_limit(0);
+        self::$FOGSSH->username = $StorageNode->get('user');
+        self::$FOGSSH->password = $StorageNode->get('pass');
+        self::$FOGSSH->host = $StorageNode->get('ip');
+        if (!self::$FOGSSH->connect()) {
+            throw new \RuntimeException(
+                sprintf(
+                    '%s: %s: %s.',
+                    _('Storage Node'),
+                    $StorageNode->get('ip'),
+                    _('SSH Connection has failed')
+                )
+            );
+        }
+        try {
+            self::$FOGSSH->sftp();
+            $rdir = $StorageNode->get('snapinpath');
+            if (!self::$FOGSSH->exists($rdir)) {
+                if (false === self::$FOGSSH->sftp_mkdir($rdir)) {
+                    throw new \RuntimeException(
+                        _('Failed to create snapin directory')
+                        . ': ' . $rdir
+                    );
+                }
+            }
+            foreach ($transfers as $t) {
+                $dest = sprintf(
+                    '/%s/%s',
+                    trim($rdir, '/'),
+                    $t['basename']
+                );
+                if (self::$FOGSSH->exists($dest)) {
+                    if (!self::$FOGSSH->delete($dest)) {
+                        throw new \RuntimeException(
+                            sprintf(
+                                '%s: %s',
+                                _('Failed to delete existing snapin file'),
+                                $dest
+                            )
+                        );
+                    }
+                }
+                self::$FOGSSH->put($t['src'], $dest);
+            }
+        } finally {
+            self::$FOGSSH->disconnect();
+        }
+    }
 }

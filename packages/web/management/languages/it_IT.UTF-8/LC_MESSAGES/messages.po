@@ -1605,6 +1605,9 @@ msgstr "Impostazioni modulo del gruppo"
 msgid "Email"
 msgstr "E-mail"
 
+msgid "Empty filename in upload"
+msgstr ""
+
 #, fuzzy
 msgid "Enable Domain Joining"
 msgstr "Abilita invio posizione "
@@ -1853,6 +1856,10 @@ msgstr "Impossibile creare un'attività"
 #, fuzzy
 msgid "Failed to create scheduled task"
 msgstr "Impossibile creare un'attività"
+
+#, fuzzy
+msgid "Failed to create snapin directory"
+msgstr "Impossibile creare Snapin lavoro"
 
 msgid "Failed to create task"
 msgstr "Impossibile creare un'attività"
@@ -3167,6 +3174,10 @@ msgid "Invalid unit passed"
 msgstr "Unità non valido passato"
 
 #, fuzzy
+msgid "Invalid upload"
+msgstr "Classe non valido"
+
+#, fuzzy
 msgid "Invalid upload."
 msgstr "Classe non valido"
 
@@ -3922,6 +3933,9 @@ msgstr "Nessun campo passato"
 msgid "No file was uploaded"
 msgstr "Nessun file è stato caricato"
 
+msgid "No files provided in the \"snapinfiles[]\" multipart field"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4180,6 +4194,10 @@ msgstr "Server Shell"
 
 msgid "On reboot we will try to find a new node"
 msgstr "Al riavvio cercheremo di trovare un nuovo nodo"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "Uno o più MAC sono associati a questo host"
@@ -5407,7 +5425,15 @@ msgid "Storage Group deleted"
 msgstr "Storage Group cancellato"
 
 #, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Aggiornamento Gruppo di archiviazione fallito"
+
+#, fuzzy
 msgid "Storage Group name"
+msgstr "Nome gruppo di archiviazione"
+
+#, fuzzy
+msgid "Storage Group not found"
 msgstr "Nome gruppo di archiviazione"
 
 msgid "Storage Group updated!"

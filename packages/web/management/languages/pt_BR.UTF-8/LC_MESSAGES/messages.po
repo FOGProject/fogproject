@@ -1679,6 +1679,9 @@ msgstr "anfitrião Descrição"
 msgid "Email"
 msgstr "O email"
 
+msgid "Empty filename in upload"
+msgstr ""
+
 msgid "Enable Domain Joining"
 msgstr ""
 
@@ -1936,6 +1939,10 @@ msgstr "Falha ao criar tarefa"
 #, fuzzy
 msgid "Failed to create scheduled task"
 msgstr "Falha ao criar tarefa"
+
+#, fuzzy
+msgid "Failed to create snapin directory"
+msgstr "Falha ao criar Snapin Job"
 
 msgid "Failed to create task"
 msgstr "Falha ao criar tarefa"
@@ -3316,6 +3323,10 @@ msgid "Invalid unit passed"
 msgstr "unidade inválido passado"
 
 #, fuzzy
+msgid "Invalid upload"
+msgstr "Classe inválida"
+
+#, fuzzy
 msgid "Invalid upload."
 msgstr "Classe inválida"
 
@@ -4105,6 +4116,9 @@ msgstr "Nenhum campo passado"
 msgid "No file was uploaded"
 msgstr "Nenhum arquivo foi transferido"
 
+msgid "No files provided in the \"snapinfiles[]\" multipart field"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4378,6 +4392,10 @@ msgid "On Server Size"
 msgstr "Shell servidor"
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 #, fuzzy
@@ -5684,7 +5702,15 @@ msgid "Storage Group deleted"
 msgstr "Grupo de armazenamento excluído"
 
 #, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Grupo de armazenamento Atualizado"
+
+#, fuzzy
 msgid "Storage Group name"
+msgstr "Nome do grupo de armazenamento"
+
+#, fuzzy
+msgid "Storage Group not found"
 msgstr "Nome do grupo de armazenamento"
 
 #, fuzzy

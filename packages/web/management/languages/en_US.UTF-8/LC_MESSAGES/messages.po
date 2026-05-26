@@ -1676,6 +1676,9 @@ msgstr "Update Settings"
 msgid "Email"
 msgstr "Email"
 
+msgid "Empty filename in upload"
+msgstr ""
+
 msgid "Enable Domain Joining"
 msgstr ""
 
@@ -1933,6 +1936,10 @@ msgstr "Failed to create task"
 #, fuzzy
 msgid "Failed to create scheduled task"
 msgstr "Failed to create task"
+
+#, fuzzy
+msgid "Failed to create snapin directory"
+msgstr "Failed to create Snapin Job"
 
 msgid "Failed to create task"
 msgstr "Failed to create task"
@@ -3313,6 +3320,10 @@ msgid "Invalid unit passed"
 msgstr "Invalid unit passed"
 
 #, fuzzy
+msgid "Invalid upload"
+msgstr "Invalid Class"
+
+#, fuzzy
 msgid "Invalid upload."
 msgstr "Invalid Class"
 
@@ -4102,6 +4113,9 @@ msgstr "No fields passed"
 msgid "No file was uploaded"
 msgstr "No file was uploaded"
 
+msgid "No files provided in the \"snapinfiles[]\" multipart field"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4374,6 +4388,10 @@ msgid "On Server Size"
 msgstr "Server Shell"
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 #, fuzzy
@@ -5680,7 +5698,15 @@ msgid "Storage Group deleted"
 msgstr "Storage Group deleted"
 
 #, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Storage Group Updated"
+
+#, fuzzy
 msgid "Storage Group name"
+msgstr "Storage Group Name"
+
+#, fuzzy
+msgid "Storage Group not found"
 msgstr "Storage Group Name"
 
 #, fuzzy

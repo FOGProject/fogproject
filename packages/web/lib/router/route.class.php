@@ -340,6 +340,10 @@ class Route extends FOGBase
             [__CLASS__, 'createSnapinWithFile'],
             'snapinCreateWithFile'
         )->post(
+            '/storagegroup/[i:id]/uploadsnapinfiles',
+            [__CLASS__, 'uploadSnapinFiles'],
+            'uploadSnapinFiles'
+        )->post(
             "${expanded}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
@@ -1938,6 +1942,67 @@ class Route extends FOGBase
             );
         } catch (\RuntimeException $e) {
             // Covers SnapinSaveException (subclass) and any SSH/SFTP failure.
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage()
+            );
+        }
+    }
+    /**
+     * Uploads one or more snapin files to a Storage Group's Master
+     * Node over SFTP. Pure transport — does not create or modify any
+     * Snapin DB row. After upload, the FOGSnapinReplicator daemon
+     * propagates the files to the group's other nodes on its normal
+     * cycle.
+     *
+     * Closes #823.
+     *
+     * Multi-file: pass files as snapinfiles[]=@file1 snapinfiles[]=@file2.
+     * Collision: existing files with the same basename are overwritten
+     * (matches the createwithfile / UI behavior).
+     *
+     * @param int $id Storage Group ID
+     *
+     * @return void
+     */
+    public static function uploadSnapinFiles($id)
+    {
+        try {
+            $StorageGroup = self::getClass('StorageGroup', (int)$id);
+            if (!$StorageGroup->isValid()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_NOT_FOUND,
+                    _('Storage Group not found')
+                );
+                return;
+            }
+            if (empty($_FILES['snapinfiles']['name'])
+                || !is_array($_FILES['snapinfiles']['name'])
+            ) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    _('One or more files must be uploaded via the "snapinfiles[]" multipart field')
+                );
+                return;
+            }
+            $StorageNode = $StorageGroup->getMasterStorageNode();
+            if (!$StorageNode || !$StorageNode->isValid()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                    _('Storage Group has no reachable Master Node')
+                );
+                return;
+            }
+            Snapin::uploadFilesToNode($StorageNode, $_FILES['snapinfiles']);
+            // sendResponse exits, so printer() doesn't run and override
+            // the status / emit a null body. 204 = success, no body.
+            self::sendResponse(HTTPResponseCodes::HTTP_NO_CONTENT);
+        } catch (\InvalidArgumentException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                $e->getMessage()
+            );
+        } catch (\RuntimeException $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
                 $e->getMessage()

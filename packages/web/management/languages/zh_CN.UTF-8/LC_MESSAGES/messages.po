@@ -1677,6 +1677,9 @@ msgstr "主机描述"
 msgid "Email"
 msgstr "电子邮件"
 
+msgid "Empty filename in upload"
+msgstr ""
+
 msgid "Enable Domain Joining"
 msgstr ""
 
@@ -1934,6 +1937,10 @@ msgstr "无法创建任务"
 #, fuzzy
 msgid "Failed to create scheduled task"
 msgstr "无法创建任务"
+
+#, fuzzy
+msgid "Failed to create snapin directory"
+msgstr "无法创建管理单元工作"
 
 msgid "Failed to create task"
 msgstr "无法创建任务"
@@ -3314,6 +3321,10 @@ msgid "Invalid unit passed"
 msgstr "无效的单元传递"
 
 #, fuzzy
+msgid "Invalid upload"
+msgstr "无效类"
+
+#, fuzzy
 msgid "Invalid upload."
 msgstr "无效类"
 
@@ -4103,6 +4114,9 @@ msgstr "否字段通过"
 msgid "No file was uploaded"
 msgstr "没有文件被上传"
 
+msgid "No files provided in the \"snapinfiles[]\" multipart field"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4374,6 +4388,10 @@ msgid "On Server Size"
 msgstr "服务器外壳"
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 #, fuzzy
@@ -5680,7 +5698,15 @@ msgid "Storage Group deleted"
 msgstr "存储组中删除"
 
 #, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "存储组更新"
+
+#, fuzzy
 msgid "Storage Group name"
+msgstr "存储组名称"
+
+#, fuzzy
+msgid "Storage Group not found"
 msgstr "存储组名称"
 
 #, fuzzy

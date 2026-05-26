@@ -1675,6 +1675,9 @@ msgstr "Gruppeneinstellungen Module"
 msgid "Email"
 msgstr "E-Mail"
 
+msgid "Empty filename in upload"
+msgstr ""
+
 #, fuzzy
 msgid "Enable Domain Joining"
 msgstr "Standort senden aktivieren"
@@ -1933,6 +1936,10 @@ msgstr "Fehler beim Erstellen eines Tasks"
 #, fuzzy
 msgid "Failed to create scheduled task"
 msgstr "Fehler beim Erstellen eines Tasks"
+
+#, fuzzy
+msgid "Failed to create snapin directory"
+msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
 
 msgid "Failed to create task"
 msgstr "Fehler beim Erstellen eines Tasks"
@@ -3315,6 +3322,10 @@ msgid "Invalid unit passed"
 msgstr "Ungültige Einheit übergeben"
 
 #, fuzzy
+msgid "Invalid upload"
+msgstr "Ungültige Klasse"
+
+#, fuzzy
 msgid "Invalid upload."
 msgstr "Ungültige Klasse"
 
@@ -4107,6 +4118,9 @@ msgstr "Keine Felder übergeben"
 msgid "No file was uploaded"
 msgstr "Keine Datei wurde hochgeladen"
 
+msgid "No files provided in the \"snapinfiles[]\" multipart field"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4379,6 +4393,10 @@ msgstr "Server-Shell"
 
 msgid "On reboot we will try to find a new node"
 msgstr "Beim Neustart versuchen wir, automatisch"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr ""
 
 #, fuzzy
 msgid "One or more macs are associated with a host"
@@ -5685,7 +5703,15 @@ msgid "Storage Group deleted"
 msgstr "Speichergruppe gelöscht"
 
 #, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
+
+#, fuzzy
 msgid "Storage Group name"
+msgstr "Name der Speichergruppe"
+
+#, fuzzy
+msgid "Storage Group not found"
 msgstr "Name der Speichergruppe"
 
 #, fuzzy
