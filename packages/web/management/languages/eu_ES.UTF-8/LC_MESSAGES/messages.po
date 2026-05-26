@@ -131,6 +131,9 @@ msgstr "Schlüsselfeldname muss eine Zeichenfolge sein."
 msgid "A file"
 msgstr "Eine Datei"
 
+msgid "A file must be uploaded via the \"snapinfile\" multipart field"
+msgstr ""
+
 #, fuzzy
 msgid "A filename is required!"
 msgstr "Ein Gruppenname ist erforderlich!"

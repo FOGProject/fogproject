@@ -134,6 +134,9 @@ msgstr "Evento debe ser una cadena"
 msgid "A file"
 msgstr "Archivo"
 
+msgid "A file must be uploaded via the \"snapinfile\" multipart field"
+msgstr ""
+
 #, fuzzy
 msgid "A filename is required!"
 msgstr "Se requiere un nombre de imagen!"

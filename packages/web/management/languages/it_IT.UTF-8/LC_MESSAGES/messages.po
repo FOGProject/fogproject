@@ -132,6 +132,9 @@ msgstr "Campo chiave deve essere una stringa"
 msgid "A file"
 msgstr "Un file"
 
+msgid "A file must be uploaded via the \"snapinfile\" multipart field"
+msgstr ""
+
 #, fuzzy
 msgid "A filename is required!"
 msgstr "È richiesto un nome di gruppo!"

@@ -136,6 +136,9 @@ msgstr "Evento deve ser uma string"
 msgid "A file"
 msgstr "Arquivo"
 
+msgid "A file must be uploaded via the \"snapinfile\" multipart field"
+msgstr ""
+
 #, fuzzy
 msgid "A filename is required!"
 msgstr "Um nome de imagem é necessário!"

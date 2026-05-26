@@ -136,6 +136,9 @@ msgstr "事件必须是字符串"
 msgid "A file"
 msgstr "文件"
 
+msgid "A file must be uploaded via the \"snapinfile\" multipart field"
+msgstr ""
+
 #, fuzzy
 msgid "A filename is required!"
 msgstr "图像名是必需的！"

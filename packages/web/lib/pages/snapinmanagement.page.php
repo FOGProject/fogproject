@@ -923,166 +923,11 @@ class SnapinManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent('SNAPIN_ADD_POST');
-        $snapin = trim(
-            filter_input(INPUT_POST, 'snapin')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $packtype = trim(
-            filter_input(INPUT_POST, 'packtype')
-        );
-        $runWith = trim(
-            filter_input(INPUT_POST, 'rw')
-        );
-        $runWithArgs = trim(
-            filter_input(INPUT_POST, 'rwa')
-        );
-        $storagegroup = (int)trim(
-            filter_input(INPUT_POST, 'storagegroup')
-        );
-        $snapinfile = basename(
-            trim(
-                filter_input(INPUT_POST, 'snapinfileexist')
-            )
-        );
-        $uploadfile = basename(
-            trim(
-                $_FILES['snapinfile']['name']
-            )
-        );
-        if ($uploadfile) {
-            $snapinfile = $uploadfile;
-        }
-        $isEnabled = (int)isset($_POST['isEnabled']);
-        $toReplicate = (int)isset($_POST['toReplicate']);
-        $hide = (int)isset($_POST['isHidden']);
-        $tiemout = trim(
-            filter_input(INPUT_POST, 'timeout')
-        );
-        $action = trim(
-            filter_input(INPUT_POST, 'action')
-        );
-        $args = trim(
-            filter_input(INPUT_POST, 'args')
-        );
-        $timeout = trim(
-            filter_input(INPUT_POST, 'timeout')
-        );
 
         $serverFault = false;
+        $Snapin = null;
         try {
-            $exists = self::getClass('SnapinManager')
-                ->exists($snapin);
-            if ($exists) {
-                throw new Exception(
-                    _('A snapin already exists with this name!')
-                );
-            }
-            if (!$snapinfile) {
-                throw new Exception(
-                    sprintf(
-                        '%s, %s, %s!',
-                        _('A file'),
-                        _('either already selected or uploaded'),
-                        _('must be specified')
-                    )
-                );
-            }
-            if (preg_match('#ssl#i', $snapinfile)) {
-                throw new Exception(
-                    sprintf(
-                        '%s, %s.',
-                        _('Please choose a different name'),
-                        _('this one is reserved for FOG')
-                    )
-                );
-            }
-            $snapinfile = preg_replace('/[^\-\w\.]+/', '_', $snapinfile);
-            $StorageGroup = new StorageGroup($storagegroup);
-            $StorageNode = $StorageGroup->getMasterStorageNode();
-            if (!$snapinfile && $_FILES['snapinfile']['error'] > 0) {
-                throw new UploadException($_FILES['snapinfile']['error']);
-            }
-            $src = sprintf(
-                '%s/%s',
-                dirname($_FILES['snapinfile']['tmp_name']),
-                basename($_FILES['snapinfile']['tmp_name'])
-            );
-            $dest = sprintf(
-                '/%s/%s',
-                trim(
-                    $StorageNode->get('snapinpath'),
-                    '/'
-                ),
-                $snapinfile
-            );
-            set_time_limit(0);
-            $hash = '';
-            $size = 0;
-            if ($uploadfile) {
-                $hash = hash_file('sha512', $src);
-                $size = self::getFilesize($src);
-                self::$FOGSSH->username = $StorageNode->get('user');
-                self::$FOGSSH->password = $StorageNode->get('pass');
-                self::$FOGSSH->host = $StorageNode->get('ip');
-                if (!self::$FOGSSH->connect()) {
-                    throw new Exception(
-                        sprintf(
-                            '%s: %s: %s.',
-                            _('Storage Node'),
-                            $StorageNode->get('ip'),
-                            _('SSH Connection has failed')
-                        )
-                    );
-                }
-                self::$FOGSSH->sftp();
-                $rdir = $StorageNode->get('snapinpath');
-                if (!self::$FOGSSH->exists($rdir)) {
-                    if (false === self::$FOGSSH->sftp_mkdir($rdir)) {
-                        throw new Exception(
-                            _('Failed to add snapin')
-                            . ' ' . $rdir . ' '
-                            . _('does not exist and cannot be created')
-                        );
-                    }
-                }
-                if (self::$FOGSSH->exists($dest)) {
-                    if (!self::$FOGSSH->delete($dest)) {
-                        throw new Exception(
-                            _('Failed to delete existing snapin file')
-                        );
-                    }
-                }
-                self::$FOGSSH->put($src, $dest);
-                self::$FOGSSH->disconnect();
-            }
-            $Snapin = self::getClass('Snapin')
-                ->set('name', $snapin)
-                ->set('description', $description)
-                ->set('packtype', $packtype)
-                ->set('file', $snapinfile)
-                ->set('hash', $hash)
-                ->set('size', $size)
-                ->set('args', $args)
-                ->set('reboot', $action == 'reboot')
-                ->set('shutdown', $action == 'shutdown')
-                ->set('runWith', $runWith)
-                ->set('runWithArgs', $runWithArgs)
-                ->set('isEnabled', $isEnabled)
-                ->set('toReplicate', $toReplicate)
-                ->set('hide', $hide)
-                ->set('timeout', $timeout)
-                ->addGroup($storagegroup);
-            if (!$Snapin->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add snapin failed!'));
-            }
-            /**
-             * During snapin creation we only allow a single group anyway.
-             * This will set it to be the primary master.
-             */
-            Snapin::setPrimaryGroup($storagegroup, $Snapin->get('id'));
+            $Snapin = Snapin::uploadAndCreate($_POST, $_FILES);
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'SNAPIN_ADD_SUCCESS';
             $msg = json_encode(
@@ -1091,12 +936,22 @@ class SnapinManagement extends FOGPage
                     'title' => _('Snapin Create Success')
                 ]
             );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
+        } catch (SnapinSaveException $e) {
+            $serverFault = true;
+            $code = HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR;
+            $hook = 'SNAPIN_ADD_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Snapin Create Fail')
+                ]
             );
+        } catch (Exception $e) {
+            // Legacy UI behavior: SSH/SFTP RuntimeExceptions and
+            // InvalidArgumentException both map to HTTP 400 here.
+            // Route::createSnapinWithFile maps them differently.
+            // See docs/adr/0001-api-ui-http-status-divergence.md.
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'SNAPIN_ADD_FAIL';
             $msg = json_encode(
                 [

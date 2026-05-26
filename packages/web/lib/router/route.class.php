@@ -336,6 +336,10 @@ class Route extends FOGBase
             [__CLASS__, 'task'],
             'task'
         )->post(
+            '/snapin/createwithfile',
+            [__CLASS__, 'createSnapinWithFile'],
+            'snapinCreateWithFile'
+        )->post(
             "${expanded}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
@@ -1894,6 +1898,48 @@ class Route extends FOGBase
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
+                $e->getMessage()
+            );
+        }
+    }
+    /**
+     * Creates a Snapin from a multipart/form-data POST that includes
+     * the snapin file. The UI's snapin add flow accepts an uploaded
+     * file; the generic JSON `create` endpoint does not, so this is
+     * the API-side counterpart for that flow.
+     *
+     * Maps the same exception types as the helper but with REST-
+     * conventional codes: validation -> 400, transport/save -> 500.
+     * The UI page deliberately preserves the legacy 400 for SSH/SFTP
+     * RuntimeExceptions. See
+     * docs/adr/0001-api-ui-http-status-divergence.md.
+     *
+     * @return void
+     */
+    public static function createSnapinWithFile()
+    {
+        try {
+            if (empty($_FILES['snapinfile']['name'])
+                || (int)($_FILES['snapinfile']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE
+            ) {
+                self::setErrorMessage(
+                    _('A file must be uploaded via the "snapinfile" multipart field'),
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
+                );
+                return;
+            }
+            $Snapin = Snapin::uploadAndCreate($_POST, $_FILES);
+            http_response_code(HTTPResponseCodes::HTTP_CREATED);
+            self::indiv('Snapin', $Snapin->get('id'));
+        } catch (\InvalidArgumentException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                $e->getMessage()
+            );
+        } catch (\RuntimeException $e) {
+            // Covers SnapinSaveException (subclass) and any SSH/SFTP failure.
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
                 $e->getMessage()
             );
         }
