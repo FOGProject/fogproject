@@ -64,15 +64,6 @@ abstract class FOGClient extends FOGBase
                 $returnmacs,
                 $override
             );
-            if (!$override && !$hostnotrequired && self::$Host->isValid()) {
-                $token = filter_input(INPUT_POST, 'token')
-                    ?: filter_input(INPUT_GET, 'token')
-                    ?: (isset($_SERVER['HTTP_X_FOG_TOKEN']) ? $_SERVER['HTTP_X_FOG_TOKEN'] : null);
-                $expected = (string)self::$Host->get('hostSecToken');
-                if (empty($token) || empty($expected) || !hash_equals($expected, $token)) {
-                    throw new Exception('#!auth');
-                }
-            }
             if (!self::$Host instanceof Host) {
                 self::$Host = new Host(0);
             }
