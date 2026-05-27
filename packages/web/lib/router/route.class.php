@@ -303,6 +303,16 @@ class Route extends FOGBase
                 'task'
             )
             ->post(
+                '/snapin/createwithfile',
+                array(__CLASS__, 'createSnapinWithFile'),
+                'snapinCreateWithFile'
+            )
+            ->post(
+                '/storagegroup/[i:id]/uploadsnapinfiles',
+                array(__CLASS__, 'uploadSnapinFiles'),
+                'uploadSnapinFiles'
+            )
+            ->post(
                 "${expanded}/[create|new]?",
                 array(__CLASS__, 'create'),
                 'create'
@@ -1035,6 +1045,144 @@ class Route extends FOGBase
             );
         }
         self::indiv($classname, $id);
+    }
+    /**
+     * Create a Snapin from a multipart upload.
+     *
+     * POST /fog/snapin/createwithfile
+     *
+     * The only Snapin endpoint that accepts a binary file. Delegates
+     * validation / FTP / DB save to Snapin::uploadAndCreate, then returns
+     * the freshly-loaded row using the standard indiv() formatter so the
+     * response shape matches GET /fog/snapin/<id>.
+     *
+     * @return void
+     */
+    public static function createSnapinWithFile()
+    {
+        try {
+            $Snapin = Snapin::uploadAndCreate($_POST, $_FILES);
+        } catch (SnapinSaveException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(
+                    array(
+                        'error' => $e->getMessage(),
+                        'title' => _('Snapin Create Fail'),
+                    )
+                )
+            );
+            return;
+        } catch (\InvalidArgumentException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    array(
+                        'error' => $e->getMessage(),
+                        'title' => _('Snapin Create Fail'),
+                    )
+                )
+            );
+            return;
+        } catch (\RuntimeException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(
+                    array(
+                        'error' => $e->getMessage(),
+                        'title' => _('Snapin Create Fail'),
+                    )
+                )
+            );
+            return;
+        }
+        self::indiv('snapin', $Snapin->get('id'));
+        self::printer(self::$data, HTTPResponseCodes::HTTP_CREATED);
+    }
+    /**
+     * Upload one or more snapin files to a Storage Group's Master Node
+     * without creating any database row. Files land in the snapin path;
+     * FOGSnapinReplicator distributes them to other nodes on its cycle.
+     *
+     * POST /fog/storagegroup/[i:id]/uploadsnapinfiles
+     *
+     * Form field MUST be 'snapinfiles[]' (the [] is what makes PHP
+     * populate $_FILES as a multi-file array, even for one file).
+     *
+     * @param int $id Storage Group ID
+     *
+     * @return void
+     */
+    public static function uploadSnapinFiles($id)
+    {
+        try {
+            $StorageGroup = self::getClass('StorageGroup', (int)$id);
+            if (!$StorageGroup->isValid()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_NOT_FOUND,
+                    json_encode(
+                        array(
+                            'error' => _('Storage Group not found'),
+                            'title' => _('Snapin File Upload Fail'),
+                        )
+                    )
+                );
+                return;
+            }
+            if (empty($_FILES['snapinfiles']['name'])
+                || !is_array($_FILES['snapinfiles']['name'])
+            ) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    json_encode(
+                        array(
+                            'error' => _(
+                                'One or more files must be uploaded via the "snapinfiles[]" multipart field'
+                            ),
+                            'title' => _('Snapin File Upload Fail'),
+                        )
+                    )
+                );
+                return;
+            }
+            $StorageNode = $StorageGroup->getMasterStorageNode();
+            if (!$StorageNode || !$StorageNode->isValid()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                    json_encode(
+                        array(
+                            'error' => _('Storage Group has no reachable Master Node'),
+                            'title' => _('Snapin File Upload Fail'),
+                        )
+                    )
+                );
+                return;
+            }
+            Snapin::uploadFilesToNode($StorageNode, $_FILES['snapinfiles']);
+            // sendResponse exits via breakHead, which prevents printer()
+            // from later overriding the status / emitting a body. 204 = OK.
+            self::sendResponse(HTTPResponseCodes::HTTP_NO_CONTENT);
+        } catch (\InvalidArgumentException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    array(
+                        'error' => $e->getMessage(),
+                        'title' => _('Snapin File Upload Fail'),
+                    )
+                )
+            );
+        } catch (\RuntimeException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(
+                    array(
+                        'error' => $e->getMessage(),
+                        'title' => _('Snapin File Upload Fail'),
+                    )
+                )
+            );
+        }
     }
     /**
      * Cancels a task element.

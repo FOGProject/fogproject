@@ -184,6 +184,10 @@ msgstr "Un Snapin existe déjà avec ce nom !"
 msgid "A snapin name is required!"
 msgstr "Un nom de Snapin est nécessaire !"
 
+#, fuzzy
+msgid "A storage group is required!"
+msgstr "Un groupe est requis !"
+
 msgid "A subnet group already exists with this name!"
 msgstr "Un groupe de sous-réseaux existe déjà avec ce nom !"
 
@@ -1739,6 +1743,10 @@ msgstr "Impossible de créer un nouveau groupe"
 msgid "Failed to create scheduled tasking"
 msgstr "Échec de la création d'une tâche planifiée"
 
+#, fuzzy
+msgid "Failed to create snapin path on Master Node"
+msgstr "Échec de la création d'un job Snapin"
+
 msgid "Failed to create task"
 msgstr "Impossible de créer la tâche"
 
@@ -1802,6 +1810,10 @@ msgstr "Journaux Impossible de mettre à jour / créer une image"
 msgid "Failed to update/create task log"
 msgstr "Journaux Impossible de mettre à jour / créer des tâches"
 
+#, fuzzy, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "Impossible de détruire le nœud de stockage"
+
 msgid "Failed to write file to disk"
 msgstr "Impossible d'écrire le fichier sur le disque"
 
@@ -1824,6 +1836,10 @@ msgstr "Fichier icône introuvable"
 
 msgid "File System Information"
 msgstr "Informations sur les fichiers système"
+
+#, fuzzy, php-format
+msgid "File at index %d has an empty filename"
+msgstr "Impossible de trouver le nom du fichier temporaire"
 
 msgid "File does not exist"
 msgstr "Fichier n'existe pas"
@@ -3305,6 +3321,10 @@ msgstr "Apporter des modifications au Snapin"
 msgid "Make changes?"
 msgstr "Effectuer les changements ?"
 
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
+
 msgid "Management"
 msgstr "Gestion"
 
@@ -3855,6 +3875,10 @@ msgstr "Sur le tableau de bord"
 
 msgid "On reboot we will try to find a new node"
 msgstr "Au redémarrage, nous allons essayer de trouver un nouveau nœud"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "Un ou plusieurs macs sont associés à un hôte"
@@ -4929,6 +4953,10 @@ msgstr "Fichier du Snapin"
 msgid "Snapin File (exists)"
 msgstr "Fichier Snapin (existe)"
 
+#, fuzzy
+msgid "Snapin File Upload Fail"
+msgstr "Échec de la mise à jour du Snapin"
+
 msgid "Snapin General"
 msgstr "Généralités Snapins"
 
@@ -5156,6 +5184,14 @@ msgstr "Groupe de stockage mis à jour"
 
 msgid "Storage Group deleted"
 msgstr "Groupe de stockage supprimé"
+
+#, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Groupe de stockage créé"
+
+#, fuzzy
+msgid "Storage Group not found"
+msgstr "Groupe de stockage créé"
 
 msgid "Storage Group update failed!"
 msgstr "Échec de la mise à jour du groupe de stockage !"
@@ -5893,6 +5929,14 @@ msgstr "Mise à jour / suppression des imprimantes"
 
 msgid "Upload Reports"
 msgstr "Télécharger Rapports"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr ""
 
 msgid "Upload file"
 msgstr "Téléverser un fichier"

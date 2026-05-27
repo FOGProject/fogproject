@@ -162,6 +162,9 @@ msgstr ""
 msgid "A snapin name is required!"
 msgstr ""
 
+msgid "A storage group is required!"
+msgstr ""
+
 msgid "A subnet group already exists with this name!"
 msgstr ""
 
@@ -1703,6 +1706,9 @@ msgstr ""
 msgid "Failed to create scheduled tasking"
 msgstr ""
 
+msgid "Failed to create snapin path on Master Node"
+msgstr ""
+
 msgid "Failed to create task"
 msgstr ""
 
@@ -1766,6 +1772,10 @@ msgstr ""
 msgid "Failed to update/create task log"
 msgstr ""
 
+#, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr ""
+
 msgid "Failed to write file to disk"
 msgstr ""
 
@@ -1785,6 +1795,10 @@ msgid "File Not Found"
 msgstr ""
 
 msgid "File System Information"
+msgstr ""
+
+#, php-format
+msgid "File at index %d has an empty filename"
 msgstr ""
 
 msgid "File does not exist"
@@ -3239,6 +3253,10 @@ msgstr ""
 msgid "Make changes?"
 msgstr ""
 
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
+
 msgid "Management"
 msgstr ""
 
@@ -3786,6 +3804,10 @@ msgid "On Dashboard"
 msgstr ""
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "One or more macs are associated with a host"
@@ -4843,6 +4865,9 @@ msgstr ""
 msgid "Snapin File (exists)"
 msgstr ""
 
+msgid "Snapin File Upload Fail"
+msgstr ""
+
 msgid "Snapin General"
 msgstr ""
 
@@ -5066,6 +5091,12 @@ msgid "Storage Group Updated"
 msgstr ""
 
 msgid "Storage Group deleted"
+msgstr ""
+
+msgid "Storage Group has no reachable Master Node"
+msgstr ""
+
+msgid "Storage Group not found"
 msgstr ""
 
 msgid "Storage Group update failed!"
@@ -5777,6 +5808,14 @@ msgid "Update/Remove printers"
 msgstr ""
 
 msgid "Upload Reports"
+msgstr ""
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
 msgstr ""
 
 msgid "Upload file"

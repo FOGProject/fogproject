@@ -183,6 +183,10 @@ msgstr "已有同名Snapin！"
 msgid "A snapin name is required!"
 msgstr "请输入Snapin名称!"
 
+#, fuzzy
+msgid "A storage group is required!"
+msgstr "需要分组!"
+
 msgid "A subnet group already exists with this name!"
 msgstr "同名子网已存在!"
 
@@ -1725,6 +1729,10 @@ msgstr "无法创建新的组"
 msgid "Failed to create scheduled tasking"
 msgstr "无法创建定时任务"
 
+#, fuzzy
+msgid "Failed to create snapin path on Master Node"
+msgstr "无法创建插件工作"
+
 msgid "Failed to create task"
 msgstr "无法创建任务"
 
@@ -1788,6 +1796,10 @@ msgstr "无法更新/创建图像日志"
 msgid "Failed to update/create task log"
 msgstr "无法更新/创建任务日志"
 
+#, fuzzy, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "未能摧毁存储节点"
+
 msgid "Failed to write file to disk"
 msgstr "无法写入文件到磁盘"
 
@@ -1809,6 +1821,10 @@ msgstr "图标文件未找到"
 
 msgid "File System Information"
 msgstr "文件系统信息"
+
+#, fuzzy, php-format
+msgid "File at index %d has an empty filename"
+msgstr "找不到临时文件名"
 
 msgid "File does not exist"
 msgstr "文件不存在"
@@ -3267,6 +3283,10 @@ msgstr "保存Snapin更改"
 msgid "Make changes?"
 msgstr "保存更改?"
 
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
+
 msgid "Management"
 msgstr "管理"
 
@@ -3816,6 +3836,10 @@ msgstr "仪表板上"
 
 msgid "On reboot we will try to find a new node"
 msgstr "重启时寻找一个新节点"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "该主机关联了多个MAC"
@@ -4873,6 +4897,10 @@ msgstr "Snapin文件"
 msgid "Snapin File (exists)"
 msgstr "Snapin文件（存在）"
 
+#, fuzzy
+msgid "Snapin File Upload Fail"
+msgstr "Snapin更新失败"
+
 msgid "Snapin General"
 msgstr "Snapin通用"
 
@@ -5097,6 +5125,14 @@ msgstr "存储组已更新"
 
 msgid "Storage Group deleted"
 msgstr "存储组已删除"
+
+#, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "存储组已创建"
+
+#, fuzzy
+msgid "Storage Group not found"
+msgstr "存储组已创建"
 
 msgid "Storage Group update failed!"
 msgstr "存储组更新失败!"
@@ -5813,6 +5849,14 @@ msgstr "更新/移除打印机"
 
 msgid "Upload Reports"
 msgstr "上传报告"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr ""
 
 msgid "Upload file"
 msgstr "上传文件"
