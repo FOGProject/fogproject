@@ -3615,6 +3615,9 @@ msgstr "Versión del sistema"
 msgid "Latest Version"
 msgstr "Versión del sistema"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Evento debe ser una cadena"
@@ -7646,6 +7649,9 @@ msgstr ""
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "Borrar todos los hosts dentro del grupo"
+
+msgid "to clear the field on every host in this group."
+msgstr ""
 
 #, fuzzy
 msgid "to get the requested Kernel"

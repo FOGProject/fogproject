@@ -604,6 +604,13 @@ class GroupManagement extends FOGPage
         );
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
+        echo '<div class="alert alert-info" role="alert">'
+            . _('Leave a field blank to keep each host\'s current value.')
+            . ' '
+            . _('Type')
+            . ' <code>NULL</code> '
+            . _('to clear the field on every host in this group.')
+            . '</div>';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer with-border">';
@@ -674,20 +681,36 @@ class GroupManagement extends FOGPage
             ->set('kernelDevice', $dev)
             ->set('init', $init);
 
-        // Same but set all hosts in this group
+        // Propagate to hosts: empty = leave per-host value alone;
+        // literal "NULL" (case-insensitive) = explicitly clear the field.
+        $resolve = function ($value) {
+            $trimmed = trim((string)$value);
+            if (strcasecmp($trimmed, 'NULL') === 0) {
+                return '';
+            }
+            return $trimmed !== '' ? $value : null;
+        };
+        $candidates = [
+            'kernel'       => $kernel,
+            'kernelArgs'   => $args,
+            'kernelDevice' => $dev,
+            'init'         => $init,
+            'biosexit'     => $bte,
+            'efiexit'      => $ebte,
+            'productKey'   => trim($productKey),
+        ];
+        $updateHostItems = [];
+        foreach ($candidates as $field => $value) {
+            $resolved = $resolve($value);
+            if ($resolved !== null) {
+                $updateHostItems[$field] = $resolved;
+            }
+        }
         self::getClass('HostManager')
             ->update(
                 ['id' => $this->obj->get('hosts')],
                 '',
-                [
-                    'kernel' => $kernel,
-                    'kernelArgs' => $args,
-                    'kernelDevice' => $dev,
-                    'init' => $init,
-                    'biosexit' => $bte,
-                    'efiexit' => $ebte,
-                    'productKey' => trim($productKey)
-                ]
+                $updateHostItems
             );
     }
     /**

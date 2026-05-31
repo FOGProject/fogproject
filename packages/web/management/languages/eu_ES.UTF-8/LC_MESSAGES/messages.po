@@ -3528,6 +3528,9 @@ msgstr "Neueste Entwicklungsversion"
 msgid "Latest Version"
 msgstr "Neueste Version"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Level muss eine integer sein."
@@ -7506,6 +7509,10 @@ msgstr "Das wird Ihr Backup in Ihrem "
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "auf alle Knoten in der Gruppe."
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "Dies ist nicht die primäre Gruppe"
 
 #, fuzzy
 msgid "to get the requested Kernel"

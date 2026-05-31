@@ -3526,6 +3526,9 @@ msgstr "Última versão"
 msgid "Latest Version"
 msgstr "Última versão"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Evento deve ser uma string"
@@ -7496,6 +7499,10 @@ msgstr ""
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "Excluir todos os hosts dentro do grupo"
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr " | Este não é o grupo primário"
 
 #, fuzzy
 msgid "to get the requested Kernel"

@@ -3367,6 +3367,9 @@ msgstr "Ultima versione di sviluppo"
 msgid "Latest Version"
 msgstr "Ultima versione"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
 
@@ -7115,6 +7118,10 @@ msgstr "Questo salverà il backup nella tua"
 
 msgid "to all nodes in the group"
 msgstr "a tutti i nodi del gruppo"
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "Questo non è il gruppo primario"
 
 msgid "to get the requested Kernel"
 msgstr "pr ottenere il Kernel richiesto"
