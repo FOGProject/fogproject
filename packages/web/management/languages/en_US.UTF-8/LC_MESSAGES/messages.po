@@ -3521,6 +3521,9 @@ msgstr "Latest Version"
 msgid "Latest Version"
 msgstr "Latest Version"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Event must be a string"
@@ -7815,6 +7818,10 @@ msgstr "Delete all hosts within group"
 
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "Could not find a Storage Node, is there one enabled within this group?"
 
 #, fuzzy
 msgid "to get the requested Initrd"

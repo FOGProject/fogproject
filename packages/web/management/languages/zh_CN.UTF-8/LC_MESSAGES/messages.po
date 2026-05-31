@@ -3070,6 +3070,9 @@ msgstr "最新发布版本"
 msgid "Latest Version"
 msgstr "最新版本"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "等级必须是整数"
 
@@ -6807,6 +6810,10 @@ msgstr "群组里的全部节点"
 
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr "将会启动，如果菜单显示时没有按下按键"
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "该组内找不到存储节点"
 
 msgid "to get the requested Initrd"
 msgstr "获取所请求的Initrd"

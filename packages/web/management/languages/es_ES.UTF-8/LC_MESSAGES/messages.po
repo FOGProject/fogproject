@@ -3532,6 +3532,9 @@ msgstr "Última versión desarrollada"
 msgid "Latest Version"
 msgstr "Última versión"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr ""
 
@@ -7741,6 +7744,9 @@ msgid "to all nodes in the group"
 msgstr "todos los Nodos de Almacenamiento"
 
 msgid "to be booted if no keys are pressed when the menu is"
+msgstr ""
+
+msgid "to clear the field on every host in this group."
 msgstr ""
 
 msgid "to get the requested Initrd"

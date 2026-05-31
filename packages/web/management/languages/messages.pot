@@ -3040,6 +3040,9 @@ msgstr ""
 msgid "Latest Version"
 msgstr ""
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr ""
 
@@ -6766,6 +6769,9 @@ msgid "to all nodes in the group"
 msgstr ""
 
 msgid "to be booted if no keys are pressed when the menu is"
+msgstr ""
+
+msgid "to clear the field on every host in this group."
 msgstr ""
 
 msgid "to get the requested Initrd"

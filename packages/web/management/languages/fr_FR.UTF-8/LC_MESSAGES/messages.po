@@ -3106,6 +3106,9 @@ msgstr "Dernière version de développement "
 msgid "Latest Version"
 msgstr "Dernière version "
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "Le niveau doit être un nombre entier"
 
@@ -6906,6 +6909,10 @@ msgstr "à tous les nœuds du groupe"
 
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr "pour être démarré si aucune touche n'est pressée lorsque le menu est"
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "Impossible de trouver un nœud de stockage dans ce groupe"
 
 #, fuzzy
 msgid "to get the requested Initrd"

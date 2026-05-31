@@ -560,6 +560,13 @@ class GroupManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
+        echo '<div class="alert alert-info" role="alert">'
+            . _('Leave a field blank to keep each host\'s current value.')
+            . ' '
+            . _('Type')
+            . ' <code>NULL</code> '
+            . _('to clear the field on every host in this group.')
+            . '</div>';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=group-general">';
@@ -1910,13 +1917,30 @@ class GroupManagementPage extends FOGPage
                     $productKey = trim(substr($productKey, 0, 29));
                     $efibootexit = filter_input(INPUT_POST, 'efiBootTypeExit');
                     $bootexit = filter_input(INPUT_POST, 'bootTypeExit');
+                    // Empty = leave per-host value alone.
+                    // Literal "NULL" (case-insensitive) = explicitly clear on all hosts.
+                    $resolve = function ($value) {
+                        $trimmed = trim((string)$value);
+                        if (strcasecmp($trimmed, 'NULL') === 0) {
+                            return '';
+                        }
+                        return $trimmed !== '' ? $value : null;
+                    };
+                    $candidates = [
+                        'kernel'       => $kern,
+                        'kernelArgs'   => $args,
+                        'kernelDevice' => $dev,
+                        'efiexit'      => $efibootexit,
+                        'biosexit'     => $bootexit,
+                        'productKey'   => $productKey,
+                    ];
                     $updateHostItems = [];
-                    $kern ? $updateHostItems['kernel'] = $kern : null;
-                    $args ? $updateHostItems['kernelArgs'] = $args : null;
-                    $dev ? $updateHostItems['kernelDevice'] = $dev : null;
-                    $efibootexit ? $updateHostItems['efiexit'] = $efibootexit : null;
-                    $bootexit ? $updateHostItems['biosexit'] = $bootexit : null;
-                    $productKey ? $updateHostItems['productKey'] = $productKey : null;
+                    foreach ($candidates as $field => $value) {
+                        $resolved = $resolve($value);
+                        if ($resolved !== null) {
+                            $updateHostItems[$field] = $resolved;
+                        }
+                    }
                     self::getClass('HostManager')
                         ->update(
                             array(

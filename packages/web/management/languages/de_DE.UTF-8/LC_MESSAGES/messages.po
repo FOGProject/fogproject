@@ -3528,6 +3528,9 @@ msgstr "Neueste Entwicklungsversion"
 msgid "Latest Version"
 msgstr "Neueste Version"
 
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Level muss eine integer sein."
@@ -7831,6 +7834,10 @@ msgstr "auf alle Knoten in der Gruppe."
 
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "In dieser Gruppe wurde kein Speicherknoten gefunden"
 
 #, fuzzy
 msgid "to get the requested Initrd"
