@@ -1907,23 +1907,23 @@ class GroupManagementPage extends FOGPage
                             )
                         )
                     );
-                    $productKey = substr($productKey, 0, 29);
+                    $productKey = trim(substr($productKey, 0, 29));
                     $efibootexit = filter_input(INPUT_POST, 'efiBootTypeExit');
                     $bootexit = filter_input(INPUT_POST, 'bootTypeExit');
+                    $updateHostItems = [];
+                    $kern ? $updateHostItems['kernel'] = $kern : null;
+                    $args ? $updateHostItems['kernelArgs'] = $args : null;
+                    $dev ? $updateHostItems['kernelDevice'] = $dev : null;
+                    $efibootexit ? $updateHostItems['efiexit'] = $efibootexit : null;
+                    $bootexit ? $updateHostItems['biosexit'] = $bootexit : null;
+                    $productKey ? $updateHostItems['productKey'] = $productKey : null;
                     self::getClass('HostManager')
                         ->update(
                             array(
                                 'id' => $hostids
                             ),
                             '',
-                            array(
-                                'kernel' => $kern,
-                                'kernelArgs' => $args,
-                                'kernelDevice' => $dev,
-                                'efiexit' => $efibootexit,
-                                'biosexit' => $bootexit,
-                                'productKey' => trim($productKey)
-                            )
+                            $updateHostItems
                         );
                     break;
                 case 'group-image':
