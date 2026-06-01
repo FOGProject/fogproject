@@ -1754,6 +1754,10 @@ abstract class FOGPage extends FOGBase
      */
     public function adInfo()
     {
+        if (!self::$ajax) {
+            return;
+        }
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $names = [
             'FOG_AD_DEFAULT_DOMAINNAME',
