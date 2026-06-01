@@ -3259,6 +3259,10 @@ msgstr ""
 msgid "Invalid data being parsed"
 msgstr "jeton non valide transmis"
 
+#, fuzzy
+msgid "Invalid delete path"
+msgstr "hôte non valide"
+
 msgid "Invalid image"
 msgstr "Invalid image"
 
@@ -3284,6 +3288,10 @@ msgstr "Méthode invalide appelé"
 
 #, fuzzy
 msgid "Invalid path"
+msgstr "hôte non valide"
+
+#, fuzzy
+msgid "Invalid pathtype"
 msgstr "hôte non valide"
 
 #, fuzzy
@@ -4492,6 +4500,10 @@ msgid "Path Type"
 msgstr "Type de processeur"
 
 #, fuzzy
+msgid "Path escapes storage root"
+msgstr "Groupe de stockage primaire"
+
+#, fuzzy
 msgid "Path is unavailable"
 msgstr "Pas de hachage disponible"
 
@@ -5414,6 +5426,9 @@ msgstr "Max Taille"
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Il n'y a rien à répliquer"
+
+msgid "Skipping unsafe queued delete path"
+msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""

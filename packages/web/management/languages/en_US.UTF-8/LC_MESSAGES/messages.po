@@ -3255,6 +3255,10 @@ msgstr ""
 msgid "Invalid data being parsed"
 msgstr "Invalid token passed"
 
+#, fuzzy
+msgid "Invalid delete path"
+msgstr "Invalid Host"
+
 msgid "Invalid image"
 msgstr "Invalid image"
 
@@ -3280,6 +3284,10 @@ msgstr "Invalid method called"
 
 #, fuzzy
 msgid "Invalid path"
+msgstr "Invalid Host"
+
+#, fuzzy
+msgid "Invalid pathtype"
 msgstr "Invalid Host"
 
 #, fuzzy
@@ -4487,6 +4495,10 @@ msgid "Path Type"
 msgstr "CPU Type"
 
 #, fuzzy
+msgid "Path escapes storage root"
+msgstr "Primary Storage Group"
+
+#, fuzzy
 msgid "Path is unavailable"
 msgstr "No hash available"
 
@@ -5407,6 +5419,9 @@ msgstr "Max Size"
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "There is nothing to replicate"
+
+msgid "Skipping unsafe queued delete path"
+msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""

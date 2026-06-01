@@ -228,7 +228,15 @@ class FileDeleter extends FOGService
                         $filepath,
                         DS
                     );
-                    $deleteFile = $filepath . DS . $filedelete->path;
+                    $queued = str_replace('\\', '/', trim((string)$filedelete->path));
+                    if ($queued === ''
+                        || preg_match('#^/#', $queued)
+                        || preg_match('#(^|/)\\.\\.(/|$)#', $queued)
+                    ) {
+                        self::outall(_('Skipping unsafe queued delete path'));
+                        continue;
+                    }
+                    $deleteFile = rtrim($filepath, DS) . DS . ltrim($queued, '/');
                     $ip = $StorageNode->ip;
                     $user = $StorageNode->user;
                     $pass = $StorageNode->pass;

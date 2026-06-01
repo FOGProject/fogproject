@@ -3256,6 +3256,10 @@ msgstr ""
 msgid "Invalid data being parsed"
 msgstr "无效的令牌传递"
 
+#, fuzzy
+msgid "Invalid delete path"
+msgstr "无效的主机"
+
 msgid "Invalid image"
 msgstr "图片无效"
 
@@ -3281,6 +3285,10 @@ msgstr "所谓的无效方法"
 
 #, fuzzy
 msgid "Invalid path"
+msgstr "无效的主机"
+
+#, fuzzy
+msgid "Invalid pathtype"
 msgstr "无效的主机"
 
 #, fuzzy
@@ -4487,6 +4495,10 @@ msgid "Path Type"
 msgstr "CPU类型"
 
 #, fuzzy
+msgid "Path escapes storage root"
+msgstr "主存储组"
+
+#, fuzzy
 msgid "Path is unavailable"
 msgstr "没有可用的散列"
 
@@ -5407,6 +5419,9 @@ msgstr "最大尺寸"
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "没有什么可以复制"
+
+msgid "Skipping unsafe queued delete path"
+msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""

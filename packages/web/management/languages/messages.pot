@@ -2712,6 +2712,9 @@ msgstr ""
 msgid "Invalid data being parsed"
 msgstr ""
 
+msgid "Invalid delete path"
+msgstr ""
+
 msgid "Invalid image"
 msgstr ""
 
@@ -2734,6 +2737,9 @@ msgid "Invalid method called"
 msgstr ""
 
 msgid "Invalid path"
+msgstr ""
+
+msgid "Invalid pathtype"
 msgstr ""
 
 msgid "Invalid product key supplied"
@@ -3764,6 +3770,9 @@ msgstr ""
 msgid "Path Type"
 msgstr ""
 
+msgid "Path escapes storage root"
+msgstr ""
+
 msgid "Path is unavailable"
 msgstr ""
 
@@ -4540,6 +4549,9 @@ msgid "Size"
 msgstr ""
 
 msgid "Skipping as there is nothing to do"
+msgstr ""
+
+msgid "Skipping unsafe queued delete path"
 msgstr ""
 
 msgid "Skipping, will need manual removal"

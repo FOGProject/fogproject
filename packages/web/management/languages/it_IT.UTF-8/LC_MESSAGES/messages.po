@@ -3114,6 +3114,10 @@ msgstr ""
 msgid "Invalid data being parsed"
 msgstr "Dati non validi parsati"
 
+#, fuzzy
+msgid "Invalid delete path"
+msgstr "Host non valido"
+
 msgid "Invalid image"
 msgstr "immagine non valido"
 
@@ -3137,6 +3141,10 @@ msgstr "metodo valido chiamato"
 
 #, fuzzy
 msgid "Invalid path"
+msgstr "Host non valido"
+
+#, fuzzy
+msgid "Invalid pathtype"
 msgstr "Host non valido"
 
 #, fuzzy
@@ -4284,6 +4292,10 @@ msgstr "Nome sito"
 msgid "Path Type"
 msgstr "Tipo CPU"
 
+#, fuzzy
+msgid "Path escapes storage root"
+msgstr "Immagini in un gruppo di archiviazione"
+
 msgid "Path is unavailable"
 msgstr "Percorso non disponibile"
 
@@ -5159,6 +5171,9 @@ msgstr "Dimensione"
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Non c'è nulla da replicare"
+
+msgid "Skipping unsafe queued delete path"
+msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""

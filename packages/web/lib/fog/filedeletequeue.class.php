@@ -52,4 +52,26 @@ class FileDeleteQueue extends FOGController
         'pathtype',
         'storagegroupID'
     ];
+    private function normalizeQueuePath($path)
+    {
+        $path = str_replace('\\', '/', trim((string)$path));
+        if ($path === '' || strpos($path, "\0") !== false) {
+            throw new Exception(_('Invalid delete path'));
+        }
+        if (preg_match('#^(/|[A-Za-z]:/)#', $path) || preg_match('#(^|/)\\.\\.(/|$)#', $path)) {
+            throw new Exception(_('Path escapes storage root'));
+        }
+        return ltrim($path, '/');
+    }
+
+    public function save()
+    {
+        $type = strtolower(trim((string)$this->get('pathtype')));
+        if (!in_array($type, ['image', 'snapin'], true)) {
+            throw new Exception(_('Invalid pathtype'));
+        }
+        $this->set('pathtype', ucfirst($type));
+        $this->set('path', $this->normalizeQueuePath($this->get('path')));
+        return parent::save();
+    }
 }

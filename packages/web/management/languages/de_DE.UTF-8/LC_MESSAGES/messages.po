@@ -3256,6 +3256,10 @@ msgstr ""
 msgid "Invalid data being parsed"
 msgstr "Ungültige Daten wurden geparst"
 
+#, fuzzy
+msgid "Invalid delete path"
+msgstr "Ungültiger Host"
+
 msgid "Invalid image"
 msgstr "Ungültiges Image"
 
@@ -3281,6 +3285,10 @@ msgstr "Ungültige Methode aufgerufen"
 
 #, fuzzy
 msgid "Invalid path"
+msgstr "Ungültiger Host"
+
+#, fuzzy
+msgid "Invalid pathtype"
 msgstr "Ungültiger Host"
 
 #, fuzzy
@@ -4490,6 +4498,10 @@ msgid "Path Type"
 msgstr "CPU-Typ"
 
 #, fuzzy
+msgid "Path escapes storage root"
+msgstr "bildet ab zu einer Speichergruppe"
+
+#, fuzzy
 msgid "Path is unavailable"
 msgstr "Pfad ist nicht verfügbar"
 
@@ -5411,6 +5423,9 @@ msgstr "Größe"
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Es gibt nichts zu replizieren"
+
+msgid "Skipping unsafe queued delete path"
+msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""

@@ -3335,6 +3335,10 @@ msgid "Invalid data being parsed"
 msgstr "Elemento inválido pasaron"
 
 #, fuzzy
+msgid "Invalid delete path"
+msgstr "host no válido"
+
+#, fuzzy
 msgid "Invalid image"
 msgstr "carpeta no válida"
 
@@ -3361,6 +3365,10 @@ msgstr "Valor no válido Tiempo de espera"
 
 #, fuzzy
 msgid "Invalid path"
+msgstr "host no válido"
+
+#, fuzzy
+msgid "Invalid pathtype"
 msgstr "host no válido"
 
 #, fuzzy
@@ -4605,6 +4613,10 @@ msgid "Path Type"
 msgstr "Tipo de CPU"
 
 #, fuzzy
+msgid "Path escapes storage root"
+msgstr "Grupo de almacenamiento primaria"
+
+#, fuzzy
 msgid "Path is unavailable"
 msgstr "No se dispone de hash"
 
@@ -5539,6 +5551,9 @@ msgid "Size"
 msgstr "Tamaño máximo:"
 
 msgid "Skipping as there is nothing to do"
+msgstr ""
+
+msgid "Skipping unsafe queued delete path"
 msgstr ""
 
 msgid "Skipping, will need manual removal"

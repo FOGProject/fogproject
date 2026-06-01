@@ -3258,6 +3258,10 @@ msgstr ""
 msgid "Invalid data being parsed"
 msgstr "Token inválido passado"
 
+#, fuzzy
+msgid "Invalid delete path"
+msgstr "Anfitrião inválido"
+
 msgid "Invalid image"
 msgstr "imagem inválido"
 
@@ -3283,6 +3287,10 @@ msgstr "Método inválido chamada"
 
 #, fuzzy
 msgid "Invalid path"
+msgstr "Anfitrião inválido"
+
+#, fuzzy
+msgid "Invalid pathtype"
 msgstr "Anfitrião inválido"
 
 #, fuzzy
@@ -4491,6 +4499,10 @@ msgid "Path Type"
 msgstr "Tipo de CPU"
 
 #, fuzzy
+msgid "Path escapes storage root"
+msgstr "Grupo de armazenamento primário"
+
+#, fuzzy
 msgid "Path is unavailable"
 msgstr "Nenhum de hash disponíveis"
 
@@ -5411,6 +5423,9 @@ msgstr "Max Size"
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Não há nada para replicar"
+
+msgid "Skipping unsafe queued delete path"
+msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""
