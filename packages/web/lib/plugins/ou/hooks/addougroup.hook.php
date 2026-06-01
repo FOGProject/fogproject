@@ -164,6 +164,7 @@ class AddOUGroup extends Hook
      */
     public function groupOUPost($obj)
     {
+        self::checkAuthAndCSRF();
         $ouID = trim(
             (int)filter_input(INPUT_POST, 'ou')
         );
@@ -197,6 +198,7 @@ class AddOUGroup extends Hook
      */
     public function groupAddOUEdit($arguments)
     {
+        self::checkAuthAndCSRF();
         global $tab;
         global $node;
         if ($node != 'group') {

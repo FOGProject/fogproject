@@ -767,6 +767,7 @@ class StorageNodeManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('STORAGENODE_ADD_POST');
         // Setup and filter our vars.
@@ -966,6 +967,7 @@ class StorageNodeManagement extends FOGPage
     public function storagenodeGeneral()
     {
         // Post Fields
+        self::checkAuthAndCSRF();
         $storagenode = (
             filter_input(INPUT_POST, 'storagenode') ?:
             $this->obj->get('name')
@@ -1393,6 +1395,7 @@ class StorageNodeManagement extends FOGPage
      */
     public function storagenodeGeneralPost()
     {
+        self::checkAuthAndCSRF();
         // Setup and filter our vars.
         $storagenode = trim(
             filter_input(INPUT_POST, 'storagenode')
@@ -1624,6 +1627,7 @@ class StorageNodeManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager
             ->processEvent(

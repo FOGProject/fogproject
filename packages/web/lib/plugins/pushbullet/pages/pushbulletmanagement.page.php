@@ -174,6 +174,7 @@ class PushbulletManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('PUSHBULLET_ADD_POST');
         $token = trim(

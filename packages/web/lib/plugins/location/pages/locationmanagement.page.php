@@ -289,6 +289,7 @@ class LocationManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('LOCATION_ADD_POST');
         $location = trim(
@@ -532,6 +533,7 @@ class LocationManagement extends FOGPage
      */
     public function locationGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $location = trim(
             filter_input(INPUT_POST, 'location')
         );
@@ -631,6 +633,7 @@ class LocationManagement extends FOGPage
      */
     public function locationHostPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
@@ -709,6 +712,7 @@ class LocationManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'LOCATION_EDIT_POST',

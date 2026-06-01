@@ -235,6 +235,7 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('WOLBROADCAST_ADD_POST');
         $wolbroadcast = trim(
@@ -422,6 +423,7 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function wolbroadcastGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $wolbroadcast = trim(
             filter_input(INPUT_POST, 'wolbroadcast')
         );
@@ -482,6 +484,7 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'WOLBROADCAST_EDIT_POST',

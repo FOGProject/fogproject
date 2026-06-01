@@ -199,6 +199,7 @@ class AccessControlManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('ACCESSCONTROL_ADD_POST');
         $accesscontrol = trim(
@@ -362,6 +363,7 @@ class AccessControlManagement extends FOGPage
      */
     public function accesscontrolGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $accesscontrol = trim(
             filter_input(INPUT_POST, 'accesscontrol')
         );
@@ -438,6 +440,7 @@ class AccessControlManagement extends FOGPage
      */
     public function accesscontrolUserPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $users = filter_input_array(
                 INPUT_POST,
@@ -523,6 +526,7 @@ class AccessControlManagement extends FOGPage
      */
     public function accesscontrolRulePost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $rules = filter_input_array(
                 INPUT_POST,
@@ -610,6 +614,7 @@ class AccessControlManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'ACCESSCONTROL_EDIT_POST',

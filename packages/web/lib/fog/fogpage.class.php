@@ -2801,6 +2801,7 @@ abstract class FOGPage extends FOGBase
      */
     public function importPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'IMPORT_POST'

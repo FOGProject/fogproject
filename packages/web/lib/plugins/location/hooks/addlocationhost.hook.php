@@ -181,6 +181,7 @@ class AddLocationHost extends Hook
      */
     public function hostLocationPost($obj)
     {
+        self::checkAuthAndCSRF();
         $locationID = trim(
             (int)filter_input(INPUT_POST, 'location')
         );
@@ -216,6 +217,7 @@ class AddLocationHost extends Hook
      */
     public function hostAddLocationEdit($arguments)
     {
+        self::checkAuthAndCSRF();
         global $tab;
         global $node;
         if ($node != 'host') {

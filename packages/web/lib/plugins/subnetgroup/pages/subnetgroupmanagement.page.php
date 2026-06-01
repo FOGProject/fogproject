@@ -245,6 +245,7 @@ class SubnetGroupManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('SUBNETGROUP_ADD_POST');
         $subnetgroup = trim(
@@ -471,6 +472,7 @@ class SubnetGroupManagement extends FOGPage
      */
     public function subnetgroupGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $subnetgroup = trim(
             filter_input(INPUT_POST, 'subnetgroup')
         );
@@ -561,6 +563,7 @@ class SubnetGroupManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'SUBNETGROUP_EDIT_POST',

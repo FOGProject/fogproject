@@ -122,8 +122,7 @@ class FOGPageManager extends FOGBase
         global $sub;
         $nodes = [
             'client',
-            'schema',
-            'ipxe'
+            'schema'
         ];
         if (!self::$FOGUser->isValid()
             && !in_array($node, $nodes)
@@ -146,9 +145,11 @@ class FOGPageManager extends FOGBase
             }
             if (self::$ajax && method_exists($class, $method.'Ajax')) {
                 $method .= 'Ajax';
+                self::checkAuthAndCSRF();
             }
             if (self::$post && method_exists($class, $method.'Post')) {
                 $method .= 'Post';
+                self::checkAuthAndCSRF();
             }
             if (self::$post) {
                 self::setRequest();

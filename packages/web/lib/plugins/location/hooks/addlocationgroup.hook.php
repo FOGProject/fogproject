@@ -166,6 +166,7 @@ class AddLocationGroup extends Hook
      */
     public function groupLocationPost($obj)
     {
+        self::checkAuthAndCSRF();
         $locationID = trim(
             (int)filter_input(INPUT_POST, 'location')
         );
@@ -206,6 +207,7 @@ class AddLocationGroup extends Hook
      */
     public function groupAddLocationEdit($arguments)
     {
+        self::checkAuthAndCSRF();
         global $tab;
         global $node;
         if ($node != 'group') {

@@ -149,6 +149,7 @@ class AddAccessControlUser extends Hook
      */
     public function userAccesscontrolPost($obj)
     {
+        self::checkAuthAndCSRF();
         $accesscontrolID = trim(
             (int)filter_input(
                 INPUT_POST,
@@ -187,6 +188,7 @@ class AddAccessControlUser extends Hook
      */
     public function userAddAccessControlEdit($arguments)
     {
+        self::checkAuthAndCSRF();
         global $tab;
         global $node;
         if ($node != 'user') {

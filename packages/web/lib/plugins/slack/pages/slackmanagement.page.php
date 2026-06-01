@@ -204,6 +204,7 @@ class SlackManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('SLACK_ADD_POST');
         $token = trim(

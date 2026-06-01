@@ -374,6 +374,7 @@ class UserManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('USER_ADD_POST');
         $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
@@ -573,6 +574,7 @@ class UserManagement extends FOGPage
      */
     public function userGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
         $userErr =  _('Username must begin with 2 numbers or letters.')
             . ' '
@@ -707,6 +709,7 @@ class UserManagement extends FOGPage
      */
     public function userChangePWPost()
     {
+        self::checkAuthAndCSRF();
         $password = trim(
             filter_input(INPUT_POST, 'password')
         );
@@ -828,6 +831,7 @@ class UserManagement extends FOGPage
      */
     public function userAPIPost()
     {
+        self::checkAuthAndCSRF();
         $apien = (int)isset($_POST['apienabled']);
         $apitoken = base64_decode(
             filter_input(INPUT_POST, 'apitoken')
@@ -889,6 +893,7 @@ class UserManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'USER_EDIT_POST',

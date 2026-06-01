@@ -195,6 +195,7 @@ class CaponeManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('CAPONE_ADD_POST');
         $imageID = trim(
@@ -364,6 +365,7 @@ class CaponeManagement extends FOGPage
      */
     public function caponeGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $imageID = trim(
             filter_input(INPUT_POST, 'image')
         );
@@ -533,6 +535,7 @@ class CaponeManagement extends FOGPage
      */
     public function globalsettingsPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $dmifield = trim(
             filter_input(INPUT_POST, 'dmifield')
@@ -596,6 +599,7 @@ class CaponeManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'CAPONE_EDIT_POST',

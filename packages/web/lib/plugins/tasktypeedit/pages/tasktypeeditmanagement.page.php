@@ -397,6 +397,7 @@ class TasktypeeditManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('TASKTYPEEDIT_ADD_POST');
         $tasktype = trim(
@@ -704,6 +705,7 @@ class TasktypeeditManagement extends FOGPage
      */
     public function tasktypeGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $tasktype = trim(
             filter_input(INPUT_POST, 'tasktype')
         );
@@ -785,6 +787,7 @@ class TasktypeeditManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'TASKTYPEEDIT_EDIT_POST',

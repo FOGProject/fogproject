@@ -280,6 +280,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceDisplaymanagerPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_DISPLAYMANAGER_POST');
         foreach (self::$_modules as &$module) {
             if ('display manager' === strtolower($module->name)) {
@@ -444,6 +445,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceAutologoutPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_AUTOLOGOUT_POST');
         foreach (self::$_modules as &$module) {
             if ('auto log out' === strtolower($module->name)) {
@@ -589,6 +591,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceSnapinclientPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_SNAPINCLIENT_POST');
         foreach (self::$_modules as &$module) {
             if ('snapins' === strtolower($module->name)) {
@@ -729,6 +732,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostregisterPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_HOSTREGISTER_POST');
         foreach (self::$_modules as &$module) {
             if ('host registration' === strtolower($module->name)) {
@@ -869,6 +873,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostnamechangerPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_HOSTNAMECHANGER_POST');
         foreach (self::$_modules as &$module) {
             if ('hostname changer' === strtolower($module->name)) {
@@ -1009,6 +1014,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePrintermanagerPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_PRINTERMANAGER_POST');
         foreach (self::$_modules as &$module) {
             if ('printer manager' === strtolower($module->name)) {
@@ -1149,6 +1155,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceTaskrebootPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_TASKREBOOT_POST');
         foreach (self::$_modules as &$module) {
             if ('task reboot' === strtolower($module->name)) {
@@ -1289,6 +1296,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceUsertrackerPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_USERTRACKER_POST');
         foreach (self::$_modules as &$module) {
             if ('user tracker' === strtolower($module->name)) {
@@ -1429,6 +1437,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePowermanagementPost()
     {
+        self::checkAuthAndCSRF();
         self::$HookManager->processEvent('MODULE_POWERMANAGEMENT_POST');
         foreach (self::$_modules as &$module) {
             if ('power management' === strtolower($module->name)) {
@@ -1473,6 +1482,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function indexPost()
     {
+        self::checkAuthAndCSRF();
         $this->editPost();
     }
     /**
@@ -1482,6 +1492,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function listPost()
     {
+        self::checkAuthAndCSRF();
         $this->editPost();
     }
     /**
@@ -1524,6 +1535,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'SERVICE_EDIT_POST'

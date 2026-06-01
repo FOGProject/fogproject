@@ -165,6 +165,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageWindowskeyPost($obj)
     {
+        self::checkAuthAndCSRF();
         $keyID = (int)filter_input(INPUT_POST, 'windowskey');
         $insert_fields = ['imageID', 'windowskeyID'];
         $insert_values = [];
@@ -198,6 +199,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageAddKeyEdit($arguments)
     {
+        self::checkAuthAndCSRF();
         global $tab;
         global $node;
         if ($node != 'image') {

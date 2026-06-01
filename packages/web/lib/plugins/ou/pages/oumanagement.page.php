@@ -229,6 +229,7 @@ class OUManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('OU_ADD_POST');
         $ou = trim(
@@ -412,6 +413,7 @@ class OUManagement extends FOGPage
      */
     public function ouGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $ou = trim(
             filter_input(INPUT_POST, 'ou')
         );
@@ -492,6 +494,7 @@ class OUManagement extends FOGPage
      */
     public function ouHostPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
@@ -572,6 +575,7 @@ class OUManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'OU_EDIT_POST',

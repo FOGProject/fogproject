@@ -181,6 +181,7 @@ class AddOUHost extends Hook
      */
     public function hostOUPost($obj)
     {
+        self::checkAuthAndCSRF();
         $ouID = trim(
             (int)filter_input(INPUT_POST, 'ou')
         );
@@ -214,6 +215,7 @@ class AddOUHost extends Hook
      */
     public function hostAddOUEdit($arguments)
     {
+        self::checkAuthAndCSRF();
         global $tab;
         global $node;
         if ($node != 'host') {

@@ -371,6 +371,7 @@ class IpxeManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('IPXE_ADD_POST');
         $ipxe = trim(
@@ -661,6 +662,7 @@ class IpxeManagement extends FOGPage
      */
     public function ipxeGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $ipxe = trim(
             filter_input(INPUT_POST, 'ipxe')
         );
@@ -739,6 +741,7 @@ class IpxeManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'IPXE_EDIT_POST',

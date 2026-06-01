@@ -267,6 +267,7 @@ class ModuleManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('MODULE_ADD_POST');
         $module = trim(
@@ -477,6 +478,7 @@ class ModuleManagement extends FOGPage
      */
     public function moduleGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $module = trim(
             filter_input(INPUT_POST, 'module')
         );
@@ -555,6 +557,7 @@ class ModuleManagement extends FOGPage
      */
     public function moduleHostPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
@@ -635,6 +638,7 @@ class ModuleManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: appication/json');
         self::$HookManager->processEvent(
             'MODULE_EDIT_POST',

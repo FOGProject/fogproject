@@ -948,6 +948,7 @@ class HostManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('HOST_ADD_POST');
         $host = trim(
@@ -1354,6 +1355,7 @@ class HostManagement extends FOGPage
      */
     public function hostGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $host = trim(
             filter_input(INPUT_POST, 'host')
         );
@@ -1595,6 +1597,7 @@ class HostManagement extends FOGPage
      */
     public function hostMacaddressPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['macadd'])) {
             $mac = trim(
                 filter_input(
@@ -1871,6 +1874,7 @@ class HostManagement extends FOGPage
      */
     public function hostADPost()
     {
+        self::checkAuthAndCSRF();
         $useAD = isset($_POST['domain']);
         $domain = trim(
             filter_input(INPUT_POST, 'domainname')
@@ -1950,6 +1954,7 @@ class HostManagement extends FOGPage
      */
     public function hostGroupPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $groups = filter_input_array(
                 INPUT_POST,
@@ -2170,6 +2175,7 @@ class HostManagement extends FOGPage
      */
     public function hostPrinterPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $printers = filter_input_array(
                 INPUT_POST,
@@ -2267,6 +2273,7 @@ class HostManagement extends FOGPage
      */
     public function hostSnapinPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
@@ -2627,6 +2634,7 @@ class HostManagement extends FOGPage
      */
     public function hostModulePost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $modules = filter_input_array(
                 INPUT_POST,
@@ -2774,6 +2782,7 @@ class HostManagement extends FOGPage
      */
     public function hostPowermanagementPost()
     {
+        self::checkAuthAndCSRF();
         $flags = ['flags' => FILTER_REQUIRE_ARRAY];
         if (isset($_POST['pmupdate'])) {
             $items = filter_input_array(
@@ -3575,6 +3584,7 @@ class HostManagement extends FOGPage
      */
     public function hostInventoryPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirminventoryadd'])) {
             $pu = filter_input(INPUT_POST, 'pu');
             $other1 = filter_input(INPUT_POST, 'other1');
@@ -3850,6 +3860,7 @@ class HostManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'HOST_EDIT_POST',
@@ -4694,6 +4705,7 @@ class HostManagement extends FOGPage
      */
     public function deployPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('HOST_DEPLOY_POST');
 

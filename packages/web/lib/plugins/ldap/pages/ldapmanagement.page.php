@@ -821,6 +821,7 @@ class LDAPManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: appication/json');
         self::$HookManager->processEvent('LDAP_ADD_POST');
         $ldap = trim(
@@ -1407,6 +1408,7 @@ class LDAPManagement extends FOGPage
      */
     public function ldapGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $ldap = trim(
             filter_input(INPUT_POST, 'ldap')
         );
@@ -1656,6 +1658,7 @@ class LDAPManagement extends FOGPage
      */
     public function globalsettingsPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $filter = trim(
             filter_input(INPUT_POST, 'filter')
@@ -1740,6 +1743,7 @@ class LDAPManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'LDAP_EDIT_POST',

@@ -402,6 +402,7 @@ class TaskManagement extends FOGPage
      */
     public function activePost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'TASK_ACTIVE_CANCEL'
@@ -496,6 +497,7 @@ class TaskManagement extends FOGPage
      */
     public function activemulticastPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'TASK_ACTIVEMULTICAST_CANCEL'
@@ -602,6 +604,7 @@ class TaskManagement extends FOGPage
      */
     public function activesnapinsPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'TASK_ACTIVESNAPIN_CANCEL'
@@ -698,6 +701,7 @@ class TaskManagement extends FOGPage
      */
     public function activescheduledPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'TASK_ACTIVESCHEDULED_CANCEL'
@@ -798,6 +802,7 @@ class TaskManagement extends FOGPage
      */
     public function activescheduleddelsPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'QUEUED_DELETION_CANCEL'

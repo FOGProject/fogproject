@@ -178,6 +178,7 @@ class AddSiteUser extends Hook
      */
     public function userSitePost($obj)
     {
+        self::checkAuthAndCSRF();
         $siteID = trim(
             (int)filter_input(INPUT_POST, 'site')
         );
@@ -213,6 +214,7 @@ class AddSiteUser extends Hook
      */
     public function userAddSiteEdit($arguments)
     {
+        self::checkAuthAndCSRF();
         global $tab;
         global $node;
         if ($node != 'user') {

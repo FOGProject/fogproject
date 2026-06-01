@@ -149,6 +149,7 @@ class PluginManagement extends FOGPage
      */
     public function activatePost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,
@@ -225,6 +226,7 @@ class PluginManagement extends FOGPage
      */
     public function installPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,
@@ -335,6 +337,7 @@ class PluginManagement extends FOGPage
      */
     public function deactivatePost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,
@@ -407,6 +410,7 @@ class PluginManagement extends FOGPage
      */
     public function removePost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,

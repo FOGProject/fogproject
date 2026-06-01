@@ -201,6 +201,7 @@ class StorageGroupManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-Type: application/json');
         self::$HookManager->processEvent('STORAGEGROUP_ADD_POST');
         $storagegroup = trim(
@@ -364,6 +365,7 @@ class StorageGroupManagement extends FOGPage
      */
     public function storagegroupGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $storagegroup = trim(
             filter_input(INPUT_POST, 'storagegroup')
         );
@@ -489,6 +491,7 @@ class StorageGroupManagement extends FOGPage
      */
     public function storagegroupImagePost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $images = filter_input_array(
                 INPUT_POST,
@@ -681,6 +684,7 @@ class StorageGroupManagement extends FOGPage
      */
     public function storagegroupSnapinPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
@@ -841,6 +845,7 @@ class StorageGroupManagement extends FOGPage
     }
     public function storagegroupStoragenodePost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $storagenodes = filter_input_array(
                 INPUT_POST,
@@ -965,6 +970,7 @@ class StorageGroupManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'STORAGEGROUP_EDIT_POST',

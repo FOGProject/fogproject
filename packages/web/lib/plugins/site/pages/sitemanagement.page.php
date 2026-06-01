@@ -199,6 +199,7 @@ class SiteManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('SITE_ADD_POST');
         $site = trim(
@@ -361,6 +362,7 @@ class SiteManagement extends FOGPage
      */
     public function siteGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $site = trim(
             filter_input(INPUT_POST, 'site')
         );
@@ -436,6 +438,7 @@ class SiteManagement extends FOGPage
      */
     public function siteHostPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
@@ -521,6 +524,7 @@ class SiteManagement extends FOGPage
      */
     public function siteUserPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $users = filter_input_array(
                 INPUT_POST,
@@ -608,6 +612,7 @@ class SiteManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'SITE_EDIT_POST',

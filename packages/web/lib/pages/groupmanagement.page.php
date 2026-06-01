@@ -309,6 +309,7 @@ class GroupManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('GROUP_ADD_POST');
         $group = trim(
@@ -628,6 +629,7 @@ class GroupManagement extends FOGPage
      */
     public function groupGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $group = trim(
             filter_input(INPUT_POST, 'group')
         );
@@ -780,6 +782,7 @@ class GroupManagement extends FOGPage
      */
     public function groupImagePost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmimage'])) {
             $image = trim(
                 filter_input(INPUT_POST, 'image')
@@ -794,6 +797,7 @@ class GroupManagement extends FOGPage
      */
     public function groupADPost()
     {
+        self::checkAuthAndCSRF();
         $useAD = isset($_POST['domain']);
         $domain = trim(
             filter_input(
@@ -883,6 +887,7 @@ class GroupManagement extends FOGPage
      */
     public function groupHostPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
@@ -1107,6 +1112,7 @@ class GroupManagement extends FOGPage
      */
     public function groupPrinterPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $printers = filter_input_array(
                 INPUT_POST,
@@ -1209,6 +1215,7 @@ class GroupManagement extends FOGPage
      */
     public function groupSnapinPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
@@ -1576,6 +1583,7 @@ class GroupManagement extends FOGPage
      */
     public function groupModulePost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $modules = filter_input_array(
                 INPUT_POST,
@@ -1747,6 +1755,7 @@ class GroupManagement extends FOGPage
      */
     public function groupPowermanagementPost()
     {
+        self::checkAuthAndCSRF();
         $hostIDs = (array)$this->obj->get('hosts');
         if (isset($_POST['pmadd'])) {
             $onDemand = (int)isset($_POST['onDemand']);
@@ -2693,6 +2702,7 @@ class GroupManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: appication/json');
         self::$HookManager->processEvent(
             'GROUP_EDIT_POST',
@@ -3358,6 +3368,7 @@ class GroupManagement extends FOGPage
      */
     public function deployPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('GROUP_DEPLOY_POST');
 

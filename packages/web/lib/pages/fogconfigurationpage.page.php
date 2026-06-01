@@ -327,6 +327,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function kernelPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $dstName = filter_input(INPUT_POST, 'dstName');
         $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
@@ -482,6 +483,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function initrdPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $dstName = filter_input(INPUT_POST, 'dstName');
         $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
@@ -702,6 +704,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function pxemenuPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('PXEMENU_POST');
         $ServicesToSee = [
@@ -887,6 +890,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function maclistPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['update'])) {
             self::clearMACLookupTable();
             $url = 'http://standards-oui.ieee.org/oui.txt';
@@ -972,6 +976,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function settingsPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('SETTINGS_POST');
         $regenrange = range(0, 24, .25);
@@ -1829,6 +1834,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function configPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('IMPORT_POST');
         $Schema = self::getClass('Schema');

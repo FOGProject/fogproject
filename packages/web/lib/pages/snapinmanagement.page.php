@@ -921,6 +921,7 @@ class SnapinManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('SNAPIN_ADD_POST');
 
@@ -1445,6 +1446,7 @@ class SnapinManagement extends FOGPage
      */
     public function snapinGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $snapin = trim(filter_input(INPUT_POST, 'snapin'));
         $description = trim(filter_input(INPUT_POST, 'description'));
         $packtype = trim(filter_input(INPUT_POST, 'packtype'));
@@ -1706,6 +1708,7 @@ class SnapinManagement extends FOGPage
      */
     public function snapinStoragegroupPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $storagegroup = filter_input_array(
                 INPUT_POST,
@@ -1821,6 +1824,7 @@ class SnapinManagement extends FOGPage
      */
     public function snapinHostPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
@@ -1908,6 +1912,7 @@ class SnapinManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'SNAPIN_EDIT_POST',

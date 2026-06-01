@@ -653,6 +653,7 @@ class ImageManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('IMAGE_ADD_POST');
         $image = trim(
@@ -1091,6 +1092,7 @@ class ImageManagement extends FOGPage
      */
     public function imageGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $image = trim(
             filter_input(INPUT_POST, 'image')
         );
@@ -1212,6 +1214,7 @@ class ImageManagement extends FOGPage
      */
     public function imageStoragegroupPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $storagegroup = filter_input_array(
                 INPUT_POST,
@@ -1327,6 +1330,7 @@ class ImageManagement extends FOGPage
      */
     public function imageHostPost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
@@ -1481,6 +1485,7 @@ class ImageManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'IMAGE_EDIT_POST',
@@ -1885,6 +1890,7 @@ class ImageManagement extends FOGPage
      */
     public function multicastPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'IMAGE_MULTICAST_SESSION_POST'

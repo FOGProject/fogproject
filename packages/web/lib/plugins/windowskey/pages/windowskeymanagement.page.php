@@ -227,6 +227,7 @@ class WindowsKeyManagement extends FOGPage
      */
     public function addPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('WINDOWSKEY_ADD_POST');
         $windowskey = trim(
@@ -427,6 +428,7 @@ class WindowsKeyManagement extends FOGPage
      */
     public function windowsKeyGeneralPost()
     {
+        self::checkAuthAndCSRF();
         $windowskey = trim(
             filter_input(INPUT_POST, 'windowskey')
         );
@@ -508,6 +510,7 @@ class WindowsKeyManagement extends FOGPage
      */
     public function windowsKeyImagePost()
     {
+        self::checkAuthAndCSRF();
         if (isset($_POST['updateimages'])) {
             $image = filter_input_array(
                 INPUT_POST,
@@ -587,6 +590,7 @@ class WindowsKeyManagement extends FOGPage
      */
     public function editPost()
     {
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'WINDOWSKEY_EDIT_POST',
