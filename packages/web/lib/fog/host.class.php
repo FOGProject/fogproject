@@ -948,6 +948,7 @@ class Host extends FOGController
                         $curSnapins = json_decode(Route::getData(), true);
                         if (!in_array($deploySnapins, $curSnapins)) {
                             $Task
+                                ->set('hostID', $this->get('hostID'))
                                 ->set('name', _('Multiple Snapin -- orig Single'))
                                 ->set('typeID', TaskType::ALL_SNAPINS);
                             if (!$Task->save()) {
