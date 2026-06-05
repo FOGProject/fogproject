@@ -2828,11 +2828,20 @@ class Route extends FOGBase
             }
 
             $whereItems = self::handleWhereItems($whereItems);
-            // Distinguish "no filters" from "all filters were empty arrays".
-            // Count BEFORE stripping — if caller passed e.g. ['id' => []] they meant
-            // "match nothing", not "show everything".
+            // If the caller passed any filter as an empty array, they mean
+            // "value IN ()" — logically match nothing. Stripping the empty key
+            // and letting the rest of the WHERE run would silently broaden
+            // the query, returning rows the caller never asked for.
             $hadFilters = is_array($whereItems) && count($whereItems) > 0;
-            // Remove any array values that are empty — they would produce invalid IN () SQL
+            $emptyArrayFilter = false;
+            if ($hadFilters) {
+                foreach ($whereItems as $v) {
+                    if (is_array($v) && count($v) < 1) {
+                        $emptyArrayFilter = true;
+                        break;
+                    }
+                }
+            }
             $whereItems = array_filter(
                 $whereItems ?: [],
                 function ($v) {
@@ -2840,8 +2849,9 @@ class Route extends FOGBase
                 }
             );
 
-            // Filters were supplied but nothing survived normalization → match nothing.
-            if ($hadFilters && count($whereItems) < 1) {
+            // Filters were supplied but nothing survived (or any filter was an
+            // empty IN-set) → match nothing.
+            if ($hadFilters && ($emptyArrayFilter || count($whereItems) < 1)) {
                 if ($retWhere) {
                     return '1=0';
                 }
