@@ -192,6 +192,10 @@ class HostManager extends FOGManagerController
     public function getHostByMacAddresses($macs)
     {
         self::$Host = new Host();
+        $macs = array_values(array_filter((array)$macs, 'strlen'));
+        if (count($macs) < 1) {
+            return;
+        }
         $MACHost = self::getSubObjectIDs(
             'MACAddressAssociation',
             array(
