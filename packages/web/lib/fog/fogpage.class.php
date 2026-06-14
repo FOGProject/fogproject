@@ -3816,6 +3816,18 @@ abstract class FOGPage extends FOGBase
      */
     public function wakeEmUp()
     {
+        // This is an inter-node relay (master -> storage nodes) that runs
+        // without a user session, so it is gated by the shared node secret
+        // rather than a login. No browser flow calls it directly.
+        $provided = $_SERVER['HTTP_X_FOG_NODE_SECRET'] ?? null;
+        $secret = self::getSetting('FOG_NODE_SECRET');
+        if (empty($secret)
+            || !is_string($provided)
+            || !hash_equals($secret, $provided)
+        ) {
+            http_response_code(403);
+            return;
+        }
         $mac = filter_input(INPUT_POST, 'mac');
         if (!$mac) {
             $mac = filter_input(INPUT_GET, 'mac');
