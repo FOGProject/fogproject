@@ -834,7 +834,9 @@ class Group extends FOGController
                 Route::ids(
                     'snapinassociation',
                     $find,
-                    'snapinID'
+                    'snapinID',
+                    'AND',
+                    'sequence'
                 );
                 $assoc_snapins = json_decode(Route::getData(), true);
                 if (count($assoc_snapins ?: []) < 1) {

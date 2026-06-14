@@ -4209,4 +4209,10 @@ $this->schema[] = [
     . "AFTER `stSnapinID`",
     // Historical ordering fallback: older rows are approximated by task ID order.
     "UPDATE `snapinTasks` SET `stSequence`=`stID` WHERE `stSequence`=0",
+    "ALTER TABLE `snapinAssoc` "
+    . "ADD COLUMN `saSequence` INT(11) NOT NULL DEFAULT 0 "
+    . "AFTER `saSnapinID`",
+    // Seed the run order from association id so existing hosts keep their
+    // current (implicit) order until an admin reorders them.
+    "UPDATE `snapinAssoc` SET `saSequence`=`saID` WHERE `saSequence`=0",
 ];

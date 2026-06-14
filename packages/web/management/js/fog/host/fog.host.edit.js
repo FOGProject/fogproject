@@ -944,6 +944,7 @@
             }
             hostSnapinsTable.draw(false);
             hostSnapinsTable.rows({selected: true}).deselect();
+            loadSnapinOrder();
         })
     });
 
@@ -999,6 +1000,7 @@
             }
             hostSnapinsTable.draw(false);
             hostSnapinsTable.rows({selected: true}).deselect();
+            loadSnapinOrder();
         });
     });
 
@@ -1011,6 +1013,107 @@
     var onHostSnapinCheckboxSelect = function(e) {
         $.checkItemUpdate(hostSnapinsTable, this, e, hostSnapinUpdateBtn);
     };
+
+    // ---------------------------------------------------------------
+    // SNAPIN RUN ORDER
+    var hostSnapinOrderList = $('#host-snapin-order-list'),
+        hostSnapinOrderSaveBtn = $('#host-snapin-order-save');
+
+    function updateSnapinOrderPositions() {
+        hostSnapinOrderList.children('li').each(function(i) {
+            $(this).find('.snapin-order-pos').text((i + 1) + '. ');
+        });
+    }
+
+    function renderSnapinOrder(items) {
+        hostSnapinOrderList.empty();
+        if (!items || items.length === 0) {
+            hostSnapinOrderList.append(
+                $('<li>', {'class': 'list-group-item text-muted'})
+                    .text('No snapins associated.')
+            );
+            hostSnapinOrderSaveBtn.prop('disabled', true);
+            return;
+        }
+        hostSnapinOrderSaveBtn.prop('disabled', false);
+        $.each(items, function(i, item) {
+            var controls = $('<span>', {'class': 'pull-right'})
+                .append(
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-xs btn-default snapin-order-up',
+                        'title': 'Move up'
+                    }).append($('<i>', {'class': 'fa fa-arrow-up'})),
+                    ' ',
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-xs btn-default snapin-order-down',
+                        'title': 'Move down'
+                    }).append($('<i>', {'class': 'fa fa-arrow-down'}))
+                );
+            hostSnapinOrderList.append(
+                $('<li>', {
+                    'class': 'list-group-item',
+                    'data-id': item.id
+                }).append(
+                    $('<span>', {'class': 'snapin-order-pos'}),
+                    $('<span>', {'class': 'snapin-order-name'}).text(item.name),
+                    controls
+                )
+            );
+        });
+        updateSnapinOrderPositions();
+    }
+
+    function loadSnapinOrder() {
+        $.ajax({
+            url: '../management/index.php?node=' + Common.node
+                + '&sub=getSnapinOrderList&id=' + Common.id,
+            dataType: 'json',
+            success: function(data) {
+                renderSnapinOrder(data && data.data ? data.data : []);
+            }
+        });
+    }
+
+    hostSnapinOrderList.on('click', '.snapin-order-up', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            prev = li.prev('li');
+        if (prev.length) {
+            li.insertBefore(prev);
+            updateSnapinOrderPositions();
+        }
+    });
+
+    hostSnapinOrderList.on('click', '.snapin-order-down', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            next = li.next('li');
+        if (next.length) {
+            li.insertAfter(next);
+            updateSnapinOrderPositions();
+        }
+    });
+
+    hostSnapinOrderSaveBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            order = [];
+        hostSnapinOrderList.children('li').each(function() {
+            var id = $(this).attr('data-id');
+            if (id) {
+                order.push(id);
+            }
+        });
+        if (order.length === 0) {
+            return;
+        }
+        $.apiCall(method, action, {snapinorder: order});
+    });
+
+    loadSnapinOrder();
 
     // FOG CLIENT AREA
     // ---------------------------------------------------------------

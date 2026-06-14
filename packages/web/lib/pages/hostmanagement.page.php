@@ -2265,6 +2265,60 @@ class HostManagement extends FOGPage
         echo $this->assocDelModal('snapin');
         echo '</div>';
         echo '</div>';
+
+        $orderButton = self::makeButton(
+            'host-snapin-order-save',
+            _('Save order'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Snapin Run Order');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'Snapins run in this order. The order only changes execution when '
+            . '"Abort snapin sequence on failure" is enabled for the task; '
+            . 'otherwise it sets the order snapins are sent.'
+        );
+        echo '</p>';
+        echo '<ol id="host-snapin-order-list" class="list-group"></ol>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $orderButton;
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Returns the associated snapins for this host in run order.
+     *
+     * @return void
+     */
+    public function getSnapinOrderList()
+    {
+        $snapinIDs = (array)$this->obj->get('snapins');
+        $names = [];
+        if (count($snapinIDs) > 0) {
+            Route::listem('snapin', ['id' => $snapinIDs]);
+            $Snapins = json_decode(Route::getData());
+            $Snapins = isset($Snapins->data) ? $Snapins->data : [];
+            foreach ($Snapins as $Snapin) {
+                $names[$Snapin->id] = $Snapin->name;
+            }
+        }
+        $data = [];
+        foreach ($snapinIDs as $snapinID) {
+            $data[] = [
+                'id' => $snapinID,
+                'name' => $names[$snapinID] ?? ('#' . $snapinID)
+            ];
+        }
+        echo json_encode(['data' => $data]);
+        exit;
     }
     /**
      * Host snapin post
@@ -2300,6 +2354,20 @@ class HostManagement extends FOGPage
             $snapins = $snapins['remitems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->removeSnapin($snapins);
+            }
+        }
+        if (isset($_POST['snapinorder'])) {
+            $order = filter_input_array(
+                INPUT_POST,
+                [
+                    'snapinorder' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $order = $order['snapinorder'];
+            if (count($order ?: []) > 0) {
+                $this->obj->setSnapinOrder($order);
             }
         }
     }

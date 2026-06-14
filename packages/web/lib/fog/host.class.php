@@ -547,7 +547,9 @@ class Host extends FOGController
         Route::ids(
             'snapinassociation',
             $find,
-            'snapinID'
+            'snapinID',
+            'AND',
+            'sequence'
         );
         $snapins = json_decode(Route::getData(), true);
         $this->set('snapins', (array)$snapins);
@@ -1397,11 +1399,13 @@ class Host extends FOGController
                 );
             }
         }
-        return $this->addRemItem(
+        $result = $this->addRemItem(
             'snapins',
             (array)$addArray,
             'merge'
         );
+        $this->_appendSnapinSequence();
+        return $result;
     }
     /**
      * Removes snapins from the host
@@ -1417,6 +1421,75 @@ class Host extends FOGController
             (array)$removeArray,
             'diff'
         );
+    }
+    /**
+     * Assigns a run-order sequence to any snapin associations that do
+     * not have one yet, placing newly added snapins after existing ones.
+     *
+     * @return object
+     */
+    private function _appendSnapinSequence()
+    {
+        Route::listem(
+            'snapinassociation',
+            ['hostID' => $this->get('id')],
+            false,
+            'AND',
+            'sequence'
+        );
+        $associations = json_decode(Route::getData());
+        $associations = isset($associations->data) ? $associations->data : [];
+        $maxSequence = 0;
+        $unsequenced = [];
+        foreach ($associations as $association) {
+            $sequence = (int)$association->sequence;
+            if ($sequence > 0) {
+                $maxSequence = max($maxSequence, $sequence);
+            } else {
+                $unsequenced[] = $association->snapinID;
+            }
+        }
+        foreach ($unsequenced as $snapinID) {
+            self::getClass('SnapinAssociationManager')
+                ->update(
+                    [
+                        'hostID' => $this->get('id'),
+                        'snapinID' => $snapinID
+                    ],
+                    '',
+                    ['sequence' => ++$maxSequence]
+                );
+        }
+        return $this;
+    }
+    /**
+     * Sets the run order of the host's snapins from an ordered list of
+     * snapin ids (first id runs first).
+     *
+     * @param array $snapinIDs the ordered snapin ids
+     *
+     * @return object
+     */
+    public function setSnapinOrder($snapinIDs)
+    {
+        $sequence = 0;
+        foreach ((array)$snapinIDs as $snapinID) {
+            $snapinID = (int)$snapinID;
+            if ($snapinID < 1) {
+                continue;
+            }
+            ++$sequence;
+            self::getClass('SnapinAssociationManager')
+                ->update(
+                    [
+                        'hostID' => $this->get('id'),
+                        'snapinID' => $snapinID
+                    ],
+                    '',
+                    ['sequence' => $sequence]
+                );
+        }
+        return $this;
     }
     /**
      * Adds modules to the host

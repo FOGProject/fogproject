@@ -4870,6 +4870,9 @@ msgid ""
 "key update or missing auto-increment."
 msgstr ""
 
+msgid "Save order"
+msgstr ""
+
 msgid "Saving data for"
 msgstr "Salvataggio dei dati per"
 
@@ -5290,6 +5293,10 @@ msgstr "Snapin Replicator"
 msgid "Snapin Replicator"
 msgstr "Snapin Replicator"
 
+#, fuzzy
+msgid "Snapin Run Order"
+msgstr "Snapin Avvia con"
+
 msgid "Snapin Run With"
 msgstr "Snapin Avvia con"
 
@@ -5339,6 +5346,12 @@ msgstr "snapins"
 
 msgid "Snapins Are already deployed to this host"
 msgstr "Snapins già distribuiti a questo host"
+
+msgid ""
+"Snapins run in this order. The order only changes execution when \"Abort "
+"snapin sequence on failure\" is enabled for the task; otherwise it sets the "
+"order snapins are sent."
+msgstr ""
 
 msgid "So if you are trying to transmit to remote node A"
 msgstr "Quindi, se stai cercando di trasmettere al nodo remoto A"

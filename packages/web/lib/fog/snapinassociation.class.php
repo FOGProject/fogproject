@@ -35,7 +35,8 @@ class SnapinAssociation extends FOGController
     protected $databaseFields = [
         'id' => 'saID',
         'hostID' => 'saHostID',
-        'snapinID' => 'saSnapinID'
+        'snapinID' => 'saSnapinID',
+        'sequence' => 'saSequence'
     ];
     /**
      * The required fields.
