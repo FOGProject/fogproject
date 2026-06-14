@@ -362,7 +362,7 @@ class Page extends FOGBase
                         echo _('The current user is invalid.');
                         echo '</p>';
                         echo '</noscript>';
-                        echo '<script>window.location.href = "/";</script>';
+                        echo '<script src="js/fog/redirect.js?ver=' . FOG_BCACHE_VER . '"></script>';
                         break;
                     case 1:
                         header(

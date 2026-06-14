@@ -1101,7 +1101,7 @@ function clearAllIntervals(){
           break;
           // Remove script
         case -1:
-          $("link[rel='stylesheet'][src='" + key + "']").remove();
+          $("link[rel='stylesheet'][href='" + key + "']").remove();
           break;
       }
     });
@@ -1146,7 +1146,16 @@ function clearAllIntervals(){
       switch(value){
           // Add script
         case 1:
-          $("#scripts").append("<script src='" + key + "' type='text/javascript'></script>");
+          // Use a native script element rather than jQuery's .append(), which
+          // strips <script> tags and re-runs them through jQuery.globalEval()
+          // (an inline eval). That is blocked by Content-Security-Policy
+          // script-src 'self'. Appending the element directly loads it as a
+          // normal external script. async=false preserves execution order.
+          var scriptEl = document.createElement("script");
+          scriptEl.src = key;
+          scriptEl.type = "text/javascript";
+          scriptEl.async = false;
+          document.getElementById("scripts").appendChild(scriptEl);
           break;
           // Remove script
         case -1:
