@@ -212,6 +212,7 @@ class SnapinClient extends FOGClient
                         'url' => rtrim($StorageNode->location_url ?? '', '/'),
                     ];
                     unset($Snapin, $SnapinTask);
+                    // Dispatch one snapin per response to enforce strict sequencing.
                     break;
                 }
                 if (count($info['snapins']) < 1) {
@@ -291,7 +292,18 @@ class SnapinClient extends FOGClient
         if (!$exitdesc) {
             $exitdesc = filter_input(INPUT_GET, 'exitdesc');
         }
-        $exitcode = is_numeric($exitcode) ? (int)$exitcode : 1;
+        if (!is_numeric($exitcode)) {
+            $exitdesc = trim(
+                sprintf(
+                    '%s %s',
+                    (string)$exitdesc,
+                    _('Invalid exit code received; defaulted to 1')
+                )
+            );
+            $exitcode = 1;
+        } else {
+            $exitcode = (int)$exitcode;
+        }
         $SnapinTask
             ->set('stateID', self::getCompleteState())
             ->set('return', $exitcode)

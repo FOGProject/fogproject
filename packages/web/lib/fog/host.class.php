@@ -868,6 +868,7 @@ class Host extends FOGController
                 $snapin = $this->get('snapins');
             }
             $nextSequence = 1;
+            // listem order is ASC by the requested field, so the last row has max sequence.
             Route::listem(
                 'snapintask',
                 ['jobID' => $SnapinJob->get('id')],
