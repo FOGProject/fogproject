@@ -4199,3 +4199,13 @@ $this->schema[] = [
     . "('FOG_PXE_BOOT_IMAGE_ARM','The settings defines where the ARM "
     . "fog boot file system image is located.','arm_init.cpio.gz','TFTP Server')",
 ];
+// 294
+$this->schema[] = [
+    "ALTER TABLE `snapinJobs` "
+    . "ADD COLUMN `sjAbortOnFail` ENUM('0','1') NOT NULL DEFAULT '0' "
+    . "AFTER `sjStateID`",
+    "ALTER TABLE `snapinTasks` "
+    . "ADD COLUMN `stSequence` INT(11) NOT NULL DEFAULT 0 "
+    . "AFTER `stSnapinID`",
+    "UPDATE `snapinTasks` SET `stSequence`=`stID` WHERE `stSequence`=0",
+];

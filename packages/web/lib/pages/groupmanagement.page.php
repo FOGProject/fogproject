@@ -3116,6 +3116,24 @@ class GroupManagement extends FOGPage
                     true
                 );
             }
+            if ($TaskType->isSnapinTask()) {
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        self::makeLabel(
+                            $labelClass,
+                            'snapinAbortOnFailure',
+                            _('Abort snapin sequence on failure')
+                        ) => self::makeInput(
+                            '',
+                            'snapinAbortOnFailure',
+                            '',
+                            'checkbox',
+                            'snapinAbortOnFailure'
+                        )
+                    ]
+                );
+            }
             if ($isinitneeded
                 && !$isdebug
             ) {
@@ -3455,6 +3473,7 @@ class GroupManagement extends FOGPage
             if (TaskType::DEPLOY_NO_SNAPINS === $type || $enableSnapins < -1) {
                 $enableSnapins = 0;
             }
+            $snapinAbortOnFailure = isset($_POST['snapinAbortOnFailure']);
 
             // Generic setup
             $imagingTasks = $TaskType->isImagingTask();
@@ -3574,7 +3593,9 @@ class GroupManagement extends FOGPage
                     self::$FOGUser->get('name'),
                     $passreset,
                     false,
-                    $wol
+                    $wol,
+                    false,
+                    $snapinAbortOnFailure
                 );
             } else {
                 $ScheduledTask = self::getClass('ScheduledTask')
@@ -3582,6 +3603,7 @@ class GroupManagement extends FOGPage
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))
                     ->set('shutdown', $enableShutdown)
+                    ->set('other1', (int)$snapinAbortOnFailure)
                     ->set('other2', $enableSnapins)
                     ->set('type', $scheduleType == 'single' ? 'S' : 'C')
                     ->set('isGroupTask', 1)

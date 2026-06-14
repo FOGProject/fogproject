@@ -4429,6 +4429,24 @@ class HostManagement extends FOGPage
                     true
                 );
             }
+            if ($TaskType->isSnapinTask) {
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        self::makeLabel(
+                            $labelClass,
+                            'snapinAbortOnFailure',
+                            _('Abort snapin sequence on failure')
+                        ) => self::makeInput(
+                            '',
+                            'snapinAbortOnFailure',
+                            '',
+                            'checkbox',
+                            'snapinAbortOnFailure'
+                        )
+                    ]
+                );
+            }
             if ($isinitneeded) {
                 if ($iscapturetask) {
                     $fields = self::fastmerge(
@@ -4742,6 +4760,7 @@ class HostManagement extends FOGPage
             ) {
                 $enableSnapins = 0;
             }
+            $snapinAbortOnFailure = isset($_POST['snapinAbortOnFailure']);
 
             // Generic setup
             $imagingTasks = $TaskType->isImagingTask;
@@ -4876,7 +4895,8 @@ class HostManagement extends FOGPage
                     $passreset,
                     false,
                     $wol,
-                    $bypassbitlocker
+                    $bypassbitlocker,
+                    $snapinAbortOnFailure
                 );
             } else {
                 $ScheduledTask = self::getClass('ScheduledTask')
@@ -4885,6 +4905,7 @@ class HostManagement extends FOGPage
                     ->set('hostID', $this->obj->get('id'))
                     ->set('shutdown', $enableShutdown)
                     ->set('other2', $enableSnapins)
+                    ->set('other1', (int)$snapinAbortOnFailure)
                     ->set('type', 'single' == $scheduleType ? 'S' : 'C')
                     ->set('isGroupTask', 0)
                     ->set('other3', self::$FOGUser->get('name'))

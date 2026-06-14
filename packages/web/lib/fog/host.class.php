@@ -830,6 +830,7 @@ class Host extends FOGController
      */
     private function _createSnapinTasking(
         $snapin = -1,
+        $abortOnFailure = false,
         $error = false,
         $Task = false
     ) {
@@ -845,6 +846,7 @@ class Host extends FOGController
                 $SnapinJob
                     ->set('hostID', $this->get('id'))
                     ->set('stateID', self::getQueuedState())
+                    ->set('abortOnFail', (int)(bool)$abortOnFailure)
                     ->set(
                         'createdTime',
                         self::niceDate()
@@ -853,17 +855,39 @@ class Host extends FOGController
                 if (!$SnapinJob->save()) {
                     throw new Exception(_('Failed to create Snapin Job'));
                 }
+            } elseif ((int)$SnapinJob->get('abortOnFail')
+                !== (int)(bool)$abortOnFailure
+            ) {
+                $SnapinJob
+                    ->set('abortOnFail', (int)(bool)$abortOnFailure)
+                    ->save();
             }
-            $insert_fields = ['jobID', 'stateID', 'snapinID'];
+            $insert_fields = ['jobID', 'stateID', 'snapinID', 'sequence'];
             $insert_values = [];
             if ($snapin == -1) {
                 $snapin = $this->get('snapins');
+            }
+            $nextSequence = 1;
+            Route::listem(
+                'snapintask',
+                ['jobID' => $SnapinJob->get('id')],
+                false,
+                'AND',
+                'sequence'
+            );
+            $existingTasks = json_decode(Route::getData());
+            if (isset($existingTasks->data)
+                && count((array)$existingTasks->data) > 0
+            ) {
+                $lastTask = end($existingTasks->data);
+                $nextSequence = max(1, (int)$lastTask->sequence + 1);
             }
             foreach ((array)$snapin as &$snapinID) {
                 $insert_values[] = [
                     $SnapinJob->get('id'),
                     $this->getQueuedState(),
-                    $snapinID
+                    $snapinID,
+                    $nextSequence++
                 ];
                 unset($snapinID);
             }
@@ -896,6 +920,7 @@ class Host extends FOGController
      * @param bool   $sessionjoin     is this task joining an mc task
      * @param bool   $wol             should we wake the host up
      * @param bool   $bypassbitlocker bypass bitlocker?
+     * @param bool   $snapinAbortOnFailure abort remaining snapins on failure?
      *
      * @return string
      */
@@ -910,7 +935,8 @@ class Host extends FOGController
         $passreset = '',
         $sessionjoin = false,
         $wol = false,
-        $bypassbitlocker = false
+        $bypassbitlocker = false,
+        $snapinAbortOnFailure = false
     ) {
         if (!$sessionjoin) {
             $taskName .= ' - '
@@ -1044,6 +1070,7 @@ class Host extends FOGController
                 if ($deploySnapins) {
                     $this->_createSnapinTasking(
                         $deploySnapins,
+                        $snapinAbortOnFailure,
                         $TaskType->isSnapinTasking,
                         $Task
                     );

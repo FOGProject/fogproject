@@ -1741,6 +1741,7 @@ class Route extends FOGBase
         $TaskType = json_decode(Route::getData());
         try {
             $deploySnapins = false;
+            $snapinAbortOnFailure = false;
             if (isset($task->deploySnapins)) {
                 $deploySnapins = $task->deploySnapins;
                 if ($deploySnapins === true) {
@@ -1753,6 +1754,9 @@ class Route extends FOGBase
                     $deploySnapins = false;
                 }
             }
+            if (isset($task->snapinAbortOnFailure)) {
+                $snapinAbortOnFailure = (bool)$task->snapinAbortOnFailure;
+            }
             $class->createImagePackage(
                 $TaskType,
                 ($task->taskName ?? ''),
@@ -1763,7 +1767,9 @@ class Route extends FOGBase
                 filter_input(INPUT_SERVER, 'PHP_AUTH_USER') ?? 'API',
                 $task->passreset ?? '',
                 $task->sessionjoin ?? '',
-                $task->wol ?? 1
+                $task->wol ?? 1,
+                false,
+                $snapinAbortOnFailure
             );
         } catch (\Exception $e) {
             self::setErrorMessage(
