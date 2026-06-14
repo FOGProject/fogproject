@@ -261,6 +261,13 @@ msgstr ""
 msgid "ARM 64 Bit"
 msgstr ""
 
+msgid "Abort snapin sequence on failure"
+msgstr ""
+
+#, php-format
+msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
 msgid "Access"
 msgstr "访问"
 
@@ -3259,6 +3266,9 @@ msgstr "无效的令牌传递"
 #, fuzzy
 msgid "Invalid delete path"
 msgstr "无效的主机"
+
+msgid "Invalid exit code received; defaulted to 1"
+msgstr ""
 
 msgid "Invalid image"
 msgstr "图片无效"

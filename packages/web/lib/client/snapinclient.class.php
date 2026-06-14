@@ -103,53 +103,34 @@ class SnapinClient extends FOGClient
                     ),
                     'jobID' => $SnapinJob->get('id')
                 ];
-                Route::ids(
+                Route::listem(
                     'snapintask',
                     $find,
-                    'snapinID'
+                    false,
+                    'AND',
+                    'sequence'
                 );
-                $snapinIDs = json_decode(Route::getData(), true);
-                Route::ids(
-                    'snapin',
-                    ['id' => $snapinIDs]
-                );
-                $snapinIDs = json_decode(Route::getData(), true);
-                if (count($snapinIDs ?: []) < 1) {
+                $SnapinTasks = json_decode(Route::getData());
+                $SnapinTasks = isset($SnapinTasks->data) ? $SnapinTasks->data : [];
+                if (count($SnapinTasks ?: []) < 1) {
                     $SnapinJob
                         ->set('stateID', self::getCancelledState())
                         ->save();
                     return ['error' => _('No valid tasks found')];
                 }
+                $dispatchSequentially = (bool)$SnapinJob->get('abortOnFail');
                 $info = [];
                 $info['snapins'] = [];
-                Route::listem(
-                    'snapin',
-                    ['id' => $snapinIDs]
-                );
-                $Snapins = json_decode(
-                    Route::getData()
-                );
-                foreach ($Snapins->data as &$Snapin) {
-                    $find = [
-                        'snapinID' => $Snapin->id,
-                        'jobID' => $SnapinJob->get('id'),
-                        'stateID' => self::fastmerge(
-                            self::getQueuedStates(),
-                            (array)self::getProgressState()
-                        )
-                    ];
-                    Route::ids(
-                        'snapintask',
-                        $find
-                    );
-                    $snapinTaskID = json_decode(Route::getData(), true);
-                    $snapinTaskID = array_shift($snapinTaskID);
-                    $SnapinTask = new SnapinTask($snapinTaskID);
+                foreach ($SnapinTasks as &$SnapinTaskData) {
+                    $SnapinTask = new SnapinTask($SnapinTaskData->id);
                     if (!$SnapinTask->isValid()) {
                         continue;
                     }
                     $StorageNode = $StorageGroup = null;
-                    $Snapin = new Snapin($Snapin->id);
+                    $Snapin = $SnapinTask->getSnapin();
+                    if (!$Snapin->isValid()) {
+                        continue;
+                    }
                     self::$HookManager->processEvent(
                         'SNAPIN_GROUP',
                         [
@@ -232,6 +213,17 @@ class SnapinClient extends FOGClient
                         'url' => rtrim($StorageNode->location_url ?? '', '/'),
                     ];
                     unset($Snapin, $SnapinTask);
+                    if ($dispatchSequentially) {
+                        // Dispatch one snapin per response when sequential tasking is
+                        // enabled so failures can stop later snapins.
+                        break;
+                    }
+                }
+                if (count($info['snapins']) < 1) {
+                    $SnapinJob
+                        ->set('stateID', self::getCancelledState())
+                        ->save();
+                    return ['error' => _('No valid tasks found')];
                 }
                 return $info;
             } else {
@@ -304,6 +296,18 @@ class SnapinClient extends FOGClient
         if (!$exitdesc) {
             $exitdesc = filter_input(INPUT_GET, 'exitdesc');
         }
+        if (!is_numeric($exitcode)) {
+            $exitdesc = trim(
+                sprintf(
+                    '%s %s',
+                    (string)$exitdesc,
+                    _('Invalid exit code received; defaulted to 1')
+                )
+            );
+            $exitcode = 1;
+        } else {
+            $exitcode = (int)$exitcode;
+        }
         $SnapinTask
             ->set('stateID', self::getCompleteState())
             ->set('return', $exitcode)
@@ -319,6 +323,34 @@ class SnapinClient extends FOGClient
                 'HostName' => &$HostName
             ]
         );
+        $abortedOnFailure = false;
+        if ($SnapinJob->get('abortOnFail') && $exitcode !== 0) {
+            $abortedOnFailure = true;
+            self::getClass('SnapinTaskManager')
+                ->update(
+                    [
+                        'jobID' => $SnapinJob->get('id'),
+                        'stateID' => self::fastmerge(
+                            self::getQueuedStates(),
+                            (array)self::getProgressState()
+                        )
+                    ],
+                    '',
+                    [
+                        'stateID' => self::getCancelledState(),
+                        'return' => $exitcode,
+                        'details' => sprintf(
+                            _(
+                                'Aborted due to failure of "%s" '
+                                . 'with exit code %s'
+                            ),
+                            $Snapin->get('name'),
+                            $exitcode
+                        ),
+                        'complete' => $date
+                    ]
+                );
+        }
         Route::count(
             'snapintask',
             [
@@ -332,10 +364,13 @@ class SnapinClient extends FOGClient
         $STaskCount = json_decode(Route::getData());
         $STaskCount = $STaskCount->total;
         if ($STaskCount < 1) {
+            $stateID = $abortedOnFailure ?
+                self::getCancelledState() :
+                self::getCompleteState();
             if ($Task->isValid()) {
-                $Task->set('stateID', self::getCompleteState())->save();
+                $Task->set('stateID', $stateID)->save();
             }
-            $SnapinJob->set('stateID', self::getCompleteState())->save();
+            $SnapinJob->set('stateID', $stateID)->save();
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
                 [

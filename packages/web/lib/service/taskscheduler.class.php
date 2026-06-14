@@ -252,7 +252,8 @@ class TaskScheduler extends FOGService
                     false,
                     false,
                     (bool)$Task->get('other4'),
-                    (bool)$Task->get('other5')
+                    (bool)$Task->get('other5'),
+                    (bool)$Task->get('other1')
                 );
                 self::outall(
                     sprintf(

@@ -466,6 +466,9 @@ class Group extends FOGController
      * @param string $passreset     which account to reset if pass reset
      * @param mixed  $sessionjoin   the multicast session to join
      * @param bool   $wol           whether to wake on lan or not
+     * @param bool   $bypassbitlocker reserved to align Host/Group signatures.
+     *                                Group tasking does not use this value.
+     * @param bool   $snapinAbortOnFailure abort remaining snapins on failure?
      *
      * @return array
      */
@@ -479,7 +482,9 @@ class Group extends FOGController
         $username = '',
         $passreset = '',
         $sessionjoin = false,
-        $wol = false
+        $wol = false,
+        $bypassbitlocker = false,
+        $snapinAbortOnFailure = false
     ) {
         $taskName .= ' - '
             . $this->get('name')
@@ -642,7 +647,7 @@ class Group extends FOGController
                     $ids,
                     $multicastsessionassocs
                 );
-                $this->_createSnapinTasking($now, -1);
+                $this->_createSnapinTasking($now, -1, $snapinAbortOnFailure);
             } elseif ($TaskType->isDeploy) {
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
@@ -704,11 +709,19 @@ class Group extends FOGController
                     $multicastsessionassocs
                 );
                 if ($TaskType->isSnapinTask) {
-                    $this->_createSnapinTasking($now, $deploySnapins);
+                    $this->_createSnapinTasking(
+                        $now,
+                        $deploySnapins,
+                        $snapinAbortOnFailure
+                    );
                 }
             }
         } elseif ($TaskType->isSnapinTasking) {
-            $hostIDs = $this->_createSnapinTasking($now, $deploySnapins);
+            $hostIDs = $this->_createSnapinTasking(
+                $now,
+                $deploySnapins,
+                $snapinAbortOnFailure
+            );
             $hostCount = count($hostIDs ?: []);
             $batchFields = [
                 'name',
@@ -805,7 +818,7 @@ class Group extends FOGController
      *
      * @return array
      */
-    private function _createSnapinTasking($now, $snapin = -1)
+    private function _createSnapinTasking($now, $snapin = -1, $abortOnFailure = false)
     {
         if ($snapin === false) {
             return;
@@ -837,6 +850,7 @@ class Group extends FOGController
             $snapinJobs[] = [
                 $hostID,
                 self::getQueuedState(),
+                (int)(bool)$abortOnFailure,
                 $now->format('Y-m-d H:i:s')
             ];
         }
@@ -849,6 +863,7 @@ class Group extends FOGController
                 [
                     'hostID',
                     'stateID',
+                    'abortOnFail',
                     'createdTime',
                 ],
                 $snapinJobs
@@ -863,6 +878,7 @@ class Group extends FOGController
                         $jobID,
                         self::getQueuedState(),
                         $snapins[$hostID][$j],
+                        $j + 1,
                     ];
                 }
             }
@@ -873,6 +889,7 @@ class Group extends FOGController
                             'jobID',
                             'stateID',
                             'snapinID',
+                            'sequence',
                         ],
                         $snapinTasks
                     );

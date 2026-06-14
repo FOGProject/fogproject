@@ -248,6 +248,13 @@ msgstr "API?"
 msgid "ARM 64 Bit"
 msgstr ""
 
+msgid "Abort snapin sequence on failure"
+msgstr ""
+
+#, php-format
+msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
 msgid "Access"
 msgstr "Accesso"
 
@@ -3117,6 +3124,9 @@ msgstr "Dati non validi parsati"
 #, fuzzy
 msgid "Invalid delete path"
 msgstr "Host non valido"
+
+msgid "Invalid exit code received; defaulted to 1"
+msgstr ""
 
 msgid "Invalid image"
 msgstr "immagine non valido"

@@ -39,6 +39,7 @@ class SnapinTask extends FOGController
         'checkin' => 'stCheckinDate',
         'complete' => 'stCompleteDate',
         'snapinID' => 'stSnapinID',
+        'sequence' => 'stSequence',
         'return' => 'stReturnCode',
         'details' => 'stReturnDetails'
     ];
