@@ -1227,6 +1227,27 @@ class Host extends FOGController
         return $this;
     }
     /**
+     * Lower-cases a mac entry, tolerating non-string input.
+     *
+     * Stringifies scalars and __toString-able objects (e.g. a MACAddress
+     * object) and returns an empty string for anything else, so it is safe
+     * to use as an array_map callback on PHP 8 where strtolower() would
+     * fatal on a non-string argument.
+     *
+     * @param mixed $mac the mac entry to normalize
+     *
+     * @return string
+     */
+    public static function macToLower($mac)
+    {
+        if (is_scalar($mac)
+            || (is_object($mac) && method_exists($mac, '__toString'))
+        ) {
+            return strtolower((string)$mac);
+        }
+        return '';
+    }
+    /**
      * Adds additional macs
      *
      * @param array $addArray the macs to add
@@ -1238,7 +1259,7 @@ class Host extends FOGController
         if (!is_array($addArray)) {
             $addArray = [$addArray];
         }
-        $addArray = array_map('strtolower', $addArray);
+        $addArray = array_map([self::class, 'macToLower'], $addArray);
         $addArray = self::parseMacList($addArray);
         $insert_fields = ['hostID', 'mac'];
         $insert_values = [];
@@ -1316,7 +1337,7 @@ class Host extends FOGController
         if (!is_array($mac)) {
             $mac = [$mac];
         }
-        $mac = array_map('strtolower', $mac);
+        $mac = array_map([self::class, 'macToLower'], $mac);
         $mac = self::parseMacList($mac);
         $insert_fields = ['hostID', 'mac', 'pending'];
         $insert_values = [];
