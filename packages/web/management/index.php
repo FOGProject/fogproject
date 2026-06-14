@@ -30,8 +30,7 @@ $Page = FOGCore::getClass('Page');
 // Define allowed nodes
 $nodes = [
     'schema',
-    'client',
-    'ipxe'
+    'client'
 ];
 
 // Handle logout or login nodes
