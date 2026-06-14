@@ -2595,6 +2595,30 @@ abstract class FOGBase
         CSRF::requireForStateChanging();
     }
     /**
+     * Validates the per-install schema bootstrap token.
+     *
+     * The schema deploy endpoint must run before any user/session or database
+     * exists (fresh install), so it cannot pass is_authorized()/CSRF. Instead
+     * the installer generates a random token, writes it to config.class.php as
+     * FOG_SCHEMA_INSTALL_TOKEN, and presents it back (X-Fog-Install-Token
+     * header, or fogtoken POST/GET param). Only a caller holding that secret
+     * may run schema operations without a logged-in session.
+     *
+     * @return bool
+     */
+    public static function validInstallToken()
+    {
+        if (!defined('FOG_SCHEMA_INSTALL_TOKEN') || !FOG_SCHEMA_INSTALL_TOKEN) {
+            return false;
+        }
+        $provided = $_SERVER['HTTP_X_FOG_INSTALL_TOKEN']
+            ?? filter_input(INPUT_POST, 'fogtoken')
+            ?? filter_input(INPUT_GET, 'fogtoken');
+        return is_string($provided)
+            && $provided !== ''
+            && hash_equals((string)FOG_SCHEMA_INSTALL_TOKEN, $provided);
+    }
+    /**
      * Is Authorized to perform action simplified
      *
      * @param $return_bool Defaults to false, but can return bool
