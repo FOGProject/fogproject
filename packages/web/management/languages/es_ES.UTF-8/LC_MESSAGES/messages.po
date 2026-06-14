@@ -260,6 +260,13 @@ msgstr ""
 msgid "ARM 64 Bit"
 msgstr ""
 
+msgid "Abort snapin sequence on failure"
+msgstr ""
+
+#, php-format
+msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
 #, fuzzy
 msgid "Access"
 msgstr "Exitoso"
@@ -3337,6 +3344,9 @@ msgstr "Elemento inválido pasaron"
 #, fuzzy
 msgid "Invalid delete path"
 msgstr "host no válido"
+
+msgid "Invalid exit code received; defaulted to 1"
+msgstr ""
 
 #, fuzzy
 msgid "Invalid image"
