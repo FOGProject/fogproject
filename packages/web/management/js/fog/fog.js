@@ -993,7 +993,7 @@ function ajaxRun(
             if (data.error) {
                 if (authneeded) {
                     setTimeout(function() {
-                        eval(target+'(url, dialog)');
+                        window[target](url, dialog);
                     }, 3000);
                 }
             } else {

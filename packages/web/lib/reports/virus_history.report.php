@@ -51,7 +51,7 @@ class Virus_History extends ReportManagementPage
             '${vir_mode}',
             '${vir_date}',
             sprintf(
-                '<input type="checkbox" onclick="this.form.submit()" class='
+                '<input type="checkbox" class='
                 . '"delvid" value="${vir_id}" id="vir${vir_id}" name='
                 . '"delvid"/><label for="for${vir_id}" class='
                 . '"icon icon-hand" title="%s ${vir_name}">'
