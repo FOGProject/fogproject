@@ -3840,9 +3840,6 @@ msgstr ""
 msgid "Ping completed with status"
 msgstr ""
 
-msgid "Ping hosts completed, updating information on all hosts"
-msgstr ""
-
 msgid "Please Enter an admin or mobile lookup name"
 msgstr ""
 

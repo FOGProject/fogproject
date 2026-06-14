@@ -4578,9 +4578,6 @@ msgstr "estado"
 msgid "Ping completed with status"
 msgstr ""
 
-msgid "Ping hosts completed, updating information on all hosts"
-msgstr ""
-
 #, fuzzy
 msgid "Please Enter an admin or mobile lookup name"
 msgstr "Por favor, indique um nome para este local."

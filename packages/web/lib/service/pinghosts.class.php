@@ -140,8 +140,6 @@ class PingHosts extends FOGService
                     )
                 )
             );
-            $insert_fields = ['pingstatus', 'id'];
-            $insert_values = [];
             foreach ($hosts as $host) {
                 self::outall(
                     ' | '
@@ -168,7 +166,10 @@ class PingHosts extends FOGService
                     . ': '
                     . $ping
                 );
-                $insert_values[] = [$ping, $host->id];
+                // Scoped UPDATE only: this affects 0 rows if the host was
+                // deleted mid-cycle. Do NOT use insertBatch here -- its
+                // INSERT ... ON DUPLICATE KEY UPDATE would resurrect a
+                // deleted host as a blank, nameless row.
                 self::getClass('HostManager')
                     ->update(
                         ['id' => $host->id],
@@ -176,14 +177,6 @@ class PingHosts extends FOGService
                         ['pingstatus' => $ping]
                     );
             }
-            self::outall(
-                ' | '
-                . _('Ping hosts completed, updating information on all hosts')
-            );
-            self::getClass('HostManager')->insertBatch(
-                $insert_fields,
-                $insert_values
-            );
             self::outall(' * All hosts updated');
         } catch (Exception $e) {
             self::outall($e->getMessage());

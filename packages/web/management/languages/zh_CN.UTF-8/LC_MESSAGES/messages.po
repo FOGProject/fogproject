@@ -4574,9 +4574,6 @@ msgstr "状态"
 msgid "Ping completed with status"
 msgstr ""
 
-msgid "Ping hosts completed, updating information on all hosts"
-msgstr ""
-
 #, fuzzy
 msgid "Please Enter an admin or mobile lookup name"
 msgstr "这个位置输入名称。"
