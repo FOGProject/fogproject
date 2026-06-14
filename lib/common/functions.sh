@@ -90,7 +90,7 @@ updateDB() {
             local replace='s/[]"\/$&*.^|[]/\\&/g'
             local escstorageLocation=$(echo $storageLocation | sed -e $replace)
             sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
-            curl -X POST -d "confirm&fogverified" --noproxy '*' -fksL ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
+            curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' -fksL ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
             errorStat $?
             ;;
         *)
@@ -98,7 +98,7 @@ updateDB() {
             echo " * You still need to install/update your database schema."
             echo " * This can be done by opening a web browser and going to:"
             echo
-            echo "   $httpproto://${ipaddress}/fog/management"
+            echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
             echo
             read -p " * Press [Enter] key when database is updated/installed."
             echo
@@ -2645,6 +2645,12 @@ configureHttpd() {
         languagemogen "$languagesfound" "$langpath"
         echo "Done"
     fi
+    # Generate a per-install schema bootstrap token written into config.class.php
+    # as FOG_SCHEMA_INSTALL_TOKEN. It lets the installer deploy the schema before
+    # any FOG user/database exists without leaving the endpoint open to anonymous
+    # callers. Reused by updateDB() (called after this) for the deploy request.
+    installToken=$(openssl rand -hex 32 2>/dev/null)
+    [[ -z $installToken ]] && installToken=$(tr -dc 'a-f0-9' < /dev/urandom 2>/dev/null | head -c 64)
     dots "Creating config file"
     phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
     phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
@@ -2699,6 +2705,10 @@ class Config
         define('DATABASE_NAME', '$mysqldbname');
         define('DATABASE_USERNAME', '$snmysqluser');
         define('DATABASE_PASSWORD', '$phpescsnmysqlpass');
+        // Per-install secret allowing the schema deploy endpoint to run before
+        // any user/database exists. Presented back by the installer; required
+        // for any unauthenticated schema operation.
+        define('FOG_SCHEMA_INSTALL_TOKEN', '$installToken');
     }
     /**
      * Defines the service settings

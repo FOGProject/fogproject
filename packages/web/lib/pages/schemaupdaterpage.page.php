@@ -50,9 +50,6 @@ class SchemaUpdaterPage extends FOGPage
      */
     public function index(...$args)
     {
-        if (isset($_POST['confirm']) && isset($_POST['fogverified'])) {
-            return $this->indexPost();
-        }
         $this->title = _('Database Schema Installer / Updater');
         $vals = [
             "\n",
@@ -72,6 +69,15 @@ class SchemaUpdaterPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        // Manual (non-curl) install flow: when the installer's URL carried a
+        // valid bootstrap token, carry it into the POST so the deploy can run
+        // before any user exists. Only emitted when the token already matched,
+        // so it is never disclosed to a token-less visitor.
+        if (self::validInstallToken()) {
+            echo '<input type="hidden" name="fogtoken" value="'
+                . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
+                . '"/>';
+        }
         echo '<div class="box box-solid" id="schema-modify">';
         echo '<div class="box-body">';
         echo '<!-- Schema Update -->';
@@ -169,6 +175,18 @@ class SchemaUpdaterPage extends FOGPage
     public function indexPost()
     {
         header('Content-type: application/json');
+        // Defense in depth: the dispatcher already gates this, but never run a
+        // schema deploy for an anonymous caller lacking a valid install token.
+        if (!self::is_authorized(true) && !self::validInstallToken()) {
+            http_response_code(HTTPResponseCodes::HTTP_FORBIDDEN);
+            echo json_encode(
+                [
+                    'error' => _('Unauthorized'),
+                    'title' => _('Schema Update Fail')
+                ]
+            );
+            exit;
+        }
         include sprintf(
             '%s%scommons%sschema.php',
             BASEPATH,

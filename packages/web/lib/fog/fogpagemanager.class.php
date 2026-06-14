@@ -143,13 +143,25 @@ class FOGPageManager extends FOGBase
                 self::getClass('Page')
                     ->addJavascript("js/fog/{$node}/fog.{$node}.list.js");
             }
+            // The schema deploy endpoint must run before any user/session or
+            // database exists (fresh install), so it cannot satisfy
+            // checkAuthAndCSRF(). Allow it without auth ONLY when the
+            // per-install token (written to config.class.php by the installer)
+            // is presented. Every other node -- and schema without a valid
+            // token -- still requires auth (#825).
+            $schemaBootstrap = ($node === 'schema'
+                && self::validInstallToken());
             if (self::$ajax && method_exists($class, $method.'Ajax')) {
                 $method .= 'Ajax';
-                self::checkAuthAndCSRF();
+                if (!$schemaBootstrap) {
+                    self::checkAuthAndCSRF();
+                }
             }
             if (self::$post && method_exists($class, $method.'Post')) {
                 $method .= 'Post';
-                self::checkAuthAndCSRF();
+                if (!$schemaBootstrap) {
+                    self::checkAuthAndCSRF();
+                }
             }
             if (self::$post) {
                 self::setRequest();
