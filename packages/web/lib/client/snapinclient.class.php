@@ -118,6 +118,7 @@ class SnapinClient extends FOGClient
                         ->save();
                     return ['error' => _('No valid tasks found')];
                 }
+                $dispatchSequentially = (bool)$SnapinJob->get('abortOnFail');
                 $info = [];
                 $info['snapins'] = [];
                 foreach ($SnapinTasks as &$SnapinTaskData) {
@@ -212,9 +213,11 @@ class SnapinClient extends FOGClient
                         'url' => rtrim($StorageNode->location_url ?? '', '/'),
                     ];
                     unset($Snapin, $SnapinTask);
-                    // Dispatch one snapin per response to preserve dependency order
-                    // and allow abort-on-failure handling before later snapins run.
-                    break;
+                    if ($dispatchSequentially) {
+                        // Dispatch one snapin per response when sequential tasking is
+                        // enabled so failures can stop later snapins.
+                        break;
+                    }
                 }
                 if (count($info['snapins']) < 1) {
                     $SnapinJob
