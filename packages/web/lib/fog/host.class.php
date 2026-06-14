@@ -880,7 +880,8 @@ class Host extends FOGController
             if (isset($existingTasks->data)
                 && count((array)$existingTasks->data) > 0
             ) {
-                $lastTask = end($existingTasks->data);
+                $dataArray = (array)$existingTasks->data;
+                $lastTask = end($dataArray);
                 $nextSequence = max(1, (int)$lastTask->sequence + 1);
             }
             foreach ((array)$snapin as &$snapinID) {
