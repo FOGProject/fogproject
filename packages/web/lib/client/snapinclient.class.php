@@ -212,7 +212,8 @@ class SnapinClient extends FOGClient
                         'url' => rtrim($StorageNode->location_url ?? '', '/'),
                     ];
                     unset($Snapin, $SnapinTask);
-                    // Dispatch one snapin per response to enforce strict sequencing.
+                    // Dispatch one snapin per response to preserve dependency order
+                    // and allow abort-on-failure handling before later snapins run.
                     break;
                 }
                 if (count($info['snapins']) < 1) {

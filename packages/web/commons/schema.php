@@ -4207,5 +4207,6 @@ $this->schema[] = [
     "ALTER TABLE `snapinTasks` "
     . "ADD COLUMN `stSequence` INT(11) NOT NULL DEFAULT 0 "
     . "AFTER `stSnapinID`",
+    // Historical ordering fallback: older rows are approximated by task ID order.
     "UPDATE `snapinTasks` SET `stSequence`=`stID` WHERE `stSequence`=0",
 ];

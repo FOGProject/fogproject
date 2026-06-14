@@ -466,7 +466,8 @@ class Group extends FOGController
      * @param string $passreset     which account to reset if pass reset
      * @param mixed  $sessionjoin   the multicast session to join
      * @param bool   $wol           whether to wake on lan or not
-     * @param bool   $bypassbitlocker unused placeholder to align call signatures
+     * @param bool   $bypassbitlocker reserved to align Host/Group signatures.
+     *                                Group tasking does not use this value.
      * @param bool   $snapinAbortOnFailure abort remaining snapins on failure?
      *
      * @return array
