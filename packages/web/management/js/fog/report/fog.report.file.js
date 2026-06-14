@@ -151,10 +151,10 @@
           ],
           buttons: reportButtons,
           columns: [
-            {data: 'username'},
+            {data: 'username', render: $.fn.dataTable.render.text()},
             {data: 'hostLink'},
-            {data: 'createdTime'},
-            {data: 'hostname'}
+            {data: 'createdTime', render: $.fn.dataTable.render.text()},
+            {data: 'hostname', render: $.fn.dataTable.render.text()}
           ],
           columnDefs: [
             {

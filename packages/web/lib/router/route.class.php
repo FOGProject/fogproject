@@ -1149,10 +1149,17 @@ class Route extends FOGBase
                     break;
                 case 'usertracking':
                     $columns[] = [
+                        'db' => 'utUserName',
+                        'dt' => 'username',
+                        'formatter' => function ($d, $row) {
+                            return Initiator::e($d);
+                        }
+                    ];
+                    $columns[] = [
                         'db' => 'utHostID',
                         'dt' => 'hostname',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('Host', $d)->get('name');
+                            return Initiator::e(self::getClass('Host', $d)->get('name'));
                         }
                     ];
                     $columns[] = [
