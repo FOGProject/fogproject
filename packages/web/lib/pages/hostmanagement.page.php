@@ -1021,7 +1021,9 @@ class HostManagement extends FOGPage
             if (!$MAC->isValid()) {
                 throw new Exception(_('MAC Format is invalid'));
             }
-            self::getClass('HostManager')->getHostByMacAddresses($MAC);
+            self::getClass('HostManager')->getHostByMacAddresses(
+                $MAC->__toString()
+            );
             if (self::$Host->isValid()) {
                 throw new Exception(
                     sprintf(
