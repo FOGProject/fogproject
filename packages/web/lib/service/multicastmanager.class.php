@@ -512,12 +512,31 @@ class MulticastManager extends FOGService
                                             _('could not be killed')
                                         )
                                     );
+                                } else {
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $runningTask->getID(),
+                                            $runningTask->getName(),
+                                            _('has been killed')
+                                        )
+                                    );
+                                    $KnownTasks = self::_removeFromKnownList(
+                                        $KnownTasks,
+                                        $runningTask->getID()
+                                    );
                                 }
                                 // Set msClients to zero as a marker for a completed
                                 // multicast session with unregistered clients
                                 if (count($taskIDs) == 0) {
                                     $Session->set('clients', 0)->save();
                                 }
+                                // The udp-sender process exited on its own, so the
+                                // session is finished even if the per-host tasks were
+                                // never marked complete (e.g. hosts rebooted/shut down
+                                // after imaging). Queue it for completion so its state
+                                // is cleared and it stops blocking new group sessions.
+                                $completeTasks[] = $runningTask;
                             }
                         } else {
                             if ($jobcompleted) {
