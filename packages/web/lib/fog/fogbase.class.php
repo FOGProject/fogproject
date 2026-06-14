@@ -2367,6 +2367,30 @@ abstract class FOGBase
         return is_numeric($size) ? $size : 0;
     }
     /**
+     * Returns the shared inter-node secret, lazily generating it if absent.
+     *
+     * Storage nodes read the master's globalSettings (shared DB), so this
+     * value is common to all nodes and is used to authenticate server-to-server
+     * requests that cannot carry a user session -- e.g. the Wake-on-LAN relay
+     * (see wakeUp()/FOGPage::wakeEmUp()).
+     *
+     * @return string
+     */
+    public static function nodeSecret()
+    {
+        $secret = self::getSetting('FOG_NODE_SECRET');
+        if (empty($secret)) {
+            $secret = bin2hex(random_bytes(32));
+            self::getClass('Setting')
+                ->set('name', 'FOG_NODE_SECRET')
+                ->set('description', 'Auto-generated shared secret used to authenticate inter-node requests (e.g. the Wake-on-LAN relay). Do not edit.')
+                ->set('value', $secret)
+                ->set('category', 'FOG Boot Settings')
+                ->save();
+        }
+        return $secret;
+    }
+    /**
      * Perform enmass wake on lan.
      *
      * @param array $macs The macs to send
@@ -2429,7 +2453,9 @@ abstract class FOGBase
             false,
             false,
             false,
-            false
+            false,
+            false,
+            ['X-FOG-Node-Secret: ' . self::nodeSecret()]
         );
     }
     /**
