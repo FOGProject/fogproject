@@ -699,7 +699,8 @@ configureTFTPandPXE() {
     if [[ "x$httpproto" = "xhttps" ]]; then
         dots "Compiling iPXE binaries trusting your SSL certificate"
         cd $buildipxesrc
-        ./buildipxe.sh ${sslcapem} >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
+        [[ -n $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
+        ./buildipxe.sh ${ipxetrust} >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         errorStat $?
         cd $workingdir
     fi
@@ -1838,6 +1839,11 @@ writeUpdateFile() {
     escsslcsr=$(echo $sslcsr | sed -e $replace)
     escsslcakey=$(echo $sslcakey | sed -e $replace)
     escsslcapem=$(echo $sslcapem | sed -e $replace)
+    escsslcachain=$(echo $sslcachain | sed -e $replace)
+    escexternalca=$(echo $externalca | sed -e $replace)
+    escextcacert=$(echo $extcacert | sed -e $replace)
+    escextcakey=$(echo $extcakey | sed -e $replace)
+    escextcaroot=$(echo $extcaroot | sed -e $replace)
     escwebserver=$(echo $webserver | sed -e $replace)
     [[ -z $copybackold || $copybackold -lt 1 ]] && copybackold=0
     if [[ -f $fogprogramdir/.fogsettings ]]; then
@@ -1976,6 +1982,21 @@ writeUpdateFile() {
             grep -q "sslcapem=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslcapem=.*/sslcapem='$escsslcapem'/g" $fogprogramdir/.fogsettings || \
                 echo "sslcapem='$sslcapem'" >> $fogprogramdir/.fogsettings
+            grep -q "sslcachain=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sslcachain=.*/sslcachain='$escsslcachain'/g" $fogprogramdir/.fogsettings || \
+                echo "sslcachain='$sslcachain'" >> $fogprogramdir/.fogsettings
+            grep -q "externalca=" $fogprogramdir/.fogsettings && \
+                sed -i "s/externalca=.*/externalca='$escexternalca'/g" $fogprogramdir/.fogsettings || \
+                echo "externalca='$externalca'" >> $fogprogramdir/.fogsettings
+            grep -q "extcacert=" $fogprogramdir/.fogsettings && \
+                sed -i "s/extcacert=.*/extcacert='$escextcacert'/g" $fogprogramdir/.fogsettings || \
+                echo "extcacert='$extcacert'" >> $fogprogramdir/.fogsettings
+            grep -q "extcakey=" $fogprogramdir/.fogsettings && \
+                sed -i "s/extcakey=.*/extcakey='$escextcakey'/g" $fogprogramdir/.fogsettings || \
+                echo "extcakey='$extcakey'" >> $fogprogramdir/.fogsettings
+            grep -q "extcaroot=" $fogprogramdir/.fogsettings && \
+                sed -i "s/extcaroot=.*/extcaroot='$escextcaroot'/g" $fogprogramdir/.fogsettings || \
+                echo "extcaroot='$extcaroot'" >> $fogprogramdir/.fogsettings
             grep -q "sslcsr=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslcsr=.*/sslcsr='$escsslcsr'/g" $fogprogramdir/.fogsettings || \
                 echo "sslcsr='$sslcsr'" >> $fogprogramdir/.fogsettings
@@ -2035,6 +2056,11 @@ writeUpdateFile() {
             echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
             echo "sslcakey='$sslcakey'" >> $fogprogramdir/.fogsettings
             echo "sslcapem='$sslcapem'" >> $fogprogramdir/.fogsettings
+            echo "sslcachain='$sslcachain'" >> $fogprogramdir/.fogsettings
+            echo "externalca='$externalca'" >> $fogprogramdir/.fogsettings
+            echo "extcacert='$extcacert'" >> $fogprogramdir/.fogsettings
+            echo "extcakey='$extcakey'" >> $fogprogramdir/.fogsettings
+            echo "extcaroot='$extcaroot'" >> $fogprogramdir/.fogsettings
             echo "sslcsr='$sslcsr'" >> $fogprogramdir/.fogsettings
             echo "sslpubcert='$sslpubcert'" >> $fogprogramdir/.fogsettings
             echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
@@ -2088,6 +2114,11 @@ writeUpdateFile() {
         echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
         echo "sslcakey='$sslcakey'" >> $fogprogramdir/.fogsettings
         echo "sslcapem='$sslcapem'" >> $fogprogramdir/.fogsettings
+        echo "sslcachain='$sslcachain'" >> $fogprogramdir/.fogsettings
+        echo "externalca='$externalca'" >> $fogprogramdir/.fogsettings
+        echo "extcacert='$extcacert'" >> $fogprogramdir/.fogsettings
+        echo "extcakey='$extcakey'" >> $fogprogramdir/.fogsettings
+        echo "extcaroot='$extcaroot'" >> $fogprogramdir/.fogsettings
         echo "sslcsr='$sslcsr'" >> $fogprogramdir/.fogsettings
         echo "sslpubcert='$sslpubcert'" >> $fogprogramdir/.fogsettings
         echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
@@ -2117,6 +2148,92 @@ displayBanner() {
     echo "  =================================="
     echo
 }
+# Returns 0 if the certificate at $1 is a CA certificate (basicConstraints CA:TRUE)
+isCACert() {
+    local crt="$1"
+    if openssl x509 -in "$crt" -noout -ext basicConstraints >/dev/null 2>&1; then
+        openssl x509 -in "$crt" -noout -ext basicConstraints 2>/dev/null | grep -qi "CA:TRUE"
+    else
+        # Older OpenSSL without the -ext option (e.g. some Alpine builds)
+        openssl x509 -in "$crt" -noout -text 2>/dev/null | grep -A1 -i "Basic Constraints" | grep -qi "CA:TRUE"
+    fi
+}
+# Validate the admin-supplied external/intermediate CA and import it into FOG's CA
+# directory. On success sets sslcakey, sslcapem and sslcachain. Hard-fails the
+# install on any validation error.
+validateExternalCA() {
+    local f haveSource=1
+    for f in "$extcacert" "$extcakey" "$extcaroot"; do
+        [[ -z $f || ! -r $f ]] && haveSource=0
+    done
+    if [[ $haveSource -eq 0 ]]; then
+        # No readable source files this run; reuse a previously imported CA if present
+        if [[ -e $sslpath/CA/.fogCA.pem && -e $sslpath/CA/.fogCA.key && -e $sslpath/CA/.fogCAchain.pem ]]; then
+            sslcakey="$sslpath/CA/.fogCA.key"
+            sslcapem="$sslpath/CA/.fogCA.pem"
+            sslcachain="$sslpath/CA/.fogCAchain.pem"
+            return 0
+        fi
+        echo "  External CA is enabled but a required file is missing or unreadable"
+        echo "  and no previously imported CA was found:"
+        echo "    intermediate cert: ${extcacert:-<unset>}"
+        echo "    intermediate key:  ${extcakey:-<unset>}"
+        echo "    root cert:         ${extcaroot:-<unset>}"
+        echo "  Provide them via the installer prompts or the"
+        echo "  --ca-cert/--ca-key/--ca-root options, then re-run the installer."
+        exit 1
+    fi
+    dots "Validating external CA files"
+    # The supplied private key must match the supplied intermediate certificate
+    local certmod keymod
+    certmod=$(openssl x509 -noout -modulus -in "$extcacert" 2>>$error_log | openssl md5 2>>$error_log)
+    keymod=$(openssl rsa -noout -modulus -in "$extcakey" 2>>$error_log | openssl md5 2>>$error_log)
+    if [[ -z $certmod || $certmod != $keymod ]]; then
+        echo "Failed"
+        echo "  The supplied CA private key ($extcakey) does not match the"
+        echo "  supplied CA certificate ($extcacert)."
+        exit 1
+    fi
+    # The supplied intermediate must actually be a CA certificate
+    if ! isCACert "$extcacert"; then
+        echo "Failed"
+        echo "  The supplied certificate ($extcacert) is not a CA certificate"
+        echo "  (basicConstraints CA:TRUE is required)."
+        exit 1
+    fi
+    # The intermediate must chain up to the supplied root
+    if ! openssl verify -CAfile "$extcaroot" "$extcacert" >>$error_log 2>&1; then
+        echo "Failed"
+        echo "  The intermediate CA ($extcacert) does not verify against the"
+        echo "  supplied root CA ($extcaroot)."
+        exit 1
+    fi
+    # Import into FOG's CA directory so signing and serial files stay writable and
+    # the layout matches the self-signed case (.fogCA.pem is what fog-client pins)
+    cp "$extcacert" "$sslpath/CA/.fogCA.pem" >>$error_log 2>&1
+    cp "$extcakey" "$sslpath/CA/.fogCA.key" >>$error_log 2>&1
+    cat "$extcaroot" "$extcacert" > "$sslpath/CA/.fogCAchain.pem" 2>>$error_log
+    chmod 600 "$sslpath/CA/.fogCA.key" >>$error_log 2>&1
+    sslcakey="$sslpath/CA/.fogCA.key"
+    sslcapem="$sslpath/CA/.fogCA.pem"
+    sslcachain="$sslpath/CA/.fogCAchain.pem"
+    errorStat $?
+    # If we are replacing the CA on a server that already issued a server cert, warn
+    if [[ $caCreated == yes && -n $sslpubcert && -e $sslpubcert ]] && \
+        ! openssl verify -CAfile "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
+        echo
+        echo "  ###################################################################"
+        echo "  # WARNING: switching this FOG server to an external/intermediate   #"
+        echo "  # CA. The web server certificate and iPXE binaries will be         #"
+        echo "  # regenerated and signed by the new CA. Any host whose fog-client  #"
+        echo "  # already pinned the previous FOG CA will not trust this server    #"
+        echo "  # until it re-pins, and PXE clients must pull the rebuilt iPXE      #"
+        echo "  # binaries. Re-run the fog-client installer and/or reboot PXE       #"
+        echo "  # clients after this install completes.                            #"
+        echo "  ###################################################################"
+        echo
+    fi
+}
 createSSLCA() {
     if [[ -z $sslpath ]]; then
         sslpath="/opt/fog/snapins/ssl"
@@ -2124,12 +2241,15 @@ createSSLCA() {
     sslpath=${sslpath//\/$}
     [[ ! -d $sslpath ]] && mkdir -p $sslpath >>$error_log 2>&1
     [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$error_log 2>&1
-    [[ -z $sslcakey ]] && sslcakey="$sslpath/CA/.fogCA.key"
-    [[ -z $sslcapem ]] && sslcapem="$sslpath/CA/.fogCA.pem"
-    if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslcakey ]]; then
-        dots "Creating SSL CA"
-        openssl genrsa -out $sslcakey 4096 >>$error_log 2>&1
-        openssl req -x509 -new -sha512 -nodes -key $sslcakey -days 3650 -out $sslcapem >>$error_log 2>&1 << EOF
+    if [[ $externalca == yes ]]; then
+        validateExternalCA
+    else
+        [[ -z $sslcakey ]] && sslcakey="$sslpath/CA/.fogCA.key"
+        [[ -z $sslcapem ]] && sslcapem="$sslpath/CA/.fogCA.pem"
+        if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslcakey ]]; then
+            dots "Creating SSL CA"
+            openssl genrsa -out $sslcakey 4096 >>$error_log 2>&1
+            openssl req -x509 -new -sha512 -nodes -key $sslcakey -days 3650 -out $sslcapem >>$error_log 2>&1 << EOF
 .
 .
 .
@@ -2138,7 +2258,9 @@ createSSLCA() {
 FOG Server CA
 .
 EOF
-        errorStat $?
+            errorStat $?
+        fi
+        sslcachain="$sslcapem"
     fi
     [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
     [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
@@ -2381,7 +2503,7 @@ EOF
                         echo "    SSLSessionTickets Off" >> "$etcconf"
                         echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                        echo "    SSLCACertificateFile $sslcapem" >> "$etcconf"
+                        echo "    SSLCACertificateFile $sslcachain" >> "$etcconf"
                         echo "    <Directory $webdirdest>" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
@@ -2426,7 +2548,7 @@ EOF
                         echo "    SSLSessionTickets Off" >> "$etcconf"
                         echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                        echo "    SSLCACertificateFile $sslcapem" >> "$etcconf"
+                        echo "    SSLCACertificateFile $sslcachain" >> "$etcconf"
                         echo "    <Directory $webdirdest>" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"

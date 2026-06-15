@@ -58,6 +58,12 @@ usage() {
     echo -e "\t-S    --force-https\t\tForce HTTPS for all comunication"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
+    echo -e "\t      --external-ca\t\tSign FOG's server certificate with an"
+    echo -e "\t                  \t\t\texisting external/intermediate CA instead"
+    echo -e "\t                  \t\t\tof generating a self-signed CA"
+    echo -e "\t      --ca-cert\t\t\tPath to the intermediate CA certificate (PEM)"
+    echo -e "\t      --ca-key\t\t\tPath to the intermediate CA private key (PEM)"
+    echo -e "\t      --ca-root\t\t\tPath to the root CA certificate (PEM)"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
     echo -e "\t-f    --file\t\t\tUse different update file"
     echo -e "\t-c    --ssl-path\t\tSpecify the ssl path"
@@ -82,7 +88,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:l"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -137,6 +143,40 @@ while :; do
         -C | --recreate-[Cc][Aa])
             srecreateCA="yes"
             shift
+            ;;
+        --external-ca)
+            sexternalca="yes"
+            shift
+            ;;
+        --ca-cert)
+            if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
+                sextcacert="${2}"
+            else
+                echo "Error: Missing argument for $1"
+                usage
+                exit 9
+            fi
+            shift 2
+            ;;
+        --ca-key)
+            if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
+                sextcakey="${2}"
+            else
+                echo "Error: Missing argument for $1"
+                usage
+                exit 9
+            fi
+            shift 2
+            ;;
+        --ca-root)
+            if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
+                sextcaroot="${2}"
+            else
+                echo "Error: Missing argument for $1"
+                usage
+                exit 9
+            fi
+            shift 2
             ;;
         -y | -Y | --autoaccept)
             autoaccept="yes"
@@ -316,6 +356,7 @@ echo "Done"
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
+[[ -z $externalca ]] && externalca="no"
 [[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $tftpAdvOpts ]] && tftpAdvOpts=""
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
@@ -355,6 +396,10 @@ esac
 [[ -n $ssslpath ]] && sslpath=$ssslpath
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
+[[ -n $sexternalca ]] && externalca=$sexternalca
+[[ -n $sextcacert ]] && extcacert=$sextcacert
+[[ -n $sextcakey ]] && extcakey=$sextcakey
+[[ -n $sextcaroot ]] && extcaroot=$sextcaroot
 [[ -n $sdocroot ]] && docroot=$sdocroot
 [[ -n $swebroot ]] && webroot=$swebroot
 [[ -n $sbackupPath ]] && backupPath=$sbackupPath

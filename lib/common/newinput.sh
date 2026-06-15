@@ -69,3 +69,50 @@ while [[ -z $sendreports ]]; do
             ;;
     esac
 done
+while [[ -z $externalca ]]; do
+    blExtCA="N"
+    if [[ -z $autoaccept && -z $sexternalca ]]; then
+        echo
+        echo "  By default FOG generates its own self-signed Certificate Authority"
+        echo "  (CA) and uses it to sign the SSL certificate for the web server, the"
+        echo "  iPXE binaries and the fog-client. If you already have an external or"
+        echo "  intermediate CA (for example one issued by Smallstep step-ca), FOG"
+        echo "  can sign its server certificate with that CA instead so the chain of"
+        echo "  trust rolls up to your own authority."
+        echo -n "  Do you have an existing external/intermediate CA to use? [y/N] "
+        read blExtCA
+    fi
+    [[ -n $sexternalca ]] && blExtCA="Y"
+    case $blExtCA in
+        [Nn]|[Nn][Oo]|"")
+            externalca="no"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            externalca="yes"
+            ;;
+        *)
+            externalca=""
+            echo "  Invalid input, please try again."
+            ;;
+    esac
+done
+if [[ $externalca == yes && -z $autoaccept ]]; then
+    echo
+    echo "  Please provide the paths to your CA files. The intermediate CA"
+    echo "  certificate and key are used to sign FOG's server certificate; the"
+    echo "  root CA certificate is used as the trust anchor. Press [Enter] to"
+    echo "  keep the value shown in brackets (from a previous install)."
+    echo
+    [[ -n $extcacert ]] && dfltcacert=" [$extcacert]" || dfltcacert=""
+    echo -n "  Path to the intermediate CA certificate (PEM)$dfltcacert: "
+    read inextcacert
+    [[ -n $inextcacert ]] && extcacert="$inextcacert"
+    [[ -n $extcakey ]] && dfltcakey=" [$extcakey]" || dfltcakey=""
+    echo -n "  Path to the intermediate CA private key (PEM)$dfltcakey: "
+    read inextcakey
+    [[ -n $inextcakey ]] && extcakey="$inextcakey"
+    [[ -n $extcaroot ]] && dfltcaroot=" [$extcaroot]" || dfltcaroot=""
+    echo -n "  Path to the root CA certificate (PEM)$dfltcaroot: "
+    read inextcaroot
+    [[ -n $inextcaroot ]] && extcaroot="$inextcaroot"
+fi
