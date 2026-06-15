@@ -22,7 +22,8 @@
             {data: 'compress'}, // 14
             {data: 'isEnabled'}, // 15
             {data: 'toReplicate'}, // 16
-            {data: 'srvsize'} // 17
+            {data: 'srvsize'}, // 17
+            {data: 'associations'} // 18
         ],
         columnDefs: [
             {
@@ -87,6 +88,10 @@
             },
             {
                 targets: 17,
+                visible: false
+            },
+            {
+                targets: 18,
                 visible: false
             }
         ],

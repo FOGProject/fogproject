@@ -187,6 +187,18 @@ abstract class FOGPage extends FOGBase
      */
     protected static $inventoryCsvHead = '';
     /**
+     * Per-request cache of association configs, keyed by child class.
+     *
+     * @var array
+     */
+    protected static $associationConfigs = [];
+    /**
+     * Per-request cache of id/name lookup maps, keyed by "class|namefield".
+     *
+     * @var array
+     */
+    protected static $associationMaps = [];
+    /**
      * Holder for lambda function
      */
     protected static $returnData;
@@ -2797,6 +2809,23 @@ abstract class FOGPage extends FOGBase
         echo _('This should ease migration or mass import new items.');
         echo ' ';
         echo _('It will operate based on the fields the area typcially requires.');
+        if (count(self::getAssociationConfig($this->childClass)) > 0) {
+            echo ' ';
+            echo _(
+                'An optional last column may list associations to create, '
+                . 'using the format "label:value|value;label:value". Values '
+                . 'may be ids or names; unknown references are skipped with a '
+                . 'warning rather than failing the row.'
+            );
+            echo ' ';
+            echo sprintf(
+                _('Supported here: %s.'),
+                implode(
+                    ', ',
+                    array_keys(self::getAssociationConfig($this->childClass))
+                )
+            );
+        }
         echo '</p>';
         echo $rendered;
         echo '</div>';
@@ -2805,6 +2834,336 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '</div>';
         echo '</form>';
+    }
+    /**
+     * Returns the association configuration for a given child class.
+     *
+     * The configuration is keyed by the label used inside the trailing
+     * "associations" CSV column. Each entry describes how to resolve a
+     * reference and how to apply/read it:
+     *   'class'     => class used to resolve referenced items (id/name)
+     *   'namefield' => the unique name field on that class (name lookups)
+     *   'get'       => item property holding associated ids (export); may
+     *                  instead be a callable fn($item) returning names
+     *   'apply'     => method on the item that adds an array of ids (import);
+     *                  may instead be a callable fn($item, array $ids)
+     *
+     * Plugins may add or alter entries by registering on the
+     * IMPORT_ASSOCIATIONS event. The result is cached per request so the
+     * hook only fires once per class.
+     *
+     * @param string $childClass the class to get associations for
+     *
+     * @return array
+     */
+    public static function getAssociationConfig($childClass)
+    {
+        if (isset(self::$associationConfigs[$childClass])) {
+            return self::$associationConfigs[$childClass];
+        }
+        $config = [];
+        switch ($childClass) {
+            case 'Host':
+                $config = [
+                    'groups' => [
+                        'class' => 'Group',
+                        'namefield' => 'name',
+                        'get' => 'groups',
+                        'apply' => 'addGroup',
+                    ],
+                    'snapins' => [
+                        'class' => 'Snapin',
+                        'namefield' => 'name',
+                        'get' => 'snapins',
+                        'apply' => 'addSnapin',
+                    ],
+                    'printers' => [
+                        'class' => 'Printer',
+                        'namefield' => 'name',
+                        'get' => 'printers',
+                        'apply' => 'addPrinter',
+                    ],
+                ];
+                break;
+            case 'Image':
+            case 'Snapin':
+                $config = [
+                    'storagegroups' => [
+                        'class' => 'StorageGroup',
+                        'namefield' => 'name',
+                        'get' => 'storagegroups',
+                        'apply' => 'addGroup',
+                    ],
+                ];
+                break;
+        }
+        self::$HookManager->processEvent(
+            'IMPORT_ASSOCIATIONS',
+            [
+                'childClass' => $childClass,
+                'config' => &$config,
+            ]
+        );
+        self::$associationConfigs[$childClass] = $config;
+        return $config;
+    }
+    /**
+     * Builds (and caches) the id/name lookup maps for a class.
+     *
+     * @param string $class     the class to look up
+     * @param string $namefield the unique name field on that class
+     *
+     * @return array [$idSet, $nameToId, $idToName]
+     */
+    protected static function associationMaps($class, $namefield)
+    {
+        $key = $class . '|' . $namefield;
+        if (isset(self::$associationMaps[$key])) {
+            return self::$associationMaps[$key];
+        }
+        $idSet = [];
+        $nameToId = [];
+        $idToName = [];
+        Route::listem($class, false, true);
+        $items = json_decode(Route::getData());
+        $items = isset($items->data) ? $items->data : [];
+        foreach ($items as &$it) {
+            if (!isset($it->id)) {
+                continue;
+            }
+            $id = (string)$it->id;
+            $idSet[$id] = true;
+            $name = isset($it->{$namefield}) ? (string)$it->{$namefield} : '';
+            $idToName[$id] = $name;
+            if ($name !== '') {
+                $nameToId[strtolower($name)] = (int)$it->id;
+            }
+            unset($it);
+        }
+        self::$associationMaps[$key] = [$idSet, $nameToId, $idToName];
+        return self::$associationMaps[$key];
+    }
+    /**
+     * Resolves a list of reference tokens to ids, accepting either a numeric
+     * id or a (case-insensitive) name. Anything that cannot be resolved is
+     * appended to $unresolved so the caller can warn-and-skip.
+     *
+     * @param string $class      the class to resolve against
+     * @param string $namefield  the unique name field on that class
+     * @param array  $tokens     the raw tokens from the CSV cell
+     * @param array  $unresolved collects tokens that could not be resolved
+     *
+     * @return array the resolved, de-duplicated ids
+     */
+    public static function resolveAssociationIds(
+        $class,
+        $namefield,
+        array $tokens,
+        array &$unresolved
+    ) {
+        list($idSet, $nameToId) = self::associationMaps($class, $namefield);
+        $ids = [];
+        foreach ($tokens as $token) {
+            $token = trim((string)$token);
+            if ($token === '') {
+                continue;
+            }
+            if (ctype_digit($token) && isset($idSet[$token])) {
+                $ids[] = (int)$token;
+                continue;
+            }
+            $nameKey = strtolower($token);
+            if (isset($nameToId[$nameKey])) {
+                $ids[] = $nameToId[$nameKey];
+                continue;
+            }
+            $unresolved[] = $token;
+        }
+        return array_values(array_unique($ids));
+    }
+    /**
+     * Maps a list of ids back to names for the given class, dropping any
+     * ids that no longer resolve.
+     *
+     * @param string $class     the class to resolve against
+     * @param string $namefield the unique name field on that class
+     * @param array  $ids       the ids to map
+     *
+     * @return array the resolved names
+     */
+    protected static function associationIdsToNames($class, $namefield, array $ids)
+    {
+        list(, , $idToName) = self::associationMaps($class, $namefield);
+        $names = [];
+        foreach ($ids as $id) {
+            $id = (string)$id;
+            if (isset($idToName[$id]) && $idToName[$id] !== '') {
+                $names[] = $idToName[$id];
+            }
+        }
+        return $names;
+    }
+    /**
+     * Parses a trailing "associations" CSV cell into a label => tokens map.
+     *
+     * Format: "groups:1|Lab B;snapins:7zip|5;printers:1"
+     *   ';' separates association types, ':' separates the label from its
+     *   values, '|' separates individual values (matching the MAC delimiter).
+     *
+     * @param string $cell the raw cell value
+     *
+     * @return array
+     */
+    public static function parseAssociationCell($cell)
+    {
+        $result = [];
+        $cell = trim((string)$cell);
+        if ($cell === '') {
+            return $result;
+        }
+        foreach (explode(';', $cell) as $segment) {
+            $segment = trim($segment);
+            if ($segment === '' || strpos($segment, ':') === false) {
+                continue;
+            }
+            list($label, $values) = explode(':', $segment, 2);
+            $label = strtolower(trim($label));
+            if ($label === '') {
+                continue;
+            }
+            $tokens = array_values(
+                array_filter(
+                    array_map('trim', explode('|', $values)),
+                    'strlen'
+                )
+            );
+            if (count($tokens) > 0) {
+                $result[$label] = $tokens;
+            }
+        }
+        return $result;
+    }
+    /**
+     * Applies the associations described by a CSV cell to an item. Unresolved
+     * references and unknown labels are collected in $warnings and skipped;
+     * the item itself is never failed by this method.
+     *
+     * @param array  $config   the association config for the item's class
+     * @param object $item     the (already saved) item to associate
+     * @param string $cell     the raw associations cell value
+     * @param array  $warnings collects human readable warnings
+     *
+     * @return bool whether any association was applied (a save is needed)
+     */
+    public static function applyAssociations(
+        array $config,
+        $item,
+        $cell,
+        array &$warnings
+    ) {
+        if (empty($config)) {
+            return false;
+        }
+        $parsed = self::parseAssociationCell($cell);
+        if (empty($parsed)) {
+            return false;
+        }
+        $applied = false;
+        foreach ($parsed as $label => $tokens) {
+            if (!isset($config[$label])) {
+                $warnings[] = sprintf(
+                    _('Skipped unknown association type "%s"'),
+                    $label
+                );
+                continue;
+            }
+            $entry = $config[$label];
+            $unresolved = [];
+            $ids = self::resolveAssociationIds(
+                $entry['class'],
+                $entry['namefield'],
+                $tokens,
+                $unresolved
+            );
+            if (count($unresolved) > 0) {
+                $warnings[] = sprintf(
+                    _('Skipped unknown %s: %s'),
+                    $label,
+                    implode(', ', $unresolved)
+                );
+            }
+            if (count($ids) < 1) {
+                continue;
+            }
+            try {
+                if (isset($entry['apply']) && is_callable($entry['apply'])) {
+                    call_user_func($entry['apply'], $item, $ids);
+                } elseif (isset($entry['apply'])) {
+                    $item->{$entry['apply']}($ids);
+                }
+                $applied = true;
+            } catch (Exception $e) {
+                // Stay lenient: a failed association must not fail the row.
+                $warnings[] = sprintf(
+                    _('Could not apply %s: %s'),
+                    $label,
+                    $e->getMessage()
+                );
+            }
+        }
+        return $applied;
+    }
+    /**
+     * Builds the trailing "associations" cell for an item on export. Values
+     * are emitted as names for portability across servers, so that an export
+     * from one FOG server re-imports cleanly on another (unresolved entries
+     * simply warn-and-skip on import).
+     *
+     * @param string $childClass the class being exported
+     * @param int    $id         the id of the row being exported
+     *
+     * @return string
+     */
+    public static function buildAssociationString($childClass, $id)
+    {
+        $config = self::getAssociationConfig($childClass);
+        if (empty($config) || empty($id)) {
+            return '';
+        }
+        $item = self::getClass($childClass, $id);
+        $parts = [];
+        foreach ($config as $label => $entry) {
+            $names = [];
+            if (isset($entry['get']) && is_callable($entry['get'])) {
+                $names = (array)call_user_func($entry['get'], $item);
+            } elseif (isset($entry['get'])) {
+                $ids = (array)$item->get($entry['get']);
+                $names = self::associationIdsToNames(
+                    $entry['class'],
+                    $entry['namefield'],
+                    $ids
+                );
+            }
+            $names = array_values(
+                array_filter(
+                    array_map('strval', $names),
+                    'strlen'
+                )
+            );
+            if (count($names) > 0) {
+                $parts[] = $label . ':' . implode('|', $names);
+            }
+        }
+        self::$HookManager->processEvent(
+            'EXPORT_ASSOCIATIONS',
+            [
+                'childClass' => $childClass,
+                'id' => $id,
+                'item' => $item,
+                'parts' => &$parts,
+            ]
+        );
+        return implode(';', $parts);
     }
     /**
      * Perform the import based on the uploaded file
@@ -2853,6 +3212,7 @@ abstract class FOGPage extends FOGBase
                 throw new Exception(_('Could not find temp filename'));
             }
             $numSuccess = $numFailed = $numAlreadExist = 0;
+            $uploadErrors = '';
             $fh = fopen($file, 'rb');
             self::arrayRemove(
                 'id',
@@ -2864,6 +3224,12 @@ abstract class FOGPage extends FOGBase
                 $comma_count++;
                 $iterator = 1;
             }
+            // The optional, trailing "associations" column lives in the slot
+            // right after every regular field, regardless of class. When the
+            // class supports associations we allow that one extra column.
+            $assocConfig = self::getAssociationConfig($this->childClass);
+            $assocIndex = $comma_count;
+            $maxCols = $comma_count + (count($assocConfig) > 0 ? 1 : 0);
             $ItemMan = $Item->getManager();
             Route::ids(
                 'module',
@@ -2874,7 +3240,7 @@ abstract class FOGPage extends FOGBase
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
                 $importCount = count($data ?: []);
                 if ($importCount > 0
-                    && $importCount > $comma_count
+                    && $importCount > $maxCols
                 ) {
                     throw new Exception(
                         _('Invalid data being parsed')
@@ -2931,6 +3297,34 @@ abstract class FOGPage extends FOGBase
                     if ($Item->save()) {
                         $Item->load();
                         $totalRows++;
+                        // Apply any trailing associations (lenient: warn and
+                        // skip unresolved references rather than failing the
+                        // row). The item already has an id at this point.
+                        if (count($assocConfig) > 0
+                            && isset($data[$assocIndex])
+                            && trim((string)$data[$assocIndex]) !== ''
+                        ) {
+                            $assocWarnings = [];
+                            $applied = self::applyAssociations(
+                                $assocConfig,
+                                $Item,
+                                $data[$assocIndex],
+                                $assocWarnings
+                            );
+                            if ($applied) {
+                                $Item->save();
+                                $Item->load();
+                            }
+                            foreach ($assocWarnings as &$assocWarning) {
+                                $uploadErrors .= sprintf(
+                                    '%s #%s: %s<br/>',
+                                    _('Row'),
+                                    $totalRows,
+                                    $assocWarning
+                                );
+                                unset($assocWarning);
+                            }
+                        }
                         $itemCap = strtoupper($this->childClass);
                         $event = sprintf(
                             '%s_IMPORT',
@@ -2962,17 +3356,25 @@ abstract class FOGPage extends FOGBase
             fclose($fh);
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'IMPORT_SUCCESS';
+            // Rows can succeed while still carrying association warnings, so
+            // surface $uploadErrors whenever it has content, not just when a
+            // whole row failed.
+            $hasWarnings = trim($uploadErrors) !== '';
             $msg = json_encode(
                 [
-                    $numFailed > 0 ? 'warning' : 'msg' => (
-                        $numFailed > 0 ?
+                    $hasWarnings ? 'warning' : 'msg' => (
+                        $hasWarnings ?
                         $uploadErrors :
                         _('All items imported successfully')
                     ),
                     'title' => (
                         $numFailed > 0 ?
                         _('Import Partially Succeeded') :
-                        _('Import Succeeded')
+                        (
+                            $hasWarnings ?
+                            _('Import Succeeded With Warnings') :
+                            _('Import Succeeded')
+                        )
                     )
                 ]
             );
@@ -3732,6 +4134,12 @@ abstract class FOGPage extends FOGBase
             unset($real);
         }
 
+        // Trailing associations column (groups, snapins, etc.) when supported.
+        if (count(self::getAssociationConfig($this->childClass)) > 0) {
+            $this->headerData[] = 'associations';
+            $this->attributes[] = [];
+        }
+
         $this->title = _('Export '. ucfirst(strtolower($this->childClass)) . 's');
 
         echo '<div class="box box-solid">';
@@ -3793,6 +4201,20 @@ abstract class FOGPage extends FOGBase
                 'dt' => $common
             ];
             unset($real);
+        }
+        // Trailing associations column. It is computed per row from the item's
+        // id (reusing the real id column for the query) and emitted as names
+        // for cross-server portability.
+        if (count(self::getAssociationConfig($this->childClass)) > 0) {
+            $childClass = $this->childClass;
+            $columns[] = [
+                'db' => $tableID,
+                'dt' => 'associations',
+                'removeFromQuery' => true,
+                'formatter' => function ($d, $row) use ($childClass) {
+                    return self::buildAssociationString($childClass, $d);
+                }
+            ];
         }
         self::$HookManager->processEvent(
             strtoupper($this->childClass).'_EXPORT_ITEMS',

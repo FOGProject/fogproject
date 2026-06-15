@@ -707,6 +707,12 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "An image with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
 
+msgid ""
+"An optional last column may list associations to create, using the format "
+"\"label:value|value;label:value\". Values may be ids or names; unknown "
+"references are skipped with a warning rather than failing the row."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -1190,6 +1196,10 @@ msgstr "No se pudo crear la impresora"
 
 msgid "Copyright"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Could not apply %s: %s"
+msgstr "No se ha podido destruir"
 
 msgid "Could not find a Storage Node in this group"
 msgstr ""
@@ -3164,6 +3174,10 @@ msgstr "grupo está"
 
 #, fuzzy
 msgid "Import Succeeded"
+msgstr "Exitoso"
+
+#, fuzzy
+msgid "Import Succeeded With Warnings"
 msgstr "Exitoso"
 
 msgid "Import Task States"
@@ -5560,6 +5574,14 @@ msgstr "minutos"
 msgid "Size"
 msgstr "Tamaño máximo:"
 
+#, php-format
+msgid "Skipped unknown %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Skipped unknown association type \"%s\""
+msgstr ""
+
 msgid "Skipping as there is nothing to do"
 msgstr ""
 
@@ -6116,6 +6138,10 @@ msgstr "actualizado exitosamente"
 #, fuzzy
 msgid "Successfully deleted"
 msgstr "actualizado exitosamente"
+
+#, php-format
+msgid "Supported here: %s."
+msgstr ""
 
 msgid "Sync finished - "
 msgstr ""

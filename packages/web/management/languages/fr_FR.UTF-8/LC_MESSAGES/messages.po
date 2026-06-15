@@ -697,6 +697,12 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "An image with this name already exists!"
 msgstr "Un nom d'hôte avec ce nom existe déjà."
 
+msgid ""
+"An optional last column may list associations to create, using the format "
+"\"label:value|value;label:value\". Values may be ids or names; unknown "
+"references are skipped with a warning rather than failing the row."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
@@ -1178,6 +1184,10 @@ msgstr "Impossible de créer l'imprimante"
 
 msgid "Copyright"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Could not apply %s: %s"
+msgstr "Impossible de mettre à jour"
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -3093,6 +3103,10 @@ msgstr "Importer des groupes"
 
 #, fuzzy
 msgid "Import Succeeded"
+msgstr "Réussi"
+
+#, fuzzy
+msgid "Import Succeeded With Warnings"
 msgstr "Réussi"
 
 #, fuzzy
@@ -5433,6 +5447,14 @@ msgstr "minutes"
 msgid "Size"
 msgstr "Max Taille"
 
+#, php-format
+msgid "Skipped unknown %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Skipped unknown association type \"%s\""
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Il n'y a rien à répliquer"
@@ -5963,6 +5985,10 @@ msgstr "Hôtes avec succès associé au groupe "
 #, fuzzy
 msgid "Successfully deleted"
 msgstr "mise à jour réussie"
+
+#, php-format
+msgid "Supported here: %s."
+msgstr ""
 
 msgid "Sync finished - "
 msgstr ""

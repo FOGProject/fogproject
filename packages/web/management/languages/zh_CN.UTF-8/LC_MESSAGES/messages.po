@@ -696,6 +696,12 @@ msgstr "图像已经存在具有此名称！"
 msgid "An image with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
+msgid ""
+"An optional last column may list associations to create, using the format "
+"\"label:value|value;label:value\". Values may be ids or names; unknown "
+"references are skipped with a warning rather than failing the row."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -1176,6 +1182,10 @@ msgstr "无法创建打印机"
 
 msgid "Copyright"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Could not apply %s: %s"
+msgstr "无法更新"
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -3090,6 +3100,10 @@ msgstr "导入组"
 
 #, fuzzy
 msgid "Import Succeeded"
+msgstr "成功"
+
+#, fuzzy
+msgid "Import Succeeded With Warnings"
 msgstr "成功"
 
 #, fuzzy
@@ -5426,6 +5440,14 @@ msgstr "分钟"
 msgid "Size"
 msgstr "最大尺寸"
 
+#, php-format
+msgid "Skipped unknown %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Skipped unknown association type \"%s\""
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "没有什么可以复制"
@@ -5956,6 +5978,10 @@ msgstr "成功关联主机与本集团"
 #, fuzzy
 msgid "Successfully deleted"
 msgstr "成功更新"
+
+#, php-format
+msgid "Supported here: %s."
+msgstr ""
 
 msgid "Sync finished - "
 msgstr ""

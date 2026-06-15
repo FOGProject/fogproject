@@ -23,7 +23,8 @@
             {data: 'packtype'}, // 15
             {data: 'hash'}, // 16
             {data: 'size'}, // 17
-            {data: 'anon3'} // 18
+            {data: 'anon3'}, // 18
+            {data: 'associations'} // 19
         ],
         columnDefs: [
             {
@@ -92,6 +93,10 @@
             },
             {
                 targets: 18,
+                visible: false
+            },
+            {
+                targets: 19,
                 visible: false
             }
         ],

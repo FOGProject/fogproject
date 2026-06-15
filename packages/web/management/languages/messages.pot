@@ -561,6 +561,12 @@ msgstr ""
 msgid "An image with this name already exists!"
 msgstr ""
 
+msgid ""
+"An optional last column may list associations to create, using the format "
+"\"label:value|value;label:value\". Values may be ids or names; unknown "
+"references are skipped with a warning rather than failing the row."
+msgstr ""
+
 msgid "An ou already exists with this name!"
 msgstr ""
 
@@ -964,6 +970,10 @@ msgid "Copy from existing"
 msgstr ""
 
 msgid "Copyright"
+msgstr ""
+
+#, php-format
+msgid "Could not apply %s: %s"
 msgstr ""
 
 msgid "Could not find a Storage Node in this group"
@@ -2573,6 +2583,9 @@ msgid "Import Subnet Groups"
 msgstr ""
 
 msgid "Import Succeeded"
+msgstr ""
+
+msgid "Import Succeeded With Warnings"
 msgstr ""
 
 msgid "Import Task States"
@@ -4558,6 +4571,14 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
+#, php-format
+msgid "Skipped unknown %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Skipped unknown association type \"%s\""
+msgstr ""
+
 msgid "Skipping as there is nothing to do"
 msgstr ""
 
@@ -5003,6 +5024,10 @@ msgid "Successfully added hosts to the provided groups!"
 msgstr ""
 
 msgid "Successfully deleted"
+msgstr ""
+
+#, php-format
+msgid "Supported here: %s."
 msgstr ""
 
 msgid "Sync finished - "

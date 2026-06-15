@@ -664,6 +664,12 @@ msgstr "Un'immagine esiste già con questo nome!"
 msgid "An image with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
 
+msgid ""
+"An optional last column may list associations to create, using the format "
+"\"label:value|value;label:value\". Values may be ids or names; unknown "
+"references are skipped with a warning rather than failing the row."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "Esiste già un gruppo con questo nome!"
@@ -1118,6 +1124,10 @@ msgstr "Copia da esistenti"
 
 msgid "Copyright"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Could not apply %s: %s"
+msgstr "Impossibile aggiornare l'host"
 
 msgid "Could not find a Storage Node in this group"
 msgstr "Impossibile trovare un nodo di archiviazione in questo gruppo"
@@ -2962,6 +2972,10 @@ msgstr "Gruppi di importazione"
 
 #, fuzzy
 msgid "Import Succeeded"
+msgstr "Importazione riuscita"
+
+#, fuzzy
+msgid "Import Succeeded With Warnings"
 msgstr "Importazione riuscita"
 
 msgid "Import Task States"
@@ -5178,6 +5192,14 @@ msgstr "Siti"
 msgid "Size"
 msgstr "Dimensione"
 
+#, php-format
+msgid "Skipped unknown %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Skipped unknown association type \"%s\""
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Non c'è nulla da replicare"
@@ -5676,6 +5698,10 @@ msgstr "Aggiunti host selezionati al gruppo!"
 #, fuzzy
 msgid "Successfully deleted"
 msgstr "Creato con successo"
+
+#, php-format
+msgid "Supported here: %s."
+msgstr ""
 
 msgid "Sync finished - "
 msgstr ""

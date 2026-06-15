@@ -35,7 +35,8 @@
             {data: 'efiexit'}, // 27
             {data: 'enforce'}, // 28
             {data: 'token'}, // 29
-            {data: 'tokenlock'} // 30
+            {data: 'tokenlock'}, // 30
+            {data: 'associations'} // 31
         ],
         columnDefs: [
             {
@@ -152,6 +153,10 @@
             },
             {
                 targets: 30,
+                visible: false
+            },
+            {
+                targets: 31,
                 visible: false
             }
         ],

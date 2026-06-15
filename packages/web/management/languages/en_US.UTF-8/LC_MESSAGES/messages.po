@@ -696,6 +696,12 @@ msgstr "An image already exists with this name!"
 msgid "An image with this name already exists!"
 msgstr "A hostname with that name already exists."
 
+msgid ""
+"An optional last column may list associations to create, using the format "
+"\"label:value|value;label:value\". Values may be ids or names; unknown "
+"references are skipped with a warning rather than failing the row."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "An image already exists with this name!"
@@ -1175,6 +1181,10 @@ msgstr "Could not create printer"
 
 msgid "Copyright"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Could not apply %s: %s"
+msgstr "Failed to update"
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -3089,6 +3099,10 @@ msgstr "Import Groups"
 
 #, fuzzy
 msgid "Import Succeeded"
+msgstr "Successful"
+
+#, fuzzy
+msgid "Import Succeeded With Warnings"
 msgstr "Successful"
 
 #, fuzzy
@@ -5426,6 +5440,14 @@ msgstr "minutes"
 msgid "Size"
 msgstr "Max Size"
 
+#, php-format
+msgid "Skipped unknown %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Skipped unknown association type \"%s\""
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "There is nothing to replicate"
@@ -5956,6 +5978,10 @@ msgstr "Successfully associated Hosts with the Group "
 #, fuzzy
 msgid "Successfully deleted"
 msgstr "successfully updated"
+
+#, php-format
+msgid "Supported here: %s."
+msgstr ""
 
 msgid "Sync finished - "
 msgstr ""
