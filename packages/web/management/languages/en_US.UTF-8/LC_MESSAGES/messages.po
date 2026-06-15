@@ -214,6 +214,10 @@ msgid "A snapin name is required!"
 msgstr "An image name is required!"
 
 #, fuzzy
+msgid "A storage group is required!"
+msgstr "An image name is required!"
+
+#, fuzzy
 msgid "A subnet group already exists with this name!"
 msgstr "An image already exists with this name!"
 
@@ -1976,6 +1980,10 @@ msgstr "Failed to create new Group"
 msgid "Failed to create scheduled tasking"
 msgstr "Failed to create task"
 
+#, fuzzy
+msgid "Failed to create snapin path on Master Node"
+msgstr "Failed to create Snapin Job"
+
 msgid "Failed to create task"
 msgstr "Failed to create task"
 
@@ -2045,6 +2053,10 @@ msgstr "Failed to update/create image log"
 msgid "Failed to update/create task log"
 msgstr "Failed to update/create task log"
 
+#, fuzzy, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "Failed to destroy Storage Node"
+
 msgid "Failed to write file to disk"
 msgstr "Failed to write file to disk"
 
@@ -2069,6 +2081,10 @@ msgstr "Icon File not found"
 
 msgid "File System Information"
 msgstr "File System Information"
+
+#, fuzzy, php-format
+msgid "File at index %d has an empty filename"
+msgstr "Could not find temp filename"
 
 #, fuzzy
 msgid "File does not exist"
@@ -3201,6 +3217,9 @@ msgstr "Invalid type"
 msgid "Invalid URL"
 msgstr "Invalid URL"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Invalid token passed"
@@ -3257,12 +3276,20 @@ msgid "Invalid path"
 msgstr "Invalid type"
 
 #, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Invalid object type passed"
+
+#, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Invalid type"
 
 #, fuzzy
 msgid "Invalid snapin"
 msgstr "Invalid Snapin"
+
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "Invalid task"
 
 msgid "Invalid task"
 msgstr "Invalid task"
@@ -3493,6 +3520,9 @@ msgstr "Latest Version"
 
 msgid "Latest Version"
 msgstr "Latest Version"
+
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
 
 #, fuzzy
 msgid "Level must be an integer"
@@ -3737,6 +3767,10 @@ msgstr "Save Changes"
 #, fuzzy
 msgid "Make changes?"
 msgstr "Save Changes"
+
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
 
 msgid "Management"
 msgstr "Management"
@@ -4344,6 +4378,10 @@ msgid "On Dashboard"
 msgstr "On Dashboard"
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 #, fuzzy
@@ -5567,6 +5605,10 @@ msgid "Snapin File (exists)"
 msgstr "Snapin File (exists)"
 
 #, fuzzy
+msgid "Snapin File Upload Fail"
+msgstr "Snapin update failed"
+
+#, fuzzy
 msgid "Snapin General"
 msgstr "Snapin Enabled"
 
@@ -5823,6 +5865,14 @@ msgstr "Storage Group Updated"
 
 msgid "Storage Group deleted"
 msgstr "Storage Group deleted"
+
+#, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Storage Group Created"
+
+#, fuzzy
+msgid "Storage Group not found"
+msgstr "Storage Group Created"
 
 #, fuzzy
 msgid "Storage Group update failed!"
@@ -6663,6 +6713,14 @@ msgstr "Update Printer"
 
 msgid "Upload Reports"
 msgstr "Upload Reports"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr ""
 
 #, fuzzy
 msgid "Upload file"
@@ -7760,6 +7818,10 @@ msgstr "Delete all hosts within group"
 
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "Could not find a Storage Node, is there one enabled within this group?"
 
 #, fuzzy
 msgid "to get the requested Initrd"

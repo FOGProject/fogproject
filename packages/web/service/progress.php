@@ -38,9 +38,21 @@ try {
     if (!$Image->isValid()) {
         throw new Exception(_('Invalid image'));
     }
-    $str = explode('@', base64_decode($_REQUEST['status']));
+    $statusRaw = base64_decode(
+        (string)
+        (
+            filter_input(INPUT_POST, 'status')
+            ?: filter_input(INPUT_GET, 'status')
+            ?: ''
+        ),
+        true
+    );
+    if (false === $statusRaw) {
+        throw new Exception(_('Invalid status payload'));
+    }
     $imagingTasks = $TaskType->isImagingTask();
     if ($imagingTasks) {
+        $str = explode('@', $statusRaw);
         if (isset($str)
             && isset($str[0])
             && isset($str[1])
@@ -49,13 +61,13 @@ try {
             && isset($str[4])
             && isset($str[5])
         ) {
-            $Task->set('bpm', $str[0])
-                ->set('timeElapsed', $str[1])
-                ->set('timeRemaining', $str[2])
-                ->set('dataCopied', $str[3])
-                ->set('dataTotal', $str[4])
-                ->set('percent', trim($str[5]))
-                ->set('pct', trim($str[5]))
+            $Task->set('bpm', (float)$str[0])
+                ->set('timeElapsed', max(0, (float)$str[1]))
+                ->set('timeRemaining', strip_tags($str[2]))
+                ->set('dataCopied', strip_tags($str[3]))
+                ->set('dataTotal', strip_tags($str[4]))
+                ->set('percent', max(0, min(100, (float)$str[5])))
+                ->set('pct', max(0, min(100, (float)$str[5])))
                 ->save();
         }
         if (!isset($str[6]) || empty(trim($str[6])) || !$Task->isCapture()) {
@@ -75,6 +87,6 @@ try {
         )->save();
     }
 } catch (Exception $e) {
-    echo $e->getMessage();
+    echo Initiator::e($e->getMessage());
 }
 exit;

@@ -560,6 +560,13 @@ class GroupManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
+        echo '<div class="alert alert-info" role="alert">'
+            . _('Leave a field blank to keep each host\'s current value.')
+            . ' '
+            . _('Type')
+            . ' <code>NULL</code> '
+            . _('to clear the field on every host in this group.')
+            . '</div>';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=group-general">';
@@ -1017,7 +1024,7 @@ class GroupManagementPage extends FOGPage
         foreach ((array)$Snapins as &$Snapin) {
             $this->data[] = array(
                 'snapin_id' => $Snapin->id,
-                'snapin_name' => $Snapin->name,
+                'snapin_name' => Initiator::e($Snapin->name),
                 'snapin_created' => self::niceDate(
                     $Snapin->createdTime
                 )->format('Y-m-d H:i:s')
@@ -1907,23 +1914,40 @@ class GroupManagementPage extends FOGPage
                             )
                         )
                     );
-                    $productKey = substr($productKey, 0, 29);
+                    $productKey = trim(substr($productKey, 0, 29));
                     $efibootexit = filter_input(INPUT_POST, 'efiBootTypeExit');
                     $bootexit = filter_input(INPUT_POST, 'bootTypeExit');
+                    // Empty = leave per-host value alone.
+                    // Literal "NULL" (case-insensitive) = explicitly clear on all hosts.
+                    $resolve = function ($value) {
+                        $trimmed = trim((string)$value);
+                        if (strcasecmp($trimmed, 'NULL') === 0) {
+                            return '';
+                        }
+                        return $trimmed !== '' ? $value : null;
+                    };
+                    $candidates = [
+                        'kernel'       => $kern,
+                        'kernelArgs'   => $args,
+                        'kernelDevice' => $dev,
+                        'efiexit'      => $efibootexit,
+                        'biosexit'     => $bootexit,
+                        'productKey'   => $productKey,
+                    ];
+                    $updateHostItems = [];
+                    foreach ($candidates as $field => $value) {
+                        $resolved = $resolve($value);
+                        if ($resolved !== null) {
+                            $updateHostItems[$field] = $resolved;
+                        }
+                    }
                     self::getClass('HostManager')
                         ->update(
                             array(
                                 'id' => $hostids
                             ),
                             '',
-                            array(
-                                'kernel' => $kern,
-                                'kernelArgs' => $args,
-                                'kernelDevice' => $dev,
-                                'efiexit' => $efibootexit,
-                                'biosexit' => $bootexit,
-                                'productKey' => trim($productKey)
-                            )
+                            $updateHostItems
                         );
                     break;
                 case 'group-image':

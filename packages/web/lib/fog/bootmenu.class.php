@@ -207,13 +207,26 @@ class BootMenu extends FOGBase
             'set setmacto ${net0/mac}',
         );
         if (self::$Host->isValid()) {
+            $sysuuid = filter_input(INPUT_POST, 'sysuuid')
+                ?: filter_input(INPUT_GET, 'sysuuid')
+                ?: '';
             if (!self::$Host->get('inventory')->get('sysuuid')) {
-                self::$Host
-                    ->get('inventory')
-                    ->set('sysuuid', isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '')
-                    ->set('hostID', self::$Host->get('id'))
-                    ->save();
+                if ($sysuuid && !preg_match(
+                    '/^[0-9A-Fa-f]{8}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{4}-'
+                    . '[0-9A-Fa-f]{12}$/',
+                    $sysuuid
+                )) {
+                    $sysuuid = '';
+                }
             }
+            self::$Host
+                ->get('inventory')
+                ->set('sysuuid', $sysuuid)
+                ->set('hostID', self::$Host->get('id'))
+                ->save();
         }
         $host_field_test = 'biosexit';
         $global_field_test = 'FOG_BOOT_EXIT_TYPE';
@@ -1649,36 +1662,6 @@ class BootMenu extends FOGBase
                     true
                 )
             );
-            $addomain = '';
-            $adou = '';
-            $aduser = '';
-            $adpass = '';
-            if (self::$Host->get('useAD')) {
-                $addomain = preg_replace(
-                    '#\s#',
-                    '+_+',
-                    self::$Host->get('ADDomain')
-                );
-                $adou = str_replace(
-                    ';',
-                    '',
-                    preg_replace(
-                        '#\s#',
-                        '+_+',
-                        self::$Host->get('ADOU')
-                    )
-                );
-                $aduser = preg_replace(
-                    '#\s#',
-                    '+_+',
-                    self::$Host->get('ADUser')
-                );
-                $adpass = preg_replace(
-                    '#\s#',
-                    '+_+',
-                    self::$Host->get('ADPass')
-                );
-            }
             $fdrive = self::$Host->get('kernelDevice');
             $kernelArgsArray = array(
                 "mac=$mac",
@@ -1730,12 +1713,6 @@ class BootMenu extends FOGBase
                 array(
                     'value' => 'shutdown=1',
                     'active' => $Task->get('shutdown') || $shutdown,
-                ),
-                array(
-                    'value' => "adon=1 addomain=\"$addomain\" "
-                    . "adou=\"$adou\" aduser=\"$aduser\" "
-                    . "adpass=\"$adpass\"",
-                    'active' => self::$Host->get('useAD'),
                 ),
                 array(
                     'value' => "fdrive=$fdrive",

@@ -2190,7 +2190,7 @@ abstract class FOGBase
             $tmp = base64_decode($tmp);
             $tmp = trim($tmp);
             if (mb_detect_encoding($tmp, 'utf-8', true)) {
-                $val = $tmp;
+                $val = Initiator::e($tmp);
             }
             unset($tmp);
             $item[$key] = trim($val);
@@ -2331,6 +2331,30 @@ abstract class FOGBase
         return is_numeric($size) ? $size : 0;
     }
     /**
+     * Returns the shared inter-node secret, lazily generating it if absent.
+     *
+     * Storage nodes read the master's globalSettings (shared DB), so this
+     * value is common to all nodes and is used to authenticate server-to-server
+     * requests that cannot carry a user session -- e.g. the Wake-on-LAN relay
+     * (see wakeUp()/FOGPage::wakeEmUp()).
+     *
+     * @return string
+     */
+    public static function nodeSecret()
+    {
+        $secret = self::getSetting('FOG_NODE_SECRET');
+        if (empty($secret)) {
+            $secret = bin2hex(random_bytes(32));
+            self::getClass('Service')
+                ->set('name', 'FOG_NODE_SECRET')
+                ->set('description', 'Auto-generated shared secret used to authenticate inter-node requests (e.g. the Wake-on-LAN relay). Do not edit.')
+                ->set('value', $secret)
+                ->set('category', 'FOG Boot Settings')
+                ->save();
+        }
+        return $secret;
+    }
+    /**
      * Perform enmass wake on lan.
      *
      * @param array $macs The macs to send
@@ -2407,7 +2431,9 @@ abstract class FOGBase
             false,
             false,
             false,
-            false
+            false,
+            false,
+            array('X-FOG-Node-Secret: ' . self::nodeSecret())
         );
     }
     /**
@@ -2593,6 +2619,30 @@ abstract class FOGBase
     {
         self::is_authorized();
         CSRF::requireForStateChanging();
+    }
+    /**
+     * Validates the per-install schema bootstrap token.
+     *
+     * The schema deploy endpoint must run before any user/session or database
+     * exists (fresh install), so it cannot pass is_authorized()/CSRF. Instead
+     * the installer generates a random token, writes it to config.class.php as
+     * FOG_SCHEMA_INSTALL_TOKEN, and presents it back (X-Fog-Install-Token
+     * header, or fogtoken POST/GET param). Only a caller holding that secret
+     * may run schema operations without a logged-in session.
+     *
+     * @return bool
+     */
+    public static function validInstallToken()
+    {
+        if (!defined('FOG_SCHEMA_INSTALL_TOKEN') || !FOG_SCHEMA_INSTALL_TOKEN) {
+            return false;
+        }
+        $provided = $_SERVER['HTTP_X_FOG_INSTALL_TOKEN']
+            ?? filter_input(INPUT_POST, 'fogtoken')
+            ?? filter_input(INPUT_GET, 'fogtoken');
+        return is_string($provided)
+            && $provided !== ''
+            && hash_equals((string)FOG_SCHEMA_INSTALL_TOKEN, $provided);
     }
     /**
      * Is Authorized to perform action simplified

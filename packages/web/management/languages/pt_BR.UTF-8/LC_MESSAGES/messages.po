@@ -183,6 +183,10 @@ msgstr "Um Snapin já existe com este nome!"
 msgid "A snapin name is required!"
 msgstr "Um nome de Snapin é obrigatório!"
 
+#, fuzzy
+msgid "A storage group is required!"
+msgstr "Um grupo é obrigatório!"
+
 msgid "A subnet group already exists with this name!"
 msgstr "Um grupo de sub-rede já existe com este nome!"
 
@@ -1728,6 +1732,10 @@ msgstr "Falha ao criar novo Grupo"
 msgid "Failed to create scheduled tasking"
 msgstr "Falha ao criar tarefa agendada"
 
+#, fuzzy
+msgid "Failed to create snapin path on Master Node"
+msgstr "Falha ao criar Tarefa de Snapin"
+
 msgid "Failed to create task"
 msgstr "Falha ao criar tarefa"
 
@@ -1791,6 +1799,10 @@ msgstr "Falha ao atualizar/criar log de imagem"
 msgid "Failed to update/create task log"
 msgstr "Falha ao atualizar/criar log de tarefa"
 
+#, fuzzy, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "Falha ao destruir Nó de Armazenamento"
+
 msgid "Failed to write file to disk"
 msgstr "Falha ao gravar arquivo em disco"
 
@@ -1812,6 +1824,10 @@ msgstr "Arquivo de Ícone não encontrado"
 
 msgid "File System Information"
 msgstr "Informações do Sistema de Arquivos"
+
+#, fuzzy, php-format
+msgid "File at index %d has an empty filename"
+msgstr "Não foi possível encontrar um nome de arquivo temporário"
 
 msgid "File does not exist"
 msgstr "Arquivo não existe"
@@ -2797,6 +2813,9 @@ msgstr "Tipo Inválido"
 msgid "Invalid URL"
 msgstr "URL Inválida"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr "Dados inválidos sendo analisados"
 
@@ -2846,11 +2865,19 @@ msgstr "Modo operacional inválido"
 msgid "Invalid path"
 msgstr "Data inválida"
 
+#, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Tipo de objeto passado inválido"
+
 msgid "Invalid scheduling type"
 msgstr "Tipo de agendamento inválido"
 
 msgid "Invalid snapin"
 msgstr "Snapin inválido"
+
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "ID de tarefa inválido"
 
 msgid "Invalid task"
 msgstr "Tarefa inválida"
@@ -3050,6 +3077,9 @@ msgstr "Última Versão de Desenvolvimento"
 
 msgid "Latest Version"
 msgstr "Última Versão"
+
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
 
 msgid "Level must be an integer"
 msgstr "Nível deve ser um inteiro"
@@ -3263,6 +3293,10 @@ msgstr "Fazer Alterações no Snapin"
 
 msgid "Make changes?"
 msgstr "Fazer alterações?"
+
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
 
 msgid "Management"
 msgstr "Gerenciamento"
@@ -3815,6 +3849,10 @@ msgstr "No Painel"
 
 msgid "On reboot we will try to find a new node"
 msgstr "Na reinicialização tentaremos encontrar um novo nó"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "Um ou mais macs estão associados a um host"
@@ -4878,6 +4916,10 @@ msgstr "Arquivo de Snapin"
 msgid "Snapin File (exists)"
 msgstr "Arquivo de Snapin (existe)"
 
+#, fuzzy
+msgid "Snapin File Upload Fail"
+msgstr "Falha na Atualização de Snapin"
+
 msgid "Snapin General"
 msgstr "Geral do Snapin"
 
@@ -5102,6 +5144,14 @@ msgstr "Grupo de Armazenamento Atualizado"
 
 msgid "Storage Group deleted"
 msgstr "Grupo de Armazenamento excluído"
+
+#, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Grupo de Armazenamento Criado"
+
+#, fuzzy
+msgid "Storage Group not found"
+msgstr "Grupo de Armazenamento Criado"
 
 msgid "Storage Group update failed!"
 msgstr "Atualização do Grupo de Armazenamento falhou!"
@@ -5823,6 +5873,14 @@ msgstr "Atualizar/Remover impressoras"
 
 msgid "Upload Reports"
 msgstr "Enviar Relatórios"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr ""
 
 msgid "Upload file"
 msgstr "Enviar arquivo"
@@ -6777,6 +6835,10 @@ msgstr "para todos os nós no grupo"
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
 "a ser inicializado se nenhuma tecla for pressionada quando o menu estiver"
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "Não foi possível encontrar um Nó de Armazenamento neste grupo"
 
 msgid "to get the requested Initrd"
 msgstr "para obter o Initrd solicitado"

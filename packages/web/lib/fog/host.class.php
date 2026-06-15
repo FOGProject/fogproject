@@ -1589,6 +1589,27 @@ class Host extends FOGController
         return $this;
     }
     /**
+     * Lower-cases a mac entry, tolerating non-string input.
+     *
+     * Stringifies scalars and __toString-able objects (e.g. a MACAddress
+     * object) and returns an empty string for anything else, so it is safe
+     * as an array_map callback on PHP 8 where strtolower() would fatal on a
+     * non-string argument.
+     *
+     * @param mixed $mac the mac entry to normalize
+     *
+     * @return string
+     */
+    public static function macToLower($mac)
+    {
+        if (is_scalar($mac)
+            || (is_object($mac) && method_exists($mac, '__toString'))
+        ) {
+            return strtolower((string)$mac);
+        }
+        return '';
+    }
+    /**
      * Adds additional macs
      *
      * @param array $addArray the macs to add
@@ -1598,7 +1619,7 @@ class Host extends FOGController
      */
     public function addAddMAC($addArray, $pending = false)
     {
-        $addArray = array_map('strtolower', (array)$addArray);
+        $addArray = array_map(array(__CLASS__, 'macToLower'), (array)$addArray);
         $addArray = self::parseMacList($addArray);
         $addTo = $pending ? 'pendingMACs' : 'additionalMACs';
         foreach ((array)$addArray as &$mac) {

@@ -187,12 +187,12 @@ class TaskManagementPage extends FOGPage
                 'state' => Initiator::e($Task->state->name),
                 'forced' => $Task->isForced,
                 'type' => Initiator::e($Task->type->name),
-                'elapsed' => isset($Task->timeElapsed) ? $Task->timeElapsed : '',
+                'elapsed' => isset($Task->timeElapsed) ? Initiator::e($Task->timeElapsed) : '',
                 'remains' => isset($Task->timeRemaining) ? $Task->timeRemaining : '',
                 'percent' => isset($Task->pct) ? $Task->pct : '',
                 'copied' => isset($Task->dataCopied) ? $Task->dataCopied : '',
                 'total' => isset($Task->dataTotal) ? $Task->dataTotal : '',
-                'bpm' => isset($Task->bpm) ? $Task->bpm : '',
+                'bpm' => isset($Task->bpm) ? Initiator::e($Task->bpm) : '',
                 'details_taskname' => (
                     (isset($Task->name) && $Task->name) ?
                     sprintf(

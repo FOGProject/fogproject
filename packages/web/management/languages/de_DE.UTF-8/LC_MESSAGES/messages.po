@@ -209,6 +209,10 @@ msgid "A snapin name is required!"
 msgstr "Ein Snapinname ist erforderlich!"
 
 #, fuzzy
+msgid "A storage group is required!"
+msgstr "Ein Gruppenname ist erforderlich!"
+
+#, fuzzy
 msgid "A subnet group already exists with this name!"
 msgstr "Eine Gruppe mit diesem Namen ist bereits vorhanden!"
 
@@ -1980,6 +1984,10 @@ msgstr "Erstellen der neuen Gruppe fehlgeschlagen"
 msgid "Failed to create scheduled tasking"
 msgstr "Fehler beim Erstellen der geplanten Aufgabe (Task)"
 
+#, fuzzy
+msgid "Failed to create snapin path on Master Node"
+msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
+
 msgid "Failed to create task"
 msgstr "Fehler beim Erstellen eines Tasks"
 
@@ -2049,6 +2057,10 @@ msgstr "Aktualisieren/Erstellen des Image-Logs fehlgeschlagen"
 msgid "Failed to update/create task log"
 msgstr "Aktualisieren/Erstellen des Task-Logs fehlgeschlagen"
 
+#, fuzzy, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "Zerstören des Speicherknotens fehlgeschlagen"
+
 msgid "Failed to write file to disk"
 msgstr "Datei auf Festplatte speichern fehlgeschlagen"
 
@@ -2073,6 +2085,10 @@ msgstr "Icon-Datei nicht gefunden"
 
 msgid "File System Information"
 msgstr "Dateisystem-Informationen"
+
+#, fuzzy, php-format
+msgid "File at index %d has an empty filename"
+msgstr "Temporärer Dateiname konnte nicht gefunden werden."
 
 #, fuzzy
 msgid "File does not exist"
@@ -3208,6 +3224,9 @@ msgstr "Ungültiger Typ"
 msgid "Invalid URL"
 msgstr "Ungültige Einheit"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Ungültige Daten wurden geparst"
@@ -3264,12 +3283,20 @@ msgid "Invalid path"
 msgstr "Ungültiges Datum"
 
 #, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Ungültiger Objekttyp übergeben"
+
+#, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Ungültiger Zeitplantyp"
 
 #, fuzzy
 msgid "Invalid snapin"
 msgstr "Ungültiger Snapin"
+
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "Ungültige Task-ID"
 
 msgid "Invalid task"
 msgstr "Ungültiger Task"
@@ -3500,6 +3527,9 @@ msgstr "Neueste Entwicklungsversion"
 
 msgid "Latest Version"
 msgstr "Neueste Version"
+
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
 
 #, fuzzy
 msgid "Level must be an integer"
@@ -3745,6 +3775,10 @@ msgstr "Änderungen speichern"
 #, fuzzy
 msgid "Make changes?"
 msgstr "Änderungen speichern?"
+
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
 
 msgid "Management"
 msgstr "Verwaltung"
@@ -4353,6 +4387,10 @@ msgstr "auf dem Dashboard"
 
 msgid "On reboot we will try to find a new node"
 msgstr "Beim Neustart versuchen wir, automatisch"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr ""
 
 #, fuzzy
 msgid "One or more macs are associated with a host"
@@ -5580,6 +5618,10 @@ msgid "Snapin File (exists)"
 msgstr "Snapin-Datei (existiert)"
 
 #, fuzzy
+msgid "Snapin File Upload Fail"
+msgstr "Snapin Update fehlgeschlagen"
+
+#, fuzzy
 msgid "Snapin General"
 msgstr "Snapin allgemein"
 
@@ -5836,6 +5878,14 @@ msgstr "Speichergruppe aktualisiert"
 
 msgid "Storage Group deleted"
 msgstr "Speichergruppe gelöscht"
+
+#, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Speichergruppe erstellt"
+
+#, fuzzy
+msgid "Storage Group not found"
+msgstr "Speichergruppe erstellt"
 
 #, fuzzy
 msgid "Storage Group update failed!"
@@ -6674,6 +6724,14 @@ msgstr "Drucker Aktualisieren/Entfernen"
 
 msgid "Upload Reports"
 msgstr "Berichte hochladen"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr ""
 
 #, fuzzy
 msgid "Upload file"
@@ -7776,6 +7834,10 @@ msgstr "auf alle Knoten in der Gruppe."
 
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "In dieser Gruppe wurde kein Speicherknoten gefunden"
 
 #, fuzzy
 msgid "to get the requested Initrd"

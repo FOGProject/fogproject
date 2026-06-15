@@ -136,8 +136,7 @@ class FOGPageManager extends FOGBase
         global $node;
         $nodes = array(
             'client',
-            'schema',
-            'ipxe'
+            'schema'
         );
         if (!self::$FOGUser->isValid()
             && !in_array($node, $nodes)

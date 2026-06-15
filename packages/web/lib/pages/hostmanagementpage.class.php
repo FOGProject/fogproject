@@ -655,7 +655,9 @@ class HostManagementPage extends FOGPage
             if (!$MAC->isValid()) {
                 throw new Exception(_('MAC Format is invalid'));
             }
-            self::getClass('HostManager')->getHostByMacAddresses($MAC);
+            self::getClass('HostManager')->getHostByMacAddresses(
+                $MAC->__toString()
+            );
             if (self::$Host->isValid()) {
                 throw new Exception(
                     sprintf(
@@ -833,12 +835,12 @@ class HostManagementPage extends FOGPage
                 continue;
             }
             $this->data[] = array(
-                'id' => $PowerManagement->id,
-                'min' => $PowerManagement->min,
-                'hour' => $PowerManagement->hour,
-                'dom' => $PowerManagement->dom,
-                'month' => $PowerManagement->month,
-                'dow' => $PowerManagement->dow,
+                'id' => Initiator::e($PowerManagement->id),
+                'min' => Initiator::e($PowerManagement->min),
+                'hour' => Initiator::e($PowerManagement->hour),
+                'dom' => Initiator::e($PowerManagement->dom),
+                'month' => Initiator::e($PowerManagement->month),
+                'dow' => Initiator::e($PowerManagement->dow),
                 'action' => self::getClass('PowerManagementManager')
                     ->getActionSelect(
                         $PowerManagement->action,
@@ -2517,7 +2519,7 @@ class HostManagementPage extends FOGPage
             _('System Product') => $sysprod,
             _('System Version') => $sysver,
             _('System Serial Number') => $sysser,
-            _('System UUID') => $sysuuid,
+            _('System UUID') => Initiator::e($sysuuid),
             _('System Type') => $systype,
             _('BIOS Vendor') => $biosven,
             _('BIOS Version') => $biosver,
@@ -3409,11 +3411,11 @@ class HostManagementPage extends FOGPage
                 $items[] = array(
                     $pm,
                     $this->obj->get('id'),
-                    $scheduleCronMin[$index],
-                    $scheduleCronHour[$index],
-                    $scheduleCronDOM[$index],
-                    $scheduleCronMonth[$index],
-                    $scheduleCronDOW[$index],
+                    FOGCron::_sanitizeCronField($scheduleCronMin[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronHour[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronDOM[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronMonth[$index]),
+                    FOGCron::_sanitizeCronField($scheduleCronDOW[$index]),
                     0,
                     $action[$index]
                 );
@@ -3476,6 +3478,11 @@ class HostManagementPage extends FOGPage
                 $this->obj->wakeOnLAN();
                 return;
             }
+            $min = FOGCron::_sanitizeCronField($min);
+            $hour = FOGCron::_sanitizeCronField($hour);
+            $dom = FOGCron::_sanitizeCronField($dom);
+            $month = FOGCron::_sanitizeCronField($month);
+            $dow = FOGCron::_sanitizeCronField($dow);
             self::getClass('PowerManagement')
                 ->set('hostID', $this->obj->get('id'))
                 ->set('min', $min)

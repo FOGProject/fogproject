@@ -248,9 +248,16 @@ class Equipment_Loan extends ReportManagementPage
         echo '<div class="text-center">';
         echo '<h4 class="title">';
         echo '<div id="exportDiv"></div>';
-        echo '<a id="pdfsub" href="../management/export.php?type=pdf&filename='
-            . $Inventory->get('primaryUser')
-            . 'EquipmentLoadForm" alt="'
+        $filename = $Inventory->get('primaryUser') . 'EquipmentLoadForm';
+        $href = '../management/export.php?'
+            . http_build_query(
+                [
+                    'type' => 'pdf',
+                    'filename' => $filename
+                ]
+            );
+        echo '<a id="pdfsub" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8')
+            . 'alt="'
             . _('Export PDF')
             . '" title="'
             . _('Export PDF')

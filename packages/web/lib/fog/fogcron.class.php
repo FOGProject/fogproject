@@ -22,6 +22,26 @@
 class FOGCron extends FOGBase
 {
     /**
+     * Validates a single cron field value.
+     * Only digits, *, /, -, and commas are permitted.
+     *
+     * @param string $value the cron field value
+     *
+     * @throws Exception if the value contains invalid characters
+     *
+     * @return string the trimmed value
+     */
+    public static function _sanitizeCronField($value)
+    {
+        $value = trim((string)$value);
+        if (!preg_match('/^[0-9\*\/\-\,]+$/', $value)) {
+            throw new Exception(
+                _('Invalid cron field value. Only digits, *, /, -, and commas are allowed.')
+            );
+        }
+        return $value;
+    }
+    /**
      * Verifies the fit of the string
      *
      * @param string $str the string to check

@@ -441,7 +441,7 @@ abstract class FOGPage extends FOGBase
             $data['f'] = $f;
         }
         if (isset($tab) && $tab) {
-            $tabstr = "#$tab";
+            $tabstr = "#" . rawurlencode($tab);
         }
         if (isset($data) && is_array($data) && count($data) > 0) {
             $formstr .= http_build_query($data);
@@ -449,7 +449,7 @@ abstract class FOGPage extends FOGBase
         if (isset($tabstr) && $tabstr) {
             $formstr .= $tabstr;
         }
-        $this->formAction = $formstr;
+        $this->formAction = Initiator::e($formstr);
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
             array('searchPages' => &self::$searchPages)
@@ -966,6 +966,7 @@ abstract class FOGPage extends FOGBase
                 '${%s}',
                 $name
             );
+            $val = trim($val);
             $this->dataReplace[] = $val;
             unset($val);
         }
@@ -991,9 +992,18 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
                 . '>';
+            $escapedReplace = array_map(
+                function ($value) {
+                    if (is_scalar($value) || $value === null) {
+                        return (string)$value;
+                    }
+                    return '';
+                },
+                $this->dataReplace
+            );
             echo str_replace(
                 $this->dataFind,
-                $this->dataReplace,
+                $escapedReplace,
                 $template
             );
             echo '</td>';
@@ -3329,6 +3339,7 @@ abstract class FOGPage extends FOGBase
      */
     public function clearAES()
     {
+        self::checkAuthAndCSRF();
         global $groupid;
         global $id;
         if (!(is_numeric($groupid) || is_numeric($id))) {
@@ -3361,6 +3372,7 @@ abstract class FOGPage extends FOGBase
      */
     public function clearPMTasks()
     {
+        self::checkAuthAndCSRF();
         global $groupid;
         if (!is_numeric($groupid)) {
             return;
@@ -3804,6 +3816,18 @@ abstract class FOGPage extends FOGBase
      */
     public function wakeEmUp()
     {
+        // This is an inter-node relay (master -> storage nodes) that runs
+        // without a user session, so it is gated by the shared node secret
+        // rather than a login. No browser flow calls it directly.
+        $provided = $_SERVER['HTTP_X_FOG_NODE_SECRET'] ?? null;
+        $secret = self::getSetting('FOG_NODE_SECRET');
+        if (empty($secret)
+            || !is_string($provided)
+            || !hash_equals($secret, $provided)
+        ) {
+            http_response_code(403);
+            return;
+        }
         $mac = filter_input(INPUT_POST, 'mac');
         if (!$mac) {
             $mac = filter_input(INPUT_GET, 'mac');
@@ -4263,7 +4287,7 @@ abstract class FOGPage extends FOGBase
                         ''
                     )
                 ),
-                $item
+                Initiator::e($item)
             );
             unset($item);
         }

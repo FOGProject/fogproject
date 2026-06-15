@@ -192,6 +192,10 @@ msgid "A snapin name is required!"
 msgstr "È richiesto un nome di snapin!"
 
 #, fuzzy
+msgid "A storage group is required!"
+msgstr "È richiesto un nome di gruppo!"
+
+#, fuzzy
 msgid "A subnet group already exists with this name!"
 msgstr "Esiste già un gruppo con questo nome!"
 
@@ -1784,6 +1788,10 @@ msgstr "Impossibile creare un nuovo gruppo"
 msgid "Failed to create scheduled tasking"
 msgstr "Impossibile creare un'attività pianificata"
 
+#, fuzzy
+msgid "Failed to create snapin path on Master Node"
+msgstr "Impossibile creare Snapin lavoro"
+
 msgid "Failed to create task"
 msgstr "Impossibile creare un'attività"
 
@@ -1848,6 +1856,10 @@ msgstr "Impossibile aggiornare / creare log immagine"
 msgid "Failed to update/create task log"
 msgstr "Impossibile aggiornare / creare registro dell'attività"
 
+#, fuzzy, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "Impossibile per distruggere il nodo di archiviazione"
+
 msgid "Failed to write file to disk"
 msgstr "Impossibile scrivere file su disco"
 
@@ -1870,6 +1882,10 @@ msgstr "File Icona non trovato"
 
 msgid "File System Information"
 msgstr "File System Information"
+
+#, fuzzy, php-format
+msgid "File at index %d has an empty filename"
+msgstr "Impossibile trovare il nome del file temporaneo"
 
 #, fuzzy
 msgid "File does not exist"
@@ -2879,6 +2895,9 @@ msgstr "Tipo non valido"
 msgid "Invalid URL"
 msgstr "Unità non valida"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr "Dati non validi parsati"
 
@@ -2928,11 +2947,19 @@ msgstr "modalità operativa non valido"
 msgid "Invalid path"
 msgstr "Data non valida"
 
+#, fuzzy
+msgid "Invalid product key supplied"
+msgstr "tipo di oggetto non valido passato"
+
 msgid "Invalid scheduling type"
 msgstr "Tipo di scheduling non valido"
 
 msgid "Invalid snapin"
 msgstr "Snapin non valido"
+
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "ID attività non valido"
 
 msgid "Invalid task"
 msgstr "Attività non valida"
@@ -3134,6 +3161,9 @@ msgstr "Ultima versione di sviluppo"
 
 msgid "Latest Version"
 msgstr "Ultima versione"
+
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
 
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
@@ -3349,6 +3379,10 @@ msgstr "Effettuare le modifiche di Snapin"
 
 msgid "Make changes?"
 msgstr "Applicare cambiamenti?"
+
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
 
 msgid "Management"
 msgstr "Gestione"
@@ -3905,6 +3939,10 @@ msgstr "sul cruscotto"
 
 msgid "On reboot we will try to find a new node"
 msgstr "Al riavvio cercheremo di trovare un nuovo nodo"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "Uno o più MAC sono associati a questo host"
@@ -5009,6 +5047,10 @@ msgstr "File Snapin"
 msgid "Snapin File (exists)"
 msgstr "File snap-in (esiste)"
 
+#, fuzzy
+msgid "Snapin File Upload Fail"
+msgstr "Aggiornamento Snapin fallito"
+
 msgid "Snapin General"
 msgstr "Generale Snapin"
 
@@ -5234,6 +5276,14 @@ msgstr "Storage Group Aggiornato"
 
 msgid "Storage Group deleted"
 msgstr "Storage Group cancellato"
+
+#, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Storage Group Creato"
+
+#, fuzzy
+msgid "Storage Group not found"
+msgstr "Storage Group Creato"
 
 msgid "Storage Group update failed!"
 msgstr "Aggiornamento Gruppo di archiviazione fallito!"
@@ -5989,6 +6039,14 @@ msgstr "Aggiorna/Rimuovi stampanti"
 
 msgid "Upload Reports"
 msgstr "Carica Report"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr ""
 
 msgid "Upload file"
 msgstr "Caricare un file"
@@ -6969,6 +7027,10 @@ msgstr "a tutti i nodi del gruppo"
 
 msgid "to be booted if no keys are pressed when the menu is"
 msgstr "per essere avviato se non è premuto nessun tasto quando il menu è"
+
+#, fuzzy
+msgid "to clear the field on every host in this group."
+msgstr "Impossibile trovare un nodo di archiviazione in questo gruppo"
 
 #, fuzzy
 msgid "to get the requested Initrd"

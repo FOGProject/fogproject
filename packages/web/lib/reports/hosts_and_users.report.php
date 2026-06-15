@@ -261,21 +261,26 @@ class Hosts_And_Users extends ReportManagementPage
         foreach ((array)$Hosts as &$Host) {
             $Image = $Host->image;
             $imgID = $Image->id;
-            $imgName = $Image->name;
-            $imgDesc = $Image->description;
+            $imgName = Initiator::e($Image->name);
+            $imgDesc = Initiator::e($Image->description);
             unset($Image);
+            $usernames_orig = self::getSubObjectIDs(
+                'UserTracking',
+                ['hostID' => $Host->id],
+                'username'
+            );
+            $usernames = [];
+            foreach ($usernames_orig as $username) {
+                $usernames[] = Initiator::e($username);
+            }
             $this->data[] = array(
-                'host_name' => $Host->name,
+                'host_name' => Initiator::e($Host->name),
                 'host_mac' => $Host->primac,
                 'image_name' => $imgName,
-                'users' => implode(
+                'users' => Initiator::e(implode(
                     '<br/>',
-                    self::getSubObjectIDs(
-                        'UserTracking',
-                        array('hostID' => $Host->id),
-                        'username'
-                    )
-                )
+                    $usernames
+                ))
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
@@ -299,14 +304,10 @@ class Hosts_And_Users extends ReportManagementPage
                         break;
                     case _('Login Users'):
                         $this->ReportMaker->addCSVCell(
-                            implode(
+                            Initiator::e(implode(
                                 ' ',
-                                self::getSubObjectIDs(
-                                    'UserTracking',
-                                    array('hostID' => $Host->id),
-                                    'username'
-                                )
-                            )
+                                $usernames
+                            ))
                         );
                         break;
                     default:

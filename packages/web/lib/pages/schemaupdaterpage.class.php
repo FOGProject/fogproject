@@ -109,6 +109,15 @@ class SchemaUpdaterPage extends FOGPage
             . $this->formAction
             . '" method="post">';
         echo '<div class="col-xs-offset-4 col-xs-4">';
+        // Manual (non-curl) install flow: when the installer's URL carried a
+        // valid bootstrap token, carry it into the POST so the deploy can run
+        // before any user exists. Only emitted when the token already matched,
+        // so it is never disclosed to a token-less visitor.
+        if (self::validInstallToken()) {
+            echo '<input type="hidden" name="fogtoken" value="'
+                . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
+                . '"/>';
+        }
         echo '<input type="hidden" name="fogverified"/>';
         echo '<button type="submit" class="btn btn-primary btn-block" name='
             . '"confirm">';
@@ -150,10 +159,13 @@ class SchemaUpdaterPage extends FOGPage
      */
     public function indexPost()
     {
-        if (!isset($_POST['fogverified'])) {
-            return;
-        }
-        if (!isset($_POST['confirm'])) {
+        // The schema deploy must work before any FOG user exists, so allow it
+        // for a logged-in admin OR a caller holding the per-install token. This
+        // replaces the old confirm/fogverified handshake, which carried no
+        // secret and could be replayed by anyone.
+        if (!self::is_authorized(true) && !self::validInstallToken()) {
+            http_response_code(403);
+            printf('<p>%s</p>', _('Unauthorized'));
             return;
         }
         include sprintf(

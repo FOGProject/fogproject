@@ -162,6 +162,9 @@ msgstr ""
 msgid "A snapin name is required!"
 msgstr ""
 
+msgid "A storage group is required!"
+msgstr ""
+
 msgid "A subnet group already exists with this name!"
 msgstr ""
 
@@ -1703,6 +1706,9 @@ msgstr ""
 msgid "Failed to create scheduled tasking"
 msgstr ""
 
+msgid "Failed to create snapin path on Master Node"
+msgstr ""
+
 msgid "Failed to create task"
 msgstr ""
 
@@ -1766,6 +1772,10 @@ msgstr ""
 msgid "Failed to update/create task log"
 msgstr ""
 
+#, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr ""
+
 msgid "Failed to write file to disk"
 msgstr ""
 
@@ -1785,6 +1795,10 @@ msgid "File Not Found"
 msgstr ""
 
 msgid "File System Information"
+msgstr ""
+
+#, php-format
+msgid "File at index %d has an empty filename"
 msgstr ""
 
 msgid "File does not exist"
@@ -2765,6 +2779,9 @@ msgstr ""
 msgid "Invalid URL"
 msgstr ""
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr ""
 
@@ -2813,10 +2830,16 @@ msgstr ""
 msgid "Invalid path"
 msgstr ""
 
+msgid "Invalid product key supplied"
+msgstr ""
+
 msgid "Invalid scheduling type"
 msgstr ""
 
 msgid "Invalid snapin"
+msgstr ""
+
+msgid "Invalid status payload"
 msgstr ""
 
 msgid "Invalid task"
@@ -3015,6 +3038,9 @@ msgid "Latest Development Version"
 msgstr ""
 
 msgid "Latest Version"
+msgstr ""
+
+msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
 msgid "Level must be an integer"
@@ -3228,6 +3254,10 @@ msgid "Make Snapin Changes"
 msgstr ""
 
 msgid "Make changes?"
+msgstr ""
+
+#, php-format
+msgid "Malformed upload for \"%s\""
 msgstr ""
 
 msgid "Management"
@@ -3777,6 +3807,10 @@ msgid "On Dashboard"
 msgstr ""
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "One or more macs are associated with a host"
@@ -4834,6 +4868,9 @@ msgstr ""
 msgid "Snapin File (exists)"
 msgstr ""
 
+msgid "Snapin File Upload Fail"
+msgstr ""
+
 msgid "Snapin General"
 msgstr ""
 
@@ -5057,6 +5094,12 @@ msgid "Storage Group Updated"
 msgstr ""
 
 msgid "Storage Group deleted"
+msgstr ""
+
+msgid "Storage Group has no reachable Master Node"
+msgstr ""
+
+msgid "Storage Group not found"
 msgstr ""
 
 msgid "Storage Group update failed!"
@@ -5768,6 +5811,14 @@ msgid "Update/Remove printers"
 msgstr ""
 
 msgid "Upload Reports"
+msgstr ""
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
 msgstr ""
 
 msgid "Upload file"
@@ -6718,6 +6769,9 @@ msgid "to all nodes in the group"
 msgstr ""
 
 msgid "to be booted if no keys are pressed when the menu is"
+msgstr ""
+
+msgid "to clear the field on every host in this group."
 msgstr ""
 
 msgid "to get the requested Initrd"

@@ -453,4 +453,289 @@ class Snapin extends FOGController
 
         return $this;
     }
+    /**
+     * Validate input, upload the snapin file to the Master Storage Node
+     * of the chosen group, then save the Snapin row. Shared by the UI
+     * (snapinmanagementpage::addPost) and the REST endpoint
+     * (POST /fog/snapin/createwithfile).
+     *
+     * Throws:
+     *  - InvalidArgumentException : bad input  -> HTTP 400
+     *  - RuntimeException         : FTP failure -> HTTP 500 in API,
+     *                                              HTTP 400 in UI (legacy)
+     *  - SnapinSaveException      : DB save failed AFTER file landed on disk
+     *
+     * @param array $post  $_POST equivalents (uses API field names)
+     * @param array $files $_FILES equivalents (expects 'snapinfile')
+     *
+     * @return Snapin the freshly-created, reloaded Snapin
+     */
+    public static function uploadAndCreate(array $post, array $files)
+    {
+        $name = isset($post['snapin']) ? $post['snapin'] : '';
+        $desc = isset($post['description']) ? $post['description'] : '';
+        $packtype = isset($post['packtype']) ? (int)$post['packtype'] : 0;
+        $runWith = isset($post['rw']) ? $post['rw'] : '';
+        $runWithArgs = isset($post['rwa']) ? $post['rwa'] : '';
+        $storagegroup = isset($post['storagegroup']) ? (int)$post['storagegroup'] : 0;
+        $existing = isset($post['snapinfileexist']) ? basename($post['snapinfileexist']) : '';
+        $uploadname = isset($files['snapinfile']['name']) ? basename($files['snapinfile']['name']) : '';
+        $snapinfile = $uploadname ?: $existing;
+        $isEnabled = (int)isset($post['isEnabled']);
+        $toReplicate = (int)isset($post['toReplicate']);
+        $hide = (int)isset($post['isHidden']);
+        $timeout = isset($post['timeout']) ? (int)$post['timeout'] : 0;
+        $action = isset($post['action']) ? $post['action'] : '';
+        $args = isset($post['args']) ? $post['args'] : '';
+        if (!$name) {
+            throw new \InvalidArgumentException(_('A snapin name is required!'));
+        }
+        if (self::getClass('SnapinManager')->exists($name)) {
+            throw new \InvalidArgumentException(
+                _('A snapin already exists with this name!')
+            );
+        }
+        if (!$snapinfile) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    '%s, %s, %s!',
+                    _('A file'),
+                    _('either already selected or uploaded'),
+                    _('must be specified')
+                )
+            );
+        }
+        $snapinfile = self::sanitizeSnapinFileName($snapinfile);
+        if (!$storagegroup) {
+            throw new \InvalidArgumentException(
+                _('A storage group is required!')
+            );
+        }
+        $StorageGroup = new StorageGroup($storagegroup);
+        if (!$StorageGroup->isValid()) {
+            throw new \InvalidArgumentException(
+                _('Storage Group not found')
+            );
+        }
+        $StorageNode = $StorageGroup->getMasterStorageNode();
+        if (!$StorageNode || !$StorageNode->isValid()) {
+            throw new \RuntimeException(
+                _('Storage Group has no reachable Master Node')
+            );
+        }
+        $hash = '';
+        $size = 0;
+        if ($uploadname) {
+            if (empty($files['snapinfile']['tmp_name'])
+                || !is_uploaded_file($files['snapinfile']['tmp_name'])
+            ) {
+                $err = isset($files['snapinfile']['error'])
+                    ? (int)$files['snapinfile']['error']
+                    : UPLOAD_ERR_NO_FILE;
+                throw new \InvalidArgumentException(
+                    sprintf(_('Upload failed (error code %d)'), $err)
+                );
+            }
+            $src = $files['snapinfile']['tmp_name'];
+            $hash = hash_file('sha512', $src);
+            $size = self::getFilesize($src);
+            $dest = sprintf(
+                '/%s/%s',
+                trim($StorageNode->get('snapinpath'), '/'),
+                $snapinfile
+            );
+            set_time_limit(0);
+            self::$FOGFTP
+                ->set('host', $StorageNode->get('ip'))
+                ->set('username', $StorageNode->get('user'))
+                ->set('password', $StorageNode->get('pass'));
+            if (!self::$FOGFTP->connect()) {
+                throw new \RuntimeException(
+                    sprintf(
+                        '%s: %s: %s.',
+                        _('Storage Node'),
+                        $StorageNode->get('ip'),
+                        _('FTP Connection has failed')
+                    )
+                );
+            }
+            try {
+                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+                        throw new \RuntimeException(_('Failed to add snapin'));
+                    }
+                }
+                self::$FOGFTP->delete($dest);
+                if (!self::$FOGFTP->put($dest, $src)) {
+                    throw new \RuntimeException(
+                        _('Failed to add/update snapin file')
+                    );
+                }
+                self::$FOGFTP->chmod(0777, $dest);
+            } finally {
+                self::$FOGFTP->close();
+            }
+        }
+        $Snapin = self::getClass('Snapin')
+            ->set('name', $name)
+            ->set('packtype', $packtype)
+            ->set('description', $desc)
+            ->set('file', $snapinfile)
+            ->set('hash', $hash)
+            ->set('size', $size)
+            ->set('args', $args)
+            ->set('reboot', $action == 'reboot')
+            ->set('shutdown', $action == 'shutdown')
+            ->set('runWith', $runWith)
+            ->set('runWithArgs', $runWithArgs)
+            ->set('isEnabled', $isEnabled)
+            ->set('toReplicate', $toReplicate)
+            ->set('hide', $hide)
+            ->set('timeout', $timeout)
+            ->addGroup($storagegroup);
+        if (!$Snapin->save()) {
+            // File is already on Master at this point - caller may want
+            // to surface that the row didn't save but the file landed.
+            throw new SnapinSaveException(_('Add snapin failed!'));
+        }
+        $Snapin->setPrimaryGroup($storagegroup);
+        return new Snapin($Snapin->get('id'));
+    }
+    /**
+     * Sanitize a snapin file basename. Rejects names that match /ssl/i
+     * (reserved by FOG for its own SSL bits) and replaces any character
+     * that is not a word char, dot, or hyphen with an underscore.
+     *
+     * @param string $basename the raw basename to sanitize
+     *
+     * @throws InvalidArgumentException if the name is reserved
+     *
+     * @return string the sanitized basename
+     */
+    public static function sanitizeSnapinFileName($basename)
+    {
+        $basename = basename($basename);
+        if (preg_match('#ssl#i', $basename)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    '%s, %s.',
+                    _('Please choose a different name'),
+                    _('this one is reserved for FOG')
+                )
+            );
+        }
+        return preg_replace('/[^\-\w\.]+/', '_', $basename);
+    }
+    /**
+     * Push one or more uploaded files to the given StorageNode via FTP.
+     * Validates every file in $filesArray before opening any connection;
+     * if any validation fails, nothing is sent. Once the connection is
+     * open, files are pushed in order - a transport failure mid-batch
+     * leaves earlier files on disk (no rollback). Used by
+     * POST /fog/storagegroup/<id>/uploadsnapinfiles.
+     *
+     * Expects $filesArray in the multi-file $_FILES shape, e.g.:
+     *   array(
+     *     'name'     => array('a.exe', 'b.exe'),
+     *     'tmp_name' => array('/tmp/phpAAA', '/tmp/phpBBB'),
+     *     'error'    => array(0, 0),
+     *     ...
+     *   )
+     *
+     * @param StorageNode $StorageNode the master node to upload to
+     * @param array       $filesArray  $_FILES['snapinfiles'] entry
+     *
+     * @throws InvalidArgumentException on bad input -> HTTP 400
+     * @throws RuntimeException         on FTP failure -> HTTP 500
+     *
+     * @return void
+     */
+    public static function uploadFilesToNode(
+        StorageNode $StorageNode,
+        array $filesArray
+    ) {
+        if (empty($filesArray['name']) || !is_array($filesArray['name'])) {
+            throw new \InvalidArgumentException(
+                _('One or more files must be uploaded via the "snapinfiles[]" multipart field')
+            );
+        }
+        $count = count($filesArray['name']);
+        $validated = array();
+        for ($i = 0; $i < $count; $i++) {
+            $raw = isset($filesArray['name'][$i]) ? $filesArray['name'][$i] : '';
+            if ($raw === '') {
+                throw new \InvalidArgumentException(
+                    sprintf(_('File at index %d has an empty filename'), $i)
+                );
+            }
+            $err = isset($filesArray['error'][$i])
+                ? (int)$filesArray['error'][$i]
+                : UPLOAD_ERR_NO_FILE;
+            if ($err !== UPLOAD_ERR_OK) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        _('Upload failed for "%s" (error code %d)'),
+                        basename($raw),
+                        $err
+                    )
+                );
+            }
+            $tmp = isset($filesArray['tmp_name'][$i])
+                ? $filesArray['tmp_name'][$i]
+                : '';
+            if (empty($tmp) || !is_uploaded_file($tmp)) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        _('Malformed upload for "%s"'),
+                        basename($raw)
+                    )
+                );
+            }
+            $sanitized = self::sanitizeSnapinFileName($raw);
+            $validated[] = array('basename' => $sanitized, 'tmp' => $tmp);
+        }
+        set_time_limit(0);
+        self::$FOGFTP
+            ->set('host', $StorageNode->get('ip'))
+            ->set('username', $StorageNode->get('user'))
+            ->set('password', $StorageNode->get('pass'));
+        if (!self::$FOGFTP->connect()) {
+            throw new \RuntimeException(
+                sprintf(
+                    '%s: %s: %s.',
+                    _('Storage Node'),
+                    $StorageNode->get('ip'),
+                    _('FTP Connection has failed')
+                )
+            );
+        }
+        try {
+            if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+                    throw new \RuntimeException(
+                        _('Failed to create snapin path on Master Node')
+                    );
+                }
+            }
+            foreach ($validated as $f) {
+                $dest = sprintf(
+                    '/%s/%s',
+                    trim($StorageNode->get('snapinpath'), '/'),
+                    $f['basename']
+                );
+                self::$FOGFTP->delete($dest);
+                if (!self::$FOGFTP->put($dest, $f['tmp'])) {
+                    throw new \RuntimeException(
+                        sprintf(
+                            _('Failed to upload "%s" to Master Node'),
+                            $f['basename']
+                        )
+                    );
+                }
+                self::$FOGFTP->chmod(0777, $dest);
+            }
+        } finally {
+            self::$FOGFTP->close();
+        }
+    }
 }

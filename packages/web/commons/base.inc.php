@@ -23,7 +23,7 @@ header('X-Frame-Options: sameorigin');
 header('X-XSS-Protection: 1; mode=block');
 header('X-Content-Type-Options: nosniff');
 header('Strict-Transport-Security: max-age=31536000');
-header("Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' https://fogproject.org; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:;");
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://fogproject.org; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'self';");
 
 // Include required initialization script.
 require 'init.php';

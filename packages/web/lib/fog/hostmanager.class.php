@@ -192,6 +192,32 @@ class HostManager extends FOGManagerController
     public function getHostByMacAddresses($macs)
     {
         self::$Host = new Host();
+        if (!is_array($macs)) {
+            $macs = array($macs);
+        }
+        // Coerce each entry to a string (a MACAddress object, for example,
+        // stringifies to its mac) and drop empties, so strlen() is never
+        // handed a non-string -- a fatal TypeError on PHP 8.
+        $macs = array_values(
+            array_filter(
+                array_map(
+                    function ($mac) {
+                        if (is_scalar($mac)
+                            || (is_object($mac)
+                            && method_exists($mac, '__toString'))
+                        ) {
+                            return (string)$mac;
+                        }
+                        return '';
+                    },
+                    $macs
+                ),
+                'strlen'
+            )
+        );
+        if (count($macs) < 1) {
+            return;
+        }
         $MACHost = self::getSubObjectIDs(
             'MACAddressAssociation',
             array(

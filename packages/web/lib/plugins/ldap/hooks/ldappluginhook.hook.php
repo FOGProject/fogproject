@@ -88,6 +88,13 @@ class LDAPPluginHook extends Hook
                     $this,
                     'isLdapType'
                 )
+            )
+            ->register(
+                'USER_LOGGING_OUT',
+                array(
+                    $this,
+                    'removeLdapShadow'
+                )
             );
     }
     /**
@@ -188,6 +195,21 @@ class LDAPPluginHook extends Hook
         $types = array(990, 991);
         if (in_array($arguments['type'], $types)) {
             $arguments['typeIsValid'] = false;
+        }
+    }
+    /**
+     * Cleans up logged out users
+     *
+     * @return void
+     */
+    public function removeLdapShadow()
+    {
+        if (!self::$FOGUser instanceof User) {
+            return;
+        }
+        $types = array(990, 991);
+        if (in_array(self::$FOGUser->get('type'), $types)) {
+            self::$FOGUser->destroy();
         }
     }
 }

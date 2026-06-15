@@ -212,6 +212,10 @@ msgid "A snapin name is required!"
 msgstr "Nombre"
 
 #, fuzzy
+msgid "A storage group is required!"
+msgstr "Nombre"
+
+#, fuzzy
 msgid "A subnet group already exists with this name!"
 msgstr "¡Ya existe un rol con este nombre!"
 
@@ -1963,6 +1967,10 @@ msgstr "Crear Nuevo %s"
 msgid "Failed to create scheduled tasking"
 msgstr "Error al crear una tarea programada"
 
+#, fuzzy
+msgid "Failed to create snapin path on Master Node"
+msgstr "Error al crear tarea de snapin"
+
 msgid "Failed to create task"
 msgstr "Error al crear tarea"
 
@@ -2037,6 +2045,10 @@ msgstr ""
 msgid "Failed to update/create task log"
 msgstr "Error al crear tarea"
 
+#, fuzzy, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "Error al eliminar el nodo de almacenamiento"
+
 msgid "Failed to write file to disk"
 msgstr "Error al escribir fichero en el disco"
 
@@ -2060,6 +2072,10 @@ msgstr "Archivo de icono no encontrado"
 #, fuzzy
 msgid "File System Information"
 msgstr "Información de hardware"
+
+#, fuzzy, php-format
+msgid "File at index %d has an empty filename"
+msgstr "No se puede encontrar el nodo de almacenamiento:"
 
 #, fuzzy
 msgid "File does not exist"
@@ -3223,6 +3239,9 @@ msgstr "tipo incorrecto"
 msgid "Invalid URL"
 msgstr "Unidad incorrecto"
 
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr ""
 
@@ -3277,12 +3296,20 @@ msgstr "Modo"
 msgid "Invalid path"
 msgstr "Fecha"
 
+#, fuzzy
+msgid "Invalid product key supplied"
+msgstr "Identificador de tarea incorrecto"
+
 msgid "Invalid scheduling type"
 msgstr ""
 
 #, fuzzy
 msgid "Invalid snapin"
 msgstr "Login incorrecto"
+
+#, fuzzy
+msgid "Invalid status payload"
+msgstr "Identificador de tarea incorrecto"
 
 #, fuzzy
 msgid "Invalid task"
@@ -3504,6 +3531,9 @@ msgstr "Última versión desarrollada"
 
 msgid "Latest Version"
 msgstr "Última versión"
+
+msgid "Leave a field blank to keep each host's current value."
+msgstr ""
 
 msgid "Level must be an integer"
 msgstr ""
@@ -3740,6 +3770,10 @@ msgstr "Guardar Cambios"
 #, fuzzy
 msgid "Make changes?"
 msgstr "Guardar Cambios"
+
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr ""
 
 msgid "Management"
 msgstr "Gestión"
@@ -4359,6 +4393,10 @@ msgid "On Dashboard"
 msgstr "Panel de control"
 
 msgid "On reboot we will try to find a new node"
+msgstr ""
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "One or more macs are associated with a host"
@@ -5546,6 +5584,10 @@ msgid "Snapin File (exists)"
 msgstr "Archivo"
 
 #, fuzzy
+msgid "Snapin File Upload Fail"
+msgstr "Error al actualizar el rol"
+
+#, fuzzy
 msgid "Snapin General"
 msgstr "Gestión de snapin"
 
@@ -5814,6 +5856,14 @@ msgstr "Grupo de almacenamiento actualizado"
 
 msgid "Storage Group deleted"
 msgstr "Grupo de almaenamiento borrado"
+
+#, fuzzy
+msgid "Storage Group has no reachable Master Node"
+msgstr "Grupo de almacenamiento creado"
+
+#, fuzzy
+msgid "Storage Group not found"
+msgstr "Grupo de almacenamiento creado"
 
 #, fuzzy
 msgid "Storage Group update failed!"
@@ -6610,6 +6660,14 @@ msgstr "Actualizar"
 
 msgid "Upload Reports"
 msgstr "Actualizar informes"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr ""
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr ""
 
 #, fuzzy
 msgid "Upload file"
@@ -7686,6 +7744,9 @@ msgid "to all nodes in the group"
 msgstr "todos los Nodos de Almacenamiento"
 
 msgid "to be booted if no keys are pressed when the menu is"
+msgstr ""
+
+msgid "to clear the field on every host in this group."
 msgstr ""
 
 msgid "to get the requested Initrd"
