@@ -1,20 +1,20 @@
-# Contributing to the FOG project
+# Contributing to the FOG Project
 
-It's great you check out this document and think about taking the time to contribute! You are very weclome to got ahead.
+Thanks for taking the time to check out this document and consider contributing! You are very welcome to go ahead.
 
-Find some detailed information on how the FOG project is structured and how to contribute to it. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document and the whole project.
+Below you'll find information on how the FOG Project is structured and how to contribute to it. These are mostly guidelines, not hard rules. Use your best judgment, and feel free to propose changes to this document and to the project as a whole.
 
 #### Table Of Contents
 
 [Code of Conduct](#code-of-conduct)
 
-[Just allow me one question](#just-allow-ne-one-question)
+[Just allow me one question](#just-allow-me-one-question)
 
 [Before you get started](#before-you-get-started)
   * [Repos, languages and foo](#repos-languages-and-foo)
   * [Versions and branches](#versions-and-branches)
 
-[How to contribute?](#how-to-contribute)
+[How to contribute](#how-to-contribute)
   * [Reporting Bugs](#reporting-bugs)
   * [Suggesting Enhancements](#suggesting-enhancements)
   * [Your First Code Contribution](#your-first-code-contribution)
@@ -22,17 +22,13 @@ Find some detailed information on how the FOG project is structured and how to c
 
 [Styleguides](#styleguides)
   * [Git Commit Messages](#git-commit-messages)
+  * [PHP Styleguide](#php-styleguide)
   * [JavaScript Styleguide](#javascript-styleguide)
-  * [CoffeeScript Styleguide](#coffeescript-styleguide)
-  * [Specs Styleguide](#specs-styleguide)
   * [Documentation Styleguide](#documentation-styleguide)
 
 [Additional Notes](#additional-notes)
   * [Issue and Pull Request Labels](#issue-and-pull-request-labels)
   * [Attribution](#attribution)
-
-
-
 
 
 ## Code of Conduct
@@ -98,8 +94,10 @@ representative at an online or offline event.
 ### Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-[INSERT CONTACT METHOD].
+reported to the community leaders responsible for enforcement through the
+project's regular community channels — the
+[FOG forums](https://forums.fogproject.org) or the
+[GitHub issue tracker](https://github.com/FOGProject/fogproject/issues).
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
@@ -162,26 +160,233 @@ For answers to common questions about this code of conduct, see the FAQ at
 [https://www.contributor-covenant.org/translations][translations].
 
 [homepage]: https://www.contributor-covenant.org
+[v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+[FAQ]: https://www.contributor-covenant.org/faq
+[translations]: https://www.contributor-covenant.org/translations
 </details>
 
 
+## Just allow me one question
+
+Please **don't** open a GitHub issue just to ask a question. The issue tracker is
+for confirmed bugs and concrete enhancement proposals. If you simply need help,
+have a usage question, or aren't yet sure whether something is a bug, start in
+one of these places instead:
+
+ - **Forums:** https://forums.fogproject.org — the best place for general help,
+   "how do I…?" questions, and discussion.
+ - **Wiki / documentation:** https://docs.fogproject.org — installation guides,
+   configuration, and troubleshooting.
+
+Questions answered in the right place get better, faster responses and keep the
+issue tracker focused on actual work.
+
+
+## Before you get started
+
+### Repos, languages and foo
+
+The FOG Project is split across a few repositories under the
+[FOGProject organization](https://github.com/FOGProject):
+
+ - [**fogproject**](https://github.com/FOGProject/fogproject) — the main
+   repository: the web management interface, the installer, and the background
+   services. This is where most contributions land.
+ - [**fos**](https://github.com/FOGProject/fos) — the FOG Operating System: the
+   Linux/Buildroot environment that boots on clients to capture and deploy
+   images.
+ - [**fog-client**](https://github.com/FOGProject/fog-client) — the cross-platform
+   client agent that runs on managed hosts.
+
+Languages and tooling you'll encounter in the main repo:
+
+ - **PHP** (7.4+) — the bulk of the application: the web UI, the REST API, and
+   the CLI background services. Some newer files use `declare(strict_types=1)`.
+ - **JavaScript** — front-end behavior, built on **jQuery**, **Bootstrap**, and
+   **AdminLTE**. There is **no build step**; JS and CSS are served as-is and
+   third-party libraries are vendored.
+ - **Shell (bash)** — the installer (`bin/installfog.sh`) and its per-distro
+   library scripts in `lib/`.
+ - **SQL** — the schema lives in PHP as `CREATE TABLE` definitions in
+   `packages/web/commons/schema.php`.
+
+A quick map of the main repo:
+
+```
+fogproject/
+├── bin/                  # installfog.sh installer
+├── lib/                  # per-distro shell library scripts
+└── packages/
+    ├── service/          # PHP CLI background daemons (scheduler, replicators, etc.)
+    └── web/              # the web application
+        ├── api/          # REST API entry point
+        ├── commons/      # boot/init files loaded by every entry point
+        ├── lib/          # core classes, pages, hooks, events, reports, plugins
+        └── management/   # Apache/Nginx document root (UI, JS, CSS)
+```
+
+### Versions and branches
+
+We use [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+
+ - **`dev-branch`** is the latest development branch. **All pull requests should
+   target `dev-branch`** unless a maintainer explicitly directs you elsewhere.
+ - **`working-1.6`** is the active 1.6 working line.
+ - **`stable`** tracks the current released line.
+
+If you're unsure which branch to base your work on, ask on the forums or in your
+issue before you start — it saves rework.
+
+
+## How to contribute
+
 ### Reporting Bugs
 
- - https://github.com/FOGProject/fogproject/issues
- - https://forums.fogproject.org/category/17/bug-reports
+Bugs are tracked as [GitHub issues](https://github.com/FOGProject/fogproject/issues).
+Before opening one:
+
+1. **Search existing issues** (open and closed) to avoid duplicates.
+2. **Confirm it's a bug**, not a configuration or usage question — if in doubt,
+   ask on the [forums](https://forums.fogproject.org) first.
+3. **Use the latest version** if you can, to verify the problem still exists.
+
+A good bug report includes:
+
+ - A clear, descriptive **title**.
+ - **Exact steps to reproduce**, in order.
+ - **What you expected** to happen vs. **what actually happened**.
+ - Your **environment**: FOG version, OS and version of the FOG server, client
+   OS where relevant, and how FOG was installed.
+ - Relevant **logs, screenshots, or error messages**. The FOG logs (web UI under
+   *FOG Configuration → Log Viewer*, and the service logs under `/opt/fog/log/`)
+   are often the most useful thing you can attach.
+
+You can also report bugs in the
+[bug-reports forum category](https://forums.fogproject.org/category/17/bug-reports).
+
+### Suggesting Enhancements
+
+Enhancement suggestions are also tracked as
+[GitHub issues](https://github.com/FOGProject/fogproject/issues). When proposing
+one:
+
+ - **Search first** to see if it's already been suggested.
+ - Use a **clear, descriptive title**.
+ - Describe the **current behavior** and the **behavior you'd like**, and explain
+   **why** it would be useful — ideally to more than just your own setup.
+ - Where helpful, include mockups, example workflows, or links to how other tools
+   solve the same problem.
+
+### Your First Code Contribution
+
+Unsure where to begin? Good entry points:
+
+ - Issues labeled **`good first issue`** or **`help wanted`**, if present.
+ - Documentation fixes, typos, and small UI corrections — low risk, genuinely
+   helpful.
+ - Reproducing and confirming existing bug reports.
+
+To get a local development environment running:
+
+1. Stand up a test FOG server (a throwaway VM is ideal — never develop against
+   production).
+2. **Fork** the repository and clone your fork.
+3. Create a topic branch off `dev-branch`:
+   `git checkout dev-branch && git checkout -b my-fix dev-branch`.
+4. Make your changes and test them against your running FOG server.
+5. Push to your fork and open a pull request (see below).
+
+### Pull Requests
+
+1. **Target `dev-branch`.** Always open your pull request against the latest
+   development branch (currently `dev-branch`) unless a maintainer tells you
+   otherwise.
+
+2. **One logical change per PR.** Keep pull requests focused — it makes review
+   far easier and faster. Open separate PRs for unrelated changes.
+
+3. **Bump the version.** Increase the version number in
+   [`system.class.php`](https://github.com/FOGProject/fogproject/blob/dev-branch/packages/web/lib/fog/system.class.php)
+   (the `FOG_VERSION` define) to the version this change would represent,
+   following [SemVer](https://semver.org/).
+
+4. **Follow the styleguides** below and match the conventions of the
+   surrounding code.
+
+5. **Describe your change.** In the PR description, explain *what* changed and
+   *why*, and link any related issue (e.g. `Fixes #123`).
+
+6. **Test before you submit.** Verify your change works against a running FOG
+   server and that you haven't broken adjacent functionality.
 
 
+## Styleguides
+
+### Git Commit Messages
+
+ - Use the present tense ("Add feature", not "Added feature").
+ - Use the imperative mood ("Fix bug", not "Fixes bug").
+ - Keep the first line short (~50 characters) and add detail in the body when
+   needed.
+ - Reference issues and pull requests where relevant (e.g. `Fixes #123`).
+
+### PHP Styleguide
+
+PHP is the primary language; please match the existing conventions:
+
+ - Target **PHP 7.4+**.
+ - **Class name must match the filename** (case-sensitive) — the autoloader
+   relies on it (e.g. `HostManagement` lives in `HostManagement.page.php`).
+ - **Private methods** use a single underscore prefix (`_init()`, `_verCheck()`).
+ - Prefer the established factory helpers over `new ClassName()` directly — use
+   `FOGBase::getClass()` / `FOGBase::getManager()`.
+ - Read input via `filter_input()` or the already-sanitized values — **never**
+   raw `$_GET` / `$_POST`.
+ - **Always escape user-controlled output** with `Initiator::e()` when echoing
+   into HTML.
+ - Use gettext for user-facing strings: `_('string')` inline, or
+   `$foglang['Key']` for predefined strings in `text.php`.
+ - Add or maintain **PHPDoc** blocks on classes and methods.
+ - Only add `declare(strict_types=1)` to files that already use it — don't add it
+   retroactively to older files.
+ - Don't remove hooks, events, or plugin integration points without good reason.
+
+### JavaScript Styleguide
+
+ - There is **no build step** — write plain, browser-ready JavaScript; don't
+   introduce a bundler or transpiler.
+ - FOG-specific scripts live under `packages/web/management/js/fog/`, with
+   per-entity files named `fog.{entity}.{sub}.js`.
+ - Reuse the shared helpers (`$.apiCall()`, `$.notifyFromAPI()`, the `Common`
+   object) rather than reinventing them.
+ - Keep third-party libraries **vendored**; don't pull dependencies from a CDN.
+ - Match the existing indentation and style of the file you're editing.
+
+### Documentation Styleguide
+
+ - Write in clear, plain English.
+ - Use [Markdown](https://daringfireball.net/projects/markdown/) for docs in the
+   repo.
+ - When you add a section with a heading, make sure any table of contents and
+   internal anchor links are updated to match (GitHub generates anchors by
+   lowercasing the heading, replacing spaces with hyphens, and dropping
+   punctuation).
+ - User-facing end-user documentation lives in the
+   [wiki / docs](https://docs.fogproject.org).
 
 
-## Pull Requests
+## Additional Notes
 
-1. Always create a pull request towards the latest development version. Currently this is `dev-branch`.
+### Issue and Pull Request Labels
 
-2. Increase the version number in [system.class.php](https://github.com/FOGProject/fogproject/blob/10950be7694313df66409e459658e2a1d5e52d10/packages/web/lib/fog/system.class.php#L56) to the new version that this pull request would represent. The versioning scheme we use is [SemVer](https://semver.org/).
+Maintainers apply labels to help organize and prioritize work — for example
+`enhancement`, `bug`, `needs-triage`, `needs-info`, and `wontfix`. You don't
+need to apply labels yourself; just write a clear issue or PR and a maintainer
+will triage it. Watch for the `needs-info` label, which means a maintainer is
+waiting on more detail from you.
 
-
-
-
-## Attribution
+### Attribution
 
 The initial draft is based on the [Atom project's contribution document](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) as well as [Mozilla ScienceLab's information](https://mozillascience.github.io/working-open-workshop/contributing/) on this topic.
+</content>
+</invoke>
