@@ -14,6 +14,7 @@
             {data: 'kernelArgs'}, // 6
             {data: 'kernelDevice'}, // 7
             {data: 'init'}, // 8
+            {data: 'associations'} // 9
         ],
         columnDefs: [
             {
@@ -30,6 +31,10 @@
             },
             {
                 targets: 4,
+                visible: false
+            },
+            {
+                targets: 9,
                 visible: false
             }
         ],

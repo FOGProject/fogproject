@@ -16,7 +16,8 @@
             {data: 'pAnon2'},
             {data: 'pAnon3'},
             {data: 'pAnon4'},
-            {data: 'pAnon5'}
+            {data: 'pAnon5'},
+            {data: 'associations'} // 12
         ],
         columnDefs: [
             {
@@ -57,6 +58,10 @@
             },
             {
                 targets: 11,
+                visible: false
+            },
+            {
+                targets: 12,
                 visible: false
             }
         ],

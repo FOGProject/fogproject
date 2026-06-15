@@ -2883,6 +2883,25 @@ abstract class FOGPage extends FOGBase
                         'get' => 'printers',
                         'apply' => 'addPrinter',
                     ],
+                    'modules' => [
+                        'class' => 'Module',
+                        'namefield' => 'name',
+                        'get' => 'modules',
+                        'apply' => 'addModule',
+                    ],
+                ];
+                break;
+            case 'Group':
+            case 'Printer':
+                // Membership/assignment: the hosts belonging to (or assigned
+                // to) this item. Hosts must already exist; resolve by id/name.
+                $config = [
+                    'hosts' => [
+                        'class' => 'Host',
+                        'namefield' => 'name',
+                        'get' => 'hosts',
+                        'apply' => 'addHost',
+                    ],
                 ];
                 break;
             case 'Image':
