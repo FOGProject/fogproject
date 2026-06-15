@@ -2138,6 +2138,9 @@ msgstr "No snapins associated"
 msgid "First Check In"
 msgstr ""
 
+msgid "First row is a header"
+msgstr ""
+
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
@@ -2508,6 +2511,10 @@ msgstr ""
 msgid "Have not locked the host for access"
 msgstr ""
 
+#, php-format
+msgid "Header is missing the required \"%s\" column"
+msgstr ""
+
 msgid "Height must be 120 pixels."
 msgstr ""
 
@@ -2828,6 +2835,9 @@ msgstr "Client"
 #, fuzzy
 msgid "Ignore Imaging"
 msgstr "Client"
+
+msgid "Ignored unknown header columns"
+msgstr ""
 
 msgid "Image"
 msgstr "Image"
@@ -6417,6 +6427,12 @@ msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
 msgid "Those images should be activated with the associated"
+msgstr ""
+
+msgid ""
+"Tick if the file's first row names the columns. Header rows are auto-"
+"detected even when unticked; leave the file header-less to import by column "
+"order."
 msgstr ""
 
 msgid "Time"

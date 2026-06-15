@@ -2050,6 +2050,9 @@ msgstr "Individuazione di eventuali snaps associati"
 msgid "First Check In"
 msgstr ""
 
+msgid "First row is a header"
+msgstr ""
+
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
@@ -2408,6 +2411,10 @@ msgstr "Hash"
 msgid "Have not locked the host for access"
 msgstr ""
 
+#, php-format
+msgid "Header is missing the required \"%s\" column"
+msgstr ""
+
 msgid "Height must be 120 pixels."
 msgstr "Altezza deve essere di 120 pixel."
 
@@ -2717,6 +2724,9 @@ msgstr "Cliente"
 #, fuzzy
 msgid "Ignore Imaging"
 msgstr "Cliente"
+
+msgid "Ignored unknown header columns"
+msgstr ""
 
 msgid "Image"
 msgstr "Immagine"
@@ -6114,6 +6124,12 @@ msgstr ""
 
 msgid "Those images should be activated with the associated"
 msgstr "Queste immagini devono essere attivate con le relative"
+
+msgid ""
+"Tick if the file's first row names the columns. Header rows are auto-"
+"detected even when unticked; leave the file header-less to import by column "
+"order."
+msgstr ""
 
 msgid "Time"
 msgstr "Tempo"

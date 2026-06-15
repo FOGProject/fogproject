@@ -4,15 +4,22 @@ FOG can mass‑import and export most management objects (hosts, images,
 snapins, groups, printers, users, modules, storage groups and storage nodes)
 as CSV files from each object's **Import** / **Export** page.
 
-> **Important:** CSV import is **header‑less and positional.** There is no
-> header row — FOG maps each column **by position**, in the exact order the
-> matching Export produces. The simplest, safest way to build an import file
-> is therefore to **Export first, edit, then Import.**
+> **Two ways to map columns:**
+> 1. **Headered** — if the file's first row names the columns (which is what
+>    Export now produces), FOG maps columns **by name**. Columns may be in any
+>    order, and you may include only the columns you care about.
+> 2. **Positional (header‑less)** — if there is no header row, FOG maps columns
+>    **by position**, in the exact order Export produces.
+>
+> A header row is **auto‑detected**, and there is also a *"First row is a
+> header"* checkbox on the Import page to force it. Either way, the simplest,
+> safest workflow is **Export → edit → Import.**
 
 ---
 
 ## Table of contents
 
+- [Header row vs. positional](#header-row-vs-positional)
 - [General format rules](#general-format-rules)
 - [The associations column](#the-associations-column)
 - [Per‑class column layouts](#per-class-column-layouts)
@@ -29,16 +36,44 @@ as CSV files from each object's **Import** / **Export** page.
 
 ---
 
+## Header row vs. positional
+
+**Headered (recommended).** If the first row contains the column names, FOG
+maps each subsequent row **by name**:
+
+- **Any order** — columns may appear in any order.
+- **Partial** — include only the columns you want to set; omitted columns keep
+  their defaults. (The identity columns are still required: `name` for every
+  class, plus `primac` for hosts.)
+- **Auto‑detected** — a first row whose cells are *all* recognised column names
+  is treated as a header automatically. The *"First row is a header"* checkbox
+  forces header mode (and reports any unrecognised header names as ignored).
+- **Names are matched case‑insensitively** (`ProductKey` == `productkey`).
+- **Export emits a header row** by default, so an Export file re‑imports
+  by name with no editing of column positions.
+
+Valid header names are the column names in the per‑class tables below, plus
+`primac` (hosts) and `associations` (where supported).
+
+Example (headered, partial, reordered):
+
+```csv
+name,primac,associations
+PC-Lab-01,00:11:22:33:44:55,groups:Lab A|Lab B;snapins:7zip
+```
+
+**Positional (header‑less).** With no header row, FOG maps columns **by
+position**, in the exact order Export produces (the per‑class tables below).
+
 ## General format rules
 
 - **Delimiter:** standard comma (`,`). Use normal CSV quoting (wrap a field in
   double quotes) if a value itself contains a comma.
-- **No header row.** The first line is data. Columns are read by position.
-- **Column count must match.** A row may contain *up to* the number of columns
-  the class defines (plus the optional trailing associations column described
-  below). Extra/unknown columns cause the row — and the import — to be rejected
-  with *"Invalid data being parsed."*
-- **Order matches Export.** The per‑class tables below list the exact order.
+- **Column count.** In positional mode a row may contain *up to* the number of
+  columns the class defines (plus the optional trailing associations column).
+  In header mode a data row must not have more columns than the header. Either
+  way, too many columns rejects the import with *"Invalid data being parsed."*
+- **Order matches Export** (positional mode). The per‑class tables list it.
 - **Pipe (`|`) is the multi‑value separator** inside a single field (e.g. a
   host's MAC list, and association values). This mirrors how MAC lists have
   always been delimited.
@@ -199,8 +234,10 @@ Associations: `groups`, `snapins`, `printers`, `modules`, `location`¹.
 
 ## Worked example (host)
 
-A single host row assigned to two groups, three snapins and one printer
-(association values shown by name):
+The same host — assigned to two groups, three snapins and one printer — shown
+both ways.
+
+**Positional** (full column set, header‑less):
 
 ```csv
 00:11:22:33:44:55|00:11:22:33:44:66,PC-Lab-01,Front lab PC,,4,,,,,0,,,,,,,5,,,,,0,,,,1,0,0,0,,,"groups:Lab A|Lab B;snapins:7zip|Chrome|VLC;printers:FrontDesk"
@@ -208,6 +245,13 @@ A single host row assigned to two groups, three snapins and one printer
 
 The first MAC is primary, the second is an additional MAC; the trailing quoted
 field is the associations column.
+
+**Headered** (only the columns you need, any order):
+
+```csv
+primac,name,description,associations
+00:11:22:33:44:55|00:11:22:33:44:66,PC-Lab-01,Front lab PC,"groups:Lab A|Lab B;snapins:7zip|Chrome|VLC;printers:FrontDesk"
+```
 
 ---
 

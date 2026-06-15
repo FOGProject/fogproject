@@ -2769,7 +2769,26 @@ abstract class FOGPage extends FOGBase
                 '',
                 true
             )
-            . '</div>'
+            . '</div>',
+            self::makeLabel(
+                'col-sm-3 control-label',
+                'csvheader',
+                _('First row is a header')
+            ) => self::makeInput(
+                '',
+                'csvheader',
+                '',
+                'checkbox',
+                'csvheader'
+            )
+            . ' '
+            . '<span class="help-block" style="display:inline">'
+            . _(
+                'Tick if the file\'s first row names the columns. '
+                . 'Header rows are auto-detected even when unticked; '
+                . 'leave the file header-less to import by column order.'
+            )
+            . '</span>'
         ];
         $buttons = self::makeButton(
             'import-send',
@@ -3185,6 +3204,74 @@ abstract class FOGPage extends FOGBase
         return implode(';', $parts);
     }
     /**
+     * Interprets the first CSV row as a header when appropriate.
+     *
+     * When $force is true (the user ticked "First row is a header") the row
+     * is always treated as a header. Otherwise it is auto-detected: every
+     * cell must be non-empty, unique, and a recognised column token.
+     * Recognised tokens are the class field keys plus 'primac' (hosts) and
+     * 'associations' (where supported).
+     *
+     * Returns true when the row is a header; $map is filled with
+     * lowercased-token => column-index for recognised tokens, and $unknown
+     * collects any header cells that were not recognised (only meaningful
+     * when $force is true, since auto-detect rejects unknown tokens).
+     *
+     * @param mixed $row         the first CSV row
+     * @param array $validTokens recognised tokens, lowercased
+     * @param bool  $force       treat the row as a header unconditionally
+     * @param array $map         out: token => column index
+     * @param array $unknown     out: unrecognised header cells
+     *
+     * @return bool
+     */
+    protected static function parseCsvHeader(
+        $row,
+        array $validTokens,
+        $force,
+        array &$map,
+        array &$unknown
+    ) {
+        $map = [];
+        $unknown = [];
+        if (!is_array($row)) {
+            return false;
+        }
+        $cells = array_map(
+            function ($c) {
+                return strtolower(trim((string)$c));
+            },
+            $row
+        );
+        if (!$force) {
+            // Auto-detect: bail unless the whole row looks like column names.
+            if (in_array('', $cells, true)
+                || count(array_unique($cells)) !== count($cells)
+            ) {
+                return false;
+            }
+            foreach ($cells as $cell) {
+                if (!in_array($cell, $validTokens, true)) {
+                    return false;
+                }
+            }
+        }
+        foreach ($cells as $idx => $cell) {
+            if ($cell === '') {
+                continue;
+            }
+            if (in_array($cell, $validTokens, true)) {
+                // First occurrence wins if a token is duplicated.
+                if (!array_key_exists($cell, $map)) {
+                    $map[$cell] = $idx;
+                }
+            } else {
+                $unknown[] = $cell;
+            }
+        }
+        return true;
+    }
+    /**
      * Perform the import based on the uploaded file
      *
      * @return void
@@ -3239,7 +3326,8 @@ abstract class FOGPage extends FOGBase
             );
             $comma_count = count(array_keys($this->databaseFields) ?: []);
             $iterator = 0;
-            if ($Item instanceof Host) {
+            $isHost = $Item instanceof Host;
+            if ($isHost) {
                 $comma_count++;
                 $iterator = 1;
             }
@@ -3247,8 +3335,66 @@ abstract class FOGPage extends FOGBase
             // right after every regular field, regardless of class. When the
             // class supports associations we allow that one extra column.
             $assocConfig = self::getAssociationConfig($this->childClass);
+            $hasAssoc = count($assocConfig) > 0;
             $assocIndex = $comma_count;
-            $maxCols = $comma_count + (count($assocConfig) > 0 ? 1 : 0);
+            $maxCols = $comma_count + ($hasAssoc ? 1 : 0);
+            $dbkeys = array_keys($this->databaseFields);
+
+            // Recognised header tokens (lowercased) for this class: the field
+            // keys, plus 'primac' for hosts and 'associations' where supported.
+            $headerTokens = array_map('strtolower', $dbkeys);
+            if ($isHost) {
+                $headerTokens[] = 'primac';
+            }
+            if ($hasAssoc) {
+                $headerTokens[] = 'associations';
+            }
+
+            // Optional header row: forced via the form checkbox, otherwise
+            // auto-detected. When present, columns are mapped by name (any
+            // order, partial sets allowed); otherwise the legacy positional
+            // order is used.
+            $forceHeader = (bool)filter_input(INPUT_POST, 'csvheader');
+            $headerMode = false;
+            $headerMap = [];
+            $headerCols = 0;
+            $firstRow = fgetcsv($fh, 1000, ',');
+            if ($firstRow !== false) {
+                $unknownHeaders = [];
+                if (self::parseCsvHeader(
+                    $firstRow,
+                    $headerTokens,
+                    $forceHeader,
+                    $headerMap,
+                    $unknownHeaders
+                )) {
+                    $headerMode = true;
+                    $headerCols = count($firstRow);
+                    if (count($unknownHeaders) > 0) {
+                        $uploadErrors .= sprintf(
+                            '%s: %s<br/>',
+                            _('Ignored unknown header columns'),
+                            implode(', ', $unknownHeaders)
+                        );
+                    }
+                    // Required identity columns must be present.
+                    $required = ['name'];
+                    if ($isHost) {
+                        $required[] = 'primac';
+                    }
+                    foreach ($required as $req) {
+                        if (!array_key_exists($req, $headerMap)) {
+                            throw new Exception(
+                                sprintf(
+                                    _('Header is missing the required "%s" column'),
+                                    $req
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+
             $ItemMan = $Item->getManager();
             Route::ids(
                 'module',
@@ -3256,19 +3402,52 @@ abstract class FOGPage extends FOGBase
             );
             $modules = json_decode(Route::getData(), true);
             $totalRows = 0;
-            while (($data = fgetcsv($fh, 1000, ',')) !== false) {
+            // When the first row was a header we consumed it above; otherwise
+            // it is the first data row and must still be processed.
+            $data = $headerMode ? fgetcsv($fh, 1000, ',') : $firstRow;
+            while ($data !== false) {
                 $importCount = count($data ?: []);
                 if ($importCount > 0
-                    && $importCount > $maxCols
+                    && (
+                        $headerMode ?
+                        $importCount > $headerCols :
+                        $importCount > $maxCols
+                    )
                 ) {
                     throw new Exception(
                         _('Invalid data being parsed')
                     );
                 }
                 try {
-                    $dbkeys = array_keys($this->databaseFields);
-                    if ($Item instanceof Host) {
-                        $macs = self::parseMacList($data[0]);
+                    // Resolve each field's value by name, unifying the header
+                    // and positional paths. Fields absent from a header file
+                    // are simply left at their defaults.
+                    $rowVals = [];
+                    if ($headerMode) {
+                        foreach ($headerMap as $name => $colIdx) {
+                            $rowVals[$name] = isset($data[$colIdx]) ?
+                                $data[$colIdx] :
+                                '';
+                        }
+                    } else {
+                        if ($isHost) {
+                            $rowVals['primac'] = isset($data[0]) ? $data[0] : '';
+                        }
+                        foreach ($dbkeys as $i => $f) {
+                            $idx = $i + $iterator;
+                            $rowVals[strtolower($f)] = isset($data[$idx]) ?
+                                $data[$idx] :
+                                '';
+                        }
+                        if ($hasAssoc) {
+                            $rowVals['associations'] = isset($data[$assocIndex]) ?
+                                $data[$assocIndex] :
+                                '';
+                        }
+                    }
+
+                    if ($isHost) {
+                        $macs = self::parseMacList($rowVals['primac']);
                         self::$Host = $Item;
                         self::getClass('HostManager')
                             ->getHostByMacAddresses($macs);
@@ -3278,36 +3457,42 @@ abstract class FOGPage extends FOGBase
                             );
                         }
                         $primac = array_shift($macs);
-                        $index = array_search('productKey', $dbkeys) + 1;
-                        $test_encryption = self::aesdecrypt($data[$index]);
-                        $test_base64 = mb_detect_encoding(
-                            $test_encryption,
-                            'utf-8',
-                            true
-                        );
-                        if ($test_base64 = base64_decode($data[$index])) {
-                            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                                $data[$index] = $test_base64;
+                        if (array_key_exists('productkey', $rowVals)) {
+                            $pk = $rowVals['productkey'];
+                            $test_encryption = self::aesdecrypt($pk);
+                            $test_base64 = mb_detect_encoding(
+                                $test_encryption,
+                                'utf-8',
+                                true
+                            );
+                            if ($test_base64 = base64_decode($pk)) {
+                                if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                                    $rowVals['productkey'] = $test_base64;
+                                }
+                            } elseif ($test_base64) {
+                                $rowVals['productkey'] = $test_encryption;
                             }
-                        } elseif ($test_base64) {
-                            $data[$index] = $test_encryption;
                         }
                     }
-                    if ($ItemMan->exists($data[$iterator])) {
+                    if ($ItemMan->exists($rowVals['name'])) {
                         throw new Exception(
                             _('This host already exists')
                         );
                     }
-                    foreach ((array)$dbkeys as $ind => &$field) {
-                        $ind += $iterator;
+                    foreach ((array)$dbkeys as &$field) {
+                        $lc = strtolower($field);
+                        if (!array_key_exists($lc, $rowVals)) {
+                            // Header file that omitted this column: keep default.
+                            continue;
+                        }
                         if ($field == 'password') {
-                            $Item->set($field, $data[$ind], true);
+                            $Item->set($field, $rowVals[$lc], true);
                         } else {
-                            $Item->set($field, $data[$ind]);
+                            $Item->set($field, $rowVals[$lc]);
                         }
                         unset($field);
                     }
-                    if ($Item instanceof Host) {
+                    if ($isHost) {
                         $Item
                             ->set('modules', $modules)
                             ->addPriMAC($primac)
@@ -3316,18 +3501,18 @@ abstract class FOGPage extends FOGBase
                     if ($Item->save()) {
                         $Item->load();
                         $totalRows++;
-                        // Apply any trailing associations (lenient: warn and
-                        // skip unresolved references rather than failing the
-                        // row). The item already has an id at this point.
-                        if (count($assocConfig) > 0
-                            && isset($data[$assocIndex])
-                            && trim((string)$data[$assocIndex]) !== ''
+                        // Apply any associations (lenient: warn and skip
+                        // unresolved references rather than failing the row).
+                        // The item already has an id at this point.
+                        if ($hasAssoc
+                            && isset($rowVals['associations'])
+                            && trim((string)$rowVals['associations']) !== ''
                         ) {
                             $assocWarnings = [];
                             $applied = self::applyAssociations(
                                 $assocConfig,
                                 $Item,
-                                $data[$assocIndex],
+                                $rowVals['associations'],
                                 $assocWarnings
                             );
                             if ($applied) {
@@ -3371,6 +3556,7 @@ abstract class FOGPage extends FOGBase
                         $e->getMessage()
                     );
                 }
+                $data = fgetcsv($fh, 1000, ',');
             }
             fclose($fh);
             $code = HTTPResponseCodes::HTTP_ACCEPTED;

@@ -10,7 +10,9 @@ var shouldReAuth,
     {
       extend: 'csv',
       text: '<i class="fa fa-file-excel-o"></i> CSV',
-      header: false
+      // Emit the column names as a header row. Import auto-detects this
+      // header (or it can be left off to import by column order).
+      header: true
     },
     {
       extend: 'excel',
