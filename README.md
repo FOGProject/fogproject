@@ -94,7 +94,7 @@ cd /path/to/fogproject-dev-branch/bin
 All should now be installed and you can start configuring and registering systems. Please see: http://fogproject.org/wiki/index.php/Managing_FOG to assist you in setting up further.
 
 There are many resources for assistance.
- - **CSV Import/Export:** see [docs/CSV_IMPORT_EXPORT.md](docs/CSV_IMPORT_EXPORT.md) for the mass import/export file format (columns per object type and the associations column).
+ - **CSV Import/Export:** see [docs/CSV_IMPORT_EXPORT.md](docs/CSV_IMPORT_EXPORT.md) for the mass import/export file format — headered or positional columns per object type, and the associations column.
  - **docs:** https://docs.fogproject.org for documentation. (New docs, under construction)
  - **Wiki:** http://fogproject.org/wiki for any information. (Legacy docs)
  - **Forum:** http://fogproject.org/forum.
