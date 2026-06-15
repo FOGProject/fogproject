@@ -265,6 +265,10 @@ class Route extends FOGBase
             '/system/[status|info]',
             [__CLASS__, 'status'],
             'status'
+        )->get(
+            '/system/export',
+            [__CLASS__, 'export'],
+            'export'
         )->map(
             'GET|POST',
             '/[search|unisearch]/[*:item]/[i:limit]?',
@@ -468,6 +472,31 @@ class Route extends FOGBase
             'version' => FOG_VERSION,
             'msg' => _('success')
         ];
+    }
+    /**
+     * Streams a full SQL backup of the FOG database.
+     *
+     * Token-authenticated, headless equivalent of the management
+     * "Export Database" button (management/export.php?type=sql), which
+     * requires a logged-in session and CSRF token and so cannot be used
+     * by scripts. This endpoint relies only on the standard API auth
+     * already enforced in the constructor (fog-api-token plus an
+     * api-enabled fog-user-token, or HTTP basic auth) and reuses
+     * Schema::exportdb() so the dump matches the web UI byte-for-byte.
+     *
+     * The dump is streamed as an attachment; we exit afterward to keep
+     * printer() from appending JSON to the SQL body.
+     *
+     * @return void
+     */
+    public static function export()
+    {
+        $backup_name = sprintf(
+            'fog_backup_%s.sql',
+            self::formatTime('', 'Ymd_His')
+        );
+        self::getClass('Schema')->exportdb($backup_name);
+        exit;
     }
     /**
      * Presents the equivalent of a page's list all.
