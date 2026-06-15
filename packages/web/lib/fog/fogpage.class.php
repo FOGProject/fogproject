@@ -4204,13 +4204,13 @@ abstract class FOGPage extends FOGBase
         }
         // Trailing associations column. It is computed per row from the item's
         // id (reusing the real id column for the query) and emitted as names
-        // for cross-server portability.
+        // for cross-server portability. The id column must stay in the query
+        // (no removeFromQuery) so the formatter receives the id value.
         if (count(self::getAssociationConfig($this->childClass)) > 0) {
             $childClass = $this->childClass;
             $columns[] = [
                 'db' => $tableID,
                 'dt' => 'associations',
-                'removeFromQuery' => true,
                 'formatter' => function ($d, $row) use ($childClass) {
                     return self::buildAssociationString($childClass, $d);
                 }
