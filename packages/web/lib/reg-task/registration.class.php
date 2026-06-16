@@ -437,8 +437,8 @@ class Registration extends FOGBase
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
-                $productKey = filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW);
-                if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+                $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
+                if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new Exception(_('Invalid product key supplied'));
                 }
                 self::$Host->set('productKey', $productKey);
@@ -484,8 +484,8 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addMAC($this->MACs);
             if ($prodkeyget > 0) {
-                $productKey = filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW);
-                if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+                $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
+                if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new Exception(_('Invalid product key supplied'));
                 }
                 self::$Host->set('productKey', $productKey);
