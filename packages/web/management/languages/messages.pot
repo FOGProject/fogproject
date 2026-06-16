@@ -46,6 +46,9 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
+msgid "(default on all)"
+msgstr ""
+
 msgid "(empty on all)"
 msgstr ""
 
@@ -6293,6 +6296,9 @@ msgid "meaning a node that has no images on it"
 msgstr ""
 
 msgid "min"
+msgstr ""
+
+msgid "min (all)"
 msgstr ""
 
 msgid "minutes"

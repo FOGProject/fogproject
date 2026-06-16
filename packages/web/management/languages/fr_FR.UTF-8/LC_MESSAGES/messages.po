@@ -71,6 +71,9 @@ msgstr "%s est requis"
 msgid "(all)"
 msgstr ""
 
+msgid "(default on all)"
+msgstr ""
+
 msgid "(empty on all)"
 msgstr ""
 
@@ -7479,6 +7482,10 @@ msgstr ""
 #, fuzzy
 msgid "min"
 msgstr "minutes"
+
+#, fuzzy
+msgid "min (all)"
+msgstr "Activée"
 
 msgid "minutes"
 msgstr "minutes"

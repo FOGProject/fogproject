@@ -512,6 +512,56 @@ class GroupManagement extends FOGPage
             . '</div></div>';
     }
     /**
+     * Whether every member host shares the same auto-logout time, and what it
+     * is. Auto-logout lives in hostAutoLogOut (a host may have no row, which
+     * means "unset / use the default"), so a LEFT JOIN treats missing as ''.
+     *
+     * @return array ['uniform' => bool, 'value' => string]
+     */
+    private function _uniformAloValue()
+    {
+        $info = ['uniform' => false, 'value' => ''];
+        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
+        if (count($hostIDs) < 1) {
+            return $info;
+        }
+        $sql = sprintf(
+            'SELECT COUNT(*) AS `n`, '
+            . "COUNT(DISTINCT COALESCE(`haloTime`, '')) AS `d`, "
+            . "MIN(COALESCE(`haloTime`, '')) AS `v` "
+            . 'FROM `hosts` h '
+            . 'LEFT JOIN `hostAutoLogOut` halo '
+            . 'ON halo.`haloHostID` = h.`hostID` '
+            . 'WHERE h.`hostID` IN (%s)',
+            implode(',', $hostIDs)
+        );
+        $row = self::$DB->query($sql)->fetch();
+        $n = (int)$row->get('n');
+        $info['uniform'] = ($n > 0 && (int)$row->get('d') <= 1);
+        $info['value'] = (string)$row->get('v');
+        return $info;
+    }
+    /**
+     * "Hosts: ..." hint for the auto-logout time (treats unset/0 as default).
+     *
+     * @param array $info ['uniform' => bool, 'value' => string]
+     *
+     * @return string
+     */
+    private function _sharedAloHint($info)
+    {
+        if (!$info['uniform']) {
+            $text = _('(varies)');
+        } elseif ($info['value'] === '' || $info['value'] === '0') {
+            $text = _('(default on all)');
+        } else {
+            $text = Initiator::e($info['value']) . ' ' . _('min (all)');
+        }
+        return '<p class="help-block" style="margin:2px 0 0;">'
+            . _('Hosts:') . ' ' . $text
+            . '</p>';
+    }
+    /**
      * Displays the group general tab.
      *
      * @return void
@@ -1605,13 +1655,13 @@ class GroupManagement extends FOGPage
                 'btn btn-primary pull-right',
                 $props
             );
+            // Blank by default so a save leaves each host's value alone
+            // (no-clobber); the global minimum is just a placeholder hint.
             $tme = filter_input(INPUT_POST, 'tme');
-            if (!$tme) {
-                $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
-            }
-            if (!$tme) {
-                $tme = 0;
-            }
+            $aloMin = (string)(
+                self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN') ?: 0
+            );
+            $aloInfo = $this->_uniformAloValue();
             $fields = [
                 self::makeLabel(
                     $labelClass,
@@ -1623,11 +1673,11 @@ class GroupManagement extends FOGPage
                 ) => self::makeInput(
                     'form-control',
                     'tme',
-                    '',
+                    $aloMin,
                     'number',
                     'tme',
                     $tme
-                )
+                ) . $this->_sharedAloHint($aloInfo)
             ];
 
             self::$HookManager->processEvent(
@@ -1791,11 +1841,16 @@ class GroupManagement extends FOGPage
             $this->obj->setDisp($x, $y, $r);
         }
         if (isset($_POST['confirmalosend'])) {
-            $tme = (int)filter_input(INPUT_POST, 'tme');
-            if (!(is_numeric($tme) && $tme > 4)) {
-                $tme = 0;
+            // No-clobber: blank = leave each host's auto-logout alone. A number
+            // pushes to all (under 5 minutes disables it, as before).
+            $raw = filter_input(INPUT_POST, 'tme');
+            if ($raw !== null && trim((string)$raw) !== '') {
+                $tme = (int)$raw;
+                if (!($tme > 4)) {
+                    $tme = 0;
+                }
+                $this->obj->setAlo($tme);
             }
-            $this->obj->setAlo($tme);
         }
         if (isset($_POST['confirmenforcesend'])) {
             $enforce = (int)filter_input(INPUT_POST, 'enforce');

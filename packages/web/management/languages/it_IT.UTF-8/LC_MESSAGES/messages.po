@@ -70,6 +70,9 @@ msgstr "%s è richiesto"
 msgid "(all)"
 msgstr ""
 
+msgid "(default on all)"
+msgstr ""
+
 msgid "(empty on all)"
 msgstr ""
 
@@ -7110,6 +7113,10 @@ msgstr "intendendo un nodo con nessuna immagine in esso"
 
 msgid "min"
 msgstr "minuti"
+
+#, fuzzy
+msgid "min (all)"
+msgstr "Abilitato"
 
 msgid "minutes"
 msgstr "minuti"

@@ -70,6 +70,9 @@ msgstr "%s是必需的"
 msgid "(all)"
 msgstr ""
 
+msgid "(default on all)"
+msgstr ""
+
 msgid "(empty on all)"
 msgstr ""
 
@@ -7464,6 +7467,10 @@ msgstr ""
 #, fuzzy
 msgid "min"
 msgstr "分钟"
+
+#, fuzzy
+msgid "min (all)"
+msgstr "启用"
 
 msgid "minutes"
 msgstr "分钟"
