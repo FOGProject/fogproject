@@ -140,8 +140,8 @@ class Registration extends FOGBase
                 return;
             }
             self::stripAndDecode($_REQUEST);
-            $productKey = filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW);
-            if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+            $productKey = trim(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
+            if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                 throw new Exception(_('Invalid product key supplied'));
             }
             $username = isset($_REQUEST['username']) ? $_REQUEST['username'] : '';
