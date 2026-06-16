@@ -1750,26 +1750,33 @@ class GroupManagement extends FOGPage
             echo '</div>';
         }
 
-        // Hostname change reboot/domain join reboot forced.
-        $enforce = filter_input(INPUT_POST, 'enforce');
+        // Hostname change reboot/domain join reboot forced. Tri-state so a
+        // save with "No change" leaves each host's value alone (no-clobber);
+        // a plain checkbox both clobbered and -- because it posts "on" -- saved
+        // (int)"on" = 0, so it could never actually enable enforcement.
+        $enf = $this->_uniformHostValues(['enforce' => 'hostEnforce']);
+        if (!$enf['enforce']['uniform']) {
+            $enfText = _('(varies)');
+        } else {
+            $enfText = ($enf['enforce']['value'] === '1')
+                ? _('enabled (all)')
+                : _('disabled (all)');
+        }
+        $enforceControl = '<select class="form-control" id="enforce" '
+            . 'name="enforce">'
+            . '<option value="">' . _('No change') . '</option>'
+            . '<option value="1">' . _('Enable on all hosts') . '</option>'
+            . '<option value="0">' . _('Disable on all hosts') . '</option>'
+            . '</select>'
+            . '<p class="help-block" style="margin:2px 0 0;">'
+            . _('Hosts:') . ' ' . $enfText
+            . '</p>';
         $fields = [
             self::makeLabel(
                 $labelClass,
                 'enforce',
-                _('Force Reboot')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($enforce ? 'checked' : '')
-            )
+                _('Enforce Hostname | AD Join Reboots')
+            ) => $enforceControl
         ];
         $buttons = self::makeButton(
             'group-enforce-send',
@@ -1882,12 +1889,17 @@ class GroupManagement extends FOGPage
             }
         }
         if (isset($_POST['confirmenforcesend'])) {
-            $enforce = (int)filter_input(INPUT_POST, 'enforce');
-            self::getClass('HostManager')->update(
-                ['id' => $this->obj->get('hosts')],
-                '',
-                ['enforce' => $enforce]
-            );
+            // Tri-state: '' = no change (no-clobber), '1'/'0' = force on all.
+            // hostEnforce is enum('0','1'); pass the STRING, not an int -- an
+            // int indexes the enum (1 -> '0', 0 -> truncation error).
+            $enforce = (string)filter_input(INPUT_POST, 'enforce');
+            if ($enforce === '1' || $enforce === '0') {
+                self::getClass('HostManager')->update(
+                    ['id' => $this->obj->get('hosts')],
+                    '',
+                    ['enforce' => $enforce]
+                );
+            }
         }
     }
     /**
