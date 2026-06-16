@@ -151,8 +151,8 @@ class Registration extends FOGBase
     {
         try {
             $stripped = self::stripAndDecode($_POST);
-            $productKey = filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW);
-            if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+            $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
+            if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                 throw new Exception(_('Invalid product key supplied'));
             }
             $host = filter_var($stripped['host'] ?? '');
