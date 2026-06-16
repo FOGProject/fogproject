@@ -1424,6 +1424,9 @@ msgstr ""
 msgid "Current Records"
 msgstr "Registros atuais"
 
+msgid "Current member-host AD state"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -1590,6 +1593,10 @@ msgstr "Diretório já existe"
 msgid "Directory Cleaner"
 msgstr "Cleaner diretório"
 
+#, fuzzy
+msgid "Disable on all hosts"
+msgstr "ativado"
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1616,6 +1623,10 @@ msgid "Domain Admins"
 msgstr "Nome do domínio"
 
 #, fuzzy
+msgid "Domain Joining"
+msgstr "Nome do domínio"
+
+#, fuzzy
 msgid "Domain Name"
 msgstr "domínio usuário"
 
@@ -1623,6 +1634,18 @@ msgid "Domain Password"
 msgstr "senha de domínio"
 
 msgid "Domain Username"
+msgstr "domínio usuário"
+
+#, fuzzy
+msgid "Domain joining"
+msgstr "Nome do domínio"
+
+#, fuzzy
+msgid "Domain name"
+msgstr "domínio usuário"
+
+#, fuzzy
+msgid "Domain username"
 msgstr "domínio usuário"
 
 msgid "Donate"
@@ -1713,6 +1736,10 @@ msgstr ""
 
 msgid "Enable Sending via Location"
 msgstr ""
+
+#, fuzzy
+msgid "Enable on all hosts"
+msgstr "ativado"
 
 msgid "Enabled"
 msgstr "ativado"
@@ -4143,6 +4170,9 @@ msgid "No access is allowed"
 msgstr ""
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No change"
 msgstr ""
 
 msgid "No class value sent"
@@ -7175,6 +7205,10 @@ msgid "directory"
 msgstr "Diretório"
 
 #, fuzzy
+msgid "disabled (all)"
+msgstr "ativado"
+
+#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "A imagem está protegida e não pode ser excluído"
 
@@ -7186,6 +7220,10 @@ msgstr ""
 
 msgid "either because you have updated"
 msgstr ""
+
+#, fuzzy
+msgid "enabled (all)"
+msgstr "ativado"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -7737,14 +7775,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Nenhum de hash disponíveis"
-
-#, fuzzy
-#~ msgid "Disable All"
-#~ msgstr "ativado"
-
-#, fuzzy
-#~ msgid "Enable All"
-#~ msgstr "ativado"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

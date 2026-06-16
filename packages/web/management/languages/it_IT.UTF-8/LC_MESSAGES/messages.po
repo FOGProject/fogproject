@@ -1357,6 +1357,9 @@ msgstr ""
 msgid "Current Records"
 msgstr "Current Records"
 
+msgid "Current member-host AD state"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -1516,6 +1519,10 @@ msgstr "Directory esiste già"
 msgid "Directory Cleaner"
 msgstr "directory Cleaner"
 
+#, fuzzy
+msgid "Disable on all hosts"
+msgstr "Disabilitato"
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1542,6 +1549,10 @@ msgid "Domain Admins"
 msgstr "Nome del dominio"
 
 #, fuzzy
+msgid "Domain Joining"
+msgstr "Abilita invio posizione "
+
+#, fuzzy
 msgid "Domain Name"
 msgstr "dominio Nome utente"
 
@@ -1549,6 +1560,18 @@ msgid "Domain Password"
 msgstr "password di dominio"
 
 msgid "Domain Username"
+msgstr "dominio Nome utente"
+
+#, fuzzy
+msgid "Domain joining"
+msgstr "Abilita invio posizione "
+
+#, fuzzy
+msgid "Domain name"
+msgstr "dominio Nome utente"
+
+#, fuzzy
+msgid "Domain username"
 msgstr "dominio Nome utente"
 
 msgid "Donate"
@@ -1640,6 +1663,10 @@ msgstr "Abilita invio posizione "
 
 msgid "Enable Sending via Location"
 msgstr ""
+
+#, fuzzy
+msgid "Enable on all hosts"
+msgstr "Abilitato"
 
 msgid "Enabled"
 msgstr "Abilitato"
@@ -3961,6 +3988,9 @@ msgid "No access is allowed"
 msgstr "Nessun accesso è consentito"
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No change"
 msgstr ""
 
 msgid "No class value sent"
@@ -6831,6 +6861,10 @@ msgid "directory"
 msgstr "directory"
 
 #, fuzzy
+msgid "disabled (all)"
+msgstr "Disabilitato"
+
+#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "L'immagine è protetta e non può essere cancellato"
 
@@ -6842,6 +6876,10 @@ msgstr "già selezionati o caricati"
 
 msgid "either because you have updated"
 msgstr "Sia perché hai aggiornato"
+
+#, fuzzy
+msgid "enabled (all)"
+msgstr "Abilitato"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -7350,14 +7388,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Percorso non disponibile"
-
-#, fuzzy
-#~ msgid "Disable All"
-#~ msgstr "Disabilitato"
-
-#, fuzzy
-#~ msgid "Enable All"
-#~ msgstr "Abilitato"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

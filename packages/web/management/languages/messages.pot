@@ -1165,6 +1165,9 @@ msgstr ""
 msgid "Current Records"
 msgstr ""
 
+msgid "Current member-host AD state"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -1309,6 +1312,9 @@ msgstr ""
 msgid "Directory Cleaner"
 msgstr ""
 
+msgid "Disable on all hosts"
+msgstr ""
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1330,6 +1336,9 @@ msgstr ""
 msgid "Domain Admins"
 msgstr ""
 
+msgid "Domain Joining"
+msgstr ""
+
 msgid "Domain Name"
 msgstr ""
 
@@ -1337,6 +1346,15 @@ msgid "Domain Password"
 msgstr ""
 
 msgid "Domain Username"
+msgstr ""
+
+msgid "Domain joining"
+msgstr ""
+
+msgid "Domain name"
+msgstr ""
+
+msgid "Domain username"
 msgstr ""
 
 msgid "Donate"
@@ -1415,6 +1433,9 @@ msgid "Enable Domain Joining"
 msgstr ""
 
 msgid "Enable Sending via Location"
+msgstr ""
+
+msgid "Enable on all hosts"
 msgstr ""
 
 msgid "Enabled"
@@ -3472,6 +3493,9 @@ msgid "No access is allowed"
 msgstr ""
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No change"
 msgstr ""
 
 msgid "No class value sent"
@@ -6040,6 +6064,9 @@ msgstr ""
 msgid "directory"
 msgstr ""
 
+msgid "disabled (all)"
+msgstr ""
+
 msgid "does not exist and cannot be created"
 msgstr ""
 
@@ -6050,6 +6077,9 @@ msgid "either already selected or uploaded"
 msgstr ""
 
 msgid "either because you have updated"
+msgstr ""
+
+msgid "enabled (all)"
 msgstr ""
 
 msgid "failed to execute, image file"

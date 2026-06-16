@@ -1420,6 +1420,9 @@ msgstr ""
 msgid "Current Records"
 msgstr "Aktuelle Datensätze"
 
+msgid "Current member-host AD state"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -1586,6 +1589,10 @@ msgstr "Das Verzeichnis existiert bereits"
 msgid "Directory Cleaner"
 msgstr "Verzeichnis-Bereiniger"
 
+#, fuzzy
+msgid "Disable on all hosts"
+msgstr "Deaktiviert"
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1612,6 +1619,10 @@ msgid "Domain Admins"
 msgstr "Domänen-Name"
 
 #, fuzzy
+msgid "Domain Joining"
+msgstr "Standort senden aktivieren"
+
+#, fuzzy
 msgid "Domain Name"
 msgstr "Domänen-Benutzername"
 
@@ -1619,6 +1630,18 @@ msgid "Domain Password"
 msgstr "Domänenkennwort"
 
 msgid "Domain Username"
+msgstr "Domänen-Benutzername"
+
+#, fuzzy
+msgid "Domain joining"
+msgstr "Standort senden aktivieren"
+
+#, fuzzy
+msgid "Domain name"
+msgstr "Domänen-Benutzername"
+
+#, fuzzy
+msgid "Domain username"
 msgstr "Domänen-Benutzername"
 
 msgid "Donate"
@@ -1710,6 +1733,10 @@ msgstr "Standort senden aktivieren"
 
 msgid "Enable Sending via Location"
 msgstr ""
+
+#, fuzzy
+msgid "Enable on all hosts"
+msgstr "Aktiviert"
 
 msgid "Enabled"
 msgstr "Aktiviert"
@@ -4144,6 +4171,9 @@ msgid "No access is allowed"
 msgstr "Kein Zugriff erlaubt"
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No change"
 msgstr ""
 
 msgid "No class value sent"
@@ -7183,6 +7213,10 @@ msgid "directory"
 msgstr "Home-Verzeichnis speichern"
 
 #, fuzzy
+msgid "disabled (all)"
+msgstr "Deaktiviert"
+
+#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "Image ist geschützt und kann nicht gelöscht werden"
 
@@ -7194,6 +7228,10 @@ msgstr "ob bereits ausgewählt oder hochgeladen"
 
 msgid "either because you have updated"
 msgstr "entweder weil Sie aktualisiert haben"
+
+#, fuzzy
+msgid "enabled (all)"
+msgstr "Aktiviert"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -7746,14 +7784,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
-
-#, fuzzy
-#~ msgid "Disable All"
-#~ msgstr "Deaktiviert"
-
-#, fuzzy
-#~ msgid "Enable All"
-#~ msgstr "Aktiviert"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

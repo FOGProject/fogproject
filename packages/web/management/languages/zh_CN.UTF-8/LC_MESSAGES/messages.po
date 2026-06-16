@@ -1422,6 +1422,9 @@ msgstr ""
 msgid "Current Records"
 msgstr "当前记录"
 
+msgid "Current member-host AD state"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -1588,6 +1591,10 @@ msgstr "目录已经存在"
 msgid "Directory Cleaner"
 msgstr "目录清洁"
 
+#, fuzzy
+msgid "Disable on all hosts"
+msgstr "启用"
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1614,6 +1621,10 @@ msgid "Domain Admins"
 msgstr "域名"
 
 #, fuzzy
+msgid "Domain Joining"
+msgstr "域名"
+
+#, fuzzy
 msgid "Domain Name"
 msgstr "域用户名"
 
@@ -1621,6 +1632,18 @@ msgid "Domain Password"
 msgstr "域密码"
 
 msgid "Domain Username"
+msgstr "域用户名"
+
+#, fuzzy
+msgid "Domain joining"
+msgstr "域名"
+
+#, fuzzy
+msgid "Domain name"
+msgstr "域用户名"
+
+#, fuzzy
+msgid "Domain username"
 msgstr "域用户名"
 
 msgid "Donate"
@@ -1711,6 +1734,10 @@ msgstr ""
 
 msgid "Enable Sending via Location"
 msgstr ""
+
+#, fuzzy
+msgid "Enable on all hosts"
+msgstr "启用"
 
 msgid "Enabled"
 msgstr "启用"
@@ -4141,6 +4168,9 @@ msgid "No access is allowed"
 msgstr ""
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No change"
 msgstr ""
 
 msgid "No class value sent"
@@ -7164,6 +7194,10 @@ msgid "directory"
 msgstr "目录"
 
 #, fuzzy
+msgid "disabled (all)"
+msgstr "启用"
+
+#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "图像被保护，不能被删除"
 
@@ -7175,6 +7209,10 @@ msgstr ""
 
 msgid "either because you have updated"
 msgstr ""
+
+#, fuzzy
+msgid "enabled (all)"
+msgstr "启用"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -7724,14 +7762,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "没有可用的散列"
-
-#, fuzzy
-#~ msgid "Disable All"
-#~ msgstr "启用"
-
-#, fuzzy
-#~ msgid "Enable All"
-#~ msgstr "启用"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

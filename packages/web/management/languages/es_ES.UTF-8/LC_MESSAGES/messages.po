@@ -1436,6 +1436,9 @@ msgstr ""
 msgid "Current Records"
 msgstr "Registros actuales"
 
+msgid "Current member-host AD state"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -1614,6 +1617,10 @@ msgstr "nombre de usuario ya existe"
 msgid "Directory Cleaner"
 msgstr "directorios Cleaned"
 
+#, fuzzy
+msgid "Disable on all hosts"
+msgstr "habilitado"
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1641,6 +1648,10 @@ msgid "Domain Admins"
 msgstr "Nombre de dominio"
 
 #, fuzzy
+msgid "Domain Joining"
+msgstr "Nombre de dominio"
+
+#, fuzzy
 msgid "Domain Name"
 msgstr "Nombre de dominio usuario"
 
@@ -1648,6 +1659,18 @@ msgid "Domain Password"
 msgstr "Contraseña de dominio"
 
 msgid "Domain Username"
+msgstr "Nombre de dominio usuario"
+
+#, fuzzy
+msgid "Domain joining"
+msgstr "Nombre de dominio"
+
+#, fuzzy
+msgid "Domain name"
+msgstr "Nombre de dominio usuario"
+
+#, fuzzy
+msgid "Domain username"
 msgstr "Nombre de dominio usuario"
 
 msgid "Donate"
@@ -1739,6 +1762,10 @@ msgstr ""
 
 msgid "Enable Sending via Location"
 msgstr ""
+
+#, fuzzy
+msgid "Enable on all hosts"
+msgstr "habilitado"
 
 msgid "Enabled"
 msgstr "habilitado"
@@ -4249,6 +4276,9 @@ msgid "No access is allowed"
 msgstr ""
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No change"
 msgstr ""
 
 msgid "No class value sent"
@@ -7325,6 +7355,10 @@ msgid "directory"
 msgstr "Directorio"
 
 #, fuzzy
+msgid "disabled (all)"
+msgstr "habilitado"
+
+#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "está protegido, no se permite la eliminación"
 
@@ -7336,6 +7370,10 @@ msgstr ""
 
 msgid "either because you have updated"
 msgstr ""
+
+#, fuzzy
+msgid "enabled (all)"
+msgstr "habilitado"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -7885,14 +7923,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "No se dispone de hash"
-
-#, fuzzy
-#~ msgid "Disable All"
-#~ msgstr "habilitado"
-
-#, fuzzy
-#~ msgid "Enable All"
-#~ msgstr "habilitado"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

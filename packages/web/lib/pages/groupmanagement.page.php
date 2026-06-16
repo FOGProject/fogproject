@@ -454,16 +454,62 @@ class GroupManagement extends FOGPage
      */
     private function _sharedHint($info)
     {
-        if (!$info['uniform']) {
-            $text = _('(varies)');
-        } elseif ($info['value'] === '') {
-            $text = _('(empty on all)');
-        } else {
-            $text = Initiator::e($info['value']) . ' ' . _('(all)');
-        }
         return '<p class="help-block" style="margin:2px 0 0;">'
-            . _('Hosts:') . ' ' . $text
+            . _('Hosts:') . ' ' . $this->_sharedValueText($info)
             . '</p>';
+    }
+    /**
+     * The shared-state text for a _uniformHostValues() entry: the value with
+     * "(all)", or "(varies)" / "(empty on all)".
+     *
+     * @param array $info ['uniform' => bool, 'value' => string]
+     *
+     * @return string
+     */
+    private function _sharedValueText($info)
+    {
+        if (!$info['uniform']) {
+            return _('(varies)');
+        }
+        if ($info['value'] === '') {
+            return _('(empty on all)');
+        }
+        return Initiator::e($info['value']) . ' ' . _('(all)');
+    }
+    /**
+     * Summary box of the members' current Active Directory state, shown above
+     * the group AD form so the admin sees what the no-change defaults preserve.
+     *
+     * @return string
+     */
+    private function _groupADStateHint()
+    {
+        $ad = $this->_uniformHostValues(
+            [
+                'useAD' => 'hostUseAD',
+                'ADDomain' => 'hostADDomain',
+                'ADOU' => 'hostADOU',
+                'ADUser' => 'hostADUser',
+            ]
+        );
+        if (!$ad['useAD']['uniform']) {
+            $join = _('(varies)');
+        } else {
+            $join = ($ad['useAD']['value'] === '1')
+                ? _('enabled (all)')
+                : _('disabled (all)');
+        }
+        return '<div class="box box-info"><div class="box-body" '
+            . 'style="padding:8px 12px;">'
+            . '<strong>' . _('Current member-host AD state') . '</strong><br/>'
+            . _('Domain joining') . ': ' . $join . '<br/>'
+            . _('Domain name') . ': '
+            . $this->_sharedValueText($ad['ADDomain']) . '<br/>'
+            . _('Organizational Unit') . ': '
+            . $this->_sharedValueText($ad['ADOU']) . '<br/>'
+            . _('Domain username') . ': '
+            . $this->_sharedValueText($ad['ADUser'])
+            . '</div></div>';
     }
     /**
      * Displays the group general tab.
@@ -884,38 +930,26 @@ class GroupManagement extends FOGPage
     public function groupADPost()
     {
         self::checkAuthAndCSRF();
-        $useAD = isset($_POST['domain']);
-        $domain = trim(
-            filter_input(
-                INPUT_POST,
-                'domainname'
-            )
-        );
-        $ou = trim(
-            filter_input(
-                INPUT_POST,
-                'ou'
-            )
-        );
-        $user = trim(
-            filter_input(
-                INPUT_POST,
-                'domainuser'
-            )
-        );
-        $pass = trim(
-            filter_input(
-                INPUT_POST,
-                'domainpassword'
-            )
-        );
-        $this->obj->setAD(
-            $useAD,
-            $domain,
-            $ou,
-            $user,
-            $pass
-        );
+        // Same no-clobber convention as the General tab: empty = leave each
+        // host's value alone (null), literal "NULL" = clear it, anything else
+        // = push to all. useAD is tri-state via the adstate select.
+        $resolve = function ($value) {
+            $trimmed = trim((string)$value);
+            if (strcasecmp($trimmed, 'NULL') === 0) {
+                return '';
+            }
+            return $trimmed !== '' ? $trimmed : null;
+        };
+        $adstate = (string)filter_input(INPUT_POST, 'adstate');
+        $domain = $resolve(filter_input(INPUT_POST, 'domainname'));
+        $ou = $resolve(filter_input(INPUT_POST, 'ou'));
+        $user = $resolve(filter_input(INPUT_POST, 'domainuser'));
+        $passRaw = (string)filter_input(INPUT_POST, 'domainpassword');
+        // The 32-asterisk placeholder means "unchanged" (skip).
+        $pass = preg_match('/^\*{32}$/', trim($passRaw))
+            ? null
+            : $resolve($passRaw);
+        $this->obj->setAD($adstate, $domain, $ou, $user, $pass);
     }
     /**
      * Group hosts display.
@@ -2772,12 +2806,16 @@ class GroupManagement extends FOGPage
                         'name' => _('Active Directory'),
                         'id' => 'group-active-directory',
                         'generator' => function () {
+                            echo $this->_groupADStateHint();
                             $this->adFieldsToDisplay(
                                 '',
                                 '',
                                 '',
                                 '',
-                                ''
+                                '',
+                                true,
+                                false,
+                                true
                             );
                         }
                     ],

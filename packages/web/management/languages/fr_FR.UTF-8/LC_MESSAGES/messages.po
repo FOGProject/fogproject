@@ -1425,6 +1425,9 @@ msgstr ""
 msgid "Current Records"
 msgstr "Enregistrements courants"
 
+msgid "Current member-host AD state"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -1591,6 +1594,10 @@ msgstr "Répertoire existe déjà"
 msgid "Directory Cleaner"
 msgstr "Directory Cleaner"
 
+#, fuzzy
+msgid "Disable on all hosts"
+msgstr "Activée"
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1617,6 +1624,10 @@ msgid "Domain Admins"
 msgstr "Nom de domaine"
 
 #, fuzzy
+msgid "Domain Joining"
+msgstr "Nom de domaine"
+
+#, fuzzy
 msgid "Domain Name"
 msgstr "Domaine Nom d'utilisateur"
 
@@ -1624,6 +1635,18 @@ msgid "Domain Password"
 msgstr "domaine Mot de passe"
 
 msgid "Domain Username"
+msgstr "Domaine Nom d'utilisateur"
+
+#, fuzzy
+msgid "Domain joining"
+msgstr "Nom de domaine"
+
+#, fuzzy
+msgid "Domain name"
+msgstr "Domaine Nom d'utilisateur"
+
+#, fuzzy
+msgid "Domain username"
 msgstr "Domaine Nom d'utilisateur"
 
 msgid "Donate"
@@ -1714,6 +1737,10 @@ msgstr ""
 
 msgid "Enable Sending via Location"
 msgstr ""
+
+#, fuzzy
+msgid "Enable on all hosts"
+msgstr "Activée"
 
 msgid "Enabled"
 msgstr "Activée"
@@ -4144,6 +4171,9 @@ msgid "No access is allowed"
 msgstr ""
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No change"
 msgstr ""
 
 msgid "No class value sent"
@@ -7179,6 +7209,10 @@ msgid "directory"
 msgstr "Annuaire"
 
 #, fuzzy
+msgid "disabled (all)"
+msgstr "Activée"
+
+#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "L'image est protégée et ne peut être supprimé"
 
@@ -7190,6 +7224,10 @@ msgstr ""
 
 msgid "either because you have updated"
 msgstr ""
+
+#, fuzzy
+msgid "enabled (all)"
+msgstr "Activée"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -7741,14 +7779,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pas de hachage disponible"
-
-#, fuzzy
-#~ msgid "Disable All"
-#~ msgstr "Activée"
-
-#, fuzzy
-#~ msgid "Enable All"
-#~ msgstr "Activée"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

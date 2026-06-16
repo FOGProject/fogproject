@@ -1559,7 +1559,8 @@ abstract class FOGPage extends FOGBase
         $ADUser = '',
         $ADPass = '',
         $ownElement = true,
-        $retFields = false
+        $retFields = false,
+        $groupShared = false
     ) {
         global $node;
         global $sub;
@@ -1635,12 +1636,23 @@ abstract class FOGPage extends FOGBase
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'adEnabled',
-                _('Enable Domain Joining')
-            ) => self::makeInput(
+        if ($groupShared) {
+            // Group mode: tri-state so "no change" leaves each host's join
+            // state alone (a plain checkbox could only force on/off for all).
+            $selVal = ($useAD === '1' || $useAD === 1) ? '1'
+                : (($useAD === '0' || $useAD === 0) ? '0' : '');
+            $adEnabledControl = '<select class="form-control" id="adEnabled" '
+                . 'name="adstate">'
+                . '<option value=""' . ($selVal === '' ? ' selected' : '') . '>'
+                . _('No change') . '</option>'
+                . '<option value="1"' . ($selVal === '1' ? ' selected' : '') . '>'
+                . _('Enable on all hosts') . '</option>'
+                . '<option value="0"' . ($selVal === '0' ? ' selected' : '') . '>'
+                . _('Disable on all hosts') . '</option>'
+                . '</select>';
+            $adEnabledLabel = _('Domain Joining');
+        } else {
+            $adEnabledControl = self::makeInput(
                 '',
                 'domain',
                 '',
@@ -1652,7 +1664,15 @@ abstract class FOGPage extends FOGBase
                 -1,
                 -1,
                 $useAD ? 'checked' : ''
-            ),
+            );
+            $adEnabledLabel = _('Enable Domain Joining');
+        }
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'adEnabled',
+                $adEnabledLabel
+            ) => $adEnabledControl,
             self::makeLabel(
                 $labelClass,
                 'adDomain',

@@ -962,10 +962,11 @@
         ADClearBtn = $('#ad-clear'),
         ADJoinDomain = $('#adEnabled');
 
-    ADJoinDomain.on('ifChanged', function(e) {
-        e.preventDefault();
-        $(this).iCheck('update');
-        if (!this.checked) {
+    // #adEnabled is a tri-state <select> in group mode (No change/Enable/
+    // Disable). Populate the blank fields from the AD defaults only when the
+    // admin actively selects Enable -- never just from existing state.
+    ADJoinDomain.on('change', function(e) {
+        if ($(this).val() !== '1') {
             return;
         }
         var indomain = $('#adDomain'),
@@ -1022,6 +1023,8 @@
 
         ADForm.find('input[type=text], input[type=password], textarea').val('');
         ADForm.find('input[type=checkbox]').iCheck('uncheck');
+        // Reset the tri-state Domain Joining select back to "No change".
+        $('#adEnabled').val('');
 
         ADForm.processForm(function(err) {
             ADClearBtn.prop('disabled', false);

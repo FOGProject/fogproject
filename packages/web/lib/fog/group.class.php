@@ -954,27 +954,39 @@ class Group extends FOGController
      * @return object
      */
     public function setAD(
-        $useAD,
+        $adstate,
         $domain,
         $ou,
         $user,
         $pass
     ) {
-        $pass = trim($pass);
-        $adpasspat = "/^\*{32}$/";
-        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
-        self::getClass('HostManager')
-            ->update(
-                ['id' => $this->get('hosts')],
-                '',
-                [
-                    'useAD' => $useAD,
-                    'ADDomain' => trim($domain),
-                    'ADOU' => trim($ou),
-                    'ADUser' => trim($user),
-                    'ADPass' => $pass,
-                ]
-            );
+        // No-clobber: only push fields the admin actually set. Text fields are
+        // already resolved by the caller (null = leave host alone, '' = clear,
+        // value = set). useAD is tri-state: '' = no change, '1'/'0' = force.
+        $update = [];
+        if ($adstate === '1' || $adstate === '0') {
+            $update['useAD'] = (int)$adstate;
+        }
+        if ($domain !== null) {
+            $update['ADDomain'] = $domain;
+        }
+        if ($ou !== null) {
+            $update['ADOU'] = $ou;
+        }
+        if ($user !== null) {
+            $update['ADUser'] = $user;
+        }
+        if ($pass !== null) {
+            $update['ADPass'] = $pass;
+        }
+        if (count($update) > 0) {
+            self::getClass('HostManager')
+                ->update(
+                    ['id' => $this->get('hosts')],
+                    '',
+                    $update
+                );
+        }
 
         return $this;
     }
