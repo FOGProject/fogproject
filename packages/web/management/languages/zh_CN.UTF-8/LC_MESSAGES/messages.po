@@ -76,6 +76,9 @@ msgstr ""
 msgid "(empty on all)"
 msgstr ""
 
+msgid "(none on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -2794,6 +2797,10 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "主机"
+
+#, fuzzy
+msgid "Hosts default:"
+msgstr "更新打印机"
 
 #, fuzzy
 msgid "Hosts in tasking"

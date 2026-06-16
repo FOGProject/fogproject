@@ -76,6 +76,9 @@ msgstr ""
 msgid "(empty on all)"
 msgstr ""
 
+msgid "(none on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -2793,6 +2796,10 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hosts"
+
+#, fuzzy
+msgid "Hosts default:"
+msgstr "Update Printer"
 
 #, fuzzy
 msgid "Hosts in tasking"

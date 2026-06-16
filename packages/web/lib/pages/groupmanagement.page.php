@@ -562,6 +562,35 @@ class GroupManagement extends FOGPage
             . '</p>';
     }
     /**
+     * Whether every member host shares the same default printer, and which.
+     * The default is the printerAssoc row with paIsDefault=1; a host with no
+     * default reads as '' (none), so mixed defaults register as "varies".
+     *
+     * @return array ['uniform' => bool, 'value' => string]
+     */
+    private function _uniformDefaultPrinter()
+    {
+        $info = ['uniform' => false, 'value' => ''];
+        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
+        if (count($hostIDs) < 1) {
+            return $info;
+        }
+        $sql = sprintf(
+            'SELECT COUNT(*) AS `n`, '
+            . "COUNT(DISTINCT COALESCE(pa.`paPrinterID`, '')) AS `d`, "
+            . "MIN(COALESCE(pa.`paPrinterID`, '')) AS `v` "
+            . 'FROM `hosts` h '
+            . 'LEFT JOIN `printerAssoc` pa '
+            . 'ON pa.`paHostID` = h.`hostID` AND pa.`paIsDefault` = 1 '
+            . 'WHERE h.`hostID` IN (%s)',
+            implode(',', $hostIDs)
+        );
+        $row = self::$DB->query($sql)->fetch();
+        $info['uniform'] = ((int)$row->get('n') > 0 && (int)$row->get('d') <= 1);
+        $info['value'] = (string)$row->get('v');
+        return $info;
+    }
+    /**
      * Displays the group general tab.
      *
      * @return void
@@ -3235,9 +3264,26 @@ class GroupManagement extends FOGPage
             '',
             true
         );
+        // Shared-default hint: which printer (if any) every member host
+        // currently has as its default.
+        $def = $this->_uniformDefaultPrinter();
+        if (!$def['uniform']) {
+            $defText = _('(varies)');
+        } elseif ($def['value'] === '' || $def['value'] === '0') {
+            $defText = _('(none on all)');
+        } else {
+            $defText = (
+                isset($printers[$def['value']])
+                ? Initiator::e($printers[$def['value']])
+                : ('#' . $def['value'])
+            ) . ' ' . _('(all)');
+        }
+        $hint = '<p class="help-block" style="margin:2px 0 6px;">'
+            . _('Hosts default:') . ' ' . $defText
+            . '</p>';
         echo json_encode(
             [
-                'content' => $printerSelector,
+                'content' => $hint . $printerSelector,
                 'disablebtn' => false
             ]
         );

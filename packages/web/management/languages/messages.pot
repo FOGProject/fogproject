@@ -52,6 +52,9 @@ msgstr ""
 msgid "(empty on all)"
 msgstr ""
 
+msgid "(none on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -2329,6 +2332,9 @@ msgid "Hostname already used, please try again"
 msgstr ""
 
 msgid "Hosts"
+msgstr ""
+
+msgid "Hosts default:"
 msgstr ""
 
 msgid "Hosts in tasking"
