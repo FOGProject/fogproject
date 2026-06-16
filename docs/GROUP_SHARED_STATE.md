@@ -140,6 +140,13 @@ The printer **Default** selector shows a `Hosts default: <printer> (all)`,
 `(varies)`, or `(none on all)` hint. Setting a default is an explicit action
 that only touches member hosts which have that printer associated.
 
+### Enforce hostname / AD‑join reboots
+
+A tri‑state select — **No change / Enable on all / Disable on all** — with a
+`Hosts: enabled (all) / disabled (all) / (varies)` hint. *No change* leaves each
+host alone. (Stored in the `hostEnforce` `enum('0','1')` column, written as a
+string — passing an int would index the enum rather than match its value.)
+
 ---
 
 ## Out of scope
