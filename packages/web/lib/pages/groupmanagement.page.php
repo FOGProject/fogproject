@@ -926,10 +926,12 @@ class GroupManagement extends FOGPage
     {
         // Printer Associations
         $this->headerData = [
-            _('Printer Name')
+            _('Printer Name'),
+            _('Associated')
         ];
         $this->attributes = [
-            []
+            [],
+            ['width' => 16]
         ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
@@ -1302,10 +1304,12 @@ class GroupManagement extends FOGPage
     {
         // Association Area
         $this->headerData = [
-            _('Module Name')
+            _('Module Name'),
+            _('Associated')
         ];
         $this->attributes = [
-            []
+            [],
+            ['width' => 16]
         ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
@@ -3003,9 +3007,15 @@ class GroupManagement extends FOGPage
      */
     public function getPrintersList()
     {
-        Route::listem('printer');
-        echo Route::getData();
-        exit;
+        return $this->_groupAssocList(
+            'printer',
+            'printerassociation',
+            'printers',
+            'pID',
+            'printerAssoc',
+            'paPrinterID',
+            'paHostID'
+        );
     }
     /**
      * Presents the selector for groups
@@ -3061,34 +3071,85 @@ class GroupManagement extends FOGPage
      */
     public function getSnapinsList()
     {
-        // A snapin is "associated" for the group when every member host has
-        // it. snapinAssoc has a unique (saHostID, saSnapinID) key, so a row
-        // count equal to the host count means all hosts have the snapin.
-        // getItemsList can only express a direct association, so feed it a
-        // custom query that computes the all-hosts state per snapin while
-        // complex() still handles paging/search/ordering server-side.
+        return $this->_groupAssocList(
+            'snapin',
+            'snapinassociation',
+            'snapins',
+            'sID',
+            'snapinAssoc',
+            'saSnapinID',
+            'saHostID'
+        );
+    }
+    /**
+     * Builds a group association list with tri-state member coverage.
+     *
+     * A group owns no associations of its own, so each item is reduced to how
+     * its member hosts cover it: 'all', 'some' or 'none'. getItemsList can only
+     * express a direct association, so we hand it a custom query that computes
+     * the coverage (and the covered-host count + group host total) per item
+     * while complex() still handles paging/search/ordering server-side. The
+     * extra columns surface as `association`, `assocCount` and `assocTotal`.
+     *
+     * @param string $primary      primary node (snapin|module|printer)
+     * @param string $secondary    association node (drives getItemsList naming)
+     * @param string $primaryTable  primary table name
+     * @param string $pkColumn      primary table primary-key column
+     * @param string $assocTable    association table name
+     * @param string $itemColumn    association table item-id column
+     * @param string $hostColumn    association table host-id column
+     * @param string $extraWhere    extra association filter (e.g. enabled only)
+     * @param string $where         primary-row filter passed to getItemsList
+     *
+     * @return void
+     */
+    private function _groupAssocList(
+        $primary,
+        $secondary,
+        $primaryTable,
+        $pkColumn,
+        $assocTable,
+        $itemColumn,
+        $hostColumn,
+        $extraWhere = '',
+        $where = ''
+    ) {
         $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
         $hostCount = count($hostIDs);
         if ($hostCount > 0) {
-            $assocExpr = sprintf(
-                '(SELECT COUNT(*) FROM `snapinAssoc` '
-                . 'WHERE `saSnapinID` = `snapins`.`sID` '
-                . 'AND `saHostID` IN (%s)) = %d',
+            $sub = sprintf(
+                '(SELECT COUNT(*) FROM `%s` WHERE `%s` = `%s`.`%s` '
+                . 'AND `%s` IN (%s)%s)',
+                $assocTable,
+                $itemColumn,
+                $primaryTable,
+                $pkColumn,
+                $hostColumn,
                 implode(',', $hostIDs),
-                $hostCount
+                $extraWhere ? ' ' . $extraWhere : ''
             );
+            $assocExpr = "CASE WHEN $sub = 0 THEN 'none' "
+                . "WHEN $sub = $hostCount THEN 'all' ELSE 'some' END";
+            $countExpr = $sub;
         } else {
-            $assocExpr = '1 = 0';
+            $assocExpr = "'none'";
+            $countExpr = '0';
         }
         $qStr = 'SELECT `%s`,'
-            . "IF(" . $assocExpr . ",'associated','dissociated') AS `groupAssoc` "
+            . $assocExpr . ' AS `groupAssoc`,'
+            . $countExpr . ' AS `groupAssocCount`,'
+            . $hostCount . ' AS `groupAssocTotal` '
             . 'FROM `%s` %s %s %s';
+        $addColumns = [
+            ['do' => 'groupAssocCount', 'dt' => 'assocCount'],
+            ['do' => 'groupAssocTotal', 'dt' => 'assocTotal'],
+        ];
         return $this->obj->getItemsList(
-            'snapin',
-            'snapinassociation',
+            $primary,
+            $secondary,
             [],
-            '',
-            [],
+            $where,
+            $addColumns,
             $qStr
         );
     }
@@ -3177,9 +3238,96 @@ class GroupManagement extends FOGPage
             'usercleanup'
         ];
         $keys = array_diff($keys, $notWhere);
-
-        Route::listem('module', ['shortName' => $keys]);
-        echo Route::getData();
+        $where = "`modules`.`short_name` IN ('"
+            . implode("','", $keys)
+            . "')";
+        // A module counts as "had" by a host only when enabled (msState=1);
+        // a disabled override (msState=0) keeps the item out of "all".
+        return $this->_groupAssocList(
+            'module',
+            'moduleassociation',
+            'modules',
+            'id',
+            'moduleStatusByHost',
+            'msModuleID',
+            'msHostID',
+            'AND `msState` = 1',
+            $where
+        );
+    }
+    /**
+     * On-demand drill-down for an item in the "some" state: which member
+     * hosts have it (Has set) and which do not (Missing set).
+     *
+     * GET params: assoctype (snapin|module|printer), itemid.
+     *
+     * @return void
+     */
+    public function getAssocHostsList()
+    {
+        header('Content-type: application/json');
+        $map = [
+            'snapin' => [
+                'class' => 'snapinassociation',
+                'itemKey' => 'snapinID',
+                'where' => []
+            ],
+            'printer' => [
+                'class' => 'printerassociation',
+                'itemKey' => 'printerID',
+                'where' => []
+            ],
+            'module' => [
+                'class' => 'moduleassociation',
+                'itemKey' => 'moduleID',
+                'where' => ['state' => 1]
+            ],
+        ];
+        $type = (string)filter_input(INPUT_GET, 'assoctype');
+        $itemID = (int)filter_input(INPUT_GET, 'itemid');
+        if (!isset($map[$type]) || $itemID < 1) {
+            echo json_encode(['has' => [], 'missing' => []]);
+            exit;
+        }
+        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
+        $names = [];
+        $order = [];
+        if (count($hostIDs) > 0) {
+            Route::listem('host', ['id' => $hostIDs]);
+            $hosts = json_decode(Route::getData());
+            $hosts = isset($hosts->data) ? $hosts->data : [];
+            foreach ($hosts as $host) {
+                $names[(int)$host->id] = $host->name;
+                $order[] = (int)$host->id;
+            }
+        }
+        $has = [];
+        $missing = [];
+        if (count($order) > 0) {
+            $find = array_merge(
+                $map[$type]['where'],
+                [
+                    $map[$type]['itemKey'] => $itemID,
+                    'hostID' => $hostIDs
+                ]
+            );
+            Route::ids($map[$type]['class'], $find, 'hostID');
+            $hasSet = array_flip(
+                array_map('intval', (array)json_decode(Route::getData(), true))
+            );
+            foreach ($order as $hostID) {
+                $entry = [
+                    'id' => $hostID,
+                    'name' => $names[$hostID] ?? ('#' . $hostID)
+                ];
+                if (isset($hasSet[$hostID])) {
+                    $has[] = $entry;
+                } else {
+                    $missing[] = $entry;
+                }
+            }
+        }
+        echo json_encode(['has' => $has, 'missing' => $missing]);
         exit;
     }
     /**

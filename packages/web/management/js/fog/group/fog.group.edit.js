@@ -371,6 +371,93 @@
     // PRINTER TAB
     //
     // Association Area
+    // ===============================================================
+    // GROUP ASSOCIATION TRI-STATE (shared: snapins, modules, printers)
+    // Each item shows All (checked) / Some (indeterminate) / None
+    // (unchecked) coverage across member hosts, an "n / total" badge, and
+    // an on-demand Has/Missing host drill-down (a DataTables child row).
+    // ---------------------------------------------------------------
+    function groupAssocColumnDef(entityType, idPrefix) {
+        return {
+            targets: 1,
+            orderable: true,
+            render: function(data, type, row) {
+                var state = row.association,
+                    cnt = (row.assocCount === undefined ? 0 : row.assocCount),
+                    total = (row.assocTotal === undefined ? 0 : row.assocTotal),
+                    checked = (state === 'all') ? ' checked' : '',
+                    label = (state === 'all')
+                        ? 'label-success'
+                        : (state === 'some' ? 'label-warning' : 'label-default');
+                return '<div class="checkbox" '
+                    + 'style="display:inline-block;vertical-align:middle;margin:0 6px 0 0;">'
+                    + '<input type="checkbox" class="associated" data-state="' + state + '" '
+                    + 'name="associate[]" id="' + idPrefix + row.id + '" value="' + row.id + '"'
+                    + checked + '/></div>'
+                    + '<a href="#" class="assoc-drill label ' + label + '" '
+                    + 'data-id="' + row.id + '" data-type="' + entityType + '" '
+                    + 'title="Show which hosts have this">' + cnt + ' / ' + total + '</a>';
+            }
+        };
+    }
+
+    function setupGroupAssoc(table, tableSel, updateBtn, entityType, onChange) {
+        function changeHandler(e) {
+            $.checkItemUpdate(table, this, e, updateBtn);
+            if (typeof onChange === 'function') {
+                onChange();
+            }
+        }
+        table.on('draw', function() {
+            Common.iCheck(tableSel + ' input.associated');
+            $(tableSel + ' input.associated').each(function() {
+                if ($(this).data('state') === 'some') {
+                    $(this).iCheck('indeterminate');
+                }
+            });
+            $(tableSel + ' input.associated')
+                .off('ifChanged', changeHandler)
+                .on('ifChanged', changeHandler);
+        });
+        $(tableSel).on('click', '.assoc-drill', function(e) {
+            e.preventDefault();
+            var tr = $(this).closest('tr'),
+                row = table.row(tr),
+                id = $(this).data('id'),
+                type = $(this).data('type');
+            if (row.child.isShown()) {
+                row.child.hide();
+                return;
+            }
+            row.child('<div class="assoc-drill-detail" style="padding:6px 12px;">'
+                + 'Loading…</div>').show();
+            $.ajax({
+                url: '../management/index.php?node=' + Common.node
+                    + '&sub=getAssocHostsList&assoctype=' + type + '&itemid=' + id,
+                dataType: 'json',
+                success: function(d) {
+                    var has = (d && d.has) ? d.has : [],
+                        miss = (d && d.missing) ? d.missing : [];
+                    function names(arr) {
+                        if (!arr.length) {
+                            return '<em>none</em>';
+                        }
+                        return arr.map(function(h) {
+                            return $('<span>').text(h.name).html();
+                        }).join(', ');
+                    }
+                    row.child(
+                        $('<div class="assoc-drill-detail" style="padding:6px 12px;">')
+                            .append($('<div>').html('<strong>Has (' + has.length
+                                + '):</strong> ' + names(has)))
+                            .append($('<div>').html('<strong>Missing (' + miss.length
+                                + '):</strong> ' + names(miss)))
+                    ).show();
+                }
+            });
+        });
+    }
+
     var groupPrinterUpdateBtn = $('#group-printer-send'),
         groupPrinterRemoveBtn = $('#group-printer-remove'),
         groupPrinterDeleteConfirmBtn = $('#confirmprinterDeleteModal');
@@ -411,12 +498,17 @@
 
     var groupPrintersTable = $('#group-printer-table').registerTable(onPrinterSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
-            {data: 'mainlink'}
+            {data: 'mainLink'},
+            {data: 'association'}
         ],
         rowId: 'id',
+        columnDefs: [
+            groupAssocColumnDef('printer', 'groupPrinterAssoc_')
+        ],
         processing: true,
         serverSide: true,
         ajax: {
@@ -427,6 +519,13 @@
             type: 'post'
         }
     });
+
+    setupGroupAssoc(
+        groupPrintersTable,
+        '#group-printer-table',
+        groupPrinterUpdateBtn,
+        'printer'
+    );
 
     groupPrinterDeleteConfirmBtn.on('click', function(e) {
         $.deleteAssociated(groupPrintersTable, groupPrinterUpdateBtn.attr('action'), function(err) {
@@ -555,22 +654,7 @@
         ],
         rowId: 'id',
         columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="groupSnapinAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
+            groupAssocColumnDef('snapin', 'groupSnapinAssoc_')
         ],
         processing: true,
         serverSide: true,
@@ -595,14 +679,15 @@
         });
     });
 
-    var onGroupSnapinCheckboxSelect = function(e) {
-        $.checkItemUpdate(groupSnapinsTable, this, e, groupSnapinUpdateBtn);
-        loadGroupSnapinOrder();
-    };
+    setupGroupAssoc(
+        groupSnapinsTable,
+        '#group-snapin-table',
+        groupSnapinUpdateBtn,
+        'snapin',
+        loadGroupSnapinOrder
+    );
 
     groupSnapinsTable.on('draw', function() {
-        Common.iCheck('#group-snapin-table input');
-        $('#group-snapin-table input.associated').on('ifChanged', onGroupSnapinCheckboxSelect);
         onSnapinSelect(groupSnapinsTable.rows({selected: true}));
     });
 
@@ -752,18 +837,24 @@
 
     var groupModulesTable = $('#group-module-table').registerTable(onModuleSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'}
+            {data: 'name'},
+            {data: 'association'}
         ],
         rowId: 'id',
+        columnDefs: [
+            groupAssocColumnDef('module', 'groupModuleAssoc_')
+        ],
         processing: true,
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
                 + Common.node
-                + '&sub=getModulesList',
+                + '&sub=getModulesList&id='
+                + Common.id,
             type: 'post'
         }
     });
@@ -776,6 +867,13 @@
             }
         });
     });
+
+    setupGroupAssoc(
+        groupModulesTable,
+        '#group-module-table',
+        groupModuleUpdateBtn,
+        'module'
+    );
 
     groupModulesTable.on('draw', function() {
         onModuleSelect(groupModulesTable.rows({selected: true}));
