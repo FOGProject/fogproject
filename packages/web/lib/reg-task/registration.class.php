@@ -408,8 +408,8 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
-                if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+                $productKey = trim(base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW)));
+                if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new Exception(_('Invalid product key supplied'));
                 }
                 self::$Host->set('productKey', $productKey);
@@ -470,8 +470,8 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
-                if (!preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
+                $productKey = trim(base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW)));
+                if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new Exception(_('Invalid product key supplied'));
                 }
                 self::$Host->set('productKey', $productKey);
