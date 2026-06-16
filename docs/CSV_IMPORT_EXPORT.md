@@ -157,7 +157,7 @@ exactly. `associations` is always the optional final column where supported.
 
 | # | Column | # | Column |
 |---|--------|---|--------|
-| 0 | `primac` (MAC list, `|`) | 16 | `printerLevel` |
+| 0 | `primac` (MAC list, `\|`) | 16 | `printerLevel` |
 | 1 | `name` | 17 | `kernelArgs` |
 | 2 | `description` | 18 | `kernel` |
 | 3 | `ip` | 19 | `kernelDevice` |
