@@ -1168,10 +1168,12 @@ class GroupManagement extends FOGPage
     public function groupSnapins()
     {
         $this->headerData = [
-            _('Snapin Name')
+            _('Snapin Name'),
+            _('Associated')
         ];
         $this->attributes = [
-            []
+            [],
+            ['width' => 16]
         ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
@@ -1197,7 +1199,10 @@ class GroupManagement extends FOGPage
         echo _('Group Snapin Assignment');
         echo '</h4>';
         echo '<p class="help-block">';
-        echo _('This will perform the action on all hosts in this group');
+        echo _(
+            'This will perform the action on all hosts in this group. '
+            . 'A snapin is checked when every host in the group has it.'
+        );
         echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -1205,6 +1210,35 @@ class GroupManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('snapin');
+        echo '</div>';
+        echo '</div>';
+
+        $orderButton = self::makeButton(
+            'group-snapin-order-save',
+            _('Save order'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Snapin Run Order');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _(
+            'Only snapins shared by every host in the group can be ordered '
+            . 'here. Saving sets this order on each host (shared snapins run '
+            . 'first, in this order; any host-specific snapins run after). '
+            . 'Order only changes execution when "Abort snapin sequence on '
+            . 'failure" is enabled for the task.'
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<ol id="group-snapin-order-list" class="list-group"></ol>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $orderButton;
         echo '</div>';
         echo '</div>';
     }
@@ -1242,6 +1276,20 @@ class GroupManagement extends FOGPage
             $snapins = $snapins['remitems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->removeSnapin($snapins);
+            }
+        }
+        if (isset($_POST['snapinorder'])) {
+            $order = filter_input_array(
+                INPUT_POST,
+                [
+                    'snapinorder' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $order = $order['snapinorder'];
+            if (count($order ?: []) > 0) {
+                $this->obj->setSnapinOrder($order);
             }
         }
     }
@@ -3013,8 +3061,98 @@ class GroupManagement extends FOGPage
      */
     public function getSnapinsList()
     {
-        Route::listem('snapin');
-        echo Route::getData();
+        // A snapin is "associated" for the group when every member host has
+        // it. snapinAssoc has a unique (saHostID, saSnapinID) key, so a row
+        // count equal to the host count means all hosts have the snapin.
+        // getItemsList can only express a direct association, so feed it a
+        // custom query that computes the all-hosts state per snapin while
+        // complex() still handles paging/search/ordering server-side.
+        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
+        $hostCount = count($hostIDs);
+        if ($hostCount > 0) {
+            $assocExpr = sprintf(
+                '(SELECT COUNT(*) FROM `snapinAssoc` '
+                . 'WHERE `saSnapinID` = `snapins`.`sID` '
+                . 'AND `saHostID` IN (%s)) = %d',
+                implode(',', $hostIDs),
+                $hostCount
+            );
+        } else {
+            $assocExpr = '1 = 0';
+        }
+        $qStr = 'SELECT `%s`,'
+            . "IF(" . $assocExpr . ",'associated','dissociated') AS `groupAssoc` "
+            . 'FROM `%s` %s %s %s';
+        return $this->obj->getItemsList(
+            'snapin',
+            'snapinassociation',
+            [],
+            '',
+            [],
+            $qStr
+        );
+    }
+    /**
+     * Returns the snapins shared by every host in the group, in run order.
+     *
+     * @return void
+     */
+    public function getSnapinOrderList()
+    {
+        $hostIDs = (array)$this->obj->get('hosts');
+        $hostCount = count($hostIDs);
+        $data = [];
+        if ($hostCount > 0) {
+            Route::listem(
+                'snapinassociation',
+                ['hostID' => $hostIDs],
+                false,
+                'AND',
+                'sequence'
+            );
+            $assocs = json_decode(Route::getData());
+            $assocs = isset($assocs->data) ? $assocs->data : [];
+            $counts = [];
+            $minSeq = [];
+            foreach ($assocs as $assoc) {
+                $sid = (int)$assoc->snapinID;
+                $seq = (int)$assoc->sequence;
+                $counts[$sid] = ($counts[$sid] ?? 0) + 1;
+                if (!isset($minSeq[$sid]) || $seq < $minSeq[$sid]) {
+                    $minSeq[$sid] = $seq;
+                }
+            }
+            // Intersection: snapins present on every host.
+            $shared = [];
+            foreach ($counts as $sid => $count) {
+                if ($count === $hostCount) {
+                    $shared[] = $sid;
+                }
+            }
+            // Present them in a sensible starting order (lowest sequence).
+            usort(
+                $shared,
+                function ($a, $b) use ($minSeq) {
+                    return [$minSeq[$a], $a] <=> [$minSeq[$b], $b];
+                }
+            );
+            if (count($shared) > 0) {
+                Route::listem('snapin', ['id' => $shared]);
+                $Snapins = json_decode(Route::getData());
+                $Snapins = isset($Snapins->data) ? $Snapins->data : [];
+                $names = [];
+                foreach ($Snapins as $Snapin) {
+                    $names[(int)$Snapin->id] = $Snapin->name;
+                }
+                foreach ($shared as $sid) {
+                    $data[] = [
+                        'id' => $sid,
+                        'name' => $names[$sid] ?? ('#' . $sid)
+                    ];
+                }
+            }
+        }
+        echo json_encode(['data' => $data]);
         exit;
     }
     /**

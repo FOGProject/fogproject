@@ -265,6 +265,48 @@ class Group extends FOGController
         return $this;
     }
     /**
+     * Sets the run order of the snapins shared by every host in the group.
+     *
+     * The submitted ids are the snapins common to all member hosts. On each
+     * host those shared snapins are sequenced first (1..N in the submitted
+     * order); any host-specific snapins are then renumbered to follow,
+     * preserving their existing relative order ("shared first, extras after").
+     *
+     * @param array $snapinIDs the ordered shared snapin ids
+     *
+     * @return object
+     */
+    public function setSnapinOrder($snapinIDs)
+    {
+        $shared = array_values(
+            array_filter(
+                array_map('intval', (array)$snapinIDs),
+                function ($id) {
+                    return $id > 0;
+                }
+            )
+        );
+        if (count($shared) < 1) {
+            return $this;
+        }
+        $hosts = (array)$this->get('hosts');
+        foreach ($hosts as $hostID) {
+            $Host = new Host($hostID);
+            if (!$Host->isValid()) {
+                continue;
+            }
+            // get('snapins') is already ordered by sequence.
+            $hostSnapins = array_map('intval', (array)$Host->get('snapins'));
+            // Shared snapins this host actually has, in the submitted order,
+            // followed by the host's remaining snapins in their current order.
+            $sharedOnHost = array_values(array_intersect($shared, $hostSnapins));
+            $extras = array_values(array_diff($hostSnapins, $shared));
+            $Host->setSnapinOrder(array_merge($sharedOnHost, $extras));
+            unset($Host);
+        }
+        return $this;
+    }
+    /**
      * Add modules to all hosts in group.
      *
      * @param array $addArray the items to add

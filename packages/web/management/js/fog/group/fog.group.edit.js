@@ -535,6 +535,7 @@
             }
             groupSnapinsTable.draw(false);
             groupSnapinsTable.rows({selected: true}).deselect();
+            loadGroupSnapinOrder();
         });
     });
 
@@ -545,12 +546,32 @@
 
     var groupSnapinsTable = $('#group-snapin-table').registerTable(onSnapinSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
-            {data: 'mainlink'}
+            {data: 'mainLink'},
+            {data: 'association'}
         ],
         rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="groupSnapinAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
         processing: true,
         serverSide: true,
         ajax: {
@@ -570,12 +591,121 @@
             }
             groupSnapinsTable.draw(false);
             groupSnapinsTable.rows({selected: true}).deselect();
+            loadGroupSnapinOrder();
         });
     });
 
+    var onGroupSnapinCheckboxSelect = function(e) {
+        $.checkItemUpdate(groupSnapinsTable, this, e, groupSnapinUpdateBtn);
+        loadGroupSnapinOrder();
+    };
+
     groupSnapinsTable.on('draw', function() {
+        Common.iCheck('#group-snapin-table input');
+        $('#group-snapin-table input.associated').on('ifChanged', onGroupSnapinCheckboxSelect);
         onSnapinSelect(groupSnapinsTable.rows({selected: true}));
     });
+
+    // ---------------------------------------------------------------
+    // GROUP SNAPIN RUN ORDER (snapins shared by all hosts)
+    var groupSnapinOrderList = $('#group-snapin-order-list'),
+        groupSnapinOrderSaveBtn = $('#group-snapin-order-save');
+
+    function updateGroupSnapinOrderPositions() {
+        groupSnapinOrderList.children('li').each(function(i) {
+            $(this).find('.snapin-order-pos').text((i + 1) + '. ');
+        });
+    }
+
+    function renderGroupSnapinOrder(items) {
+        groupSnapinOrderList.empty();
+        if (!items || items.length === 0) {
+            groupSnapinOrderList.append(
+                $('<li>', {'class': 'list-group-item text-muted'})
+                    .text('No snapins are shared by every host in this group.')
+            );
+            groupSnapinOrderSaveBtn.prop('disabled', true);
+            return;
+        }
+        groupSnapinOrderSaveBtn.prop('disabled', false);
+        $.each(items, function(i, item) {
+            var controls = $('<span>', {'class': 'pull-right'})
+                .append(
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-xs btn-default snapin-order-up',
+                        'title': 'Move up'
+                    }).append($('<i>', {'class': 'fa fa-arrow-up'})),
+                    ' ',
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-xs btn-default snapin-order-down',
+                        'title': 'Move down'
+                    }).append($('<i>', {'class': 'fa fa-arrow-down'}))
+                );
+            groupSnapinOrderList.append(
+                $('<li>', {
+                    'class': 'list-group-item',
+                    'data-id': item.id
+                }).append(
+                    $('<span>', {'class': 'snapin-order-pos'}),
+                    $('<span>', {'class': 'snapin-order-name'}).text(item.name),
+                    controls
+                )
+            );
+        });
+        updateGroupSnapinOrderPositions();
+    }
+
+    function loadGroupSnapinOrder() {
+        $.ajax({
+            url: '../management/index.php?node=' + Common.node
+                + '&sub=getSnapinOrderList&id=' + Common.id,
+            dataType: 'json',
+            success: function(data) {
+                renderGroupSnapinOrder(data && data.data ? data.data : []);
+            }
+        });
+    }
+
+    groupSnapinOrderList.on('click', '.snapin-order-up', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            prev = li.prev('li');
+        if (prev.length) {
+            li.insertBefore(prev);
+            updateGroupSnapinOrderPositions();
+        }
+    });
+
+    groupSnapinOrderList.on('click', '.snapin-order-down', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            next = li.next('li');
+        if (next.length) {
+            li.insertAfter(next);
+            updateGroupSnapinOrderPositions();
+        }
+    });
+
+    groupSnapinOrderSaveBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            order = [];
+        groupSnapinOrderList.children('li').each(function() {
+            var id = $(this).attr('data-id');
+            if (id) {
+                order.push(id);
+            }
+        });
+        if (order.length === 0) {
+            return;
+        }
+        $.apiCall(method, action, {snapinorder: order});
+    });
+
+    loadGroupSnapinOrder();
 
     // FOG CLIENT AREA
     // ---------------------------------------------------------------

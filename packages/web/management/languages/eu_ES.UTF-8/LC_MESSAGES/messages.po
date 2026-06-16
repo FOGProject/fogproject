@@ -4451,6 +4451,13 @@ msgstr "Eine oder mehrere MACs sind mit einem Host verknüpft"
 msgid "Only allowed to have"
 msgstr "Sie dürfen nur"
 
+msgid ""
+"Only snapins shared by every host in the group can be ordered here. Saving "
+"sets this order on each host (shared snapins run first, in this order; any "
+"host-specific snapins run after). Order only changes execution when \"Abort "
+"snapin sequence on failure\" is enabled for the task."
+msgstr ""
+
 msgid "Open Source Computer Cloning Solution"
 msgstr "Open Source Computer-Cloning-Lösung"
 
@@ -6430,6 +6437,12 @@ msgstr ""
 
 #, fuzzy
 msgid "This will perform the action on all hosts in this group"
+msgstr "Dies ist nicht die primäre Gruppe"
+
+#, fuzzy
+msgid ""
+"This will perform the action on all hosts in this group. A snapin is checked "
+"when every host in the group has it."
 msgstr "Dies ist nicht die primäre Gruppe"
 
 msgid "This will set the configuration level to all hosts in this group"

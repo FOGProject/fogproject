@@ -295,12 +295,18 @@ class Host extends FOGController
             $objNeeded = false;
             unset($DBPowerManagementIDs, $RemovePowerManagementIDs);
         }
-        return $this
+        $this
             ->assocSetter('Group', 'group')
             ->assocSetter('Module', 'module')
             ->assocSetter('Printer', 'printer')
-            ->assocSetter('Snapin', 'snapin')
-            ->load();
+            ->assocSetter('Snapin', 'snapin');
+        // assocSetter inserts new snapin associations with sequence 0; give
+        // any unsequenced rows a run-order value after the existing ones so
+        // newly added snapins land at the end rather than jumping to front.
+        if ($this->isLoaded('snapins')) {
+            $this->_appendSnapinSequence();
+        }
+        return $this->load();
     }
     /**
      * Defines if the host is valid
@@ -1420,13 +1426,13 @@ class Host extends FOGController
                 );
             }
         }
-        $result = $this->addRemItem(
+        // Staged in-memory here; the snapinAssoc rows (and their run-order
+        // sequence) are persisted in save() via assocSetter()/_appendSnapinSequence().
+        return $this->addRemItem(
             'snapins',
             (array)$addArray,
             'merge'
         );
-        $this->_appendSnapinSequence();
-        return $result;
     }
     /**
      * Removes snapins from the host
