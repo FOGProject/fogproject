@@ -526,7 +526,7 @@ checkInternetConnection() {
     dots "Testing internet connection"
     DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$error_log 2>&1
 
-    http_sites=("neverssl.com" "httpbin.org")
+    http_sites=("httpbin.org" "neverssl.com")
     https_sites=("github.com" "fogproject.org")
     dns_ok=0
     http_ok=0
