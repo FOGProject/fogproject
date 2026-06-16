@@ -393,6 +393,79 @@ class GroupManagement extends FOGPage
         exit;
     }
     /**
+     * Reports, for each requested host column, whether every member host
+     * shares the same value and what that value is.
+     *
+     * NULL and '' are treated as the same ("empty") for uniformity, so a
+     * field that is set on some hosts and unset on others reads as mixed.
+     *
+     * @param array $columns map of friendly key => hosts table column
+     *
+     * @return array friendly key => ['uniform' => bool, 'value' => string]
+     */
+    private function _uniformHostValues($columns)
+    {
+        $result = [];
+        foreach ($columns as $key => $col) {
+            $result[$key] = ['uniform' => false, 'value' => ''];
+        }
+        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
+        if (count($hostIDs) < 1) {
+            return $result;
+        }
+        $selects = ['COUNT(*) AS `_n`'];
+        foreach ($columns as $key => $col) {
+            $safe = preg_replace('/[^A-Za-z0-9_]/', '', $key);
+            $selects[] = sprintf(
+                "COUNT(DISTINCT COALESCE(`%s`, '')) AS `d_%s`",
+                $col,
+                $safe
+            );
+            $selects[] = sprintf(
+                "MIN(COALESCE(`%s`, '')) AS `v_%s`",
+                $col,
+                $safe
+            );
+        }
+        $sql = sprintf(
+            'SELECT %s FROM `hosts` WHERE `hostID` IN (%s)',
+            implode(',', $selects),
+            implode(',', $hostIDs)
+        );
+        $row = self::$DB->query($sql)->fetch();
+        $n = (int)$row->get('_n');
+        foreach ($columns as $key => $col) {
+            $safe = preg_replace('/[^A-Za-z0-9_]/', '', $key);
+            $distinct = (int)$row->get('d_' . $safe);
+            $result[$key] = [
+                'uniform' => ($n > 0 && $distinct <= 1),
+                'value' => (string)$row->get('v_' . $safe),
+            ];
+        }
+        return $result;
+    }
+    /**
+     * Renders a muted "Hosts: ..." hint describing the members' shared value
+     * for a field, from a _uniformHostValues() entry.
+     *
+     * @param array $info ['uniform' => bool, 'value' => string]
+     *
+     * @return string
+     */
+    private function _sharedHint($info)
+    {
+        if (!$info['uniform']) {
+            $text = _('(varies)');
+        } elseif ($info['value'] === '') {
+            $text = _('(empty on all)');
+        } else {
+            $text = Initiator::e($info['value']) . ' ' . _('(all)');
+        }
+        return '<p class="help-block" style="margin:2px 0 0;">'
+            . _('Hosts:') . ' ' . $text
+            . '</p>';
+    }
+    /**
      * Displays the group general tab.
      *
      * @return void
@@ -439,6 +512,19 @@ class GroupManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
+        // Per-field "Hosts: ..." hints showing the members' shared state.
+        $shared = $this->_uniformHostValues(
+            [
+                'key' => 'hostProductKey',
+                'kernel' => 'hostKernel',
+                'args' => 'hostKernelArgs',
+                'init' => 'hostInit',
+                'dev' => 'hostDevice',
+                'biosexit' => 'hostExitBios',
+                'efiexit' => 'hostExitEfi',
+            ]
+        );
+
         $fields = [
             self::makeLabel(
                 $labelClass,
@@ -480,7 +566,7 @@ class GroupManagement extends FOGPage
                 -1,
                 29,
                 'exactlength="25"'
-            ),
+            ) . $this->_sharedHint($shared['key']),
             self::makeLabel(
                 $labelClass,
                 'kernel',
@@ -492,7 +578,7 @@ class GroupManagement extends FOGPage
                 'text',
                 'kernel',
                 $kernel
-            ),
+            ) . $this->_sharedHint($shared['kernel']),
             self::makeLabel(
                 $labelClass,
                 'args',
@@ -504,7 +590,7 @@ class GroupManagement extends FOGPage
                 'text',
                 'args',
                 $args
-            ),
+            ) . $this->_sharedHint($shared['args']),
             self::makeLabel(
                 $labelClass,
                 'init',
@@ -516,7 +602,7 @@ class GroupManagement extends FOGPage
                 'text',
                 'init',
                 $init
-            ),
+            ) . $this->_sharedHint($shared['init']),
             self::makeLabel(
                 $labelClass,
                 'dev',
@@ -528,17 +614,17 @@ class GroupManagement extends FOGPage
                 'text',
                 'dev',
                 $dev
-            ),
+            ) . $this->_sharedHint($shared['dev']),
             self::makeLabel(
                 $labelClass,
                 'bootTypeExit',
                 _('Group BIOS Exit')
-            ) => $exitNorm,
+            ) => $exitNorm . $this->_sharedHint($shared['biosexit']),
             self::makeLabel(
                 $labelClass,
                 'efiBootTypeExit',
                 _('Group EFI Exit')
-            ) => $exitEfi
+            ) => $exitEfi . $this->_sharedHint($shared['efiexit'])
         ];
 
         $buttons = self::makeButton(

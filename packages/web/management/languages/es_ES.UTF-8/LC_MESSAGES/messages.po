@@ -65,6 +65,15 @@ msgstr "No hay menú"
 msgid "%s is required"
 msgstr "%s se requiere"
 
+msgid "(all)"
+msgstr ""
+
+msgid "(empty on all)"
+msgstr ""
+
+msgid "(varies)"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 hora"
@@ -2823,6 +2832,10 @@ msgstr "Hospedadores"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "Anfitriones en tareas"
+
+#, fuzzy
+msgid "Hosts:"
+msgstr "Hospedadores"
 
 #, fuzzy
 msgid "Hot Key"

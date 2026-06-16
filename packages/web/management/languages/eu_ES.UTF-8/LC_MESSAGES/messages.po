@@ -62,6 +62,15 @@ msgstr "%s Menü"
 msgid "%s is required"
 msgstr "%s ist erforderlich"
 
+msgid "(all)"
+msgstr ""
+
+msgid "(empty on all)"
+msgstr ""
+
+msgid "(varies)"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 Stunde"
@@ -2759,6 +2768,10 @@ msgstr "Hosts"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "Hosts im Task-Prozess"
+
+#, fuzzy
+msgid "Hosts:"
+msgstr "Hosts"
 
 #, fuzzy
 msgid "Hot Key"

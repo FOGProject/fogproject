@@ -67,6 +67,15 @@ msgstr "%s菜单"
 msgid "%s is required"
 msgstr "%s是必需的"
 
+msgid "(all)"
+msgstr ""
+
+msgid "(empty on all)"
+msgstr ""
+
+msgid "(varies)"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1小时"
@@ -2759,6 +2768,10 @@ msgstr "主机"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "在任务主机"
+
+#, fuzzy
+msgid "Hosts:"
+msgstr "主机"
 
 #, fuzzy
 msgid "Hot Key"

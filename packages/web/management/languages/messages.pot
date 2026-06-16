@@ -43,6 +43,15 @@ msgstr ""
 msgid "%s is required"
 msgstr ""
 
+msgid "(all)"
+msgstr ""
+
+msgid "(empty on all)"
+msgstr ""
+
+msgid "(varies)"
+msgstr ""
+
 msgid "1 Hour"
 msgstr ""
 
@@ -2299,6 +2308,9 @@ msgid "Hosts"
 msgstr ""
 
 msgid "Hosts in tasking"
+msgstr ""
+
+msgid "Hosts:"
 msgstr ""
 
 msgid "Hot Key"
