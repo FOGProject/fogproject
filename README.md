@@ -95,6 +95,7 @@ All should now be installed and you can start configuring and registering system
 
 There are many resources for assistance.
  - **CSV Import/Export:** see [docs/CSV_IMPORT_EXPORT.md](docs/CSV_IMPORT_EXPORT.md) for the mass import/export file format — headered or positional columns per object type, and the associations column.
+ - **Group shared state:** see [docs/GROUP_SHARED_STATE.md](docs/GROUP_SHARED_STATE.md) for how the group edit page surfaces what member hosts share — tri‑state associations (snapins/printers/modules) and no‑clobber config values (AD, auto‑logout, kernel/general, default printer).
  - **docs:** https://docs.fogproject.org for documentation. (New docs, under construction)
  - **Wiki:** http://fogproject.org/wiki for any information. (Legacy docs)
  - **Forum:** http://fogproject.org/forum.
