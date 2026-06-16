@@ -433,7 +433,8 @@
                 + 'Loading…</div>').show();
             $.ajax({
                 url: '../management/index.php?node=' + Common.node
-                    + '&sub=getAssocHostsList&assoctype=' + type + '&itemid=' + id,
+                    + '&sub=getAssocHostsList&id=' + Common.id
+                    + '&assoctype=' + type + '&itemid=' + id,
                 dataType: 'json',
                 success: function(d) {
                     var has = (d && d.has) ? d.has : [],
@@ -448,10 +449,10 @@
                     }
                     row.child(
                         $('<div class="assoc-drill-detail" style="padding:6px 12px;">')
-                            .append($('<div>').html('<strong>Has (' + has.length
-                                + '):</strong> ' + names(has)))
-                            .append($('<div>').html('<strong>Missing (' + miss.length
-                                + '):</strong> ' + names(miss)))
+                            .append($('<div>').html('<strong>Hosts with this ('
+                                + has.length + '):</strong> ' + names(has)))
+                            .append($('<div>').html('<strong>Hosts without it ('
+                                + miss.length + '):</strong> ' + names(miss)))
                     ).show();
                 }
             });
