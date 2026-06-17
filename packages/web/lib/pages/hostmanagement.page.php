@@ -4860,7 +4860,7 @@ class HostManagement extends FOGPage
             // WOL setup
             $wol = false;
             $wolon = isset($_POST['wol']);
-            if (TaskType::WAKE_UP || $wolon) {
+            if (TaskType::WAKE_UP == $type || $wolon) {
                 $wol = true;
             }
 
