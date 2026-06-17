@@ -279,10 +279,19 @@ class StorageGroup extends FOGController
             }
             unset($StorageNode);
         }
-        if (empty($masternode)) {
+        $StorageNode = empty($masternode) ? null : new StorageNode($masternode->id);
+        self::$HookManager->processEvent(
+            'MASTER_STORAGE_NODE',
+            [
+                'StorageGroup' => &$this,
+                'StorageNodes' => &$StorageNodes,
+                'StorageNode' => &$StorageNode
+            ]
+        );
+        if (empty($StorageNode) || !$StorageNode->isValid()) {
             throw new Exception(_('No master nodes available'));
         }
-        return new StorageNode($masternode->id);
+        return $StorageNode;
     }
     /**
      * Get's the optimal storage node
@@ -322,10 +331,20 @@ class StorageGroup extends FOGController
             }
             unset($StorageNode);
         }
-        if (empty($winner)) {
+        unset($StorageNode);
+        $StorageNode = empty($winner) ? null : new StorageNode($winner->id);
+        self::$HookManager->processEvent(
+            'OPTIMAL_STORAGE_NODE',
+            [
+                'StorageGroup' => &$this,
+                'StorageNodes' => &$StorageNodes,
+                'StorageNode' => &$StorageNode
+            ]
+        );
+        if (empty($StorageNode) || !$StorageNode->isValid()) {
             throw new Exception(_('No nodes available'));
         }
-        return new StorageNode($winner->id);
+        return $StorageNode;
     }
     /**
      * Adds nodes to this storage group
