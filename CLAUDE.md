@@ -33,6 +33,16 @@ There are two scripts that sync between the **git repo** (`~/fogproject/`) and t
 
 The web root the user edits live is `/var/www/fog/` (symlinked to `/var/www/html/fog-1.6/`).
 
+### Pre-commit hook (IMPORTANT — explains "files I didn't touch" in commits)
+
+`core.hooksPath` is set to `.githooks/`, so `.githooks/pre-commit` runs on **every** `git commit`. It auto-modifies and `git add`s files beyond what you staged — this is expected, not a bug. Do **not** revert these changes. The hook does three things:
+
+1. **`updateLanguage()`** — regenerates `packages/web/management/languages/messages.pot` from all `*.php` via `xgettext`, sorts with `msgcat`, then `msgmerge`-updates every `.po` file. Adds the whole `languages/` dir. (Source of the harmless `Message contains an embedded URL` warning during commits.) Skipped if `xgettext`/`msgcat`/`msgmerge` aren't installed.
+2. **`psrfix()`** — runs `php-cs-fixer fix packages/web --rules=@PSR2` and adds the result. So your code may be auto-reformatted to PSR-2 on commit. Skipped if `php-cs-fixer` isn't installed.
+3. **Version bump** — derives a version from the branch name + commit count and `sed`-replaces `FOG_VERSION`/`FOG_CHANNEL` in `packages/web/lib/fog/system.class.php`, then adds it. On `working-1.6` this yields `1.6.0-beta.<count>` (channel `Beta`); `dev-*`/`stable` → `Patches`, `rc-*` → `Release Candidate`, `feature-*` → `Feature`.
+
+Net effect: a typical commit will also include a `system.class.php` version bump, and often `messages.pot` + `.po` churn and/or PSR-2 reformatting. Expect it; don't be surprised by the extra files.
+
 ---
 
 ## Directory Structure
