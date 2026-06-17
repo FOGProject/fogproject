@@ -259,14 +259,17 @@ class ImageManagement extends FOGPage
                 . self::makeInfoTooltip(
                     'icon fa fa-info-circle fa-lg hand',
                     'image-type-info',
-                    _(
-                        'Image Type is a very important setting and can have'
-                        . ' a major impact on how your imaging works or fails.'
-                        . ' Please read more about the different image types'
-                        . ' and how to use them'
-                        . ' <a href="https://wiki.fogproject.org/wiki/index.php'
-                        . '?title=Managing_FOG#Images" target="_blank">'
-                        . 'in our wiki</a> before you choose!'
+                    sprintf(
+                        _(
+                            'Image Type is a very important setting and can have'
+                            . ' a major impact on how your imaging works or fails.'
+                            . ' Please read more about the different image types'
+                            . ' and how to use them'
+                            . ' %1$sin our wiki%2$s before you choose!'
+                        ),
+                        '<a href="https://wiki.fogproject.org/wiki/index.php'
+                        . '?title=Managing_FOG#Images" target="_blank">',
+                        '</a>'
                     )
                 )
             ) => $ImageTypes,
@@ -567,14 +570,17 @@ class ImageManagement extends FOGPage
                 . self::makeInfoTooltip(
                     'icon fa fa-info-circle fa-lg hand',
                     'image-type-info',
-                    _(
-                        'Image Type is a very important setting and can have'
-                        . ' a major impact on how your imaging works or fails.'
-                        . ' Please read more about the different image types'
-                        . ' and how to use them'
-                        . ' <a href="https://wiki.fogproject.org/wiki/index.php'
-                        . '?title=Managing_FOG#Images" target="_blank">'
-                        . 'in our wiki</a> before you choose!'
+                    sprintf(
+                        _(
+                            'Image Type is a very important setting and can have'
+                            . ' a major impact on how your imaging works or fails.'
+                            . ' Please read more about the different image types'
+                            . ' and how to use them'
+                            . ' %1$sin our wiki%2$s before you choose!'
+                        ),
+                        '<a href="https://wiki.fogproject.org/wiki/index.php'
+                        . '?title=Managing_FOG#Images" target="_blank">',
+                        '</a>'
                     )
                 )
             ) => $ImageTypes,
@@ -966,14 +972,17 @@ class ImageManagement extends FOGPage
                 . self::makeInfoTooltip(
                     'icon fa fa-info-circle fa-lg hand',
                     'image-type-info',
-                    _(
-                        'Image Type is a very important setting and can have'
-                        . ' a major impact on how your imaging works or fails.'
-                        . ' Please read more about the different image types'
-                        . ' and how to use them'
-                        . ' <a href="https://wiki.fogproject.org/wiki/index.php'
-                        . '?title=Managing_FOG#Images" target="_blank">'
-                        . 'in our wiki</a> before you choose!'
+                    sprintf(
+                        _(
+                            'Image Type is a very important setting and can have'
+                            . ' a major impact on how your imaging works or fails.'
+                            . ' Please read more about the different image types'
+                            . ' and how to use them'
+                            . ' %1$sin our wiki%2$s before you choose!'
+                        ),
+                        '<a href="https://wiki.fogproject.org/wiki/index.php'
+                        . '?title=Managing_FOG#Images" target="_blank">',
+                        '</a>'
                     )
                 )
             ) => $ImageTypes,
