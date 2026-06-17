@@ -65,3 +65,6 @@ fi
 [[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
 [[ -z $dhcpd ]] && dhcpd="isc-dhcp-server"
 [[ -z $dhcpname ]] && dhcpname="isc-dhcp-server"
+[[ -z $iscservice ]] && iscservice="isc-dhcp-server"
+[[ -z $keapackage ]] && keapackage="kea-dhcp4-server"
+[[ -z $keaservice ]] && keaservice="kea-dhcp4-server"
