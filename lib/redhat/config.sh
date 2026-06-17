@@ -94,4 +94,7 @@ fi
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd/vsftpd.conf"
 [[ -z $dhcp ]] && dhcpd="dhcpd"
+[[ -z $iscservice ]] && iscservice="dhcpd"
+[[ -z $keapackage ]] && keapackage="kea"
+[[ -z $keaservice ]] && keaservice="kea-dhcp4"
 [[ -z $snapindir ]] && snapindir="/opt/fog/snapins"

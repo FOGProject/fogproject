@@ -57,5 +57,8 @@ fi
 [[ -z $ftpxinetd ]] && ftpxinetd="/etc/xinetd.d/vsftpd"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
 [[ -z $dhcpd ]] && dhcpd="dhcpd4"
+[[ -z $iscservice ]] && iscservice="dhcpd4"
+[[ -z $keapackage ]] && keapackage="kea"
+[[ -z $keaservice ]] && keaservice="kea-dhcp4"
 [[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
 packages="${packages} ${webserver}"

@@ -808,6 +808,44 @@ addOndrejRepo() {
     LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/php >>$error_log 2>&1
     [[ $webserver == "apache2" ]] && LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$error_log 2>&1
 }
+resolveDHCPEngine() {
+    # Decide between Kea and ISC-DHCP for the optional FOG-hosted DHCP service.
+    # Only relevant when FOG is actually building DHCP and the ISC package is
+    # still in the install set (the storage-node and bldhcp=0 paths strip it in
+    # doOSSpecificIncludes before we ever get here). Must run after repo setup
+    # so the Kea availability probe sees enabled repos (e.g. EPEL on RHEL).
+    [[ -z $keaconfig ]] && keaconfig="/etc/kea/kea-dhcp4.conf"
+    [[ $bldhcp -eq 1 ]] || return 0
+    local iscpkg="$dhcpname"
+    [[ -n $iscpkg && $packages == *"$iscpkg"* ]] || return 0
+    # Honor an explicit/persisted choice; an existing install is never switched.
+    dhcpengine="${dhcpengine,,}"
+    if [[ -z $dhcpengine ]]; then
+        x="$iscpkg"
+        eval $packageQuery >>$error_log 2>&1
+        if [[ $? -eq 0 ]]; then
+            # A prior ISC install is left on ISC unless the admin opts in.
+            dhcpengine="isc"
+        elif [[ -n $keapackage ]]; then
+            eval $packagelist "$keapackage" >>$error_log 2>&1
+            [[ $? -eq 0 ]] && dhcpengine="kea" || dhcpengine="isc"
+        else
+            dhcpengine="isc"
+        fi
+    fi
+    if [[ $dhcpengine == kea ]]; then
+        if [[ -z $keapackage || -z $keaservice ]]; then
+            echo " * Kea requested but not available for this OS; using ISC-DHCP"
+            dhcpengine="isc"
+        else
+            packages="${packages//$iscpkg/$keapackage}"
+            dhcpname="$keapackage"
+            dhcpd="$keaservice"
+            dhcpconfig="$keaconfig"
+            dhcpconfigother=""
+        fi
+    fi
+}
 installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
     packages="$packages jq"
@@ -946,6 +984,7 @@ installPackages() {
         fi
     fi
     errorStat $?
+    resolveDHCPEngine
     packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
     newPackList=""
@@ -1810,6 +1849,7 @@ writeUpdateFile() {
     escdodhcp=$(echo $dodhcp | sed -e $replace)
     escbldhcp=$(echo $bldhcp | sed -e $replace)
     escdhcpd=$(echo $dhcpd | sed -e $replace)
+    escdhcpengine=$(echo $dhcpengine | sed -e $replace)
     escblexports=$(echo $blexports | sed -e $replace)
     escinstalltype=$(echo $installtype | sed -e $replace)
     escsnmysqlexternal=$(echo $snmysqlexternal | sed -e $replace)
@@ -1894,6 +1934,9 @@ writeUpdateFile() {
             grep -q "dhcpd=" $fogprogramdir/.fogsettings && \
                 sed -i "s/dhcpd=.*/dhcpd='$escdhcpd'/g" $fogprogramdir/.fogsettings || \
                 echo "dhcpd='$dhcpd'" >> $fogprogramdir/.fogsettings
+            grep -q "dhcpengine=" $fogprogramdir/.fogsettings && \
+                sed -i "s/dhcpengine=.*/dhcpengine='$escdhcpengine'/g" $fogprogramdir/.fogsettings || \
+                echo "dhcpengine='$dhcpengine'" >> $fogprogramdir/.fogsettings
             grep -q "blexports=" $fogprogramdir/.fogsettings && \
                 sed -i "s/blexports=.*/blexports='$escblexports'/g" $fogprogramdir/.fogsettings || \
                 echo "blexports='$blexports'" >> $fogprogramdir/.fogsettings
@@ -2031,6 +2074,7 @@ writeUpdateFile() {
             echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
             echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
             echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
+            echo "dhcpengine='$dhcpengine'" >> "$fogprogramdir/.fogsettings"
             echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
             echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlexternal='${snmysqlexternal:-0}'" >> "$fogprogramdir/.fogsettings"
@@ -2089,6 +2133,7 @@ writeUpdateFile() {
         echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
         echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
         echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
+        echo "dhcpengine='$dhcpengine'" >> "$fogprogramdir/.fogsettings"
         echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
         echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlexternal='${snmysqlexternal:-0}'" >> "$fogprogramdir/.fogsettings"
@@ -3024,20 +3069,148 @@ downloadfiles() {
     errorStat $?
     cd $cwd
 }
+_writeKeaConfig() {
+    # $1 = target file, $2 = client-classes block. Reads $interface, $ipaddress,
+    # $network, $cidr, $startrange, $endrange and $optdata from the caller's scope.
+    cat > "$1" <<EOFKEA
+{
+    "Dhcp4": {
+        "interfaces-config": { "interfaces": [ "$interface" ] },
+        "lease-database": { "type": "memfile", "lfc-interval": 3600 },
+        "valid-lifetime": 21600,
+        "max-valid-lifetime": 43200,
+        "next-server": "$ipaddress",
+        "option-data": [
+            { "name": "tftp-server-name", "data": "$ipaddress" }
+        ],
+        "subnet4": [
+            {
+                "id": 1,
+                "subnet": "$network/$cidr",
+                "pools": [ { "pool": "$startrange - $endrange" } ],
+                "option-data": [
+$optdata
+                ]
+            }
+        ],
+        "client-classes": [
+$2
+        ]
+    }
+}
+EOFKEA
+}
+configureKeaDHCP() {
+    local cidr=$(mask2cidr $submask)
+    local target="$dhcpconfig"
+    local tmp="${target}.fogtmp"
+    [[ -d $(dirname "$target") ]] || mkdir -p "$(dirname "$target")" >>$error_log 2>&1
+    [[ -f $target ]] && mv -fv "$target" "${target}.${timestamp}" >>$error_log 2>&1
+    local optdata="                { \"name\": \"subnet-mask\", \"data\": \"$submask\" }"
+    [[ $(validip $routeraddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"routers\", \"data\": \"$routeraddress\" }"
+    [[ $(validip $dnsaddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"domain-name-servers\", \"data\": \"$dnsaddress\" }"
+    # The architecture -> boot-file mapping below intentionally mirrors the ISC
+    # "class" blocks in the ISC branch of configureDHCP(). Keep the two in sync.
+    local baseclasses
+    baseclasses=$(cat <<'EOFCLS'
+        {
+            "name": "FOG-Legacy-BIOS",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00000'",
+            "boot-file-name": "undionly.kkpxe"
+        },
+        {
+            "name": "FOG-UEFI-32-2",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00002'",
+            "boot-file-name": "i386-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-32-1",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00006'",
+            "boot-file-name": "i386-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-1",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-2",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00008'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-3",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00009'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-ARM64",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00011'",
+            "boot-file-name": "arm64-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-Surface-Pro-4",
+            "test": "substring(option[60].hex,0,32) == 'PXEClient:Arch:00007:UNDI:003016'",
+            "boot-file-name": "snponly.efi"
+        }
+EOFCLS
+)
+    local appleclass
+    appleclass=$(cat <<'EOFAPL'
+        {
+            "name": "FOG-Apple-Intel-Netboot",
+            "test": "substring(option[60].text,0,14) == 'AAPLBSDPC/i386'",
+            "boot-file-name": "snponly.efi",
+            "option-data": [
+                { "code": 43, "csv-format": false, "data": "01:01:01:04:02:80:00:07:04:81:00:05:2a:09:0D:81:00:05:2a:08:69:50:58:45:2d:46:4f:47" }
+            ]
+        }
+EOFAPL
+)
+    # Tier 1: base classes must validate or we refuse to start a broken server.
+    _writeKeaConfig "$target" "$baseclasses"
+    if command -v kea-dhcp4 >/dev/null 2>&1; then
+        if ! kea-dhcp4 -t "$target" >>$error_log 2>&1; then
+            echo "Failed"
+            echo "Kea base configuration failed validation (kea-dhcp4 -t); see $error_log"
+            return 1
+        fi
+        # Tier 2: best-effort Apple BSDP; drop if Kea rejects it.
+        _writeKeaConfig "$tmp" "${baseclasses},
+${appleclass}"
+        if kea-dhcp4 -t "$tmp" >>$error_log 2>&1; then
+            mv -f "$tmp" "$target"
+        else
+            rm -f "$tmp"
+            echo ""
+            echo " * Note: Apple Intel netboot (BSDP) is not supported under Kea and was skipped"
+        fi
+    else
+        echo " * Warning: kea-dhcp4 not found; wrote config without validation" >>$error_log 2>&1
+    fi
+    diffconfig "$target"
+    return 0
+}
 configureDHCP() {
-    case $linuxReleaseName_lower in
-        *debian*)
-            if [[ $bldhcp -eq 1 ]]; then
-                dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
-                sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
-            else
+    if [[ $bldhcp -eq 1 && $dhcpengine == kea ]]; then
+        dots "Setting up and starting DHCP Server (Kea)"
+    else
+        case $linuxReleaseName_lower in
+            *debian*)
+                if [[ $bldhcp -eq 1 ]]; then
+                    dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
+                    sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
+                else
+                    dots "Setting up and starting DHCP Server"
+                fi
+                ;;
+            *)
                 dots "Setting up and starting DHCP Server"
-            fi
-            ;;
-        *)
-            dots "Setting up and starting DHCP Server"
-            ;;
-    esac
+                ;;
+        esac
+    fi
     case $bldhcp in
         1)
             serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
@@ -3046,6 +3219,11 @@ configureDHCP() {
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
             [[ -z $endrange ]] && endrange=$(subtract1fromAddress $(echo $(interface2broadcast $interface)))
+            [[ ! $(validip $routeraddress) -eq 0 ]] && routeraddress=$(echo $routeraddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+            [[ ! $(validip $dnsaddress) -eq 0 ]] && dnsaddress=$(echo $dnsaddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+            if [[ $dhcpengine == kea ]]; then
+                configureKeaDHCP || exit 1
+            else
             [[ -f $dhcpconfig ]] && dhcptouse=$dhcpconfig
             [[ -f $dhcpconfigother ]] && dhcptouse=$dhcpconfigother
             if [[ -z $dhcptouse || ! -f $dhcptouse ]]; then
@@ -3133,6 +3311,19 @@ configureDHCP() {
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             diffconfig "${dhcptouse}"
+            # Non-fatal syntax check; ISC has historically started without one.
+            if command -v dhcpd >/dev/null 2>&1; then
+                dhcpd -t -cf "$dhcptouse" >>$error_log 2>&1 || echo " * Warning: dhcpd -t reported issues with $dhcptouse (see $error_log)" >>$error_log 2>&1
+            fi
+            fi
+            # When FOG owns DHCP, make sure the other engine is not also bound to
+            # port 67 (covers an admin switching engines on an existing box).
+            otherdhcp=""
+            [[ $dhcpengine == kea ]] && otherdhcp="$iscservice" || otherdhcp="$keaservice"
+            if [[ -n $otherdhcp && $systemctl == yes ]]; then
+                systemctl is-active --quiet $otherdhcp && systemctl stop $otherdhcp >>$error_log 2>&1
+                systemctl is-enabled --quiet $otherdhcp && systemctl disable $otherdhcp >>$error_log 2>&1
+            fi
             case $systemctl in
                 yes)
                     systemctl is-enabled --quiet $dhcpd && true || systemctl enable $dhcpd >>$error_log 2>&1
