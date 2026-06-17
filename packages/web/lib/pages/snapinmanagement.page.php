@@ -149,7 +149,7 @@ class SnapinManagement extends FOGPage
                 .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
             ],
             'PowerShell x64 Script' => [
-                'powershell.exe &quot;%WINDIR%\\sysnative\\windowspowershell'
+                '&quot;%WINDIR%\\sysnative\\windowspowershell'
                 . '\\v1.0\\powershell.exe&quot;',
                 '-ExecutionPolicy Bypass -NoProfile -File &quot;'
                 .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
