@@ -47,7 +47,7 @@ if (!$link
 http_response_code(
     $ret['running'] ?
     HTTPResponseCodes::HTTP_SUCCESS :
-    HTTPResposneCodes::HTTP_INTERNAL_SERVER_ERROR
+    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
 );
 $ret = json_encode($ret);
 echo $ret;
