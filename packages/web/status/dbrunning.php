@@ -36,12 +36,11 @@ $ret = [
 /**
  * When the database is unreachable, expose the underlying connection error
  * (e.g. SQLSTATE[HY000] [2002] Permission denied) so the cause is diagnosable.
- * Restricted to local requests since this page is reachable pre-authentication
- * and the message can disclose the database host/user.
+ * The message is sanitized by connectError() -- the SQLSTATE/reason is kept
+ * while identifiers (db user/host/name) are redacted -- so it is safe to
+ * return even though this page is reachable pre-authentication.
  */
-if (!$link
-    && in_array(($_SERVER['REMOTE_ADDR'] ?? ''), ['127.0.0.1', '::1'], true)
-) {
+if (!$link) {
     $ret['error'] = DatabaseManager::getDB()->connectError();
 }
 http_response_code(

@@ -706,13 +706,24 @@ class PDODB extends DatabaseManager
     }
 
     /**
-     * Returns the last database connection error message.
+     * Returns the last database connection error message, sanitized for
+     * display. The SQLSTATE code and human-readable reason are preserved;
+     * single-quoted identifiers (database user, host and name, which PDO
+     * embeds in access-denied style messages) are redacted so the message
+     * is safe to surface to any caller.
      *
      * @return string
      */
     public function connectError()
     {
-        return self::$_connectError;
+        if (!self::$_connectError) {
+            return '';
+        }
+        return preg_replace(
+            "/'[^']*'/",
+            "'***'",
+            self::$_connectError
+        );
     }
 
     /**
