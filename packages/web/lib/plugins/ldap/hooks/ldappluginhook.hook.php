@@ -127,34 +127,49 @@ class LDAPPluginHook extends Hook
         /**
          * Create our new user (initially at least)
          */
+        /**
+         * Authenticate against every configured LDAP server and keep the
+         * most privileged result (admin beats mobile beats none). A server
+         * where the user is absent must not downgrade a match found on
+         * another server, so we accumulate the best access level and act on
+         * it once after the loop rather than per-server.
+         */
+        $bestAccess = 0;
         foreach ((array)self::getClass('LDAPManager')
-            ->find() as &$ldap
+            ->find() as $ldap
         ) {
-            $access = $ldap->authLDAP($user, $pass);
-            unset($ldap);
-            switch ($access) {
-                case 2:
-                    // This is an admin account, break the loop
-                    $tmpUser
-                        ->set('name', $user)
-                        ->set('password', $pass)
-                        ->set('type', 990)
-                        ->save();
-                    break 2;
-                case 1:
-                    // This is an unprivileged user account.
-                    $tmpUser
-                        ->set('name', $user)
-                        ->set('password', $pass)
-                        ->set('type', 991)
-                        ->save();
+            $access = (int)$ldap->authLDAP($user, $pass);
+            if ($access > $bestAccess) {
+                $bestAccess = $access;
+                /**
+                 * Admin is the highest level; no need to keep looking.
+                 */
+                if ($bestAccess >= 2) {
                     break;
-                default:
-                    $tmpUser = new User(-1);
+                }
             }
         }
+        switch ($bestAccess) {
+            case 2:
+                // This is an admin account.
+                $tmpUser
+                    ->set('name', $user)
+                    ->set('password', $pass)
+                    ->set('type', 990)
+                    ->save();
+                break;
+            case 1:
+                // This is an unprivileged user account.
+                $tmpUser
+                    ->set('name', $user)
+                    ->set('password', $pass)
+                    ->set('type', 991)
+                    ->save();
+                break;
+            default:
+                $tmpUser = new User(-1);
+        }
         $arguments['user'] = $tmpUser;
-        unset($ldaps);
     }
     /**
      * Sets our ldap types
