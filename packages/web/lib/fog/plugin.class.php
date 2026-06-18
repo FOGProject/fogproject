@@ -42,6 +42,7 @@ class Plugin extends FOGController
         'runfile' => 'pRunfile',
         'location' => 'pLocation',
         'description' => 'pDescription',
+        'schema' => 'pSchema',
         'pAnon5' => 'pAnon5'
     ];
     /**
@@ -197,5 +198,55 @@ class Plugin extends FOGController
         }
 
         return new $classManager();
+    }
+    /**
+     * Installs / upgrades this plugin's database non-destructively.
+     *
+     * Plugins that adopt the schema() contract (an ordered, append-only
+     * list of migration steps) get their pending steps applied and the
+     * applied count tracked in `pSchema`, so a re-install or a FOG upgrade
+     * only adds what is missing and never drops existing data.
+     *
+     * Plugins not yet migrated to schema() fall back to the legacy
+     * (destructive) install() so existing behavior is preserved until they
+     * are converted.
+     *
+     * @return bool True on success, false if a step failed.
+     */
+    public function installdb()
+    {
+        $manager = $this->getManager();
+        if (!method_exists($manager, 'schema')) {
+            return method_exists($manager, 'install')
+                ? (bool)$manager->install()
+                : true;
+        }
+        $applied = (int)$this->get('schema');
+        $res = Schema::applyUpdates($manager->schema(), $applied);
+        if ($res['applied'] !== $applied) {
+            $this->set('schema', $res['applied'])->save();
+        }
+        return $res['error'] === null;
+    }
+    /**
+     * Whether this installed plugin has pending schema migrations.
+     *
+     * Self-contained and independent of FOG_SCHEMA: it simply compares the
+     * applied step count (pSchema) against the number of steps the plugin's
+     * code currently defines in schema(). True means installdb() has work to
+     * do. Only meaningful for converted (schema()-aware), installed plugins.
+     *
+     * @return bool
+     */
+    public function needsSchemaUpdate()
+    {
+        if ((int)$this->get('installed') < 1) {
+            return false;
+        }
+        $manager = $this->getManager();
+        if (!method_exists($manager, 'schema')) {
+            return false;
+        }
+        return (int)$this->get('schema') < count((array)$manager->schema());
     }
 }

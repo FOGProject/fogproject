@@ -64,7 +64,13 @@ class PluginManagement extends FOGPage
         if (self::$ajax) {
             header('Content-type: application/json');
             Route::listem('plugin');
-            echo Route::getData();
+            $data = json_decode(Route::getData());
+            foreach ((array)$data->data as &$row) {
+                $plugin = self::getClass('Plugin', $row->id);
+                $row->needsupdate = $plugin->needsSchemaUpdate() ? 1 : 0;
+                unset($row);
+            }
+            echo json_encode($data);
             exit;
         }
         $this->title = _('List All Plugins');
@@ -83,6 +89,10 @@ class PluginManagement extends FOGPage
 
         $remove = ' method="post" action="'
             . '../management/index.php?node=plugin&sub=remove'
+            . '" ';
+
+        $update = ' method="post" action="'
+            . '../management/index.php?node=plugin&sub=upgrade'
             . '" ';
 
         // Activate/Deactivate Plugins
@@ -113,6 +123,11 @@ class PluginManagement extends FOGPage
                     'id' => 'remove',
                     'text' => _('Uninstall selected'),
                     'props' => $remove
+                ],
+                [
+                    'id' => 'update',
+                    'text' => _('Update selected'),
+                    'props' => $update
                 ]
             ],
             'left',
@@ -260,23 +275,14 @@ class PluginManagement extends FOGPage
                 Route::getData()
             );
             foreach ($Plugins->data as &$Plugin) {
-                $installPlugin = self::getClass(
-                    $Plugin->name
-                    . 'Manager'
-                );
-                if (!method_exists($installPlugin, 'install')) {
-                    $serverFault = true;
-                    throw new Exception(
-                        _('Unable to install, no method exists for ')
-                        . $Plugin->name
-                    );
-                }
-                if (!$installPlugin->install($Plugin->name)) {
+                $pluginObj = self::getClass('Plugin', $Plugin->id);
+                if (!$pluginObj->installdb()) {
                     throw new Exception(
                         _('Failed to install ')
                         . $Plugin->name
                     );
                 }
+                unset($Plugin);
             }
             if (!$PluginManager->update($ids, '', $install)) {
                 $serverFault = true;
@@ -305,6 +311,104 @@ class PluginManagement extends FOGPage
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Plugin Install Fail')
+                ]
+            );
+        }
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Plugin' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => $msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
+    /**
+     * Redirect to index.
+     *
+     * @return void
+     */
+    public function upgrade()
+    {
+    }
+    /**
+     * Apply pending schema migrations to already-installed plugins.
+     *
+     * Unlike install, this does not filter on install state: it runs
+     * installdb() (non-destructive) for each selected plugin so a plugin
+     * whose code ships newer schema() steps gets caught up without a
+     * drop/recreate.
+     *
+     * @return void
+     */
+    public function upgradePost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        $plugins = filter_input_array(
+            INPUT_POST,
+            [
+                'plugins' => [
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ]
+            ]
+        );
+        $plugins = $plugins['plugins'];
+        self::$HookManager->processEvent('PLUGIN_UPGRADE_POST');
+
+        $serverFault = false;
+        try {
+            // Only update plugins that are actually installed (the reverse of
+            // the install filter): updating a not-installed plugin is a no-op
+            // for the admin's intent.
+            Route::listem(
+                'plugin',
+                [
+                    'id' => $plugins,
+                    'installed' => 1
+                ]
+            );
+            $Plugins = json_decode(
+                Route::getData()
+            );
+            foreach ($Plugins->data as &$Plugin) {
+                $pluginObj = self::getClass('Plugin', $Plugin->id);
+                if (!$pluginObj->installdb()) {
+                    throw new Exception(
+                        _('Failed to update ')
+                        . $Plugin->name
+                    );
+                }
+                unset($Plugin);
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'PLUGIN_UPGRADE_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => (
+                        count($plugins ?: []) == 1 ?
+                        _('Plugin updated!') :
+                        _('Plugins updated!')
+                    ),
+                    'title' => _('Plugin Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'PLUGIN_UPGRADE_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Plugin Update Fail')
                 ]
             );
         }

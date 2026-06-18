@@ -1971,6 +1971,10 @@ msgstr "Impossibile creare Host"
 msgid "Failed to uninstall "
 msgstr "Connessione fallita"
 
+#, fuzzy
+msgid "Failed to update "
+msgstr "Impossibile aggiornare Task"
+
 msgid "Failed to update Session"
 msgstr "Impossibile aggiornare Session"
 
@@ -4567,6 +4571,14 @@ msgid "Plugin Uninstall Success"
 msgstr "Aggiornamento stampante riuscito"
 
 #, fuzzy
+msgid "Plugin Update Fail"
+msgstr "Aggiornamento della stampante non riuscito"
+
+#, fuzzy
+msgid "Plugin Update Success"
+msgstr "Aggiornamento stampante riuscito"
+
+#, fuzzy
 msgid "Plugin activated!"
 msgstr "Nome Plugin"
 
@@ -4582,6 +4594,10 @@ msgstr "Nome Plugin"
 msgid "Plugin uninstalled!"
 msgstr "Nome Plugin"
 
+#, fuzzy
+msgid "Plugin updated!"
+msgstr "aggiornato stampante!"
+
 msgid "Plugins"
 msgstr "Plugins"
 
@@ -4595,6 +4611,10 @@ msgstr "Nome Plugin"
 
 msgid "Plugins uninstalled!"
 msgstr ""
+
+#, fuzzy
+msgid "Plugins updated!"
+msgstr "Nome Plugin"
 
 msgid "Port"
 msgstr "Porta"
@@ -6277,9 +6297,6 @@ msgstr "Impossibile aggiornare compito"
 msgid "Unable to find master Storage Node"
 msgstr "Impossibile trovare il Nodo Archiviazione master"
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr "Impossibile aprire il file per la lettura"
 
@@ -6418,6 +6435,10 @@ msgstr "Avanzata Login Richiesto"
 #, fuzzy
 msgid "Update not required"
 msgstr "È richiesto un nome!"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Aggiungi stampanti selezionate"
 
 msgid "Upload Reports"
 msgstr "Carica Report"
@@ -7175,6 +7196,12 @@ msgstr "per host"
 msgid "please see the hosts service settings section."
 msgstr "Si prega di consultare la sezione di impostazioni del servizio host"
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr "installazione precedente se necessario"
 
@@ -7272,6 +7299,10 @@ msgstr "Questo salverà il backup nella tua"
 
 msgid "to all nodes in the group"
 msgstr "a tutti i nodi del gruppo"
+
+#, fuzzy
+msgid "to apply the update."
+msgstr "aggiornato stampante!"
 
 #, fuzzy
 msgid "to clear the field on every host in this group."
@@ -7574,10 +7605,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Role added!"
 #~ msgstr "Stampante aggiunta"
-
-#, fuzzy
-#~ msgid "Role updated!"
-#~ msgstr "aggiornato stampante!"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "numero di riga non impostato correttamente"

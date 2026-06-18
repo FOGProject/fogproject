@@ -589,6 +589,64 @@ class Schema extends FOGController
         return $sql;
     }
     /**
+     * Applies an ordered, append-only list of schema update steps,
+     * starting after the already-applied count.
+     *
+     * Mirrors the core Schema Updater's idempotent runner: "already
+     * exists / does not exist" style errors are tolerated so additive
+     * steps (CREATE TABLE IF NOT EXISTS, ALTER TABLE ... ADD COLUMN,
+     * INSERT IGNORE, ...) are safe to re-run. This is what makes a
+     * re-run/upgrade non-destructive: nothing here drops data.
+     *
+     * Each step is either a SQL string or a callable. A callable should
+     * return true on success or an error string on failure.
+     *
+     * @param array $steps   Ordered steps (SQL string or callable).
+     * @param int   $applied Number of steps already applied.
+     *
+     * @return array ['applied' => int, 'error' => string|null]
+     */
+    public static function applyUpdates($steps, $applied = 0)
+    {
+        $steps = (array)$steps;
+        $applied = (int)$applied;
+        $total = count($steps);
+        if ($total <= $applied) {
+            return ['applied' => $applied, 'error' => null];
+        }
+        $skiperrs = [
+            1050, // Table already exists
+            1054, // Unknown column
+            1060, // Duplicate column name
+            1061, // Duplicate key name
+            1062, // Duplicate entry
+            1091, // Can't DROP; does not exist
+        ];
+        $items = array_slice($steps, $applied, null, true);
+        foreach ($items as $index => $step) {
+            if (!$step) {
+                $applied = $index + 1;
+                continue;
+            }
+            if (is_callable($step)) {
+                $result = $step();
+                if (is_string($result)) {
+                    return ['applied' => $applied, 'error' => $result];
+                }
+            } elseif (false !== self::$DB->query($step)->error) {
+                $err = self::$DB->errorCode;
+                if (!in_array($err, $skiperrs)) {
+                    return [
+                        'applied' => $applied,
+                        'error' => self::$DB->error
+                    ];
+                }
+            }
+            $applied = $index + 1;
+        }
+        return ['applied' => $applied, 'error' => null];
+    }
+    /**
      * The sql to drop the table passed.
      *
      * @param string $name The table name to drop.

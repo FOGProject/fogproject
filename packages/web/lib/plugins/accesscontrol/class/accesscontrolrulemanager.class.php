@@ -32,15 +32,9 @@ class AccessControlRuleManager extends FOGManagerController
      *
      * @return bool
      */
-    public function install()
+    public function createSql()
     {
-        /**
-         * Add the information into the database.
-         * This is commented out so we don't actually
-         * create anything.
-         */
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -89,10 +83,17 @@ class AccessControlRuleManager extends FOGManagerController
             'ruleID',
             'ruleID'
         );
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        $sql = 'INSERT INTO '
+    }
+    /**
+     * Seeds this plugin's default rules. The rows carry explicit primary
+     * keys, so a re-run is idempotent: the schema runner tolerates the
+     * duplicate-entry error. Used as a step in AccessControlManager::schema().
+     *
+     * @return string
+     */
+    public function seedSql()
+    {
+        return 'INSERT INTO '
             . $this->tablename
             . ' VALUES '
             . '(2, "DELETE_MENU_DATA-user", "DELETE_MENU_DATA", "user", '
@@ -171,14 +172,31 @@ class AccessControlRuleManager extends FOGManagerController
             . '"logviewer", "menu", "fog", NOW(), "about"), '
             . '(39, "DELETE_MENULINK_DATA-config", "DELETE_MENULINK_DATA", '
             . '"config", "menu", "fog", NOW(), "about")';
-        if (self::$DB->query($sql)) {
-            $sql = "CREATE UNIQUE INDEX `indexmul` "
-                    . "ON `rules` (`ruleValue`, `ruleNode`)";
-            self::$DB->query($sql);
-            return self::getClass('AccessControlRuleAssociationManager')->install();
-        } else {
-            return true;
+    }
+    /**
+     * The unique index step for this table (idempotent: a duplicate key
+     * name is tolerated by the schema runner). Used in schema().
+     *
+     * @return string
+     */
+    public function indexSql()
+    {
+        return "CREATE UNIQUE INDEX `indexmul` "
+            . "ON `rules` (`ruleValue`, `ruleNode`)";
+    }
+    /**
+     * Installs the table + seed non-destructively.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        if (false === self::$DB->query($this->createSql())) {
+            return false;
         }
+        self::$DB->query($this->seedSql());
+        self::$DB->query($this->indexSql());
+        return true;
     }
     /**
      * Uninstalls the plugin

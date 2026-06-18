@@ -32,14 +32,15 @@ class LDAPManager extends FOGManagerController
      */
     public $tablename = 'LDAPServers';
     /**
-     * Install the plugin, creates the table for us.
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -151,19 +152,76 @@ class LDAPManager extends FOGManagerController
             'lsID',
             'lsID'
         );
-        if (!self::$DB->query($sql)) {
-            return false;
+    }
+    /**
+     * Seeds this plugin's global settings, but only the ones that are
+     * missing, so an admin's existing values are never overwritten on a
+     * re-run/upgrade. Used as a step in schema().
+     *
+     * @return bool
+     */
+    public function seedSettings()
+    {
+        $category = 'Plugin: LDAP';
+        $fields = [
+            'name',
+            'description',
+            'value',
+            'category'
+        ];
+        $settings = [
+            [
+                'FOG_PLUGIN_LDAP_USER_FILTER',
+                'Insert the filter type codes comma separated. Default: 990,991',
+                '990,991',
+                $category
+            ],
+            [
+                'FOG_PLUGIN_LDAP_PORTS',
+                'Allowed LDAP Ports as defined by user. Default: 389,636',
+                '389,636',
+                $category
+            ]
+        ];
+        $SettingManager = self::getClass('SettingManager');
+        $toInsert = [];
+        foreach ($settings as $setting) {
+            if (!$SettingManager->exists($setting[0], '', 'name')) {
+                $toInsert[] = $setting;
+            }
         }
-        $sql = "INSERT INTO `globalSettings` "
-            . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
-            . "VALUES "
-            . "('FOG_PLUGIN_LDAP_USER_FILTER',"
-            . "'Insert the filter type codes comma separated. Default: 990,991',"
-            . "'990,991','Plugin: LDAP'),"
-            . "('FOG_PLUGIN_LDAP_PORTS',"
-            . "'Allowed LDAP Ports as defined by user. Default: 389,636',"
-            . "'389,636','Plugin: LDAP')";
-        return self::$DB->query($sql);
+        if (count($toInsert)) {
+            $SettingManager->insertBatch($fields, $toInsert);
+        }
+        return true;
+    }
+    /**
+     * The plugin's ordered, append-only schema migration list. Append new
+     * steps (e.g. "ALTER TABLE `LDAPServers` ADD COLUMN ...") to the END.
+     *
+     * @return array
+     */
+    public function schema()
+    {
+        return [
+            // 0
+            $this->createSql(),
+            // 1
+            function () {
+                return $this->seedSettings();
+            },
+        ];
+    }
+    /**
+     * Installs the plugin database non-destructively (create-if-absent +
+     * seed any missing settings). Does not drop existing data or values.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $res = Schema::applyUpdates($this->schema(), 0);
+        return $res['error'] === null;
     }
     /**
      * Uninstalls the plugin

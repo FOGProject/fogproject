@@ -2054,6 +2054,10 @@ msgstr "Falha ao criar o Host"
 msgid "Failed to uninstall "
 msgstr "Falhou ao conectar"
 
+#, fuzzy
+msgid "Failed to update "
+msgstr "Falha ao atualizar Task"
+
 msgid "Failed to update Session"
 msgstr "Falha ao atualizar Session"
 
@@ -4779,6 +4783,14 @@ msgid "Plugin Uninstall Success"
 msgstr "Impressora atualizado!"
 
 #, fuzzy
+msgid "Plugin Update Fail"
+msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+msgid "Plugin Update Success"
+msgstr "Impressora atualizado!"
+
+#, fuzzy
 msgid "Plugin activated!"
 msgstr "Nome Plugin"
 
@@ -4795,6 +4807,10 @@ msgid "Plugin uninstalled!"
 msgstr "Nome Plugin"
 
 #, fuzzy
+msgid "Plugin updated!"
+msgstr "Impressora atualizado!"
+
+#, fuzzy
 msgid "Plugins"
 msgstr "Plugar"
 
@@ -4808,6 +4824,10 @@ msgstr "Nome Plugin"
 
 msgid "Plugins uninstalled!"
 msgstr ""
+
+#, fuzzy
+msgid "Plugins updated!"
+msgstr "Nome Plugin"
 
 msgid "Port"
 msgstr "Porta"
@@ -6589,9 +6609,6 @@ msgstr "Falha ao atualizar tarefa"
 msgid "Unable to find master Storage Node"
 msgstr "Falha ao destruir Storage Node"
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr "Não é possível abrir arquivo para leitura"
 
@@ -6733,6 +6750,10 @@ msgstr "Avançada Login obrigatório"
 #, fuzzy
 msgid "Update not required"
 msgstr "Um nome de imagem é necessário!"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Impressora"
 
 msgid "Upload Reports"
 msgstr "carregar relatórios"
@@ -7546,6 +7567,12 @@ msgstr "snap-in por host"
 msgid "please see the hosts service settings section."
 msgstr ""
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr ""
 
@@ -7653,6 +7680,10 @@ msgstr ""
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "Excluir todos os hosts dentro do grupo"
+
+#, fuzzy
+msgid "to apply the update."
+msgstr "Impressora atualizado!"
 
 #, fuzzy
 msgid "to clear the field on every host in this group."
@@ -7966,10 +7997,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Role added!"
 #~ msgstr "Nome da impressora"
-
-#, fuzzy
-#~ msgid "Role updated!"
-#~ msgstr "Impressora atualizado!"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "número da linha não definido adequadamente"

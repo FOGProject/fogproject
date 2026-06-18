@@ -28,14 +28,15 @@ class SiteManager extends FOGManagerController
      */
     public $tablename = 'site';
     /**
-     * Installs the database for the plugin.
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -64,11 +65,36 @@ class SiteManager extends FOGManagerController
             'sID',
             'sID'
         );
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        //return true;
-        return self::getClass('SiteHostAssociationManager')->install();
+    }
+    /**
+     * The plugin's ordered, append-only schema migration list (all 4 tables).
+     * Append new steps (e.g. "ALTER TABLE `site` ADD COLUMN ...") to the END.
+     *
+     * @return array
+     */
+    public function schema()
+    {
+        return [
+            // 0
+            $this->createSql(),
+            // 1
+            self::getClass('SiteHostAssociationManager')->createSql(),
+            // 2
+            self::getClass('SiteUserAssociationManager')->createSql(),
+            // 3
+            self::getClass('SiteUserRestrictionManager')->createSql(),
+        ];
+    }
+    /**
+     * Installs the database non-destructively (create-if-absent + apply any
+     * pending additive steps). Does not drop existing data.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $res = Schema::applyUpdates($this->schema(), 0);
+        return $res['error'] === null;
     }
     /**
      * Uninstalls plugin.
@@ -77,7 +103,7 @@ class SiteManager extends FOGManagerController
      */
     public function uninstall()
     {
-        self::getClass('SiteHostAssociationManager')->install();
+        self::getClass('SiteHostAssociationManager')->uninstall();
         return parent::uninstall();
     }
 }

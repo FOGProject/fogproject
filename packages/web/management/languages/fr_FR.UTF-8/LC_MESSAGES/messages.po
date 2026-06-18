@@ -2055,6 +2055,10 @@ msgstr "Impossible de créer Host"
 msgid "Failed to uninstall "
 msgstr "Échec de connexion"
 
+#, fuzzy
+msgid "Failed to update "
+msgstr "Impossible de mettre à jour la tâche"
+
 msgid "Failed to update Session"
 msgstr "Impossible de mettre à jour Session"
 
@@ -4780,6 +4784,14 @@ msgid "Plugin Uninstall Success"
 msgstr "Imprimante mis à jour!"
 
 #, fuzzy
+msgid "Plugin Update Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Plugin Update Success"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
 msgid "Plugin activated!"
 msgstr "Nom Plugin"
 
@@ -4796,6 +4808,10 @@ msgid "Plugin uninstalled!"
 msgstr "Nom Plugin"
 
 #, fuzzy
+msgid "Plugin updated!"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
 msgid "Plugins"
 msgstr "Brancher"
 
@@ -4809,6 +4825,10 @@ msgstr "Nom Plugin"
 
 msgid "Plugins uninstalled!"
 msgstr ""
+
+#, fuzzy
+msgid "Plugins updated!"
+msgstr "Nom Plugin"
 
 msgid "Port"
 msgstr "Port"
@@ -6593,9 +6613,6 @@ msgstr "Impossible de mettre à jour la tâche"
 msgid "Unable to find master Storage Node"
 msgstr "Impossible de détruire le nœud de stockage"
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr "Impossible d'ouvrir le fichier pour la lecture"
 
@@ -6737,6 +6754,10 @@ msgstr "Avancée Login requis"
 #, fuzzy
 msgid "Update not required"
 msgstr "Un nom de l'image est nécessaire!"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Imprimante"
 
 msgid "Upload Reports"
 msgstr "Télécharger Rapports"
@@ -7550,6 +7571,12 @@ msgstr "snapin par hôte"
 msgid "please see the hosts service settings section."
 msgstr ""
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr ""
 
@@ -7657,6 +7684,10 @@ msgstr ""
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "Supprimer tous les hôtes au sein du groupe"
+
+#, fuzzy
+msgid "to apply the update."
+msgstr "Imprimante mis à jour!"
 
 #, fuzzy
 msgid "to clear the field on every host in this group."
@@ -7970,10 +8001,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Role added!"
 #~ msgstr "Nom de l'imprimante"
-
-#, fuzzy
-#~ msgid "Role updated!"
-#~ msgstr "Imprimante mis à jour!"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "Numéro de ligne pas réglé correctement"

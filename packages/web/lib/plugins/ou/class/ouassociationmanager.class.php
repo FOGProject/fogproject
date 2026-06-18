@@ -28,14 +28,15 @@ class OUAssociationManager extends FOGManagerController
      */
     public $tablename = 'ouAssoc';
     /**
-     * Install our table.
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in OUManager::schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -67,6 +68,14 @@ class OUAssociationManager extends FOGManagerController
             'oaID',
             'oaID'
         );
-        return self::$DB->query($sql);
+    }
+    /**
+     * Install our table non-destructively.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        return self::$DB->query($this->createSql());
     }
 }

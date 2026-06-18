@@ -2095,6 +2095,10 @@ msgid "Failed to uninstall "
 msgstr "No se ha podido destruir"
 
 #, fuzzy
+msgid "Failed to update "
+msgstr "No se pudo crear la tarea"
+
+#, fuzzy
 msgid "Failed to update Session"
 msgstr "No se pudo crear Sesión"
 
@@ -4897,6 +4901,14 @@ msgid "Plugin Uninstall Success"
 msgstr "Impresora actualiza!"
 
 #, fuzzy
+msgid "Plugin Update Fail"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Plugin Update Success"
+msgstr "Impresora actualiza!"
+
+#, fuzzy
 msgid "Plugin activated!"
 msgstr "Nombre de la impresora"
 
@@ -4913,6 +4925,10 @@ msgid "Plugin uninstalled!"
 msgstr "Nombre de la impresora"
 
 #, fuzzy
+msgid "Plugin updated!"
+msgstr "Impresora actualiza!"
+
+#, fuzzy
 msgid "Plugins"
 msgstr "Nombre de la impresora"
 
@@ -4926,6 +4942,10 @@ msgstr "Nombre de la impresora"
 
 msgid "Plugins uninstalled!"
 msgstr ""
+
+#, fuzzy
+msgid "Plugins updated!"
+msgstr "Nombre de la impresora"
 
 msgid "Port"
 msgstr "Puerto"
@@ -6735,9 +6755,6 @@ msgstr "No se pudo crear la tarea"
 msgid "Unable to find master Storage Node"
 msgstr "No se ha podido destruir nodo de almacenamiento"
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr "No se puede abrir archivo para lectura"
 
@@ -6880,6 +6897,10 @@ msgstr "Avanzada Menú Inicio de sesión"
 #, fuzzy
 msgid "Update not required"
 msgstr "Se requiere un nombre de imagen!"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Impresora"
 
 #, fuzzy
 msgid "Upload Reports"
@@ -7699,6 +7720,12 @@ msgstr "snapin por host"
 msgid "please see the hosts service settings section."
 msgstr ""
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr ""
 
@@ -7802,6 +7829,10 @@ msgstr ""
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "Borrar todos los hosts dentro del grupo"
+
+#, fuzzy
+msgid "to apply the update."
+msgstr "Impresora actualiza!"
 
 msgid "to clear the field on every host in this group."
 msgstr ""
@@ -8122,10 +8153,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Role added!"
 #~ msgstr "Nombre de la impresora"
-
-#, fuzzy
-#~ msgid "Role updated!"
-#~ msgstr "Impresora actualiza!"
 
 #, fuzzy
 #~ msgid "Rule Update Fail"

@@ -194,6 +194,26 @@ class DashboardPage extends FOGPage
             $title = $pendingMACs . ' ' . _('Pending macs');
             self::displayAlert($title, $macPend, 'warning', true, true);
         }
+        $pluginsNeedingUpdate = self::getClass('PluginManager')
+            ->getPluginsNeedingUpdate();
+        $pluginUpdateCount = count($pluginsNeedingUpdate);
+        if ($pluginUpdateCount > 0) {
+            $title = $pluginUpdateCount
+                . ' '
+                . (
+                    $pluginUpdateCount != 1 ?
+                    _('plugins need a database update') :
+                    _('plugin needs a database update')
+                );
+            $pluginPend = sprintf(
+                '%s <a href="?node=%s"><b>%s</b></a> %s',
+                _('Click'),
+                'plugin',
+                _('here'),
+                _('to apply the update.')
+            );
+            self::displayAlert($title, $pluginPend, 'warning', true, true);
+        }
         $SystemUptime = self::$FOGCore->systemUptime();
         $fields = [
             _('Web Server') => filter_input(

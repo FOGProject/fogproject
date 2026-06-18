@@ -2051,6 +2051,10 @@ msgstr "Host erstellen fehlgeschlagen"
 msgid "Failed to uninstall "
 msgstr "Verbindung nicht möglich"
 
+#, fuzzy
+msgid "Failed to update "
+msgstr "Fehler beim Aktualisieren des Tasks"
+
 msgid "Failed to update Session"
 msgstr "Fehler beim Aktualisieren der Sitzung"
 
@@ -4779,6 +4783,14 @@ msgid "Plugin Uninstall Success"
 msgstr "Drucker aktualisiert!"
 
 #, fuzzy
+msgid "Plugin Update Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Plugin Update Success"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
 msgid "Plugin activated!"
 msgstr "Plugin-Name"
 
@@ -4795,6 +4807,10 @@ msgid "Plugin uninstalled!"
 msgstr "Plugin-Name"
 
 #, fuzzy
+msgid "Plugin updated!"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
 msgid "Plugins"
 msgstr "Plugins"
 
@@ -4808,6 +4824,10 @@ msgstr "Plugin-Name"
 
 msgid "Plugins uninstalled!"
 msgstr ""
+
+#, fuzzy
+msgid "Plugins updated!"
+msgstr "Plugin-Name"
 
 msgid "Port"
 msgstr "Port"
@@ -6594,9 +6614,6 @@ msgstr "Fehler beim Aktualisieren des Tasks"
 msgid "Unable to find master Storage Node"
 msgstr "Fehler beim Finden des Master Storage Nodes"
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr "Datei kann zum Lesen nicht geöffnet werden"
 
@@ -6738,6 +6755,10 @@ msgstr "Erweiterte Anmeldung erforderlich"
 #, fuzzy
 msgid "Update not required"
 msgstr "Ein Name ist erforderlich!"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "ausgewählte Images hinzufügen"
 
 msgid "Upload Reports"
 msgstr "Berichte hochladen"
@@ -7555,6 +7576,12 @@ msgstr "per Host"
 msgid "please see the hosts service settings section."
 msgstr "nutzen Sie bitte die Host Service Settings."
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr "Installation zurück zu kehren, falls erforderlich."
 
@@ -7662,6 +7689,10 @@ msgstr "Das wird Ihr Backup in Ihrem "
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "auf alle Knoten in der Gruppe."
+
+#, fuzzy
+msgid "to apply the update."
+msgstr "Drucker aktualisiert!"
 
 #, fuzzy
 msgid "to clear the field on every host in this group."
@@ -7975,10 +8006,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Role added!"
 #~ msgstr "Drucker hinzugefügt"
-
-#, fuzzy
-#~ msgid "Role updated!"
-#~ msgstr "Drucker aktualisiert!"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "Zeilennummer nicht richtig eingestellt"

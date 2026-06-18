@@ -1712,6 +1712,9 @@ msgstr ""
 msgid "Failed to uninstall "
 msgstr ""
 
+msgid "Failed to update "
+msgstr ""
+
 msgid "Failed to update Session"
 msgstr ""
 
@@ -4016,6 +4019,12 @@ msgstr ""
 msgid "Plugin Uninstall Success"
 msgstr ""
 
+msgid "Plugin Update Fail"
+msgstr ""
+
+msgid "Plugin Update Success"
+msgstr ""
+
 msgid "Plugin activated!"
 msgstr ""
 
@@ -4028,6 +4037,9 @@ msgstr ""
 msgid "Plugin uninstalled!"
 msgstr ""
 
+msgid "Plugin updated!"
+msgstr ""
+
 msgid "Plugins"
 msgstr ""
 
@@ -4038,6 +4050,9 @@ msgid "Plugins installed!"
 msgstr ""
 
 msgid "Plugins uninstalled!"
+msgstr ""
+
+msgid "Plugins updated!"
 msgstr ""
 
 msgid "Port"
@@ -5541,9 +5556,6 @@ msgstr ""
 msgid "Unable to find master Storage Node"
 msgstr ""
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr ""
 
@@ -5656,6 +5668,9 @@ msgid "Update Not Required"
 msgstr ""
 
 msgid "Update not required"
+msgstr ""
+
+msgid "Update selected"
 msgstr ""
 
 msgid "Upload Reports"
@@ -6357,6 +6372,12 @@ msgstr ""
 msgid "please see the hosts service settings section."
 msgstr ""
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr ""
 
@@ -6448,6 +6469,9 @@ msgid "this will save the backup in your home"
 msgstr ""
 
 msgid "to all nodes in the group"
+msgstr ""
+
+msgid "to apply the update."
 msgstr ""
 
 msgid "to clear the field on every host in this group."

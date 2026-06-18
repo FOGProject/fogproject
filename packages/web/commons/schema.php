@@ -4216,3 +4216,11 @@ $this->schema[] = [
     // current (implicit) order until an admin reorders them.
     "UPDATE `snapinAssoc` SET `saSequence`=`saID` WHERE `saSequence`=0",
 ];
+// 295
+$this->schema[] = [
+    // Per-plugin applied schema-migration counter. Lets installed plugins
+    // receive additive (non-destructive) schema changes on upgrade, the same
+    // way core tables do via this list. Defaults to 0 (no steps applied).
+    "ALTER TABLE `plugins` "
+    . "ADD COLUMN `pSchema` INTEGER NOT NULL DEFAULT 0",
+];

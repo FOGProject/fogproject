@@ -28,14 +28,16 @@ class LocationManager extends FOGManagerController
      */
     public $tablename = 'location';
     /**
-     * Install our database
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive: it only creates the table when absent and is safe to
+     * re-run. Used as the first step in schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -95,11 +97,36 @@ class LocationManager extends FOGManagerController
             'lID',
             'lID'
         );
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        return self::getClass('LocationAssociationManager')
-            ->install();
+    }
+    /**
+     * The plugin's ordered, append-only schema migration list.
+     *
+     * One flat list covering every table this plugin owns. New schema
+     * changes are appended to the END (e.g. "ALTER TABLE `location` ADD
+     * COLUMN ...") and are applied incrementally and non-destructively by
+     * Schema::applyUpdates(), tracked via the plugins.pSchema counter.
+     *
+     * @return array
+     */
+    public function schema()
+    {
+        return [
+            // 0
+            $this->createSql(),
+            // 1
+            self::getClass('LocationAssociationManager')->createSql(),
+        ];
+    }
+    /**
+     * Install our database non-destructively (create-if-absent + apply any
+     * pending additive steps). Does not drop existing data.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $res = Schema::applyUpdates($this->schema(), 0);
+        return $res['error'] === null;
     }
     /**
      * Uninstalls the database
