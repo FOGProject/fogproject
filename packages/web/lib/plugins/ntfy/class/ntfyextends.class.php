@@ -78,17 +78,23 @@ abstract class NtfyExtends extends Event
     {
         parent::__construct();
         self::$eventloop = function (&$Ntfy) {
+            // Some events (e.g. login failure) carry no host, so HostName
+            // may be absent -- build the title without a leading space.
+            $hostName = self::$elements['HostName'] ?? '';
+            $title = trim(
+                sprintf(
+                    '%s %s',
+                    $hostName,
+                    _(self::$shortdesc)
+                )
+            );
             self::getClass(
                 'NtfyHandler',
                 $Ntfy->serverURL,
                 $Ntfy->topicEndpoint,
                 $Ntfy->credentials
             )->pushNote(
-                sprintf(
-                    '%s %s',
-                    self::$elements['HostName'],
-                    _(self::$shortdesc)
-                ),
+                $title,
                 _(self::$message)
             );
         };
@@ -108,8 +114,12 @@ abstract class NtfyExtends extends Event
         $Ntfys = json_decode(
             Route::getData()
         );
+        // Invoke the closure stored in the static property. Calling
+        // self::$eventloop($x) directly is parsed as a static method named
+        // by a local variable, not as invoking the closure.
+        $eventloop = self::$eventloop;
         foreach ($Ntfys->data as &$Ntfy) {
-            self::$eventloop($Ntfy);
+            $eventloop($Ntfy);
             unset($Ntfy);
         }
     }
