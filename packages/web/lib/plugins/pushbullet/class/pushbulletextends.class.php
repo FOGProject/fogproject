@@ -78,16 +78,22 @@ abstract class PushbulletExtends extends Event
     {
         parent::__construct();
         self::$eventloop = function (&$Pushbullet) {
+            // Some events (e.g. login failure) carry no host, so HostName
+            // may be absent -- build the title without a leading space.
+            $hostName = self::$elements['HostName'] ?? '';
+            $title = trim(
+                sprintf(
+                    '%s %s',
+                    $hostName,
+                    _(self::$shortdesc)
+                )
+            );
             self::getClass(
                 'PushbulletHandler',
                 $Pushbullet->token
             )->pushNote(
                 '',
-                sprintf(
-                    '%s %s',
-                    self::$elements['HostName'],
-                    _(self::$shortdesc)
-                ),
+                $title,
                 _(self::$message)
             );
         };
@@ -107,8 +113,12 @@ abstract class PushbulletExtends extends Event
         $Pushbullets = json_decode(
             Route::getData()
         );
+        // Invoke the closure stored in the static property. Calling
+        // self::$eventloop($x) directly is parsed as a static method named
+        // by a local variable, not as invoking the closure.
+        $eventloop = self::$eventloop;
         foreach ($Pushbullets->data as &$Pushbullet) {
-            self::$eventloop($Pushbullet);
+            $eventloop($Pushbullet);
             unset($Pushbullet);
         }
     }
