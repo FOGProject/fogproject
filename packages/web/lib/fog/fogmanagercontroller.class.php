@@ -1124,7 +1124,11 @@ abstract class FOGManagerController extends FOGBase
             $compare = '=';
         }
         $whereArray = [];
-        $countVals = $countKeys = [];
+        $countVals = [];
+        // Monotonic index so every bound value gets a unique placeholder.
+        // Reusing one shared :countVal collided across conditions and built
+        // a malformed query for multi-condition lookups.
+        $phIndex = 0;
         if (count($findWhere ?: []) > 0) {
             array_walk(
                 $findWhere,
@@ -1135,28 +1139,31 @@ abstract class FOGManagerController extends FOGBase
                     &$whereArray,
                     $compare,
                     &$countVals,
-                    &$countKeys
+                    &$phIndex
                 ) {
                     $field = trim($field);
                     if (is_array($value) && count($value ?: []) > 0) {
-                        foreach ((array) $value as $index => &$val) {
-                            $countKeys[] = sprintf(':countVal%d', $index);
-                            $countVals[sprintf('countVal%d', $index)] = $val;
+                        $inKeys = [];
+                        foreach ((array) $value as &$val) {
+                            $ph = sprintf('countVal%d', $phIndex++);
+                            $inKeys[] = ':' . $ph;
+                            $countVals[$ph] = $val;
                             unset($val);
                         }
                         $whereArray[] = sprintf(
                             '`%s`.`%s` IN (%s)',
                             $this->databaseTable,
                             $this->databaseFields[$field],
-                            implode(',', $countKeys)
+                            implode(',', $inKeys)
                         );
                     } else {
                         if (is_array($value)) {
                             $value = '';
                         }
-                        $countVals['countVal'] = $value;
+                        $ph = sprintf('countVal%d', $phIndex++);
+                        $countVals[$ph] = $value;
                         $whereArray[] = sprintf(
-                            '`%s`.`%s`%s:countVal',
+                            '`%s`.`%s`%s:%s',
                             $this->databaseTable,
                             $this->databaseFields[$field],
                             (
@@ -1166,7 +1173,8 @@ abstract class FOGManagerController extends FOGBase
                                 ) ?
                                 ' LIKE' :
                                 $compare
-                            )
+                            ),
+                            $ph
                         );
                     }
                     unset($value, $field);
