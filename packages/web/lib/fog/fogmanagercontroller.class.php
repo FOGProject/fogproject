@@ -1187,33 +1187,18 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields[$field],
             $this->databaseTable,
             (
-                (isset($whereArray) && count($whereArray)) ?
+                count($whereArray) ?
                 sprintf(
-                    ' WHERE %s%s',
+                    ' WHERE %s',
                     implode(
                         sprintf(
                             ' %s ',
                             $whereOperator
                         ),
-                        (array) $whereArray
-                    ),
-                    (
-                        (isset($isEnabled) && $isEnabled) ?
-                        sprintf(
-                            ' AND %s',
-                            $isEnabled
-                        ) :
-                        ''
+                        $whereArray
                     )
                 ) :
-                (
-                    $isEnabled ?
-                    sprintf(
-                        ' WHERE %s',
-                        $isEnabled
-                    ) :
-                    ''
-                )
+                ''
             )
         );
 
