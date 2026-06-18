@@ -211,6 +211,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A rule already exists with that type-value pair!"
 msgstr "Una imagen ya existe con este nombre!"
 
+msgid "A server URL and topic endpoint are required"
+msgstr ""
+
 #, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -520,6 +523,10 @@ msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "Add module failed!"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "Add ntfy topic failed!"
 msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
@@ -1423,6 +1430,9 @@ msgid "Created Time"
 msgstr "Creado"
 
 msgid "Created by FOG Reg on"
+msgstr ""
+
+msgid "Credentials"
 msgstr ""
 
 msgid "Cron"
@@ -3748,6 +3758,16 @@ msgstr ""
 msgid "Link Slack Account Success"
 msgstr ""
 
+msgid "Link ntfy Topic"
+msgstr ""
+
+msgid "Link ntfy Topic Fail"
+msgstr ""
+
+#, fuzzy
+msgid "Link ntfy Topic Success"
+msgstr "actualización de servicio no pudo"
+
 #, fuzzy
 msgid "List"
 msgstr "Línea"
@@ -5462,6 +5482,10 @@ msgstr "Información general"
 msgid "Server Shell"
 msgstr ""
 
+#, fuzzy
+msgid "Server URL"
+msgstr "Servidor web"
+
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
@@ -6690,8 +6714,27 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "Asociación para la imagen"
 
+msgid "Token or user:pass (optional)"
+msgstr ""
+
 msgid "Too many MACs"
 msgstr ""
+
+msgid "Topic Endpoint"
+msgstr ""
+
+msgid "Topic already linked"
+msgstr ""
+
+msgid "Topic linked"
+msgstr ""
+
+msgid "Topic name you choose, e.g. fog-alerts"
+msgstr ""
+
+#, fuzzy
+msgid "Topic successfully added!"
+msgstr "actualizado exitosamente"
 
 #, fuzzy
 msgid "Total Clients"
@@ -7691,6 +7734,9 @@ msgstr "No se pudo encontrar ningún nodos que contienen esta imagen"
 #, fuzzy
 msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
+
+msgid "ntfy Accounts"
+msgstr ""
 
 #, fuzzy
 msgid "object"

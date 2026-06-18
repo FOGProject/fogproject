@@ -166,6 +166,9 @@ msgstr ""
 msgid "A rule already exists with that type-value pair!"
 msgstr ""
 
+msgid "A server URL and topic endpoint are required"
+msgstr ""
+
 msgid "A site already exists with this name!"
 msgstr ""
 
@@ -411,6 +414,9 @@ msgid "Add menu failed!"
 msgstr ""
 
 msgid "Add module failed!"
+msgstr ""
+
+msgid "Add ntfy topic failed!"
 msgstr ""
 
 msgid "Add ou failed!"
@@ -1152,6 +1158,9 @@ msgid "Created Time"
 msgstr ""
 
 msgid "Created by FOG Reg on"
+msgstr ""
+
+msgid "Credentials"
 msgstr ""
 
 msgid "Cron"
@@ -3056,6 +3065,15 @@ msgstr ""
 msgid "Link Slack Account Success"
 msgstr ""
 
+msgid "Link ntfy Topic"
+msgstr ""
+
+msgid "Link ntfy Topic Fail"
+msgstr ""
+
+msgid "Link ntfy Topic Success"
+msgstr ""
+
 msgid "List"
 msgstr ""
 
@@ -4488,6 +4506,9 @@ msgstr ""
 msgid "Server Shell"
 msgstr ""
 
+msgid "Server URL"
+msgstr ""
+
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
@@ -5502,7 +5523,25 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr ""
 
+msgid "Token or user:pass (optional)"
+msgstr ""
+
 msgid "Too many MACs"
+msgstr ""
+
+msgid "Topic Endpoint"
+msgstr ""
+
+msgid "Topic already linked"
+msgstr ""
+
+msgid "Topic linked"
+msgstr ""
+
+msgid "Topic name you choose, e.g. fog-alerts"
+msgstr ""
+
+msgid "Topic successfully added!"
 msgstr ""
 
 msgid "Total Clients"
@@ -6346,6 +6385,9 @@ msgid "nodes containing this image"
 msgstr ""
 
 msgid "not found on this node"
+msgstr ""
+
+msgid "ntfy Accounts"
 msgstr ""
 
 msgid "object"

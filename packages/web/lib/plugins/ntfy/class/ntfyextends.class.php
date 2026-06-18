@@ -1,34 +1,34 @@
 <?php
 /**
- * The base class of pushbullet elements
+ * The base class of ntfy elements
  *
- * Extends the pushbullet elements into the event class.
+ * Extends the ntfy elements into the event class.
  *
  * PHP version 5
  *
- * @category PushbulletExtends
+ * @category NtfyExtends
  * @package  FOGProject
+ * @author   Tony Lam <tonylam5349@gmail.com>
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Joe Schmitt <jbob182@gmail.com>
- * @license  http://opensource.org/license/gpl-3.0 GPLv3
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * The base class of pushbullet elements
+ * The base class of ntfy elements
  *
- * Extends the pushbullet elements into the event class.
+ * Extends the ntfy elements into the event class.
  *
- * @category PushbulletExtends
+ * @category NtfyExtends
  * @package  FOGProject
+ * @author   Tony Lam <tonylam5349@gmail.com>
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Joe Schmitt <jbob182@gmail.com>
- * @license  http://opensource.org/license/gpl-3.0 GPLv3
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-abstract class PushbulletExtends extends Event
+abstract class NtfyExtends extends Event
 {
     /**
-     * The name of the pushbullet
+     * The name
      *
      * @var string
      */
@@ -77,7 +77,7 @@ abstract class PushbulletExtends extends Event
     public function __construct()
     {
         parent::__construct();
-        self::$eventloop = function (&$Pushbullet) {
+        self::$eventloop = function (&$Ntfy) {
             // Some events (e.g. login failure) carry no host, so HostName
             // may be absent -- build the title without a leading space.
             $hostName = self::$elements['HostName'] ?? '';
@@ -89,10 +89,11 @@ abstract class PushbulletExtends extends Event
                 )
             );
             self::getClass(
-                'PushbulletHandler',
-                $Pushbullet->token
+                'NtfyHandler',
+                $Ntfy->serverURL,
+                $Ntfy->topicEndpoint,
+                $Ntfy->credentials
             )->pushNote(
-                '',
                 $title,
                 _(self::$message)
             );
@@ -109,17 +110,17 @@ abstract class PushbulletExtends extends Event
     public function onEvent($event, $data)
     {
         self::$elements = $data;
-        Route::listem('pushbullet');
-        $Pushbullets = json_decode(
+        Route::listem('ntfy');
+        $Ntfys = json_decode(
             Route::getData()
         );
         // Invoke the closure stored in the static property. Calling
         // self::$eventloop($x) directly is parsed as a static method named
         // by a local variable, not as invoking the closure.
         $eventloop = self::$eventloop;
-        foreach ($Pushbullets->data as &$Pushbullet) {
-            $eventloop($Pushbullet);
-            unset($Pushbullet);
+        foreach ($Ntfys->data as &$Ntfy) {
+            $eventloop($Ntfy);
+            unset($Ntfy);
         }
     }
 }
