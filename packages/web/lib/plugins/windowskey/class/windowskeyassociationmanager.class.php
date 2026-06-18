@@ -30,14 +30,16 @@ class WindowsKeyAssociationManager extends FOGManagerController
      */
     public $tablename = 'windowsKeysAssoc';
     /**
-     * Install our table.
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in
+     * WindowsKeyManager::schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -71,6 +73,14 @@ class WindowsKeyAssociationManager extends FOGManagerController
             'wkaID',
             'wkaID'
         );
-        return self::$DB->query($sql);
+    }
+    /**
+     * Install our table non-destructively.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        return self::$DB->query($this->createSql());
     }
 }

@@ -2051,6 +2051,10 @@ msgstr "Failed to create Host"
 msgid "Failed to uninstall "
 msgstr "Failed to connect"
 
+#, fuzzy
+msgid "Failed to update "
+msgstr "Failed to update Task"
+
 msgid "Failed to update Session"
 msgstr "Failed to update Session"
 
@@ -4775,6 +4779,14 @@ msgid "Plugin Uninstall Success"
 msgstr "Printer updated!"
 
 #, fuzzy
+msgid "Plugin Update Fail"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Plugin Update Success"
+msgstr "Printer updated!"
+
+#, fuzzy
 msgid "Plugin activated!"
 msgstr "Plugin Name"
 
@@ -4791,6 +4803,10 @@ msgid "Plugin uninstalled!"
 msgstr "Plugin Name"
 
 #, fuzzy
+msgid "Plugin updated!"
+msgstr "Printer updated!"
+
+#, fuzzy
 msgid "Plugins"
 msgstr "Plugin"
 
@@ -4804,6 +4820,10 @@ msgstr "Plugin Name"
 
 msgid "Plugins uninstalled!"
 msgstr ""
+
+#, fuzzy
+msgid "Plugins updated!"
+msgstr "Plugin Name"
 
 msgid "Port"
 msgstr "Port"
@@ -6586,9 +6606,6 @@ msgstr "Failed to update task"
 msgid "Unable to find master Storage Node"
 msgstr "Failed to destroy Storage Node"
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr "Unable to open file for reading"
 
@@ -6730,6 +6747,10 @@ msgstr "Advanced Login Required"
 #, fuzzy
 msgid "Update not required"
 msgstr "An image name is required!"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Remove selected printers"
 
 msgid "Upload Reports"
 msgstr "Upload Reports"
@@ -7543,6 +7564,12 @@ msgstr "snapin per host"
 msgid "please see the hosts service settings section."
 msgstr ""
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr ""
 
@@ -7649,6 +7676,10 @@ msgstr ""
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "Delete all hosts within group"
+
+#, fuzzy
+msgid "to apply the update."
+msgstr "Printer updated!"
 
 #, fuzzy
 msgid "to clear the field on every host in this group."
@@ -7958,10 +7989,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Role added!"
 #~ msgstr "Printer Name"
-
-#, fuzzy
-#~ msgid "Role updated!"
-#~ msgstr "Printer updated!"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "Row number not set properly"

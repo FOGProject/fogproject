@@ -28,14 +28,16 @@ class AccessControlRuleAssociationManager extends FOGManagerController
      */
     public $tablename = 'roleRuleAssoc';
     /**
-     * Installs the database for the plugin.
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in
+     * AccessControlManager::schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -70,11 +72,29 @@ class AccessControlRuleAssociationManager extends FOGManagerController
             'rraID',
             'rraID'
         );
-        if (self::$DB->query($sql)) {
-            $sql = "CREATE UNIQUE INDEX `indexmul` "
-                . "ON `roleRuleAssoc` (`rraRoleID`, `rraRuleID`)";
-            return self::$DB->query($sql);
+    }
+    /**
+     * The unique index step for this table (idempotent: a duplicate key
+     * name is tolerated by the schema runner). Used in schema().
+     *
+     * @return string
+     */
+    public function indexSql()
+    {
+        return "CREATE UNIQUE INDEX `indexmul` "
+            . "ON `roleRuleAssoc` (`rraRoleID`, `rraRuleID`)";
+    }
+    /**
+     * Installs the table non-destructively.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        if (false === self::$DB->query($this->createSql())) {
+            return false;
         }
-        return false;
+        self::$DB->query($this->indexSql());
+        return true;
     }
 }

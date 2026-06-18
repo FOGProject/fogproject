@@ -2052,6 +2052,10 @@ msgstr "无法创建主机"
 msgid "Failed to uninstall "
 msgstr "连接失败"
 
+#, fuzzy
+msgid "Failed to update "
+msgstr "无法更新任务"
+
 msgid "Failed to update Session"
 msgstr "无法更新会话"
 
@@ -4775,6 +4779,14 @@ msgid "Plugin Uninstall Success"
 msgstr "打印机更新！"
 
 #, fuzzy
+msgid "Plugin Update Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Plugin Update Success"
+msgstr "打印机更新！"
+
+#, fuzzy
 msgid "Plugin activated!"
 msgstr "插件名称"
 
@@ -4791,6 +4803,10 @@ msgid "Plugin uninstalled!"
 msgstr "插件名称"
 
 #, fuzzy
+msgid "Plugin updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
 msgid "Plugins"
 msgstr "插入"
 
@@ -4804,6 +4820,10 @@ msgstr "插件名称"
 
 msgid "Plugins uninstalled!"
 msgstr ""
+
+#, fuzzy
+msgid "Plugins updated!"
+msgstr "插件名称"
 
 msgid "Port"
 msgstr "港口"
@@ -6580,9 +6600,6 @@ msgstr "无法更新任务"
 msgid "Unable to find master Storage Node"
 msgstr "未能摧毁存储节点"
 
-msgid "Unable to install, no method exists for "
-msgstr ""
-
 msgid "Unable to open file for reading"
 msgstr "无法打开文件进行读取"
 
@@ -6724,6 +6741,10 @@ msgstr "高级需要登录"
 #, fuzzy
 msgid "Update not required"
 msgstr "图像名是必需的！"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "打印机"
 
 msgid "Upload Reports"
 msgstr "上传报告"
@@ -7535,6 +7556,12 @@ msgstr "每个主机管理单元"
 msgid "please see the hosts service settings section."
 msgstr ""
 
+msgid "plugin needs a database update"
+msgstr ""
+
+msgid "plugins need a database update"
+msgstr ""
+
 msgid "previous install if needed"
 msgstr ""
 
@@ -7640,6 +7667,10 @@ msgstr ""
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "删除组内的所有主机"
+
+#, fuzzy
+msgid "to apply the update."
+msgstr "打印机更新！"
 
 #, fuzzy
 msgid "to clear the field on every host in this group."
@@ -7953,10 +7984,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Role added!"
 #~ msgstr "打印机名称"
-
-#, fuzzy
-#~ msgid "Role updated!"
-#~ msgstr "打印机更新！"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "行数设置不正确"

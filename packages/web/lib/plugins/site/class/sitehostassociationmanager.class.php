@@ -28,14 +28,16 @@ class SiteHostAssociationManager extends FOGManagerController
      */
     public $tablename = 'siteHostAssoc';
     /**
-     * Installs the database for the plugin.
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in
+     * SiteManager::schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -68,11 +70,15 @@ class SiteHostAssociationManager extends FOGManagerController
             'shaID',
             'shaID'
         );
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        //return true;
-        return self::getClass('SiteUserAssociationManager')->install();
+    }
+    /**
+     * Installs the database non-destructively.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        return self::$DB->query($this->createSql());
     }
     /**
      * Uninstalls plugin.

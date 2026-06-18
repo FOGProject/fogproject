@@ -8,13 +8,15 @@
         activateBtn = $('#activate'),
         installBtn = $('#install'),
         deactivateBtn = $('#deactivate'),
-        removeBtn = $('#remove');
+        removeBtn = $('#remove'),
+        updateBtn = $('#update');
 
     function disableButtons(disable) {
         activateBtn.prop('disabled', disable);
         installBtn.prop('disabled', disable);
         deactivateBtn.prop('disabled', disable);
         removeBtn.prop('disabled', disable);
+        updateBtn.prop('disabled', disable);
     }
     function onSelect(selected) {
         var disabled = selected.count() == 0;
@@ -62,8 +64,9 @@
                 render: function(data, type, row) {
                     var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>';
                     var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
+                    var update = '<button type="button" class="btn btn-warning btn-xs plugin-update-btn" data-id="'+row.id+'" title="Apply pending database update"><i class="fa fa-exclamation-triangle"></i> Update available</button>';
                     if (data > 0) {
-                        return enabled;
+                        return row.needsupdate > 0 ? update : enabled;
                     } else {
                         return disabled;
                     }
@@ -141,6 +144,50 @@
             }
             table.draw(false);
             table.rows({selected: true}).deselect();
+        });
+    });
+    // Bulk update: apply pending schema migrations to all selected plugins.
+    updateBtn.on('click', function(e) {
+        e.preventDefault();
+        disableButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = table.rows({selected: true}),
+            toUpdate = $.getSelectedIds(table),
+            opts = {
+                plugins: toUpdate,
+                btnpressed: 1
+            };
+        $.apiCall(method, action, opts, function(err) {
+            disableButtons(false);
+            if (err) {
+                return;
+            }
+            table.draw(false);
+            table.rows({selected: true}).deselect();
+        });
+    });
+    // Per-row one-click upgrade: the "Update available" badge applies that
+    // plugin's pending schema migrations via the same (non-destructive)
+    // upgrade endpoint the bulk Update button uses.
+    $('#dataTable').on('click', '.plugin-update-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var btn = $(this),
+            id = btn.data('id'),
+            method = updateBtn.attr('method'),
+            action = updateBtn.attr('action'),
+            opts = {
+                plugins: [id],
+                btnpressed: 1
+            };
+        btn.prop('disabled', true);
+        $.apiCall(method, action, opts, function(err) {
+            if (err) {
+                btn.prop('disabled', false);
+                return;
+            }
+            table.draw(false);
         });
     });
     removeBtn.on('click', function(e) {

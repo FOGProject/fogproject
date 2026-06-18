@@ -28,14 +28,15 @@ class SlackManager extends FOGManagerController
      */
     public $tablename = 'slack';
     /**
-     * Install our table.
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -69,6 +70,29 @@ class SlackManager extends FOGManagerController
             'sID',
             'sID'
         );
-        return self::$DB->query($sql);
+    }
+    /**
+     * The plugin's ordered, append-only schema migration list. Append new
+     * steps (e.g. "ALTER TABLE `slack` ADD COLUMN ...") to the END.
+     *
+     * @return array
+     */
+    public function schema()
+    {
+        return [
+            // 0
+            $this->createSql(),
+        ];
+    }
+    /**
+     * Installs the database non-destructively (create-if-absent + apply any
+     * pending additive steps). Does not drop existing data.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $res = Schema::applyUpdates($this->schema(), 0);
+        return $res['error'] === null;
     }
 }

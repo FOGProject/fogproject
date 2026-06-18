@@ -24,14 +24,13 @@
 class PersistentGroupsManager extends FOGManagerController
 {
     /**
-     * Installs the database for the plugin.
+     * Returns the CREATE TRIGGER statement for this plugin.
      *
-     * @return bool
+     * @return string
      */
-    public function install()
+    public function triggerSql()
     {
-        $this->uninstall();
-        $sql = "CREATE TRIGGER `persistentGroups` 
+        return "CREATE TRIGGER `persistentGroups`
             AFTER INSERT ON `groupMembers` 
             FOR EACH ROW
                 BEGIN
@@ -94,7 +93,39 @@ class PersistentGroupsManager extends FOGManagerController
         END IF;
 
         END;";
-        return self::$DB->query($sql);
+    }
+    /**
+     * The plugin's ordered, append-only schema migration list.
+     *
+     * This plugin manages a trigger (no data), so each step drops-if-exists
+     * then creates. A future trigger change ships as a NEW appended step that
+     * drops-and-recreates with the new definition; pSchema tracks which step
+     * has been applied so it runs exactly once.
+     *
+     * @return array
+     */
+    public function schema()
+    {
+        return [
+            // 0
+            function () {
+                self::$DB->query('DROP TRIGGER IF EXISTS `persistentGroups`');
+                if (false !== self::$DB->query($this->triggerSql())->error) {
+                    return self::$DB->error;
+                }
+                return true;
+            },
+        ];
+    }
+    /**
+     * Installs the trigger non-destructively (idempotent drop+create).
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $res = Schema::applyUpdates($this->schema(), 0);
+        return $res['error'] === null;
     }
     /**
      * Uninstalls the plugin.

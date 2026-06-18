@@ -28,14 +28,15 @@ class WindowsKeyManager extends FOGManagerController
      */
     public $tablename = 'windowsKeys';
     /**
-     * Install our database
+     * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * @return bool
+     * Non-destructive and safe to re-run. Used as a step in schema().
+     *
+     * @return string
      */
-    public function install()
+    public function createSql()
     {
-        $this->uninstall();
-        $sql = Schema::createTable(
+        return Schema::createTable(
             $this->tablename,
             true,
             [
@@ -79,11 +80,33 @@ class WindowsKeyManager extends FOGManagerController
             'wkID',
             'wkID'
         );
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        return self::getClass('WindowsKeyAssociationManager')
-            ->install();
+    }
+    /**
+     * The plugin's ordered, append-only schema migration list (all tables).
+     * Append new steps (e.g. "ALTER TABLE `windowsKeys` ADD COLUMN ...") to
+     * the END.
+     *
+     * @return array
+     */
+    public function schema()
+    {
+        return [
+            // 0
+            $this->createSql(),
+            // 1
+            self::getClass('WindowsKeyAssociationManager')->createSql(),
+        ];
+    }
+    /**
+     * Installs the database non-destructively (create-if-absent + apply any
+     * pending additive steps). Does not drop existing data.
+     *
+     * @return bool
+     */
+    public function install()
+    {
+        $res = Schema::applyUpdates($this->schema(), 0);
+        return $res['error'] === null;
     }
     /**
      * Uninstalls the database
