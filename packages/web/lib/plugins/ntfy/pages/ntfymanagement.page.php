@@ -222,14 +222,8 @@ class NtfyManagement extends FOGPage
                 );
             }
             $existing = self::getClass('NtfyManager')
-                ->distinct(
-                    'id',
-                    [
-                        'serverURL' => $serverURL,
-                        'topicEndpoint' => $topicEndpoint
-                    ]
-                );
-            if ($existing > 0) {
+                ->exists($topicEndpoint, 0, 'topicEndpoint');
+            if ($existing) {
                 throw new Exception(_('Topic already linked'));
             }
             $Ntfy = self::getClass('Ntfy')
