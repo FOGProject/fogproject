@@ -213,6 +213,9 @@ msgstr "图像已经存在具有此名称！"
 msgid "A rule already exists with that type-value pair!"
 msgstr "图像已经存在具有此名称！"
 
+msgid "A server URL and topic endpoint are required"
+msgstr ""
+
 #, fuzzy
 msgid "A site already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -513,6 +516,10 @@ msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Add module failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Add ntfy topic failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
@@ -1410,6 +1417,9 @@ msgstr "由...制作"
 
 msgid "Created by FOG Reg on"
 msgstr "创建者FOG上注册"
+
+msgid "Credentials"
+msgstr ""
 
 msgid "Cron"
 msgstr "克龙"
@@ -3658,6 +3668,16 @@ msgstr "链接松弛账户"
 msgid "Link Slack Account Success"
 msgstr "链接松弛账户"
 
+msgid "Link ntfy Topic"
+msgstr ""
+
+msgid "Link ntfy Topic Fail"
+msgstr ""
+
+#, fuzzy
+msgid "Link ntfy Topic Success"
+msgstr "链接松弛账户"
+
 #, fuzzy
 msgid "List"
 msgstr "线"
@@ -5331,6 +5351,10 @@ msgstr "一般信息"
 msgid "Server Shell"
 msgstr "服务器外壳"
 
+#, fuzzy
+msgid "Server URL"
+msgstr "服务器外壳"
+
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
@@ -6533,9 +6557,26 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "图像协会"
 
+msgid "Token or user:pass (optional)"
+msgstr ""
+
 #, fuzzy
 msgid "Too many MACs"
 msgstr "主机主MAC"
+
+msgid "Topic Endpoint"
+msgstr ""
+
+#, fuzzy
+msgid "Topic already linked"
+msgstr "帐户已链接"
+
+msgid "Topic linked"
+msgstr ""
+
+#, fuzzy
+msgid "Topic successfully added!"
+msgstr "成功更新"
 
 #, fuzzy
 msgid "Total Clients"
@@ -7529,6 +7570,10 @@ msgstr "找不到包含该图像的任何节点"
 #, fuzzy
 msgid "not found on this node"
 msgstr "图片没有节点发现"
+
+#, fuzzy
+msgid "ntfy Accounts"
+msgstr "斯莱克账户"
 
 #, fuzzy
 msgid "object"

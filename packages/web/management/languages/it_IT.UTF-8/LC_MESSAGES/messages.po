@@ -204,6 +204,9 @@ msgstr "Nome stampante già esistente on questo nome!"
 msgid "A rule already exists with that type-value pair!"
 msgstr "Esiste già un ruolo con questo nome!"
 
+msgid "A server URL and topic endpoint are required"
+msgstr ""
+
 #, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
@@ -490,6 +493,10 @@ msgstr "Aggiunta gruppo non riuscito!"
 #, fuzzy
 msgid "Add module failed!"
 msgstr "Aggiunta utente fallita!"
+
+#, fuzzy
+msgid "Add ntfy topic failed!"
+msgstr "Aggiungi snapin non riuscito!"
 
 #, fuzzy
 msgid "Add ou failed!"
@@ -1345,6 +1352,9 @@ msgstr "Creato da"
 
 msgid "Created by FOG Reg on"
 msgstr "Creato da FOG Reg su"
+
+msgid "Credentials"
+msgstr ""
 
 msgid "Cron"
 msgstr "cron"
@@ -3495,6 +3505,16 @@ msgstr "Connessione Account Slack fallita"
 msgid "Link Slack Account Success"
 msgstr "Connessione Account Slack completata"
 
+msgid "Link ntfy Topic"
+msgstr ""
+
+msgid "Link ntfy Topic Fail"
+msgstr ""
+
+#, fuzzy
+msgid "Link ntfy Topic Success"
+msgstr "Connessione Account Slack completata"
+
 msgid "List"
 msgstr "Elenca"
 
@@ -5093,6 +5113,10 @@ msgstr "Informazione generale"
 msgid "Server Shell"
 msgstr "Server Shell"
 
+#, fuzzy
+msgid "Server URL"
+msgstr "Server Shell"
+
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
@@ -6235,8 +6259,25 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "Regole di associazione"
 
+msgid "Token or user:pass (optional)"
+msgstr ""
+
 msgid "Too many MACs"
 msgstr "Troppi MAC"
+
+msgid "Topic Endpoint"
+msgstr ""
+
+#, fuzzy
+msgid "Topic already linked"
+msgstr "Account già collegato"
+
+msgid "Topic linked"
+msgstr ""
+
+#, fuzzy
+msgid "Topic successfully added!"
+msgstr "Account aggiunto con successo!"
 
 #, fuzzy
 msgid "Total Clients"
@@ -7171,6 +7212,10 @@ msgstr "nodi che contengono questa immagine"
 
 msgid "not found on this node"
 msgstr "Non trovato su questo nodo"
+
+#, fuzzy
+msgid "ntfy Accounts"
+msgstr "Slack Accounts"
 
 msgid "object"
 msgstr "oggetto"

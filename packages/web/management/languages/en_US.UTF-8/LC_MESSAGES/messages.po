@@ -213,6 +213,9 @@ msgstr "An image already exists with this name!"
 msgid "A rule already exists with that type-value pair!"
 msgstr "An image already exists with this name!"
 
+msgid "A server URL and topic endpoint are required"
+msgstr ""
+
 #, fuzzy
 msgid "A site already exists with this name!"
 msgstr "An image already exists with this name!"
@@ -513,6 +516,10 @@ msgstr "Add snapin failed!"
 
 #, fuzzy
 msgid "Add module failed!"
+msgstr "Add snapin failed!"
+
+#, fuzzy
+msgid "Add ntfy topic failed!"
 msgstr "Add snapin failed!"
 
 #, fuzzy
@@ -1409,6 +1416,9 @@ msgstr "Created By"
 
 msgid "Created by FOG Reg on"
 msgstr "Created by FOG Reg on"
+
+msgid "Credentials"
+msgstr ""
 
 msgid "Cron"
 msgstr "Cron"
@@ -3657,6 +3667,16 @@ msgstr "Link Slack Account"
 msgid "Link Slack Account Success"
 msgstr "Link Slack Account"
 
+msgid "Link ntfy Topic"
+msgstr ""
+
+msgid "Link ntfy Topic Fail"
+msgstr ""
+
+#, fuzzy
+msgid "Link ntfy Topic Success"
+msgstr "Link Slack Account"
+
 #, fuzzy
 msgid "List"
 msgstr "Host List"
@@ -5331,6 +5351,10 @@ msgstr "General Information"
 msgid "Server Shell"
 msgstr "Server Shell"
 
+#, fuzzy
+msgid "Server URL"
+msgstr "Server Shell"
+
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
@@ -6539,9 +6563,26 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "Image Association"
 
+msgid "Token or user:pass (optional)"
+msgstr ""
+
 #, fuzzy
 msgid "Too many MACs"
 msgstr "Host Primary MAC"
+
+msgid "Topic Endpoint"
+msgstr ""
+
+#, fuzzy
+msgid "Topic already linked"
+msgstr "Account already linked"
+
+msgid "Topic linked"
+msgstr ""
+
+#, fuzzy
+msgid "Topic successfully added!"
+msgstr "successfully updated"
 
 #, fuzzy
 msgid "Total Clients"
@@ -7537,6 +7578,10 @@ msgstr "Could not find any nodes containing this image"
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found on node"
+
+#, fuzzy
+msgid "ntfy Accounts"
+msgstr "Slack Accounts"
 
 #, fuzzy
 msgid "object"

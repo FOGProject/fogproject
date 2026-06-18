@@ -208,6 +208,9 @@ msgstr "Ein Drucker mit diesem Namen ist bereits vorhanden!"
 msgid "A rule already exists with that type-value pair!"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
+msgid "A server URL and topic endpoint are required"
+msgstr ""
+
 #, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
@@ -510,6 +513,10 @@ msgstr "Gruppe hinzufügen fehlgeschlagen!"
 #, fuzzy
 msgid "Add module failed!"
 msgstr "Benutzer hinzufügen fehlgeschlagen!"
+
+#, fuzzy
+msgid "Add ntfy topic failed!"
+msgstr "Snapin hinzufügen fehlgeschlagen"
 
 #, fuzzy
 msgid "Add ou failed!"
@@ -1408,6 +1415,9 @@ msgstr "Erstellt von"
 
 msgid "Created by FOG Reg on"
 msgstr "Erstellt von FOG Reg am"
+
+msgid "Credentials"
+msgstr ""
 
 msgid "Cron"
 msgstr "Cron"
@@ -3662,6 +3672,16 @@ msgstr "Verknüpfen des Slack Accounts fehlgeschlagen"
 msgid "Link Slack Account Success"
 msgstr "Slack Account erfolgreich verknüpft"
 
+msgid "Link ntfy Topic"
+msgstr ""
+
+msgid "Link ntfy Topic Fail"
+msgstr ""
+
+#, fuzzy
+msgid "Link ntfy Topic Success"
+msgstr "Slack Account erfolgreich verknüpft"
+
 #, fuzzy
 msgid "List"
 msgstr "Zeige"
@@ -5336,6 +5356,10 @@ msgstr "Allgemeine Informationen"
 msgid "Server Shell"
 msgstr "Server-Shell"
 
+#, fuzzy
+msgid "Server URL"
+msgstr "Server-Shell"
+
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
@@ -6548,9 +6572,26 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "Regel Zuordnung"
 
+msgid "Token or user:pass (optional)"
+msgstr ""
+
 #, fuzzy
 msgid "Too many MACs"
 msgstr "zu viele MACs"
+
+msgid "Topic Endpoint"
+msgstr ""
+
+#, fuzzy
+msgid "Topic already linked"
+msgstr "Konto ist bereits verknüpft"
+
+msgid "Topic linked"
+msgstr ""
+
+#, fuzzy
+msgid "Topic successfully added!"
+msgstr "Account erfolgreich hinzugefügt"
 
 #, fuzzy
 msgid "Total Clients"
@@ -7550,6 +7591,10 @@ msgstr "Knoten enthalten dieses Image"
 #, fuzzy
 msgid "not found on this node"
 msgstr "auf diesem Knoten nicht gefunden"
+
+#, fuzzy
+msgid "ntfy Accounts"
+msgstr "Slack Accounts"
 
 #, fuzzy
 msgid "object"
