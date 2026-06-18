@@ -75,6 +75,7 @@ class LDAPManagement extends FOGPage
         $adminGroup = filter_input(INPUT_POST, 'adminGroup');
         $userGroup = filter_input(INPUT_POST, 'userGroup');
         $userNameAttr = filter_input(INPUT_POST, 'userNameAttr');
+        $groupNameAttr = filter_input(INPUT_POST, 'groupNameAttr');
         $grpMemberAttr = filter_input(INPUT_POST, 'grpMemberAttr');
         $searchScope = filter_input(INPUT_POST, 'searchScope');
         $bindDN = filter_input(INPUT_POST, 'bindDN');
@@ -822,7 +823,7 @@ class LDAPManagement extends FOGPage
     public function addPost()
     {
         self::checkAuthAndCSRF();
-        header('Content-type: appication/json');
+        header('Content-type: application/json');
         self::$HookManager->processEvent('LDAP_ADD_POST');
         $ldap = trim(
             filter_input(INPUT_POST, 'ldap')
@@ -875,6 +876,7 @@ class LDAPManagement extends FOGPage
         );
 
         $isLDAPs = (int)isset($_POST['isLDAPs']);
+        $isAPI = (int)isset($_POST['allowapi']);
 
         $serverFault = false;
         try {
@@ -919,6 +921,7 @@ class LDAPManagement extends FOGPage
                 ->set('useGroupMatch', $useGroupMatch)
                 ->set('grpSearchDN', $grpSearchDN)
                 ->set('displayNameOn', $displayNameOn)
+                ->set('allowapi', $isAPI)
                 ->set('displayNameAttr', $displayNameAttr);
             if (!$LDAP->save()) {
                 $serverFault = true;
@@ -1758,7 +1761,7 @@ class LDAPManagement extends FOGPage
                     $this->ldapGeneralPost();
             }
             if (!$this->obj->save()) {
-                $serverFault = false;
+                $serverFault = true;
                 throw new Exception(_('LDAP Server update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
