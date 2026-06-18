@@ -1025,7 +1025,7 @@ class LDAP extends FOGController
             $grpMemAttr,
             $usrNamAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER),
-            $usrNamAttr,
+            $grpMemAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
         /**
@@ -1055,7 +1055,7 @@ class LDAP extends FOGController
             $grpMemAttr,
             $usrNamAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER),
-            $usrNamAttr,
+            $grpMemAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
         /**
