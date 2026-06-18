@@ -732,7 +732,7 @@ class LDAP extends FOGController
          */
         $pat = sprintf(
             '#%s#i',
-            $userDN
+            preg_quote($userDN, '#')
         );
         /**
          * Check groups for membership
