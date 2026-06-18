@@ -33,6 +33,17 @@ $ret = [
     'running' => (bool)$link,
     'redirect' => (bool)$redirect,
 ];
+/**
+ * When the database is unreachable, expose the underlying connection error
+ * (e.g. SQLSTATE[HY000] [2002] Permission denied) so the cause is diagnosable.
+ * Restricted to local requests since this page is reachable pre-authentication
+ * and the message can disclose the database host/user.
+ */
+if (!$link
+    && in_array(($_SERVER['REMOTE_ADDR'] ?? ''), ['127.0.0.1', '::1'], true)
+) {
+    $ret['error'] = DatabaseManager::getDB()->connectError();
+}
 http_response_code(
     $ret['running'] ?
     HTTPResponseCodes::HTTP_SUCCESS :

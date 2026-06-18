@@ -58,6 +58,12 @@
                     } else {
                         dbrunningShow.addClass('hidden');
                         dbstoppedShow.removeClass('hidden');
+                        var dberror = $('#dberror');
+                        if (data.error) {
+                            dberror.text(data.error).removeClass('hidden');
+                        } else {
+                            dberror.text('').addClass('hidden');
+                        }
                     }
                 }
             });
