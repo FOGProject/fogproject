@@ -133,39 +133,54 @@ class LDAPPluginHook extends Hook
         $items = json_decode(
             Route::getData()
         );
-        foreach ($items->data as &$ldap) {
-            $access = self::getClass('LDAP', $ldap->id)->authLDAP($user, $pass);
-            if ($access) {
-                $displayName = self::getClass('LDAP', $ldap->id)
-                    ->getDisplayName($user, $pass);
-            }
-            $ldapAPI = self::getClass('LDAP', $ldap->id)->get('allowapi');
-            unset($ldap);
-            switch ($access) {
-                case 2:
-                    // This is an admin account, break the loop
-                    $tmpUser
-                        ->set('name', $user)
-                        ->set('password', $pass)
-                        ->set('display', $displayName)
-                        ->set('type', self::LDAP_ADMIN)
-                        ->set('api', $ldapAPI)
-                        ->save();
-                    break 2;
-                case 1:
-                    // This is an unprivileged user account.
-                    $tmpUser
-                        ->set('name', $user)
-                        ->set('password', $pass)
-                        ->set('display', $displayName)
-                        ->set('type', self::LDAP_MOBILE)
-                        ->set('api', $ldapAPI)
-                        ->save();
+        /**
+         * Authenticate against every configured LDAP server and keep the
+         * most privileged result (admin beats mobile beats none). A server
+         * where the user is absent must not downgrade a match found on
+         * another server, so we accumulate the best access level and act on
+         * it once after the loop rather than per-server.
+         */
+        $bestAccess = 0;
+        $displayName = '';
+        $ldapAPI = 0;
+        foreach ($items->data as $ldap) {
+            $LDAP = self::getClass('LDAP', $ldap->id);
+            $access = (int)$LDAP->authLDAP($user, $pass);
+            if ($access > $bestAccess) {
+                $bestAccess = $access;
+                $displayName = $LDAP->getDisplayName($user, $pass);
+                $ldapAPI = $LDAP->get('allowapi');
+                /**
+                 * Admin is the highest level; no need to keep looking.
+                 */
+                if ($bestAccess >= 2) {
                     break;
-                default:
-                    $tmpUser = new User(-1);
+                }
             }
-            unset($ldap);
+        }
+        switch ($bestAccess) {
+            case 2:
+                // This is an admin account.
+                $tmpUser
+                    ->set('name', $user)
+                    ->set('password', $pass)
+                    ->set('display', $displayName)
+                    ->set('type', self::LDAP_ADMIN)
+                    ->set('api', $ldapAPI)
+                    ->save();
+                break;
+            case 1:
+                // This is an unprivileged user account.
+                $tmpUser
+                    ->set('name', $user)
+                    ->set('password', $pass)
+                    ->set('display', $displayName)
+                    ->set('type', self::LDAP_MOBILE)
+                    ->set('api', $ldapAPI)
+                    ->save();
+                break;
+            default:
+                $tmpUser = new User(-1);
         }
         $arguments['user'] = $tmpUser;
     }
