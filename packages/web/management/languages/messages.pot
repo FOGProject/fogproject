@@ -5538,6 +5538,9 @@ msgstr ""
 msgid "Topic linked"
 msgstr ""
 
+msgid "Topic name you choose, e.g. fog-alerts"
+msgstr ""
+
 msgid "Topic successfully added!"
 msgstr ""
 

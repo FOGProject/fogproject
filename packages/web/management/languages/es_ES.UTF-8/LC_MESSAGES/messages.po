@@ -6729,6 +6729,9 @@ msgstr ""
 msgid "Topic linked"
 msgstr ""
 
+msgid "Topic name you choose, e.g. fog-alerts"
+msgstr ""
+
 #, fuzzy
 msgid "Topic successfully added!"
 msgstr "actualizado exitosamente"

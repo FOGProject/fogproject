@@ -87,7 +87,7 @@ class NtfyManagement extends FOGPage
             ) => self::makeInput(
                 'form-control ntfytopic-input',
                 'topicEndpoint',
-                _('Topic Endpoint'),
+                _('Topic name you choose, e.g. fog-alerts'),
                 'text',
                 'topicEndpoint',
                 $topicEndpoint,
@@ -97,7 +97,8 @@ class NtfyManagement extends FOGPage
                 $labelClass,
                 'credentials',
                 _('Credentials')
-            ) => self::makeInput(
+            ) => '<div class="input-group">'
+            . self::makeInput(
                 'form-control ntfycredentials-input',
                 'credentials',
                 _('Token or user:pass (optional)'),
@@ -105,7 +106,8 @@ class NtfyManagement extends FOGPage
                 'credentials',
                 '',
                 false
-            ),
+            )
+            . '</div>',
         ];
     }
     /**

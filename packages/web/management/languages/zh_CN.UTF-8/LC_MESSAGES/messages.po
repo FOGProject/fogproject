@@ -6574,6 +6574,9 @@ msgstr "帐户已链接"
 msgid "Topic linked"
 msgstr ""
 
+msgid "Topic name you choose, e.g. fog-alerts"
+msgstr ""
+
 #, fuzzy
 msgid "Topic successfully added!"
 msgstr "成功更新"

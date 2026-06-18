@@ -6580,6 +6580,9 @@ msgstr "Account already linked"
 msgid "Topic linked"
 msgstr ""
 
+msgid "Topic name you choose, e.g. fog-alerts"
+msgstr ""
+
 #, fuzzy
 msgid "Topic successfully added!"
 msgstr "successfully updated"
