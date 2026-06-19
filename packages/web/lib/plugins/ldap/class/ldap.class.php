@@ -633,12 +633,9 @@ class LDAP extends FOGController
          */
         $adminGroups = explode(',', $adminGroup);
         $adminGroups = array_map('trim', $adminGroups);
-        $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
         $filter = sprintf(
-            '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
+            '(&(|(name=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$adminGroups),
-            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
-            implode($grpMemAttr_forimplode, (array)$adminGroups),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
@@ -666,10 +663,8 @@ class LDAP extends FOGController
         $userGroups = explode(',', $userGroup);
         $userGroups = array_map('trim', $userGroups);
         $filter = sprintf(
-            '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
+            '(&(|(name=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$userGroups),
-            $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
-            implode($grpMemAttr_forimplode, (array)$userGroups),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
