@@ -4373,16 +4373,16 @@ abstract class FOGPage extends FOGBase
         echo $this->title;
         echo '</h4>';
         echo '<p class="help-block">';
-        echo _('Use the selector to choose how many items you want exported.');
+        echo _('Click "CSV (All)" to export every matching item.');
         echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
         echo '<p class="help-block">';
         echo _(
-            'When you click on the item you want to export, it can only select '
-            . 'what is currently viewable on the screen. This includes searched '
-            . 'and the current page. Please use the selector to choose the amount '
-            . 'of items you would like to export.'
+            'The "CSV (All)" button exports every item that matches the current '
+            . 'search to a CSV file (the whole list, not just what is on screen). '
+            . 'The Copy, Excel and Print buttons act only on the rows currently '
+            . 'loaded in the table.'
         );
         echo '</p>';
         $this->render(12, strtolower($this->childClass).'-export-table');
@@ -4390,24 +4390,26 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
     }
     /**
-     * Present the export list.
+     * Build the shared export query pieces and column map used by both
+     * getExportList() (paged JSON for the on-screen table) and exportAll()
+     * (full CSV download).
      *
-     * @return void
+     * Prepends the primac column for hosts, appends the trailing associations
+     * column where supported, and fires the *_EXPORT_ITEMS hook so plugins can
+     * adjust the column set.
+     *
+     * @return array [$table, $tableID, $columns, $sqlstr, $filterstr, $totalstr]
      */
-    public function getExportList()
+    private function _buildExportColumns()
     {
-        header('Content-type: application/json');
         $obj = self::getClass($this->childClass.'Manager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();
         $filterstr = $obj->getFilterStr();
         $totalstr = $obj->getTotalStr();
         $dbcolumns = $obj->getColumns();
-        $pass_vars = $columns = [];
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
+        $columns = [];
+        $tableID = '';
         if ($this->childClass == 'Host') {
             $columns[] = [
                 'db' => 'hmMAC',
@@ -4451,6 +4453,23 @@ abstract class FOGPage extends FOGBase
                 'columns' => &$columns
             ]
         );
+        return [$table, $tableID, $columns, $sqlstr, $filterstr, $totalstr];
+    }
+    /**
+     * Present the export list (paged JSON for the on-screen table).
+     *
+     * @return void
+     */
+    public function getExportList()
+    {
+        header('Content-type: application/json');
+        $pass_vars = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        list($table, $tableID, $columns, $sqlstr, $filterstr, $totalstr)
+            = $this->_buildExportColumns();
         echo json_encode(
             FOGManagerController::simple(
                 $pass_vars,
@@ -4462,6 +4481,62 @@ abstract class FOGPage extends FOGBase
                 $totalstr
             )
         );
+        exit;
+    }
+    /**
+     * Stream the full export as a CSV download.
+     *
+     * Unlike getExportList(), which pages for the on-screen table, this
+     * replays the DataTables request (sent on the query string) with no row
+     * limit, so every matching record is written. The active search and sort
+     * are honoured because the request is passed straight to
+     * FOGManagerController::simple(); forcing length=-1 drops the SQL LIMIT.
+     *
+     * The header row uses the friendly column keys, which are exactly the
+     * tokens the CSV importer recognises, so the file round-trips through
+     * import unchanged.
+     *
+     * @return void
+     */
+    public function exportAll()
+    {
+        list($table, $tableID, $columns, $sqlstr, $filterstr, $totalstr)
+            = $this->_buildExportColumns();
+        // The client sends its normal DataTables params (columns/search/order)
+        // on the query string; force a full, unpaged result set.
+        $request = $_GET;
+        $request['start'] = 0;
+        $request['length'] = -1;
+        $result = FOGManagerController::simple(
+            $request,
+            $table,
+            $tableID,
+            $columns,
+            $sqlstr,
+            $filterstr,
+            $totalstr
+        );
+        $headers = FOGManagerController::pluck($columns, 'dt');
+        $filename = strtolower($this->childClass).'s-'.date('Y-m-d').'.csv';
+        // Drop the output-sanitising buffer so the CSV is written verbatim.
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Cache-Control: private');
+        $fh = fopen('php://output', 'w');
+        // UTF-8 BOM so spreadsheet apps read accented characters correctly.
+        fwrite($fh, "\xEF\xBB\xBF");
+        fputcsv($fh, $headers);
+        foreach (($result['data'] ?: []) as $row) {
+            $line = [];
+            foreach ($headers as $key) {
+                $line[] = isset($row[$key]) ? $row[$key] : '';
+            }
+            fputcsv($fh, $line);
+        }
+        fclose($fh);
         exit;
     }
 }

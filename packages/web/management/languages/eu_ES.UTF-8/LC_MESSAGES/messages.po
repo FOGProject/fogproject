@@ -1144,6 +1144,9 @@ msgstr "Klicken Sie"
 msgid "Click "
 msgstr "Klicken Sie"
 
+msgid "Click \"CSV (All)\" to export every matching item."
+msgstr ""
+
 msgid "Click Here"
 msgstr "Klicken Sie hier"
 
@@ -3282,6 +3285,9 @@ msgstr "In "
 msgid "In FOG"
 msgstr "zu booten."
 
+msgid "Infinite scroll"
+msgstr ""
+
 msgid "Information"
 msgstr "Informationen"
 
@@ -4642,6 +4648,10 @@ msgstr "Etikett #2"
 
 msgid "PLUGIN OPTIONS"
 msgstr ""
+
+#, fuzzy
+msgid "Paged"
+msgstr "geimaged"
 
 #, fuzzy
 msgid "Partclone Gzip"
@@ -6397,6 +6407,12 @@ msgstr "Terminal"
 msgid "Text"
 msgstr "Text"
 
+msgid ""
+"The \"CSV (All)\" button exports every item that matches the current search "
+"to a CSV file (the whole list, not just what is on screen). The Copy, Excel "
+"and Print buttons act only on the rows currently loaded in the table."
+msgstr ""
+
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "Die Einstellung 'ist Masterknoten' definiert,"
@@ -6939,9 +6955,6 @@ msgstr ""
 msgid "Use the selector to choose how many items you want exported"
 msgstr ""
 
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
 msgid "Used"
 msgstr ""
 
@@ -7157,13 +7170,6 @@ msgstr "Wöchentlich"
 
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "Wenn das Plugin entfernt wird, verbleibt der zugewiesene"
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 #, fuzzy
 msgid "Where to get help and guides"

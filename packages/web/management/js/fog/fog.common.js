@@ -8,11 +8,21 @@ var shouldReAuth,
       text: '<i class="fa fa-copy"></i> Copy'
     },
     {
-      extend: 'csv',
-      text: '<i class="fa fa-file-excel-o"></i> CSV',
-      // Emit the column names as a header row. Import auto-detects this
-      // header (or it can be left off to import by column order).
-      header: true
+      text: '<i class="fa fa-file-excel-o"></i> CSV (All)',
+      // Full server-side export. Replays the table's current DataTables
+      // request (active search + sort) but with no row limit, so the
+      // exportAll endpoint streams EVERY matching record as CSV -- not just
+      // the rows the browser currently holds. The header row it emits is the
+      // friendly column keys, which import auto-detects.
+      action: function(e, dt, node, config) {
+        var params = dt.ajax.params();
+        params.length = -1;
+        params.start = 0;
+        window.location = '../management/index.php?node='
+          + Common.node
+          + '&sub=exportAll&'
+          + $.param(params);
+      }
     },
     {
       extend: 'excel',
@@ -478,7 +488,20 @@ $.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
 };
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
-  opts = _.defaults(opts, {
+
+  // Default row count comes from FOG_VIEW_DEFAULT_SCREEN (hidden #pageLength).
+  var pageLength = parseInt($('#pageLength').val());
+
+  // Paging style is admin-selectable via FOG_TABLE_SCROLL_MODE (hidden
+  // #scrollMode). Default is infinite (virtual-scroll) when unset. A table can
+  // force classic paging regardless of the global setting by passing
+  // scroller:false -- used for grouped/search-driven tables (e.g. the settings
+  // page, which uses rowGroup) that don't play well with virtual scroll.
+  var infiniteScroll =
+    (opts.scroller !== false) &&
+    (($('#scrollMode').val() || 'infinite').toLowerCase() !== 'paged');
+
+  var defaults = {
     paging: true,
     lengthChange: true,
     searching: true,
@@ -491,7 +514,7 @@ $.fn.registerTable = function(onSelect, opts) {
       [10, 25, 50, 100, 250, 500, -1],
       [10, 25, 50, 100, 250, 500, 'All']
     ],
-    pageLength: parseInt($('#pageLength').val()),
+    pageLength: pageLength,
     buttons: [
       {
         extend: 'selectAll',
@@ -515,7 +538,26 @@ $.fn.registerTable = function(onSelect, opts) {
     },
     dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
     retrieve: true
-  });
+  };
+
+  if (infiniteScroll) {
+    // Virtual-scroll: rows load in chunks as you scroll, replacing the
+    // page-number bar and length menu. scrollCollapse keeps small tables
+    // (e.g. association lists in edit views) from showing an empty viewport.
+    // Scroller needs a finite chunk size, so fall back when pageLength is
+    // "All" (-1) or unset.
+    if (!pageLength || pageLength < 1) {
+      defaults.pageLength = 50;
+    }
+    defaults.scroller = true;
+    defaults.deferRender = true;
+    defaults.scrollY = '55vh';
+    defaults.scrollCollapse = true;
+    defaults.lengthChange = false;
+    defaults.dom = "<'row'<'col-sm-6'><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-12'i>>";
+  }
+
+  opts = _.defaults(opts, defaults);
 
   var table = $(this).DataTable(opts);
 

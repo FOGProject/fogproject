@@ -4224,3 +4224,17 @@ $this->schema[] = [
     "ALTER TABLE `plugins` "
     . "ADD COLUMN `pSchema` INTEGER NOT NULL DEFAULT 0",
 ];
+// 296
+$this->schema[] = [
+    // Default rendering mode for the management list/export tables. 'infinite'
+    // uses virtual-scroll (Scroller) so all matching rows load in chunks as
+    // you scroll; 'paged' keeps the classic page-number pager. Read into the
+    // hidden #scrollMode input and consumed by registerTable() in fog.common.js.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_TABLE_SCROLL_MODE','This setting defines how the management tables "
+    . "page through records. <b>infinite</b> loads rows as you scroll; "
+    . "<b>paged</b> uses the classic page-number bar.','infinite',"
+    . "'FOG View Settings')",
+];

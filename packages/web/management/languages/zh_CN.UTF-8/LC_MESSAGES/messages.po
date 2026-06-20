@@ -1146,6 +1146,9 @@ msgstr "点击"
 msgid "Click "
 msgstr "点击"
 
+msgid "Click \"CSV (All)\" to export every matching item."
+msgstr ""
+
 msgid "Click Here"
 msgstr "点击这里"
 
@@ -3282,6 +3285,9 @@ msgstr "在"
 msgid "In FOG"
 msgstr "在"
 
+msgid "Infinite scroll"
+msgstr ""
+
 msgid "Information"
 msgstr "信息"
 
@@ -4638,6 +4644,10 @@ msgstr "其他标签＃2"
 
 msgid "PLUGIN OPTIONS"
 msgstr ""
+
+#, fuzzy
+msgid "Paged"
+msgstr "成像"
 
 #, fuzzy
 msgid "Partclone Gzip"
@@ -6391,6 +6401,12 @@ msgstr "串行"
 msgid "Text"
 msgstr "文本"
 
+msgid ""
+"The \"CSV (All)\" button exports every item that matches the current search "
+"to a CSV file (the whole list, not just what is on screen). The Copy, Excel "
+"and Print buttons act only on the rows currently loaded in the table."
+msgstr ""
+
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "此设置定义"
@@ -6924,9 +6940,6 @@ msgstr ""
 msgid "Use the selector to choose how many items you want exported"
 msgstr ""
 
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
 msgid "Used"
 msgstr ""
 
@@ -7141,13 +7154,6 @@ msgid "Weekly"
 msgstr "每周"
 
 msgid "When the plugin is removed, the assigned key will remain"
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
 msgstr ""
 
 msgid "Where to get help and guides"

@@ -36,6 +36,9 @@
         }
       ],
       select: false,
+      // Grouped + search-driven: virtual scroll (Scroller) does not play well
+      // with rowGroup and cramps results, so force classic paging here.
+      scroller: false,
       rowGroup: {
         dataSrc: 'category'
       },

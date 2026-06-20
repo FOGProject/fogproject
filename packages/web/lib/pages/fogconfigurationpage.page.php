@@ -2248,6 +2248,35 @@ class FOGConfigurationPage extends FOGPage
                             echo '</select>';
                             $input = ob_get_clean();
                             break;
+                        case 'FOG_TABLE_SCROLL_MODE':
+                            $vals = [
+                                _('Infinite scroll') => 'infinite',
+                                _('Paged') => 'paged'
+                            ];
+                            ob_start();
+                            echo '<select '
+                                . 'class="form-control" name="'
+                                . $row['settingID']
+                                . '" autocomplete="off" id="'
+                                . $row['settingKey']
+                                . '">';
+                            foreach ($vals as $text => &$val) {
+                                echo '<option value="'
+                                    . Initiator::e($val)
+                                    . '"'
+                                    . (
+                                        $val == $row['settingValue'] ?
+                                        ' selected' :
+                                        ''
+                                    )
+                                    . '>';
+                                echo Initiator::e($text);
+                                echo '</option>';
+                                unset($val);
+                            }
+                            echo '</select>';
+                            $input = ob_get_clean();
+                            break;
                         case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
                             $vals = [
                                 _('Partclone Gzip') => 0,
