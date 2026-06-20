@@ -362,6 +362,9 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+msgid "Add Hello World failed!"
+msgstr ""
+
 msgid "Add Hosts to Group Fail"
 msgstr ""
 
@@ -574,6 +577,9 @@ msgid "An accesscontrol already exists with this name!"
 msgstr ""
 
 msgid "An accesscontrol with this name already exists!"
+msgstr ""
+
+msgid "An entry already exists with this name!"
 msgstr ""
 
 msgid "An image already exists with this name!"
@@ -1074,6 +1080,9 @@ msgid "Create New Capone"
 msgstr ""
 
 msgid "Create New Group"
+msgstr ""
+
+msgid "Create New Hello World"
 msgstr ""
 
 msgid "Create New Host"
@@ -2164,6 +2173,30 @@ msgid "Header is missing the required \"%s\" column"
 msgstr ""
 
 msgid "Height must be 120 pixels."
+msgstr ""
+
+msgid "Hello World"
+msgstr ""
+
+msgid "Hello World Create Fail"
+msgstr ""
+
+msgid "Hello World Create Success"
+msgstr ""
+
+msgid "Hello World Update Fail"
+msgstr ""
+
+msgid "Hello World Update Success"
+msgstr ""
+
+msgid "Hello World added!"
+msgstr ""
+
+msgid "Hello World update failed!"
+msgstr ""
+
+msgid "Hello World updated!"
 msgstr ""
 
 msgid "Help and Guides"
@@ -3984,6 +4017,9 @@ msgstr ""
 msgid ""
 "Please confirm you would like to unset the primary group from the selected "
 "snapins"
+msgstr ""
+
+msgid "Please enter a name"
 msgstr ""
 
 msgid "Please enter a valid CIDR subnet."

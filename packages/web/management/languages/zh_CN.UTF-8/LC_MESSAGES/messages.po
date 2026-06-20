@@ -449,6 +449,10 @@ msgid "Add"
 msgstr "加"
 
 #, fuzzy
+msgid "Add Hello World failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
 msgid "Add Hosts to Group Fail"
 msgstr "添加到组"
 
@@ -710,6 +714,10 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "An accesscontrol with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
+
+#, fuzzy
+msgid "An entry already exists with this name!"
+msgstr "图像已经存在具有此名称！"
 
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -1305,6 +1313,10 @@ msgstr "新建%s"
 
 #, fuzzy
 msgid "Create New Group"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Create New Hello World"
 msgstr "新建%s"
 
 #, fuzzy
@@ -2592,6 +2604,37 @@ msgstr ""
 
 msgid "Height must be 120 pixels."
 msgstr ""
+
+msgid "Hello World"
+msgstr ""
+
+#, fuzzy
+msgid "Hello World Create Fail"
+msgstr "主机创建失败"
+
+#, fuzzy
+msgid "Hello World Create Success"
+msgstr "主机创建"
+
+#, fuzzy
+msgid "Hello World Update Fail"
+msgstr "内核更新"
+
+#, fuzzy
+msgid "Hello World Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Hello World added!"
+msgstr "添加主机"
+
+#, fuzzy
+msgid "Hello World update failed!"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Hello World updated!"
+msgstr "用户更新"
 
 #, fuzzy
 msgid "Help and Guides"
@@ -4737,6 +4780,10 @@ msgid ""
 "Please confirm you would like to unset the primary group from the selected "
 "snapins"
 msgstr ""
+
+#, fuzzy
+msgid "Please enter a name"
+msgstr "请输入一个有效的主机名"
 
 #, fuzzy
 msgid "Please enter a valid CIDR subnet."

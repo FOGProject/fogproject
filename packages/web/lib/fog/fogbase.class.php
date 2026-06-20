@@ -2080,8 +2080,9 @@ abstract class FOGBase
      */
     private static function _cacheFlushFile()
     {
-        // FOG_CACHE_DIR is owned fogproject:apacheuser mode 775 (set by installer)
-        // so both daemon processes and the web server can write the flush signal.
+        // FOG_CACHE_DIR is created sticky world-writable (mode 1777) by the
+        // installer so both the web tier (whose php-fpm user is not guaranteed
+        // to match $apacheuser) and the CLI daemons can write the flush signal.
         return FOG_CACHE_DIR . DS . '.settings_cache_flush';
     }
     /**

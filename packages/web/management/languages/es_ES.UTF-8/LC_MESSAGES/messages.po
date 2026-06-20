@@ -454,6 +454,10 @@ msgid "Add"
 msgstr "Añadir"
 
 #, fuzzy
+msgid "Add Hello World failed!"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
 msgid "Add Hosts to Group Fail"
 msgstr "Añadir al grupo"
 
@@ -721,6 +725,10 @@ msgstr "Una imagen ya existe con este nombre!"
 #, fuzzy
 msgid "An accesscontrol with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
+
+#, fuzzy
+msgid "An entry already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
 
 msgid "An image already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -1318,6 +1326,10 @@ msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Create New Group"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Create New Hello World"
 msgstr "Crear nuevo grupo"
 
 #, fuzzy
@@ -2641,6 +2653,37 @@ msgstr ""
 
 msgid "Height must be 120 pixels."
 msgstr ""
+
+msgid "Hello World"
+msgstr ""
+
+#, fuzzy
+msgid "Hello World Create Fail"
+msgstr "Grupo Error de creación"
+
+#, fuzzy
+msgid "Hello World Create Success"
+msgstr "Creado"
+
+#, fuzzy
+msgid "Hello World Update Fail"
+msgstr "Nombre del núcleo"
+
+#, fuzzy
+msgid "Hello World Update Success"
+msgstr "Actualizar impresora"
+
+#, fuzzy
+msgid "Hello World added!"
+msgstr "nombre de host"
+
+#, fuzzy
+msgid "Hello World update failed!"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Hello World updated!"
+msgstr "el usuario actualiza"
 
 #, fuzzy
 msgid "Help and Guides"
@@ -4856,6 +4899,10 @@ msgid ""
 "Please confirm you would like to unset the primary group from the selected "
 "snapins"
 msgstr ""
+
+#, fuzzy
+msgid "Please enter a name"
+msgstr "Por favor introduce un nombre de sesión"
 
 #, fuzzy
 msgid "Please enter a valid CIDR subnet."

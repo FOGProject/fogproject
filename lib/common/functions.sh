@@ -607,8 +607,13 @@ installFOGServices() {
     errorStat $?
     dots "Creating FOG cache directory"
     mkdir -p /opt/fog/cache >>$error_log 2>&1
+    # The settings-cache flush signal is written by the web tier AND by the CLI
+    # daemons. The php-fpm worker does not always run as $apacheuser (e.g. on
+    # RedHat/nginx the packaged pool keeps user=apache), so an $apacheuser-owned
+    # dir is not reliably writable by the process that needs to touch the signal.
+    # The file holds no secrets, so use /tmp-style sticky world-writable perms.
     chown ${username}:${apacheuser} /opt/fog/cache >>$error_log 2>&1
-    chmod 775 /opt/fog/cache >>$error_log 2>&1
+    chmod 1777 /opt/fog/cache >>$error_log 2>&1
     errorStat $?
 }
 configureUDPCast() {
