@@ -486,6 +486,63 @@ $.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
       return $('input', td).prop('checked') ? '1' : '0';
   });
 };
+/**
+ * Adaptive height for infinite-scroll (Scroller) tables (#853).
+ *
+ * Instead of a hard-coded scrollY, size the scroll body to the space actually
+ * available between the top of the rows and the bottom of the viewport, minus
+ * whatever the DataTables wrapper renders below the body (the info line) and a
+ * small gap. scrollCollapse keeps small tables short; this just raises the
+ * ceiling for large ones so they fill the screen rather than wasting (or
+ * crowding) vertical space. Recomputed on window resize and tab show.
+ */
+function fogSizeScroller(dt) {
+  if (!dt || typeof dt.init !== 'function' || !dt.init().scroller) {
+    return; // only Scroller-enabled tables
+  }
+  var container = dt.table().container(),
+    body = $('div.dt-scroll-body', container);
+  if (!body.length || !body.is(':visible')) {
+    return; // not rendered, or in a hidden tab
+  }
+  var bodyRect = body[0].getBoundingClientRect(),
+    belowBody = container.getBoundingClientRect().bottom - bodyRect.bottom,
+    gap = 20, // breathing room above the window bottom
+    avail = window.innerHeight - bodyRect.top - belowBody - gap;
+  if (avail < 150) {
+    avail = 150; // sane floor
+  }
+  body.css('max-height', avail + 'px');
+  // Recompute Scroller's virtual viewport for the new height (measure() also
+  // redraws). Guarded in case Scroller isn't attached for some reason.
+  if (dt.scroller && typeof dt.scroller.measure === 'function') {
+    dt.scroller.measure();
+  } else {
+    dt.columns.adjust();
+  }
+}
+function fogSizeAllScrollers() {
+  if (!$.fn.dataTable) {
+    return;
+  }
+  $.fn.dataTable.tables({ api: true }).every(function() {
+    fogSizeScroller(this);
+  });
+}
+function fogBindScrollerAutosize() {
+  if ($.fn.dataTable.__fogScrollerBound) {
+    return; // window/tab handlers only need binding once per page
+  }
+  $.fn.dataTable.__fogScrollerBound = true;
+  var debounce;
+  $(window).on('resize.fogScroller', function() {
+    clearTimeout(debounce);
+    debounce = setTimeout(fogSizeAllScrollers, 150);
+  });
+  // In-tab tables (edit pages) measure as zero-height while hidden; size them
+  // once their tab is shown.
+  $(document).on('shown.bs.tab.fogScroller', fogSizeAllScrollers);
+}
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
 
@@ -560,6 +617,13 @@ $.fn.registerTable = function(onSelect, opts) {
   opts = _.defaults(opts, defaults);
 
   var table = $(this).DataTable(opts);
+
+  if (infiniteScroll) {
+    // Size the scroll body to fill the available height now (deferred so the
+    // table is laid out in the DOM first) and keep it sized on resize/tab show.
+    fogBindScrollerAutosize();
+    setTimeout(function() { fogSizeScroller(table); }, 0);
+  }
 
   if (onSelect !== undefined && typeof(onSelect) === 'function') {
     table.on('select deselect', function( e, dt, type, indexes) {
