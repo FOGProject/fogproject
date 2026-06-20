@@ -999,13 +999,13 @@ function clearAllIntervals(){
     doPageLoad(target, targetElement, false);
   };
 
-  $(document).ready(function(){
-    $(".ajax-page-link").click(function(event){
-      event.preventDefault();
-      var targetElement = $(this);
-      var target = targetElement.attr('href');
-      doPageLoad(target, targetElement);
-    });
+  // Delegated so links injected after page load (e.g. plugin items swapped
+  // into the sidebar on install/activate) still navigate via AJAX.
+  $(document).on('click', '.ajax-page-link', function(event){
+    event.preventDefault();
+    var targetElement = $(this);
+    var target = targetElement.attr('href');
+    doPageLoad(target, targetElement);
   });
 
   function doPageLoad(targetPage, targetElement, shouldPushState){

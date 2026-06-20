@@ -11,6 +11,17 @@
         removeBtn = $('#remove'),
         updateBtn = $('#update');
 
+    // Refresh the "PLUGIN OPTIONS" sidebar section after a plugin's
+    // installed/active state changes, so new items appear (and removed ones
+    // disappear) without a full page reload. Only the inner HTML of
+    // .plugin-options is replaced; the parent <ul data-widget="tree"> is left
+    // intact so AdminLTE's delegated treeview handler keeps working.
+    function refreshSidebar() {
+        $.get('../management/index.php?node=plugin&sub=sidebar')
+            .done(function(html) {
+                $('.plugin-options').html(html);
+            });
+    }
     function disableButtons(disable) {
         activateBtn.prop('disabled', disable);
         installBtn.prop('disabled', disable);
@@ -104,6 +115,7 @@
             }
             table.draw(false);
             table.rows({selected: true}).deselect();
+            refreshSidebar();
         });
     });
     deactivateBtn.on('click', function(e) {
@@ -124,6 +136,7 @@
             }
             table.draw(false);
             table.rows({selected: true}).deselect();
+            refreshSidebar();
         });
     });
     installBtn.on('click', function(e) {
@@ -144,6 +157,7 @@
             }
             table.draw(false);
             table.rows({selected: true}).deselect();
+            refreshSidebar();
         });
     });
     // Bulk update: apply pending schema migrations to all selected plugins.
@@ -208,6 +222,7 @@
             }
             table.draw(false);
             table.rows({selected: true}).deselect();
+            refreshSidebar();
         });
     });
 })(jQuery);

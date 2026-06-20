@@ -610,4 +610,29 @@ class PluginManagement extends FOGPage
         echo $msg;
         exit;
     }
+    /**
+     * Placeholder so the dispatcher routes ?sub=sidebar to sidebarAjax()
+     * instead of falling back to index().
+     *
+     * @return void
+     */
+    public function sidebar()
+    {
+    }
+    /**
+     * Returns the rebuilt "PLUGIN OPTIONS" sidebar markup so the menu can be
+     * refreshed over AJAX after install/activate/deactivate/remove without a
+     * full page reload. This runs in a fresh request, so getActivePlugins()
+     * and the per-plugin menu hooks reflect the new state -- the output is
+     * identical to what a browser refresh would render.
+     *
+     * @return void
+     */
+    public function sidebarAjax()
+    {
+        $main = $hookMain = '';
+        self::buildMainMenuItems($main, $hookMain);
+        echo $hookMain;
+        exit;
+    }
 }
