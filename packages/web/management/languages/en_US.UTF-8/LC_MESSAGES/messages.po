@@ -4755,6 +4755,9 @@ msgstr "Pending..."
 msgid "Performing ping"
 msgstr "Attempting to ping"
 
+msgid "Persistent file"
+msgstr ""
+
 msgid "Ping Hosts"
 msgstr "Ping Hosts"
 
@@ -7375,6 +7378,10 @@ msgid "directory"
 msgstr "Directory"
 
 #, fuzzy
+msgid "disabled"
+msgstr "Enabled"
+
+#, fuzzy
 msgid "disabled (all)"
 msgstr "Enabled"
 
@@ -7683,6 +7690,9 @@ msgstr ""
 msgid "nodes containing this image"
 msgstr "Could not find any nodes containing this image"
 
+msgid "not built yet"
+msgstr ""
+
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found on node"
@@ -7699,6 +7709,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "old"
 msgstr ""
 
 msgid "or"
@@ -7721,6 +7734,9 @@ msgid "plugin needs a database update"
 msgstr ""
 
 msgid "plugins need a database update"
+msgstr ""
+
+msgid "present"
 msgstr ""
 
 msgid "previous install if needed"

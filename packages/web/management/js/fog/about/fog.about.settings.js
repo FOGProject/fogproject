@@ -36,9 +36,9 @@
         }
       ],
       select: false,
-      // Grouped + search-driven: virtual scroll (Scroller) does not play well
-      // with rowGroup and cramps results, so force classic paging here.
-      scroller: false,
+      // The rowGroup below makes registerTable auto-use classic paging
+      // (Scroller can't reconcile grouped header rows) -- no explicit opt-out
+      // needed.
       rowGroup: {
         dataSrc: 'category'
       },

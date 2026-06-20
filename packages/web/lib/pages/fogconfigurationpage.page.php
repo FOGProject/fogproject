@@ -1424,6 +1424,15 @@ class FOGConfigurationPage extends FOGPage
             . _('hit rate') . ', ' . _('this request') . ')</dd>';
         echo '<dt>' . _('TTL') . '</dt><dd>'
             . (int) $stats['ttl'] . 's</dd>';
+        $file = $stats['fileCache'];
+        echo '<dt>' . _('Persistent file') . '</dt><dd>'
+            . (!$file['enabled']
+                ? _('disabled')
+                : ($file['exists']
+                    ? _('present') . ' (' . (int) $file['ageSeconds'] . 's '
+                        . _('old') . ')'
+                    : _('not built yet')))
+            . '</dd>';
         echo '<dt>' . _('Last flush') . '</dt><dd>'
             . ($flushAge === null
                 ? _('never')

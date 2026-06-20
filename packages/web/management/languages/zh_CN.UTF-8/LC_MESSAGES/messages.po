@@ -4755,6 +4755,9 @@ msgstr "待..."
 msgid "Performing ping"
 msgstr "尝试ping"
 
+msgid "Persistent file"
+msgstr ""
+
 msgid "Ping Hosts"
 msgstr "平主机"
 
@@ -7367,6 +7370,10 @@ msgid "directory"
 msgstr "目录"
 
 #, fuzzy
+msgid "disabled"
+msgstr "启用"
+
+#, fuzzy
 msgid "disabled (all)"
 msgstr "启用"
 
@@ -7675,6 +7682,9 @@ msgstr ""
 msgid "nodes containing this image"
 msgstr "找不到包含该图像的任何节点"
 
+msgid "not built yet"
+msgstr ""
+
 #, fuzzy
 msgid "not found on this node"
 msgstr "图片没有节点发现"
@@ -7691,6 +7701,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "old"
 msgstr ""
 
 msgid "or"
@@ -7713,6 +7726,9 @@ msgid "plugin needs a database update"
 msgstr ""
 
 msgid "plugins need a database update"
+msgstr ""
+
+msgid "present"
 msgstr ""
 
 msgid "previous install if needed"

@@ -4760,6 +4760,9 @@ msgstr "En attendant..."
 msgid "Performing ping"
 msgstr "Tenter de faire un ping"
 
+msgid "Persistent file"
+msgstr ""
+
 msgid "Ping Hosts"
 msgstr "hôtes Ping"
 
@@ -7382,6 +7385,10 @@ msgid "directory"
 msgstr "Annuaire"
 
 #, fuzzy
+msgid "disabled"
+msgstr "Activée"
+
+#, fuzzy
 msgid "disabled (all)"
 msgstr "Activée"
 
@@ -7690,6 +7697,9 @@ msgstr ""
 msgid "nodes containing this image"
 msgstr "Impossible de trouver des noeuds contenant cette image"
 
+msgid "not built yet"
+msgstr ""
+
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found sur le noeud"
@@ -7706,6 +7716,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "old"
 msgstr ""
 
 msgid "or"
@@ -7728,6 +7741,9 @@ msgid "plugin needs a database update"
 msgstr ""
 
 msgid "plugins need a database update"
+msgstr ""
+
+msgid "present"
 msgstr ""
 
 msgid "previous install if needed"

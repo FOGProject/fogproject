@@ -550,12 +550,16 @@ $.fn.registerTable = function(onSelect, opts) {
   var pageLength = parseInt($('#pageLength').val());
 
   // Paging style is admin-selectable via FOG_TABLE_SCROLL_MODE (hidden
-  // #scrollMode). Default is infinite (virtual-scroll) when unset. A table can
-  // force classic paging regardless of the global setting by passing
-  // scroller:false -- used for grouped/search-driven tables (e.g. the settings
-  // page, which uses rowGroup) that don't play well with virtual scroll.
+  // #scrollMode). Default is infinite (virtual-scroll) when unset.
+  //
+  // Two things force classic paging regardless of that setting:
+  //  - rowGroup: grouped tables inject category header rows that Scroller's
+  //    virtual row-height math can't reconcile, so any table using rowGroup is
+  //    auto-paged (no per-table flag needed).
+  //  - scroller:false: an explicit per-table opt-out for any other reason.
   var infiniteScroll =
     (opts.scroller !== false) &&
+    !opts.rowGroup &&
     (($('#scrollMode').val() || 'infinite').toLowerCase() !== 'paged');
 
   var defaults = {

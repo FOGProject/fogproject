@@ -4875,6 +4875,9 @@ msgstr "macs pendientes"
 msgid "Performing ping"
 msgstr ""
 
+msgid "Persistent file"
+msgstr ""
+
 msgid "Ping Hosts"
 msgstr "Los anfitriones de ping"
 
@@ -7527,6 +7530,10 @@ msgid "directory"
 msgstr "Directorio"
 
 #, fuzzy
+msgid "disabled"
+msgstr "habilitado"
+
+#, fuzzy
 msgid "disabled (all)"
 msgstr "habilitado"
 
@@ -7836,6 +7843,9 @@ msgstr ""
 msgid "nodes containing this image"
 msgstr "No se pudo encontrar ningún nodos que contienen esta imagen"
 
+msgid "not built yet"
+msgstr ""
+
 #, fuzzy
 msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
@@ -7851,6 +7861,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "old"
 msgstr ""
 
 #, fuzzy
@@ -7875,6 +7888,9 @@ msgid "plugin needs a database update"
 msgstr ""
 
 msgid "plugins need a database update"
+msgstr ""
+
+msgid "present"
 msgstr ""
 
 msgid "previous install if needed"

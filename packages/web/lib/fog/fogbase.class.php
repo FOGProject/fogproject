@@ -317,6 +317,22 @@ abstract class FOGBase
     private static $_settingsCacheMisses = 0;
     private static $_settingsCacheQueries = 0;
     /**
+     * Persistent (file-backed) settings cache control.
+     *
+     * null = automatic (enabled for the web tier, disabled for CLI daemons,
+     * which already benefit from their long-lived in-memory cache). Set to
+     * true/false to force it on or off (kill-switch / testing).
+     *
+     * @var bool|null
+     */
+    public static $settingsFileCache = null;
+    /**
+     * Whether the file-backed cache has already been consulted this request.
+     *
+     * @var bool
+     */
+    private static $_settingsFileChecked = false;
+    /**
      * Is our current element already initialized?
      *
      * @var bool
@@ -2096,6 +2112,179 @@ abstract class FOGBase
         return FOG_CACHE_DIR . DS . '.settings_cache_flush';
     }
     /**
+     * Current mtime of the cross-process flush signal file (0 if absent).
+     *
+     * @return int
+     */
+    private static function _cacheFlushMtime()
+    {
+        $file = self::_cacheFlushFile();
+        clearstatcache(true, $file);
+        return is_file($file) ? (int) filemtime($file) : 0;
+    }
+    /**
+     * Raise the cross-process flush signal so other processes re-read on their
+     * next access. Kept world-writable so any tier can update its mtime.
+     *
+     * @return void
+     */
+    private static function _raiseFlushSignal()
+    {
+        $file = self::_cacheFlushFile();
+        @touch($file);
+        @chmod($file, 0666);
+    }
+    /**
+     * Path to the persistent (file-backed) settings cache.
+     *
+     * @return string
+     */
+    private static function _settingsCacheFile()
+    {
+        return FOG_CACHE_DIR . DS . 'settings.cache.json';
+    }
+    /**
+     * Whether the persistent file-backed cache is in use for this process.
+     *
+     * @return bool
+     */
+    private static function _useSettingsFileCache()
+    {
+        if (self::$settingsFileCache !== null) {
+            return (bool) self::$settingsFileCache;
+        }
+        // Web requests are short-lived and rebuild static state every time, so
+        // they benefit from a shared file; CLI daemons keep their long-lived
+        // in-memory cache and never touch the shared file.
+        return PHP_SAPI !== 'cli';
+    }
+    /**
+     * Load every global setting from the database in a single query, applying
+     * the same normalisation as getSetting().
+     *
+     * @return array Map of settingKey => normalised value.
+     */
+    private static function _loadAllSettings()
+    {
+        $findStr = '\r\n';
+        $repStr = "\n";
+        $rows = self::$DB->query(
+            "SELECT `settingKey`, `settingValue` FROM `globalSettings`"
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+        $data = [];
+        foreach ((array) $rows as $row) {
+            $data[$row['settingKey']] = trim(
+                str_replace($findStr, $repStr, trim($row['settingValue']))
+            );
+        }
+
+        return $data;
+    }
+    /**
+     * Atomically (re)write the persistent settings cache file.
+     *
+     * Stored as JSON data (never an included PHP file) because FOG_CACHE_DIR is
+     * world-writable; executing code from it would be a local RCE vector. The
+     * file is mode 0600 because the values include secrets and the directory is
+     * world-readable; every php-fpm worker shares the web user, and daemons do
+     * not read it.
+     *
+     * @param array $data Map of settingKey => value.
+     * @param int   $ts   Build timestamp.
+     *
+     * @return void
+     */
+    private static function _writeSettingsCacheFile(array $data, $ts)
+    {
+        if (!self::_useSettingsFileCache()) {
+            return;
+        }
+        $json = json_encode(['ts' => (int) $ts, 'data' => $data]);
+        if ($json === false) {
+            return;
+        }
+        $file = self::_settingsCacheFile();
+        $tmp = $file . '.' . getmypid() . '.' . mt_rand() . '.tmp';
+        if (@file_put_contents($tmp, $json, LOCK_EX) === false) {
+            return;
+        }
+        @chmod($tmp, 0600);
+        if (!@rename($tmp, $file)) {
+            @unlink($tmp);
+        }
+    }
+    /**
+     * Remove the persistent settings cache file (web tier only).
+     *
+     * @return void
+     */
+    private static function _deleteSettingsCacheFile()
+    {
+        if (!self::_useSettingsFileCache()) {
+            return;
+        }
+        $file = self::_settingsCacheFile();
+        clearstatcache(true, $file);
+        if (is_file($file)) {
+            @unlink($file);
+        }
+    }
+    /**
+     * Warm the in-memory cache from the persistent file once per request.
+     *
+     * On a fresh, unexpired, un-flushed file this populates every setting with
+     * zero database queries. Otherwise it rebuilds the file from the database
+     * in a single query so sibling requests read it for free.
+     *
+     * @return void
+     */
+    private static function _warmFromFileCache()
+    {
+        if (self::$_settingsFileChecked || !self::_useSettingsFileCache()) {
+            return;
+        }
+        self::$_settingsFileChecked = true;
+
+        $file = self::_settingsCacheFile();
+        $now = time();
+        $flushMtime = self::_cacheFlushMtime();
+
+        clearstatcache(true, $file);
+        $payload = null;
+        if (is_file($file)) {
+            $raw = @file_get_contents($file);
+            if ($raw !== false) {
+                $payload = json_decode($raw, true);
+            }
+        }
+
+        if (is_array($payload)
+            && isset($payload['ts'], $payload['data'])
+            && is_array($payload['data'])
+            && ($now - (int) $payload['ts']) < self::$settingsCacheTTL
+            && $flushMtime <= (int) $payload['ts']
+        ) {
+            $ts = (int) $payload['ts'];
+            foreach ($payload['data'] as $k => $v) {
+                // Never clobber an entry already set this request (e.g. a
+                // setSetting() write that has not yet been persisted).
+                if (!isset(self::$_settingsCache[$k])) {
+                    self::$_settingsCache[$k] = ['value' => $v, 'ts' => $ts];
+                }
+            }
+            return;
+        }
+
+        // Missing, stale, or flushed: rebuild from the database and persist.
+        ++self::$_settingsCacheQueries;
+        $data = self::_loadAllSettings();
+        foreach ($data as $k => $v) {
+            self::$_settingsCache[$k] = ['value' => $v, 'ts' => $now];
+        }
+        self::_writeSettingsCacheFile($data, $now);
+    }
+    /**
      * Get global setting value by key.
      *
      * Values are served from a per-process TTL cache when available. A key is
@@ -2118,21 +2307,27 @@ abstract class FOGBase
 
         $keys = (array) $key;
 
+        // Web tier: warm the whole cache from the shared file once per request
+        // (zero queries on a fresh file). No-op for CLI daemons.
+        self::_warmFromFileCache();
+
         // Cross-process invalidation: a flush signal newer than a cached entry
-        // forces that entry to be re-read. clearstatcache keeps long-running
-        // daemons from trusting a stale mtime.
-        $flushFile = self::_cacheFlushFile();
-        clearstatcache(true, $flushFile);
-        $flushMtime = is_file($flushFile) ? (int) filemtime($flushFile) : 0;
+        // forces that entry to be re-read.
+        $flushMtime = self::_cacheFlushMtime();
         $now = time();
 
+        // When the file cache has warmed a coherent snapshot this request, trust
+        // present entries without re-validating TTL/flush (warm already did, and
+        // re-checking would trigger a redundant query). Daemons do not warm, so
+        // they keep the per-entry staleness check from the in-memory design.
+        $warmed = self::$_settingsFileChecked;
         $missing = [];
         foreach ($keys as $k) {
             $entry = self::$_settingsCache[$k] ?? null;
-            if ($entry === null
-                || $flushMtime > $entry['ts']
-                || ($now - $entry['ts']) >= self::$settingsCacheTTL
-            ) {
+            $stale = $entry !== null && !$warmed
+                && ($flushMtime > $entry['ts']
+                    || ($now - $entry['ts']) >= self::$settingsCacheTTL);
+            if ($entry === null || $stale) {
                 $missing[] = $k;
                 ++self::$_settingsCacheMisses;
             } else {
@@ -2206,6 +2401,10 @@ abstract class FOGBase
                 ),
                 'ts' => time(),
             ];
+            // Invalidate the shared web file so sibling requests rebuild with
+            // the new value on their next read. Daemons keep TTL staleness
+            // (unchanged from the in-memory design), so no flush storm here.
+            self::_deleteSettingsCacheFile();
         }
 
         return $result;
@@ -2225,7 +2424,11 @@ abstract class FOGBase
         } else {
             unset(self::$_settingsCache[$key]);
         }
-        @touch(self::_cacheFlushFile());
+        // Drop the shared file and force a re-warm; raise the cross-process
+        // signal so every other process re-reads on its next access.
+        self::$_settingsFileChecked = false;
+        self::_deleteSettingsCacheFile();
+        self::_raiseFlushSignal();
     }
     /**
      * Reload every global setting into the per-process cache using a single
@@ -2235,28 +2438,18 @@ abstract class FOGBase
      */
     public static function refreshSettingsCache()
     {
-        $findStr = '\r\n';
-        $repStr = "\n";
         $now = time();
-
-        $rows = self::$DB->query(
-            "SELECT `settingKey`, `settingValue` FROM `globalSettings`"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $data = self::_loadAllSettings();
 
         self::$_settingsCache = [];
-        foreach ((array) $rows as $row) {
-            self::$_settingsCache[$row['settingKey']] = [
-                'value' => trim(
-                    str_replace(
-                        $findStr,
-                        $repStr,
-                        trim($row['settingValue'])
-                    )
-                ),
-                'ts' => $now,
-            ];
+        foreach ($data as $k => $v) {
+            self::$_settingsCache[$k] = ['value' => $v, 'ts' => $now];
         }
-        @touch(self::_cacheFlushFile());
+        // We just rebuilt the in-memory cache, so mark the file as consulted,
+        // persist it for sibling requests, and signal other processes.
+        self::$_settingsFileChecked = true;
+        self::_writeSettingsCacheFile($data, $now);
+        self::_raiseFlushSignal();
 
         return count(self::$_settingsCache);
     }
@@ -2276,16 +2469,18 @@ abstract class FOGBase
         $misses = self::$_settingsCacheMisses;
         $reads = $hits + $misses;
         $now = time();
-
-        $flushFile = self::_cacheFlushFile();
-        clearstatcache(true, $flushFile);
-        $flushMtime = is_file($flushFile) ? (int) filemtime($flushFile) : 0;
+        $flushMtime = self::_cacheFlushMtime();
 
         $keys = [];
         foreach (self::$_settingsCache as $name => $entry) {
             $keys[$name] = $now - (int) $entry['ts'];
         }
         ksort($keys);
+
+        $fileEnabled = self::_useSettingsFileCache();
+        $cacheFile = self::_settingsCacheFile();
+        clearstatcache(true, $cacheFile);
+        $fileExists = $fileEnabled && is_file($cacheFile);
 
         return [
             'hits' => $hits,
@@ -2295,6 +2490,11 @@ abstract class FOGBase
             'keysCached' => count(self::$_settingsCache),
             'ttl' => self::$settingsCacheTTL,
             'flushAgeSeconds' => $flushMtime > 0 ? $now - $flushMtime : null,
+            'fileCache' => [
+                'enabled' => $fileEnabled,
+                'exists' => $fileExists,
+                'ageSeconds' => $fileExists ? $now - (int) filemtime($cacheFile) : null,
+            ],
             'cachedKeys' => $keys,
         ];
     }
