@@ -1408,6 +1408,34 @@ class FOGConfigurationPage extends FOGPage
             . 'class="btn btn-primary">'
             . _('Refresh Settings Cache')
             . '</button>';
+        // Read-only cache snapshot for this request. On the web tier static
+        // state is reset per request, so these counts reflect the work done to
+        // render this page (boot, auth, routing, plugins); reload to re-sample.
+        $stats = self::getSettingsCacheStats();
+        $flushAge = $stats['flushAgeSeconds'];
+        echo '<dl class="dl-horizontal" style="margin-top:15px">';
+        echo '<dt>' . _('Keys cached') . '</dt><dd>'
+            . (int) $stats['keysCached'] . '</dd>';
+        echo '<dt>' . _('Hits / Misses / Queries') . '</dt><dd>'
+            . (int) $stats['hits'] . ' / '
+            . (int) $stats['misses'] . ' / '
+            . (int) $stats['dbQueries']
+            . ' (' . (float) $stats['hitRatePct'] . '% '
+            . _('hit rate') . ', ' . _('this request') . ')</dd>';
+        echo '<dt>' . _('TTL') . '</dt><dd>'
+            . (int) $stats['ttl'] . 's</dd>';
+        echo '<dt>' . _('Last flush') . '</dt><dd>'
+            . ($flushAge === null
+                ? _('never')
+                : (int) $flushAge . 's ' . _('ago'))
+            . '</dd>';
+        if (count($stats['cachedKeys']) > 0) {
+            echo '<dt>' . _('Cached keys') . '</dt><dd>'
+                . '<small class="text-muted">'
+                . Initiator::e(implode(', ', array_keys($stats['cachedKeys'])))
+                . '</small></dd>';
+        }
+        echo '</dl>';
         echo '</div>';
         echo '</div>';
     }

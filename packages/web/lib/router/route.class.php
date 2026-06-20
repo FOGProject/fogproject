@@ -351,6 +351,10 @@ class Route extends FOGBase
             "${expanded}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
+        )->get(
+            '/settings/cache',
+            [__CLASS__, 'settingsCacheView'],
+            'settingsCacheView'
         )->post(
             '/settings/cache/flush',
             [__CLASS__, 'settingsCacheFlush'],
@@ -516,6 +520,16 @@ class Route extends FOGBase
     {
         FOGBase::clearSettingsCache();
         self::$data = ['status' => 'flushed'];
+    }
+    /**
+     * Read-only view of the settings cache (counters + cached key names and
+     * ages, never values). Auth is enforced by the constructor.
+     *
+     * @return void
+     */
+    public static function settingsCacheView()
+    {
+        self::$data = FOGBase::getSettingsCacheStats();
     }
     /**
      * Reloads every global setting into the cache in a single query and

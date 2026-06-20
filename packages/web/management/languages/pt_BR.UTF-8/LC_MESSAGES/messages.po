@@ -969,6 +969,10 @@ msgstr "Padrão Refresh Rate"
 msgid "Cache Refreshed"
 msgstr "Padrão Refresh Rate"
 
+#, fuzzy
+msgid "Cached keys"
+msgstr "Padrão Refresh Rate"
+
 msgid "Call"
 msgstr ""
 
@@ -2646,6 +2650,9 @@ msgstr "Ajuda e Guia"
 msgid "History Items"
 msgstr "ID de acolhimento"
 
+msgid "Hits / Misses / Queries"
+msgstr ""
+
 msgid "Home"
 msgstr "Casa"
 
@@ -3598,6 +3605,9 @@ msgstr ""
 msgid "Key to match"
 msgstr ""
 
+msgid "Keys cached"
+msgstr ""
+
 msgid "Kill"
 msgstr "Matar"
 
@@ -3680,6 +3690,9 @@ msgstr ""
 
 msgid "Last Deployed"
 msgstr "Última Implantado"
+
+msgid "Last flush"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -6216,6 +6229,9 @@ msgstr "Versão do sistema"
 msgid "TCP/IP Port Printer"
 msgstr "Impressora TCP / IP"
 
+msgid "TTL"
+msgstr ""
+
 msgid "TX"
 msgstr "TX"
 
@@ -7457,6 +7473,9 @@ msgstr "tarefa iniciada"
 msgid "here"
 msgstr "Aqui"
 
+msgid "hit rate"
+msgstr ""
+
 msgid "host"
 msgstr "anfitrião"
 
@@ -7651,6 +7670,9 @@ msgstr "Nenhuma imagem especificada"
 msgid "n/a"
 msgstr "n / D"
 
+msgid "never"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -7798,6 +7820,10 @@ msgstr ""
 #, fuzzy
 msgid "this one is reserved for FOG"
 msgstr "Por favor, escolha um nome diferente, este é reservado para FOG."
+
+#, fuzzy
+msgid "this request"
+msgstr "%s é necessária"
 
 msgid "this will save the backup in your home"
 msgstr ""
@@ -8196,10 +8222,6 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "antes de mim"
-
-#, fuzzy
-#~ msgid "is required"
-#~ msgstr "%s é necessária"
 
 #, fuzzy
 #~ msgid "no database to"

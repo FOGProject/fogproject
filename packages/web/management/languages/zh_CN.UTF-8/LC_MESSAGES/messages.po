@@ -969,6 +969,10 @@ msgstr "默认刷新频率"
 msgid "Cache Refreshed"
 msgstr "默认刷新频率"
 
+#, fuzzy
+msgid "Cached keys"
+msgstr "默认刷新频率"
+
 msgid "Call"
 msgstr ""
 
@@ -2644,6 +2648,9 @@ msgstr "帮助和引导"
 msgid "History Items"
 msgstr "主机ID"
 
+msgid "Hits / Misses / Queries"
+msgstr ""
+
 msgid "Home"
 msgstr "家"
 
@@ -3596,6 +3603,9 @@ msgstr ""
 msgid "Key to match"
 msgstr ""
 
+msgid "Keys cached"
+msgstr ""
+
 msgid "Kill"
 msgstr "杀"
 
@@ -3678,6 +3688,9 @@ msgstr ""
 
 msgid "Last Deployed"
 msgstr "最后部署"
+
+msgid "Last flush"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -6212,6 +6225,9 @@ msgstr "系统版本"
 msgid "TCP/IP Port Printer"
 msgstr "TCP / IP端口打印机"
 
+msgid "TTL"
+msgstr ""
+
 msgid "TX"
 msgstr "TX"
 
@@ -7446,6 +7462,9 @@ msgstr "任务开始"
 msgid "here"
 msgstr "这里"
 
+msgid "hit rate"
+msgstr ""
+
 msgid "host"
 msgstr "主办"
 
@@ -7640,6 +7659,9 @@ msgstr "没有指定的图像"
 msgid "n/a"
 msgstr "N / A"
 
+msgid "never"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -7785,6 +7807,10 @@ msgstr ""
 #, fuzzy
 msgid "this one is reserved for FOG"
 msgstr "请选择一个不同的名字，这个人是留给雾。"
+
+#, fuzzy
+msgid "this request"
+msgstr "%s是必需的"
 
 msgid "this will save the backup in your home"
 msgstr ""
@@ -8181,10 +8207,6 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "我面前"
-
-#, fuzzy
-#~ msgid "is required"
-#~ msgstr "%s是必需的"
 
 #, fuzzy
 #~ msgid "no database to"

@@ -926,6 +926,10 @@ msgstr "Predefinito: frequenza aggiornamento"
 msgid "Cache Refreshed"
 msgstr "Predefinito: frequenza aggiornamento"
 
+#, fuzzy
+msgid "Cached keys"
+msgstr "Predefinito: frequenza aggiornamento"
+
 msgid "Call"
 msgstr "Chiamata"
 
@@ -2543,6 +2547,9 @@ msgstr "Aiuto e guida"
 msgid "History Items"
 msgstr "Grafico storico"
 
+msgid "Hits / Misses / Queries"
+msgstr ""
+
 msgid "Home"
 msgstr "Casa"
 
@@ -3447,6 +3454,9 @@ msgstr "Chiave deve essere un array o una stringa."
 msgid "Key to match"
 msgstr "I file non corrispondono"
 
+msgid "Keys cached"
+msgstr ""
+
 msgid "Kill"
 msgstr "Uccidere"
 
@@ -3522,6 +3532,9 @@ msgstr ""
 
 msgid "Last Deployed"
 msgstr "Ultima Distribuita"
+
+msgid "Last flush"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -5930,6 +5943,9 @@ msgstr "Sistema versione"
 msgid "TCP/IP Port Printer"
 msgstr "Porta TCP / IP della stampante"
 
+msgid "TTL"
+msgstr ""
+
 msgid "TX"
 msgstr "TX"
 
@@ -7105,6 +7121,9 @@ msgstr "è iniziato"
 msgid "here"
 msgstr "qui"
 
+msgid "hit rate"
+msgstr ""
+
 msgid "host"
 msgstr "host"
 
@@ -7284,6 +7303,9 @@ msgstr "deve essere specificato"
 msgid "n/a"
 msgstr "n/d"
 
+msgid "never"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr "nodo è il distributore delle immagini"
 
@@ -7418,6 +7440,10 @@ msgstr "questo kernel attende tutti i driver per il computre client"
 
 msgid "this one is reserved for FOG"
 msgstr "questo è riservato per FOG"
+
+#, fuzzy
+msgid "this request"
+msgstr "è richiesto"
 
 msgid "this will save the backup in your home"
 msgstr "Questo salverà il backup nella tua"
@@ -7797,9 +7823,6 @@ msgstr ""
 
 #~ msgid "but"
 #~ msgstr "ma"
-
-#~ msgid "is required"
-#~ msgstr "è richiesto"
 
 #~ msgid "no database to"
 #~ msgstr "Nessun database a"

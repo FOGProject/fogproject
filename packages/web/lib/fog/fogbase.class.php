@@ -307,6 +307,16 @@ abstract class FOGBase
      */
     public static $settingsCacheTTL = 300;
     /**
+     * Settings cache instrumentation for this process: per-key reads served
+     * from cache (hits), per-key reads that fell through to the database
+     * (misses), and the number of actual database round-trips issued.
+     *
+     * @var int
+     */
+    private static $_settingsCacheHits = 0;
+    private static $_settingsCacheMisses = 0;
+    private static $_settingsCacheQueries = 0;
+    /**
      * Is our current element already initialized?
      *
      * @var bool
@@ -2124,10 +2134,14 @@ abstract class FOGBase
                 || ($now - $entry['ts']) >= self::$settingsCacheTTL
             ) {
                 $missing[] = $k;
+                ++self::$_settingsCacheMisses;
+            } else {
+                ++self::$_settingsCacheHits;
             }
         }
 
         if (count($missing) > 0) {
+            ++self::$_settingsCacheQueries;
             $sql = "SELECT `settingKey`, `settingValue` FROM `globalSettings` "
                 . "WHERE `settingKey` IN ('"
                 . implode("','", $missing)
@@ -2245,6 +2259,44 @@ abstract class FOGBase
         @touch(self::_cacheFlushFile());
 
         return count(self::$_settingsCache);
+    }
+    /**
+     * Read-only snapshot of the settings cache for this process.
+     *
+     * Exposes counters and per-key freshness but never setting values, since
+     * globalSettings holds secrets (API token, AD/MySQL passwords, etc.). On
+     * the web tier the counters are per-request (static state is reset between
+     * requests); in a daemon they are cumulative for the process lifetime.
+     *
+     * @return array
+     */
+    public static function getSettingsCacheStats()
+    {
+        $hits = self::$_settingsCacheHits;
+        $misses = self::$_settingsCacheMisses;
+        $reads = $hits + $misses;
+        $now = time();
+
+        $flushFile = self::_cacheFlushFile();
+        clearstatcache(true, $flushFile);
+        $flushMtime = is_file($flushFile) ? (int) filemtime($flushFile) : 0;
+
+        $keys = [];
+        foreach (self::$_settingsCache as $name => $entry) {
+            $keys[$name] = $now - (int) $entry['ts'];
+        }
+        ksort($keys);
+
+        return [
+            'hits' => $hits,
+            'misses' => $misses,
+            'dbQueries' => self::$_settingsCacheQueries,
+            'hitRatePct' => $reads > 0 ? round(($hits / $reads) * 100, 1) : 0,
+            'keysCached' => count(self::$_settingsCache),
+            'ttl' => self::$settingsCacheTTL,
+            'flushAgeSeconds' => $flushMtime > 0 ? $now - $flushMtime : null,
+            'cachedKeys' => $keys,
+        ];
     }
     /**
      * Gets queued state ids.

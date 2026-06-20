@@ -967,6 +967,10 @@ msgstr "Standard-Bildwiederholrate"
 msgid "Cache Refreshed"
 msgstr "Standard-Bildwiederholrate"
 
+#, fuzzy
+msgid "Cached keys"
+msgstr "Standard-Bildwiederholrate"
+
 msgid "Call"
 msgstr "Aufruf"
 
@@ -2644,6 +2648,9 @@ msgstr "Hilfe und Anleitung"
 msgid "History Items"
 msgstr "Verlaufs-ID"
 
+msgid "Hits / Misses / Queries"
+msgstr ""
+
 msgid "Home"
 msgstr "Startseite"
 
@@ -3599,6 +3606,9 @@ msgstr ""
 msgid "Key to match"
 msgstr "Dateien stimmen nicht überein"
 
+msgid "Keys cached"
+msgstr ""
+
 msgid "Kill"
 msgstr "sofort abbrechen"
 
@@ -3682,6 +3692,9 @@ msgstr ""
 
 msgid "Last Deployed"
 msgstr "Zuletzt verteilt"
+
+msgid "Last flush"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -6218,6 +6231,9 @@ msgstr "Systemversion"
 msgid "TCP/IP Port Printer"
 msgstr "TCP/IP-Port Drucker"
 
+msgid "TTL"
+msgstr ""
+
 msgid "TX"
 msgstr "TX"
 
@@ -7466,6 +7482,9 @@ msgstr "hat begonnen"
 msgid "here"
 msgstr "Hier"
 
+msgid "hit rate"
+msgstr ""
+
 msgid "host"
 msgstr "Host"
 
@@ -7661,6 +7680,9 @@ msgstr "muss angegeben werden"
 msgid "n/a"
 msgstr "nicht verfügbar"
 
+msgid "never"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr "welcher Knoten die Images verteilt."
 
@@ -7808,6 +7830,10 @@ msgstr "dieser Kernel stellt alle Treiber für den Client Computer bereit. "
 #, fuzzy
 msgid "this one is reserved for FOG"
 msgstr "Dieser ist reserviert für FOG."
+
+#, fuzzy
+msgid "this request"
+msgstr "%s ist erforderlich"
 
 msgid "this will save the backup in your home"
 msgstr "Das wird Ihr Backup in Ihrem "
@@ -8209,10 +8235,6 @@ msgstr ""
 
 #~ msgid "but"
 #~ msgstr "aber "
-
-#, fuzzy
-#~ msgid "is required"
-#~ msgstr "%s ist erforderlich"
 
 #, fuzzy
 #~ msgid "no database to"

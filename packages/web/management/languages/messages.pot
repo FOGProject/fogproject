@@ -795,6 +795,9 @@ msgstr ""
 msgid "Cache Refreshed"
 msgstr ""
 
+msgid "Cached keys"
+msgstr ""
+
 msgid "Call"
 msgstr ""
 
@@ -2205,6 +2208,9 @@ msgstr ""
 msgid "History Items"
 msgstr ""
 
+msgid "Hits / Misses / Queries"
+msgstr ""
+
 msgid "Home"
 msgstr ""
 
@@ -3002,6 +3008,9 @@ msgstr ""
 msgid "Key to match"
 msgstr ""
 
+msgid "Keys cached"
+msgstr ""
+
 msgid "Kill"
 msgstr ""
 
@@ -3069,6 +3078,9 @@ msgid "Last Check In"
 msgstr ""
 
 msgid "Last Deployed"
+msgstr ""
+
+msgid "Last flush"
 msgstr ""
 
 msgid "Latest Alpha Version"
@@ -5224,6 +5236,9 @@ msgstr ""
 msgid "TCP/IP Port Printer"
 msgstr ""
 
+msgid "TTL"
+msgstr ""
+
 msgid "TX"
 msgstr ""
 
@@ -6274,6 +6289,9 @@ msgstr ""
 msgid "here"
 msgstr ""
 
+msgid "hit rate"
+msgstr ""
+
 msgid "host"
 msgstr ""
 
@@ -6439,6 +6457,9 @@ msgstr ""
 msgid "n/a"
 msgstr ""
 
+msgid "never"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -6566,6 +6587,9 @@ msgid "this kernel holds all the drivers for the client computer"
 msgstr ""
 
 msgid "this one is reserved for FOG"
+msgstr ""
+
+msgid "this request"
 msgstr ""
 
 msgid "this will save the backup in your home"
