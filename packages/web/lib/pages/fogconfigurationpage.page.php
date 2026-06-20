@@ -1305,6 +1305,73 @@ class FOGConfigurationPage extends FOGPage
         exit;
     }
     /**
+     * Flushes the per-process settings cache and raises the cross-process
+     * flush signal (AJAX).
+     *
+     * @return void
+     */
+    public function cacheFlushPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        try {
+            FOGBase::clearSettingsCache();
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(
+                [
+                    'msg' => _('Settings cache flushed'),
+                    'title' => _('Cache Flushed')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Cache Flush Failed')
+                ]
+            );
+        }
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
+    /**
+     * Reloads all settings into the cache with a single query and raises the
+     * cross-process flush signal (AJAX).
+     *
+     * @return void
+     */
+    public function cacheRefreshPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        try {
+            $count = FOGBase::refreshSettingsCache();
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(
+                [
+                    'msg' => sprintf(
+                        _('Reloaded %d setting(s) into cache'),
+                        $count
+                    ),
+                    'title' => _('Cache Refreshed')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Cache Refresh Failed')
+                ]
+            );
+        }
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
+    /**
      * Tablize the fog settings.
      *
      * @return void
@@ -1331,6 +1398,16 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $this->render(12, 'settings-table');
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button type="button" id="settings-cache-flush" '
+            . 'class="btn btn-warning">'
+            . _('Flush Settings Cache')
+            . '</button> ';
+        echo '<button type="button" id="settings-cache-refresh" '
+            . 'class="btn btn-primary">'
+            . _('Refresh Settings Cache')
+            . '</button>';
         echo '</div>';
         echo '</div>';
     }

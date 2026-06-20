@@ -605,6 +605,11 @@ installFOGServices() {
     chmod +x -R $servicedst/
     mkdir -p $servicelogs
     errorStat $?
+    dots "Creating FOG cache directory"
+    mkdir -p /opt/fog/cache >>$error_log 2>&1
+    chown ${username}:${apacheuser} /opt/fog/cache >>$error_log 2>&1
+    chmod 775 /opt/fog/cache >>$error_log 2>&1
+    errorStat $?
 }
 configureUDPCast() {
     dots "Setting up UDPCast"

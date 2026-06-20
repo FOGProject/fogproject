@@ -948,6 +948,20 @@ msgstr "CPU Version"
 msgid "CUPS Printer"
 msgstr "CUPS Printer"
 
+msgid "Cache Flush Failed"
+msgstr ""
+
+msgid "Cache Flushed"
+msgstr ""
+
+#, fuzzy
+msgid "Cache Refresh Failed"
+msgstr "Par défaut Taux de rafraîchissement"
+
+#, fuzzy
+msgid "Cache Refreshed"
+msgstr "Par défaut Taux de rafraîchissement"
+
 msgid "Call"
 msgstr ""
 
@@ -2200,6 +2214,10 @@ msgstr ""
 
 msgid "First row is a header"
 msgstr ""
+
+#, fuzzy
+msgid "Flush Settings Cache"
+msgstr "Paramètres BROUILLARD"
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -5029,6 +5047,10 @@ msgstr "Recevoir"
 msgid "Record not found"
 msgstr "Enregistrement non trouvé, Erreur: %s"
 
+#, fuzzy
+msgid "Refresh Settings Cache"
+msgstr "État du service"
+
 msgid "Register must be managed from hooks or events"
 msgstr ""
 
@@ -5041,6 +5063,10 @@ msgstr "hôtes inscrits"
 #, fuzzy
 msgid "Release Version"
 msgstr "Dernière version"
+
+#, php-format
+msgid "Reloaded %d setting(s) into cache"
+msgstr ""
 
 msgid "Remember Me"
 msgstr ""
@@ -5463,6 +5489,10 @@ msgstr "Paramètres mis à jour"
 #, fuzzy
 msgid "Settings Update Success"
 msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Settings cache flushed"
+msgstr "Paramètres mis à jour"
 
 #, fuzzy
 msgid "Settings successfully stored!"

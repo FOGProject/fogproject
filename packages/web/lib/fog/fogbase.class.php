@@ -290,6 +290,23 @@ abstract class FOGBase
         'user'
     ];
     /**
+     * Per-process cache of global settings.
+     *
+     * Keyed by setting name; each entry is ['value' => mixed, 'ts' => int]
+     * where ts is the unix time the value was loaded.
+     *
+     * @var array
+     */
+    private static $_settingsCache = [];
+    /**
+     * Time-to-live, in seconds, for entries in the settings cache.
+     *
+     * Overridable at runtime to tune staleness vs. database load.
+     *
+     * @var int
+     */
+    public static $settingsCacheTTL = 300;
+    /**
      * Is our current element already initialized?
      *
      * @var bool
@@ -2057,13 +2074,28 @@ abstract class FOGBase
         }
     }
     /**
+     * Path to the cross-process settings cache flush signal file.
+     *
+     * @return string
+     */
+    private static function _cacheFlushFile()
+    {
+        // FOG_CACHE_DIR is owned fogproject:apacheuser mode 775 (set by installer)
+        // so both daemon processes and the web server can write the flush signal.
+        return FOG_CACHE_DIR . DS . '.settings_cache_flush';
+    }
+    /**
      * Get global setting value by key.
+     *
+     * Values are served from a per-process TTL cache when available. A key is
+     * (re)read from the database when it is uncached, its TTL has elapsed, or
+     * the cross-process flush signal file is newer than the cached entry.
      *
      * @param string|array $key What to get
      *
      * @throws Exception
      *
-     * @return string
+     * @return string|array
      */
     public static function getSetting($key)
     {
@@ -2073,35 +2105,61 @@ abstract class FOGBase
         $findStr = '\r\n';
         $repStr = "\n";
 
-        $sql = "SELECT `settingValue` FROM `globalSettings` WHERE `settingKey` %s";
+        $keys = (array) $key;
 
-        $where = '';
-        if (is_array($key)) {
-            $where = " IN ('"
-                . implode("','", $key)
-                . "')";
-        } else {
-            $where = " = '$key'";
+        // Cross-process invalidation: a flush signal newer than a cached entry
+        // forces that entry to be re-read. clearstatcache keeps long-running
+        // daemons from trusting a stale mtime.
+        $flushFile = self::_cacheFlushFile();
+        clearstatcache(true, $flushFile);
+        $flushMtime = is_file($flushFile) ? (int) filemtime($flushFile) : 0;
+        $now = time();
+
+        $missing = [];
+        foreach ($keys as $k) {
+            $entry = self::$_settingsCache[$k] ?? null;
+            if ($entry === null
+                || $flushMtime > $entry['ts']
+                || ($now - $entry['ts']) >= self::$settingsCacheTTL
+            ) {
+                $missing[] = $k;
+            }
         }
 
-        $sqlStr = sprintf($sql, $where);
+        if (count($missing) > 0) {
+            $sql = "SELECT `settingKey`, `settingValue` FROM `globalSettings` "
+                . "WHERE `settingKey` IN ('"
+                . implode("','", $missing)
+                . "')";
 
-        $vals = self::$DB->query(sprintf($sql, $where))
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get('settingValue');
+            $rows = self::$DB->query($sql)
+                ->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
 
-        foreach ((array)$vals as $ind => &$val) {
-            $vals[$ind] = trim(
-                str_replace(
-                    $findStr,
-                    $repStr,
-                    trim($val)
-                )
-            );
-            unset($val);
+            foreach ((array) $rows as $row) {
+                self::$_settingsCache[$row['settingKey']] = [
+                    'value' => trim(
+                        str_replace(
+                            $findStr,
+                            $repStr,
+                            trim($row['settingValue'])
+                        )
+                    ),
+                    'ts' => $now,
+                ];
+            }
         }
 
         if (is_string($key)) {
-            return array_shift($vals);
+            return isset(self::$_settingsCache[$key])
+                ? self::$_settingsCache[$key]['value']
+                : null;
+        }
+
+        $vals = [];
+        foreach ($keys as $k) {
+            if (isset(self::$_settingsCache[$k])) {
+                $vals[] = self::$_settingsCache[$k]['value'];
+            }
         }
 
         return $vals;
@@ -2118,11 +2176,74 @@ abstract class FOGBase
      */
     public static function setSetting($key, $value)
     {
-        return self::getClass('SettingManager')->update(
+        $result = self::getClass('SettingManager')->update(
             ['name' => $key],
             '',
             ['value' => trim($value)]
         );
+
+        // Only refresh the cache on a successful write, and normalise exactly
+        // as getSetting() would so cached reads match a fresh database read.
+        if ($result) {
+            self::$_settingsCache[$key] = [
+                'value' => trim(
+                    str_replace('\r\n', "\n", trim($value))
+                ),
+                'ts' => time(),
+            ];
+        }
+
+        return $result;
+    }
+    /**
+     * Clear the per-process settings cache and raise the cross-process flush
+     * signal so other processes re-read on their next access.
+     *
+     * @param string|null $key A single key to drop, or null to clear all.
+     *
+     * @return void
+     */
+    public static function clearSettingsCache($key = null)
+    {
+        if ($key === null) {
+            self::$_settingsCache = [];
+        } else {
+            unset(self::$_settingsCache[$key]);
+        }
+        @touch(self::_cacheFlushFile());
+    }
+    /**
+     * Reload every global setting into the per-process cache using a single
+     * query, then raise the cross-process flush signal.
+     *
+     * @return int Number of settings loaded into the cache.
+     */
+    public static function refreshSettingsCache()
+    {
+        $findStr = '\r\n';
+        $repStr = "\n";
+        $now = time();
+
+        $rows = self::$DB->query(
+            "SELECT `settingKey`, `settingValue` FROM `globalSettings`"
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+        self::$_settingsCache = [];
+        foreach ((array) $rows as $row) {
+            self::$_settingsCache[$row['settingKey']] = [
+                'value' => trim(
+                    str_replace(
+                        $findStr,
+                        $repStr,
+                        trim($row['settingValue'])
+                    )
+                ),
+                'ts' => $now,
+            ];
+        }
+        @touch(self::_cacheFlushFile());
+
+        return count(self::$_settingsCache);
     }
     /**
      * Gets queued state ids.

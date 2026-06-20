@@ -133,6 +133,15 @@
       });
     });
   });
+  var cacheAction = '../management/index.php?node=' + Common.node + '&sub=';
+  $('#settings-cache-flush').off('click').on('click', function(e) {
+    e.preventDefault();
+    $.apiCall('post', cacheAction + 'cacheFlushPost', {});
+  });
+  $('#settings-cache-refresh').off('click').on('click', function(e) {
+    e.preventDefault();
+    $.apiCall('post', cacheAction + 'cacheRefreshPost', {});
+  });
   if (Common.search && Common.search.length > 0) {
     table.search(Common.search).draw();
   }

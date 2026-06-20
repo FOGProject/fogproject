@@ -947,6 +947,20 @@ msgstr "CPU版本"
 msgid "CUPS Printer"
 msgstr "CUPS打印机"
 
+msgid "Cache Flush Failed"
+msgstr ""
+
+msgid "Cache Flushed"
+msgstr ""
+
+#, fuzzy
+msgid "Cache Refresh Failed"
+msgstr "默认刷新频率"
+
+#, fuzzy
+msgid "Cache Refreshed"
+msgstr "默认刷新频率"
+
 msgid "Call"
 msgstr ""
 
@@ -2197,6 +2211,10 @@ msgstr ""
 
 msgid "First row is a header"
 msgstr ""
+
+#, fuzzy
+msgid "Flush Settings Cache"
+msgstr "FOG设置"
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -5022,6 +5040,10 @@ msgstr "接收"
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
 
+#, fuzzy
+msgid "Refresh Settings Cache"
+msgstr "服务状态"
+
 msgid "Register must be managed from hooks or events"
 msgstr ""
 
@@ -5034,6 +5056,10 @@ msgstr "注册主机"
 #, fuzzy
 msgid "Release Version"
 msgstr "最新版本"
+
+#, php-format
+msgid "Reloaded %d setting(s) into cache"
+msgstr ""
 
 msgid "Remember Me"
 msgstr ""
@@ -5456,6 +5482,10 @@ msgstr "设置更新"
 #, fuzzy
 msgid "Settings Update Success"
 msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Settings cache flushed"
+msgstr "设置更新"
 
 #, fuzzy
 msgid "Settings successfully stored!"

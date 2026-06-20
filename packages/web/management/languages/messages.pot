@@ -777,6 +777,18 @@ msgstr ""
 msgid "CUPS Printer"
 msgstr ""
 
+msgid "Cache Flush Failed"
+msgstr ""
+
+msgid "Cache Flushed"
+msgstr ""
+
+msgid "Cache Refresh Failed"
+msgstr ""
+
+msgid "Cache Refreshed"
+msgstr ""
+
 msgid "Call"
 msgstr ""
 
@@ -1833,6 +1845,9 @@ msgid "First Check In"
 msgstr ""
 
 msgid "First row is a header"
+msgstr ""
+
+msgid "Flush Settings Cache"
 msgstr ""
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
@@ -4229,6 +4244,9 @@ msgstr ""
 msgid "Record not found"
 msgstr ""
 
+msgid "Refresh Settings Cache"
+msgstr ""
+
 msgid "Register must be managed from hooks or events"
 msgstr ""
 
@@ -4239,6 +4257,10 @@ msgid "Registered Hosts"
 msgstr ""
 
 msgid "Release Version"
+msgstr ""
+
+#, php-format
+msgid "Reloaded %d setting(s) into cache"
 msgstr ""
 
 msgid "Remember Me"
@@ -4591,6 +4613,9 @@ msgid "Settings Update Fail"
 msgstr ""
 
 msgid "Settings Update Success"
+msgstr ""
+
+msgid "Settings cache flushed"
 msgstr ""
 
 msgid "Settings successfully stored!"

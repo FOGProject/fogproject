@@ -960,6 +960,20 @@ msgstr "Versión de la CPU"
 msgid "CUPS Printer"
 msgstr "CUPS de la impresora"
 
+msgid "Cache Flush Failed"
+msgstr ""
+
+msgid "Cache Flushed"
+msgstr ""
+
+#, fuzzy
+msgid "Cache Refresh Failed"
+msgstr "Frecuencia de actualización predeterminado"
+
+#, fuzzy
+msgid "Cache Refreshed"
+msgstr "Frecuencia de actualización predeterminado"
+
 msgid "Call"
 msgstr ""
 
@@ -2243,6 +2257,10 @@ msgstr ""
 
 msgid "First row is a header"
 msgstr ""
+
+#, fuzzy
+msgid "Flush Settings Cache"
+msgstr "Ajustes del sistema FOG"
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -5147,6 +5165,10 @@ msgstr "retirar"
 msgid "Record not found"
 msgstr "Registro no encontrado, error: %s"
 
+#, fuzzy
+msgid "Refresh Settings Cache"
+msgstr "Estado del servicio"
+
 msgid "Register must be managed from hooks or events"
 msgstr ""
 
@@ -5160,6 +5182,10 @@ msgstr "Registrado"
 #, fuzzy
 msgid "Release Version"
 msgstr "Versión del sistema"
+
+#, php-format
+msgid "Reloaded %d setting(s) into cache"
+msgstr ""
 
 msgid "Remember Me"
 msgstr ""
@@ -5590,6 +5616,10 @@ msgstr "Servicio de Actualización!"
 #, fuzzy
 msgid "Settings Update Success"
 msgstr "actualización de servicio no pudo"
+
+#, fuzzy
+msgid "Settings cache flushed"
+msgstr "Servicio de Actualización!"
 
 #, fuzzy
 msgid "Settings successfully stored!"

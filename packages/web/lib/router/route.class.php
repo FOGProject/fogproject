@@ -351,6 +351,14 @@ class Route extends FOGBase
             "${expanded}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
+        )->post(
+            '/settings/cache/flush',
+            [__CLASS__, 'settingsCacheFlush'],
+            'settingsCacheFlush'
+        )->post(
+            '/settings/cache/refresh',
+            [__CLASS__, 'settingsCacheRefresh'],
+            'settingsCacheRefresh'
         )->delete(
             "${expandedt}/[i:id]?/[cancel]",
             [__CLASS__, 'cancel'],
@@ -497,6 +505,31 @@ class Route extends FOGBase
         );
         self::getClass('Schema')->exportdb($backup_name);
         exit;
+    }
+    /**
+     * Flushes the per-process settings cache and raises the cross-process
+     * flush signal. Auth is enforced by the constructor.
+     *
+     * @return void
+     */
+    public static function settingsCacheFlush()
+    {
+        FOGBase::clearSettingsCache();
+        self::$data = ['status' => 'flushed'];
+    }
+    /**
+     * Reloads every global setting into the cache in a single query and
+     * raises the cross-process flush signal. Auth is enforced by the
+     * constructor.
+     *
+     * @return void
+     */
+    public static function settingsCacheRefresh()
+    {
+        self::$data = [
+            'status' => 'refreshed',
+            'count' => FOGBase::refreshSettingsCache(),
+        ];
     }
     /**
      * Presents the equivalent of a page's list all.

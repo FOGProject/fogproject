@@ -945,6 +945,20 @@ msgstr "CPU-Version"
 msgid "CUPS Printer"
 msgstr "CUPS Drucker"
 
+msgid "Cache Flush Failed"
+msgstr ""
+
+msgid "Cache Flushed"
+msgstr ""
+
+#, fuzzy
+msgid "Cache Refresh Failed"
+msgstr "Standard-Bildwiederholrate"
+
+#, fuzzy
+msgid "Cache Refreshed"
+msgstr "Standard-Bildwiederholrate"
+
 msgid "Call"
 msgstr "Aufruf"
 
@@ -2196,6 +2210,10 @@ msgstr ""
 
 msgid "First row is a header"
 msgstr ""
+
+#, fuzzy
+msgid "Flush Settings Cache"
+msgstr "FOG Einstellungen"
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -5027,6 +5045,10 @@ msgstr "Erhalten"
 msgid "Record not found"
 msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 
+#, fuzzy
+msgid "Refresh Settings Cache"
+msgstr "Service-Status"
+
 msgid "Register must be managed from hooks or events"
 msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
 
@@ -5039,6 +5061,10 @@ msgstr "Registrierte Hosts"
 #, fuzzy
 msgid "Release Version"
 msgstr "Neueste Version"
+
+#, php-format
+msgid "Reloaded %d setting(s) into cache"
+msgstr ""
 
 msgid "Remember Me"
 msgstr ""
@@ -5461,6 +5487,10 @@ msgstr "Update der Einstellungen fehlgeschlagen"
 #, fuzzy
 msgid "Settings Update Success"
 msgstr "Einstellungen erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "Settings cache flushed"
+msgstr "Update der Einstellungen fehlgeschlagen"
 
 #, fuzzy
 msgid "Settings successfully stored!"
