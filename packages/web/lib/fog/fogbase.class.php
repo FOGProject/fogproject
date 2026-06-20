@@ -2182,13 +2182,36 @@ abstract class FOGBase
         return $data;
     }
     /**
+     * Whether a setting key holds sensitive data (password/token/secret) that
+     * must never be written to the on-disk cache.
+     *
+     * Mirrors the FOG UI's own "password field" rule (a key containing "pass"
+     * but not "valid"/"min"), plus tokens, secrets and private keys so that
+     * plugin-provided credentials are covered too.
+     *
+     * @param string $key The setting key.
+     *
+     * @return bool
+     */
+    private static function _isSensitiveSettingKey($key)
+    {
+        if (preg_match('#pass#i', $key) && !preg_match('#(valid|min)#i', $key)) {
+            return true;
+        }
+        return (bool) preg_match(
+            '#(token|secret|privkey|private_key|apikey)#i',
+            $key
+        );
+    }
+    /**
      * Atomically (re)write the persistent settings cache file.
      *
      * Stored as JSON data (never an included PHP file) because FOG_CACHE_DIR is
-     * world-writable; executing code from it would be a local RCE vector. The
-     * file is mode 0600 because the values include secrets and the directory is
-     * world-readable; every php-fpm worker shares the web user, and daemons do
-     * not read it.
+     * world-writable; executing code from it would be a local RCE vector.
+     * Sensitive values (passwords, tokens, secrets) are stripped before writing
+     * and are served from the database instead, so they never touch disk. The
+     * file is still mode 0600 (defence in depth) and read only by the web user;
+     * daemons do not read it.
      *
      * @param array $data Map of settingKey => value.
      * @param int   $ts   Build timestamp.
@@ -2199,6 +2222,13 @@ abstract class FOGBase
     {
         if (!self::_useSettingsFileCache()) {
             return;
+        }
+        // Never persist sensitive values to disk; getSetting() reads them from
+        // the database on demand (they are looked up rarely, not in hot loops).
+        foreach (array_keys($data) as $k) {
+            if (self::_isSensitiveSettingKey($k)) {
+                unset($data[$k]);
+            }
         }
         $json = json_encode(['ts' => (int) $ts, 'data' => $data]);
         if ($json === false) {
