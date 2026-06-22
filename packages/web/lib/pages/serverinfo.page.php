@@ -116,7 +116,7 @@ class ServerInfo extends FOGPage
         $section = 0;
         foreach ((array)$ret->nic as $nicname => $values) {
             $nicparts = explode("$$", $values);
-            if (count($nicparts) == 5) {
+            if (count($nicparts) >= 5) {
                 $NICTransSized[$nicname] = self::formatByteSize($nicparts[2]);
                 $NICRecSized[$nicname] = self::formatByteSize($nicparts[1]);
                 $NICErrInfo[$nicname] = $nicparts[3];
@@ -125,6 +125,14 @@ class ServerInfo extends FOGPage
                 $NICRec[$nicname] = sprintf('%s %s', $nicparts[0], _('RX'));
                 $NICErr[$nicname] =    sprintf('%s %s', $nicparts[0], _('Errors'));
                 $NICDro[$nicname] = sprintf('%s %s', $nicparts[0], _('Dropped'));
+                // Older nodes (5 fields) report no MAC; resolve the vendor on
+                // this (master) side, where the oui table is always present.
+                $mac = isset($nicparts[5]) ? trim($nicparts[5]) : '';
+                $NICMacInfo[$nicname] = $mac;
+                $NICVendorInfo[$nicname] = (
+                    $mac !== '' ? MACAddress::getVendor($mac) : ''
+                );
+                $NICMac[$nicname] = sprintf('%s %s', $nicparts[0], _('MAC'));
             }
         }
         $fields = [
@@ -246,7 +254,25 @@ class ServerInfo extends FOGPage
                 $this->data
             );
             $ethName = $nicname;
-            $fields = [
+            $fields = [];
+            $mac = isset($NICMacInfo[$nicname]) ? $NICMacInfo[$nicname] : '';
+            if ($mac !== '') {
+                $vendor = isset($NICVendorInfo[$nicname])
+                    ? $NICVendorInfo[$nicname]
+                    : '';
+                $macDisplay = Initiator::e($mac);
+                if ($vendor !== '') {
+                    // Mirror the OUI vendor icon used everywhere a MAC renders:
+                    // an fa-info-circle whose tooltip carries the vendor name.
+                    $macDisplay .= ' <i class="fa fa-info-circle text-muted '
+                        . 'mac-vendor-icon" data-toggle="tooltip" '
+                        . 'data-placement="right" data-container="body" title="'
+                        . Initiator::e($vendor)
+                        . '"></i>';
+                }
+                $fields[$NICMac[$nicname]] = $macDisplay;
+            }
+            $fields += [
                 $NICTrans[$nicname] => $NICTransSized[$nicname],
                 $NICRec[$nicname] => $NICRecSized[$nicname],
                 $NICErr[$nicname] => $NICErrInfo[$nicname],

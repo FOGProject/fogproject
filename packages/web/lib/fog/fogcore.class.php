@@ -173,13 +173,19 @@ class FOGCore extends FOGBase
                 $stats_list
             );
             $dev_name = trim($dev_name);
+            $macfile = '/sys/class/net/' . $dev_name . '/address';
+            $mac = '';
+            if (is_readable($macfile)) {
+                $mac = trim((string)file_get_contents($macfile));
+            }
             $data['nic'][$dev_name] = sprintf(
-                '%s$$%s$$%s$$%s$$%s',
+                '%s$$%s$$%s$$%s$$%s$$%s',
                 $dev_name,
                 $stats[0],
                 $stats[8],
                 ($stats[2] + $stats[10]),
-                ($stats[3] + $stats[11])
+                ($stats[3] + $stats[11]),
+                $mac
             );
             unset($netface);
         }
