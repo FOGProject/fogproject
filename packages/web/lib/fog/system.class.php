@@ -59,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.2442');
+        define('FOG_VERSION', '1.6.0-beta.2443');
         define('FOG_CHANNEL', 'Beta');
         define('FOG_SCHEMA', 298);
         define('FOG_BCACHE_VER', 152);
@@ -67,7 +67,13 @@ class System
         // FOG_BASE_DIR is intentionally hardcoded here. Deriving it from a setting would
         // create a circular dependency (getSetting() needs the cache dir before DB is up).
         // See GH-850 for the future work to make this installer-driven.
-        define('FOG_BASE_DIR', '/opt/fog');
-        define('FOG_CACHE_DIR', FOG_BASE_DIR . DS . 'cache');
+        // Guarded because Initiator defines these earlier (the boot file-list cache
+        // needs the cache dir before this class loads); this remains the canonical home.
+        if (!defined('FOG_BASE_DIR')) {
+            define('FOG_BASE_DIR', '/opt/fog');
+        }
+        if (!defined('FOG_CACHE_DIR')) {
+            define('FOG_CACHE_DIR', FOG_BASE_DIR . DS . 'cache');
+        }
     }
 }

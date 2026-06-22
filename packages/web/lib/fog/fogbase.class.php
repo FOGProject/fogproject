@@ -3105,29 +3105,20 @@ abstract class FOGBase
         // initialize plugin regex caller.
         $plugins = '';
 
-        // Get all of our files.
-        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
-            BASEPATH,
-            FileSystemIterator::SKIP_DOTS
-        );
-        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
-            $RecursiveDirectoryIterator
-        );
-        $RegexIterator = new RegexIterator(
-            $RecursiveIteratorIterator,
-            $regext,
-            RegexIterator::GET_MATCH
-        );
-        $files = iterator_to_array($RegexIterator, false);
+        // Filter the request-wide cached file list (built once by
+        // Initiator::classFileList) instead of re-walking BASEPATH here. Each
+        // kept path is wrapped as a [0 => path] match array to preserve the
+        // shape the closure below and startClassFromFiles() expect.
+        $files = [];
+        foreach (Initiator::classFileList() as $path) {
+            if (preg_match($regext, $path)) {
+                $files[] = [$path];
+            }
+        }
         if (!$needplug) {
             @natcasesort($files);
             return $files;
         }
-        unset(
-            $RecursiveDirectoryIterator,
-            $RecursiveIteratorIterator,
-            $RegexIterator
-        );
 
         // Closure so we can use a common function call.
         $fileitems = function ($element) use (
