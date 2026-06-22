@@ -560,6 +560,11 @@ class FOGConfigurationPage extends FOGPage
                 'db' => $real,
                 'dt' => $common
             ];
+            // Only the value field carries the rendered input column; binding
+            // it to settingValue lets the global search match values too.
+            if ($common !== 'value') {
+                continue;
+            }
             $columns[] = [
                 'db' => $real,
                 'dt' => 'inputValue',
@@ -2599,6 +2604,11 @@ class FOGConfigurationPage extends FOGPage
                 'db' => $real,
                 'dt' => $common
             ];
+            // Only the value field carries the rendered input column; binding
+            // it to settingValue lets the global search match values too.
+            if ($common !== 'value') {
+                continue;
+            }
             $columns[] = [
                 'db' => $real,
                 'dt' => 'inputValue',
