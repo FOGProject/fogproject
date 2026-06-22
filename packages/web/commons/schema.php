@@ -4248,3 +4248,29 @@ $this->schema[] = [
     "ALTER TABLE `nfsGroups` "
     . "ADD COLUMN `ngTrustedCIDRs` VARCHAR(2048) NOT NULL DEFAULT ''",
 ];
+// 298
+$this->schema[] = [
+    // Seed the default storage group's trusted CIDR from the master's own
+    // network, computed by the installer and exposed as STORAGE_DEFAULT_CIDR
+    // in config.class.php. Only fills it while still empty, so any
+    // admin-configured ranges are preserved on upgrade. If the constant is
+    // absent (e.g. schema run without re-running the installer) this is a
+    // no-op and the group is left untouched.
+    function () {
+        if (!defined('STORAGE_DEFAULT_CIDR')
+            || trim((string)STORAGE_DEFAULT_CIDR) === ''
+        ) {
+            return true;
+        }
+        // sanitize() returns a fully quoted literal (PDO::quote), so it is
+        // used directly without adding our own surrounding quotes.
+        $cidr = self::$DB->sanitize(trim((string)STORAGE_DEFAULT_CIDR));
+        self::$DB->query(
+            "UPDATE `nfsGroups` "
+            . "SET `ngTrustedCIDRs` = $cidr "
+            . "WHERE `ngName` = 'default' "
+            . "AND `ngTrustedCIDRs` = ''"
+        );
+        return true;
+    },
+];

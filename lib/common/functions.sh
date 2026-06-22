@@ -2831,6 +2831,17 @@ configureHttpd() {
     dots "Creating config file"
     phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
     phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
+    # Derive the master's network CIDR (e.g. 192.168.1.0/24) from the chosen
+    # interface so the default storage group can trust node-to-node status
+    # calls from the local subnet out of the box. Stays empty (no extra trust)
+    # if it cannot be derived; the schema migration then leaves the group alone.
+    storageDefaultCidr=""
+    storageTrustPrefix=$(getCidr "$interface")
+    if [[ -n $ipaddress && -n $storageTrustPrefix ]]; then
+        storageTrustMask=$(cidr2mask "$storageTrustPrefix" 2>/dev/null)
+        storageTrustNetwork=$(mask2network "$ipaddress" "$storageTrustMask" 2>/dev/null)
+        [[ -n $storageTrustNetwork ]] && storageDefaultCidr="${storageTrustNetwork}/${storageTrustPrefix}"
+    fi
     echo "<?php
 /**
  * The main configuration FOG uses.
@@ -2928,6 +2939,7 @@ class Config
         define('STORAGE_DATADIR_CAPTURE', '${storageLocationCapture}');
         define('STORAGE_BANDWIDTHPATH', '${webroot}status/bandwidth.php');
         define('STORAGE_INTERFACE', '${interface}');
+        define('STORAGE_DEFAULT_CIDR', \"${storageDefaultCidr}\");
         define('CAPTURERESIZEPCT', 7);
         define('WEB_HOST', \"${ipaddress}\");
         define('WOL_HOST', \"${ipaddress}\");
