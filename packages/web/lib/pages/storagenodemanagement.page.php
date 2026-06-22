@@ -894,8 +894,8 @@ class StorageNodeManagement extends FOGPage
                     ->update(
                         [
                             'id' => array_diff(
-                                (array)$StorageNode->get('id'),
-                                (array)$masternodes
+                                (array)$masternodes,
+                                (array)$StorageNode->get('id')
                             )
                         ],
                         '',
@@ -1525,8 +1525,8 @@ class StorageNodeManagement extends FOGPage
                 ->update(
                     [
                         'id' => array_diff(
-                            (array)$this->obj->get('id'),
-                            (array)$masternodes
+                            (array)$masternodes,
+                            (array)$this->obj->get('id')
                         )
                     ],
                     '',
