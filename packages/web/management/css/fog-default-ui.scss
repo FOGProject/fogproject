@@ -171,3 +171,41 @@ dd {
   grid-column-start: 2;
   margin-left: 10px;
 }
+
+/* FOG Settings — left category nav + form panels */
+.settings-search-box {
+  width: 220px;
+}
+.settings-nav-col .nav-pills > li > a {
+  padding: 6px 10px;
+  border-radius: 0;
+}
+.settings-nav-col .nav-pills > li > a .badge {
+  background-color: #d2d6de;
+  color: #444;
+  float: right;
+}
+.settings-nav-col .nav-pills > li.active > a .badge {
+  background-color: #fff;
+  color: #3c8dbc;
+}
+.settings-panel-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f4f4f4;
+}
+.settings-row .settings-label {
+  font-weight: 600;
+  word-break: break-all;
+}
+.settings-noresults {
+  padding: 15px;
+}
+@media (min-width: 768px) {
+  .settings-nav-col {
+    border-right: 1px solid #f4f4f4;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}

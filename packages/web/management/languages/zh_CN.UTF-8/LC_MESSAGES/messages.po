@@ -4410,6 +4410,9 @@ msgstr "没有查询结果，使用query（）首先"
 msgid "No results found"
 msgstr "未找到结果"
 
+msgid "No settings match your search."
+msgstr ""
+
 #, fuzzy
 msgid "No snapins associated"
 msgstr "更新管理单元"
@@ -5421,6 +5424,10 @@ msgstr "搜索"
 
 msgid "Search results returned false"
 msgstr ""
+
+#, fuzzy
+msgid "Search settings"
+msgstr "服务状态"
 
 msgid "Second paramater must be in [class,function]"
 msgstr ""
@@ -6810,6 +6817,9 @@ msgstr ""
 #, fuzzy
 msgid "Unavailable"
 msgstr "不可用"
+
+msgid "Uncategorized"
+msgstr ""
 
 msgid "Unicast"
 msgstr "单播"

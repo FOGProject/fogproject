@@ -4522,6 +4522,9 @@ msgstr ""
 msgid "No results found"
 msgstr "No se encontraron iconos"
 
+msgid "No settings match your search."
+msgstr ""
+
 #, fuzzy
 msgid "No snapins associated"
 msgstr "Nombre snapin"
@@ -5552,6 +5555,10 @@ msgstr "Buscar"
 
 msgid "Search results returned false"
 msgstr ""
+
+#, fuzzy
+msgid "Search settings"
+msgstr "Estado del servicio"
 
 msgid "Second paramater must be in [class,function]"
 msgstr ""
@@ -6964,6 +6971,9 @@ msgstr ""
 #, fuzzy
 msgid "Unavailable"
 msgstr "No se dispone de hash"
+
+msgid "Uncategorized"
+msgstr ""
 
 #, fuzzy
 msgid "Unicast"

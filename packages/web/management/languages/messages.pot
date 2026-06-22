@@ -3701,6 +3701,9 @@ msgstr ""
 msgid "No results found"
 msgstr ""
 
+msgid "No settings match your search."
+msgstr ""
+
 msgid "No snapins associated"
 msgstr ""
 
@@ -4562,6 +4565,9 @@ msgid "Search Scope"
 msgstr ""
 
 msgid "Search results returned false"
+msgstr ""
+
+msgid "Search settings"
 msgstr ""
 
 msgid "Second paramater must be in [class,function]"
@@ -5732,6 +5738,9 @@ msgid "Unauthorized"
 msgstr ""
 
 msgid "Unavailable"
+msgstr ""
+
+msgid "Uncategorized"
 msgstr ""
 
 msgid "Unicast"

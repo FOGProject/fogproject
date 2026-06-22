@@ -4223,6 +4223,9 @@ msgstr "Nessun risultato della query, utilizzare query () prima"
 msgid "No results found"
 msgstr "nessun risultato trovato"
 
+msgid "No settings match your search."
+msgstr ""
+
 #, fuzzy
 msgid "No snapins associated"
 msgstr "Snapin Protetto"
@@ -5183,6 +5186,10 @@ msgstr "Scope di ricerca"
 
 msgid "Search results returned false"
 msgstr "Risultati di ricerca che restituiscono false"
+
+#, fuzzy
+msgid "Search settings"
+msgstr "Stato servizio"
 
 msgid "Second paramater must be in [class,function]"
 msgstr ""
@@ -6506,6 +6513,9 @@ msgstr ""
 
 msgid "Unavailable"
 msgstr "Non disponibile"
+
+msgid "Uncategorized"
+msgstr ""
 
 msgid "Unicast"
 msgstr "Unicast"
