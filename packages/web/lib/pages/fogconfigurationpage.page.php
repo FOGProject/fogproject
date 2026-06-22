@@ -50,6 +50,80 @@ class FOGConfigurationPage extends FOGPage
         $this->version();
     }
     /**
+     * Builds the standard AdminLTE box scaffold shared by every sub-view.
+     *
+     * Replaces the hand-echoed box/box-header/box-body/box-footer skeleton
+     * that each view used to repeat. Returns a string so callers can compose
+     * it (e.g. wrap in a <form>).
+     *
+     * @param string $title The box title (already translated/escaped).
+     * @param string $body  The box-body HTML.
+     * @param array  $opts  color, collapse, help, footer, id, bodyId,
+     *                      bodyClass, bodyAttrs.
+     *
+     * @return string
+     */
+    private function _box($title, $body, array $opts = [])
+    {
+        $color     = $opts['color']     ?? 'solid';
+        $collapse  = $opts['collapse']  ?? false;
+        $help      = $opts['help']      ?? '';
+        $footer    = $opts['footer']    ?? '';
+        $id        = $opts['id']        ?? '';
+        $bodyId    = $opts['bodyId']    ?? '';
+        $bodyClass = $opts['bodyClass'] ?? '';
+        $bodyAttrs = $opts['bodyAttrs'] ?? '';
+
+        $o = '';
+        if ($id !== '') {
+            $o .= '<div class="box-group" id="' . $id . '">';
+        }
+        $o .= '<div class="box box-' . $color . '">';
+        $o .= '<div class="box-header with-border">';
+        if ($collapse) {
+            $o .= '<div class="box-tools pull-right">'
+                . self::$FOGCollapseBox
+                . '</div>';
+        }
+        $o .= '<h4 class="box-title">' . $title . '</h4>';
+        if ($help !== '') {
+            $o .= '<p class="help-block">' . $help . '</p>';
+        }
+        $o .= '</div>';
+        $o .= '<div class="box-body'
+            . ($bodyClass !== '' ? ' ' . $bodyClass : '')
+            . '"'
+            . ($bodyId !== '' ? ' id="' . $bodyId . '"' : '')
+            . ($bodyAttrs !== '' ? ' ' . $bodyAttrs : '')
+            . '>';
+        $o .= $body;
+        $o .= '</div>';
+        if ($footer !== '') {
+            $o .= '<div class="box-footer with-border">' . $footer . '</div>';
+        }
+        $o .= '</div>';
+        if ($id !== '') {
+            $o .= '</div>';
+        }
+        return $o;
+    }
+    /**
+     * Emits a JSON response and exits. Centralizes the content-type header +
+     * status code + json_encode + exit pattern repeated by the *Post methods.
+     *
+     * @param int   $code    HTTP status code.
+     * @param array $payload Data to JSON-encode.
+     *
+     * @return never
+     */
+    private function _jsonExit($code, array $payload)
+    {
+        header('Content-type: application/json');
+        http_response_code($code);
+        echo json_encode($payload);
+        exit;
+    }
+    /**
      * Prints the version information for the page.
      *
      * @return void
@@ -114,42 +188,24 @@ class FOGConfigurationPage extends FOGPage
         // Main Grouping
         echo '<div class="box-group" id="fogversion">';
 
-        // FOG Version Information.
-        echo '<div class="box box-default">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body placehere" vers="'
-            . FOG_VERSION
-            . '">';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo '</div>';
-        echo '</div>';
+        // FOG Version Information. Body is filled in by fog.about.home.js via
+        // the .placehere hook (it reads the vers attribute).
+        echo $this->_box(
+            $this->title,
+            '',
+            [
+                'bodyClass' => 'placehere',
+                'bodyAttrs' => 'vers="' . FOG_VERSION . '"'
+            ]
+        );
 
-        // Kernel information
-        echo '<div class="box-group" id="nodekernvers">';
-        echo '<div class="box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Versions');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $renderNodes;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        // Per-node kernel versions. The box-group id is the accordion parent
+        // (#nodekernvers) referenced by each node panel in $renderNodes.
+        echo $this->_box(
+            _('Versions'),
+            $renderNodes,
+            ['id' => 'nodekernvers']
+        );
 
         // End Main Grouping
         echo '</div>';
@@ -195,24 +251,11 @@ class FOGConfigurationPage extends FOGPage
         $contents = nl2br(
             file_get_contents($file)
         );
-        echo '<!-- License Information -->';
-        echo '<div class="box-group" id="license">';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $contents;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo $this->_box(
+            $this->title,
+            $contents,
+            ['id' => 'license']
+        );
     }
     /**
      * Show the kernel update page.
@@ -221,158 +264,16 @@ class FOGConfigurationPage extends FOGPage
      */
     public function kernel()
     {
-        $this->title = _('Kernel Update');
-
-        $this->headerData = [
-            _('Tag Name'),
-            _('Version'),
-            _('Architecture'),
-            _('Type'),
-            _('Date')
-        ];
-
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-
-        $buttons = self::makeButton(
-            'download-send',
-            _('Download'),
-            'btn btn-primary pull-right'
-        );
-
-        $confirmDownloadBtn = self::makeButton(
-            'confirmDownload',
-            _('Download'),
-            'btn btn-primary pull-right'
-        );
-        $cancelDownloadBtn = self::makeButton(
-            'cancelDownload',
-            _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
-        );
-
-        $downloadModal = self::makeModal(
-            'downloadModal',
-            _('Confirm Download'),
-            '<p class="help-block">'
-            . _('Confirm you would like to download a new kernel')
-            . ' '
-            . _('to your fog storage node.')
-            . ' '
-            . _('Use the input below to set the name for your new kernel.')
-            . '</p>'
-            . '<div class="kernel-input">'
-            . self::makeInput(
-                'form-control',
-                'kernel-name',
-                '',
-                'text',
-                'kernel-name',
-                '',
-                true
-            )
-            . '</div>',
-            $confirmDownloadBtn . $cancelDownloadBtn,
-            '',
-            'info'
-        );
-
-        echo '<div class="box-group" id="kernel-update">';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        printf(
-            '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
-            _('This section allows you to update'),
-            _('the Linux kernel which is used to'),
-            _('boot the client computers'),
-            _('In FOG'),
-            _('this kernel holds all the drivers for the client computer'),
-            _('so if you are unable to boot a client you may wish to'),
-            _('update to a newer kernel which may have more drivers built in'),
-            _('This installation process may take a few minutes'),
-            _('as FOG will attempt to go out to the internet'),
-            _('to get the requested Kernel'),
-            _('so if it seems like the process is hanging please be patient')
-        );
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $this->render(12, 'dataTable', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $downloadModal;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        $this->_downloadView('kernel');
     }
     /**
-     * Download the form.
+     * Process the kernel download request.
      *
      * @return void
      */
     public function kernelPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        $dstName = filter_input(INPUT_POST, 'dstName');
-        $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
-        $tmpFile = sprintf(
-            '%s%s%s%s',
-            DS,
-            str_replace(["\\",'/'], '', sys_get_temp_dir()),
-            DS,
-            basename(trim($dstName))
-        );
-        if (file_exists($tmpFile)) {
-            unlink($tmpFile);
-        }
-        $_SESSION['allow_ajax_kdl'] = true;
-        $_SESSION['dest-kernel-file'] = basename(trim($dstName));
-        $_SESSION['tmp-kernel-file'] = $tmpFile;
-        $_SESSION['dl-kernel-file'] = $file;
-        try {
-            if (empty($dstName)) {
-                throw new Exception(_('A filename is required!'));
-            }
-            if (empty($file)) {
-                throw new Exception(
-                    _('No external data to download the file from')
-                );
-            }
-            $code = HTTPResponseCodes::HTTP_SUCCESS;
-            $msg = json_encode(
-                [
-                    'msg' => _('Starting download'),
-                    'title' => _('Download Starting')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Start Download Fail')
-                ]
-            );
-        }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->_downloadPost('kernel');
     }
     /**
      * Show the initrd update page.
@@ -381,7 +282,35 @@ class FOGConfigurationPage extends FOGPage
      */
     public function initrd()
     {
-        $this->title = _('initrd (Initial Ramdisk) Update');
+        $this->_downloadView('initrd');
+    }
+    /**
+     * Process the initrd download request.
+     *
+     * @return void
+     */
+    public function initrdPost()
+    {
+        $this->_downloadPost('initrd');
+    }
+    /**
+     * Render the kernel/initrd download view.
+     *
+     * kernel() and initrd() were byte-for-byte identical except for the words
+     * "kernel"/"initrd" and the name-input id. Both JS files target the same
+     * element ids (download-send, downloadModal, confirmDownload, dataTable),
+     * differing only on {type}-name, so the markup is fully shared here.
+     *
+     * @param string $type 'kernel' or 'initrd'.
+     *
+     * @return void
+     */
+    private function _downloadView($type)
+    {
+        $isKernel = ($type === 'kernel');
+        $this->title = $isKernel
+            ? _('Kernel Update')
+            : _('initrd (Initial Ramdisk) Update');
 
         $this->headerData = [
             _('Tag Name'),
@@ -390,21 +319,13 @@ class FOGConfigurationPage extends FOGPage
             _('Type'),
             _('Date')
         ];
-
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
+        $this->attributes = [[], [], [], [], []];
 
         $buttons = self::makeButton(
             'download-send',
             _('Download'),
             'btn btn-primary pull-right'
         );
-
         $confirmDownloadBtn = self::makeButton(
             'confirmDownload',
             _('Download'),
@@ -417,23 +338,57 @@ class FOGConfigurationPage extends FOGPage
             'data-dismiss="modal"'
         );
 
+        if ($isKernel) {
+            $confirmNew = _('Confirm you would like to download a new kernel');
+            $nameForNew =
+                _('Use the input below to set the name for your new kernel.');
+            $help = sprintf(
+                '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
+                _('This section allows you to update'),
+                _('the Linux kernel which is used to'),
+                _('boot the client computers'),
+                _('In FOG'),
+                _('this kernel holds all the drivers for the client computer'),
+                _('so if you are unable to boot a client you may wish to'),
+                _('update to a newer kernel which may have more drivers built in'),
+                _('This installation process may take a few minutes'),
+                _('as FOG will attempt to go out to the internet'),
+                _('to get the requested Kernel'),
+                _('so if it seems like the process is hanging please be patient')
+            );
+        } else {
+            $confirmNew = _('Confirm you would like to download a new initrd');
+            $nameForNew =
+                _('Use the input below to set the name for your new initrd.');
+            $help = sprintf(
+                '%s %s %s. %s, %s %s, %s.',
+                _('This section allows you to update'),
+                _('the initrd (initial ramdisk) which is alongside the'),
+                _('kernel to boot the client computers'),
+                _('This installation process may take a few minutes'),
+                _('as FOG will attempt to go out to the internet'),
+                _('to get the requested initrd'),
+                _('so if it seems like the process is hanging please be patient')
+            );
+        }
+
         $downloadModal = self::makeModal(
             'downloadModal',
             _('Confirm Download'),
             '<p class="help-block">'
-            . _('Confirm you would like to download a new initrd')
+            . $confirmNew
             . ' '
             . _('to your fog storage node.')
             . ' '
-            . _('Use the input below to set the name for your new initrd.')
+            . $nameForNew
             . '</p>'
-            . '<div class="initrd-input">'
+            . '<div class="' . $type . '-input">'
             . self::makeInput(
                 'form-control',
-                'initrd-name',
+                $type . '-name',
                 '',
                 'text',
-                'initrd-name',
+                $type . '-name',
                 '',
                 true
             )
@@ -443,64 +398,52 @@ class FOGConfigurationPage extends FOGPage
             'info'
         );
 
-        echo '<div class="box-group" id="initrd-update">';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        printf(
-            '%s %s %s. %s, %s %s, %s.',
-            _('This section allows you to update'),
-            _('the initrd (initial ramdisk) which is alongside the'),
-            _('kernel to boot the client computers'),
-            _('This installation process may take a few minutes'),
-            _('as FOG will attempt to go out to the internet'),
-            _('to get the requested initrd'),
-            _('so if it seems like the process is hanging please be patient')
+        echo $this->_box(
+            $this->title,
+            $this->process(
+                12,
+                'dataTable',
+                $buttons,
+                'display table table-bordered table-striped'
+            ),
+            [
+                'id' => $type . '-update',
+                'help' => $help,
+                'footer' => $downloadModal
+            ]
         );
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $this->render(12, 'dataTable', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $downloadModal;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
-     * Download the form.
+     * Process a kernel/initrd download request.
+     *
+     * kernelPost()/initrdPost() were identical except for the session-key
+     * names; those are reconstructed from $type to match the readers in
+     * fogpage.class.php (allow_ajax_kdl/idl, {dest,tmp,dl}-{type}-file).
+     *
+     * @param string $type 'kernel' or 'initrd'.
      *
      * @return void
      */
-    public function initrdPost()
+    private function _downloadPost($type)
     {
         self::checkAuthAndCSRF();
-        header('Content-type: application/json');
         $dstName = filter_input(INPUT_POST, 'dstName');
         $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
         $tmpFile = sprintf(
             '%s%s%s%s',
             DS,
-            str_replace(["\\",'/'], '', sys_get_temp_dir()),
+            str_replace(["\\", '/'], '', sys_get_temp_dir()),
             DS,
             basename(trim($dstName))
         );
         if (file_exists($tmpFile)) {
             unlink($tmpFile);
         }
-        $_SESSION['allow_ajax_idl'] = true;
-        $_SESSION['dest-initrd-file'] = basename(trim($dstName));
-        $_SESSION['tmp-initrd-file'] = $tmpFile;
-        $_SESSION['dl-initrd-file'] = $file;
+        $abbr = ($type === 'kernel') ? 'kdl' : 'idl';
+        $_SESSION['allow_ajax_' . $abbr] = true;
+        $_SESSION['dest-' . $type . '-file'] = basename(trim($dstName));
+        $_SESSION['tmp-' . $type . '-file'] = $tmpFile;
+        $_SESSION['dl-' . $type . '-file'] = $file;
         try {
             if (empty($dstName)) {
                 throw new Exception(_('A filename is required!'));
@@ -510,25 +453,22 @@ class FOGConfigurationPage extends FOGPage
                     _('No external data to download the file from')
                 );
             }
-            $code = HTTPResponseCodes::HTTP_SUCCESS;
-            $msg = json_encode(
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_SUCCESS,
                 [
                     'msg' => _('Starting download'),
                     'title' => _('Download Starting')
                 ]
             );
         } catch (Exception $e) {
-            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
-            $msg = json_encode(
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Start Download Fail')
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Display the ipxe menu configurations.
@@ -549,21 +489,21 @@ class FOGConfigurationPage extends FOGPage
             []
         ];
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('iPXE Menu Configuration');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo _('For ipxe command related items (e.g. colour, cpair, etc...) click ')
-            . '<a href="http://ipxe.org/cmd" target="_blank">'
-            . _('here')
-            . '</a>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $this->render(12, 'ipxe-table');
-        echo '</div>';
-        echo '</div>';
+        echo $this->_box(
+            $this->title,
+            $this->process(
+                12,
+                'ipxe-table',
+                '',
+                'display table table-bordered table-striped'
+            ),
+            [
+                'help' => _('For ipxe command related items (e.g. colour, cpair, etc...) click ')
+                . '<a href="http://ipxe.org/cmd" target="_blank">'
+                . _('here')
+                . '</a>'
+            ]
+        );
     }
     /**
      * Ipxe Menu List getter.
@@ -857,31 +797,22 @@ class FOGConfigurationPage extends FOGPage
             '',
             'warning'
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo _('Import known mac address makers');
-        echo '</p>';
-        echo '<p class="help-block">';
-        echo '<a href="http://standards-oui.ieee.org/oui.txt">';
-        echo 'http://standards-oui.ieee.org/oui.txt';
-        echo '</a>';
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo _('Current Records');
-        echo ': ';
-        echo '<span id="lookupcount">' . self::getMACLookupCount() . '</span>';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo $modalupdate;
-        echo $modaldelete;
-        echo '</div>';
-        echo '</div>';
+        echo $this->_box(
+            $this->title,
+            _('Current Records')
+            . ': '
+            . '<span id="lookupcount">'
+            . self::getMACLookupCount()
+            . '</span>',
+            [
+                'help' => _('Import known mac address makers')
+                . '<br>'
+                . '<a href="http://standards-oui.ieee.org/oui.txt">'
+                . 'http://standards-oui.ieee.org/oui.txt'
+                . '</a>',
+                'footer' => $buttons . $modalupdate . $modaldelete
+            ]
+        );
     }
     /**
      * Safes the data for real for the mac address stuff.
@@ -1811,28 +1742,24 @@ class FOGConfigurationPage extends FOGPage
     public function cacheFlushPost()
     {
         self::checkAuthAndCSRF();
-        header('Content-type: application/json');
         try {
             FOGBase::clearSettingsCache();
-            $code = HTTPResponseCodes::HTTP_SUCCESS;
-            $msg = json_encode(
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_SUCCESS,
                 [
                     'msg' => _('Settings cache flushed'),
                     'title' => _('Cache Flushed')
                 ]
             );
         } catch (Exception $e) {
-            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
-            $msg = json_encode(
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Cache Flush Failed')
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Reloads all settings into the cache with a single query and raises the
@@ -1843,11 +1770,10 @@ class FOGConfigurationPage extends FOGPage
     public function cacheRefreshPost()
     {
         self::checkAuthAndCSRF();
-        header('Content-type: application/json');
         try {
             $count = FOGBase::refreshSettingsCache();
-            $code = HTTPResponseCodes::HTTP_SUCCESS;
-            $msg = json_encode(
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_SUCCESS,
                 [
                     'msg' => sprintf(
                         _('Reloaded %d setting(s) into cache'),
@@ -1857,17 +1783,14 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
-            $msg = json_encode(
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Cache Refresh Failed')
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Tablize the fog settings.
@@ -2015,9 +1938,15 @@ class FOGConfigurationPage extends FOGPage
                     $needstobenumeric,
                     $needstobecheckbox
                 );
+                // Search haystack: key + description + value. Value is capped
+                // so a setting holding a long blob can't bloat the attribute.
+                $haystack = strtolower(
+                    $row['settingKey'] . ' ' . $desc . ' '
+                    . substr((string) $row['settingValue'], 0, 200)
+                );
                 echo '<div class="form-group settings-row" '
                     . 'data-search="'
-                    . Initiator::e(strtolower($row['settingKey'] . ' ' . $desc))
+                    . Initiator::e($haystack)
                     . '">';
                 echo '<label class="control-label settings-label" for="'
                     . Initiator::e($row['settingKey']) . '"';
@@ -2403,7 +2332,7 @@ class FOGConfigurationPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-info">';
+        echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo $this->title;
@@ -2530,19 +2459,11 @@ class FOGConfigurationPage extends FOGPage
             'multipart/form-data',
             true
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
+        echo $this->_box(
+            $this->title,
+            $rendered,
+            ['footer' => $buttons]
+        );
         echo '</form>';
     }
     /**
