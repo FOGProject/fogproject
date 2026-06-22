@@ -1191,6 +1191,10 @@ function clearAllIntervals(){
   reinitialize();
 
   window.onpopstate = function(event){
+    // Ignore history entries we did not create. Tab navigation (fog.js) pushes
+    // a null state, search pushes { path: ... }, and the initial page-load
+    // entry has a null state. Only our AJAX page links push { target: ... }.
+    if(!event.state || !event.state.target) return;
     var target = event.state.target;
     var targetElement = $(".ajax-page-link[href='" + target + "']");
     doPageLoad(target, targetElement, false);

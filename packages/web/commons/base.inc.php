@@ -28,7 +28,12 @@ header('X-Content-Type-Options: nosniff');
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     header('Strict-Transport-Security: max-age=31536000');
 }
-header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://fogproject.org; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'self';");
+// frame-src allows browser-extension overlays (password managers such as
+// Bitwarden inject chrome-extension:/moz-extension: iframes). Without it these
+// fall back to default-src 'none' and are blocked, which makes those
+// extensions retry/stall for minutes against the page. Arbitrary web frames
+// stay blocked.
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://fogproject.org; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src chrome-extension: moz-extension:; base-uri 'self'; form-action 'self'; frame-ancestors 'self';");
 
 // Include required initialization script.
 require 'init.php';
