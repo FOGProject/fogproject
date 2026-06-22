@@ -59,9 +59,9 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.2431');
+        define('FOG_VERSION', '1.6.0-beta.2432');
         define('FOG_CHANNEL', 'Beta');
-        define('FOG_SCHEMA', 296);
+        define('FOG_SCHEMA', 297);
         define('FOG_BCACHE_VER', 152);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // FOG_BASE_DIR is intentionally hardcoded here. Deriving it from a setting would

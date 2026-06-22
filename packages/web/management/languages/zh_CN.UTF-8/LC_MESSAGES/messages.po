@@ -4591,6 +4591,9 @@ msgstr "服务器外壳"
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
+msgid "One IP or CIDR range per line (or comma separated)"
+msgstr ""
+
 msgid ""
 "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
@@ -6705,6 +6708,9 @@ msgstr "总内存"
 
 msgid "Transmit"
 msgstr "发送"
+
+msgid "Trusted Node CIDRs"
+msgstr ""
 
 #, fuzzy
 msgid "Trying Snapin hash for"

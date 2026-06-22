@@ -3344,6 +3344,136 @@ abstract class FOGBase
         }
     }
     /**
+     * Is the given remote IP a trusted node-to-node caller?
+     *
+     * Used by the unauthenticated node status endpoints (freespace.php,
+     * hw.php) so a master/management server can poll a storage node. A caller
+     * is trusted when it either matches an exact registered storage node IP
+     * (plus loopback), or falls within a CIDR/IP range configured on the
+     * serving node's own storage group(s) (FOG_TRUSTED_NODE_CIDRS-style list
+     * stored per group). IPv4-mapped IPv6 sources (::ffff:1.2.3.4) are
+     * normalized before comparison.
+     *
+     * @param string|null $remoteIP the REMOTE_ADDR of the caller
+     *
+     * @return bool
+     */
+    public static function isTrustedNodeIp($remoteIP)
+    {
+        if (!is_string($remoteIP) || $remoteIP === '') {
+            return false;
+        }
+        // Normalize IPv4-mapped IPv6 (::ffff:1.2.3.4) to plain IPv4 so it can
+        // match an IPv4 storage node IP / CIDR.
+        if (stripos($remoteIP, '::ffff:') === 0) {
+            $mapped = substr($remoteIP, 7);
+            if (filter_var($mapped, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $remoteIP = $mapped;
+            }
+        }
+        // Exact match against every registered storage node IP + loopback.
+        Route::ids('storagenode', [], 'ip');
+        $storageNodeIPs = json_decode(Route::getData(), true) ?: [];
+        $trustedIPs = array_merge(
+            (array)$storageNodeIPs,
+            ['127.0.0.1', '::1']
+        );
+        if (in_array($remoteIP, $trustedIPs, true)) {
+            return true;
+        }
+        // CIDR/IP ranges configured on this node's own storage group(s).
+        foreach (self::getLocalGroupTrustedCIDRs() as $cidr) {
+            if (self::ipInCidr($remoteIP, $cidr)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Returns the trusted CIDR/IP entries configured on the storage group(s)
+     * this server is itself a member of.
+     *
+     * Self-identification uses the box's own interface IPs (getIPAddress) to
+     * find the matching storage node row(s), then the storage group(s) those
+     * rows belong to. Returns a flat list of trimmed, non-empty entries.
+     *
+     * @return array
+     */
+    protected static function getLocalGroupTrustedCIDRs()
+    {
+        $localIPs = self::getIPAddress();
+        if (count($localIPs ?: []) < 1) {
+            return [];
+        }
+        Route::ids('storagenode', ['ip' => $localIPs], 'storagegroupID');
+        $groupIDs = json_decode(Route::getData(), true) ?: [];
+        $groupIDs = array_values(array_unique(array_filter((array)$groupIDs)));
+        if (count($groupIDs) < 1) {
+            return [];
+        }
+        Route::ids('storagegroup', ['id' => $groupIDs], 'trustedcidrs');
+        $rawLists = json_decode(Route::getData(), true) ?: [];
+        $entries = [];
+        foreach ((array)$rawLists as $rawList) {
+            foreach (preg_split('/[\s,]+/', (string)$rawList) as $entry) {
+                $entry = trim($entry);
+                if ($entry !== '') {
+                    $entries[] = $entry;
+                }
+            }
+        }
+        return array_values(array_unique($entries));
+    }
+    /**
+     * Tests whether an IP falls within a CIDR range (or equals a bare IP).
+     *
+     * Works for both IPv4 and IPv6 by comparing the raw inet_pton bytes under
+     * the prefix mask. A $cidr with no "/" is treated as an exact-IP match.
+     *
+     * @param string $ip   the IP to test
+     * @param string $cidr the CIDR range or bare IP to test against
+     *
+     * @return bool
+     */
+    protected static function ipInCidr($ip, $cidr)
+    {
+        $cidr = trim((string)$cidr);
+        if ($cidr === '') {
+            return false;
+        }
+        $ipBin = @inet_pton($ip);
+        if ($ipBin === false) {
+            return false;
+        }
+        if (strpos($cidr, '/') === false) {
+            $cidrBin = @inet_pton($cidr);
+            return $cidrBin !== false && $ipBin === $cidrBin;
+        }
+        list($subnet, $bits) = explode('/', $cidr, 2);
+        $subnetBin = @inet_pton($subnet);
+        if ($subnetBin === false || strlen($ipBin) !== strlen($subnetBin)) {
+            return false;
+        }
+        $bits = (int)$bits;
+        $maxBits = strlen($ipBin) * 8;
+        if ($bits < 0 || $bits > $maxBits) {
+            return false;
+        }
+        $fullBytes = intdiv($bits, 8);
+        $remBits = $bits % 8;
+        if ($fullBytes > 0
+            && substr($ipBin, 0, $fullBytes) !== substr($subnetBin, 0, $fullBytes)
+        ) {
+            return false;
+        }
+        if ($remBits === 0) {
+            return true;
+        }
+        $mask = chr((0xff << (8 - $remBits)) & 0xff);
+        return (ord($ipBin[$fullBytes]) & ord($mask))
+            === (ord($subnetBin[$fullBytes]) & ord($mask));
+    }
+    /**
      * Output var_dump for logging
      *
      * @param object $object The item to var_dump

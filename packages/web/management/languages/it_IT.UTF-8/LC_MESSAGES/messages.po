@@ -4396,6 +4396,9 @@ msgstr "Server Shell"
 msgid "On reboot we will try to find a new node"
 msgstr "Al riavvio cercheremo di trovare un nuovo nodo"
 
+msgid "One IP or CIDR range per line (or comma separated)"
+msgstr ""
+
 msgid ""
 "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
@@ -6406,6 +6409,9 @@ msgstr "Memoria totale"
 
 msgid "Transmit"
 msgstr "Trasmettere"
+
+msgid "Trusted Node CIDRs"
+msgstr ""
 
 msgid "Trying Snapin hash for"
 msgstr "Cercando hash di Snapin per"

@@ -35,7 +35,8 @@ class StorageGroup extends FOGController
     protected $databaseFields = [
         'id' => 'ngID',
         'name' => 'ngName',
-        'description' => 'ngDesc'
+        'description' => 'ngDesc',
+        'trustedcidrs' => 'ngTrustedCIDRs'
     ];
     /**
      * The required fields

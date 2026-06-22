@@ -4706,6 +4706,9 @@ msgstr "servidor TFTP"
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
+msgid "One IP or CIDR range per line (or comma separated)"
+msgstr ""
+
 msgid ""
 "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
@@ -6859,6 +6862,9 @@ msgid "Total Memory"
 msgstr "Memoria total"
 
 msgid "Transmit"
+msgstr ""
+
+msgid "Trusted Node CIDRs"
 msgstr ""
 
 #, fuzzy

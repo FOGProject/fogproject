@@ -27,14 +27,7 @@ header('Content-Type: application/json');
 // Allow local authenticated users and trusted node-to-node requests.
 $isAuthorizedUser = FOGCore::is_authorized(true);
 $remoteIP = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
-Route::ids('storagenode', [], 'ip');
-$storageNodeIPs = json_decode(Route::getData(), true) ?: [];
-$trustedIPs = array_merge(
-    (array)$storageNodeIPs,
-    ['127.0.0.1', '::1']
-);
-$isTrustedCaller = is_string($remoteIP)
-    && in_array($remoteIP, $trustedIPs, true);
+$isTrustedCaller = FOGCore::isTrustedNodeIp($remoteIP);
 if (!$isAuthorizedUser && !$isTrustedCaller) {
     http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
     echo json_encode(

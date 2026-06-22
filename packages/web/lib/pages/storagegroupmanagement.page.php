@@ -58,6 +58,7 @@ class StorageGroupManagement extends FOGPage
 
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $description = filter_input(INPUT_POST, 'description');
+        $trustedcidrs = filter_input(INPUT_POST, 'trustedcidrs');
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -85,6 +86,18 @@ class StorageGroupManagement extends FOGPage
                 _('Storage Group Description'),
                 'description',
                 $description,
+                false
+            ),
+            self::makeLabel(
+                $labelClass,
+                'trustedcidrs',
+                _('Trusted Node CIDRs')
+            ) => self::makeTextarea(
+                'form-control storagegrouptrustedcidrs-input',
+                'trustedcidrs',
+                _('One IP or CIDR range per line (or comma separated)'),
+                'trustedcidrs',
+                $trustedcidrs,
                 false
             )
         ];
@@ -142,6 +155,7 @@ class StorageGroupManagement extends FOGPage
     {
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $description = filter_input(INPUT_POST, 'description');
+        $trustedcidrs = filter_input(INPUT_POST, 'trustedcidrs');
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -169,6 +183,18 @@ class StorageGroupManagement extends FOGPage
                 _('Storage Group Description'),
                 'description',
                 $description,
+                false
+            ),
+            self::makeLabel(
+                $labelClass,
+                'trustedcidrs',
+                _('Trusted Node CIDRs')
+            ) => self::makeTextarea(
+                'form-control storagegrouptrustedcidrs-input',
+                'trustedcidrs',
+                _('One IP or CIDR range per line (or comma separated)'),
+                'trustedcidrs',
+                $trustedcidrs,
                 false
             )
         ];
@@ -210,6 +236,9 @@ class StorageGroupManagement extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
+        $trustedcidrs = trim(
+            filter_input(INPUT_POST, 'trustedcidrs')
+        );
 
         $serverFault = false;
         try {
@@ -222,7 +251,8 @@ class StorageGroupManagement extends FOGPage
             }
             $StorageGroup = self::getClass('StorageGroup')
                 ->set('name', $storagegroup)
-                ->set('description', $description);
+                ->set('description', $description)
+                ->set('trustedcidrs', $trustedcidrs);
             if (!$StorageGroup->save()) {
                 $serverFault = true;
                 throw new Exception(self::$foglang['DBupfailed']);
@@ -283,6 +313,10 @@ class StorageGroupManagement extends FOGPage
             filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description')
         );
+        $trustedcidrs = (
+            filter_input(INPUT_POST, 'trustedcidrs') ?:
+            $this->obj->get('trustedcidrs')
+        );
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -310,6 +344,18 @@ class StorageGroupManagement extends FOGPage
                 _('Storage Group Description'),
                 'description',
                 $description,
+                false
+            ),
+            self::makeLabel(
+                $labelClass,
+                'trustedcidrs',
+                _('Trusted Node CIDRs')
+            ) => self::makeTextarea(
+                'form-control storagegrouptrustedcidrs-input',
+                'trustedcidrs',
+                _('One IP or CIDR range per line (or comma separated)'),
+                'trustedcidrs',
+                $trustedcidrs,
                 false
             )
         ];
@@ -372,6 +418,9 @@ class StorageGroupManagement extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
+        $trustedcidrs = trim(
+            filter_input(INPUT_POST, 'trustedcidrs')
+        );
 
         $exists = self::getClass('StorageGroupManager')
             ->exists($storagegroup);
@@ -385,7 +434,8 @@ class StorageGroupManagement extends FOGPage
 
         $this->obj
             ->set('name', $storagegroup)
-            ->set('description', $description);
+            ->set('description', $description)
+            ->set('trustedcidrs', $trustedcidrs);
     }
     /**
      * Display storage group images.

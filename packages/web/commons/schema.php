@@ -4238,3 +4238,13 @@ $this->schema[] = [
     . "<b>paged</b> uses the classic page-number bar.','infinite',"
     . "'FOG View Settings')",
 ];
+// 297
+$this->schema[] = [
+    // Per-storage-group list of trusted IPs/CIDR ranges allowed to make
+    // node-to-node status calls (freespace.php, hw.php). A node serving such
+    // a request consults the trusted ranges of its own group(s), in addition
+    // to the always-trusted exact storage node IPs + loopback. Empty by
+    // default (no extra ranges trusted). Newline/comma/space separated.
+    "ALTER TABLE `nfsGroups` "
+    . "ADD COLUMN `ngTrustedCIDRs` VARCHAR(2048) NOT NULL DEFAULT ''",
+];
