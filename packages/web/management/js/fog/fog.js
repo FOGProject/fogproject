@@ -14,8 +14,6 @@ var startTime = new Date().getTime(),
   lastsub,
   pauseUpdate,
   cancelTasks,
-  MACLookupTimer,
-  MACLookupTimeout = 1000,
   pauseButton = $('#taskpause'),
   cancelButton = $('#taskcancel');
 var $_GET = getQueryParams(document.location.search),
@@ -1731,55 +1729,6 @@ function removeMACField() {
       $('.additionalMACsRow').hide().parents('tr').hide();
     }
   });
-}
-/**
- * Change mac element.
- */
-function MACChange(data) {
-  if (MACLookupTimer) clearTimeout(MACLookupTimer);
-  MACLookupTimer = setTimeout(function(e) {
-    $('#primaker').load('?sub=getmacman&prefix='+mac);
-  }, MACLookupTimeout);
-}
-/**
- * Update mac fields.
- */
-function MACUpdate() {
-  setTimeout(function() {
-    $('.mac-manufactor').each(function(evt) {
-      input = $(this).parent().find('input');
-      var mac = (
-        input.size() ?
-        input.val() :
-        $(this).parent().find('.mac').html()
-      );
-      $(this).load('../management/index.php?sub=getmacman&prefix='+mac);
-    });
-  }, 1000);
-  $('#mac, .additionalMAC').on('change keyup blur',function(e) {
-    e.preventDefault();
-    MACChange($(this));
-  });
-  setTimeout(function() {
-    $('.add-mac').on('click', function(e) {
-      var addrow = $('.addrowempty').clone().removeClass().addClass('addrow');
-      $('.additionalMACsRow').show().parents('tr').show();
-      $('.additionalMACsCell').append(addrow);
-      removeMACField();
-      e.preventDefault();
-    });
-  }, 1000);
-  if ($('.additionalMACsCell').find('.addrow').size() < 1) {
-    $('.additionalMACsRow').hide().parents('tr').hide();
-  } else {
-    $('.additionalMACsRow').show();
-  }
-  if ($('.pendingMACsRow').find('.addrow').length < 1) {
-    $('.pendingMACsRow').hide().parents('tr').hide();
-  } else {
-    $('.pendingMACsRow').show();
-  }
-  removeMACField();
 }
 /**
  * Validate cron inputs as appropriate.

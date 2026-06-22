@@ -235,7 +235,10 @@
             {
                 responsivePriority: -1,
                 render: function(data, type, row) {
-                    return data;
+                    if (type !== 'display') {
+                        return data;
+                    }
+                    return (data || '') + macVendorIcon(row.mac_vendor);
                 },
                 targets: 0
             },

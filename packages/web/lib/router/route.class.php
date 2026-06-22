@@ -945,6 +945,26 @@ class Route extends FOGBase
                 case 'host':
                     $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
                     $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
+                    // Vendor name for the primary MAC; rides along in the JSON
+                    // and is rendered as a tooltip icon client-side. Not a
+                    // visible column and never reaches the CSV export path.
+                    $columns[] = [
+                        'db' => 'hmMAC',
+                        'dt' => 'primac_vendor',
+                        'formatter' => function ($d, $row) {
+                            return MACAddress::getVendor($d);
+                        }
+                    ];
+                    break;
+                case 'macaddressassociation':
+                    // Vendor name for each MAC row (additional + pending MACs).
+                    $columns[] = [
+                        'db' => 'hmMAC',
+                        'dt' => 'mac_vendor',
+                        'formatter' => function ($d, $row) {
+                            return MACAddress::getVendor($d);
+                        }
+                    ];
                     break;
                 case 'group':
                     $columns[] = [

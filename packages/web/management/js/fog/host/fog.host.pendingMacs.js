@@ -29,6 +29,17 @@
             {data: 'hostLink'},
             {data: 'mac'}
         ],
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    if (type !== 'display') {
+                        return data;
+                    }
+                    return (data || '') + macVendorIcon(row.mac_vendor);
+                },
+                targets: 1
+            }
+        ],
         rowId: 'id',
         processing: true,
         serverSide: true,

@@ -126,6 +126,15 @@
               targets: [0]
             },
             {
+              render: function (data, type, row) {
+                if (type !== 'display') {
+                  return data;
+                }
+                return (data || '') + macVendorIcon(row.primac_vendor);
+              },
+              targets: [1]
+            },
+            {
               targets: [4],
               visible: false,
               searchable: false
@@ -303,6 +312,17 @@
           columns: [
             {data: 'hostLink'},
             {data: 'mac'}
+          ],
+          columnDefs: [
+            {
+              render: function (data, type, row) {
+                if (type !== 'display') {
+                  return data;
+                }
+                return (data || '') + macVendorIcon(row.mac_vendor);
+              },
+              targets: [1]
+            }
           ],
           rowGroup: {
             dataSrc: 'hostLink'

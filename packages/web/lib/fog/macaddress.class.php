@@ -240,6 +240,48 @@ class MACAddress extends FOGBase
         );
     }
     /**
+     * Resolves a MAC address to its hardware vendor (OUI) name.
+     *
+     * Lightweight, static, and memoised per request: it derives the 24-bit
+     * OUI prefix (xx-xx-xx) directly from the raw MAC without building a full
+     * MACAddress instance (so no MACAddressAssociation lookup), then resolves
+     * it against the locally cached `oui` table populated from the IEEE list
+     * via About -> MAC Address List. Returns an empty string when the prefix
+     * is unresolvable or the table has not been loaded.
+     *
+     * @param string $mac the mac address to resolve
+     *
+     * @return string the vendor name, or '' if unknown
+     */
+    public static function getVendor($mac)
+    {
+        static $cache = [];
+        $hex = preg_replace('/[^0-9a-fA-F]/', '', (string) $mac);
+        if (strlen($hex) < 6) {
+            return '';
+        }
+        $prefix = strtoupper(
+            implode(
+                '-',
+                str_split(
+                    substr($hex, 0, 6),
+                    2
+                )
+            )
+        );
+        if (array_key_exists($prefix, $cache)) {
+            return $cache[$prefix];
+        }
+        $name = '';
+        $oui = self::getClass('OUI')
+            ->set('prefix', $prefix)
+            ->load('prefix');
+        if ($oui instanceof OUI && $oui->isValid()) {
+            $name = (string) $oui->get('name');
+        }
+        return $cache[$prefix] = $name;
+    }
+    /**
      * How to present the mac as a string.
      *
      * @return string

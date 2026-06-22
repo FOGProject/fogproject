@@ -893,7 +893,7 @@ class FOGConfigurationPage extends FOGPage
         self::checkAuthAndCSRF();
         if (isset($_POST['update'])) {
             self::clearMACLookupTable();
-            $url = 'http://standards-oui.ieee.org/oui.txt';
+            $url = 'https://standards-oui.ieee.org/oui/oui.txt';
             $data = self::$FOGURLRequests->process($url);
             $data = array_shift($data);
             $items = [];

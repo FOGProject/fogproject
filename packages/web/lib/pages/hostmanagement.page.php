@@ -4205,6 +4205,22 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Resolves a typed MAC address to its hardware vendor (OUI) name.
+     *
+     * Read-only AJAX helper for the live vendor icon shown next to MAC inputs
+     * on the host create/edit forms. Returns {"vendor": "..."} (empty when the
+     * prefix is unknown or the oui table has not been loaded).
+     *
+     * @return void
+     */
+    public function getmacman()
+    {
+        header('Content-type: application/json');
+        $prefix = filter_input(INPUT_GET, 'prefix');
+        echo json_encode(['vendor' => MACAddress::getVendor($prefix)]);
+        exit;
+    }
+    /**
      * Get's the hosts mac address list.
      *
      * @return void

@@ -41,6 +41,12 @@
             },
             {
                 responsivePriority: 0,
+                render: function (data, type, row) {
+                    if (type !== 'display') {
+                        return data;
+                    }
+                    return (data || '') + macVendorIcon(row.primac_vendor);
+                },
                 targets: 1
             }
         ],

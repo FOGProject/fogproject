@@ -517,9 +517,12 @@ function fogSizeScroller(dt) {
   // redraws). Guarded in case Scroller isn't attached for some reason.
   if (dt.scroller && typeof dt.scroller.measure === 'function') {
     dt.scroller.measure();
-  } else {
-    dt.columns.adjust();
   }
+  // Re-sync the scrollY header/body column widths. measure() only recomputes
+  // the virtual viewport height, so a table first laid out in a hidden tab
+  // keeps its zero-width header/body split (header narrow, body full-width)
+  // until the columns are adjusted once it becomes visible.
+  dt.columns.adjust();
 }
 function fogSizeAllScrollers() {
   if (!$.fn.dataTable) {
@@ -540,8 +543,13 @@ function fogBindScrollerAutosize() {
     debounce = setTimeout(fogSizeAllScrollers, 150);
   });
   // In-tab tables (edit pages) measure as zero-height while hidden; size them
-  // once their tab is shown.
-  $(document).on('shown.bs.tab.fogScroller', fogSizeAllScrollers);
+  // once their tab is shown. Defer a tick: inside shown.bs.tab the revealed
+  // tab's layout isn't final, so a synchronous columns.adjust() sizes against
+  // a stale (~zero) width and leaves the header/body split misaligned until
+  // the next redraw. One macrotask later the layout is settled.
+  $(document).on('shown.bs.tab.fogScroller', function () {
+    setTimeout(fogSizeAllScrollers, 0);
+  });
 }
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
@@ -552,14 +560,22 @@ $.fn.registerTable = function(onSelect, opts) {
   // Paging style is admin-selectable via FOG_TABLE_SCROLL_MODE (hidden
   // #scrollMode). Default is infinite (virtual-scroll) when unset.
   //
-  // Two things force classic paging regardless of that setting:
+  // Three things force classic paging regardless of that setting:
   //  - rowGroup: grouped tables inject category header rows that Scroller's
   //    virtual row-height math can't reconcile, so any table using rowGroup is
   //    auto-paged (no per-table flag needed).
   //  - scroller:false: an explicit per-table opt-out for any other reason.
+  //  - hidden at init: Scroller relies on scrollY, which measures a table
+  //    inside a not-yet-shown tab (display:none) as zero width. That leaves the
+  //    split header/body tables misaligned until a full redraw, and no amount
+  //    of tab-show re-adjusting wins the race reliably. A paged table is a
+  //    single <table> with no header/body split, so it can't misalign. Top-
+  //    level lists are visible at init and keep infinite scroll; in-tab edit
+  //    tables (MACs, snapins, printers, history, ...) fall back to paging.
   var infiniteScroll =
     (opts.scroller !== false) &&
     !opts.rowGroup &&
+    $(this).is(':visible') &&
     (($('#scrollMode').val() || 'infinite').toLowerCase() !== 'paged');
 
   var defaults = {
@@ -598,7 +614,17 @@ $.fn.registerTable = function(onSelect, opts) {
       style: 'multi+shift'
     },
     dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
-    retrieve: true
+    retrieve: true,
+    // Bootstrap tooltips bind to elements present at init time; rows drawn by
+    // DataTables (incl. Scroller redraws) arrive later, so re-init any tooltip
+    // markup (e.g. the MAC vendor icon) within the table on every draw.
+    drawCallback: function () {
+      try {
+        $(this.api().table().node())
+          .find('[data-toggle="tooltip"]')
+          .tooltip();
+      } catch (e) {}
+    }
   };
 
   if (infiniteScroll) {
@@ -637,6 +663,67 @@ $.fn.registerTable = function(onSelect, opts) {
 
   return table;
 };
+/**
+ * Build the compact hardware-vendor (OUI) icon shown next to a MAC address.
+ *
+ * Kept global so the per-table DataTables renders and the live input binder
+ * all emit identical markup. Returns '' when the vendor is unknown, so
+ * unresolved MACs stay uncluttered; the vendor name rides in the tooltip.
+ *
+ * @param {string} vendor resolved vendor name (server-side from the oui table)
+ * @return {string} icon HTML, or '' when no vendor
+ */
+function macVendorIcon(vendor) {
+  if (!vendor) {
+    return '';
+  }
+  var esc = $('<div>').text(vendor).html().replace(/"/g, '&quot;');
+  // fa-info-circle: a circular "info" glyph, chosen for visual consistency
+  // with fog-node. It is a low-codepoint (FA 1.x) icon, so it renders from any
+  // FontAwesome 4 webfont, including stale browser caches; newer glyphs like
+  // fa-microchip (4.7-only) show as tofu when an older font is cached.
+  // container=body keeps the tooltip from being clipped by the DataTables
+  // scroll body (infinite-scroll) and from rendering under the sticky header;
+  // placement=right clears the header above the first row.
+  return ' <i class="fa fa-info-circle text-muted mac-vendor-icon" '
+    + 'data-toggle="tooltip" data-placement="right" data-container="body" '
+    + 'title="' + esc + '"></i>';
+}
+/**
+ * Live vendor lookup for MAC inputs on the host create/edit forms.
+ *
+ * Delegated on document so it covers the create modal (rendered after page
+ * load) as well as the edit form. Debounced; only fires once at least a full
+ * OUI prefix (6 hex chars) has been typed. The icon is dropped into a sibling
+ * span so it never interferes with the input's own value.
+ */
+(function () {
+  var macVendorTimer;
+  $(document).on('input change', '.hostmac-input', function () {
+    var input = $(this);
+    var holder = input.nextAll('.mac-vendor-live').first();
+    if (!holder.length) {
+      holder = $('<span class="mac-vendor-live"></span>');
+      input.after(holder);
+    }
+    clearTimeout(macVendorTimer);
+    if ((input.val() || '').replace(/[^0-9a-fA-F]/g, '').length < 6) {
+      holder.empty();
+      return;
+    }
+    macVendorTimer = setTimeout(function () {
+      $.get(
+        '../management/index.php?node=host&sub=getmacman',
+        {prefix: input.val()},
+        function (res) {
+          holder.html(macVendorIcon(res && res.vendor ? res.vendor : ''));
+          holder.find('[data-toggle="tooltip"]').tooltip();
+        },
+        'json'
+      );
+    }, 400);
+  });
+})();
 $.fn.setContainerDisable = function(disabled) {
   if(disabled !== false) {
     disabled = true;
