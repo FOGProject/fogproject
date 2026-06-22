@@ -1139,6 +1139,82 @@ class FOGConfigurationPage extends FOGPage
         ];
     }
     /**
+     * Build a standard settings <select> input.
+     *
+     * Replaces several byte-for-byte identical inline select/option loops in
+     * the settings list formatter.
+     *
+     * @param int|string $id    the settingID (used as the field name)
+     * @param string     $key   the settingKey (used as the element id)
+     * @param mixed      $value the currently stored value (for selection)
+     * @param array      $vals  map of display text => option value
+     *
+     * @return string
+     */
+    private static function _selectInput($id, $key, $value, array $vals)
+    {
+        $html = '<select '
+            . 'class="form-control" name="'
+            . $id
+            . '" autocomplete="off" id="'
+            . $key
+            . '">';
+        foreach ($vals as $text => $val) {
+            $html .= '<option value="'
+                . Initiator::e($val)
+                . '"'
+                . (
+                    $val == $value ?
+                    ' selected' :
+                    ''
+                )
+                . '>'
+                . Initiator::e($text)
+                . '</option>';
+        }
+        $html .= '</select>';
+        return $html;
+    }
+    /**
+     * Build a bootstrap-slider settings input.
+     *
+     * Replaces several near-identical inline makeInput() slider calls in the
+     * settings list formatter that differed only in default/min/max/step.
+     *
+     * @param int|string $id      the settingID (used as the field name)
+     * @param string     $key     the settingKey (used as the element id)
+     * @param mixed      $value   the currently stored value
+     * @param string     $default the placeholder/default value
+     * @param string     $min     data-slider-min
+     * @param string     $max     data-slider-max
+     * @param string     $step    data-slider-step
+     *
+     * @return string
+     */
+    private static function _sliderInput($id, $key, $value, $default, $min, $max, $step)
+    {
+        return self::makeInput(
+            'form-control slider',
+            $id,
+            $default,
+            'text',
+            $key,
+            $value,
+            false,
+            false,
+            -1,
+            -1,
+            'data-slider-min="' . $min . '" '
+            . 'data-slider-max="' . $max . '" '
+            . 'data-slider-step="' . $step . '" '
+            . 'data-slider-value="' . $value . '" '
+            . 'data-slider-orientation="horizontal" '
+            . 'data-slider-selection="before" '
+            . 'data-slider-tooltip="show" '
+            . 'data-slider-id="blue"'
+        );
+    }
+    /**
      * Save updates to the fog settings information.
      *
      * @return void
@@ -2123,58 +2199,24 @@ class FOGConfigurationPage extends FOGPage
                                 _('100') => 100,
                                 _('All') => -1
                             ];
-                            ob_start();
-                            echo '<select '
-                                . 'class="form-control" name="'
-                                . $row['settingID']
-                                . '" autocomplete="off" id="'
-                                . $row['settingKey']
-                                . '">';
-                            foreach ($vals as $text => &$val) {
-                                echo '<option value="'
-                                    . Initiator::e($val)
-                                    . '"'
-                                    . (
-                                        $val == $row['settingValue'] ?
-                                        ' selected' :
-                                        ''
-                                    )
-                                    . '>';
-                                echo Initiator::e($text);
-                                echo '</option>';
-                                unset($val);
-                            }
-                            echo '</select>';
-                            $input = ob_get_clean();
+                            $input = self::_selectInput(
+                                $row['settingID'],
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                $vals
+                            );
                             break;
                         case 'FOG_TABLE_SCROLL_MODE':
                             $vals = [
                                 _('Infinite scroll') => 'infinite',
                                 _('Paged') => 'paged'
                             ];
-                            ob_start();
-                            echo '<select '
-                                . 'class="form-control" name="'
-                                . $row['settingID']
-                                . '" autocomplete="off" id="'
-                                . $row['settingKey']
-                                . '">';
-                            foreach ($vals as $text => &$val) {
-                                echo '<option value="'
-                                    . Initiator::e($val)
-                                    . '"'
-                                    . (
-                                        $val == $row['settingValue'] ?
-                                        ' selected' :
-                                        ''
-                                    )
-                                    . '>';
-                                echo Initiator::e($text);
-                                echo '</option>';
-                                unset($val);
-                            }
-                            echo '</select>';
-                            $input = ob_get_clean();
+                            $input = self::_selectInput(
+                                $row['settingID'],
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                $vals
+                            );
                             break;
                         case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
                             $vals = [
@@ -2185,85 +2227,34 @@ class FOGConfigurationPage extends FOGPage
                                 _('Partclone Zstd') => 5,
                                 _('Partclone Zstd Split 200MiB') => 6
                             ];
-                            ob_start();
-                            echo '<select '
-                                . 'class="form-control" name="'
-                                . $row['settingID']
-                                . '" autocomplete="off" id="'
-                                . $row['settingKey']
-                                . '">';
-                            foreach ($vals as $text => &$val) {
-                                echo '<option value="'
-                                    . Initiator::e($val)
-                                    . '"'
-                                    . (
-                                        $val == $row['settingValue'] ?
-                                        ' selected' :
-                                        ''
-                                    )
-                                    . '>';
-                                echo Initiator::e($text);
-                                echo '</option>';
-                                unset($val);
-                            }
-                            echo '</select>';
-                            $input = ob_get_clean();
+                            $input = self::_selectInput(
+                                $row['settingID'],
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                $vals
+                            );
                             break;
                         case 'FOG_MULTICAST_DUPLEX':
                             $vals = [
                                 'HALF_DUPLEX' => '--half-duplex',
                                 'FULL_DUPLEX' => '--full-duplex'
                             ];
-                            ob_start();
-                            echo '<select '
-                                . 'class="form-control" name="'
-                                . $row['settingID']
-                                . '" autocomplete="off" id="'
-                                . $row['settingKey']
-                                . '">';
-                            foreach ($vals as $text => &$val) {
-                                echo '<option value="'
-                                    . Initiator::e($val)
-                                    . '"'
-                                    . (
-                                        $val == $row['settingValue'] ?
-                                        ' selected' :
-                                        ''
-                                    )
-                                    . '>';
-                                echo Initiator::e($text);
-                                echo '</option>';
-                                unset($val);
-                            }
-                            echo '</select>';
-                            $input = ob_get_clean();
+                            $input = self::_selectInput(
+                                $row['settingID'],
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                $vals
+                            );
                             break;
                         case 'FOG_DEFAULT_LOCALE':
                             $langs =& self::$foglang['Language'];
                             $vals = array_flip($langs);
-                            ob_start();
-                            echo '<select '
-                                . 'class="form-control" name="'
-                                . $row['settingID']
-                                . '" autocomplete="off" id="'
-                                . $row['settingKey']
-                                . '">';
-                            foreach ($vals as $text => &$val) {
-                                echo '<option value="'
-                                    . Initiator::e($val)
-                                    . '"'
-                                    . (
-                                        $val == $row['settingValue'] ?
-                                        ' selected' :
-                                        ''
-                                    )
-                                    . '>';
-                                echo Initiator::e($text);
-                                echo '</option>';
-                                unset($val);
-                            }
-                            echo '</select>';
-                            $input = ob_get_clean();
+                            $input = self::_selectInput(
+                                $row['settingID'],
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                $vals
+                            );
                             break;
                         case 'FOG_QUICKREG_IMG_ID':
                         case 'FOG_QUICKREG_GROUP_ASSOC':
@@ -2510,91 +2501,47 @@ class FOGConfigurationPage extends FOGPage
                             }
                             break;
                         case 'FOG_PIGZ_COMP':
-                            $input = self::makeInput(
-                                'form-control slider',
+                            $input = self::_sliderInput(
                                 $row['settingID'],
-                                '6',
-                                'text',
                                 $row['settingKey'],
                                 $row['settingValue'],
-                                false,
-                                false,
-                                -1,
-                                -1,
-                                'data-slider-min="0" '
-                                . 'data-slider-max="22" '
-                                . 'data-slider-step="1" '
-                                . 'data-slider-value="' . $row['settingValue'] . '" '
-                                . 'data-slider-orientation="horizontal" '
-                                . 'data-slider-selection="before" '
-                                . 'data-slider-tooltip="show" '
-                                . 'data-slider-id="blue"'
+                                '6',
+                                '0',
+                                '22',
+                                '1'
                             );
                             break;
                         case 'FOG_KERNEL_LOGLEVEL':
-                            $input = self::makeInput(
-                                'form-control slider',
+                            $input = self::_sliderInput(
                                 $row['settingID'],
-                                '4',
-                                'text',
                                 $row['settingKey'],
                                 $row['settingValue'],
-                                false,
-                                false,
-                                -1,
-                                -1,
-                                'data-slider-min="0" '
-                                . 'data-slider-max="7" '
-                                . 'data-slider-step="1" '
-                                . 'data-slider-value="' . $row['settingValue'] . '" '
-                                . 'data-slider-orientation="horizontal" '
-                                . 'data-slider-selection="before" '
-                                . 'data-slider-tooltip="show" '
-                                . 'data-slider-id="blue"'
+                                '4',
+                                '0',
+                                '7',
+                                '1'
                             );
                             break;
                         case 'FOG_INACTIVITY_TIMEOUT':
-                            $input = self::makeInput(
-                                'form-control slider',
+                            $input = self::_sliderInput(
                                 $row['settingID'],
-                                '1',
-                                'text',
                                 $row['settingKey'],
                                 $row['settingValue'],
-                                false,
-                                false,
-                                -1,
-                                -1,
-                                'data-slider-min="1" '
-                                . 'data-slider-max="24" '
-                                . 'data-slider-step="1" '
-                                . 'data-slider-value="' . $row['settingValue'] . '" '
-                                . 'data-slider-orientation="horizontal" '
-                                . 'data-slider-selection="before" '
-                                . 'data-slider-tooltip="show" '
-                                . 'data-slider-id="blue"'
+                                '1',
+                                '1',
+                                '24',
+                                '1'
                             );
                             break;
                         case 'FOG_REGENERATE_TIMEOUT':
-                            $input = self::makeInput(
-                                'form-control slider',
+                            $input = self::_sliderInput(
                                 $row['settingID'],
-                                '0.50',
-                                'text',
                                 $row['settingKey'],
                                 $row['settingValue'],
-                                false,
-                                false,
-                                -1,
-                                -1,
-                                'data-slider-min="0.25" '
-                                . 'data-slider-max="24" '
-                                . 'data-slider-step="0.25" '
-                                . 'data-slider-value="' . $row['settingValue'] . '" '
-                                . 'data-slider-orientation="horizontal" '
-                                . 'data-slider-selection="before" '
-                                . 'data-slider-tooltip="show" '
-                                . 'data-slider-id="blue"'
+                                '0.50',
+                                '0.25',
+                                '24',
+                                '0.25'
                             );
                             break;
                         default:
