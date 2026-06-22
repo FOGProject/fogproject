@@ -95,7 +95,6 @@ class Page extends FOGBase
      */
     protected static $commonJavascripts = [
         'js/jquery.min.js',
-        'js/jquery.color.min.js',
         'js/lodash.min.js',
         'js/bootstrap.min.js',
         'js/bootstrap-slider.min.js',
@@ -103,10 +102,6 @@ class Page extends FOGBase
         'js/bootstrap-datetimepicker.min.js',
         'js/vfs_fonts.js',
         'js/fastclick.js',
-        'js/Flot/jquery.flot.js',
-        'js/Flot/jquery.flot.pie.js',
-        'js/Flot/jquery.flot.time.js',
-        'js/Flot/jquery.flot.resize.js',
         'js/jquery-cron.min.js',
         'js/select2.full.min.js',
         'js/jquery.slimscroll.min.js',
@@ -244,14 +239,9 @@ class Page extends FOGBase
             && ($node == 'home'
             || !$node)
         ) {
+            $files[] = 'js/Chart/chart.umd.min.js';
+            $files[] = 'js/Chart/chartjs-adapter-moment.min.js';
             $files[] = 'js/fog/dashboard/fog.dashboard.js';
-            $test = preg_match(
-                '#MSIE [6|7|8|9|10|11]#',
-                self::$useragent
-            );
-            if ($test) {
-                $files[] = 'js/flot/excanvas.js';
-            }
         }
         if ($node === 'schema') {
             $files[] = 'js/fog/schema/fog.schema.js';

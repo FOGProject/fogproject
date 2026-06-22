@@ -107,8 +107,10 @@ class DashboardPage extends FOGPage
             );
             $url = self::$httpproto.'://' . $url;
             self::$_nodeOpts[] = sprintf(
-                '<option value="%s">%s%s</option>',
+                '<option value="%s" data-name="%s"%s>%s%s</option>',
                 Initiator::e($StorageNode->id),
+                Initiator::e($StorageNode->name),
+                ($StorageNode->isMaster ? ' data-master="1"' : ''),
                 Initiator::e($StorageNode->name),
                 (
                     $StorageNode->isMaster ?
@@ -585,39 +587,44 @@ class DashboardPage extends FOGPage
     public function get30day()
     {
         header('Content-type: application/json');
-        $days = filter_input(INPUT_POST, 'days');
+        $days = (int)filter_input(INPUT_POST, 'days', FILTER_VALIDATE_INT);
+        if ($days < 1) {
+            $days = 30;
+        }
         $start = self::niceDate()
             ->setTime(00, 00, 00)
             ->modify("-$days days");
         $end = self::niceDate()
             ->setTime(23, 59, 59);
+        // One grouped query instead of a COUNT per day (was up to 365 queries
+        // for the "1 Year" view). Images are counted by the day they started.
+        $rows = self::$DB->query(
+            "SELECT DATE(`ilStartTime`) AS `d`, COUNT(`ilID`) AS `c`
+               FROM `imagingLog`
+              WHERE `ilStartTime` BETWEEN :start AND :end
+              GROUP BY DATE(`ilStartTime`)",
+            [],
+            [
+                ':start' => $start->format('Y-m-d H:i:s'),
+                ':end' => $end->format('Y-m-d H:i:s')
+            ]
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $counts = [];
+        foreach ((array)$rows as $row) {
+            $counts[$row['d']] = (int)$row['c'];
+        }
+        // Emit a continuous, zero-filled series so every day has a point.
         $int = new DateInterval('P1D');
         $period = new DatePeriod($start, $int, $end);
-        $dates = iterator_to_array($period);
-        unset(
-            $start,
-            $end,
-            $int,
-            $period
-        );
-        foreach ((array)$dates as $index => &$date) {
-            Route::count(
-                'imaginglog',
-                [
-                    'start' => $date->format('Y-m-d%'),
-                    'finish' => $date->format('Y-m-d%')
-                ],
-                false,
-                'OR'
-            );
-            $count = json_decode(Route::getData());
-            $count = $count->total;
+        $data = [];
+        foreach ($period as $date) {
+            $key = $date->format('Y-m-d');
             $data[] = [
                 ($date->getTimestamp() * 1000),
-                $count
+                isset($counts[$key]) ? $counts[$key] : 0
             ];
-            unset($date);
         }
+        unset($counts, $rows, $int, $period);
         http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($data);
         exit;
@@ -727,6 +734,61 @@ class DashboardPage extends FOGPage
                 'urls' => $sent
             ]
         );
+        exit;
+    }
+    /**
+     * Returns the running FOG version of each graph-enabled storage node,
+     * keyed by node id. Nodes that cannot be reached are simply omitted so
+     * the dashboard leaves their version blank.
+     *
+     * @return void
+     */
+    public function nodeversions()
+    {
+        header('Content-type: application/json');
+        Route::listem('storagenode');
+        $Nodes = json_decode(
+            Route::getData()
+        );
+        $ids = [];
+        $urls = [];
+        foreach ($Nodes->data as &$StorageNode) {
+            if (!($StorageNode->isEnabled && $StorageNode->isGraphEnabled)) {
+                continue;
+            }
+            $url = preg_replace(
+                '#/+#',
+                '/',
+                $StorageNode->ip . '/fog/service/getversion.php'
+            );
+            $ids[] = $StorageNode->id;
+            $urls[] = self::$httpproto . '://' . $url;
+            unset($StorageNode);
+        }
+        $versions = [];
+        if (count($urls)) {
+            $datas = (array)self::$FOGURLRequests->process(
+                $urls,
+                'GET',
+                null,
+                false,
+                false,
+                false,
+                false,
+                3
+            );
+            foreach ($ids as $i => $id) {
+                $ver = isset($datas[$i]) ? trim((string)$datas[$i]) : '';
+                // Only accept a plausible version string; otherwise leave it
+                // blank (unreachable node returns empty/garbage).
+                if ($ver !== '' && preg_match('#^[0-9][0-9A-Za-z._-]*$#', $ver)) {
+                    $versions[$id] = $ver;
+                }
+            }
+        }
+        unset($ids, $urls, $datas);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo json_encode($versions);
         exit;
     }
 }

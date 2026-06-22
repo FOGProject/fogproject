@@ -1,696 +1,529 @@
-// 30 day
-var Graph30Day,
-  Graph30DayOpts = {
-    colors: ['#3c8dbc', '#0073b7'],
-    grid: {
-      hoverable: true,
-      borderColor: '#f3f3f3',
-      borderWidth: 1
-    },
-    xaxis: {
-      mode: 'time',
-      tickLength: 0,
-      show: true
-    },
-    yaxis: {
-      tickFormatter: function(v) {
-        return '<div class="tick r">'
-          + v
-          + '</div>';
-      },
-      min: 0,
-      minTickSize: 1,
-      tickLength: 0,
-      show: true
-    },
-    lines: {
-      fill: false
-    },
-    series: {
-      shadowSize: 0,
-      lines: {
-        show: true,
-      },
-      points: {
-        show: true
-      }
-    },
-    legend: {
-      show: false
+/**
+ * FOG dashboard charts.
+ *
+ * Renders the four dashboard graphs with Chart.js (replaces the former Flot
+ * implementation):
+ *   - Storage Group Activity   doughnut, polled every 5 min
+ *   - Storage Node Disk Usage  doughnut, polled every 5 min
+ *   - Imaging history          line/time, polled every 5 min
+ *   - Bandwidth                line/time, live (polled every 2.5 s)
+ *
+ * Server JSON contracts are unchanged from the Flot version; only the client
+ * rendering differs. moment + chartjs-adapter-moment provide the time axis.
+ */
+(function ($) {
+  'use strict';
+
+  var BASE = '../management/index.php?node=home';
+  var POLL_SLOW = 300000; // 5 minutes, periodic charts
+  var POLL_BW = 2500;     // bandwidth refresh (relaxed from 1s)
+  var startTime = new Date().getTime();
+  var charts = {};        // container selector -> Chart instance
+
+  Chart.defaults.maintainAspectRatio = false;
+  Chart.defaults.animation.duration = 0;
+
+  // --- shared helpers --------------------------------------------------
+
+  // Size a chart container and return a fresh 2d context inside it,
+  // tearing down any prior chart or error markup first.
+  function canvasIn(sel) {
+    var $box = $(sel);
+    if (charts[sel]) {
+      charts[sel].destroy();
+      delete charts[sel];
     }
-  },
-  // Bandwidth
-  GraphBandwidthMaxDataPoints,
-  GraphDayMaxDataPoints,
-  realtime = 'on',
-  // Client Count
-  updateClientCountData = [[0,0]],
-  updateClientCountOpts = {
-    colors: ['#00c0ef', '#3c8dbc', '#0073b7'],
-    series: {
-      pie: {
-        show: true,
-        radius: 1,
-        innerRadius: 0.5,
-        label: {
-          show: true,
-          radius: 2/3,
-          formatter: function(label, series) {
-            return '<div style="color: #f3f3f3">'
-              + series.percent
-              + '%</div>';
-          },
-          threshold: 0.1
-        }
-      }
-    },
-    legend: {
-      show: true,
-      align: 'right',
-      position: 'se',
-      labelColor: '#666666',
-      labelFormatter: function(label, series) {
-        return '<div class="graph-legend">'
-          + label
-          + ': '
-          + series.datapoints.points[1]
-          + '</div>';
-      }
+    $box.css({ position: 'relative', height: '150px' }).empty();
+    $box.append('<canvas></canvas>');
+    return $box.find('canvas')[0].getContext('2d');
+  }
+
+  function boxLoad(sel, on) {
+    $(sel).closest('.box').setLoading(on);
+  }
+
+  function showError(sel, title, msg) {
+    if (charts[sel]) {
+      charts[sel].destroy();
+      delete charts[sel];
     }
-  },
-  clientinterval,
-  // Disk Usage
-  GraphDiskUsageOpts = {
-    colors: ['#00c0ef', '#3c8dbc'],
-    series: {
-      pie: {
-        show: true,
-        radius: 1,
-        innerRadius: 0.5,
-        label: {
-          show: true,
-          radius: 3/4,
-          formatter: function(label, series) {
-            return '<div style="color: #f3f3f3">'
-              + Math.round(series.percent)
-              + '%</div>';
-          },
-          threshold: 0.1
-        }
-      }
-    },
-    legend: {
-      show: true,
-      align: 'right',
-      position: 'se',
-      labelColor: '#666666',
-      labelFormatter: function(label, series) {
-        units = [
-          ' iB',
-          ' KiB',
-          ' MiB',
-          ' GiB',
-          ' TiB',
-          ' PiB',
-          ' EiB',
-          ' ZiB',
-          ' YiB'
-        ];
-        for (var i = 0; series.data[0][1] >= 1024 && i < units.length - 1; i++) {
-          series.data[0][1] /= 1024;
-        }
-        return '<div class="graph-legend">'
-          + label
-          + ': '
-          + series.data[0][1].toFixed(2)
-          + units[i]
-          + '</div>';
-      }
-    }
-  },
-  GraphDiskUsageData = [],
-  diskusageinterval,
-  startTime = new Date().getTime(),
-  loadings = {
-    activity: true,
-    diskusage: true,
-    imagehistory: true,
-    bandwidth: true
-  };
-
-(function($) {
-  Graph30Day = $('#graph-30day');
-
-  setupOverlays();
-
-  setupOverview();
-  setupActivity();
-  setupDiskUsage();
-  setupImagingHistory();
-  setupBandwidth();
-})(jQuery);
-
-function setupOverlays() {
-  var activity = $("#graph-activity");
-  var diskUsage = $("#diskusage-selector");
-  var bandwidth = $("#realtime");
-  makeParentBoxLoad(activity, true);
-  makeParentBoxLoad(diskUsage, true);
-  makeParentBoxLoad(Graph30Day, true);
-  makeParentBoxLoad(bandwidth, true);
-}
-
-
-function makeParentBoxLoad(child, loading) {
-  child.closest('.box').setLoading(loading);
-}
-
-function setupOverview() {
-
-}
-
-function setupActivity() {
-  // Client Count
-  $('#graph-activity').css({
-    height: '150px',
-    color: '#f3f3f3',
-    'text-decoration': 'none',
-    'font-weight': 'bold'
-  });
-  var updateClientCount = function() {
-    sgID = $('.activity-count').val();
-    if (!loadings.activity) {
-      makeParentBoxLoad($('#graph-activity'), true);
-      loadings.activity = true;
-    }
-    Pace.ignore(function() {
-      $.ajax({
-        url: '../management/index.php?node=home&sub=clientcount',
-        type: 'post',
-        data: {
-          id: sgID
-        },
-        dataType: 'json',
-        success: updateClientCountGraph,
-        error: function(jqXHR, textStatus, errorThrown) {
-          $('#graph-activity').html(
-            '<div class="alert alert-warning">'
-            + '<h4>Unavailable</h4>'
-            + 'Unable to get activity usage'
-            + '</div>'
-          );
-        },
-        complete: function() {
-          $('#graph-activity').addClass('loaded');
-          if (loadings.activity) {
-            makeParentBoxLoad($('#graph-activity'), false);
-            loadings.activity = false;
-          }
-        }
-      });
-    });
-  };
-  var updateClientCountGraph = function(data) {
-    updateClientCountData = [
-      {
-        label: data._labels[0],
-        data: parseInt(data.ActivitySlots)
-      },
-      {
-        label: data._labels[1],
-        data: parseInt(data.ActivityQueued)
-      },
-      {
-        label: data._labels[2],
-        data: parseInt(data.ActivityActive)
-      }
-    ];
-    if (data.error) {
-      $('#graph-activity').html(
-        '<div class="alert alert-warning">'
-        + '<h4>'
-        + data.title
-        + '</h4>'
-        + data.error
-        + '</div>'
-      );
-    } else {
-      $('#graph-activity').html('');
-      $.plot('#graph-activity', updateClientCountData, updateClientCountOpts);
-    }
-    if (clientinterval) {
-      clearTimeout(clientinterval);
-    }
-    clientinterval = setTimeout(
-      updateClientCount,
-      300000 - (
-        (new Date().getTime() - startTime)
-        % 300000
-      )
+    $(sel).html(
+      '<div class="alert alert-warning"><h4>' + title + '</h4>' + msg + '</div>'
     );
-  };
-  updateClientCount();
-  $('.activity-count').on('change', function(e) {
-    if (clientinterval) {
-      clearTimeout(clientinterval);
-    }
-    updateClientCount();
-    e.preventDefault();
-  });
-}
+  }
 
-function setupDiskUsage() {
-  // Disk Usage
-  $('#graph-diskusage').css({
-    height: '150px',
-    color: '#f3f3f3',
-    'text-decoration': 'none',
-    'font-weight': 'bold'
-  });
-  function updateDiskUsage() {
-    var now = new Date().getTime(),
-      nodeid = $('.nodeid').val();
-    if (!loadings.diskusage) {
-      makeParentBoxLoad($('#graph-diskusage'), true);
-      loadings.diskusage = true;
-    }
-    Pace.ignore(function() {
-      $.ajax({
-        url: '../management/index.php?node=home&sub=diskusage',
-        data: {
-          id: nodeid
-        },
-        dataType: 'json',
-        success: updateDiskUsageGraph,
-        error: function(jqXHR, textStatus, errorThrown) {
-          $('#graph-diskusage').html(
-            '<div class="alert alert-warning">'
-            + '<h4>Unavailable</h4>'
-            + 'Node is unavailable'
-            + '</div>'
-          );
-        },
-        complete: function() {
-          if (loadings.diskusage) {
-            makeParentBoxLoad($('#graph-diskusage'), false);
-            loadings.diskusage = false;
-          }
-        }
-      });
-    });
-  };
-  var updateDiskUsageGraph = function(data) {
-    GraphDiskUsageData = [
-      {
-        label: data._labels[0],
-        data: parseInt(data.free, 10)
-      },
-      {
-        label: data._labels[1],
-        data: parseInt(data.used, 10)
-      }
-    ];
-    if (data.error) {
-      $('#graph-diskusage').html(
-        '<div class="alert alert-warning">'
-        + '<h4>'
-        + data.title
-        + '</h4>'
-        + data.error
-        + '</div>'
-      );
-    } else {
-      $.plot($('#graph-diskusage'), GraphDiskUsageData, GraphDiskUsageOpts);
-    }
-    if (diskusageinterval) {
-      clearTimeout(diskusageinterval);
-    }
-    diskusageinterval = setTimeout(
-      updateDiskUsage,
-      300000 - (
-        (
-          new Date().getTime() - startTime
-        ) % 300000
-      )
-    );
-  };
-  nodeid = $('.nodeid').val();
-  $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
-  updateDiskUsage();
-  $('.nodeid').on('change', function(e) {
-    nodeid = $(this).val();
-    $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
-    if (diskusageinterval) {
-      clearTimeout(diskusageinterval);
-    }
-    updateDiskUsage();
-    e.preventDefault();
-  });
-}
+  // Keep the periodic polls aligned to a 5-minute boundary from page load,
+  // as the old dashboard did, so requests stay batched.
+  function nextSlow() {
+    return POLL_SLOW - ((new Date().getTime() - startTime) % POLL_SLOW);
+  }
 
-function setupImagingHistory() {
-  GraphDayMaxDataPoints = $('.graph-days.active').prop('rel');
-  $('.type-days').on('click', function(e) {
-    $(this).blur().addClass('active').siblings('a').removeClass('active');
-    GraphDayMaxDataPoints = $(this).prop('rel');
-    update30day();
-    e.preventDefault();
-  });
-  // 30 day chart, updates every 5 minutes
-  var update30day = function() {
-    if (!loadings.imaginghistory) {
-      makeParentBoxLoad($('#graph-30day'), true);
-      loadings.imaginghistory = true;
+  // Humanize a byte count using binary units.
+  function humanBytes(v) {
+    var units = [' iB', ' KiB', ' MiB', ' GiB', ' TiB', ' PiB', ' EiB', ' ZiB', ' YiB'];
+    var i = 0;
+    v = parseFloat(v) || 0;
+    while (v >= 1024 && i < units.length - 1) {
+      v /= 1024;
+      i++;
     }
-    Pace.ignore(function() {
-      $.ajax({
-        url: '../management/index.php?node=home',
-        type: 'post',
-        data: {
-          sub: 'get30day',
-          days: GraphDayMaxDataPoints
-        },
-        dataType: 'json',
-        success: function(data) {
-          var Graph30DayData = [
-            {
-              label: 'Computers Imaged',
-              data: data
-            }
-          ];
-          $.plot(
-            Graph30Day,
-            Graph30DayData,
-            Graph30DayOpts
-          );
-          setTimeout(
-            update30day,
-            300000 - (
-              (
-                new Date().getTime() - startTime
-              ) % 300000
-            )
-          );
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          Graph30Day.html(
-            '<div class="alert alert-warning">'
-            + '<h4>Unavailable</h4>'
-            + 'Unable to get 30 day history'
-            + '</div>'
-          );
-        },
-        complete: function() {
-          if (loadings.imaginghistory) {
-            makeParentBoxLoad($('#graph-30day'), false);
-            loadings.imaginghistory = false;
-          }
-        }
-      });
-    });
-  };
-  $('<div class="tooltip-inner" id="graph-30day-tooltip"></div>').css({
-    position: 'absolute',
-    display: 'none',
-    opacity: 0.8
-  }).appendTo('div#ajaxPageWrapper');
-  Graph30Day.css({
-    height: '150px'
-  }).bind('plothover', function(event, pos, item) {
-    if (item) {
-      var x = item.datapoint[0],
-        y = item.datapoint[1],
-        plotx = item.pageX,
-        ploty = item.pageY,
-        date = new Date(x).toDateString(),
-        windowWidth = $(window).width(),
-        windowHeight = $(window).height();
-      if (plotx + 5 < 0.8 * windowWidth) {
-        plotx = plotx + 5;
+    return v.toFixed(2) + units[i];
+  }
+
+  // Set a hex color to an absolute lightness, returning rgb(). Replaces the
+  // old jQuery.Color().lightness() dependency used for bandwidth shading.
+  function shade(hex, lightness) {
+    hex = String(hex || '3c8dbc').replace('#', '');
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+      hex = '3c8dbc';
+    }
+    var r = parseInt(hex.substr(0, 2), 16) / 255;
+    var g = parseInt(hex.substr(2, 2), 16) / 255;
+    var b = parseInt(hex.substr(4, 2), 16) / 255;
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    var d = max - min;
+    var h = 0;
+    var s = 0;
+    if (d !== 0) {
+      s = (max + min) > 1 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) {
+        h = (g - b) / d + (g < b ? 6 : 0);
+      } else if (max === g) {
+        h = (b - r) / d + 2;
       } else {
-        plotx = plotx - 120;
+        h = (r - g) / d + 4;
       }
-      if (ploty + 5 < 0.8 * windowHeight) {
-        ploty = ploty + 5;
-      } else {
-        ploty = ploty - 40;
-      }
-      $('#graph-30day-tooltip').html(
-        item.series.label + ': ' + y + ' on ' + date
-      ).css({
-        position: 'absolute',
-        top: ploty,
-        left: plotx
-      }).fadeIn(200);
-    } else {
-      $('#graph-30day-tooltip').hide();
+      h /= 6;
     }
-  });
-  update30day();
-}
+    var l = Math.min(1, Math.max(0, lightness));
+    function hue2rgb(p, q, t) {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    }
+    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    var p = 2 * l - q;
+    var R = Math.round(hue2rgb(p, q, h + 1 / 3) * 255);
+    var G = Math.round(hue2rgb(p, q, h) * 255);
+    var B = Math.round(hue2rgb(p, q, h - 1 / 3) * 255);
+    return 'rgb(' + R + ',' + G + ',' + B + ')';
+  }
 
-function setupBandwidth() {
-
-  // Get the list of url's and names.
-  var nodeurls = $('#bandwidthUrls').val().split(','),
-    nodenames = $('#nodeNames').val().split(','),
-    nodecolors = $('#nodeColors').val().split(','),
-    urls,
-    names;
-
-  // Bandwidth chart
-  function updateBandwidth() {
-    var GraphBandwidthOpts = {
-      grid: {
-        borderColor: '#f3f3f3',
-        borderWidth: 1,
-        tickColor: '#f3f3f3'
-      },
-      series: {
-        shadowSize: 0,
-        lines: {
-          show: true
-        }
-      },
-      lines: {
-        fill: false,
-      },
-      xaxis: {
-        mode: 'time',
-        tickSize: [30, 'second'],
-        show: true
-      },
-      yaxis: {
-        min: 0,
-        tickFormatter: function(v) {
-          var f = parseFloat(v);
-          f = f.toFixed(2);
-          return f + ' Mbps';
-        },
-        show: true
-      },
-      legend: {
-        show: true,
-        noColumns: 5,
-        labelFormatter: function(label, series) {
-          return label;
-        },
-        position: 'nw'
-      }
+  // Legend builder for the doughnut charts: "Label: value".
+  function doughnutLegend(colors, format) {
+    return function (chart) {
+      var ds = chart.data.datasets[0];
+      return chart.data.labels.map(function (label, i) {
+        return {
+          text: label + ': ' + format(ds.data[i]),
+          fillStyle: colors[i],
+          strokeStyle: colors[i],
+          lineWidth: 0,
+          hidden: false,
+          index: i
+        };
+      });
     };
+  }
 
-    var GraphData = [],
-      GraphBandwidthData = [],
-      GraphBandwidth = $('#graph-bandwidth'),
-      bandwidthinterval,
-      bandwidthajax;
+  // --- Storage Group Activity (doughnut) -------------------------------
 
-    // Fetches our data.
-    function fetchData() {
+  function setupActivity() {
+    var SEL = '#graph-activity';
+    var colors = ['#00c0ef', '#3c8dbc', '#0073b7']; // Free, Queued, Active
+    var timer;
 
-      // When ajax recieves data, this updates the graph.
-      function onDataReceived(series) {
-
-        // Setup our Time elements.
-        var d = new Date(),
-          n = d.getTime() - (d.getTimezoneOffset() * 60000);
-
-        // Shading our colors.
-        GraphBandwidthOpts.colors = $.map(series, function(o, i) {
-          var nodecolor = nodecolors[i];
-          if (typeof nodecolor == null || nodecolor.length == 0) {
-            return jQuery.Color('#3c8dbc').lightness(0.7 - i / (series.length * 1.2)).toHexString();
-          } else {
-            return jQuery.Color('#' + nodecolor).lightness(0.7 - i / (series.length * 1.2)).toHexString();
-          }
-        });
-        // Because we can monitor multiple servers, we must iterate
-        // all of our data.
-        $.each(series, function(index, value) {
-
-          // If the data hasn't been initilized yet, initialize it.
-          if (typeof GraphBandwidthData[index] == 'undefined') {
-            GraphBandwidthData[index] = {};
-            GraphBandwidthData[index].tx = [];
-            GraphBandwidthData[index].rx = [];
-            GraphBandwidthData[index].dev = value.dev;
-            GraphBandwidthData[index].name = value.name;
-          }
-
-          // Push new data to storage.
-          GraphBandwidthData[index].tx.push([n, value.tx]);
-          GraphBandwidthData[index].rx.push([n, value.rx]);
-
-          // This is magical. It bases the first tx time as compared
-          // to the current time. As javascript is milliseconds,
-          // it takes our relational point (GraphBandwidthMaxDataPoints)
-          // and multiplies it by 1000. If the time is greater than x
-          // seconds, shift off the array.
-          //
-          // In the past it was just the length of the store, which was
-          // rather inaccurate. As the data recieved might have taken longer
-          // to store, you could end up with a 2 minute time spanning over 4-5
-          // minutes. Imagine how this would play out for 5 minutes, 10 minutes,
-          // 30 minutes, or an hour.
-          while (n - GraphBandwidthData[index].tx[0][0] > GraphBandwidthMaxDataPoints * 1000) {
-            GraphBandwidthData[index].tx.shift();
-            GraphBandwidthData[index].rx.shift();
-          }
-
-          // This is how our data is presented to the graph.
-          GraphData[index] = {
-            label: GraphBandwidthData[index].name
-            + ' ('
-            + GraphBandwidthData[index].dev
-            + ')',
-            data: (
-              $('#graph-bandwidth-filters-transmit').hasClass('active') ?
-              GraphBandwidthData[index].tx :
-              GraphBandwidthData[index].rx
-            )
-          };
-        });
-
-        // Update our graph if we can.
-        if (realtime === 'on') {
-          $.plot(GraphBandwidth, GraphData, GraphBandwidthOpts);
-        }
-
-        // Start a new iteration.
-        bandwidthinterval = setTimeout(fetchData, 1000);
+    function draw(d) {
+      if (d.error) {
+        showError(SEL, d.title, d.error);
+        return;
       }
-
-
-      // This gets our data.
-      bandwidthajax = $.ajax({
-        // The url
-        url: '../management/index.php?node=home&sub=bandwidth',
-        // How we're sending the request.
-        type: 'post',
-        // The data we want to obtain.
+      var values = [
+        parseInt(d.ActivitySlots, 10) || 0,
+        parseInt(d.ActivityQueued, 10) || 0,
+        parseInt(d.ActivityActive, 10) || 0
+      ];
+      charts[SEL] = new Chart(canvasIn(SEL), {
+        type: 'doughnut',
         data: {
-          url: urls,
-          names: names,
-          colors: colors
+          labels: d._labels,
+          datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }]
         },
-        // The data type.
-        dataType: 'json',
-        // Before we actually send,
-        beforeSend: function() {
-          // If ajax is already running, abort it.
-          if (bandwidthajax) {
-            bandwidthajax.abort();
-          }
-          // If the timeout is still running, abore it.
-          // It shouldn't make it here, but safer is better.
-          if (bandwidthinterval) {
-            clearTimeout(bandwidthinterval);
-          }
-        },
-        // On Success, update our graph and data.
-        success: onDataReceived,
-        complete: function() {
-          if (loadings.bandwidth) {
-            makeParentBoxLoad($('#realtime'), false);
-            loadings.bandwidth = false;
+        options: {
+          cutout: '50%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { boxWidth: 12, generateLabels: doughnutLegend(colors, function (v) { return v; }) }
+            },
+            tooltip: { callbacks: { label: function (c) { return c.label + ': ' + c.parsed; } } }
           }
         }
       });
     }
 
-    // Actually fetch our data.
-    fetchData();
+    function poll() {
+      boxLoad(SEL, true);
+      Pace.ignore(function () {
+        $.ajax({
+          url: BASE + '&sub=clientcount',
+          type: 'post',
+          data: { id: $('.activity-count').val() },
+          dataType: 'json',
+          success: draw,
+          error: function () { showError(SEL, 'Unavailable', 'Unable to get activity usage'); },
+          complete: function () {
+            boxLoad(SEL, false);
+            clearTimeout(timer);
+            timer = setTimeout(poll, nextSlow());
+          }
+        });
+      });
+    }
+
+    $('.activity-count').on('change', function (e) {
+      clearTimeout(timer);
+      poll();
+      e.preventDefault();
+    });
+    poll();
   }
 
-  function setStuff(data) {
-    urls = data.urls;
-    names = data.names;
-    colors = data.colors;
-    updateBandwidth();
+  // --- Storage Node Disk Usage (doughnut) ------------------------------
+
+  function setupDiskUsage() {
+    var SEL = '#graph-diskusage';
+    var colors = ['#00c0ef', '#3c8dbc']; // Free, Used
+    var timer;
+
+    function linkHwInfo() {
+      $('#hwinfolink').attr('href', BASE.replace('node=home', 'node=hwinfo') + '&id=' + $('.nodeid').val());
+    }
+
+    // Re-label each node option as "Name — version *". The version is only
+    // shown for nodes we could reach; the master marker stays at the far right.
+    function relabelNodes(map) {
+      $('.nodeid option').each(function () {
+        var $o = $(this);
+        var name = $o.data('name') || $o.text();
+        var ver = map ? map[$o.val()] : '';
+        var master = $o.data('master') ? '  *' : '';
+        $o.text(name + (ver ? '  —  ' + ver : '') + master);
+      });
+    }
+
+    function loadVersions() {
+      $.ajax({
+        url: BASE + '&sub=nodeversions',
+        dataType: 'json',
+        success: function (map) { relabelNodes(map || {}); }
+      });
+    }
+
+    function draw(d) {
+      if (d.error) {
+        showError(SEL, d.title, d.error);
+        return;
+      }
+      var values = [parseInt(d.free, 10) || 0, parseInt(d.used, 10) || 0];
+      charts[SEL] = new Chart(canvasIn(SEL), {
+        type: 'doughnut',
+        data: {
+          labels: d._labels,
+          datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }]
+        },
+        options: {
+          cutout: '50%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { boxWidth: 12, generateLabels: doughnutLegend(colors, humanBytes) }
+            },
+            tooltip: { callbacks: { label: function (c) { return c.label + ': ' + humanBytes(c.parsed); } } }
+          }
+        }
+      });
+    }
+
+    function poll() {
+      boxLoad(SEL, true);
+      Pace.ignore(function () {
+        $.ajax({
+          url: BASE + '&sub=diskusage',
+          data: { id: $('.nodeid').val() },
+          dataType: 'json',
+          success: draw,
+          error: function () { showError(SEL, 'Unavailable', 'Node is unavailable'); },
+          complete: function () {
+            boxLoad(SEL, false);
+            clearTimeout(timer);
+            timer = setTimeout(poll, nextSlow());
+          }
+        });
+      });
+    }
+
+    linkHwInfo();
+    loadVersions();
+    $('.nodeid').on('change', function (e) {
+      linkHwInfo();
+      clearTimeout(timer);
+      poll();
+      e.preventDefault();
+    });
+    poll();
   }
-  // Let's find out which are actually available.
-  Pace.ignore(function() {
-    $.ajax({
-      url: '../management/index.php?node=home&sub=testUrls',
-      type: 'post',
-      data: {
-        url: nodeurls,
-        names: nodenames,
-        colors: nodecolors
-      },
-      dataType: 'json',
-      success: setStuff,
-      error: function(jqXHR, textStatus, errorThrown) {
-        $('#graph-bandwidth').html(
-          '<div class="alert alert-warning">'
-          + '<h4>Unavailable</h4>'
-          + 'Unable to get bandwidth information'
-          + '</div>'
-        );
+
+  // --- Imaging history (line / time) -----------------------------------
+
+  function setupImagingHistory() {
+    var SEL = '#graph-30day';
+    var days = $('.graph-days.active').prop('rel') || 30;
+    var timer;
+
+    function draw(arr) {
+      var points = (arr || []).map(function (p) { return { x: p[0], y: p[1] }; });
+      if (charts[SEL]) {
+        charts[SEL].data.datasets[0].data = points;
+        charts[SEL].update('none');
+        return;
+      }
+      charts[SEL] = new Chart(canvasIn(SEL), {
+        type: 'line',
+        data: {
+          datasets: [{
+            label: 'Computers Imaged',
+            data: points,
+            borderColor: '#3c8dbc',
+            backgroundColor: '#3c8dbc',
+            tension: 0.3,
+            pointRadius: 3,
+            fill: false
+          }]
+        },
+        options: {
+          scales: {
+            x: { type: 'time', time: { unit: 'day', tooltipFormat: 'ddd MMM DD YYYY' }, grid: { display: false } },
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + c.parsed.y; } } }
+          }
+        }
+      });
+    }
+
+    function poll() {
+      boxLoad(SEL, true);
+      Pace.ignore(function () {
+        $.ajax({
+          url: BASE,
+          type: 'post',
+          data: { sub: 'get30day', days: days },
+          dataType: 'json',
+          success: draw,
+          error: function () { showError(SEL, 'Unavailable', 'Unable to get imaging history'); },
+          complete: function () {
+            boxLoad(SEL, false);
+            clearTimeout(timer);
+            timer = setTimeout(poll, nextSlow());
+          }
+        });
+      });
+    }
+
+    $('.type-days').on('click', function (e) {
+      $(this).blur().addClass('active').siblings('a').removeClass('active');
+      days = $(this).prop('rel');
+      clearTimeout(timer);
+      poll();
+      e.preventDefault();
+    });
+    poll();
+  }
+
+  // --- Bandwidth (line / time, live) -----------------------------------
+
+  function setupBandwidth() {
+    var SEL = '#graph-bandwidth';
+    var nodenames = ($('#nodeNames').val() || '').split(',');
+    var nodecolors = ($('#nodeColors').val() || '').split(',');
+    var nodeurls = ($('#bandwidthUrls').val() || '').split(',').filter(Boolean);
+
+    var urls = [];
+    var names = [];
+    var colors = [];
+    var store = [];          // [{name, dev, tx:[{x,y}], rx:[{x,y}]}]
+    var realtime = 'on';
+    var MAX_SECS = 3600;     // always retain up to an hour; buttons only change the view
+    var windowSecs = parseInt($('.time-filters.active').prop('rel'), 10) || 120;
+    var firstDone = false;
+    var ajax;
+    var timer;
+
+    function mode() {
+      return $('#graph-bandwidth-filters-transmit').hasClass('active') ? 'tx' : 'rx';
+    }
+
+    function setRealtime(on) {
+      realtime = on ? 'on' : 'off';
+      $('#btn-on').toggleClass('active', on);
+      $('#btn-off').toggleClass('active', !on);
+    }
+
+    function ensureChart() {
+      if (charts[SEL]) {
+        return;
+      }
+      charts[SEL] = new Chart(canvasIn(SEL), {
+        type: 'line',
+        data: { datasets: [] },
+        options: {
+          parsing: false,
+          scales: {
+            x: { type: 'time', time: { unit: 'second', stepSize: 30, tooltipFormat: 'HH:mm:ss' }, grid: { display: false } },
+            y: { beginAtZero: true, ticks: { callback: function (v) { return parseFloat(v).toFixed(2) + ' Mbps'; } } }
+          },
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + c.parsed.y.toFixed(2) + ' Mbps'; } } }
+          }
+        }
+      });
+    }
+
+    function render() {
+      ensureChart();
+      var m = mode();
+      var cutoff = new Date().getTime() - windowSecs * 1000;
+      charts[SEL].data.datasets = store.map(function (s, i) {
+        var col = shade(colors[i], 0.7 - i / (store.length * 1.2));
+        return {
+          label: s.name + ' (' + s.dev + ')',
+          data: s[m].filter(function (p) { return p.x >= cutoff; }),
+          borderColor: col,
+          backgroundColor: col,
+          pointRadius: 0,
+          tension: 0.2,
+          fill: false
+        };
+      });
+      charts[SEL].update('none');
+    }
+
+    // Only ever discard data older than the full retention window; the
+    // time-filter buttons just narrow what render() displays.
+    function trim(now) {
+      store.forEach(function (s) {
+        while (s.tx.length && now - s.tx[0].x > MAX_SECS * 1000) {
+          s.tx.shift();
+          s.rx.shift();
+        }
+      });
+    }
+
+    function onData(series) {
+      var now = new Date().getTime();
+      $.each(series, function (i, v) {
+        if (!store[i]) {
+          store[i] = { name: v.name, dev: v.dev, tx: [], rx: [] };
+        }
+        store[i].dev = v.dev;
+        store[i].tx.push({ x: now, y: v.tx });
+        store[i].rx.push({ x: now, y: v.rx });
+      });
+      trim(now);
+      if (realtime === 'on') {
+        render();
+      }
+    }
+
+    function fetchData() {
+      ajax = $.ajax({
+        url: BASE + '&sub=bandwidth',
+        type: 'post',
+        data: { url: urls, names: names },
+        dataType: 'json',
+        success: onData,
+        complete: function () {
+          if (!firstDone) {
+            boxLoad('#realtime', false);
+            firstDone = true;
+          }
+          clearTimeout(timer);
+          timer = setTimeout(fetchData, POLL_BW);
+        }
+      });
+    }
+
+    function start(data) {
+      names = data.names || [];
+      urls = data.urls || [];
+      // Re-align colors to the surviving nodes by name (testUrls may drop
+      // unreachable nodes, shifting positions).
+      colors = names.map(function (nm) {
+        var idx = nodenames.indexOf(nm);
+        return idx >= 0 ? nodecolors[idx] : '';
+      });
+      ensureChart();
+      fetchData();
+    }
+
+    // Controls.
+    $('#realtime .btn').on('click', function () {
+      var on = $(this).data('toggle') === 'on';
+      setRealtime(on);
+      if (on) {
+        render();
       }
     });
-  });
 
-  // If the user presses the off button, we should stop
-  // displaying, notice we still collect data, we just don't
-  // display it. When you press on again, it should update
-  // with your missed data.
-  $('#realtime .btn').on('click', function(e) {
-    // Return if on is already toggled.
-    // Otherwise set our variable back to 'on' if on is pressed.
-    // Otherwise set our variable to 'off' and stop presenting.
-    if ($(this).data('toggle') === 'on' && realtime === 'on') {
-      return;
-    } else if ($(this).data('toggle') === 'on') {
-      realtime = 'on';
-      $('#btn-off').removeClass('active');
-      $('#btn-on').addClass('active');
-    } else {
-      realtime = 'off';
-      $('#btn-on').removeClass('active');
-      $('#btn-off').addClass('active');
-    }
-  });
+    $('.type-filters').on('click', function (e) {
+      $('#graph-bandwidth-title > span').text($(this).text());
+      $(this).blur().addClass('active').siblings('a').removeClass('active');
+      render();
+      e.preventDefault();
+    });
 
-  $('.type-filters').on('click', function(e) {
-    $('#graph-bandwidth-title > span').text($(this).text());
-    $(this).blur().addClass('active').siblings('a').removeClass('active');
-    $('#btn-on').trigger('click');
-    e.preventDefault();
-  });
+    $('.time-filters').on('click', function (e) {
+      $('#graph-bandwidth-time-title > span').text($(this).text());
+      $(this).blur().addClass('active').siblings('a').removeClass('active');
+      windowSecs = parseInt($(this).prop('rel'), 10) || 120;
+      render();
+      e.preventDefault();
+    });
 
-  $('.time-filters').on('click', function(e) {
-    $('#graph-bandwidth-time-title > span').text($(this).text());
-    $(this).blur().addClass('active').siblings('a').removeClass('active');
-    GraphBandwidthMaxDataPoints = $(this).prop('rel');
-    $('#btn-on').trigger('click');
-    e.preventDefault();
-  });
+    // Find which nodes are actually reachable, then start polling.
+    boxLoad('#realtime', true);
+    Pace.ignore(function () {
+      $.ajax({
+        url: BASE + '&sub=testUrls',
+        type: 'post',
+        data: { url: nodeurls, names: nodenames },
+        dataType: 'json',
+        success: start,
+        error: function () {
+          boxLoad('#realtime', false);
+          showError(SEL, 'Unavailable', 'Unable to get bandwidth information');
+        }
+      });
+    });
+  }
 
-  GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
+  // --- boot ------------------------------------------------------------
 
-  $('#graph-bandwidth').css({
-    width: '100%',
-    height: '150px'
+  $(function () {
+    setupActivity();
+    setupDiskUsage();
+    setupImagingHistory();
+    setupBandwidth();
   });
-}
+})(jQuery);

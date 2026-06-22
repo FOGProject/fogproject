@@ -1,0 +1,6 @@
+Chart.js — MIT License — https://github.com/chartjs/Chart.js
+chartjs-adapter-moment — MIT License — https://github.com/chartjs/chartjs-adapter-moment
+
+Vendored builds:
+  chart.umd.min.js              Chart.js v4.4.9
+  chartjs-adapter-moment.min.js chartjs-adapter-moment v1.0.1 (requires moment, already vendored)
