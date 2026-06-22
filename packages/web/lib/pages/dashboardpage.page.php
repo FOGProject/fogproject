@@ -107,16 +107,11 @@ class DashboardPage extends FOGPage
             );
             $url = self::$httpproto.'://' . $url;
             self::$_nodeOpts[] = sprintf(
-                '<option value="%s" data-name="%s"%s>%s%s</option>',
+                '<option value="%s" data-name="%s"%s>%s</option>',
                 Initiator::e($StorageNode->id),
                 Initiator::e($StorageNode->name),
                 ($StorageNode->isMaster ? ' data-master="1"' : ''),
-                Initiator::e($StorageNode->name),
-                (
-                    $StorageNode->isMaster ?
-                    ' (primary)' :
-                    ''
-                )
+                Initiator::e($StorageNode->name)
             );
             self::$_nodeNames[] = $StorageNode->name;
             self::$_nodeURLs[] = sprintf(

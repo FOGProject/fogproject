@@ -207,23 +207,42 @@
       $('#hwinfolink').attr('href', BASE.replace('node=home', 'node=hwinfo') + '&id=' + $('.nodeid').val());
     }
 
-    // Re-label each node option as "Name — version *". The version is only
-    // shown for nodes we could reach; the master marker stays at the far right.
-    function relabelNodes(map) {
-      $('.nodeid option').each(function () {
-        var $o = $(this);
-        var name = $o.data('name') || $o.text();
-        var ver = map ? map[$o.val()] : '';
-        var master = $o.data('master') ? '  (primary)' : '';
-        $o.text(name + (ver ? '  —  ' + ver : '') + master);
-      });
+    // Versions are fetched asynchronously and cached here, then rendered into
+    // the select2 option templates below.
+    var versions = {};
+
+    // Render a node option: the master node gets a star icon, and the running
+    // version (only for nodes we could reach) trails in small muted text.
+    function fmtNode(state) {
+      if (!state.id) {
+        return state.text;
+      }
+      var $o = $(state.element);
+      var $row = $('<span>').text($o.data('name') || state.text);
+      var ver = versions[state.id];
+      if (ver) {
+        $row.append($('<small>', { 'class': 'text-muted', text: '  ' + ver }));
+      }
+      if ($o.data('master')) {
+        $row.prepend(
+          $('<i>', {
+            'class': 'fa fa-star fa-fw text-yellow',
+            title: 'Primary node',
+            'aria-label': 'Primary node'
+          })
+        );
+      }
+      return $row;
     }
 
     function loadVersions() {
       $.ajax({
         url: BASE + '&sub=nodeversions',
         dataType: 'json',
-        success: function (map) { relabelNodes(map || {}); }
+        success: function (map) {
+          versions = map || {};
+          $('.nodeid').trigger('change.select2');
+        }
       });
     }
 
@@ -270,6 +289,12 @@
       });
     }
 
+    $('.nodeid').select2({
+      templateResult: fmtNode,
+      templateSelection: fmtNode,
+      width: 'auto',
+      dropdownAutoWidth: true
+    });
     linkHwInfo();
     loadVersions();
     $('.nodeid').on('change', function (e) {
