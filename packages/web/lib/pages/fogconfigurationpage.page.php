@@ -970,31 +970,28 @@ class FOGConfigurationPage extends FOGPage
         exit;
     }
     /**
-     * Save updates to the fog settings information.
+     * Single source of truth for setting validation metadata, shared by
+     * settingsPost() (server-side validation) and getSettingsList() (input
+     * rendering). These maps were previously duplicated in both methods and
+     * had to be kept in sync by hand.
      *
-     * @return void
+     * Numeric constraints are expressed as one of:
+     *   true                       any numeric value
+     *   ['min' => x, 'max' => y]   integer-valued, within an inclusive range
+     *   ['set' => [...]]           value matching one of an explicit list
+     *
+     * Expressing the large port ranges as bounds (rather than the old
+     * range(1, 65535) membership arrays) avoids allocating hundreds of
+     * thousands of array elements on every settings load/save.
+     *
+     * @return array{checkbox:array,numeric:array,ip:array}
      */
-    public function settingsPost()
+    private function _settingsMeta()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('SETTINGS_POST');
-        $regenrange = range(0, 24, .25);
-        $viewvals = [-1, 10, 25, 50, 100, 250, 500];
-        array_shift($regenrange);
         $checkbox = [
-            'FOG_ENFORCE_HOST_CHANGES' => true,
-            'FOG_API_ENABLED' => true,
-            'FOG_ENABLE_SHOW_PASSWORDS' => true,
-            'FOG_PXE_MENU_HIDDEN' => true,
-            'FOG_NO_MENU' => true,
-            'FOG_ADVANCED_MENU_LOGIN' => true,
-            'FOG_KERNEL_DEBUG' => true,
             'FOG_REGISTRATION_ENABLED' => true,
-            'FOG_IMAGE_LIST_MENU' => true,
-            'FOG_EMAIL_ACTION' => true,
+            'FOG_PXE_MENU_HIDDEN' => true,
             'FOG_QUICKREG_AUTOPOP' => true,
-            'FOG_QUICKREG_PROD_KEY_BIOS' => true,
             'FOG_CLIENT_AUTOUPDATE' => true,
             'FOG_CLIENT_AUTOLOGOFF_ENABLED' => true,
             'FOG_CLIENT_CLIENTUPDATER_ENABLED' => true,
@@ -1007,47 +1004,70 @@ class FOGConfigurationPage extends FOGPage
             'FOG_CLIENT_PRINTERMANAGER_ENABLED' => true,
             'FOG_CLIENT_SNAPIN_ENABLED' => true,
             'FOG_CLIENT_TASKREBOOT_ENABLED' => true,
-            'FOG_TASK_FORCE_ENABLED' => true,
             'FOG_CLIENT_USERCLEANUP_ENABLED' => true,
             'FOG_CLIENT_USERTRACKER_ENABLED' => true,
-            'FOG_USE_SLOPPY_NAME_LOOKUPS' => true,
+            'FOG_ADVANCED_STATISTICS' => true,
+            'FOG_CHANGE_HOSTNAME_EARLY' => true,
+            'FOG_DISABLE_CHKDSK' => true,
+            'FOG_HOST_LOOKUP' => true,
             'FOG_CAPTUREIGNOREPAGEHIBER' => true,
             'FOG_USE_ANIMATION_EFFECTS' => true,
             'FOG_USE_LEGACY_TASKLIST' => true,
-            'FOG_HOST_LOOKUP' => true,
-            'FOG_ADVANCED_STATISTICS' => true,
-            'FOG_DISABLE_CHKDSK' => true,
-            'FOG_CHANGE_HOSTNAME_EARLY' => true,
+            'FOG_USE_SLOPPY_NAME_LOOKUPS' => true,
+            'FOG_PLUGINSYS_ENABLED' => true,
             'FOG_FORMAT_FLAG_IN_GUI' => true,
+            'FOG_NO_MENU' => true,
+            'FOG_ALWAYS_LOGGED_IN' => true,
+            'FOG_ADVANCED_MENU_LOGIN' => true,
+            'FOG_TASK_FORCE_REBOOT' => true,
+            'FOG_EMAIL_ACTION' => true,
             'FOG_FTP_IMAGE_SIZE' => true,
+            'FOG_KERNEL_DEBUG' => true,
+            'FOG_ENFORCE_HOST_CHANGES' => true,
+            'FOG_LOGIN_INFO_DISPLAY' => true,
+            'MULTICASTGLOBALENABLED' => true,
+            'SCHEDULERGLOBALENABLED' => true,
+            'FILEDELETEQUEUEGLOBALENABLED' => true,
+            'PINGHOSTGLOBALENABLED' => true,
+            'IMAGESIZEGLOBALENABLED' => true,
+            'IMAGEREPLICATORGLOBALENABLED' => true,
+            'SNAPINREPLICATORGLOBALENABLED' => true,
+            'SNAPINHASHGLOBALENABLED' => true,
+            'FOG_QUICKREG_IMG_WHEN_REG' => true,
+            'FOG_QUICKREG_PROD_KEY_BIOS' => true,
             'FOG_TASKING_ADV_SHUTDOWN_ENABLED' => true,
             'FOG_TASKING_ADV_WOL_ENABLED' => true,
             'FOG_TASKING_ADV_DEBUG_ENABLED' => true,
+            'FOG_API_ENABLED' => true,
+            'FOG_ENABLE_SHOW_PASSWORDS' => true,
+            'FOG_IMAGE_LIST_MENU' => true,
             'FOG_REAUTH_ON_DELETE' => true,
             'FOG_REAUTH_ON_EXPORT' => true,
-            'FOG_ALWAYS_LOGGED_IN' => true,
-            'FOG_PLUGINSYS_ENABLED' => true,
             'FOG_LOG_INFO' => true,
             'FOG_LOG_ERROR' => true,
-            'FOG_LOG_DEBUG' => true
+            'FOG_LOG_DEBUG' => true,
         ];
+        self::$HookManager->processEvent(
+            'NEEDSTOBECHECKBOX',
+            ['needstobecheckbox' => &$checkbox]
+        );
+
         Route::ids('image', false);
-        $imageids = json_decode(
-            Route::getData(),
-            true
-        );
+        $imageids = json_decode(Route::getData(), true);
         Route::ids('group', false);
-        $groupids = json_decode(
-            Route::getData(),
-            true
-        );
-        $needstobenumeric = [
+        $groupids = json_decode(Route::getData(), true);
+
+        $viewvals = [-1, 10, 25, 50, 100, 250, 500];
+        $regenrange = range(0, 24, .25);
+        array_shift($regenrange);
+
+        $numeric = [
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
-            'FOG_PIGZ_COMP' => range(0, 22),
-            'FOG_KEY_SEQUENCE' => range(1, 35),
+            'FOG_PIGZ_COMP' => ['min' => 0, 'max' => 22],
+            'FOG_KEY_SEQUENCE' => ['min' => 1, 'max' => 35],
             'FOG_PXE_HIDDENMENU_TIMEOUT' => true,
-            'FOG_KERNEL_LOGLEVEL' => range(0, 7),
+            'FOG_KERNEL_LOGLEVEL' => ['min' => 0, 'max' => 7],
             'FOG_WIPE_TIMEOUT' => true,
             // FOG Linux Service Logs
             'SERVICE_LOG_SIZE' => true,
@@ -1060,15 +1080,9 @@ class FOGConfigurationPage extends FOGPage
             'IMAGEREPSLEEPTIME' => true,
             'MULTICASESLEEPTIME' => true,
             // FOG Quick Registration
-            'FOG_QUICKREG_IMG_ID' => self::fastmerge(
-                (array)0,
-                $imageids
-            ),
+            'FOG_QUICKREG_IMG_ID' => ['set' => self::fastmerge((array)0, $imageids)],
             'FOG_QUICKREG_SYS_NUMBER' => true,
-            'FOG_QUICKREG_GROUP_ASSOC' => self::fastmerge(
-                (array)0,
-                $groupids
-            ),
+            'FOG_QUICKREG_GROUP_ASSOC' => ['set' => self::fastmerge((array)0, $groupids)],
             // FOG Service
             'FOG_CLIENT_CHECKIN_TIME' => true,
             'FOG_CLIENT_MAXSIZE' => true,
@@ -1082,43 +1096,62 @@ class FOGConfigurationPage extends FOGPage
             // FOG Service - Host Register
             'FOG_QUICKREG_MAX_PENDING_MACS' => true,
             // FOG View Settings
-            'FOG_VIEW_DEFAULT_SCREEN' => $viewvals,
+            'FOG_VIEW_DEFAULT_SCREEN' => ['set' => $viewvals],
             'FOG_DATA_RETURNED' => true,
             // General Settings
             'FOG_CAPTURERESIZEPCT' => true,
             'FOG_CHECKIN_TIMEOUT' => true,
             'FOG_MEMORY_LIMIT' => true,
             'FOG_SNAPIN_LIMIT' => true,
-            'FOG_FTP_PORT' => range(1, 65535),
+            'FOG_FTP_PORT' => ['min' => 1, 'max' => 65535],
             'FOG_FTP_TIMEOUT' => true,
             'FOG_BANDWIDTH_TIME' => true,
             'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
             'FOG_URL_BASE_TIMEOUT' => true,
             'FOG_URL_AVAILABLE_TIMEOUT' => true,
-            'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => self::fastmerge(
-                (array)0,
-                range(2, 6)
-            ),
+            'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => ['set' => self::fastmerge((array)0, range(2, 6))],
             // Login Settings
-            'FOG_INACTIVITY_TIMEOUT' => range(1, 24),
-            'FOG_REGENERATE_TIMEOUT' => $regenrange,
+            'FOG_INACTIVITY_TIMEOUT' => ['min' => 1, 'max' => 24],
+            'FOG_REGENERATE_TIMEOUT' => ['set' => $regenrange],
             // Multicast Settings
-            'FOG_UDPCAST_STARTINGPORT' => range(1, 65535),
+            'FOG_UDPCAST_STARTINGPORT' => ['min' => 1, 'max' => 65535],
             'FOG_MULTICASE_MAX_SESSIONS' => true,
             'FOG_UDPCAST_MAXWAIT' => true,
-            'FOG_MULTICAST_PORT_OVERRIDE' => range(0, 65535),
+            'FOG_MULTICAST_PORT_OVERRIDE' => ['min' => 0, 'max' => 65535],
             // Proxy Settings
-            'FOG_PROXY_PORT' => range(0, 65535),
+            'FOG_PROXY_PORT' => ['min' => 0, 'max' => 65535],
             // User Management
             'FOG_USER_MINPASSLENGTH' => true,
         ];
-        $needstobeip = [
+
+        $ip = [
             // Multicast Settings
             'FOG_MULTICAST_ADDRESS' => true,
             'FOG_MULTICAST_RENDEZVOUS' => true,
             // Proxy Settings
             'FOG_PROXY_IP' => true,
         ];
+
+        return [
+            'checkbox' => $checkbox,
+            'numeric' => $numeric,
+            'ip' => $ip,
+        ];
+    }
+    /**
+     * Save updates to the fog settings information.
+     *
+     * @return void
+     */
+    public function settingsPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('SETTINGS_POST');
+        $meta = $this->_settingsMeta();
+        $checkbox = $meta['checkbox'];
+        $needstobenumeric = $meta['numeric'];
+        $needstobeip = $meta['ip'];
         unset($findWhere, $setWhere);
 
         $serverFault = false;
@@ -1144,31 +1177,31 @@ class FOGConfigurationPage extends FOGPage
                 if (isset($checkbox[$name])) {
                     $set = intval($set) < 1 ? 0 : 1;
                 } elseif (isset($needstobenumeric[$name])) {
-                    switch ($needstobenumeric[$name]) {
-                        case ($needstobenumeric[$name] === true):
-                            if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
-                                $set = 0;
-                            }
-                            if (!is_numeric($set)) {
-                                throw new Exception(
-                                    $name . ' ' . _('value must be numeric')
-                                );
-                            }
-                            break;
-                        default:
-                            if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
-                                $set = 0;
-                            }
-                            if (!is_numeric($set)) {
-                                throw new Exception(
-                                    $name . ' ' . _('value must be numeric')
-                                );
-                            }
-                            if (!in_array($set, (array)$needstobenumeric[$name])) {
-                                throw new Exception(
-                                    $name . ' ' . _('value is not in the required range')
-                                );
-                            }
+                    $constraint = $needstobenumeric[$name];
+                    $allowsZero = ($constraint === true)
+                        ? false
+                        : (isset($constraint['set'])
+                            ? in_array(0, $constraint['set'])
+                            : ($constraint['min'] <= 0 && $constraint['max'] >= 0));
+                    if ($allowsZero && !$set) {
+                        $set = 0;
+                    }
+                    if (!is_numeric($set)) {
+                        throw new Exception(
+                            $name . ' ' . _('value must be numeric')
+                        );
+                    }
+                    if ($constraint !== true) {
+                        $inRange = isset($constraint['set'])
+                            ? in_array($set, $constraint['set'])
+                            : (floor($set) == $set
+                                && $set >= $constraint['min']
+                                && $set <= $constraint['max']);
+                        if (!$inRange) {
+                            throw new Exception(
+                                $name . ' ' . _('value is not in the required range')
+                            );
+                        }
                     }
                 } elseif (isset($needstobeip[$name])) {
                     if (!filter_var($set, FILTER_VALIDATE_IP) and $set != 0 and $set) {
@@ -2059,152 +2092,9 @@ class FOGConfigurationPage extends FOGPage
             $pass_vars
         );
 
-        $needstobecheckbox = [
-            'FOG_REGISTRATION_ENABLED' => true,
-            'FOG_PXE_MENU_HIDDEN' => true,
-            'FOG_QUICKREG_AUTOPOP' => true,
-            'FOG_CLIENT_AUTOUPDATE' => true,
-            'FOG_CLIENT_AUTOLOGOFF_ENABLED' => true,
-            'FOG_CLIENT_CLIENTUPDATER_ENABLED' => true,
-            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => true,
-            'FOG_CLIENT_GREENFOG_ENABLED' => true,
-            'FOG_CLIENT_HOSTREGISTER_ENABLED' => true,
-            'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => true,
-            'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => true,
-            'FOG_CLIENT_PRINTERMANAGER_ENABLED' => true,
-            'FOG_CLIENT_SNAPIN_ENABLED' => true,
-            'FOG_CLIENT_TASKREBOOT_ENABLED' => true,
-            'FOG_CLIENT_USERCLEANUP_ENABLED' => true,
-            'FOG_CLIENT_USERTRACKER_ENABLED' => true,
-            'FOG_ADVANCED_STATISTICS' => true,
-            'FOG_CHANGE_HOSTNAME_EARLY' => true,
-            'FOG_DISABLE_CHKDSK' => true,
-            'FOG_HOST_LOOKUP' => true,
-            'FOG_CAPTUREIGNOREPAGEHIBER' => true,
-            'FOG_USE_ANIMATION_EFFECTS' => true,
-            'FOG_USE_LEGACY_TASKLIST' => true,
-            'FOG_USE_SLOPPY_NAME_LOOKUPS' => true,
-            'FOG_PLUGINSYS_ENABLED' => true,
-            'FOG_FORMAT_FLAG_IN_GUI' => true,
-            'FOG_NO_MENU' => true,
-            'FOG_ALWAYS_LOGGED_IN' => true,
-            'FOG_ADVANCED_MENU_LOGIN' => true,
-            'FOG_TASK_FORCE_REBOOT' => true,
-            'FOG_EMAIL_ACTION' => true,
-            'FOG_FTP_IMAGE_SIZE' => true,
-            'FOG_KERNEL_DEBUG' => true,
-            'FOG_ENFORCE_HOST_CHANGES' => true,
-            'FOG_LOGIN_INFO_DISPLAY' => true,
-            'MULTICASTGLOBALENABLED' => true,
-            'SCHEDULERGLOBALENABLED' => true,
-            'FILEDELETEQUEUEGLOBALENABLED' => true,
-            'PINGHOSTGLOBALENABLED' => true,
-            'IMAGESIZEGLOBALENABLED' => true,
-            'IMAGEREPLICATORGLOBALENABLED' => true,
-            'SNAPINREPLICATORGLOBALENABLED' => true,
-            'SNAPINHASHGLOBALENABLED' => true,
-            'FOG_QUICKREG_IMG_WHEN_REG' => true,
-            'FOG_QUICKREG_PROD_KEY_BIOS' => true,
-            'FOG_TASKING_ADV_SHUTDOWN_ENABLED' => true,
-            'FOG_TASKING_ADV_WOL_ENABLED' => true,
-            'FOG_TASKING_ADV_DEBUG_ENABLED' => true,
-            'FOG_API_ENABLED' => true,
-            'FOG_ENABLE_SHOW_PASSWORDS' => true,
-            'FOG_IMAGE_LIST_MENU' => true,
-            'FOG_REAUTH_ON_DELETE' => true,
-            'FOG_REAUTH_ON_EXPORT' => true,
-            'FOG_LOG_INFO' => true,
-            'FOG_LOG_ERROR' => true,
-            'FOG_LOG_DEBUG' => true,
-        ];
-        self::$HookManager->processEvent(
-            'NEEDSTOBECHECKBOX',
-            ['needstobecheckbox' => &$needstobecheckbox]
-        );
-        Route::ids('image', false);
-        $imageids = json_decode(
-            Route::getData(),
-            true
-        );
-        Route::ids('group', false);
-        $groupids = json_decode(
-            Route::getData(),
-            true
-        );
-        $viewvals = [-1, 10, 25, 50, 100, 250, 500];
-        $regenrange = range(0, 24, .25);
-        $needstobenumeric = [
-            // FOG Boot Settings
-            'FOG_PXE_MENU_TIMEOUT' => true,
-            'FOG_PIGZ_COMP' => range(0, 22),
-            'FOG_KEY_SEQUENCE' => range(1, 35),
-            'FOG_PXE_HIDDENMENU_TIMEOUT' => true,
-            'FOG_KERNEL_LOGLEVEL' => range(0, 7),
-            'FOG_WIPE_TIMEOUT' => true,
-            // FOG Linux Service Logs
-            'SERVICE_LOG_SIZE' => true,
-            // FOG Linux Service Sleep Times
-            'PINGHOSTSLEEPTIME' => true,
-            'SERVICESLEEPTIME' => true,
-            'SNAPINREPSLEEPTIME' => true,
-            'SCHEDULERSLEEPTIME' => true,
-            'FILEDELETEQUEUESLEEPTIME' => true,
-            'IMAGEREPSLEEPTIME' => true,
-            'MULTICASESLEEPTIME' => true,
-            // FOG Quick Registration
-            'FOG_QUICKREG_IMG_ID' => self::fastmerge(
-                (array)0,
-                $imageids
-            ),
-            'FOG_QUICKREG_SYS_NUMBER' => true,
-            'FOG_QUICKREG_GROUP_ASSOC' => self::fastmerge(
-                (array)0,
-                $groupids
-            ),
-            // FOG Service
-            'FOG_CLIENT_CHECKIN_TIME' => true,
-            'FOG_CLIENT_MAXSIZE' => true,
-            'FOG_GRACE_TIMEOUT' => true,
-            // FOG Service - Auto Log Off
-            'FOG_CLIENT_AUTOLOGOFF_MIN' => true,
-            // FOG Service - Display manager
-            'FOG_CLIENT_DISPLAYMANAGER_X' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_Y' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_R' => true,
-            // FOG Service - Host Register
-            'FOG_QUICKREG_MAX_PENDING_MACS' => true,
-            // FOG View Settings
-            'FOG_VIEW_DEFAULT_SCREEN' => $viewvals,
-            'FOG_DATA_RETURNED' => true,
-            // General Settings
-            'FOG_CAPTURERESIZEPCT' => true,
-            'FOG_CHECKIN_TIMEOUT' => true,
-            'FOG_MEMORY_LIMIT' => true,
-            'FOG_SNAPIN_LIMIT' => true,
-            'FOG_FTP_PORT' => range(1, 65535),
-            'FOG_FTP_TIMEOUT' => true,
-            'FOG_BANDWIDTH_TIME' => true,
-            'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
-            'FOG_URL_BASE_TIMEOUT' => true,
-            'FOG_URL_AVAILABLE_TIMEOUT' => true,
-            'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => self::fastmerge(
-                (array)0,
-                range(2, 6)
-            ),
-            // Login Settings
-            'FOG_INACTIVITY_TIMEOUT' => range(1, 24),
-            'FOG_REGENERATE_TIMEOUT' => $regenrange,
-            // Multicast Settings
-            'FOG_UDPCAST_STARTINGPORT' => range(1, 65535),
-            'FOG_MULTICASE_MAX_SESSIONS' => true,
-            'FOG_UDPCAST_MAXWAIT' => true,
-            'FOG_MULTICAST_PORT_OVERRIDE' => range(0, 65535),
-            // Proxy Settings
-            'FOG_PROXY_PORT' => range(0, 65535),
-            // User Management
-            'FOG_USER_MINPASSLENGTH' => true,
-        ];
+        $meta = $this->_settingsMeta();
+        $needstobecheckbox = $meta['checkbox'];
+        $needstobenumeric = $meta['numeric'];
         $settingMan = self::getClass('SettingManager');
         $table = $settingMan->getTable();
         $dbcolumns = $settingMan->getColumns();
