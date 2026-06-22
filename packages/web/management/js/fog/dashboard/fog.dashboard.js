@@ -214,7 +214,7 @@
         var $o = $(this);
         var name = $o.data('name') || $o.text();
         var ver = map ? map[$o.val()] : '';
-        var master = $o.data('master') ? '  *' : '';
+        var master = $o.data('master') ? '  (primary)' : '';
         $o.text(name + (ver ? '  —  ' + ver : '') + master);
       });
     }

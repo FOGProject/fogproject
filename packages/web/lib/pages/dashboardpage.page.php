@@ -114,7 +114,7 @@ class DashboardPage extends FOGPage
                 Initiator::e($StorageNode->name),
                 (
                     $StorageNode->isMaster ?
-                    ' *' :
+                    ' (primary)' :
                     ''
                 )
             );
