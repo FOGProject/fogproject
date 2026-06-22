@@ -150,6 +150,12 @@
         parseInt(d.ActivityQueued, 10) || 0,
         parseInt(d.ActivityActive, 10) || 0
       ];
+      if (charts[SEL]) {
+        charts[SEL].data.labels = d._labels;
+        charts[SEL].data.datasets[0].data = values;
+        charts[SEL].update('none');
+        return;
+      }
       charts[SEL] = new Chart(canvasIn(SEL), {
         type: 'doughnut',
         data: {
@@ -252,6 +258,12 @@
         return;
       }
       var values = [parseInt(d.free, 10) || 0, parseInt(d.used, 10) || 0];
+      if (charts[SEL]) {
+        charts[SEL].data.labels = d._labels;
+        charts[SEL].data.datasets[0].data = values;
+        charts[SEL].update('none');
+        return;
+      }
       charts[SEL] = new Chart(canvasIn(SEL), {
         type: 'doughnut',
         data: {
