@@ -1456,14 +1456,12 @@ class ImageManagement extends FOGPage
             throw new Exception(_('Session with that name already exists!'));
         }
         if ($sessioncount < 1) {
-            Route::count('host');
-            $hosts = json_decode(Route::getData());
-            $sessioncount = $hosts->total;
+            $sessioncount = Route::getCount('host');
         }
         if (!$sessiontimeout) {
             $sessiontimeout = self::getSetting('FOG_UDPCAST_MAXWAIT') * 60;
         }
-        Route::count(
+        $countmc = Route::getCount(
             'multicastsession',
             [
                 'stateID' => self::fastmerge(
@@ -1472,8 +1470,6 @@ class ImageManagement extends FOGPage
                 )
             ]
         );
-        $countmc = json_encode(Route::getData());
-        $countmc = $countmc->total;
         $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
         if ($countmc >= $countmctot) {
             throw new Exception(

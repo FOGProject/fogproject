@@ -145,19 +145,15 @@ class DashboardPage extends FOGPage
      */
     public function index(...$args)
     {
-        Route::count(
+        $pendingHosts = Route::getCount(
             'host',
             ['pending' => 1]
         );
-        $pendingHosts = json_decode(Route::getData());
-        $pendingHosts = $pendingHosts->total;
         if (DatabaseManager::getColumns('hostMAC', 'hmMAC')) {
-            Route::count(
+            $pendingMACs = Route::getCount(
                 'macaddressassociation',
                 ['pending' => 1]
             );
-            $pendingMACs = json_decode(Route::getData());
-            $pendingMACs = $pendingMACs->total;
         }
         $pendingInfo = '%s <a href="?node=%s&sub=%s"><b>%s</b></a> %s';
         $hostPend = sprintf(

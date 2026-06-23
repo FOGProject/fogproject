@@ -158,15 +158,13 @@ class SnapinReplicator extends FOGService
                     $find
                 );
                 $snapinIDs = json_decode(Route::getData(), true);
-                Route::count(
+                $SnapinAssocCount = Route::getCount(
                     'snapingroupassociation',
                     [
                         'storagegroupID' => $myStorageGroupID,
                         'snapinID' => $snapinIDs
                     ]
                 );
-                $SnapinAssocCount = json_decode(Route::getData());
-                $SnapinAssocCount = $SnapinAssocCount->total;
                 $SnapinCount = count($snapinIDs ?: []);
                 if ($SnapinCount <= 0) {
                     self::outall(

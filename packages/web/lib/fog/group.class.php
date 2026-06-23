@@ -107,12 +107,10 @@ class Group extends FOGController
      */
     public function getHostCount()
     {
-        Route::count(
+        return Route::getCount(
             'host',
             ['id' => $this->get('hosts')]
         );
-        $total = json_decode(Route::getData());
-        return $total->total;
     }
     /**
      * Adds printers to hosts in this group
@@ -474,15 +472,13 @@ class Group extends FOGController
             self::getQueuedStates(),
             (array)self::getProgressState()
         );
-        Route::count(
+        $TaskCount = Route::getCount(
             'task',
             [
                 'hostID' => $this->get('hosts'),
                 'stateID' => $states
             ]
         );
-        $total = json_decode(Route::getData());
-        $TaskCount = $total->total;
         if ($TaskCount > 0) {
             throw new Exception(_('There is a host in a tasking'));
         }

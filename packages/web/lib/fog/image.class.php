@@ -394,20 +394,16 @@ class Image extends FOGController
             'imageID' => $imageID,
             'primary' => 1
         ];
-        Route::count(
+        $primaryCount = Route::getCount(
             'imageassociation',
             $find
         );
-        $primaryCount = json_decode(Route::getData());
-        $primaryCount = $primaryCount->total;
         if ($primaryCount < 1) {
             unset($find['primary']);
-            Route::count(
+            $primaryCount = Route::getCount(
                 'imageassociation',
                 $find
             );
-            $primaryCount = json_decode(Route::getData());
-            $primaryCount = $primaryCount->total;
         }
         if ($primaryCount < 1) {
             Route::indiv('image', $imageID);

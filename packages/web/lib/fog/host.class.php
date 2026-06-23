@@ -341,16 +341,14 @@ class Host extends FOGController
      */
     public function getDefault($printerid)
     {
-        Route::count(
+        return Route::getCount(
             'printerassociation',
             [
                 'hostID' => $this->get('id'),
                 'printerID' => $printerid,
                 'isDefault' => 1
             ]
-        );
-        $isDefault = json_decode(Route::getData());
-        return $isDefault->total > 0;
+        ) > 0;
     }
     /**
      * Updates the default printer
@@ -690,12 +688,10 @@ class Host extends FOGController
             ),
             'hostID' => $this->get('id')
         ];
-        Route::count(
+        return Route::getCount(
             'task',
             $find
         );
-        $tasks = json_decode(Route::getData());
-        return $tasks->total;
     }
     /**
      * Returns the optimal storage node
@@ -1414,12 +1410,10 @@ class Host extends FOGController
     {
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
-            Route::count(
+            $snapinCount = Route::getCount(
                 'snapin',
                 ['id' => $this->get('snapins')]
             );
-            $snapinCount = json_decode(Route::getData());
-            $snapinCount = $snapinCount->total;
             if ($snapinCount >= $limit || count($addArray) > $limit) {
                 $limitstr = sprintf(
                     '%s%s %s',

@@ -159,15 +159,13 @@ class ImageReplicator extends FOGService
                     $find
                 );
                 $imageIDs = json_decode(Route::getData(), true);
-                Route::count(
+                $ImageAssocCount = Route::getCount(
                     'imageassociation',
                     [
                         'storagegroupID' => $myStorageGroupID,
                         'imageID' => $imageIDs
                     ]
                 );
-                $ImageAssocCount = json_decode(Route::getData());
-                $ImageAssocCount = $ImageAssocCount->total;
                 $ImageCount = count($imageIDs ?: []);
                 if ($ImageCount <= 0) {
                     self::outall(

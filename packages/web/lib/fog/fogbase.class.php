@@ -1821,14 +1821,13 @@ abstract class FOGBase
         }
 
         // Check for existing MACs
-        Route::count(
+        $count = Route::getCount(
             'macaddressassociation',
             [
                 'mac' => $MACs,
                 'pending' => [0, '']
             ]
         );
-        $count = json_decode(Route::getData())->total;
         if ($count > 0) {
             Route::ids(
                 'macaddressassociation',
@@ -2945,9 +2944,7 @@ abstract class FOGBase
      */
     public static function getMACLookupCount()
     {
-        Route::count('oui');
-        $count = json_decode(Route::getData());
-        return $count->total;
+        return Route::getCount('oui');
     }
     /**
      * Resolves a hostname to its IP address

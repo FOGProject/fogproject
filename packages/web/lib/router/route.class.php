@@ -1354,6 +1354,32 @@ class Route extends FOGBase
         }
     }
     /**
+     * Returns the count of matching records directly as an int.
+     *
+     * Wraps the count()/getData() pair callers repeat throughout the
+     * codebase: count() stashes ['total' => N] in self::$data, getData()
+     * JSON-encodes it, and the caller decodes and plucks ->total.
+     *
+     * @param string $class         The class to work with.
+     * @param mixed  $whereItems    Any special things to search for.
+     * @param bool   $inputoverride Override php://input to blank.
+     * @param string $operator      The operator for the SQL. AND is default.
+     * @param string $orderby       How to order the returned values.
+     *
+     * @return int
+     */
+    public static function getCount(
+        $class,
+        $whereItems = false,
+        $inputoverride = false,
+        $operator = 'AND',
+        $orderby = 'name'
+    ) {
+        self::count($class, $whereItems, $inputoverride, $operator, $orderby);
+        $result = json_decode(self::getData());
+        return (int)($result->total ?? 0);
+    }
+    /**
      * Presents the equivalent of a universal search.
      *
      * @param string   $item  The "search" term.
@@ -2278,9 +2304,8 @@ class Route extends FOGBase
                 file_get_contents('php://input')
             );
             $whereItems = ['id' => $id];
-            self::count($classname, $whereItems);
-            $count = json_decode(Route::getData());
-            if (!$count->total) {
+            $count = self::getCount($classname, $whereItems);
+            if (!$count) {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_NOT_FOUND
                 );
@@ -2842,12 +2867,11 @@ class Route extends FOGBase
                     $snapinjobIDs = json_decode(Route::getData(), true);
                     $sjIDs = [];
                     foreach ((array)$snapinjobIDs as &$sjID) {
-                        Route::count(
+                        $jobCount = self::getCount(
                             'snapintask',
                             ['jobID' => $sjID]
                         );
-                        $jobCount = json_decode(Route::getData());
-                        if ($jobCount->total) {
+                        if ($jobCount) {
                             continue;
                         }
                         $sjIDs[] = $sjID;

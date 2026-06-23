@@ -2823,11 +2823,10 @@ abstract class FOGPage extends FOGBase
                         'host',
                         $del
                     );
-                    Route::count(
+                    $hcount = Route::getCount(
                         'host',
                         $del
                     );
-                    $hcount = json_decode(Route::getData());
                     if ($hcount) {
                         $serverFault = true;
                         throw new Exception(_('Failed to remove hosts'));

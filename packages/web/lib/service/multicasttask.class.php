@@ -469,9 +469,7 @@ class MulticastTask extends FOGService
             );
         }
         $maxwait = $this->getMaxwait();
-        Route::count('host');
-        $hostCount = json_decode(Route::getData());
-        $hostCount = $hostCount->total;
+        $hostCount = Route::getCount('host');
         $buildcmd = [
             UDPSENDERPATH,
             (

@@ -49,7 +49,7 @@ class SnapinClient extends FOGClient
                 'error' => 'ns'
             ];
         }
-        Route::count(
+        $STaskCount = Route::getCount(
             'snapintask',
             [
                 'jobID' => $SnapinJob->get('id'),
@@ -59,8 +59,6 @@ class SnapinClient extends FOGClient
                 )
             ]
         );
-        $STaskCount = json_decode(Route::getData());
-        $STaskCount = $STaskCount->total;
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
                 $Task->set('stateID', self::getCompleteState())->save();
@@ -351,7 +349,7 @@ class SnapinClient extends FOGClient
                     ]
                 );
         }
-        Route::count(
+        $STaskCount = Route::getCount(
             'snapintask',
             [
                 'jobID' => $SnapinJob->get('id'),
@@ -361,8 +359,6 @@ class SnapinClient extends FOGClient
                 )
             ]
         );
-        $STaskCount = json_decode(Route::getData());
-        $STaskCount = $STaskCount->total;
         if ($STaskCount < 1) {
             $stateID = $abortedOnFailure ?
                 self::getCancelledState() :
