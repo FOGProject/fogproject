@@ -512,22 +512,20 @@ class OUManagement extends FOGPage
      */
     public function getHostsList()
     {
-        $join = [
-            'LEFT OUTER JOIN `ouAssoc` ON '
-            . '`hosts`.`hostID` = `ouAssoc`.`oaHostID` '
-            . "AND `ouAssoc`.`oaOUID` = '". $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'ouAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'host',
             'ouassociation',
-            $join,
-            '',
-            $columns
+            'ouAssoc',
+            '`hosts`.`hostID`',
+            '`ouAssoc`.`oaHostID`',
+            '`ouAssoc`.`oaOUID`',
+            [
+                [
+                    'db' => 'ouAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
 }

@@ -343,47 +343,12 @@ class SiteManagement extends FOGPage
      */
     public function siteHosts()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'site-host',
+            _('Site Host Associations'),
             _('Host Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'site-host',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'site-host-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'host'
         );
-        $buttons .= self::makeButton(
-            'site-host-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Site Host Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'site-host-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('host');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Updates site hosts.
@@ -392,35 +357,7 @@ class SiteManagement extends FOGPage
      */
     public function siteHostPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['additems'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->addHost($hosts);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['remitems'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->removeHost($hosts);
-            }
-        }
+        $this->assocPost('addHost', 'removeHost');
     }
     /**
      * Presents the users list.
@@ -429,47 +366,12 @@ class SiteManagement extends FOGPage
      */
     public function siteUsers()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'site-user',
+            _('Site User Associations'),
             _('User Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'site-user',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'site-user-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'user'
         );
-        $buttons .= self::makeButton(
-            'site-user-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Site User Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'site-user-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('user');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Updates site users.
@@ -478,35 +380,7 @@ class SiteManagement extends FOGPage
      */
     public function siteUserPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $users = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $users = $users['additems'];
-            if (count($users ?: []) > 0) {
-                $this->obj->addUser($users);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $users = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $users = $users['remitems'];
-            if (count($users ?: []) > 0) {
-                $this->obj->removeUser($users);
-            }
-        }
+        $this->assocPost('addUser', 'removeUser');
     }
     /**
      * Edit.
@@ -631,22 +505,20 @@ class SiteManagement extends FOGPage
      */
     public function getHostsList()
     {
-        $join = [
-            'LEFT OUTER JOIN `siteHostAssoc` ON '
-            . "`hosts`.`hostID` = `siteHostAssoc`.`shaHostID` "
-            . "AND `siteHostAssoc`.`shaSiteID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'siteAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'host',
             'sitehostassociation',
-            $join,
-            '',
-            $columns
+            'siteHostAssoc',
+            '`hosts`.`hostID`',
+            '`siteHostAssoc`.`shaHostID`',
+            '`siteHostAssoc`.`shaSiteID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**
@@ -656,22 +528,20 @@ class SiteManagement extends FOGPage
      */
     public function getUsersList()
     {
-        $join = [
-            'LEFT OUTER JOIN `siteUserAssoc` ON '
-            . "`users`.`uID` = `siteUserAssoc`.`suaUserID` "
-            . "AND `siteUserAssoc`.`suaSiteID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'siteAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'user',
             'siteuserassociation',
-            $join,
-            '',
-            $columns
+            'siteUserAssoc',
+            '`users`.`uID`',
+            '`siteUserAssoc`.`suaUserID`',
+            '`siteUserAssoc`.`suaSiteID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
 }

@@ -3937,22 +3937,20 @@ class HostManagement extends FOGPage
      */
     public function getPrintersList()
     {
-        $join = [
-            'LEFT OUTER JOIN `printerAssoc` ON '
-            . "`printers`.`pID` = `printerAssoc`.`paPrinterID` "
-            . "AND `printerAssoc`.`paHostID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'hostAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'printer',
             'printerassociation',
-            $join,
-            '',
-            $columns
+            'printerAssoc',
+            '`printers`.`pID`',
+            '`printerAssoc`.`paPrinterID`',
+            '`printerAssoc`.`paHostID`',
+            [
+                [
+                    'db' => 'hostAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**
@@ -3962,22 +3960,20 @@ class HostManagement extends FOGPage
      */
     public function getSnapinsList()
     {
-        $join = [
-            'LEFT OUTER JOIN `snapinAssoc` ON '
-            . "`snapins`.`sID` = `snapinAssoc`.`saSnapinID` "
-            . "AND `snapinAssoc`.`saHostID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'hostAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'snapin',
             'snapinassociation',
-            $join,
-            '',
-            $columns
+            'snapinAssoc',
+            '`snapins`.`sID`',
+            '`snapinAssoc`.`saSnapinID`',
+            '`snapinAssoc`.`saHostID`',
+            [
+                [
+                    'db' => 'hostAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**

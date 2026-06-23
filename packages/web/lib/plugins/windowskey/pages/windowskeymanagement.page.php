@@ -593,22 +593,20 @@ class WindowsKeyManagement extends FOGPage
      */
     public function getImagesList()
     {
-        $join = [
-            'LEFT OUTER JOIN `windowsKeysAssoc` ON '
-            . '`images`.`imageID` = `windowsKeysAssoc`.`wkaImageID` '
-            . "AND `windowsKeysAssoc`.`wkaKeyID` = '". $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'windowskeyAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'image',
             'windowskeyassociation',
-            $join,
-            '',
-            $columns
+            'windowsKeysAssoc',
+            '`images`.`imageID`',
+            '`windowsKeysAssoc`.`wkaImageID`',
+            '`windowsKeysAssoc`.`wkaKeyID`',
+            [
+                [
+                    'db' => 'windowskeyAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
 }

@@ -497,47 +497,12 @@ class LocationManagement extends FOGPage
      */
     public function locationHosts()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'location-host',
+            _('Location Host Associations'),
             _('Host Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'location-host',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'location-host-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'host'
         );
-        $buttons .= self::makeButton(
-            'location-host-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Location Host Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'location-host-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('host');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Update host.
@@ -546,35 +511,7 @@ class LocationManagement extends FOGPage
      */
     public function locationHostPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['additems'];
-            if (count($hosts ?: [])) {
-                $this->obj->addHost($hosts);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['remitems'];
-            if (count($hosts ?: [])) {
-                $this->obj->removeHost($hosts);
-            }
-        }
+        $this->assocPost('addHost', 'removeHost');
     }
     /**
      * Present the location to edit the page.
@@ -685,22 +622,20 @@ class LocationManagement extends FOGPage
      */
     public function getHostsList()
     {
-        $join = [
-            'LEFT OUTER JOIN `locationAssoc` ON '
-            . "`hosts`.`hostID` = `locationAssoc`.`laHostID` "
-            . "AND `locationAssoc`.`laLocationID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'locationAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'host',
             'locationassociation',
-            $join,
-            '',
-            $columns
+            'locationAssoc',
+            '`hosts`.`hostID`',
+            '`locationAssoc`.`laHostID`',
+            '`locationAssoc`.`laLocationID`',
+            [
+                [
+                    'db' => 'locationAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**

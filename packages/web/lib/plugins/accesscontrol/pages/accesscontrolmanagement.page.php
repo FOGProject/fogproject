@@ -345,47 +345,12 @@ class AccessControlManagement extends FOGPage
      */
     public function accesscontrolUsers()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'accesscontrol-user',
+            _('Accesscontrol User Associations'),
             _('User Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'accesscontrol-user',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'accesscontrol-user-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'user'
         );
-        $buttons .= self::makeButton(
-            'accesscontrol-user-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Accesscontrol User Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'accesscontrol-user-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('user');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Update users.
@@ -394,35 +359,7 @@ class AccessControlManagement extends FOGPage
      */
     public function accesscontrolUserPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $users = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $users = $users['additems'];
-            if (count($users ?: []) > 0) {
-                $this->obj->addUser($users);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $users = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $users = $users['remitems'];
-            if (count($users ?: []) > 0) {
-                $this->obj->removeUser($users);
-            }
-        }
+        $this->assocPost('addUser', 'removeUser');
     }
     /**
      * Preset the rules page.
@@ -431,47 +368,12 @@ class AccessControlManagement extends FOGPage
      */
     public function accesscontrolRules()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'accesscontrol-rule',
+            _('Accesscontrol Rule Associations'),
             _('Accesscontrol Rule Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'accesscontrol-rule',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'accesscontrol-rule-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'rule'
         );
-        $buttons .= self::makeButton(
-            'accesscontrol-rule-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Accesscontrol Rule Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'accesscontrol-rule-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('rule');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Update rules.
@@ -480,35 +382,7 @@ class AccessControlManagement extends FOGPage
      */
     public function accesscontrolRulePost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $rules = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $rules = $rules['additems'];
-            if (count($rules ?: []) > 0) {
-                $this->obj->addRule($rules);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $rules = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $rules = $rules['remitems'];
-            if (count($rules ?: []) > 0) {
-                $this->obj->removeRule($rules);
-            }
-        }
+        $this->assocPost('addRule', 'removeRule');
     }
     /**
      * The edit element.
@@ -632,22 +506,20 @@ class AccessControlManagement extends FOGPage
      */
     public function getUsersList()
     {
-        $join = [
-            'LEFT OUTER JOIN `roleUserAssoc` ON '
-            . "`users`.`uID` = `roleUserAssoc`.`ruaUserID` "
-            . "AND `roleUserAssoc`.`ruaRoleID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'accesscontrolAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'user',
             'accesscontrolassociation',
-            $join,
-            '',
-            $columns
+            'roleUserAssoc',
+            '`users`.`uID`',
+            '`roleUserAssoc`.`ruaUserID`',
+            '`roleUserAssoc`.`ruaRoleID`',
+            [
+                [
+                    'db' => 'accesscontrolAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**
@@ -657,22 +529,20 @@ class AccessControlManagement extends FOGPage
      */
     public function getRulesList()
     {
-        $join = [
-            'LEFT OUTER JOIN `roleRuleAssoc` ON '
-            . "`rules`.`ruleID` = `roleRuleAssoc`.`rraRuleID` "
-            . "AND `roleRuleAssoc`.`rraRoleID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'accesscontrolAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'accesscontrolrule',
             'accesscontrolruleassociation',
-            $join,
-            '',
-            $columns
+            'roleRuleAssoc',
+            '`rules`.`ruleID`',
+            '`roleRuleAssoc`.`rraRuleID`',
+            '`roleRuleAssoc`.`rraRoleID`',
+            [
+                [
+                    'db' => 'accesscontrolAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
 }

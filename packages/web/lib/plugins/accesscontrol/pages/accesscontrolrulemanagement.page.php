@@ -646,22 +646,20 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function getRolesList()
     {
-        $join = [
-            'LEFT OUTER JOIN `roleRuleAssoc` ON '
-            . "`roles`.`rID` = `roleRuleAssoc`.`rraRoleID` "
-            . "AND `roleRuleAssoc`.`rraRuleID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'accesscontrolruleAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'accesscontrol',
             'accesscontrolruleassociation',
-            $join,
-            '',
-            $columns
+            'roleRuleAssoc',
+            '`roles`.`rID`',
+            '`roleRuleAssoc`.`rraRoleID`',
+            '`roleRuleAssoc`.`rraRuleID`',
+            [
+                [
+                    'db' => 'accesscontrolruleAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
 }
