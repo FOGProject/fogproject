@@ -2347,7 +2347,7 @@ class Route extends FOGBase
     {
         $message = json_encode(
             self::$data,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+            JSON_UNESCAPED_UNICODE
         );
         self::$data = '';
         return $message;
@@ -2364,7 +2364,7 @@ class Route extends FOGBase
     {
         $message = json_encode(
             $data,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+            JSON_UNESCAPED_UNICODE
         );
         if (false !== $code) {
             self::sendResponse(
