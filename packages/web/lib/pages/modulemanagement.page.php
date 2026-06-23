@@ -508,47 +508,12 @@ class ModuleManagement extends FOGPage
      */
     public function moduleHosts()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'module-host',
+            _('Module Host Associations'),
             _('Host Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'module-host',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'module-host-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'host'
         );
-        $buttons .= self::makeButton(
-            'module-host-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Module Host Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'module-host-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('host');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Update the module hosts.
@@ -557,35 +522,7 @@ class ModuleManagement extends FOGPage
      */
     public function moduleHostPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['additems'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->addHost($hosts);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['remitems'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->removeHost($hosts);
-            }
-        }
+        $this->assocPost('addHost', 'removeHost');
     }
     /**
      * The module edit display method
@@ -702,23 +639,20 @@ class ModuleManagement extends FOGPage
      */
     public function getHostsList()
     {
-        $join = [
-            'LEFT OUTER JOIN `moduleStatusByHost` ON '
-            . "`hosts`.`hostID` = `moduleStatusByHost`.`msHostID` "
-            . "AND `moduleStatusByHost`.`msModuleID` = '" . $this->obj->get('id') . "'"
-        ];
-
-        $columns[] = [
-            'db' => 'moduleAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'host',
             'moduleassociation',
-            $join,
-            '',
-            $columns
+            'moduleStatusByHost',
+            '`hosts`.`hostID`',
+            '`moduleStatusByHost`.`msHostID`',
+            '`moduleStatusByHost`.`msModuleID`',
+            [
+                [
+                    'db' => 'moduleAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
 }

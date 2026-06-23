@@ -1775,47 +1775,12 @@ class SnapinManagement extends FOGPage
      */
     public function snapinHosts()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'snapin-host',
+            _('Snapin Host Associations'),
             _('Host Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'snapin-host',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'snapin-host-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'host'
         );
-        $buttons .= self::makeButton(
-            'snapin-host-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Snapin Host Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'snapin-host-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('host');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Update host.
@@ -1824,35 +1789,7 @@ class SnapinManagement extends FOGPage
      */
     public function snapinHostPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['additems'];
-            if (count($hosts ?: [])) {
-                $this->obj->addHost($hosts);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['remitems'];
-            if (count($hosts ?: [])) {
-                $this->obj->removeHost($hosts);
-            }
-        }
+        $this->assocPost('addHost', 'removeHost');
     }
     /**
      * Edit this snapin
@@ -2013,22 +1950,20 @@ class SnapinManagement extends FOGPage
      */
     public function getHostsList()
     {
-        $join = [
-            'LEFT OUTER JOIN `snapinAssoc` ON '
-            . "`hosts`.`hostID` = `snapinAssoc`.`saHostID`"
-            . "AND `snapinAssoc`.`saSnapinID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'snapinAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'host',
             'snapinassociation',
-            $join,
-            '',
-            $columns
+            'snapinAssoc',
+            '`hosts`.`hostID`',
+            '`snapinAssoc`.`saHostID`',
+            '`snapinAssoc`.`saSnapinID`',
+            [
+                [
+                    'db' => 'snapinAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**

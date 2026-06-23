@@ -2252,6 +2252,141 @@ abstract class FOGPage extends FOGBase
         );
     }
     /**
+     * Renders a standard association tab: a primary box containing the
+     * add/remove buttons, the server-side list table, and the dissociate
+     * confirmation modal.
+     *
+     * @param string $tabSlug   node-sub slug (e.g. 'host-group') driving the
+     *                          button ids, table id, and tab update URL
+     * @param string $boxTitle  translated box title (e.g. _('Host Group Associations'))
+     * @param string $colHeader translated first-column header (e.g. _('Group Name'))
+     * @param string $delItem   singular item name passed to assocDelModal (e.g. 'group')
+     *
+     * @return void
+     */
+    protected function renderAssocTab($tabSlug, $boxTitle, $colHeader, $delItem)
+    {
+        $this->headerData = [
+            $colHeader,
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                $tabSlug,
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            "$tabSlug-send",
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            "$tabSlug-remove",
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $boxTitle;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, "$tabSlug-table", $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal($delItem);
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Handles a standard association add/remove POST: reads the additems /
+     * remitems arrays and dispatches them to the object's add/remove methods.
+     *
+     * @param string $addMethod    obj method to add associations (e.g. 'addGroup')
+     * @param string $removeMethod obj method to remove associations (e.g. 'removeGroup')
+     *
+     * @return void
+     */
+    protected function assocPost($addMethod, $removeMethod)
+    {
+        self::checkAuthAndCSRF();
+        if (isset($_POST['confirmadd'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                [
+                    'additems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $items = $items['additems'];
+            if (count($items ?: []) > 0) {
+                $this->obj->{$addMethod}($items);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $items = $items['remitems'];
+            if (count($items ?: []) > 0) {
+                $this->obj->{$removeMethod}($items);
+            }
+        }
+    }
+    /**
+     * Builds a standard association list table via getItemsList using a LEFT
+     * OUTER JOIN that flags which rows are already associated with the current
+     * object.
+     *
+     * @param string $itemType     item class to list (e.g. 'group')
+     * @param string $listType     list/association type key (e.g. 'groupassociation')
+     * @param string $assocTable   join table (e.g. 'groupMembers')
+     * @param string $itemKey      listed item's key column (e.g. '`groups`.`groupID`')
+     * @param string $assocItemKey join table's item column (e.g. '`groupMembers`.`gmGroupID`')
+     * @param string $ownerKey     join table's owner column (e.g. '`groupMembers`.`gmHostID`')
+     * @param array  $columns      extra association column definition(s)
+     *
+     * @return void
+     */
+    protected function assocItemsList(
+        $itemType,
+        $listType,
+        $assocTable,
+        $itemKey,
+        $assocItemKey,
+        $ownerKey,
+        array $columns
+    ) {
+        $join = [
+            "LEFT OUTER JOIN `$assocTable` ON "
+            . "$itemKey = $assocItemKey "
+            . "AND $ownerKey = '" . $this->obj->get('id') . "'"
+        ];
+        return $this->obj->getItemsList(
+            $itemType,
+            $listType,
+            $join,
+            '',
+            $columns
+        );
+    }
+    /**
      * Sends the new client the configuration options
      *
      * @return void

@@ -1907,47 +1907,12 @@ class HostManagement extends FOGPage
      */
     public function hostGroups()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'host-group',
+            _('Host Group Associations'),
             _('Group Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'host-group',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'host-group-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
+            'group'
         );
-        $buttons .= self::makeButton(
-            'host-group-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Group Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-group-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('group');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Host groups modifications.
@@ -1956,35 +1921,7 @@ class HostManagement extends FOGPage
      */
     public function hostGroupPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $groups = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $groups = $groups['additems'];
-            if (count($groups ?: []) > 0) {
-                $this->obj->addGroup($groups);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $groups = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $groups = $groups['remitems'];
-            if (count($groups ?: []) > 0) {
-                $this->obj->removeGroup($groups);
-            }
-        }
+        $this->assocPost('addGroup', 'removeGroup');
     }
     /**
      * Host printers display.
@@ -4089,22 +4026,20 @@ class HostManagement extends FOGPage
      */
     public function getGroupsList()
     {
-        $join = [
-            'LEFT OUTER JOIN `groupMembers` ON '
-            . "`groups`.`groupID` = `groupMembers`.`gmGroupID` "
-            . "AND `groupMembers`.`gmHostID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'hostAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        return $this->obj->getItemsList(
+        return $this->assocItemsList(
             'group',
             'groupassociation',
-            $join,
-            '',
-            $columns
+            'groupMembers',
+            '`groups`.`groupID`',
+            '`groupMembers`.`gmGroupID`',
+            '`groupMembers`.`gmHostID`',
+            [
+                [
+                    'db' => 'hostAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**
