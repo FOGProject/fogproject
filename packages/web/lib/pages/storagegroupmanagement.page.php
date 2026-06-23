@@ -445,46 +445,20 @@ class StorageGroupManagement extends FOGPage
     public function storagegroupImages()
     {
         // Image Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'storagegroup-image',
+            _('Storage Group Image Associations'),
             _('Image Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'image',
+            'btn btn-success pull-right'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'storagegroup-image',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'storagegroup-image-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'storagegroup-image-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Storage Group Image Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'storagegroup-image-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('image');
-        echo '</div>';
-        echo '</div>';
 
         // Make this storage group primary for these images?
         $this->headerData[1] = _('Primary');
@@ -638,46 +612,20 @@ class StorageGroupManagement extends FOGPage
     public function storagegroupSnapins()
     {
         // Snapin Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'storagegroup-snapin',
+            _('Storage Group Snapin Associations'),
             _('Snapin Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'snapin',
+            'btn btn-success pull-right'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'storagegroup-snapin',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'storagegroup-snapin-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'storagegroup-snapin-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Storage Group Snapin Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'storagegroup-snapin-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('snapin');
-        echo '</div>';
-        echo '</div>';
 
         // Make this storage group primary for these snapins?
         $this->headerData[1] = _('Primary');
@@ -831,46 +779,20 @@ class StorageGroupManagement extends FOGPage
     public function storagegroupStoragenodes()
     {
         // Storage Node Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'storagegroup-storagenode',
+            _('Storage Group Storage Node Associations'),
             _('Storage Node Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'storagenode',
+            'btn btn-success pull-right'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'storagegroup-storagenode',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'storagegroup-storagenode-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'storagegroup-storagenode-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Storage Group Storage Node Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'storagegroup-storagenode-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('storagenode');
-        echo '</div>';
-        echo '</div>';
 
         // Master Storage Node
         $buttons = self::makeButton(

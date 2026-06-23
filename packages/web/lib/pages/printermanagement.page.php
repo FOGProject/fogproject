@@ -1544,47 +1544,20 @@ class PrinterManagement extends FOGPage
     public function printerHosts()
     {
         // Host Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'printer-host',
+            _('Printer Host Associations'),
             _('Host Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'host',
+            'btn btn-success pull-right'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'printer-host',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = '';
-        $buttons .= self::makeButton(
-            'printer-host-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'printer-host-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Printer Host Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $this->render(12, 'printer-host-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('host');
-        echo '</div>';
-        echo '</div>';
 
         // Set Printer as default on hosts.
         $this->headerData[1] = _('Default');

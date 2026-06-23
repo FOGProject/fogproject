@@ -1154,46 +1154,20 @@ class ImageManagement extends FOGPage
     public function imageStoragegroups()
     {
         // Storage Group Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'image-storagegroup',
+            _('Image Storage Group Associations'),
             _('Storage Group Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'storagegroup',
+            'btn btn-success pull-right'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'image-storagegroup',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'image-storagegroup-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'image-storagegroup-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Image Storage Group Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'image-storagegroup-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('storagegroup');
-        echo '</div>';
-        echo '</div>';
 
         // Primary Storage Group
         $buttons = self::makeButton(

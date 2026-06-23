@@ -2261,11 +2261,21 @@ abstract class FOGPage extends FOGBase
      * @param string $boxTitle  translated box title (e.g. _('Host Group Associations'))
      * @param string $colHeader translated first-column header (e.g. _('Group Name'))
      * @param string $delItem   singular item name passed to assocDelModal (e.g. 'group')
+     * @param string $sendClass css class for the "Add selected" button (some tabs
+     *                          use 'btn btn-success pull-right' instead of primary)
+     * @param string $helpBlock optional translated help text rendered as a
+     *                          help-block in the box header (already escaped/safe)
      *
      * @return void
      */
-    protected function renderAssocTab($tabSlug, $boxTitle, $colHeader, $delItem)
-    {
+    protected function renderAssocTab(
+        $tabSlug,
+        $boxTitle,
+        $colHeader,
+        $delItem,
+        $sendClass = 'btn btn-primary pull-right',
+        $helpBlock = ''
+    ) {
         $this->headerData = [
             $colHeader,
             _('Associated')
@@ -2284,7 +2294,7 @@ abstract class FOGPage extends FOGBase
         $buttons = self::makeButton(
             "$tabSlug-send",
             _('Add selected'),
-            'btn btn-primary pull-right',
+            $sendClass,
             $props
         );
         $buttons .= self::makeButton(
@@ -2299,6 +2309,11 @@ abstract class FOGPage extends FOGBase
         echo '<h4 class="box-title">';
         echo $boxTitle;
         echo '</h4>';
+        if ($helpBlock !== '') {
+            echo '<p class="help-block">';
+            echo $helpBlock;
+            echo '</p>';
+        }
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, "$tabSlug-table", $buttons);

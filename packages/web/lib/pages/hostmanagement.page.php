@@ -1931,46 +1931,20 @@ class HostManagement extends FOGPage
     public function hostPrinters()
     {
         // Printer Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'host-printer',
+            _('Host Printer Associations'),
             _('Printer Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'printer',
+            'btn btn-success pull-right'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'host-printer',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'host-printer-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'host-printer-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Printer Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-printer-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('printer');
-        echo '</div>';
-        echo '</div>';
 
         // DEFAULT Printer
         $buttons = self::makeButton(
@@ -2163,47 +2137,19 @@ class HostManagement extends FOGPage
      */
     public function hostSnapins()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'host-snapin',
+            _('Host Snapin Associations'),
             _('Snapin Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'snapin'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'host-snapin',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'host-snapin-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'host-snapin-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Snapin Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-snapin-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('snapin');
-        echo '</div>';
-        echo '</div>';
 
         $orderButton = self::makeButton(
             'host-snapin-order-save',
@@ -2318,50 +2264,21 @@ class HostManagement extends FOGPage
     public function hostModules()
     {
         // Association Area
-        $this->headerData = [
+        $this->renderAssocTab(
+            'host-module',
+            _('Host Module Associations'),
             _('Module Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'module',
+            'btn btn-primary pull-right',
+            _('Disabled items are not displayed. Legacy items are removed.')
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'host-module',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'host-module-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'host-module-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Module Associations');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo _('Disabled items are not displayed. Legacy items are removed.');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-module-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('module');
-        echo '</div>';
-        echo '</div>';
 
         $labelClass = 'col-sm-3 control-label';
         // Display Manager area

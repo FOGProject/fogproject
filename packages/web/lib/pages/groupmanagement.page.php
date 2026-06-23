@@ -1061,48 +1061,21 @@ class GroupManagement extends FOGPage
     public function groupPrinters()
     {
         // Printer Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'group-printer',
+            _('Group Printer Assignment'),
             _('Printer Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'printer',
+            'btn btn-success pull-right',
+            _('This will perform the action on all hosts in this group')
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'group-printer',
                 $this->obj->get('id')
             )
             . '" ';
-        $buttons = self::makeButton(
-            'group-printer-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'group-printer-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Group Printer Assignment');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo _('This will perform the action on all hosts in this group');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $this->render(12, 'group-printer-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('printer');
-        echo '</div>';
-        echo '</div>';
 
         // DEFAULT Printer
         $buttons = self::makeButton(
@@ -1305,51 +1278,24 @@ class GroupManagement extends FOGPage
      */
     public function groupSnapins()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'group-snapin',
+            _('Group Snapin Assignment'),
             _('Snapin Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'snapin',
+            'btn btn-success pull-right',
+            _(
+                'This will perform the action on all hosts in this group. '
+                . 'A snapin is checked when every host in the group has it.'
+            )
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'group-snapin',
                 $this->obj->get('id')
             )
             . '" ';
-        $buttons = self::makeButton(
-            'group-snapin-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'group-snapin-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Group Snapin Assignment');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo _(
-            'This will perform the action on all hosts in this group. '
-            . 'A snapin is checked when every host in the group has it.'
-        );
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $this->render(12, 'group-snapin-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('snapin');
-        echo '</div>';
-        echo '</div>';
 
         $orderButton = self::makeButton(
             'group-snapin-order-save',
@@ -1439,52 +1385,23 @@ class GroupManagement extends FOGPage
     public function groupModules()
     {
         // Association Area
-        $this->headerData = [
+        $this->renderAssocTab(
+            'group-module',
+            _('Group Module Associations'),
             _('Module Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'module',
+            'btn btn-primary pull-right',
+            _('Disabled items are not displayed. Legacy items are removed.')
+            . '<br/>'
+            . _('Action will be perform on all hosts within this group')
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'group-module',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'group-module-send',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'group-module-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Group Module Associations');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo _('Disabled items are not displayed. Legacy items are removed.');
-        echo '<br/>';
-        echo _('Action will be perform on all hosts within this group');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'group-module-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('module');
-        echo '</div>';
-        echo '</div>';
 
         $labelClass = 'col-sm-3 control-label';
         // Display Manager area

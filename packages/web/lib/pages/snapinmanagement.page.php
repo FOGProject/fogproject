@@ -1639,46 +1639,20 @@ class SnapinManagement extends FOGPage
     public function snapinStoragegroups()
     {
         // Storage Group Associations
-        $this->headerData = [
+        $this->renderAssocTab(
+            'snapin-storagegroup',
+            _('Snapin Storage Group Associations'),
             _('Storage Group Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
+            'storagegroup',
+            'btn btn-success pull-right'
+        );
+
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'snapin-storagegroup',
                 $this->obj->get('id')
             )
             . '" ';
-
-        $buttons = self::makeButton(
-            'snapin-storagegroup-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'snapin-storagegroup-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Snapin Storage Group Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'snapin-storagegroup-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('storagegroup');
-        echo '</div>';
-        echo '</div>';
 
         // Primary Storage Group
         $buttons = self::makeButton(
