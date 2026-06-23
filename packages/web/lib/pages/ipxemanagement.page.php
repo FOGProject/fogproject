@@ -537,14 +537,6 @@ class IpxeManagement extends FOGPage
      */
     public function edit()
     {
-        $this->title = sprintf(
-            '%s: %s %s: %s',
-            _('Edit'),
-            $this->obj->get('name'),
-            _('ID'),
-            $this->obj->get('id')
-        );
-
         $tabData = [];
 
         $tabData[] = [
@@ -554,8 +546,7 @@ class IpxeManagement extends FOGPage
                 $this->ipxeGeneral();
             }
         ];
-
-        echo self::tabFields($tabData, $this->obj);
+        $this->renderEditTabs($tabData, $this->obj);
     }
     /**
      * Submit save/update the menu item.

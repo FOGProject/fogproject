@@ -944,14 +944,6 @@ class ImageManagement extends FOGPage
      */
     public function edit()
     {
-        $this->title = sprintf(
-            '%s: %s %s: %s',
-            _('Edit'),
-            $this->obj->get('name'),
-            _('ID'),
-            $this->obj->get('id')
-        );
-
         $tabData = [];
 
         $tabData[] = [
@@ -993,8 +985,7 @@ class ImageManagement extends FOGPage
                 $this->imageInformation();
             }
         ];
-
-        echo self::tabFields($tabData, $this->obj);
+        $this->renderEditTabs($tabData, $this->obj);
     }
     /**
      * Creates the image information tab.

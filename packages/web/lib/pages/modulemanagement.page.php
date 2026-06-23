@@ -384,14 +384,6 @@ class ModuleManagement extends FOGPage
      */
     public function edit()
     {
-        $this->title = sprintf(
-            '%s: %s %s: %s',
-            _('Edit'),
-            $this->obj->get('name'),
-            _('ID'),
-            $this->obj->get('id')
-        );
-
         $tabData = [];
 
         // General
@@ -418,8 +410,7 @@ class ModuleManagement extends FOGPage
                 ]
             ]
         ];
-
-        echo self::tabFields($tabData, $this->obj);
+        $this->renderEditTabs($tabData, $this->obj);
     }
     /**
      * Submit the edit function.

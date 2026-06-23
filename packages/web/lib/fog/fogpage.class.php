@@ -4398,6 +4398,38 @@ abstract class FOGPage extends FOGBase
         return ob_get_clean();
     }
     /**
+     * Shared scaffold for the standard edit() tab pages.
+     *
+     * Sets the canonical "Edit: <name> ID: <id>" page title from the
+     * loaded $this->obj and echoes the assembled tab markup. The page's
+     * own edit() keeps building its page-specific $tabData entries and
+     * hands the finished array here; the title and the tabFields() echo
+     * are the only shared bookends, so they live here.
+     *
+     * The $obj argument is passed straight through to tabFields() with
+     * the same -1 default, preserving its three behaviours: -1 rebuilds
+     * the entity from the node/id globals, an explicit object uses it as
+     * given, and false skips the TABDATA/plugin hook injection. The page
+     * title always derives from $this->obj regardless of $obj.
+     *
+     * @param array $tabData The page's assembled tab definitions.
+     * @param mixed $obj     tabFields() obj arg: -1 (default), an entity,
+     *                       or false. Does not affect the title.
+     *
+     * @return void
+     */
+    protected function renderEditTabs(array $tabData, $obj = -1)
+    {
+        $this->title = sprintf(
+            '%s: %s %s: %s',
+            _('Edit'),
+            $this->obj->get('name'),
+            _('ID'),
+            $this->obj->get('id')
+        );
+        echo self::tabFields($tabData, $obj);
+    }
+    /**
      * Function passes so we can have
      * a paged version of universal searching.
      *
