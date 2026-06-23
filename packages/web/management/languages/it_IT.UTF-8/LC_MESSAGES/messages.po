@@ -450,10 +450,6 @@ msgstr "Aggiunta LDAP server fallita!"
 msgid "Add New MAC Address"
 msgstr "Indirizzo MAC"
 
-#, fuzzy
-msgid "Add Selected"
-msgstr "Aggiungi stampanti selezionate"
-
 msgid "Add Storage Group"
 msgstr "Aggiungere gruppo di archiviazione"
 
@@ -4935,10 +4931,6 @@ msgid "Remove Fail"
 msgstr "Rimozione fallita"
 
 #, fuzzy
-msgid "Remove Selected"
-msgstr "Rimuovi i selezionati"
-
-#, fuzzy
 msgid "Remove associated files"
 msgstr "Cancella selezionato"
 
@@ -7596,6 +7588,10 @@ msgstr ""
 #~ msgstr "Esiste già un ruolo con questo nome!"
 
 #, fuzzy
+#~ msgid "Add Selected"
+#~ msgstr "Aggiungi stampanti selezionate"
+
+#, fuzzy
 #~ msgid "Add role failed!"
 #~ msgstr "Aggiunta utente fallita!"
 
@@ -7771,6 +7767,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"
+
+#, fuzzy
+#~ msgid "Remove Selected"
+#~ msgstr "Rimuovi i selezionati"
 
 #~ msgid "Results"
 #~ msgstr "risultati"

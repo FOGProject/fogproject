@@ -474,10 +474,6 @@ msgid "Add New MAC Address"
 msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
-msgid "Add Selected"
-msgstr "Impresora"
-
-#, fuzzy
 msgid "Add Storage Group"
 msgstr "Grupo de almacenamiento"
 
@@ -5280,10 +5276,6 @@ msgid "Remove Fail"
 msgstr "Remoto"
 
 #, fuzzy
-msgid "Remove Selected"
-msgstr "Remoto"
-
-#, fuzzy
 msgid "Remove associated files"
 msgstr "Eliminar seleccionado"
 
@@ -8128,6 +8120,10 @@ msgstr ""
 #~ msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
+#~ msgid "Add Selected"
+#~ msgstr "Impresora"
+
+#, fuzzy
 #~ msgid "Add role failed!"
 #~ msgstr "Añadir fallidos SNAPin!"
 
@@ -8317,6 +8313,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "impresora Alias"
+
+#, fuzzy
+#~ msgid "Remove Selected"
+#~ msgstr "Remoto"
 
 #~ msgid "Results"
 #~ msgstr "resultados"

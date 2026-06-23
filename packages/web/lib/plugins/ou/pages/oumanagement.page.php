@@ -385,47 +385,12 @@ class OUManagement extends FOGPage
      */
     public function ouHosts()
     {
-        $this->headerData = [
+        $this->renderAssocTab(
+            'ou-host',
+            _('OU Host Associations'),
             _('Host Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'ou-host',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'ou-host-send',
-            _('Add Selected'),
-            'btn btn-primary pull-right',
-            $props
+            'host'
         );
-        $buttons .= self::makeButton(
-            'ou-host-remove',
-            _('Remove Selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('OU Host Associations');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'ou-host-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('host');
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Update host membership.
@@ -434,35 +399,7 @@ class OUManagement extends FOGPage
      */
     public function ouHostPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['additems'];
-            if (count($hosts ?: [])) {
-                $this->obj->addHost($hosts);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['remitems'];
-            if (count($hosts ?: [])) {
-                $this->obj->removeHost($hosts);
-            }
-        }
+        $this->assocPost('addHost', 'removeHost');
     }
     /**
      * Present the ou to edit the page.

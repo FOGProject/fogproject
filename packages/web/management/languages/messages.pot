@@ -377,9 +377,6 @@ msgstr ""
 msgid "Add New MAC Address"
 msgstr ""
 
-msgid "Add Selected"
-msgstr ""
-
 msgid "Add Storage Group"
 msgstr ""
 
@@ -4339,9 +4336,6 @@ msgid "Remove"
 msgstr ""
 
 msgid "Remove Fail"
-msgstr ""
-
-msgid "Remove Selected"
 msgstr ""
 
 msgid "Remove associated files"

@@ -468,10 +468,6 @@ msgstr "Adicionar snap-in falhou!"
 msgid "Add New MAC Address"
 msgstr "Lista de endereços MAC"
 
-#, fuzzy
-msgid "Add Selected"
-msgstr "Impressora"
-
 msgid "Add Storage Group"
 msgstr "Adicionar grupo de armazenamento"
 
@@ -5158,10 +5154,6 @@ msgid "Remove Fail"
 msgstr "Removido"
 
 #, fuzzy
-msgid "Remove Selected"
-msgstr "Remover snapins selecionados"
-
-#, fuzzy
 msgid "Remove associated files"
 msgstr "Delete Selected"
 
@@ -7983,6 +7975,10 @@ msgstr ""
 #~ msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
+#~ msgid "Add Selected"
+#~ msgstr "Impressora"
+
+#, fuzzy
 #~ msgid "Add role failed!"
 #~ msgstr "Adicionar snap-in falhou!"
 
@@ -8163,6 +8159,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Printer Alias"
+
+#, fuzzy
+#~ msgid "Remove Selected"
+#~ msgstr "Remover snapins selecionados"
 
 #~ msgid "Results"
 #~ msgstr "Resultados"

@@ -464,10 +464,6 @@ msgstr "Hinzufügen eines LDAP-Servers fehlgeschlagen"
 msgid "Add New MAC Address"
 msgstr "MAC-Adresse"
 
-#, fuzzy
-msgid "Add Selected"
-msgstr "ausgewählte Images hinzufügen"
-
 msgid "Add Storage Group"
 msgstr "Speichergruppe hinzufügen"
 
@@ -5158,10 +5154,6 @@ msgid "Remove Fail"
 msgstr "Entfernen fehlgeschlagen"
 
 #, fuzzy
-msgid "Remove Selected"
-msgstr "Ausgewählte entfernen?"
-
-#, fuzzy
 msgid "Remove associated files"
 msgstr "Ausgewählte löschen"
 
@@ -7992,6 +7984,10 @@ msgstr ""
 #~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
+#~ msgid "Add Selected"
+#~ msgstr "ausgewählte Images hinzufügen"
+
+#, fuzzy
 #~ msgid "Add role failed!"
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
@@ -8172,6 +8168,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Drucker-Alias"
+
+#, fuzzy
+#~ msgid "Remove Selected"
+#~ msgstr "Ausgewählte entfernen?"
 
 #~ msgid "Results"
 #~ msgstr "Ergebnisse"

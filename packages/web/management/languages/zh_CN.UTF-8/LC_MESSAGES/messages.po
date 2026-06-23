@@ -468,10 +468,6 @@ msgstr "添加管理单元失败！"
 msgid "Add New MAC Address"
 msgstr "MAC地址列表"
 
-#, fuzzy
-msgid "Add Selected"
-msgstr "打印机"
-
 msgid "Add Storage Group"
 msgstr "添加存储组"
 
@@ -5154,10 +5150,6 @@ msgid "Remove Fail"
 msgstr "去除"
 
 #, fuzzy
-msgid "Remove Selected"
-msgstr "删除选定snapins"
-
-#, fuzzy
 msgid "Remove associated files"
 msgstr "删除所选"
 
@@ -7970,6 +7962,10 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "Add Selected"
+#~ msgstr "打印机"
+
+#, fuzzy
 #~ msgid "Add role failed!"
 #~ msgstr "添加管理单元失败！"
 
@@ -8150,6 +8146,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "打印机别名"
+
+#, fuzzy
+#~ msgid "Remove Selected"
+#~ msgstr "删除选定snapins"
 
 #~ msgid "Results"
 #~ msgstr "结果"

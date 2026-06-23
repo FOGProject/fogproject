@@ -468,10 +468,6 @@ msgstr "Add snapin failed!"
 msgid "Add New MAC Address"
 msgstr "MAC Address List"
 
-#, fuzzy
-msgid "Add Selected"
-msgstr "Remove selected printers"
-
 msgid "Add Storage Group"
 msgstr "Add Storage Group"
 
@@ -5154,10 +5150,6 @@ msgid "Remove Fail"
 msgstr "Removed"
 
 #, fuzzy
-msgid "Remove Selected"
-msgstr "Remove selected snapins"
-
-#, fuzzy
 msgid "Remove associated files"
 msgstr "Delete Selected"
 
@@ -7979,6 +7971,10 @@ msgstr ""
 #~ msgstr "An image already exists with this name!"
 
 #, fuzzy
+#~ msgid "Add Selected"
+#~ msgstr "Remove selected printers"
+
+#, fuzzy
 #~ msgid "Add role failed!"
 #~ msgstr "Add snapin failed!"
 
@@ -8155,6 +8151,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Printer Alias"
+
+#, fuzzy
+#~ msgid "Remove Selected"
+#~ msgstr "Remove selected snapins"
 
 #~ msgid "Results"
 #~ msgstr "Results"
