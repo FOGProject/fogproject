@@ -113,129 +113,91 @@ class ServiceConfigurationPage extends FOGPage
         echo '</div>';
     }
     /**
-     * Presents the displaymanager page.
+     * Renders a global module/service settings tab.
+     *
+     * Every service tab is a CSRF form with the same two checkboxes
+     * (Module Enabled / Enabled by Default) wrapped in a box-solid; only
+     * the module it targets, the field id prefix, the FIELDS hook and any
+     * extra per-module fields differ.
+     *
+     * @param string $key         The module shortName (and tab/form slug).
+     * @param string $match       The lowercased module name to match.
+     * @param string $idPrefix    The checkbox id prefix (e.g. 'sc').
+     * @param string $hook        The MODULE_*_FIELDS event to fire.
+     * @param array  $extraFields Extra label=>input fields appended after
+     *                            the enabled/default pair.
      *
      * @return void
      */
-    public function serviceDisplaymanager()
-    {
+    private function _renderModuleTab(
+        $key,
+        $match,
+        $idPrefix,
+        $hook,
+        array $extraFields = []
+    ) {
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'service-displaymanager'
+                'service-' . $key
             )
             . '" ';
 
         $buttons = self::makeButton(
-            'displaymanager-update',
+            $key . '-update',
             _('Update'),
             'btn btn-primary pull-right',
             $props
         );
         foreach (self::$_modules as &$module) {
-            if ('display manager' === strtolower($module->name)) {
+            if ($match === strtolower($module->name)) {
                 $Module = $module;
                 break;
             }
             unset($module);
         }
-        $disps = [
-            'FOG_CLIENT_DISPLAYMANAGER_R',
-            'FOG_CLIENT_DISPLAYMANAGER_X',
-            'FOG_CLIENT_DISPLAYMANAGER_Y'
-        ];
-        list(
-            $r,
-            $x,
-            $y
-        ) = self::getSetting($disps);
-        unset($disps);
 
         $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'isdmEnabled',
+                'is' . $idPrefix . 'Enabled',
                 _('Module Enabled')
             ) => self::makeInput(
                 '',
                 'isEnabled',
                 '',
                 'checkbox',
-                'isdmEnabled',
+                'is' . $idPrefix . 'Enabled',
                 '',
                 false,
                 false,
                 -1,
                 -1,
-                (self::$_moduleName['displaymanager'] ? ' checked' : '')
+                (self::$_moduleName[$key] ? ' checked' : '')
             ),
             self::makeLabel(
                 $labelClass,
-                'isdmDefault',
+                'is' . $idPrefix . 'Default',
                 _('Enabled by Default')
             ) => self::makeInput(
                 '',
                 'isDefault',
                 '',
                 'checkbox',
-                'isdmDefault',
+                'is' . $idPrefix . 'Default',
                 '',
                 false,
                 false,
                 -1,
                 -1,
                 ($Module->isDefault ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'width',
-                _('Default Width')
-                . '<br/>('
-                . _('in pixels')
-                . ')'
-            ) => self::makeInput(
-                'form-control',
-                'width',
-                '1024',
-                'number',
-                'width',
-                $x
-            ),
-            self::makeLabel(
-                $labelClass,
-                'height',
-                _('Default Height')
-                . '<br/>('
-                . _('in pixels')
-                . ')'
-            ) => self::makeInput(
-                'form-control',
-                'height',
-                '768',
-                'number',
-                'height',
-                $y
-            ),
-            self::makeLabel(
-                $labelClass,
-                'refresh',
-                _('Default Refresh Rate')
-                . '<br/>('
-                . _('in Hz')
-                . ')'
-            ) => self::makeInput(
-                'form-control',
-                'refresh',
-                '60',
-                'number',
-                'refresh',
-                $r
             )
         ];
+        $fields = array_merge($fields, $extraFields);
 
         self::$HookManager->processEvent(
-            'MODULE_DISPLAYMANAGER_FIELDS',
+            $hook,
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
@@ -247,9 +209,9 @@ class ServiceConfigurationPage extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'displaymanagerupdate-form',
+            $key . 'update-form',
             self::makeTabUpdateURL(
-                'service-displaymanager'
+                'service-' . $key
             ),
             'post',
             'application/x-www-form-urlencoded',
@@ -259,11 +221,11 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name_'.$Module->id,
+            'name_' . $Module->id,
             '',
             'hidden',
             '',
-            self::$_modNames['displaymanager']
+            self::$_modNames[$key]
         );
         echo $rendered;
         echo '</div>';
@@ -272,6 +234,127 @@ class ServiceConfigurationPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</form>';
+    }
+    /**
+     * Persists a global module/service settings tab.
+     *
+     * Toggles the module's global Setting value and its isDefault flag from
+     * the posted checkboxes; $extra (if given) runs after both are set but
+     * before either is saved, for modules with additional settings.
+     *
+     * @param string        $key   The module shortName (Setting name key).
+     * @param string        $match The lowercased module name to match.
+     * @param string        $hook  The MODULE_*_POST event to fire.
+     * @param callable|null $extra Extra persistence run before the saves.
+     *
+     * @return void
+     */
+    private function _saveModuleTab($key, $match, $hook, $extra = null)
+    {
+        self::checkAuthAndCSRF();
+        self::$HookManager->processEvent($hook);
+        foreach (self::$_modules as &$module) {
+            if ($match === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
+        $Module = self::getClass(
+            'Module',
+            $Module->id
+        );
+        $Service = self::getClass('Setting')
+            ->set('name', self::$_modNames[$key])
+            ->load('name');
+        if (isset($_POST['update'])) {
+            $Service->set('value', (int)isset($_POST['isEnabled']));
+            $Module->set('isDefault', (int)isset($_POST['isDefault']));
+            if (is_callable($extra)) {
+                $extra();
+            }
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
+    }
+    /**
+     * Presents the displaymanager page.
+     *
+     * @return void
+     */
+    public function serviceDisplaymanager()
+    {
+        list(
+            $r,
+            $x,
+            $y
+        ) = self::getSetting(
+            [
+                'FOG_CLIENT_DISPLAYMANAGER_R',
+                'FOG_CLIENT_DISPLAYMANAGER_X',
+                'FOG_CLIENT_DISPLAYMANAGER_Y'
+            ]
+        );
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $this->_renderModuleTab(
+            'displaymanager',
+            'display manager',
+            'dm',
+            'MODULE_DISPLAYMANAGER_FIELDS',
+            [
+                self::makeLabel(
+                    $labelClass,
+                    'width',
+                    _('Default Width')
+                    . '<br/>('
+                    . _('in pixels')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'width',
+                    '1024',
+                    'number',
+                    'width',
+                    $x
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'height',
+                    _('Default Height')
+                    . '<br/>('
+                    . _('in pixels')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'height',
+                    '768',
+                    'number',
+                    'height',
+                    $y
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'refresh',
+                    _('Default Refresh Rate')
+                    . '<br/>('
+                    . _('in Hz')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'refresh',
+                    '60',
+                    'number',
+                    'refresh',
+                    $r
+                )
+            ]
+        );
     }
     /**
      * Updates the display manager elements.
@@ -280,40 +363,25 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceDisplaymanagerPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_DISPLAYMANAGER_POST');
-        foreach (self::$_modules as &$module) {
-            if ('display manager' === strtolower($module->name)) {
-                $Module = $module;
-                break;
+        $this->_saveModuleTab(
+            'displaymanager',
+            'display manager',
+            'MODULE_DISPLAYMANAGER_POST',
+            function () {
+                self::setSetting(
+                    'FOG_CLIENT_DISPLAYMANAGER_R',
+                    (int)filter_input(INPUT_POST, 'refresh')
+                );
+                self::setSetting(
+                    'FOG_CLIENT_DISPLAYMANAGER_X',
+                    (int)filter_input(INPUT_POST, 'width')
+                );
+                self::setSetting(
+                    'FOG_CLIENT_DISPLAYMANAGER_Y',
+                    (int)filter_input(INPUT_POST, 'height')
+                );
             }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
         );
-        $Setting = self::getClass('Setting')
-            ->set('name', self::$_modNames['displaymanager'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $width = (int)filter_input(INPUT_POST, 'width');
-            $height = (int)filter_input(INPUT_POST, 'height');
-            $refresh = (int)filter_input(INPUT_POST, 'refresh');
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            self::setSetting('FOG_CLIENT_DISPLAYMANAGER_R', $refresh);
-            self::setSetting('FOG_CLIENT_DISPLAYMANAGER_X', $width);
-            self::setSetting('FOG_CLIENT_DISPLAYMANAGER_Y', $height);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the autologout page.
@@ -322,121 +390,35 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceAutologout()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-autologout'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'autologout-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        foreach (self::$_modules as &$module) {
-            if ('auto log out' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
         $labelClass = 'col-sm-3 control-label';
 
         $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'isaloEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'isaloEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['autologout'] ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'isaloDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'isaloDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'updatetme',
-                _('Auto Log Out Time')
-                . '<br/>('
-                . _('in minutes')
-                . ')<br/>('
-                . _('Active at 5 minutes or more')
-                . ')'
-            ) => self::makeInput(
-                'form-control',
-                'tme',
-                '5',
-                'number',
-                'updatetme',
-                $tme
-            )
-        ];
 
-        self::$HookManager->processEvent(
+        $this->_renderModuleTab(
+            'autologout',
+            'auto log out',
+            'alo',
             'MODULE_AUTOLOGOUT_FIELDS',
             [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
+                self::makeLabel(
+                    $labelClass,
+                    'updatetme',
+                    _('Auto Log Out Time')
+                    . '<br/>('
+                    . _('in minutes')
+                    . ')<br/>('
+                    . _('Active at 5 minutes or more')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'tme',
+                    '5',
+                    'number',
+                    'updatetme',
+                    $tme
+                )
             ]
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'autologoutupdate-form',
-            self::makeTabUpdateURL(
-                'service-autologout'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['autologout']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the autologout elements.
@@ -445,39 +427,18 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceAutologoutPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_AUTOLOGOUT_POST');
-        foreach (self::$_modules as &$module) {
-            if ('auto log out' === strtolower($module->name)) {
-                $Module = $module;
-                break;
+        $this->_saveModuleTab(
+            'autologout',
+            'auto log out',
+            'MODULE_AUTOLOGOUT_POST',
+            function () {
+                $tme = (int)filter_input(INPUT_POST, 'tme');
+                if ($tme < 5) {
+                    $tme = 0;
+                }
+                self::setSetting('FOG_CLIENT_AUTOLOGOFF_MIN', $tme);
             }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['autologout'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $tme = (int)filter_input(INPUT_POST, 'tme');
-            if ($tme < 5) {
-                $tme = 0;
-            }
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            self::setSetting('FOG_CLIENT_AUTOLOGOFF_MIN', $tme);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the snapin client page.
@@ -486,103 +447,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceSnapinclient()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-snapinclient'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'snapinclient-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
+        $this->_renderModuleTab(
+            'snapinclient',
+            'snapins',
+            'sc',
+            'MODULE_SNAPINCLIENT_FIELDS'
         );
-        foreach (self::$_modules as &$module) {
-            if ('snapins' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'isscEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'isscEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['snapinclient'] ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'isscDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'isscDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? ' checked' : '')
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'MODULE_SNAPINCLIENT_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'snapinclientupdate-form',
-            self::makeTabUpdateURL(
-                'service-snapinclient'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['snapinclient']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the snapinclient elements.
@@ -591,34 +461,11 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceSnapinclientPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_SNAPINCLIENT_POST');
-        foreach (self::$_modules as &$module) {
-            if ('snapins' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
+        $this->_saveModuleTab(
+            'snapinclient',
+            'snapins',
+            'MODULE_SNAPINCLIENT_POST'
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['snapinclient'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the host register page.
@@ -627,103 +474,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostregister()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-hostregister'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'hostregister-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
+        $this->_renderModuleTab(
+            'hostregister',
+            'host registration',
+            'hr',
+            'MODULE_HOSTREGISTER_FIELDS'
         );
-        foreach (self::$_modules as &$module) {
-            if ('host registration' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'ishrEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'ishrEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['hostregister'] ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'ishrDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'ishrDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? ' checked' : '')
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'MODULE_HOSTREGISTER_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'hostregisterupdate-form',
-            self::makeTabUpdateURL(
-                'service-hostregister'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['hostregister']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the Host register elements.
@@ -732,34 +488,11 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostregisterPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_HOSTREGISTER_POST');
-        foreach (self::$_modules as &$module) {
-            if ('host registration' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
+        $this->_saveModuleTab(
+            'hostregister',
+            'host registration',
+            'MODULE_HOSTREGISTER_POST'
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['hostregister'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the hostname changer page.
@@ -768,103 +501,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostnamechanger()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-hostnamechanger'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'hostnamechanger-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
+        $this->_renderModuleTab(
+            'hostnamechanger',
+            'hostname changer',
+            'hc',
+            'MODULE_HOSTNAMECHANGER_FIELDS'
         );
-        foreach (self::$_modules as &$module) {
-            if ('hostname changer' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'ishcEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'ishcEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['hostnamechanger'] ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'ishcDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'ishcDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? ' checked' : '')
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'MODULE_HOSTNAMECHANGER_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'hostnamechangerupdate-form',
-            self::makeTabUpdateURL(
-                'service-hostnamechanger'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['hostnamechanger']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the Host name changer elements.
@@ -873,34 +515,11 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostnamechangerPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_HOSTNAMECHANGER_POST');
-        foreach (self::$_modules as &$module) {
-            if ('hostname changer' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
+        $this->_saveModuleTab(
+            'hostnamechanger',
+            'hostname changer',
+            'MODULE_HOSTNAMECHANGER_POST'
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['hostnamechanger'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the printer manager page.
@@ -909,103 +528,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePrintermanager()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-printermanager'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'printermanager-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
+        $this->_renderModuleTab(
+            'printermanager',
+            'printer manager',
+            'pm',
+            'MODULE_PRINTERMANAGER_FIELDS'
         );
-        foreach (self::$_modules as &$module) {
-            if ('printer manager' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'ispmEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'ispmEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['printermanager'] ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'ispDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'ispDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? ' checked' : '')
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'MODULE_PRINTERMANAGER_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'printermanagerupdate-form',
-            self::makeTabUpdateURL(
-                'service-printermanager'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['printermanager']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the printer manager elements.
@@ -1014,34 +542,11 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePrintermanagerPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_PRINTERMANAGER_POST');
-        foreach (self::$_modules as &$module) {
-            if ('printer manager' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
+        $this->_saveModuleTab(
+            'printermanager',
+            'printer manager',
+            'MODULE_PRINTERMANAGER_POST'
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['printermanager'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the task reboot page.
@@ -1050,103 +555,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceTaskreboot()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-taskreboot'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'taskreboot-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
+        $this->_renderModuleTab(
+            'taskreboot',
+            'task reboot',
+            'tr',
+            'MODULE_TASKREBOOT_FIELDS'
         );
-        foreach (self::$_modules as &$module) {
-            if ('task reboot' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'istrEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'istrEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['taskreboot'] ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'istrDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'istrDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? ' checked' : '')
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'MODULE_TASKREBOOT_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'taskrebootupdate-form',
-            self::makeTabUpdateURL(
-                'service-taskreboot'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['taskreboot']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the task reboot elements.
@@ -1155,34 +569,11 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceTaskrebootPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_TASKREBOOT_POST');
-        foreach (self::$_modules as &$module) {
-            if ('task reboot' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
+        $this->_saveModuleTab(
+            'taskreboot',
+            'task reboot',
+            'MODULE_TASKREBOOT_POST'
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['taskreboot'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the user tracker page.
@@ -1191,103 +582,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceUsertracker()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-usertracker'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'usertracker-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
+        $this->_renderModuleTab(
+            'usertracker',
+            'user tracker',
+            'ut',
+            'MODULE_USERTRACKER_FIELDS'
         );
-        foreach (self::$_modules as &$module) {
-            if ('user tracker' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'isutEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'isutEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['usertracker'] ? ' checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'isutDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'isutDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? ' checked' : '')
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'MODULE_USERTRACKER_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'usertrackerupdate-form',
-            self::makeTabUpdateURL(
-                'service-usertracker'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['usertracker']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the user tracker elements.
@@ -1296,34 +596,11 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceUsertrackerPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_USERTRACKER_POST');
-        foreach (self::$_modules as &$module) {
-            if ('user tracker' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
+        $this->_saveModuleTab(
+            'usertracker',
+            'user tracker',
+            'MODULE_USERTRACKER_POST'
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['usertracker'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Presents the powermanagement page.
@@ -1332,103 +609,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePowermanagement()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'service-powermanagement'
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'powermanagement-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
+        $this->_renderModuleTab(
+            'powermanagement',
+            'power management',
+            'pm',
+            'MODULE_POWERMANAGEMENT_FIELDS'
         );
-        foreach (self::$_modules as &$module) {
-            if ('power management' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'ispmEnabled',
-                _('Module Enabled')
-            ) => self::makeInput(
-                '',
-                'isEnabled',
-                '',
-                'checkbox',
-                'ispmEnabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (self::$_moduleName['powermanagement'] ? 'checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'ispmDefault',
-                _('Enabled by Default')
-            ) => self::makeInput(
-                '',
-                'isDefault',
-                '',
-                'checkbox',
-                'ispmDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($Module->isDefault ? 'checked' : '')
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'MODULE_POWERMANAGEMENT_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => &$Module
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'powermanagementupdate-form',
-            self::makeTabUpdateURL(
-                'service-powermanagement'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        echo self::makeInput(
-            '',
-            'name_'.$Module->id,
-            '',
-            'hidden',
-            '',
-            self::$_modNames['powermanagement']
-        );
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates the power management elements.
@@ -1437,34 +623,11 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePowermanagementPost()
     {
-        self::checkAuthAndCSRF();
-        self::$HookManager->processEvent('MODULE_POWERMANAGEMENT_POST');
-        foreach (self::$_modules as &$module) {
-            if ('power management' === strtolower($module->name)) {
-                $Module = $module;
-                break;
-            }
-            unset($module);
-        }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
+        $this->_saveModuleTab(
+            'powermanagement',
+            'power management',
+            'MODULE_POWERMANAGEMENT_POST'
         );
-        $Service = self::getClass('Setting')
-            ->set('name', self::$_modNames['powermanagement'])
-            ->load('name');
-        if (isset($_POST['update'])) {
-            $isen = (int)isset($_POST['isEnabled']);
-            $isdef = (int)isset($_POST['isDefault']);
-            $Service->set('value', $isen);
-            $Module->set('isDefault', $isdef);
-            if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
-            }
-            if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
-            }
-        }
     }
     /**
      * Redirects index page to edit
