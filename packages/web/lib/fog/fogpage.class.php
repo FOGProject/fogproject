@@ -1447,7 +1447,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return void
      */
-    protected function jsonSend($code, $body)
+    protected static function jsonSend($code, $body)
     {
         http_response_code($code);
         echo $body;
