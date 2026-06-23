@@ -55,13 +55,9 @@ class ChangeItems extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'HOSTNAME_CHANGER_CLIENT',
-            [$this, 'changeADItems']
-        );
+        $this->registerInstalled([
+            ['HOSTNAME_CHANGER_CLIENT', 'changeADItems'],
+        ]);
     }
     /**
      * Sets up host for the new OU

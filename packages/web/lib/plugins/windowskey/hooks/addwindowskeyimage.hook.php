@@ -55,19 +55,11 @@ class AddWindowsKeyImage extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PLUGINS_INJECT_TABDATA',
-            [$this, 'imageTabData']
-        )->register(
-            'IMAGE_EDIT_SUCCESS',
-            [$this, 'imageAddKeyEdit']
-        )->register(
-            'IMAGE_ADD_FIELDS',
-            [$this, 'imageAddKeyField']
-        );
+        $this->registerInstalled([
+            ['PLUGINS_INJECT_TABDATA', 'imageTabData'],
+            ['IMAGE_EDIT_SUCCESS', 'imageAddKeyEdit'],
+            ['IMAGE_ADD_FIELDS', 'imageAddKeyField'],
+        ]);
     }
     /**
      * The image tab data.

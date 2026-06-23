@@ -53,19 +53,11 @@ class AddLocationAPI extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'API_VALID_CLASSES',
-            [$this, 'injectAPIElements']
-        )->register(
-            'API_GETTER',
-            [$this, 'adjustGetter']
-        )->register(
-            'CUSTOMIZE_DT_COLUMNS',
-            [$this, 'customizeDT']
-        );
+        $this->registerInstalled([
+            ['API_VALID_CLASSES', 'injectAPIElements'],
+            ['API_GETTER', 'adjustGetter'],
+            ['CUSTOMIZE_DT_COLUMNS', 'customizeDT'],
+        ]);
     }
     /**
      * Customize our new columns.

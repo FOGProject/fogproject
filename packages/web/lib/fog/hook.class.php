@@ -42,4 +42,28 @@ abstract class Hook extends Event
     {
         $arguments['types'][$this->node] = 4;
     }
+    /**
+     * Registers a set of hook callbacks, but only when this hook's plugin
+     * node is actually installed.
+     *
+     * Replaces the install-guard + register chain boilerplate repeated in
+     * nearly every plugin hook constructor. Each registration is an ordered
+     * [event, method] pair; pairs run in order, and the same event may
+     * appear more than once (each adds another callback), so duplicates are
+     * preserved exactly as a hand-written register() chain would be.
+     *
+     * @param array $registrations list of [eventName, methodName] pairs
+     *
+     * @return void
+     */
+    protected function registerInstalled(array $registrations)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        foreach ($registrations as $registration) {
+            list($event, $method) = $registration;
+            self::$HookManager->register($event, [$this, $method]);
+        }
+    }
 }

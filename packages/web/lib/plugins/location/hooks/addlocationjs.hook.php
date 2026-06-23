@@ -55,13 +55,9 @@ class AddLocationJS extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PAGE_JS_FILES',
-            [$this, 'injectJSFiles']
-        );
+        $this->registerInstalled([
+            ['PAGE_JS_FILES', 'injectJSFiles'],
+        ]);
     }
     /**
      * The files we need to inject.

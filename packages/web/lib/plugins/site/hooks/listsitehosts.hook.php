@@ -53,13 +53,9 @@ class ListSiteHosts extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'AJAX_DATA_DISPLAY_CHANGE',
-            [$this, 'filterHostsSite']
-        );
+        $this->registerInstalled([
+            ['AJAX_DATA_DISPLAY_CHANGE', 'filterHostsSite'],
+        ]);
     }
     /**
      * This adjusts our list hosts to only show those associated to the site

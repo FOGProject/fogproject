@@ -53,16 +53,10 @@ class AddLDAPAPI extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'API_VALID_CLASSES',
-            [$this, 'injectAPIElements']
-        )->register(
-            'API_MASSDATA_MAPPING',
-            [$this, 'adjustMassData']
-        );
+        $this->registerInstalled([
+            ['API_VALID_CLASSES', 'injectAPIElements'],
+            ['API_MASSDATA_MAPPING', 'adjustMassData'],
+        ]);
     }
     /**
      * Remove the users with ldap types from the list.

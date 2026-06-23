@@ -53,19 +53,11 @@ class AddSiteHost extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PLUGINS_INJECT_TABDATA',
-            [$this, 'hostTabData']
-        )->register(
-            'HOST_EDIT_SUCCESS',
-            [$this, 'hostAddSiteEdit']
-        )->register(
-            'HOST_ADD_FIELDS',
-            [$this, 'hostAddSiteField']
-        );
+        $this->registerInstalled([
+            ['PLUGINS_INJECT_TABDATA', 'hostTabData'],
+            ['HOST_EDIT_SUCCESS', 'hostAddSiteEdit'],
+            ['HOST_ADD_FIELDS', 'hostAddSiteField'],
+        ]);
     }
     /**
      * The host tab data.

@@ -55,19 +55,11 @@ class AddOUHost extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PLUGINS_INJECT_TABDATA',
-            [$this, 'hostTabData']
-        )->register(
-            'HOST_EDIT_SUCCESS',
-            [$this, 'hostAddOUEdit']
-        )->register(
-            'HOST_ADD_FIELDS',
-            [$this, 'hostAddOUField']
-        );
+        $this->registerInstalled([
+            ['PLUGINS_INJECT_TABDATA', 'hostTabData'],
+            ['HOST_EDIT_SUCCESS', 'hostAddOUEdit'],
+            ['HOST_ADD_FIELDS', 'hostAddOUField'],
+        ]);
     }
     /**
      * The host tab data.

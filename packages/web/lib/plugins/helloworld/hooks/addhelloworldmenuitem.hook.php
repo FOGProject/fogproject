@@ -58,19 +58,11 @@ class AddHelloWorldMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'MAIN_MENU_DATA',
-            [$this, 'menuData']
-        )->register(
-            'SEARCH_PAGES',
-            [$this, 'addSearch']
-        )->register(
-            'PAGES_WITH_OBJECTS',
-            [$this, 'addPageWithObject']
-        );
+        $this->registerInstalled([
+            ['MAIN_MENU_DATA', 'menuData'],
+            ['SEARCH_PAGES', 'addSearch'],
+            ['PAGES_WITH_OBJECTS', 'addPageWithObject'],
+        ]);
     }
     /**
      * Adds the top-level menu entry.

@@ -57,13 +57,9 @@ class AddHelloWorldAPI extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'API_VALID_CLASSES',
-            [$this, 'injectAPIElements']
-        );
+        $this->registerInstalled([
+            ['API_VALID_CLASSES', 'injectAPIElements'],
+        ]);
     }
     /**
      * Marks this node as a valid API class.

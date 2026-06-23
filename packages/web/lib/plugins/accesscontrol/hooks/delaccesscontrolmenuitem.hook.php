@@ -53,19 +53,11 @@ class DelAccessControlMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'DELETE_MENU_DATA',
-            [$this, 'deleteMenuData']
-        )->register(
-            'DELETE_MENULINK_DATA',
-            [$this, 'deleteSubMenuData']
-        )->register(
-            'ACTIONBOX',
-            [$this, 'deleteActionBoxData']
-        );
+        $this->registerInstalled([
+            ['DELETE_MENU_DATA', 'deleteMenuData'],
+            ['DELETE_MENULINK_DATA', 'deleteSubMenuData'],
+            ['ACTIONBOX', 'deleteActionBoxData'],
+        ]);
     }
     /**
      * Get the access control rules more centrally.

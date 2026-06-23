@@ -55,19 +55,11 @@ class AddServiceConfiguration extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'MODULE_SNAPINCLIENT_FIELDS',
-            [$this, 'addServiceCheckbox']
-        )->register(
-            'MODULE_SNAPINCLIENT_POST',
-            [$this, 'updateGlobalSetting']
-        )->register(
-            'NEEDSTOBECHECKBOX',
-            [$this, 'addCheckbox']
-        );
+        $this->registerInstalled([
+            ['MODULE_SNAPINCLIENT_FIELDS', 'addServiceCheckbox'],
+            ['MODULE_SNAPINCLIENT_POST', 'updateGlobalSetting'],
+            ['NEEDSTOBECHECKBOX', 'addCheckbox'],
+        ]);
     }
     /**
      * Add the service checkbox.

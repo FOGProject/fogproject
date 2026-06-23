@@ -55,40 +55,18 @@ class ChangeItems extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'SNAPIN_NODE',
-            [$this, 'storageNodeSetting']
-        )->register(
-            'SNAPIN_GROUP',
-            [$this, 'storageGroupSetting']
-        )->register(
-            'BOOT_ITEM_NEW_SETTINGS',
-            [$this, 'bootItemSettings']
-        )->register(
-            'BOOT_TASK_NEW_SETTINGS',
-            [$this, 'storageNodeSetting']
-        )->register(
-            'BOOT_TASK_NEW_SETTINGS',
-            [$this, 'storageGroupSetting']
-        )->register(
-            'HOST_NEW_SETTINGS',
-            [$this, 'storageNodeSetting']
-        )->register(
-            'HOST_NEW_SETTINGS',
-            [$this, 'storageGroupSetting']
-        )->register(
-            'BOOT_TASK_NEW_SETTINGS',
-            [$this, 'storageNodeSetting']
-        )->register(
-            'CHECK_NODE_MASTERS',
-            [$this, 'alterMasters']
-        )->register(
-            'CHECK_NODE_MASTER',
-            [$this, 'makeMaster']
-        );
+        $this->registerInstalled([
+            ['SNAPIN_NODE', 'storageNodeSetting'],
+            ['SNAPIN_GROUP', 'storageGroupSetting'],
+            ['BOOT_ITEM_NEW_SETTINGS', 'bootItemSettings'],
+            ['BOOT_TASK_NEW_SETTINGS', 'storageNodeSetting'],
+            ['BOOT_TASK_NEW_SETTINGS', 'storageGroupSetting'],
+            ['HOST_NEW_SETTINGS', 'storageNodeSetting'],
+            ['HOST_NEW_SETTINGS', 'storageGroupSetting'],
+            ['BOOT_TASK_NEW_SETTINGS', 'storageNodeSetting'],
+            ['CHECK_NODE_MASTERS', 'alterMasters'],
+            ['CHECK_NODE_MASTER', 'makeMaster'],
+        ]);
     }
     /**
      * Sets up storage node.

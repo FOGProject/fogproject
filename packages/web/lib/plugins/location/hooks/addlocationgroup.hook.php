@@ -55,19 +55,11 @@ class AddLocationGroup extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PLUGINS_INJECT_TABDATA',
-            [$this, 'groupTabData']
-        )->register(
-            'GROUP_EDIT_SUCCESS',
-            [$this, 'groupAddLocationEdit']
-        )->register(
-            'GROUP_ADD_FIELDS',
-            [$this, 'groupAddLocationField']
-        );
+        $this->registerInstalled([
+            ['PLUGINS_INJECT_TABDATA', 'groupTabData'],
+            ['GROUP_EDIT_SUCCESS', 'groupAddLocationEdit'],
+            ['GROUP_ADD_FIELDS', 'groupAddLocationField'],
+        ]);
     }
     /**
      * The group tab data.

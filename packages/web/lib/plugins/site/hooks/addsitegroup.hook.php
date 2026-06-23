@@ -53,19 +53,11 @@ class AddSiteGroup extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PLUGINS_INJECT_TABDATA',
-            [$this, 'groupTabData']
-        )->register(
-            'GROUP_EDIT_SUCCESS',
-            [$this, 'groupAddSiteEdit']
-        )->register(
-            'GROUP_ADD_FIELDS',
-            [$this, 'groupAddSiteField']
-        );
+        $this->registerInstalled([
+            ['PLUGINS_INJECT_TABDATA', 'groupTabData'],
+            ['GROUP_EDIT_SUCCESS', 'groupAddSiteEdit'],
+            ['GROUP_ADD_FIELDS', 'groupAddSiteField'],
+        ]);
     }
     /**
      * The group tab data.

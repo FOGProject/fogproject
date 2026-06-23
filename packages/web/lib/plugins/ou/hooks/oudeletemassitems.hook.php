@@ -53,13 +53,9 @@ class OUDeleteMassItems extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'DELETEMASS_API',
-            [$this, 'deletemassitems']
-        );
+        $this->registerInstalled([
+            ['DELETEMASS_API', 'deletemassitems'],
+        ]);
     }
     /**
      * Prepares to clean up associations

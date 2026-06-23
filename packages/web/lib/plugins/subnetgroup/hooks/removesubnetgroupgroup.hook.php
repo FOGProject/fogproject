@@ -55,13 +55,9 @@ class RemoveSubnetGroupGroup extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'GROUP_DELETE_SUCCESS',
-            [$this, 'removeSubnetGroupGroup']
-        );
+        $this->registerInstalled([
+            ['GROUP_DELETE_SUCCESS', 'removeSubnetGroupGroup'],
+        ]);
     }
     /**
      * Remove the subnet group group.

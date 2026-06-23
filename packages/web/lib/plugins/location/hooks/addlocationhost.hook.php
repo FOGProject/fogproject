@@ -55,19 +55,11 @@ class AddLocationHost extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PLUGINS_INJECT_TABDATA',
-            [$this, 'hostTabData']
-        )->register(
-            'HOST_EDIT_SUCCESS',
-            [$this, 'hostAddLocationEdit']
-        )->register(
-            'HOST_ADD_FIELDS',
-            [$this, 'hostAddLocationField']
-        );
+        $this->registerInstalled([
+            ['PLUGINS_INJECT_TABDATA', 'hostTabData'],
+            ['HOST_EDIT_SUCCESS', 'hostAddLocationEdit'],
+            ['HOST_ADD_FIELDS', 'hostAddLocationField'],
+        ]);
     }
     /**
      * The host tab data.

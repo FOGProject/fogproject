@@ -55,16 +55,10 @@ class AddSubnetGroupHost extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'REQUEST_CLIENT_INFO',
-            [$this, 'addSubnetGroupHost']
-        )->register(
-            'BOOT_ITEM_NEW_SETTINGS',
-            [$this, 'addSubnetGroupHost']
-        );
+        $this->registerInstalled([
+            ['REQUEST_CLIENT_INFO', 'addSubnetGroupHost'],
+            ['BOOT_ITEM_NEW_SETTINGS', 'addSubnetGroupHost'],
+        ]);
     }
     /**
      * Adds host to group based on subnet.

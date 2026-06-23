@@ -53,19 +53,11 @@ class AddSiteUser extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'PLUGINS_INJECT_TABDATA',
-            [$this, 'userTabData']
-        )->register(
-            'USER_EDIT_SUCCESS',
-            [$this, 'userAddSiteEdit']
-        )->register(
-            'USER_ADD_FIELDS',
-            [$this, 'userAddSiteField']
-        );
+        $this->registerInstalled([
+            ['PLUGINS_INJECT_TABDATA', 'userTabData'],
+            ['USER_EDIT_SUCCESS', 'userAddSiteEdit'],
+            ['USER_ADD_FIELDS', 'userAddSiteField'],
+        ]);
     }
     /**
      * The user tab data.

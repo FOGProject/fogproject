@@ -58,13 +58,9 @@ class AddLocationImport extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'IMPORT_ASSOCIATIONS',
-            [$this, 'addLocationAssociation']
-        );
+        $this->registerInstalled([
+            ['IMPORT_ASSOCIATIONS', 'addLocationAssociation'],
+        ]);
     }
     /**
      * Registers the "location" association type for hosts. The same entry

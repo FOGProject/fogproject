@@ -53,16 +53,10 @@ class AddSiteAPI extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'API_VALID_CLASSES',
-            [$this, 'injectAPIElements']
-        )->register(
-            'CUSTOMIZE_DT_COLUMNS',
-            [$this, 'customizeDT']
-        );
+        $this->registerInstalled([
+            ['API_VALID_CLASSES', 'injectAPIElements'],
+            ['CUSTOMIZE_DT_COLUMNS', 'customizeDT'],
+        ]);
     }
     /**
      * This adjusts our DT columns for display.

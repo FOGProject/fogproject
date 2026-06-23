@@ -53,13 +53,9 @@ class AddBootMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'BOOT_MENU_ITEM',
-            [$this, 'addBootMenuItem']
-        );
+        $this->registerInstalled([
+            ['BOOT_MENU_ITEM', 'addBootMenuItem'],
+        ]);
     }
     /**
      * Creates the storage node.

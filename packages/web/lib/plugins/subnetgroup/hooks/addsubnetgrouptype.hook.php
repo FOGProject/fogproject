@@ -55,12 +55,8 @@ class AddSubnetGroupType extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'REPORT_TYPES',
-            [$this, 'reportTypes']
-        );
+        $this->registerInstalled([
+            ['REPORT_TYPES', 'reportTypes'],
+        ]);
     }
 }

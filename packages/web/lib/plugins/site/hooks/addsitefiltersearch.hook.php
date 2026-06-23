@@ -53,16 +53,10 @@ class AddSiteFilterSearch extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'HOST_DATA',
-            [$this, 'hostData']
-        )->register(
-            'GROUP_DATA',
-            [$this, 'groupData']
-        );
+        $this->registerInstalled([
+            ['HOST_DATA', 'hostData'],
+            ['GROUP_DATA', 'groupData'],
+        ]);
     }
     /**
      * This function modifies the data of the host page.

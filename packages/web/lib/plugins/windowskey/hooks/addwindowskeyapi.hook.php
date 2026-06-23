@@ -53,13 +53,9 @@ class AddWindowskeyAPI extends Hook
     public function __construct()
     {
         parent::__construct();
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::$HookManager->register(
-            'API_VALID_CLASSES',
-            [$this, 'injectAPIElements']
-        );
+        $this->registerInstalled([
+            ['API_VALID_CLASSES', 'injectAPIElements'],
+        ]);
     }
     /**
      * This function injects site elements for
