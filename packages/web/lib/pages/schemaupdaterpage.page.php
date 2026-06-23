@@ -179,14 +179,12 @@ class SchemaUpdaterPage extends FOGPage
         // Defense in depth: the dispatcher already gates this, but never run a
         // schema deploy for an anonymous caller lacking a valid install token.
         if (!self::is_authorized(true) && !self::validInstallToken()) {
-            http_response_code(HTTPResponseCodes::HTTP_FORBIDDEN);
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_FORBIDDEN, json_encode(
                 [
                     'error' => _('Unauthorized'),
                     'title' => _('Schema Update Fail')
                 ]
-            );
-            exit;
+            ));
         }
         include sprintf(
             '%s%scommons%sschema.php',
@@ -201,14 +199,12 @@ class SchemaUpdaterPage extends FOGPage
                 throw new Exception(_('Database connection unavailable.'));
             }
             if (count($this->schema) <= self::$mySchema) {
-                http_response_code(HTTPResponseCodes::HTTP_NO_CONTENT);
-                echo json_encode(
+                $this->jsonSend(HTTPResponseCodes::HTTP_NO_CONTENT, json_encode(
                     [
                         'msg' => _('Update not required'),
                         'title' => _('Update Not Required')
                     ]
-                );
-                exit;
+                ));
             }
             $items = array_slice(
                 $this->schema,

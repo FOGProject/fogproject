@@ -70,8 +70,7 @@ class PluginManagement extends FOGPage
                 $row->needsupdate = $plugin->needsSchemaUpdate() ? 1 : 0;
                 unset($row);
             }
-            echo json_encode($data);
-            exit;
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($data));
         }
         $this->title = _('List All Plugins');
 

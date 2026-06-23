@@ -1966,13 +1966,12 @@ class ImageManagement extends FOGPage
         );
         $storagegroupsAssigned = json_decode(Route::getData(), true);
         if (!count($storagegroupsAssigned ?: [])) {
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
                     'content' => _('No storagegroups assigned to this image'),
                     'disablebtn' => true
                 ]
-            );
-            exit;
+            ));
         }
         Route::names(
             'storagegroup',
@@ -2002,12 +2001,11 @@ class ImageManagement extends FOGPage
             '',
             true
         );
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'content' => $storagegroupSelector,
                 'disablebtn' => false
             ]
-        );
-        exit;
+        ));
     }
 }

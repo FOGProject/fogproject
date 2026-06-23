@@ -225,7 +225,7 @@ class TaskManagement extends FOGPage
             break;
             unset($real);
         }
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             FOGManagerController::complex(
                 $pass_vars,
                 'tasks',
@@ -236,8 +236,7 @@ class TaskManagement extends FOGPage
                 $tasksTotalStr,
                 $where
             )
-        );
-        exit;
+        ));
     }
     /**
      * Get the active multicast tasks
@@ -309,7 +308,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             FOGManagerController::complex(
                 $pass_vars,
                 'multicastSessions',
@@ -320,8 +319,7 @@ class TaskManagement extends FOGPage
                 $tasksTotalStr,
                 $where
             )
-        );
-        exit;
+        ));
     }
     /**
      * Get the active snapin tasks

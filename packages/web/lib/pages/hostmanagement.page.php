@@ -265,14 +265,12 @@ class HostManagement extends FOGPage
                 '',
                 ['pending' => 0]
             );
-            http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_ACCEPTED, json_encode(
                 [
                     'msg' => _('Approved selected hosts!'),
                     'title' => _('Host Approval Success')
                 ]
-            );
-            exit;
+            ));
         }
     }
     /**
@@ -2195,8 +2193,7 @@ class HostManagement extends FOGPage
                 'name' => $names[$snapinID] ?? ('#' . $snapinID)
             ];
         }
-        echo json_encode(['data' => $data]);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
     }
     /**
      * Host snapin post
@@ -4056,8 +4053,7 @@ class HostManagement extends FOGPage
     {
         header('Content-type: application/json');
         $prefix = filter_input(INPUT_GET, 'prefix');
-        echo json_encode(['vendor' => MACAddress::getVendor($prefix)]);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['vendor' => MACAddress::getVendor($prefix)]));
     }
     /**
      * Get's the hosts mac address list.
@@ -4966,7 +4962,7 @@ class HostManagement extends FOGPage
         );
 
         if (count($snapinJobs) < 1) {
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
                     'draw' => (int)filter_input(INPUT_POST, 'draw') ?: 0,
                     'recordsTotal' => 0,
@@ -4974,8 +4970,7 @@ class HostManagement extends FOGPage
                     'data' => [],
                     '_lang' => 'snapintask'
                 ]
-            );
-            exit;
+            ));
         }
 
         Route::listem(
@@ -5001,14 +4996,13 @@ class HostManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'x' => $this->obj->getDispVals('width'),
                 'y' => $this->obj->getDispVals('height'),
                 'r' => $this->obj->getDispVals('refresh')
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Get the hosts display man values
@@ -5022,12 +5016,11 @@ class HostManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'tme' => $this->obj->getAlo()
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Gets the printer selector for setting default printers.
@@ -5048,13 +5041,12 @@ class HostManagement extends FOGPage
         );
         $printersAssigned = json_decode(Route::getData(), true);
         if (!count($printersAssigned ?: [])) {
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
                     'content' => _('No printers assigned to this host'),
                     'disablebtn' => true
                 ]
-            );
-            exit;
+            ));
         }
         Route::names(
             'printer',
@@ -5083,12 +5075,11 @@ class HostManagement extends FOGPage
             '',
             true
         );
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'content' => $printerSelector,
                 'disablebtn' => false
             ]
-        );
-        exit;
+        ));
     }
 }

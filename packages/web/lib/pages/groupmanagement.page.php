@@ -3098,13 +3098,12 @@ class GroupManagement extends FOGPage
         Route::ids('printer', false);
         $printersAvail = json_decode(Route::getData(), true);
         if (!count($printersAvail ?: [])) {
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
                     'content' => _('No printers available to assign'),
                     'disablebtn' => true
                 ]
-            );
-            exit;
+            ));
         }
         Route::names('printer');
         $printerNames = json_decode(Route::getData());
@@ -3137,13 +3136,12 @@ class GroupManagement extends FOGPage
         $hint = '<p class="help-block" style="margin:2px 0 6px;">'
             . _('Hosts default:') . ' ' . $defText
             . '</p>';
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'content' => $hint . $printerSelector,
                 'disablebtn' => false
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Presents the snapins list table.
@@ -3294,8 +3292,7 @@ class GroupManagement extends FOGPage
                 }
             }
         }
-        echo json_encode(['data' => $data]);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
     }
     /**
      * Returns the module list as well as the associated
@@ -3367,8 +3364,7 @@ class GroupManagement extends FOGPage
         $type = (string)filter_input(INPUT_GET, 'assoctype');
         $itemID = (int)filter_input(INPUT_GET, 'itemid');
         if (!isset($map[$type]) || $itemID < 1) {
-            echo json_encode(['has' => [], 'missing' => []]);
-            exit;
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['has' => [], 'missing' => []]));
         }
         $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
         $names = [];
@@ -3408,8 +3404,7 @@ class GroupManagement extends FOGPage
                 }
             }
         }
-        echo json_encode(['has' => $has, 'missing' => $missing]);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['has' => $has, 'missing' => $missing]));
     }
     /**
      * Tasking for this group.
@@ -4105,7 +4100,7 @@ class GroupManagement extends FOGPage
         // If there are no jobs for this group's hosts, return an empty
         // datatable payload and avoid an unscoped snapintask lookup.
         if (count($snapinJobs) < 1) {
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
                     'draw' => (int)filter_input(INPUT_POST, 'draw') ?: 0,
                     'recordsTotal' => 0,
@@ -4113,8 +4108,7 @@ class GroupManagement extends FOGPage
                     'data' => [],
                     '_lang' => 'snapintask'
                 ]
-            );
-            exit;
+            ));
         }
 
         Route::listem(

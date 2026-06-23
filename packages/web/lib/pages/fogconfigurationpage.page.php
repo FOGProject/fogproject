@@ -119,9 +119,7 @@ class FOGConfigurationPage extends FOGPage
     private function _jsonExit($code, array $payload)
     {
         header('Content-type: application/json');
-        http_response_code($code);
-        echo json_encode($payload);
-        exit;
+        $this->jsonSend($code, json_encode($payload));
     }
     /**
      * Prints the version information for the page.
@@ -628,7 +626,7 @@ class FOGConfigurationPage extends FOGPage
             ];
             unset($real);
         }
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             FOGManagerController::complex(
                 $pass_vars,
                 $table,
@@ -639,8 +637,7 @@ class FOGConfigurationPage extends FOGPage
                 $totalStr,
                 $where
             )
-        );
-        exit;
+        ));
     }
     /**
      * Stores the changes made.
@@ -883,10 +880,9 @@ class FOGConfigurationPage extends FOGPage
         if (isset($_POST['clear'])) {
             self::clearMACLookupTable();
         }
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             ['count' => self::getMACLookupCount()]
-        );
-        exit;
+        ));
     }
     /**
      * Gets the osid information
@@ -900,8 +896,7 @@ class FOGConfigurationPage extends FOGPage
             'Image',
             $imageid
         )->getOS()->get('name');
-        echo json_encode($osname ? $osname : _('No Image specified'));
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($osname ? $osname : _('No Image specified')));
     }
     /**
      * Single source of truth for setting validation metadata, shared by
@@ -2497,16 +2492,14 @@ class FOGConfigurationPage extends FOGPage
                 if (file_exists($tmpfile)) {
                     unlink($tmpfile);
                 }
-                echo json_encode(
+                $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                     [
                         'title' => _('Export Success'),
                         'msg' => _('Export Complete'),
                         '_filename' => $backup_name,
                         '_content' => $data
                     ]
-                );
-                unset($data);
-                exit;
+                ));
             } else {
                 if ($_FILES['dbFile']['error'] > 0) {
                     throw new UploadException($_FILES['dbFile']['error']);
@@ -2619,7 +2612,7 @@ class FOGConfigurationPage extends FOGPage
             ];
             unset($real);
         }
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             FOGManagerController::complex(
                 $pass_vars,
                 $table,
@@ -2629,7 +2622,6 @@ class FOGConfigurationPage extends FOGPage
                 $filterStr,
                 $totalStr
             )
-        );
-        exit;
+        ));
     }
 }

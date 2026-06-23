@@ -516,10 +516,7 @@ class DashboardPage extends FOGPage
             $ActivityQueued,
             $ActivityTotalClients
         );
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode($data);
-        unset($data);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($data));
     }
     /**
      * Gets the disk usage of the selected node.
@@ -536,8 +533,7 @@ class DashboardPage extends FOGPage
             base64_encode($this->obj->get('path'))
         );
         if (!$this->obj->get('online')) {
-            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_BAD_REQUEST, json_encode(
                 [
                     '_labels' => [
                         _('Free'),
@@ -548,8 +544,7 @@ class DashboardPage extends FOGPage
                     'error' => _('Node is unavailable'),
                     'title' => _('Node Offline')
                 ]
-            );
-            exit;
+            ));
         }
         $data = self::$FOGURLRequests
             ->process($url);
@@ -569,10 +564,7 @@ class DashboardPage extends FOGPage
             $datatmp['title'] = $data->title;
         }
         unset($url);
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode($datatmp);
-        unset($data);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($datatmp));
     }
     /**
      * Gets the 30 day graph.
@@ -620,9 +612,7 @@ class DashboardPage extends FOGPage
             ];
         }
         unset($counts, $rows, $int, $period);
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode($data);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($data));
     }
     /**
      * Gets the bandwidth of the nodes
@@ -674,9 +664,7 @@ class DashboardPage extends FOGPage
             $dataSet[] = $data;
             unset($data, $d);
         }
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode($dataSet);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($dataSet));
     }
     /**
      * Test if the urls are available.
@@ -722,14 +710,12 @@ class DashboardPage extends FOGPage
             array_filter($sent)
         );
 
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'names' => $names,
                 'urls' => $sent
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Returns the running FOG version of each graph-enabled storage node,
@@ -782,8 +768,6 @@ class DashboardPage extends FOGPage
             }
         }
         unset($ids, $urls, $datas);
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode($versions);
-        exit;
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($versions));
     }
 }

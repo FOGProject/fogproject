@@ -70,7 +70,7 @@ class PrinterManagement extends FOGPage
      */
     public function getPrinterInfo()
     {
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'file' => $this->obj->get('file'),
                 'port' => $this->obj->get('port'),
@@ -79,8 +79,7 @@ class PrinterManagement extends FOGPage
                 'config' => strtolower($this->obj->get('config')),
                 'configFile' => $this->obj->get('configFile')
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Forms for creating a new printer.

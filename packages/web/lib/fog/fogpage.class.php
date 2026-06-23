@@ -1847,16 +1847,14 @@ abstract class FOGPage extends FOGBase
             $password,
             $user
         ) = self::getSetting($names);
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'domainname' => $domainname,
                 'ou' => $ou,
                 'domainpass' => $password,
                 'domainuser' => $user,
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Fetches the kernels
@@ -1925,14 +1923,12 @@ abstract class FOGPage extends FOGBase
                         );
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
-                    http_response_code($code);
-                    echo json_encode(
+                    $this->jsonSend($code, json_encode(
                         [
                             'msg' => _('File downloaded!'),
                             'title' => _('Download Complete')
                         ]
-                    );
-                    exit;
+                    ));
                 } elseif ($msg == 'tftp') {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
@@ -2010,25 +2006,21 @@ abstract class FOGPage extends FOGBase
                         unlink($tmpfile);
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
-                    http_response_code($code);
-                    echo json_encode(
+                    $this->jsonSend($code, json_encode(
                         [
                             'msg' => _('File uploaded to storage node!'),
                             'title' => _('Update Kernel Success')
                         ]
-                    );
-                    exit;
+                    ));
                 }
             }
         } catch (Exception $e) {
-            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_BAD_REQUEST, json_encode(
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Kernel Update Fail')
                 ]
-            );
-            exit;
+            ));
         }
     }
     /**
@@ -2095,14 +2087,12 @@ abstract class FOGPage extends FOGBase
                         );
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
-                    http_response_code($code);
-                    echo json_encode(
+                    $this->jsonSend($code, json_encode(
                         [
                             'msg' => _('File downloaded!'),
                             'title' => _('Download Complete')
                         ]
-                    );
-                    exit;
+                    ));
                 } elseif ($msg == 'tftp') {
                     $destfile = $_SESSION['dest-initrd-file'];
                     $tmpfile = $_SESSION['tmp-initrd-file'];
@@ -2180,25 +2170,21 @@ abstract class FOGPage extends FOGBase
                         unlink($tmpfile);
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
-                    http_response_code($code);
-                    echo json_encode(
+                    $this->jsonSend($code, json_encode(
                         [
                             'msg' => _('File uploaded to storage node!'),
                             'title' => _('Update Initrd Success')
                         ]
-                    );
-                    exit;
+                    ));
                 }
             }
         } catch (Exception $e) {
-            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
-            echo json_encode(
+            $this->jsonSend(HTTPResponseCodes::HTTP_BAD_REQUEST, json_encode(
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Initrd Update Fail')
                 ]
-            );
-            exit;
+            ));
         }
     }
     /**
@@ -2619,8 +2605,7 @@ abstract class FOGPage extends FOGBase
                 'color' => "#$pcolor",
                 'company' => $coname
             ];
-            echo json_encode($vals);
-            exit;
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($vals));
         }
         if (isset($_POST['authorize'])
             || isset($_GET['authorize'])
@@ -2780,14 +2765,12 @@ abstract class FOGPage extends FOGBase
                     'sec_time' => '0000-00-00 00:00:00'
                 ]
             );
-        http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_ACCEPTED, json_encode(
             [
                 'msg' => _('Encryption Data Reset'),
                 'title' => _('Reset Encryption Success')
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Clears group Powermanagement tasks
@@ -4463,7 +4446,7 @@ abstract class FOGPage extends FOGBase
      */
     public function getSpecialCrons()
     {
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
                 'types' => [
                     _('Select a cron type'),
@@ -4492,8 +4475,7 @@ abstract class FOGPage extends FOGBase
                     'wol'
                 ]
             ]
-        );
-        exit;
+        ));
     }
     /**
      * Returns the kernels.
@@ -4655,7 +4637,7 @@ abstract class FOGPage extends FOGBase
         );
         list($table, $tableID, $columns, $sqlstr, $filterstr, $totalstr)
             = $this->_buildExportColumns();
-        echo json_encode(
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             FOGManagerController::simple(
                 $pass_vars,
                 $table,
@@ -4665,8 +4647,7 @@ abstract class FOGPage extends FOGBase
                 $filterstr,
                 $totalstr
             )
-        );
-        exit;
+        ));
     }
     /**
      * Stream the full export as a CSV download.
