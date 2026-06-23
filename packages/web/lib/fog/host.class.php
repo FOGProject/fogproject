@@ -960,7 +960,18 @@ class Host extends FOGController
                 throw new Exception(self::$foglang['HostNotValid']);
             }
             $Task = $this->get('task');
-            // Basic task check for imaging type tasks.
+            // A non-imaging active task (e.g. a queued snapin task) must not
+            // block a new imaging task. Cancel it and reset $Task so the host
+            // is treated as having no active task, letting the imaging task be
+            // created below.
+            if ($Task->isValid()
+                && $TaskType->isImagingTask
+                && !$Task->getTaskType()->isImagingTask()
+            ) {
+                $Task->cancel();
+                $Task = self::getClass('Task');
+            }
+            // Block only if the host is already in an imaging task.
             if ($Task->isValid() && $TaskType->isImagingTask) {
                 throw new Exception(self::$foglang['InTask']);
             }
