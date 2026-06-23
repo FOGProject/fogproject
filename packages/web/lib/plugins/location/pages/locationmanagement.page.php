@@ -142,31 +142,11 @@ class LocationManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Location');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'LOCATION_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Location' => self::getClass('Location')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'location',
-            [[_('Create New Location'), $rendered]],
-            $buttons
+            _('Create New Location'),
+            'LOCATION_ADD_FIELDS',
+            'Location'
         );
     }
     /**
@@ -176,28 +156,11 @@ class LocationManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'location',
             'LOCATION_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Location' => self::getClass('Location')
-            ]
+            'Location'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=location&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the location.

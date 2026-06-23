@@ -81,30 +81,11 @@ class PushbulletManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Link Pushbullet Account');
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'PUSHBULLET_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Pushbullet' => self::getClass('Pushbullet')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'pushbullet',
-            [[_('Link Pushbullet Account'), $rendered]],
-            $buttons
+            _('Link Pushbullet Account'),
+            'PUSHBULLET_ADD_FIELDS',
+            'Pushbullet'
         );
     }
     /**
@@ -114,28 +95,11 @@ class PushbulletManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'pushbullet',
             'PUSHBULLET_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Pushbullet' => self::getClass('Pushbullet')
-            ]
+            'Pushbullet'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=pushbullet&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually insert the new object

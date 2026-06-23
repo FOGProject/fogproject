@@ -117,31 +117,11 @@ class NtfyManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Link ntfy Topic');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'NTFY_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Ntfy' => self::getClass('Ntfy')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'ntfy',
-            [[_('Link ntfy Topic'), $rendered]],
-            $buttons
+            _('Link ntfy Topic'),
+            'NTFY_ADD_FIELDS',
+            'Ntfy'
         );
     }
     /**
@@ -151,28 +131,11 @@ class NtfyManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'ntfy',
             'NTFY_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Ntfy' => self::getClass('Ntfy')
-            ]
+            'Ntfy'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=ntfy&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually insert the new object

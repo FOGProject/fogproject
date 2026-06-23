@@ -129,31 +129,11 @@ class ModuleManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Module');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'MODULE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Module' => self::getClass('Module')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'module',
-            [[_('Create New Module'), $rendered]],
-            $buttons
+            _('Create New Module'),
+            'MODULE_ADD_FIELDS',
+            'Module'
         );
     }
     /**
@@ -163,28 +143,11 @@ class ModuleManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'module',
             'MODULE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Module' => self::getClass('Module')
-            ]
+            'Module'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=module&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * When submitted to add post this is what's run

@@ -113,31 +113,11 @@ class TaskstateeditManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Task State');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'TASKSTATEEDIT_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'TaskState' => self::getClass('TaskState')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'taskstate',
-            [[_('Create New Task State'), $rendered]],
-            $buttons
+            _('Create New Task State'),
+            'TASKSTATEEDIT_ADD_FIELDS',
+            'TaskState'
         );
     }
     /**
@@ -147,28 +127,11 @@ class TaskstateeditManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'taskstateedit',
             'TASKSTATEEDIT_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'TaskState' => self::getClass('TaskState')
-            ]
+            'TaskState'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=taskstateedit&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually save the new task state.

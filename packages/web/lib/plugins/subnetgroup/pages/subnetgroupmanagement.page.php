@@ -118,31 +118,11 @@ class SubnetGroupManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Subnet Group');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'SUBNETGROUP_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'SubnetGroup' => self::getClass('SubnetGroup')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'subnetgroup',
-            [[_('Create New Subnet Group'), $rendered]],
-            $buttons
+            _('Create New Subnet Group'),
+            'SUBNETGROUP_ADD_FIELDS',
+            'SubnetGroup'
         );
     }
     /**
@@ -152,28 +132,11 @@ class SubnetGroupManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'subnetgroup',
             'SUBNETGROUP_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'SubnetGroup' => self::getClass('SubnetGroup')
-            ]
+            'SubnetGroup'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=subnetgroup&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the location.

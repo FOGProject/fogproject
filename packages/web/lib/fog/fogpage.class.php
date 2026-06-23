@@ -4410,6 +4410,109 @@ abstract class FOGPage extends FOGBase
         echo '</form>';
     }
     /**
+     * Renders the standard "Create New X" page form.
+     *
+     * Wraps the near-identical add() body shared by nearly every management
+     * page: set the page title, build the create-form fields via _addFields(),
+     * add the uniform Create button, fire the page's *_ADD_FIELDS hook (with
+     * the fields, buttons, and the entity class in the payload), then hand the
+     * single titled section off to renderCreateForm().
+     *
+     * The section title shown above the fields is the same text as the page
+     * title, matching every page that used this template.
+     *
+     * @param string      $idBase      renderCreateForm id base (e.g. 'group')
+     * @param string      $title       page + section title (already _()'d)
+     * @param string      $hookEvent   the *_ADD_FIELDS event name to fire
+     * @param string      $entityKey   payload key for the entity class
+     * @param string|null $entityClass class to instantiate (defaults to key)
+     * @param string      $enctype     form enctype, default urlencoded
+     *
+     * @return void
+     */
+    protected function renderAddForm(
+        $idBase,
+        $title,
+        $hookEvent,
+        $entityKey,
+        $entityClass = null,
+        $enctype = 'application/x-www-form-urlencoded'
+    ) {
+        $this->title = $title;
+
+        $fields = $this->_addFields();
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+
+        self::$HookManager->processEvent(
+            $hookEvent,
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                $entityKey => self::getClass($entityClass ?? $entityKey)
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        $this->renderCreateForm(
+            $idBase,
+            [[$title, $rendered]],
+            $buttons,
+            $enctype
+        );
+    }
+    /**
+     * Renders the standard create form fragment used inside the "add" modal.
+     *
+     * Wraps the near-identical addModal() body shared by nearly every
+     * management page: build the create-form fields via _addFields(), fire the
+     * page's *_ADD_FIELDS hook (fields + entity class, no buttons), then echo a
+     * bare form tag, the rendered fields, and the closing tag.
+     *
+     * @param string      $node        URL node for the form action target
+     * @param string      $hookEvent   the *_ADD_FIELDS event name to fire
+     * @param string      $entityKey   payload key for the entity class
+     * @param string|null $entityClass class to instantiate (defaults to key)
+     * @param string      $enctype     form enctype, default urlencoded
+     *
+     * @return void
+     */
+    protected function renderAddModalForm(
+        $node,
+        $hookEvent,
+        $entityKey,
+        $entityClass = null,
+        $enctype = 'application/x-www-form-urlencoded'
+    ) {
+        $fields = $this->_addFields();
+
+        self::$HookManager->processEvent(
+            $hookEvent,
+            [
+                'fields' => &$fields,
+                $entityKey => self::getClass($entityClass ?? $entityKey)
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=' . $node . '&sub=add',
+            'post',
+            $enctype,
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Builds the schedule-type form fields shared by the host/group deploy()
      * create-task forms: the always-present "Schedule Immediately" radio plus,
      * unless this is a debug or password-reset task, the "Schedule Later"

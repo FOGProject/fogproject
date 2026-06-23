@@ -111,31 +111,11 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Broadcast');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'WOLBROADCAST_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'WOLBroadcast' => self::getClass('WOLBroadcast')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'wolbroadcast',
-            [[_('Create New Broadcast'), $rendered]],
-            $buttons
+            _('Create New Broadcast'),
+            'WOLBROADCAST_ADD_FIELDS',
+            'WOLBroadcast'
         );
     }
     /**
@@ -145,28 +125,11 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'wolbroadcast',
             'WOLBROADCAST_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'WOLBroadcast' => self::getClass('WOLBroadcast')
-            ]
+            'WOLBroadcast'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=wolbroadcast&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the broadcast.

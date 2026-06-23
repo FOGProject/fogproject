@@ -188,32 +188,11 @@ class UserManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New User');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager
-            ->processEvent(
-                'USER_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'buttons' => &$buttons,
-                    'User' => self::getClass('User')
-                ]
-            );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'user',
-            [[_('Create New User'), $rendered]],
-            $buttons
+            _('Create New User'),
+            'USER_ADD_FIELDS',
+            'User'
         );
     }
     /**
@@ -223,28 +202,11 @@ class UserManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'user',
             'USER_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'User' => self::getClass('User')
-            ]
+            'User'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=user&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the new user.

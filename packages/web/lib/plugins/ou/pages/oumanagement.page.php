@@ -109,31 +109,11 @@ class OUManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New OU');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'OU_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'OU' => self::getClass('OU')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'ou',
-            [[_('Create New OU'), $rendered]],
-            $buttons
+            _('Create New OU'),
+            'OU_ADD_FIELDS',
+            'OU'
         );
     }
     /**
@@ -143,28 +123,11 @@ class OUManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'ou',
             'OU_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'OU' => self::getClass('OU')
-            ]
+            'OU'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=ou&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the ou.

@@ -379,31 +379,11 @@ class StorageNodeManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Storage Node');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'STORAGENODE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'StorageNode' => self::getClass('StorageNode')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'storagenode',
-            [[_('Create New Storage Node'), $rendered]],
-            $buttons
+            _('Create New Storage Node'),
+            'STORAGENODE_ADD_FIELDS',
+            'StorageNode'
         );
     }
     /**
@@ -413,28 +393,11 @@ class StorageNodeManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'storagenode',
             'STORAGENODE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'StorageNode' => self::getClass('StorageNode')
-            ]
+            'StorageNode'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=storagenode&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually save the new node.

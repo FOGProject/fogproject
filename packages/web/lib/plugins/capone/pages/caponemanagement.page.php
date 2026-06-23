@@ -93,31 +93,11 @@ class CaponeManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Capone');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'CAPONE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Capone' => self::getClass('Capone')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'capone',
-            [[_('Create New Capone'), $rendered]],
-            $buttons
+            _('Create New Capone'),
+            'CAPONE_ADD_FIELDS',
+            'Capone'
         );
     }
     /**
@@ -127,28 +107,11 @@ class CaponeManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'capone',
             'CAPONE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Capone' => self::getClass('Capone')
-            ]
+            'Capone'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=capone&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the broadcast.

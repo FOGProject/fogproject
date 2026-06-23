@@ -93,31 +93,11 @@ class SiteManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Site');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'SITE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Site' => self::getClass('Site')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'site',
-            [[_('Create New Site'), $rendered]],
-            $buttons
+            _('Create New Site'),
+            'SITE_ADD_FIELDS',
+            'Site'
         );
     }
     /**
@@ -127,28 +107,11 @@ class SiteManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'site',
             'SITE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Site' => self::getClass('Site')
-            ]
+            'Site'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=site&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Add post.

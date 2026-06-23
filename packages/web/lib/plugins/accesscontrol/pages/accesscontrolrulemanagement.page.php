@@ -128,31 +128,11 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Rule');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'ACCESSCONTROLRULE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'AccessControlRule' => self::getClass('AccessControlRule')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'accesscontrolrule',
-            [[_('Create New Rule'), $rendered]],
-            $buttons
+            _('Create New Rule'),
+            'ACCESSCONTROLRULE_ADD_FIELDS',
+            'AccessControlRule'
         );
     }
     /**
@@ -162,28 +142,11 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'accesscontrolrule',
             'ACCESSCONTROLRULE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'AccessControlRule' => self::getClass('AccessControlRule')
-            ]
+            'AccessControlRule'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=accesscontrolrule&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Add post.

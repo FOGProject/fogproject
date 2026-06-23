@@ -150,31 +150,11 @@ class GroupManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Group');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'GROUP_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Group' => self::getClass('Group')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'group',
-            [[_('Create New Group'), $rendered]],
-            $buttons
+            _('Create New Group'),
+            'GROUP_ADD_FIELDS',
+            'Group'
         );
     }
     /**
@@ -184,28 +164,11 @@ class GroupManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'group',
             'GROUP_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Group' => self::getClass('Group')
-            ]
+            'Group'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=group&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * When submitted to add post this is what's run

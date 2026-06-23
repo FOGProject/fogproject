@@ -216,28 +216,12 @@ class IpxeManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'ipxe',
             'IPXE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Ipxe' => self::getClass('PXEMenuOptions')
-            ]
+            'Ipxe',
+            'PXEMenuOptions'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=ipxe&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Creates the new menu item.

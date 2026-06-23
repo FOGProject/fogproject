@@ -107,31 +107,11 @@ class StorageGroupManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Storage Group');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'STORAGEGROUP_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'StorageGroup' => self::getClass('StorageGroup')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'storagegroup',
-            [[_('Create New Storage Group'), $rendered]],
-            $buttons
+            _('Create New Storage Group'),
+            'STORAGEGROUP_ADD_FIELDS',
+            'StorageGroup'
         );
     }
     /**
@@ -141,28 +121,11 @@ class StorageGroupManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'storagegroup',
             'STORAGEGROUP_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'StorageGroup' => self::getClass('StorageGroup')
-            ]
+            'StorageGroup'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=storagegroup&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the new group.

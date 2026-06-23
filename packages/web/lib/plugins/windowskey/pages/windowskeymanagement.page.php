@@ -107,31 +107,11 @@ class WindowsKeyManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Windows Key');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'WINDOWSKEY_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'WindowsKey' => self::getClass('WindowsKey')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'windowskey',
-            [[_('Create New Windows Key'), $rendered]],
-            $buttons
+            _('Create New Windows Key'),
+            'WINDOWSKEY_ADD_FIELDS',
+            'WindowsKey'
         );
     }
     /**
@@ -141,28 +121,11 @@ class WindowsKeyManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'windowskey',
             'WINDOWSKEY_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'WindowsKey' => self::getClass('WindowsKey')
-            ]
+            'WindowsKey'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=windowskey&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the windows key.

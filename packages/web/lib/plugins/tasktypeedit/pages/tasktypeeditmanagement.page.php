@@ -193,31 +193,11 @@ class TasktypeeditManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Task Type');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'TASKTYPEEDIT_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'TaskType' => self::getClass('TaskType')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'tasktype',
-            [[_('Create New Task Type'), $rendered]],
-            $buttons
+            _('Create New Task Type'),
+            'TASKTYPEEDIT_ADD_FIELDS',
+            'TaskType'
         );
     }
     /**
@@ -227,28 +207,11 @@ class TasktypeeditManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'tasktypeedit',
             'TASKTYPEEDIT_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'TaskType' => self::getClass('TaskType')
-            ]
+            'TaskType'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=tasktypeedit&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Create the new type.

@@ -97,30 +97,11 @@ class SlackManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Link Slack Account');
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'SLACK_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Slack' => self::getClass('Slack')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'slack',
-            [[_('Link Slack Account'), $rendered]],
-            $buttons
+            _('Link Slack Account'),
+            'SLACK_ADD_FIELDS',
+            'Slack'
         );
     }
     /**
@@ -130,28 +111,11 @@ class SlackManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'slack',
             'SLACK_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Slack' => self::getClass('Slack')
-            ]
+            'Slack'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=slack&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually create the entry.

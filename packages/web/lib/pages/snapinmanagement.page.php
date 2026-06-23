@@ -522,31 +522,12 @@ class SnapinManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Snapin');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'SNAPIN_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Snapin' => self::getClass('Snapin')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'snapin',
-            [[_('Create New Snapin'), $rendered]],
-            $buttons,
+            _('Create New Snapin'),
+            'SNAPIN_ADD_FIELDS',
+            'Snapin',
+            null,
             'multipart/form-data'
         );
     }
@@ -558,28 +539,13 @@ class SnapinManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'snapin',
             'SNAPIN_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Snapin' => self::getClass('Snapin')
-            ]
+            'Snapin',
+            null,
+            'multipart/form-data'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=snapin&sub=add',
-            'post',
-            'multipart/form-data',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually sibmit the creation of the snapin.

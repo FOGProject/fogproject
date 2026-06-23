@@ -324,31 +324,11 @@ class ImageManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Image');
-
-        $fields = $this->_addFields();
-
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'IMAGE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Image' => self::getClass('Image')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $this->renderCreateForm(
+        $this->renderAddForm(
             'image',
-            [[_('Create New Image'), $rendered]],
-            $buttons
+            _('Create New Image'),
+            'IMAGE_ADD_FIELDS',
+            'Image'
         );
     }
     /**
@@ -359,28 +339,11 @@ class ImageManagement extends FOGPage
      */
     public function addModal()
     {
-        $fields = $this->_addFields();
-
-        self::$HookManager->processEvent(
+        $this->renderAddModalForm(
+            'image',
             'IMAGE_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Image' => self::getClass('Image')
-            ]
+            'Image'
         );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'create-form',
-            '../management/index.php?node=image&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
     }
     /**
      * Actually save the new node.
