@@ -4414,6 +4414,233 @@ abstract class FOGPage extends FOGBase
         echo '</form>';
     }
     /**
+     * Builds the schedule-type form fields shared by the host/group deploy()
+     * create-task forms: the always-present "Schedule Immediately" radio plus,
+     * unless this is a debug or password-reset task, the "Schedule Later"
+     * (single) and "Schedule Crontab Style" (cron) inputs.
+     *
+     * @param string $labelClass The label class used by the deploy form.
+     * @param bool   $isdebug    Whether this is a debug-session task.
+     * @param int    $type       The task type id (to suppress for resets).
+     *
+     * @return array The field fragment to fastmerge onto the form fields.
+     */
+    protected function scheduleTypeFields($labelClass, $isdebug, $type)
+    {
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'instant',
+                _('Schedule Immediately')
+            ) => self::makeInput(
+                'instant',
+                'scheduleType',
+                '',
+                'radio',
+                'instant',
+                'instant',
+                false,
+                false,
+                -1,
+                -1,
+                ' checked'
+            )
+        ];
+        if (!$isdebug
+            && TaskType::PASSWORD_RESET != $type
+        ) {
+            $fields = self::fastmerge(
+                $fields,
+                [
+                    '<div class="hideFromDebug">'
+                    . self::makeLabel(
+                        $labelClass,
+                        'delayed',
+                        _('Schedule Later')
+                    ) => self::makeInput(
+                        'delayed',
+                        'scheduleType',
+                        '',
+                        'radio',
+                        'delayed',
+                        'single'
+                    )
+                    . '</div>',
+                    '<div class="delayedinput hidden">'
+                    . self::makeLabel(
+                        $labelClass,
+                        'delayedinput',
+                        _('Start Time')
+                    ) => self::makeInput(
+                        'form-control',
+                        'scheduleSingleTime',
+                        self::niceDate()->format('Y-m-d H:i:s'),
+                        'text',
+                        'delayedinput',
+                        ''
+                    )
+                    . '</div>',
+                    '<div class="hideFromDebug">'
+                    . self::makeLabel(
+                        $labelClass,
+                        'cron',
+                        _('Schedule Crontab Style')
+                    ) => self::makeInput(
+                        'croninput',
+                        'scheduleType',
+                        '',
+                        'radio',
+                        'cron',
+                        'cron'
+                    )
+                    . '</div>',
+                    '<div class="croninput hidden">'
+                    . self::makeLabel(
+                        $labelClass,
+                        '',
+                        _('Cron Entry')
+                    ) => '<div class="croninput fogcron hidden"></div><br/>'
+                    . self::makeInput(
+                        'col-sm-2 croninput cronmin hidden',
+                        'scheduleCronMin',
+                        _('min'),
+                        'text',
+                        'cronMin'
+                    )
+                    . self::makeInput(
+                        'col-sm-2 croninput cronhour hidden',
+                        'scheduleCronHour',
+                        _('hour'),
+                        'text',
+                        'cronHour'
+                    )
+                    . self::makeInput(
+                        'col-sm-2 croninput crondom hidden',
+                        'scheduleCronDOM',
+                        _('day'),
+                        'text',
+                        'cronDom'
+                    )
+                    . self::makeInput(
+                        'col-sm-2 croninput cronmonth hidden',
+                        'scheduleCronMonth',
+                        _('month'),
+                        'text',
+                        'cronMonth'
+                    )
+                    . self::makeInput(
+                        'col-sm-2 croninput crondow hidden',
+                        'scheduleCronDOW',
+                        _('weekday'),
+                        'text',
+                        'cronDow'
+                    )
+                    . '</div>'
+                ]
+            );
+        }
+        return $fields;
+    }
+    /**
+     * Validates the posted schedule type for the host/group deploy() create-task
+     * handlers and resolves its parameters. Honors the SCHEDULE_TYPES hook,
+     * rejects an unknown type, a past single-run time, or an invalid cron field.
+     *
+     * @throws Exception If the schedule type or any cron/time field is invalid.
+     *
+     * @return array Keyed: scheduleType, scheduleDeployTime (single), and
+     *               min/hour/dom/month/dow (cron); unused entries are null.
+     */
+    protected function validateScheduleType()
+    {
+        $scheduleType = strtolower(
+            filter_input(INPUT_POST, 'scheduleType')
+        );
+        $scheduleTypes = [
+            'cron',
+            'instant',
+            'single'
+        ];
+        self::$HookManager->processEvent(
+            'SCHEDULE_TYPES',
+            ['scheduleTypes' => &$scheduleTypes]
+        );
+        foreach ($scheduleTypes as $ind => &$val) {
+            $scheduleTypes[$ind] = trim(
+                strtolower(
+                    $val
+                )
+            );
+            unset($val);
+        }
+        if (!in_array($scheduleType, $scheduleTypes)) {
+            throw new Exception(_('Invalid scheduling type'));
+        }
+        $schedule = [
+            'scheduleType' => $scheduleType,
+            'scheduleDeployTime' => null,
+            'min' => null,
+            'hour' => null,
+            'dom' => null,
+            'month' => null,
+            'dow' => null
+        ];
+        // Schedule Delayed/Cron checks.
+        switch ($scheduleType) {
+            case 'single':
+                $scheduleDeployTime = self::niceDate(
+                    filter_input(INPUT_POST, 'scheduleSingleTime')
+                );
+                if ($scheduleDeployTime < self::niceDate()) {
+                    throw new Exception(_('Scheduled time is in the past'));
+                }
+                $schedule['scheduleDeployTime'] = $scheduleDeployTime;
+                break;
+            case 'cron':
+                $min = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMin')
+                );
+                $hour = strval(
+                    filter_input(INPUT_POST, 'scheduleCronHour')
+                );
+                $dom = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOM')
+                );
+                $month = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMonth')
+                );
+                $dow = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOW')
+                );
+                $tmin = FOGCron::checkMinutesField($min);
+                $thour = FOGCron::checkHoursField($hour);
+                $tdom = FOGCron::checkDOMField($dom);
+                $tmonth = FOGCron::checkMonthField($month);
+                $tdow = FOGCron::checkDOWField($dow);
+                if (!$tmin) {
+                    throw new Exception(_('Minutes field is invalid'));
+                }
+                if (!$thour) {
+                    throw new Exception(_('Hours field is invalid'));
+                }
+                if (!$tdom) {
+                    throw new Exception(_('Day of Month field is invalid'));
+                }
+                if (!$tmonth) {
+                    throw new Exception(_('Month field is invalid'));
+                }
+                if (!$tdow) {
+                    throw new Exception(_('Day of Week field is invalid'));
+                }
+                $schedule['min'] = $min;
+                $schedule['hour'] = $hour;
+                $schedule['dom'] = $dom;
+                $schedule['month'] = $month;
+                $schedule['dow'] = $dow;
+        }
+        return $schedule;
+    }
+    /**
      * Makes the opening form tag.
      *
      * @param string $class      The class to associate this form with.
