@@ -781,6 +781,56 @@ abstract class FOGBase
         return $data;
     }
     /**
+     * Writes a log line at the given level.
+     *
+     * Appends to the daily log file when schema is current and the matching
+     * FOG_LOG_* setting is on, then optionally echoes the line to the page.
+     *
+     * @param string $label    the level label, e.g. 'ERROR'
+     * @param string $setting  the FOG_LOG_* setting gating file output
+     * @param string $prefix   the log filename prefix, e.g. 'error_log'
+     * @param string $cssClass the css class for the printed div
+     * @param bool   $show     whether this level prints to the page
+     * @param string $txt      the string to use
+     * @param array  $data     the data if txt is a formatted string
+     *
+     * @return void
+     */
+    private static function _writeLog(
+        $label,
+        $setting,
+        $prefix,
+        $cssClass,
+        $show,
+        $txt,
+        $data
+    ) {
+        $data = self::_setString($txt, $data);
+        $date = self::niceDate();
+        $string = sprintf(
+            '[%s] FOG %s: %s: %s',
+            $date->format('l F d Y H:i:s'),
+            $label,
+            __CLASS__,
+            $data
+        );
+        if (self::$mySchema >= FOG_SCHEMA && self::getSetting($setting) > 0) {
+            $log_filename = BASEPATH . 'management/logs';
+            if (!file_exists($log_filename)) {
+                mkdir($log_filename, 0777, true);
+            }
+            $log_file_data = $log_filename
+                . '/' . $prefix . '_'
+                . $date->format('d-m-Y')
+                . '.log';
+            file_put_contents($log_file_data, $string."\n", FILE_APPEND);
+        }
+        if (self::$service || self::$ajax || !$show) {
+            return;
+        }
+        printf('<div class="debug %s">%s</div>', $cssClass, $string);
+    }
+    /**
      * Prints error.
      *
      * @param string $txt  the string to use
@@ -790,32 +840,15 @@ abstract class FOGBase
      */
     public static function error($txt, $data = [])
     {
-        $data = self::_setString($txt, $data);
-        $date = self::niceDate();
-        $string = sprintf(
-            '[%s] FOG ERROR: %s: %s',
-            $date->format('l F d Y H:i:s'),
-            __CLASS__,
+        self::_writeLog(
+            'ERROR',
+            'FOG_LOG_ERROR',
+            'error_log',
+            'debug-error',
+            self::$debug,
+            $txt,
             $data
         );
-        if (self::$mySchema >= FOG_SCHEMA) {
-            $tolog = self::getSetting('FOG_LOG_ERROR') > 0;
-            if ($tolog) {
-                $log_filename = BASEPATH . 'management/logs';
-                if (!file_exists($log_filename)) {
-                    mkdir($log_filename, 0777, true);
-                }
-                $log_file_data = $log_filename
-                    . '/error_log_'
-                    . $date->format('d-m-Y')
-                    . '.log';
-                file_put_contents($log_file_data, $string."\n", FILE_APPEND);
-            }
-        }
-        if ((self::$service || self::$ajax) || !self::$debug) {
-            return;
-        }
-        printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
      * Prints debug.
@@ -827,32 +860,15 @@ abstract class FOGBase
      */
     public static function debug($txt, $data = [])
     {
-        $data = self::_setString($txt, $data);
-        $date = self::niceDate();
-        $string = sprintf(
-            '[%s] FOG DEBUG: %s: %s',
-            $date->format('l F d Y H:i:s'),
-            __CLASS__,
+        self::_writeLog(
+            'DEBUG',
+            'FOG_LOG_DEBUG',
+            'debug_log',
+            'debug-error',
+            self::$debug,
+            $txt,
             $data
         );
-        if (self::$mySchema >= FOG_SCHEMA) {
-            $tolog = self::getSetting('FOG_LOG_DEBUG') > 0;
-            if ($tolog) {
-                $log_filename = BASEPATH . 'management/logs';
-                if (!file_exists($log_filename)) {
-                    mkdir($log_filename, 0777, true);
-                }
-                $log_file_data = $log_filename
-                    . '/debug_log_'
-                    . $date->format('d-m-Y')
-                    . '.log';
-                file_put_contents($log_file_data, $string."\n", FILE_APPEND);
-            }
-        }
-        if ((self::$service || self::$ajax) || !self::$debug) {
-            return;
-        }
-        printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
      * Prints info.
@@ -864,32 +880,15 @@ abstract class FOGBase
      */
     public static function info($txt, $data = [])
     {
-        $data = self::_setString($txt, $data);
-        $date = self::niceDate();
-        $string = sprintf(
-            '[%s] FOG INFO: %s: %s',
-            $date->format('l F d Y H:i:s'),
-            __CLASS__,
+        self::_writeLog(
+            'INFO',
+            'FOG_LOG_INFO',
+            'info_log',
+            'debug-info',
+            self::$info,
+            $txt,
             $data
         );
-        if (self::$mySchema >= FOG_SCHEMA) {
-            $tolog = self::getSetting('FOG_LOG_INFO') > 0;
-            if ($tolog) {
-                $log_filename = BASEPATH . 'management/logs';
-                if (!file_exists($log_filename)) {
-                    mkdir($log_filename, 0777, true);
-                }
-                $log_file_data = $log_filename
-                    . '/info_log_'
-                    . $date->format('d-m-Y')
-                    . '.log';
-                file_put_contents($log_file_data, $string."\n", FILE_APPEND);
-            }
-        }
-        if (!self::$info || self::$service || self::$ajax) {
-            return;
-        }
-        printf('<div class="debug debug-info">%s</div>', $string);
     }
     /**
      * Redirect pages where/when necessary.

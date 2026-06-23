@@ -427,67 +427,20 @@ abstract class FOGManagerController extends FOGBase
         $ttlstr,
         $orderby = 'name'
     ) {
-        $db = DatabaseManager::getLink();
-        $bindings = [];
-        if ($primaryKey == 'id') {
-            foreach ($columns as $item) {
-                if ($item['dt'] == 'id') {
-                    $primaryKey = $item['db'];
-                }
-                unset($item);
-            }
-        }
-        // Build the SQL query string from the request
-        $limit = self::limit($request, $columns);
-        $order = self::order($request, $columns, $orderby);
-        $where = self::filter($request, $columns, $bindings);
-        // Build the actual string itself.
-        $sql_query = sprintf(
+        // `simple` is `complex` with no extra WHERE conditions; delegate so the
+        // server-side processing logic lives in exactly one place.
+        return self::complex(
+            $request,
+            $table,
+            $primaryKey,
+            $columns,
             $sqlstr,
-            implode('`,`', self::pluck($columns, 'db')),
-            $table,
-            $where,
-            $order,
-            $limit
-        );
-        // Main query to actually get the data
-        $data = self::sqlexec($db, $bindings, $sql_query);
-        // Data set length after filtering
-        $filter_query = sprintf(
             $fltrstr,
-            $primaryKey,
-            $table,
-            $where
-        );
-        $resFilterLength = self::sqlexec($db, $bindings, $filter_query);
-        $recordsFiltered = $resFilterLength[0][0];
-        // Total data set length
-        $total_query = sprintf(
             $ttlstr,
-            $primaryKey,
-            $table
+            null,
+            null,
+            $orderby
         );
-        $resTotalLength = self::sqlexec($db, $total_query);
-        $recordsTotal = $resTotalLength[0][0];
-        /*
-         * Output
-         */
-        return [
-            'draw' => (
-                isset($request['draw']) ?
-                intval($request['draw']) :
-                0
-            ),
-            'recordsTotal' => intval($recordsTotal),
-            'recordsFiltered' => intval($recordsFiltered),
-            'data' => self::dataOutput($columns, $data),
-            //'sql_query' => $sql_query,
-            //'filter_query' => $filter_query,
-            //'total_query' => $total_query,
-            //'request' => $request,
-            //'columns' => $columns,
-            //'order' => $order
-        ];
     }
     /**
      * The difference between this method and the `simple` one, is that you can
