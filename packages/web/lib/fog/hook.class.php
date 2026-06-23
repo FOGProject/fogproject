@@ -66,4 +66,58 @@ abstract class Hook extends Event
             self::$HookManager->register($event, [$this, $method]);
         }
     }
+    /**
+     * Appends this plugin's JS file(s) to a PAGE_JS_FILES hook payload.
+     *
+     * Replaces the near-identical injectJSFiles() body duplicated across
+     * every plugin's add<plugin>js hook: normalize the current $node/$sub
+     * globals, then for a recognized $node append one JS file (with an
+     * optional list.js fallback). Unrecognized nodes are ignored, exactly
+     * as the old switch default: return.
+     *
+     * $cases maps each handled (post-normalization) $node value to its
+     * behavior:
+     *   'secondary' => bool  use fog.<plugin>.<node>[.<sub>].js naming
+     *                        instead of the default fog.<node>[.<sub>].js
+     *   'fallback'  => bool  when a $sub-specific file is requested but
+     *                        absent on disk, also append fog.<node>.list.js
+     *
+     * $arguments is taken by reference so the appended paths land on the
+     * same files list the firing page passed in by reference.
+     *
+     * @param array $arguments the hook payload carrying the 'files' list
+     * @param array $cases      node => ['secondary'?, 'fallback'?] behavior
+     *
+     * @return void
+     */
+    protected function injectPluginJS(&$arguments, array $cases)
+    {
+        global $node;
+        global $sub;
+        $subset = $sub;
+        if ($sub == 'membership') {
+            $subset = 'edit';
+        }
+        $node = str_replace('_', '-', $node);
+        $subset = str_replace('_', '-', $subset);
+        if (!array_key_exists($node, $cases)) {
+            return;
+        }
+        $case = $cases[$node];
+        $base = "../lib/plugins/{$this->node}/js/";
+        if (!empty($case['secondary'])) {
+            $stub = "fog.{$this->node}.{$node}";
+        } else {
+            $stub = "fog.{$node}";
+        }
+        if (empty($subset)) {
+            $filepaths = $base . "{$stub}.js";
+        } else {
+            $filepaths = $base . "{$stub}.{$subset}.js";
+        }
+        if (!empty($case['fallback']) && $subset && !file_exists($filepaths)) {
+            $arguments['files'][] = $base . "fog.{$node}.list.js";
+        }
+        $arguments['files'][] = $filepaths;
+    }
 }

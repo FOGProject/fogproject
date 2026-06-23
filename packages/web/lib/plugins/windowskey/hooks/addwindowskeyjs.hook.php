@@ -66,49 +66,9 @@ class AddWindowsKeyJS extends Hook
      */
     public function injectJSFiles($arguments)
     {
-        global $node;
-        global $sub;
-        $subset = $sub;
-        if ($sub == 'membership') {
-            $subset = 'edit';
-        }
-        $node = str_replace(
-            '_',
-            '-',
-            $node
-        );
-        $subset = str_replace(
-            '_',
-            '-',
-            $subset
-        );
-        switch ($node) {
-            case 'windowskey':
-                if (empty($subset)) {
-                    $filepaths
-                        = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
-                } else {
-                    $filepaths
-                        = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
-                }
-                if ($subset && !file_exists($filepaths)) {
-                    $arguments['files'][]
-                        = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
-                }
-                break;
-            case 'image':
-                if (empty($subset)) {
-                    $filepaths
-                        = "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js";
-                } else {
-                    $filepaths
-                        = "../lib/plugins/{$this->node}/js"
-                        . "/fog.{$this->node}.{$node}.{$subset}.js";
-                }
-                break;
-            default:
-                return;
-        }
-        $arguments['files'][] = $filepaths;
+        $this->injectPluginJS($arguments, [
+            'windowskey' => ['fallback' => true],
+            'image' => ['secondary' => true],
+        ]);
     }
 }
