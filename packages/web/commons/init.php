@@ -79,6 +79,11 @@ class Initiator
         $allpaths = array_unique(array_map('dirname', self::classFileList()));
         set_include_path(implode(PATH_SEPARATOR, $allpaths) . PATH_SEPARATOR . get_include_path());
         spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php');
+        // Fast path: an O(1) class-name => file map (see self::autoload). The
+        // built-in autoloader is kept registered behind it as a fallback so any
+        // class not yet in the (TTL-cached) map still resolves by include_path
+        // probe exactly as before.
+        spl_autoload_register([self::class, 'autoload']);
         spl_autoload_register();
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -112,6 +117,9 @@ class Initiator
     /** In-process memo of the class-source file list. */
     private static ?array $fileList = null;
 
+    /** In-process map of lowercased class name => absolute source path. */
+    private static ?array $classMap = null;
+
     /**
      * Every autoloadable source file under BASEPATH (*.class.php, *.page.php,
      * *.event.php, *.hook.php, *.report.php).
@@ -140,6 +148,48 @@ class Initiator
         $files = self::_scanClassFiles();
         self::_writeFileListCache($cacheFile, $files);
         return self::$fileList = $files;
+    }
+
+    /**
+     * Resolve a class to its source file via an O(1) name => path map.
+     *
+     * The built-in spl_autoload() probes every include_path directory by every
+     * registered extension on each class load — tens of thousands of failed
+     * stat() calls per request. This replaces that with a single hash lookup.
+     *
+     * The map is derived once per request from classFileList() (itself memoised
+     * and TTL-cached), keyed on the lowercased basename minus its .<type>.php
+     * suffix — exactly what the built-in resolver matches. First file wins on a
+     * duplicate base, mirroring the include_path probe order the built-in uses,
+     * so behaviour is identical. A miss falls through to the still-registered
+     * built-in autoloader.
+     *
+     * @param string $class The class being autoloaded.
+     *
+     * @return void
+     */
+    public static function autoload(string $class): void
+    {
+        if (self::$classMap === null) {
+            $map = [];
+            foreach (self::classFileList() as $path) {
+                $base = strtolower(
+                    preg_replace(
+                        '#\.(report|event|class|hook|page)\.php$#',
+                        '',
+                        basename($path)
+                    )
+                );
+                if (!isset($map[$base])) {
+                    $map[$base] = $path;
+                }
+            }
+            self::$classMap = $map;
+        }
+        $key = strtolower($class);
+        if (isset(self::$classMap[$key])) {
+            include self::$classMap[$key];
+        }
     }
 
     private static function _scanClassFiles(): array
