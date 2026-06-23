@@ -965,20 +965,16 @@ class SnapinManagement extends FOGPage
         //    'Location: ../management/index.php?node=snapin&sub=edit&id='
         //    . $Snapin->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Snapin' => &$Snapin,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Snapin);
-        echo $msg;
-        exit;
     }
     /**
      * Display snapin general edit elements.
@@ -1870,19 +1866,16 @@ class SnapinManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Snapin' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Presents the storage groups list table.

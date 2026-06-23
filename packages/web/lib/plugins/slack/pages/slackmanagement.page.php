@@ -298,19 +298,15 @@ class SlackManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Slack' => &$Slack,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Slack);
-        echo $msg;
-        exit;
     }
 }

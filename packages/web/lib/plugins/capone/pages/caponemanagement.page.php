@@ -254,20 +254,16 @@ class CaponeManagement extends FOGPage
         //    'Location: ../management/index.php?node=capone&sub=edit&id='
         //    $Capone->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Capone' => &$Capone,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Capone);
-        echo $msg;
-        exit;
     }
     /**
      * Capone General tab.
@@ -579,18 +575,15 @@ class CaponeManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Actually update the wol broadcast.
@@ -639,18 +632,15 @@ class CaponeManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Capone' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
 }

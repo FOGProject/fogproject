@@ -445,20 +445,16 @@ class UserManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'User' => &$User,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($User);
-        echo $msg;
-        exit;
     }
     /**
      * User general div element.
@@ -940,19 +936,15 @@ class UserManagement extends FOGPage
             );
         }
 
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'User' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'User' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
 }

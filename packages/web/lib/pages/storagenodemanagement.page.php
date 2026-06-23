@@ -944,20 +944,16 @@ class StorageNodeManagement extends FOGPage
         //    'Location: ../management/index.php?node=storagenode&sub=edit&sub='
         //    . $StorageNode->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'StorageNode' => &$StorageNode,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($StorageNode);
-        echo $msg;
-        exit;
     }
     /**
      * Storage Node General
@@ -1679,18 +1675,15 @@ class StorageNodeManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'StorageNode' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
 }

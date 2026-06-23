@@ -283,20 +283,16 @@ class WindowsKeyManagement extends FOGPage
         //    'Location: ../management/index.php?node=windowskey&sub=edit&id='
         //    . $WindowsKey->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'WindowsKey' => &$WindowsKey,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($WindowsKey);
-        echo $msg;
-        exit;
     }
     /**
      * Display Windows Key General information.
@@ -635,19 +631,16 @@ class WindowsKeyManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'WindowsKey' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Windows Key -> Image membership list

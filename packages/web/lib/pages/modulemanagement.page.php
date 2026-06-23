@@ -325,20 +325,16 @@ class ModuleManagement extends FOGPage
         //    'Location: ../management/index.php?node=module&sub=edit&id='
         //    . $Module->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Module' => &$Module,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Module);
-        echo $msg;
-        exit;
     }
     /**
      * Displays the module general tab.
@@ -618,19 +614,16 @@ class ModuleManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Module' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Presents the hosts list table.

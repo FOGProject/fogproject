@@ -450,20 +450,16 @@ class IpxeManagement extends FOGPage
         //    'Location: ../management/index.php?node=ipxe&sub=edit&id='
         //    . $iPXE->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Ipxe' => &$iPXE,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($iPXE);
-        echo $msg;
-        exit;
     }
     /**
      * The iPXE general edit page.
@@ -781,18 +777,15 @@ class IpxeManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Ipxe' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
 }

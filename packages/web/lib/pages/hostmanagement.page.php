@@ -1095,21 +1095,16 @@ class HostManagement extends FOGPage
         //    'Location: ../management/index.php?node=host&sub=edit&id='
         //    . $Host->get('id')
         //);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Host' => &self::$Host,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        http_response_code($code);
-        unset($Host);
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'Host' => &self::$Host,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Displays the host general tab.
@@ -4888,19 +4883,16 @@ class HostManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Host' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Get the login history for this host.

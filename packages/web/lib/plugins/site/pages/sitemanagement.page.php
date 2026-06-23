@@ -251,20 +251,16 @@ class SiteManagement extends FOGPage
         //     'Location: ../management/index.php?node=site&sub=edit&id='
         //     . $Site->get('id')
         // );
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Site' => &$Site,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Site);
-        echo $msg;
-        exit;
     }
     /**
      * Displays the site general tab.
@@ -659,19 +655,16 @@ class SiteManagement extends FOGPage
             );
         }
         
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Site' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Gets the host list.

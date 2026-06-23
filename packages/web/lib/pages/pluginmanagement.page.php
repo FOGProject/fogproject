@@ -212,19 +212,16 @@ class PluginManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Plugin' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => $msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Redirect to index.
@@ -314,19 +311,16 @@ class PluginManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Plugin' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => $msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Redirect to index.
@@ -412,19 +406,16 @@ class PluginManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Plugin' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => $msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Just a place holder
@@ -485,19 +476,16 @@ class PluginManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Plugin' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => $msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Just a placeholder.
@@ -596,19 +584,16 @@ class PluginManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Plugin' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => $msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Placeholder so the dispatcher routes ?sub=sidebar to sidebarAjax()

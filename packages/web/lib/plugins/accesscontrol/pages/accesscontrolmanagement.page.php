@@ -251,20 +251,16 @@ class AccessControlManagement extends FOGPage
         //    'Location: ../management/index.php?node=accesscontrol&sub=edit&id='
         //    . $AccessControl->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'AccessControl' => &$AccessControl,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($AccessControl);
-        echo $msg;
-        exit;
     }
     /**
      * Displays the access control general tab.
@@ -660,19 +656,16 @@ class AccessControlManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'AccessControl' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Gets the user list.

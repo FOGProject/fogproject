@@ -283,20 +283,16 @@ class StorageGroupManagement extends FOGPage
         //    'Location: ../management/index.php?node=storagegroup&sub=edit&id='
         //    . $StorageGroup->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'StorageGroup' => &$StorageGroup,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($StorageGroup);
-        echo $msg;
-        exit;
     }
     /**
      * Presents the storage group general.
@@ -993,19 +989,16 @@ class StorageGroupManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'StorageGroup' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Presents the images list table.

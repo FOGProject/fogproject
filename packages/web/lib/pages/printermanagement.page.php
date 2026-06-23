@@ -977,20 +977,16 @@ class PrinterManagement extends FOGPage
         //    'Location: ../management/index.php?node=printer&sub=edit&id='
         //    . $Printer->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Printer' => &$Printer,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Printer);
-        echo $msg;
-        exit;
     }
     /**
      * Printer general fields
@@ -1781,19 +1777,15 @@ class PrinterManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Printer' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'Printer' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
 }

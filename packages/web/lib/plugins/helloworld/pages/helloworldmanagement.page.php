@@ -264,20 +264,16 @@ class HelloWorldManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'HelloWorld' => &$HelloWorld,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault,
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($HelloWorld);
-        echo $msg;
-        exit;
     }
     /**
      * The "General" tab body shown on the edit page.
@@ -473,18 +469,15 @@ class HelloWorldManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'HelloWorld' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault,
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
 }

@@ -1589,16 +1589,13 @@ class ServiceConfigurationPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg
-            ]
+            ],
+            $hook
         );
-        echo $msg;
-        exit;
     }
 }

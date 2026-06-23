@@ -363,20 +363,16 @@ class LocationManagement extends FOGPage
         //     'Location: ../management/index.php?node=location&sub=edit&id='
         //     . $Location->get('id')
         // );
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Location' => &$Location,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Location);
-        echo $msg;
-        exit;
     }
     /**
      * Displays the location general tab.
@@ -754,19 +750,16 @@ class LocationManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Location' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Location -> host list

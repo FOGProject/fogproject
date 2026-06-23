@@ -299,20 +299,16 @@ class TaskstateeditManagement extends FOGPage
         //    'Location: ../management/index.php?node=taskstateedit&sub=edit&id='
         //    . $TaskState->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'TaskState' => &$TaskState,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($TaskState);
-        echo $msg;
-        exit;
     }
     /**
      * TaskState Edit General Information.
@@ -545,18 +541,15 @@ class TaskstateeditManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'TaskState' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
 }

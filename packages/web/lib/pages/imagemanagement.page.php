@@ -760,20 +760,16 @@ class ImageManagement extends FOGPage
         //    'Location: ../management/index.php?node=image&sub=edit&id='
         //    . $Image->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Image' => &$Image,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($Image);
-        echo $msg;
-        exit;
     }
     /**
      * Diplay image general information.
@@ -1451,19 +1447,16 @@ class ImageManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'Image' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Creates the session create form modal elements.

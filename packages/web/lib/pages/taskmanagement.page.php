@@ -439,19 +439,15 @@ class TaskManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Display active multicast tasks.
@@ -546,19 +542,15 @@ class TaskManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Displays active snapin tasks.
@@ -641,19 +633,15 @@ class TaskManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Active scheduled tasks (delayed or cron)
@@ -738,19 +726,15 @@ class TaskManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Active scheduled path deletions
@@ -839,18 +823,14 @@ class TaskManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
 }

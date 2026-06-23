@@ -475,20 +475,16 @@ class TasktypeeditManagement extends FOGPage
         //    'Location: ../management/index.php?node=tasktypeedit&sub=edit&id='
         //    . $TaskType->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'TaskType' => &$TaskType,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($TaskType);
-        echo $msg;
-        exit;
     }
     /**
      * TaskType Edit General Information.
@@ -827,17 +823,15 @@ class TasktypeeditManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'TaskType' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        echo $msg;
-        exit;
     }
 }

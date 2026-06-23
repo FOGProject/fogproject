@@ -291,20 +291,16 @@ class WOLBroadcastManagement extends FOGPage
         //    'Location: ../management/index.php?node=wolbroadcast&sub=edit&id='
         //    $WOLBroadcast->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'WOLBroadcast' => &$WOLBroadcast,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($WOLBroadcast);
-        echo $msg;
-        exit;
     }
     /**
      * WOL General tab.
@@ -525,18 +521,15 @@ class WOLBroadcastManagement extends FOGPage
             );
         }
 
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'WOLBroadcast' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
 }

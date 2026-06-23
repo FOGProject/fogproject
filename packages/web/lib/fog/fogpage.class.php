@@ -2890,13 +2890,10 @@ abstract class FOGPage extends FOGBase
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
-            [$this->childClass => &$this->obj]
+        $this->jsonHookResponse(
+            [$this->childClass => &$this->obj],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Perform wakeup stuff

@@ -337,20 +337,16 @@ class AccessControlRuleManagement extends FOGPage
         //    'Location: ../management/index.php?node=accesscontrolrule&sub=edit&id='
         //    . $AccessControlRule->get('id')
         //);
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'AccessControlRule' => &$AccessControlRule,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        unset($AccessControlRule);
-        echo $msg;
-        exit;
     }
     /**
      * Displays the access control general tab.
@@ -703,19 +699,16 @@ class AccessControlRuleManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
+        $this->jsonHookResponse(
             [
                 'AccessControlRule' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
-            ]
+            ],
+            $hook
         );
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
     /**
      * Gets the roles list.
