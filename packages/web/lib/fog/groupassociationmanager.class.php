@@ -27,49 +27,4 @@ class GroupAssociationManager extends FOGManagerController
      * @var string
      */
     public $tablename = 'groupMembers';
-    /**
-     * Install our table.
-     *
-     * @return bool
-     */
-    public function install()
-    {
-        $this->uninstall();
-        $sql = Schema::createTable(
-            $this->tablename,
-            true,
-            [
-                'gmID',
-                'gmHostID',
-                'gmGroupID'
-            ],
-            [
-                'INTEGER',
-                'INTEGER',
-                'INTEGER'
-            ],
-            [
-                false,
-                false,
-                false
-            ],
-            [
-                false,
-                false,
-                false
-            ],
-            [
-                'gmID',
-                [
-                    'gmHostID',
-                    'gmGroupID'
-                ]
-            ],
-            'InnoDB',
-            'utf8',
-            'gmID',
-            'gmID'
-        );
-        return self::$DB->query($sql);
-    }
 }

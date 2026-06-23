@@ -28,69 +28,6 @@ class PowerManagementManager extends FOGManagerController
      */
     public $tablename = 'powerManagement';
     /**
-     * Install our table.
-     *
-     * @return bool
-     */
-    public function install()
-    {
-        $this->uninstall();
-        $sql = Schema::createTable(
-            $this->tablename,
-            true,
-            [
-                'pmID',
-                'pmHostID',
-                'pmMin',
-                'pmHour',
-                'pmDom',
-                'pmMonth',
-                'pmDow',
-                'pmAction',
-                'pmOndemand'
-            ],
-            [
-                'INTEGER',
-                'INTEGER',
-                'VARCHAR(255)',
-                'VARCHAR(255)',
-                'VARCHAR(255)',
-                'VARCHAR(255)',
-                'VARCHAR(255)',
-                "ENUM('shutdown', 'reboot', 'wol')",
-                "ENUM('0', '1')"
-            ],
-            [
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-            ],
-            [
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-            ],
-            ['pmID'],
-            'InnoDB',
-            'utf8',
-            'pmID',
-            'pmID'
-        );
-        return self::$DB->query($sql);
-    }
-    /**
      * Gets the predefined actions.
      *
      * @param string $selected the item that is selected

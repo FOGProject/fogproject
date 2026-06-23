@@ -28,52 +28,6 @@ class SnapinJobManager extends FOGManagerController
      */
     public $tablename = 'snapinJobs';
     /**
-     * Install our table.
-     *
-     * @return bool
-     */
-    public function install()
-    {
-        $this->uninstall();
-        $sql = Schema::createTable(
-            $this->tablename,
-            true,
-            [
-                'sjID',
-                'sjHostID',
-                'sjStateID',
-                'sjCreateTime'
-            ],
-            [
-                'INTEGER',
-                'INTEGER',
-                'INTEGER',
-                'TIMESTAMP'
-            ],
-            [
-                false,
-                false,
-                false,
-                false
-            ],
-            [
-                false,
-                false,
-                false,
-                'CURRENT_TIMESTAMP'
-            ],
-            [
-                'sjID',
-                'sjHostID'
-            ],
-            'InnoDB',
-            'utf8',
-            'sjID',
-            'sjID'
-        );
-        return self::$DB->query($sql);
-    }
-    /**
      * Cancels the snapin job.
      *
      * @param array $snapinjobids The jobs to cancel.
