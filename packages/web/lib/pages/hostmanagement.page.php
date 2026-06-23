@@ -468,9 +468,7 @@ class HostManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Creates a new host.
@@ -3923,9 +3921,7 @@ class HostManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Presents the groups list table.
@@ -4641,9 +4637,7 @@ class HostManagement extends FOGPage
             );
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Actually creates the tasking.

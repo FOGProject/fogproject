@@ -146,9 +146,7 @@ class ProcessLogin extends FOGPage
             );
             chmod(BASEPATH . 'fog_login_failed.log', 0200);
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Processes the login.

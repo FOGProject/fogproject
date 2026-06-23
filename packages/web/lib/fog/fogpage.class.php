@@ -3805,9 +3805,7 @@ abstract class FOGPage extends FOGBase
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Build select form in generic form.

@@ -1855,10 +1855,7 @@ class ImageManagement extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        unset($MulticastSession);
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Presents the storage groups list table.

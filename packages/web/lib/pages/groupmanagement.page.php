@@ -3742,9 +3742,7 @@ class GroupManagement extends FOGPage
             );
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Actually creates the tasking.

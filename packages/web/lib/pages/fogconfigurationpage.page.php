@@ -744,9 +744,7 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Presents mac listing information.
@@ -1734,9 +1732,7 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Flushes the per-process settings cache and raises the cross-process
@@ -2572,9 +2568,7 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Settings list tester.
