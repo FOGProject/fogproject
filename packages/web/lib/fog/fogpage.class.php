@@ -1435,6 +1435,48 @@ abstract class FOGPage extends FOGBase
         return ob_get_clean();
     }
     /**
+     * Emits a JSON response body and terminates the request.
+     *
+     * This is the universal terminal shared by every AJAX endpoint:
+     * set the HTTP status, echo the (already-encoded) body, and exit.
+     * Callers that fire a hook must do so before calling this; use
+     * jsonHookResponse() when a result hook needs to mutate the body.
+     *
+     * @param int    $code The HTTP status code to send.
+     * @param string $body The response body (already JSON-encoded).
+     *
+     * @return void
+     */
+    protected function jsonSend($code, $body)
+    {
+        http_response_code($code);
+        echo $body;
+        exit;
+    }
+    /**
+     * Fires a result hook then emits the JSON response.
+     *
+     * Preserves the existing per-method hook contract exactly: the
+     * caller passes the same by-reference argument array it always
+     * has (including 'code' and 'msg'), so plugins registered on
+     * $hook can still mutate the status code and body. The (possibly
+     * mutated) values are read back from that same array after the
+     * event fires. PHP preserves the member references when the array
+     * is passed by value, so $args['code']/$args['msg'] resolve to the
+     * caller's $code/$msg exactly as the inline code did.
+     *
+     * @param array  $args The by-reference hook argument array; must
+     *                      contain 'code' and 'msg' keys.
+     * @param string $hook The hook event name to fire.
+     *
+     * @return void
+     */
+    protected function jsonHookResponse(array $args, $hook)
+    {
+        self::$HookManager->processEvent($hook, $args);
+        $this->jsonSend($args['code'], $args['msg']);
+    }
+    /**
      * Actually performs the deletion of selected items.
      *
      * @return void
@@ -1535,9 +1577,7 @@ abstract class FOGPage extends FOGBase
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonSend($code, $msg);
     }
     /**
      * Displays the AD options
@@ -2514,16 +2554,16 @@ abstract class FOGPage extends FOGBase
                     die($e->getMessage());
                 }
                 $err = str_replace('#!', '', $e->getMessage());
-                echo json_encode(
-                    ['error' => $err]
+                $this->jsonSend(
+                    HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                    json_encode(['error' => $err])
                 );
-                exit;
             }
             if ($e->getMessage() == '#!ist') {
-                echo json_encode(
-                    ['error' => 'ist']
+                $this->jsonSend(
+                    HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                    json_encode(['error' => 'ist'])
                 );
-                exit;
             }
             echo  $e->getMessage();
         }

@@ -3851,20 +3851,16 @@ class HostManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Host' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
-        http_response_code($code);
-        echo $msg;
-        exit;
+        $this->jsonHookResponse(
+            [
+                'Host' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Saves host to a selected or new group depending on action.
