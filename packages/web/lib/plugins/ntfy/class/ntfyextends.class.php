@@ -88,15 +88,52 @@ abstract class NtfyExtends extends Event
                     _(self::$shortdesc)
                 )
             );
-            self::getClass(
-                'NtfyHandler',
-                $Ntfy->serverURL,
-                $Ntfy->topicEndpoint,
-                $Ntfy->credentials
-            )->pushNote(
-                $title,
-                _(self::$message)
+            $target = sprintf(
+                '%s/%s',
+                rtrim($Ntfy->serverURL, '/'),
+                ltrim($Ntfy->topicEndpoint, '/')
             );
+            try {
+                $response = self::getClass(
+                    'NtfyHandler',
+                    $Ntfy->serverURL,
+                    $Ntfy->topicEndpoint,
+                    $Ntfy->credentials
+                )->pushNote(
+                    $title,
+                    _(self::$message)
+                );
+            } catch (Exception $e) {
+                error_log(
+                    sprintf(
+                        'FOG ntfy: push to %s failed: %s',
+                        $target,
+                        $e->getMessage()
+                    )
+                );
+                return;
+            }
+            // pushNote otherwise discards the transport result, so a rejected
+            // token or unreachable server fails silently. self::log is
+            // suppressed in the AJAX login path, so log to the PHP error log.
+            // ntfy replies with an object carrying an "error"/"http" field on
+            // failure, a "message" event on success, and decodes to null when
+            // the body is unreadable (e.g. a connection failure).
+            if (!is_object($response)
+                || isset($response->error)
+                || (isset($response->http) && (int)$response->http >= 400)
+            ) {
+                $detail = (is_object($response) && isset($response->error))
+                    ? $response->error
+                    : _('no response from server');
+                error_log(
+                    sprintf(
+                        'FOG ntfy: push to %s failed: %s',
+                        $target,
+                        $detail
+                    )
+                );
+            }
         };
     }
     /**

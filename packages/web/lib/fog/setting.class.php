@@ -87,9 +87,6 @@ class Setting extends FOGController
         $nullField = false,
         $id = ''
     ) {
-        if (empty($name)) {
-            $name = $this->get('name');
-        }
         $types = [
             'sanboot',
             'grub',

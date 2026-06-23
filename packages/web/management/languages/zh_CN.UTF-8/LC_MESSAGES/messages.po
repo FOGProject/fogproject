@@ -7683,6 +7683,9 @@ msgstr "N / A"
 msgid "never"
 msgstr ""
 
+msgid "no response from server"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr ""
 
