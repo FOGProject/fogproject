@@ -214,32 +214,11 @@ class TasktypeeditManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'tasktype-create-form',
-            $this->formAction,
-            'post',
-            'application/x-www-form-urlencoded',
-            true
+        $this->renderCreateForm(
+            'tasktype',
+            [[_('Create New Task Type'), $rendered]],
+            $buttons
         );
-        echo '<div class="box box-solid" id="tasktype-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New Task Type');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Create new task type.

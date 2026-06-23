@@ -114,32 +114,11 @@ class CaponeManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'capone-create-form',
-            $this->formAction,
-            'post',
-            'application/x-www-form-urlencoded',
-            true
+        $this->renderCreateForm(
+            'capone',
+            [[_('Create New Capone'), $rendered]],
+            $buttons
         );
-        echo '<div class="box box-solid" id="capone-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New Capone');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Create new capone entry.

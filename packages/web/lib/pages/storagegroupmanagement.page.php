@@ -128,32 +128,11 @@ class StorageGroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'storagegroup-create-form',
-            $this->formAction,
-            'post',
-            'application/x-www-form-urlencoded',
-            true
+        $this->renderCreateForm(
+            'storagegroup',
+            [[_('Create New Storage Group'), $rendered]],
+            $buttons
         );
-        echo '<div class="box box-solid" id="storagegroup-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New Storage Group');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Create a new storage group.

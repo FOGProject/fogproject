@@ -544,32 +544,12 @@ class SnapinManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'snapin-create-form',
-            $this->formAction,
-            'post',
-            'multipart/form-data',
-            true
+        $this->renderCreateForm(
+            'snapin',
+            [[_('Create New Snapin'), $rendered]],
+            $buttons,
+            'multipart/form-data'
         );
-        echo '<div class="box box-solid" id="snapin-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New Snapin');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * The form to display when adding a new snapin

@@ -4364,6 +4364,56 @@ abstract class FOGPage extends FOGBase
             . '></i>';
     }
     /**
+     * Renders the standard create-form scaffold shared by the add() pages:
+     * a CSRF-protected horizontal form wrapping a box-solid that holds one or
+     * more titled box-primary sections, with the action buttons in the footer.
+     *
+     * @param string $idBase   Id prefix; yields form id "<idBase>-create-form"
+     *                         and container id "<idBase>-create".
+     * @param array  $sections List of [title, body] pairs; each renders as a
+     *                         box-primary (one for most pages, two for hosts).
+     * @param string $buttons  Pre-rendered footer buttons.
+     * @param string $enctype  Form enctype (default urlencoded; snapin uses
+     *                         multipart/form-data).
+     *
+     * @return void
+     */
+    protected function renderCreateForm(
+        $idBase,
+        array $sections,
+        $buttons,
+        $enctype = 'application/x-www-form-urlencoded'
+    ) {
+        echo self::makeFormTag(
+            'form-horizontal',
+            $idBase . '-create-form',
+            $this->formAction,
+            'post',
+            $enctype,
+            true
+        );
+        echo '<div class="box box-solid" id="' . $idBase . '-create">';
+        echo '<div class="box-body">';
+        foreach ($sections as $section) {
+            echo '<div class="box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo $section[0];
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo $section[1];
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
      * Makes the opening form tag.
      *
      * @param string $class      The class to associate this form with.

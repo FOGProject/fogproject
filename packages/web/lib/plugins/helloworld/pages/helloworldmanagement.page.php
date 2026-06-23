@@ -128,32 +128,11 @@ class HelloWorldManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'helloworld-create-form',
-            $this->formAction,
-            'post',
-            'application/x-www-form-urlencoded',
-            true
+        $this->renderCreateForm(
+            'helloworld',
+            [[_('Create New Hello World'), $rendered]],
+            $buttons
         );
-        echo '<div class="box box-solid" id="helloworld-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New Hello World');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * The "create" form rendered inside the list page modal.
