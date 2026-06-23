@@ -121,16 +121,10 @@ class OU extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['OUID' => $this->get('id')];
-        Route::ids(
+        $this->_loadHostIds(
             'ouassociation',
-            $find,
+            ['OUID' => $this->get('id')],
             'hostID'
         );
-        $hosts = json_decode(
-            Route::getData(),
-            true
-        );
-        $this->set('hosts', $hosts);
     }
 }

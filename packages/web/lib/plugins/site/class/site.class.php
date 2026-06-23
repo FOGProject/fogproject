@@ -172,21 +172,10 @@ class Site extends FOGController
      */
     public function loadHosts($ids = null)
     {
-        if (is_null($ids)) {
-            $siteIDs = $this->get('id');
-        } else {
-            $siteIDs = $ids;
-        }
-        $find = ['siteID' => $siteIDs];
-        Route::ids(
+        $this->_loadHostIds(
             'sitehostassociation',
-            $find,
+            ['siteID' => is_null($ids) ? $this->get('id') : $ids],
             'hostID'
         );
-        $sitehostassocs = json_decode(
-            Route::getData(),
-            true
-        );
-        $this->set('hosts', (array)$sitehostassocs);
     }
 }

@@ -186,16 +186,10 @@ class Location extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['locationID' => $this->get('id')];
-        Route::ids(
+        $this->_loadHostIds(
             'locationassociation',
-            $find,
+            ['locationID' => $this->get('id')],
             'hostID'
         );
-        $hosts = json_decode(
-            Route::getData(),
-            true
-        );
-        $this->set('hosts', $hosts);
     }
 }
