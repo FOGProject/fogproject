@@ -88,14 +88,11 @@ class Module extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['moduleID' => $this->get('id')];
-        Route::ids(
+        $this->_loadHostIds(
             'moduleassociation',
-            [],
+            ['moduleID' => $this->get('id')],
             'hostID'
         );
-        $hosts = json_decode(Route::getData(), true);
-        $this->set('hosts', (array)$hosts);
     }
     /**
      * Add host to the group.

@@ -94,14 +94,11 @@ class PowerManagement extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['id' => $this->get('id')];
-        Route::ids(
-            self,
-            $find,
+        $this->_loadHostIds(
+            'powermanagement',
+            ['id' => $this->get('id')],
             'hostID'
         );
-        $hosts = json_decode(Route::getData(), true);
-        $this->set('hosts', (array)$hosts);
     }
     /**
      * Saves the item to the db

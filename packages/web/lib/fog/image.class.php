@@ -224,13 +224,7 @@ class Image extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['imageID' => $this->get('id')];
-        Route::ids(
-            'host',
-            $find
-        );
-        $hosts = json_decode(Route::getData(), true);
-        $this->set('hosts', (array)$hosts);
+        $this->_loadHostIds('host', ['imageID' => $this->get('id')]);
     }
     /**
      * Add hosts to image object
@@ -473,40 +467,12 @@ class Image extends FOGController
      */
     public static function setPrimaryGroup($groupID, $imageID)
     {
-        $find = [
-            'storagegroupID' => $groupID,
-            'imageID' => $imageID
-        ];
-        Route::ids(
+        self::_setPrimaryGroup(
+            $groupID,
+            $imageID,
+            'imageID',
             'imageassociation',
-            $find,
-            'storagegroupID'
-        );
-        $exists = json_decode(Route::getData(), true);
-        if (count($exists) < 1) {
-            self::getClass('ImageAssociation')
-                ->set('imageID', $imageID)
-                ->set('storagegroupID', $groupID)
-                ->save();
-        }
-        /**
-         * Unset all current groups to non-primary
-         */
-        self::getClass('ImageAssociationManager')->update(
-            ['imageID' => $imageID],
-            '',
-            ['primary' => 0]
-        );
-        /**
-         * Set the passed group as primary
-         */
-        self::getClass('ImageAssociationManager')->update(
-            [
-                'imageID' => $imageID,
-                'storagegroupID' => $groupID
-            ],
-            '',
-            ['primary' => 1]
+            'ImageAssociation'
         );
     }
 }

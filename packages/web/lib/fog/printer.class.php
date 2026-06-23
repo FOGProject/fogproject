@@ -112,14 +112,11 @@ class Printer extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['printerID' => $this->get('id')];
-        Route::ids(
+        $this->_loadHostIds(
             'printerassociation',
-            $find,
+            ['printerID' => $this->get('id')],
             'hostID'
         );
-        $hosts = json_decode(Route::getData(), true);
-        $this->set('hosts', (array)$hosts);
     }
     /**
      * Update the default printer for the host.

@@ -1012,14 +1012,11 @@ class Group extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['groupID' => $this->get('id')];
-        Route::ids(
+        $this->_loadHostIds(
             'groupassociation',
-            $find,
+            ['groupID' => $this->get('id')],
             'hostID'
         );
-        $hosts = json_decode(Route::getData(), true);
-        $this->set('hosts', (array)$hosts);
         $this->getHostCount();
     }
 }

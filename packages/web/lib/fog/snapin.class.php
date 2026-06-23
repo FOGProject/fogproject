@@ -189,14 +189,11 @@ class Snapin extends FOGController
      */
     protected function loadHosts()
     {
-        $find = ['snapinID' => $this->get('id')];
-        Route::ids(
+        $this->_loadHostIds(
             'snapinassociation',
-            $find,
+            ['snapinID' => $this->get('id')],
             'hostID'
         );
-        $hosts = json_decode(Route::getData(), true);
-        $this->set('hosts', (array)$hosts);
     }
     /**
      * Add hosts to snapin object.
@@ -371,40 +368,12 @@ class Snapin extends FOGController
      */
     public static function setPrimaryGroup($groupID, $snapinID)
     {
-        $find = [
-            'storagegroupID' => $groupID,
-            'snapinID' => $snapinID
-        ];
-        Route::ids(
+        self::_setPrimaryGroup(
+            $groupID,
+            $snapinID,
+            'snapinID',
             'snapingroupassociation',
-            $find,
-            'storagegroupID'
-        );
-        $exists = json_decode(Route::getData(), true);
-        if (count($exists) < 1) {
-            self::getClass('SnapinGroupAssociation')
-                ->set('snapinID', $snapinID)
-                ->set('storagegroupID', $groupID)
-                ->save();
-        }
-        /**
-         * Unset all current groups to non-primary
-         */
-        self::getClass('SnapinGroupAssociationManager')->update(
-            ['snapinID' => $snapinID],
-            '',
-            ['primary' => 0]
-        );
-        /**
-         * Set the passed group as primary
-         */
-        self::getClass('SnapinGroupAssociationManager')->update(
-            [
-                'snapinID' => $snapinID,
-                'storagegroupID' => $groupID,
-            ],
-            '',
-            ['primary' => 1]
+            'SnapinGroupAssociation'
         );
     }
     /**

@@ -920,6 +920,80 @@ abstract class FOGController extends FOGBase
         return $this;
     }
     /**
+     * Loads the related host ids into the 'hosts' field.
+     *
+     * Shared by entity classes (image, group, printer, snapin, ...) whose
+     * loadHosts() differs only by the route queried, the filter applied and
+     * the id field plucked.
+     *
+     * @param string $route the route to query
+     * @param array  $find  the filter to apply
+     * @param string $field the id field to pluck
+     *
+     * @return void
+     */
+    protected function _loadHostIds($route, array $find, $field = 'id')
+    {
+        Route::ids($route, $find, $field);
+        $this->set('hosts', (array)json_decode(Route::getData(), true));
+    }
+    /**
+     * Sets the given storage group as the primary one for an entity.
+     *
+     * Creates the storagegroup association if missing, clears the primary
+     * flag on all of the entity's associations, then marks the chosen group
+     * primary. Shared by image/snapin, whose association schema differs only
+     * by the entity id field, the route and the association class.
+     *
+     * @param int    $groupID    the storage group id to set as primary
+     * @param int    $entityID   the owning entity id
+     * @param string $field      the entity id field (e.g. 'imageID')
+     * @param string $assocRoute the association route to query
+     * @param string $assocClass the association class name
+     *
+     * @return void
+     */
+    protected static function _setPrimaryGroup(
+        $groupID,
+        $entityID,
+        $field,
+        $assocRoute,
+        $assocClass
+    ) {
+        $find = [
+            'storagegroupID' => $groupID,
+            $field => $entityID
+        ];
+        Route::ids(
+            $assocRoute,
+            $find,
+            'storagegroupID'
+        );
+        $exists = json_decode(Route::getData(), true);
+        if (count($exists) < 1) {
+            self::getClass($assocClass)
+                ->set($field, $entityID)
+                ->set('storagegroupID', $groupID)
+                ->save();
+        }
+        $manager = $assocClass . 'Manager';
+        // Unset all current groups to non-primary
+        self::getClass($manager)->update(
+            [$field => $entityID],
+            '',
+            ['primary' => 0]
+        );
+        // Set the passed group as primary
+        self::getClass($manager)->update(
+            [
+                $field => $entityID,
+                'storagegroupID' => $groupID
+            ],
+            '',
+            ['primary' => 1]
+        );
+    }
+    /**
      * Adds or removes items from key field.
      *
      * Example:
