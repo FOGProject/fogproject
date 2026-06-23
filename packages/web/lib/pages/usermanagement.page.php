@@ -730,62 +730,29 @@ class UserManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'USER_EDIT_POST',
-            ['User' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'user-general':
-                    $this->userGeneralPost();
-                    break;
-                case 'user-changepw':
-                    $this->userChangePWPost();
-                    break;
-                case 'user-api':
-                    $this->userAPIPost();
+        $this->handleEditPost(
+            'User',
+            'USER_EDIT',
+            _('User updated!'),
+            _('User Update Success'),
+            _('User Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'user-general':
+                        $this->userGeneralPost();
+                        break;
+                    case 'user-changepw':
+                        $this->userChangePWPost();
+                        break;
+                    case 'user-api':
+                        $this->userAPIPost();
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('User update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('User update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'USER_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('User updated!'),
-                    'title' => _('User Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'USER_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('User Update Fail')
-                ]
-            );
-        }
-
-        $this->jsonHookResponse(
-            [
-                'User' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

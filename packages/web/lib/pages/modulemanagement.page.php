@@ -428,58 +428,27 @@ class ModuleManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: appication/json');
-        self::$HookManager->processEvent(
-            'MODULE_EDIT_POST',
-            ['Module' => &$this->obj]
-        );
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'module-general':
-                    $this->moduleGeneralPost();
-                    break;
-                case 'module-host':
-                    $this->moduleHostPost();
-                    break;
+        $this->handleEditPost(
+            'Module',
+            'MODULE_EDIT',
+            _('Module updated!'),
+            _('Module Update Success'),
+            _('Module Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'module-general':
+                        $this->moduleGeneralPost();
+                        break;
+                    case 'module-host':
+                        $this->moduleHostPost();
+                        break;
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Module update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Module update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'MODULE_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Module updated!'),
-                    'title' => _('Module Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'MODULE_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Module Update Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Module' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

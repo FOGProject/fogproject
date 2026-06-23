@@ -845,66 +845,33 @@ class StorageGroupManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'STORAGEGROUP_EDIT_POST',
-            ['StorageGroup' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'storagegroup-general':
-                    $this->storagegroupGeneralPost();
-                    break;
-                case 'storagegroup-image':
-                    $this->storagegroupImagePost();
-                    break;
-                case 'storagegroup-snapin':
-                    $this->storagegroupSnapinPost();
-                    break;
-                case 'storagegroup-storagenode':
-                    $this->storagegroupStoragenodePost();
-                    break;
+        $this->handleEditPost(
+            'StorageGroup',
+            'STORAGEGROUP_EDIT',
+            _('Storage Group updated!'),
+            _('Storage Group Update Success'),
+            _('Storage Group Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'storagegroup-general':
+                        $this->storagegroupGeneralPost();
+                        break;
+                    case 'storagegroup-image':
+                        $this->storagegroupImagePost();
+                        break;
+                    case 'storagegroup-snapin':
+                        $this->storagegroupSnapinPost();
+                        break;
+                    case 'storagegroup-storagenode':
+                        $this->storagegroupStoragenodePost();
+                        break;
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Storage Group Update Failed'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Storage Group Update Failed'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'STORAGEGROUP_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Storage Group updated!'),
-                    'title' => _('Storage Group Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'STORAGEGROUP_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Storage Group Update Fail')
-                ]
-            );
-        }
-
-        $this->jsonHookResponse(
-            [
-                'StorageGroup' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

@@ -481,55 +481,23 @@ class CaponeManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'CAPONE_EDIT_POST',
-            ['Capone' => &$this->obj]
-        );
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'capone-general':
-                    $this->caponeGeneralPost();
+        $this->handleEditPost(
+            'Capone',
+            'CAPONE_EDIT',
+            _('Capone updated!'),
+            _('Capone Update Success'),
+            _('Capone Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'capone-general':
+                        $this->caponeGeneralPost();
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Capone update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Capone update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'CAPONE_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Capone updated!'),
-                    'title' => _('Capone Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'CAPONE_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Capone Update Fail')
-                ]
-            );
-        }
-
-        $this->jsonHookResponse(
-            [
-                'Capone' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

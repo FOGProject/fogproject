@@ -351,56 +351,23 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'WOLBROADCAST_EDIT_POST',
-            ['WOLBroadcast' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'wolbroadcast-general':
-                    $this->wolbroadcastGeneralPost();
+        $this->handleEditPost(
+            'WOLBroadcast',
+            'WOLBROADCAST_EDIT',
+            _('Broadcast updated!'),
+            _('Broadcast Update Success'),
+            _('Broadcast Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'wolbroadcast-general':
+                        $this->wolbroadcastGeneralPost();
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Broadcast update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Broadcast update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'WOLBROADCAST_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Broadcast updated!'),
-                    'title' => _('Broadcast Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'WOLBROADCAST_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Broadcast Update Fail')
-                ]
-            );
-        }
-
-        $this->jsonHookResponse(
-            [
-                'WOLBroadcast' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

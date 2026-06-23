@@ -369,56 +369,23 @@ class TaskstateeditManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'TASKSTATEEDIT_EDIT_POST',
-            ['TaskState' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'taskstate-general':
-                    $this->taskstateGeneralPost();
+        $this->handleEditPost(
+            'TaskState',
+            'TASKSTATEEDIT_EDIT',
+            _('Task State Updated!'),
+            _('Task State Update Success'),
+            _('Task State Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'taskstate-general':
+                        $this->taskstateGeneralPost();
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Task state update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Task state update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'TASKSTATEEDIT_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Task State Updated!'),
-                    'title' => _('Task State Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'TASKSTATEEDIT_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Task State Update Fail')
-                ]
-            );
-        }
-
-        $this->jsonHookResponse(
-            [
-                'TaskState' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

@@ -3761,82 +3761,51 @@ class HostManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'HOST_EDIT_POST',
-            ['Host' => &$this->obj]
-        );
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'host-general':
-                    $this->hostGeneralPost();
-                    break;
-                case 'host-macaddress':
-                    $this->hostMacaddressPost();
-                    break;
-                case 'host-active-directory':
-                    $this->hostADPost();
-                    break;
-                case 'host-powermanagement':
-                    $this->hostPowermanagementPost();
-                    break;
-                case 'host-group':
-                    $this->hostGroupPost();
-                    break;
-                case 'host-printer':
-                    $this->hostPrinterPost();
-                    break;
-                case 'host-snapin':
-                    $this->hostSnapinPost();
-                    break;
-                case 'host-module':
-                    $this->hostModulePost();
-                    break;
-                case 'host-inventory':
-                    $this->hostInventoryPost();
-                    break;
+        $this->handleEditPost(
+            'Host',
+            'HOST_EDIT',
+            _('Host updated!'),
+            _('Host Update Success'),
+            _('Host Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'host-general':
+                        $this->hostGeneralPost();
+                        break;
+                    case 'host-macaddress':
+                        $this->hostMacaddressPost();
+                        break;
+                    case 'host-active-directory':
+                        $this->hostADPost();
+                        break;
+                    case 'host-powermanagement':
+                        $this->hostPowermanagementPost();
+                        break;
+                    case 'host-group':
+                        $this->hostGroupPost();
+                        break;
+                    case 'host-printer':
+                        $this->hostPrinterPost();
+                        break;
+                    case 'host-snapin':
+                        $this->hostSnapinPost();
+                        break;
+                    case 'host-module':
+                        $this->hostModulePost();
+                        break;
+                    case 'host-inventory':
+                        $this->hostInventoryPost();
+                        break;
+                }
+                if (!$this->obj->isValid()) {
+                    throw new Exception(_('Host is not valid!'));
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Host update failed!'));
+                }
             }
-            if (!$this->obj->isValid()) {
-                throw new Exception(_('Host is not valid!'));
-            }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Host update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'HOST_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Host updated!'),
-                    'title' => _('Host Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'HOST_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Host Update Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Host' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

@@ -2659,76 +2659,45 @@ class GroupManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: appication/json');
-        self::$HookManager->processEvent(
-            'GROUP_EDIT_POST',
-            ['Group' => &$this->obj]
-        );
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'group-general':
-                    $this->groupGeneralPost();
-                    break;
-                case 'group-image':
-                    $this->groupImagePost();
-                    break;
-                case 'group-active-directory':
-                    $this->groupADPost();
-                    break;
-                case 'group-powermanagement':
-                    $this->groupPowermanagementPost();
-                    break;
-                case 'group-host':
-                    $this->groupHostPost();
-                    break;
-                case 'group-printer':
-                    $this->groupPrinterPost();
-                    break;
-                case 'group-snapin':
-                    $this->groupSnapinPost();
-                    break;
-                case 'group-module':
-                    $this->groupModulePost();
-                    break;
+        $this->handleEditPost(
+            'Group',
+            'GROUP_EDIT',
+            _('Group updated!'),
+            _('Group Update Success'),
+            _('Group Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'group-general':
+                        $this->groupGeneralPost();
+                        break;
+                    case 'group-image':
+                        $this->groupImagePost();
+                        break;
+                    case 'group-active-directory':
+                        $this->groupADPost();
+                        break;
+                    case 'group-powermanagement':
+                        $this->groupPowermanagementPost();
+                        break;
+                    case 'group-host':
+                        $this->groupHostPost();
+                        break;
+                    case 'group-printer':
+                        $this->groupPrinterPost();
+                        break;
+                    case 'group-snapin':
+                        $this->groupSnapinPost();
+                        break;
+                    case 'group-module':
+                        $this->groupModulePost();
+                        break;
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Group update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Group update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'GROUP_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Group updated!'),
-                    'title' => _('Group Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'GROUP_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Group Update Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Group' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

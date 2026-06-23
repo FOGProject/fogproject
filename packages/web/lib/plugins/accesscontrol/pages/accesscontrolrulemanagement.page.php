@@ -517,57 +517,26 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'ACCESSCONTROLRULE_EDIT_POST',
-            ['AccessControlRule' => &$this->obj]
-        );
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'accesscontrolrule-general':
-                    $this->accesscontrolruleGeneralPost();
-                    break;
-                case 'accesscontrolrule-role':
-                    $this->accesscontrolruleRolePost();
+        $this->handleEditPost(
+            'AccessControlRule',
+            'ACCESSCONTROLRULE_EDIT',
+            _('Accesscontrol Rule updated!'),
+            _('Accesscontrol Rule Update Success'),
+            _('Accesscontrol Rule Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'accesscontrolrule-general':
+                        $this->accesscontrolruleGeneralPost();
+                        break;
+                    case 'accesscontrolrule-role':
+                        $this->accesscontrolruleRolePost();
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Rule update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Rule update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'ACCESSCONTROLRULE_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Accesscontrol Rule updated!'),
-                    'title' => _('Accesscontrol Rule Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'ACCESSCONTROLRULE_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Accesscontrol Rule Update Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'AccessControlRule' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

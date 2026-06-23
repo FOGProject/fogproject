@@ -564,55 +564,23 @@ class IpxeManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'IPXE_EDIT_POST',
-            ['Ipxe' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'ipxe-general':
-                    $this->ipxeGeneralPost();
+        $this->handleEditPost(
+            'Ipxe',
+            'IPXE_EDIT',
+            _('Menu updated!'),
+            _('Menu Update Success'),
+            _('Menu Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'ipxe-general':
+                        $this->ipxeGeneralPost();
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Menu update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Menu update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'IPXE_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Menu updated!'),
-                    'title' => _('Menu Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'IPXE_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Menu Update Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Ipxe' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

@@ -461,60 +461,27 @@ class WindowsKeyManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'WINDOWSKEY_EDIT_POST',
-            ['WindowsKey' => &$this->obj]
-        );
+        $this->handleEditPost(
+            'WindowsKey',
+            'WINDOWSKEY_EDIT',
+            _('Windows Key updated!'),
+            _('Windows Key Update Success'),
+            _('Windows Key Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'windowskey-general':
+                        $this->windowsKeyGeneralPost();
+                        break;
+                    case 'windowskey-images':
+                        $this->windowsKeyImagePost();
+                }
 
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'windowskey-general':
-                    $this->windowsKeyGeneralPost();
-                    break;
-                case 'windowskey-images':
-                    $this->windowsKeyImagePost();
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Windows Key update failed!'));
+                }
             }
-
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Windows Key update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'WINDOWSKEY_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Windows Key updated!'),
-                    'title' => _('Windows Key Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'WINDOWSKEY_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Windows Key Update Fail')
-                ]
-            );
-        }
-
-        $this->jsonHookResponse(
-            [
-                'WindowsKey' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

@@ -1318,56 +1318,23 @@ class LDAPManagement extends FOGPage
      */
     public function editPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'LDAP_EDIT_POST',
-            ['LDAP' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'ldap-general':
-                    $this->ldapGeneralPost();
+        $this->handleEditPost(
+            'LDAP',
+            'LDAP_EDIT',
+            _('LDAP Server updated!'),
+            _('LDAP Server Update Success'),
+            _('LDAP Server Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'ldap-general':
+                        $this->ldapGeneralPost();
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('LDAP Server update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('LDAP Server update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'LDAP_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('LDAP Server updated!'),
-                    'title' => _('LDAP Server Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'LDAP_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('LDAP Server Update Fail')
-                ]
-            );
-        }
-        
-        $this->jsonHookResponse(
-            [
-                'LDAP' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

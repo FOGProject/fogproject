@@ -1554,6 +1554,84 @@ abstract class FOGPage extends FOGBase
         );
     }
     /**
+     * Shared scaffold for the update (editPost) AJAX handlers.
+     *
+     * The edit counterpart of handleAddPost(). It owns the same
+     * boilerplate, with three differences inherent to editing an
+     * existing entity: the "<BASE>_POST" pre-event carries the loaded
+     * entity ([$entityKey => &$this->obj]) so listeners can inspect or
+     * replace it; the success status is HTTP 202 Accepted rather than
+     * 201 Created; and the entity is the page's own $this->obj, so the
+     * $build closure mutates it in place and need not return anything.
+     *
+     * The page-specific part — reading $_POST, applying changes to
+     * $this->obj, and saving — lives in the $build closure. The closure
+     * receives $serverFault by reference (set it true before throwing to
+     * signal an HTTP 500 rather than a 400). $this->obj is handed to the
+     * result hook under $entityKey so listeners on "<BASE>_SUCCESS" /
+     * "<BASE>_FAIL" still see it exactly as before.
+     *
+     * @param string   $entityKey    Payload key for the entity (e.g. 'Group').
+     * @param string   $hookBase     Hook prefix (e.g. 'GROUP_EDIT'); the
+     *                               _POST/_SUCCESS/_FAIL events derive from it.
+     * @param string   $successMsg   Translated success message body.
+     * @param string   $successTitle Translated success title.
+     * @param string   $failTitle    Translated failure title.
+     * @param callable $build        Closure(&$serverFault): mutates $this->obj.
+     *
+     * @return void
+     */
+    protected function handleEditPost(
+        $entityKey,
+        $hookBase,
+        $successMsg,
+        $successTitle,
+        $failTitle,
+        callable $build
+    ) {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            $hookBase . '_POST',
+            [$entityKey => &$this->obj]
+        );
+        $serverFault = false;
+        try {
+            $build($serverFault);
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = $hookBase . '_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => $successMsg,
+                    'title' => $successTitle
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = $hookBase . '_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => $failTitle
+                ]
+            );
+        }
+        $this->jsonHookResponse(
+            [
+                $entityKey => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
+    }
+    /**
      * Actually performs the deletion of selected items.
      *
      * @return void
