@@ -231,13 +231,9 @@ class LDAPManager extends FOGManagerController
     public function uninstall()
     {
         $find = ['type' => LDAPPluginHook::LDAP_TYPES];
-        Route::ids(
+        $userIDs = Route::getIds(
             'user',
             $find
-        );
-        $userIDs = json_decode(
-            Route::getData(),
-            true
         );
         Route::deletemass(
             'setting',

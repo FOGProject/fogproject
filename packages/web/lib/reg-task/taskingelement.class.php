@@ -318,13 +318,9 @@ abstract class TaskingElement extends FOGBase
             'image' => $this->Image->get('name'),
             'finish' => '0000-00-00 00:00:00',
         ];
-        Route::ids(
+        $ilID = Route::getIds(
             'imaginglog',
             $find
-        );
-        $ilID = json_decode(
-            Route::getData(),
-            true
         );
         $ilID = @max($ilID ?? 0);
         return self::getClass('ImagingLog', $ilID)

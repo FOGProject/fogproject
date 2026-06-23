@@ -65,12 +65,11 @@ class MulticastTask extends FOGService
         $NewTasks = [];
         foreach ($Tasks->data as $Task) {
             $find = ['msID' => $Task->id];
-            Route::ids(
+            $taskIDs = Route::getIds(
                 'multicastsessionassociation',
                 $find,
                 'taskID'
             );
-            $taskIDs = json_decode(Route::getData(), true);
             $count = count($taskIDs ?: []);
             if ($count < 1) {
                 $count = $Task->sessclients;
@@ -709,14 +708,10 @@ class MulticastTask extends FOGService
      */
     public function updateStats()
     {
-        Route::ids(
+        $MSAssocs = Route::getIds(
             'multicastsessionassociation',
             ['msID' => $this->_intID],
             'taskID'
-        );
-        $MSAssocs = json_decode(
-            Route::getData(),
-            true
         );
         foreach ($MSAssocs as $TaskID) {
             $TaskPercent[] = self::getClass('Task', $TaskID)->get('percent');

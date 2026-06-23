@@ -76,14 +76,10 @@ class ChangeHostKey extends Hook
             return;
         }
         $find = ['imageID' => $arguments['Task']->getImage()->get('id')];
-        Route::ids(
+        $windowskeys = Route::getIds(
             'windowskeyassociation',
             $find,
             'windowskeyID'
-        );
-        $windowskeys = json_decode(
-            Route::getData(),
-            true
         );
 
         $cnt = count($values ?: []);
@@ -91,14 +87,10 @@ class ChangeHostKey extends Hook
             return;
         }
         $find = ['id' => $windowskeys];
-        Route::ids(
+        $windowskeys = Route::getIds(
             'windowskey',
             $find,
             'key'
-        );
-        $windowskeys = json_decode(
-            Route::getData(),
-            true
         );
         $productKey = trim(
             array_shift($windowskeys)

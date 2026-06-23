@@ -61,8 +61,7 @@ if (isset($_REQUEST['client'])) {
     }
 
     // Only allow other storage nodes:
-    Route::ids('storagenode', [], 'ip');
-    $allowedStorageNodes = json_decode(Route::getData(), true);
+    $allowedStorageNodes = Route::getIds('storagenode', [], 'ip');
     $host = strtolower($parts['host']);
     if (!in_array($host, array_map('strtolower', $allowedStorageNodes), true)) {
         http_response_code(403);

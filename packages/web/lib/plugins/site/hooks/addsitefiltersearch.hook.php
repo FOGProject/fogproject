@@ -125,14 +125,10 @@ class AddSiteFilterSearch extends Hook
     public function isRestricted($userid)
     {
         $find = ['userID' => $userid];
-        Route::ids(
+        $siteuserrestrictions = Route::getIds(
             'siteuserrestriction',
             $find,
             'isRestricted'
-        );
-        $siteuserrestrictions = json_decode(
-            Route::getData(),
-            true
         );
         return array_shift($siteuserrestrictions);
     }
@@ -146,14 +142,10 @@ class AddSiteFilterSearch extends Hook
     public function getSiteIDbyUser($userID)
     {
         $find = ['userID' => $userID];
-        Route::ids(
+        $siteuserassocs = Route::getIds(
             'siteuserassociation',
             $find,
             'siteID'
-        );
-        $siteuserassocs = json_decode(
-            Route::getData(),
-            true
         );
         return $siteuserassocs;
     }
@@ -168,14 +160,10 @@ class AddSiteFilterSearch extends Hook
     public function getHostIDbySite($siteIDs)
     {
         $find = ['siteID' => $siteIDs];
-        Route::ids(
+        $sitehostassocs = Route::getIds(
             'sitehostassociation',
             $find,
             'hostID'
-        );
-        $sitehostassocs = json_decode(
-            Route::getData(),
-            true
         );
         return $sitehostassocs;
     }
@@ -190,14 +178,10 @@ class AddSiteFilterSearch extends Hook
     {
         $siteHosts = $this->getHostIDbySite($siteIDbyUser);
         $find = ['hostID' => $siteHosts];
-        Route::ids(
+        $groupassocs = Route::getIds(
             'groupassociation',
             $find,
             'groupID'
-        );
-        $groupassocs = json_decode(
-            Route::getData(),
-            true
         );
         return $groupassocs;
     }

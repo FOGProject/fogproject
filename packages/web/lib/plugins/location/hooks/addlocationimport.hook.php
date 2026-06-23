@@ -96,12 +96,11 @@ class AddLocationImport extends Hook
      */
     public function getLocationNames($host)
     {
-        Route::ids(
+        $locationIDs = Route::getIds(
             'locationassociation',
             ['hostID' => $host->get('id')],
             'locationID'
         );
-        $locationIDs = json_decode(Route::getData(), true);
         $names = [];
         foreach ((array)$locationIDs as $locationID) {
             $Location = self::getClass('Location', $locationID);

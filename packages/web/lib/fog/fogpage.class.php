@@ -1531,12 +1531,11 @@ abstract class FOGPage extends FOGBase
                 );
                 $items = json_decode(Route::getData());
                 foreach ($items->data as $item) {
-                    Route::ids(
+                    $storagegroups[$item->$pathKey] = Route::getIds(
                         $groupassoc,
                         [strtolower($this->childClass).'ID' => $item->id],
                         'storagegroupID'
                     );
-                    $storagegroups[$item->$pathKey] = json_decode(Route::getData());
                 }
                 foreach ($storagegroups as $pathItem => $storagegroupIDs) {
                     foreach ($storagegroupIDs as $storagegroupID) {
@@ -2649,12 +2648,11 @@ abstract class FOGPage extends FOGBase
                 false,
                 self::$newService || self::$json
             );
-            Route::ids(
+            $hostModules = Route::getIds(
                 'module',
                 ['id' => self::$Host->get('modules')],
                 'shortName'
             );
-            $hostModules = json_decode(Route::getData(), true);
             $hostEnabled = array_diff(
                 (array)$hostModules,
                 (array)$igMods
@@ -3585,11 +3583,10 @@ abstract class FOGPage extends FOGBase
             }
 
             $ItemMan = $Item->getManager();
-            Route::ids(
+            $modules = Route::getIds(
                 'module',
                 ['isDefault' => [1]]
             );
-            $modules = json_decode(Route::getData(), true);
             $totalRows = 0;
             // When the first row was a header we consumed it above; otherwise
             // it is the first data row and must still be processed.

@@ -510,14 +510,10 @@ class TaskManagement extends FOGPage
                 $tasks = $tasks['tasks'];
                 $mtasks = $tasks;
                 $find = ['msID' => $mtasks];
-                Route::ids(
+                $tasks = Route::getIds(
                     'multicastsessionassociation',
                     $find,
                     'taskID'
-                );
-                $tasks = json_decode(
-                    Route::getData(),
-                    true
                 );
                 self::getClass('TaskManager')->cancel($tasks);
                 self::getClass('MulticastSessionManager')->cancel($mtasks);

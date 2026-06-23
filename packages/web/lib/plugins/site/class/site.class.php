@@ -152,14 +152,10 @@ class Site extends FOGController
     protected function loadUsers()
     {
         $find = ['siteID' => $this->get('id')];
-        Route::ids(
+        $siteuserassocs = Route::getIds(
             'siteuserassociation',
             $find,
             'userID'
-        );
-        $siteuserassocs = json_decode(
-            Route::getData(),
-            true
         );
         $this->set('users', (array)$siteuserassocs);
     }

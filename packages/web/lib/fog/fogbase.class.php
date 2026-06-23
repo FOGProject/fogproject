@@ -751,14 +751,10 @@ abstract class FOGBase
             'installed' => 1,
             'state' => 1,
         ];
-        Route::ids(
+        $plugins = Route::getIds(
             'plugin',
             $find,
             'name'
-        );
-        $plugins = json_decode(
-            Route::getData(),
-            true
         );
         return array_map('strtolower', $plugins);
     }
@@ -1142,14 +1138,10 @@ abstract class FOGBase
             return $services;
         }
         $find = ['name' => array_values($services)];
-        Route::ids(
+        $serviceEn = Route::getIds(
             'setting',
             $find,
             'value'
-        );
-        $serviceEn = json_decode(
-            Route::getData(),
-            true
         );
 
         return array_combine(array_keys($services), $serviceEn);
@@ -1682,14 +1674,10 @@ abstract class FOGBase
             $padding = OPENSSL_NO_PADDING;
         }
         $tmpssl = [];
-        Route::ids(
+        $sslfile = Route::getIds(
             'storagenode',
             [],
             'sslpath'
-        );
-        $sslfile = json_decode(
-            Route::getData(),
-            true
         );
         foreach ($sslfile as &$path) {
             if (!file_exists($path) || !is_readable($path)) {
@@ -1829,20 +1817,12 @@ abstract class FOGBase
             ]
         );
         if ($count > 0) {
-            Route::ids(
-                'macaddressassociation',
-                [
-                    'mac' => $MACs,
-                    'pending' => [0, '']
-                ],
-                'mac'
-            );
             $existingMACs = array_values(
                 array_unique(
                     array_filter(
                         array_map(
                             $lowerAndTrim,
-                            json_decode(Route::getData(), true)
+                            Route::getIds('macaddressassociation', ['mac' => $MACs, 'pending' => [0, '']], 'mac')
                         )
                     )
                 )
@@ -1859,17 +1839,9 @@ abstract class FOGBase
 
         // Apply client ignore filter
         if ($client) {
-            Route::ids(
-                'macaddressassociation',
-                [
-                    'mac' => $MACs,
-                    'clientIgnore' => 1
-                ],
-                'mac'
-            );
             $clientIgnored = array_map(
                 $lowerAndTrim,
-                json_decode(Route::getData(), true)
+                Route::getIds('macaddressassociation', ['mac' => $MACs, 'clientIgnore' => 1], 'mac')
             );
             $MACs = array_values(
                 array_diff(
@@ -1881,17 +1853,9 @@ abstract class FOGBase
 
         // Apply image ignore filter
         if ($image) {
-            Route::ids(
-                'macaddressassociation',
-                [
-                    'mac' => $MACs,
-                    'imageIgnore' => 1
-                ],
-                'mac'
-            );
             $imageIgnored = array_map(
                 $lowerAndTrim,
-                json_decode(Route::getData(), true)
+                Route::getIds('macaddressassociation', ['mac' => $MACs, 'imageIgnore' => 1], 'mac')
             );
             $MACs = array_values(
                 array_diff($MACs, $imageIgnored)
@@ -3359,8 +3323,7 @@ abstract class FOGBase
             }
         }
         // Exact match against every registered storage node IP + loopback.
-        Route::ids('storagenode', [], 'ip');
-        $storageNodeIPs = json_decode(Route::getData(), true) ?: [];
+        $storageNodeIPs = Route::getIds('storagenode', [], 'ip') ?: [];
         $trustedIPs = array_merge(
             (array)$storageNodeIPs,
             ['127.0.0.1', '::1']
@@ -3392,14 +3355,12 @@ abstract class FOGBase
         if (count($localIPs ?: []) < 1) {
             return [];
         }
-        Route::ids('storagenode', ['ip' => $localIPs], 'storagegroupID');
-        $groupIDs = json_decode(Route::getData(), true) ?: [];
+        $groupIDs = Route::getIds('storagenode', ['ip' => $localIPs], 'storagegroupID') ?: [];
         $groupIDs = array_values(array_unique(array_filter((array)$groupIDs)));
         if (count($groupIDs) < 1) {
             return [];
         }
-        Route::ids('storagegroup', ['id' => $groupIDs], 'trustedcidrs');
-        $rawLists = json_decode(Route::getData(), true) ?: [];
+        $rawLists = Route::getIds('storagegroup', ['id' => $groupIDs], 'trustedcidrs') ?: [];
         $entries = [];
         foreach ((array)$rawLists as $rawList) {
             foreach (preg_split('/[\s,]+/', (string)$rawList) as $entry) {

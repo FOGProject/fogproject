@@ -131,13 +131,10 @@ try {
                 'FOG_TFTP_HOST'
             ]
         ];
-        Route::ids(
+        $items = Route::getIds(
             'setting',
             $find,
             'value'
-        );
-        $items = json_decode(
-            Route::getData()
         );
         $values = [];
         foreach ($items as $item) {

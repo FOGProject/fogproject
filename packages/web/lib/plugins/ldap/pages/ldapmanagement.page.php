@@ -1201,14 +1201,10 @@ class LDAPManagement extends FOGPage
                 'FOG_PLUGIN_LDAP_USER_FILTER'
             ]
         ];
-        Route::ids(
+        $settings = Route::getIds(
             'setting',
             $find,
             'value'
-        );
-        $settings = json_decode(
-            Route::getData(),
-            true
         );
         list(
             $ports,

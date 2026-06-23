@@ -38,14 +38,10 @@ class PM extends FOGClient
             'id' => self::$Host->get('powermanagementtasks'),
             'onDemand' => [1]
         ];
-        Route::ids(
+        $actions = Route::getIds(
             'powermanagement',
             $find,
             'action'
-        );
-        $actions = json_decode(
-            Route::getData(),
-            true
         );
         $action = '';
         if (in_array('shutdown', $actions)) {

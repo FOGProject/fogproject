@@ -39,12 +39,11 @@ class TaskManager extends FOGManagerController
             'id' => (array)$taskids,
             'stateID' => $notComplete
         ];
-        Route::ids(
+        $hostIDs = Route::getIds(
             'task',
             $findWhere,
             'hostID'
         );
-        $hostIDs = json_decode(Route::getData(), true);
         $updateFields = [];
         foreach ($hostIDs as $hostID) {
             $updateFields[] = [
@@ -67,41 +66,36 @@ class TaskManager extends FOGManagerController
             'hostID' => $hostIDs,
             'stateID' => $notComplete
         ];
-        Route::ids(
+        $SnapinJobIDs = Route::getIds(
             'snapinjob',
             $findWhere
         );
-        $SnapinJobIDs = json_decode(Route::getData(), true);
         $findWhere = [
             'stateID' => $notComplete,
             'jobID' => $SnapinJobIDs
         ];
-        Route::ids(
+        $SnapinTaskIDs = Route::getIds(
             'snapintask',
             $findWhere
         );
-        $SnapinTaskIDs = json_decode(Route::getData(), true);
         $findWhere = ['taskID' => $taskids];
-        Route::ids(
+        $MulticastSessionAssocIDs = Route::getIds(
             'multicastsessionassociation',
             $findWhere
         );
-        $MulticastSessionAssocIDs = json_decode(Route::getData(), true);
-        Route::ids(
+        $MulticastSessionIDs = Route::getIds(
             'multicastsessionassociation',
             $findWhere,
             'msID'
         );
-        $MulticastSessionIDs = json_decode(Route::getData(), true);
         $findNew = [
             'stateID' => $notComplete,
             'id' => $MulticastSessionIDs
         ];
-        Route::ids(
+        $MulticastSessionIDs = Route::getIds(
             'multicastsession',
             $findNew
         );
-        $MulticastSessionIDs = json_decode(Route::getData(), true);
         if (count($MulticastSessionAssocIDs ?: [])) {
             Route::deletemass(
                 'multicastsessionassociation',

@@ -1029,13 +1029,9 @@ class HostManagement extends FOGPage
                     )
                 );
             }
-            Route::ids(
+            $ModuleIDs = Route::getIds(
                 'module',
                 ['isDefault' => 1]
-            );
-            $ModuleIDs = json_decode(
-                Route::getData(),
-                true
             );
             self::$Host
                 ->set('name', $host)
@@ -1708,13 +1704,9 @@ class HostManagement extends FOGPage
                 'primary' => [1]
             ];
 
-            Route::ids(
+            $hasPrimary = Route::getIds(
                 'macaddressassociation',
                 $find
-            );
-            $hasPrimary = json_decode(
-                Route::getData(),
-                true
             );
 
             if (count($hasPrimary ?: []) > 0) {
@@ -1729,15 +1721,10 @@ class HostManagement extends FOGPage
                 'primary' => [0, '']
             ];
 
-            Route::ids(
+            $toRemove = Route::getIds(
                 'macaddressassociation',
                 $find,
                 'mac'
-            );
-
-            $toRemove = json_decode(
-                Route::getData(),
-                true
             );
 
             if (count($toRemove ?: []) < 1) {
@@ -4776,12 +4763,10 @@ class HostManagement extends FOGPage
             self::getCompleteState()
         ];
 
-        Route::ids(
+        $snapinJobs = Route::getIds(
             'snapinjob',
             ['hostID' => $hostID]
         );
-
-        $snapinJobs = json_decode(Route::getData(), true);
         $snapinJobs = array_filter(
             array_map('intval', (array)$snapinJobs),
             function ($id) {
@@ -4862,12 +4847,11 @@ class HostManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        Route::ids(
+        $printersAssigned = Route::getIds(
             'printerassociation',
             ['hostID' => $this->obj->get('id')],
             'printerID'
         );
-        $printersAssigned = json_decode(Route::getData(), true);
         if (!count($printersAssigned ?: [])) {
             $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
@@ -4885,7 +4869,7 @@ class HostManagement extends FOGPage
             $printers[$printer->id] = $printer->name;
         }
         unset($printerNames);
-        Route::ids(
+        $defaultprinter = Route::getIds(
             'printerassociation',
             [
                 'hostID' => $this->obj->get('id'),
@@ -4893,7 +4877,6 @@ class HostManagement extends FOGPage
             ],
             'printerID'
         );
-        $defaultprinter = json_decode(Route::getData(), true);
         $defaultprinter = array_shift($defaultprinter);
         $printerSelector = self::selectForm(
             'printer',

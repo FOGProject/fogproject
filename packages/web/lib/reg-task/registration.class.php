@@ -83,13 +83,9 @@ class Registration extends FOGBase
                 )
             );
             $find = ['isDefault' => 1];
-            Route::ids(
+            $this->modulesToJoin = Route::getIds(
                 'module',
                 $find
-            );
-            $this->modulesToJoin = json_decode(
-                Route::getData(),
-                true
             );
             $this->description = sprintf(
                 '%s %s',

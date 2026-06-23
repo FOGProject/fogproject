@@ -1054,11 +1054,10 @@ class StorageGroupManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        Route::ids(
+        $storagenodesAssigned = Route::getIds(
             'storagenode',
             ['storagegroupID' => $this->obj->get('id')]
         );
-        $storagenodesAssigned = json_decode(Route::getData(), true);
         if (!count($storagenodesAssigned ?: [])) {
             $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
@@ -1077,7 +1076,7 @@ class StorageGroupManagement extends FOGPage
             unset($storagenode);
         }
         unset($storagenodeNames);
-        Route::ids(
+        $masterstoragenode = Route::getIds(
             'storagenode',
             [
                 'storagegroupID' => $this->obj->get('id'),
@@ -1085,7 +1084,6 @@ class StorageGroupManagement extends FOGPage
             ],
             'id'
         );
-        $masterstoragenode = json_decode(Route::getData(), true);
         $masterstoragenode = array_shift($masterstoragenode);
         $storagenodeSelector = self::selectForm(
             'storagenode',

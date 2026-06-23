@@ -90,14 +90,10 @@ class TaskScheduler extends FOGService
                 'stateID' => self::getQueuedStates(),
                 'wol' => 1
             ];
-            Route::ids(
+            $taskHostIDs = Route::getIds(
                 'task',
                 $findWhere,
                 'hostID'
-            );
-            $taskHostIDs = json_decode(
-                Route::getData(),
-                true
             );
             $hostCount = count($taskHostIDs);
             if ($hostCount > 0) {
@@ -105,14 +101,10 @@ class TaskScheduler extends FOGService
                     'hostID' => $taskHostIDs,
                     'pending' => [0, '']
                 ];
-                Route::ids(
+                $hostMACs = Route::getIds(
                     'macaddressassociation',
                     $find,
                     'mac'
-                );
-                $hostMACs = json_decode(
-                    Route::getData(),
-                    true
                 );
                 $hostMACs = self::parseMacList($hostMACs);
                 $macCount = count($hostMACs);

@@ -107,12 +107,11 @@ class StorageGroup extends FOGController
     protected function loadImages()
     {
         $find = ['storagegroupID' => $this->get('id')];
-        Route::ids(
+        $imageIDs = Route::getIds(
             'imageassociation',
             $find,
             'imageID'
         );
-        $imageIDs = json_decode(Route::getData(), true);
         $this->set('images', (array)$imageIDs);
     }
     /**
@@ -123,12 +122,11 @@ class StorageGroup extends FOGController
     protected function loadSnapins()
     {
         $find = ['storagegroupID' => $this->get('id')];
-        Route::ids(
+        $snapinIDs = Route::getIds(
             'snapingroupassociation',
             $find,
             'snapinID'
         );
-        $snapinIDs = json_decode(Route::getData(), true);
         $this->set('snapins', (array)$snapinIDs);
     }
     /**
@@ -139,11 +137,10 @@ class StorageGroup extends FOGController
     protected function loadAllnodes()
     {
         $find = ['storagegroupID' => $this->get('id')];
-        Route::ids(
+        $allnodes = Route::getIds(
             'storagenode',
             $find
         );
-        $allnodes = json_decode(Route::getData(), true);
         $this->set('allnodes', (array)$allnodes);
     }
     /**
@@ -233,12 +230,11 @@ class StorageGroup extends FOGController
     public function getTotalSupportedClients()
     {
         $find = ['id' => $this->get('enablednodes')];
-        Route::ids(
+        $maxClients = Route::getIds(
             'storagenode',
             $find,
             'maxClients'
         );
-        $maxClients = json_decode(Route::getData(), true);
         return array_sum($maxClients);
     }
     /**

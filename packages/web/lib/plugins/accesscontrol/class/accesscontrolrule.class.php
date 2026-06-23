@@ -97,14 +97,10 @@ class AccessControlRule extends FOGController
     protected function loadAccesscontrols()
     {
         $find = ['accesscontrolruleID' => $this->get('id')];
-        Route::ids(
+        $roleIDs = Route::getIds(
             'accesscontrolassociation',
             $find,
             'accesscontrolID'
-        );
-        $roleIDs = json_decode(
-            Route::getData(),
-            true
         );
         $this->set('accesscontrols', (array)$roleIDs);
     }

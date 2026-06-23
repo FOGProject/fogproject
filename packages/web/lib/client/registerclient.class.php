@@ -62,12 +62,7 @@ class RegisterClient extends FOGClient
             'hostID' => self::$Host->get('id'),
             'pending' => [1]
         ];
-        Route::ids(
-            'macaddressassociation',
-            $find,
-            'mac'
-        );
-        $pendingMACcount = count(json_decode(Route::getData(), true) ?: []);
+        $pendingMACcount = count(Route::getIds('macaddressassociation', $find, 'mac') ?: []);
         if (!self::$Host->isValid()) {
             self::$Host = self::getClass(
                 'Host',
@@ -83,13 +78,9 @@ class RegisterClient extends FOGClient
                 }
                 $PriMAC = array_shift($MACs);
                 $find = ['isDefault' => 1];
-                Route::ids(
+                $modules = Route::getIds(
                     'module',
                     $find
-                );
-                $modules = json_decode(
-                    Route::getData(),
-                    true
                 );
                 self::$Host = self::getClass('Host')
                     ->set('name', $hostname)

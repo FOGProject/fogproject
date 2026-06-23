@@ -123,14 +123,10 @@ class WindowsKey extends FOGController
     protected function loadImages()
     {
         $find = ['windowskeyID' => $this->get('id')];
-        Route::ids(
+        $images = Route::getIds(
             'windowskeyassociation',
             $find,
             'imageID'
-        );
-        $images = json_decode(
-            Route::getData(),
-            true
         );
         $this->set('images', (array)$images);
     }

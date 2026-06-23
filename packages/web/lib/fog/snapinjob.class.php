@@ -83,11 +83,10 @@ class SnapinJob extends FOGController
     protected function loadSnapintasks()
     {
         $find = ['jobID' => $this->get('id')];
-        Route::ids(
+        $snapintasks = Route::getIds(
             'snapintask',
             $find
         );
-        $snapintasks = json_decode(Route::getData(), true);
         $this->set('snapintasks', (array)$snapintasks);
     }
     /**

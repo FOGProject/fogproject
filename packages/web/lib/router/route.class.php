@@ -1720,11 +1720,7 @@ class Route extends FOGBase
                     break;
                 case 'group':
                     if (isset($vars->snapins)) {
-                        Route::ids('snapin', false);
-                        $snapins = json_decode(
-                            Route::getData(),
-                            true
-                        );
+                        $snapins = Route::getIds('snapin', false);
                         $snapinsToRem = array_diff(
                             $snapins,
                             (array)$vars->snapins
@@ -1734,11 +1730,7 @@ class Route extends FOGBase
                             ->addSnapin($vars->snapins);
                     }
                     if (isset($vars->printers)) {
-                        Route::ids('printer', false);
-                        $printers = json_decode(
-                            Route::getData(),
-                            true
-                        );
+                        $printers = Route::getIds('printer', false);
                         $printersToRem = array_diff(
                             $printers,
                             (array)$vars->printers
@@ -1748,11 +1740,7 @@ class Route extends FOGBase
                             ->addPrinter($vars->printers);
                     }
                     if (isset($vars->modules)) {
-                        Route::ids('module', false);
-                        $modules = json_decode(
-                            Route::getData(),
-                            true
-                        );
+                        $modules = Route::getIds('module', false);
                         $modulesToRem = array_diff(
                             $modules,
                             (array)$vars->modules
@@ -1858,11 +1846,7 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_NOT_FOUND
             );
         }
-        Route::ids('tasktype', false);
-        $tids = json_decode(
-            Route::getData(),
-            true
-        );
+        $tids = Route::getIds('tasktype', false);
         $task = json_decode(
             file_get_contents('php://input')
         );
@@ -2754,6 +2738,33 @@ class Route extends FOGBase
         }
     }
     /**
+     * Returns the matching ids directly as a PHP array.
+     *
+     * Convenience wrapper around ids() that skips the
+     * json_encode/json_decode round-trip getData() incurs, for the
+     * common `Route::ids(...); json_decode(Route::getData())` idiom.
+     *
+     * @param string $class      The class to get list of.
+     * @param array  $whereItems The items to filter.
+     * @param string $getField   The field to get.
+     * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby    How to order the returned values.
+     *
+     * @return array
+     */
+    public static function getIds(
+        $class,
+        $whereItems = [],
+        $getField = 'id',
+        $operator = 'AND',
+        $orderby = 'name'
+    ) {
+        self::ids($class, $whereItems, $getField, $operator, $orderby);
+        $data = self::$data;
+        self::$data = '';
+        return is_array($data) ? $data : [];
+    }
+    /**
      * Delete items in mass.
      *
      * @param string $class      The class we're to remove items.
@@ -2790,11 +2801,7 @@ class Route extends FOGBase
             $itemIDs = json_decode(Route::getData(), true);
             switch ($classname) {
                 case 'host':
-                    Route::ids(
-                        'snapinjob',
-                        ['hostID' => $itemIDs]
-                    );
-                    $snapinjobIDs = ['jobID' => json_decode(Route::getData(), true)];
+                    $snapinjobIDs = ['jobID' => Route::getIds('snapinjob', ['hostID' => $itemIDs])];
                     $findWhere = ['hostID' => $itemIDs];
                     $removeItems = [
                         'nodefailure' => $findWhere,
@@ -2845,26 +2852,24 @@ class Route extends FOGBase
                     break;
                 case 'snapin':
                     $findWhere = ['snapinID' => $itemIDs];
-                    Route::ids(
+                    $snapinjobIDs = Route::getIds(
                         'snapintask',
                         $findWhere,
                         'jobID'
                     );
-                    $snapinjobIDs = json_decode(Route::getData(), true);
                     $removeItems = [
                         'snapinassociation' => $findWhere,
                         'snapingroupassociation' => $findWhere
                     ];
                     $queuedStates = self::getQueuedStates();
                     $queuedStates[] = self::getProgressState();
-                    Route::ids(
+                    $snapinjobIDs = Route::getIds(
                         'snapinjob',
                         [
                             'id' => $snapinjobIDs,
                             'stateID' => $queuedStates
                         ]
                     );
-                    $snapinjobIDs = json_decode(Route::getData(), true);
                     $sjIDs = [];
                     foreach ((array)$snapinjobIDs as &$sjID) {
                         $jobCount = self::getCount(
@@ -3250,13 +3255,9 @@ class Route extends FOGBase
                     $ids = [];
                     foreach ($vars->names as &$name) {
                         $exists = $classman->exists($name);
-                        Route::ids(
+                        $id = Route::getIds(
                             $classname,
                             ['name' => $name]
-                        );
-                        $id = json_decode(
-                            Route::getData(),
-                            true
                         );
                         if ($exists) {
                             foreach ($id as &$i) {

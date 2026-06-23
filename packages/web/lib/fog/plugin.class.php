@@ -102,11 +102,10 @@ class Plugin extends FOGController
     {
         $Plugins = [];
         foreach ((array) $this->_getDirs() as &$file) {
-            Route::ids(
+            $pluginID = Route::getIds(
                 'plugin',
                 ['name' => basename($file)]
             );
-            $pluginID = json_decode(Route::getData(), true);
             $pluginID = count($pluginID ?: []) ? @min($pluginID) : 0;
             $configFile = sprintf(
                 '%s/config/plugin.config.php',

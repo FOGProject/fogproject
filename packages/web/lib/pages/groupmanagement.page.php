@@ -1849,14 +1849,13 @@ class GroupManagement extends FOGPage
         $inventories = json_decode(Route::getData());
 
         // Get the host names
-        Route::ids(
+        $hostnames = Route::getIds(
             'host',
             ['id' => $this->obj->get('hosts')],
             'name',
             'AND',
             'id'
         );
-        $hostnames = json_decode(Route::getData(), true);
 
         // Just to make the fields nice and formatted.
         $labelClass = 'col-sm-3 control-label';
@@ -3000,8 +2999,7 @@ class GroupManagement extends FOGPage
         );
         $printerID = trim(filter_input(INPUT_GET, 'printerID'));
 
-        Route::ids('printer', false);
-        $printersAvail = json_decode(Route::getData(), true);
+        $printersAvail = Route::getIds('printer', false);
         if (!count($printersAvail ?: [])) {
             $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
@@ -3293,9 +3291,8 @@ class GroupManagement extends FOGPage
                     'hostID' => $hostIDs
                 ]
             );
-            Route::ids($map[$type]['class'], $find, 'hostID');
             $hasSet = array_flip(
-                array_map('intval', (array)json_decode(Route::getData(), true))
+                array_map('intval', (array)Route::getIds($map[$type]['class'], $find, 'hostID'))
             );
             foreach ($order as $hostID) {
                 $entry = [
@@ -3556,13 +3553,9 @@ class GroupManagement extends FOGPage
                 'id' => $hosts,
                 'pending' => ['', 0]
             ];
-            Route::ids(
+            $hosts = Route::getIds(
                 'host',
                 $find
-            );
-            $hosts = json_decode(
-                Route::getData(),
-                true
             );
             if (count($hosts ?: []) < 1) {
                 throw new Exception(_('No hosts available to be tasked'));
@@ -3817,12 +3810,10 @@ class GroupManagement extends FOGPage
             self::getCompleteState()
         ];
 
-        Route::ids(
+        $snapinJobs = Route::getIds(
             'snapinjob',
             ['hostID' => $hostID]
         );
-
-        $snapinJobs = json_decode(Route::getData(), true);
         $snapinJobs = array_filter(
             array_map('intval', (array)$snapinJobs),
             function ($id) {

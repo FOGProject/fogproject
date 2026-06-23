@@ -138,21 +138,19 @@ class ImageSize extends FOGService
                     'primary' => 1,
                     'storagegroupID' => $myStorageGroupID
                 ];
-                Route::ids(
+                $imageIDs = Route::getIds(
                     'imageassociation',
                     $find,
                     'imageID'
                 );
-                $imageIDs = json_decode(Route::getData(), true);
                 $find = [
                     'id' => $imageIDs,
                     'isEnabled' => 1
                 ];
-                Route::ids(
+                $imageIDs = Route::getIds(
                     'image',
                     $find
                 );
-                $imageIDs = json_decode(Route::getData(), true);
                 $ImageCount = count($imageIDs ?: []);
                 if ($ImageCount < 1) {
                     self::outall(

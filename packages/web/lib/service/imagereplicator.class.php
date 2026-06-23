@@ -154,11 +154,10 @@ class ImageReplicator extends FOGService
                     'isEnabled' => [1],
                     'toReplicate' => [1]
                 ];
-                Route::ids(
+                $imageIDs = Route::getIds(
                     'image',
                     $find
                 );
-                $imageIDs = json_decode(Route::getData(), true);
                 $ImageAssocCount = Route::getCount(
                     'imageassociation',
                     [
@@ -200,12 +199,11 @@ class ImageReplicator extends FOGService
                     'storagegroupID' => $myStorageGroupID,
                     'imageID' => $imageIDs
                 ];
-                Route::ids(
+                $imageIDs = Route::getIds(
                     'imageassociation',
                     $find,
                     'imageID'
                 );
-                $imageIDs = json_decode(Route::getData(), true);
                 Route::listem(
                     'image',
                     ['id' => $imageIDs]

@@ -78,27 +78,19 @@ class DelAccessControlMenuItem extends Hook
     {
         global $node;
         $find = ['userID' => self::$FOGUser->get('id')];
-        Route::ids(
+        $accesscontrols = Route::getIds(
             'accesscontrolassociation',
             $find,
             'accesscontrolID'
-        );
-        $accesscontrols = json_decode(
-            Route::getData(),
-            true
         );
         if (!$accesscontrols) {
             return new stdClass(['data' => []]);
         }
         $find = ['accesscontrolID' => $accesscontrols];
-        Route::ids(
+        $ruleIDs = Route::getIds(
             'accesscontrolruleassociation',
             $find,
             'accesscontrolruleID'
-        );
-        $ruleIDs = json_decode(
-            Route::getData(),
-            true
         );
         if (!$ruleIDs) {
             return new stdClass(['data' => []]);

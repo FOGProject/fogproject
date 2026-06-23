@@ -33,39 +33,30 @@ try {
         'stateID' => $FOGCore->getQueuedStates(),
         'jobID' => $SnapinJob->get('id')
     ];
-    Route::ids(
+    $snapins = Route::getIds(
         'snapintask',
         $find,
         'snapinID'
-    );
-    $snapins = json_decode(
-        Route::getData()
     );
     $snapinIDs = [];
     foreach ($snapins as $snapin) {
         $snapinIDs[] = $snapin->snapinID;
     }
     if (isset($_REQUEST['getSnapnames'])) {
-        Route::ids(
+        $snapins = Route::getIds(
             'snapin',
             ['id' => $snapinIDs],
             'name'
-        );
-        $snapins = json_decode(
-            Route::getData()
         );
         $snapinnames = [];
         foreach ($snapins as $snapin) {
             $snapinnames[] = $snapin->name;
         }
     } elseif (isset($_REQUEST['getSnapargs'])) {
-        Route::ids(
+        $snapins = Route::getIds(
             'snapin',
             ['id' => $snapinIDs],
             'args'
-        );
-        $snapins = json_decode(
-            Route::getData()
         );
         $snapinnames = [];
         foreach ($snapins as $snapin) {

@@ -43,12 +43,11 @@ class SnapinTaskManager extends FOGManagerController
         /**
          * Get any snapin job IDs
          */
-        Route::ids(
+        $snapinJobIDs = Route::getIds(
             'snapintask',
             $findWhere,
             'jobID'
         );
-        $snapinJobIDs = json_decode(Route::getData(), true);
         /**
          * Get our queued/in progress states
          */

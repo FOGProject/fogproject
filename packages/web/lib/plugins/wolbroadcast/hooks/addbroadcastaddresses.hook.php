@@ -67,14 +67,10 @@ class AddBroadcastAddresses extends Hook
      */
     public function addBCaddr($arguments)
     {
-        Route::ids(
+        $wolbroadcasts = Route::getIds(
             'wolbroadcast',
             [],
             'broadcast'
-        );
-        $wolbroadcasts = json_decode(
-            Route::getData(),
-            true
         );
         $arguments['broadcast'] = self::fastmerge(
             (array)$arguments['broadcast'],

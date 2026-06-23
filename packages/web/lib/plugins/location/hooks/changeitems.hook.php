@@ -244,14 +244,10 @@ class ChangeItems extends Hook
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) {
             return;
         }
-        Route::ids(
+        $storagenodes = Route::getIds(
             'location',
             [],
             'storagenodeID'
-        );
-        $storagenodes = json_decode(
-            Route::getData(),
-            true
         );
         $storagenodeIDs = array_unique(
             array_filter(

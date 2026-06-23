@@ -54,14 +54,10 @@ class PrinterClient extends FOGClient
         if (!in_array($level, array_keys(self::$_modes))) {
             $level = 0;
         }
-        Route::ids(
+        $allPrinters = Route::getIds(
             'printer',
             [],
             'name'
-        );
-        $allPrinters = json_decode(
-            Route::getData(),
-            true
         );
         @natcasesort($allPrinters);
         $printerIDs = self::$Host->get('printers');
@@ -79,19 +75,17 @@ class PrinterClient extends FOGClient
             'hostID' => self::$Host->get('id'),
             'isDefault' => 1
         ];
-        Route::ids(
+        $defaultID = Route::getIds(
             'printerassociation',
             $find,
             'printerID'
         );
-        $defaultID = json_decode(Route::getData(), true);
         $find = ['id' => $defaultID];
-        Route::ids(
+        $defaultName = Route::getIds(
             'printer',
             $find,
             'name'
         );
-        $defaultName = json_decode(Route::getData(), true);
         if (count($defaultName ?: []) != 1) {
             $default = '';
         } else {

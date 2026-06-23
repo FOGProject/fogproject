@@ -81,13 +81,9 @@ class AccessControlAssociationManager extends FOGManagerController
      */
     public function seedAssoc()
     {
-        Route::ids(
+        $fogUserID = Route::getIds(
             'user',
             ['name' => 'fog']
-        );
-        $fogUserID = json_decode(
-            Route::getData(),
-            true
         );
         $fogUserID = array_shift($fogUserID);
         $sql = sprintf(

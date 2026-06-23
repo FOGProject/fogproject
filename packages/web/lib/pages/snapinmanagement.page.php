@@ -206,8 +206,7 @@ class SnapinManagement extends FOGPage
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
-            Route::ids('storagegroup', false);
-            $sgID = @min(json_decode(Route::getData(), true));
+            $sgID = @min(Route::getIds('storagegroup', false));
         }
         $StorageGroup = new StorageGroup($sgID);
         $StorageGroups = self::getClass('StorageGroupManager')
@@ -1613,12 +1612,11 @@ class SnapinManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        Route::ids(
+        $storagegroupsAssigned = Route::getIds(
             'snapingroupassociation',
             ['snapinID' => $this->obj->get('id')],
             'storagegroupID'
         );
-        $storagegroupsAssigned = json_decode(Route::getData(), true);
         if (!count($storagegroupsAssigned ?: [])) {
             $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
                 [
@@ -1637,7 +1635,7 @@ class SnapinManagement extends FOGPage
             unset($storagegroup);
         }
         unset($storagegroupNames);
-        Route::ids(
+        $primarystoragegroup = Route::getIds(
             'snapingroupassociation',
             [
                 'snapinID' => $this->obj->get('id'),
@@ -1645,7 +1643,6 @@ class SnapinManagement extends FOGPage
             ],
             'storagegroupID'
         );
-        $primarystoragegroup = json_decode(Route::getData(), true);
         $primarystoragegroup = array_shift($primarystoragegroup);
         $storagegroupSelector = self::selectForm(
             'storagegroup',

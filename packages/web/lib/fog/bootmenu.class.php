@@ -291,14 +291,7 @@ class BootMenu extends FOGBase
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        Route::ids(
-            'storagenode',
-            [
-                'isEnabled' => 1,
-                'isMaster' => 1
-            ]
-        );
-        $StorageNodeID = @min(json_decode(Route::getData(), true));
+        $StorageNodeID = @min(Route::getIds('storagenode', ['isEnabled' => 1, 'isMaster' => 1]));
         $StorageNode = new StorageNode($StorageNodeID);
         $serviceNames = [
             'FOG_EFI_BOOT_EXIT_TYPE',
@@ -436,14 +429,12 @@ class BootMenu extends FOGBase
                 $StorageNode = new StorageNode(0);
             }
             if (!$StorageNode->isValid()) {
-                Route::ids(
+                $storageNodeIDs = Route::getIds(
                     'storagenode',
                     ['isMaster' => 1]
                 );
-                $storageNodeIDs = json_decode(Route::getData(), true);
                 if (count($storageNodeIDs ?: []) < 1) {
-                    Route::ids('storagenode', false);
-                    $storageNodeIDs = json_decode(Route::getData(), true);
+                    $storageNodeIDs = Route::getIds('storagenode', false);
                 }
                 $StorageNode = new StorageNode(@min($storageNodeIDs));
             }
@@ -489,11 +480,7 @@ class BootMenu extends FOGBase
         $this->_initrd = "imgfetch $imagefile";
         self::$HookManager
             ->processEvent('BOOT_MENU_ITEM');
-        Route::ids(
-            'pxemenuoptions',
-            ['default' => 1]
-        );
-        $PXEMenuID = @max(json_decode(Route::getData(), true));
+        $PXEMenuID = @max(Route::getIds('pxemenuoptions', ['default' => 1]));
         $defaultMenu = new PXEMenuOptions($PXEMenuID);
         $menuname = (
             $defaultMenu->isValid() ?
@@ -563,11 +550,10 @@ class BootMenu extends FOGBase
                 ''
             ),
         ];
-        Route::ids(
+        $id = Route::getIds(
             'ipxe',
             $findWhere
         );
-        $id = json_decode(Route::getData(), true);
         $id = count($id ?: []) ? max($id) : 0;
         self::getClass('iPXE', $id)
             ->set('product', $findWhere['product'])
@@ -1338,11 +1324,7 @@ class BootMenu extends FOGBase
             $TaskType = $Task->getTaskType();
             $imagingTasks = $TaskType->isImagingTask();
             if ($TaskType->isMulticast()) {
-                Route::ids(
-                    'multicastsessionassociation',
-                    ['taskID' => $Task->get('id')]
-                );
-                $msaID = @max(json_decode(Route::getData(), true));
+                $msaID = @max(Route::getIds('multicastsessionassociation', ['taskID' => $Task->get('id')]));
                 $MulticastSessionAssoc = new MulticastSessionAssociation($msaID);
                 $MulticastSession = $MulticastSessionAssoc->getMulticastSession();
                 if ($MulticastSession && $MulticastSession->isValid()) {

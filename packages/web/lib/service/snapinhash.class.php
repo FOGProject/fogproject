@@ -137,21 +137,19 @@ class SnapinHash extends FOGService
                     'primary' => 1,
                     'storagegroupID' => $myStorageGroupID
                 ];
-                Route::ids(
+                $snapinIDs = Route::getIds(
                     'snapingroupassociation',
                     $find,
                     'snapinID'
                 );
-                $snapinIDs = json_decode(Route::getData(), true);
                 $find = [
                     'id' => $snapinIDs,
                     'isEnabled' => 1
                 ];
-                Route::ids(
+                $snapinIDs = Route::getIds(
                     'snapin',
                     $find
                 );
-                $snapinIDs = json_decode(Route::getData(), true);
                 $SnapinCount = count($snapinIDs ?: []);
                 if ($SnapinCount < 1) {
                     self::outall(

@@ -381,17 +381,15 @@ class MulticastManager extends FOGService
                         $find = [];
                         $find['id'] = $taskIDs;
                         $find['stateID'] = self::getCancelledState();
-                        Route::ids(
+                        $inTaskCancelledIDs = Route::getIds(
                             'task',
                             $find
                         );
-                        $inTaskCancelledIDs = json_decode(Route::getData(), true);
                         $find['stateID'] = self::getCompleteState();
-                        Route::ids(
+                        $inTaskCompletedIDs = Route::getIds(
                             'task',
                             $find
                         );
-                        $inTaskCompletedIDs = json_decode(Route::getData(), true);
                         $Session = $runningTask->getSess();
                         $SessCancelled = $Session->get('stateID')
                             == self::getCancelledState();

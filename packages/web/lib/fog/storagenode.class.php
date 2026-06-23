@@ -326,11 +326,10 @@ class StorageNode extends FOGController
     {
         $response = $this->_getData('images');
         $values = array_map('basename', (array)$response);
-        Route::ids(
+        $values = Route::getIds(
             'storagenode',
             ['path' => $values]
         );
-        $values = json_decode(Route::getData(), true);
         $this->set('images', $values);
     }
     /**
@@ -393,18 +392,16 @@ class StorageNode extends FOGController
             'stateID' => self::getProgressState(),
             'typeID' => TaskType::MULTICAST
         ];
-        Route::ids(
+        $taskids = Route::getIds(
             'task',
             $find
         );
-        $taskids = json_decode(Route::getData(), true);
         $find = ['taskID' => $taskids];
-        Route::ids(
+        $msids = Route::getIds(
             'multicastsessionassociation',
             $find,
             'msID'
         );
-        $msids = json_decode(Route::getData(), true);
         $countTasks += count($msids);
 
         return $countTasks;
@@ -435,18 +432,16 @@ class StorageNode extends FOGController
             'stateID' => self::getQueuedStates(),
             'typeID' => TaskType::MULTICAST
         ];
-        Route::ids(
+        $taskids = Route::getIds(
             'task',
             $find
         );
-        $taskids = json_decode(Route::getData(), true);
         $find = ['taskID' => $taskids];
-        Route::ids(
+        $msids = Route::getIds(
             'multicastsessionassociation',
             $find,
             'msID'
         );
-        $msids = json_decode(Route::getData(), true);
         $countTasks += count($msids);
 
         return $countTasks;

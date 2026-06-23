@@ -172,12 +172,11 @@ class AddLocationGroup extends Hook
         );
         $insert_fields = ['hostID', 'locationID'];
         $insert_values = [];
-        Route::ids(
+        $hosts = Route::getIds(
             'groupassociation',
             ['groupID' => $obj->get('id')],
             'hostID'
         );
-        $hosts = json_decode(Route::getData(), true);
         if (count($hosts ?: [])) {
             Route::deletemass(
                 'locationassociation',

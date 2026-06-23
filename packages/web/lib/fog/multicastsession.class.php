@@ -103,12 +103,11 @@ class MulticastSession extends FOGController
     public function cancel()
     {
         $find = ['msID' => $this->get('id')];
-        Route::ids(
+        $taskIDs = Route::getIds(
             'multicastsessionassociation',
             $find,
             'taskID'
         );
-        $taskIDs = json_decode(Route::getData(), true);
         self::getClass('TaskManager')->update(
             ['id' => $taskIDs],
             '',
@@ -133,12 +132,11 @@ class MulticastSession extends FOGController
     public function complete()
     {
         $find = ['msID' => $this->get('id')];
-        Route::ids(
+        $taskIDs = Route::getIds(
             'multicastsessionassociation',
             $find,
             'taskID'
         );
-        $taskIDs = json_decode(Route::getData(), true);
         self::getClass('TaskManager')->update(
             ['id' => $taskIDs],
             '',

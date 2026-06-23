@@ -79,12 +79,11 @@ abstract class FOGService extends FOGBase
             '/%s/',
             $logpath
         );
-        Route::ids(
+        self::$knownips = Route::getIds(
             'storagenode',
             ['isEnabled' => 1],
             'ip'
         );
-        self::$knownips = json_decode(Route::getData(), true);
     }
     /**
      * Checks if the node runnning this is indeed the master

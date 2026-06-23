@@ -153,11 +153,10 @@ class SnapinReplicator extends FOGService
                     'isEnabled' => [1],
                     'toReplicate' => [1]
                 ];
-                Route::ids(
+                $snapinIDs = Route::getIds(
                     'snapin',
                     $find
                 );
-                $snapinIDs = json_decode(Route::getData(), true);
                 $SnapinAssocCount = Route::getCount(
                     'snapingroupassociation',
                     [
@@ -198,12 +197,11 @@ class SnapinReplicator extends FOGService
                     'storagegroupID' => $myStorageGroupID,
                     'snapinID' => $snapinIDs
                 ];
-                Route::ids(
+                $snapinIDs = Route::getIds(
                     'snapingroupassociation',
                     $find,
                     'snapinID'
                 );
-                $snapinIDs = json_decode(Route::getData(), true);
                 Route::listem(
                     'snapin',
                     ['id' => $snapinIDs]

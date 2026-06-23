@@ -76,27 +76,19 @@ class ListSiteHosts extends Hook
             return;
         }
         $find = ['userID' => self::$FOGUser->get('id')];
-        Route::ids(
+        $sites = Route::getIds(
             'siteuserassociation',
             $find,
             'siteID'
-        );
-        $sites = json_decode(
-            Route::getData(),
-            true
         );
         if (!$sites) {
             return;
         }
         $find = ['siteID' => $sites];
-        Route::ids(
+        $hosts = Route::getIds(
             'sitehostassociation',
             $find,
             'hostID'
-        );
-        $hosts = json_decode(
-            Route::getData(),
-            true
         );
         if (!$hosts) {
             return;

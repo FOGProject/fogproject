@@ -65,14 +65,10 @@ class HookDebugger extends Hook
     public function __construct()
     {
         parent::__construct();
-        Route::ids(
+        $events = Route::getIds(
             'hookevent',
             [],
             'name'
-        );
-        $events = json_decode(
-            Route::getData(),
-            true
         );
         foreach ($events as &$event) {
             self::$HookManager->register(

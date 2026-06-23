@@ -429,12 +429,7 @@ class FOGURLRequests extends FOGBase
                 'FOG_PROXY_USERNAME'
             ]
         );
-        Route::ids(
-            'storagenode',
-            ['isEnabled' => [1]],
-            'ip'
-        );
-        $IPs = json_decode(Route::getData(), true) ?: [];
+        $IPs = Route::getIds('storagenode', ['isEnabled' => [1]], 'ip') ?: [];
         $options = [];
         if ($ip) {
             $options[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;

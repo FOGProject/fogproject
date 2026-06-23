@@ -134,11 +134,10 @@ class Image extends FOGController
     {
         parent::save();
         if ($this->isLoaded('hosts')) {
-            Route::ids(
+            $ids = Route::getIds(
                 'host',
                 ['imageID' => $this->get('id')]
             );
-            $ids = json_decode(Route::getData(), true);
             if (count($this->get('hosts')) > 0) {
                 $DBIDs = $ids;
             } else {
@@ -182,12 +181,11 @@ class Image extends FOGController
             'imageID' => $this->get('id'),
             'primary' => 1
         ];
-        Route::ids(
+        $primary = Route::getIds(
             'imageassociation',
             $find,
             'storagegroupID'
         );
-        $primary = json_decode(Route::getData(), true);
         $this->assocSetter('Image', 'storagegroup');
         if (count($primary) > 0) {
             $primary = array_shift($primary);
@@ -264,15 +262,13 @@ class Image extends FOGController
     protected function loadStoragegroups()
     {
         $find = ['imageID' => $this->get('id')];
-        Route::ids(
+        $groups = Route::getIds(
             'imageassociation',
             $find,
             'storagegroupID'
         );
-        $groups = json_decode(Route::getData(), true);
         if (count($groups) < 1) {
-            Route::ids('storagegroup', false);
-            $groups = json_decode(Route::getData(), true);
+            $groups = Route::getIds('storagegroup', false);
             $groups = [@min($groups)];
         }
         $this->set('storagegroups', $groups);
@@ -318,8 +314,7 @@ class Image extends FOGController
         $groupids = $this->get('storagegroups');
         $count = count($groupids);
         if ($count < 1) {
-            Route::ids('storagegroup', false);
-            $groupids = json_decode(Route::getData(), true);
+            $groupids = Route::getIds('storagegroup', false);
             $groupids = [@min($groupids)];
             if (count($groupids) < 1) {
                 throw new Exception(_('No viable storage groups found'));
@@ -408,11 +403,10 @@ class Image extends FOGController
         if ($primaryCount < 1) {
             Route::indiv('image', $imageID);
             $image = json_decode(Route::getData());
-            Route::ids(
+            $groupid = Route::getIds(
                 'storagegroup',
                 ['id' => $image->storagegroups]
             );
-            $groupid = json_decode(Route::getData(), true);
             $groupid = @min($groupid);
             self::setPrimaryGroup($groupid, $imageID);
         }
@@ -420,11 +414,10 @@ class Image extends FOGController
             'storagegroupID' => $groupID,
             'imageID' => $imageID
         ];
-        Route::ids(
+        $assocID = Route::getIds(
             'imageassociation',
             $find
         );
-        $assocID = json_decode(Route::getData(), true);
         $assocID = @min($assocID);
 
         return self::getClass('ImageAssociation', $assocID)->isPrimary();
@@ -436,7 +429,7 @@ class Image extends FOGController
      */
     public function getPrimaryStorageGroup()
     {
-        Route::ids(
+        $groupids = Route::getIds(
             'imageassociation',
             [
                 'imageID' => $this->get('id'),
@@ -445,7 +438,6 @@ class Image extends FOGController
             ],
             'storagegroupID'
         );
-        $groupids = json_decode(Route::getData(), true);
         if (count($groupids ?: []) < 1) {
             $groupid = @min($this->get('storagegroups'));
         } else {

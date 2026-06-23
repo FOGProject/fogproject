@@ -83,12 +83,11 @@ class ServiceModule extends FOGClient
             }
             unset($en);
         }
-        Route::ids(
+        $hostModules = Route::getIds(
             'moduleassociation',
             ['id' => self::$Host->get('modules')],
             'shortName'
         );
-        $hostModules = json_decode(Route::getData(), true);
         $hostEnabled = (
             self::$newService ?
             array_diff(

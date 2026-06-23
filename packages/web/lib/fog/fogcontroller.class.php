@@ -934,8 +934,7 @@ abstract class FOGController extends FOGBase
      */
     protected function _loadHostIds($route, array $find, $field = 'id')
     {
-        Route::ids($route, $find, $field);
-        $this->set('hosts', (array)json_decode(Route::getData(), true));
+        $this->set('hosts', (array)Route::getIds($route, $find, $field));
     }
     /**
      * Sets the given storage group as the primary one for an entity.
@@ -964,12 +963,11 @@ abstract class FOGController extends FOGBase
             'storagegroupID' => $groupID,
             $field => $entityID
         ];
-        Route::ids(
+        $exists = Route::getIds(
             $assocRoute,
             $find,
             'storagegroupID'
         );
-        $exists = json_decode(Route::getData(), true);
         if (count($exists) < 1) {
             self::getClass($assocClass)
                 ->set($field, $entityID)
@@ -1273,12 +1271,11 @@ abstract class FOGController extends FOGBase
         $items = $this->get($plural);
 
         // Fetch current associations from the database.
-        Route::ids(
+        $cur = Route::getIds(
             $classCall,
             [$objstr => $this->get('id')],
             $assocstr
         );
-        $cur = json_decode(Route::getData(), true);
 
         // Determine items to remove (in $cur but not in $items).
         $rem = array_diff((array)$cur, (array)$items);

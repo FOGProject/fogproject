@@ -39,12 +39,7 @@ class TaskQueue extends TaskingElement
                     ? 'getMasterStorageNode'
                     : 'getOptimalStorageNode';
                 if ($this->Task->isMulticast()) {
-                    Route::ids(
-                        'multicastsessionassociation',
-                        ['taskID' => $this->Task->get('id')],
-                        'msID'
-                    );
-                    $msID = @min(json_decode(Route::getData(), true));
+                    $msID = @min(Route::getIds('multicastsessionassociation', ['taskID' => $this->Task->get('id')], 'msID'));
                     $MulticastSession = self::getClass(
                         'MulticastSession',
                         $msID
@@ -203,23 +198,18 @@ class TaskQueue extends TaskingElement
             'stateID' => self::getQueuedStates(),
             'jobID' => $SnapinJob->get('id')
         ];
-        Route::ids(
+        $SnapinTasks = Route::getIds(
             'snapintask',
             $find,
             'snapinID'
         );
-        $SnapinTasks = json_decode(Route::getData(), true);
         $SnapinNames = [];
         if ($SnapinJob->isValid()) {
             $find = ['id' => $SnapinTasks];
-            Route::ids(
+            $SnapinNames = Route::getIds(
                 'snapin',
                 $find,
                 'name'
-            );
-            $SnapinNames = json_decode(
-                Route::getData(),
-                true
             );
         }
         if (!$emailBinary) {

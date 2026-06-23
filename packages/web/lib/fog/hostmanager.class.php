@@ -159,23 +159,13 @@ class HostManager extends FOGManagerController
             'pending' => [0, ''],
             'mac' => $macs
         ];
-        Route::ids(
-            'macaddressassociation',
-            $find,
-            'hostID'
-        );
-        $MACHost = array_unique(json_decode(Route::getData(), true));
+        $MACHost = array_unique(Route::getIds('macaddressassociation', $find, 'hostID'));
         if (count($MACHost) < 1) {
             return;
         }
         if (count($MACHost) > 1) {
             $find['primary'] = 1;
-            Route::ids(
-                'macaddressassociation',
-                $find,
-                'hostID'
-            );
-            $MACHost = array_unique(json_decode(Route::getData(), true));
+            $MACHost = array_unique(Route::getIds('macaddressassociation', $find, 'hostID'));
             $macs = (array)$macs;
 
             if (count($MACHost ?? []) < 1) {
@@ -185,18 +175,10 @@ class HostManager extends FOGManagerController
                 $hostIDCounts = [];
                 error_log(self::$foglang['ErrorMultipleHosts'].'.');
                 foreach ($macs as $mac) {
-                    Route::ids(
-                        'macaddressassociation',
-                        [
-                            'pending' => [0, ''],
-                            'mac' => [$mac]
-                        ],
-                        'hostID'
-                    );
 
                     // So we can loop and print the individual host IDs
                     // as they're associated to devices.
-                    $hostIDs = json_decode(Route::getData(), true);
+                    $hostIDs = Route::getIds('macaddressassociation', ['pending' => [0, ''], 'mac' => [$mac]], 'hostID');
                     // Loop through the hostIDs
                     // and whichever host id occurs the most
                     // can be suspected "true" host and we can

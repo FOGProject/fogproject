@@ -138,14 +138,10 @@ class AccessControl extends FOGController
     protected function loadUsers()
     {
         $find = ['accesscontrolID' => $this->get('id')];
-        Route::ids(
+        $accesscontrols = Route::getIds(
             'accesscontrolassociation',
             $find,
             'userID'
-        );
-        $accesscontrols = json_decode(
-            Route::getData(),
-            true
         );
         $types = [];
         self::$HookManager->processEvent(
@@ -153,13 +149,9 @@ class AccessControl extends FOGController
             ['types' => &$types]
         );
         $find = ['types' => $types];
-        Route::ids(
+        $userid = Route::getIds(
             'user',
             $find
-        );
-        $userid = json_decode(
-            Route::getData(),
-            true
         );
         $associds = array_diff(
             $accesscontrols,
@@ -176,14 +168,10 @@ class AccessControl extends FOGController
     protected function loadAccesscontrolrules()
     {
         $find = ['accesscontrolID' => $this->get('id')];
-        Route::ids(
+        $ruleIDs = Route::getIds(
             'accesscontrolruleassociation',
             $find,
             'accesscontrolruleID'
-        );
-        $ruleIDs = json_decode(
-            Route::getData(),
-            true
         );
         $this->set('accesscontrolrules', (array)$ruleIDs);
     }

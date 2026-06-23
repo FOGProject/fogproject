@@ -104,12 +104,11 @@ abstract class FOGClient extends FOGBase
                 'id' => self::$Host->get('modules'),
                 'shortName' => $this->shortName
             ];
-            Route::ids(
+            $hostModInfo = Route::getIds(
                 'module',
                 $find,
                 'shortName'
             );
-            $hostModInfo = json_decode(Route::getData(), true);
             if (!in_array($this->shortName, $hostModInfo)) {
                 if (!self::$Host->isValid()
                     && false === $hostnotrequired

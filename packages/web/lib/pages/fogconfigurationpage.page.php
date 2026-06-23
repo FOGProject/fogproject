@@ -981,10 +981,8 @@ class FOGConfigurationPage extends FOGPage
             ['needstobecheckbox' => &$checkbox]
         );
 
-        Route::ids('image', false);
-        $imageids = json_decode(Route::getData(), true);
-        Route::ids('group', false);
-        $groupids = json_decode(Route::getData(), true);
+        $imageids = Route::getIds('image', false);
+        $groupids = Route::getIds('group', false);
 
         $viewvals = [-1, 10, 25, 50, 100, 250, 500];
         $regenrange = range(0, 24, .25);

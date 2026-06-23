@@ -71,8 +71,7 @@ class StorageNodeManagement extends FOGPage
         $bandwidth = filter_input(INPUT_POST, 'bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
         if (!$storagegroupID) {
-            Route::ids('storagegroup', false);
-            $storagegroupID = @min(json_decode(Route::getData(), true));
+            $storagegroupID = @min(Route::getIds('storagegroup', false));
         }
         $path = filter_input(INPUT_POST, 'path') ?:
             '/images/';
@@ -559,13 +558,9 @@ class StorageNodeManagement extends FOGPage
                     'isMaster' => 1,
                     'storagegroupID' => $StorageNode->get('storagegroupID')
                 ];
-                Route::ids(
+                $masternodes = Route::getIds(
                     'storagenode',
                     $find
-                );
-                $masternodes = json_decode(
-                    Route::getData(),
-                    true
                 );
                 self::getClass('StorageNodeManager')
                     ->update(
@@ -1186,13 +1181,9 @@ class StorageNodeManagement extends FOGPage
                 'isMaster' => 1,
                 'storagegroupID' => $this->obj->get('storagegroupID')
             ];
-            Route::ids(
+            $masternodes = Route::getIds(
                 'storagenode',
                 $find
-            );
-            $masternodes = json_decode(
-                Route::getData(),
-                true
             );
             self::getClass('StorageNodeManager')
                 ->update(

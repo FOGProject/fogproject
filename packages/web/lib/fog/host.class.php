@@ -209,11 +209,7 @@ class Host extends FOGController
     public function destroy($key = 'id')
     {
         $findWhere = ['hostID' => $this->get('id')];
-        Route::ids(
-            'snapinjob',
-            $findWhere
-        );
-        $SnapinJobIDs = ['jobID' => json_decode(Route::getData(), true)];
+        $SnapinJobIDs = ['jobID' => Route::getIds('snapinjob', $findWhere)];
         $removeItems = [
             'nodefailure',
             'imaginglog',
@@ -268,11 +264,10 @@ class Host extends FOGController
         }
         if (array_key_exists('powermanagementtasks', $this->data)) {
             $find = ['hostID' => $this->get('id')];
-            Route::ids(
+            $DBPowerManagementIDs = Route::getIds(
                 'powermanagement',
                 $find
             );
-            $DBPowerManagementIDs = json_decode(Route::getData(), true);
             $RemovePowerManagementIDs = array_diff(
                 (array)$DBPowerManagementIDs,
                 (array)$this->get('powermanagementtasks')
@@ -285,11 +280,10 @@ class Host extends FOGController
                         'id'=> $RemovePowerManagementIDs
                     ]
                 );
-                Route::ids(
+                $DBPowerManagementIDs = Route::getIds(
                     'powermanagement',
                     $find
                 );
-                $DBPowerManagementIDs = json_decode(Route::getData(), true);
                 unset($RemovePowerManagementIDs);
             }
             $objNeeded = false;
@@ -516,12 +510,11 @@ class Host extends FOGController
     protected function loadGroups()
     {
         $find = ['hostID' => $this->get('id')];
-        Route::ids(
+        $groups = Route::getIds(
             'groupassociation',
             $find,
             'groupID'
         );
-        $groups = json_decode(Route::getData(), true);
         $this->set('groups', (array)$groups);
     }
     /**
@@ -532,12 +525,11 @@ class Host extends FOGController
     protected function loadPrinters()
     {
         $find = ['hostID' => $this->get('id')];
-        Route::ids(
+        $printers = Route::getIds(
             'printerassociation',
             $find,
             'printerID'
         );
-        $printers = json_decode(Route::getData(), true);
         $this->set('printers', (array)$printers);
     }
     /**
@@ -548,14 +540,13 @@ class Host extends FOGController
     protected function loadSnapins()
     {
         $find = ['hostID' => $this->get('id')];
-        Route::ids(
+        $snapins = Route::getIds(
             'snapinassociation',
             $find,
             'snapinID',
             'AND',
             'sequence'
         );
-        $snapins = json_decode(Route::getData(), true);
         $this->set('snapins', (array)$snapins);
     }
     /**
@@ -566,12 +557,11 @@ class Host extends FOGController
     protected function loadModules()
     {
         $find = ['hostID' => $this->get('id')];
-        Route::ids(
+        $modules = Route::getIds(
             'moduleassociation',
             $find,
             'moduleID'
         );
-        $modules = json_decode(Route::getData(), true);
         $this->set('modules', (array)$modules);
     }
     /**
@@ -582,11 +572,10 @@ class Host extends FOGController
     protected function loadPowermanagementtasks()
     {
         $find = ['hostID' => $this->get('id')];
-        Route::ids(
+        $pms = Route::getIds(
             'powermanagement',
             $find
         );
-        $pms = json_decode(Route::getData(), true);
         $this->set('powermanagementtasks', (array)$pms);
     }
     /**
@@ -597,11 +586,10 @@ class Host extends FOGController
     protected function loadUsers()
     {
         $find = ['hostID' => $this->get('id')];
-        Route::ids(
+        $users = Route::getIds(
             'usertracking',
             $find
         );
-        $users = json_decode(Route::getData(), true);
         $this->set('users', (array)$users);
     }
     /**
@@ -616,11 +604,10 @@ class Host extends FOGController
             self::getQueuedStates(),
             (array)self::getProgressState()
         );
-        Route::ids(
+        $snapinjobs = Route::getIds(
             'snapinjob',
             $find
         );
-        $snapinjobs = json_decode(Route::getData(), true);
         $sjID = array_shift($snapinjobs);
         $this->set('snapinjob', new SnapinJob($sjID));
     }
@@ -652,11 +639,10 @@ class Host extends FOGController
                 $find['typeID'] = TaskType::DEPLOYTASKS;
             }
         }
-        Route::ids(
+        $taskID = Route::getIds(
             'task',
             $find
         );
-        $taskID = json_decode(Route::getData(), true);
         $taskID = array_shift($taskID);
         $this->set('task', $taskID);
         unset($find);
@@ -778,11 +764,10 @@ class Host extends FOGController
                 (array)self::getProgressState()
             )
         ];
-        Route::ids(
+        $SnapinJobs = Route::getIds(
             'snapinjob',
             $find
         );
-        $SnapinJobs = json_decode(Route::getData(), true);
         self::getClass('SnapinTaskManager')
             ->update(
                 [
@@ -805,11 +790,10 @@ class Host extends FOGController
                 '',
                 ['stateID' => self::getCancelledState()]
             );
-        Route::ids(
+        $AllTasks = Route::getIds(
             'task',
             $find
         );
-        $AllTasks = json_decode(Route::getData(), true);
         $MyTask = $this->get('task')->get('id');
         self::getClass('TaskManager')
             ->update(
@@ -983,12 +967,11 @@ class Host extends FOGController
                                 (array)$this->getProgressState()
                             )
                         ];
-                        Route::ids(
+                        $curSnapins = Route::getIds(
                             'snapintask',
                             $find,
                             'snapinID'
                         );
-                        $curSnapins = json_decode(Route::getData(), true);
                         if (!in_array($deploySnapins, $curSnapins)) {
                             $Task
                                 ->set('hostID', $this->get('hostID'))
@@ -1033,17 +1016,15 @@ class Host extends FOGController
                     throw new Exception($msg);
                 }
                 $imageTaskImgID = $this->get('imageID');
-                Route::ids(
+                $hostsWithImgID = Route::getIds(
                     'host',
                     ['imageID' => $imageTaskImgID]
                 );
-                $hostsWithImgID = json_decode(Route::getData(), true);
-                Route::ids(
+                $realImageID = Route::getIds(
                     'host',
                     ['id' => $this->get('id')],
                     'imageID'
                 );
-                $realImageID = json_decode(Route::getData(), true);
                 if (!in_array($this->get('id'), $hostsWithImgID)) {
                     $realImageID = array_shift($realImageID);
                     $this->set(
@@ -1596,12 +1577,7 @@ class Host extends FOGController
         if ($justme) {
             $find = ['hostID' => $this->get('id')];
         }
-        Route::ids(
-            'macaddressassociation',
-            $find,
-            'mac'
-        );
-        return json_decode(Route::getData(), true);
+        return Route::getIds('macaddressassociation', $find, 'mac');
     }
     /**
      * Sets the ignore status of a mac for either image or client ignore

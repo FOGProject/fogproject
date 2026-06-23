@@ -129,11 +129,10 @@ class Printer extends FOGController
     public function updateDefault($hostid, $onoff)
     {
         $find = ['printerID' => $this->get('id')];
-        Route::ids(
+        $AllHostsPrinter = Route::getIds(
             'printerassociation',
             $find
         );
-        $AllHostsPrinter = json_decode(Route::getData(), true);
         self::getClass('PrinterAssociationManager')
             ->update(
                 [

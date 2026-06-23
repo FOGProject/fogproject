@@ -72,10 +72,8 @@ if (!(is_string($path) && is_dir($path) && is_readable($path))) {
     exit;
 }
 
-Route::ids('storagenode', [], 'path');
-$imagePaths = json_decode(Route::getData(), true) ?: [];
-Route::ids('storagenode', [], 'snapinpath');
-$snapinPaths = json_decode(Route::getData(), true) ?: [];
+$imagePaths = Route::getIds('storagenode', [], 'path') ?: [];
+$snapinPaths = Route::getIds('storagenode', [], 'snapinpath') ?: [];
 
 $validPaths = array_merge(
     (array)$imagePaths,

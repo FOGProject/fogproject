@@ -390,14 +390,10 @@ class CaponeManagement extends FOGPage
                 'FOG_PLUGIN_CAPONE_SHUTDOWN'
             ]
         ];
-        Route::ids(
+        $settings = Route::getIds(
             'setting',
             $find,
             'value'
-        );
-        $settings = json_decode(
-            Route::getData(),
-            true
         );
         list(
             $dmiField,

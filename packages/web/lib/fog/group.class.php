@@ -172,12 +172,11 @@ class Group extends FOGController
      */
     public function updateDefault($printerid)
     {
-        Route::ids(
+        $printers = Route::getIds(
             'printerassociation',
             ['hostID' => $this->get('hosts')],
             'printerID'
         );
-        $printers = json_decode(Route::getData(), true);
         $printers = array_diff(
             $printers,
             [$printerid]
@@ -541,14 +540,9 @@ class Group extends FOGController
             ),
             'typeID' => $TaskType->initIDs
         ];
-        Route::ids(
-            'task',
-            $find,
-            'hostID'
-        );
         $hostids = array_diff(
             $hostids,
-            json_decode(Route::getData(), true)
+            Route::getIds('task', $find, 'hostID')
         );
         if (count($hostids ?: []) < 1) {
             throw new Exception(_('No hosts available to task'));
@@ -557,12 +551,7 @@ class Group extends FOGController
         $now = $this->niceDate();
         if ($imagingTypes) {
             $find = ['id' => $hostids];
-            Route::ids(
-                'host',
-                $find,
-                'imageID'
-            );
-            $imageID = @min(json_decode(Route::getData(), true));
+            $imageID = @min(Route::getIds('host', $find, 'imageID'));
             $Image = new Image($imageID);
             if (!$Image->isValid()) {
                 throw new Exception(self::$foglang['ImageNotValid']);
@@ -690,12 +679,11 @@ class Group extends FOGController
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
                 $find = ['id' => $hostIDs];
-                Route::ids(
+                $imageIDs = Route::getIds(
                     'host',
                     $find,
                     'imageID'
                 );
-                $imageIDs = json_decode(Route::getData(), true);
                 $batchFields = [
                     'name',
                     'createdBy',
@@ -833,12 +821,11 @@ class Group extends FOGController
             'hostID' => $this->get('hosts'),
             'pending' => [0, '']
         ];
-        Route::ids(
+        $hostMACs = Route::getIds(
             'macaddressassociation',
             $find,
             'mac'
         );
-        $hostMACs = json_decode(Route::getData(), true);
         $hostMACs = self::parseMacList($hostMACs);
         if (count($hostMACs ?: []) > 0) {
             $macStr = implode(
@@ -869,14 +856,13 @@ class Group extends FOGController
         foreach ($hostIDs as $hostID) {
             if ($snapin == -1) {
                 $find = ['hostID' => $hostID];
-                Route::ids(
+                $assoc_snapins = Route::getIds(
                     'snapinassociation',
                     $find,
                     'snapinID',
                     'AND',
                     'sequence'
                 );
-                $assoc_snapins = json_decode(Route::getData(), true);
                 if (count($assoc_snapins ?: []) < 1) {
                     continue;
                 }
