@@ -177,83 +177,51 @@ class GroupManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('GROUP_ADD_POST');
-        $group = trim(
-            filter_input(INPUT_POST, 'group')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $kernel = trim(
-            filter_input(INPUT_POST, 'kernel')
-        );
-        $args = trim(
-            filter_input(INPUT_POST, 'args')
-        );
-        $init = trim(
-            filter_input(INPUT_POST, 'init')
-        );
-        $dev = trim(
-            filter_input(INPUT_POST, 'dev')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('GroupManager')
-                ->exists($group);
-            if ($exists) {
-                throw new Exception(
-                    _('A group already exists with this name!')
+        $this->handleAddPost(
+            'Group',
+            'GROUP_ADD',
+            _('Group added!'),
+            _('Group Create Success'),
+            _('Group Create Fail'),
+            function (&$serverFault) {
+                $group = trim(
+                    filter_input(INPUT_POST, 'group')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $kernel = trim(
+                    filter_input(INPUT_POST, 'kernel')
+                );
+                $args = trim(
+                    filter_input(INPUT_POST, 'args')
+                );
+                $init = trim(
+                    filter_input(INPUT_POST, 'init')
+                );
+                $dev = trim(
+                    filter_input(INPUT_POST, 'dev')
+                );
+                $exists = self::getClass('GroupManager')
+                    ->exists($group);
+                if ($exists) {
+                    throw new Exception(
+                        _('A group already exists with this name!')
+                    );
+                }
+                $Group = self::getClass('Group')
+                    ->set('name', $group)
+                    ->set('description', $description)
+                    ->set('kernel', $kernel)
+                    ->set('kernelArgs', $args)
+                    ->set('kernelDevice', $dev)
+                    ->set('init', $init);
+                if (!$Group->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add group failed!'));
+                }
+                return $Group;
             }
-            $Group = self::getClass('Group')
-                ->set('name', $group)
-                ->set('description', $description)
-                ->set('kernel', $kernel)
-                ->set('kernelArgs', $args)
-                ->set('kernelDevice', $dev)
-                ->set('init', $init);
-            if (!$Group->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add group failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'GROUP_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Group added!'),
-                    'title' => _('Group Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'GROUP_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Group Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=group&sub=edit&id='
-        //    . $Group->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'Group' => &$Group,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

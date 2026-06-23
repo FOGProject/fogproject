@@ -140,75 +140,43 @@ class TaskstateeditManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('TASKSTATEEDIT_ADD_POST');
-        $taskstate = trim(
-            filter_input(INPUT_POST, 'taskstate')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $icon = trim(
-            filter_input(INPUT_POST, 'icon')
-        );
-        $additional = trim(
-            filter_input(INPUT_POST, 'additional')
-        );
-        $iconval = $icon . ' ' . $additional;
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('TaskStateManager')
-                ->exists($taskstate);
-            if ($exists) {
-                throw new Exception(
-                    _('A task state already exists with this name!')
+        $this->handleAddPost(
+            'TaskState',
+            'TASKSTATEEDIT_ADD',
+            _('Task state added!'),
+            _('Task State Create SUccess'),
+            _('Task State Create Fail'),
+            function (&$serverFault) {
+                $taskstate = trim(
+                    filter_input(INPUT_POST, 'taskstate')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $icon = trim(
+                    filter_input(INPUT_POST, 'icon')
+                );
+                $additional = trim(
+                    filter_input(INPUT_POST, 'additional')
+                );
+                $iconval = $icon . ' ' . $additional;
+                $exists = self::getClass('TaskStateManager')
+                    ->exists($taskstate);
+                if ($exists) {
+                    throw new Exception(
+                        _('A task state already exists with this name!')
+                    );
+                }
+                $TaskState = self::getClass('TaskState')
+                    ->set('name', $taskstate)
+                    ->set('description', $description)
+                    ->set('icon', $iconval);
+                if (!$TaskState->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add task state failed!'));
+                }
+                return $TaskState;
             }
-            $TaskState = self::getClass('TaskState')
-                ->set('name', $taskstate)
-                ->set('description', $description)
-                ->set('icon', $iconval);
-            if (!$TaskState->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add task state failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'TASKSTATEEDIT_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Task state added!'),
-                    'title' => _('Task State Create SUccess')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'TASKSTATEEDIT_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Task State Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=taskstateedit&sub=edit&id='
-        //    . $TaskState->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'TaskState' => &$TaskState,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

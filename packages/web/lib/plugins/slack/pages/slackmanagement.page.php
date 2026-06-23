@@ -124,109 +124,81 @@ class SlackManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('SLACK_ADD_POST');
-        $token = trim(
-            filter_input(INPUT_POST, 'apiToken')
-        );
-        $user = trim(
-            filter_input(INPUT_POST, 'user')
-        );
-        $usertype = preg_match('/^[@]/', $user);
-        $channeltype = preg_match('/^[#]/', $user);
-
-        $serverFault = false;
-        try {
-            if (!$usertype && !$channeltype) {
-                throw new Exception(
-                    _('Please start user/channel with @/# respectively')
+        $this->handleAddPost(
+            'Slack',
+            'SLACK_ADD',
+            _('Account successfully added!'),
+            _('Link Slack Account Success'),
+            _('Link Slack Account Fail'),
+            function (&$serverFault) {
+                $token = trim(
+                    filter_input(INPUT_POST, 'apiToken')
                 );
-            }
-            $Slack = self::getClass('Slack')
-                ->set('token', $token)
-                ->set('name', $user);
-            if (!$Slack->verifyToken()) {
-                throw new Exception(_('Invalid token passed'));
-            }
-            $user = preg_replace('/^[#@]/', '', $user);
-            if ($usertype) {
-                array_search(
-                    $user,
-                    $Slack->getUsers()
+                $user = trim(
+                    filter_input(INPUT_POST, 'user')
                 );
-                if ($search === false) {
-                    throw new Exception(_('User not found'));
+                $usertype = preg_match('/^[@]/', $user);
+                $channeltype = preg_match('/^[#]/', $user);
+                if (!$usertype && !$channeltype) {
+                    throw new Exception(
+                        _('Please start user/channel with @/# respectively')
+                    );
                 }
-            }
-            if ($channeltype) {
-                array_search(
-                    $user,
-                    $Slack->getChannels()
-                );
-                if ($search === false) {
-                    throw new Exception(_('Channel not found'));
+                $Slack = self::getClass('Slack')
+                    ->set('token', $token)
+                    ->set('name', $user);
+                if (!$Slack->verifyToken()) {
+                    throw new Exception(_('Invalid token passed'));
                 }
-            }
-            $exists = self::getClass('SlackManager')
-                ->exists($token, '', 'token');
-            $exists2 = self::getClass('SlackManager')
-                ->exists($usersend);
-            if ($exists || $exists2) {
-                throw new Exception(
-                    _('Account already linked')
+                $user = preg_replace('/^[#@]/', '', $user);
+                if ($usertype) {
+                    array_search(
+                        $user,
+                        $Slack->getUsers()
+                    );
+                    if ($search === false) {
+                        throw new Exception(_('User not found'));
+                    }
+                }
+                if ($channeltype) {
+                    array_search(
+                        $user,
+                        $Slack->getChannels()
+                    );
+                    if ($search === false) {
+                        throw new Exception(_('Channel not found'));
+                    }
+                }
+                $exists = self::getClass('SlackManager')
+                    ->exists($token, '', 'token');
+                $exists2 = self::getClass('SlackManager')
+                    ->exists($usersend);
+                if ($exists || $exists2) {
+                    throw new Exception(
+                        _('Account already linked')
+                    );
+                }
+                if (!$Slack->save()) {
+                    $serverFault = true;
+                    throw new Exception(
+                        _('Add slack account failed!')
+                    );
+                }
+                $args = [
+                    'channel' => $Slack->get('name'),
+                    'text' => sprintf(
+                        '%s %s: %s',
+                        $user,
+                        _('Account linked to FOG GUI at'),
+                        self::getSetting('FOG_WEB_HOST')
+                    )
+                ];
+                $Slack->call(
+                    'chat.postMessage',
+                    $args
                 );
+                return $Slack;
             }
-            if (!$Slack->save()) {
-                $serverFault = true;
-                throw new Exception(
-                    _('Add slack account failed!')
-                );
-            }
-            $args = [
-                'channel' => $Slack->get('name'),
-                'text' => sprintf(
-                    '%s %s: %s',
-                    $user,
-                    _('Account linked to FOG GUI at'),
-                    self::getSetting('FOG_WEB_HOST')
-                )
-            ];
-            $Slack->call(
-                'chat.postMessage',
-                $args
-            );
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'SLACK_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Account successfully added!'),
-                    'title' => _('Link Slack Account Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'SLACK_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Link Slack Account Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Slack' => &$Slack,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

@@ -120,67 +120,35 @@ class SiteManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('SITE_ADD_POST');
-        $site = trim(
-            filter_input(INPUT_POST, 'site')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('SiteManager')
-                ->exists($site);
-            if ($exists) {
-                throw new Exception(
-                    _('A site already exists with this name!')
+        $this->handleAddPost(
+            'Site',
+            'SITE_ADD',
+            _('Site added!'),
+            _('Site Create Success'),
+            _('Site Create Fail'),
+            function (&$serverFault) {
+                $site = trim(
+                    filter_input(INPUT_POST, 'site')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $exists = self::getClass('SiteManager')
+                    ->exists($site);
+                if ($exists) {
+                    throw new Exception(
+                        _('A site already exists with this name!')
+                    );
+                }
+                $Site = self::getClass('Site')
+                    ->set('name', $site)
+                    ->set('description', $description);
+                if (!$Site->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add site failed!'));
+                }
+                return $Site;
             }
-            $Site = self::getClass('Site')
-                ->set('name', $site)
-                ->set('description', $description);
-            if (!$Site->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add site failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'SITE_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Site added!'),
-                    'title' => _('Site Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'SITE_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Site Create Fail')
-                ]
-            );
-        }
-        // header(
-        //     'Location: ../management/index.php?node=site&sub=edit&id='
-        //     . $Site->get('id')
-        // );
-        $this->jsonHookResponse(
-            [
-                'Site' => &$Site,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

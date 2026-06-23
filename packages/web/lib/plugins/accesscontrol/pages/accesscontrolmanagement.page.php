@@ -120,67 +120,35 @@ class AccessControlManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('ACCESSCONTROL_ADD_POST');
-        $accesscontrol = trim(
-            filter_input(INPUT_POST, 'accesscontrol')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('AccessControlManager')
-                ->exists($accesscontrol);
-            if ($exists) {
-                throw new Exception(
-                    _('An accesscontrol already exists with this name!')
+        $this->handleAddPost(
+            'AccessControl',
+            'ACCESSCONTROL_ADD',
+            _('Accesscontrol added!'),
+            _('Accesscontrol Create Success'),
+            _('Accesscontrol Create Fail'),
+            function (&$serverFault) {
+                $accesscontrol = trim(
+                    filter_input(INPUT_POST, 'accesscontrol')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $exists = self::getClass('AccessControlManager')
+                    ->exists($accesscontrol);
+                if ($exists) {
+                    throw new Exception(
+                        _('An accesscontrol already exists with this name!')
+                    );
+                }
+                $AccessControl = self::getClass('AccessControl')
+                    ->set('name', $accesscontrol)
+                    ->set('description', $description);
+                if (!$AccessControl->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add accesscontrol failed!'));
+                }
+                return $AccessControl;
             }
-            $AccessControl = self::getClass('AccessControl')
-                ->set('name', $accesscontrol)
-                ->set('description', $description);
-            if (!$AccessControl->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add accesscontrol failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'ACCESSCONTROL_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Accesscontrol added!'),
-                    'title' => _('Accesscontrol Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'ACCESSCONTROL_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Accesscontrol Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=accesscontrol&sub=edit&id='
-        //    . $AccessControl->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'AccessControl' => &$AccessControl,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

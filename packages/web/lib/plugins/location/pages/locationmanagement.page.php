@@ -169,89 +169,57 @@ class LocationManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('LOCATION_ADD_POST');
-        $location = trim(
-            filter_input(INPUT_POST, 'location')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $storagegroup = trim(
-            filter_input(INPUT_POST, 'storagegroup')
-        );
-        $storagenode = trim(
-            filter_input(INPUT_POST, 'storagenode')
-        );
-        $storagenodeprotocol = trim(
-            filter_input(INPUT_POST, 'storagenodeprotocol')
-        );
-        $bootfrom = (int)isset($_POST['bootfrom']);
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('LocationManager')
-                ->exists($location);
-            if ($exists) {
-                throw new Exception(
-                    _('A location already exists with this name!')
+        $this->handleAddPost(
+            'Location',
+            'LOCATION_ADD',
+            _('Location added!'),
+            _('Location Create Success'),
+            _('Location Create Fail'),
+            function (&$serverFault) {
+                $location = trim(
+                    filter_input(INPUT_POST, 'location')
                 );
-            }
-            if (!$storagegroup && !$storagenode) {
-                throw new Exception(
-                    _('A storage group must be selected.')
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
                 );
+                $storagegroup = trim(
+                    filter_input(INPUT_POST, 'storagegroup')
+                );
+                $storagenode = trim(
+                    filter_input(INPUT_POST, 'storagenode')
+                );
+                $storagenodeprotocol = trim(
+                    filter_input(INPUT_POST, 'storagenodeprotocol')
+                );
+                $bootfrom = (int)isset($_POST['bootfrom']);
+                $exists = self::getClass('LocationManager')
+                    ->exists($location);
+                if ($exists) {
+                    throw new Exception(
+                        _('A location already exists with this name!')
+                    );
+                }
+                if (!$storagegroup && !$storagenode) {
+                    throw new Exception(
+                        _('A storage group must be selected.')
+                    );
+                }
+                if ($storagenode) {
+                    $storagegroup = self::getClass('StorageNode', $storagenode)
+                        ->get('storagegroupID');
+                }
+                $Location = self::getClass('Location')
+                    ->set('name', $location)
+                    ->set('storagegroupID', $storagegroup)
+                    ->set('storagenodeID', $storagenode)
+                    ->set('tftp', $bootfrom)
+                    ->set('protocol', $storagenodeprotocol);
+                if (!$Location->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add location failed!'));
+                }
+                return $Location;
             }
-            if ($storagenode) {
-                $storagegroup = self::getClass('StorageNode', $storagenode)
-                    ->get('storagegroupID');
-            }
-            $Location = self::getClass('Location')
-                ->set('name', $location)
-                ->set('storagegroupID', $storagegroup)
-                ->set('storagenodeID', $storagenode)
-                ->set('tftp', $bootfrom)
-                ->set('protocol', $storagenodeprotocol);
-            if (!$Location->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add location failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'LOCATION_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Location added!'),
-                    'title' => _('Location Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'LOCATION_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Location Create Fail')
-                ]
-            );
-        }
-        // header(
-        //     'Location: ../management/index.php?node=location&sub=edit&id='
-        //     . $Location->get('id')
-        // );
-        $this->jsonHookResponse(
-            [
-                'Location' => &$Location,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

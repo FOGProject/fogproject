@@ -134,71 +134,39 @@ class WindowsKeyManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('WINDOWSKEY_ADD_POST');
-        $windowskey = trim(
-            filter_input(INPUT_POST, 'windowskey')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $key = trim(
-            filter_input(INPUT_POST, 'key')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('WindowsKeyManager')
-                ->exists($windowskey);
-            if ($exists) {
-                throw new Exception(
-                    _('A Windows Key already exists with this name!')
+        $this->handleAddPost(
+            'WindowsKey',
+            'WINDOWSKEY_ADD',
+            _('Windows Key added!'),
+            _('Windows Key Create Success'),
+            _('Windows Key Create Fail'),
+            function (&$serverFault) {
+                $windowskey = trim(
+                    filter_input(INPUT_POST, 'windowskey')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $key = trim(
+                    filter_input(INPUT_POST, 'key')
+                );
+                $exists = self::getClass('WindowsKeyManager')
+                    ->exists($windowskey);
+                if ($exists) {
+                    throw new Exception(
+                        _('A Windows Key already exists with this name!')
+                    );
+                }
+                $WindowsKey = self::getClass('WindowsKey')
+                    ->set('name', $windowskey)
+                    ->set('description', $description)
+                    ->set('key', $key);
+                if (!$WindowsKey->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add windows key failed!'));
+                }
+                return $WindowsKey;
             }
-            $WindowsKey = self::getClass('WindowsKey')
-                ->set('name', $windowskey)
-                ->set('description', $description)
-                ->set('key', $key);
-            if (!$WindowsKey->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add windows key failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'WINDOWSKEY_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Windows Key added!'),
-                    'title' => _('Windows Key Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'WINDOWSKEY_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Windows Key Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=windowskey&sub=edit&id='
-        //    . $WindowsKey->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'WindowsKey' => &$WindowsKey,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

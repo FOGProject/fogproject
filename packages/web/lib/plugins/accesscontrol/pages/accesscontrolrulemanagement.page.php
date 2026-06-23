@@ -155,89 +155,57 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('ACCESSCONTROLRULE_ADD_POST');
-        $type = trim(
-            filter_input(INPUT_POST, 'type')
-        );
-        $parent = trim(
-            filter_input(INPUT_POST, 'parent')
-        );
-        $node = trim(
-            filter_input(INPUT_POST, 'node')
-        );
-        $value = trim(
-            filter_input(INPUT_POST, 'value')
-        );
-        $name = $type
-            . '-'
-            . $value;
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('AccessControlRuleManager')
-                ->exists($name);
-            if ($exists) {
-                throw new Exception(
-                    _('A rule already exists with that type-value pair!')
+        $this->handleAddPost(
+            'AccessControlRule',
+            'ACCESSCONTROLRULE_ADD',
+            _('Rule added!'),
+            _('Rule Create Success'),
+            _('Rule Create Fail'),
+            function (&$serverFault) {
+                $type = trim(
+                    filter_input(INPUT_POST, 'type')
                 );
-            }
-            /*$exists = self::getClass('AccessControlRuleManager')->exists(
-                $value,
-                '',
-                'value'
-            );
-            if ($exists) {
-                throw new Exception(
-                    _('A rule already exists with this value!')
+                $parent = trim(
+                    filter_input(INPUT_POST, 'parent')
                 );
-            }*/
-            $AccessControlRule = self::getClass('AccessControlRule')
-                ->set('type', $type)
-                ->set('value', $value)
-                ->set('parent', $parent)
-                ->set('node', $node)
-                ->set('name', $name);
-            if (!$AccessControlRule->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add rule failed!'));
+                $node = trim(
+                    filter_input(INPUT_POST, 'node')
+                );
+                $value = trim(
+                    filter_input(INPUT_POST, 'value')
+                );
+                $name = $type
+                    . '-'
+                    . $value;
+                $exists = self::getClass('AccessControlRuleManager')
+                    ->exists($name);
+                if ($exists) {
+                    throw new Exception(
+                        _('A rule already exists with that type-value pair!')
+                    );
+                }
+                /*$exists = self::getClass('AccessControlRuleManager')->exists(
+                    $value,
+                    '',
+                    'value'
+                );
+                if ($exists) {
+                    throw new Exception(
+                        _('A rule already exists with this value!')
+                    );
+                }*/
+                $AccessControlRule = self::getClass('AccessControlRule')
+                    ->set('type', $type)
+                    ->set('value', $value)
+                    ->set('parent', $parent)
+                    ->set('node', $node)
+                    ->set('name', $name);
+                if (!$AccessControlRule->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add rule failed!'));
+                }
+                return $AccessControlRule;
             }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'ACCESSCONTROLRULE_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Rule added!'),
-                    'title' => _('Rule Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'ACCESSCONTROLRULE_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Rule Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=accesscontrolrule&sub=edit&id='
-        //    . $AccessControlRule->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'AccessControlRule' => &$AccessControlRule,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

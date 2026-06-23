@@ -1477,6 +1477,83 @@ abstract class FOGPage extends FOGBase
         $this->jsonSend($args['code'], $args['msg']);
     }
     /**
+     * Shared scaffold for the create (addPost) AJAX handlers.
+     *
+     * Owns the boilerplate every create endpoint repeated verbatim:
+     * the auth/CSRF gate, the JSON content-type header, the
+     * "<BASE>_POST" pre-event, the $serverFault flag, the try/catch
+     * that turns a thrown Exception into the proper HTTP status, the
+     * success/fail hook names and JSON body, and the terminal
+     * jsonHookResponse() that fires the result hook and emits the
+     * response.
+     *
+     * The page-specific part — reading $_POST, validating, building
+     * and saving the entity — lives in the $build closure. The closure
+     * receives $serverFault by reference (set it true before throwing
+     * to signal an HTTP 500 rather than a 400) and must return the
+     * saved entity, which is handed to the result hook under
+     * $entityKey so listeners registered on "<BASE>_SUCCESS" /
+     * "<BASE>_FAIL" still see it exactly as before.
+     *
+     * @param string   $entityKey    Payload key for the entity (e.g. 'Group').
+     * @param string   $hookBase     Hook prefix (e.g. 'GROUP_ADD'); the
+     *                               _POST/_SUCCESS/_FAIL events derive from it.
+     * @param string   $successMsg   Translated success message body.
+     * @param string   $successTitle Translated success title.
+     * @param string   $failTitle    Translated failure title.
+     * @param callable $build        Closure(&$serverFault): returns the entity.
+     *
+     * @return void
+     */
+    protected function handleAddPost(
+        $entityKey,
+        $hookBase,
+        $successMsg,
+        $successTitle,
+        $failTitle,
+        callable $build
+    ) {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        self::$HookManager->processEvent($hookBase . '_POST');
+        $serverFault = false;
+        $Entity = null;
+        try {
+            $Entity = $build($serverFault);
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = $hookBase . '_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => $successMsg,
+                    'title' => $successTitle
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = $hookBase . '_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => $failTitle
+                ]
+            );
+        }
+        $this->jsonHookResponse(
+            [
+                $entityKey => &$Entity,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
+    }
+    /**
      * Actually performs the deletion of selected items.
      *
      * @return void

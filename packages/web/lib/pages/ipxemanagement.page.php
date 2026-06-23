@@ -230,94 +230,62 @@ class IpxeManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('IPXE_ADD_POST');
-        $ipxe = trim(
-            filter_input(INPUT_POST, 'ipxe')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $params = trim(
-            filter_input(INPUT_POST, 'params')
-        );
-        $options = trim(
-            filter_input(INPUT_POST, 'options')
-        );
-        $regmenu = trim(
-            filter_input(INPUT_POST, 'regmenu')
-        );
-        $default = isset($_POST['default']);
-        $hotkey = isset($_POST['hotkey']);
-        $keysequence = trim(
-            filter_input(INPUT_POST, 'keysequence')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('PXEMenuOptionsManager')
-                ->exists($ipxe);
-            if ($exists) {
-                throw new Exception(
-                    _('A menu entry already exists with this name!')
+        $this->handleAddPost(
+            'Ipxe',
+            'IPXE_ADD',
+            _('Menu added!'),
+            _('iPXE Menu Create Success'),
+            _('iPXE Menu Create Fail'),
+            function (&$serverFault) {
+                $ipxe = trim(
+                    filter_input(INPUT_POST, 'ipxe')
                 );
-            }
-            $iPXE = self::getClass('PXEMenuOptions')
-                ->set('name', $ipxe)
-                ->set('description', $description)
-                ->set('params', $params)
-                ->set('args', $options)
-                ->set('regMenu', $regmenu)
-                ->set('default', intval($default))
-                ->set('hotkey', intval($hotkey))
-                ->set('keysequence', $keysequence);
-            if ($default) {
-                $iPXE->getManager()->update(
-                    ['default' => 1],
-                    '',
-                    ['default' => 0]
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
                 );
+                $params = trim(
+                    filter_input(INPUT_POST, 'params')
+                );
+                $options = trim(
+                    filter_input(INPUT_POST, 'options')
+                );
+                $regmenu = trim(
+                    filter_input(INPUT_POST, 'regmenu')
+                );
+                $default = isset($_POST['default']);
+                $hotkey = isset($_POST['hotkey']);
+                $keysequence = trim(
+                    filter_input(INPUT_POST, 'keysequence')
+                );
+                $exists = self::getClass('PXEMenuOptionsManager')
+                    ->exists($ipxe);
+                if ($exists) {
+                    throw new Exception(
+                        _('A menu entry already exists with this name!')
+                    );
+                }
+                $iPXE = self::getClass('PXEMenuOptions')
+                    ->set('name', $ipxe)
+                    ->set('description', $description)
+                    ->set('params', $params)
+                    ->set('args', $options)
+                    ->set('regMenu', $regmenu)
+                    ->set('default', intval($default))
+                    ->set('hotkey', intval($hotkey))
+                    ->set('keysequence', $keysequence);
+                if ($default) {
+                    $iPXE->getManager()->update(
+                        ['default' => 1],
+                        '',
+                        ['default' => 0]
+                    );
+                }
+                if (!$iPXE->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add menu failed!'));
+                }
+                return $iPXE;
             }
-            if (!$iPXE->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add menu failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'IPXE_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Menu added!'),
-                    'title' => _('iPXE Menu Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'IPXE_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('iPXE Menu Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=ipxe&sub=edit&id='
-        //    . $iPXE->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'Ipxe' => &$iPXE,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

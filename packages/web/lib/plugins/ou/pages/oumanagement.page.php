@@ -136,71 +136,39 @@ class OUManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('OU_ADD_POST');
-        $ou = trim(
-            filter_input(INPUT_POST, 'ou')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $oudn = trim(
-            filter_input(INPUT_POST, 'oudn')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('OUManager')
-                ->exists($ou);
-            if ($exists) {
-                throw new Exception(
-                    _('An ou already exists with this name!')
+        $this->handleAddPost(
+            'OU',
+            'OU_ADD',
+            _('OU added!'),
+            _('OU Create Success'),
+            _('OU Create Fail'),
+            function (&$serverFault) {
+                $ou = trim(
+                    filter_input(INPUT_POST, 'ou')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $oudn = trim(
+                    filter_input(INPUT_POST, 'oudn')
+                );
+                $exists = self::getClass('OUManager')
+                    ->exists($ou);
+                if ($exists) {
+                    throw new Exception(
+                        _('An ou already exists with this name!')
+                    );
+                }
+                $OU = self::getClass('OU')
+                    ->set('name', $ou)
+                    ->set('description', $description)
+                    ->set('ou', $oudn);
+                if (!$OU->save()) {
+                    $serverFault = false;
+                    throw new Exception(_('Add ou failed!'));
+                }
+                return $OU;
             }
-            $OU = self::getClass('OU')
-                ->set('name', $ou)
-                ->set('description', $description)
-                ->set('ou', $oudn);
-            if (!$OU->save()) {
-                $serverFault = false;
-                throw new Exception(_('Add ou failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'OU_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('OU added!'),
-                    'title' => _('OU Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'OU_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('OU Create Fail')
-                ]
-            );
-        }
-        // header(
-        //     'Location: ../management/index.php?node=ou&sub=edit&id='
-        //     . $OU->get('id')
-        // );
-        $this->jsonHookResponse(
-            [
-                'OU' => &$OU,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

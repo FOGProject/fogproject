@@ -138,71 +138,39 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('WOLBROADCAST_ADD_POST');
-        $wolbroadcast = trim(
-            filter_input(INPUT_POST, 'wolbroadcast')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $broadcast = trim(
-            filter_input(INPUT_POST, 'broadcast')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('WOLBroadcastManager')
-                ->exists($wolbroadcast);
-            if ($exists) {
-                throw new Exception(
-                    _('A broadcast already exists with this name!')
+        $this->handleAddPost(
+            'WOLBroadcast',
+            'WOLBROADCAST_ADD',
+            _('Broadcast added!'),
+            _('Broadcast Create Success'),
+            _('Broadcast Create Fail'),
+            function (&$serverFault) {
+                $wolbroadcast = trim(
+                    filter_input(INPUT_POST, 'wolbroadcast')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $broadcast = trim(
+                    filter_input(INPUT_POST, 'broadcast')
+                );
+                $exists = self::getClass('WOLBroadcastManager')
+                    ->exists($wolbroadcast);
+                if ($exists) {
+                    throw new Exception(
+                        _('A broadcast already exists with this name!')
+                    );
+                }
+                $WOLBroadcast = self::getClass('WOLBroadcast')
+                    ->set('name', $wolbroadcast)
+                    ->set('description', $description)
+                    ->set('broadcast', $broadcast);
+                if (!$WOLBroadcast->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add broadcast failed!'));
+                }
+                return $WOLBroadcast;
             }
-            $WOLBroadcast = self::getClass('WOLBroadcast')
-                ->set('name', $wolbroadcast)
-                ->set('description', $description)
-                ->set('broadcast', $broadcast);
-            if (!$WOLBroadcast->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add broadcast failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'WOLBROADCAST_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Broadcast added!'),
-                    'title' => _('Broadcast Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'WOLBROADCAST_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Broadcast Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=wolbroadcast&sub=edit&id='
-        //    $WOLBroadcast->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'WOLBroadcast' => &$WOLBroadcast,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

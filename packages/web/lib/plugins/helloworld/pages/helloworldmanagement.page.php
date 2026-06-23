@@ -134,66 +134,38 @@ class HelloWorldManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('HELLOWORLD_ADD_POST');
-        $name = trim(
-            filter_input(INPUT_POST, 'name')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-
-        $serverFault = false;
-        try {
-            if (empty($name)) {
-                throw new Exception(_('Please enter a name'));
-            }
-            $exists = self::getClass('HelloWorldManager')
-                ->exists($name);
-            if ($exists) {
-                throw new Exception(
-                    _('An entry already exists with this name!')
+        $this->handleAddPost(
+            'HelloWorld',
+            'HELLOWORLD_ADD',
+            _('Hello World added!'),
+            _('Hello World Create Success'),
+            _('Hello World Create Fail'),
+            function (&$serverFault) {
+                $name = trim(
+                    filter_input(INPUT_POST, 'name')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                if (empty($name)) {
+                    throw new Exception(_('Please enter a name'));
+                }
+                $exists = self::getClass('HelloWorldManager')
+                    ->exists($name);
+                if ($exists) {
+                    throw new Exception(
+                        _('An entry already exists with this name!')
+                    );
+                }
+                $HelloWorld = self::getClass('HelloWorld')
+                    ->set('name', $name)
+                    ->set('description', $description);
+                if (!$HelloWorld->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add Hello World failed!'));
+                }
+                return $HelloWorld;
             }
-            $HelloWorld = self::getClass('HelloWorld')
-                ->set('name', $name)
-                ->set('description', $description);
-            if (!$HelloWorld->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add Hello World failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'HELLOWORLD_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Hello World added!'),
-                    'title' => _('Hello World Create Success'),
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'HELLOWORLD_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Hello World Create Fail'),
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'HelloWorld' => &$HelloWorld,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault,
-            ],
-            $hook
         );
     }
     /**

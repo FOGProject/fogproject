@@ -156,73 +156,41 @@ class ModuleManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('MODULE_ADD_POST');
-        $module = trim(
-            filter_input(INPUT_POST, 'module')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $shortname = trim(
-            filter_input(INPUT_POST, 'shortname')
-        );
-        $isDefault = (int)isset($_POST['isDefault']);
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('ModuleManager')
-                ->exists($module);
-            if ($exists) {
-                throw new Exception(
-                    _('A module already exists with this name!')
+        $this->handleAddPost(
+            'Module',
+            'MODULE_ADD',
+            _('Module added!'),
+            _('Module Create Success'),
+            _('Module Create Fail'),
+            function (&$serverFault) {
+                $module = trim(
+                    filter_input(INPUT_POST, 'module')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $shortname = trim(
+                    filter_input(INPUT_POST, 'shortname')
+                );
+                $isDefault = (int)isset($_POST['isDefault']);
+                $exists = self::getClass('ModuleManager')
+                    ->exists($module);
+                if ($exists) {
+                    throw new Exception(
+                        _('A module already exists with this name!')
+                    );
+                }
+                $Module = self::getClass('Module')
+                    ->set('name', $module)
+                    ->set('description', $description)
+                    ->set('shortName', $shortname)
+                    ->set('isDefault', $isDefault);
+                if (!$Module->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add module failed!'));
+                }
+                return $Module;
             }
-            $Module = self::getClass('Module')
-                ->set('name', $module)
-                ->set('description', $description)
-                ->set('shortName', $shortname)
-                ->set('isDefault', $isDefault);
-            if (!$Module->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add module failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'MODULE_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Module added!'),
-                    'title' => _('Module Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'MODULE_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Module Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=module&sub=edit&id='
-        //    . $Module->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'Module' => &$Module,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

@@ -352,116 +352,84 @@ class ImageManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('IMAGE_ADD_POST');
-        $image = trim(
-            filter_input(INPUT_POST, 'image')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $storagegroup = (int)trim(
-            filter_input(INPUT_POST, 'storagegroup')
-        );
-        $os = (int)trim(
-            filter_input(INPUT_POST, 'os')
-        );
-        $path = trim(
-            filter_input(INPUT_POST, 'path')
-        );
-        $imagetype = (int)trim(
-            filter_input(INPUT_POST, 'imagetype')
-        );
-        $imagepartitiontype = (int)trim(
-            filter_input(INPUT_POST, 'imagepartitiontype')
-        );
-        $isEnabled = (int)isset($_POST['isEnabled']);
-        $toReplicate = (int)isset($_POST['toReplicate']);
-        $compress = (int)trim(
-            filter_input(INPUT_POST, 'compression')
-        );
-        $imagemanage = (int)trim(
-            filter_input(INPUT_POST, 'imagemanage')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('ImageManager')
-                ->exists($image);
-            if ($exists) {
-                throw new Exception(
-                    _('An image already exists with this name!')
+        $this->handleAddPost(
+            'Image',
+            'IMAGE_ADD',
+            _('Image added!'),
+            _('Image Create Success'),
+            _('Image Create Fail'),
+            function (&$serverFault) {
+                $image = trim(
+                    filter_input(INPUT_POST, 'image')
                 );
-            }
-            if (in_array($path, ['postdownloadscripts','dev'])) {
-                throw new Exception(
-                    _('Please choose a different filename/path as this is reserved')
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
                 );
-            }
-            $exists = self::getClass('ImageManager')
-                ->exists($path, '', 'path');
-            if ($exists) {
-                throw new Exception(
-                    _('The path requested is already in use by another image!')
+                $storagegroup = (int)trim(
+                    filter_input(INPUT_POST, 'storagegroup')
                 );
+                $os = (int)trim(
+                    filter_input(INPUT_POST, 'os')
+                );
+                $path = trim(
+                    filter_input(INPUT_POST, 'path')
+                );
+                $imagetype = (int)trim(
+                    filter_input(INPUT_POST, 'imagetype')
+                );
+                $imagepartitiontype = (int)trim(
+                    filter_input(INPUT_POST, 'imagepartitiontype')
+                );
+                $isEnabled = (int)isset($_POST['isEnabled']);
+                $toReplicate = (int)isset($_POST['toReplicate']);
+                $compress = (int)trim(
+                    filter_input(INPUT_POST, 'compression')
+                );
+                $imagemanage = (int)trim(
+                    filter_input(INPUT_POST, 'imagemanage')
+                );
+                $exists = self::getClass('ImageManager')
+                    ->exists($image);
+                if ($exists) {
+                    throw new Exception(
+                        _('An image already exists with this name!')
+                    );
+                }
+                if (in_array($path, ['postdownloadscripts','dev'])) {
+                    throw new Exception(
+                        _('Please choose a different filename/path as this is reserved')
+                    );
+                }
+                $exists = self::getClass('ImageManager')
+                    ->exists($path, '', 'path');
+                if ($exists) {
+                    throw new Exception(
+                        _('The path requested is already in use by another image!')
+                    );
+                }
+                $Image = self::getClass('Image')
+                    ->set('name', $image)
+                    ->set('description', $description)
+                    ->set('osID', $os)
+                    ->set('path', $path)
+                    ->set('imageTypeID', $imagetype)
+                    ->set('imagePartitionTypeID', $imagepartitiontype)
+                    ->set('compress', $compress)
+                    ->set('isEnabled', $isEnabled)
+                    ->set('format', $imagemanage)
+                    ->set('toReplicate', $toReplicate)
+                    ->addGroup($storagegroup);
+                if (!$Image->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add image failed!'));
+                }
+                /**
+                 * During image creation we only allow a single group anyway.
+                 * This will set it to be the primary master.
+                 */
+                Image::setPrimaryGroup($storagegroup, $Image->get('id'));
+                return $Image;
             }
-            $Image = self::getClass('Image')
-                ->set('name', $image)
-                ->set('description', $description)
-                ->set('osID', $os)
-                ->set('path', $path)
-                ->set('imageTypeID', $imagetype)
-                ->set('imagePartitionTypeID', $imagepartitiontype)
-                ->set('compress', $compress)
-                ->set('isEnabled', $isEnabled)
-                ->set('format', $imagemanage)
-                ->set('toReplicate', $toReplicate)
-                ->addGroup($storagegroup);
-            if (!$Image->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add image failed!'));
-            }
-            /**
-             * During image creation we only allow a single group anyway.
-             * This will set it to be the primary master.
-             */
-            Image::setPrimaryGroup($storagegroup, $Image->get('id'));
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'IMAGE_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Image added!'),
-                    'title' => _('Image Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'IMAGE_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Image Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=image&sub=edit&id='
-        //    . $Image->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'Image' => &$Image,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

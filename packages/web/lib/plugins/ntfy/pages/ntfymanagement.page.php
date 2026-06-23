@@ -144,78 +144,49 @@ class NtfyManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('NTFY_ADD_POST');
-
-        $serverURL = trim(
-            filter_input(INPUT_POST, 'serverURL')
-        );
-        $topicEndpoint = trim(
-            filter_input(INPUT_POST, 'topicEndpoint')
-        );
-        $credentials = (string)filter_input(INPUT_POST, 'credentials');
-
-        $serverFault = false;
-        try {
-            if (!$serverURL || !$topicEndpoint) {
-                throw new Exception(
-                    _('A server URL and topic endpoint are required')
+        $this->handleAddPost(
+            'Ntfy',
+            'NTFY_ADD',
+            _('Topic successfully added!'),
+            _('Link ntfy Topic Success'),
+            _('Link ntfy Topic Fail'),
+            function (&$serverFault) {
+                $serverURL = trim(
+                    filter_input(INPUT_POST, 'serverURL')
                 );
+                $topicEndpoint = trim(
+                    filter_input(INPUT_POST, 'topicEndpoint')
+                );
+                $credentials = (string)filter_input(INPUT_POST, 'credentials');
+                if (!$serverURL || !$topicEndpoint) {
+                    throw new Exception(
+                        _('A server URL and topic endpoint are required')
+                    );
+                }
+                $existing = self::getClass('NtfyManager')
+                    ->exists($topicEndpoint, 0, 'topicEndpoint');
+                if ($existing) {
+                    throw new Exception(_('Topic already linked'));
+                }
+                $Ntfy = self::getClass('Ntfy')
+                    ->set('serverURL', $serverURL)
+                    ->set('topicEndpoint', $topicEndpoint)
+                    ->set('credentials', $credentials);
+                if (!$Ntfy->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add ntfy topic failed!'));
+                }
+                self::getClass(
+                    'NtfyHandler',
+                    $serverURL,
+                    $topicEndpoint,
+                    $credentials
+                )->pushNote(
+                    'FOG',
+                    _('Topic linked')
+                );
+                return $Ntfy;
             }
-            $existing = self::getClass('NtfyManager')
-                ->exists($topicEndpoint, 0, 'topicEndpoint');
-            if ($existing) {
-                throw new Exception(_('Topic already linked'));
-            }
-            $Ntfy = self::getClass('Ntfy')
-                ->set('serverURL', $serverURL)
-                ->set('topicEndpoint', $topicEndpoint)
-                ->set('credentials', $credentials);
-            if (!$Ntfy->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add ntfy topic failed!'));
-            }
-            self::getClass(
-                'NtfyHandler',
-                $serverURL,
-                $topicEndpoint,
-                $credentials
-            )->pushNote(
-                'FOG',
-                _('Topic linked')
-            );
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'NTFY_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Topic successfully added!'),
-                    'title' => _('Link ntfy Topic Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'NTFY_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Link ntfy Topic Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Ntfy' => &$Ntfy,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

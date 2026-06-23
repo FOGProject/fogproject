@@ -145,104 +145,72 @@ class SubnetGroupManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('SUBNETGROUP_ADD_POST');
-        $subnetgroup = trim(
-            filter_input(INPUT_POST, 'subnetgroup')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $group = trim(
-            filter_input(INPUT_POST, 'group')
-        );
-        $subnets = trim(
-            filter_input(INPUT_POST, 'subnets')
-        );
+        $this->handleAddPost(
+            'SubnetGroup',
+            'SUBNETGROUP_ADD',
+            _('Subnet Group added!'),
+            _('Subnet Group Create Success'),
+            _('Subnet Group Create Fail'),
+            function (&$serverFault) {
+                $subnetgroup = trim(
+                    filter_input(INPUT_POST, 'subnetgroup')
+                );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $group = trim(
+                    filter_input(INPUT_POST, 'group')
+                );
+                $subnets = trim(
+                    filter_input(INPUT_POST, 'subnets')
+                );
 
-        $subnetsMatch = '/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
-            . "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/(?:3[0-2]|[12]?"
-            . "[0-9]))\b/';
-        preg_match_all(
-            $subnetsMatch,
-            $subnets,
-            $subnetsFound
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('SubnetGroupManager')
-                ->exists($subnetgroup);
-            if ($exists) {
-                throw new Exception(
-                    _('A subnet group already exists with this name!')
+                $subnetsMatch = '/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+                    . "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/(?:3[0-2]|[12]?"
+                    . "[0-9]))\b/';
+                preg_match_all(
+                    $subnetsMatch,
+                    $subnets,
+                    $subnetsFound
                 );
+                $exists = self::getClass('SubnetGroupManager')
+                    ->exists($subnetgroup);
+                if ($exists) {
+                    throw new Exception(
+                        _('A subnet group already exists with this name!')
+                    );
+                }
+                if (!$group) {
+                    throw new Exception(
+                        _('A group must be selected.')
+                    );
+                }
+                $gexists = self::getClass('SubnetGroupManager')
+                    ->exists($group, '', 'groupID');
+                if ($gexists) {
+                    throw new Exception(
+                        _('A subnet group is already using this group.')
+                    );
+                }
+                if (!count($subnetsFound[0] ?: []) > 0) {
+                    throw new Exception(
+                        _('Please enter a valid CIDR subnet.')
+                        . ' '
+                        . _('Can be a comma seperated list.')
+                    );
+                }
+                $subnets = implode(', ', $subnetsFound[0]);
+                $SubnetGroup = self::getClass('SubnetGroup')
+                    ->set('name', $subnetgroup)
+                    ->set('description', $description)
+                    ->set('groupID', $group)
+                    ->set('subnets', $subnets);
+                if (!$SubnetGroup->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add subnet group failed!'));
+                }
+                return $SubnetGroup;
             }
-            if (!$group) {
-                throw new Exception(
-                    _('A group must be selected.')
-                );
-            }
-            $gexists = self::getClass('SubnetGroupManager')
-                ->exists($group, '', 'groupID');
-            if ($gexists) {
-                throw new Exception(
-                    _('A subnet group is already using this group.')
-                );
-            }
-            if (!count($subnetsFound[0] ?: []) > 0) {
-                throw new Exception(
-                    _('Please enter a valid CIDR subnet.')
-                    . ' '
-                    . _('Can be a comma seperated list.')
-                );
-            }
-            $subnets = implode(', ', $subnetsFound[0]);
-            $SubnetGroup = self::getClass('SubnetGroup')
-                ->set('name', $subnetgroup)
-                ->set('description', $description)
-                ->set('groupID', $group)
-                ->set('subnets', $subnets);
-            if (!$SubnetGroup->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add subnet group failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'SUBNETGROUP_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Subnet Group added!'),
-                    'title' => _('Subnet Group Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'SUBNETGROUP_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Subnet Group Create Fail')
-                ]
-            );
-        }
-        // header(
-        //     'Location: ../management/index.php?node=subnetgroup&sub=edit&id=
-        //     . $SubnetGroup->get('id')'
-        // );
-        $this->jsonHookResponse(
-            [
-                'SubnetGroup' => &$SubnetGroup,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

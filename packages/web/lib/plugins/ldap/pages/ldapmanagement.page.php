@@ -437,146 +437,114 @@ class LDAPManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('LDAP_ADD_POST');
-        $ldap = trim(
-            filter_input(INPUT_POST, 'ldap')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $address = trim(
-            filter_input(INPUT_POST, 'address')
-        );
-        $port = trim(
-            filter_input(INPUT_POST, 'port')
-        );
-        $searchDN = trim(
-            filter_input(INPUT_POST, 'searchDN')
-        );
-        $grpSearchDN = trim(
-            filter_input(INPUT_POST, 'grpSearchDN')
-        );
-        $adminGroup = trim(
-            filter_input(INPUT_POST, 'adminGroup')
-        );
-        $userGroup = trim(
-            filter_input(INPUT_POST, 'userGroup')
-        );
-        $userNameAttr = trim(
-            filter_input(INPUT_POST, 'userNameAttr')
-        );
-        $groupNameAttr = trim(
-            filter_input(INPUT_POST, 'groupNameAttr')
-        );
-        $grpMemberAttr = trim(
-            filter_input(INPUT_POST, 'grpMemberAttr')
-        );
-        $searchScope = trim(
-            filter_input(INPUT_POST, 'searchScope')
-        );
-        $bindDN = trim(
-            filter_input(INPUT_POST, 'bindDN')
-        );
-        $bindPwd = trim(
-            filter_input(INPUT_POST, 'bindPwd')
-        );
-        $useGroupMatch = (int)isset($_POST['useGroupMatch']);
-
-        $displayNameOn = (int)isset($_POST['displayNameOn']);
-
-        $displayNameAttr = trim(
-            filter_input(INPUT_POST, 'displayNameAttr')
-        );
-
-        $isLDAPs = (int)isset($_POST['isLDAPs']);
-        $isAPI = (int)isset($_POST['allowapi']);
-
-        $serverFault = false;
-        try {
-            if (!is_numeric($searchScope)) {
-                $searchScope = 0;
-            }
-            $ports = self::getSetting('FOG_PLUGIN_LDAP_PORTS');
-            $ports = preg_replace('#\s+#', '', $ports);
-            $ports = explode(',', $ports);
-            if (!in_array($port, $ports)) {
-                throw new Exception(
-                    _('Please select a valid ldap port')
+        $this->handleAddPost(
+            'LDAP',
+            'LDAP_ADD',
+            _('LDAP Server added!'),
+            _('LDAP Create Success'),
+            _('LDAP Create Fail'),
+            function (&$serverFault) {
+                $ldap = trim(
+                    filter_input(INPUT_POST, 'ldap')
                 );
-            }
-            if (empty($adminGroup) && empty($userGroup)) {
-                throw new Exception(
-                    _('Please Enter an admin or mobile lookup name')
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
                 );
-            }
-            $exists = self::getClass('LDAPManager')
-                ->exists($ldap);
-            if ($exists) {
-                throw new Exception(
-                    _('An LDAP server already exists with this name!')
+                $address = trim(
+                    filter_input(INPUT_POST, 'address')
                 );
+                $port = trim(
+                    filter_input(INPUT_POST, 'port')
+                );
+                $searchDN = trim(
+                    filter_input(INPUT_POST, 'searchDN')
+                );
+                $grpSearchDN = trim(
+                    filter_input(INPUT_POST, 'grpSearchDN')
+                );
+                $adminGroup = trim(
+                    filter_input(INPUT_POST, 'adminGroup')
+                );
+                $userGroup = trim(
+                    filter_input(INPUT_POST, 'userGroup')
+                );
+                $userNameAttr = trim(
+                    filter_input(INPUT_POST, 'userNameAttr')
+                );
+                $groupNameAttr = trim(
+                    filter_input(INPUT_POST, 'groupNameAttr')
+                );
+                $grpMemberAttr = trim(
+                    filter_input(INPUT_POST, 'grpMemberAttr')
+                );
+                $searchScope = trim(
+                    filter_input(INPUT_POST, 'searchScope')
+                );
+                $bindDN = trim(
+                    filter_input(INPUT_POST, 'bindDN')
+                );
+                $bindPwd = trim(
+                    filter_input(INPUT_POST, 'bindPwd')
+                );
+                $useGroupMatch = (int)isset($_POST['useGroupMatch']);
+
+                $displayNameOn = (int)isset($_POST['displayNameOn']);
+
+                $displayNameAttr = trim(
+                    filter_input(INPUT_POST, 'displayNameAttr')
+                );
+
+                $isLDAPs = (int)isset($_POST['isLDAPs']);
+                $isAPI = (int)isset($_POST['allowapi']);
+                if (!is_numeric($searchScope)) {
+                    $searchScope = 0;
+                }
+                $ports = self::getSetting('FOG_PLUGIN_LDAP_PORTS');
+                $ports = preg_replace('#\s+#', '', $ports);
+                $ports = explode(',', $ports);
+                if (!in_array($port, $ports)) {
+                    throw new Exception(
+                        _('Please select a valid ldap port')
+                    );
+                }
+                if (empty($adminGroup) && empty($userGroup)) {
+                    throw new Exception(
+                        _('Please Enter an admin or mobile lookup name')
+                    );
+                }
+                $exists = self::getClass('LDAPManager')
+                    ->exists($ldap);
+                if ($exists) {
+                    throw new Exception(
+                        _('An LDAP server already exists with this name!')
+                    );
+                }
+                $LDAP = self::getClass('LDAP')
+                    ->set('name', $ldap)
+                    ->set('description', $description)
+                    ->set('address', $address)
+                    ->set('searchDN', $searchDN)
+                    ->set('isLdaps', $isLDAPs)
+                    ->set('port', $port)
+                    ->set('userNamAttr', $userNameAttr)
+                    ->set('grpNamAttr', $groupNameAttr)
+                    ->set('grpMemberAttr', $grpMemberAttr)
+                    ->set('adminGroup', $adminGroup)
+                    ->set('userGroup', $userGroup)
+                    ->set('searchScope', $searchScope)
+                    ->set('bindDN', $bindDN)
+                    ->set('bindPwd', $bindPwd)
+                    ->set('useGroupMatch', $useGroupMatch)
+                    ->set('grpSearchDN', $grpSearchDN)
+                    ->set('displayNameOn', $displayNameOn)
+                    ->set('allowapi', $isAPI)
+                    ->set('displayNameAttr', $displayNameAttr);
+                if (!$LDAP->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add LDAP server failed!'));
+                }
+                return $LDAP;
             }
-            $LDAP = self::getClass('LDAP')
-                ->set('name', $ldap)
-                ->set('description', $description)
-                ->set('address', $address)
-                ->set('searchDN', $searchDN)
-                ->set('isLdaps', $isLDAPs)
-                ->set('port', $port)
-                ->set('userNamAttr', $userNameAttr)
-                ->set('grpNamAttr', $groupNameAttr)
-                ->set('grpMemberAttr', $grpMemberAttr)
-                ->set('adminGroup', $adminGroup)
-                ->set('userGroup', $userGroup)
-                ->set('searchScope', $searchScope)
-                ->set('bindDN', $bindDN)
-                ->set('bindPwd', $bindPwd)
-                ->set('useGroupMatch', $useGroupMatch)
-                ->set('grpSearchDN', $grpSearchDN)
-                ->set('displayNameOn', $displayNameOn)
-                ->set('allowapi', $isAPI)
-                ->set('displayNameAttr', $displayNameAttr);
-            if (!$LDAP->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add LDAP server failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'LDAP_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('LDAP Server added!'),
-                    'title' => _('LDAP Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'LDAP_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('LDAP Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=ldap&sub=edit&id='
-        //    . $LDAP->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'LDAP' => &$LDAP,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

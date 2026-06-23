@@ -220,93 +220,61 @@ class TasktypeeditManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('TASKTYPEEDIT_ADD_POST');
-        $tasktype = trim(
-            filter_input(INPUT_POST, 'tasktype')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $icon = trim(
-            filter_input(INPUT_POST, 'icon')
-        );
-        $kernel = trim(
-            filter_input(INPUT_POST, 'kernel')
-        );
-        $kernelargs = trim(
-            filter_input(INPUT_POST, 'kernelargs')
-        );
-        $initrd = trim(
-            filter_input(INPUT_POST, 'initrd')
-        );
-        $type = trim(
-            filter_input(INPUT_POST, 'type')
-        );
-        $access = trim(
-            filter_input(INPUT_POST, 'access')
-        );
-        $advanced = isset($_POST['advanced']);
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('TaskTypeManager')
-                ->exists($tasktype);
-            if ($exists) {
-                throw new Exception(
-                    _('A task type already exists with this name!')
+        $this->handleAddPost(
+            'TaskType',
+            'TASKTYPEEDIT_ADD',
+            _('Task Type added!'),
+            _('Task Type Create Success'),
+            _('Task Type Create Fail'),
+            function (&$serverFault) {
+                $tasktype = trim(
+                    filter_input(INPUT_POST, 'tasktype')
                 );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $icon = trim(
+                    filter_input(INPUT_POST, 'icon')
+                );
+                $kernel = trim(
+                    filter_input(INPUT_POST, 'kernel')
+                );
+                $kernelargs = trim(
+                    filter_input(INPUT_POST, 'kernelargs')
+                );
+                $initrd = trim(
+                    filter_input(INPUT_POST, 'initrd')
+                );
+                $type = trim(
+                    filter_input(INPUT_POST, 'type')
+                );
+                $access = trim(
+                    filter_input(INPUT_POST, 'access')
+                );
+                $advanced = isset($_POST['advanced']);
+                $exists = self::getClass('TaskTypeManager')
+                    ->exists($tasktype);
+                if ($exists) {
+                    throw new Exception(
+                        _('A task type already exists with this name!')
+                    );
+                }
+                $TaskType = self::getClass('TaskType')
+                    ->set('name', $tasktype)
+                    ->set('description', $description)
+                    ->set('icon', $icon)
+                    ->set('kernel', $kernel)
+                    ->set('kernelArgs', $kernelargs)
+                    ->set('initrd', $initrd)
+                    ->set('type', $type)
+                    ->set('isAdvanced', $advanced)
+                    ->set('access', $access);
+                if (!$TaskType->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add task type failed!'));
+                }
+                return $TaskType;
             }
-            $TaskType = self::getClass('TaskType')
-                ->set('name', $tasktype)
-                ->set('description', $description)
-                ->set('icon', $icon)
-                ->set('kernel', $kernel)
-                ->set('kernelArgs', $kernelargs)
-                ->set('initrd', $initrd)
-                ->set('type', $type)
-                ->set('isAdvanced', $advanced)
-                ->set('access', $access);
-            if (!$TaskType->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add task type failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'TASKTYPEEDIT_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Task Type added!'),
-                    'title' => _('Task Type Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'TASKTYPEEDIT_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Task Type Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=tasktypeedit&sub=edit&id='
-        //    . $TaskType->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'TaskType' => &$TaskType,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**

@@ -108,68 +108,40 @@ class PushbulletManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('PUSHBULLET_ADD_POST');
-        $token = trim(
-            filter_input(INPUT_POST, 'apiToken')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('PushbulletManager')
-                ->exists($token, '', 'token');
-            if ($exists) {
-                throw new Exception(_('Account already linked'));
+        $this->handleAddPost(
+            'Pushbullet',
+            'PUSHBULLET_ADD',
+            _('Account successfully added!'),
+            _('Link Pushbullet Account Success'),
+            _('Link Pushbullet Account Fail'),
+            function (&$serverFault) {
+                $token = trim(
+                    filter_input(INPUT_POST, 'apiToken')
+                );
+                $exists = self::getClass('PushbulletManager')
+                    ->exists($token, '', 'token');
+                if ($exists) {
+                    throw new Exception(_('Account already linked'));
+                }
+                $userInfo = self::getClass(
+                    'PushbulletHandler',
+                    $token
+                )->getUserInformation();
+                $Pushbullet = self::getClass('Pushbullet')
+                    ->set('token', $token)
+                    ->set('name', $userInfo->name)
+                    ->set('email', $userInfo->email);
+                if (!$Pushbullet->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add pushbullet account failed!'));
+                }
+                $userInfo->pushNote(
+                    '',
+                    'FOG',
+                    'Account linked'
+                );
+                return $Pushbullet;
             }
-            $userInfo = self::getClass(
-                'PushbulletHandler',
-                $token
-            )->getUserInformation();
-            $Pushbullet = self::getClass('Pushbullet')
-                ->set('token', $token)
-                ->set('name', $userInfo->name)
-                ->set('email', $userInfo->email);
-            if (!$Pushbullet->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add pushbullet account failed!'));
-            }
-            $userInfo->pushNote(
-                '',
-                'FOG',
-                'Account linked'
-            );
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'PUSHBULLET_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Account successfully added!'),
-                    'title' => _('Link Pushbullet Account Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'PUSHBULLET_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Link Pushbullet Account Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Pushbullet' => &$Pushbullet,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }

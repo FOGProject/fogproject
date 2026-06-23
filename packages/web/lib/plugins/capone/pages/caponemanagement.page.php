@@ -120,74 +120,42 @@ class CaponeManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('CAPONE_ADD_POST');
-        $imageID = trim(
-            filter_input(INPUT_POST, 'image')
-        );
-        $key = trim(
-            filter_input(INPUT_POST, 'key')
-        );
-        $image = new Image($imageID);
-        $os = $image->getOS();
-        $osID = $os->get('id');
-
-        $serverFault = false;
-        try {
-            if (!$image->isValid()) {
-                throw new Exception(
-                    _('Please select a valid image')
+        $this->handleAddPost(
+            'Capone',
+            'CAPONE_ADD',
+            _('Capone added!'),
+            _('Capone Create Success'),
+            _('Capone Create Fail'),
+            function (&$serverFault) {
+                $imageID = trim(
+                    filter_input(INPUT_POST, 'image')
                 );
-            }
-            if (!$os->isValid()) {
-                throw new Exception(
-                    _('The image associated does not have a valid OS!')
+                $key = trim(
+                    filter_input(INPUT_POST, 'key')
                 );
+                $image = new Image($imageID);
+                $os = $image->getOS();
+                $osID = $os->get('id');
+                if (!$image->isValid()) {
+                    throw new Exception(
+                        _('Please select a valid image')
+                    );
+                }
+                if (!$os->isValid()) {
+                    throw new Exception(
+                        _('The image associated does not have a valid OS!')
+                    );
+                }
+                $Capone = self::getClass('Capone')
+                    ->set('imageID', $imageID)
+                    ->set('osID', $osID)
+                    ->set('key', $key);
+                if (!$Capone->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add capone failed!'));
+                }
+                return $Capone;
             }
-            $Capone = self::getClass('Capone')
-                ->set('imageID', $imageID)
-                ->set('osID', $osID)
-                ->set('key', $key);
-            if (!$Capone->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add capone failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'CAPONE_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Capone added!'),
-                    'title' => _('Capone Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'CAPONE_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Capone Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=capone&sub=edit&id='
-        //    $Capone->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'Capone' => &$Capone,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**
