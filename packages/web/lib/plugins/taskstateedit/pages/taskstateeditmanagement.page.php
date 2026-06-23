@@ -48,14 +48,12 @@ class TaskstateeditManagement extends FOGPage
         ];
     }
     /**
-     * Create new task state entry.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Task State');
-
         $taskstate = filter_input(INPUT_POST, 'taskstate');
         $description = filter_input(INPUT_POST, 'description');
         $icon = filter_input(INPUT_POST, 'icon');
@@ -64,7 +62,7 @@ class TaskstateeditManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'taskstate',
@@ -107,6 +105,17 @@ class TaskstateeditManagement extends FOGPage
                 $additional
             )
         ];
+    }
+    /**
+     * Create new task state entry.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Task State');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -159,57 +168,7 @@ class TaskstateeditManagement extends FOGPage
      */
     public function addModal()
     {
-        $taskstate = filter_input(INPUT_POST, 'taskstate');
-        $description = filter_input(INPUT_POST, 'description');
-        $icon = filter_input(INPUT_POST, 'icon');
-        $additional = filter_input(INPUT_POST, 'additional');
-        $iconSel = self::getClass('TaskType')->iconlist($icon);
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'taskstate',
-                _('Task State Name')
-            ) => self::makeInput(
-                'form-control taskstatename-input',
-                'taskstate',
-                _('Task State Name'),
-                'text',
-                'taskstate',
-                $taskstate,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Task State Description')
-            ) => self::makeTextarea(
-                'form-control taskstatedescription-input',
-                'description',
-                _('Task State Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'icon',
-                _('Task State Icon')
-            ) => $iconSel,
-            self::makeLabel(
-                $labelClass,
-                'additional',
-                _('Additional Icon Elements')
-            ) => self::makeInput(
-                'form-control taskstateadditionalicon-input',
-                'additional',
-                'fa-spin',
-                'text',
-                'additional',
-                $additional
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'TASKSTATEEDIT_ADD_FIELDS',

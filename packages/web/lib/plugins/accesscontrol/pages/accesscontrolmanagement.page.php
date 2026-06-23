@@ -48,20 +48,18 @@ class AccessControlManagement extends FOGPage
         ];
     }
     /**
-     * Create new accesscontrol.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Accesscontrol');
-
         $accesscontrol = filter_input(INPUT_POST, 'accesscontrol');
         $description = filter_input(INPUT_POST, 'description');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'accesscontrol',
@@ -87,6 +85,17 @@ class AccessControlManagement extends FOGPage
                 $description
             )
         ];
+    }
+    /**
+     * Create new accesscontrol.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Accesscontrol');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -139,37 +148,7 @@ class AccessControlManagement extends FOGPage
      */
     public function addModal()
     {
-        $accesscontrol = filter_input(INPUT_POST, 'accesscontrol');
-        $description = filter_input(INPUT_POST, 'description');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'accesscontrol',
-                _('Accesscontrol Name')
-            ) => self::makeInput(
-                'form-control accesscontrolname-input',
-                'accesscontrol',
-                _('Access Control Name'),
-                'text',
-                'accesscontrol',
-                $accesscontrol,
-                true
-            ),
-            self::makelabel(
-                $labelClass,
-                'description',
-                _('Accesscontrol Description')
-            ) => self::makeTextarea(
-                'form-control accesscontroldescription-input',
-                'description',
-                _('Accesscontrol Description'),
-                'description',
-                $description
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'ACCESSCONTROL_ADD_FIELDS',

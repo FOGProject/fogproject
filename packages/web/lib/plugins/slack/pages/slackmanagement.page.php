@@ -50,19 +50,18 @@ class SlackManagement extends FOGPage
         ];
     }
     /**
-     * Presents for creating a new link
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Link Slack Account');
         $apiToken = filter_input(INPUT_POST, 'apiToken');
         $user = filter_input(INPUT_POST, 'user');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'apiToken',
@@ -90,6 +89,16 @@ class SlackManagement extends FOGPage
                 true
             )
         ];
+    }
+    /**
+     * Presents for creating a new link
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Link Slack Account');
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -142,39 +151,7 @@ class SlackManagement extends FOGPage
      */
     public function addModal()
     {
-        $apiToken = filter_input(INPUT_POST, 'apiToken');
-        $user = filter_input(INPUT_POST, 'user');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'apiToken',
-                _('Access Token')
-            ) => self::makeInput(
-                'form-control slacktoken-input',
-                'apiToken',
-                _('Slack Token'),
-                'text',
-                'apiToken',
-                $apiToken,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'user',
-                _('User/Channel')
-            ) => self::makeInput(
-                'form-control slackuser-input',
-                'user',
-                _('Slack User/Slack Channel'),
-                'text',
-                'user',
-                $user,
-                true
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'SLACK_ADD_FIELDS',

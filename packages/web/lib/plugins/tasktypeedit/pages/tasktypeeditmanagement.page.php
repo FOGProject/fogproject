@@ -50,14 +50,12 @@ class TasktypeeditManagement extends FOGPage
         ];
     }
     /**
-     * Create new task type.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Task Type');
-
         $tasktype = filter_input(INPUT_POST, 'tasktype');
         $description = filter_input(INPUT_POST, 'description');
         $icon = filter_input(INPUT_POST, 'icon');
@@ -87,7 +85,7 @@ class TasktypeeditManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'tasktype',
@@ -187,6 +185,17 @@ class TasktypeeditManagement extends FOGPage
                 _('Accessed By')
             ) => $accessSel
         ];
+    }
+    /**
+     * Create new task type.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Task Type');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -239,135 +248,7 @@ class TasktypeeditManagement extends FOGPage
      */
     public function addModal()
     {
-        $tasktype = filter_input(INPUT_POST, 'tasktype');
-        $description = filter_input(INPUT_POST, 'description');
-        $icon = filter_input(INPUT_POST, 'icon');
-        $kernel = filter_input(INPUT_POST, 'kernel');
-        $kernelargs = filter_input(INPUT_POST, 'kernelargs');
-        $initrd = filter_input(INPUT_POST, 'initrd');
-        $type = filter_input(INPUT_POST, 'type');
-        $access = filter_input(INPUT_POST, 'access');
-        $advanced = isset($_POST['advanced']);
-        $isAd = (
-            $advanced ?
-            ' checked' :
-            ''
-        );
-        $accessTypes = [
-            'both',
-            'host',
-            'group'
-        ];
-        $accessSel = self::selectForm(
-            'access',
-            $accessTypes,
-            $access
-        );
-        $iconSel = self::getClass('TaskType')->iconlist($icon);
-        unset($accessTypes);
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'tasktype',
-                _('Task Type Name')
-            ) => self::makeInput(
-                'form-control tasktypename-input',
-                'tasktype',
-                _('Task Type Name'),
-                'text',
-                'tasktype',
-                $tasktype,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Task Type Description')
-            ) => self::makeTextarea(
-                'form-control tasktypedescription-input',
-                'description',
-                _('Task Type Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'icon',
-                _('Task Type Icon')
-            ) => $iconSel,
-            self::makeLabel(
-                $labelClass,
-                'kernel',
-                _('Kernel')
-            ) => self::makeInput(
-                'form-control tasktypekernel-input',
-                'kernel',
-                'bzImage',
-                'text',
-                'kernel',
-                $kernel
-            ),
-            self::makeLabel(
-                $labelClass,
-                'kernelargs',
-                _('Kernel Arguments')
-            ) => self::makeInput(
-                'form-control tasktypekernelargs-input',
-                'kernelargs',
-                'debug acpi=off',
-                'text',
-                'kernelargs',
-                $kernelargs
-            ),
-            self::makeLabel(
-                $labelClass,
-                'initrd',
-                _('Init FS')
-            ) => self::makeInput(
-                'form-control tasktypeinit-input',
-                'initrd',
-                'init.xz',
-                'text',
-                'initrd',
-                $initrd
-            ),
-            self::makeLabel(
-                $labelClass,
-                'type',
-                _('Type')
-            ) => self::makeInput(
-                'form-control tasktypetype-input',
-                'type',
-                'fog',
-                'text',
-                'type',
-                $type
-            ),
-            self::makeLabel(
-                $labelClass,
-                'isAd',
-                _('Advanced Task')
-            ) => self::makeInput(
-                '',
-                'advanced',
-                '',
-                'checkbox',
-                'isAd',
-                false,
-                false,
-                -1,
-                -1,
-                $isAd
-            ),
-            self::makeLabel(
-                $labelClass,
-                'access',
-                _('Accessed By')
-            ) => $accessSel
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'TASKTYPEEDIT_ADD_FIELDS',

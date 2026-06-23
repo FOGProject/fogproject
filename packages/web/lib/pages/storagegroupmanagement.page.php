@@ -48,21 +48,19 @@ class StorageGroupManagement extends FOGPage
         ];
     }
     /**
-     * Create a new storage group.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Storage Group');
-
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $description = filter_input(INPUT_POST, 'description');
         $trustedcidrs = filter_input(INPUT_POST, 'trustedcidrs');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'storagegroup',
@@ -101,6 +99,17 @@ class StorageGroupManagement extends FOGPage
                 false
             )
         ];
+    }
+    /**
+     * Create a new storage group.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Storage Group');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -153,51 +162,7 @@ class StorageGroupManagement extends FOGPage
      */
     public function addModal()
     {
-        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
-        $description = filter_input(INPUT_POST, 'description');
-        $trustedcidrs = filter_input(INPUT_POST, 'trustedcidrs');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'storagegroup',
-                _('Storage Group Name')
-            ) => self::makeInput(
-                'form-control storagegroupname-input',
-                'storagegroup',
-                _('Storage Group name'),
-                'text',
-                'storagegroup',
-                $storagegroup,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Storage Group Description')
-            ) => self::makeTextarea(
-                'form-control storagegroupdescription-input',
-                'description',
-                _('Storage Group Description'),
-                'description',
-                $description,
-                false
-            ),
-            self::makeLabel(
-                $labelClass,
-                'trustedcidrs',
-                _('Trusted Node CIDRs')
-            ) => self::makeTextarea(
-                'form-control storagegrouptrustedcidrs-input',
-                'trustedcidrs',
-                _('One IP or CIDR range per line (or comma separated)'),
-                'trustedcidrs',
-                $trustedcidrs,
-                false
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'STORAGEGROUP_ADD_FIELDS',

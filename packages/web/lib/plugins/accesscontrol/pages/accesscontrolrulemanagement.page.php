@@ -54,14 +54,12 @@ class AccessControlRuleManagement extends FOGPage
         ];
     }
     /**
-     * Create new role.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Rule');
-
         $type = filter_input(INPUT_POST, 'type');
         $parent = filter_input(INPUT_POST, 'parent');
         $node = filter_input(INPUT_POST, 'node');
@@ -69,7 +67,7 @@ class AccessControlRuleManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'type',
@@ -122,6 +120,17 @@ class AccessControlRuleManagement extends FOGPage
                 true
             )
         ];
+    }
+    /**
+     * Create new role.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Rule');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -174,66 +183,7 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function addModal()
     {
-        $type = filter_input(INPUT_POST, 'type');
-        $parent = filter_input(INPUT_POST, 'parent');
-        $node = filter_input(INPUT_POST, 'node');
-        $value = filter_input(INPUT_POST, 'value');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'type',
-                _('Rule Type')
-            ) => self::makeInput(
-                'form-control ruletype-input',
-                'type',
-                _('Rule Type'),
-                'text',
-                'type',
-                $type,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'parent',
-                _('Rule Parent')
-            ) => self::makeInput(
-                'form-control ruleparent-input',
-                'parent',
-                _('Rule Parent'),
-                'text',
-                'parent',
-                $parent,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'node',
-                _('Rule Node')
-            ) => self::makeInput(
-                'form-control rulenode-input',
-                'node',
-                _('Rule Node'),
-                'text',
-                'node',
-                $node
-            ),
-            self::makeLabel(
-                $labelClass,
-                'value',
-                _('Rule Value')
-            ) => self::makeInput(
-                'form-control rulevalue-input',
-                'value',
-                _('Rule Value'),
-                'text',
-                'value',
-                $value,
-                true
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'ACCESSCONTROLRULE_ADD_FIELDS',

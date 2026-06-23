@@ -48,20 +48,18 @@ class SiteManagement extends FOGPage
         ];
     }
     /**
-     * Creates new item.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Site');
-
         $site = filter_input(INPUT_POST, 'site');
         $description = filter_input(INPUT_POST, 'description');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'site',
@@ -87,6 +85,17 @@ class SiteManagement extends FOGPage
                 $description
             )
         ];
+    }
+    /**
+     * Creates new item.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Site');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -139,37 +148,7 @@ class SiteManagement extends FOGPage
      */
     public function addModal()
     {
-        $site = filter_input(INPUT_POST, 'site');
-        $description = filter_input(INPUT_POST, 'description');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'site',
-                _('Site Name')
-            ) => self::makeInput(
-                'form-control sitename-input',
-                'site',
-                _('Site Name'),
-                'text',
-                'site',
-                $site,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Site Description')
-            ) => self::makeTextarea(
-                'form-control sitedescription-input',
-                'description',
-                _('Site Description'),
-                'description',
-                $description
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'SITE_ADD_FIELDS',

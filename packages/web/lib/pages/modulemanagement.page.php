@@ -52,14 +52,12 @@ class ModuleManagement extends FOGPage
         ];
     }
     /**
-     * Create a new module.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Module');
-
         $module = filter_input(INPUT_POST, 'module');
         $description = filter_input(INPUT_POST, 'description');
         $shortname = filter_input(INPUT_POST, 'shortname');
@@ -68,7 +66,7 @@ class ModuleManagement extends FOGPage
         $labelClass = 'col-sm-3 control-label';
 
         // The fields to display
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'module',
@@ -123,6 +121,17 @@ class ModuleManagement extends FOGPage
                 $isDefault
             )
         ];
+    }
+    /**
+     * Create a new module.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Module');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -175,69 +184,7 @@ class ModuleManagement extends FOGPage
      */
     public function addModal()
     {
-        $module = filter_input(INPUT_POST, 'module');
-        $description = filter_input(INPUT_POST, 'description');
-        $shortname = filter_input(INPUT_POST, 'shortname');
-        $isDefault = isset($_POST['isDefault']) ? ' checked' : '';
-
-        $labelClass = 'col-sm-3 control-label';
-
-        // The fields to display
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'module',
-                _('Module Name')
-            ) => self::makeInput(
-                'form-control modulename-input',
-                'module',
-                _('Module Name'),
-                'text',
-                'module',
-                $module,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Module Description')
-            ) => self::makeTextarea(
-                'form-control moduledescription-input',
-                'description',
-                _('Module Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'shortname',
-                _('Module Short Name')
-            ) => self::makeInput(
-                'form-control moduleshortname-input',
-                'shortname',
-                'short',
-                'text',
-                'shortname',
-                $shortname
-            ),
-            self::makeLabel(
-                $labelClass,
-                'isDefault',
-                _('Module Default?')
-            ) => self::makeInput(
-                'moduleisdefault-input',
-                'isDefault',
-                '',
-                'checkbox',
-                'isDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                $isDefault
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'MODULE_ADD_FIELDS',

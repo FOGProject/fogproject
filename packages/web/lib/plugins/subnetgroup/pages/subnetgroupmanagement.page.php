@@ -52,14 +52,12 @@ class SubnetGroupManagement extends FOGPage
         ];
     }
     /**
-     * Create new subnet group entry.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Subnet Group');
-
         $subnetgroup = filter_input(INPUT_POST, 'subnetgroup');
         $description = filter_input(INPUT_POST, 'description');
         $group = filter_input(INPUT_POST, 'group');
@@ -68,7 +66,7 @@ class SubnetGroupManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'subnetgroup',
@@ -112,6 +110,17 @@ class SubnetGroupManagement extends FOGPage
                 _('Subnet Group -> Group Relationship')
             ) => $groupSelector
         ];
+    }
+    /**
+     * Create new subnet group entry.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Subnet Group');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -164,58 +173,7 @@ class SubnetGroupManagement extends FOGPage
      */
     public function addModal()
     {
-        $subnetgroup = filter_input(INPUT_POST, 'subnetgroup');
-        $description = filter_input(INPUT_POST, 'description');
-        $group = filter_input(INPUT_POST, 'group');
-        $groupSelector = self::getClass('GroupManager')->buildSelectBox($group);
-        $subnets = filter_input(INPUT_POST, 'subnets');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'subnetgroup',
-                _('Subnet Group Name')
-            ) => self::makeInput(
-                'form-control subnetgroupname-input',
-                'subnetgroup',
-                _('Subnet Group Name'),
-                'text',
-                'subnetgroup',
-                $subnetgroup,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Subnet Group Description')
-            ) => self::makeTextarea(
-                'form-control subnetgroupdescription-input',
-                'description',
-                _('Subnet Group Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'subnets',
-                _('Subnets')
-            ) => self::makeInput(
-                'form-control subnetgroupsubnets-input',
-                'subnets',
-                _('192.168.1.0/24, 10.1.0.0/16'),
-                'text',
-                'subnets',
-                $subnets,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'group',
-                _('Subnet Group -> Group Relationship')
-            ) => $groupSelector
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'SUBNETGROUP_ADD_FIELDS',

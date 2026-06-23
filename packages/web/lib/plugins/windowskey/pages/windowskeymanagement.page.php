@@ -48,21 +48,19 @@ class WindowsKeyManagement extends FOGPage
         ];
     }
     /**
-     * Show form for creating a new windows key entry.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Windows Key');
-
         $windowskey = filter_input(INPUT_POST, 'windowskey');
         $description = filter_input(INPUT_POST, 'description');
         $key = filter_input(INPUT_POST, 'key');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'windowskey',
@@ -101,6 +99,17 @@ class WindowsKeyManagement extends FOGPage
                 true
             )
         ];
+    }
+    /**
+     * Show form for creating a new windows key entry.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Windows Key');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -153,51 +162,7 @@ class WindowsKeyManagement extends FOGPage
      */
     public function addModal()
     {
-        $windowskey = filter_input(INPUT_POST, 'windowskey');
-        $description = filter_input(INPUT_POST, 'description');
-        $key = filter_input(INPUT_POST, 'key');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'windowskey',
-                _('Windows Key Name')
-            ) => self::makeInput(
-                'form-control windowskeyname-input',
-                'windowskey',
-                _('Windows 10 Professional'),
-                'text',
-                'windowskey',
-                $windowskey,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Windows Key Description')
-            ) => self::makeTextarea(
-                'form-control windowskeydescription-name',
-                'description',
-                _('Windows Key Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'key',
-                _('Windows Product key')
-            ) => self::makeInput(
-                'form-control windowsproductkey-input',
-                'key',
-                '',
-                'text',
-                'key',
-                $key,
-                true
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'WINDOWSKEY_ADD_FIELDS',

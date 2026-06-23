@@ -48,18 +48,17 @@ class PushbulletManagement extends FOGPage
         ];
     }
     /**
-     * Presents for creating a new link
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Link Pushbullet Account');
         $apiToken = filter_input(INPUT_POST, 'apiToken');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'apiToken',
@@ -74,6 +73,16 @@ class PushbulletManagement extends FOGPage
                 true
             )
         ];
+    }
+    /**
+     * Presents for creating a new link
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Link Pushbullet Account');
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -126,25 +135,7 @@ class PushbulletManagement extends FOGPage
      */
     public function addModal()
     {
-        $apiToken = filter_input(INPUT_POST, 'apiToken');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'apiToken',
-                _('Access token')
-            ) => self::makeInput(
-                'form-control pushbullettoken-input',
-                'apiToken',
-                _('Pushbullet Token'),
-                'text',
-                'apiToken',
-                $apiToken,
-                true
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'PUSHBULLET_ADD_FIELDS',

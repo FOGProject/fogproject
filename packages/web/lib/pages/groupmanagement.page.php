@@ -52,14 +52,12 @@ class GroupManagement extends FOGPage
         ];
     }
     /**
-     * Create a new group.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Group');
-
         $group = filter_input(INPUT_POST, 'group');
         $description = filter_input(INPUT_POST, 'description');
         $kernel = filter_input(INPUT_POST, 'kernel');
@@ -70,7 +68,7 @@ class GroupManagement extends FOGPage
         $labelClass = 'col-sm-3 control-label';
 
         // The fields to display
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'group',
@@ -144,6 +142,17 @@ class GroupManagement extends FOGPage
                 $dev
             )
         ];
+    }
+    /**
+     * Create a new group.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Group');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -196,90 +205,7 @@ class GroupManagement extends FOGPage
      */
     public function addModal()
     {
-        $group = filter_input(INPUT_POST, 'group');
-        $description = filter_input(INPUT_POST, 'description');
-        $kernel = filter_input(INPUT_POST, 'kernel');
-        $args = filter_input(INPUT_POST, 'args');
-        $init = filter_input(INPUT_POST, 'init');
-        $dev = filter_input(INPUT_POST, 'dev');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        // The fields to display
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'group',
-                _('Group Name')
-            ) => self::makeInput(
-                'form-control groupname-input',
-                'group',
-                _('Group Name'),
-                'text',
-                'group',
-                $group,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Group Description')
-            ) => self::makeTextarea(
-                'form-control groupdescription-input',
-                'description',
-                _('Group Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'kernel',
-                _('Group Kernel')
-            ) => self::makeInput(
-                'form-control groupkernel-input',
-                'kernel',
-                'customBzimage',
-                'text',
-                'kernel',
-                $kernel
-            ),
-            self::makeLabel(
-                $labelClass,
-                'args',
-                _('Group Kernel Arguments')
-            ) => self::makeInput(
-                'form-control groupkernelargs-input',
-                'args',
-                'debug acpi=off',
-                'text',
-                'args',
-                $args
-            ),
-            self::makeLabel(
-                $labelClass,
-                'init',
-                _('Group Init')
-            ) => self::makeInput(
-                'form-control groupinit-input',
-                'init',
-                'customInit.xz',
-                'text',
-                'init',
-                $init
-            ),
-            self::makeLabel(
-                $labelClass,
-                'dev',
-                _('Group Primary Disk')
-            ) => self::makeInput(
-                'form-control groupdev-input',
-                'dev',
-                '/dev/md0',
-                'text',
-                'dev',
-                $dev
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'GROUP_ADD_FIELDS',

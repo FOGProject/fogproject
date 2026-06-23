@@ -48,21 +48,19 @@ class WOLBroadcastManagement extends FOGPage
         ];
     }
     /**
-     * Create new wol broadcast entry.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Broadcast');
-
         $wolbroadcast = filter_input(INPUT_POST, 'wolbroadcast');
         $description = filter_input(INPUT_POST, 'description');
         $broadcast = filter_input(INPUT_POST, 'broadcast');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'wolbroadcast',
@@ -105,6 +103,17 @@ class WOLBroadcastManagement extends FOGPage
                 'data-inputmask="\'alias\': \'ip\'"'
             )
         ];
+    }
+    /**
+     * Create new wol broadcast entry.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Broadcast');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -157,55 +166,7 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function addModal()
     {
-        $wolbroadcast = filter_input(INPUT_POST, 'wolbroadcast');
-        $description = filter_input(INPUT_POST, 'description');
-        $broadcast = filter_input(INPUT_POST, 'broadcast');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'wolbroadcast',
-                _('Broadcast Name')
-            ) => self::makeInput(
-                'form-control wolbroadcastname-input',
-                'wolbroadcast',
-                _('Broadcast Name'),
-                'text',
-                'wolbroadcast',
-                $wolbroadcast,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Broadcast Description')
-            ) => self::makeTextarea(
-                'form-control wolbroadcastdescription-input',
-                'description',
-                _('Broadcast Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'broadcast',
-                _('Broadcast Address')
-            ) => self::makeInput(
-                'form-control wolbroadcastaddress-input',
-                'broadcast',
-                '192.168.1.255',
-                'text',
-                'broadcast',
-                $broadcast,
-                true,
-                false,
-                -1,
-                -1,
-                'data-inputmask="\'alias\': \'ip\'"'
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'WOLBROADCAST_ADD_FIELDS',

@@ -50,21 +50,19 @@ class OUManagement extends FOGPage
         ];
     }
     /**
-     * Creates new item.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New OU');
-
         $ou = filter_input(INPUT_POST, 'ou');
         $description = filter_input(INPUT_POST, 'description');
         $oudn = filter_input(INPUT_POST, 'oudn');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'ou',
@@ -103,6 +101,17 @@ class OUManagement extends FOGPage
                 true
             )
         ];
+    }
+    /**
+     * Creates new item.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New OU');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -155,51 +164,7 @@ class OUManagement extends FOGPage
      */
     public function addModal()
     {
-        $ou = filter_input(INPUT_POST, 'ou');
-        $description = filter_input(INPUT_POST, 'description');
-        $oudn = filter_input(INPUT_POST, 'oudn');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'ou',
-                _('OU Name')
-            ) => self::makeInput(
-                'form-control ouname-input',
-                'ou',
-                _('OU Name'),
-                'text',
-                'ou',
-                $ou,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('OU Description')
-            ) => self::makeTextarea(
-                'form-control oudescription-input',
-                'description',
-                _('OU Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'oudn',
-                _('OU DN')
-            ) => self::makeInput(
-                'form-control oudn-input',
-                'oudn',
-                'ou=computers,dc=example,dc=com',
-                'text',
-                'oudn',
-                $oudn,
-                true
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'OU_ADD_FIELDS',

@@ -64,20 +64,18 @@ class UserManagement extends FOGPage
         return $this;
     }
     /**
-     * Page to enable creating a new user.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New User');
-
         $user = filter_input(INPUT_POST, 'user');
         $display = filter_input(INPUT_POST, 'display');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'user',
@@ -182,6 +180,17 @@ class UserManagement extends FOGPage
                 (isset($_POST['apienabled']) ? 'checked' : '')
             )
         ];
+    }
+    /**
+     * Page to enable creating a new user.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New User');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -235,116 +244,7 @@ class UserManagement extends FOGPage
      */
     public function addModal()
     {
-        $user = filter_input(INPUT_POST, 'user');
-        $display = filter_input(INPUT_POST, 'display');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'user',
-                _('User Name')
-            ) => self::makeInput(
-                'form-control username-input',
-                'user',
-                _('User Name'),
-                'text',
-                'user',
-                $user,
-                true,
-                false,
-                3,
-                50,
-                'beRegexTo="'
-                . '(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$"'
-                . ' requirements="'
-                . _('Username must begin with 2 numbers or letters.')
-                . ' '
-                . _('Username must end with a number or letter.')
-                . ' '
-                . _('You may use _, ., -, or a space between.')
-                . ' '
-                . _('It must be between 3 and 50 characters.')
-                . '"'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'display',
-                _('Friendly Name')
-            ) => self::makeInput(
-                'form-control userdisplay-input',
-                'display',
-                _('Friendly Name'),
-                'text',
-                'display',
-                $display,
-                false,
-                false
-            ),
-            self::makeLabel(
-                $labelClass,
-                'password',
-                _('User Password')
-            ) => '<div class="input-group">'
-            . self::makeInput(
-                'form-control password1-input',
-                'password',
-                _('User Password'),
-                'password',
-                'password',
-                '',
-                true,
-                false,
-                (int)self::getSetting('FOG_USER_MINPASSLENGTH'),
-                -1,
-                'beRegexTo="'
-                . self::getSetting('FOG_USER_VALIDPASSCHARS')
-                . '" requirements="'
-                . _(self::getSetting('FOG_USER_VALIDPASSHELPMSG'))
-                . '"'
-            )
-            . '</div>',
-            self::makeLabel(
-                $labelClass,
-                'password_name',
-                _('User Password')
-                . '<br/>('
-                . _('confirm')
-                . ')'
-            ) => '<div class="input-group">'
-            . self::makeInput(
-                'form-control password2-input',
-                'password_name',
-                _('User Password'),
-                'password',
-                'password_name',
-                '',
-                true,
-                false,
-                -1,
-                -1,
-                'beEqualTo="password"'
-            )
-            . '</div>',
-            self::makeLabel(
-                $labelClass,
-                'apienabled',
-                _('User API Enable')
-            ) => self::makeInput(
-                'apienabled-input',
-                'apienabled',
-                '',
-                'checkbox',
-                'apienabled',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (isset($_POST['apienabled']) ? 'checked' : '')
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'USER_ADD_FIELDS',

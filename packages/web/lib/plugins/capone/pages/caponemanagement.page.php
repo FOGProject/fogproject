@@ -52,14 +52,12 @@ class CaponeManagement extends FOGPage
         ];
     }
     /**
-     * Create new capone entry.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Capone');
-
         $image = filter_input(INPUT_POST, 'image');
         $key = filter_input(INPUT_POST, 'key');
         $imageSelector = self::getClass('ImageManager')
@@ -67,7 +65,7 @@ class CaponeManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'image',
@@ -87,6 +85,17 @@ class CaponeManagement extends FOGPage
                 true
             )
         ];
+    }
+    /**
+     * Create new capone entry.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Capone');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -139,33 +148,7 @@ class CaponeManagement extends FOGPage
      */
     public function addModal()
     {
-        $image = filter_input(INPUT_POST, 'image');
-        $key = filter_input(INPUT_POST, 'key');
-        $imageSelector = self::getClass('ImageManager')
-            ->buildSelectBox($image);
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'image',
-                _('Image')
-            ) => $imageSelector,
-            self::makeLabel(
-                $labelClass,
-                'key',
-                _('Key to match')
-            ) => self::makeInput(
-                'form-control caponekey-input',
-                'key',
-                _('Key to match'),
-                'text',
-                'key',
-                $key,
-                true
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'CAPONE_ADD_FIELDS',

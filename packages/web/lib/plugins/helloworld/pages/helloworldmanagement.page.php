@@ -62,20 +62,18 @@ class HelloWorldManagement extends FOGPage
         ];
     }
     /**
-     * The standalone "create" page (sub=add).
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
-        $this->title = _('Create New Hello World');
-
         $name = filter_input(INPUT_POST, 'name');
         $description = filter_input(INPUT_POST, 'description');
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'name',
@@ -101,6 +99,17 @@ class HelloWorldManagement extends FOGPage
                 $description
             ),
         ];
+    }
+    /**
+     * The standalone "create" page (sub=add).
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Hello World');
+
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -153,37 +162,7 @@ class HelloWorldManagement extends FOGPage
      */
     public function addModal()
     {
-        $name = filter_input(INPUT_POST, 'name');
-        $description = filter_input(INPUT_POST, 'description');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'name',
-                _('Name')
-            ) => self::makeInput(
-                'form-control helloworldname-input',
-                'name',
-                _('Name'),
-                'text',
-                'name',
-                $name,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Description')
-            ) => self::makeTextarea(
-                'form-control helloworlddescription-input',
-                'description',
-                _('Description'),
-                'description',
-                $description
-            ),
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'HELLOWORLD_ADD_FIELDS',

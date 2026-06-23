@@ -56,11 +56,11 @@ class IpxeManagement extends FOGPage
         ];
     }
     /**
-     * Presents for creating a new menu item.
+     * Builds the create-form fields (shared by add() and addModal()).
      *
-     * @return void
+     * @return array
      */
-    public function add()
+    private function _addFields()
     {
         $ipxe = filter_input(INPUT_POST, 'ipxe');
         $description = filter_input(INPUT_POST, 'description');
@@ -73,7 +73,7 @@ class IpxeManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'ipxe',
@@ -176,6 +176,15 @@ class IpxeManagement extends FOGPage
                 $keysequence
             )
         ];
+    }
+    /**
+     * Presents for creating a new menu item.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $fields = $this->_addFields();
 
         $buttons = self::makeButton(
             'send',
@@ -228,120 +237,7 @@ class IpxeManagement extends FOGPage
      */
     public function addModal()
     {
-        $ipxe = filter_input(INPUT_POST, 'ipxe');
-        $description = filter_input(INPUT_POST, 'description');
-        $params = filter_input(INPUT_POST, 'params');
-        $options = filter_input(INPUT_POST, 'options');
-        $regmenu = filter_input(INPUT_POST, 'regmenu');
-        $default = isset($_POST['default']);
-        $hotkey = isset($_POST['hotkey']);
-        $keysequence = filter_input(INPUT_POST, 'keysequence');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'ipxe',
-                _('Menu Name')
-            ) => self::makeInput(
-                'form-control ipxename-input',
-                'ipxe',
-                'fog.customname',
-                'text',
-                'ipxe',
-                $ipxe,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Menu Description')
-            ) => self::makeTextarea(
-                'form-control ipxedesc-input',
-                'description',
-                _('Some nice description, should be short.'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'params',
-                _('Menu Parameters')
-            ) => self::makeTextarea(
-                'form-control ipxeparam-input',
-                'params',
-                "echo hello world\nsleep 3",
-                'params',
-                $params
-            ),
-            self::makeLabel(
-                $labelClass,
-                'options',
-                _('Boot Options')
-            ) => self::makeInput(
-                'form-control ipxeoption-input',
-                'options',
-                'debug loglevel=7 isdebug=yes',
-                'text',
-                'options',
-                $options
-            ),
-            self::makeLabel(
-                $labelClass,
-                'regmenu',
-                _('Show with')
-            ) => self::getClass('PXEMenuOptionsManager')->regSelect(
-                $regmenu,
-                'regmenu'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'isDefault',
-                _('Default Choice')
-            ) => self::makeInput(
-                'default-choice',
-                'default',
-                '',
-                'checkbox',
-                'isDefault',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                $default ? 'checked' : ''
-            ),
-            self::makeLabel(
-                $labelClass,
-                'hotkey',
-                _('Hotkey Enabled')
-            ) => self::makeInput(
-                'hotkey-enabled',
-                'hotkey',
-                '',
-                'checkbox',
-                'hotkey',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                $hotkey ? 'checked' : ''
-            ),
-            self::makeLabel(
-                $labelClass,
-                'keysequence',
-                _('Menu Keysequence')
-            ) => self::makeInput(
-                'form-control ipxekey-input',
-                'keysequence',
-                'w',
-                'text',
-                'keysequence',
-                $keysequence
-            )
-        ];
+        $fields = $this->_addFields();
 
         self::$HookManager->processEvent(
             'IPXE_ADD_FIELDS',
