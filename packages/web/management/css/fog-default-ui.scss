@@ -353,6 +353,15 @@ dd {
   --fog-input-bg:     #2b3a42;
   --fog-input-border: #3a4a52;
 
+  // -- settings-page tokens (light defaults read as near-white on dark) --
+  // Used only by the FOG Settings nav/panels: the nav border-right and
+  // panel-title border-bottom would otherwise be #f4f4f4 lines on the dark
+  // box, and the count badges would be light-grey pills. Re-point them at
+  // the dark border/raised-surface/text so they match the rest of dark mode.
+  --fog-border-light: #3a4a52; // = --fog-border
+  --fog-badge-bg:     #2b3a42; // = --fog-surface-2 (raised dark pill)
+  --fog-text-strong:  #c8ccd0; // = --fog-text (legible on the dark pill)
+
   // -- DataTables 2.x striping --
   // Striping/hover/sorted-column shading are box-shadow overlays of
   // rgba(var(--dt-row-*), a); the triplets default to 0,0,0 (a black overlay
