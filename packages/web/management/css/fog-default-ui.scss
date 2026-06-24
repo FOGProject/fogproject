@@ -353,6 +353,19 @@ dd {
   --fog-input-bg:     #2b3a42;
   --fog-input-border: #3a4a52;
 
+  // -- DataTables 2.x theming --
+  // DataTables ships its own variable-driven theme. Base rows are transparent
+  // (the dark box shows through); striping/hover/ordering are box-shadow overlays
+  // of rgba(var(--dt-row-*), a) whose triplets default to 0,0,0 (a black overlay
+  // tuned for light themes), and opaque cell/fixed-column backings use
+  // var(--dt-html-background) which defaults to white. Re-point them for dark:
+  // flip the overlay triplets to white so they read on dark, and back the cells
+  // with our surface instead of white.
+  --dt-html-background: var(--fog-surface);
+  --dt-row-stripe: 255, 255, 255;
+  --dt-row-hover: 255, 255, 255;
+  --dt-column-ordering: 255, 255, 255;
+
   background-color: var(--fog-bg);
   color: var(--fog-text);
 
