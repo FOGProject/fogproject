@@ -43,6 +43,10 @@ msgstr ""
 msgid "%s is required"
 msgstr ""
 
+#, php-format
+msgid "%s value \"%s\" did not match any %s by id or name; left unset"
+msgstr ""
+
 msgid "(all)"
 msgstr ""
 

@@ -3420,6 +3420,74 @@ abstract class FOGPage extends FOGBase
         return $config;
     }
     /**
+     * Returns the foreign-key column configuration for a class: a map of the
+     * friendly field key (matching $databaseFields and the CSV header) to the
+     * class its id references. This lets a plain numeric FK column be exported
+     * as a name and re-imported by id-or-name on another server, mirroring how
+     * the associations column achieves cross-server portability.
+     *
+     * Unlike the associations column these are the object's own scalar fields,
+     * so the registry is core-only (no hook event) — no plugin currently adds
+     * FK columns. Resolution reuses resolveAssociationIds() on import and
+     * associationIdsToNames() on export.
+     *
+     * @param string $childClass the class to get FK columns for
+     *
+     * @return array friendlyKey => ['class' => ..., 'namefield' => 'name']
+     */
+    public static function getFkConfig($childClass)
+    {
+        switch ($childClass) {
+            case 'Host':
+                return [
+                    'imageID' => ['class' => 'Image', 'namefield' => 'name'],
+                ];
+            case 'Image':
+                return [
+                    'osID' => ['class' => 'OS', 'namefield' => 'name'],
+                    'imageTypeID' => [
+                        'class' => 'ImageType',
+                        'namefield' => 'name',
+                    ],
+                    'imagePartitionTypeID' => [
+                        'class' => 'ImagePartitionType',
+                        'namefield' => 'name',
+                    ],
+                ];
+            case 'Storagenode':
+                // The childClass for the "storagenode" node is
+                // ucfirst('storagenode') = 'Storagenode'; the switch is
+                // case-sensitive so this must NOT read 'StorageNode'.
+                return [
+                    'storagegroupID' => [
+                        'class' => 'StorageGroup',
+                        'namefield' => 'name',
+                    ],
+                ];
+        }
+        return [];
+    }
+    /**
+     * Maps a single foreign-key id to its referenced object's name for export.
+     * Empty or "0" means "no reference" and stays empty; an id that no longer
+     * resolves falls back to the raw id so the value is never silently dropped.
+     *
+     * @param string $class     the class the id references
+     * @param string $namefield the unique name field on that class
+     * @param mixed  $id        the foreign-key id value
+     *
+     * @return string the name (or the raw id as a fallback)
+     */
+    protected static function fkIdToName($class, $namefield, $id)
+    {
+        $id = trim((string)$id);
+        if ($id === '' || $id === '0') {
+            return '';
+        }
+        $names = self::associationIdsToNames($class, $namefield, [$id]);
+        return count($names) > 0 ? $names[0] : $id;
+    }
+    /**
      * Builds (and caches) the id/name lookup maps for a class.
      *
      * @param string $class     the class to look up
@@ -3901,6 +3969,9 @@ abstract class FOGPage extends FOGBase
             $assocIndex = $comma_count;
             $maxCols = $comma_count + ($hasAssoc ? 1 : 0);
             $dbkeys = array_keys($this->databaseFields);
+            // Foreign-key columns whose value may be a name (id-or-name on
+            // import) so the file is portable between servers.
+            $fkConfig = self::getFkConfig($this->childClass);
 
             // Recognised header tokens (lowercased) for this class: the field
             // keys, plus 'primac' for hosts and 'associations' where supported.
@@ -4040,10 +4111,41 @@ abstract class FOGPage extends FOGBase
                             _('This host already exists')
                         );
                     }
+                    $fkWarnings = [];
                     foreach ((array)$dbkeys as &$field) {
                         $lc = strtolower($field);
                         if (!array_key_exists($lc, $rowVals)) {
                             // Header file that omitted this column: keep default.
+                            continue;
+                        }
+                        if (isset($fkConfig[$field])) {
+                            // Foreign key: resolve by id first, then name. An
+                            // empty value or "0" means "no reference" and is
+                            // kept as-is; an unresolved name is lenient — keep
+                            // the default and warn (the row still imports).
+                            $raw = trim((string)$rowVals[$lc]);
+                            if ($raw === '' || $raw === '0') {
+                                $Item->set($field, $rowVals[$lc]);
+                            } else {
+                                $fkUnresolved = [];
+                                $fkIds = self::resolveAssociationIds(
+                                    $fkConfig[$field]['class'],
+                                    $fkConfig[$field]['namefield'],
+                                    [$raw],
+                                    $fkUnresolved
+                                );
+                                if (count($fkIds) > 0) {
+                                    $Item->set($field, $fkIds[0]);
+                                } else {
+                                    $fkWarnings[] = sprintf(
+                                        _('%s value "%s" did not match any %s '
+                                        . 'by id or name; left unset'),
+                                        $field,
+                                        $raw,
+                                        $fkConfig[$field]['class']
+                                    );
+                                }
+                            }
                             continue;
                         }
                         if ($field == 'password') {
@@ -4089,6 +4191,16 @@ abstract class FOGPage extends FOGBase
                                 );
                                 unset($assocWarning);
                             }
+                        }
+                        // Surface any lenient foreign-key warnings for this row.
+                        foreach ($fkWarnings as &$fkWarning) {
+                            $uploadErrors .= sprintf(
+                                '%s #%s: %s<br/>',
+                                _('Row'),
+                                $totalRows,
+                                $fkWarning
+                            );
+                            unset($fkWarning);
                         }
                         $itemCap = strtoupper($this->childClass);
                         $event = sprintf(
@@ -5368,15 +5480,25 @@ abstract class FOGPage extends FOGBase
         }
         // Setup our columns for the CSV.
         // Automatically removes the id column.
+        $fkConfig = self::getFkConfig($this->childClass);
         foreach ($dbcolumns as $common => &$real) {
             if ('id' == $common) {
                 $tableID = $real;
                 continue;
             }
-            $columns[] = [
+            $column = [
                 'db' => $real,
                 'dt' => $common
             ];
+            if (isset($fkConfig[$common])) {
+                // Emit the referenced object's name (it re-imports by id or
+                // name), mirroring the associations column for portability.
+                $fk = $fkConfig[$common];
+                $column['formatter'] = function ($d, $row) use ($fk) {
+                    return self::fkIdToName($fk['class'], $fk['namefield'], $d);
+                };
+            }
+            $columns[] = $column;
             unset($real);
         }
         // Trailing associations column. It is computed per row from the item's

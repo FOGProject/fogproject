@@ -22,6 +22,7 @@ as CSV files from each object's **Import** / **Export** page.
 - [Header row vs. positional](#header-row-vs-positional)
 - [General format rules](#general-format-rules)
 - [The associations column](#the-associations-column)
+- [Foreign‑key columns](#foreign-key-columns)
 - [Per‑class column layouts](#per-class-column-layouts)
   - [Host](#host)
   - [Image](#image)
@@ -87,7 +88,7 @@ position**, in the exact order Export produces (the per‑class tables below).
 | `primac` | Host | **Required**, first column. Pipe‑separated MAC list; the first MAC becomes primary, the rest are added as additional MACs. |
 | `productKey` | Host | Auto‑detected: accepts plaintext, base64, or the AES‑encrypted form an export produces. |
 | `password` | User | Stored encrypted on import. |
-| `imageID`, `osID`, `imageTypeID`, … | various | Numeric foreign keys. They are **not** name‑resolved (only the associations column resolves names — see below). Prefer Export→edit so these line up with the target server. |
+| `imageID`, `osID`, `imageTypeID`, … | various | Numeric foreign keys. **Name‑resolved** like the associations column: Export emits the referenced object's *name*, and Import accepts an id **or** a (case‑insensitive) name. See *[Foreign‑key columns](#foreign-key-columns)* below. |
 
 ---
 
@@ -174,6 +175,36 @@ is installed. A host has a single site, so only the first value is used.
 > literally contains one of those characters must be **escaped** with a
 > backslash (see *Escaping delimiters in names* above). Export escapes them for
 > you; referencing such an object by **id** also avoids the issue entirely.
+
+---
+
+## Foreign‑key columns
+
+A few columns are **foreign keys** — a numeric id that points at another
+object:
+
+| Class | Column(s) | Points at |
+|-------|-----------|-----------|
+| Host | `imageID` | Image |
+| Image | `osID`, `imageTypeID`, `imagePartitionTypeID` | OS, Image Type, Image Partition Type |
+| Storage Node | `storagegroupID` | Storage Group |
+
+These now behave like the associations column, so a file moves cleanly between
+servers whose ids differ:
+
+- **Export emits the referenced object's name** (e.g. the `imageID` column
+  holds `Windows 10`, not `4`).
+- **Import resolves id‑first, then (case‑insensitive) name.** Numeric exports
+  from older versions still re‑import unchanged, because the id is tried first.
+- **Empty or `0` means "no reference"** and is kept as‑is — no warning.
+- **Lenient.** If a name can't be resolved on this server, the column keeps its
+  default and a warning is reported; the row still imports (*"Import Succeeded
+  With Warnings"*).
+
+Unlike the associations column, a foreign‑key column is an ordinary standalone
+CSV field, so a name containing `;`, `:` or `|` needs **no** backslash escaping
+— normal CSV quoting (wrapping the field in double quotes) covers commas and
+the like.
 
 ---
 
