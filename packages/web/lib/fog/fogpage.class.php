@@ -2590,6 +2590,93 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
     }
     /**
+     * Streams a Login/Image history datatable payload as JSON.
+     *
+     * Shared by the host and group Login/Image history AJAX endpoints, which
+     * differ only in the host scope (a single host id for a host, the member
+     * host ids for a group) and the route resource to list.
+     *
+     * @param mixed  $scope the hostID scope (int for a host, array for a group)
+     * @param string $route the Route resource to list (e.g. 'usertracking')
+     *
+     * @return void
+     */
+    protected function renderHistoryData($scope, $route)
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        Route::listem(
+            $route,
+            ['hostID' => $scope]
+        );
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Streams the snapin-task history datatable payload as JSON.
+     *
+     * Shared by the host and group Snapin history AJAX endpoints; differs only
+     * in the host scope. Returns an empty datatable payload (rather than an
+     * unscoped lookup) when the scope has no snapin jobs.
+     *
+     * @param mixed $scope the hostID scope (int for a host, array for a group)
+     *
+     * @return void
+     */
+    protected function renderSnapinHistoryData($scope)
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $checkStates = [
+            self::getCancelledState(),
+            self::getCompleteState()
+        ];
+
+        $snapinJobs = Route::getIds(
+            'snapinjob',
+            ['hostID' => $scope]
+        );
+        $snapinJobs = array_filter(
+            array_map('intval', (array)$snapinJobs),
+            function ($id) {
+                return $id > 0;
+            }
+        );
+
+        // If there are no jobs in scope, return an empty datatable payload and
+        // avoid an unscoped snapintask lookup.
+        if (count($snapinJobs) < 1) {
+            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
+                [
+                    'draw' => (int)filter_input(INPUT_POST, 'draw') ?: 0,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                    '_lang' => 'snapintask'
+                ]
+            ));
+        }
+
+        Route::listem(
+            'snapintask',
+            [
+                'jobID' => $snapinJobs,
+                'stateID' => $checkStates
+            ]
+        );
+
+        echo Route::getData();
+        exit;
+    }
+    /**
      * Builds a standard association list table via getItemsList using a LEFT
      * OUTER JOIN that flags which rows are already associated with the current
      * object.

@@ -3591,19 +3591,7 @@ class GroupManagement extends FOGPage
      */
     public function getLoginHist()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostID = $this->obj->get('hosts');
-        Route::listem(
-            'usertracking',
-            ['hostID' => $hostID]
-        );
-        echo Route::getData();
-        exit;
+        $this->renderHistoryData($this->obj->get('hosts'), 'usertracking');
     }
     /**
      * Get the image history for hosts in this group.
@@ -3612,19 +3600,7 @@ class GroupManagement extends FOGPage
      */
     public function getImageHist()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostID = $this->obj->get('hosts');
-        Route::listem(
-            'imagingLog',
-            ['hostID' => $hostID]
-        );
-        echo Route::getData();
-        exit;
+        $this->renderHistoryData($this->obj->get('hosts'), 'imaginglog');
     }
     /**
      * Gets the snapin history for hosts in this group.
@@ -3633,53 +3609,6 @@ class GroupManagement extends FOGPage
      */
     public function getSnapinHist()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostID = $this->obj->get('hosts');
-
-        $checkStates = [
-            self::getCancelledState(),
-            self::getCompleteState()
-        ];
-
-        $snapinJobs = Route::getIds(
-            'snapinjob',
-            ['hostID' => $hostID]
-        );
-        $snapinJobs = array_filter(
-            array_map('intval', (array)$snapinJobs),
-            function ($id) {
-                return $id > 0;
-            }
-        );
-
-        // If there are no jobs for this group's hosts, return an empty
-        // datatable payload and avoid an unscoped snapintask lookup.
-        if (count($snapinJobs) < 1) {
-            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
-                [
-                    'draw' => (int)filter_input(INPUT_POST, 'draw') ?: 0,
-                    'recordsTotal' => 0,
-                    'recordsFiltered' => 0,
-                    'data' => [],
-                    '_lang' => 'snapintask'
-                ]
-            ));
-        }
-
-        Route::listem(
-            'snapintask',
-            [
-                'jobID' => $snapinJobs,
-                'stateID' => $checkStates
-            ]
-        );
-
-        echo Route::getData();
-        exit;
+        $this->renderSnapinHistoryData($this->obj->get('hosts'));
     }
 }
