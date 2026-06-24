@@ -421,6 +421,28 @@ dd {
     border-left-color: var(--fog-border);
     border-right-color: var(--fog-border);
   }
+  // The content panel behind the form — AdminLTE paints it #fff, which showed as
+  // a white frame/band around the (dark) form and a white seam under the active
+  // tab. Re-surface it so the panel matches the rest of the box.
+  .nav-tabs-custom > .tab-content {
+    background-color: var(--fog-surface);
+    color: var(--fog-text);
+  }
+  // Tab-bar dropdown menus (Associations, Service Settings, …) — these are
+  // generic Bootstrap .dropdown-menu (white). Scoped to within .nav-tabs-custom
+  // so the AdminLTE navbar dropdowns are left alone.
+  .nav-tabs-custom .dropdown-menu {
+    background-color: var(--fog-surface);
+    border-color: var(--fog-border);
+  }
+  .nav-tabs-custom .dropdown-menu > li > a {
+    color: var(--fog-text);
+  }
+  .nav-tabs-custom .dropdown-menu > li > a:hover,
+  .nav-tabs-custom .dropdown-menu > li > a:focus {
+    background-color: var(--fog-surface-2);
+    color: var(--fog-text);
+  }
 
   // -- tables --
   .table {
