@@ -562,6 +562,28 @@ dd {
     border-color: var(--fog-border);
     color: var(--fog-text) !important;
   }
+  // Paged DataTables render their pager as Bootstrap pagination markup
+  // (ul.pagination > li.paginate_button > a). Bootstrap paints the page links
+  // #fff with a #ddd border, and the disabled prev/next arrows the same, so on
+  // dark they read as white boxes. Re-surface the default + disabled + hover
+  // states; the .active (current) page keeps its primary-blue fill, which
+  // already reads fine on dark.
+  .pagination > li > a,
+  .pagination > li > span,
+  .pagination > .disabled > a,
+  .pagination > .disabled > span {
+    background-color: var(--fog-surface);
+    border-color: var(--fog-border);
+    color: var(--fog-text-muted);
+  }
+  .pagination > li > a:hover,
+  .pagination > li > a:focus,
+  .pagination > li > span:hover,
+  .pagination > li > span:focus {
+    background-color: var(--fog-surface-2);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
 
   // -- form controls --
   .form-control {
