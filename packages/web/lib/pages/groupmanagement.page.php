@@ -1165,49 +1165,7 @@ class GroupManagement extends FOGPage
      */
     public function groupSnapinPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $snapins = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapins = $snapins['additems'];
-            if (count($snapins ?: []) > 0) {
-                $this->obj->addSnapin($snapins);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $snapins = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapins = $snapins['remitems'];
-            if (count($snapins ?: []) > 0) {
-                $this->obj->removeSnapin($snapins);
-            }
-        }
-        if (isset($_POST['snapinorder'])) {
-            $order = filter_input_array(
-                INPUT_POST,
-                [
-                    'snapinorder' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $order = $order['snapinorder'];
-            if (count($order ?: []) > 0) {
-                $this->obj->setSnapinOrder($order);
-            }
-        }
+        $this->assocPost('addSnapin', 'removeSnapin', 'setSnapinOrder');
     }
     /**
      * Display's the group service stuff
@@ -2403,29 +2361,23 @@ class GroupManagement extends FOGPage
      */
     public function groupLoginHistory()
     {
-        $this->headerData = [
-            _('Host Name'),
-            _('Time'),
-            _('Action'),
-            _('Username'),
-            _('Description')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Group Login History');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'group-login-history-table');
-        echo '</div>';
-        echo '</div>';
+        $this->renderHistoryTab(
+            [
+                _('Host Name'),
+                _('Time'),
+                _('Action'),
+                _('Username'),
+                _('Description')
+            ],
+            [
+                [],
+                [],
+                [],
+                []
+            ],
+            _('Group Login History'),
+            'group-login-history-table'
+        );
     }
     /**
      * Display Image History for Hosts in this Group
@@ -2434,34 +2386,28 @@ class GroupManagement extends FOGPage
      */
     public function groupImageHistory()
     {
-        $this->headerData = [
-            _('Host Name'),
-            _('Engineer'),
-            _('Start'),
-            _('End'),
-            _('Duration'),
-            _('Image'),
-            _('Type')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Group Image History');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'group-image-history-table');
-        echo '</div>';
-        echo '</div>';
+        $this->renderHistoryTab(
+            [
+                _('Host Name'),
+                _('Engineer'),
+                _('Start'),
+                _('End'),
+                _('Duration'),
+                _('Image'),
+                _('Type')
+            ],
+            [
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                []
+            ],
+            _('Group Image History'),
+            'group-image-history-table'
+        );
     }
     /**
      * Display Snapin History for Hosts in this Group
@@ -2470,32 +2416,26 @@ class GroupManagement extends FOGPage
      */
     public function groupSnapinHistory()
     {
-        $this->headerData = [
-            _('Host Name'),
-            _('Snapin Name'),
-            _('Start Time'),
-            _('Complete'),
-            _('Duration'),
-            _('Return Code')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Group Snapin History');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'group-snapin-history-table');
-        echo '</div>';
-        echo '</div>';
+        $this->renderHistoryTab(
+            [
+                _('Host Name'),
+                _('Snapin Name'),
+                _('Start Time'),
+                _('Complete'),
+                _('Duration'),
+                _('Return Code')
+            ],
+            [
+                [],
+                [],
+                [],
+                [],
+                [],
+                []
+            ],
+            _('Group Snapin History'),
+            'group-snapin-history-table'
+        );
     }
     /**
      * The group edit display method

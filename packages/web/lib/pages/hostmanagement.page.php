@@ -2189,49 +2189,7 @@ class HostManagement extends FOGPage
      */
     public function hostSnapinPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $snapins = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapins = $snapins['additems'];
-            if (count($snapins ?: []) > 0) {
-                $this->obj->addSnapin($snapins);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $snapins = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapins = $snapins['remitems'];
-            if (count($snapins ?: []) > 0) {
-                $this->obj->removeSnapin($snapins);
-            }
-        }
-        if (isset($_POST['snapinorder'])) {
-            $order = filter_input_array(
-                INPUT_POST,
-                [
-                    'snapinorder' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $order = $order['snapinorder'];
-            if (count($order ?: []) > 0) {
-                $this->obj->setSnapinOrder($order);
-            }
-        }
+        $this->assocPost('addSnapin', 'removeSnapin', 'setSnapinOrder');
     }
     /**
      * Display's the host service stuff
@@ -3506,28 +3464,22 @@ class HostManagement extends FOGPage
      */
     public function hostLoginHistory()
     {
-        $this->headerData = [
-            _('Time'),
-            _('Action'),
-            _('Username'),
-            _('Description')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Login History');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-login-history-table');
-        echo '</div>';
-        echo '</div>';
+        $this->renderHistoryTab(
+            [
+                _('Time'),
+                _('Action'),
+                _('Username'),
+                _('Description')
+            ],
+            [
+                [],
+                [],
+                [],
+                []
+            ],
+            _('Host Login History'),
+            'host-login-history-table'
+        );
     }
     /**
      * Display host imaging history.
@@ -3536,32 +3488,26 @@ class HostManagement extends FOGPage
      */
     public function hostImageHistory()
     {
-        $this->headerData = [
-            _('Engineer'),
-            _('Start'),
-            _('End'),
-            _('Duration'),
-            _('Image'),
-            _('Type')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Image History');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-image-history-table');
-        echo '</div>';
-        echo '</div>';
+        $this->renderHistoryTab(
+            [
+                _('Engineer'),
+                _('Start'),
+                _('End'),
+                _('Duration'),
+                _('Image'),
+                _('Type')
+            ],
+            [
+                [],
+                [],
+                [],
+                [],
+                [],
+                []
+            ],
+            _('Host Image History'),
+            'host-image-history-table'
+        );
     }
     /**
      * Display host snapin history
@@ -3570,30 +3516,24 @@ class HostManagement extends FOGPage
      */
     public function hostSnapinHistory()
     {
-        $this->headerData = [
-            _('Snapin Name'),
-            _('Start Time'),
-            _('Complete'),
-            _('Duration'),
-            _('Return Code')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Snapin History');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-snapin-history-table');
-        echo '</div>';
-        echo '</div>';
+        $this->renderHistoryTab(
+            [
+                _('Snapin Name'),
+                _('Start Time'),
+                _('Complete'),
+                _('Duration'),
+                _('Return Code')
+            ],
+            [
+                [],
+                [],
+                [],
+                [],
+                []
+            ],
+            _('Host Snapin History'),
+            'host-snapin-history-table'
+        );
     }
     /**
      * Edits an existing item.

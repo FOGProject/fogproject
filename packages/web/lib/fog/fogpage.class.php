@@ -2506,13 +2506,17 @@ abstract class FOGPage extends FOGBase
     /**
      * Handles a standard association add/remove POST: reads the additems /
      * remitems arrays and dispatches them to the object's add/remove methods.
+     * When $orderMethod is supplied, also honours a snapinorder array (used by
+     * the group/host snapin tabs to persist execution order).
      *
      * @param string $addMethod    obj method to add associations (e.g. 'addGroup')
      * @param string $removeMethod obj method to remove associations (e.g. 'removeGroup')
+     * @param string $orderMethod  obj method to set ordering from the snapinorder
+     *                             POST array, or null when the tab has no ordering
      *
      * @return void
      */
-    protected function assocPost($addMethod, $removeMethod)
+    protected function assocPost($addMethod, $removeMethod, $orderMethod = null)
     {
         self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
@@ -2543,6 +2547,47 @@ abstract class FOGPage extends FOGBase
                 $this->obj->{$removeMethod}($items);
             }
         }
+        if ($orderMethod !== null && isset($_POST['snapinorder'])) {
+            $order = filter_input_array(
+                INPUT_POST,
+                [
+                    'snapinorder' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $order = $order['snapinorder'];
+            if (count($order ?: []) > 0) {
+                $this->obj->{$orderMethod}($order);
+            }
+        }
+    }
+    /**
+     * Renders a simple display tab: a box-primary panel with a title and a
+     * single DataTable. Shared by the group/host history tabs whose only
+     * differences are the column set, the title text and the table id.
+     *
+     * @param array  $headerData The column headers (already translated).
+     * @param array  $attributes The per-column attribute arrays.
+     * @param string $title      The box title (already translated).
+     * @param string $tableId    The DataTable element id.
+     *
+     * @return void
+     */
+    protected function renderHistoryTab(array $headerData, array $attributes, $title, $tableId)
+    {
+        $this->headerData = $headerData;
+        $this->attributes = $attributes;
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, $tableId);
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Builds a standard association list table via getItemsList using a LEFT
