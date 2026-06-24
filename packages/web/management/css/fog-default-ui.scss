@@ -353,15 +353,11 @@ dd {
   --fog-input-bg:     #2b3a42;
   --fog-input-border: #3a4a52;
 
-  // -- DataTables 2.x theming --
-  // DataTables ships its own variable-driven theme. Base rows are transparent
-  // (the dark box shows through); striping/hover/ordering are box-shadow overlays
-  // of rgba(var(--dt-row-*), a) whose triplets default to 0,0,0 (a black overlay
-  // tuned for light themes), and opaque cell/fixed-column backings use
-  // var(--dt-html-background) which defaults to white. Re-point them for dark:
-  // flip the overlay triplets to white so they read on dark, and back the cells
-  // with our surface instead of white.
-  --dt-html-background: var(--fog-surface);
+  // -- DataTables 2.x striping --
+  // Striping/hover/sorted-column shading are box-shadow overlays of
+  // rgba(var(--dt-row-*), a); the triplets default to 0,0,0 (a black overlay
+  // tuned for light backgrounds). Flip them to white so they read on dark.
+  // (FOG tables carry the `display` class, which enables this DataTables striping.)
   --dt-row-stripe: 255, 255, 255;
   --dt-row-hover: 255, 255, 255;
   --dt-column-ordering: 255, 255, 255;
@@ -453,6 +449,27 @@ dd {
   .table-bordered > tfoot > tr > th,
   .table-bordered > tfoot > tr > td {
     border-color: var(--fog-border);
+  }
+
+  // -- DataTables Scroller body --
+  // With scroller:true the rows live in a scroll-body whose table and rows are
+  // painted opaque white by hardcoded rules (no --dt-* var, no html.dark
+  // variant) — that white is what showed through as washed-out rows. Re-surface
+  // them; the empty-area diagonal gradient is dark-on-light, so invert it.
+  div.dts div.dt-scroll-body table,
+  div.dts div.dataTables_scrollBody table,
+  div.dts tbody tr {
+    background-color: var(--fog-surface);
+  }
+  div.dts div.dt-scroll-body,
+  div.dts div.dataTables_scrollBody {
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, .025),
+      rgba(255, 255, 255, .025) 10px,
+      rgba(255, 255, 255, 0) 10px,
+      rgba(255, 255, 255, 0) 20px
+    );
   }
 
   // -- DataTables wrapper controls --
