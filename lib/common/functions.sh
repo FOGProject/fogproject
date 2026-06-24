@@ -500,16 +500,16 @@ listPackages() {
             case $linuxReleaseName_lower in
                 *ubuntu*|*mint*)
                     if [[ $OSVersion -gt 17 ]]; then
-                        packages="${packages// libcurl3 / libcurl4}"
+                        packages="${packages// libcurl3 / libcurl4 }"
                     fi
                     if [[ $OSVersion -gt 22 ]]; then
-                        packages="${packages// libcurl4 / libcurl4t64}"
+                        packages="${packages// libcurl4 / libcurl4t64 }"
                     fi
             esac
             ;;
         *bian*)
             if [[ $OSVersion -ge 10 ]]; then
-                packages="${packages// libcurl3 / libcurl4}"
+                packages="${packages// libcurl3 / libcurl4 }"
                 packages="${packages// mysql-client / mariadb-client}"
                 packages="${packages// mysql-server / mariadb-server}"
             fi
@@ -969,6 +969,9 @@ installPackages() {
                         packages="${packages// libcurl3 / libcurl4 }">>$error_log 2>&1
                         packages="${packages// mysql-client / mariadb-client }">>$error_log 2>&1
                         packages="${packages// mysql-server / mariadb-server }">>$error_log 2>&1
+                    fi
+                    if [[ $OSVersion -ge 13 ]]; then
+                        packages="${packages// libcurl4 / libcurl4t64 }">>$error_log 2>&1
                     fi
                     ;;
             esac
