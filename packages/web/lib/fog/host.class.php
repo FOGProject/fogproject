@@ -289,6 +289,21 @@ class Host extends FOGController
             $objNeeded = false;
             unset($DBPowerManagementIDs, $RemovePowerManagementIDs);
         }
+        // Drop any stale/blank snapin id (e.g. a 0 slipping in from a non-UI
+        // write) before assocSetter persists it as a snapinAssoc row. Mirrors
+        // the "< 1" guard on setSnapinOrder()'s save path; without this a 0
+        // would be inserted and later surface as a phantom run-order entry.
+        if ($this->isLoaded('snapins')) {
+            $this->set(
+                'snapins',
+                array_values(array_filter(
+                    array_map('intval', (array)$this->get('snapins')),
+                    function ($snapinID) {
+                        return $snapinID > 0;
+                    }
+                ))
+            );
+        }
         $this
             ->assocSetter('Group', 'group')
             ->assocSetter('Module', 'module')
