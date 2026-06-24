@@ -47,6 +47,14 @@ $fog-modal-footer-border: #bfbfbf;
 $fog-badge-bg:            #d2d6de;
 $fog-border-light:        #f4f4f4;
 
+// Modernization pass — a light-only retune of the AdminLTE greys plus a tighter
+// table rhythm. canvas/hairline get dark re-points in the mixin; stripe and
+// row-hover stay light-only (dark tables are themed separately in the mixin).
+$fog-canvas:              #eef1f5; // content-wrapper (was AdminLTE #ecf0f5)
+$fog-hairline:            #e7ebf0; // box-header + table-head hairlines
+$fog-stripe:              #f7f9fb; // table-striped odd rows
+$fog-row-hover:           #eef4f9; // table-hover rows
+
 // ---------------------------------------------------------------------------
 // Runtime palette (CSS custom properties)
 //
@@ -67,6 +75,20 @@ $fog-border-light:        #f4f4f4;
   --fog-modal-footer-border: #{$fog-modal-footer-border};
   --fog-badge-bg:            #{$fog-badge-bg};
   --fog-border-light:        #{$fog-border-light};
+  --fog-canvas:              #{$fog-canvas};
+  --fog-hairline:            #{$fog-hairline};
+  --fog-stripe:              #{$fog-stripe};
+  --fog-row-hover:           #{$fog-row-hover};
+
+  // Design scale (restrained modernization): one coherent radius + a soft
+  // elevation. --fog-ink is the shadow color as an rgb triplet so dark mode can
+  // flip it to black; --fog-primary-rgb backs the input focus ring. --fog-elev-1
+  // is composed from --fog-ink, so re-pointing the ink alone re-tints the shadow.
+  --fog-radius:              6px;          // boxes / cards / tab shells
+  --fog-radius-sm:           4px;          // buttons / inputs / labels
+  --fog-ink:                 27, 42, 56;   // slate shadow ink (light)
+  --fog-primary-rgb:         60, 141, 188; // = $fog-primary, for rgba() rings
+  --fog-elev-1:              0 1px 2px rgba(var(--fog-ink), .06), 0 1px 3px rgba(var(--fog-ink), .10);
 }
 
 // ---------------------------------------------------------------------------
@@ -79,6 +101,8 @@ $fog-border-light:        #f4f4f4;
 
 .box-footer {
   overflow: visible;
+  border-bottom-left-radius: var(--fog-radius);
+  border-bottom-right-radius: var(--fog-radius);
 }
 
 // Compact box body (folded from an inline style on the group AD-state box).
@@ -96,6 +120,101 @@ $fog-border-light:        #f4f4f4;
 
 .pull-right-container {
   float: right;
+}
+
+// ---------------------------------------------------------------------------
+// Modernization pass — restrained polish on top of AdminLTE 2.4 / BS3.3.
+//
+// CSS-only (no framework change): one coherent radius scale, a soft elevation
+// in place of the flat hard-frame look, flat inputs with a primary focus ring,
+// slightly stronger box titles, and a lighter table rhythm. Everything is
+// token-driven, so dark mode inherits it via fog-dark-theme (which re-points
+// --fog-ink/--fog-canvas/--fog-hairline). Light mode changes here; that is
+// intended (unlike the palette tokens above, which kept light byte-for-byte).
+// ---------------------------------------------------------------------------
+
+// Cooler, lower-glare content canvas (dark re-points --fog-canvas to --fog-bg).
+.content-wrapper {
+  background-color: var(--fog-canvas);
+}
+
+// Boxes: coherent radius + soft elevation instead of AdminLTE's flat 1px frame.
+.box {
+  border-radius: var(--fog-radius);
+  box-shadow: var(--fog-elev-1);
+}
+.box-header {
+  border-top-left-radius: var(--fog-radius);
+  border-top-right-radius: var(--fog-radius);
+}
+.box-header.with-border {
+  border-bottom-color: var(--fog-hairline);
+}
+.box-header > .box-title {
+  font-weight: 600;
+}
+
+// Tab shells (nav-tabs-custom) share the box language.
+.nav-tabs-custom {
+  border-radius: var(--fog-radius);
+  box-shadow: var(--fog-elev-1);
+}
+.nav-tabs-custom > .nav-tabs {
+  border-top-left-radius: var(--fog-radius);
+  border-top-right-radius: var(--fog-radius);
+}
+
+// Buttons: crisper radius + a tactile press; primary gets a faint lift.
+.btn {
+  border-radius: var(--fog-radius-sm);
+  transition: background-color .12s ease, border-color .12s ease,
+              box-shadow .12s ease, transform .04s ease;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  box-shadow: 0 1px 2px rgba(var(--fog-ink), .15);
+}
+
+// Inputs: flat field (drop BS3's inner glow) + a modern primary focus ring.
+.form-control {
+  border-radius: var(--fog-radius-sm);
+  box-shadow: none;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.form-control:focus {
+  border-color: var(--fog-primary);
+  box-shadow: 0 0 0 3px rgba(var(--fog-primary-rgb), .15);
+}
+
+// Labels align to the control radius.
+.label {
+  border-radius: var(--fog-radius-sm);
+}
+
+// Tables: clearer head divider + lighter striping/hover. --fog-stripe and
+// --fog-row-hover are light-only; dark tables are themed in fog-dark-theme.
+.table > thead > tr > th {
+  border-bottom: 2px solid var(--fog-hairline);
+  font-weight: 600;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: var(--fog-stripe);
+}
+.table-hover > tbody > tr:hover {
+  background-color: var(--fog-row-hover);
+}
+
+// Accessibility floor: honor reduced-motion.
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .form-control {
+    transition: none;
+  }
+  .btn:active {
+    transform: none;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -352,6 +471,15 @@ dd {
   --fog-heading:      #e3e6e8;
   --fog-input-bg:     #2b3a42;
   --fog-input-border: #3a4a52;
+
+  // -- modernization tokens (light defaults retuned for dark) --
+  // --fog-elev-1 is composed from --fog-ink, so flipping the ink to black makes
+  // box/tab shadows read on dark; canvas/hairline track the dark bg/border.
+  // (--fog-stripe/--fog-row-hover are not re-pointed: dark tables are themed
+  // above by the explicit .table rules.)
+  --fog-ink:          0, 0, 0;
+  --fog-canvas:       #1b2327; // = --fog-bg
+  --fog-hairline:     #3a4a52; // = --fog-border
 
   // -- settings-page tokens (light defaults read as near-white on dark) --
   // Used only by the FOG Settings nav/panels: the nav border-right and
