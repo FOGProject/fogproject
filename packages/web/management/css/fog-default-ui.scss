@@ -453,6 +453,27 @@ dd {
     background-color: var(--fog-surface-2);
   }
 
+  // -- list groups --
+  // Bootstrap paints .list-group-item #fff with #555 text and a #f5f5f5 hover —
+  // used by the snapin-order lists on the host/group edit Snapins tab. Re-surface
+  // the items; the .active state is accent blue (#337ab7) and reads fine on dark.
+  .list-group-item {
+    background-color: var(--fog-surface);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
+  .list-group-item-heading {
+    color: var(--fog-heading);
+  }
+  .list-group-item:focus,
+  a.list-group-item:hover,
+  a.list-group-item:focus,
+  button.list-group-item:hover,
+  button.list-group-item:focus {
+    background-color: var(--fog-surface-2);
+    color: var(--fog-text);
+  }
+
   // -- tables --
   .table {
     color: var(--fog-text);
