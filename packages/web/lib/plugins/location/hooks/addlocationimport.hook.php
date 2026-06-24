@@ -60,7 +60,54 @@ class AddLocationImport extends Hook
         parent::__construct();
         $this->registerInstalled([
             ['IMPORT_ASSOCIATIONS', 'addLocationAssociation'],
+            ['EXPORT_ASSOCIATIONS_PRIME', 'primeLocationAssociations'],
         ]);
+    }
+    /**
+     * Bulk-primes every exported host's location name so the export builds each
+     * row from cache instead of calling getLocationNames() (and hydrating a
+     * Location) per row. Resolves the host->location rows and the location
+     * id/name map in two queries total, regardless of how many hosts are
+     * exported.
+     *
+     * @param mixed $arguments The prime arguments (childClass, ids).
+     *
+     * @return void
+     */
+    public function primeLocationAssociations($arguments)
+    {
+        if ($arguments['childClass'] !== 'Host') {
+            return;
+        }
+        $ids = isset($arguments['ids']) ? (array)$arguments['ids'] : [];
+        if (count($ids) < 1) {
+            return;
+        }
+        Route::listem('Location', false, true);
+        $locations = json_decode(Route::getData());
+        $locations = isset($locations->data) ? $locations->data : [];
+        $locationNames = [];
+        foreach ($locations as $l) {
+            if (isset($l->id)) {
+                $locationNames[(string)$l->id] = isset($l->name)
+                    ? (string)$l->name : '';
+            }
+        }
+        Route::listem('LocationAssociation', ['hostID' => $ids], true);
+        $rows = json_decode(Route::getData());
+        $rows = isset($rows->data) ? $rows->data : [];
+        $byHost = [];
+        foreach ($rows as $r) {
+            $hid = isset($r->hostID) ? (string)$r->hostID : '';
+            $lid = isset($r->locationID) ? (string)$r->locationID : '';
+            if ($hid === '' || $lid === '') {
+                continue;
+            }
+            if (isset($locationNames[$lid]) && $locationNames[$lid] !== '') {
+                $byHost[$hid][] = $locationNames[$lid];
+            }
+        }
+        FOGPage::primeAssociationLabel('Host', 'location', $byHost);
     }
     /**
      * Registers the "location" association type for hosts. The same entry

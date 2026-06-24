@@ -60,7 +60,53 @@ class AddSiteImport extends Hook
         parent::__construct();
         $this->registerInstalled([
             ['IMPORT_ASSOCIATIONS', 'addSiteAssociation'],
+            ['EXPORT_ASSOCIATIONS_PRIME', 'primeSiteAssociations'],
         ]);
+    }
+    /**
+     * Bulk-primes every exported host's site name so the export builds each
+     * row from cache instead of calling getSiteNames() (and hydrating a Site)
+     * per row. Resolves the host->site rows and the site id/name map in two
+     * queries total, regardless of how many hosts are exported.
+     *
+     * @param mixed $arguments The prime arguments (childClass, ids).
+     *
+     * @return void
+     */
+    public function primeSiteAssociations($arguments)
+    {
+        if ($arguments['childClass'] !== 'Host') {
+            return;
+        }
+        $ids = isset($arguments['ids']) ? (array)$arguments['ids'] : [];
+        if (count($ids) < 1) {
+            return;
+        }
+        Route::listem('Site', false, true);
+        $sites = json_decode(Route::getData());
+        $sites = isset($sites->data) ? $sites->data : [];
+        $siteNames = [];
+        foreach ($sites as $s) {
+            if (isset($s->id)) {
+                $siteNames[(string)$s->id] = isset($s->name)
+                    ? (string)$s->name : '';
+            }
+        }
+        Route::listem('SiteHostAssociation', ['hostID' => $ids], true);
+        $rows = json_decode(Route::getData());
+        $rows = isset($rows->data) ? $rows->data : [];
+        $byHost = [];
+        foreach ($rows as $r) {
+            $hid = isset($r->hostID) ? (string)$r->hostID : '';
+            $sid = isset($r->siteID) ? (string)$r->siteID : '';
+            if ($hid === '' || $sid === '') {
+                continue;
+            }
+            if (isset($siteNames[$sid]) && $siteNames[$sid] !== '') {
+                $byHost[$hid][] = $siteNames[$sid];
+            }
+        }
+        FOGPage::primeAssociationLabel('Host', 'site', $byHost);
     }
     /**
      * Registers the "site" association type for hosts. The same entry

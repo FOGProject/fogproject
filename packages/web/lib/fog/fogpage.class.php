@@ -199,6 +199,23 @@ abstract class FOGPage extends FOGBase
      */
     protected static $associationMaps = [];
     /**
+     * Per-request bulk cache of resolved association names for export, keyed
+     * [childClass][label][parentId] => [name, ...]. Populated by
+     * primeAssociationExport() so buildAssociationString() can emit a row's
+     * associations without hydrating the object or running per-row queries.
+     *
+     * @var array
+     */
+    protected static $associationExportCache = [];
+    /**
+     * Tracks which [childClass][label] pairs have been bulk-primed for export.
+     * A primed label is read from the cache (an absent parent simply has no
+     * associations); a non-primed label falls back to the per-row get path.
+     *
+     * @var array
+     */
+    protected static $associationExportPrimed = [];
+    /**
      * Holder for lambda function
      */
     protected static $returnData;
@@ -3357,30 +3374,47 @@ abstract class FOGPage extends FOGBase
         $config = [];
         switch ($childClass) {
             case 'Host':
+                // The bulk* keys let primeAssociationExport() load every host's
+                // associations for a class in one query (parentkey IN (...))
+                // instead of hydrating each host per row. orderkey preserves the
+                // per-row ordering where it is meaningful (snapin sequence).
                 $config = [
                     'groups' => [
                         'class' => 'Group',
                         'namefield' => 'name',
                         'get' => 'groups',
                         'apply' => 'addGroup',
+                        'bulkclass' => 'GroupAssociation',
+                        'parentkey' => 'hostID',
+                        'childkey' => 'groupID',
                     ],
                     'snapins' => [
                         'class' => 'Snapin',
                         'namefield' => 'name',
                         'get' => 'snapins',
                         'apply' => 'addSnapin',
+                        'bulkclass' => 'SnapinAssociation',
+                        'parentkey' => 'hostID',
+                        'childkey' => 'snapinID',
+                        'orderkey' => 'sequence',
                     ],
                     'printers' => [
                         'class' => 'Printer',
                         'namefield' => 'name',
                         'get' => 'printers',
                         'apply' => 'addPrinter',
+                        'bulkclass' => 'PrinterAssociation',
+                        'parentkey' => 'hostID',
+                        'childkey' => 'printerID',
                     ],
                     'modules' => [
                         'class' => 'Module',
                         'namefield' => 'name',
                         'get' => 'modules',
                         'apply' => 'addModule',
+                        'bulkclass' => 'ModuleAssociation',
+                        'parentkey' => 'hostID',
+                        'childkey' => 'moduleID',
                     ],
                 ];
                 break;
@@ -3794,19 +3828,31 @@ abstract class FOGPage extends FOGBase
         if (empty($config) || empty($id)) {
             return '';
         }
-        $item = self::getClass($childClass, $id);
+        $id = (string)$id;
+        // Hydrated lazily: only the per-row fallback path and a registered
+        // EXPORT_ASSOCIATIONS listener need the object. Primed labels never do.
+        $item = null;
         $parts = [];
         foreach ($config as $label => $entry) {
             $names = [];
-            if (isset($entry['get']) && is_callable($entry['get'])) {
-                $names = (array)call_user_func($entry['get'], $item);
-            } elseif (isset($entry['get'])) {
-                $ids = (array)$item->get($entry['get']);
-                $names = self::associationIdsToNames(
-                    $entry['class'],
-                    $entry['namefield'],
-                    $ids
-                );
+            if (!empty(self::$associationExportPrimed[$childClass][$label])) {
+                $names = isset(
+                    self::$associationExportCache[$childClass][$label][$id]
+                ) ? self::$associationExportCache[$childClass][$label][$id] : [];
+            } else {
+                if ($item === null) {
+                    $item = self::getClass($childClass, $id);
+                }
+                if (isset($entry['get']) && is_callable($entry['get'])) {
+                    $names = (array)call_user_func($entry['get'], $item);
+                } elseif (isset($entry['get'])) {
+                    $ids = (array)$item->get($entry['get']);
+                    $names = self::associationIdsToNames(
+                        $entry['class'],
+                        $entry['namefield'],
+                        $ids
+                    );
+                }
             }
             $names = array_values(
                 array_filter(
@@ -3822,16 +3868,152 @@ abstract class FOGPage extends FOGBase
                 $parts[] = $label . ':' . implode('|', $escaped);
             }
         }
+        // Per-row extension point. Skip it entirely (and the object hydration it
+        // requires) unless a listener is actually registered, so a fully primed
+        // export stays free of per-row queries.
+        if (self::hasHookListener('EXPORT_ASSOCIATIONS')) {
+            if ($item === null) {
+                $item = self::getClass($childClass, $id);
+            }
+            self::$HookManager->processEvent(
+                'EXPORT_ASSOCIATIONS',
+                [
+                    'childClass' => $childClass,
+                    'id' => $id,
+                    'item' => $item,
+                    'parts' => &$parts,
+                ]
+            );
+        }
+        return implode(';', $parts);
+    }
+    /**
+     * Returns whether a hook event has at least one registered listener. Lets
+     * callers avoid expensive work (e.g. hydrating an object) just to fire an
+     * event nothing listens to.
+     *
+     * @param string $event the event name to test
+     *
+     * @return bool
+     */
+    protected static function hasHookListener($event)
+    {
+        return isset(self::$HookManager->data[$event])
+            && count((array)self::$HookManager->data[$event]) > 0;
+    }
+    /**
+     * Bulk-loads every association name needed to export a set of rows, so that
+     * buildAssociationString() can build each row's cell from cache rather than
+     * hydrating the row's object and lazy-loading each relation (the N+1 the
+     * per-row path incurs). One IN-query is run per association class plus the
+     * already-cached id/name map per referenced class — constant work in the
+     * row count instead of ~5 queries per row.
+     *
+     * Plugins that add labels via IMPORT_ASSOCIATIONS can opt into the same
+     * batching by listening for EXPORT_ASSOCIATIONS_PRIME and calling
+     * primeAssociationLabel(); any label left unprimed simply falls back to the
+     * per-row get path, so this is purely an optimization.
+     *
+     * @param string $childClass the class being exported
+     * @param array  $ids        the ids of the rows being exported
+     *
+     * @return void
+     */
+    public static function primeAssociationExport($childClass, array $ids)
+    {
+        self::$associationExportCache[$childClass] = [];
+        self::$associationExportPrimed[$childClass] = [];
+        $config = self::getAssociationConfig($childClass);
+        if (empty($config) || count($ids) < 1) {
+            return;
+        }
+        foreach ($config as $label => $entry) {
+            if (empty($entry['bulkclass'])
+                || empty($entry['parentkey'])
+                || empty($entry['childkey'])
+            ) {
+                continue;
+            }
+            Route::listem(
+                $entry['bulkclass'],
+                [$entry['parentkey'] => $ids],
+                true
+            );
+            $rows = json_decode(Route::getData());
+            $rows = isset($rows->data) ? $rows->data : [];
+            $orderkey = isset($entry['orderkey']) ? $entry['orderkey'] : '';
+            $byParent = [];
+            foreach ($rows as $r) {
+                $pid = isset($r->{$entry['parentkey']})
+                    ? (string)$r->{$entry['parentkey']} : '';
+                $cid = isset($r->{$entry['childkey']})
+                    ? (string)$r->{$entry['childkey']} : '';
+                if ($pid === '' || $cid === '') {
+                    continue;
+                }
+                $ord = ($orderkey !== '' && isset($r->{$orderkey}))
+                    ? (int)$r->{$orderkey} : 0;
+                $byParent[$pid][] = [$cid, $ord];
+            }
+            foreach ($byParent as $pid => $pairs) {
+                if ($orderkey !== '') {
+                    usort(
+                        $pairs,
+                        function ($a, $b) {
+                            return $a[1] <=> $b[1];
+                        }
+                    );
+                }
+                $childIds = array_map(
+                    function ($p) {
+                        return $p[0];
+                    },
+                    $pairs
+                );
+                self::$associationExportCache[$childClass][$label][$pid] =
+                    self::associationIdsToNames(
+                        $entry['class'],
+                        $entry['namefield'],
+                        $childIds
+                    );
+            }
+            self::$associationExportPrimed[$childClass][$label] = true;
+        }
         self::$HookManager->processEvent(
-            'EXPORT_ASSOCIATIONS',
+            'EXPORT_ASSOCIATIONS_PRIME',
             [
                 'childClass' => $childClass,
-                'id' => $id,
-                'item' => $item,
-                'parts' => &$parts,
+                'ids' => $ids,
             ]
         );
-        return implode(';', $parts);
+    }
+    /**
+     * Records the bulk-resolved names for one association label so the export
+     * reads them from cache instead of the per-row get path. Plugins call this
+     * from an EXPORT_ASSOCIATIONS_PRIME listener after computing, in one query,
+     * a map of parent id => names for their label.
+     *
+     * @param string $childClass the class being exported
+     * @param string $label      the association label being primed
+     * @param array  $byParentId map of parent id => array of names
+     *
+     * @return void
+     */
+    public static function primeAssociationLabel(
+        $childClass,
+        $label,
+        array $byParentId
+    ) {
+        foreach ($byParentId as $pid => $names) {
+            self::$associationExportCache[$childClass][$label][(string)$pid] =
+                array_values(
+                    array_filter(
+                        array_map('strval', (array)$names),
+                        'strlen'
+                    )
+                );
+        }
+        self::$associationExportPrimed[$childClass][$label] = true;
     }
     /**
      * Interprets the first CSV row as a header when appropriate.
@@ -5510,6 +5692,21 @@ abstract class FOGPage extends FOGBase
             $columns[] = [
                 'db' => $tableID,
                 'dt' => 'associations',
+                // Bulk-load every row's associations once (constant queries)
+                // before the formatter runs per row. dataOutput() invokes this
+                // with the full result set just before formatting.
+                'prime' => function ($rows) use ($childClass, $tableID) {
+                    $ids = [];
+                    foreach (($rows ?: []) as $r) {
+                        if (isset($r[$tableID]) && $r[$tableID] !== '') {
+                            $ids[] = $r[$tableID];
+                        }
+                    }
+                    self::primeAssociationExport(
+                        $childClass,
+                        array_values(array_unique($ids))
+                    );
+                },
                 'formatter' => function ($d, $row) use ($childClass) {
                     return self::buildAssociationString($childClass, $d);
                 }

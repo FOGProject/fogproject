@@ -338,12 +338,35 @@ import and export, without patching core:
   ```
 
 - **`EXPORT_ASSOCIATIONS`** — fired while a row's associations cell is built;
-  receives the `parts` array (by reference) for last‑mile tweaks.
+  receives the `parts` array (by reference) for last‑mile tweaks. To keep large
+  exports fast this event only fires when a listener is actually registered, so
+  a row with no `EXPORT_ASSOCIATIONS` listeners never hydrates its object.
+
+- **`EXPORT_ASSOCIATIONS_PRIME`** — fired **once per export** (not per row),
+  before any cell is built, with `childClass` and the full list of row `ids`.
+  Plugins can use it to bulk‑resolve their label for the whole result set in a
+  couple of queries and hand the result back via
+  `FOGPage::primeAssociationLabel($childClass, $label, $byParentId)`, where
+  `$byParentId` maps each parent id to an array of names. Any label that is not
+  primed simply falls back to the per‑row `get` path, so listening is purely an
+  optimization.
 
 The Location plugin (`addlocationimport.hook.php`) is the reference
 implementation, registering a single‑valued `location` type for hosts. The
 Site plugin (`addsiteimport.hook.php`) follows the same pattern for a host's
-`site`.
+`site`. Both also listen for `EXPORT_ASSOCIATIONS_PRIME` to batch their label.
 
-See issue [#828](https://github.com/FOGProject/fogproject/issues/828) for the
-design discussion and history.
+### Export performance
+
+Building the associations column naively costs roughly five queries per row (a
+fresh object plus one lazy lookup per label). To avoid that N+1, the exporter
+bulk‑primes every row's association names **once** before formatting begins:
+core host labels (`groups`, `snapins`, `printers`, `modules`) are loaded with a
+single `IN()` query per association class, cached per parent id, and each row's
+cell is then built from that cache with no per‑row object or query. Plugins opt
+into the same batching via `EXPORT_ASSOCIATIONS_PRIME` (above). The output is
+identical to the per‑row path — this only changes how the names are fetched.
+
+See issues [#828](https://github.com/FOGProject/fogproject/issues/828) (design
+and history) and [#857](https://github.com/FOGProject/fogproject/issues/857)
+(export batching) for details.

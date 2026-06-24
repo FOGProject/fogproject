@@ -173,6 +173,13 @@ abstract class FOGManagerController extends FOGBase
     public static function dataOutput($columns, $data)
     {
         $out = [];
+        // Let a column bulk-load anything it needs for the whole result set
+        // before the per-row formatters run (avoids per-row N+1 queries).
+        foreach (($columns ?: []) as $column) {
+            if (isset($column['prime']) && is_callable($column['prime'])) {
+                $column['prime']($data);
+            }
+        }
         for ($i = 0, $ien=count($data ?: []); $i<$ien; $i++) {
             $row = [];
             for ($j=0, $jen=count($columns ?: []); $j < $jen; $j++) {
