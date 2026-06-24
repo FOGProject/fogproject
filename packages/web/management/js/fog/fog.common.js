@@ -560,22 +560,24 @@ $.fn.registerTable = function(onSelect, opts) {
   // Paging style is admin-selectable via FOG_TABLE_SCROLL_MODE (hidden
   // #scrollMode). Default is infinite (virtual-scroll) when unset.
   //
-  // Three things force classic paging regardless of that setting:
+  // Two things force classic paging regardless of that setting:
   //  - rowGroup: grouped tables inject category header rows that Scroller's
   //    virtual row-height math can't reconcile, so any table using rowGroup is
   //    auto-paged (no per-table flag needed).
   //  - scroller:false: an explicit per-table opt-out for any other reason.
-  //  - hidden at init: Scroller relies on scrollY, which measures a table
-  //    inside a not-yet-shown tab (display:none) as zero width. That leaves the
-  //    split header/body tables misaligned until a full redraw, and no amount
-  //    of tab-show re-adjusting wins the race reliably. A paged table is a
-  //    single <table> with no header/body split, so it can't misalign. Top-
-  //    level lists are visible at init and keep infinite scroll; in-tab edit
-  //    tables (MACs, snapins, printers, history, ...) fall back to paging.
+  //
+  // In-tab edit tables (MACs, snapins, printers, history, ...) are hidden at
+  // init, where Scroller's scrollY measures a display:none table as zero width
+  // and the split header/body columns start misaligned. They still use infinite
+  // scroll for UI consistency with the top-level lists: the shown.bs.tab handler
+  // in fogBindScrollerAutosize() re-measures (scroller.measure) and re-syncs the
+  // columns (columns.adjust) once the tab is visible, which is the first moment
+  // the real widths exist. Selection/association is unaffected by deferRender —
+  // checkbox toggles POST per-row immediately ($.checkItemUpdate) and bulk
+  // actions read the DataTables API (rows({selected:true})), never the DOM.
   var infiniteScroll =
     (opts.scroller !== false) &&
     !opts.rowGroup &&
-    $(this).is(':visible') &&
     (($('#scrollMode').val() || 'infinite').toLowerCase() !== 'paged');
 
   var defaults = {
