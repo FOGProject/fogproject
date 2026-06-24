@@ -10,10 +10,16 @@
 //   npx sass --style=compressed fog-default-ui.scss fog-default-ui.min.css
 //
 // and bump FOG_BCACHE_VER in lib/fog/system.class.php so browsers refetch it.
+//
+// THEMING: the palette below is authored as SASS variables (compile-time) and
+// then PROMOTED to CSS custom properties on :root (runtime). Rules reference
+// the runtime var(--fog-*) form, NOT the SASS $fog-* form, so a future dark
+// theme can redefine the properties live (under a body.theme-dark scope)
+// without recompiling. Light values are unchanged.
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// Palette
+// Palette (authoring source)
 //
 // These are the exact colors that were previously hard-coded throughout this
 // file, lifted into named variables so the look can be retuned (and a dark
@@ -25,7 +31,8 @@ $fog-warning:             #db8b0b;
 $fog-danger:              #d33724;
 
 // One-off blue on the modal-footer buttons. It differs from $fog-primary;
-// kept distinct so compiled output is unchanged. TODO(F2): unify w/ primary.
+// kept distinct for now. Unifying it with the primary is a pending
+// consistency decision (deferred out of the theming work).
 $fog-modal-btn:           #428bca;
 
 $fog-text-muted:          #646464;
@@ -39,6 +46,28 @@ $fog-modal-footer-border: #bfbfbf;
 
 $fog-badge-bg:            #d2d6de;
 $fog-border-light:        #f4f4f4;
+
+// ---------------------------------------------------------------------------
+// Runtime palette (CSS custom properties)
+//
+// The SASS values above are interpolated into custom properties here so the
+// rest of the file can use var(--fog-*) and a theme can override them live.
+// ---------------------------------------------------------------------------
+:root {
+  --fog-primary:             #{$fog-primary};
+  --fog-success:             #{$fog-success};
+  --fog-warning:             #{$fog-warning};
+  --fog-danger:              #{$fog-danger};
+  --fog-modal-btn:           #{$fog-modal-btn};
+  --fog-text-muted:          #{$fog-text-muted};
+  --fog-text-strong:         #{$fog-text-strong};
+  --fog-sidebar-bg:          #{$fog-sidebar-bg};
+  --fog-toggle-hover-bg:     #{$fog-toggle-hover-bg};
+  --fog-modal-footer-bg:     #{$fog-modal-footer-bg};
+  --fog-modal-footer-border: #{$fog-modal-footer-border};
+  --fog-badge-bg:            #{$fog-badge-bg};
+  --fog-border-light:        #{$fog-border-light};
+}
 
 // ---------------------------------------------------------------------------
 // Action boxes / box chrome
@@ -90,7 +119,7 @@ header.main-header .mobile-logo {
   body:not(.login-page) header.main-header {
     position: sticky;
     top: 0;
-    background-color: $fog-sidebar-bg;
+    background-color: var(--fog-sidebar-bg);
   }
 
   header.main-header .logo {
@@ -115,7 +144,7 @@ header.main-header .mobile-logo {
   }
 
   .skin-blue .main-header .navbar .sidebar-toggle {
-    background-color: $fog-toggle-hover-bg;
+    background-color: var(--fog-toggle-hover-bg);
   }
 }
 
@@ -142,38 +171,38 @@ header.main-header .mobile-logo {
 // ---------------------------------------------------------------------------
 .modal .modal-dialog .modal-body {
   background-color: #fff !important;
-  color: $fog-text-muted !important;
+  color: var(--fog-text-muted) !important;
 }
 
 .modal .modal-dialog .modal-footer {
-  background-color: $fog-modal-footer-bg !important;
-  border-top-color: $fog-modal-footer-border;
+  background-color: var(--fog-modal-footer-bg) !important;
+  border-top-color: var(--fog-modal-footer-border);
 }
 
 .modal .modal-dialog .modal-footer .btn {
-  border-color: $fog-modal-btn !important;
-  background-color: $fog-modal-btn !important;
+  border-color: var(--fog-modal-btn) !important;
+  background-color: var(--fog-modal-btn) !important;
 }
 
 .modal-success .modal-dialog .modal-footer .btn {
-  border-color: $fog-success !important;
-  background-color: $fog-success !important;
+  border-color: var(--fog-success) !important;
+  background-color: var(--fog-success) !important;
 }
 
 .modal-warning .modal-dialog .modal-footer .btn {
-  border-color: $fog-warning !important;
-  background-color: $fog-warning !important;
+  border-color: var(--fog-warning) !important;
+  background-color: var(--fog-warning) !important;
 }
 
 .modal-danger .modal-dialog .modal-footer .btn {
-  border-color: $fog-danger !important;
-  background-color: $fog-danger !important;
+  border-color: var(--fog-danger) !important;
+  background-color: var(--fog-danger) !important;
 }
 
 .modal .modal-dialog .modal-footer .btn.pull-left {
   border: none;
   background-color: #FFF !important;
-  color: $fog-text-muted !important;
+  color: var(--fog-text-muted) !important;
 }
 
 // ---------------------------------------------------------------------------
@@ -196,7 +225,7 @@ header.main-header .mobile-logo {
 .box .overlay>.fa, .overlay-wrapper .overlay>.fa {
   margin-left: -20px;
   margin-top: -20px;
-  color: $fog-text-muted;
+  color: var(--fog-text-muted);
   font-size: 40px;
 
   &.fa-spin {
@@ -264,19 +293,19 @@ dd {
   border-radius: 0;
 }
 .settings-nav-col .nav-pills > li > a .badge {
-  background-color: $fog-badge-bg;
-  color: $fog-text-strong;
+  background-color: var(--fog-badge-bg);
+  color: var(--fog-text-strong);
   float: right;
 }
 .settings-nav-col .nav-pills > li.active > a .badge {
   background-color: #fff;
-  color: $fog-primary;
+  color: var(--fog-primary);
 }
 .settings-panel-title {
   margin-top: 0;
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 1px solid $fog-border-light;
+  border-bottom: 1px solid var(--fog-border-light);
 }
 .settings-row .settings-label {
   font-weight: 600;
@@ -287,7 +316,7 @@ dd {
 }
 @media (min-width: 768px) {
   .settings-nav-col {
-    border-right: 1px solid $fog-border-light;
+    border-right: 1px solid var(--fog-border-light);
     max-height: 70vh;
     overflow-y: auto;
   }
