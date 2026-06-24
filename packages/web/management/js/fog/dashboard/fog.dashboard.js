@@ -23,6 +23,53 @@
   Chart.defaults.maintainAspectRatio = false;
   Chart.defaults.animation.duration = 0;
 
+  // --- theme -----------------------------------------------------------
+  // Dataset colors are explicit and read fine on either theme; only the chart
+  // "chrome" (axis tick labels, grid lines, legend text) needs to follow dark
+  // mode. Those derive from Chart's global defaults, so set them up front for
+  // charts built later, and recolor existing charts on a live theme toggle.
+  var CHROME = {
+    light: { text: '#666666', grid: 'rgba(0,0,0,0.1)' },
+    dark:  { text: '#c8ccd0', grid: 'rgba(255,255,255,0.12)' }
+  };
+
+  function chrome() {
+    return document.body.classList.contains('theme-dark') ? CHROME.dark : CHROME.light;
+  }
+
+  function applyChartDefaults() {
+    var c = chrome();
+    Chart.defaults.color = c.text;
+    Chart.defaults.borderColor = c.grid;
+  }
+
+  // A live toggle: already-built charts cached their resolved options against
+  // the old defaults, so write the colors onto each instance directly.
+  function restyleCharts() {
+    var c = chrome();
+    applyChartDefaults();
+    $.each(charts, function (sel, chart) {
+      chart.options.color = c.text;
+      if (chart.options.plugins && chart.options.plugins.legend) {
+        chart.options.plugins.legend.labels = chart.options.plugins.legend.labels || {};
+        chart.options.plugins.legend.labels.color = c.text;
+      }
+      $.each(chart.options.scales || {}, function (axis, scale) {
+        scale.ticks = scale.ticks || {};
+        scale.ticks.color = c.text;
+        // Leave axes that intentionally hide their grid (grid.display:false).
+        scale.grid = scale.grid || {};
+        if (scale.grid.display !== false) {
+          scale.grid.color = c.grid;
+        }
+      });
+      chart.update();
+    });
+  }
+
+  applyChartDefaults();
+  document.addEventListener('fog:themechange', restyleCharts);
+
   // --- shared helpers --------------------------------------------------
 
   // Size a chart container and return a fresh 2d context inside it,
@@ -194,6 +241,9 @@
       });
     }
 
+    // select2 so the control follows the theme (a native <select> stays white
+    // in dark mode), matching the Disk Usage node picker below.
+    $('.activity-count').select2({ width: 'auto', dropdownAutoWidth: true });
     $('.activity-count').on('change', function (e) {
       clearTimeout(timer);
       poll();

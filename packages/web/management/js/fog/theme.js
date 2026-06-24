@@ -48,6 +48,12 @@
         body.classList.toggle('theme-dark', isDark);
         body.classList.toggle('theme-light', !isDark);
 
+        // Let interested widgets (e.g. dashboard charts, which cache resolved
+        // colors and cannot read CSS variables) recolor themselves live.
+        document.dispatchEvent(new CustomEvent('fog:themechange', {
+            detail: { dark: isDark }
+        }));
+
         var toggle = document.getElementById('themeToggle');
         if (!toggle) {
             return;
