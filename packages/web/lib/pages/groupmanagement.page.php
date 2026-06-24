@@ -56,7 +56,7 @@ class GroupManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $group = filter_input(INPUT_POST, 'group');
         $description = filter_input(INPUT_POST, 'description');

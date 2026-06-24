@@ -58,7 +58,7 @@ class AccessControlRuleManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $type = filter_input(INPUT_POST, 'type');
         $parent = filter_input(INPUT_POST, 'parent');

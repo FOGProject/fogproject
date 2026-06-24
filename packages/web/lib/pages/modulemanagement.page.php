@@ -56,7 +56,7 @@ class ModuleManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $module = filter_input(INPUT_POST, 'module');
         $description = filter_input(INPUT_POST, 'description');

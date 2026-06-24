@@ -68,7 +68,7 @@ class UserManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $user = filter_input(INPUT_POST, 'user');
         $display = filter_input(INPUT_POST, 'display');

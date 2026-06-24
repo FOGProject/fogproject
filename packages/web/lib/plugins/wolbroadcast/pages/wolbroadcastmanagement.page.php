@@ -52,7 +52,7 @@ class WOLBroadcastManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $wolbroadcast = filter_input(INPUT_POST, 'wolbroadcast');
         $description = filter_input(INPUT_POST, 'description');

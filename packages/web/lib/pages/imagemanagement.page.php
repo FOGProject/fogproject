@@ -56,7 +56,7 @@ class ImageManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $image = filter_input(INPUT_POST, 'image');
         $description = filter_input(INPUT_POST, 'description');

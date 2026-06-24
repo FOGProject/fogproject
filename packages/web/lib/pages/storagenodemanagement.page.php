@@ -58,7 +58,7 @@ class StorageNodeManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $storagenode = filter_input(INPUT_POST, 'storagenode');
         $description = filter_input(INPUT_POST, 'description');

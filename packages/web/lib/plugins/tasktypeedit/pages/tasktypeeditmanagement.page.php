@@ -54,7 +54,7 @@ class TasktypeeditManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $tasktype = filter_input(INPUT_POST, 'tasktype');
         $description = filter_input(INPUT_POST, 'description');

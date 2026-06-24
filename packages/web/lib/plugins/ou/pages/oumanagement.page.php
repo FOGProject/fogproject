@@ -54,7 +54,7 @@ class OUManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $ou = filter_input(INPUT_POST, 'ou');
         $description = filter_input(INPUT_POST, 'description');

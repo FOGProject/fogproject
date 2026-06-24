@@ -60,7 +60,7 @@ class IpxeManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $ipxe = filter_input(INPUT_POST, 'ipxe');
         $description = filter_input(INPUT_POST, 'description');

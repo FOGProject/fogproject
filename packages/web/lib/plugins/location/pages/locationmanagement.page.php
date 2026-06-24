@@ -60,7 +60,7 @@ class LocationManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $location = filter_input(INPUT_POST, 'location');
         $description = filter_input(INPUT_POST, 'description');

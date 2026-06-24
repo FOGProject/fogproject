@@ -190,7 +190,7 @@ class SnapinManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $snapin = filter_input(INPUT_POST, 'snapin');
         $description = filter_input(INPUT_POST, 'description');

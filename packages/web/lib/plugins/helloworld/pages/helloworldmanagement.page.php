@@ -66,7 +66,7 @@ class HelloWorldManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $name = filter_input(INPUT_POST, 'name');
         $description = filter_input(INPUT_POST, 'description');

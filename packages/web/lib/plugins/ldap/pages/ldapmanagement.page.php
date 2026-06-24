@@ -62,7 +62,7 @@ class LDAPManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $ldap = filter_input(INPUT_POST, 'ldap');
         $description = filter_input(INPUT_POST, 'description');

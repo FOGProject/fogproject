@@ -52,7 +52,7 @@ class PushbulletManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $apiToken = filter_input(INPUT_POST, 'apiToken');
 

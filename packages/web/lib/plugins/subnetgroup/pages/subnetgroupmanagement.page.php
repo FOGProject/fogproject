@@ -56,7 +56,7 @@ class SubnetGroupManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $subnetgroup = filter_input(INPUT_POST, 'subnetgroup');
         $description = filter_input(INPUT_POST, 'description');

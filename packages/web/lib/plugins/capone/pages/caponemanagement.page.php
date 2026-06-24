@@ -56,7 +56,7 @@ class CaponeManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $image = filter_input(INPUT_POST, 'image');
         $key = filter_input(INPUT_POST, 'key');

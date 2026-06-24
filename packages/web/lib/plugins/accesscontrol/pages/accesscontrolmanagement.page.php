@@ -52,7 +52,7 @@ class AccessControlManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $accesscontrol = filter_input(INPUT_POST, 'accesscontrol');
         $description = filter_input(INPUT_POST, 'description');

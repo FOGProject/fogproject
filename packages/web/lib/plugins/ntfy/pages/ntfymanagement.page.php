@@ -54,7 +54,7 @@ class NtfyManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $serverURL = filter_input(
             INPUT_POST,

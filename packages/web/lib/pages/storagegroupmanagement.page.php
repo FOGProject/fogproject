@@ -52,7 +52,7 @@ class StorageGroupManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $description = filter_input(INPUT_POST, 'description');

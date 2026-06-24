@@ -52,7 +52,7 @@ class TaskstateeditManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $taskstate = filter_input(INPUT_POST, 'taskstate');
         $description = filter_input(INPUT_POST, 'description');

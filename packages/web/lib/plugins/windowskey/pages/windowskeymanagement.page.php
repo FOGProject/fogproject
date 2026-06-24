@@ -52,7 +52,7 @@ class WindowsKeyManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $windowskey = filter_input(INPUT_POST, 'windowskey');
         $description = filter_input(INPUT_POST, 'description');

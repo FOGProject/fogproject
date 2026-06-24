@@ -52,7 +52,7 @@ class SiteManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $site = filter_input(INPUT_POST, 'site');
         $description = filter_input(INPUT_POST, 'description');

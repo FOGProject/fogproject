@@ -54,7 +54,7 @@ class SlackManagement extends FOGPage
      *
      * @return array
      */
-    private function _addFields()
+    protected function _addFields()
     {
         $apiToken = filter_input(INPUT_POST, 'apiToken');
         $user = filter_input(INPUT_POST, 'user');
