@@ -549,6 +549,13 @@ dd {
     background-color: var(--fog-input-bg);
     border-color: var(--fog-input-border);
     color: var(--fog-text);
+    // The length ("entries per page") menu is a native <select> -- DataTables
+    // builds it after Select2 has run, so unlike FOG's other dropdowns it stays
+    // un-widgetised. background-color themes the closed box, but the browser's
+    // native chrome (the drop-arrow well and the <option> popup) stays light.
+    // color-scheme tells the UA to paint those dark too; harmless on the
+    // adjacent search input.
+    color-scheme: dark;
   }
   .dataTables_wrapper .dataTables_info,
   .dataTables_wrapper .dataTables_filter,
