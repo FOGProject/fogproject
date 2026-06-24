@@ -474,6 +474,25 @@ dd {
     color: var(--fog-text);
   }
 
+  // -- bootstrap-slider (FOG Settings compression/log-level/inactivity, image edit) --
+  // slider.css paints the track + selection near-white (#f7f7f7, via a light
+  // gradient) and the handle dark (#444) — on dark the groove glares and the
+  // handle nearly vanishes. Re-map to a recessed dark groove, a lighter fill,
+  // and a light grab handle. background-image:none is required because the
+  // library's gradient would otherwise paint over background-color. The coloured
+  // #red/#blue/… selection overrides aren't used by FOG sliders, so left alone.
+  .slider-track {
+    background-image: none;
+    background-color: var(--fog-bg);
+  }
+  .slider-selection {
+    background-image: none;
+    background-color: var(--fog-surface-2);
+  }
+  .slider-handle {
+    background-color: var(--fog-text);
+  }
+
   // -- tables --
   .table {
     color: var(--fog-text);
