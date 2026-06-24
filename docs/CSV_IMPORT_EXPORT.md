@@ -114,6 +114,33 @@ Example (a host):
 groups:Lab A|Lab B;snapins:7zip|Chrome;printers:FrontDesk
 ```
 
+#### Escaping delimiters in names
+
+If an object's **name** legitimately contains one of the structural
+characters (`;`, `:`, `|`) — or a backslash — prefix it with a backslash
+(`\`) so it is treated as a literal part of the name rather than a separator.
+Export does this automatically; you only need to write escapes by hand when
+authoring an import file.
+
+| Character in a name | Write it as |
+|---------------------|-------------|
+| `\` (backslash)     | `\\`        |
+| `;`                 | `\;`        |
+| `:`                 | `\:`        |
+| `\|`                | `\\|`       |
+
+Example — a group literally named `Lab A|Lab B` and a printer named
+`Room 3: Floor 2`:
+
+```
+groups:Lab A\|Lab B;printers:Room 3\: Floor 2
+```
+
+This parses as the **single** group name `Lab A|Lab B` and the **single**
+printer name `Room 3: Floor 2`. A `\\` is read as one literal backslash, and
+only **unescaped** delimiters split the cell. Labels (`groups`, `printers`,
+…) are fixed keys and are never escaped.
+
 ### Resolution rules
 
 - **Id or name.** Each value is resolved by **numeric id first, then by
@@ -140,9 +167,10 @@ groups:Lab A|Lab B;snapins:7zip|Chrome;printers:FrontDesk
 plugin is installed. A host has a single location, so only the first value is
 used.
 
-> **Caveat:** because `;`, `:` and `|` are structural, an object **name** that
-> literally contains one of those characters can't currently be expressed in
-> the associations cell. Such values are best referenced by **id**.
+> **Note:** because `;`, `:` and `|` are structural, an object **name** that
+> literally contains one of those characters must be **escaped** with a
+> backslash (see *Escaping delimiters in names* above). Export escapes them for
+> you; referencing such an object by **id** also avoids the issue entirely.
 
 ---
 

@@ -3516,11 +3516,91 @@ abstract class FOGPage extends FOGBase
         return $names;
     }
     /**
+     * Escapes the structural delimiters in an association value so a name
+     * containing ';', ':' or '|' survives the cell format. The escape
+     * character is the backslash; it is doubled first so a literal backslash
+     * round-trips. Backslashes pass through fputcsv()/fgetcsv() intact, so the
+     * escaped value survives both export paths and re-imports unchanged.
+     *
+     * @param string $value the raw value (an object name)
+     *
+     * @return string
+     */
+    public static function escapeAssociationValue($value)
+    {
+        return str_replace(
+            ['\\', ';', ':', '|'],
+            ['\\\\', '\\;', '\\:', '\\|'],
+            (string)$value
+        );
+    }
+    /**
+     * Reverses escapeAssociationValue(): a backslash makes the next character
+     * literal, so "\;" becomes ';' and "\\" becomes '\'. A trailing lone
+     * backslash is treated as a literal backslash.
+     *
+     * @param string $token a single escaped token
+     *
+     * @return string
+     */
+    protected static function unescapeAssociationValue($token)
+    {
+        $out = '';
+        $len = strlen($token);
+        for ($i = 0; $i < $len; $i++) {
+            $ch = $token[$i];
+            if ($ch === '\\' && $i + 1 < $len) {
+                $out .= $token[$i + 1];
+                $i++;
+                continue;
+            }
+            $out .= $ch;
+        }
+        return $out;
+    }
+    /**
+     * Splits a string on an unescaped single-character delimiter, leaving any
+     * escape sequences intact for a later pass. Walking character-by-character
+     * (rather than a regex lookbehind) keeps "\\" — an escaped backslash —
+     * from being mistaken for a backslash that escapes the next delimiter.
+     *
+     * @param string $string the string to split
+     * @param string $delim  a single delimiter character
+     *
+     * @return array the raw (still-escaped) pieces
+     */
+    private static function splitOnUnescaped($string, $delim)
+    {
+        $pieces = [];
+        $current = '';
+        $len = strlen($string);
+        for ($i = 0; $i < $len; $i++) {
+            $ch = $string[$i];
+            if ($ch === '\\' && $i + 1 < $len) {
+                // Preserve the escape sequence verbatim for the leaf-level
+                // unescape; this level only splits on bare delimiters.
+                $current .= $ch . $string[$i + 1];
+                $i++;
+                continue;
+            }
+            if ($ch === $delim) {
+                $pieces[] = $current;
+                $current = '';
+                continue;
+            }
+            $current .= $ch;
+        }
+        $pieces[] = $current;
+        return $pieces;
+    }
+    /**
      * Parses a trailing "associations" CSV cell into a label => tokens map.
      *
      * Format: "groups:1|Lab B;snapins:7zip|5;printers:1"
      *   ';' separates association types, ':' separates the label from its
      *   values, '|' separates individual values (matching the MAC delimiter).
+     *   A value may escape any of those delimiters with a backslash (e.g.
+     *   "groups:Lab A\|Lab B" is the single name "Lab A|Lab B").
      *
      * @param string $cell the raw cell value
      *
@@ -3533,22 +3613,26 @@ abstract class FOGPage extends FOGBase
         if ($cell === '') {
             return $result;
         }
-        foreach (explode(';', $cell) as $segment) {
+        foreach (self::splitOnUnescaped($cell, ';') as $segment) {
             $segment = trim($segment);
             if ($segment === '' || strpos($segment, ':') === false) {
                 continue;
             }
+            // The label never contains a colon, so the first colon is the
+            // label/value boundary; escaped colons in values sit after it and
+            // are preserved by the limit-2 explode.
             list($label, $values) = explode(':', $segment, 2);
             $label = strtolower(trim($label));
             if ($label === '') {
                 continue;
             }
-            $tokens = array_values(
-                array_filter(
-                    array_map('trim', explode('|', $values)),
-                    'strlen'
-                )
-            );
+            $tokens = [];
+            foreach (self::splitOnUnescaped($values, '|') as $token) {
+                $token = trim(self::unescapeAssociationValue($token));
+                if ($token !== '') {
+                    $tokens[] = $token;
+                }
+            }
             if (count($tokens) > 0) {
                 $result[$label] = $tokens;
             }
@@ -3663,7 +3747,11 @@ abstract class FOGPage extends FOGBase
                 )
             );
             if (count($names) > 0) {
-                $parts[] = $label . ':' . implode('|', $names);
+                $escaped = [];
+                foreach ($names as $name) {
+                    $escaped[] = self::escapeAssociationValue($name);
+                }
+                $parts[] = $label . ':' . implode('|', $escaped);
             }
         }
         self::$HookManager->processEvent(
