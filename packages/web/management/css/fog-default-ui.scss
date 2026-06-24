@@ -362,6 +362,13 @@ dd {
   --fog-badge-bg:     #2b3a42; // = --fog-surface-2 (raised dark pill)
   --fog-text-strong:  #c8ccd0; // = --fog-text (legible on the dark pill)
 
+  // -- modal footer (forced light-grey strip on the dark modal otherwise) --
+  // The base .modal-footer rule applies var(--fog-modal-footer-bg) with
+  // !important; the dark mixin handled .modal-body but missed this sibling.
+  // Re-point the tokens so the footer reads as a raised dark strip.
+  --fog-modal-footer-bg:     #2b3a42; // = --fog-surface-2 (distinct from body)
+  --fog-modal-footer-border: #3a4a52; // = --fog-border
+
   // -- DataTables 2.x striping --
   // Striping/hover/sorted-column shading are box-shadow overlays of
   // rgba(var(--dt-row-*), a); the triplets default to 0,0,0 (a black overlay
