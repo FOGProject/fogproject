@@ -22,6 +22,15 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 $isLoggedIn = self::$FOGUser->isLoggedIn() && self::$FOGUser->isValid();
 $ulang = htmlspecialchars($_SESSION['FOG_LANG'] ?? '', ENT_QUOTES, 'UTF-8');
 
+// Dark mode: per-user preference persisted in the fogTheme cookie. The matching
+// class is stamped on <body> below (server-side, on first paint) so there is no
+// light flash before theme.js runs. With no cookie there is no class, and the
+// prefers-color-scheme media query in fog-default-ui.css decides automatically.
+$themePref  = filter_input(INPUT_COOKIE, 'fogTheme');
+$themeClass = ($themePref === 'dark')
+    ? ' theme-dark'
+    : (($themePref === 'light') ? ' theme-light' : '');
+
 // Start output buffering
 ob_start();
 
@@ -51,7 +60,7 @@ unset($this->stylesheets);
     <script src="dist/js/respond.min.js"></script>
     <![endif]-->
 </head>
-<body class="<?= $isLoggedIn ? 'skin-blue sidebar-mini' : 'login-page'; ?>">
+<body class="<?= ($isLoggedIn ? 'skin-blue sidebar-mini' : 'login-page') . $themeClass; ?>">
     <!-- FOG Management only works when JavaScript is enabled. -->
     <noscript>
         <div id="noscriptMessage">
@@ -91,6 +100,15 @@ unset($this->stylesheets);
                 <?php endif; ?>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
+                        <li>
+                            <a href="#" id="themeToggle" role="button"
+                               data-label-dark="<?= _('Switch to light mode'); ?>"
+                               data-label-light="<?= _('Switch to dark mode'); ?>"
+                               title="<?= _('Toggle dark mode'); ?>"
+                               aria-label="<?= _('Toggle dark mode'); ?>">
+                                <i class="fa fa-moon-o"></i>
+                            </a>
+                        </li>
                         <li>
                             <?php if ($isLoggedIn): ?>
                                 <a href="../management/index.php?node=logout"><i class="fa fa-sign-out"></i> <?= _('Logout'); ?></a>

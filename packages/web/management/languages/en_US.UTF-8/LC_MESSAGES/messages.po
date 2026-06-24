@@ -6201,6 +6201,12 @@ msgstr "successfully updated"
 msgid "Supported here: %s."
 msgstr ""
 
+msgid "Switch to dark mode"
+msgstr ""
+
+msgid "Switch to light mode"
+msgstr ""
+
 msgid "Sync finished - "
 msgstr ""
 
@@ -6671,6 +6677,9 @@ msgid "To get started please select an item from the menu."
 msgstr ""
 
 msgid "Toggle Dropdown"
+msgstr ""
+
+msgid "Toggle dark mode"
 msgstr ""
 
 #, fuzzy

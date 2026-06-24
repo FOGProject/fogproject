@@ -117,7 +117,8 @@ class Page extends FOGBase
         'js/input-mask/jquery.inputmask.numeric.extensions.js',
         'js/input-mask/jquery.inputmask.date.extensions.js',
         'js/fog/bootstrap-csrf.js',
-        'js/fog/fog.common.js'
+        'js/fog/fog.common.js',
+        'js/fog/theme.js'
     ];
     /**
      * Initializes the page element

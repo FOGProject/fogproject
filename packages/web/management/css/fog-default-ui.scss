@@ -321,3 +321,256 @@ dd {
     overflow-y: auto;
   }
 }
+
+// ===========================================================================
+// Dark theme
+//
+// AdminLTE's skin-blue already ships a dark sidebar (#222d32) and a coloured
+// header, so dark mode only has to darken the CONTENT area: the light-grey
+// content-wrapper (#ecf0f5) and the white boxes / tables / forms / modals in it.
+//
+// The dark palette is collected as custom properties at the top of the mixin so
+// it can be retuned live (DevTools or a one-line edit here). EVERYTHING below is
+// scoped under the dark selectors, so LIGHT MODE IS COMPLETELY UNTOUCHED.
+//
+// Applied two ways:
+//   body.theme-dark .......................... explicit user choice (cookie)
+//   @media (prefers-color-scheme: dark)
+//     body:not(.theme-light) ................. automatic, when the user hasn't chosen
+//
+// NOT yet themed (intentionally — first pass; tune/extend after live review):
+// iCheck controls, pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
+// ===========================================================================
+@mixin fog-dark-theme {
+  // -- dark palette (tune these) --
+  --fog-bg:           #1b2327; // page background, behind the boxes
+  --fog-surface:      #222d32; // boxes / cards (matches the sidebar chrome)
+  --fog-surface-2:    #2b3a42; // raised: hovers, headers, input-group addons
+  --fog-text:         #c8ccd0;
+  --fog-text-muted:   #9aa3a8; // overrides the :root light value within dark scope
+  --fog-border:       #3a4a52;
+  --fog-heading:      #e3e6e8;
+  --fog-input-bg:     #2b3a42;
+  --fog-input-border: #3a4a52;
+
+  background-color: var(--fog-bg);
+  color: var(--fog-text);
+
+  // -- base content area --
+  .content-wrapper {
+    background-color: var(--fog-bg);
+    color: var(--fog-text);
+  }
+  .main-footer {
+    background-color: var(--fog-surface);
+    border-top-color: var(--fog-border);
+    color: var(--fog-text-muted);
+  }
+  .content-header > h1 small {
+    color: var(--fog-text-muted);
+  }
+
+  // -- headings / links / muted text --
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--fog-heading);
+  }
+  a {
+    color: var(--fog-primary);
+  }
+  .text-muted {
+    color: var(--fog-text-muted);
+  }
+
+  // -- boxes --
+  .box {
+    background-color: var(--fog-surface);
+    border-top-color: var(--fog-primary);
+    color: var(--fog-text);
+  }
+  .box-header,
+  .box-footer {
+    color: var(--fog-heading);
+    border-color: var(--fog-border);
+  }
+  .box-footer {
+    background-color: var(--fog-surface);
+  }
+
+  // -- tabbed boxes (nav-tabs-custom) --
+  .nav-tabs-custom {
+    background-color: var(--fog-surface);
+  }
+  .nav-tabs-custom > .nav-tabs {
+    border-bottom-color: var(--fog-border);
+  }
+  .nav-tabs-custom > .nav-tabs > li > a {
+    color: var(--fog-text-muted);
+  }
+  .nav-tabs-custom > .nav-tabs > li.active > a {
+    background-color: var(--fog-surface);
+    color: var(--fog-text);
+    border-left-color: var(--fog-border);
+    border-right-color: var(--fog-border);
+  }
+
+  // -- tables --
+  .table {
+    color: var(--fog-text);
+  }
+  .table > thead > tr > th,
+  .table > tbody > tr > th,
+  .table > tbody > tr > td,
+  .table > tfoot > tr > td {
+    border-color: var(--fog-border);
+  }
+  .table > thead > tr > th {
+    border-bottom-color: var(--fog-border);
+  }
+  .table-hover > tbody > tr:hover {
+    background-color: var(--fog-surface-2);
+  }
+  .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, .03);
+  }
+  .table-bordered,
+  .table-bordered > thead > tr > th,
+  .table-bordered > thead > tr > td,
+  .table-bordered > tbody > tr > th,
+  .table-bordered > tbody > tr > td,
+  .table-bordered > tfoot > tr > th,
+  .table-bordered > tfoot > tr > td {
+    border-color: var(--fog-border);
+  }
+
+  // -- DataTables wrapper controls --
+  .dataTables_wrapper .dataTables_filter input,
+  .dataTables_wrapper .dataTables_length select {
+    background-color: var(--fog-input-bg);
+    border-color: var(--fog-input-border);
+    color: var(--fog-text);
+  }
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: var(--fog-text-muted) !important;
+  }
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: var(--fog-surface-2);
+    border-color: var(--fog-border);
+    color: var(--fog-text) !important;
+  }
+
+  // -- form controls --
+  .form-control {
+    background-color: var(--fog-input-bg);
+    border-color: var(--fog-input-border);
+    color: var(--fog-text);
+  }
+  .form-control::placeholder {
+    color: var(--fog-text-muted);
+  }
+  .input-group-addon {
+    background-color: var(--fog-surface-2);
+    border-color: var(--fog-input-border);
+    color: var(--fog-text);
+  }
+  .btn-default {
+    background-color: var(--fog-surface-2);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
+
+  // Select2 — the rendered control plus the dropdown (which is appended to body,
+  // so body.theme-dark still matches it as a descendant).
+  .select2-container--default .select2-selection--single,
+  .select2-container--default .select2-selection--multiple {
+    background-color: var(--fog-input-bg);
+    border-color: var(--fog-input-border);
+  }
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--fog-text);
+  }
+  .select2-dropdown {
+    background-color: var(--fog-input-bg);
+    border-color: var(--fog-input-border);
+    color: var(--fog-text);
+  }
+  .select2-search--dropdown .select2-search__field {
+    background-color: var(--fog-input-bg);
+    border-color: var(--fog-input-border);
+    color: var(--fog-text);
+  }
+  .select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: var(--fog-surface-2);
+  }
+  .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--fog-primary);
+  }
+
+  // -- definition-list key/value grid --
+  dt {
+    color: var(--fog-text-muted);
+  }
+  dd {
+    color: var(--fog-text);
+  }
+
+  // -- code / preformatted --
+  pre {
+    background-color: var(--fog-bg);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
+  code {
+    background-color: var(--fog-surface-2);
+    color: var(--fog-warning);
+  }
+  .well {
+    background-color: var(--fog-bg);
+    border-color: var(--fog-border);
+  }
+
+  // -- loading overlay (white -> dark so it dims instead of flashing white) --
+  .overlay,
+  #loadingOverlay {
+    background: rgba(0, 0, 0, .4) !important;
+  }
+
+  // -- modals (override the forced-white light rules above) --
+  .modal-content {
+    background-color: var(--fog-surface);
+    color: var(--fog-text);
+  }
+  .modal-header {
+    border-bottom-color: var(--fog-border);
+  }
+  .modal .modal-dialog .modal-body {
+    background-color: var(--fog-surface) !important;
+    color: var(--fog-text) !important;
+  }
+
+  // -- login page --
+  &.login-page {
+    background-color: var(--fog-bg);
+  }
+  .login-box-body,
+  .register-box-body {
+    background-color: var(--fog-surface);
+    color: var(--fog-text);
+  }
+  .login-box-msg {
+    color: var(--fog-text);
+  }
+}
+
+body.theme-dark {
+  @include fog-dark-theme;
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not(.theme-light) {
+    @include fog-dark-theme;
+  }
+}
