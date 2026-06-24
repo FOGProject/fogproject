@@ -444,6 +444,15 @@ dd {
     color: var(--fog-text);
   }
 
+  // -- progress bars --
+  // Bootstrap paints the .progress track #f5f5f5 (light grey), which reads as a
+  // bright bar on dark — visible on the Active Tasks list, file-upload progress,
+  // and multicast. Only the track needs re-surfacing; the coloured
+  // .progress-bar-* fills (blue/green/etc.) already read fine on dark.
+  .progress {
+    background-color: var(--fog-surface-2);
+  }
+
   // -- tables --
   .table {
     color: var(--fog-text);
