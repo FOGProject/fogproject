@@ -513,6 +513,21 @@ function fogSizeScroller(dt) {
     avail = 150; // sane floor
   }
   body.css('max-height', avail + 'px');
+  // A table first laid out in a hidden tab renders its rows at zero width;
+  // measure() below schedules a redraw at the real (now-visible) width, but that
+  // redraw can land after this call returns, so the synchronous columns.adjust()
+  // sizes the header against still-stale rows and the split stays misaligned
+  // until a manual resize. Re-adjust once on the first draw after the table
+  // becomes visible, when the real row widths exist. One-shot per table (flagged
+  // on the settings object); the resize path runs on already-aligned rows so it
+  // never needs this. Bound before measure() so it catches measure()'s redraw.
+  var settings = dt.settings()[0];
+  if (settings && !settings._fogPostShowAdjusted) {
+    settings._fogPostShowAdjusted = true;
+    dt.one('draw.dt.fogScroller', function() {
+      dt.columns.adjust();
+    });
+  }
   // Recompute Scroller's virtual viewport for the new height (measure() also
   // redraws). Guarded in case Scroller isn't attached for some reason.
   if (dt.scroller && typeof dt.scroller.measure === 'function') {
