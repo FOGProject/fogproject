@@ -539,6 +539,41 @@ dd {
     background-color: var(--fog-primary);
   }
 
+  // -- date/time picker popup (bootstrap-datetimepicker) --
+  // The widget popup carries the Bootstrap `.dropdown-menu` class, so it inherits
+  // its hardcoded white background (and white pointer arrows). Re-surface the
+  // popup and its internal greys; the active/today blue (#337ab7) reads fine on
+  // dark, so it's left alone. Scoped to the widget only — generic `.dropdown-menu`
+  // (e.g. the AdminLTE navbar menus) is intentionally not touched.
+  .bootstrap-datetimepicker-widget.dropdown-menu {
+    background-color: var(--fog-surface);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
+  .bootstrap-datetimepicker-widget.dropdown-menu.bottom:after {
+    border-bottom-color: var(--fog-surface);
+  }
+  .bootstrap-datetimepicker-widget.dropdown-menu.top:after {
+    border-top-color: var(--fog-surface);
+  }
+  .bootstrap-datetimepicker-widget table thead tr:first-child th:hover,
+  .bootstrap-datetimepicker-widget table td.day:hover,
+  .bootstrap-datetimepicker-widget table td.hour:hover,
+  .bootstrap-datetimepicker-widget table td.minute:hover,
+  .bootstrap-datetimepicker-widget table td.second:hover,
+  .bootstrap-datetimepicker-widget table td span:hover {
+    background: var(--fog-surface-2);
+  }
+  .bootstrap-datetimepicker-widget table td.cw,
+  .bootstrap-datetimepicker-widget table td.old,
+  .bootstrap-datetimepicker-widget table td.new,
+  .bootstrap-datetimepicker-widget table td span.old,
+  .bootstrap-datetimepicker-widget table th.disabled,
+  .bootstrap-datetimepicker-widget table td.disabled,
+  .bootstrap-datetimepicker-widget table td span.disabled {
+    color: var(--fog-text-muted);
+  }
+
   // -- definition-list key/value grid --
   dt {
     color: var(--fog-text-muted);
