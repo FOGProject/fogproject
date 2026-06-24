@@ -30,10 +30,10 @@ $fog-success:             #008d4c;
 $fog-warning:             #db8b0b;
 $fog-danger:              #d33724;
 
-// One-off blue on the modal-footer buttons. It differs from $fog-primary;
-// kept distinct for now. Unifying it with the primary is a pending
-// consistency decision (deferred out of the theming work).
-$fog-modal-btn:           #428bca;
+// Modal-footer buttons. Unified with $fog-primary (was a one-off #428bca) so
+// they match every other primary button in the UI. Kept as its own token in
+// case the modal accent ever needs to diverge again.
+$fog-modal-btn:           $fog-primary;
 
 $fog-text-muted:          #646464;
 $fog-text-strong:         #444;
