@@ -3019,9 +3019,14 @@ class GroupManagement extends FOGPage
                     $names[(int)$Snapin->id] = $Snapin->name;
                 }
                 foreach ($shared as $sid) {
+                    // Same contract as the host tab: only list ids that
+                    // resolve to a real snapin (skip stale/0 associations).
+                    if (!isset($names[$sid])) {
+                        continue;
+                    }
                     $data[] = [
                         'id' => $sid,
-                        'name' => $names[$sid] ?? ('#' . $sid)
+                        'name' => $names[$sid]
                     ];
                 }
             }

@@ -2175,9 +2175,16 @@ class HostManagement extends FOGPage
         }
         $data = [];
         foreach ($snapinIDs as $snapinID) {
+            // Skip ids that don't resolve to a real snapin (a stale
+            // association left by a removed snapin, or a 0/blank id). They
+            // are not orderable and previously rendered as a phantom "#0".
+            // Mirrors setSnapinOrder()'s "< 1" guard on the save path.
+            if (!isset($names[$snapinID])) {
+                continue;
+            }
             $data[] = [
                 'id' => $snapinID,
-                'name' => $names[$snapinID] ?? ('#' . $snapinID)
+                'name' => $names[$snapinID]
             ];
         }
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
