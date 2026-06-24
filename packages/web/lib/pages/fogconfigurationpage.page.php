@@ -1829,7 +1829,7 @@ class FOGConfigurationPage extends FOGPage
         // render this page (boot, auth, routing, plugins); reload to re-sample.
         $stats = self::getSettingsCacheStats();
         $flushAge = $stats['flushAgeSeconds'];
-        echo '<dl class="dl-horizontal" style="margin-top:15px">';
+        echo '<dl class="dl-horizontal dl-spaced">';
         echo '<dt>' . _('Keys cached') . '</dt><dd>'
             . (int) $stats['keysCached'] . '</dd>';
         echo '<dt>' . _('Hits / Misses / Queries') . '</dt><dd>'

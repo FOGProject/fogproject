@@ -144,7 +144,7 @@ class Page extends FOGBase
             ->addCSS('css/pace.min.css')
             ->addCSS('css/AdminLTE.min.css')
             ->addCSS('css/adminlte-skins.min.css')
-            ->addCSS('css/fog-default-ui.min.css?v=' . microtime());
+            ->addCSS('css/fog-default-ui.min.css');
         if (!$this->theme) {
             $this->theme = self::getSetting('FOG_THEME');
             if (!$this->theme) {

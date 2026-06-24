@@ -286,7 +286,7 @@ class GroupManagement extends FOGPage
      */
     private function _sharedHint($info)
     {
-        return '<p class="help-block" style="margin:2px 0 0;">'
+        return '<p class="help-block help-block-tight">'
             . _('Hosts:') . ' ' . $this->_sharedValueText($info)
             . '</p>';
     }
@@ -331,8 +331,7 @@ class GroupManagement extends FOGPage
                 ? _('enabled (all)')
                 : _('disabled (all)');
         }
-        return '<div class="box box-info"><div class="box-body" '
-            . 'style="padding:8px 12px;">'
+        return '<div class="box box-info"><div class="box-body box-body-compact">'
             . '<strong>' . _('Current member-host AD state') . '</strong><br/>'
             . _('Domain joining') . ': ' . $join . '<br/>'
             . _('Domain name') . ': '
@@ -389,7 +388,7 @@ class GroupManagement extends FOGPage
         } else {
             $text = Initiator::e($info['value']) . ' ' . _('min (all)');
         }
-        return '<p class="help-block" style="margin:2px 0 0;">'
+        return '<p class="help-block help-block-tight">'
             . _('Hosts:') . ' ' . $text
             . '</p>';
     }
@@ -1412,7 +1411,7 @@ class GroupManagement extends FOGPage
             . '<option value="1">' . _('Enable on all hosts') . '</option>'
             . '<option value="0">' . _('Disable on all hosts') . '</option>'
             . '</select>'
-            . '<p class="help-block" style="margin:2px 0 0;">'
+            . '<p class="help-block help-block-tight">'
             . _('Hosts:') . ' ' . $enfText
             . '</p>';
         $fields = [
@@ -2867,7 +2866,7 @@ class GroupManagement extends FOGPage
                 : ('#' . $def['value'])
             ) . ' ' . _('(all)');
         }
-        $hint = '<p class="help-block" style="margin:2px 0 6px;">'
+        $hint = '<p class="help-block help-block-spaced">'
             . _('Hosts default:') . ' ' . $defText
             . '</p>';
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(

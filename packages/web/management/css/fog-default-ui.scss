@@ -1,3 +1,48 @@
+// ===========================================================================
+// FOG default UI — custom overrides on top of AdminLTE 2.4 / Bootstrap 3.3.
+//
+// This is the only FOG-authored stylesheet enqueued, and it loads LAST in the
+// cascade (see lib/fog/page.class.php), so its rules win over the vendored CSS.
+//
+// Source of truth is THIS .scss. The page actually loads the compiled
+// fog-default-ui.min.css, so regenerate it (and the .map) after every edit:
+//
+//   npx sass --style=compressed fog-default-ui.scss fog-default-ui.min.css
+//
+// and bump FOG_BCACHE_VER in lib/fog/system.class.php so browsers refetch it.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Palette
+//
+// These are the exact colors that were previously hard-coded throughout this
+// file, lifted into named variables so the look can be retuned (and a dark
+// theme added) from one place. Values are unchanged.
+// ---------------------------------------------------------------------------
+$fog-primary:             #3c8dbc; // AdminLTE primary blue
+$fog-success:             #008d4c;
+$fog-warning:             #db8b0b;
+$fog-danger:              #d33724;
+
+// One-off blue on the modal-footer buttons. It differs from $fog-primary;
+// kept distinct so compiled output is unchanged. TODO(F2): unify w/ primary.
+$fog-modal-btn:           #428bca;
+
+$fog-text-muted:          #646464;
+$fog-text-strong:         #444;
+
+$fog-sidebar-bg:          #222d32; // AdminLTE dark chrome (mobile sticky header)
+$fog-toggle-hover-bg:     #367fa9; // skin-blue sidebar-toggle
+
+$fog-modal-footer-bg:     #dfdfdf;
+$fog-modal-footer-border: #bfbfbf;
+
+$fog-badge-bg:            #d2d6de;
+$fog-border-light:        #f4f4f4;
+
+// ---------------------------------------------------------------------------
+// Action boxes / box chrome
+// ---------------------------------------------------------------------------
 .btn-actionbox {
   margin: 10px 0;
   overflow: visible;
@@ -5,6 +50,11 @@
 
 .box-footer {
   overflow: visible;
+}
+
+// Compact box body (folded from an inline style on the group AD-state box).
+.box-body-compact {
+  padding: 8px 12px;
 }
 
 .fog-user {
@@ -19,7 +69,9 @@
   float: right;
 }
 
-/* Sticky navbar */
+// ---------------------------------------------------------------------------
+// Header / sidebar — sticky mobile chrome
+// ---------------------------------------------------------------------------
 header.main-header .mobile-logo {
   display: none;
 }
@@ -38,7 +90,7 @@ header.main-header .mobile-logo {
   body:not(.login-page) header.main-header {
     position: sticky;
     top: 0;
-    background-color: #222d32;
+    background-color: $fog-sidebar-bg;
   }
 
   header.main-header .logo {
@@ -63,52 +115,70 @@ header.main-header .mobile-logo {
   }
 
   .skin-blue .main-header .navbar .sidebar-toggle {
-    background-color: #367fa9;
+    background-color: $fog-toggle-hover-bg;
   }
 }
 
+// ---------------------------------------------------------------------------
+// Forms
+// ---------------------------------------------------------------------------
 // FIX: iradio buttons shifted up for some reason
 .form-group .iradio_square-blue,
 .form-group .icheckbox_square-blue {
   margin-top: 7px;
 }
 
+// Help-block utilities (folded from inline styles on group help text).
+.help-block-tight {
+  margin: 2px 0 0;
+}
+
+.help-block-spaced {
+  margin: 2px 0 6px;
+}
+
+// ---------------------------------------------------------------------------
+// Modals
+// ---------------------------------------------------------------------------
 .modal .modal-dialog .modal-body {
-  background-color: #ffffff !important;
-  color: #646464 !important;
+  background-color: #fff !important;
+  color: $fog-text-muted !important;
 }
 
 .modal .modal-dialog .modal-footer {
-  background-color: #dfdfdf !important;
-  border-top-color: #bfbfbf;
+  background-color: $fog-modal-footer-bg !important;
+  border-top-color: $fog-modal-footer-border;
 }
 
 .modal .modal-dialog .modal-footer .btn {
-  border-color: #428bca !important;
-  background-color: #428bca !important;
+  border-color: $fog-modal-btn !important;
+  background-color: $fog-modal-btn !important;
 }
 
 .modal-success .modal-dialog .modal-footer .btn {
-  border-color: #008d4c !important;
-  background-color: #008d4c !important;
+  border-color: $fog-success !important;
+  background-color: $fog-success !important;
 }
 
 .modal-warning .modal-dialog .modal-footer .btn {
-  border-color: #db8b0b !important;
-  background-color: #db8b0b !important;
+  border-color: $fog-warning !important;
+  background-color: $fog-warning !important;
 }
 
 .modal-danger .modal-dialog .modal-footer .btn {
-  border-color: #d33724 !important;
-  background-color: #d33724 !important;
+  border-color: $fog-danger !important;
+  background-color: $fog-danger !important;
 }
 
 .modal .modal-dialog .modal-footer .btn.pull-left {
   border: none;
   background-color: #FFF !important;
-  color: #646464 !important;
+  color: $fog-text-muted !important;
 }
 
+// ---------------------------------------------------------------------------
+// Loading overlay / spinner
+// ---------------------------------------------------------------------------
 .overlay, #loadingOverlay {
   position: absolute;
   top: 0;
@@ -126,7 +196,7 @@ header.main-header .mobile-logo {
 .box .overlay>.fa, .overlay-wrapper .overlay>.fa {
   margin-left: -20px;
   margin-top: -20px;
-  color: #646464;
+  color: $fog-text-muted;
   font-size: 40px;
 
   &.fa-spin {
@@ -135,6 +205,9 @@ header.main-header .mobile-logo {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Misc utilities
+// ---------------------------------------------------------------------------
 .task-name:not(:empty)::before {
   content: ": ";
 }
@@ -156,6 +229,9 @@ td div.input-group {
     width: auto !important;
 }
 
+// ---------------------------------------------------------------------------
+// Definition lists rendered as a compact key/value grid
+// ---------------------------------------------------------------------------
 dl {
   display: grid;
   grid-template-columns: max-content auto;
@@ -172,7 +248,14 @@ dd {
   margin-left: 10px;
 }
 
-/* FOG Settings — left category nav + form panels */
+// Extra top spacing for a standalone dl (folded from an inline style).
+.dl-spaced {
+  margin-top: 15px;
+}
+
+// ---------------------------------------------------------------------------
+// FOG Settings — left category nav + form panels
+// ---------------------------------------------------------------------------
 .settings-search-box {
   width: 220px;
 }
@@ -181,19 +264,19 @@ dd {
   border-radius: 0;
 }
 .settings-nav-col .nav-pills > li > a .badge {
-  background-color: #d2d6de;
-  color: #444;
+  background-color: $fog-badge-bg;
+  color: $fog-text-strong;
   float: right;
 }
 .settings-nav-col .nav-pills > li.active > a .badge {
   background-color: #fff;
-  color: #3c8dbc;
+  color: $fog-primary;
 }
 .settings-panel-title {
   margin-top: 0;
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #f4f4f4;
+  border-bottom: 1px solid $fog-border-light;
 }
 .settings-row .settings-label {
   font-weight: 600;
@@ -204,7 +287,7 @@ dd {
 }
 @media (min-width: 768px) {
   .settings-nav-col {
-    border-right: 1px solid #f4f4f4;
+    border-right: 1px solid $fog-border-light;
     max-height: 70vh;
     overflow-y: auto;
   }
