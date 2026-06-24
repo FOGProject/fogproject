@@ -2319,9 +2319,22 @@ EOF
     fi
     [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
     [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
+    # An interface can carry several IPs, so $ipaddress may arrive as a list:
+    # newline-separated from fresh detection, or space-separated when read back
+    # from .fogsettings. A certificate has a single subject, so the first IP
+    # becomes the CN while every IP is added as a subjectAltName so the cert
+    # validates on each address.
+    certip=$(echo $ipaddress | awk '{print $1}')
+    sanentries=""
+    sancount=0
+    for ip in $ipaddress; do
+        sancount=$((sancount + 1))
+        [[ -n $sanentries ]] && sanentries="${sanentries}"$'\n'
+        sanentries="${sanentries}IP.${sancount} = ${ip}"
+    done
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
         dots "Creating SSL Private Key"
-        if [[ $(validip $ipaddress) -ne 0 ]]; then
+        if [[ $(validip $certip) -ne 0 ]]; then
             echo -e "\n"
             echo "  You seem to be using a DNS name instead of an IP address."
             echo "  This would cause an error when generating SSL key and certs"
@@ -2338,15 +2351,15 @@ distinguished_name = req_distinguished_name
 req_extensions = v3_req
 prompt = yes
 [req_distinguished_name]
-CN = $ipaddress
+CN = $certip
 [v3_req]
 subjectAltName = @alt_names
 [alt_names]
-IP.1 = $ipaddress
+$sanentries
 DNS.1 = $hostname
 EOF
         openssl req -new -sha512 -key $sslprivkey -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
-$ipaddress
+$certip
 EOF
         errorStat $?
     fi
@@ -2359,7 +2372,7 @@ EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
-IP.1 = $ipaddress
+$sanentries
 DNS.1 = $hostname
 EOF
     [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
