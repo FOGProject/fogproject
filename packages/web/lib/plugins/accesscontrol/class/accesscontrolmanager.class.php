@@ -125,6 +125,10 @@ class AccessControlManager extends FOGManagerController
             $ruleAssoc->createSql(),
             // 8
             $ruleAssoc->indexSql(),
+            // 9  default rule for the plugin's own "Access Controls" menu item
+            $rule->seedMenuAccessControlSql(),
+            // 10 default rule for the "Access Control Rules" menu item
+            $rule->seedMenuAccessControlRuleSql(),
         ];
     }
     /**

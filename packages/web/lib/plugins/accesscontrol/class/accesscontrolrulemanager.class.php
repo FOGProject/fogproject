@@ -174,6 +174,45 @@ class AccessControlRuleManager extends FOGManagerController
             . '"config", "menu", "fog", NOW(), "about")';
     }
     /**
+     * Seeds the default rule for the plugin's own "Access Controls" top-level
+     * menu entry. This entry is added to $arguments['hook_main'] (see
+     * AddAccessControlMenuItem::menuData), so the rule's parent must be
+     * `hook_main` for DelAccessControlMenuItem::deleteMenuData to unset it.
+     *
+     * Kept as its own appended schema() step (rather than folded into
+     * seedSql) so existing installs pick it up on upgrade, and as a single
+     * column-list INSERT (no explicit ruleID) so it neither collides with a
+     * user-created rule's primary key nor atomically blocks its sibling row.
+     * The UNIQUE (ruleValue, ruleNode) index keeps a re-run idempotent.
+     *
+     * @return string
+     */
+    public function seedMenuAccessControlSql()
+    {
+        return 'INSERT INTO '
+            . $this->tablename
+            . ' (ruleName, ruleType, ruleValue, ruleParent, '
+            . 'ruleCreatedBy, ruleCreatedTime, ruleNode) VALUES '
+            . '("DELETE_MENU_DATA-accesscontrol", "DELETE_MENU_DATA", '
+            . '"accesscontrol", "hook_main", "fog", NOW(), "")';
+    }
+    /**
+     * Seeds the default rule for the plugin's "Access Control Rules"
+     * top-level menu entry (also added to $arguments['hook_main']). Same
+     * rationale as seedMenuAccessControlSql().
+     *
+     * @return string
+     */
+    public function seedMenuAccessControlRuleSql()
+    {
+        return 'INSERT INTO '
+            . $this->tablename
+            . ' (ruleName, ruleType, ruleValue, ruleParent, '
+            . 'ruleCreatedBy, ruleCreatedTime, ruleNode) VALUES '
+            . '("DELETE_MENU_DATA-accesscontrolrule", "DELETE_MENU_DATA", '
+            . '"accesscontrolrule", "hook_main", "fog", NOW(), "")';
+    }
+    /**
      * The unique index step for this table (idempotent: a duplicate key
      * name is tolerated by the schema runner). Used in schema().
      *
