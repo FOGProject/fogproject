@@ -162,7 +162,7 @@ class AddAccessControlUser extends Hook
         if (count($users ?: []) > 0) {
             Route::deletemass(
                 'accesscontrolassociation',
-                ['userID' => $userID]
+                ['userID' => $users]
             );
             if ($accesscontrolID > 0) {
                 foreach ((array)$users as $ind => &$userID) {
