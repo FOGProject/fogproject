@@ -57,6 +57,7 @@ class AddSiteHost extends Hook
             ['PLUGINS_INJECT_TABDATA', 'hostTabData'],
             ['HOST_EDIT_SUCCESS', 'hostAddSiteEdit'],
             ['HOST_ADD_FIELDS', 'hostAddSiteField'],
+            ['DESTROY_HOST', 'hostRemoveSite'],
         ]);
     }
     /**
@@ -243,6 +244,24 @@ class AddSiteHost extends Hook
                 ]
             );
         }
+    }
+    /**
+     * Remove a host's site association when the host is destroyed.
+     *
+     * @param mixed $arguments The arguments containing the Host being destroyed.
+     *
+     * @return void
+     */
+    public function hostRemoveSite($arguments)
+    {
+        $host = $arguments['Host'];
+        if (!$host || !$host->isValid()) {
+            return;
+        }
+        Route::deletemass(
+            'sitehostassociation',
+            ['hostID' => $host->get('id')]
+        );
     }
     /**
      * The host site field for function add.
