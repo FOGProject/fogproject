@@ -19,6 +19,7 @@
   var POLL_BW = 2500;     // bandwidth refresh (relaxed from 1s)
   var startTime = new Date().getTime();
   var charts = {};        // container selector -> Chart instance
+  var redrawers = {};     // container selector -> rebuild-from-last-data fn
 
   Chart.defaults.maintainAspectRatio = false;
   Chart.defaults.animation.duration = 0;
@@ -59,27 +60,14 @@
     Chart.defaults.borderColor = c.grid;
   }
 
-  // A live toggle: already-built charts cached their resolved options against
-  // the old defaults, so write the colors onto each instance directly.
+  // A live toggle: Chart.js v4 caches each instance's resolved option colors,
+  // so mutating tick/legend/grid colors in place no-ops on an already-rendered
+  // canvas. Refresh the global defaults, then rebuild each chart from its
+  // retained data so the new canvas paints with the current theme.
   function restyleCharts() {
-    var c = chrome();
     applyChartDefaults();
-    $.each(charts, function (sel, chart) {
-      chart.options.color = c.text;
-      if (chart.options.plugins && chart.options.plugins.legend) {
-        chart.options.plugins.legend.labels = chart.options.plugins.legend.labels || {};
-        chart.options.plugins.legend.labels.color = c.legend;
-      }
-      $.each(chart.options.scales || {}, function (axis, scale) {
-        scale.ticks = scale.ticks || {};
-        scale.ticks.color = c.text;
-        // Leave axes that intentionally hide their grid (grid.display:false).
-        scale.grid = scale.grid || {};
-        if (scale.grid.display !== false) {
-          scale.grid.color = c.grid;
-        }
-      });
-      chart.update();
+    $.each(redrawers, function (sel, redraw) {
+      redraw();
     });
   }
 
@@ -208,12 +196,14 @@
     var SEL = '#graph-activity';
     var colors = ['#00c0ef', '#3c8dbc', '#0073b7']; // Free, Queued, Active
     var timer;
+    var last = null;
 
     function draw(d) {
       if (d.error) {
         showError(SEL, d.title, d.error);
         return;
       }
+      last = d;
       var values = [
         parseInt(d.ActivitySlots, 10) || 0,
         parseInt(d.ActivityQueued, 10) || 0,
@@ -243,6 +233,18 @@
         }
       });
     }
+
+    // Rebuild from the last payload so a live theme toggle repaints the canvas.
+    redrawers[SEL] = function () {
+      if (!last) {
+        return;
+      }
+      if (charts[SEL]) {
+        charts[SEL].destroy();
+        delete charts[SEL];
+      }
+      draw(last);
+    };
 
     function poll() {
       boxLoad(SEL, true);
@@ -280,6 +282,7 @@
     var SEL = '#graph-diskusage';
     var colors = ['#00c0ef', '#3c8dbc']; // Free, Used
     var timer;
+    var last = null;
 
     function linkHwInfo() {
       $('#hwinfolink').attr('href', BASE.replace('node=home', 'node=hwinfo') + '&id=' + $('.nodeid').val());
@@ -329,6 +332,7 @@
         showError(SEL, d.title, d.error);
         return;
       }
+      last = d;
       var values = [parseInt(d.free, 10) || 0, parseInt(d.used, 10) || 0];
       if (charts[SEL]) {
         charts[SEL].data.labels = d._labels;
@@ -354,6 +358,18 @@
         }
       });
     }
+
+    // Rebuild from the last payload so a live theme toggle repaints the canvas.
+    redrawers[SEL] = function () {
+      if (!last) {
+        return;
+      }
+      if (charts[SEL]) {
+        charts[SEL].destroy();
+        delete charts[SEL];
+      }
+      draw(last);
+    };
 
     function poll() {
       boxLoad(SEL, true);
@@ -396,8 +412,10 @@
     var SEL = '#graph-30day';
     var days = $('.graph-days.active').prop('rel') || 30;
     var timer;
+    var last = null;
 
     function draw(arr) {
+      last = arr;
       var points = (arr || []).map(function (p) { return { x: p[0], y: p[1] }; });
       if (charts[SEL]) {
         charts[SEL].data.datasets[0].data = points;
@@ -429,6 +447,18 @@
         }
       });
     }
+
+    // Rebuild from the last payload so a live theme toggle repaints the canvas.
+    redrawers[SEL] = function () {
+      if (last === null) {
+        return;
+      }
+      if (charts[SEL]) {
+        charts[SEL].destroy();
+        delete charts[SEL];
+      }
+      draw(last);
+    };
 
     function poll() {
       boxLoad(SEL, true);
@@ -502,7 +532,7 @@
             y: { beginAtZero: true, ticks: { callback: function (v) { return parseFloat(v).toFixed(2) + ' Mbps'; } } }
           },
           plugins: {
-            legend: { position: 'top' },
+            legend: { position: 'top', labels: { color: chrome().legend } },
             tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + c.parsed.y.toFixed(2) + ' Mbps'; } } }
           }
         }
@@ -527,6 +557,19 @@
       });
       charts[SEL].update('none');
     }
+
+    // Rebuild from the retained series so a live theme toggle repaints the
+    // canvas; the bandwidth history lives in `store`, so nothing is lost.
+    redrawers[SEL] = function () {
+      if (!store.length) {
+        return;
+      }
+      if (charts[SEL]) {
+        charts[SEL].destroy();
+        delete charts[SEL];
+      }
+      render();
+    };
 
     // Only ever discard data older than the full retention window; the
     // time-filter buttons just narrow what render() displays.
