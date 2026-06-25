@@ -275,7 +275,7 @@ $this->schema[] = array(
     . '`pModel` VARCHAR(250) NOT NULL,'
     . '`pAlias` VARCHAR(250) NOT NULL,'
     . '`pConfig` VARCHAR(10) NOT NULL,'
-    . '`pIP` VARCHAR(20) NOT NULL,'
+    . '`pIP` VARCHAR(255) NOT NULL,'
     . '`pAnon2` VARCHAR(10) NOT NULL,'
     . '`pAnon3` VARCHAR(10) NOT NULL,'
     . '`pAnon4` VARCHAR(10) NOT NULL,'
@@ -3778,4 +3778,10 @@ $this->schema[] = array(
     . "'arm_Image','TFTP Server'),"
     . "('FOG_PXE_BOOT_IMAGE_ARM','The settings defines where the ARM "
     . "fog boot file system image is located.','arm_init.cpio.gz','TFTP Server')",
+);
+// 274
+$this->schema[] = array(
+    // Printer IP field originally VARCHAR(20) — too small for FQDNs and
+    // host:port targets (e.g. CUPS/IPP queues). Widen to VARCHAR(255).
+    "ALTER TABLE `printers` MODIFY COLUMN `pIP` VARCHAR(255) NOT NULL"
 );
