@@ -403,10 +403,11 @@
 
     function setupGroupAssoc(table, tableSel, updateBtn, entityType, onChange) {
         function changeHandler(e) {
-            $.checkItemUpdate(table, this, e, updateBtn);
-            if (typeof onChange === 'function') {
-                onChange();
-            }
+            // Pass onChange as the post-commit callback (not a synchronous call)
+            // so any dependent panel (e.g. the snapin run order) refreshes after
+            // the association save commits, not before. Firing it here would race
+            // the save and leave the panel one toggle stale.
+            $.checkItemUpdate(table, this, e, updateBtn, undefined, onChange);
         }
         table.on('draw', function() {
             Common.iCheck(tableSel + ' input.associated');

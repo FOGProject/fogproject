@@ -738,15 +738,28 @@
         });
     });
 
-    hostGroupsTable.on('draw', function() {
-        Common.iCheck('#host-group-table input');
-        $('#host-group-table input.associated').on('ifChanged', onHostGroupCheckboxSelect);
-        onGroupSelect(hostGroupsTable.rows({selected: true}));
-    });
+    // Wire an association table's per-row checkbox toggles to an immediate
+    // save, re-applying iCheck styling and the selection summary on every
+    // redraw. onChange (optional) fires after each toggle for tabs that mirror
+    // a side panel from the association state (e.g. the snapin run order).
+    function setupHostAssoc(table, tableSel, updateBtn, onSelect, onChange) {
+        function changeHandler(e) {
+            // Pass onChange as the post-commit callback (not a synchronous call)
+            // so any dependent panel (e.g. the snapin run order) refreshes after
+            // the association save commits, not before. Firing it here would race
+            // the save and leave the panel one toggle stale.
+            $.checkItemUpdate(table, this, e, updateBtn, undefined, onChange);
+        }
+        table.on('draw', function() {
+            Common.iCheck(tableSel + ' input');
+            $(tableSel + ' input.associated')
+                .off('ifChanged', changeHandler)
+                .on('ifChanged', changeHandler);
+            onSelect(table.rows({selected: true}));
+        });
+    }
 
-    var onHostGroupCheckboxSelect = function(e) {
-        $.checkItemUpdate(hostGroupsTable, this, e, hostGroupUpdateBtn);
-    };
+    setupHostAssoc(hostGroupsTable, '#host-group-table', hostGroupUpdateBtn, onGroupSelect);
 
     // ---------------------------------------------------------------
     // PRINTER TAB
@@ -783,7 +796,6 @@
             }
             hostPrintersTable.draw(false);
             hostPrintersTable.rows({selected: true}).deselect();
-            setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
         });
     });
 
@@ -839,38 +851,31 @@
             }
             hostPrintersTable.draw(false);
             hostPrintersTable.rows({selected: true}).deselect();
-            setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
         });
     });
 
-    hostPrintersTable.on('draw', function() {
-        Common.iCheck('#host-printer-table input');
-        $('#host-printer-table input.associated').on('ifChanged', onHostPrinterCheckboxSelect);
-        onPrinterSelect(hostPrintersTable.rows({selected: true}));
-        hostPrinterDefaultSelectorUpdate();
-    });
-
-    var onHostPrinterCheckboxSelect = function(e) {
-        $.checkItemUpdate(hostPrintersTable, this, e, hostPrinterUpdateBtn);
-        setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
-    };
+    setupHostAssoc(hostPrintersTable, '#host-printer-table', hostPrinterUpdateBtn, onPrinterSelect);
+    // The default-printer selector lists only associated printers, so refresh
+    // it on every redraw — including the post-save redraw $.checkItemUpdate
+    // triggers, which lands after the association commits (no race).
+    hostPrintersTable.on('draw', hostPrinterDefaultSelectorUpdate);
 
     // Default area
     var hostPrinterDefaultUpdateBtn = $('#host-printer-default-send'),
-        hostPrinterDefaultSelector = $('#printerselector'),
-        hostPrinterDefaultSelectorUpdate = function() {
-            var url = '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostDefaultPrinters&id='
-                + Common.id;
-            Pace.ignore(function() {
-                hostPrinterDefaultSelector.html('');
-                $.get(url, function(data) {
-                    hostPrinterDefaultSelector.html(data.content);
-                    hostPrinterDefaultUpdateBtn.prop('disabled', data.disablebtn);
-                }, 'json');
-            });
-        };
+        hostPrinterDefaultSelector = $('#printerselector');
+    function hostPrinterDefaultSelectorUpdate() {
+        var url = '../management/index.php?node='
+            + Common.node
+            + '&sub=getHostDefaultPrinters&id='
+            + Common.id;
+        Pace.ignore(function() {
+            hostPrinterDefaultSelector.html('');
+            $.get(url, function(data) {
+                hostPrinterDefaultSelector.html(data.content);
+                hostPrinterDefaultUpdateBtn.prop('disabled', data.disablebtn);
+            }, 'json');
+        });
+    }
 
     function disablePrinterDefaultButtons(disable) {
         hostPrinterDefaultUpdateBtn.prop('disabled', disable);
@@ -1007,15 +1012,7 @@
         });
     });
 
-    hostSnapinsTable.on('draw', function() {
-        Common.iCheck('#host-snapin-table input');
-        $('#host-snapin-table input.associated').on('ifChanged', onHostSnapinCheckboxSelect);
-        onSnapinSelect(hostSnapinsTable.rows({selected: true}));
-    });
-
-    var onHostSnapinCheckboxSelect = function(e) {
-        $.checkItemUpdate(hostSnapinsTable, this, e, hostSnapinUpdateBtn);
-    };
+    setupHostAssoc(hostSnapinsTable, '#host-snapin-table', hostSnapinUpdateBtn, onSnapinSelect, loadSnapinOrder);
 
     // ---------------------------------------------------------------
     // SNAPIN RUN ORDER
@@ -1215,15 +1212,7 @@
         });
     });
 
-    hostModulesTable.on('draw', function() {
-        Common.iCheck('#host-module-table input');
-        $('#host-module-table input.associated').on('ifChanged', onHostModuleCheckboxSelect);
-        onModuleSelect(hostModulesTable.rows({selected: true}));
-    });
-
-    var onHostModuleCheckboxSelect = function(e) {
-        $.checkItemUpdate(hostModulesTable, this, e, hostModuleUpdateBtn);
-    };
+    setupHostAssoc(hostModulesTable, '#host-module-table', hostModuleUpdateBtn, onModuleSelect);
 
     // Display manager area
     var hostModuleDisplaymanBtn = $('#host-displayman-send'),
