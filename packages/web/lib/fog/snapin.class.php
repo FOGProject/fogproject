@@ -330,7 +330,9 @@ class Snapin extends FOGController
         if ($primaryCount < 1) {
             $groupid = Route::getIds('storagegroup', false);
             $groupid = @min($groupid);
-            self::setPrimaryGroup($groupid, $snapinID);
+            if ($groupid > 0) {
+                self::setPrimaryGroup($groupid, $snapinID);
+            }
         }
         $find = [
             'storagegroupID' => $groupID,
@@ -419,6 +421,9 @@ class Snapin extends FOGController
         $runWith = trim((string)($post['rw'] ?? ''));
         $runWithArgs = trim((string)($post['rwa'] ?? ''));
         $storagegroup = (int)trim((string)($post['storagegroup'] ?? ''));
+        if (!$storagegroup) {
+            $storagegroup = @min(Route::getIds('storagegroup', false));
+        }
         $snapinfile = basename(trim((string)($post['snapinfileexist'] ?? '')));
         $uploadfile = '';
         if (!empty($files['snapinfile']['name'])) {

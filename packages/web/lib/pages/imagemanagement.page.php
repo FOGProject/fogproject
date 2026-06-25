@@ -368,6 +368,9 @@ class ImageManagement extends FOGPage
                 $storagegroup = (int)trim(
                     filter_input(INPUT_POST, 'storagegroup')
                 );
+                if (!$storagegroup) {
+                    $storagegroup = @min(Route::getIds('storagegroup', false));
+                }
                 $os = (int)trim(
                     filter_input(INPUT_POST, 'os')
                 );

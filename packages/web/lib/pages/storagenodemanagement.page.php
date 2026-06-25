@@ -443,6 +443,9 @@ class StorageNodeManagement extends FOGPage
         $storagegroupID = (int)trim(
             filter_input(INPUT_POST, 'storagegroupID')
         );
+        if (!$storagegroupID) {
+            $storagegroupID = @min(Route::getIds('storagegroup', false));
+        }
         $graphcolor = trim(
             filter_input(INPUT_POST, 'graphcolor')
         );
@@ -1079,6 +1082,9 @@ class StorageNodeManagement extends FOGPage
         $storagegroupID = (int)trim(
             filter_input(INPUT_POST, 'storagegroupID')
         );
+        if (!$storagegroupID) {
+            $storagegroupID = @min(Route::getIds('storagegroup', false));
+        }
         $path = trim(
             filter_input(INPUT_POST, 'path')
         );

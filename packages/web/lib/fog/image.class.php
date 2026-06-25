@@ -404,7 +404,9 @@ class Image extends FOGController
                 ['id' => $image->storagegroups]
             );
             $groupid = @min($groupid);
-            self::setPrimaryGroup($groupid, $imageID);
+            if ($groupid > 0) {
+                self::setPrimaryGroup($groupid, $imageID);
+            }
         }
         $find = [
             'storagegroupID' => $groupID,
