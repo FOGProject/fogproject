@@ -208,43 +208,17 @@ class Host extends FOGController
      */
     public function destroy($key = 'id')
     {
-        $findWhere = ['hostID' => $this->get('id')];
-        $SnapinJobIDs = ['jobID' => Route::getIds('snapinjob', $findWhere)];
-        $removeItems = [
-            'nodefailure',
-            'imaginglog',
-            'snapintask',
-            'snapinjob',
-            'task',
-            'scheduledtask',
-            'hostautologout',
-            'hostscreensetting',
-            'groupassociation',
-            'snapinassociation',
-            'printerassociation',
-            'moduleassociation',
-            'inventory',
-            'macaddressassociation',
-            'powermanagement',
-        ];
-        foreach ($removeItems as &$item) {
-            switch ($item) {
-                case 'snapintask':
-                    $find = $SnapinJobIDs;
-                    break;
-                default:
-                    $find = $findWhere;
-            }
-            Route::deletemass(
-                $item,
-                $find
-            );
-            unset($item);
-        }
         self::$HookManager->processEvent(
             'DESTROY_HOST',
             ['Host' => &$this]
         );
+        // Funnel the child/association cleanup through the single cascade
+        // authority (Route::deletemass) so the host single-delete path runs the
+        // exact same removeItems map and fires DELETEMASS_API for plugins
+        // (location/ou/windowskey/site), instead of duplicating the map here.
+        // deletemass also deletes the host row; the trailing parent::destroy()
+        // is then a harmless no-op that preserves the audit-log/history entry.
+        Route::deletemass('host', ['id' => $this->get('id')]);
         return parent::destroy($key);
     }
     /**

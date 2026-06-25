@@ -2289,13 +2289,10 @@ class Route extends FOGBase
                     HTTPResponseCodes::HTTP_NOT_FOUND
                 );
             }
-            $sql = 'DELETE FROM `'
-                . $classVars['databaseTable']
-                . '` WHERE `'
-                . $classVars['databaseFields']['id']
-                . '` = :id';
-
-            return self::$DB->query($sql, [], $whereItems);
+            // Funnel REST single-delete through the shared cascade authority so it
+            // runs the same removeItems map and fires DELETEMASS_API for plugins,
+            // instead of a bare row delete that orphaned every association.
+            return self::deletemass($class, $whereItems);
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,

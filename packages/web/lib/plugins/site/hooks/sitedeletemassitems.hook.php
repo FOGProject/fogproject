@@ -1,38 +1,38 @@
 <?php
 /**
- * Deletes the Accesscontrol the elements en-mass.
+ * Deletes the Site elements en-mass.
  *
  * PHP version 5
  *
- * @category AccessControlDeleteMassItems
+ * @category SiteDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Deletes the accesscontrol the elements en-mass.
+ * Deletes the Site elements en-mass.
  *
- * @category AccessControlDeleteMassItems
+ * @category SiteDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AccessControlDeleteMassItems extends Hook
+class SiteDeleteMassItems extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AccessControlDeleteMassItems';
+    public $name = 'SiteDeleteMassItems';
     /**
      * The description of this hook.
      *
      * @var string
      */
-    public $description = 'Delete En-mass Route altering for Windows Key';
+    public $description = 'Delete En-mass Route altering for Site';
     /**
      * The active flag.
      *
@@ -44,7 +44,7 @@ class AccessControlDeleteMassItems extends Hook
      *
      * @var string
      */
-    public $node = 'accesscontrol';
+    public $node = 'site';
     /**
      * Initialize object.
      *
@@ -67,24 +67,28 @@ class AccessControlDeleteMassItems extends Hook
     public function deletemassitems($arguments)
     {
         switch ($arguments['classname']) {
+            case 'host':
+                $arguments['removeItems']['sitehostassociation'] = [
+                    'hostID' => $arguments['itemIDs']
+                ];
+                break;
             case 'user':
-                $arguments['removeItems']['accesscontrolassociation'] = [
+                $arguments['removeItems']['siteuserassociation'] = [
+                    'userID' => $arguments['itemIDs']
+                ];
+                $arguments['removeItems']['siteuserrestriction'] = [
                     'userID' => $arguments['itemIDs']
                 ];
                 break;
-            case 'accesscontrolrule':
-                $arguments['removeItems']['accesscontrolruleassociation'] = [
-                    'accesscontrolruleID' => $arguments['itemIDs']
+            case 'site':
+                // Deleting a site clears its host and user links. The user
+                // restriction table is keyed by userID only (no siteID), so it
+                // is cleaned on the user case rather than here.
+                $arguments['removeItems']['sitehostassociation'] = [
+                    'siteID' => $arguments['itemIDs']
                 ];
-                break;
-            case 'accesscontrol':
-                // Deleting a role must clear both the role<->user links and the
-                // role<->rule links (the latter was previously orphaned).
-                $arguments['removeItems']['accesscontrolassociation'] = [
-                    'accesscontrolID' => $arguments['itemIDs']
-                ];
-                $arguments['removeItems']['accesscontrolruleassociation'] = [
-                    'accesscontrolID' => $arguments['itemIDs']
+                $arguments['removeItems']['siteuserassociation'] = [
+                    'siteID' => $arguments['itemIDs']
                 ];
                 break;
         }

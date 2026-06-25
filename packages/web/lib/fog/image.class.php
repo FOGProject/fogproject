@@ -109,20 +109,16 @@ class Image extends FOGController
      */
     public function destroy($key = 'id')
     {
-        $find = ['imageID' => $this->get('id')];
-        self::getClass('HostManager')->update(
-            $find,
-            '',
-            ['imageID' => 0]
-        );
-        Route::deletemass(
-            'imageassociation',
-            $find
-        );
         self::$HookManager->processEvent(
             'DESTROY_IMAGE',
             ['Image' => &$this]
         );
+        // Funnel cleanup through the single cascade authority: the image case in
+        // Route::deletemass already resets HostManager imageID=0 and removes
+        // imageassociation rows, and fires DELETEMASS_API for plugins. deletemass
+        // also deletes the image row; the trailing parent::destroy() is a
+        // harmless no-op that preserves the audit-log/history entry.
+        Route::deletemass('image', ['id' => $this->get('id')]);
         return parent::destroy($key);
     }
     /**

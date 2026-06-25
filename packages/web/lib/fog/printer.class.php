@@ -221,10 +221,11 @@ class Printer extends FOGController
      */
     public function destroy($key = 'id')
     {
-        Route::deletemass(
-            'printerassociation',
-            ['printerID' => $this->get('id')]
-        );
+        // Funnel cleanup through the single cascade authority (the printer case in
+        // Route::deletemass removes printerassociation rows and fires
+        // DELETEMASS_API for plugins). deletemass also deletes the printer row; the
+        // trailing parent::destroy() is a harmless no-op preserving the history.
+        Route::deletemass('printer', ['id' => $this->get('id')]);
         return parent::destroy($key);
     }
 }

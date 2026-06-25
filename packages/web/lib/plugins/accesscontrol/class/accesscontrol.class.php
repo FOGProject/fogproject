@@ -184,10 +184,10 @@ class AccessControl extends FOGController
      */
     public function destroy($key = 'id')
     {
-        Route::deletemass(
-            'accesscontrolassociation',
-            ['accesscontrolID' => $this->get('id')]
-        );
+        // Funnel through the cascade authority so the role<->user AND role<->rule
+        // links are both cleared (the rule link was previously orphaned), via the
+        // 'accesscontrol' case in accesscontroldeletemassitems.
+        Route::deletemass('accesscontrol', ['id' => $this->get('id')]);
         return parent::destroy($key);
     }
 }

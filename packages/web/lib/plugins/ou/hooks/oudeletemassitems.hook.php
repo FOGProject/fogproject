@@ -72,10 +72,15 @@ class OUDeleteMassItems extends Hook
                     'hostID' => $arguments['itemIDs']
                 ];
                 break;
-            default:
+            case 'ou':
+                // Only treat itemIDs as ouIDs when an OU itself is deleted.
+                // A bare default would mis-fire for every other entity now that
+                // all delete paths funnel through DELETEMASS_API, deleting
+                // ouassociation rows whose ouID collides with the deleted id.
                 $arguments['removeItems']['ouassociation'] = [
                     'ouID' => $arguments['itemIDs']
                 ];
+                break;
         }
     }
 }

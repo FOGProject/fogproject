@@ -75,10 +75,11 @@ class Module extends FOGController
      */
     public function destroy($key = 'id')
     {
-        Route::deletemass(
-            'moduleassociation',
-            ['moduleID' => $this->get('id')]
-        );
+        // Funnel cleanup through the single cascade authority (the module case in
+        // Route::deletemass removes moduleassociation rows and fires
+        // DELETEMASS_API for plugins). deletemass also deletes the module row; the
+        // trailing parent::destroy() is a harmless no-op preserving the history.
+        Route::deletemass('module', ['id' => $this->get('id')]);
         return parent::destroy($key);
     }
     /**

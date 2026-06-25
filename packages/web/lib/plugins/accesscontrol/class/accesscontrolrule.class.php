@@ -116,4 +116,19 @@ class AccessControlRule extends FOGController
             ->assocSetter('accesscontrolrule', 'accesscontrol')
             ->load();
     }
+    /**
+     * Destroy this particular object.
+     *
+     * @param string $key the key to destroy for match
+     *
+     * @return bool
+     */
+    public function destroy($key = 'id')
+    {
+        // Funnel through the cascade authority so the role<->rule links are
+        // cleared on single delete too (the 'accesscontrolrule' case in
+        // accesscontroldeletemassitems removes roleRuleAssoc by ruleID).
+        Route::deletemass('accesscontrolrule', ['id' => $this->get('id')]);
+        return parent::destroy($key);
+    }
 }

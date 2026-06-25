@@ -82,10 +82,11 @@ class Group extends FOGController
      */
     public function destroy($field = 'id')
     {
-        Route::deletemass(
-            'groupassociation',
-            ['groupID' => $this->get('id')]
-        );
+        // Funnel cleanup through the single cascade authority (the group case in
+        // Route::deletemass removes groupassociation rows and fires
+        // DELETEMASS_API for plugins). deletemass also deletes the group row; the
+        // trailing parent::destroy() is a harmless no-op preserving the history.
+        Route::deletemass('group', ['id' => $this->get('id')]);
         return parent::destroy($field);
     }
     /**

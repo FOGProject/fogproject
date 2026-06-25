@@ -72,10 +72,15 @@ class WindowsKeyDeleteMassItems extends Hook
                     'imageID' => $arguments['itemIDs']
                 ];
                 break;
-            default:
+            case 'windowskey':
+                // Only treat itemIDs as windowskeyIDs when a key itself is
+                // deleted. A bare default would mis-fire for every other entity
+                // now that all delete paths funnel through DELETEMASS_API,
+                // deleting rows whose windowskeyID collides with the deleted id.
                 $arguments['removeItems']['windowskeyassociation'] = [
                     'windowskeyID' => $arguments['itemIDs']
                 ];
+                break;
         }
     }
 }

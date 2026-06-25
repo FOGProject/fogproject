@@ -174,4 +174,18 @@ class Site extends FOGController
             'hostID'
         );
     }
+    /**
+     * Destroy this particular object.
+     *
+     * @param string $key the key to destroy for match
+     *
+     * @return bool
+     */
+    public function destroy($key = 'id')
+    {
+        // Funnel through the cascade authority so a single site delete also
+        // clears its host/user links (the 'site' case in sitedeletemassitems).
+        Route::deletemass('site', ['id' => $this->get('id')]);
+        return parent::destroy($key);
+    }
 }
