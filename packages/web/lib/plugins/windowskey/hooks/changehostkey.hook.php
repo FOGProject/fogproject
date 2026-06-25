@@ -78,7 +78,7 @@ class ChangeHostKey extends Hook
             'windowskeyID'
         );
 
-        $cnt = count($values ?: []);
+        $cnt = count($windowskeys ?: []);
         if ($cnt !== 1) {
             return;
         }

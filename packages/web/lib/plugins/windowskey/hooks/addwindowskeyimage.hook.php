@@ -199,7 +199,7 @@ class AddWindowsKeyImage extends Hook
         }
         $obj = $arguments['Image'];
         try {
-            switch ($tag) {
+            switch ($tab) {
                 case 'image-windowskey':
                     $this->imageWindowskeyPost($obj);
                     break;
