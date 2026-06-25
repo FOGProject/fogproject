@@ -497,7 +497,12 @@ $.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
  * crowding) vertical space. Recomputed on window resize and tab show.
  */
 function fogSizeScroller(dt) {
-  if (!dt || typeof dt.init !== 'function' || !dt.init().scroller) {
+  // dt.init() can be null for nodes the table.dataTable selector also matches
+  // but that aren't fully-initialized Scroller tables (e.g. the scrollY split
+  // table's cloned header). Guard it so we skip them instead of throwing on
+  // null.scroller, which would abort the caller's loop before the real table.
+  var init = (dt && typeof dt.init === 'function') ? dt.init() : null;
+  if (!init || !init.scroller) {
     return; // only Scroller-enabled tables
   }
   var container = dt.table().container(),
