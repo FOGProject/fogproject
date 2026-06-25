@@ -471,6 +471,11 @@ dd {
   --fog-heading:      #e3e6e8;
   --fog-input-bg:     #2b3a42;
   --fog-input-border: #3a4a52;
+  // Disabled/readonly fields recede BELOW the box surface (editable fields sit
+  // raised at --fog-input-bg). In light mode BS3 paints these #eee; dark mode
+  // re-points the .form-control bg for every field, erasing that cue, so we
+  // restore it with a sunken bg + muted text (see the disabled rule below).
+  --fog-input-disabled-bg: #1b2327; // = --fog-bg (sits under the box)
 
   // -- modernization tokens (light defaults retuned for dark) --
   // --fog-elev-1 is composed from --fog-ink, so flipping the ink to black makes
@@ -745,6 +750,15 @@ dd {
   .form-control::placeholder {
     color: var(--fog-text-muted);
   }
+  // Restore the light-mode "not editable" cue: readonly/disabled fields recede
+  // below the box and mute their text, so editable fields visibly stand apart.
+  .form-control[readonly],
+  .form-control[disabled],
+  .form-control:disabled,
+  fieldset[disabled] .form-control {
+    background-color: var(--fog-input-disabled-bg);
+    color: var(--fog-text-muted);
+  }
   .input-group-addon {
     background-color: var(--fog-surface-2);
     border-color: var(--fog-input-border);
@@ -765,6 +779,17 @@ dd {
   }
   .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: var(--fog-text);
+  }
+  // Disabled Select2 — Select2 paints these #eee in light mode (same cue as a
+  // native disabled input); mirror the .form-control disabled rule so the dark
+  // control recedes below the box and mutes its text instead of staying raised.
+  .select2-container--default.select2-container--disabled .select2-selection--single,
+  .select2-container--default.select2-container--disabled .select2-selection--multiple {
+    background-color: var(--fog-input-disabled-bg);
+    border-color: var(--fog-input-border);
+  }
+  .select2-container--default.select2-container--disabled .select2-selection--single .select2-selection__rendered {
+    color: var(--fog-text-muted);
   }
   .select2-dropdown {
     background-color: var(--fog-input-bg);
