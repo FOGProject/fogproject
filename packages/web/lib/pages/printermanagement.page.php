@@ -310,7 +310,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252',
+                '192.168.1.252 or printer.example.com:9100',
                 'text',
                 'ipcups',
                 $ip,
@@ -318,7 +318,7 @@ class PrinterManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                ''
             ),
             self::makeLabel(
                 $labelClass,
@@ -406,7 +406,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252',
+                '192.168.1.252 or printer.example.com:9100',
                 'text',
                 'iplocal',
                 $ip,
@@ -414,7 +414,7 @@ class PrinterManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                ''
             ),
             self::makeLabel(
                 $labelClass,
@@ -696,7 +696,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252',
+                '192.168.1.252 or printer.example.com:9100',
                 'text',
                 'ipcups',
                 $ip,
@@ -704,7 +704,7 @@ class PrinterManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                ''
             ),
             self::makeLabel(
                 $labelClass,
@@ -792,7 +792,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252',
+                '192.168.1.252 or printer.example.com:9100',
                 'text',
                 'iplocal',
                 $ip,
@@ -800,7 +800,7 @@ class PrinterManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                ''
             ),
             self::makeLabel(
                 $labelClass,
@@ -1211,7 +1211,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252',
+                '192.168.1.252 or printer.example.com:9100',
                 'text',
                 'ipcups',
                 $ip,
@@ -1219,7 +1219,7 @@ class PrinterManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                ''
             ),
             self::makeLabel(
                 $labelClass,
@@ -1307,7 +1307,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252',
+                '192.168.1.252 or printer.example.com:9100',
                 'text',
                 'iplocal',
                 $ip,
@@ -1315,7 +1315,7 @@ class PrinterManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                ''
             ),
             self::makeLabel(
                 $labelClass,

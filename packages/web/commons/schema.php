@@ -275,7 +275,7 @@ $this->schema[] = [
     . '`pModel` VARCHAR(250) NOT NULL,'
     . '`pAlias` VARCHAR(250) NOT NULL,'
     . '`pConfig` VARCHAR(10) NOT NULL,'
-    . '`pIP` VARCHAR(20) NOT NULL,'
+    . '`pIP` VARCHAR(255) NOT NULL,'
     . '`pAnon2` VARCHAR(10) NOT NULL,'
     . '`pAnon3` VARCHAR(10) NOT NULL,'
     . '`pAnon4` VARCHAR(10) NOT NULL,'
@@ -4273,4 +4273,12 @@ $this->schema[] = [
         );
         return true;
     },
+];
+// 299
+$this->schema[] = [
+    // Printer IP field originally VARCHAR(20) — too small for FQDNs and
+    // host:port targets (e.g. CUPS/IPP queues). Widen to VARCHAR(255) to
+    // match the FQDN max length (253) and the pConfigFile convention.
+    "ALTER TABLE `printers` "
+    . "MODIFY COLUMN `pIP` VARCHAR(255) NOT NULL",
 ];
