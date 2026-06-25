@@ -168,9 +168,11 @@ class AddOUGroup extends Hook
                 'ouassociation',
                 ['hostID' => $hosts]
             );
-            foreach ((array)$hosts as $ind => &$hostID) {
-                $insert_values[] = [$hostID, $ouID];
-                unset($hostID);
+            if ($ouID > 0) {
+                foreach ((array)$hosts as $ind => &$hostID) {
+                    $insert_values[] = [$hostID, $ouID];
+                    unset($hostID);
+                }
             }
         }
         if (count($insert_values) > 0) {
