@@ -580,12 +580,7 @@ class Route extends FOGBase
             if ('snapintask' === strtolower($class)
                 && isset($whereItems['jobID'])
             ) {
-                $jobIDs = array_filter(
-                    array_map('intval', (array)$whereItems['jobID']),
-                    function ($id) {
-                        return $id > 0;
-                    }
-                );
+                $jobIDs = self::positiveIntIds($whereItems['jobID']);
                 if (count($jobIDs) > 0) {
                     $whereItems['jobID'] = $jobIDs;
                 } else {
