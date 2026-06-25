@@ -210,7 +210,7 @@ class ImageSize extends FOGService
                             )
                         );
                         self::getClass('Image', $Image->id)
-                            ->set('srvsize', $size)
+                            ->set('srvsize', 0)
                             ->save();
                         continue;
                     }

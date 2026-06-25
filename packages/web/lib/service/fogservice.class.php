@@ -498,8 +498,8 @@ abstract class FOGService extends FOGBase
                     $myAddItem = dirname($myAdd);
                 }
                 $localfilescheck[0] = $myAdd;
-                if (file_exists($ftpstart.$remItem.'/'.$removefile)) {
-                    $remotefilescheck[0] = $remItem . '/' . $removefile;
+                if (file_exists($ftpstart.$remItem.'/'.$removeFile)) {
+                    $remotefilescheck[0] = $remItem . '/' . $removeFile;
                 }
             } elseif (is_dir($myAdd)) {
                 $remItem = "{$removeDir}{$removeFile}";
@@ -521,7 +521,7 @@ abstract class FOGService extends FOGBase
             }
             @natcasesort($localfilescheck);
             foreach ($remotefilescheck as $rin => &$rfn) {
-                $removefilescheck[$rin] = str_replace("$remItem/", "", $rfn);
+                $remotefilescheck[$rin] = str_replace("$remItem/", "", $rfn);
                 unset($rfn, $rin);
             }
             @natcasesort($remotefilescheck);
@@ -540,8 +540,8 @@ abstract class FOGService extends FOGBase
                 $filesequal = false;
                 $lindex = array_search($filename, $localfilescheck);
                 $rindex = array_search($filename, $remotefilescheck);
-                $localfilename = sprintf('%s/%s', $path, $localfilescheck);
-                $remotefilename = sprintf('%s/%s', $remItem, $remotefilescheck);
+                $localfilename = sprintf('%s/%s', $path, $filename);
+                $remotefilename = sprintf('%s/%s', $remItem, $filename);
                 if (!is_int($rindex)) {
                     $allsynced = false;
                     self::outall(
@@ -584,7 +584,7 @@ abstract class FOGService extends FOGBase
                         $sizeurl = sprintf(
                             '%s://%s/fog/status/getsize.php',
                             'https',
-                            $testip
+                            $ip
                         );
                         $rsize = self::$FOGURLRequests->process(
                             $sizeurl,
@@ -618,7 +618,7 @@ abstract class FOGService extends FOGBase
                             $hashurl = sprintf(
                                 '%s://%s/fog/status/gethash.php',
                                 'https',
-                                $testip
+                                $ip
                             );
                             $rhash = self::$FOGURLRequests->process(
                                 $hashurl,
