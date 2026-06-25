@@ -216,12 +216,7 @@ class Group extends FOGController
     {
         // Drop any stale/blank ids (e.g. a 0 from an empty submission) so a
         // group push can't seed phantom saSnapinID=0 rows on member hosts.
-        $addArray = array_values(array_filter(
-            array_map('intval', (array)$addArray),
-            function ($snapinID) {
-                return $snapinID > 0;
-            }
-        ));
+        $addArray = self::positiveIntIds($addArray);
         $insert_fields = ['hostID', 'snapinID'];
         $insert_values = [];
         $hosts = $this->get('hosts');
@@ -283,14 +278,7 @@ class Group extends FOGController
      */
     public function setSnapinOrder($snapinIDs)
     {
-        $shared = array_values(
-            array_filter(
-                array_map('intval', (array)$snapinIDs),
-                function ($id) {
-                    return $id > 0;
-                }
-            )
-        );
+        $shared = self::positiveIntIds($snapinIDs);
         if (count($shared) < 1) {
             return $this;
         }

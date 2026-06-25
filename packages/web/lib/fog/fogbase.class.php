@@ -2545,6 +2545,28 @@ abstract class FOGBase
         return TaskState::getCancelledState();
     }
     /**
+     * Normalises a value to a re-indexed list of positive integer ids.
+     *
+     * Casts to an array, intval's every element, drops anything <= 0 (blank,
+     * 0, or negative ids that would otherwise seed phantom association rows or
+     * a run-order entry), and re-indexes the result.
+     *
+     * @param mixed $ids the raw id value(s)
+     *
+     * @return array list of positive ints, 0-indexed
+     */
+    public static function positiveIntIds($ids)
+    {
+        return array_values(
+            array_filter(
+                array_map('intval', (array)$ids),
+                function ($id) {
+                    return $id > 0;
+                }
+            )
+        );
+    }
+    /**
      * Put string between two strings.
      *
      * @param string $string the string to insert

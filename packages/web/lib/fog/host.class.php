@@ -296,12 +296,7 @@ class Host extends FOGController
         if ($this->isLoaded('snapins')) {
             $this->set(
                 'snapins',
-                array_values(array_filter(
-                    array_map('intval', (array)$this->get('snapins')),
-                    function ($snapinID) {
-                        return $snapinID > 0;
-                    }
-                ))
+                self::positiveIntIds($this->get('snapins'))
             );
         }
         $this

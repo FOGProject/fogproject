@@ -136,11 +136,6 @@ trait FOGPageRender
     protected function renderHistoryData($scope, $route)
     {
         header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
         Route::listem(
             $route,
             ['hostID' => $scope]
@@ -163,25 +158,13 @@ trait FOGPageRender
     protected function renderSnapinHistoryData($scope)
     {
         header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
         $checkStates = [
             self::getCancelledState(),
             self::getCompleteState()
         ];
 
-        $snapinJobs = Route::getIds(
-            'snapinjob',
-            ['hostID' => $scope]
-        );
-        $snapinJobs = array_filter(
-            array_map('intval', (array)$snapinJobs),
-            function ($id) {
-                return $id > 0;
-            }
+        $snapinJobs = self::positiveIntIds(
+            Route::getIds('snapinjob', ['hostID' => $scope])
         );
 
         // If there are no jobs in scope, return an empty datatable payload and
