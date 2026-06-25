@@ -28,13 +28,29 @@
   // "chrome" (axis tick labels, grid lines, legend text) needs to follow dark
   // mode. Those derive from Chart's global defaults, so set them up front for
   // charts built later, and recolor existing charts on a live theme toggle.
+  // text  = axis tick labels (muted is fine against the plot)
+  // legend = chart legend labels (needs more contrast than ticks; matches
+  //          --fog-text-strong: #444 light / #c8ccd0 dark)
   var CHROME = {
-    light: { text: '#666666', grid: 'rgba(0,0,0,0.1)' },
-    dark:  { text: '#c8ccd0', grid: 'rgba(255,255,255,0.12)' }
+    light: { text: '#666666', legend: '#444444', grid: 'rgba(0,0,0,0.1)' },
+    dark:  { text: '#c8ccd0', legend: '#c8ccd0', grid: 'rgba(255,255,255,0.12)' }
   };
 
+  // Mirror the CSS dark-mode rule: explicit .theme-dark, or the OS preference
+  // when no explicit .theme-light override is set. Plain class checks miss the
+  // prefers-color-scheme auto path.
+  function isDark() {
+    if (document.body.classList.contains('theme-dark')) {
+      return true;
+    }
+    if (document.body.classList.contains('theme-light')) {
+      return false;
+    }
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+
   function chrome() {
-    return document.body.classList.contains('theme-dark') ? CHROME.dark : CHROME.light;
+    return isDark() ? CHROME.dark : CHROME.light;
   }
 
   function applyChartDefaults() {
@@ -52,7 +68,7 @@
       chart.options.color = c.text;
       if (chart.options.plugins && chart.options.plugins.legend) {
         chart.options.plugins.legend.labels = chart.options.plugins.legend.labels || {};
-        chart.options.plugins.legend.labels.color = c.text;
+        chart.options.plugins.legend.labels.color = c.legend;
       }
       $.each(chart.options.scales || {}, function (axis, scale) {
         scale.ticks = scale.ticks || {};
@@ -172,6 +188,12 @@
           text: label + ': ' + format(ds.data[i]),
           fillStyle: colors[i],
           strokeStyle: colors[i],
+          // Custom generateLabels bypasses Chart's default fontColor stamping,
+          // so set it explicitly or the text renders canvas-default black in
+          // dark mode. Use the higher-contrast legend color (muted tick gray
+          // reads as "washed out" in light mode). Re-read on every update() so
+          // theme toggles follow.
+          fontColor: chrome().legend,
           lineWidth: 0,
           hidden: false,
           index: i
