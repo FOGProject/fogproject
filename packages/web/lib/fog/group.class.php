@@ -675,12 +675,13 @@ class Group extends FOGController
             } elseif ($TaskType->isDeploy) {
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
-                $find = ['id' => $hostIDs];
-                $imageIDs = Route::getIds(
-                    'host',
-                    $find,
-                    'imageID'
+                $Hosts = self::getClass('HostManager')->find(
+                    ['id' => $hostIDs]
                 );
+                $imageMap = [];
+                foreach ($Hosts as $Host) {
+                    $imageMap[$Host->get('id')] = $Host->get('imageID');
+                }
                 $batchFields = [
                     'name',
                     'createdBy',
@@ -709,7 +710,7 @@ class Group extends FOGController
                         $StorageNode->getStorageGroup()->get('id'),
                         $StorageNode->get('id'),
                         $wol,
-                        $imageIDs[$i],
+                        $imageMap[$hostIDs[$i]] ?? 0,
                         $shutdown,
                         $debug,
                         $passreset,
@@ -847,7 +848,6 @@ class Group extends FOGController
         }
         $find = ['hostID' => $this->get('hosts')];
         $hostIDs = $find['hostID'];
-        $hostCount = count($hostIDs ?: []);
         $snapins = [];
         $snapinJobs = [];
         foreach ($hostIDs as $hostID) {
@@ -891,9 +891,9 @@ class Group extends FOGController
                 ],
                 $snapinJobs
             );
-            $ids = range($first_id, ($first_id + $affected_rows));
-            for ($i = 0; $i < $hostCount; ++$i) {
-                $hostID = $hostIDs[$i];
+            $ids = range($first_id, $first_id + $affected_rows - 1);
+            $snapinTasks = [];
+            foreach (array_keys($snapins) as $i => $hostID) {
                 $jobID = $ids[$i];
                 $snapinCount = count($snapins[$hostID] ?: []);
                 for ($j = 0; $j < $snapinCount; ++$j) {
