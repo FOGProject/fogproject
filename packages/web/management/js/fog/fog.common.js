@@ -540,11 +540,17 @@ function fogSizeScroller(dt) {
   dt.columns.adjust();
 }
 function fogSizeAllScrollers() {
-  if (!$.fn.dataTable) {
+  if (!$.fn.dataTable || !$.fn.dataTable.isDataTable) {
     return;
   }
-  $.fn.dataTable.tables({ api: true }).every(function() {
-    fogSizeScroller(this);
+  // Iterate initialized tables via isDataTable() rather than the 1.10-era
+  // $.fn.dataTable.tables({api:true}).every() idiom, which throws in the
+  // bundled 2.x/3.x build ("tables(...).every is not a function") and silently
+  // aborted the entire post-show resize path on every shown.bs.tab.
+  $('table.dataTable').each(function() {
+    if ($.fn.dataTable.isDataTable(this)) {
+      fogSizeScroller($(this).DataTable());
+    }
   });
 }
 function fogBindScrollerAutosize() {
