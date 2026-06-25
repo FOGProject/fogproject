@@ -90,7 +90,7 @@ class AccessControlAssociationManager extends FOGManagerController
             "INSERT INTO `%s` VALUES (1, '%s', 1, %d)",
             $this->tablename,
             'Administrator-fog',
-            intval($fogUserID[0])
+            intval($fogUserID)
         );
         if (false !== self::$DB->query($sql)->error
             && self::$DB->errorCode != 1062
