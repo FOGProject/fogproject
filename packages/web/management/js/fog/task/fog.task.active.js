@@ -29,14 +29,16 @@
 
   disableButtons(true);
   var table = $('#active-tasks-table').registerTable(onSelect, {
-    // Classic paging, not infinite-scroll (Scroller). This table polls every
-    // 5s and frequently transitions to zero rows (task cancelled/completed).
-    // Scroller's virtual rendering (deferRender) leaves the last-rendered row's
-    // node -- including its striped progress bar -- orphaned in the fixed-height
-    // scroll body on the empty draw, showing a stray bar beneath "No data
-    // available in table". Paging redraws the body cleanly with nothing left
-    // behind, and infinite scroll buys nothing for a short live-status list.
-    scroller: false,
+    // Infinite-scroll (Scroller) for UI consistency with the other lists, but
+    // with deferRender explicitly OFF for this table only. It polls every 5s and
+    // frequently transitions to zero rows (task cancelled/completed); with
+    // deferRender on, DataTables caches the last window's row node and Scroller
+    // leaves it -- striped progress bar and all -- orphaned in the fixed-height
+    // scroll body on the empty draw, beneath "No data available in table".
+    // Disabling deferRender makes every draw rebuild the row nodes, so the empty
+    // draw clears the body cleanly. The perf cost is nil for a short live-status
+    // list (server-side only ever sends the current viewport window anyway).
+    deferRender: false,
     order: [
       [0, 'asc']
     ],
