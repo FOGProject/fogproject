@@ -151,12 +151,12 @@ try {
             $StorageNode->get('ip') :
             $ftp
         );
-        if (!$pct < 100
-            && !$pct > 4
+        if ($pct < 5
+            || $pct >= 100
         ) {
             $pct = 5;
         }
-        if ($TaskType->get('id') === 11) {
+        if ($TaskType->get('id') == 11) {
             $winuser = $Task
                 ->get('passreset');
         }

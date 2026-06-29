@@ -7426,6 +7426,10 @@ msgstr ""
 msgid "enabled (all)"
 msgstr "ativado"
 
+#, php-format
+msgid "exited abnormally with code %d; cancelling task"
+msgstr ""
+
 #, fuzzy
 msgid "failed to execute, image file"
 msgstr "Falha ao excluir arquivos de imagem"

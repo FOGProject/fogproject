@@ -689,28 +689,25 @@ abstract class FOGBase
      */
     public static function getAllBlamedNodes($Host)
     {
-        $DateInterval = self::niceDate()->modify('-5 minutes');
         /**
-         * Returns the node id if still accurate
+         * Returns the storage node id if still accurate
          * or will clean up past time nodes.
          *
          * @param object $NodeFailure the node that is in failed state
          *
          * @return int|bool
          */
-        $nodeFail = function ($NodeFailure) use ($DateInterval) {
-            if ($NodeFailure->isValid()) {
-                return false;
-            }
+        $nodeFail = function ($NodeFailure) {
             if (!self::validDate($NodeFailure->failureTime)) {
                 return false;
             }
-            if ($DateTime < $DateInterval) {
-                Route::delete('nodefailure', $NodeFailure->id);
-                return false;
+            $curr = self::niceDate();
+            $prev = self::niceDate($NodeFailure->failureTime);
+            if ($curr < $prev) {
+                return $NodeFailure->storagenodeID;
             }
-
-            return $NodeFailure->id;
+            Route::delete('nodefailure', $NodeFailure->id);
+            return false;
         };
         $find = [
             'taskID' => self::$Host->get('task')->get('id'),

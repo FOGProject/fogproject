@@ -6253,6 +6253,10 @@ msgstr ""
 msgid "enabled (all)"
 msgstr ""
 
+#, php-format
+msgid "exited abnormally with code %d; cancelling task"
+msgstr ""
+
 msgid "failed to execute, image file"
 msgstr ""
 

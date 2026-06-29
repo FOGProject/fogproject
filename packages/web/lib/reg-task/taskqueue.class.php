@@ -62,6 +62,15 @@ class TaskQueue extends TaskingElement
         if (!self::$Host->isValid()) {
             return;
         }
+        // Only pre-acknowledge when the host has NO live in-progress task.
+        // That is exactly the multicast slow-client window this guard exists
+        // for (the server already completed the task). If an active task is
+        // present (e.g. a same-day re-image of the host), bail and let the
+        // real checkout() run, or it would be skipped and the image never
+        // moved out of dev/.
+        if (self::$Host->get('task')->isValid()) {
+            return;
+        }
         $typeIDs = ($type === 'up')
             ? TaskType::CAPTURETASKS
             : TaskType::DEPLOYTASKS;

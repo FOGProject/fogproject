@@ -79,7 +79,7 @@ if (isset($_REQUEST['client'])) {
     // restrict query params to known ones
     if (!empty($parts['query'])) {
         parse_str($parts['query'], $q);
-        $allowedKeys = ['client', 'clientVer'];
+        $allowedKeys = ['client', 'clientver'];
         foreach (array_keys($q) as $k) {
             if (!in_array($k, $allowedKeys, true)) {
                 http_response_code(403);

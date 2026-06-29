@@ -7082,6 +7082,10 @@ msgstr "Sia perché hai aggiornato"
 msgid "enabled (all)"
 msgstr "Abilitato"
 
+#, php-format
+msgid "exited abnormally with code %d; cancelling task"
+msgstr ""
+
 #, fuzzy
 msgid "failed to execute, image file"
 msgstr "Impossibile eliminare i file di immagine"
