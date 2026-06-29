@@ -381,29 +381,30 @@ class Image extends FOGController
         if (!$imageID) {
             return true;
         }
-        $find = [
-            'imageID' => $imageID,
-            'primary' => 1
-        ];
         $primaryCount = Route::getCount(
             'imageassociation',
-            $find
+            [
+                'imageID' => $imageID,
+                'primary' => 1
+            ]
         );
         if ($primaryCount < 1) {
-            unset($find['primary']);
-            $primaryCount = Route::getCount(
+            // The image has no primary group. Promote the lowest group that is
+            // already associated to primary; if none are associated at all,
+            // fall back to the lowest storage group. Mirrors
+            // Snapin::getPrimaryGroup(). The previous Route::indiv('image', ...)
+            // re-serialized this same image, which re-entered
+            // getStorageGroup()/getPrimaryGroup() and recursed until memory was
+            // exhausted for any image lacking a primary association.
+            $groupids = Route::getIds(
                 'imageassociation',
-                $find
+                ['imageID' => $imageID],
+                'storagegroupID'
             );
-        }
-        if ($primaryCount < 1) {
-            // No association at all: fall back to the lowest storage group and
-            // make it primary. Mirrors Snapin::getPrimaryGroup(). The previous
-            // Route::indiv('image', ...) re-serialized this same image, which
-            // re-entered getStorageGroup()/getPrimaryGroup() and recursed until
-            // memory was exhausted for any image lacking an association.
-            $groupid = Route::getIds('storagegroup', false);
-            $groupid = @min($groupid);
+            if (count($groupids) < 1) {
+                $groupids = Route::getIds('storagegroup', false);
+            }
+            $groupid = @min($groupids);
             if ($groupid > 0) {
                 self::setPrimaryGroup($groupid, $imageID);
             }
