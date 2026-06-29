@@ -96,19 +96,18 @@ unset($this->stylesheets);
             }
         </style>
     </noscript>
+    <?php if ($isLoggedIn): ?>
     <div class="app-wrapper">
         <!-- Header Navigation -->
         <nav class="app-header navbar navbar-expand bg-body">
             <div class="container-fluid">
                 <ul class="navbar-nav">
-                    <?php if ($isLoggedIn): ?>
-                        <li class="nav-item">
-                            <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-                                <span class="visually-hidden"><?= _('Toggle navigation'); ?></span>
-                                <i class="fa fa-bars"></i>
-                            </a>
-                        </li>
-                    <?php endif; ?>
+                    <li class="nav-item">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                            <span class="visually-hidden"><?= _('Toggle navigation'); ?></span>
+                            <i class="fa fa-bars"></i>
+                        </a>
+                    </li>
                     <li class="nav-item d-none d-md-block">
                         <a href="../management/index.php" class="nav-link"><b>FOG</b> <?= _('Project'); ?></a>
                     </li>
@@ -124,19 +123,11 @@ unset($this->stylesheets);
                         </a>
                     </li>
                     <li class="nav-item">
-                        <?php if ($isLoggedIn): ?>
-                            <a class="nav-link" href="../management/index.php?node=logout"><i class="fa fa-sign-out"></i> <?= _('Logout'); ?></a>
-                        <?php else: ?>
-                            <?php global $node; ?>
-                            <?php if ($node !== 'home'): ?>
-                                <a class="nav-link" href="../management/index.php?node=login"><i class="fa fa-sign-in"></i> <?= _('Login'); ?></a>
-                            <?php endif; ?>
-                        <?php endif; ?>
+                        <a class="nav-link" href="../management/index.php?node=logout"><i class="fa fa-sign-out"></i> <?= _('Logout'); ?></a>
                     </li>
                 </ul>
             </div>
         </nav>
-        <?php if ($isLoggedIn): ?>
             <!-- SIDEBAR NAVIGATION -->
             <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
                 <div class="sidebar-brand">
@@ -181,29 +172,27 @@ unset($this->stylesheets);
                     </nav>
                 </div>
             </aside>
-        <?php endif; ?>
-        <!-- Main Content -->
-        <?php if ($isLoggedIn): ?>
+            <!-- Main Content -->
             <main class="app-main">
                 <?= FOGPage::makeInput('reAuthDelete', 'reAuthDelete', '', 'hidden', 'reAuthDelete', self::getSetting('FOG_REAUTH_ON_DELETE')); ?>
                 <?php
             $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
-            if (in_array(strtolower($pageLength), ['search', 'list'])) {
-                $pageLength = 10;
-                $Setting = self::getClass('Setting')
-                    ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
-                    ->load('name')
-                    ->set(
-                        'description',
-                        _(
-                            'This setting defines the number of items to display '
-                            . 'when listing/searching elements. The default value is 10.'
-                        )
-                    )->set('value', $pageLength)
-                    ->save();
-                unset($Setting);
-            }
-            ?>
+        if (in_array(strtolower($pageLength), ['search', 'list'])) {
+            $pageLength = 10;
+            $Setting = self::getClass('Setting')
+                ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
+                ->load('name')
+                ->set(
+                    'description',
+                    _(
+                        'This setting defines the number of items to display '
+                        . 'when listing/searching elements. The default value is 10.'
+                    )
+                )->set('value', $pageLength)
+                ->save();
+            unset($Setting);
+        }
+        ?>
                 <?= FOGPage::makeInput('pageLength', 'pageLength', '', 'hidden', 'pageLength', self::getSetting('FOG_VIEW_DEFAULT_SCREEN')); ?>
                 <?= FOGPage::makeInput('scrollMode', 'scrollMode', '', 'hidden', 'scrollMode', self::getSetting('FOG_TABLE_SCROLL_MODE')); ?>
                 <?= FOGPage::makeInput('showpass', 'showpass', '', 'hidden', 'showpass', self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')); ?>
@@ -222,11 +211,7 @@ unset($this->stylesheets);
                     </div>
                 </div>
             </main>
-        <?php else: ?>
-            <?= $this->body; ?>
-        <?php endif; ?>
-        <!-- Footer -->
-        <?php if ($isLoggedIn): ?>
+            <!-- Footer -->
             <footer class="app-footer">
                 <div class="float-end d-none d-sm-inline">
                     <b><?= _('Channel'); ?></b>&nbsp;<?= FOG_CHANNEL; ?> |
@@ -236,8 +221,10 @@ unset($this->stylesheets);
                     <?= _('Copyright'); ?> &copy; 2012-<?php echo self::formatTime('now', 'Y'); ?> <a href="https://fogproject.org">FOG Project</a>.
                 </strong> <?= _('All rights reserved.'); ?>
             </footer>
-        <?php endif; ?>
     </div>
+    <?php else: ?>
+        <?= $this->body; ?>
+    <?php endif; ?>
     <div id="scripts">
         <?php
         // Process JS event hooks
