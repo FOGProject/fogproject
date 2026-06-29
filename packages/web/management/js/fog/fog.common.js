@@ -974,7 +974,19 @@ function reinitialize() {
   $(":input").inputmask(); // Setup all input masks
   Common.iCheck(); // Setup all checkboxes
   patchSelect2SearchId(); // Must run before any .select2() init below.
-  $('.fog-select2').select2({width: '100%'}); // Setup all select elements
+  // Setup all select elements. Anchor the dropdown to its closest modal when
+  // inside one: Bootstrap 5 modals add a focus-trap and their own stacking
+  // context, so a Select2 dropdown appended to <body> (the default) renders
+  // detached behind/below the modal and its options can't be clicked. Pinning
+  // dropdownParent to the .modal keeps the dropdown inside that context.
+  $('.fog-select2').each(function() {
+    var $sel = $(this),
+      $modal = $sel.closest('.modal');
+    $sel.select2({
+      width: '100%',
+      dropdownParent: $modal.length ? $modal : $(document.body)
+    });
+  });
   disableFormDefaults();
   setupPasswordReveal();
   setupUniversalSearch();
