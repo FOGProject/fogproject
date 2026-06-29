@@ -41,7 +41,7 @@ ob_start();
 <!DOCTYPE html>
 <html lang="<?= $ulang; ?>"<?= $bsTheme ? ' data-bs-theme="' . $bsTheme . '"' : ''; ?>>
 <head>
-    <script>
+    <script nonce="<?= htmlspecialchars(FOG_CSP_NONCE, ENT_QUOTES, 'UTF-8'); ?>">
     // Native dark mode, no flash: when the user has no explicit fogTheme cookie
     // choice <html> carries no server-stamped data-bs-theme, so resolve the OS
     // preference here synchronously (before paint) and set it. The cookie cases
