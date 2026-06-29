@@ -390,7 +390,7 @@ class LDAPManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'dislayNameAttr',
+                'displayNameAttr',
                 _('Display Name Attribute')
             ) => self::makeInput(
                 'form-control ldapdisplaynameattr-input',
@@ -924,7 +924,7 @@ class LDAPManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'dislayNameAttr',
+                'displayNameAttr',
                 _('Display Name Attribute')
             ) => self::makeInput(
                 'form-control ldapdisplaynameattr-input',

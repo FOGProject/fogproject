@@ -358,7 +358,7 @@ class SnapinManagement extends FOGPage
                 '',
                 '',
                 'text',
-                '',
+                'snapinfiledisp',
                 '',
                 false,
                 false,
@@ -496,7 +496,7 @@ class SnapinManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'cmdletin',
+                'snapincmd',
                 _('Snapin Command')
                 . '<br/>('
                 . _('read-only')
@@ -835,7 +835,7 @@ class SnapinManagement extends FOGPage
                 '',
                 '',
                 'text',
-                '',
+                'snapinfiledisp',
                 '',
                 false,
                 false,
@@ -1006,7 +1006,7 @@ class SnapinManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'cmdletin',
+                'snapincmd',
                 _('Snapin Command')
                 . '<br/>('
                 . _('read-only')

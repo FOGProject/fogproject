@@ -504,7 +504,7 @@ trait FOGPageRender
                     '<div class="croninput hidden">'
                     . self::makeLabel(
                         $labelClass,
-                        '',
+                        'cronMin',
                         _('Cron Entry')
                     ) => '<div class="croninput fogcron hidden"></div><br/>'
                     . self::makeInput(

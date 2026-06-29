@@ -113,7 +113,7 @@ class ReportManagement extends FOGPage
                 '',
                 '',
                 'text',
-                '',
+                'reportfiledisp',
                 '',
                 false,
                 false,

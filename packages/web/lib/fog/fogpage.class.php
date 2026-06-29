@@ -2774,7 +2774,7 @@ abstract class FOGPage extends FOGBase
                 '',
                 '',
                 'text',
-                '',
+                'csvfiledisp',
                 '',
                 false,
                 false,
@@ -4088,12 +4088,12 @@ abstract class FOGPage extends FOGBase
             $fields = [
                 self::makeLabel(
                     $labelClass,
-                    'action',
+                    'action' . (int)$ondemand,
                     _('Action')
                 ) => $actionSelector,
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'cronMin',
                     _('Schedule Power')
                 ) => '<div class="fogcron"></div><br/>'
                 . self::makeInput(
@@ -4467,9 +4467,8 @@ abstract class FOGPage extends FOGBase
     ) {
         return '<label class="'
             . $class
-            . '" for="'
-            . $id
             . '"'
+            . ($id !== '' && $id !== null ? ' for="' . $id . '"' : '')
             . ($extra ? " $extra" : '')
             . '>'
             . $str

@@ -1811,14 +1811,14 @@ class GroupManagement extends FOGPage
             $fields = [
                 self::makeLabel(
                     $labelClass,
-                    'pu',
+                    'pu-' . $i,
                     _('Primary User')
                 ) => self::makeInput(
                     'form-control',
-                    'pu',
+                    'pu-' . $i,
                     '',
                     'text',
-                    'pu',
+                    'pu-' . $i,
                     $puser,
                     false,
                     false,
@@ -1829,14 +1829,14 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    'other1',
+                    'other1-' . $i,
                     _('Other Tag #1')
                 ) => self::makeInput(
                     'form-control',
-                    'other1',
+                    'other1-' . $i,
                     '',
                     'text',
-                    'other1',
+                    'other1-' . $i,
                     $other1,
                     false,
                     false,
@@ -1847,14 +1847,14 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    'other2',
+                    'other2-' . $i,
                     _('Other Tag #2')
                 ) => self::makeInput(
                     'form-control',
-                    'other2',
+                    'other2-' . $i,
                     '',
                     'text',
-                    'other2',
+                    'other2-' . $i,
                     $other2,
                     false,
                     false,
@@ -1865,11 +1865,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-manufacturer-' . $i,
                     _('System Manufacturer')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-manufacturer-' . $i,
                     '',
                     'text',
                     '',
@@ -1883,11 +1883,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-system-product-' . $i,
                     _('System Product')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-system-product-' . $i,
                     '',
                     'text',
                     '',
@@ -1901,11 +1901,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-system-version-' . $i,
                     _('System Version')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-system-version-' . $i,
                     '',
                     'text',
                     '',
@@ -1919,11 +1919,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-system-serial-' . $i,
                     _('System Serial')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-system-serial-' . $i,
                     '',
                     'text',
                     '',
@@ -1937,11 +1937,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-system-uuid-' . $i,
                     _('System UUID')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-system-uuid-' . $i,
                     '',
                     'text',
                     '',
@@ -1955,11 +1955,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-system-type-' . $i,
                     _('System Type')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-system-type-' . $i,
                     '',
                     'text',
                     '',
@@ -1973,11 +1973,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-bios-vendor-' . $i,
                     _('BIOS Vendor')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-bios-vendor-' . $i,
                     '',
                     'text',
                     '',
@@ -1991,11 +1991,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-bios-version-' . $i,
                     _('BIOS Version')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-bios-version-' . $i,
                     '',
                     'text',
                     '',
@@ -2009,11 +2009,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-bios-date-' . $i,
                     _('BIOS Date')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-bios-date-' . $i,
                     '',
                     'text',
                     '',
@@ -2027,11 +2027,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-motherboard-manufacturer-' . $i,
                     _('Motherboard Manufacturer')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-motherboard-manufacturer-' . $i,
                     '',
                     'text',
                     '',
@@ -2045,11 +2045,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-motherboard-productname-' . $i,
                     _('Motherboard Product Name')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-motherboard-productname-' . $i,
                     '',
                     'text',
                     '',
@@ -2063,11 +2063,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-motherboard-version-' . $i,
                     _('Motherboard Version')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-motherboard-version-' . $i,
                     '',
                     'text',
                     '',
@@ -2081,11 +2081,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-motherboard-serial-number-' . $i,
                     _('Motherboard Serial Number')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-motherboard-serial-number-' . $i,
                     '',
                     'text',
                     '',
@@ -2099,11 +2099,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-motherboard-asset-tag-' . $i,
                     _('Motherboard Asset Tag')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-motherboard-asset-tag-' . $i,
                     '',
                     'text',
                     '',
@@ -2117,11 +2117,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-cpu-manufacturer-' . $i,
                     _('CPU Manufacturer')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-cpu-manufacturer-' . $i,
                     '',
                     'text',
                     '',
@@ -2135,11 +2135,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-cpu-version-' . $i,
                     _('CPU Version')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-cpu-version-' . $i,
                     '',
                     'text',
                     '',
@@ -2153,11 +2153,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-cpu-normal-speed-' . $i,
                     _('CPU Normal Speed')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-cpu-normal-speed-' . $i,
                     '',
                     'text',
                     '',
@@ -2171,11 +2171,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-cpu-max-speed-' . $i,
                     _('CPU Max Speed')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-cpu-max-speed-' . $i,
                     '',
                     'text',
                     '',
@@ -2189,11 +2189,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-memory-' . $i,
                     _('Memory')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-memory-' . $i,
                     '',
                     'text',
                     '',
@@ -2207,11 +2207,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-hard-drive-model-' . $i,
                     _('Hard Drive Model')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-hard-drive-model-' . $i,
                     '',
                     'text',
                     '',
@@ -2225,11 +2225,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-hard-drive-firmware-' . $i,
                     _('Hard Drive Firmware')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-hard-drive-firmware-' . $i,
                     '',
                     'text',
                     '',
@@ -2243,11 +2243,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-hard-drive-serial-number-' . $i,
                     _('Hard Drive Serial Number')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-hard-drive-serial-number-' . $i,
                     '',
                     'text',
                     '',
@@ -2261,11 +2261,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-chassis-manufacturer-' . $i,
                     _('Chassis Manufacturer')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-chassis-manufacturer-' . $i,
                     '',
                     'text',
                     '',
@@ -2279,11 +2279,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-chassis-version-' . $i,
                     _('Chassis Version')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-chassis-version-' . $i,
                     '',
                     'text',
                     '',
@@ -2297,11 +2297,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-chassis-serial-number-' . $i,
                     _('Chassis Serial Number')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-chassis-serial-number-' . $i,
                     '',
                     'text',
                     '',
@@ -2315,11 +2315,11 @@ class GroupManagement extends FOGPage
                 ),
                 self::makeLabel(
                     $labelClass,
-                    '',
+                    'inventory-chassis-asset-tag-' . $i,
                     _('Chassis Asset Tag')
                 ) => self::makeInput(
                     'form-control',
-                    '',
+                    'inventory-chassis-asset-tag-' . $i,
                     '',
                     'text',
                     '',

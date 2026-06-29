@@ -927,7 +927,8 @@ abstract class FOGManagerController extends FOGBase
         $orderBy = 'name',
         $filter = '',
         $template = false,
-        $useKey = 'id'
+        $useKey = 'id',
+        $elementId = ''
     ) {
         if (empty($useKey)) {
             $useKey = 'id';
@@ -944,6 +945,10 @@ abstract class FOGManagerController extends FOGBase
         $elementName = trim($elementName);
         if (empty($elementName)) {
             $elementName = strtolower($this->childClass);
+        }
+        $elementId = trim($elementId);
+        if (empty($elementId)) {
+            $elementId = $elementName;
         }
         ob_start();
         self::$HookManager->processEvent(
@@ -1005,7 +1010,7 @@ abstract class FOGManagerController extends FOGBase
                 $elementName
             )
             . '" id="'
-            . $elementName
+            . $elementId
             . '" autocomplete="off">';
         $tmpStr .= '<option value="">- ';
         $tmpStr .= self::$foglang['PleaseSelect'];

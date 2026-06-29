@@ -989,36 +989,56 @@ function reinitialize() {
   setupUniversalSearch();
 };
 
-// Select2 builds its dropdown search box with neither id nor name, which trips
-// the browser's "form field should have an id or name" autofill advisory. That
-// audit fires when the element is inserted into the DOM (inside Select2's open
-// routine), so stamping an id afterward on the select2:open event is too late
-// to suppress it. Instead, decorate the search adapter's render() so the id is
-// present at creation time. Deliberately an id, NOT a name -- the field sits
-// inside FOG forms and a name would POST a stray value. Idempotent: patches the
-// shared SearchDropdown prototype once, so it must run before any .select2().
+// Select2 builds its search inputs with neither id/name nor a label, tripping
+// the browser's "form field should have an id or name" autofill advisory and the
+// "no label associated with a form field" accessibility advisory. There are two
+// such inputs: the dropdown search box (single selects) and the always-present
+// inline search box of `multiple` selects -- rendered by two different adapters
+// (select2/dropdown/search and select2/selection/search). The audits fire when
+// the element is inserted into the DOM (inside Select2's render routines), so
+// stamping attributes afterward on select2:open is too late, and the inline
+// field never fires open at all. Instead, decorate each adapter's render() so an
+// id and aria-label are present at creation time. Deliberately an id, NOT a name
+// -- the field sits inside FOG forms and a name would POST a stray value.
+// Idempotent: patches the shared adapter prototypes once, so it must run before
+// any .select2().
 function patchSelect2SearchId() {
   if (!$.fn.select2 || !$.fn.select2.amd) {
     return;
   }
-  try {
-    $.fn.select2.amd.require(['select2/dropdown/search'], function(SearchDropdown) {
-      if (!SearchDropdown || SearchDropdown.__fogIdPatched) {
-        return;
-      }
-      var origRender = SearchDropdown.prototype.render;
-      var seq = 0;
-      SearchDropdown.prototype.render = function() {
-        var $rendered = origRender.apply(this, arguments);
-        if (this.$search && !this.$search.attr('id')) {
+  var seq = 0;
+  var decorate = function(Adapter, kind) {
+    if (!Adapter || Adapter.__fogIdPatched) {
+      return;
+    }
+    var origRender = Adapter.prototype.render;
+    Adapter.prototype.render = function() {
+      var $rendered = origRender.apply(this, arguments);
+      if (this.$search) {
+        if (!this.$search.attr('id')) {
           // data-select2-id is unique per instance; fall back to a counter.
           var base = (this.$element && this.$element.attr('data-select2-id')) || (++seq);
-          this.$search.attr('id', 'select2-search--' + base);
+          this.$search.attr('id', 'select2-search--' + kind + '-' + base);
         }
-        return $rendered;
-      };
-      SearchDropdown.__fogIdPatched = true;
-    });
+        if (!this.$search.attr('aria-label')) {
+          var label = (this.$element
+              && (this.$element.attr('aria-label') || this.$element.attr('title')))
+            || this.$search.attr('placeholder')
+            || 'Search';
+          this.$search.attr('aria-label', label);
+        }
+      }
+      return $rendered;
+    };
+    Adapter.__fogIdPatched = true;
+  };
+  // Use the single-string require form, which resolves synchronously and returns
+  // the module. The array+callback form defers via setTimeout, so the decoration
+  // would land AFTER the .select2() calls below have already captured the
+  // original render() -- making the patch a no-op.
+  try {
+    decorate($.fn.select2.amd.require('select2/dropdown/search'), 'dropdown');
+    decorate($.fn.select2.amd.require('select2/selection/search'), 'inline');
   } catch (e) {}
 }
 function setupIntegrations() {

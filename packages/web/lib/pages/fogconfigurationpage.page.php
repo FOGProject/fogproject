@@ -1246,7 +1246,12 @@ class FOGConfigurationPage extends FOGPage
                 }
                 $input = self::getClass($objGetter.'manager')->buildSelectBox(
                     $row['settingValue'],
-                    $row['settingID']
+                    $row['settingID'],
+                    'name',
+                    '',
+                    false,
+                    'id',
+                    $row['settingKey']
                 );
                 break;
             case 'FOG_BOOT_EXIT_TYPE':
@@ -2412,7 +2417,7 @@ class FOGConfigurationPage extends FOGPage
                 '',
                 '',
                 'text',
-                '',
+                'dbfiledisp',
                 '',
                 false,
                 false,
