@@ -22,17 +22,13 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 $isLoggedIn = self::$FOGUser->isLoggedIn() && self::$FOGUser->isValid();
 $ulang = htmlspecialchars($_SESSION['FOG_LANG'] ?? '', ENT_QUOTES, 'UTF-8');
 
-// Dark mode: per-user preference persisted in the fogTheme cookie. The matching
-// class is stamped on <body> below (server-side, on first paint) so there is no
-// light flash before theme.js runs. With no cookie there is no class, and the
-// prefers-color-scheme media query in fog-default-ui.css decides automatically.
-$themePref  = filter_input(INPUT_COOKIE, 'fogTheme');
-$themeClass = ($themePref === 'dark')
-    ? ' theme-dark'
-    : (($themePref === 'light') ? ' theme-light' : '');
-// Bootstrap 5 / AdminLTE 4 native dark mode keys off data-bs-theme on <html>.
-// Stamped server-side from the cookie so BS5 components match on first paint;
-// with no cookie theme.js resolves the OS preference on load.
+// Dark mode: Bootstrap 5 / AdminLTE 4 native theming keys off data-bs-theme on
+// <html>, which is the single source of truth for both BS components and FOG's
+// chrome (see fog-default-ui.scss). The per-user preference is persisted in the
+// fogTheme cookie and stamped on <html> below (server-side, on first paint) so
+// there is no light flash before theme.js runs. With no cookie the attribute is
+// left off here and a pre-paint head script resolves the OS preference instead.
+$themePref = filter_input(INPUT_COOKIE, 'fogTheme');
 $bsTheme = ($themePref === 'dark')
     ? 'dark'
     : (($themePref === 'light') ? 'light' : '');
@@ -45,6 +41,23 @@ ob_start();
 <!DOCTYPE html>
 <html lang="<?= $ulang; ?>"<?= $bsTheme ? ' data-bs-theme="' . $bsTheme . '"' : ''; ?>>
 <head>
+    <script>
+    // Native dark mode, no flash: when the user has no explicit fogTheme cookie
+    // choice <html> carries no server-stamped data-bs-theme, so resolve the OS
+    // preference here synchronously (before paint) and set it. The cookie cases
+    // are already stamped server-side; theme.js keeps it in sync afterwards.
+    (function () {
+        var e = document.documentElement;
+        if (!e.hasAttribute('data-bs-theme')) {
+            e.setAttribute(
+                'data-bs-theme',
+                (window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    ? 'dark' : 'light'
+            );
+        }
+    }());
+    </script>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -66,7 +79,7 @@ unset($this->stylesheets);
     <script src="dist/js/respond.min.js"></script>
     <![endif]-->
 </head>
-<body class="<?= ($isLoggedIn ? 'layout-fixed sidebar-expand-lg bg-body-tertiary' : 'login-page') . $themeClass; ?>">
+<body class="<?= $isLoggedIn ? 'layout-fixed sidebar-expand-lg bg-body-tertiary' : 'login-page'; ?>">
     <!-- FOG Management only works when JavaScript is enabled. -->
     <noscript>
         <div id="noscriptMessage">

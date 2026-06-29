@@ -37,14 +37,15 @@
     dark:  { text: '#c8ccd0', legend: '#c8ccd0', grid: 'rgba(255,255,255,0.12)' }
   };
 
-  // Mirror the CSS dark-mode rule: explicit .theme-dark, or the OS preference
-  // when no explicit .theme-light override is set. Plain class checks miss the
-  // prefers-color-scheme auto path.
+  // Mirror the CSS dark-mode rule: data-bs-theme on <html> is the single source
+  // of truth (stamped from the cookie, or resolved from the OS by a pre-paint
+  // head script). Fall back to the OS preference if it is somehow absent.
   function isDark() {
-    if (document.body.classList.contains('theme-dark')) {
+    var theme = document.documentElement.getAttribute('data-bs-theme');
+    if (theme === 'dark') {
       return true;
     }
-    if (document.body.classList.contains('theme-light')) {
+    if (theme === 'light') {
       return false;
     }
     return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);

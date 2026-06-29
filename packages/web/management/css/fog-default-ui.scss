@@ -13,8 +13,8 @@
 //
 // THEMING: the palette below is authored as SASS variables (compile-time) and
 // then PROMOTED to CSS custom properties on :root (runtime). Rules reference
-// the runtime var(--fog-*) form, NOT the SASS $fog-* form, so a future dark
-// theme can redefine the properties live (under a body.theme-dark scope)
+// the runtime var(--fog-*) form, NOT the SASS $fog-* form, so the dark theme
+// can redefine the properties live (under the [data-bs-theme="dark"] scope)
 // without recompiling. Light values are unchanged.
 // ===========================================================================
 
@@ -479,34 +479,40 @@ dd {
 // header, so dark mode only has to darken the CONTENT area: the light-grey
 // content-wrapper (#ecf0f5) and the white boxes / tables / forms / modals in it.
 //
-// The dark palette is collected as custom properties at the top of the mixin so
-// it can be retuned live (DevTools or a one-line edit here). EVERYTHING below is
-// scoped under the dark selectors, so LIGHT MODE IS COMPLETELY UNTOUCHED.
+// The dark palette is re-pointed onto Bootstrap's own --bs-* dark tokens at the
+// top of the mixin (see there), so FOG chrome shares one palette with the native
+// BS5/AL4 widgets. EVERYTHING below is scoped under the dark selector, so LIGHT
+// MODE IS COMPLETELY UNTOUCHED.
 //
-// Applied two ways:
-//   body.theme-dark .......................... explicit user choice (cookie)
-//   @media (prefers-color-scheme: dark)
-//     body:not(.theme-light) ................. automatic, when the user hasn't chosen
+// Applied once, via the native switch: [data-bs-theme="dark"] body (see the
+// selector after the mixin). data-bs-theme is the single source of truth for
+// both Bootstrap's components and this FOG chrome.
 //
 // NOT yet themed (intentionally — first pass; tune/extend after live review):
 // pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
 // ===========================================================================
 @mixin fog-dark-theme {
-  // -- dark palette (tune these) --
-  --fog-bg:           #1b2327; // page background, behind the boxes
-  --fog-surface:      #222d32; // boxes / cards (matches the sidebar chrome)
-  --fog-surface-2:    #2b3a42; // raised: hovers, headers, input-group addons
-  --fog-text:         #c8ccd0;
-  --fog-text-muted:   #9aa3a8; // overrides the :root light value within dark scope
-  --fog-border:       #3a4a52;
-  --fog-heading:      #e3e6e8;
-  --fog-input-bg:     #2b3a42;
-  --fog-input-border: #3a4a52;
-  // Disabled/readonly fields recede BELOW the box surface (editable fields sit
-  // raised at --fog-input-bg). In light mode BS3 paints these #eee; dark mode
-  // re-points the .form-control bg for every field, erasing that cue, so we
-  // restore it with a sunken bg + muted text (see the disabled rule below).
-  --fog-input-disabled-bg: #1b2327; // = --fog-bg (sits under the box)
+  // -- dark palette --
+  // Native BS5/AL4 dark mode: data-bs-theme="dark" on <html> activates
+  // Bootstrap's own dark token set, so the --fog-* tokens are re-pointed onto
+  // the matching --bs-* tokens. FOG's legacy AdminLTE-2 chrome (.box, sidebar,
+  // settings nav — none of which are native BS components) then shares one
+  // coherent palette with the native widgets. Elevation order is preserved:
+  // body-bg (page) < tertiary-bg (boxes) < secondary-bg (raised).
+  --fog-bg:           var(--bs-body-bg);         // page background, behind the boxes
+  --fog-surface:      var(--bs-tertiary-bg);     // boxes / cards (raised over the page)
+  --fog-surface-2:    var(--bs-secondary-bg);    // raised: hovers, headers, input-group addons
+  --fog-text:         var(--bs-body-color);
+  --fog-text-muted:   var(--bs-secondary-color); // overrides the :root light value within dark scope
+  --fog-border:       var(--bs-border-color);
+  --fog-heading:      var(--bs-emphasis-color);
+  --fog-input-bg:     var(--bs-body-bg);         // native dark form-control bg (sunken below the box)
+  --fog-input-border: var(--bs-border-color);
+  // Disabled/readonly fields recede BELOW the editable field bg. In light mode
+  // BS3 paints these #eee; dark mode re-points the .form-control bg for every
+  // field, erasing that cue, so we restore it with a sunken bg + muted text
+  // (see the disabled rule below). bg-subtle sits darker than --bs-body-bg.
+  --fog-input-disabled-bg: var(--bs-secondary-bg-subtle);
 
   // -- modernization tokens (light defaults retuned for dark) --
   // --fog-elev-1 is composed from --fog-ink, so flipping the ink to black makes
@@ -514,24 +520,24 @@ dd {
   // (--fog-stripe/--fog-row-hover are not re-pointed: dark tables are themed
   // above by the explicit .table rules.)
   --fog-ink:          0, 0, 0;
-  --fog-canvas:       #1b2327; // = --fog-bg
-  --fog-hairline:     #3a4a52; // = --fog-border
+  --fog-canvas:       var(--bs-body-bg);     // = --fog-bg
+  --fog-hairline:     var(--bs-border-color); // = --fog-border
 
   // -- settings-page tokens (light defaults read as near-white on dark) --
   // Used only by the FOG Settings nav/panels: the nav border-right and
   // panel-title border-bottom would otherwise be #f4f4f4 lines on the dark
   // box, and the count badges would be light-grey pills. Re-point them at
   // the dark border/raised-surface/text so they match the rest of dark mode.
-  --fog-border-light: #3a4a52; // = --fog-border
-  --fog-badge-bg:     #2b3a42; // = --fog-surface-2 (raised dark pill)
-  --fog-text-strong:  #c8ccd0; // = --fog-text (legible on the dark pill)
+  --fog-border-light: var(--bs-border-color); // = --fog-border
+  --fog-badge-bg:     var(--bs-secondary-bg); // = --fog-surface-2 (raised dark pill)
+  --fog-text-strong:  var(--bs-body-color);   // = --fog-text (legible on the dark pill)
 
   // -- modal footer (forced light-grey strip on the dark modal otherwise) --
   // The base .modal-footer rule applies var(--fog-modal-footer-bg) with
   // !important; the dark mixin handled .modal-body but missed this sibling.
   // Re-point the tokens so the footer reads as a raised dark strip.
-  --fog-modal-footer-bg:     #2b3a42; // = --fog-surface-2 (distinct from body)
-  --fog-modal-footer-border: #3a4a52; // = --fog-border
+  --fog-modal-footer-bg:     var(--bs-secondary-bg); // = --fog-surface-2 (distinct from body)
+  --fog-modal-footer-border: var(--bs-border-color); // = --fog-border
 
   // -- DataTables 2.x striping --
   // Striping/hover/sorted-column shading are box-shadow overlays of
@@ -803,7 +809,7 @@ dd {
   }
 
   // Select2 — the rendered control plus the dropdown (which is appended to body,
-  // so body.theme-dark still matches it as a descendant).
+  // so [data-bs-theme="dark"] body still matches it as a descendant).
   .select2-container--default .select2-selection--single,
   .select2-container--default .select2-selection--multiple {
     background-color: var(--fog-input-bg);
@@ -931,12 +937,11 @@ dd {
   }
 }
 
-body.theme-dark {
+// Single source of truth: data-bs-theme="dark" on <html>. Stamped server-side
+// from the fogTheme cookie, resolved from the OS preference by a pre-paint head
+// script when no cookie is set, and flipped live by theme.js on toggle. The
+// dark FOG chrome below is scoped to a body INSIDE that html so &.login-page
+// (body.login-page) and the body-appended Select2 dropdown still match.
+[data-bs-theme="dark"] body {
   @include fog-dark-theme;
-}
-
-@media (prefers-color-scheme: dark) {
-  body:not(.theme-light) {
-    @include fog-dark-theme;
-  }
 }

@@ -1,12 +1,14 @@
 /**
  * Dark-mode toggle.
  *
- * The <body> theme class is stamped server-side from the fogTheme cookie (see
- * management/other/index.php) so the first paint already matches the user's
- * choice — there is no light flash on reload. This script only:
- *   - syncs the toggle icon/label with the effective theme on load (this also
- *     covers the "no cookie, OS is dark" case, which the server cannot know), and
- *   - flips the body class live and writes the cookie when the toggle is clicked.
+ * data-bs-theme on <html> is the single source of truth (Bootstrap 5 / AdminLTE
+ * 4 native theming, and FOG's own chrome keys off the same attribute). It is
+ * stamped server-side from the fogTheme cookie (see management/other/index.php),
+ * or resolved from the OS preference by a pre-paint head script when no cookie
+ * is set, so the first paint already matches — there is no light flash on
+ * reload. This script only:
+ *   - syncs the toggle icon/label with the effective theme on load, and
+ *   - flips data-bs-theme live and writes the cookie when the toggle is clicked.
  *
  * Themes: 'dark' | 'light'. No cookie => follow the OS via prefers-color-scheme.
  */
@@ -44,12 +46,9 @@
     }
 
     function apply(isDark) {
-        var body = document.body;
-        body.classList.toggle('theme-dark', isDark);
-        body.classList.toggle('theme-light', !isDark);
-
-        // Bootstrap 5 / AdminLTE 4 components key off data-bs-theme on <html>.
-        // Flip it live so they recolor with the rest of the UI on toggle.
+        // data-bs-theme on <html> is the single source of truth: Bootstrap's
+        // components, AdminLTE, and FOG's own chrome all key off it. Flip it
+        // live so everything recolors together on toggle.
         document.documentElement.setAttribute(
             'data-bs-theme',
             isDark ? 'dark' : 'light'
@@ -89,7 +88,8 @@
         }
         toggle.addEventListener('click', function (e) {
             e.preventDefault();
-            var next = !document.body.classList.contains('theme-dark');
+            var next = document.documentElement
+                .getAttribute('data-bs-theme') !== 'dark';
             writeCookie(COOKIE, next ? 'dark' : 'light');
             apply(next);
         });
