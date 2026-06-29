@@ -76,7 +76,9 @@ class DelAccessControlMenuItem extends Hook
             'accesscontrolID'
         );
         if (!$accesscontrols) {
-            return new stdClass(['data' => []]);
+            $empty = new stdClass();
+            $empty->data = [];
+            return $empty;
         }
         $find = ['accesscontrolID' => $accesscontrols];
         $ruleIDs = Route::getIds(
@@ -85,7 +87,9 @@ class DelAccessControlMenuItem extends Hook
             'accesscontrolruleID'
         );
         if (!$ruleIDs) {
-            return new stdClass(['data' => []]);
+            $empty = new stdClass();
+            $empty->data = [];
+            return $empty;
         }
         $nodes = [
             '',
