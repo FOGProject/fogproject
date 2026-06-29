@@ -982,23 +982,45 @@ function reinitialize() {
   setupIntegrations();
   $(":input").inputmask(); // Setup all input masks
   Common.iCheck(); // Setup all checkboxes
+  patchSelect2SearchId(); // Must run before any .select2() init below.
   $('.fog-select2').select2({width: '100%'}); // Setup all select elements
-  // Select2 injects its dropdown search box with no id/name, tripping a browser
-  // autofill advisory. Give it an id (only one Select2 dropdown is open at a
-  // time). Deliberately NOT a name -- the field sits inside FOG forms and a name
-  // would POST a stray value. Delegated on document (survives AJAX swaps), so
-  // namespace + off() first to avoid stacking on every reinitialize().
-  $(document)
-    .off('select2:open.fogSearchId')
-    .on('select2:open.fogSearchId', function() {
-      $('.select2-container--open .select2-search__field')
-        .attr('id', 'select2-search-field');
-    });
   disableFormDefaults();
   setupPasswordReveal();
   setupUniversalSearch();
 };
 
+// Select2 builds its dropdown search box with neither id nor name, which trips
+// the browser's "form field should have an id or name" autofill advisory. That
+// audit fires when the element is inserted into the DOM (inside Select2's open
+// routine), so stamping an id afterward on the select2:open event is too late
+// to suppress it. Instead, decorate the search adapter's render() so the id is
+// present at creation time. Deliberately an id, NOT a name -- the field sits
+// inside FOG forms and a name would POST a stray value. Idempotent: patches the
+// shared SearchDropdown prototype once, so it must run before any .select2().
+function patchSelect2SearchId() {
+  if (!$.fn.select2 || !$.fn.select2.amd) {
+    return;
+  }
+  try {
+    $.fn.select2.amd.require(['select2/dropdown/search'], function(SearchDropdown) {
+      if (!SearchDropdown || SearchDropdown.__fogIdPatched) {
+        return;
+      }
+      var origRender = SearchDropdown.prototype.render;
+      var seq = 0;
+      SearchDropdown.prototype.render = function() {
+        var $rendered = origRender.apply(this, arguments);
+        if (this.$search && !this.$search.attr('id')) {
+          // data-select2-id is unique per instance; fall back to a counter.
+          var base = (this.$element && this.$element.attr('data-select2-id')) || (++seq);
+          this.$search.attr('id', 'select2-search--' + base);
+        }
+        return $rendered;
+      };
+      SearchDropdown.__fogIdPatched = true;
+    });
+  } catch (e) {}
+}
 function setupIntegrations() {
   Pace.options = {
     ajax: {
