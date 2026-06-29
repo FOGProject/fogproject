@@ -335,12 +335,12 @@ class BootMenu extends FOGBase
         $loglevel = $kernelLogLevel;
         $ramsize = $kernelRamDisk;
         $timeout = (
-            $hiddenmenu > 0 && !$_REQUEST['menuAccess'] ?
+            $hiddenmenu > 0 && empty($_REQUEST['menuAccess']) ?
             $hiddenTimeout :
             $menuTimeout
         ) * 1000;
         $keySequence = (
-            $hiddenmenu > 0 && !$_REQUEST['menuAccess'] ?
+            $hiddenmenu > 0 && empty($_REQUEST['menuAccess']) ?
             $keySequence :
             ''
         );
@@ -398,7 +398,7 @@ class BootMenu extends FOGBase
         $kernel = $bzImage;
         $initrd = $imagefile;
         $this->_timeout = $timeout;
-        $this->_hiddenmenu = ($hiddenmenu && !$_REQUEST['menuAccess']);
+        $this->_hiddenmenu = ($hiddenmenu && empty($_REQUEST['menuAccess']));
         $this->_bootexittype = self::$_exitTypes[$exit];
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = self::getClass('KeySequence', $keySequence);
@@ -821,6 +821,7 @@ class BootMenu extends FOGBase
             $this->_kernel
         );
         $TaskType = new TaskType(1);
+        $shutdown = false;
         if ($mc) {
             $Image = $mc->getImage();
             $TaskType = new TaskType(8);
