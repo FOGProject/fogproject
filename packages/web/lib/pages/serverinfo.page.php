@@ -113,6 +113,29 @@ class ServerInfo extends FOGPage
             return;
         }
         $ret = json_decode($ret[0]);
+        if (!is_object($ret)) {
+            // Node was reachable but returned non-JSON (e.g. an HTML error
+            // page or partial body); json_decode yields null/scalar. Bail out
+            // the same way as an offline node instead of reading properties off
+            // a non-object, which spammed "Attempt to read property on null".
+            echo '<div class="col-md-12">';
+            echo '<div class="card card-warning card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
+            echo $this->title;
+            echo '</h4>';
+            echo '<div class="card-tools float-end">';
+            echo self::$FOGCollapseBox;
+            echo self::$FOGCloseBox;
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="card-body">';
+            echo _('Invalid Server Information!');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            return;
+        }
         $section = 0;
         foreach ((array)$ret->nic as $nicname => $values) {
             $nicparts = explode("$$", $values);

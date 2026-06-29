@@ -547,6 +547,16 @@ class DashboardPage extends FOGPage
         $data = json_decode(
             array_shift($data)
         );
+        if (!is_object($data)) {
+            // Node was reachable but returned non-JSON; mirror the offline
+            // fallback above instead of reading ->free/->used off a non-object.
+            $data = (object)[
+                'free' => 0,
+                'used' => 0,
+                'error' => _('Node is unavailable'),
+                'title' => _('Node Offline')
+            ];
+        }
         $datatmp = [
             '_labels' => [
                 _('Free'),
