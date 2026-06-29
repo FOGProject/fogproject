@@ -59,6 +59,7 @@ class AddLocationHost extends Hook
             ['PLUGINS_INJECT_TABDATA', 'hostTabData'],
             ['HOST_EDIT_SUCCESS', 'hostAddLocationEdit'],
             ['HOST_ADD_FIELDS', 'hostAddLocationField'],
+            ['HOST_REGISTER', 'hostAddLocationRegister'],
         ]);
     }
     /**
@@ -199,6 +200,32 @@ class AddLocationHost extends Hook
                     $insert_values
                 );
         }
+    }
+    /**
+     * Associates the location posted during host (auto) registration.
+     *
+     * The Registration class decodes $_POST in place before firing
+     * HOST_REGISTER, so the posted 'location' is already a plain id here.
+     *
+     * @param mixed $arguments The hook arguments (contains Host).
+     *
+     * @return void
+     */
+    public function hostAddLocationRegister($arguments)
+    {
+        $obj = $arguments['Host'];
+        if (!$obj->isValid()) {
+            return;
+        }
+        $locationID = (int)($_POST['location'] ?? 0);
+        if (!self::getClass('Location', $locationID)->isValid()) {
+            return;
+        }
+        self::getClass('LocationAssociationManager')
+            ->insertBatch(
+                ['hostID', 'locationID'],
+                [[$obj->get('id'), $locationID]]
+            );
     }
     /**
      * The host location selector.

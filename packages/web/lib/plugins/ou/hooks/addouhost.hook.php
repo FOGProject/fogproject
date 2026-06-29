@@ -59,6 +59,7 @@ class AddOUHost extends Hook
             ['PLUGINS_INJECT_TABDATA', 'hostTabData'],
             ['HOST_EDIT_SUCCESS', 'hostAddOUEdit'],
             ['HOST_ADD_FIELDS', 'hostAddOUField'],
+            ['HOST_REGISTER', 'hostAddOURegister'],
         ]);
     }
     /**
@@ -199,6 +200,32 @@ class AddOUHost extends Hook
                     $insert_values
                 );
         }
+    }
+    /**
+     * Associates the OU posted during host (auto) registration.
+     *
+     * The Registration class decodes $_POST in place before firing
+     * HOST_REGISTER, so the posted 'ou' is already a plain id here.
+     *
+     * @param mixed $arguments The hook arguments (contains Host).
+     *
+     * @return void
+     */
+    public function hostAddOURegister($arguments)
+    {
+        $obj = $arguments['Host'];
+        if (!$obj->isValid()) {
+            return;
+        }
+        $ouID = (int)($_POST['ou'] ?? 0);
+        if ($ouID < 1) {
+            return;
+        }
+        self::getClass('OUAssociationManager')
+            ->insertBatch(
+                ['hostID', 'ouID'],
+                [[$obj->get('id'), $ouID]]
+            );
     }
     /**
      * The host ou selector.
