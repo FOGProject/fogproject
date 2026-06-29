@@ -5588,6 +5588,10 @@ msgstr "主机名"
 msgid "Should anything go wrong"
 msgstr ""
 
+#, fuzzy
+msgid "Show password"
+msgstr "管理密码"
+
 msgid "Show with"
 msgstr ""
 

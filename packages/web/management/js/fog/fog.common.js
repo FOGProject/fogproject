@@ -480,7 +480,83 @@ $.fn.registerModal = function(onOpen, onClose, opts) {
     e.on('shown.bs.modal', onOpen);
   if (onClose && typeof(onClose) === 'function')
     e.on('hidden.bs.modal', onClose);
-}
+};
+/**
+ * General modal-opener re-enable safety net.
+ *
+ * A common pattern in FOG: a button disables itself (and sibling buttons) right
+ * before opening a modal, and only re-enables them in the modal's explicit
+ * Cancel/confirm handlers. Dismissing the modal another way -- clicking the
+ * backdrop or pressing ESC -- fires neither, so those openers stay stuck
+ * disabled until the page is reloaded.
+ *
+ * This catches every dismiss path without each page having to opt in: snapshot
+ * what was already disabled before a click's handlers run, note anything the
+ * open newly disabled outside the modal, and re-enable exactly those when the
+ * modal is hidden. Delegated on document so it also covers raw modals that
+ * never went through registerModal().
+ */
+(function() {
+  var CANDIDATES = 'button, input, select, textarea, a, .btn';
+  var clickSnapshot = null;
+
+  function isDisabled(el) {
+    return el.disabled === true || $(el).hasClass('disabled');
+  }
+
+  // Capture phase: record what was ALREADY disabled before this click's
+  // (bubble-phase) handlers run and possibly disable the openers.
+  document.addEventListener('click', function() {
+    var snap = [];
+    $(CANDIDATES).each(function() {
+      if (isDisabled(this)) {
+        snap.push(this);
+      }
+    });
+    clickSnapshot = snap;
+    // Drop the snapshot once this click has fully resolved.
+    setTimeout(function() { clickSnapshot = null; }, 0);
+  }, true);
+
+  $(document).on('show.bs.modal', '.modal', function() {
+    var modal = this,
+      snap = clickSnapshot || [],
+      newlyDisabled = [];
+    $(CANDIDATES).each(function() {
+      if (!isDisabled(this)) {
+        return;
+      }
+      if (snap.indexOf(this) !== -1) {
+        return; // already disabled before this open
+      }
+      if (this === modal || $.contains(modal, this)) {
+        return; // inside the modal itself
+      }
+      newlyDisabled.push(this);
+    });
+    $.data(modal, 'fogReenableOnHide', newlyDisabled);
+  });
+
+  $(document).on('hidden.bs.modal', '.modal', function() {
+    var list = $.data(this, 'fogReenableOnHide') || [];
+    $(list).prop('disabled', false).removeClass('disabled');
+    $.removeData(this, 'fogReenableOnHide');
+  });
+}());
+/**
+ * Password show/hide toggle. Any .fog-password-toggle button flips the password
+ * input in its input-group between hidden and visible, so the user can confirm
+ * what they typed (e.g. the login form).
+ */
+$(document).on('click', '.fog-password-toggle', function(e) {
+  e.preventDefault();
+  var input = $(this).closest('.input-group').find('input').first(),
+    icon = $(this).find('i, span').first(),
+    reveal = input.attr('type') === 'password';
+  input.attr('type', reveal ? 'text' : 'password');
+  icon.toggleClass('fa-eye', !reveal).toggleClass('fa-eye-slash', reveal);
+  $(this).attr('aria-pressed', reveal ? 'true' : 'false');
+});
 $.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
     return this.api().column(col, {order:'index'}).nodes().map(function(td, i) {
       return $('input', td).prop('checked') ? '1' : '0';

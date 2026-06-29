@@ -5722,6 +5722,10 @@ msgstr "Nombre de host"
 msgid "Should anything go wrong"
 msgstr ""
 
+#, fuzzy
+msgid "Show password"
+msgstr "La gestión de contraseñas"
+
 msgid "Show with"
 msgstr ""
 

@@ -4703,6 +4703,9 @@ msgstr ""
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show password"
+msgstr ""
+
 msgid "Show with"
 msgstr ""
 

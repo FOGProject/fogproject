@@ -212,7 +212,8 @@ class ProcessLogin extends FOGPage
         echo '<div class="login-logo">';
         echo '<a href="./index.php"><b>FOG</b> Project</a>';
         echo '</div>';
-        echo '<div class="login-card-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body login-card-body">';
         echo '<p class="login-box-msg">';
         echo _('Sign in to start your session');
         echo '</p>';
@@ -224,7 +225,8 @@ class ProcessLogin extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="form-group has-feedback">';
+        // Username -- trailing user icon (AdminLTE 4 input-group pattern).
+        echo '<div class="input-group mb-3">';
         echo self::makeInput(
             'form-control',
             'uname',
@@ -234,9 +236,11 @@ class ProcessLogin extends FOGPage
             '',
             true
         );
-        echo '<span class="fa fa-user form-control-feedback"></span>';
+        echo '<div class="input-group-text"><span class="fa fa-user"></span></div>';
         echo '</div>';
-        echo '<div class="form-group has-feedback">';
+        // Password -- the trailing icon is a button that shows/hides the value
+        // so the user can confirm what they typed (see fog.common.js).
+        echo '<div class="input-group mb-3">';
         echo self::makeInput(
             'form-control',
             'upass',
@@ -246,33 +250,35 @@ class ProcessLogin extends FOGPage
             '',
             true
         );
-        echo '<span class="fa fa-lock form-control-feedback"></span>';
+        echo '<button type="button" class="input-group-text fog-password-toggle"'
+            . ' aria-label="' . Initiator::e(_('Show password')) . '"'
+            . ' aria-pressed="false" tabindex="-1">'
+            . '<span class="fa fa-eye"></span></button>';
         echo '</div>';
-        echo '<div class="form-group">';
+        echo '<div class="mb-3">';
         echo self::_getLanguages();
         echo '</div>';
-        echo '<div class="row">';
-        echo '<div class="col-8">';
+        echo '<div class="row align-items-center">';
+        echo '<div class="col-7">';
         echo '<div class="form-check">';
-        echo '<label for="remember-me">';
         echo self::makeInput(
-            'remember-me',
+            'form-check-input',
             'remember-me',
             '',
             'checkbox',
             'remember-me',
             ''
         );
-        echo ' ';
+        echo '<label class="form-check-label" for="remember-me">';
         echo _('Remember Me');
         echo '</label>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="col-4">';
+        echo '<div class="col-5">';
         echo self::makeButton(
             'loginSubmit',
             _('Sign In'),
-            'btn btn-primary btn-block btn-flat'
+            'btn btn-primary w-100'
         );
         echo '</div>';
         echo '</div>';
@@ -286,6 +292,7 @@ class ProcessLogin extends FOGPage
             true
         );
         echo '</form>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }

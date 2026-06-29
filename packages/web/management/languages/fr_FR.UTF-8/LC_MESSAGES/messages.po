@@ -5595,6 +5595,10 @@ msgstr "Nom d'hôte"
 msgid "Should anything go wrong"
 msgstr ""
 
+#, fuzzy
+msgid "Show password"
+msgstr "gestion Mot de passe"
+
 msgid "Show with"
 msgstr ""
 

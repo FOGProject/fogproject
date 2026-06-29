@@ -329,24 +329,34 @@ header.main-header .mobile-logo {
   border-top-color: var(--fog-modal-footer-border);
 }
 
+// These override the (outline) footer buttons to a solid brand fill, so they
+// also need an explicit, high-contrast text color — otherwise the button keeps
+// its faint outline-button text, which washes out on the fill (most visibly on
+// the light orange warning fill, and especially in dark mode where the inherited
+// text is already light-grey). White reads on the darker fills; the bright
+// warning fill needs dark ink, matching Bootstrap's own .btn-warning.
 .modal .modal-dialog .modal-footer .btn {
   border-color: var(--fog-modal-btn) !important;
   background-color: var(--fog-modal-btn) !important;
+  color: #fff !important;
 }
 
 .modal-success .modal-dialog .modal-footer .btn {
   border-color: var(--fog-success) !important;
   background-color: var(--fog-success) !important;
+  color: #fff !important;
 }
 
 .modal-warning .modal-dialog .modal-footer .btn {
   border-color: var(--fog-warning) !important;
   background-color: var(--fog-warning) !important;
+  color: #1f2d3d !important;
 }
 
 .modal-danger .modal-dialog .modal-footer .btn {
   border-color: var(--fog-danger) !important;
   background-color: var(--fog-danger) !important;
+  color: #fff !important;
 }
 
 .modal .modal-dialog .modal-footer .btn.pull-left {
@@ -927,8 +937,8 @@ dd {
   &.login-page {
     background-color: var(--fog-bg);
   }
-  .login-box-body,
-  .register-box-body {
+  .login-card-body,
+  .register-card-body {
     background-color: var(--fog-surface);
     color: var(--fog-text);
   }

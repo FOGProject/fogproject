@@ -5592,6 +5592,10 @@ msgstr "Host-Name"
 msgid "Should anything go wrong"
 msgstr "Sollte etwas schief gehen,"
 
+#, fuzzy
+msgid "Show password"
+msgstr "Passwort ändern"
+
 msgid "Show with"
 msgstr ""
 

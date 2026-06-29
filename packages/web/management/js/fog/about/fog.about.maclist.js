@@ -7,6 +7,17 @@
     deletemacsbtn = $('#deletemacs'),
     deletemacsModalConfirmBtn = $('#deletemacsConfirm'),
     deletemacsModalCancelBtn = $('#deletemacsCancel');
+  // Whenever either modal closes -- Confirm, Cancel, backdrop click, or ESC --
+  // make sure both opener buttons are clickable again. The per-action handlers
+  // below only cover Confirm/Cancel; this covers the dismiss paths they miss.
+  updatemacModal.on('hidden.bs.modal', function() {
+    updatemacsbtn.prop('disabled', false);
+    deletemacsbtn.prop('disabled', false);
+  });
+  deletemacModal.on('hidden.bs.modal', function() {
+    updatemacsbtn.prop('disabled', false);
+    deletemacsbtn.prop('disabled', false);
+  });
   // Update macs elements
   updatemacsbtn.on('click', function(e) {
     e.preventDefault();

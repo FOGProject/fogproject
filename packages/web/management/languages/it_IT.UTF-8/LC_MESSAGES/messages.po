@@ -5345,6 +5345,10 @@ msgstr "Nome Host"
 msgid "Should anything go wrong"
 msgstr "Qualsiasi cosa andasse storto"
 
+#, fuzzy
+msgid "Show password"
+msgstr "Cambia password"
+
 msgid "Show with"
 msgstr ""
 
