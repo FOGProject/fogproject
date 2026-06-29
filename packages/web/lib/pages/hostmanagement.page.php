@@ -162,7 +162,7 @@ class HostManagement extends FOGPage
             'cancelApprovalModal',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
@@ -182,7 +182,7 @@ class HostManagement extends FOGPage
             'closeDeleteModal',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
             'deleteModal',
@@ -326,7 +326,7 @@ class HostManagement extends FOGPage
             'cancelApprovalModal',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
@@ -346,7 +346,7 @@ class HostManagement extends FOGPage
             'closeDeleteModal',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
             'deleteModal',
@@ -1454,7 +1454,7 @@ class HostManagement extends FOGPage
             'newmac-cancel',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $buttons .= self::makeButton(
             'newmac-send',
@@ -1977,7 +1977,7 @@ class HostManagement extends FOGPage
             )
             . ' '
             . _('No Printer Management'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting turns off all FOG Printer Management. '
                 . 'Although there are multiple levels already, this '
@@ -2005,7 +2005,7 @@ class HostManagement extends FOGPage
             )
             . ' '
             . _('Add/Remove Managed Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting only adds and removes '
                 . 'printers that are managed by FOG. '
@@ -2038,7 +2038,7 @@ class HostManagement extends FOGPage
             )
             . ' '
             . _('All Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting will only allow FOG Assigned '
                 . 'printers to be added to the host. Any '
@@ -2592,7 +2592,7 @@ class HostManagement extends FOGPage
             'ondemandCancelBtn',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
@@ -2604,7 +2604,7 @@ class HostManagement extends FOGPage
             'scheduleCancelBtn',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
@@ -4090,7 +4090,7 @@ class HostManagement extends FOGPage
             'tasking-close',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $taskModal = self::makeModal(
             'task-modal',
@@ -4111,8 +4111,8 @@ class HostManagement extends FOGPage
         echo '<div class="panel box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo '<a href="#tasksBasic" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<a href="#tasksBasic" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Basic Tasks');
         echo '</a>';
         echo '</h4>';
@@ -4132,8 +4132,8 @@ class HostManagement extends FOGPage
         echo '<div class="panel box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo '<a href="#tasksAdvanced" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<a href="#tasksAdvanced" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Advanced Tasks');
         echo '</a>';
         echo '</h4>';

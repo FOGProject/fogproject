@@ -965,7 +965,7 @@ class GroupManagement extends FOGPage
             )
             . ' '
             . _('No Printer Management'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting turns off all FOG Printer Management. '
                 . 'Although there are multiple levels already, this '
@@ -993,7 +993,7 @@ class GroupManagement extends FOGPage
             )
             . ' '
             . _('Add/Remove Managed Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting only adds and removes '
                 . 'printers that are managed by FOG. '
@@ -1026,7 +1026,7 @@ class GroupManagement extends FOGPage
             )
             . ' '
             . _('All Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting will only allow FO GAssigned '
                 . 'printers to be added to the host. Any '
@@ -1573,7 +1573,7 @@ class GroupManagement extends FOGPage
             'ondemandCancelBtn',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
@@ -1584,7 +1584,7 @@ class GroupManagement extends FOGPage
             'scheduleCancelBtn',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
@@ -1606,7 +1606,7 @@ class GroupManagement extends FOGPage
             'deletepowermanagementCancel',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $modalondemand = self::makeModal(
             'ondemandModal',
@@ -1769,7 +1769,7 @@ class GroupManagement extends FOGPage
             echo '<div class="panel box box-primary">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
-            echo '<a data-toggle="collapse" data-parent="#accordion" href="#'
+            echo '<a data-bs-toggle="collapse" data-bs-parent="#accordion" href="#'
                 . $hostnames[$i]
                 . '">';
             echo $hostnames[$i] . ' ' . _('Inventory Data');
@@ -2709,7 +2709,7 @@ class GroupManagement extends FOGPage
             'tasking-close',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $taskModal = self::makeModal(
             'task-modal',
@@ -2730,8 +2730,8 @@ class GroupManagement extends FOGPage
         echo '<div class="panel box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo '<a href="#tasksBasic" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<a href="#tasksBasic" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Basic Tasks');
         echo '</a>';
         echo '</h4>';
@@ -2751,8 +2751,8 @@ class GroupManagement extends FOGPage
         echo '<div class="panel box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo '<a href="#tasksAdvanced" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<a href="#tasksAdvanced" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Advanced Tasks');
         echo '</a>';
         echo '</h4>';

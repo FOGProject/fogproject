@@ -122,7 +122,7 @@ abstract class Event extends FOGBase
         );
         $msg = '%s<div class='
             . '"alert alert-info alert-dismissable fade in">'
-            . '<a href="#" class="close" data-dismiss="alert">&times;</a>'
+            . '<a href="#" class="close" data-bs-dismiss="alert">&times;</a>'
             . '%s</div>%s';
         if (!self::$post && $logbrow) {
             if ($curlog >= $level) {

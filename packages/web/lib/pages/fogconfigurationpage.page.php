@@ -152,7 +152,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="panel box box-primary">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
-            echo '<a data-toggle="collapse" data-parent="#nodekernvers" href="#'
+            echo '<a data-bs-toggle="collapse" data-bs-parent="#nodekernvers" href="#'
                 . $id
                 . '">';
             echo $StorageNode->name;
@@ -333,7 +333,7 @@ class FOGConfigurationPage extends FOGPage
             'cancelDownload',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
 
         if ($isKernel) {
@@ -1950,7 +1950,7 @@ class FOGConfigurationPage extends FOGPage
                 echo '<label class="control-label settings-label" for="'
                     . Initiator::e($row['settingKey']) . '"';
                 if ($desc !== '') {
-                    echo ' data-toggle="tooltip" data-placement="top" title="'
+                    echo ' data-bs-toggle="tooltip" data-placement="top" title="'
                         . Initiator::e($desc) . '"';
                 }
                 echo '>' . Initiator::e($row['settingKey']) . '</label>';

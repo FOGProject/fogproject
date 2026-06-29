@@ -108,7 +108,7 @@
       new jscolor(this, {'value': color});
     });
     $('#settings-content .slider').slider();
-    $('#settings-content [data-toggle="tooltip"]').tooltip();
+    $('#settings-content [data-bs-toggle="tooltip"]').tooltip();
     $('#settings-content :password').each(function() {
       if (!$(this).prev().hasClass('input-group-addon')) {
         $(this).before(

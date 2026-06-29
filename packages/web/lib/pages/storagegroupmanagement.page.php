@@ -398,7 +398,7 @@ class StorageGroupManagement extends FOGPage
                 "closeImagePrimaryDeleteModal",
                 _('Cancel'),
                 'btn btn-outline pull-left',
-                'data-dismiss="modal"'
+                'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirmImagePrimaryDeleteModal",
@@ -565,7 +565,7 @@ class StorageGroupManagement extends FOGPage
                 "closeSnapinPrimaryDeleteModal",
                 _('Cancel'),
                 'btn btn-outline pull-left',
-                'data-dismiss="modal"'
+                'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirmSnapinPrimaryDeleteModal",

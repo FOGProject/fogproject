@@ -909,7 +909,7 @@ abstract class FOGPage extends FOGBase
                 '',
                 'x',
                 'close',
-                'data-dismiss="alert" aria-hidden="true"'
+                'data-bs-dismiss="alert" aria-hidden="true"'
             );
         }
         echo '<h4>'
@@ -997,7 +997,7 @@ abstract class FOGPage extends FOGBase
         echo '</button>';
         echo '<button type="button" class="btn btn-'
             . $class
-            . ' dropdown-toggle" data-toggle="dropdown">';
+            . ' dropdown-toggle" data-bs-toggle="dropdown">';
         echo '<span class="caret"></span>';
         echo '<span class="sr-only">'
             . _('Toggle Dropdown')
@@ -1133,7 +1133,7 @@ abstract class FOGPage extends FOGBase
                                 'closecreateModal',
                                 _('Cancel'),
                                 'btn btn-outline pull-left',
-                                'data-dismiss="modal"'
+                                'data-bs-dismiss="modal"'
                             )
                             . self::makeButton(
                                 'send',
@@ -1155,7 +1155,7 @@ abstract class FOGPage extends FOGBase
                                 'closeGroupModal',
                                 _('Cancel'),
                                 'btn btn-outline pull-left',
-                                'data-dismiss="modal"'
+                                'data-bs-dismiss="modal"'
                             )
                             . self::makeButton(
                                 'confirmGroupAdd',
@@ -1216,7 +1216,7 @@ abstract class FOGPage extends FOGBase
                             'closeDeleteModal',
                             _('Cancel'),
                             'btn btn-outline pull-left',
-                            'data-dismiss="modal"'
+                            'data-bs-dismiss="modal"'
                         )
                         . self::makeButton(
                             'confirmDeleteModal',
@@ -2200,7 +2200,7 @@ abstract class FOGPage extends FOGBase
                 'closeDeleteModal',
                 _('Cancel'),
                 'btn btn-outline pull-left',
-                'data-dismiss="modal"'
+                'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 'confirmDeleteModal',
@@ -2228,7 +2228,7 @@ abstract class FOGPage extends FOGBase
                 "close{$item}DeleteModal",
                 _('Cancel'),
                 'btn btn-outline pull-left',
-                'data-dismiss="modal"'
+                'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirm{$item}DeleteModal",
@@ -4318,7 +4318,7 @@ abstract class FOGPage extends FOGBase
             if (isset($entry['tabs'])) {
                 $name = $entry['tabs']['name'];
                 echo '<li class="dropdown">';
-                echo '<a class="dropdown-toggle" data-toggle="dropdown" href="#">';
+                echo '<a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">';
                 echo $name;
                 echo '<span class="caret"></span>';
                 echo '</a>';
@@ -4340,7 +4340,7 @@ abstract class FOGPage extends FOGBase
                         . '">';
                     echo '<a href="#'
                         . $ident
-                        . '" data-toggle="tab" ariaexpanded="true">'
+                        . '" data-bs-toggle="tab" ariaexpanded="true">'
                         . $name
                         . '</a>';
                     echo '</li>';
@@ -4363,7 +4363,7 @@ abstract class FOGPage extends FOGBase
                     . '">';
                 echo '<a href="#'
                     . $ident
-                    . '" data-toggle="tab" ariaexpanded="true">'
+                    . '" data-bs-toggle="tab" ariaexpanded="true">'
                     . $name
                     . '</a>';
                 echo '</li>';
@@ -4527,7 +4527,7 @@ abstract class FOGPage extends FOGBase
         $extra = ''
     ) {
         return '<i class="' . $class. '" id="' . $id . '"'
-            . ' data-toggle="tooltip"'
+            . ' data-bs-toggle="tooltip"'
             . ' data-placement="left"'
             . ' data-html="true"'
             . ' data-trigger="click"'

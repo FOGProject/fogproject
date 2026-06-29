@@ -364,7 +364,7 @@ $.fn.fogVariable = function(opts) {
     /**
      * Sets the tooltips to operate.
      */
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   }).on('click', '.fogpasswordeye', function(e) {
@@ -520,7 +520,7 @@ $.fn.fogVariable = function(opts) {
   /**
    * Set the tab.
    */
-  $('a[data-toggle="tab"]').on('click', function(e) {
+  $('a[data-bs-toggle="tab"]').on('click', function(e) {
     var newLoadedHtml = $(this).prop('href'),
       hash = newLoadedHtml.split('#'),
       link = hash[0];

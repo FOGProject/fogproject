@@ -22,7 +22,7 @@
       columnDefs: [
         {
           render: function(data, type, row) {
-            return '<span data-toggle="tooltip" title="'
+            return '<span data-bs-toggle="tooltip" title="'
               + row.description
               + '">'
               + data

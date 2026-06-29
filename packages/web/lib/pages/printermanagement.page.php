@@ -1555,7 +1555,7 @@ class PrinterManagement extends FOGPage
                 "closeHostDefaultDeleteModal",
                 _('Cancel'),
                 'btn btn-outline pull-left',
-                'data-dismiss="modal"'
+                'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirmHostDefaultDeleteModal",

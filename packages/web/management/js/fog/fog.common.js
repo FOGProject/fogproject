@@ -652,7 +652,7 @@ $.fn.registerTable = function(onSelect, opts) {
     drawCallback: function () {
       try {
         $(this.api().table().node())
-          .find('[data-toggle="tooltip"]')
+          .find('[data-bs-toggle="tooltip"]')
           .tooltip();
       } catch (e) {}
     }
@@ -717,7 +717,7 @@ function macVendorIcon(vendor) {
   // scroll body (infinite-scroll) and from rendering under the sticky header;
   // placement=right clears the header above the first row.
   return ' <i class="fa fa-info-circle text-muted mac-vendor-icon" '
-    + 'data-toggle="tooltip" data-placement="right" data-container="body" '
+    + 'data-bs-toggle="tooltip" data-placement="right" data-container="body" '
     + 'title="' + esc + '"></i>';
 }
 /**
@@ -748,7 +748,7 @@ function macVendorIcon(vendor) {
         {prefix: input.val()},
         function (res) {
           holder.html(macVendorIcon(res && res.vendor ? res.vendor : ''));
-          holder.find('[data-toggle="tooltip"]').tooltip();
+          holder.find('[data-bs-toggle="tooltip"]').tooltip();
         },
         'json'
       );
@@ -1193,7 +1193,7 @@ function setupPasswordReveal() {
       $('.filedisp').val(numFiles + ' files selected');
     }
   }).on('mouseover.fogReveal', function() {
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   });

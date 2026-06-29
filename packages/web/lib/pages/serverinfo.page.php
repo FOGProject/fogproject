@@ -265,7 +265,7 @@ class ServerInfo extends FOGPage
                     // Mirror the OUI vendor icon used everywhere a MAC renders:
                     // an fa-info-circle whose tooltip carries the vendor name.
                     $macDisplay .= ' <i class="fa fa-info-circle text-muted '
-                        . 'mac-vendor-icon" data-toggle="tooltip" '
+                        . 'mac-vendor-icon" data-bs-toggle="tooltip" '
                         . 'data-placement="right" data-container="body" title="'
                         . Initiator::e($vendor)
                         . '"></i>';
@@ -292,7 +292,7 @@ class ServerInfo extends FOGPage
             echo '<div class="panel box box-primary">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
-            echo '<a data-toggle="collapse" data-parent="#accordion" href="#'
+            echo '<a data-bs-toggle="collapse" data-bs-parent="#accordion" href="#'
                 . $ethName
                 . '">';
             echo $ethName;

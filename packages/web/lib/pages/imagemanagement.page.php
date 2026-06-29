@@ -1257,7 +1257,7 @@ class ImageManagement extends FOGPage
             'cancelModalBtn',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $modalBtns .= self::makeButton(
             'confirmModalBtn',
@@ -1269,7 +1269,7 @@ class ImageManagement extends FOGPage
             'createCancelModalBtn',
             _('Cancel'),
             'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'data-bs-dismiss="modal"'
         );
         $modalCreateBtns .= self::makeButton(
             'createConfirmModalBtn',
