@@ -1136,7 +1136,7 @@ function setupUniversalSearch() {
 function setupPasswordReveal() {
   $(':password')
     .not('.fakes, [name="upass"]')
-    .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
+    .before('<span class="input-group-text"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
   // These are delegated on `document`, which survives AJAX page swaps, while
   // reinitialize() (and thus this function) runs again on every AJAX page
   // load. Namespace and remove them first so they don't accumulate -- two

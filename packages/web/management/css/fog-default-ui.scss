@@ -770,7 +770,8 @@ dd {
     background-color: var(--fog-input-disabled-bg);
     color: var(--fog-text-muted);
   }
-  .input-group-addon {
+  .input-group-addon,
+  .input-group-text {
     background-color: var(--fog-surface-2);
     border-color: var(--fog-input-border);
     color: var(--fog-text);
