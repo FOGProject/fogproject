@@ -93,10 +93,9 @@ class ReportManagement extends FOGPage
                 . ')'
             ) => '<div class="input-group">'
             . self::makeLabel(
-                'input-group-btn',
+                'btn btn-info',
                 'import',
-                '<span class="btn btn-info">'
-                . _('Browse')
+                _('Browse')
                 . self::makeInput(
                     'hidden',
                     'report',
@@ -106,7 +105,6 @@ class ReportManagement extends FOGPage
                     '',
                     true
                 )
-                . '</span>'
             )
             . self::makeInput(
                 'form-control filedisp',

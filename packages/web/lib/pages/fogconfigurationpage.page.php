@@ -1358,10 +1358,9 @@ class FOGConfigurationPage extends FOGPage
             case 'FOG_CLIENT_BANNER_IMAGE':
                 $input = '<div class="input-group">'
                     . self::makeLabel(
-                        'input-group-btn',
+                        'btn btn-info',
                         $row['settingKey'],
-                        '<span class="btn btn-info">'
-                        . _('Browse')
+                        _('Browse')
                         . self::makeInput(
                             'hidden',
                             $row['settingID'],
@@ -1371,7 +1370,6 @@ class FOGConfigurationPage extends FOGPage
                             '',
                             true
                         )
-                        . '</span>'
                     )
                     . self::makeInput(
                         'form-control filedisp',
@@ -1430,13 +1428,11 @@ class FOGConfigurationPage extends FOGPage
                     '',
                     true
                 );
-                $input .= '<div class="input-group-btn">';
                 $input .= self::makeButton(
                     'resettoken',
                     _('Reset Token'),
                     'btn btn-warning resettoken'
                 );
-                $input .= '</div>';
                 $input .= '</div>';
                 break;
             case (preg_match('#pass#i', $row['settingKey'])
@@ -1812,11 +1808,9 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="input-group input-group-sm settings-search-box">';
         echo '<input type="text" id="settings-search" class="form-control" '
             . 'placeholder="' . _('Search settings') . '" autocomplete="off">';
-        echo '<span class="input-group-btn">'
-            . '<button type="button" id="settings-search-clear" '
+        echo '<button type="button" id="settings-search-clear" '
             . 'class="btn btn-secondary" title="' . _('Clear') . '">'
-            . '<i class="fa fa-times"></i></button>'
-            . '</span>';
+            . '<i class="fa fa-times"></i></button>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -2400,10 +2394,9 @@ class FOGConfigurationPage extends FOGPage
                 _('Import Database')
             ) => '<div class="input-group">'
             . self::makeLabel(
-                'input-group-btn',
+                'btn btn-info',
                 'import',
-                '<span class="btn btn-info">'
-                . _('Browse')
+                _('Browse')
                 . self::makeInput(
                     'hidden',
                     'dbFile',
@@ -2413,7 +2406,6 @@ class FOGConfigurationPage extends FOGPage
                     '',
                     true
                 )
-                . '</span>'
             )
             . self::makeInput(
                 'form-control filedisp',

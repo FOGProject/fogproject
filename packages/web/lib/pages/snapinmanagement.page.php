@@ -341,10 +341,9 @@ class SnapinManagement extends FOGPage
                 _('Snapin File')
             ) => '<div class="input-group">'
             . self::makeLabel(
-                'input-group-btn',
+                'btn btn-info',
                 'snapinfile',
-                '<span class="btn btn-info">'
-                . _('Browse')
+                _('Browse')
                 . self::makeInput(
                     'hidden',
                     'snapinfile',
@@ -352,7 +351,7 @@ class SnapinManagement extends FOGPage
                     'file',
                     'snapinfile',
                     ''
-                ) . '</span>'
+                )
             ) . self::makeInput(
                 'form-control filedisp cmdlet3',
                 '',
@@ -818,10 +817,9 @@ class SnapinManagement extends FOGPage
                 _('Snapin File')
             ) => '<div class="input-group">'
             . self::makeLabel(
-                'input-group-btn',
+                'btn btn-info',
                 'snapinfile',
-                '<span class="btn btn-info">'
-                . _('Browse')
+                _('Browse')
                 . self::makeInput(
                     'hidden',
                     'snapinfile',
@@ -829,7 +827,7 @@ class SnapinManagement extends FOGPage
                     'file',
                     'snapinfile',
                     ''
-                ) . '</span>'
+                )
             ) . self::makeInput(
                 'form-control filedisp cmdlet3',
                 '',

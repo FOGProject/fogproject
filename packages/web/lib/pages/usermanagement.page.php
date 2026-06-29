@@ -613,13 +613,11 @@ class UserManagement extends FOGPage
                 true,
                 false
             )
-            . '<div class="input-group-btn">'
             . self::makeButton(
                 'resettoken',
                 _('Reset Token'),
                 'btn btn-warning resettoken'
             )
-            . '</div>'
             . '</div>'
         ];
 

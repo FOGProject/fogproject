@@ -110,9 +110,9 @@
     $('#settings-content .slider').slider();
     $('#settings-content [data-bs-toggle="tooltip"]').tooltip();
     $('#settings-content :password').each(function() {
-      if (!$(this).prev().hasClass('input-group-addon')) {
+      if (!$(this).prev().hasClass('input-group-text')) {
         $(this).before(
-          '<span class="input-group-addon">'
+          '<span class="input-group-text">'
           + '<i class="fa fa-eye-slash fogpasswordeye"></i></span>'
         );
       }

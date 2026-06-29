@@ -2740,10 +2740,9 @@ abstract class FOGPage extends FOGBase
                 . ')'
             ) => '<div class="input-group">'
             . self::makeLabel(
-                'input-group-btn',
+                'btn btn-info',
                 'import',
-                '<span class="btn btn-info">'
-                . _('Browse')
+                _('Browse')
                 . self::makeInput(
                     'hidden',
                     'file',
@@ -2752,7 +2751,7 @@ abstract class FOGPage extends FOGBase
                     'import',
                     '',
                     true
-                ) . '</span>'
+                )
             ) . self::makeInput(
                 'form-control filedisp',
                 '',

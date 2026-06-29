@@ -198,7 +198,7 @@ class ImageManagement extends FOGPage
                 'path',
                 _('Image Path')
             ) => '<div class="input-group">'
-            . '<span class="input-group-addon">'
+            . '<span class="input-group-text">'
             . $StorageNode->get('path')
             . '/'
             . '</span>'
@@ -580,7 +580,7 @@ class ImageManagement extends FOGPage
                 'path',
                 _('Image Path')
             ) => '<div class="input-group">'
-            . '<span class="input-group-addon">'
+            . '<span class="input-group-text">'
             . $StorageNode->get('path')
             . '/'
             . '</span>'
