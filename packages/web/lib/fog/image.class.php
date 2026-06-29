@@ -151,7 +151,7 @@ class Image extends FOGController
                     );
                 }
             }
-            $RemIDs = array_filter($RemIDs);
+            $RemIDs = array_filter($RemIDs ?? []);
             if (count($RemIDs) > 0) {
                 self::getClass('HostManager')->update(
                     [
