@@ -557,64 +557,50 @@ abstract class FOGPage extends FOGBase
             $subItems = array_filter(
                 self::_buildSubMenuItems($link)
             );
-            echo '<li class="'
-                . (
-                    count($subItems ?: []) > 0 ?
-                    'treeview' :
-                    ''
-                )
-                . (
-                    $activelink ?
-                    (
-                        count($subItems ?: []) > 0 ?
-                        ' ' :
-                        ''
-                    ) . 'active' :
-                    ''
-                )
+            $hasChildren = count($subItems ?: []) > 0;
+            // AL4: parents with children get .nav-item (+ .menu-open when active
+            // so the treeview JS renders them expanded on load); the link is a
+            // plain .nav-link (active reflects the current node). Leaf items get
+            // the .ajax-page-link so ADR-0004's chrome refresh handles the click.
+            echo '<li class="nav-item'
+                . ($hasChildren && $activelink ? ' menu-open' : '')
                 . '">';
             echo '<a '
-                // Only make the page an AJAX link if it doesn't have children.
                 . (
-                    count($subItems ?: []) == 0 ?
-                    'class="ajax-page-link" ' :
-                    ''
+                    !$hasChildren ?
+                    'class="nav-link ajax-page-link' . ($activelink ? ' active' : '') . '" ' :
+                    'class="nav-link' . ($activelink ? ' active' : '') . '" '
                 )
-                . ' href="'
+                . 'href="'
                 . (
-                    count($subItems ?: []) > 0 ?
+                    $hasChildren ?
                     '#' :
                     "../management/index.php?node=$link"
                 )
                 . '">';
-            echo '<i class="' . $title[1] . '"></i> ';
-            echo '<span>' . $title[0] . '</span>';
-            if (count($subItems ?: []) > 0) {
-                echo '<span class="pull-right-container">';
-                echo '<i class="fa fa-angle-left pull-right"></i>';
-                echo '</span>';
+            echo '<i class="nav-icon ' . $title[1] . '"></i>';
+            echo '<p>' . $title[0];
+            if ($hasChildren) {
+                echo '<i class="nav-arrow fa fa-angle-left"></i>';
             }
+            echo '</p>';
             echo '</a>';
-            if (count($subItems ?: []) > 0) {
-                echo '<ul class="treeview-menu">';
+            if ($hasChildren) {
+                echo '<ul class="nav nav-treeview">';
                 $subs[$link] = [];
                 foreach ($subItems as $subItem => $text) {
                     $subs[$link][] = $subItem;
-                    echo '<li class="'
-                        . (
-                            $activelink && $sub == $subItem ?
-                            'active' :
-                            ''
-                        )
-                        . '">';
-                    echo '<a class="ajax-page-link" '
+                    echo '<li class="nav-item">';
+                    echo '<a class="nav-link ajax-page-link'
+                        . ($activelink && $sub == $subItem ? ' active' : '')
+                        . '" '
                         . 'href="../management/index.php?node='
                         . $link
                         . '&sub='
                         . $subItem
                         . '">';
-                    echo '<i class="fa fa-circle-o"></i>';
-                    echo $text;
+                    echo '<i class="nav-icon fa fa-circle-o"></i>';
+                    echo '<p>' . $text . '</p>';
                     echo '</a>';
                     echo '</li>';
                 }

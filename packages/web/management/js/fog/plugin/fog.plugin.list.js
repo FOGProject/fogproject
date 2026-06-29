@@ -14,8 +14,8 @@
     // Refresh the "PLUGIN OPTIONS" sidebar section after a plugin's
     // installed/active state changes, so new items appear (and removed ones
     // disappear) without a full page reload. Only the inner HTML of
-    // .plugin-options is replaced; the parent <ul data-widget="tree"> is left
-    // intact so AdminLTE's delegated treeview handler keeps working.
+    // .plugin-options is replaced; the parent <ul data-lte-toggle="treeview">
+    // is left intact so AdminLTE's delegated treeview handler keeps working.
     function refreshSidebar() {
         $.get('../management/index.php?node=plugin&sub=sidebar')
             .done(function(html) {

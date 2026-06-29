@@ -1315,10 +1315,14 @@ function clearAllIntervals(){
     clearAllIntervals();
     $.xhrPool.abortAll();
 
-    if($(".sidebar-menu.tree .treeview.menu-open").find(targetElement).length === 0){
-      $(".sidebar-menu.tree .treeview.menu-open .treeview-menu").slideUp();
-      $(".sidebar-menu.tree .treeview.menu-open").removeClass('menu-open');
-    }
+    // AL4 treeview visibility is gated purely by the .menu-open class on the
+    // parent .nav-item (CSS shows .menu-open > .nav-treeview). Collapse any open
+    // branch that does not contain the target link.
+    $(".sidebar-menu .nav-item.menu-open").each(function(){
+      if($(this).find(targetElement).length === 0){
+        $(this).removeClass('menu-open');
+      }
+    });
 
     // Load the page asynchronously.
     $.ajax(targetPage, {
@@ -1347,11 +1351,13 @@ function clearAllIntervals(){
 
       ajaxPageLoading = false;
 
-      // Update the sidebar
-      $(".sidebar-menu.tree li").not(targetElement.parent('.treeview')).removeClass('active');
-      targetElement.parent().addClass('active');
-      targetElement.parents('.treeview').addClass('active menu-open');
-      targetElement.parents('.treeview-menu').slideDown();
+      // Update the sidebar. AL4: active highlights the .nav-link; parent
+      // branches get .menu-open (which the CSS expands) and their own .nav-link
+      // marked active so the open ancestor is visibly highlighted too.
+      $(".sidebar-menu .nav-link").removeClass('active');
+      targetElement.addClass('active');
+      targetElement.parents('.nav-item').addClass('menu-open')
+        .children('.nav-link').addClass('active');
     });
   }
 

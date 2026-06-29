@@ -3295,6 +3295,9 @@ msgstr ""
 msgid "Main Menu"
 msgstr ""
 
+msgid "Main navigation"
+msgstr ""
+
 msgid "Make default"
 msgstr ""
 

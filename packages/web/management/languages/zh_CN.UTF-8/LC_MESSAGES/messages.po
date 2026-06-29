@@ -3946,6 +3946,10 @@ msgid "Main Menu"
 msgstr "主菜单"
 
 #, fuzzy
+msgid "Main navigation"
+msgstr "图像协会"
+
+#, fuzzy
 msgid "Make default"
 msgstr "更新打印机"
 

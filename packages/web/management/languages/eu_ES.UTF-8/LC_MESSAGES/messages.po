@@ -3950,6 +3950,10 @@ msgid "Main Menu"
 msgstr "Hauptmenü"
 
 #, fuzzy
+msgid "Main navigation"
+msgstr "Regel Zuordnung"
+
+#, fuzzy
 msgid "Make default"
 msgstr "Standarddrucker aktualisieren"
 

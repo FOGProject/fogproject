@@ -3948,6 +3948,10 @@ msgid "Main Menu"
 msgstr "Menu principal"
 
 #, fuzzy
+msgid "Main navigation"
+msgstr "Associação imagem"
+
+#, fuzzy
 msgid "Make default"
 msgstr "Atualizar impressora"
 

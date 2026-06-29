@@ -396,17 +396,21 @@ class Page extends FOGBase
                         header(
                             'X-FOG-BCacheVer: ' . FOG_BCACHE_VER
                         );
-                        echo '<section class="content-header">';
+                        echo '<div class="app-content-header">';
+                        echo '<div class="container-fluid">';
                         echo '<h1 id="sectionTitle">';
                         echo $this->sectionTitle;
                         echo '<small id="pageTitle">';
                         echo $this->pageTitle;
                         echo '</small>';
                         echo '</h1>';
-                        echo '</section>';
-                        echo '<section class="content">';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '<div class="app-content">';
+                        echo '<div class="container-fluid">';
                         echo $this->body;
-                        echo '</section>';
+                        echo '</div>';
+                        echo '</div>';
                         break;
                 }
                 break;

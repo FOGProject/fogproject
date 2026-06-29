@@ -3771,6 +3771,10 @@ msgid "Main Menu"
 msgstr "Menu principale"
 
 #, fuzzy
+msgid "Main navigation"
+msgstr "Regole di associazione"
+
+#, fuzzy
 msgid "Make default"
 msgstr "Aggiorna la stampante predefinita"
 

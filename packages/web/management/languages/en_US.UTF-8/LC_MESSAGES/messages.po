@@ -3945,6 +3945,10 @@ msgid "Main Menu"
 msgstr "Main Menu"
 
 #, fuzzy
+msgid "Main navigation"
+msgstr "Image Association"
+
+#, fuzzy
 msgid "Make default"
 msgstr "Update Printer"
 
