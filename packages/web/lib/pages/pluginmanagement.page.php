@@ -95,7 +95,7 @@ class PluginManagement extends FOGPage
             . '" ';
 
         // Activate/Deactivate Plugins
-        $buttons = '<div class="btn-group pull-right">';
+        $buttons = '<div class="btn-group float-end">';
         $buttons .= self::makeSplitButton(
             'activate',
             _('Activate selected'),
@@ -113,7 +113,7 @@ class PluginManagement extends FOGPage
         $buttons .= '</div>';
 
         // Install/Uninstall Plugins
-        $buttons .= '<div class="btn-group pull-left">';
+        $buttons .= '<div class="btn-group float-start">';
         $buttons .= self::makeSplitButton(
             'install',
             _('Install selected'),
@@ -135,14 +135,14 @@ class PluginManagement extends FOGPage
         );
         $buttons .= '</div>';
 
-        echo '<div class="box box-solid">';
+        echo '<div class="card">';
         echo '<div id="plugins" class="">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('List All Plugins');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'dataTable', $buttons);
         echo '</div>';
         echo '</div>';

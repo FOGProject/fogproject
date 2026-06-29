@@ -121,8 +121,8 @@ abstract class Event extends FOGBase
             $txt
         );
         $msg = '%s<div class='
-            . '"alert alert-info alert-dismissable fade in">'
-            . '<a href="#" class="close" data-bs-dismiss="alert">&times;</a>'
+            . '"alert alert-info alert-dismissible fade show">'
+            . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
             . '%s</div>%s';
         if (!self::$post && $logbrow) {
             if ($curlog >= $level) {

@@ -212,7 +212,7 @@ class ProcessLogin extends FOGPage
         echo '<div class="login-logo">';
         echo '<a href="./index.php"><b>FOG</b> Project</a>';
         echo '</div>';
-        echo '<div class="login-box-body">';
+        echo '<div class="login-card-body">';
         echo '<p class="login-box-msg">';
         echo _('Sign in to start your session');
         echo '</p>';
@@ -252,8 +252,8 @@ class ProcessLogin extends FOGPage
         echo self::_getLanguages();
         echo '</div>';
         echo '<div class="row">';
-        echo '<div class="col-xs-8">';
-        echo '<div class="checkbox icheck">';
+        echo '<div class="col-8">';
+        echo '<div class="form-check">';
         echo '<label for="remember-me">';
         echo self::makeInput(
             'remember-me',
@@ -268,7 +268,7 @@ class ProcessLogin extends FOGPage
         echo '</label>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="col-xs-4">';
+        echo '<div class="col-4">';
         echo self::makeButton(
             'loginSubmit',
             _('Sign In'),

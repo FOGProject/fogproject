@@ -60,7 +60,7 @@ class TaskstateeditManagement extends FOGPage
         $additional = filter_input(INPUT_POST, 'additional');
         $iconSel = self::getClass('TaskType')->iconlist($icon);
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -208,7 +208,7 @@ class TaskstateeditManagement extends FOGPage
         );
         $iconSel = self::getClass('TaskType')->iconlist($icon);
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -257,12 +257,12 @@ class TaskstateeditManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -277,7 +277,7 @@ class TaskstateeditManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'taskstate-general-form',
             self::makeTabUpdateURL(
                 'taskstate-general',
@@ -287,11 +287,11 @@ class TaskstateeditManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';

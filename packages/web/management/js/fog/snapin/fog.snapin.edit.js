@@ -23,14 +23,14 @@
         packchanger = function(packval) {
             switch (packval) {
                 case '0':
-                    $('.packnotemplate').removeClass('hidden');
-                    $('.packtemplate').addClass('hidden');
-                    $('.packhide').addClass('hidden');
+                    $('.packnotemplate').removeClass('d-none');
+                    $('.packtemplate').addClass('d-none');
+                    $('.packhide').addClass('d-none');
                     break;
                 case '1':
-                    $('.packnotemplate').addClass('hidden');
-                    $('.packtemplate').removeClass('hidden');
-                    $('.packhide').removeClass('hidden');
+                    $('.packnotemplate').addClass('d-none');
+                    $('.packtemplate').removeClass('d-none');
+                    $('.packhide').removeClass('d-none');
                     break;
             }
         },
@@ -43,7 +43,7 @@
                 ACTION_VAL = action;
             }
             if (action === ACTION_VAL) {
-                $(this).iCheck('uncheck');
+                $(this).prop('checked', false).trigger('change');
                 ACTION_VAL = 0;
             } else {
                 ACTION_VAL = action;
@@ -94,9 +94,8 @@
         generalDeleteModal.modal('show');
     });
     // Shall we delete the snapin file as well?
-    $('#andFile').on('ifChanged', function(e) {
+    $('#andFile').on('change', function(e) {
         e.preventDefault();
-        $(this).iCheck('update');
         if (!this.checked) {
             return;
         }
@@ -153,7 +152,7 @@
     });
 
     // Setup action radio selector
-    $('.snapin-action').on('ifClicked', onRadioSelect);
+    $('.snapin-action').on('click', onRadioSelect);
 
     updateCmdStore();
     $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change keyup', function(e) {
@@ -223,7 +222,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="snapinHostAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -258,7 +257,7 @@
 
     snapinHostsTable.on('draw', function() {
         Common.iCheck('#snapin-host-table input');
-        $('#snapin-host-table input.associated').on('ifChanged', onSnapinHostCheckboxSelect);
+        $('#snapin-host-table input.associated').on('change', onSnapinHostCheckboxSelect);
         onHostSelect(snapinHostsTable.rows({selected: true}));
         snapinStoragegroupPrimarySelectorUpdate();
     });
@@ -328,7 +327,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="snapinStoragegroupAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -364,7 +363,7 @@
 
     snapinStoragegroupsTable.on('draw', function() {
         Common.iCheck('#snapin-storagegroup-table input');
-        $('#snapin-storagegroup-table input.associated').on('ifChanged', onSnapinStoragegroupCheckboxSelect);
+        $('#snapin-storagegroup-table input.associated').on('change', onSnapinStoragegroupCheckboxSelect);
         onStoragegroupSelect(snapinStoragegroupsTable.rows({selected: true}));
     });
 

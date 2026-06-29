@@ -64,7 +64,7 @@ class NtfyManagement extends FOGPage
         );
         $topicEndpoint = filter_input(INPUT_POST, 'topicEndpoint');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(

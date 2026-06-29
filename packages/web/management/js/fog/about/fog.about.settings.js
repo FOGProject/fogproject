@@ -10,7 +10,7 @@
   // measures width at init time, so any slider built while its panel was
   // hidden renders at zero width until relaid out.
   function relayoutVisibleSliders() {
-    $('.settings-panel:not(.hidden) .slider').each(function() {
+    $('.settings-panel:not(.d-none) .slider').each(function() {
       try {
         $(this).slider('relayout');
       } catch (e) {}
@@ -36,9 +36,9 @@
     }
     activeCat = cat;
     $('.settings-panel').each(function() {
-      $(this).toggleClass('hidden', $(this).attr('data-cat') !== cat);
+      $(this).toggleClass('d-none', $(this).attr('data-cat') !== cat);
     });
-    $('.settings-noresults').addClass('hidden');
+    $('.settings-noresults').addClass('d-none');
     relayoutVisibleSliders();
   }
 
@@ -47,7 +47,7 @@
   function applySearch(term) {
     term = (term || '').trim().toLowerCase();
     if (term === '') {
-      $('.settings-row').removeClass('hidden');
+      $('.settings-row').removeClass('d-none');
       showCategory(activeCat);
       return;
     }
@@ -59,18 +59,18 @@
       $panel.find('.settings-row').each(function() {
         var hay = $(this).attr('data-search') || '';
         if (hay.indexOf(term) !== -1) {
-          $(this).removeClass('hidden');
+          $(this).removeClass('d-none');
           anyRow = true;
         } else {
-          $(this).addClass('hidden');
+          $(this).addClass('d-none');
         }
       });
-      $panel.toggleClass('hidden', !anyRow);
+      $panel.toggleClass('d-none', !anyRow);
       if (anyRow) {
         anyVisible = true;
       }
     });
-    $('.settings-noresults').toggleClass('hidden', anyVisible);
+    $('.settings-noresults').toggleClass('d-none', anyVisible);
     relayoutVisibleSliders();
   }
 
@@ -160,11 +160,13 @@
       });
     });
     $('#settings-content :checkbox')
-      .off('ifChecked.fogset ifUnchecked.fogset')
-      .on('ifChecked.fogset', function() {
+      .off('change.fogset')
+      .on('change.fogset', function(e) {
+        if (!e.target.checked) { return; }
         saveCheckbox(this, 1);
       })
-      .on('ifUnchecked.fogset', function() {
+      .on('change.fogset', function(e) {
+        if (e.target.checked) { return; }
         saveCheckbox(this, 0);
       });
   }
@@ -173,7 +175,7 @@
   $('#settings-content').on('click', '#settings-nav a', function(e) {
     e.preventDefault();
     $('#settings-search').val('');
-    $('.settings-row').removeClass('hidden');
+    $('.settings-row').removeClass('d-none');
     showCategory($(this).attr('data-cat'));
   });
   $('#settings-search').on('input', function() {

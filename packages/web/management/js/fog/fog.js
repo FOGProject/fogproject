@@ -101,7 +101,7 @@ $.fn.fogAjaxSearch = function(opts) {
       $('.nav.nav-tabs').remove();
       if ((sub != 'search' || sub != 'list') && typeof sub != 'undefined' && typeof sub != null && typeof sub != '') {
         Container.html(
-          '<div class="table-holder col-xs-12">'
+          '<div class="table-holder col-12">'
           + '<table class="table">'
           + '<thead><tr class="header"></tr></thead>'
           + '<tbody><tr></tr></tbody>'
@@ -462,13 +462,13 @@ $.fn.fogVariable = function(opts) {
   $.validator.setDefaults(
     {
       highlight: function(element) {
-        $(element).closest('.form-group').addClass('has-error');
+        $(element).addClass('is-invalid');
       },
       unhighlight: function(element) {
-        $(element).closest('.form-group').removeClass('has-error');
+        $(element).removeClass('is-invalid');
       },
       errorElement: 'span',
-      errorClass: 'label label-danger',
+      errorClass: 'badge bg-danger',
       errorPlacement: function(error, element) {
         if (element.parent('.input-group').length) {
           error.insertAfter(element.parent());
@@ -498,14 +498,19 @@ $.fn.fogVariable = function(opts) {
   }
   /**
    * Set the url in the window appropriately.
+   *
+   * Bootstrap 5 dispatches `shown.bs.tab` as a native DOM event whose type is
+   * the literal dotted string; jQuery would parse the dots as event
+   * namespaces and never catch it, so bind natively (delegated on document).
+   * BS5 manages the active state on the nav-link itself, so no manual class
+   * toggling is needed here.
    */
-  $('.nav-tabs a').on('shown.bs.tab', function(e) {
+  document.addEventListener('shown.bs.tab', function(e) {
     if (history.pushState) {
       history.pushState(null, null, e.target.hash);
     } else {
       location.hash = e.target.hash;
     }
-    $(this).parent().addClass('active');
   });
   /**
    * If we don't have a hash such as when initially entering

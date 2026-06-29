@@ -1169,6 +1169,9 @@ msgstr "设置"
 msgid "Client Version"
 msgstr "CPU版本"
 
+msgid "Close"
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "管理单元命令"

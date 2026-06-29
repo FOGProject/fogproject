@@ -1167,6 +1167,9 @@ msgstr "Client Einstellungen"
 msgid "Client Version"
 msgstr "Client-Version"
 
+msgid "Close"
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "Befehl"

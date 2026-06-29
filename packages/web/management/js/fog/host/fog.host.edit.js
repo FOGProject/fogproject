@@ -255,7 +255,7 @@
                     if (data > 0) {
                         checkval = ' checked';
                     }
-                    return '<div class="radio">'
+                    return '<div class="form-check">'
                         + '<input belongsto="primaryMacs" type="radio" class="primary" name="primary" id="mac_'
                         + row.id
                         + '" value="'
@@ -275,7 +275,7 @@
                     if (data > 0) {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="imageIgnore" name="imageIgnore[]" id="imageIgnore_'
 
                         + row.id
@@ -294,7 +294,7 @@
                     if (data > 0) {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="clientIgnore" name="clientIgnore[]" id="clientIgnore_'
 
                         + row.id
@@ -313,7 +313,7 @@
                     if (data > 0) {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="pending" name="pending[]" id="pending_'
 
                         + row.id
@@ -341,10 +341,10 @@
         Common.iCheck('#host-macaddresses-table input.imageIgnore');
         Common.iCheck('#host-macaddresses-table input.clientIgnore');
         Common.iCheck('#host-macaddresses-table input.pending');
-        $('#host-macaddresses-table input.primary').on('ifClicked', onMacsRadioSelect);
-        $('#host-macaddresses-table input.imageIgnore').on('ifClicked', onMacsCheckboxSelect);
-        $('#host-macaddresses-table input.clientIgnore').on('ifClicked', onMacsCheckboxSelect);
-        $('#host-macaddresses-table input.pending').on('ifClicked', onMacsCheckboxSelect);
+        $('#host-macaddresses-table input.primary').on('change', onMacsRadioSelect);
+        $('#host-macaddresses-table input.imageIgnore').on('change', onMacsCheckboxSelect);
+        $('#host-macaddresses-table input.clientIgnore').on('change', onMacsCheckboxSelect);
+        $('#host-macaddresses-table input.pending').on('change', onMacsCheckboxSelect);
     });
     disableMacButtons(true);
 
@@ -369,7 +369,6 @@
         }
     };
     var onMacsCheckboxSelect = function(event) {
-        $(this).prop('checked', !this.checked);
         disableMacButtons(true);
         var imageIgnore = [],
             clientIgnore = [],
@@ -529,11 +528,11 @@
     });
 
     // Setup primary mac watcher.
-    $('#host-macaddresses-table input.primary').on('ifClicked', onMacsRadioSelect);
+    $('#host-macaddresses-table input.primary').on('change', onMacsRadioSelect);
     // Setup checkbox watchers.
-    $('#host-macaddresses-table input.imageIgnore').on('ifClicked', onMacsCheckboxSelect);
-    $('#host-macaddresses-table input.clientIgnore').on('ifClicked', onMacsCheckboxSelect);
-    $('#host-macaddresses-table input.pending').on('ifClicked', onMacsCheckboxSelect);
+    $('#host-macaddresses-table input.imageIgnore').on('change', onMacsCheckboxSelect);
+    $('#host-macaddresses-table input.clientIgnore').on('change', onMacsCheckboxSelect);
+    $('#host-macaddresses-table input.pending').on('change', onMacsCheckboxSelect);
 
     // ---------------------------------------------------------------
     // TASKING TAB
@@ -584,28 +583,31 @@
                         createTaskBtn = $('#tasking-send');
                     Common.iCheck('#task-form-holder input');
 
-                    $('#checkdebug').on('ifChecked', function(e) {
-                        e.preventDefault();
-                        $('.hideFromDebug,.delayedinput,.croninput').addClass('hidden');
-                        $('.instant').iCheck('check');
-                    }).on('ifUnchecked', function(e) {
-                        e.preventDefault();
-                        $('.hideFromDebug').removeClass('hidden');
+                    $('#checkdebug').on('change', function(e) {
+                        if (!this.checked) {
+                            return;
+                        }
+                        $('.hideFromDebug,.delayedinput,.croninput').addClass('d-none');
+                        $('.instant').prop('checked', true).trigger('change');
+                    }).on('change', function(e) {
+                        if (this.checked) {
+                            return;
+                        }
+                        $('.hideFromDebug').removeClass('d-none');
                     });
-                    $('input[name="scheduleType"]').on('ifClicked', function(e) {
-                        e.preventDefault();
+                    $('input[name="scheduleType"]').on('change', function(e) {
                         switch (this.value) {
                             case 'instant':
-                                $('.delayedinput,.croninput').addClass('hidden');
+                                $('.delayedinput,.croninput').addClass('d-none');
                                 break;
                             case 'single':
-                                $('.delayedinput').removeClass('hidden');
-                                $('.croninput').addClass('hidden');
+                                $('.delayedinput').removeClass('d-none');
+                                $('.croninput').addClass('d-none');
                                 $('#delayedinput').datetimepicker('show');
                                 break;
                             case 'cron':
-                                $('.delayedinput').addClass('hidden');
-                                $('.croninput').removeClass('hidden');
+                                $('.delayedinput').addClass('d-none');
+                                $('.croninput').removeClass('d-none');
                                 break;
                         }
                     });
@@ -705,7 +707,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="hostGroupAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -739,7 +741,7 @@
     });
 
     // Wire an association table's per-row checkbox toggles to an immediate
-    // save, re-applying iCheck styling and the selection summary on every
+    // save, re-applying form-check styling and the selection summary on every
     // redraw. onChange (optional) fires after each toggle for tabs that mirror
     // a side panel from the association state (e.g. the snapin run order).
     function setupHostAssoc(table, tableSel, updateBtn, onSelect, onChange) {
@@ -753,8 +755,8 @@
         table.on('draw', function() {
             Common.iCheck(tableSel + ' input');
             $(tableSel + ' input.associated')
-                .off('ifChanged', changeHandler)
-                .on('ifChanged', changeHandler);
+                .off('change', changeHandler)
+                .on('change', changeHandler);
             onSelect(table.rows({selected: true}));
         });
     }
@@ -821,7 +823,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="hostPrinterAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -978,7 +980,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="hostSnapinAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -1037,17 +1039,17 @@
         }
         hostSnapinOrderSaveBtn.prop('disabled', false);
         $.each(items, function(i, item) {
-            var controls = $('<span>', {'class': 'pull-right'})
+            var controls = $('<span>', {'class': 'float-end'})
                 .append(
                     $('<button>', {
                         'type': 'button',
-                        'class': 'btn btn-xs btn-default snapin-order-up',
+                        'class': 'btn btn-sm btn-secondary snapin-order-up',
                         'title': 'Move up'
                     }).append($('<i>', {'class': 'fa fa-arrow-up'})),
                     ' ',
                     $('<button>', {
                         'type': 'button',
-                        'class': 'btn btn-xs btn-default snapin-order-down',
+                        'class': 'btn btn-sm btn-secondary snapin-order-down',
                         'title': 'Move down'
                     }).append($('<i>', {'class': 'fa fa-arrow-down'}))
                 );
@@ -1179,7 +1181,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="hostModuleAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -1315,7 +1317,7 @@
             action = $(this).attr('action'),
             opts = {
                 confirmenforcesend: 1,
-                enforce: $('#enforce').iCheck('update')[0].checked
+                enforce: $('#enforce')[0].checked
             };
       console.log(opts);
         $.apiCall(method,action,opts,function(err) {
@@ -1330,9 +1332,7 @@
         ADClearBtn = $('#ad-clear'),
         ADJoinDomain = $('#adEnabled');
 
-    ADJoinDomain.on('ifChanged', function(e) {
-        e.preventDefault();
-        $(this).iCheck('update');
+    ADJoinDomain.on('change', function(e) {
         if (!this.checked) {
             return;
         }
@@ -1383,13 +1383,13 @@
             $(e).prop('disabled', true);
         });
         ADForm.find('input[type=checkbox]').each(function(i, e) {
-            restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
-            $(e).iCheck('uncheck');
-            $(e).iCheck('disable');
+            restoreMap.push({checkbox: true, e: e, val: $(e)[0].checked});
+            $(e).prop('checked', false).trigger('change');
+            $(e).prop('disabled', true);
         });
 
         ADForm.find('input[type=text], input[type=password], textarea').val('');
-        ADForm.find('input[type=checkbox]').iCheck('uncheck');
+        ADForm.find('input[type=checkbox]').prop('checked', false).trigger('change');
 
         ADForm.processForm(function(err) {
             ADClearBtn.prop('disabled', false);
@@ -1398,9 +1398,9 @@
                 field = restoreMap[i];
                 if (field.checkbox) {
                     if (err) {
-                        $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
+                        $(field.e).prop('checked', !!field.val).trigger('change');
                     }
-                    $(field.e).iCheck('enable');
+                    $(field.e).prop('disabled', false);
                 } else {
                     if (err) {
                         $(field.e).val(field.val);
@@ -1464,7 +1464,7 @@
             dow.val('');
             action.val('');
             specialCrons.val('');
-            ondemand.iCheck('uncheck');
+            ondemand.prop('checked', false).trigger('change');
         });
     });
 

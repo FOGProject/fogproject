@@ -38,13 +38,13 @@
         'json'
       ).done(function() {
         logsGoHere.html(
-          '<div class="box box-primary">'
-          + '<div class="box-header with-border">'
-          + '<h4 class="box-title">'
+          '<div class="card card-primary card-outline">'
+          + '<div class="card-header">'
+          + '<h4 class="card-title">'
           + file
           + '</h4>'
           + '</div>'
-          + '<div class="box-body">'
+          + '<div class="card-body">'
           + logdata
           + '</div>'
           + '</div>'
@@ -80,7 +80,8 @@
   });
 
   // Reverse file handling.
-  reverse.on('ifChecked', function(e) {
+  reverse.on('change', function(e) {
+    if (!e.target.checked) { return; }
     // Present newest first
     e.preventDefault();
     reverseChecked = 1;
@@ -88,7 +89,8 @@
       clearTimeout(logTimer);
     }
     getLogData(ip, file, selectedLines, reverseChecked);
-  }).on('ifUnchecked', function(e) {
+  }).on('change', function(e) {
+    if (e.target.checked) { return; }
     // Present oldest first
     e.preventDefault();
     reverseChecked = 0;

@@ -113,7 +113,6 @@ $.capitalizeFirstLetter = function(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 $.checkItemUpdate = function(table, item, e, prop, opts, done) {
-  $(item).iCheck('update');
   var method = prop.attr('method'),
     action = prop.attr('action');
   if (item.checked) {
@@ -192,9 +191,8 @@ $.deleteSelected = function(table, cb, opts) {
     ids: opts.rows.ids().toArray(),
     url: '../management/index.php?node=' + opts.node + '&sub=deletemulti',
   });
-  $('#andFile').on('ifChanged', function(e) {
+  $('#andFile').on('change', function(e) {
     e.preventDefault();
-    $(this).iCheck('update');
     if (!this.checked) {
       delete opts.andFile;
     } else {
@@ -202,9 +200,8 @@ $.deleteSelected = function(table, cb, opts) {
     }
   });
   $('#andFile').trigger('change');
-  $('#andHosts').on('ifChanged', function(e) {
+  $('#andHosts').on('change', function(e) {
     e.preventDefault();
-    $(this).iCheck('update');
     if (!this.checked) {
       delete opts.andHosts;
     } else {
@@ -717,7 +714,7 @@ function macVendorIcon(vendor) {
   // scroll body (infinite-scroll) and from rendering under the sticky header;
   // placement=right clears the header above the first row.
   return ' <i class="fa fa-info-circle text-muted mac-vendor-icon" '
-    + 'data-bs-toggle="tooltip" data-placement="right" data-container="body" '
+    + 'data-bs-toggle="tooltip" data-bs-placement="right" data-container="body" '
     + 'title="' + esc + '"></i>';
 }
 /**
@@ -759,14 +756,9 @@ $.fn.setContainerDisable = function(disabled) {
   if(disabled !== false) {
     disabled = true;
   }
-  var inputs = $(this).find('input:not([type="checkbox"]), select, button, .btn, textarea').toArray(),
-    ichecks = $(this).find('.checkbox').toArray();
+  var inputs = $(this).find('input, select, button, .btn, textarea').toArray();
   $.each(inputs, function(index, value) {
     $(value).prop('disabled', disabled);
-  });
-  $.each(ichecks, function(index, value) {
-    var check = disabled ? 'disable' : 'enable';
-    $(value).iCheck(check);
   });
 };
 $.fn.setLoading = function(loading) {
@@ -869,16 +861,16 @@ $.fn.validateForm = function(input) {
       }
     }
 
-    if (parent.hasClass('has-error')) {
+    if ($(e).hasClass('is-invalid')) {
       var possibleHelpblock = $(e).next('span');
-      if (possibleHelpblock.hasClass('help-block')) {
+      if (possibleHelpblock.hasClass('invalid-feedback')) {
         possibleHelpblock.remove();
       }
       if (isValid) {
-        parent.removeClass('has-error');
+        $(e).removeClass('is-invalid');
       }
     } else if (!isValid) {
-      parent.addClass('has-error');
+      $(e).addClass('is-invalid');
     }
 
     if (isValid) {
@@ -892,7 +884,7 @@ $.fn.validateForm = function(input) {
       }, 200);
     }
 
-    var msgBlock = '<span class="help-block">' + invalidReason + '</span>'
+    var msgBlock = '<span class="invalid-feedback">' + invalidReason + '</span>'
     $(msgBlock).insertAfter(e)
     isError = true;
   });
@@ -949,12 +941,10 @@ function reinitialize() {
     pluginOptionsOpen = !pluginOptionsOpen;
   });
   Common.iCheck = function(match) {
-    match = match || 'input'
-    $(match).iCheck({
-      checkboxClass: 'icheckbox_square-blue',
-      radioClass: 'iradio_square-blue',
-      increaseArea: '20%' // optional
-    });
+    match = match || 'input';
+    // iCheck retired: apply native Bootstrap 5 form-check styling to
+    // checkboxes/radios. Re-run after table redraws to re-style new rows.
+    $(match).filter(':checkbox, :radio').addClass('form-check-input');
   };
 
   Common.createModalShow = function() {
@@ -973,7 +963,8 @@ function reinitialize() {
     // Find the form
     var form = $(this).find('#create-form');
     // Remove the errors if any.
-    form.find('.has-error').removeClass('has-error').find('span.help-block').remove();
+    form.find('.is-invalid').removeClass('is-invalid');
+    form.find('span.invalid-feedback').remove();
     // Unbind the keypress event.
     $(':input:not(textarea)', this).off('keypress');
   };

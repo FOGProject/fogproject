@@ -165,7 +165,7 @@ class ImageManagement extends FOGPage
             _('Partclone Zstd Split 200MiB')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             // Input/Textarea elements
@@ -547,7 +547,7 @@ class ImageManagement extends FOGPage
             _('Partclone Zstd Split 200MiB')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             // Input/Textarea elements
@@ -713,12 +713,12 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -733,7 +733,7 @@ class ImageManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'image-general-form',
             self::makeTabUpdateURL(
                 'image-general',
@@ -743,11 +743,11 @@ class ImageManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -819,7 +819,7 @@ class ImageManagement extends FOGPage
             _('Image Storage Group Associations'),
             _('Storage Group Name'),
             'storagegroup',
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $props = ' method="post" action="'
@@ -833,19 +833,19 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'image-storagegroup-primary-send',
             _('Update'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-info card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Image Primary Storage Group');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<span id="storagegroupselector"></span>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -998,9 +998,9 @@ class ImageManagement extends FOGPage
     public function imageInformation()
     {
         // Size on server
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('On Server Size');
         echo '</h4>';
         echo '<br/>';
@@ -1012,19 +1012,19 @@ class ImageManagement extends FOGPage
         echo _('that there is or is not an issue. It just gives you an idea');
         echo ' ';
         echo _('of how much disk space the image is using.');
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo self::formatByteSize($this->obj->get('srvsize'));
         echo '</div>';
         echo '</div>';
         // Client Size needed
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Host HDD Size');
         echo '</h4>';
         echo '<br/>';
@@ -1035,12 +1035,12 @@ class ImageManagement extends FOGPage
         echo _('that there is or is not an issue. It just gives you an idea');
         echo ' ';
         echo _('of how big a disk the image will need.');
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo self::formatByteSize(
             array_sum(
                 array_map('intval', explode(':', $this->obj->get('size')) ?? [0])
@@ -1102,7 +1102,7 @@ class ImageManagement extends FOGPage
             $image
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -1180,7 +1180,7 @@ class ImageManagement extends FOGPage
         ob_start();
         // The Create new form.
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'session-create-form',
             self::makeTabUpdateURL(
                 'session-create'
@@ -1217,8 +1217,8 @@ class ImageManagement extends FOGPage
             []
         ];
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
 
         echo '<!-- Create New Multicast Session -->';
         echo '<div class="box-group" id="multicastsessions">';
@@ -1233,48 +1233,48 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'session-create',
             _('Create'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         $buttons .= self::makeButton(
             'session-cancel',
             _('Cancel Selected'),
-            'btn btn-danger pull-left',
+            'btn btn-danger float-start',
             $props
         );
         $buttons .= self::makeButton(
             'session-pause',
             _('Pause Reload'),
-            'btn btn-warning pull-left'
+            'btn btn-warning float-start'
         );
         $buttons .= self::makeButton(
             'session-resume',
             _('Resume Reload'),
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $modalBtns = self::makeButton(
             'cancelModalBtn',
             _('Cancel'),
-            'btn btn-outline pull-left',
+            'btn btn-outline-secondary float-start',
             'data-bs-dismiss="modal"'
         );
         $modalBtns .= self::makeButton(
             'confirmModalBtn',
             _('Confirm'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
 
         $modalCreateBtns = self::makeButton(
             'createCancelModalBtn',
             _('Cancel'),
-            'btn btn-outline pull-left',
+            'btn btn-outline-secondary float-start',
             'data-bs-dismiss="modal"'
         );
         $modalCreateBtns .= self::makeButton(
             'createConfirmModalBtn',
             _('Create'),
-            'btn btn-outline pull-right',
+            'btn btn-outline-secondary float-end',
             ' method="post" action="'
             . self::makeTabUpdateURL(
                 'session-create'
@@ -1299,13 +1299,13 @@ class ImageManagement extends FOGPage
             'success'
         );
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Multicast Sessions');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'multicast-sessions-table', $buttons);
         echo '</div>';
         echo '</div>';

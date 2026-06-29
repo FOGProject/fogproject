@@ -158,7 +158,7 @@ $(function() {
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="locationHostAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -193,7 +193,7 @@ $(function() {
 
     locationHostsTable.on('draw', function() {
         Common.iCheck('#location-host-table input');
-        $('#location-host-table input.associated').on('ifChanged', onLocationHostCheckboxSelect);
+        $('#location-host-table input.associated').on('change', onLocationHostCheckboxSelect);
         onHostSelect(locationHostsTable.rows({selected: true}));
     });
 

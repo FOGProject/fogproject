@@ -72,15 +72,15 @@ class ClientManagement extends FOGPage
         echo '<!-- FOG Client Installers -->';
         // Dash boxes row.
         echo '<div class="col-md-6">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('FOG Client Installers');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _('The installers for the fog client');
         echo '<br/>';
         echo _('Client Version');
@@ -88,7 +88,7 @@ class ClientManagement extends FOGPage
         echo FOG_CLIENT_VERSION;
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo _(
             'Cross platform, more secure, faster, and much easier on the server. '
             . 'Espeically when your organization has many hosts'
@@ -115,19 +115,19 @@ class ClientManagement extends FOGPage
         // Help and guide box
         echo '<!-- Where to get help -->';
         echo '<div class="col-md-6">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Help and Guides');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _('Where to get help and guides');
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo _('Use the links below if you need assistance.');
         echo '<br/>';
         echo _(

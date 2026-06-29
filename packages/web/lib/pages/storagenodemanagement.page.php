@@ -88,7 +88,7 @@ class StorageNodeManagement extends FOGPage
         $pass = filter_input(INPUT_POST, 'pass');
         $graphcolor = filter_input(INPUT_POST, 'graphcolor');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             // Basic information
@@ -692,7 +692,7 @@ class StorageNodeManagement extends FOGPage
             $this->obj->get('graphcolor')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             // Basic information
@@ -981,12 +981,12 @@ class StorageNodeManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -1001,7 +1001,7 @@ class StorageNodeManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'storagenode-general-form',
             self::makeTabUpdateURL(
                 'storagenode-general',
@@ -1011,11 +1011,11 @@ class StorageNodeManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -1175,8 +1175,8 @@ class StorageNodeManagement extends FOGPage
      */
     public function storagenodeVersion()
     {
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         if (!$this->obj->get('online')) {
             echo $this->obj->get('name');
             echo ' ';

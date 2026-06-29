@@ -47,16 +47,16 @@ class Imaging_Log extends ReportManagement
             []
         ];
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Imaging Log');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $this->render(12, 'imaginglog-table');
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo '</div>';
         echo '</div>';
     }

@@ -112,7 +112,7 @@ class AddSiteHost extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'site',
                 _('Host Site')
             ) => $siteSelector
@@ -121,7 +121,7 @@ class AddSiteHost extends Hook
         $buttons = FOGPage::makeButton(
             'site-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -136,7 +136,7 @@ class AddSiteHost extends Hook
         unset($fields);
 
         echo FOGPage::makeFormTag(
-            'form-horizontal',
+            '',
             'host-site-form',
             FOGPage::makeTabUpdateURL(
                 'host-site',
@@ -146,16 +146,16 @@ class AddSiteHost extends Hook
             'application/x-www-form-url-encoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Site');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -263,7 +263,7 @@ class AddSiteHost extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'site',
                 _('Host Site')
             )

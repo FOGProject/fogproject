@@ -270,12 +270,6 @@ header.main-header .mobile-logo {
 // ---------------------------------------------------------------------------
 // Forms
 // ---------------------------------------------------------------------------
-// FIX: iradio buttons shifted up for some reason
-.form-group .iradio_square-blue,
-.form-group .icheckbox_square-blue {
-  margin-top: 7px;
-}
-
 // Help-block utilities (folded from inline styles on group help text).
 .help-block-tight {
   margin: 2px 0 0;
@@ -458,7 +452,7 @@ dd {
 //     body:not(.theme-light) ................. automatic, when the user hasn't chosen
 //
 // NOT yet themed (intentionally — first pass; tune/extend after live review):
-// iCheck controls, pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
+// pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
 // ===========================================================================
 @mixin fog-dark-theme {
   // -- dark palette (tune these) --

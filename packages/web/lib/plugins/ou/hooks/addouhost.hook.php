@@ -115,7 +115,7 @@ class AddOUHost extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'ou',
                 _('Host OU')
             ) => $ouSelector
@@ -124,7 +124,7 @@ class AddOUHost extends Hook
         $buttons = FOGPage::makeButton(
             'ou-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -139,7 +139,7 @@ class AddOUHost extends Hook
         unset($fields);
 
         echo FOGPage::makeFormTag(
-            'form-horizontal',
+            '',
             'host-ou-form',
             FOGPage::makeTabUpdateURL(
                 'host-ou',
@@ -149,16 +149,16 @@ class AddOUHost extends Hook
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('OU');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -266,7 +266,7 @@ class AddOUHost extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'ou',
                 _('Host OU')
             )

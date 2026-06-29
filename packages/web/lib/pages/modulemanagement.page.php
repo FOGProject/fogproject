@@ -63,7 +63,7 @@ class ModuleManagement extends FOGPage
         $shortname = filter_input(INPUT_POST, 'shortname');
         $isDefault = isset($_POST['isDefault']) ? ' checked' : '';
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         // The fields to display
         return [
@@ -222,7 +222,7 @@ class ModuleManagement extends FOGPage
             )
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -283,7 +283,7 @@ class ModuleManagement extends FOGPage
         $buttons .= self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
@@ -303,7 +303,7 @@ class ModuleManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'module-general-form',
             self::makeTabUpdateURL(
                 'module-general',
@@ -313,11 +313,11 @@ class ModuleManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';

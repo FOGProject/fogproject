@@ -52,12 +52,12 @@ class FOGConfigurationPage extends FOGPage
     /**
      * Builds the standard AdminLTE box scaffold shared by every sub-view.
      *
-     * Replaces the hand-echoed box/box-header/box-body/box-footer skeleton
+     * Replaces the hand-echoed box/card-header/card-body/card-footer skeleton
      * that each view used to repeat. Returns a string so callers can compose
      * it (e.g. wrap in a <form>).
      *
      * @param string $title The box title (already translated/escaped).
-     * @param string $body  The box-body HTML.
+     * @param string $body  The card-body HTML.
      * @param array  $opts  color, collapse, help, footer, id, bodyId,
      *                      bodyClass, bodyAttrs.
      *
@@ -78,19 +78,22 @@ class FOGConfigurationPage extends FOGPage
         if ($id !== '') {
             $o .= '<div class="box-group" id="' . $id . '">';
         }
-        $o .= '<div class="box box-' . $color . '">';
-        $o .= '<div class="box-header with-border">';
+        $cardClass = ($color === 'solid' || $color === '')
+            ? 'card'
+            : 'card card-' . $color . ' card-outline';
+        $o .= '<div class="' . $cardClass . '">';
+        $o .= '<div class="card-header">';
         if ($collapse) {
-            $o .= '<div class="box-tools pull-right">'
+            $o .= '<div class="card-tools float-end">'
                 . self::$FOGCollapseBox
                 . '</div>';
         }
-        $o .= '<h4 class="box-title">' . $title . '</h4>';
+        $o .= '<h4 class="card-title">' . $title . '</h4>';
         if ($help !== '') {
-            $o .= '<p class="help-block">' . $help . '</p>';
+            $o .= '<p class="form-text">' . $help . '</p>';
         }
         $o .= '</div>';
-        $o .= '<div class="box-body'
+        $o .= '<div class="card-body'
             . ($bodyClass !== '' ? ' ' . $bodyClass : '')
             . '"'
             . ($bodyId !== '' ? ' id="' . $bodyId . '"' : '')
@@ -99,7 +102,7 @@ class FOGConfigurationPage extends FOGPage
         $o .= $body;
         $o .= '</div>';
         if ($footer !== '') {
-            $o .= '<div class="box-footer with-border">' . $footer . '</div>';
+            $o .= '<div class="card-footer">' . $footer . '</div>';
         }
         $o .= '</div>';
         if ($id !== '') {
@@ -149,9 +152,9 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            echo '<div class="panel box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="panel card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo '<a data-bs-toggle="collapse" data-bs-parent="#nodekernvers" href="#'
                 . $id
                 . '">';
@@ -162,7 +165,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<div id="'
                 . $id
                 . '" class="panel-collapse collapse">';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             if (!$StorageNode->online) {
                 echo '<div class="alert alert-warning">';
                 echo _('Storage Node is currently unavailable');
@@ -322,17 +325,17 @@ class FOGConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'download-send',
             _('Download'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $confirmDownloadBtn = self::makeButton(
             'confirmDownload',
             _('Download'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $cancelDownloadBtn = self::makeButton(
             'cancelDownload',
             _('Cancel'),
-            'btn btn-outline pull-left',
+            'btn btn-outline-secondary float-start',
             'data-bs-dismiss="modal"'
         );
 
@@ -373,7 +376,7 @@ class FOGConfigurationPage extends FOGPage
         $downloadModal = self::makeModal(
             'downloadModal',
             _('Confirm Download'),
-            '<p class="help-block">'
+            '<p class="form-text">'
             . $confirmNew
             . ' '
             . _('to your fog storage node.')
@@ -754,32 +757,32 @@ class FOGConfigurationPage extends FOGPage
         $modalupdatebtn = self::makeButton(
             'updatemacsConfirm',
             _('Confirm'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modalupdatebtn .= self::makeButton(
             'updatemacsCancel',
             _('Cancel'),
-            'btn btn-outline pull-left'
+            'btn btn-outline-secondary float-start'
         );
         $modaldeletebtn = self::makeButton(
             'deletemacsConfirm',
             _('Confirm'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modaldeletebtn .= self::makeButton(
             'deletemacsCancel',
             _('Cancel'),
-            'btn btn-outline pull-left'
+            'btn btn-outline-secondary float-start'
         );
         $buttons = self::makeButton(
             'updatemacs',
             _('Update MAC List'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'deletemacs',
             _('Delete MAC List'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
         $modalupdate = self::makeModal(
             'updatemacsmodal',
@@ -1800,27 +1803,27 @@ class FOGConfigurationPage extends FOGPage
     {
         $this->title = _('FOG Settings');
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('FOG Settings');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo '<div class="input-group input-group-sm settings-search-box">';
         echo '<input type="text" id="settings-search" class="form-control" '
             . 'placeholder="' . _('Search settings') . '" autocomplete="off">';
         echo '<span class="input-group-btn">'
             . '<button type="button" id="settings-search-clear" '
-            . 'class="btn btn-default" title="' . _('Clear') . '">'
+            . 'class="btn btn-secondary" title="' . _('Clear') . '">'
             . '<i class="fa fa-times"></i></button>'
             . '</span>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body" id="settings-content">';
+        echo '<div class="card-body" id="settings-content">';
         echo $this->_renderSettings();
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="card-footer">';
         echo '<button type="button" id="settings-cache-flush" '
             . 'class="btn btn-warning">'
             . _('Flush Settings Cache')
@@ -1926,7 +1929,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="col-md-9 col-sm-8 settings-panel-col">';
         $first = true;
         foreach ($byCat as $cat => $catRows) {
-            echo '<div class="settings-panel' . ($first ? '' : ' hidden') . '" '
+            echo '<div class="settings-panel' . ($first ? '' : ' d-none') . '" '
                 . 'data-cat="' . Initiator::e($cat) . '">';
             echo '<h4 class="settings-panel-title">'
                 . Initiator::e($cat) . '</h4>';
@@ -1947,10 +1950,10 @@ class FOGConfigurationPage extends FOGPage
                     . 'data-search="'
                     . Initiator::e($haystack)
                     . '">';
-                echo '<label class="control-label settings-label" for="'
+                echo '<label class="col-form-label settings-label" for="'
                     . Initiator::e($row['settingKey']) . '"';
                 if ($desc !== '') {
-                    echo ' data-bs-toggle="tooltip" data-placement="top" title="'
+                    echo ' data-bs-toggle="tooltip" data-bs-placement="top" title="'
                         . Initiator::e($desc) . '"';
                 }
                 echo '>' . Initiator::e($row['settingKey']) . '</label>';
@@ -1960,7 +1963,7 @@ class FOGConfigurationPage extends FOGPage
             echo '</div>';
             $first = false;
         }
-        echo '<div class="settings-noresults hidden text-muted">'
+        echo '<div class="settings-noresults d-none text-muted">'
             . _('No settings match your search.') . '</div>';
         echo '</div>';
 
@@ -2315,31 +2318,31 @@ class FOGConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'logresume',
             _('Resume'),
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
         $buttons .= self::makeButton(
             'logpause',
             _('Pause'),
-            'btn btn-warning pull-left'
+            'btn btn-warning float-start'
         );
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'logviewer-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '<hr/>';
         echo '<div class="col-sm-4">';
         echo self::makeLabel(
-            'col-sm-3 control-label',
+            'col-sm-3 col-form-label',
             'logToView',
             _('File')
         );
@@ -2347,7 +2350,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<div class="col-sm-4">';
         echo self::makeLabel(
-            'col-sm-3 control-label',
+            'col-sm-3 col-form-label',
             'linesToView',
             _('Lines')
         );
@@ -2355,7 +2358,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<div class="col-sm-4">';
         echo self::makeLabel(
-            'col-sm-3 control-label',
+            'col-sm-3 col-form-label',
             'reverse',
             _('Reverse')
             . ' '
@@ -2369,9 +2372,9 @@ class FOGConfigurationPage extends FOGPage
         );
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body" id="logsGoHere">';
+        echo '<div class="card-body" id="logsGoHere">';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -2388,7 +2391,7 @@ class FOGConfigurationPage extends FOGPage
 
         $this->title = _('Configuration Import/Export');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -2432,12 +2435,12 @@ class FOGConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'exportdb',
             _('Export'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'importdb',
             _('Import'),
-            'btn btn-warning pull-left'
+            'btn btn-warning float-start'
         );
 
         self::$HookManager->processEvent(
@@ -2451,7 +2454,7 @@ class FOGConfigurationPage extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'import-form',
             $this->formAction,
             'post',

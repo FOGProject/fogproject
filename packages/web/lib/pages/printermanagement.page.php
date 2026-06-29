@@ -116,7 +116,7 @@ class PrinterManagement extends FOGPage
         $printercopySelector = self::getClass('PrinterManager')
             ->buildSelectBox('', 'printercopy');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -188,7 +188,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_NETWORK_FIELDS',
             ['fields' => &$fields]
         );
-        $printerNetwork = '<div class="network hidden">'
+        $printerNetwork = '<div class="network d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -255,7 +255,7 @@ class PrinterManagement extends FOGPage
             ['fields' => &$fields]
         );
 
-        $printeriPrint = '<div class="iprint hidden">'
+        $printeriPrint = '<div class="iprint d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -338,7 +338,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_CUPS_FIELDS',
             ['fields' => &$fields]
         );
-        $printerCups = '<div class="cups hidden">'
+        $printerCups = '<div class="cups d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -447,7 +447,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_LOCAL_FIELDS',
             ['fields' => &$fields]
         );
-        $printerLocal = '<div class="local hidden">'
+        $printerLocal = '<div class="local d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -455,7 +455,7 @@ class PrinterManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -502,7 +502,7 @@ class PrinterManagement extends FOGPage
         $printercopySelector = self::getClass('PrinterManager')
             ->buildSelectBox('', 'printercopy');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -574,7 +574,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_NETWORK_FIELDS',
             ['fields' => &$fields]
         );
-        $printerNetwork = '<div class="network hidden">'
+        $printerNetwork = '<div class="network d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -641,7 +641,7 @@ class PrinterManagement extends FOGPage
             ['fields' => &$fields]
         );
 
-        $printeriPrint = '<div class="iprint hidden">'
+        $printeriPrint = '<div class="iprint d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -724,7 +724,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_CUPS_FIELDS',
             ['fields' => &$fields]
         );
-        $printerCups = '<div class="cups hidden">'
+        $printerCups = '<div class="cups d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -833,13 +833,13 @@ class PrinterManagement extends FOGPage
             'PRINTER_LOCAL_FIELDS',
             ['fields' => &$fields]
         );
-        $printerLocal = '<div class="local hidden">'
+        $printerLocal = '<div class="local d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'create-form',
             '../management/index.php?node=printer&sub=add',
             'post',
@@ -1016,7 +1016,7 @@ class PrinterManagement extends FOGPage
         $printercopySelector = self::getClass('PrinterManager')
             ->buildSelectBox('', 'printercopy');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -1089,7 +1089,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_NETWORK_FIELDS',
             ['fields' => &$fields]
         );
-        $printerNetwork = '<div class="network hidden">'
+        $printerNetwork = '<div class="network d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -1156,7 +1156,7 @@ class PrinterManagement extends FOGPage
             ['fields' => &$fields]
         );
 
-        $printeriPrint = '<div class="iprint hidden">'
+        $printeriPrint = '<div class="iprint d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -1239,7 +1239,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_CUPS_FIELDS',
             ['fields' => &$fields]
         );
-        $printerCups = '<div class="cups hidden">'
+        $printerCups = '<div class="cups d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -1348,7 +1348,7 @@ class PrinterManagement extends FOGPage
             'PRINTER_LOCAL_FIELDS',
             ['fields' => &$fields]
         );
-        $printerLocal = '<div class="local hidden">'
+        $printerLocal = '<div class="local d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -1356,12 +1356,12 @@ class PrinterManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -1370,7 +1370,7 @@ class PrinterManagement extends FOGPage
         );
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'printer-general-form',
             self::makeTabUpdateURL(
                 'printer-general',
@@ -1380,15 +1380,15 @@ class PrinterManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $printerCopy;
         echo $printerNetwork;
         echo $printeriPrint;
         echo $printerCups;
         echo $printerLocal;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -1510,7 +1510,7 @@ class PrinterManagement extends FOGPage
             _('Printer Host Associations'),
             _('Host Name'),
             'host',
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $props = ' method="post" action="'
@@ -1525,25 +1525,25 @@ class PrinterManagement extends FOGPage
         $buttons = self::makeButton(
             'printer-host-default-send',
             _('Make default'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
         $buttons .= self::makeButton(
             'printer-host-default-remove',
             _('Unset default'),
-            'btn btn-warning pull-left',
+            'btn btn-warning float-start',
             $props
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-info card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Set Printer as Default for Hosts');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'printer-host-default-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo self::makeModal(
             'unsetHostDefaultModal',
             _('Unset printer as default printer'),
@@ -1554,13 +1554,13 @@ class PrinterManagement extends FOGPage
             self::makeButton(
                 "closeHostDefaultDeleteModal",
                 _('Cancel'),
-                'btn btn-outline pull-left',
+                'btn btn-outline-secondary float-start',
                 'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirmHostDefaultDeleteModal",
                 _('Unset'),
-                'btn btn-outline pull-right'
+                'btn btn-outline-secondary float-end'
             ),
             '',
             'warning'

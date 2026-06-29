@@ -97,7 +97,7 @@ class AddAccessControlUser extends Hook
             ->buildSelectBox($accesscontrolID, 'accesscontrol');
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'accesscontrol',
                 _('User Role')
             ) => $accesscontrolSelector
@@ -105,7 +105,7 @@ class AddAccessControlUser extends Hook
         $buttons = FOGPage::makeButton(
             'accesscontrol-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         self::$HookManager->processEvent(
             'USER_ACCESSCONTROL_FIELDS',
@@ -118,7 +118,7 @@ class AddAccessControlUser extends Hook
         $rendered = FOGPage::formFields($fields);
         unset($fields);
         echo FOGPage::makeFormTag(
-            'form-horizontal',
+            '',
             'user-accesscontrol-form',
             FOGPage::makeTabUpdateURL(
                 'user-accesscontrol',
@@ -128,11 +128,11 @@ class AddAccessControlUser extends Hook
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -238,7 +238,7 @@ class AddAccessControlUser extends Hook
         $accesscontrolID = (int)filter_input(INPUT_POST, 'accesscontrol');
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'accesscontrol',
                 _('User Role')
             )

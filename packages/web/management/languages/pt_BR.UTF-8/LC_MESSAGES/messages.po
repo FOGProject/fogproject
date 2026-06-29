@@ -1169,6 +1169,9 @@ msgstr "Configurações"
 msgid "Client Version"
 msgstr "Versão CPU"
 
+msgid "Close"
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "Snapin Command"

@@ -1116,6 +1116,9 @@ msgstr "Impostazioni Client"
 msgid "Client Version"
 msgstr "Versione client"
 
+msgid "Close"
+msgstr ""
+
 msgid "Command"
 msgstr "Comando"
 

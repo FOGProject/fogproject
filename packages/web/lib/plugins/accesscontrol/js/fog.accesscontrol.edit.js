@@ -111,7 +111,7 @@ $(function() {
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="accesscontrolRuleAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -143,7 +143,7 @@ $(function() {
 
     accesscontrolRulesTable.on('draw', function() {
         Common.iCheck('#accesscontrol-rule-table input');
-        $('#accesscontrol-rule-table input.associated').on('ifChanged', onAccesscontrolRuleCheckboxSelect);
+        $('#accesscontrol-rule-table input.associated').on('change', onAccesscontrolRuleCheckboxSelect);
         onRuleSelect(accesscontrolRulesTable.rows({selected: true}));
     });
 
@@ -209,7 +209,7 @@ $(function() {
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="accesscontrolUserAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -241,7 +241,7 @@ $(function() {
 
     accesscontrolUsersTable.on('draw', function() {
         Common.iCheck('#accesscontrol-user-table input');
-        $('#accesscontrol-user-table input.associated').on('ifChanged', onAccesscontrolUserCheckboxSelect);
+        $('#accesscontrol-user-table input.associated').on('change', onAccesscontrolUserCheckboxSelect);
         onUserSelect(accesscontrolUsersTable.rows({selected: true}));
     });
 

@@ -254,20 +254,20 @@ abstract class FOGPage extends FOGBase
         self::$FOGCollapseBox = self::makeButton(
             '',
             '<i class="fa fa-minus"></i>',
-            'btn btn-box-tool',
-            'data-widget="collapse"'
+            'btn btn-tool',
+            'data-lte-toggle="card-collapse"'
         );
         self::$FOGExpandBox = self::makeButton(
             '',
             '<i class="fa fa-plus"></i>',
-            'btn btn-box-tool',
-            'data-widget="expand"'
+            'btn btn-tool',
+            'data-lte-toggle="card-maximize"'
         );
         self::$FOGCloseBox = self::makeButton(
             '',
             '<i class="fa fa-times"></i>',
-            'btn btn-box-tool',
-            'data-widget="remove"'
+            'btn btn-tool',
+            'data-lte-toggle="card-remove"'
         );
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
@@ -892,7 +892,6 @@ abstract class FOGPage extends FOGBase
         $dismissable = true,
         $isCallout = false
     ) {
-        echo '<div class="box-body">';
         echo '<div class="';
         echo(
             $isCallout ?
@@ -907,16 +906,15 @@ abstract class FOGPage extends FOGBase
         if ($dismissable) {
             echo self::makeButton(
                 '',
-                'x',
-                'close',
-                'data-bs-dismiss="alert" aria-hidden="true"'
+                '',
+                'btn-close',
+                'type="button" data-bs-dismiss="alert" aria-label="' . _('Close') . '"'
             );
         }
         echo '<h4>'
             . $title
             . '</h4>';
         echo $body;
-        echo '</div>';
         echo '</div>';
     }
     /**
@@ -980,12 +978,13 @@ abstract class FOGPage extends FOGBase
         $text,
         $dropdownArray,
         $pull = 'right',
-        $class = 'default',
+        $class = 'secondary',
         $props = ''
     ) {
         ob_start();
-        echo '<div class="btn-group pull-'
-            . $pull
+        $float = ('left' === $pull) ? 'float-start' : 'float-end';
+        echo '<div class="btn-group '
+            . $float
             . '">';
         echo '<button type="button" class="btn btn-'
             . $class
@@ -997,9 +996,8 @@ abstract class FOGPage extends FOGBase
         echo '</button>';
         echo '<button type="button" class="btn btn-'
             . $class
-            . ' dropdown-toggle" data-bs-toggle="dropdown">';
-        echo '<span class="caret"></span>';
-        echo '<span class="sr-only">'
+            . ' dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">';
+        echo '<span class="visually-hidden">'
             . _('Toggle Dropdown')
             . '</span>';
         echo '</button>';
@@ -1007,14 +1005,14 @@ abstract class FOGPage extends FOGBase
         foreach ($dropdownArray as &$dropdown) {
             $divider = isset($dropdown['divider']) ? $dropdown['divider']: '';
             if ($divider) {
-                echo '<li class="divider"></li>';
+                echo '<li><hr class="dropdown-divider"></li>';
             }
             $href = isset($dropdown['href']) ? $dropdown['href'] : '#';
             $did = isset($dropdown['id']) ? ' id="' . $dropdown['id'] . '"' : '';
             $dprops = isset($dropdown['props']) ? ' ' . $dropdown['props'] . ' ' : '';
             $dtext = isset($dropdown['text']) ? $dropdown['text'] : '';
             echo '<li>';
-            echo '<a href="'
+            echo '<a class="dropdown-item" href="'
                 . $href
                 . '"'
                 . $did
@@ -1106,21 +1104,21 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),
-                        'btn btn-danger pull-left'
+                        'btn btn-danger float-start'
                     );
-                    $actionbox .= '<div class="btn-group pull-right">';
+                    $actionbox .= '<div class="btn-group float-end">';
                     if (method_exists($this, 'addModal')) {
                         if ($node == 'host') {
                             $actionbox .= self::makeButton(
                                 'addSelectedToGroup',
                                 _('Add selected to group'),
-                                'btn btn-default'
+                                'btn btn-secondary'
                             );
                         }
                         $actionbox .= self::makeButton(
                             'createnew',
                             _('Add'),
-                            'btn btn-primary pull-right'
+                            'btn btn-primary float-end'
                         );
                         ob_start();
                         $this->addModal();
@@ -1132,13 +1130,13 @@ abstract class FOGPage extends FOGBase
                             self::makeButton(
                                 'closecreateModal',
                                 _('Cancel'),
-                                'btn btn-outline pull-left',
+                                'btn btn-outline-secondary float-start',
                                 'data-bs-dismiss="modal"'
                             )
                             . self::makeButton(
                                 'send',
                                 _('Create'),
-                                'btn btn-primary pull-right'
+                                'btn btn-primary float-end'
                             ),
                             '',
                             'primary'
@@ -1154,13 +1152,13 @@ abstract class FOGPage extends FOGBase
                             self::makeButton(
                                 'closeGroupModal',
                                 _('Cancel'),
-                                'btn btn-outline pull-left',
+                                'btn btn-outline-secondary float-start',
                                 'data-bs-dismiss="modal"'
                             )
                             . self::makeButton(
                                 'confirmGroupAdd',
                                 _('Add'),
-                                'btn btn-outline pull-right'
+                                'btn btn-outline-secondary float-end'
                             ),
                             '',
                             'info'
@@ -1183,7 +1181,7 @@ abstract class FOGPage extends FOGBase
                         . (
                             in_array($node, ['snapin', 'image', 'group']) ?
                             self::makeLabel(
-                                'control-label',
+                                'col-form-label',
                                 (
                                     in_array($node, ['snapin', 'image']) ?
                                     'andFile' : 'andHosts'
@@ -1215,7 +1213,7 @@ abstract class FOGPage extends FOGBase
                         self::makeButton(
                             'closeDeleteModal',
                             _('Cancel'),
-                            'btn btn-outline pull-left',
+                            'btn btn-outline-secondary float-start',
                             'data-bs-dismiss="modal"'
                         )
                         . self::makeButton(
@@ -1223,7 +1221,7 @@ abstract class FOGPage extends FOGBase
                             _('Delete')
                             . ' {0} '
                             . _('{node}'),
-                            'btn btn-outline pull-right'
+                            'btn btn-outline-secondary float-end'
                         ),
                         '',
                         'danger'
@@ -1636,7 +1634,7 @@ abstract class FOGPage extends FOGBase
             );
         }
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         if ($groupShared) {
             // Group mode: tri-state so "no change" leaves each host's join
@@ -1737,14 +1735,14 @@ abstract class FOGPage extends FOGBase
         $rendered = self::formFields($fields);
         unset($fields);
         if ($ownElement) {
-            echo '<div class="box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo $this->childClass . ' ' . _('Active Directory');
             echo '</h4>';
             echo '</div>';
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'active-directory-form',
                 self::makeTabUpdateURL(
                     $node . '-active-directory',
@@ -1758,22 +1756,22 @@ abstract class FOGPage extends FOGBase
                 . $node
                 . '-active-directory" class="">';
 
-            echo '  <div class="box-body">';
+            echo '  <div class="card-body">';
         }
         echo $rendered;
         if ($ownElement) {
             $buttons = self::makeButton(
                 'ad-send',
                 _('Update'),
-                'btn btn-primary pull-right'
+                'btn btn-primary float-end'
             );
             $buttons .= self::makeButton(
                 'ad-clear',
                 _('Clear Fields'),
-                'btn btn-danger pull-left'
+                'btn btn-danger float-start'
             );
             echo '</div>';
-            echo '<div class="box-footer with-border">';
+            echo '<div class="card-footer">';
             echo $buttons;
             echo '</div>';
             echo '</form>';
@@ -2161,7 +2159,7 @@ abstract class FOGPage extends FOGBase
         if ($this->obj instanceof Group) {
             $extra .= '<br/>';
             $extra .= self::makeLabel(
-                'control-label',
+                'col-form-label',
                 'andHosts',
                 self::makeInput(
                     '',
@@ -2176,7 +2174,7 @@ abstract class FOGPage extends FOGBase
         } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
             $extra .= '<br/>';
             $extra .= self::makeLabel(
-                'control-label',
+                'col-form-label',
                 'andFile',
                 self::makeInput(
                     '',
@@ -2199,13 +2197,13 @@ abstract class FOGPage extends FOGBase
             self::makeButton(
                 'closeDeleteModal',
                 _('Cancel'),
-                'btn btn-outline pull-left',
+                'btn btn-outline-secondary float-start',
                 'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 'confirmDeleteModal',
                 _('Delete'),
-                'btn btn-outline pull-right'
+                'btn btn-outline-secondary float-end'
             ),
             '',
             'danger'
@@ -2227,13 +2225,13 @@ abstract class FOGPage extends FOGBase
             self::makeButton(
                 "close{$item}DeleteModal",
                 _('Cancel'),
-                'btn btn-outline pull-left',
+                'btn btn-outline-secondary float-start',
                 'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirm{$item}DeleteModal",
                 _('Remove'),
-                'btn btn-outline pull-right'
+                'btn btn-outline-secondary float-end'
             ),
             '',
             'warning'
@@ -2732,7 +2730,7 @@ abstract class FOGPage extends FOGBase
 
         $fields = [
             self::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'import',
                 _('Import CSV')
                 . '<br/>('
@@ -2771,7 +2769,7 @@ abstract class FOGPage extends FOGBase
             )
             . '</div>',
             self::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'csvheader',
                 _('First row is a header')
             ) => self::makeInput(
@@ -2782,7 +2780,7 @@ abstract class FOGPage extends FOGBase
                 'csvheader'
             )
             . ' '
-            . '<span class="help-block" style="display:inline">'
+            . '<span class="form-text" style="display:inline">'
             . _(
                 'Tick if the file\'s first row names the columns. '
                 . 'Header rows are auto-detected even when unticked; '
@@ -2793,7 +2791,7 @@ abstract class FOGPage extends FOGBase
         $buttons = self::makeButton(
             'import-send',
             _('Import'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -2808,21 +2806,21 @@ abstract class FOGPage extends FOGBase
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'import-form',
             Initiator::e($this->formAction),
             'post',
             'multipart/form-data',
             true
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
-        echo '<p class="help-block">';
+        echo '<div class="card-body">';
+        echo '<p class="form-text">';
         echo _('This page allows you to upload a CSV file into fog.');
         echo ' ';
         echo _('This should ease migration or mass import new items.');
@@ -2848,7 +2846,7 @@ abstract class FOGPage extends FOGBase
         echo '</p>';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -4041,7 +4039,7 @@ abstract class FOGPage extends FOGBase
 
         $action = filter_input(INPUT_POST, 'action');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $actionSelector = self::getClass('PowerManagementManager')->getActionSelect(
             $action,
@@ -4132,7 +4130,7 @@ abstract class FOGPage extends FOGBase
 
         ob_start();
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             $node
             . '-powermanagement-'
             . ($ondemand ? 'instant' : 'cron')
@@ -4176,13 +4174,13 @@ abstract class FOGPage extends FOGBase
         global $node;
         global $sub;
         ob_start();
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         // Render does not need echo, it's rendering.
         $this->render(12);
         echo '</div>';
@@ -4191,7 +4189,7 @@ abstract class FOGPage extends FOGBase
             // That method would allow plugins and hooks to generate/remove buttons
             // where/as necessary. As well as simplify our coding needs.
             // I forgot we have no need for "search" anymore?
-            echo '<div class="box-footer with-border">';
+            echo '<div class="card-footer">';
             if ($node == 'host') {
                 // Some generalized button generator code here.
             } else {
@@ -4229,7 +4227,7 @@ abstract class FOGPage extends FOGBase
     {
         ob_start();
         foreach ($fields as $field => &$input) {
-            echo '<div class="form-group">';
+            echo '<div class="row mb-3">';
             echo $field;
             echo '<div class="col-sm-9">';
             echo $input;
@@ -4311,16 +4309,15 @@ abstract class FOGPage extends FOGBase
 
         ob_start();
         $activeId = '';
-        $dropdown = false;
-        echo '<div class="nav-tabs-custom">';
-        echo '<ul class="nav nav-tabs">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header p-0 border-bottom-0">';
+        echo '<ul class="nav nav-tabs" role="tablist">';
         foreach ($tabData as &$entry) {
             if (isset($entry['tabs'])) {
                 $name = $entry['tabs']['name'];
-                echo '<li class="dropdown">';
-                echo '<a class="dropdown-toggle" data-bs-toggle="dropdown" href="#">';
+                echo '<li class="nav-item dropdown">';
+                echo '<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">';
                 echo $name;
-                echo '<span class="caret"></span>';
                 echo '</a>';
                 echo '<ul class="dropdown-menu">';
                 $tabs = $entry['tabs']['tabData'];
@@ -4331,22 +4328,21 @@ abstract class FOGPage extends FOGBase
                         $activeId = $ident;
                     }
                     $isActive = ($activeId === $ident);
-                    echo '<li class="'
-                        . (
-                            $isActive ?
-                            'active' :
-                            ''
-                        )
-                        . '">';
-                    echo '<a href="#'
+                    echo '<li>';
+                    echo '<a class="dropdown-item'
+                        . ($isActive ? ' active' : '')
+                        . '" href="#'
                         . $ident
-                        . '" data-bs-toggle="tab" ariaexpanded="true">'
+                        . '" data-bs-toggle="tab" role="tab" aria-selected="'
+                        . ($isActive ? 'true' : 'false')
+                        . '">'
                         . $name
                         . '</a>';
                     echo '</li>';
                     unset($tab);
                 }
                 echo '</ul>';
+                echo '</li>';
             } else {
                 $name = $entry['name'];
                 $ident = $entry['id'];
@@ -4354,16 +4350,14 @@ abstract class FOGPage extends FOGBase
                     $activeId = $ident;
                 }
                 $isActive = ($activeId === $ident);
-                echo '<li class="'
-                    . (
-                        $isActive ?
-                        'active' :
-                        ''
-                    )
-                    . '">';
-                echo '<a href="#'
+                echo '<li class="nav-item">';
+                echo '<a class="nav-link'
+                    . ($isActive ? ' active' : '')
+                    . '" href="#'
                     . $ident
-                    . '" data-bs-toggle="tab" ariaexpanded="true">'
+                    . '" data-bs-toggle="tab" role="tab" aria-selected="'
+                    . ($isActive ? 'true' : 'false')
+                    . '">'
                     . $name
                     . '</a>';
                 echo '</li>';
@@ -4371,6 +4365,8 @@ abstract class FOGPage extends FOGBase
             unset($entry);
         }
         echo '</ul>';
+        echo '</div>';
+        echo '<div class="card-body">';
         echo '<div class="tab-content">';
         foreach ($tabData as &$entry) {
             if (isset($entry['tabs'])) {
@@ -4382,13 +4378,9 @@ abstract class FOGPage extends FOGBase
                     $isActive = ($activeId === $ident);
                     echo '<div id="'
                         . $ident
-                        . '" class="tab-pane '
-                        . (
-                            $isActive ?
-                            'active' :
-                            ''
-                        )
-                        . '">';
+                        . '" class="tab-pane fade'
+                        . ($isActive ? ' show active' : '')
+                        . '" role="tabpanel">';
                     if (is_callable($generator)) {
                         $generator();
                     }
@@ -4402,13 +4394,9 @@ abstract class FOGPage extends FOGBase
                 $isActive = ($activeId === $ident);
                 echo '<div id="'
                     . $ident
-                    . '" class="tab-pane '
-                    . (
-                        $isActive ?
-                        'active' :
-                        ''
-                    )
-                    . '">';
+                    . '" class="tab-pane fade'
+                    . ($isActive ? ' show active' : '')
+                    . '" role="tabpanel">';
                 if (is_callable($generator)) {
                     $generator();
                 }
@@ -4416,6 +4404,7 @@ abstract class FOGPage extends FOGBase
             }
             unset($entry);
         }
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         return ob_get_clean();
@@ -4528,9 +4517,9 @@ abstract class FOGPage extends FOGBase
     ) {
         return '<i class="' . $class. '" id="' . $id . '"'
             . ' data-bs-toggle="tooltip"'
-            . ' data-placement="left"'
-            . ' data-html="true"'
-            . ' data-trigger="click"'
+            . ' data-bs-placement="left"'
+            . ' data-bs-html="true"'
+            . ' data-bs-trigger="click"'
             //. ' style="size:+3; color:#337ab7;"'
             . " title='$title'"
             . ($extra ? " $extra" : '')
@@ -4707,17 +4696,17 @@ abstract class FOGPage extends FOGBase
 
         $this->title = _('Export '. ucfirst(strtolower($this->childClass)) . 's');
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _('Click "CSV (All)" to export every matching item.');
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
-        echo '<p class="help-block">';
+        echo '<div class="card-body">';
+        echo '<p class="form-text">';
         echo _(
             'The "CSV (All)" button exports every item that matches the current '
             . 'search to a CSV file (the whole list, not just what is on screen). '

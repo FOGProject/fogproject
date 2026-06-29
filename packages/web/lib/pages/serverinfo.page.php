@@ -51,17 +51,17 @@ class ServerInfo extends FOGPage
         $this->title = _('Server Information');
         if (!$this->obj->isValid()) {
             echo '<div class="col-md-12">';
-            echo '<div class="box box-warning">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-warning card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo $this->title;
             echo '</h4>';
-            echo '<div class="box-tools pull-right">';
+            echo '<div class="card-tools float-end">';
             echo self::$FOGCollapseBox;
             echo self::$FOGCloseBox;
             echo '</div>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo _('Invalid Server Information!');
             echo '</div>';
             echo '</div>';
@@ -75,17 +75,17 @@ class ServerInfo extends FOGPage
         );
         if (!$this->obj->get('online')) {
             echo '<div class="col-md-12">';
-            echo '<div class="box box-warning">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-warning card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo $this->title;
             echo '</h4>';
-            echo '<div class="box-tools pull-right">';
+            echo '<div class="card-tools float-end">';
             echo self::$FOGCollapseBox;
             echo self::$FOGCloseBox;
             echo '</div>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo _('Server appears to be offline or unavailable!');
             echo '</div>';
             echo '</div>';
@@ -95,17 +95,17 @@ class ServerInfo extends FOGPage
         $ret = self::$FOGURLRequests->process($url);
         if (!$ret) {
             echo '<div class="col-md-12">';
-            echo '<div class="box box-warning">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-warning card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo $this->title;
             echo '</h4>';
-            echo '<div class="box-tools pull-right">';
+            echo '<div class="card-tools float-end">';
             echo self::$FOGCollapseBox;
             echo self::$FOGCloseBox;
             echo '</div>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo _('Server appears to be offline or unavailable!');
             echo '</div>';
             echo '</div>';
@@ -154,17 +154,17 @@ class ServerInfo extends FOGPage
         ];
         $fogversion = $ret->general->fogversion;
         // Running FOG Version
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('FOG Version');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $fogversion;
         echo '</div>';
         echo '</div>';
@@ -172,26 +172,26 @@ class ServerInfo extends FOGPage
         // General Info
         ob_start();
         foreach ($fields as $field => &$input) {
-            echo '<div class="col-md-4 pull-left">';
+            echo '<div class="col-md-4 float-start">';
             echo $field;
             echo '</div>';
-            echo '<div class="col-md-8 pull-right">';
+            echo '<div class="col-md-8 float-end">';
             echo $input;
             echo '</div>';
             unset($field, $input);
         }
         $rendered = ob_get_clean();
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('General Information');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
         echo '</div>';
@@ -207,26 +207,26 @@ class ServerInfo extends FOGPage
         ];
         ob_start();
         foreach ($fields as $field => &$input) {
-            echo '<div class="col-md-4 pull-left">';
+            echo '<div class="col-md-4 float-start">';
             echo $field;
             echo '</div>';
-            echo '<div class="col-md-8 pull-right">';
+            echo '<div class="col-md-8 float-end">';
             echo $input;
             echo '</div>';
             unset($field, $input);
         }
         $rendered = ob_get_clean();
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('File System Information');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
         echo '</div>';
@@ -236,17 +236,17 @@ class ServerInfo extends FOGPage
             $this->data
         );
         // Network Information.
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Network Information');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
+        echo '<div class="card-tools float-end">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<div class="box-group" id="accordion">';
         foreach ((array)$NICTrans as $nicname => $txtran) {
             unset(
@@ -266,7 +266,7 @@ class ServerInfo extends FOGPage
                     // an fa-info-circle whose tooltip carries the vendor name.
                     $macDisplay .= ' <i class="fa fa-info-circle text-muted '
                         . 'mac-vendor-icon" data-bs-toggle="tooltip" '
-                        . 'data-placement="right" data-container="body" title="'
+                        . 'data-bs-placement="right" data-container="body" title="'
                         . Initiator::e($vendor)
                         . '"></i>';
                 }
@@ -280,18 +280,18 @@ class ServerInfo extends FOGPage
             ];
             ob_start();
             foreach ($fields as $field => &$input) {
-                echo '<div class="col-md-3 pull-left">';
+                echo '<div class="col-md-3 float-start">';
                 echo $field;
                 echo '</div>';
-                echo '<div class="col-md-9 pull-right">';
+                echo '<div class="col-md-9 float-end">';
                 echo $input;
                 echo '</div>';
                 unset($field, $input);
             }
             $rendered = ob_get_clean();
-            echo '<div class="panel box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="panel card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo '<a data-bs-toggle="collapse" data-bs-parent="#accordion" href="#'
                 . $ethName
                 . '">';
@@ -304,7 +304,7 @@ class ServerInfo extends FOGPage
             echo '<div id="'
                 . $ethName
                 . '" class="panel-collapse collapse">';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo $rendered;
             echo '</div>';
             echo '</div>';

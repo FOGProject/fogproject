@@ -1182,6 +1182,9 @@ msgstr "Configuración Tecla"
 msgid "Client Version"
 msgstr "Versión de la CPU"
 
+msgid "Close"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 

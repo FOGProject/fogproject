@@ -21,9 +21,9 @@
             if (err && err.status > 499) {
                 return;
             }
-            dbrunningShow.addClass('hidden');
-            dbstoppedShow.addClass('hidden');
-            completedupdt.removeClass('hidden');
+            dbrunningShow.addClass('d-none');
+            dbstoppedShow.addClass('d-none');
+            completedupdt.removeClass('d-none');
         });
     });
 
@@ -47,8 +47,8 @@
                 },
                 success: function(data) {
                     if (data.running) {
-                        dbrunningShow.removeClass('hidden');
-                        dbstoppedShow.addClass('hidden');
+                        dbrunningShow.removeClass('d-none');
+                        dbstoppedShow.addClass('d-none');
                         if (dbcheckajxrun) {
                             dbcheckajxrun.abort();
                         }
@@ -56,13 +56,13 @@
                             clearTimeout(dbcheckintrvl);
                         }
                     } else {
-                        dbrunningShow.addClass('hidden');
-                        dbstoppedShow.removeClass('hidden');
+                        dbrunningShow.addClass('d-none');
+                        dbstoppedShow.removeClass('d-none');
                         var dberror = $('#dberror');
                         if (data.error) {
-                            dberror.text(data.error).removeClass('hidden');
+                            dberror.text(data.error).removeClass('d-none');
                         } else {
-                            dberror.text('').addClass('hidden');
+                            dberror.text('').addClass('d-none');
                         }
                     }
                 }

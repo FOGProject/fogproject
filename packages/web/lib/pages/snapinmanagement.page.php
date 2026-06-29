@@ -84,7 +84,7 @@ class SnapinManagement extends FOGPage
          */
         ob_start();
         printf(
-            '<select class="form-control packnotemplate hidden" '
+            '<select class="form-control packnotemplate d-none" '
             . 'name="argTypes" id="argTypes">'
             . '<option value="">- %s -</option>',
             _('Please select an option')
@@ -164,7 +164,7 @@ class SnapinManagement extends FOGPage
         ];
         ob_start();
         printf(
-            '<select class="form-control packtemplate hidden" '
+            '<select class="form-control packtemplate d-none" '
             . 'id="packTypes">'
             . '<option value="">- %s -</option>',
             _('Please select an option')
@@ -254,7 +254,7 @@ class SnapinManagement extends FOGPage
             . '</option>'
             . '</select>';
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -292,22 +292,22 @@ class SnapinManagement extends FOGPage
                 _('Snapin Type')
             ) => $packtypes,
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'argTypes',
                 _('Snapin Template')
             )
             . self::makeLabel(
-                $labelClass . ' packtemplate hidden',
+                $labelClass . ' packtemplate d-none',
                 'packTypes',
                 _('Snapin Pack Template')
             ) => self::$_template1 . self::$_template2,
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'snaprw',
                 _('Snapin Run With')
             )
             . self::makeLabel(
-                $labelClass . ' packtemplate hidden',
+                $labelClass . ' packtemplate d-none',
                 'snaprw',
                 _('Snapin Pack File')
             ) => self::makeInput(
@@ -319,12 +319,12 @@ class SnapinManagement extends FOGPage
                 $rw
             ),
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'snaprwa',
                 _('Snapin Run With Argument')
             )
             . self::makeLabel(
-                $labelClass . ' packtemplate hidden',
+                $labelClass . ' packtemplate d-none',
                 'snaprwa',
                 _('Snapin Pack Arguments')
             ) => self::makeInput(
@@ -382,7 +382,7 @@ class SnapinManagement extends FOGPage
                 ''
             ),
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'args',
                 _('Snapin Arguments')
             ) => self::makeInput(
@@ -736,7 +736,7 @@ class SnapinManagement extends FOGPage
             . '</option>'
             . '</select>';
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -769,22 +769,22 @@ class SnapinManagement extends FOGPage
                 _('Snapin Type')
             ) => $packtypes,
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'argTypes',
                 _('Snapin Template')
             )
             . self::makeLabel(
-                $labelClass . ' packtemplate hidden',
+                $labelClass . ' packtemplate d-none',
                 'packTypes',
                 _('Snapin Pack Template')
             ) => self::$_template1 . self::$_template2,
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'snaprw',
                 _('Snapin Run With')
             )
             . self::makeLabel(
-                $labelClass . ' packtemplate hidden',
+                $labelClass . ' packtemplate d-none',
                 'snaprw',
                 _('Snapin Pack File')
             ) => self::makeInput(
@@ -796,12 +796,12 @@ class SnapinManagement extends FOGPage
                 $rw
             ),
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'snaprwa',
                 _('Snapin Run With Argument')
             )
             . self::makeLabel(
-                $labelClass . ' packtemplate hidden',
+                $labelClass . ' packtemplate d-none',
                 'snaprwa',
                 _('Snapin Pack Arguments')
             ) => self::makeInput(
@@ -859,7 +859,7 @@ class SnapinManagement extends FOGPage
                 ''
             ),
             self::makeLabel(
-                $labelClass . ' packnotemplate hidden',
+                $labelClass . ' packnotemplate d-none',
                 'args',
                 _('Snapin Arguments')
             ) => self::makeInput(
@@ -1027,12 +1027,12 @@ class SnapinManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -1047,7 +1047,7 @@ class SnapinManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'snapin-general-form',
             self::makeTabUpdateURL(
                 'snapin-general',
@@ -1057,11 +1057,11 @@ class SnapinManagement extends FOGPage
             'multipart/form-data',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -1273,7 +1273,7 @@ class SnapinManagement extends FOGPage
             _('Snapin Storage Group Associations'),
             _('Storage Group Name'),
             'storagegroup',
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $props = ' method="post" action="'
@@ -1287,19 +1287,19 @@ class SnapinManagement extends FOGPage
         $buttons = self::makeButton(
             'snapin-storagegroup-primary-send',
             _('Update'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-info card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Snapin Primary Storage Group');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<span id="storagegroupselector"></span>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';

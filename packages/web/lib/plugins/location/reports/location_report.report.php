@@ -40,16 +40,16 @@ class Location_Report extends ReportManagement
 
         $this->title = _('Export Locations');
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Export Locations');
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _('Use the selector to choose how many items you want exported');
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'location-export-table');
         echo '</div>';
         echo '</div>';

@@ -42,13 +42,13 @@ class Hosts_And_Users extends ReportManagement
             []
         ];
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('User Logins');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $this->render(12, 'userlogin-table');
         echo '</div>';
         echo '</div>';

@@ -36,9 +36,8 @@
         generalDeleteModal.modal('show');
     });
     // Should we delete the image files too?
-    $('#andFile').on('ifChanged', function(e) {
+    $('#andFile').on('change', function(e) {
         e.preventDefault();
-        $(this).iCheck('update');
         if (!this.checked) {
             return;
         }
@@ -137,7 +136,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="imageHostAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -172,7 +171,7 @@
 
     imageHostsTable.on('draw', function(e) {
         Common.iCheck('#image-host-table input');
-        $('#image-host-table input.associated').on('ifChanged', onImageHostCheckboxSelect);
+        $('#image-host-table input.associated').on('change', onImageHostCheckboxSelect);
         onHostSelect(imageHostsTable.rows({selected: true}));
     });
 
@@ -239,7 +238,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="imageStoragegroupAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -275,7 +274,7 @@
 
     imageStoragegroupsTable.on('draw', function() {
         Common.iCheck('#image-storagegroup-table input');
-        $('#image-storagegroup-table input.associated').on('ifChanged', onImageStoragegroupCheckboxSelect);
+        $('#image-storagegroup-table input.associated').on('change', onImageStoragegroupCheckboxSelect);
         onStoragegroupSelect(imageStoragegroupsTable.rows({selected: true}));
     });
 

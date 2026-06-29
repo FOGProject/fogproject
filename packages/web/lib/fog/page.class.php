@@ -110,7 +110,6 @@ class Page extends FOGBase
         'js/jquery.slimscroll.min.js',
         'js/adminlte4.min.js',
         'js/datatables.min.js',
-        'js/icheck.min.js',
         'js/bootbox.min.js',
         'js/pnotify.min.js',
         'js/pace.min.js',
@@ -144,7 +143,6 @@ class Page extends FOGBase
             ->addCSS('css/datatables.min.css')
             ->addCSS('css/slider.css')
             ->addCSS('css/pnotify.min.css')
-            ->addCSS('css/icheck-square-blue.css')
             ->addCSS('css/animate.css')
             ->addCSS('css/pace.min.css')
             ->addCSS('css/adminlte4.min.css')

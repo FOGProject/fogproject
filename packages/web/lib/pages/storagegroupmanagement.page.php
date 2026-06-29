@@ -58,7 +58,7 @@ class StorageGroupManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $trustedcidrs = filter_input(INPUT_POST, 'trustedcidrs');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -221,7 +221,7 @@ class StorageGroupManagement extends FOGPage
             $this->obj->get('trustedcidrs')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -266,12 +266,12 @@ class StorageGroupManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -286,7 +286,7 @@ class StorageGroupManagement extends FOGPage
         unset($fields);
 
         echo  self::makeFormTag(
-            'form-horizontal',
+            '',
             'storagegroup-general-form',
             self::makeTabUpdateURL(
                 'storagegroup-general',
@@ -296,11 +296,11 @@ class StorageGroupManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -353,7 +353,7 @@ class StorageGroupManagement extends FOGPage
             _('Storage Group Image Associations'),
             _('Image Name'),
             'image',
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $props = ' method="post" action="'
@@ -368,25 +368,25 @@ class StorageGroupManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroup-image-primary-send',
             _('Make primary'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
         $buttons .= self::makeButton(
             'storagegroup-image-primary-remove',
             _('Unset primary'),
-            'btn btn-warning pull-left',
+            'btn btn-warning float-start',
             $props
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-info card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Set Storage Group as Primary for Images');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'storagegroup-image-primary-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo self::makeModal(
             'unsetImagePrimaryModal',
             _('Unset storage group as primary group'),
@@ -397,13 +397,13 @@ class StorageGroupManagement extends FOGPage
             self::makeButton(
                 "closeImagePrimaryDeleteModal",
                 _('Cancel'),
-                'btn btn-outline pull-left',
+                'btn btn-outline-secondary float-start',
                 'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirmImagePrimaryDeleteModal",
                 _('Unset'),
-                'btn btn-outline pull-right'
+                'btn btn-outline-secondary float-end'
             ),
             '',
             'warning'
@@ -520,7 +520,7 @@ class StorageGroupManagement extends FOGPage
             _('Storage Group Snapin Associations'),
             _('Snapin Name'),
             'snapin',
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $props = ' method="post" action="'
@@ -535,25 +535,25 @@ class StorageGroupManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroup-snapin-primary-send',
             _('Make primary'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
         $buttons .= self::makeButton(
             'storagegroup-snapin-primary-remove',
             _('Unset primary'),
-            'btn btn-warning pull-left',
+            'btn btn-warning float-start',
             $props
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-info card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Set Storage Group as Primary for Snapins');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'storagegroup-snapin-primary-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo self::makeModal(
             'unsetSnapinPrimaryModal',
             _('Unset storage group as primary group'),
@@ -564,13 +564,13 @@ class StorageGroupManagement extends FOGPage
             self::makeButton(
                 "closeSnapinPrimaryDeleteModal",
                 _('Cancel'),
-                'btn btn-outline pull-left',
+                'btn btn-outline-secondary float-start',
                 'data-bs-dismiss="modal"'
             )
             . self::makeButton(
                 "confirmSnapinPrimaryDeleteModal",
                 _('Unset'),
-                'btn btn-outline pull-right'
+                'btn btn-outline-secondary float-end'
             ),
             '',
             'warning'
@@ -687,7 +687,7 @@ class StorageGroupManagement extends FOGPage
             _('Storage Group Storage Node Associations'),
             _('Storage Node Name'),
             'storagenode',
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $props = ' method="post" action="'
@@ -701,19 +701,19 @@ class StorageGroupManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroup-storagenode-master-send',
             _('Update'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-info card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Storage Group Master Storage Node');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<span id="storagenodeselector"></span>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';

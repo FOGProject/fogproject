@@ -99,7 +99,7 @@ class AddWindowsKeyImage extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'windowskey',
                 _('Windows Key')
             ) => $windowskeySelector
@@ -108,7 +108,7 @@ class AddWindowsKeyImage extends Hook
         $buttons = FOGPage::makeButton(
             'windowskey-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -123,7 +123,7 @@ class AddWindowsKeyImage extends Hook
         unset($fields);
 
         echo FOGPage::makeFormTag(
-            'form-horizontal',
+            '',
             'image-windowskey-form',
             FOGPage::makeTabUpdateURL(
                 'image-windowskey',
@@ -133,16 +133,16 @@ class AddWindowsKeyImage extends Hook
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Windows Key');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -248,7 +248,7 @@ class AddWindowsKeyImage extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'windowskey',
                 _('Image Windows Key')
             )

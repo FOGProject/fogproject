@@ -32,8 +32,8 @@
             {
                 responsivePriority: 0,
                 render: function(data, type, row) {
-                    var lock = '<span class="label label-warning"><i class="fa fa-lock fa-1x"></i></span>';
-                    var unlock = '<span class="label label-danger"><i class="fa fa-unlock fa-fx"></i></span>';
+                    var lock = '<span class="badge bg-warning"><i class="fa fa-lock fa-1x"></i></span>';
+                    var unlock = '<span class="badge bg-danger"><i class="fa fa-unlock fa-fx"></i></span>';
                     if (row.protected > 0) {
                         return lock;
                     }
@@ -43,8 +43,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
                     if (row.isEnabled > 0) {
                         return enabled;
                     }

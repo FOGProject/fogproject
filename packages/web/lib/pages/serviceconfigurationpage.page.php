@@ -89,8 +89,8 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHome()
     {
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo _('This will allow you to configure how services');
         echo ' ';
         echo _('function on client computers.');
@@ -145,7 +145,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             $key . '-update',
             _('Update'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
         foreach (self::$_modules as &$module) {
@@ -156,7 +156,7 @@ class ServiceConfigurationPage extends FOGPage
             unset($module);
         }
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -208,7 +208,7 @@ class ServiceConfigurationPage extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             $key . 'update-form',
             self::makeTabUpdateURL(
                 'service-' . $key
@@ -217,8 +217,8 @@ class ServiceConfigurationPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo self::makeInput(
             '',
             'name_' . $Module->id,
@@ -229,7 +229,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -300,7 +300,7 @@ class ServiceConfigurationPage extends FOGPage
             ]
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $this->_renderModuleTab(
             'displaymanager',
@@ -390,7 +390,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceAutologout()
     {
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
 

@@ -58,7 +58,7 @@ class WindowsKeyManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $key = filter_input(INPUT_POST, 'key');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -205,7 +205,7 @@ class WindowsKeyManagement extends FOGPage
             $key = $keytest;
         }
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -250,12 +250,12 @@ class WindowsKeyManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -271,7 +271,7 @@ class WindowsKeyManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'windowskey-general-form',
             self::makeTabUpdateURL(
                 'windowskey-general',
@@ -281,11 +281,11 @@ class WindowsKeyManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -341,13 +341,13 @@ class WindowsKeyManagement extends FOGPage
         $buttons = self::makeButton(
             'image-add',
             _('Add selected'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
         $buttons .= self::makeButton(
             'image-remove',
             _('Remove selected'),
-            'btn btn-danger pull-left',
+            'btn btn-danger float-start',
             $props
         );
 
@@ -362,12 +362,12 @@ class WindowsKeyManagement extends FOGPage
 
         echo '<!-- Images -->';
         echo '<div class="box-group" id="images">';
-        echo '<div class="box box-solid">';
+        echo '<div class="card">';
         echo '<div class="updateimage" class="">';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $this->render(12, 'windowskey-image-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $this->assocDelModal('image');
         echo '</div>';
         echo '</div>';
