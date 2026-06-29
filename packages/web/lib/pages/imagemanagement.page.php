@@ -52,6 +52,47 @@ class ImageManagement extends FOGPage
         ];
     }
     /**
+     * Resolve a storage node purely for displaying the image-path prefix.
+     *
+     * getMasterStorageNode() only returns a node that probes as online and
+     * throws "No master nodes available" otherwise. The path prefix it feeds
+     * is informational, so a transiently-offline (or absent) master node must
+     * not 500 the whole page. On that throw, fall back to a master node in the
+     * group ignoring online status, then to any node, and finally null so the
+     * caller can omit the prefix.
+     *
+     * @param StorageGroup $StorageGroup the group to resolve a node for
+     *
+     * @return StorageNode|null
+     */
+    private function _displayStorageNode($StorageGroup)
+    {
+        try {
+            return $StorageGroup->getMasterStorageNode();
+        } catch (Exception $e) {
+            $getter = count($StorageGroup->get('enablednodes')) > 0
+                ? 'enablednodes'
+                : 'allnodes';
+            $ids = $StorageGroup->get($getter);
+            if (count($ids) < 1) {
+                return null;
+            }
+            $masterIds = Route::getIds(
+                'storagenode',
+                [
+                    'id' => $ids,
+                    'isEnabled' => 1,
+                    'isMaster' => 1
+                ]
+            );
+            if (count($masterIds) < 1) {
+                $masterIds = $ids;
+            }
+            $StorageNode = self::getClass('StorageNode', array_shift($masterIds));
+            return $StorageNode->isValid() ? $StorageNode : null;
+        }
+    }
+    /**
      * Builds the create-form fields (shared by add() and addModal()).
      *
      * @return array
@@ -79,7 +120,7 @@ class ImageManagement extends FOGPage
                 '',
                 'id'
             );
-        $StorageNode = $StorageGroup->getMasterStorageNode();
+        $StorageNode = $this->_displayStorageNode($StorageGroup);
         $OSs = self::getClass('OSManager')
             ->buildSelectBox($os);
         $itID = 1;
@@ -198,10 +239,12 @@ class ImageManagement extends FOGPage
                 'path',
                 _('Image Path')
             ) => '<div class="input-group">'
-            . '<span class="input-group-text">'
-            . $StorageNode->get('path')
-            . '/'
-            . '</span>'
+            . ($StorageNode
+                ? '<span class="input-group-text">'
+                . $StorageNode->get('path')
+                . '/'
+                . '</span>'
+                : '')
             . self::makeInput(
                 'form-control imagepath-input',
                 'path',
@@ -450,7 +493,7 @@ class ImageManagement extends FOGPage
             filter_input(INPUT_POST, 'description') ?:
             ($this->obj->get('description') ?: '')
         );
-        $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
+        $StorageNode = $this->_displayStorageNode($this->obj->getStorageGroup());
         $osID = (int)(
             filter_input(INPUT_POST, 'os') ?:
             ($this->obj->get('osID') ?: '')
@@ -580,10 +623,12 @@ class ImageManagement extends FOGPage
                 'path',
                 _('Image Path')
             ) => '<div class="input-group">'
-            . '<span class="input-group-text">'
-            . $StorageNode->get('path')
-            . '/'
-            . '</span>'
+            . ($StorageNode
+                ? '<span class="input-group-text">'
+                . $StorageNode->get('path')
+                . '/'
+                . '</span>'
+                : '')
             . self::makeInput(
                 'form-control imagepath-input',
                 'path',
