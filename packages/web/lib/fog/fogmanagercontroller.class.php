@@ -687,12 +687,15 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Inserts data in mass to the database.
      *
-     * @param array $fields the fields to insert into
-     * @param array $values the values to insert
+     * @param array  $fields the fields to insert into
+     * @param array  $values the values to insert
+     * @param string $table  optional table override (defaults to this
+     *                        manager's table); lets callers stage a bulk
+     *                        load into a side table for an atomic swap
      *
      * @return array
      */
-    public function insertBatch($fields, $values)
+    public function insertBatch($fields, $values, $table = null)
     {
         $fieldlength = count($fields ?: []);
         $valuelength = count($values ?: []);
@@ -742,7 +745,7 @@ abstract class FOGManagerController extends FOGBase
             }
             $query = sprintf(
                 $this->insertBatchTemplate,
-                $this->databaseTable,
+                $table ?: $this->databaseTable,
                 implode('`,`', $keys),
                 implode(',', $vals),
                 implode(',', $dups)

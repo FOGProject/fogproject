@@ -826,15 +826,14 @@ class FOGConfigurationPage extends FOGPage
     {
         self::checkAuthAndCSRF();
         if (isset($_POST['update'])) {
-            self::clearMACLookupTable();
             $url = 'https://standards-oui.ieee.org/oui/oui.txt';
             $data = self::$FOGURLRequests->process($url);
-            $data = array_shift($data);
+            $data = is_array($data) ? array_shift($data) : $data;
             $items = [];
             $start = 18;
             $imported = 0;
             $pat = '#^([0-9a-fA-F]{2}[:\-]){2}([0-9a-fA-F]{2}).*$#';
-            foreach (preg_split("/((\r?\n)|(\n?\r))/", $data) as $line) {
+            foreach (preg_split("/((\r?\n)|(\n?\r))/", (string)$data) as $line) {
                 $line = trim($line);
                 if (!preg_match($pat, $line)) {
                     continue;
@@ -864,6 +863,17 @@ class FOGConfigurationPage extends FOGPage
                 ];
             }
             if (count($items) > 0) {
+                // Build the refreshed list in a side table and swap it in
+                // atomically, rather than truncating up front. The live table
+                // keeps serving lookups for the whole import, and a failed or
+                // empty download leaves it untouched instead of wiping it. A
+                // fresh side table also sidesteps the install-dependent unique
+                // index on the live table (present only on upgraded installs).
+                $OUITable = self::getClass('OUI', '', true);
+                $OUITable = $OUITable['databaseTable'];
+                $tmpTable = $OUITable . '_temp';
+                self::$DB->query("DROP TABLE IF EXISTS `$tmpTable`");
+                self::$DB->query("CREATE TABLE `$tmpTable` LIKE `$OUITable`");
                 list(
                     $first_id,
                     $affected_rows
@@ -873,9 +883,21 @@ class FOGConfigurationPage extends FOGPage
                         'prefix',
                         'name'
                     ],
-                    $items
+                    $items,
+                    $tmpTable
                 );
                 $imported += $affected_rows;
+                if ($imported > 0) {
+                    $oldTable = $OUITable . '_old';
+                    self::$DB->query("DROP TABLE IF EXISTS `$oldTable`");
+                    self::$DB->query(
+                        "RENAME TABLE `$OUITable` TO `$oldTable`, "
+                        . "`$tmpTable` TO `$OUITable`"
+                    );
+                    self::$DB->query("DROP TABLE IF EXISTS `$oldTable`");
+                } else {
+                    self::$DB->query("DROP TABLE IF EXISTS `$tmpTable`");
+                }
                 unset($items);
             }
             unset($first_id);
