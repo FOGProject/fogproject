@@ -397,12 +397,12 @@ class Image extends FOGController
             );
         }
         if ($primaryCount < 1) {
-            Route::indiv('image', $imageID);
-            $image = json_decode(Route::getData());
-            $groupid = Route::getIds(
-                'storagegroup',
-                ['id' => $image->storagegroups]
-            );
+            // No association at all: fall back to the lowest storage group and
+            // make it primary. Mirrors Snapin::getPrimaryGroup(). The previous
+            // Route::indiv('image', ...) re-serialized this same image, which
+            // re-entered getStorageGroup()/getPrimaryGroup() and recursed until
+            // memory was exhausted for any image lacking an association.
+            $groupid = Route::getIds('storagegroup', false);
             $groupid = @min($groupid);
             if ($groupid > 0) {
                 self::setPrimaryGroup($groupid, $imageID);

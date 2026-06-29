@@ -3880,6 +3880,28 @@ abstract class FOGPage extends FOGBase
                                 unset($assocWarning);
                             }
                         }
+                        // An imported image with no storage-group association
+                        // has no primary group. Manual creation always assigns
+                        // one (addGroup + setPrimaryGroup); the importer did not,
+                        // so guarantee it here by associating the lowest storage
+                        // group as primary. Without this the image cannot be
+                        // viewed afterwards (getStorageGroup has no primary to
+                        // resolve).
+                        if ($Item instanceof Image
+                            && Route::getCount(
+                                'imageassociation',
+                                ['imageID' => $Item->get('id')]
+                            ) < 1
+                        ) {
+                            $sgid = @min(
+                                Route::getIds('storagegroup', false) ?: []
+                            );
+                            if ($sgid > 0) {
+                                $Item->addGroup($sgid)->save();
+                                Image::setPrimaryGroup($sgid, $Item->get('id'));
+                                $Item->load();
+                            }
+                        }
                         // Surface any lenient foreign-key warnings for this row.
                         foreach ($fkWarnings as &$fkWarning) {
                             $uploadErrors .= sprintf(
