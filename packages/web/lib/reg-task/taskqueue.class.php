@@ -22,6 +22,85 @@
 class TaskQueue extends TaskingElement
 {
     /**
+     * Idempotent completion ack.
+     *
+     * A client may post its completion (Post_Stage2/Post_Stage3) after the
+     * server has already moved the task to Complete. This happens most often
+     * with multicast: MulticastManager completes the session the moment
+     * udp-sender exits, while the clients are still flushing disk and running
+     * post-image fixups (e.g. NTFS hostname change). By the time a client
+     * checks out there is no longer an active task, so the normal flow throws
+     * "No Active Task found" and the client loops on that error even though
+     * imaging actually succeeded.
+     *
+     * If the host's most recent matching-type task is already in the Complete
+     * state and was checked in recently, reply with '##' (the success token
+     * the client waits for) and stop. Genuinely cancelled tasks move to the
+     * Cancelled state - not Complete - so real cancellations still fall
+     * through and error exactly as before.
+     *
+     * Must be static: it is called before TaskQueue is constructed, because
+     * the constructor (TaskingElement) echoes the "No Active Task" error and
+     * exits before checkout() can ever run.
+     *
+     * @return void
+     */
+    public static function ackIfAlreadyComplete()
+    {
+        $type = trim((string)filter_input(INPUT_POST, 'type'));
+        if (!$type) {
+            $type = trim((string)filter_input(INPUT_GET, 'type'));
+        }
+        if ($type !== 'up' && $type !== 'down') {
+            return;
+        }
+        try {
+            self::getHostItem(false);
+        } catch (Exception $e) {
+            return;
+        }
+        if (!self::$Host->isValid()) {
+            return;
+        }
+        $typeIDs = ($type === 'up')
+            ? TaskType::CAPTURETASKS
+            : TaskType::DEPLOYTASKS;
+        $taskIDs = Route::getIds(
+            'task',
+            [
+                'hostID' => self::$Host->get('id'),
+                'typeID' => $typeIDs,
+                'stateID' => self::getCompleteState(),
+            ]
+        );
+        // Latest completed task wins; ids increase over time.
+        $taskID = (int)@max($taskIDs ?: [0]);
+        if ($taskID < 1) {
+            return;
+        }
+        $Task = self::getClass('Task', $taskID);
+        if (!$Task->isValid()) {
+            return;
+        }
+        $checkin = trim((string)$Task->get('checkInTime'));
+        if ($checkin === '' || $checkin === '0000-00-00 00:00:00') {
+            return;
+        }
+        try {
+            $elapsed = self::niceDate()->getTimestamp()
+                - self::niceDate($checkin)->getTimestamp();
+        } catch (Exception $e) {
+            return;
+        }
+        // Bound to one day so a stale prior task of the same type can't be
+        // mistaken for the one that just completed.
+        if ($elapsed < 0 || $elapsed > 86400) {
+            return;
+        }
+        echo '##';
+        exit;
+    }
+    /**
      * Handles task checkin
      *
      * @throws Exception
