@@ -361,7 +361,7 @@ class WindowsKeyManagement extends FOGPage
         ];
 
         echo '<!-- Images -->';
-        echo '<div class="box-group" id="images">';
+        echo '<div id="images">';
         echo '<div class="card">';
         echo '<div class="updateimage" class="">';
         echo '<div class="card-body">';

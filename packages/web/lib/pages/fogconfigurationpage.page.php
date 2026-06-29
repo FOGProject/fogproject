@@ -76,7 +76,7 @@ class FOGConfigurationPage extends FOGPage
 
         $o = '';
         if ($id !== '') {
-            $o .= '<div class="box-group" id="' . $id . '">';
+            $o .= '<div id="' . $id . '">';
         }
         $cardClass = ($color === 'solid' || $color === '')
             ? 'card'
@@ -187,7 +187,7 @@ class FOGConfigurationPage extends FOGPage
         $renderNodes = ob_get_clean();
 
         // Main Grouping
-        echo '<div class="box-group" id="fogversion">';
+        echo '<div id="fogversion">';
 
         // FOG Version Information. Body is filled in by fog.about.home.js via
         // the .placehere hook (it reads the vers attribute).
@@ -200,7 +200,7 @@ class FOGConfigurationPage extends FOGPage
             ]
         );
 
-        // Per-node kernel versions. The box-group id is the accordion parent
+        // Per-node kernel versions. The grouping div id is the accordion parent
         // (#nodekernvers) referenced by each node panel in $renderNodes.
         echo $this->_box(
             _('Versions'),

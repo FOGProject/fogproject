@@ -247,7 +247,7 @@ class ServerInfo extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="card-body">';
-        echo '<div class="box-group" id="accordion">';
+        echo '<div id="accordion">';
         foreach ((array)$NICTrans as $nicname => $txtran) {
             unset(
                 $fields,

@@ -2724,7 +2724,7 @@ class GroupManagement extends FOGPage
 
         echo '<div class="card" id="host-tasks">';
         echo '<div class="card-body">';
-        echo '<div id="taskAccordian" class="box-group">';
+        echo '<div id="taskAccordian">';
 
         // Basic Tasks
         echo '<div class="panel card card-primary card-outline">';

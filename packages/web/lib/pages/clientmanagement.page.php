@@ -68,7 +68,7 @@ class ClientManagement extends FOGPage
             $url,
             FILTER_SANITIZE_URL
         );
-        echo '<div class="box-group">';
+        echo '<div class="row">';
         echo '<!-- FOG Client Installers -->';
         // Dash boxes row.
         echo '<div class="col-md-6">';

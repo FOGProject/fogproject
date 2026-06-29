@@ -1221,7 +1221,7 @@ class ImageManagement extends FOGPage
         echo '<div class="card-body">';
 
         echo '<!-- Create New Multicast Session -->';
-        echo '<div class="box-group" id="multicastsessions">';
+        echo '<div id="multicastsessions">';
 
         // The Current running tasks.
         $props = ' method="post" action="'
