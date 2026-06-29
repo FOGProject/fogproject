@@ -983,6 +983,17 @@ function reinitialize() {
   $(":input").inputmask(); // Setup all input masks
   Common.iCheck(); // Setup all checkboxes
   $('.fog-select2').select2({width: '100%'}); // Setup all select elements
+  // Select2 injects its dropdown search box with no id/name, tripping a browser
+  // autofill advisory. Give it an id (only one Select2 dropdown is open at a
+  // time). Deliberately NOT a name -- the field sits inside FOG forms and a name
+  // would POST a stray value. Delegated on document (survives AJAX swaps), so
+  // namespace + off() first to avoid stacking on every reinitialize().
+  $(document)
+    .off('select2:open.fogSearchId')
+    .on('select2:open.fogSearchId', function() {
+      $('.select2-container--open .select2-search__field')
+        .attr('id', 'select2-search-field');
+    });
   disableFormDefaults();
   setupPasswordReveal();
   setupUniversalSearch();
@@ -1093,7 +1104,14 @@ function setupPasswordReveal() {
   $(':password')
     .not('.fakes, [name="upass"]')
     .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
-  $(document).on('click', '.fogpasswordeye', function(e) {
+  // These are delegated on `document`, which survives AJAX page swaps, while
+  // reinitialize() (and thus this function) runs again on every AJAX page
+  // load. Namespace and remove them first so they don't accumulate -- two
+  // stacked click handlers would toggle the field password->text->password and
+  // appear to do nothing.
+  $(document)
+    .off('click.fogReveal change.fogReveal mouseover.fogReveal')
+    .on('click.fogReveal', '.fogpasswordeye', function(e) {
     e.preventDefault();
     if (0 == $('.showpass').val()) {
       return;
@@ -1115,7 +1133,7 @@ function setupPasswordReveal() {
         .find('input[type="text"]')
         .prop('type', 'password');
     }
-  }).on('change', ':file', function() {
+  }).on('change.fogReveal', ':file', function() {
     var input = $(this),
       numFiles = input.get(0).files ? input.get(0).files.length : 1,
       label = input
@@ -1132,7 +1150,7 @@ function setupPasswordReveal() {
     } else {
       $('.filedisp').val(numFiles + ' files selected');
     }
-  }).on('mouseover', function() {
+  }).on('mouseover.fogReveal', function() {
     $('[data-toggle="tooltip"]').tooltip({
       container: 'body'
     });

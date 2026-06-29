@@ -29,6 +29,14 @@
 
   disableButtons(true);
   var table = $('#active-tasks-table').registerTable(onSelect, {
+    // Classic paging, not infinite-scroll (Scroller). This table polls every
+    // 5s and frequently transitions to zero rows (task cancelled/completed).
+    // Scroller's virtual rendering (deferRender) leaves the last-rendered row's
+    // node -- including its striped progress bar -- orphaned in the fixed-height
+    // scroll body on the empty draw, showing a stray bar beneath "No data
+    // available in table". Paging redraws the body cleanly with nothing left
+    // behind, and infinite scroll buys nothing for a short live-status list.
+    scroller: false,
     order: [
       [0, 'asc']
     ],
