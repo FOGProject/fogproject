@@ -193,6 +193,18 @@ $fog-row-hover:           #eef4f9; // table-hover rows
   border-radius: var(--fog-radius-sm);
 }
 
+// bootstrap-slider value bubble (image-edit compression, FOG Settings sliders).
+// The library is BS3-era: it expects .tooltip to be position:absolute (BS3's
+// base rule) and pulls it up with margin-top:-36px. BS5 dropped that rule
+// (Popper sets position inline at runtime, which this non-Popper library never
+// triggers), so the bubble stays position:static, flows in-document, and its
+// negative margin drags the whole .slider box ~36px upward — overlapping the
+// field above it. Restoring position:absolute pulls the bubble out of flow and
+// returns the slider to its own column.
+.slider .tooltip {
+  position: absolute;
+}
+
 // Tables: clearer head divider + lighter striping/hover. --fog-stripe and
 // --fog-row-hover are light-only; dark tables are themed in fog-dark-theme.
 .table > thead > tr > th {
