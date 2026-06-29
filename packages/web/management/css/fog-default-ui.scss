@@ -201,8 +201,16 @@ $fog-row-hover:           #eef4f9; // table-hover rows
 // negative margin drags the whole .slider box ~36px upward — overlapping the
 // field above it. Restoring position:absolute pulls the bubble out of flow and
 // returns the slider to its own column.
+//
+// bootstrap-slider also reveals the bubble by toggling the legacy BS3 ".in"
+// class, but BS5 hides .tooltip with opacity:0 and only un-hides it via
+// .show — so the value never became visible on hover/focus/drag. Map .in to
+// BS5's own tooltip opacity token to restore it.
 .slider .tooltip {
   position: absolute;
+}
+.slider .tooltip.in {
+  opacity: var(--bs-tooltip-opacity, .9);
 }
 
 // Tables: clearer head divider + lighter striping/hover. --fog-stripe and
