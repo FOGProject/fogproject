@@ -494,7 +494,7 @@ class MulticastTask extends FOGService
                     $hostCount
                 )
             ),
-            sprintf(' --max-wait %d', $maxwait),
+            ' --max-wait %d',
             (
                 $address ?
                 sprintf(' --mcast-data-address %s', $address) :

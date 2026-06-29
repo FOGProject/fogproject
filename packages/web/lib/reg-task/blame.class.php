@@ -35,15 +35,12 @@ class Blame extends TaskingElement
         $taskStorageGroupID = $this->Task->get('storagegroupID');
         $failtime = self::niceDate('+5 minutes')
             ->format('Y-m-d H:i:s');
-        foreach ((array)$this->StorageNodes as &$StorageNode) {
-            if ($taskStorageID < 1
-                || in_array($taskStorageID, self::getAllBlamedNodes())
-            ) {
-                $this
-                    ->Task
-                    ->set('stateID', self::getQueuedState());
-                continue;
-            }
+        if ($taskStorageNodeID > 0
+            && !in_array(
+                $taskStorageNodeID,
+                self::getAllBlamedNodes(self::$Host)
+            )
+        ) {
             self::getClass('NodeFailure')
                 ->set('storagegroupID', $taskStorageGroupID)
                 ->set('storagenodeID', $taskStorageNodeID)
@@ -51,10 +48,8 @@ class Blame extends TaskingElement
                 ->set('taskID', $this->Task->get('id'))
                 ->set('hostID', self::$Host->get('id'))
                 ->save();
-            $this->Task
-                ->set('stateID', self::getQueuedState());
-            unset($StorageNode);
         }
+        $this->Task->set('stateID', self::getQueuedState());
         if ($this->Task->save()) {
             echo '##';
         }

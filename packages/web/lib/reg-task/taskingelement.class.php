@@ -119,7 +119,7 @@ abstract class TaskingElement extends FOGBase
                     ->Task
                     ->getImage();
                 $getter = 'enablednodes';
-                if (count($this->StorageGroup->get($getter) ?: [])) {
+                if (!count($this->StorageGroup->get($getter) ?: [])) {
                     $getter = 'allnodes';
                 }
                 Route::listem(
@@ -259,7 +259,6 @@ abstract class TaskingElement extends FOGBase
         $Host
     ) {
         if ($StorageNode->getNodeFailure($Host)) {
-            $StorageNode = new StorageNode();
             printf(
                 '%s %s (%s) %s.',
                 _('Storage Node'),
@@ -271,6 +270,7 @@ abstract class TaskingElement extends FOGBase
                     _('but has recently failed for this host')
                 )
             );
+            $StorageNode = new StorageNode();
         }
         return $StorageNode;
     }

@@ -20,5 +20,6 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+TaskQueue::ackIfAlreadyComplete();
 FOGCore::getClass('TaskQueue')
     ->checkout();

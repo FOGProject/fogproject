@@ -7430,6 +7430,10 @@ msgstr ""
 msgid "enabled (all)"
 msgstr "Enabled"
 
+#, php-format
+msgid "exited abnormally with code %d; cancelling task"
+msgstr ""
+
 #, fuzzy
 msgid "failed to execute, image file"
 msgstr "Failed to delete image files"

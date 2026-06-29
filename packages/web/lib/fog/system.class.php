@@ -59,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', 'adminlte4.0-feature.2538');
+        define('FOG_VERSION', 'adminlte4.0-feature.2539');
         define('FOG_CHANNEL', 'Feature');
         define('FOG_SCHEMA', 299);
         define('FOG_BCACHE_VER', 187);

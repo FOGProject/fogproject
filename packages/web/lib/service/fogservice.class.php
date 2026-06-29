@@ -922,6 +922,27 @@ abstract class FOGService extends FOGBase
         return $ar['running'];
     }
     /**
+     * Returns the full process status (running flag and exit code).
+     *
+     * Unlike isRunning()/getPID(), this exposes the exit code. PHP's
+     * proc_get_status only reports a real exitcode on the FIRST call
+     * after the process terminates (subsequent calls return -1), so a
+     * caller that needs the exit code must read it through this method
+     * INSTEAD of calling isRunning() first -- otherwise isRunning()
+     * consumes it.
+     *
+     * @param resource $procRef the reference to check
+     *
+     * @return array|bool the proc_get_status array, or false if no ref
+     */
+    public function getProcStatus($procRef)
+    {
+        if (!$procRef) {
+            return false;
+        }
+        return proc_get_status($procRef);
+    }
+    /**
      * Local file glob recursive getter.
      *
      * @param string $pattern a Pattern for globbing onto.

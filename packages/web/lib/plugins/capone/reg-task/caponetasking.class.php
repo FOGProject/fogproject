@@ -64,7 +64,7 @@ class CaponeTasking extends FOGBase
                     ob_start();
                     Route::listem(
                         'capone',
-                        ['key' => $keys]
+                        ['key' => $key]
                     );
                     $capones = json_decode(
                         Route::getData()
@@ -76,8 +76,8 @@ class CaponeTasking extends FOGBase
                             ->getStorageGroup()
                             ->getOptimalStorageNode();
                         if (!$Image->isValid()
-                            || $OS->isValid()
-                            || $StorageNode->isValid()
+                            || !$OS->isValid()
+                            || !$StorageNode->isValid()
                         ) {
                             continue;
                         }

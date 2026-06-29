@@ -7582,6 +7582,10 @@ msgstr ""
 msgid "enabled (all)"
 msgstr "habilitado"
 
+#, php-format
+msgid "exited abnormally with code %d; cancelling task"
+msgstr ""
+
 #, fuzzy
 msgid "failed to execute, image file"
 msgstr "No se pudo crear la tarea"

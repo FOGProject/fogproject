@@ -408,7 +408,14 @@ class MulticastManager extends FOGService
                             $jobcompleted = true;
                         }
                         if (!$jobcancelled && !$jobcompleted) {
-                            if ($runningTask->isRunning($runningTask->procRef)) {
+                            // Capture status (running flag AND exit code) in
+                            // ONE call -- proc_get_status only reports the real
+                            // exit code on the first call after the process
+                            // exits, so we must not call isRunning() first.
+                            $procStatus = $runningTask->getProcStatus(
+                                $runningTask->procRef
+                            );
+                            if ($procStatus !== false && $procStatus['running']) {
                                 self::outall(
                                     sprintf(
                                         $startStr,
@@ -421,6 +428,14 @@ class MulticastManager extends FOGService
                                 );
                                 $runningTask->updateStats();
                             } else {
+                                // -1 == could not be determined (e.g. already
+                                // reaped). Only a DEFINITE positive exit code
+                                // marks a real udp-sender failure; 0 and -1
+                                // keep the historical "treat as complete"
+                                // behavior to avoid false failures.
+                                $exitcode = ($procStatus !== false)
+                                    ? (int)$procStatus['exitcode']
+                                    : -1;
                                 self::outall(
                                     sprintf(
                                         $startStr,
@@ -452,7 +467,22 @@ class MulticastManager extends FOGService
                                         $runningTask->getID()
                                     );
                                 }
-                                $completeTasks[] = $runningTask;
+                                if ($exitcode > 0) {
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $runningTask->getID(),
+                                            $runningTask->getName(),
+                                            sprintf(
+                                                _('exited abnormally with code %d; cancelling task'),
+                                                $exitcode
+                                            )
+                                        )
+                                    );
+                                    $cancelTasks[] = $runningTask;
+                                } else {
+                                    $completeTasks[] = $runningTask;
+                                }
                             }
                         } else {
                             if ($jobcompleted) {

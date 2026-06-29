@@ -38,30 +38,21 @@ try {
         $find,
         'snapinID'
     );
-    $snapinIDs = [];
-    foreach ($snapins as $snapin) {
-        $snapinIDs[] = $snapin->snapinID;
-    }
+    $snapinIDs = $snapins;
     if (isset($_REQUEST['getSnapnames'])) {
         $snapins = Route::getIds(
             'snapin',
             ['id' => $snapinIDs],
             'name'
         );
-        $snapinnames = [];
-        foreach ($snapins as $snapin) {
-            $snapinnames[] = $snapin->name;
-        }
+        $snapinnames = $snapins;
     } elseif (isset($_REQUEST['getSnapargs'])) {
         $snapins = Route::getIds(
             'snapin',
             ['id' => $snapinIDs],
             'args'
         );
-        $snapinnames = [];
-        foreach ($snapins as $snapin) {
-            $snapinnames[] = $snapin->args;
-        }
+        $snapinnames = $snapins;
     } else {
         $snapinnames = [count($snapins ?: []) ? 1 : 0];
     }
