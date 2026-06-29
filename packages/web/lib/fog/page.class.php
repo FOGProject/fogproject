@@ -96,16 +96,17 @@ class Page extends FOGBase
     protected static $commonJavascripts = [
         'js/jquery.min.js',
         'js/lodash.min.js',
-        'js/bootstrap.min.js',
+        'js/bootstrap5.bundle.min.js',
+        'js/fog/bootstrap-jquery-shim.js',
         'js/bootstrap-slider.min.js',
         'js/moment.min.js',
-        'js/bootstrap-datetimepicker.min.js',
+        'js/tempus-dominus.min.js',
         'js/vfs_fonts.js',
         'js/fastclick.js',
         'js/jquery-cron.min.js',
         'js/select2.full.min.js',
         'js/jquery.slimscroll.min.js',
-        'js/adminlte.min.js',
+        'js/adminlte4.min.js',
         'js/datatables.min.js',
         'js/icheck.min.js',
         'js/bootbox.min.js',
@@ -132,10 +133,11 @@ class Page extends FOGBase
         global $sub;
         parent::__construct();
         $this
-            ->addCSS('css/bootstrap.min.css')
-            ->addCSS('css/bootstrap-datetimepicker.min.css')
+            ->addCSS('css/bootstrap5.min.css')
+            ->addCSS('css/tempus-dominus.min.css')
             ->addCSS('css/font-awesome.min.css')
             ->addCSS('css/select2.min.css')
+            ->addCSS('css/select2-bootstrap-5-theme.min.css')
             ->addCSS('css/ionicons.min.css')
             ->addCSS('css/datatables.min.css')
             ->addCSS('css/slider.css')
@@ -143,8 +145,7 @@ class Page extends FOGBase
             ->addCSS('css/icheck-square-blue.css')
             ->addCSS('css/animate.css')
             ->addCSS('css/pace.min.css')
-            ->addCSS('css/AdminLTE.min.css')
-            ->addCSS('css/adminlte-skins.min.css')
+            ->addCSS('css/adminlte4.min.css')
             ->addCSS('css/fog-default-ui.min.css');
         if (!$this->theme) {
             $this->theme = self::getSetting('FOG_THEME');
