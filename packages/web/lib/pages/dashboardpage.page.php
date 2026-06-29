@@ -223,7 +223,7 @@ class DashboardPage extends FOGPage
                 ['fields' => &$fields]
             );
 
-        echo '<div class="box-group">';
+        echo '<div class="row">';
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
         echo '<div class="col-md-4">';
@@ -290,7 +290,6 @@ class DashboardPage extends FOGPage
         echo '<a href="?node=hwinfo" id="hwinfolink">';
         echo '<div id="graph-diskusage"></div>';
         echo '</a>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -421,7 +420,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div id="graph-bandwidth-filters-time"></div>';
-        echo '<div class="col-md-offset-4 col-md-6">';
+        echo '<div class="offset-md-4 col-md-6">';
         echo '<div class="category" id="graph-bandwidth-time-title">';
         echo _('Time');
         echo ' - ';
@@ -444,7 +443,7 @@ class DashboardPage extends FOGPage
         echo self::$foglang['Receive'];
         echo '</a>';
         echo '</div>';
-        echo '<div class="col-md-offset-4 col-md-6">';
+        echo '<div class="offset-md-4 col-md-6">';
         echo '<a href="#" id="graph-bandwidth-time-filters-2min" '
             . 'class="time-filters graph-filters active" rel="' . $rel2 . '">';
         echo _('2 Minutes');
@@ -474,6 +473,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '<div class="card-body">';
         echo '<div id="graph-bandwidth"></div>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
