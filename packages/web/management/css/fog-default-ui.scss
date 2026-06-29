@@ -218,6 +218,23 @@ $fog-row-hover:           #eef4f9; // table-hover rows
 }
 
 // ---------------------------------------------------------------------------
+// Content-header subtitle
+//
+// page.class.php renders the heading as
+//   <h1 id="sectionTitle">Section<small id="pageTitle">Page</small></h1>
+// AdminLTE 3 styled `.content-header h1 small` as a spaced, muted subtitle, so
+// equal section/page titles (e.g. the Dashboard) read as one. AdminLTE 4 wraps
+// this in `.app-content-header` and ships no such rule, so the <small> rendered
+// flush against the title ("DashboardDashboard"). Restore the subtitle look,
+// mode-independent via the Bootstrap 5 muted-text token (adapts to dark).
+#pageTitle {
+  margin-left: 8px;
+  font-size: 65%;
+  font-weight: 400;
+  color: var(--bs-secondary-color);
+}
+
+// ---------------------------------------------------------------------------
 // Header / sidebar — sticky mobile chrome
 // ---------------------------------------------------------------------------
 header.main-header .mobile-logo {
@@ -270,12 +287,6 @@ header.main-header .mobile-logo {
 // ---------------------------------------------------------------------------
 // Forms
 // ---------------------------------------------------------------------------
-// FIX: iradio buttons shifted up for some reason
-.form-group .iradio_square-blue,
-.form-group .icheckbox_square-blue {
-  margin-top: 7px;
-}
-
 // Help-block utilities (folded from inline styles on group help text).
 .help-block-tight {
   margin: 2px 0 0;
@@ -458,7 +469,7 @@ dd {
 //     body:not(.theme-light) ................. automatic, when the user hasn't chosen
 //
 // NOT yet themed (intentionally — first pass; tune/extend after live review):
-// iCheck controls, pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
+// pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
 // ===========================================================================
 @mixin fog-dark-theme {
   // -- dark palette (tune these) --

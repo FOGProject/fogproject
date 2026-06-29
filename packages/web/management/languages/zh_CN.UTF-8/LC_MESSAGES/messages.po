@@ -1169,6 +1169,9 @@ msgstr "设置"
 msgid "Client Version"
 msgstr "CPU版本"
 
+msgid "Close"
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "管理单元命令"
@@ -3944,6 +3947,10 @@ msgstr "管理单元返回详细"
 
 msgid "Main Menu"
 msgstr "主菜单"
+
+#, fuzzy
+msgid "Main navigation"
+msgstr "图像协会"
 
 #, fuzzy
 msgid "Make default"

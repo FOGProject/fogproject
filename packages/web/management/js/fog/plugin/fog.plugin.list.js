@@ -14,8 +14,8 @@
     // Refresh the "PLUGIN OPTIONS" sidebar section after a plugin's
     // installed/active state changes, so new items appear (and removed ones
     // disappear) without a full page reload. Only the inner HTML of
-    // .plugin-options is replaced; the parent <ul data-widget="tree"> is left
-    // intact so AdminLTE's delegated treeview handler keeps working.
+    // .plugin-options is replaced; the parent <ul data-lte-toggle="treeview">
+    // is left intact so AdminLTE's delegated treeview handler keeps working.
     function refreshSidebar() {
         $.get('../management/index.php?node=plugin&sub=sidebar')
             .done(function(html) {
@@ -61,8 +61,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
                     if (data > 0) {
                         return enabled;
                     } else {
@@ -73,9 +73,9 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
-                    var update = '<button type="button" class="btn btn-warning btn-xs plugin-update-btn" data-id="'+row.id+'" title="Apply pending database update"><i class="fa fa-exclamation-triangle"></i> Update available</button>';
+                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
+                    var update = '<button type="button" class="btn btn-warning btn-sm plugin-update-btn" data-id="'+row.id+'" title="Apply pending database update"><i class="fa fa-exclamation-triangle"></i> Update available</button>';
                     if (data > 0) {
                         return row.needsupdate > 0 ? update : enabled;
                     } else {

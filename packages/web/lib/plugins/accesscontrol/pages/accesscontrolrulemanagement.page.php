@@ -65,7 +65,7 @@ class AccessControlRuleManagement extends FOGPage
         $node = filter_input(INPUT_POST, 'node');
         $value = filter_input(INPUT_POST, 'value');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -232,7 +232,7 @@ class AccessControlRuleManagement extends FOGPage
             $this->obj->get('value')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -291,12 +291,12 @@ class AccessControlRuleManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -311,7 +311,7 @@ class AccessControlRuleManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'accesscontrolrule-general-form',
             self::makeTabUpdateURL(
                 'accesscontrolrule-general',
@@ -321,11 +321,11 @@ class AccessControlRuleManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -403,28 +403,28 @@ class AccessControlRuleManagement extends FOGPage
         $buttons = self::makeButton(
             'accesscontrolrule-role-send',
             _('Add selected'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
         $buttons .= self::makeButton(
             'accesscontrolrule-role-remove',
             _('Remove selected'),
-            'btn btn-danger pull-left',
+            'btn btn-danger float-start',
             $props
         );
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Accesscontrol Rule Role Associations');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '</h4>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'accesscontrolrule-role-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $this->assocDelModal('role');
         echo '</div>';
         echo '</div>';

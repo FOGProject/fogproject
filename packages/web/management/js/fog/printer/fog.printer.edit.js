@@ -67,14 +67,14 @@
     });
 
     // Hides the fields not currently selected.
-    $('.network,.iprint,.cups,.local').addClass('hidden');
-    $('.'+type).removeClass('hidden');
+    $('.network,.iprint,.cups,.local').addClass('d-none');
+    $('.'+type).removeClass('d-none');
     // On change hide all the fields and show the appropriate type.
     printertype.on('change', function(e) {
         e.preventDefault();
         type = printertype.val().toLowerCase();
-        $('.network,.iprint,.cups,.local').addClass('hidden');
-        $('.'+type).removeClass('hidden');
+        $('.network,.iprint,.cups,.local').addClass('d-none');
+        $('.'+type).removeClass('d-none');
     });
     // Setup all fields to match when/where appropriate
     $('[name="printer"]').on('change', function() {
@@ -181,7 +181,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="printerHostAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -217,7 +217,7 @@
 
     printerHostsTable.on('draw', function(e) {
         Common.iCheck('#printer-host-table input');
-        $('#printer-host-table input.associated').on('ifChanged', onPrinterHostCheckboxSelect);
+        $('#printer-host-table input.associated').on('change', onPrinterHostCheckboxSelect);
         onHostSelect(printerHostsTable.rows({selected: true}));
     });
 
@@ -283,7 +283,7 @@
                     if (data >= 1) {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="default" name="default[]" id="printerHostDefault_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -325,12 +325,11 @@
 
     printerHostsDefaultTable.on('draw', function(e) {
         Common.iCheck('#printer-host-default-table input');
-        $('#printer-host-default-table input.default').on('ifChanged', onPrinterHostDefaultCheckboxSelect);
+        $('#printer-host-default-table input.default').on('change', onPrinterHostDefaultCheckboxSelect);
         onHostDefaultSelect(printerHostsDefaultTable.rows({selected: true}));
     });
 
     var onPrinterHostDefaultCheckboxSelect = function(e) {
-        $(this).iCheck('update');
         var method = printerHostDefaultUpdateBtn.attr('method'),
             action = printerHostDefaultUpdateBtn.attr('action'),
             opts = {};

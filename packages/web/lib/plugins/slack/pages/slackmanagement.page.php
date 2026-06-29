@@ -59,7 +59,7 @@ class SlackManagement extends FOGPage
         $apiToken = filter_input(INPUT_POST, 'apiToken');
         $user = filter_input(INPUT_POST, 'user');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(

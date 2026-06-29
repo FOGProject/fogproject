@@ -76,10 +76,10 @@ class ReportManagement extends FOGPage
         $buttons = self::makeButton(
             'import-send',
             _('Import'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -136,19 +136,19 @@ class ReportManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'import-form',
             $this->formAction,
             'post',
             'multipart/form-data',
             true
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _(
             'This section allows you to upload user '
             . 'defined reports that may not be a part of '
@@ -156,10 +156,10 @@ class ReportManagement extends FOGPage
         );
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';

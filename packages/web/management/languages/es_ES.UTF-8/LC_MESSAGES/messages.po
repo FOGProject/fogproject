@@ -1182,6 +1182,9 @@ msgstr "Configuración Tecla"
 msgid "Client Version"
 msgstr "Versión de la CPU"
 
+msgid "Close"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -4038,6 +4041,10 @@ msgstr ""
 #, fuzzy
 msgid "Main Menu"
 msgstr "Ocultar menú"
+
+#, fuzzy
+msgid "Main navigation"
+msgstr "Asociación para la imagen"
 
 #, fuzzy
 msgid "Make default"

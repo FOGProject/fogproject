@@ -43,9 +43,7 @@
     generalDeleteBtn.on('click', function() {
         generalDeleteModal.modal('show');
     });
-    $('#andHosts').on('ifChanged', function(e) {
-        e.preventDefault();
-        $(this).iCheck('update');
+    $('#andHosts').on('change', function(e) {
         if (!this.checked) {
             opts = {};
             return;
@@ -206,28 +204,31 @@
                         createTaskBtn = $('#tasking-send');
                     Common.iCheck('#task-form-holder input');
 
-                    $('#checkdebug').on('ifChecked', function(e) {
-                        e.preventDefault();
-                        $('.hideFromDebug,.delayedinput,.croninput').addClass('hidden');
-                        $('.instant').iCheck('check');
-                    }).on('ifUnchecked', function(e) {
-                        e.preventDefault();
-                        $('.hideFromDebug').removeClass('hidden');
+                    $('#checkdebug').on('change', function(e) {
+                        if (!this.checked) {
+                            return;
+                        }
+                        $('.hideFromDebug,.delayedinput,.croninput').addClass('d-none');
+                        $('.instant').prop('checked', true).trigger('change');
+                    }).on('change', function(e) {
+                        if (this.checked) {
+                            return;
+                        }
+                        $('.hideFromDebug').removeClass('d-none');
                     });
-                    $('input[name="scheduleType"]').on('ifClicked', function(e) {
-                        e.preventDefault();
+                    $('input[name="scheduleType"]').on('change', function(e) {
                         switch (this.value) {
                             case 'instant':
-                                $('.delayedinput,.croninput').addClass('hidden');
+                                $('.delayedinput,.croninput').addClass('d-none');
                                 break;
                             case 'single':
-                                $('.delayedinput').removeClass('hidden');
-                                $('.croninput').addClass('hidden');
+                                $('.delayedinput').removeClass('d-none');
+                                $('.croninput').addClass('d-none');
                                 $('#delayedinput').datetimepicker('show');
                                 break;
                             case 'cron':
-                                $('.delayedinput').addClass('hidden');
-                                $('.croninput').removeClass('hidden');
+                                $('.delayedinput').addClass('d-none');
+                                $('.croninput').removeClass('d-none');
                                 break;
                         }
                     });
@@ -324,7 +325,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="groupHostAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -359,7 +360,7 @@
 
     groupHostsTable.on('draw', function() {
         Common.iCheck('#group-host-table input');
-        $('#group-host-table input.associated').on('ifChanged', onGroupHostCheckboxSelect);
+        $('#group-host-table input.associated').on('change', onGroupHostCheckboxSelect);
         onHostSelect(groupHostsTable.rows({selected: true}));
     })
 
@@ -387,14 +388,14 @@
                     total = (row.assocTotal === undefined ? 0 : row.assocTotal),
                     checked = (state === 'all') ? ' checked' : '',
                     label = (state === 'all')
-                        ? 'label-success'
-                        : (state === 'some' ? 'label-warning' : 'label-default');
-                return '<div class="checkbox" '
+                        ? 'bg-success'
+                        : (state === 'some' ? 'bg-warning' : 'bg-secondary');
+                return '<div class="form-check" '
                     + 'style="display:inline-block;vertical-align:middle;margin:0 6px 0 0;">'
                     + '<input type="checkbox" class="associated" data-state="' + state + '" '
                     + 'name="associate[]" id="' + idPrefix + row.id + '" value="' + row.id + '"'
                     + checked + '/></div>'
-                    + '<a href="#" class="assoc-drill label ' + label + '" '
+                    + '<a href="#" class="assoc-drill badge ' + label + '" '
                     + 'data-id="' + row.id + '" data-type="' + entityType + '" '
                     + 'title="Show which hosts have this">' + cnt + ' / ' + total + '</a>';
             }
@@ -413,12 +414,12 @@
             Common.iCheck(tableSel + ' input.associated');
             $(tableSel + ' input.associated').each(function() {
                 if ($(this).data('state') === 'some') {
-                    $(this).iCheck('indeterminate');
+                    $(this).prop('indeterminate', true);
                 }
             });
             $(tableSel + ' input.associated')
-                .off('ifChanged', changeHandler)
-                .on('ifChanged', changeHandler);
+                .off('change', changeHandler)
+                .on('change', changeHandler);
         });
         $(tableSel).on('click', '.assoc-drill', function(e) {
             e.preventDefault();
@@ -716,17 +717,17 @@
         }
         groupSnapinOrderSaveBtn.prop('disabled', false);
         $.each(items, function(i, item) {
-            var controls = $('<span>', {'class': 'pull-right'})
+            var controls = $('<span>', {'class': 'float-end'})
                 .append(
                     $('<button>', {
                         'type': 'button',
-                        'class': 'btn btn-xs btn-default snapin-order-up',
+                        'class': 'btn btn-sm btn-secondary snapin-order-up',
                         'title': 'Move up'
                     }).append($('<i>', {'class': 'fa fa-arrow-up'})),
                     ' ',
                     $('<button>', {
                         'type': 'button',
-                        'class': 'btn btn-xs btn-default snapin-order-down',
+                        'class': 'btn btn-sm btn-secondary snapin-order-down',
                         'title': 'Move down'
                     }).append($('<i>', {'class': 'fa fa-arrow-down'}))
                 );
@@ -950,7 +951,7 @@
             action = $(this).attr('action'),
             opts = {
                 confirmenforcesend: 1,
-                enforce: $('#enforce').iCheck('update')[0].checked ? 1 : 0
+                enforce: $('#enforce')[0].checked ? 1 : 0
             };
         $.apiCall(method,action,opts,function(err) {
             disableModuleEnforceButtons(false);
@@ -1017,13 +1018,13 @@
             $(e).prop('disabled', true);
         });
         ADForm.find('input[type=checkbox]').each(function(i, e) {
-            restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
-            $(e).iCheck('uncheck');
-            $(e).iCheck('disable');
+            restoreMap.push({checkbox: true, e: e, val: $(e)[0].checked});
+            $(e).prop('checked', false).trigger('change');
+            $(e).prop('disabled', true);
         });
 
         ADForm.find('input[type=text], input[type=password], textarea').val('');
-        ADForm.find('input[type=checkbox]').iCheck('uncheck');
+        ADForm.find('input[type=checkbox]').prop('checked', false).trigger('change');
         // Reset the tri-state Domain Joining select back to "No change".
         $('#adEnabled').val('');
 
@@ -1034,9 +1035,9 @@
                 field = restoreMap[i];
                 if (field.checkbox) {
                     if (err) {
-                        $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
+                        $(field.e).prop('checked', !!field.val).trigger('change');
                     }
-                    $(field.e).iCheck('enable');
+                    $(field.e).prop('disabled', false);
                 } else {
                     if (err) {
                         $(field.e).val(field.val);
@@ -1080,11 +1081,17 @@
         }
     });
     // When On Demand checked remove the cron layout.
-    ondemand.on('ifChecked', function(e) {
-        $(this).parents('.box-body').find('.form-group:eq(0)').find(':input').prop('disabled', true);
+    ondemand.on('change', function(e) {
+        if (!this.checked) {
+            return;
+        }
+        $(this).parents('.card-body').find('.form-group:eq(0)').find(':input').prop('disabled', true);
     });
-    ondemand.on('ifUnchecked', function(e) {
-        $(this).parents('.box-body').find('.form-group:eq(0)').find(':input').prop('disabled', false);
+    ondemand.on('change', function(e) {
+        if (this.checked) {
+            return;
+        }
+        $(this).parents('.card-body').find('.form-group:eq(0)').find(':input').prop('disabled', false);
     });
 
     powermanagementForm.on('submit', function(e) {
@@ -1104,7 +1111,7 @@
             dow.val('');
             action.val('');
             specialCrons.val('');
-            ondemand.iCheck('uncheck');
+            ondemand.prop('checked', false).trigger('change');
         });
     });
     // Powermanagement delete confirmation modal.

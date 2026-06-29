@@ -48,6 +48,13 @@
         body.classList.toggle('theme-dark', isDark);
         body.classList.toggle('theme-light', !isDark);
 
+        // Bootstrap 5 / AdminLTE 4 components key off data-bs-theme on <html>.
+        // Flip it live so they recolor with the rest of the UI on toggle.
+        document.documentElement.setAttribute(
+            'data-bs-theme',
+            isDark ? 'dark' : 'light'
+        );
+
         // Let interested widgets (e.g. dashboard charts, which cache resolved
         // colors and cannot read CSS variables) recolor themselves live.
         document.dispatchEvent(new CustomEvent('fog:themechange', {

@@ -18,12 +18,12 @@
     var packchanger = function(packval) {
         switch (packval) {
             case '0':
-                $('.packnotemplate').removeClass('hidden');
-                $('.packtemplate').addClass('hidden');
+                $('.packnotemplate').removeClass('d-none');
+                $('.packtemplate').addClass('d-none');
                 break;
             case '1':
-                $('.packnotemplate').addClass('hidden');
-                $('.packtemplate').removeClass('hidden');
+                $('.packnotemplate').addClass('d-none');
+                $('.packtemplate').removeClass('d-none');
                 break;
         }
     };
@@ -67,14 +67,14 @@
             ACTION_VAL = action;
         }
         if (action === ACTION_VAL) {
-            $(this).iCheck('uncheck');
+            $(this).prop('checked', false).trigger('change');
             ACTION_VAL = 0;
         } else {
             ACTION_VAL = action;
         }
     };
     // Setup action radio selector
-    $('.snapin-action').on('ifClicked', onRadioSelect);
+    $('.snapin-action').on('click', onRadioSelect);
     var updateCmdStore = function() {
         if (typeof $('.cmdlet3').val() === 'undefined') {
             return;

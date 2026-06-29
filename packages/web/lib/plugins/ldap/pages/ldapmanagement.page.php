@@ -143,7 +143,7 @@ class LDAPManagement extends FOGPage
 
         $isAPI = ($allowAPI ? 'checked' : '');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -677,7 +677,7 @@ class LDAPManagement extends FOGPage
 
         $isAPI = ($allowAPI ? 'checked' : '');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -940,12 +940,12 @@ class LDAPManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -960,7 +960,7 @@ class LDAPManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'ldap-general-form',
             self::makeTabUpdateURL(
                 'ldap-general',
@@ -970,11 +970,11 @@ class LDAPManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';
@@ -1143,7 +1143,7 @@ class LDAPManagement extends FOGPage
             $filters
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -1177,7 +1177,7 @@ class LDAPManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -1191,7 +1191,7 @@ class LDAPManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'ldap-global-form',
             self::makeTabUpdateURL(
                 'ldap-global',
@@ -1201,20 +1201,20 @@ class LDAPManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="ldap-global">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card" id="ldap-global">';
+        echo '<div class="card-body">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';

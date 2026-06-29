@@ -96,7 +96,7 @@ $(function() {
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="imageAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'

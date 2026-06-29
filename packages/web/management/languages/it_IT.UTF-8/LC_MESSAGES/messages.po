@@ -1116,6 +1116,9 @@ msgstr "Impostazioni Client"
 msgid "Client Version"
 msgstr "Versione client"
 
+msgid "Close"
+msgstr ""
+
 msgid "Command"
 msgstr "Comando"
 
@@ -3769,6 +3772,10 @@ msgstr "Dettagli della macchina"
 
 msgid "Main Menu"
 msgstr "Menu principale"
+
+#, fuzzy
+msgid "Main navigation"
+msgstr "Regole di associazione"
 
 #, fuzzy
 msgid "Make default"

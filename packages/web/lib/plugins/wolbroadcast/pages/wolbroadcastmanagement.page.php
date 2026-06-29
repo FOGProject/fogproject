@@ -58,7 +58,7 @@ class WOLBroadcastManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $broadcast = filter_input(INPUT_POST, 'broadcast');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -193,7 +193,7 @@ class WOLBroadcastManagement extends FOGPage
             $this->obj->get('broadcast')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -242,12 +242,12 @@ class WOLBroadcastManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -262,7 +262,7 @@ class WOLBroadcastManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'wolbroadcast-general-form',
             self::makeTabUpdateURL(
                 'wolbroadcast-general',
@@ -272,11 +272,11 @@ class WOLBroadcastManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';

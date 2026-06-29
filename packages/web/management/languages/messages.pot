@@ -964,6 +964,9 @@ msgstr ""
 msgid "Client Version"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -3293,6 +3296,9 @@ msgid "Machine Details"
 msgstr ""
 
 msgid "Main Menu"
+msgstr ""
+
+msgid "Main navigation"
 msgstr ""
 
 msgid "Make default"

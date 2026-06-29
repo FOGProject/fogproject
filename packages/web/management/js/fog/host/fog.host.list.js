@@ -179,9 +179,7 @@
     // ACTIVE DIRECTORY TAB
     var ADJoinDomain = $('#adEnabled');
 
-    ADJoinDomain.on('ifClicked', function(e) {
-        e.preventDefault();
-        $(this).prop('checked', !this.checked);
+    ADJoinDomain.on('change', function(e) {
         if (!this.checked) {
             return;
         }

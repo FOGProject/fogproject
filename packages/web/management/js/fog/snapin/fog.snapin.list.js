@@ -34,8 +34,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var lock = '<span class="label label-warning"><i class="fa fa-lock fa-1x"></i></span>';
-                    var unlock = '<span class="label label-danger"><i class="fa fa-unlock fa-fx"></i></span>';
+                    var lock = '<span class="badge bg-warning"><i class="fa fa-lock fa-1x"></i></span>';
+                    var unlock = '<span class="badge bg-danger"><i class="fa fa-unlock fa-fx"></i></span>';
                     if (row.protected > 0) {
                         return lock;
                     } else {
@@ -46,8 +46,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
                     if (row.isEnabled > 0) {
                         return enabled;
                     } else {
@@ -59,8 +59,8 @@
             {
                 responsivePriority: 0,
                 render: function(data, type, row) {
-                    var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
                     if (data > 0) {
                         return enabled;
                     } else {
@@ -103,12 +103,12 @@
     var packchanger = function(packval) {
         switch (packval) {
             case '0':
-                $('.packnotemplate').removeClass('hidden');
-                $('.packtemplate').addClass('hidden');
+                $('.packnotemplate').removeClass('d-none');
+                $('.packtemplate').addClass('d-none');
                 break;
             case '1':
-                $('.packnotemplate').addClass('hidden');
-                $('.packtemplate').removeClass('hidden');
+                $('.packnotemplate').addClass('d-none');
+                $('.packtemplate').removeClass('d-none');
                 break;
         }
     };
@@ -143,14 +143,14 @@
             ACTION_VAL = action;
         }
         if (action === ACTION_VAL) {
-            $(this).iCheck('uncheck');
+            $(this).prop('checked', false).trigger('change');
             ACTION_VAL = 0;
         } else {
             ACTION_VAL = action;
         }
     };
     // Setup action radio selector
-    $('.snapin-action').on('ifClicked', onRadioSelect);
+    $('.snapin-action').on('click', onRadioSelect);
     var updateCmdStore = function() {
         if (typeof $('.cmdlet3').val() === 'undefined') {
             return;

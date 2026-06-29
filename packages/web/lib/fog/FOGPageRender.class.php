@@ -27,13 +27,13 @@ trait FOGPageRender
      *
      * @param string $tabSlug   node-sub slug (e.g. 'host-group') driving the
      *                          button ids, table id, and tab update URL
-     * @param string $boxTitle  translated box title (e.g. _('Host Group Associations'))
+     * @param string $boxTitle  translated card title (e.g. _('Host Group Associations'))
      * @param string $colHeader translated first-column header (e.g. _('Group Name'))
      * @param string $delItem   singular item name passed to assocDelModal (e.g. 'group')
      * @param string $sendClass css class for the "Add selected" button (some tabs
-     *                          use 'btn btn-success pull-right' instead of primary)
-     * @param string $helpBlock optional translated help text rendered as a
-     *                          help-block in the box header (already escaped/safe)
+     *                          use 'btn btn-success float-end' instead of primary)
+     * @param string $helpBlock optional translated help text rendered as
+     *                          form-text in the card header (already escaped/safe)
      *
      * @return void
      */
@@ -42,7 +42,7 @@ trait FOGPageRender
         $boxTitle,
         $colHeader,
         $delItem,
-        $sendClass = 'btn btn-primary pull-right',
+        $sendClass = 'btn btn-primary float-end',
         $helpBlock = ''
     ) {
         $this->headerData = [
@@ -69,25 +69,25 @@ trait FOGPageRender
         $buttons .= self::makeButton(
             "$tabSlug-remove",
             _('Remove selected'),
-            'btn btn-danger pull-left',
+            'btn btn-danger float-start',
             $props
         );
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $boxTitle;
         echo '</h4>';
         if ($helpBlock !== '') {
-            echo '<p class="help-block">';
+            echo '<p class="form-text">';
             echo $helpBlock;
             echo '</p>';
         }
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, "$tabSlug-table", $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $this->assocDelModal($delItem);
         echo '</div>';
         echo '</div>';
@@ -109,13 +109,13 @@ trait FOGPageRender
     {
         $this->headerData = $headerData;
         $this->attributes = $attributes;
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, $tableId);
         echo '</div>';
         echo '</div>';
@@ -286,29 +286,29 @@ trait FOGPageRender
         $enctype = 'application/x-www-form-urlencoded'
     ) {
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             $idBase . '-create-form',
             $this->formAction,
             'post',
             $enctype,
             true
         );
-        echo '<div class="box box-solid" id="' . $idBase . '-create">';
-        echo '<div class="box-body">';
+        echo '<div class="card" id="' . $idBase . '-create">';
+        echo '<div class="card-body">';
         foreach ($sections as $section) {
-            echo '<div class="box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo $section[0];
             echo '</h4>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo $section[1];
             echo '</div>';
             echo '</div>';
         }
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -351,7 +351,7 @@ trait FOGPageRender
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -409,7 +409,7 @@ trait FOGPageRender
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'create-form',
             '../management/index.php?node=' . $node . '&sub=add',
             'post',
@@ -473,7 +473,7 @@ trait FOGPageRender
                         'single'
                     )
                     . '</div>',
-                    '<div class="delayedinput hidden">'
+                    '<div class="delayedinput d-none">'
                     . self::makeLabel(
                         $labelClass,
                         'delayedinput',
@@ -501,42 +501,42 @@ trait FOGPageRender
                         'cron'
                     )
                     . '</div>',
-                    '<div class="croninput hidden">'
+                    '<div class="croninput d-none">'
                     . self::makeLabel(
                         $labelClass,
                         'cronMin',
                         _('Cron Entry')
-                    ) => '<div class="croninput fogcron hidden"></div><br/>'
+                    ) => '<div class="croninput fogcron d-none"></div><br/>'
                     . self::makeInput(
-                        'col-sm-2 croninput cronmin hidden',
+                        'col-sm-2 croninput cronmin d-none',
                         'scheduleCronMin',
                         _('min'),
                         'text',
                         'cronMin'
                     )
                     . self::makeInput(
-                        'col-sm-2 croninput cronhour hidden',
+                        'col-sm-2 croninput cronhour d-none',
                         'scheduleCronHour',
                         _('hour'),
                         'text',
                         'cronHour'
                     )
                     . self::makeInput(
-                        'col-sm-2 croninput crondom hidden',
+                        'col-sm-2 croninput crondom d-none',
                         'scheduleCronDOM',
                         _('day'),
                         'text',
                         'cronDom'
                     )
                     . self::makeInput(
-                        'col-sm-2 croninput cronmonth hidden',
+                        'col-sm-2 croninput cronmonth d-none',
                         'scheduleCronMonth',
                         _('month'),
                         'text',
                         'cronMonth'
                     )
                     . self::makeInput(
-                        'col-sm-2 croninput crondow hidden',
+                        'col-sm-2 croninput crondow d-none',
                         'scheduleCronDOW',
                         _('weekday'),
                         'text',

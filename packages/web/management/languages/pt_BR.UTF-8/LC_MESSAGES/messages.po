@@ -1169,6 +1169,9 @@ msgstr "Configurações"
 msgid "Client Version"
 msgstr "Versão CPU"
 
+msgid "Close"
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "Snapin Command"
@@ -3946,6 +3949,10 @@ msgstr "Detalhe Snapin Retorno"
 
 msgid "Main Menu"
 msgstr "Menu principal"
+
+#, fuzzy
+msgid "Main navigation"
+msgstr "Associação imagem"
 
 #, fuzzy
 msgid "Make default"

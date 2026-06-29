@@ -223,17 +223,17 @@ class DashboardPage extends FOGPage
                 ['fields' => &$fields]
             );
 
-        echo '<div class="box-group">';
+        echo '<div class="row">';
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
         echo '<div class="col-md-4">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('System Overview');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<div class="dl-horizontal">';
         foreach ($fields as $field => &$input) {
             echo '<dt>' . $field . '</dt>'
@@ -247,19 +247,19 @@ class DashboardPage extends FOGPage
 
         // Group Activity
         echo '<div class="col-md-4">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Storage Group Activity');
         echo '</h4>';
-        echo '<div class="graph-selectors pull-right" id="graph-activity-selector">';
+        echo '<div class="graph-selectors float-end" id="graph-activity-selector">';
         printf(
             '<select class="activity-count" name="groupsel">%s</select>',
             self::$_groupOpts
         );
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<div id="graph-activity"></div>';
         echo '<div id="ActivityActive"></div>';
         echo '<div id="ActivityQueued"></div>';
@@ -274,23 +274,22 @@ class DashboardPage extends FOGPage
         );
         // Storage Usage
         echo '<div class="col-md-4">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Storage Node Disk Usage');
         echo '</h4>';
-        echo '<div class="graph-selectors pull-right" id="diskusage-selector">';
+        echo '<div class="graph-selectors float-end" id="diskusage-selector">';
         printf(
             '<select name="nodesel" class="nodeid">%s</select>',
             self::$_nodeOpts
         );
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<a href="?node=hwinfo" id="hwinfolink">';
         echo '<div id="graph-diskusage"></div>';
         echo '</a>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -305,10 +304,10 @@ class DashboardPage extends FOGPage
         $tremonth = 90;
         $sixmonth = 183;
         $oneyears = 365;
-        echo '<div class="col-xs-12">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="col-12">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Imaging Over the last');
         echo '</h4>';
         echo '<div class="row">';
@@ -350,7 +349,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<div id="graph-30day"></div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
         echo '</div>';
@@ -362,7 +361,7 @@ class DashboardPage extends FOGPage
         $rel10 = 600;
         $rel5 = 300;
         $rel2 = 120;
-        echo '<div class="col-xs-12">';
+        echo '<div class="col-12">';
         echo self::makeInput(
             '',
             '',
@@ -387,24 +386,24 @@ class DashboardPage extends FOGPage
             'nodeColors',
             implode(',', (array)self::$_nodeColors)
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo self::$foglang['Bandwidth'];
         echo '</h4>';
-        echo '<div class="box-tools" pull-right>';
+        echo '<div class="card-tools float-end">';
         echo _('Real Time');
         echo '<div class="btn-group" id="realtime" data-toggle="btn-toggle">';
         echo self::makeButton(
             'btn-on',
             _('On'),
-            'btn btn-default btn-xs active',
+            'btn btn-secondary btn-sm active',
             ' data-toggle="on"'
         );
         echo self::makeButton(
             'btn-off',
             _('Off'),
-            'btn btn-default btn-xs',
+            'btn btn-secondary btn-sm',
             ' data-toggle="off"'
         );
         echo '</div>';
@@ -421,7 +420,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div id="graph-bandwidth-filters-time"></div>';
-        echo '<div class="col-md-offset-4 col-md-6">';
+        echo '<div class="offset-md-4 col-md-6">';
         echo '<div class="category" id="graph-bandwidth-time-title">';
         echo _('Time');
         echo ' - ';
@@ -444,7 +443,7 @@ class DashboardPage extends FOGPage
         echo self::$foglang['Receive'];
         echo '</a>';
         echo '</div>';
-        echo '<div class="col-md-offset-4 col-md-6">';
+        echo '<div class="offset-md-4 col-md-6">';
         echo '<a href="#" id="graph-bandwidth-time-filters-2min" '
             . 'class="time-filters graph-filters active" rel="' . $rel2 . '">';
         echo _('2 Minutes');
@@ -472,8 +471,9 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<div id="graph-bandwidth"></div>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';

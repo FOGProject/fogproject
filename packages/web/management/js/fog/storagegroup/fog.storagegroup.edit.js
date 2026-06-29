@@ -113,7 +113,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="storagegroupImageAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -149,7 +149,7 @@
 
     storagegroupImagesTable.on('draw', function(e) {
         Common.iCheck('#storagegroup-image-table input');
-        $('#storagegroup-image-table input.associated').on('ifChanged', onStoragegroupImageCheckboxSelect);
+        $('#storagegroup-image-table input.associated').on('change', onStoragegroupImageCheckboxSelect);
         onImageSelect(storagegroupImagesTable.rows({selected: true}));
     });
 
@@ -215,7 +215,7 @@
                     if (data >= 1) {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="primary" name="primary[]" id="storagegroupImagePrimary_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -257,12 +257,11 @@
 
     storagegroupImagesPrimaryTable.on('draw', function(e) {
         Common.iCheck('#storagegroup-image-primary-table input');
-        $('#storagegroup-image-primary-table input.primary').on('ifChanged', onStoragegroupImagePrimaryCheckboxSelect);
+        $('#storagegroup-image-primary-table input.primary').on('change', onStoragegroupImagePrimaryCheckboxSelect);
         onImagePrimarySelect(storagegroupImagesPrimaryTable.rows({selected: true}));
     });
 
     var onStoragegroupImagePrimaryCheckboxSelect = function(e) {
-        $(this).iCheck('update');
         var method = storagegroupImagePrimaryUpdateBtn.attr('method'),
             action = storagegroupImagePrimaryUpdateBtn.attr('action'),
             opts = {};
@@ -347,7 +346,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="storagegroupSnapinAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -383,7 +382,7 @@
 
     storagegroupSnapinsTable.on('draw', function(e) {
         Common.iCheck('#storagegroup-snapin-table input');
-        $('#storagegroup-snapin-table input.associated').on('ifChanged', onStoragegroupSnapinCheckboxSelect);
+        $('#storagegroup-snapin-table input.associated').on('change', onStoragegroupSnapinCheckboxSelect);
         onSnapinSelect(storagegroupSnapinsTable.rows({selected: true}));
     });
 
@@ -449,7 +448,7 @@
                     if (data >= 1) {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="primary" name="primary[]" id="storagegroupSnapinPrimary_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -491,12 +490,11 @@
 
     storagegroupSnapinsPrimaryTable.on('draw', function(e) {
         Common.iCheck('#storagegroup-snapin-primary-table input');
-        $('#storagegroup-snapin-primary-table input.primary').on('ifChanged', onStoragegroupSnapinPrimaryCheckboxSelect);
+        $('#storagegroup-snapin-primary-table input.primary').on('change', onStoragegroupSnapinPrimaryCheckboxSelect);
         onSnapinPrimarySelect(storagegroupSnapinsPrimaryTable.rows({selected: true}));
     });
 
     var onStoragegroupSnapinPrimaryCheckboxSelect = function(e) {
-        $(this).iCheck('update');
         var method = storagegroupSnapinPrimaryUpdateBtn.attr('method'),
             action = storagegroupSnapinPrimaryUpdateBtn.attr('action'),
             opts = {};
@@ -582,7 +580,7 @@
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="storagegroupStoragenodeAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -618,7 +616,7 @@
 
     storagegroupStoragenodesTable.on('draw', function(e) {
         Common.iCheck('#storagegroup-storagenode-table input');
-        $('#storagegroup-storagenode-table input.associated').on('ifChanged', onStoragegroupStoragenodeCheckboxSelect);
+        $('#storagegroup-storagenode-table input.associated').on('change', onStoragegroupStoragenodeCheckboxSelect);
         onStoragenodeSelect(storagegroupStoragenodesTable.rows({selected: true}));
     });
 

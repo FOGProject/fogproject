@@ -39,13 +39,13 @@ class Pending_MAC_List extends ReportManagement
             []
         ];
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Pending MAC Addresses');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'pendingmac-table');
         echo '</div>';
         echo '</div>';

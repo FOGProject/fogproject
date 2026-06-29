@@ -35,8 +35,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
                     if (data > 0) {
                         return enabled;
                     } else {

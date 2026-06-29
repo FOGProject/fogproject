@@ -58,11 +58,11 @@ class SchemaUpdaterPage extends FOGPage
         $buttons = self::makeButton(
             'schema-send',
             _('Install/Update now'),
-            'btn btn-primary hidden runningdb pull-right'
+            'btn btn-primary d-none runningdb float-end'
         );
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'schema-update-form',
             $this->formAction,
             'post',
@@ -78,21 +78,21 @@ class SchemaUpdaterPage extends FOGPage
                 . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
                 . '"/>';
         }
-        echo '<div class="box box-solid" id="schema-modify">';
-        echo '<div class="box-body">';
+        echo '<div class="card" id="schema-modify">';
+        echo '<div class="card-body">';
         echo '<!-- Schema Update -->';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Database Install | Update');
         echo '</h4>';
         echo '</div>';
 
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
 
         // DB Running
-        echo '<div class="hidden runningdb" id="runningdb">';
-        echo '<p class="help-block">';
+        echo '<div class="d-none runningdb" id="runningdb">';
+        echo '<p class="form-text">';
         printf(
             '%s %s %s %s %s (%s->%s->%s), %s %s.',
             _('If you would like to backup your'),
@@ -108,7 +108,7 @@ class SchemaUpdaterPage extends FOGPage
         );
         echo '</p>';
         echo '<hr/>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         printf(
             '%s, %s %s. %s, %s %s %s. %s, %s %s.',
             _('Your FOG database schema is not up to date'),
@@ -129,8 +129,8 @@ class SchemaUpdaterPage extends FOGPage
         echo '</div>';
 
         // Completed Update.
-        echo '<div class="hidden" id="completed">';
-        echo '<p class="help-block">';
+        echo '<div class="d-none" id="completed">';
+        echo '<p class="form-text">';
         echo _('Click ');
         echo '<a href="../management/index.php">';
         echo _('here');
@@ -139,8 +139,8 @@ class SchemaUpdaterPage extends FOGPage
         echo '</div>';
 
         // DB Not Running
-        echo '<div class="hidden" id="stoppeddb">';
-        echo '<p class="help-block">';
+        echo '<div class="d-none" id="stoppeddb">';
+        echo '<p class="form-text">';
         printf(
             '%s. %s. %s. %s %s%s%s. %s. %s, %s, %s.',
             _('Your database connection appears to be invalid'),
@@ -156,13 +156,13 @@ class SchemaUpdaterPage extends FOGPage
             _('check to ensure your filesystem has enough space')
         );
         echo '</p>';
-        echo '<pre id="dberror" class="hidden"></pre>';
+        echo '<pre id="dberror" class="d-none"></pre>';
         echo '</div>';
 
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';

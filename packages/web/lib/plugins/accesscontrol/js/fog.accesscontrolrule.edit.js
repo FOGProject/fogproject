@@ -116,7 +116,7 @@ $(function() {
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                     + '<input type="checkbox" class="associated" name="associate[]" id="roleAssoc_'
                     + row.id
                     + '" value="' + row.id + '"'
@@ -151,7 +151,7 @@ $(function() {
 
     accesscontrolruleRolesTable.on('draw', function() {
         Common.iCheck('#accesscontrolrule-role-table input');
-        $('#accesscontrolrule-role-table input.associated').on('ifChanged', onAccesscontrolruleRoleCheckboxSelect);
+        $('#accesscontrolrule-role-table input.associated').on('change', onAccesscontrolruleRoleCheckboxSelect);
         onRoleSelect(accesscontrolruleRolesTable.rows({selected: true}));
     });
 

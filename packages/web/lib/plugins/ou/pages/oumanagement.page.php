@@ -60,7 +60,7 @@ class OUManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $oudn = filter_input(INPUT_POST, 'oudn');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         return [
             self::makeLabel(
@@ -191,7 +191,7 @@ class OUManagement extends FOGPage
             $this->obj->get('ou')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -236,12 +236,12 @@ class OUManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         self::$HookManager->processEvent(
@@ -256,7 +256,7 @@ class OUManagement extends FOGPage
         unset($fields);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'ou-general-form',
             self::makeTabUpdateURL(
                 'ou-general',
@@ -266,11 +266,11 @@ class OUManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';

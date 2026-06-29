@@ -30,6 +30,12 @@ $themePref  = filter_input(INPUT_COOKIE, 'fogTheme');
 $themeClass = ($themePref === 'dark')
     ? ' theme-dark'
     : (($themePref === 'light') ? ' theme-light' : '');
+// Bootstrap 5 / AdminLTE 4 native dark mode keys off data-bs-theme on <html>.
+// Stamped server-side from the cookie so BS5 components match on first paint;
+// with no cookie theme.js resolves the OS preference on load.
+$bsTheme = ($themePref === 'dark')
+    ? 'dark'
+    : (($themePref === 'light') ? 'light' : '');
 
 // Start output buffering
 ob_start();
@@ -37,7 +43,7 @@ ob_start();
 // Render the HTML page
 ?>
 <!DOCTYPE html>
-<html lang="<?= $ulang; ?>">
+<html lang="<?= $ulang; ?>"<?= $bsTheme ? ' data-bs-theme="' . $bsTheme . '"' : ''; ?>>
 <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -60,7 +66,7 @@ unset($this->stylesheets);
     <script src="dist/js/respond.min.js"></script>
     <![endif]-->
 </head>
-<body class="<?= ($isLoggedIn ? 'skin-blue sidebar-mini' : 'login-page') . $themeClass; ?>">
+<body class="<?= ($isLoggedIn ? 'layout-fixed sidebar-expand-lg bg-body-tertiary' : 'login-page') . $themeClass; ?>">
     <!-- FOG Management only works when JavaScript is enabled. -->
     <noscript>
         <div id="noscriptMessage">
@@ -77,94 +83,95 @@ unset($this->stylesheets);
             }
         </style>
     </noscript>
-    <div class="wrapper">
+    <div class="app-wrapper">
         <!-- Header Navigation -->
-        <header class="main-header">
-            <?php if ($isLoggedIn): ?>
-                <a href="./index.php" class="logo">
-                    <span class="logo-mini"><b>FOG</b></span>
-                    <span class="logo-lg"><b>FOG</b> <?= _('Project'); ?></span>
-                </a>
-            <?php endif; ?>
-            <nav class="navbar navbar-static-top">
-                <?php if ($isLoggedIn): ?>
-                    <p class="mobile-logo">
-                        <a href="../management/index.php"><b>FOG</b> <?= _('Project'); ?></a>
-                    </p>
-                    <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-                        <span class="sr-only"><?= _('Toggle navigation'); ?></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </a>
-                <?php endif; ?>
-                <div class="navbar-custom-menu">
-                    <ul class="nav navbar-nav">
-                        <li>
-                            <a href="#" id="themeToggle" role="button"
-                               data-label-dark="<?= _('Switch to light mode'); ?>"
-                               data-label-light="<?= _('Switch to dark mode'); ?>"
-                               title="<?= _('Toggle dark mode'); ?>"
-                               aria-label="<?= _('Toggle dark mode'); ?>">
-                                <i class="fa fa-moon-o"></i>
+        <nav class="app-header navbar navbar-expand bg-body">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                    <?php if ($isLoggedIn): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                                <span class="visually-hidden"><?= _('Toggle navigation'); ?></span>
+                                <i class="fa fa-bars"></i>
                             </a>
                         </li>
-                        <li>
-                            <?php if ($isLoggedIn): ?>
-                                <a href="../management/index.php?node=logout"><i class="fa fa-sign-out"></i> <?= _('Logout'); ?></a>
-                            <?php else: ?>
-                                <?php global $node; ?>
-                                <?php if ($node !== 'home'): ?>
-                                    <a href="../management/index.php?node=login"><i class="fa fa-sign-in"></i> <?= _('Login'); ?></a>
-                                <?php endif; ?>
+                    <?php endif; ?>
+                    <li class="nav-item d-none d-md-block">
+                        <a href="../management/index.php" class="nav-link"><b>FOG</b> <?= _('Project'); ?></a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="#" id="themeToggle" class="nav-link" role="button"
+                           data-label-dark="<?= _('Switch to light mode'); ?>"
+                           data-label-light="<?= _('Switch to dark mode'); ?>"
+                           title="<?= _('Toggle dark mode'); ?>"
+                           aria-label="<?= _('Toggle dark mode'); ?>">
+                            <i class="fa fa-moon-o"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <?php if ($isLoggedIn): ?>
+                            <a class="nav-link" href="../management/index.php?node=logout"><i class="fa fa-sign-out"></i> <?= _('Logout'); ?></a>
+                        <?php else: ?>
+                            <?php global $node; ?>
+                            <?php if ($node !== 'home'): ?>
+                                <a class="nav-link" href="../management/index.php?node=login"><i class="fa fa-sign-in"></i> <?= _('Login'); ?></a>
                             <?php endif; ?>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </header>
+                        <?php endif; ?>
+                    </li>
+                </ul>
+            </div>
+        </nav>
         <?php if ($isLoggedIn): ?>
             <!-- SIDEBAR NAVIGATION -->
-            <aside class="main-sidebar">
-                <section class="sidebar">
-                    <div class="user-panel">
-                        <div>
-                            <a href="../management/index.php?node=user&sub=edit&id=<?= self::$FOGUser->get('id'); ?>" class="fog-user ajax-page-link">
-                                <?= htmlspecialchars(self::$FOGUser->getDisplayName(), ENT_QUOTES, 'UTF-8'); ?>
-                            </a>
-                        </div>
+            <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+                <div class="sidebar-brand">
+                    <a href="../management/index.php" class="brand-link">
+                        <span class="brand-text fw-light"><b>FOG</b> <?= _('Project'); ?></span>
+                    </a>
+                </div>
+                <div class="sidebar-wrapper">
+                    <div class="user-panel p-2">
+                        <a href="../management/index.php?node=user&sub=edit&id=<?= self::$FOGUser->get('id'); ?>" class="fog-user ajax-page-link d-block">
+                            <?= htmlspecialchars(self::$FOGUser->getDisplayName(), ENT_QUOTES, 'UTF-8'); ?>
+                        </a>
                     </div>
-                    <?= FOGPage::makeFormTag('sidebar-form', 'universal-search-form', '../../fog/unisearch', 'post', 'application/x-www-form-urlencoded', true); ?>
-                    <div>
-                        <select id="universal-search-select" class="form-control" name="search" data-placeholder="<?= _('Search') . '...'; ?>"></select>
+                    <div class="p-2">
+                        <?= FOGPage::makeFormTag('sidebar-form', 'universal-search-form', '../../fog/unisearch', 'post', 'application/x-www-form-urlencoded', true); ?>
+                            <select id="universal-search-select" class="form-control" name="search" data-placeholder="<?= _('Search') . '...'; ?>"></select>
+                        </form>
                     </div>
-                    </form>
-                    <ul class="sidebar-menu" data-widget="tree">
-                        <li class="header"><?= _('MAIN NAVIGATION'); ?></li>
-                        <?= $this->menu; ?>
+                    <nav class="mt-2">
+                        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" aria-label="<?= _('Main navigation'); ?>" data-accordion="false">
+                            <li class="nav-header"><?= _('MAIN NAVIGATION'); ?></li>
+                            <?= $this->menu; ?>
+                            <?php if (self::$pluginIsAvailable): ?>
+                                <li class="nav-header">
+                                    <?= _('PLUGIN OPTIONS'); ?>
+                                    <a href="#" class="plugin-options-alternate float-end"><i class="fa fa-minus"></i></a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
                         <?php if (self::$pluginIsAvailable): ?>
-                            <li class="header">
-                                <span class="pull-left"><?= _('PLUGIN OPTIONS'); ?></span>
-                                <span class="pull-right-container">
-                                    <a href="#" class="plugin-options-alternate"><i class="fa fa-minus"></i></a>
-                                </span>
-                            </li>
-                            <div class="sidebar-menu plugin-options">
+                            <ul class="nav sidebar-menu flex-column plugin-options" data-lte-toggle="treeview" data-accordion="false">
                                 <?= $this->menuHook; ?>
-                            </div>
+                            </ul>
                         <?php endif; ?>
-                        <li class="header"><?= _('RESOURCES'); ?></li>
-                        <li><a href="https://sourceforge.net/donate/index.php?group_id=201099" target="_blank"><i class="fa fa-money"></i> <span><?= _('Donate'); ?></span></a></li>
-                        <li><a href="https://news.fogproject.org" target="_blank"><i class="fa fa-bullhorn"></i> <span><?= _('News'); ?></span></a></li>
-                        <li><a href="https://forums.fogproject.org" target="_blank"><i class="fa fa-users"></i> <span><?= _('Forums'); ?></span></a></li>
-                        <li><a href="https://docs.fogproject.org" target="_blank"><i class="fa fa-book"></i> <span><?= _('Documentation'); ?></span></a></li>
-                    </ul>
-                </section>
+                        <ul class="nav sidebar-menu flex-column">
+                            <li class="nav-header"><?= _('RESOURCES'); ?></li>
+                            <li class="nav-item"><a class="nav-link" href="https://sourceforge.net/donate/index.php?group_id=201099" target="_blank"><i class="nav-icon fa fa-money"></i><p><?= _('Donate'); ?></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="https://news.fogproject.org" target="_blank"><i class="nav-icon fa fa-bullhorn"></i><p><?= _('News'); ?></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="https://forums.fogproject.org" target="_blank"><i class="nav-icon fa fa-users"></i><p><?= _('Forums'); ?></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="https://docs.fogproject.org" target="_blank"><i class="nav-icon fa fa-book"></i><p><?= _('Documentation'); ?></p></a></li>
+                        </ul>
+                    </nav>
+                </div>
             </aside>
         <?php endif; ?>
         <!-- Main Content -->
         <?php if ($isLoggedIn): ?>
-            <div class="content-wrapper">
+            <main class="app-main">
                 <?= FOGPage::makeInput('reAuthDelete', 'reAuthDelete', '', 'hidden', 'reAuthDelete', self::getSetting('FOG_REAUTH_ON_DELETE')); ?>
                 <?php
             $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
@@ -188,23 +195,27 @@ unset($this->stylesheets);
                 <?= FOGPage::makeInput('scrollMode', 'scrollMode', '', 'hidden', 'scrollMode', self::getSetting('FOG_TABLE_SCROLL_MODE')); ?>
                 <?= FOGPage::makeInput('showpass', 'showpass', '', 'hidden', 'showpass', self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')); ?>
                 <div id="ajaxPageWrapper">
-                    <section class="content-header">
-                        <h1 id="sectionTitle"><?= htmlspecialchars($this->sectionTitle, ENT_QUOTES, 'UTF-8'); ?>
-                            <small id="pageTitle"><?= htmlspecialchars($this->pageTitle, ENT_QUOTES, 'UTF-8'); ?></small>
-                        </h1>
-                    </section>
-                    <section class="content">
-                        <?= $this->body; ?>
-                    </section>
+                    <div class="app-content-header">
+                        <div class="container-fluid">
+                            <h1 id="sectionTitle"><?= htmlspecialchars($this->sectionTitle, ENT_QUOTES, 'UTF-8'); ?>
+                                <small id="pageTitle"><?= htmlspecialchars($this->pageTitle, ENT_QUOTES, 'UTF-8'); ?></small>
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="app-content">
+                        <div class="container-fluid">
+                            <?= $this->body; ?>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </main>
         <?php else: ?>
             <?= $this->body; ?>
         <?php endif; ?>
         <!-- Footer -->
         <?php if ($isLoggedIn): ?>
-            <footer class="main-footer">
-                <div class="pull-right hidden-xs">
+            <footer class="app-footer">
+                <div class="float-end d-none d-sm-inline">
                     <b><?= _('Channel'); ?></b>&nbsp;<?= FOG_CHANNEL; ?> |
                     <a href="../management/index.php?node=about&sub=home" style="text-decoration: none"><b><?= _('Version'); ?></b>&nbsp;<?= FOG_VERSION; ?></a>
                 </div>

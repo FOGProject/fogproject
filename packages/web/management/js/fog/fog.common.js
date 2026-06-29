@@ -113,7 +113,6 @@ $.capitalizeFirstLetter = function(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 $.checkItemUpdate = function(table, item, e, prop, opts, done) {
-  $(item).iCheck('update');
   var method = prop.attr('method'),
     action = prop.attr('action');
   if (item.checked) {
@@ -192,9 +191,8 @@ $.deleteSelected = function(table, cb, opts) {
     ids: opts.rows.ids().toArray(),
     url: '../management/index.php?node=' + opts.node + '&sub=deletemulti',
   });
-  $('#andFile').on('ifChanged', function(e) {
+  $('#andFile').on('change', function(e) {
     e.preventDefault();
-    $(this).iCheck('update');
     if (!this.checked) {
       delete opts.andFile;
     } else {
@@ -202,9 +200,8 @@ $.deleteSelected = function(table, cb, opts) {
     }
   });
   $('#andFile').trigger('change');
-  $('#andHosts').on('ifChanged', function(e) {
+  $('#andHosts').on('change', function(e) {
     e.preventDefault();
-    $(this).iCheck('update');
     if (!this.checked) {
       delete opts.andHosts;
     } else {
@@ -652,7 +649,7 @@ $.fn.registerTable = function(onSelect, opts) {
     drawCallback: function () {
       try {
         $(this.api().table().node())
-          .find('[data-toggle="tooltip"]')
+          .find('[data-bs-toggle="tooltip"]')
           .tooltip();
       } catch (e) {}
     }
@@ -717,7 +714,7 @@ function macVendorIcon(vendor) {
   // scroll body (infinite-scroll) and from rendering under the sticky header;
   // placement=right clears the header above the first row.
   return ' <i class="fa fa-info-circle text-muted mac-vendor-icon" '
-    + 'data-toggle="tooltip" data-placement="right" data-container="body" '
+    + 'data-bs-toggle="tooltip" data-bs-placement="right" data-container="body" '
     + 'title="' + esc + '"></i>';
 }
 /**
@@ -748,7 +745,7 @@ function macVendorIcon(vendor) {
         {prefix: input.val()},
         function (res) {
           holder.html(macVendorIcon(res && res.vendor ? res.vendor : ''));
-          holder.find('[data-toggle="tooltip"]').tooltip();
+          holder.find('[data-bs-toggle="tooltip"]').tooltip();
         },
         'json'
       );
@@ -759,14 +756,9 @@ $.fn.setContainerDisable = function(disabled) {
   if(disabled !== false) {
     disabled = true;
   }
-  var inputs = $(this).find('input:not([type="checkbox"]), select, button, .btn, textarea').toArray(),
-    ichecks = $(this).find('.checkbox').toArray();
+  var inputs = $(this).find('input, select, button, .btn, textarea').toArray();
   $.each(inputs, function(index, value) {
     $(value).prop('disabled', disabled);
-  });
-  $.each(ichecks, function(index, value) {
-    var check = disabled ? 'disable' : 'enable';
-    $(value).iCheck(check);
   });
 };
 $.fn.setLoading = function(loading) {
@@ -869,16 +861,16 @@ $.fn.validateForm = function(input) {
       }
     }
 
-    if (parent.hasClass('has-error')) {
+    if ($(e).hasClass('is-invalid')) {
       var possibleHelpblock = $(e).next('span');
-      if (possibleHelpblock.hasClass('help-block')) {
+      if (possibleHelpblock.hasClass('invalid-feedback')) {
         possibleHelpblock.remove();
       }
       if (isValid) {
-        parent.removeClass('has-error');
+        $(e).removeClass('is-invalid');
       }
     } else if (!isValid) {
-      parent.addClass('has-error');
+      $(e).addClass('is-invalid');
     }
 
     if (isValid) {
@@ -892,7 +884,7 @@ $.fn.validateForm = function(input) {
       }, 200);
     }
 
-    var msgBlock = '<span class="help-block">' + invalidReason + '</span>'
+    var msgBlock = '<span class="invalid-feedback">' + invalidReason + '</span>'
     $(msgBlock).insertAfter(e)
     isError = true;
   });
@@ -949,12 +941,10 @@ function reinitialize() {
     pluginOptionsOpen = !pluginOptionsOpen;
   });
   Common.iCheck = function(match) {
-    match = match || 'input'
-    $(match).iCheck({
-      checkboxClass: 'icheckbox_square-blue',
-      radioClass: 'iradio_square-blue',
-      increaseArea: '20%' // optional
-    });
+    match = match || 'input';
+    // iCheck retired: apply native Bootstrap 5 form-check styling to
+    // checkboxes/radios. Re-run after table redraws to re-style new rows.
+    $(match).filter(':checkbox, :radio').addClass('form-check-input');
   };
 
   Common.createModalShow = function() {
@@ -973,7 +963,8 @@ function reinitialize() {
     // Find the form
     var form = $(this).find('#create-form');
     // Remove the errors if any.
-    form.find('.has-error').removeClass('has-error').find('span.help-block').remove();
+    form.find('.is-invalid').removeClass('is-invalid');
+    form.find('span.invalid-feedback').remove();
     // Unbind the keypress event.
     $(':input:not(textarea)', this).off('keypress');
   };
@@ -1193,7 +1184,7 @@ function setupPasswordReveal() {
       $('.filedisp').val(numFiles + ' files selected');
     }
   }).on('mouseover.fogReveal', function() {
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   });
@@ -1315,10 +1306,14 @@ function clearAllIntervals(){
     clearAllIntervals();
     $.xhrPool.abortAll();
 
-    if($(".sidebar-menu.tree .treeview.menu-open").find(targetElement).length === 0){
-      $(".sidebar-menu.tree .treeview.menu-open .treeview-menu").slideUp();
-      $(".sidebar-menu.tree .treeview.menu-open").removeClass('menu-open');
-    }
+    // AL4 treeview visibility is gated purely by the .menu-open class on the
+    // parent .nav-item (CSS shows .menu-open > .nav-treeview). Collapse any open
+    // branch that does not contain the target link.
+    $(".sidebar-menu .nav-item.menu-open").each(function(){
+      if($(this).find(targetElement).length === 0){
+        $(this).removeClass('menu-open');
+      }
+    });
 
     // Load the page asynchronously.
     $.ajax(targetPage, {
@@ -1347,11 +1342,13 @@ function clearAllIntervals(){
 
       ajaxPageLoading = false;
 
-      // Update the sidebar
-      $(".sidebar-menu.tree li").not(targetElement.parent('.treeview')).removeClass('active');
-      targetElement.parent().addClass('active');
-      targetElement.parents('.treeview').addClass('active menu-open');
-      targetElement.parents('.treeview-menu').slideDown();
+      // Update the sidebar. AL4: active highlights the .nav-link; parent
+      // branches get .menu-open (which the CSS expands) and their own .nav-link
+      // marked active so the open ancestor is visibly highlighted too.
+      $(".sidebar-menu .nav-link").removeClass('active');
+      targetElement.addClass('active');
+      targetElement.parents('.nav-item').addClass('menu-open')
+        .children('.nav-link').addClass('active');
     });
   }
 

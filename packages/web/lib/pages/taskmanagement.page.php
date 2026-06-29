@@ -74,18 +74,18 @@ class TaskManagement extends FOGPage
         $this->_buttons .= self::makeButton(
             'cancel-selected',
             _('Cancel Selected'),
-            'btn btn-danger pull-left',
+            'btn btn-danger float-start',
             $props
         );
         $this->_buttons .= self::makeButton(
             'pause-refresh',
             _('Pause Reload'),
-            'btn btn-warning pull-left'
+            'btn btn-warning float-start'
         );
         $this->_buttons .= self::makeButton(
             'resume-refresh',
             _('Resume Reload'),
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
     }
     /**
@@ -377,16 +377,16 @@ class TaskManagement extends FOGPage
     {
         $this->title = _('Active Tasks');
         echo '<!-- Active Tasks -->';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'active-tasks-table');
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';
@@ -468,16 +468,16 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Active Multi-cast Tasks -->';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'active-multicast-table');
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';
@@ -567,16 +567,16 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Active Snapin Tasks -->';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'active-snapintasks-table');
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';
@@ -660,16 +660,16 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Scheduled Tasks -->';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'scheduled-task-table');
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';
@@ -757,16 +757,16 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Scheduled Deletions -->';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'scheduled-deletion-table');
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';

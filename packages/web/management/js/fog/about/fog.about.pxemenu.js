@@ -22,7 +22,7 @@
       columnDefs: [
         {
           render: function(data, type, row) {
-            return '<span data-toggle="tooltip" title="'
+            return '<span data-bs-toggle="tooltip" title="'
               + row.description
               + '">'
               + data
@@ -67,7 +67,8 @@
         });
       });
     });
-    table.$(':checkbox').on('ifChecked', function(e) {
+    table.$(':checkbox').on('change', function(e) {
+      if (!e.target.checked) { return; }
       e.preventDefault();
       var key = $(this).attr('name'),
         val = 1,
@@ -79,7 +80,8 @@
         }
         table.draw(false);
       });
-    }).on('ifUnchecked', function(e) {
+    }).on('change', function(e) {
+      if (e.target.checked) { return; }
       e.preventDefault();
       var key = $(this).attr('name'),
         val = 0,

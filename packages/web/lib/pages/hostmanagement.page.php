@@ -145,24 +145,24 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'approve',
             _('Approve selected'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'delete',
             _('Delete selected'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         $modalApprovalBtns = self::makeButton(
             'confirmApproveModal',
             _('Approve'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modalApprovalBtns .= self::makeButton(
             'cancelApprovalModal',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
@@ -176,13 +176,13 @@ class HostManagement extends FOGPage
         $modalDeleteBtns = self::makeButton(
             'confirmDeleteModal',
             _('Delete'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modalDeleteBtns .= self::makeButton(
             'closeDeleteModal',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
             'deleteModal',
@@ -204,23 +204,23 @@ class HostManagement extends FOGPage
         );
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'host-pending-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'dataTable', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $approvalModal;
         echo $deleteModal;
         echo '</div>';
@@ -309,24 +309,24 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'approve',
             _('Approve selected'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
         $buttons .= self::makeButton(
             'delete',
             _('Delete selected'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
 
         $modalApprovalBtns = self::makeButton(
             'confirmApproveModal',
             _('Approve'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modalApprovalBtns .= self::makeButton(
             'cancelApprovalModal',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
@@ -340,13 +340,13 @@ class HostManagement extends FOGPage
         $modalDeleteBtns = self::makeButton(
             'confirmDeleteModal',
             _('Delete'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modalDeleteBtns .= self::makeButton(
             'closeDeleteModal',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
             'deleteModal',
@@ -368,23 +368,23 @@ class HostManagement extends FOGPage
         );
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'mac-pending-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'dataTable', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         //echo $buttons;
         echo $approvalModal;
         echo $deleteModal;
@@ -497,7 +497,7 @@ class HostManagement extends FOGPage
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image, '', 'id');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -646,7 +646,7 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -681,37 +681,37 @@ class HostManagement extends FOGPage
         unset($fieldads);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'host-create-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="host-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card" id="host-create">';
+        echo '<div class="card-body">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Create New Host');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
         echo '</div>';
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Active Directory');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $renderedad;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -745,7 +745,7 @@ class HostManagement extends FOGPage
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image, '', 'id');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -922,7 +922,7 @@ class HostManagement extends FOGPage
         unset($fieldads);
 
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'create-form',
             '../management/index.php?node=host&sub=add',
             'post',
@@ -931,7 +931,7 @@ class HostManagement extends FOGPage
         );
         echo $rendered;
         echo '<hr/>';
-        echo '<h4 class="box-title">';
+        echo '<h4 class="card-title">';
         echo _('Active Directory');
         echo '</h4>';
         echo $renderedad;
@@ -1151,7 +1151,7 @@ class HostManagement extends FOGPage
             ($this->obj->get('kernelDevice') ?: '')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -1266,9 +1266,9 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
-        $buttons .= '<div class="btn-group pull-left">';
+        $buttons .= '<div class="btn-group float-start">';
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
@@ -1295,13 +1295,13 @@ class HostManagement extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-outline pull-right',
+            'btn btn-outline-secondary float-end',
             ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
             _('Cancel'),
-            'btn btn-outline pull-left'
+            'btn btn-outline-secondary float-start'
         );
         $modalreset = self::makeModal(
             'resetencryptionmodal',
@@ -1315,7 +1315,7 @@ class HostManagement extends FOGPage
             'warning'
         );
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'host-general-form',
             self::makeTabUpdateURL(
                 'host-general',
@@ -1325,11 +1325,11 @@ class HostManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $modalreset;
         echo $this->deleteModal();
@@ -1433,7 +1433,7 @@ class HostManagement extends FOGPage
 
         $fields = [
             self::makeLabel(
-                'col-sm-3 control-label',
+                'col-sm-3 col-form-label',
                 'newMac',
                 _('MAC Address')
             ) => self::makeInput(
@@ -1453,13 +1453,13 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'newmac-cancel',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $buttons .= self::makeButton(
             'newmac-send',
             _('Add'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
 
         self::$HookManager->processEvent(
@@ -1479,7 +1479,7 @@ class HostManagement extends FOGPage
             'macaddressModal',
             _('Add New MAC Address'),
             self::makeFormTag(
-                'form-horizontal',
+                '',
                 'macaddress-add-form',
                 self::makeTabUpdateURL(
                     'host-macaddress',
@@ -1505,7 +1505,7 @@ class HostManagement extends FOGPage
         );
 
         // MAC Address Table
-        $buttons = '<div class="btn-group pull-right">';
+        $buttons = '<div class="btn-group float-end">';
         $buttons .= self::makeButton(
             'macaddress-add',
             _('Add New MAC Address'),
@@ -1549,7 +1549,7 @@ class HostManagement extends FOGPage
         $buttons .= self::makeButton(
             'macaddress-table-delete',
             _('Delete selected'),
-            'btn btn-danger pull-left',
+            'btn btn-danger float-start',
             $props
         );
         $this->headerData = [
@@ -1568,12 +1568,12 @@ class HostManagement extends FOGPage
             ['width' => 16],
             ['width' => 16]
         ];
-        echo '<div class="box box-solid">';
+        echo '<div class="card">';
         echo '<div id="updatemacaddresses" class="">';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'host-macaddresses-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $macAddModal;
         echo '</div>';
         echo '</div>';
@@ -1914,7 +1914,7 @@ class HostManagement extends FOGPage
             _('Host Printer Associations'),
             _('Printer Name'),
             'printer',
-            'btn btn-success pull-right'
+            'btn btn-success float-end'
         );
 
         $props = ' method="post" action="'
@@ -1928,19 +1928,19 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'host-printer-default-send',
             _('Update'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Host Default Printer');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<span id="printerselector"></span>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -1951,14 +1951,14 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'level') ?:
             $this->obj->get('printerLevel')
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Host Printer Configuration');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
-        echo '<div class="radio">';
+        echo '<div class="card-body">';
+        echo '<div class="form-check">';
         echo self::makeLabel(
             '',
             'noLevel',
@@ -1977,7 +1977,7 @@ class HostManagement extends FOGPage
             )
             . ' '
             . _('No Printer Management'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
             . _(
                 'This setting turns off all FOG Printer Management. '
                 . 'Although there are multiple levels already, this '
@@ -1986,7 +1986,7 @@ class HostManagement extends FOGPage
             . '"'
         );
         echo '</div>';
-        echo '<div class="radio">';
+        echo '<div class="form-check">';
         echo self::makeLabel(
             '',
             'addlevel',
@@ -2005,7 +2005,7 @@ class HostManagement extends FOGPage
             )
             . ' '
             . _('Add/Remove Managed Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
             . _(
                 'This setting only adds and removes '
                 . 'printers that are managed by FOG. '
@@ -2019,7 +2019,7 @@ class HostManagement extends FOGPage
             . '"'
         );
         echo '</div>';
-        echo '<div class="radio">';
+        echo '<div class="form-check">';
         echo self::makeLabel(
             '',
             'alllevel',
@@ -2038,7 +2038,7 @@ class HostManagement extends FOGPage
             )
             . ' '
             . _('All Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
             . _(
                 'This setting will only allow FOG Assigned '
                 . 'printers to be added to the host. Any '
@@ -2049,11 +2049,11 @@ class HostManagement extends FOGPage
         );
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
         echo '</div>';
@@ -2132,17 +2132,17 @@ class HostManagement extends FOGPage
         $orderButton = self::makeButton(
             'host-snapin-order-save',
             _('Save order'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Snapin Run Order');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
-        echo '<p class="help-block">';
+        echo '<div class="card-body">';
+        echo '<p class="form-text">';
         echo _(
             'Snapins run in this order. The order only changes execution when '
             . '"Abort snapin sequence on failure" is enabled for the task; '
@@ -2151,7 +2151,7 @@ class HostManagement extends FOGPage
         echo '</p>';
         echo '<ol id="host-snapin-order-list" class="list-group"></ol>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $orderButton;
         echo '</div>';
         echo '</div>';
@@ -2211,7 +2211,7 @@ class HostManagement extends FOGPage
             _('Host Module Associations'),
             _('Module Name'),
             'module',
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             _('Disabled items are not displayed. Legacy items are removed.')
         );
 
@@ -2222,14 +2222,14 @@ class HostManagement extends FOGPage
             )
             . '" ';
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
         // Display Manager area
         $dispEnabled = self::getSetting('FOG_CLIENT_DISPLAYMANAGER_ENABLED');
         if ($dispEnabled) {
             $buttons = self::makeButton(
                 'host-displayman-send',
                 _('Update'),
-                'btn btn-primary pull-right',
+                'btn btn-primary float-end',
                 $props
             );
             // If the x, y, and/or r inputs are set.
@@ -2313,15 +2313,15 @@ class HostManagement extends FOGPage
 
             $rendered = self::formFields($fields);
             unset($fields);
-            echo '<div class="box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo _('Host Display Manager Settings');
             echo '</h4>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'host-displayman-form',
                 self::makeTabUpdateURL(
                     'host-module',
@@ -2334,7 +2334,7 @@ class HostManagement extends FOGPage
             echo $rendered;
             echo '</form>';
             echo '</div>';
-            echo '<div class="box-footer with-border">';
+            echo '<div class="card-footer">';
             echo $buttons;
             echo '</div>';
             echo '</div>';
@@ -2346,7 +2346,7 @@ class HostManagement extends FOGPage
             $buttons = self::makeButton(
                 'host-alo-send',
                 _('Update'),
-                'btn btn-primary pull-right',
+                'btn btn-primary float-end',
                 $props
             );
             $tme = filter_input(INPUT_POST, 'tme');
@@ -2386,18 +2386,18 @@ class HostManagement extends FOGPage
             $rendered = self::formFields($fields);
             unset($fields);
 
-            echo '<div class="box box-warning">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-warning card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo _('Auto Logout Settings');
             echo '</h4>';
-            echo '<p class="help-block">';
+            echo '<p class="form-text">';
             echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
             echo '</p>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'host-alo-form',
                 self::makeTabUpdateURL(
                     'host-module',
@@ -2410,7 +2410,7 @@ class HostManagement extends FOGPage
             echo $rendered;
             echo '</form>';
             echo '</div>';
-            echo '<div class="box-footer with-border">';
+            echo '<div class="card-footer">';
             echo $buttons;
             echo '</div>';
             echo '</div>';
@@ -2440,7 +2440,7 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'host-enforce-send',
             _('Update'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
 
@@ -2455,27 +2455,27 @@ class HostManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo '<div class="box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-warning card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Enforce Hostname | AD Join Reboots');
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _(
             'This tells the client to force reboots for host name '
             . 'changing and AD Joining.'
         );
         echo '</p>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _(
             'If disabled, the client will not make changes until all users '
             . 'are logged off'
         );
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'host-enforce-form',
             self::makeTabUpdateURL(
                 'host-module',
@@ -2488,7 +2488,7 @@ class HostManagement extends FOGPage
         echo $rendered;
         echo '</form>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -2585,43 +2585,43 @@ class HostManagement extends FOGPage
         $buttons .= self::makeButton(
             'pm-delete',
             _('Delete selected'),
-            'btn btn-danger pull-left',
+            'btn btn-danger float-start',
             $props
         );
         $ondemandModalBtns = self::makeButton(
             'ondemandCancelBtn',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-outline pull-right',
+            'btn btn-outline-secondary float-end',
             $props
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-outline pull-right',
+            'btn btn-outline-secondary float-end',
             $props
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Scheduled Power Management Tasks');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         $this->render(12, 'host-powermanagement-table', $buttons.$splitButtons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo self::makeModal(
             'ondemandModal',
             _('Create Immediate Power task'),
@@ -2839,7 +2839,7 @@ class HostManagement extends FOGPage
         $gpuvendorsArray = explode(',', $gpuvendors);
         $gpuproductsArray = explode(',', $gpuproducts);
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $buttons = '';
 
@@ -2885,7 +2885,7 @@ class HostManagement extends FOGPage
             $buttons = self::makeButton(
                 'host-inventory-send',
                 _('Update'),
-                'btn btn-primary pull-right'
+                'btn btn-primary float-end'
             );
         } else {
             $fields = [
@@ -3415,7 +3415,7 @@ class HostManagement extends FOGPage
 
         if (!$static) {
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'host-inventory-form',
                 self::makeTabUpdateURL(
                     'host-inventory',
@@ -3426,16 +3426,16 @@ class HostManagement extends FOGPage
                 true
             );
         }
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Host Inventory');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -4084,17 +4084,17 @@ class HostManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'tasking-send',
             _('Create'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modalApprovalBtns .= self::makeButton(
             'tasking-close',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $taskModal = self::makeModal(
             'task-modal',
-            '<h4 class="box-title">'
+            '<h4 class="card-title">'
             . _('Create new tasking')
             . '<span class="task-name"></span></h4>',
             '<div id="task-form-holder"></div>',
@@ -4103,22 +4103,22 @@ class HostManagement extends FOGPage
             'success'
         );
 
-        echo '<div class="box box-solid" id="host-tasks">';
-        echo '<div class="box-body">';
+        echo '<div class="card" id="host-tasks">';
+        echo '<div class="card-body">';
         echo '<div id="taskAccordian" class="box-group">';
 
         // Basic Tasks
-        echo '<div class="panel box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo '<a href="#tasksBasic" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<div class="panel card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo '<a href="#tasksBasic" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Basic Tasks');
         echo '</a>';
         echo '</h4>';
         echo '</div>';
-        echo '<div id="tasksBasic" class="panel-collapse collapse in">';
-        echo '<div class="box-body">';
+        echo '<div id="tasksBasic" class="panel-collapse collapse show">';
+        echo '<div class="card-body">';
         echo '<table class="table table-striped">';
         echo '<tbody>';
         echo $basic;
@@ -4129,17 +4129,17 @@ class HostManagement extends FOGPage
         echo '</div>';
 
         // Advanced Tasks
-        echo '<div class="panel box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo '<a href="#tasksAdvanced" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<div class="panel card card-warning card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo '<a href="#tasksAdvanced" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Advanced Tasks');
         echo '</a>';
         echo '</h4>';
         echo '</div>';
         echo '<div id="tasksAdvanced" class="panel-collapse collapse">';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<table class="table table-striped">';
         echo '<tbody>';
         echo $advanced;
@@ -4150,7 +4150,7 @@ class HostManagement extends FOGPage
         echo '</div>';
 
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $taskModal;
         echo '</div>';
         echo '</div>';
@@ -4209,7 +4209,7 @@ class HostManagement extends FOGPage
             ) {
                 throw new Exception(_('Assigned image is protected'));
             }
-            $labelClass = 'col-sm-3 control-label';
+            $labelClass = 'col-sm-3 col-form-label';
             $fields = [];
             if ($issnapintask
                 && TaskType::SINGLE_SNAPIN == $type
@@ -4387,7 +4387,7 @@ class HostManagement extends FOGPage
             unset($fields);
             ob_start();
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'host-deploy-form',
                 $this->formAction,
                 'post',

@@ -110,7 +110,7 @@ $(function() {
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="siteHostAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -145,7 +145,7 @@ $(function() {
 
     siteHostsTable.on('draw', function() {
         Common.iCheck('#site-host-table input');
-        $('#site-host-table input.associated').on('ifChanged', onSiteHostCheckboxSelect);
+        $('#site-host-table input.associated').on('change', onSiteHostCheckboxSelect);
         onHostSelect(siteHostsTable.rows({selected: true}));
     });
 
@@ -211,7 +211,7 @@ $(function() {
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
-                    return '<div class="checkbox">'
+                    return '<div class="form-check">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="siteUserAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
@@ -246,7 +246,7 @@ $(function() {
 
     siteUsersTable.on('draw', function() {
         Common.iCheck('#site-user-table input');
-        $('#site-user-table input.associated').on('ifChanged', onSiteUserCheckboxSelect);
+        $('#site-user-table input.associated').on('change', onSiteUserCheckboxSelect);
         onUserSelect(siteUsersTable.rows({selected: true}));
     });
 

@@ -65,7 +65,7 @@ class GroupManagement extends FOGPage
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         // The fields to display
         return [
@@ -286,7 +286,7 @@ class GroupManagement extends FOGPage
      */
     private function _sharedHint($info)
     {
-        return '<p class="help-block help-block-tight">'
+        return '<p class="form-text help-block-tight">'
             . _('Hosts:') . ' ' . $this->_sharedValueText($info)
             . '</p>';
     }
@@ -331,7 +331,7 @@ class GroupManagement extends FOGPage
                 ? _('enabled (all)')
                 : _('disabled (all)');
         }
-        return '<div class="box box-info"><div class="box-body box-body-compact">'
+        return '<div class="card card-info card-outline"><div class="card-body box-body-compact">'
             . '<strong>' . _('Current member-host AD state') . '</strong><br/>'
             . _('Domain joining') . ': ' . $join . '<br/>'
             . _('Domain name') . ': '
@@ -388,7 +388,7 @@ class GroupManagement extends FOGPage
         } else {
             $text = Initiator::e($info['value']) . ' ' . _('min (all)');
         }
-        return '<p class="help-block help-block-tight">'
+        return '<p class="form-text help-block-tight">'
             . _('Hosts:') . ' ' . $text
             . '</p>';
     }
@@ -466,7 +466,7 @@ class GroupManagement extends FOGPage
             ($this->obj->get('kernelDevice') ?: '')
         );
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         // Per-field "Hosts: ..." hints showing the members' shared state.
         $shared = $this->_uniformHostValues(
@@ -586,9 +586,9 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary float-end'
         );
-        $buttons .= '<div class="btn-group pull-left">';
+        $buttons .= '<div class="btn-group float-start">';
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
@@ -615,13 +615,13 @@ class GroupManagement extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-outline pull-right',
+            'btn btn-outline-secondary float-end',
             ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
             _('Cancel'),
-            'btn btn-outline pull-left'
+            'btn btn-outline-secondary float-start'
         );
         $modalreset = self::makeModal(
             'resetencryptionmodal',
@@ -635,7 +635,7 @@ class GroupManagement extends FOGPage
             'warning'
         );
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'group-general-form',
             self::makeTabUpdateURL(
                 'group-general',
@@ -645,8 +645,8 @@ class GroupManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
         echo '<div class="alert alert-info" role="alert">'
             . _('Leave a field blank to keep each host\'s current value.')
             . ' '
@@ -656,7 +656,7 @@ class GroupManagement extends FOGPage
             . '</div>';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $modalreset;
         echo $this->deleteModal();
@@ -775,7 +775,7 @@ class GroupManagement extends FOGPage
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image, 'image');
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
             self::makeLabel(
@@ -788,7 +788,7 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'group-image-send',
             _('Update'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
 
@@ -803,16 +803,16 @@ class GroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Group Image Association');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -897,7 +897,7 @@ class GroupManagement extends FOGPage
             _('Group Printer Assignment'),
             _('Printer Name'),
             'printer',
-            'btn btn-success pull-right',
+            'btn btn-success float-end',
             _('This will perform the action on all hosts in this group')
         );
 
@@ -912,23 +912,23 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'group-printer-default-send',
             _('Update'),
-            'btn btn-info pull-right',
+            'btn btn-info float-end',
             $props
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Group Default Printer');
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _('This will add and set '
             . '(as needed) the default printer for all hosts in this group');
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<span id="printerselector"></span>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -936,17 +936,17 @@ class GroupManagement extends FOGPage
         // =========================================================
         // Printer Configuration
         $printerLevel = filter_input(INPUT_POST, 'level');
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Group Printer Configuration');
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _('This will set the configuration level to all hosts in this group');
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
-        echo '<div class="radio">';
+        echo '<div class="card-body">';
+        echo '<div class="form-check">';
         echo self::makeLabel(
             '',
             'noLevel',
@@ -965,7 +965,7 @@ class GroupManagement extends FOGPage
             )
             . ' '
             . _('No Printer Management'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
             . _(
                 'This setting turns off all FOG Printer Management. '
                 . 'Although there are multiple levels already, this '
@@ -974,7 +974,7 @@ class GroupManagement extends FOGPage
             . '"'
         );
         echo '</div>';
-        echo '<div class="radio">';
+        echo '<div class="form-check">';
         echo self::makeLabel(
             '',
             'addlevel',
@@ -993,7 +993,7 @@ class GroupManagement extends FOGPage
             )
             . ' '
             . _('Add/Remove Managed Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
             . _(
                 'This setting only adds and removes '
                 . 'printers that are managed by FOG. '
@@ -1007,7 +1007,7 @@ class GroupManagement extends FOGPage
             . '"'
         );
         echo '</div>';
-        echo '<div class="radio">';
+        echo '<div class="form-check">';
         echo self::makeLabel(
             '',
             'alllevel',
@@ -1026,7 +1026,7 @@ class GroupManagement extends FOGPage
             )
             . ' '
             . _('All Printers'),
-            'data-toggle="tooltip" data-placement="right" title="'
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
             . _(
                 'This setting will only allow FO GAssigned '
                 . 'printers to be added to the host. Any '
@@ -1037,11 +1037,11 @@ class GroupManagement extends FOGPage
         );
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
         echo '</div>';
@@ -1114,7 +1114,7 @@ class GroupManagement extends FOGPage
             _('Group Snapin Assignment'),
             _('Snapin Name'),
             'snapin',
-            'btn btn-success pull-right',
+            'btn btn-success float-end',
             _(
                 'This will perform the action on all hosts in this group. '
                 . 'A snapin is checked when every host in the group has it.'
@@ -1131,15 +1131,15 @@ class GroupManagement extends FOGPage
         $orderButton = self::makeButton(
             'group-snapin-order-save',
             _('Save order'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Snapin Run Order');
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _(
             'Only snapins shared by every host in the group can be ordered '
             . 'here. Saving sets this order on each host (shared snapins run '
@@ -1149,10 +1149,10 @@ class GroupManagement extends FOGPage
         );
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<ol id="group-snapin-order-list" class="list-group"></ol>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $orderButton;
         echo '</div>';
         echo '</div>';
@@ -1179,7 +1179,7 @@ class GroupManagement extends FOGPage
             _('Group Module Associations'),
             _('Module Name'),
             'module',
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             _('Disabled items are not displayed. Legacy items are removed.')
             . '<br/>'
             . _('Action will be perform on all hosts within this group')
@@ -1192,14 +1192,14 @@ class GroupManagement extends FOGPage
             )
             . '" ';
 
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
         // Display Manager area
         $dispEnabled = self::getSEtting('FOG_CLIENT_DISPLAYMANAGER_ENABLED');
         if ($dispEnabled) {
             $buttons = self::makeButton(
                 'group-displayman-send',
                 _('Update'),
-                'btn btn-primary pull-right',
+                'btn btn-primary float-end',
                 $props
             );
             list(
@@ -1291,15 +1291,15 @@ class GroupManagement extends FOGPage
             $rendered = self::formFields($fields);
             unset($fields);
 
-            echo '<div class="box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo _('Group Display Manager Settings');
             echo '</h4>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'group-displayman-form',
                 self::makeTabUpdateURL(
                     'group-module',
@@ -1312,7 +1312,7 @@ class GroupManagement extends FOGPage
             echo $rendered;
             echo '</form>';
             echo '</div>';
-            echo '<div class="box-footer with-border">';
+            echo '<div class="card-footer">';
             echo $buttons;
             echo '</div>';
             echo '</div>';
@@ -1324,7 +1324,7 @@ class GroupManagement extends FOGPage
             $buttons = self::makeButton(
                 'group-alo-send',
                 _('Update'),
-                'btn btn-primary pull-right',
+                'btn btn-primary float-end',
                 $props
             );
             // Blank by default so a save leaves each host's value alone
@@ -1363,18 +1363,18 @@ class GroupManagement extends FOGPage
             $rendered = self::formFields($fields);
             unset($fields);
 
-            echo '<div class="box box-warning">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
+            echo '<div class="card card-warning card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
             echo _('Auto Logout Settings');
             echo '</h4>';
-            echo '<p class="help-block">';
+            echo '<p class="form-text">';
             echo _('Minimum time limmit for Auto Logout to become active is 5 minutes.');
             echo '</p>';
             echo '</div>';
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'group-alo-form',
                 self::makeTabUpdateURL(
                     'group-module',
@@ -1387,7 +1387,7 @@ class GroupManagement extends FOGPage
             echo $rendered;
             echo '</form>';
             echo '</div>';
-            echo '<div class="box-footer with-border">';
+            echo '<div class="card-footer">';
             echo $buttons;
             echo '</div>';
             echo '</div>';
@@ -1411,7 +1411,7 @@ class GroupManagement extends FOGPage
             . '<option value="1">' . _('Enable on all hosts') . '</option>'
             . '<option value="0">' . _('Disable on all hosts') . '</option>'
             . '</select>'
-            . '<p class="help-block help-block-tight">'
+            . '<p class="form-text help-block-tight">'
             . _('Hosts:') . ' ' . $enfText
             . '</p>';
         $fields = [
@@ -1424,7 +1424,7 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'group-enforce-send',
             _('Update'),
-            'btn btn-primary pull-right',
+            'btn btn-primary float-end',
             $props
         );
 
@@ -1439,27 +1439,27 @@ class GroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo '<div class="box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-warning card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Enforce Hostname | AD Join Reboots');
         echo '</h4>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _(
             'This tells the client to force reboots for host name '
             . 'changing and AD Joining.'
         );
         echo '</p>';
-        echo '<p class="help-block">';
+        echo '<p class="form-text">';
         echo _(
             'If disabled, the client will not make changes until all users '
             . 'are logged off'
         );
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo self::makeFormTag(
-            'form-horizontal',
+            '',
             'group-enforce-form',
             self::makeTabUpdateURL(
                 'group-module',
@@ -1472,7 +1472,7 @@ class GroupManagement extends FOGPage
         echo $rendered;
         echo '</form>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -1555,7 +1555,7 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'powermanagement-delete',
             _('Delete All'),
-            'btn btn-danger pull-left'
+            'btn btn-danger float-start'
         );
         $splitButtons = self::makeSplitButton(
             'scheduleBtn',
@@ -1572,29 +1572,29 @@ class GroupManagement extends FOGPage
         $ondemandModalBtns = self::makeButton(
             'ondemandCancelBtn',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modaldeleteBtns = self::makeButton(
             'deletepowermanagementConfirm',
             _('Confirm'),
-            'btn btn-ouline pull-right',
+            'btn btn-ouline float-end',
             ' method="post" action="'
             . self::makeTabUpdateURL(
                 'group-powermanagement',
@@ -1605,8 +1605,8 @@ class GroupManagement extends FOGPage
         $modaldeleteBtns .= self::makeButton(
             'deletepowermanagementCancel',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $modalondemand = self::makeModal(
             'ondemandModal',
@@ -1636,21 +1636,21 @@ class GroupManagement extends FOGPage
             'warning'
         );
         echo '<!-- Power Management -->';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Power Management');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box-body">';
-        echo '<p class="help-block">';
+        echo '<div class="card-body">';
+        echo '<p class="form-text">';
         echo _(
             'Use the buttons below to create a new power management task to all '
             . 'hosts in this group.'
         );
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $buttons;
         echo $splitButtons;
         echo $modalondemand;
@@ -1746,15 +1746,15 @@ class GroupManagement extends FOGPage
         );
 
         // Just to make the fields nice and formatted.
-        $labelClass = 'col-sm-3 control-label';
+        $labelClass = 'col-sm-3 col-form-label';
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
         echo _('Group Host Inventories');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="box box-body">';
+        echo '<div class="card card-body">';
         if (!count($hostnames)) {
             echo _('No hosts associated to this group yet');
             echo '</div>';
@@ -1766,10 +1766,10 @@ class GroupManagement extends FOGPage
             if (!isset($hostnames[$i])) {
                 continue;
             }
-            echo '<div class="panel box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo '<a data-toggle="collapse" data-parent="#accordion" href="#'
+            echo '<div class="panel card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
+            echo '<a data-bs-toggle="collapse" data-bs-parent="#accordion" href="#'
                 . $hostnames[$i]
                 . '">';
             echo $hostnames[$i] . ' ' . _('Inventory Data');
@@ -2334,9 +2334,9 @@ class GroupManagement extends FOGPage
             ];
             $rendered = self::formFields($fields);
             unset($fields);
-            echo '<div class="box-body">';
+            echo '<div class="card-body">';
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'group-inventory-form-' . $hostnames[$i],
                 '#',
                 'get',
@@ -2703,17 +2703,17 @@ class GroupManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'tasking-send',
             _('Create'),
-            'btn btn-outline pull-right'
+            'btn btn-outline-secondary float-end'
         );
         $modalApprovalBtns .= self::makeButton(
             'tasking-close',
             _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
         );
         $taskModal = self::makeModal(
             'task-modal',
-            '<h4 class="box-title">'
+            '<h4 class="card-title">'
             . _('Create new tasking')
             . '<span class="task-name"></span></h4>',
             '<div id="task-form-holder"></div>',
@@ -2722,22 +2722,22 @@ class GroupManagement extends FOGPage
             'success'
         );
 
-        echo '<div class="box box-solid" id="host-tasks">';
-        echo '<div class="box-body">';
+        echo '<div class="card" id="host-tasks">';
+        echo '<div class="card-body">';
         echo '<div id="taskAccordian" class="box-group">';
 
         // Basic Tasks
-        echo '<div class="panel box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo '<a href="#tasksBasic" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<div class="panel card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo '<a href="#tasksBasic" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Basic Tasks');
         echo '</a>';
         echo '</h4>';
         echo '</div>';
-        echo '<div id="tasksBasic" class="panel-collapse collapse in">';
-        echo '<div class="box-body">';
+        echo '<div id="tasksBasic" class="panel-collapse collapse show">';
+        echo '<div class="card-body">';
         echo '<table class="table table-striped">';
         echo '<tbody>';
         echo $basic;
@@ -2748,17 +2748,17 @@ class GroupManagement extends FOGPage
         echo '</div>';
 
         // Advanced Tasks
-        echo '<div class="panel box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo '<a href="#tasksAdvanced" class="" data-toggle="collapse" '
-            . 'data-parent="#taskAccordian">';
+        echo '<div class="panel card card-warning card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo '<a href="#tasksAdvanced" class="" data-bs-toggle="collapse" '
+            . 'data-bs-parent="#taskAccordian">';
         echo _('Advanced Tasks');
         echo '</a>';
         echo '</h4>';
         echo '</div>';
         echo '<div id="tasksAdvanced" class="panel-collapse collapse">';
-        echo '<div class="box-body">';
+        echo '<div class="card-body">';
         echo '<table class="table table-striped">';
         echo '<tbody>';
         echo $advanced;
@@ -2769,7 +2769,7 @@ class GroupManagement extends FOGPage
         echo '</div>';
 
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="card-footer">';
         echo $taskModal;
         echo '</div>';
         echo '</div>';
@@ -2866,7 +2866,7 @@ class GroupManagement extends FOGPage
                 : ('#' . $def['value'])
             ) . ' ' . _('(all)');
         }
-        $hint = '<p class="help-block help-block-spaced">'
+        $hint = '<p class="form-text help-block-spaced">'
             . _('Hosts default:') . ' ' . $defText
             . '</p>';
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
@@ -3182,7 +3182,7 @@ class GroupManagement extends FOGPage
                 throw new Exception(_('Groups cannot create capture tasks'));
             }
 
-            $labelClass = 'col-sm-3 control-label';
+            $labelClass = 'col-sm-3 col-form-label';
 
             $fields = [];
 
@@ -3338,7 +3338,7 @@ class GroupManagement extends FOGPage
             unset($fields);
             ob_start();
             echo self::makeFormTag(
-                'form-horizontal',
+                '',
                 'group-deploy-form',
                 $this->formAction,
                 'post',

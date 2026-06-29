@@ -736,7 +736,7 @@ class Route extends FOGBase
                                 } elseif ($d == 6) {
                                     $labelType = 'warning';
                                 }
-                                return '<span class="label label-'
+                                return '<span class="badge bg-'
                                     . $labelType
                                     . '">'
                                     . _($socketstr)
