@@ -1940,7 +1940,14 @@ class Route extends FOGBase
             }
             switch ($classname) {
                 case 'host':
+                    if (isset($vars->mac)) {
+                        $vars->macs = array_merge(
+                            (array)$vars->mac,
+                            isset($vars->macs) ? (array)$vars->macs : []
+                        );
+                    }
                     if (isset($vars->macs)) {
+                        $vars->macs = array_unique((array)$vars->macs);
                         $class
                             ->removeMAC($vars->macs)
                             ->addPriMAC(array_shift($vars->macs))
