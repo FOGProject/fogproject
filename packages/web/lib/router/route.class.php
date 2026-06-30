@@ -2310,7 +2310,7 @@ class Route extends FOGBase
      */
     public static function setErrorMessage($message, $code = false)
     {
-        self::$data['error'] = $message;
+        self::$data = ['error' => $message];
         self::printer(self::$data, $code);
         exit;
     }
