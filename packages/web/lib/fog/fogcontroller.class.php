@@ -1107,42 +1107,6 @@ abstract class FOGController extends FOGBase
         $compare = '='
     ) {
         /**
-         * Lambda function to build the where array additionals.
-         *
-         * @param string $field the field to work from
-         * @param mixed  $value the value of the field
-         */
-        $whereInfo = function (
-            &$value,
-            $field
-        ) use (
-            &$whereArrayAnd,
-            &$c,
-            $not,
-            $compare
-        ) {
-            if (is_array($value)) {
-                $whereArrayAnd[] = sprintf(
-                    "`%s`.`%s` IN ('%s')",
-                    $c->databaseTable,
-                    $field,
-                    implode("','", $value)
-                );
-            } else {
-                if (strpos($value, '%')) {
-                    $compare = 'LIKE';
-                }
-                $whereArrayAnd[] = sprintf(
-                    "`%s`.`%s` %s '%s'",
-                    $c->databaseTable,
-                    $c->databaseFields[$field],
-                    $compare,
-                    $value
-                );
-            }
-            unset($value, $field);
-        };
-        /**
          * Lambda function to build the join of a query.
          *
          * @param string $class  the class to work from
@@ -1155,24 +1119,47 @@ abstract class FOGController extends FOGBase
             &$join,
             &$whereArrayAnd,
             &$c,
-            $whereInfo,
             $not,
             $compare
         ) {
             $className = strtolower($class);
             $c = self::getClass($class);
             if (!array_key_exists($className, $join)) {
+                // The relationship's optional 4th element is a filter on the
+                // joined (optional) table. It must live in the JOIN ON clause,
+                // not in WHERE: a WHERE condition on the right-hand table of a
+                // LEFT JOIN silently degrades it to an INNER JOIN, dropping the
+                // base row entirely when there is no matching joined row (e.g.
+                // a host with no primary MAC would fail to load at all).
+                $onExtra = '';
+                if (isset($fields[3]) && $fields[3]) {
+                    foreach ((array) $fields[3] as $filterField => $filterValue) {
+                        if (is_array($filterValue)) {
+                            $onExtra .= sprintf(
+                                " AND `%s`.`%s` IN ('%s')",
+                                $c->databaseTable,
+                                $c->databaseFields[$filterField],
+                                implode("','", $filterValue)
+                            );
+                        } else {
+                            $onExtra .= sprintf(
+                                " AND `%s`.`%s` = '%s'",
+                                $c->databaseTable,
+                                $c->databaseFields[$filterField],
+                                $filterValue
+                            );
+                        }
+                    }
+                }
                 $join[$className] = sprintf(
-                    ' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',
+                    ' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s`%s ',
                     $c->databaseTable,
                     $c->databaseTable,
                     $c->databaseFields[$fields[0]],
                     $this->databaseTable,
-                    $this->databaseFields[$fields[1]]
+                    $this->databaseFields[$fields[1]],
+                    $onExtra
                 );
-            }
-            if (isset($fields[3]) && $fields[3]) {
-                array_walk($fields[3], $whereInfo);
             }
             $c->buildQuery($join, $whereArrayAnd, $c, $not, $compare);
             unset($class, $fields, $c);

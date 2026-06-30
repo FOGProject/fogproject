@@ -284,6 +284,38 @@ class Host extends FOGController
         if ($this->isLoaded('snapins')) {
             $this->_appendSnapinSequence();
         }
+        // Safety net: never leave the host with MAC rows but no primary MAC.
+        // The primac join requires hmPrimary='1', so a host with no primary
+        // MAC cannot be loaded and becomes un-editable via the API/GUI. If an
+        // update (e.g. replacing the MAC set) removed the former primary,
+        // promote the first remaining approved (non-pending) MAC so the host
+        // stays reachable.
+        $hostID = $this->get('id');
+        if ($hostID) {
+            $primaryMacs = Route::getIds(
+                'macaddressassociation',
+                ['hostID' => $hostID, 'primary' => '1'],
+                'mac'
+            );
+            if (count((array)$primaryMacs) < 1) {
+                $approvedMacs = Route::getIds(
+                    'macaddressassociation',
+                    ['hostID' => $hostID, 'pending' => '0'],
+                    'mac'
+                );
+                if (count((array)$approvedMacs) > 0) {
+                    self::getClass('MACAddressAssociationManager')
+                        ->update(
+                            [
+                                'hostID' => $hostID,
+                                'mac' => array_shift($approvedMacs)
+                            ],
+                            '',
+                            ['primary' => '1']
+                        );
+                }
+            }
+        }
         return $this->load();
     }
     /**
