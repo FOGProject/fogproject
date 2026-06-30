@@ -1947,11 +1947,13 @@ class Route extends FOGBase
                         );
                     }
                     if (isset($vars->macs)) {
+                        // Set the primary MAC now (deferred via the 'mac' key
+                        // and persisted by save() once the host id exists).
+                        // Secondaries are added after save() below, when
+                        // $this->get('id') is valid — otherwise they would be
+                        // inserted with hmHostID=0 and orphaned.
                         $vars->macs = array_unique((array)$vars->macs);
-                        $class
-                            ->removeMAC($vars->macs)
-                            ->addPriMAC(array_shift($vars->macs))
-                            ->addMAC($vars->macs);
+                        $class->addPriMAC(array_shift($vars->macs));
                     }
                     if (isset($vars->snapins)) {
                         $class->addSnapin($vars->snapins);
@@ -2014,6 +2016,9 @@ class Route extends FOGBase
             if ($class->save()) {
                 $id = $class->get('id');
                 $class = new $class($id);
+                if ('host' === $classname && !empty($vars->macs)) {
+                    $class->addMAC($vars->macs);
+                }
             } else {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR

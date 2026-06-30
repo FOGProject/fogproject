@@ -228,6 +228,12 @@ class Host extends FOGController
      */
     public function save()
     {
+        if (!$this->isHostnameSafe()) {
+            throw new Exception(
+                _('Invalid hostname; must be 1-15 of these characters: ')
+                . 'a-z 0-9 ! @ # $ % ^ ( ) - \' { } . ~ _'
+            );
+        }
         parent::save();
         if (array_key_exists('mac', $this->data)) {
             self::getClass('MACAddressAssociation')

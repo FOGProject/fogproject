@@ -3512,6 +3512,9 @@ msgstr "host no válido"
 msgid "Invalid exit code received; defaulted to 1"
 msgstr ""
 
+msgid "Invalid hostname; must be 1-15 of these characters: "
+msgstr ""
+
 #, fuzzy
 msgid "Invalid image"
 msgstr "carpeta no válida"

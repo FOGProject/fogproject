@@ -3436,6 +3436,9 @@ msgstr "Anfitrião inválido"
 msgid "Invalid exit code received; defaulted to 1"
 msgstr ""
 
+msgid "Invalid hostname; must be 1-15 of these characters: "
+msgstr ""
+
 msgid "Invalid image"
 msgstr "imagem inválido"
 
