@@ -610,7 +610,7 @@ abstract class FOGService extends FOGBase
                             ['file' => base64_encode($remotefilename)]
                         );
                         $rhash = array_shift($rhash);
-                        if (strlen($rhash) == 64) {
+                        if (is_string($rhash) && strlen($rhash) == 64) {
                             $remotehash = $rhash;
                         } else {
                             // we should re-try HTTPS because we don't know about the storage node setup
@@ -626,7 +626,7 @@ abstract class FOGService extends FOGBase
                                 ['file' => base64_encode($remotefilename)]
                             );
                             $rhash = array_shift($rhash);
-                            if (strlen($rhash) == 64) {
+                            if (is_string($rhash) && strlen($rhash) == 64) {
                                 $remotehash = $rhash;
                             }
                         }

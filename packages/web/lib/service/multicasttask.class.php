@@ -371,7 +371,7 @@ class MulticastTask extends FOGService
         ) = self::getSetting($keys);
         return $this->altLog = sprintf(
             '/%s/%s.udpcast.%s',
-            trim($logpath, '/'),
+            trim((string)$logpath, '/'),
             $filenam,
             $this->getID()
         );
@@ -463,7 +463,7 @@ class MulticastTask extends FOGService
                 ip2long($address) + (
                     (
                         $this->getPortBase() / 2 + 1
-                    ) % self::getSetting('FOG_MULTICAST_MAX_SESSIONS')
+                    ) % max(1, (int)self::getSetting('FOG_MULTICAST_MAX_SESSIONS'))
                 )
             );
         }

@@ -156,7 +156,7 @@ class TaskScheduler extends FOGService
                 ' * '
                 . _('Checking for expired checked-in tasks...')
             );
-            $used = explode(',', self::getSetting('FOG_USED_TASKS'));
+            $used = explode(',', (string)self::getSetting('FOG_USED_TASKS'));
             $find = [
                 'stateID' => self::getCheckedInState(),
                 'typeID' => $used
