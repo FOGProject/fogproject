@@ -900,7 +900,7 @@ abstract class FOGService extends FOGBase
      */
     public function getPID($procRef)
     {
-        if (!$procRef) {
+        if (!is_resource($procRef)) {
             return false;
         }
         $ar = proc_get_status($procRef);
@@ -915,7 +915,7 @@ abstract class FOGService extends FOGBase
      */
     public function isRunning($procRef)
     {
-        if (!$procRef) {
+        if (!is_resource($procRef)) {
             return false;
         }
         $ar = proc_get_status($procRef);
@@ -937,7 +937,7 @@ abstract class FOGService extends FOGBase
      */
     public function getProcStatus($procRef)
     {
-        if (!$procRef) {
+        if (!is_resource($procRef)) {
             return false;
         }
         return proc_get_status($procRef);
