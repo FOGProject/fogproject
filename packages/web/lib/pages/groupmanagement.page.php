@@ -3242,7 +3242,7 @@ class GroupManagement extends FOGPage
                 $fields = self::fastmerge(
                     $fields,
                     [
-                        '<div class="hideFromDebug">'
+                        '<div class="hideFromDebug deploy-field-group">'
                         . self::makeLabel(
                             $labelClass,
                             'shutdown',

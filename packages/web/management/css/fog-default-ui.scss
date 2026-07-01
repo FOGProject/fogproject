@@ -366,6 +366,23 @@ header.main-header .mobile-logo {
 }
 
 // ---------------------------------------------------------------------------
+// Deploy / create-tasking forms
+// ---------------------------------------------------------------------------
+// The schedule-type groups (Schedule Later / Crontab Style / Start Time / Cron
+// Entry) and the "Shutdown when complete" checkbox are each wrapped in a
+// grouping <div> so the JS can show/hide them as a unit by toggling .d-none.
+// That wrapper sat *between* the Bootstrap .row and its .col-sm-3 label /
+// .col-sm-9 input, which broke the grid and stacked the label above the
+// control (while the ungrouped Wake Up / Schedule Immediately rows stayed
+// inline). display:contents removes the wrapper's own box so the label + input
+// rejoin the parent .row and render with the same [Label] : [Input] two-column
+// layout as every other row. Toggling is unaffected: .d-none resolves to
+// display:none !important, which still wins over contents.
+.deploy-field-group {
+  display: contents;
+}
+
+// ---------------------------------------------------------------------------
 // Loading overlay / spinner
 // ---------------------------------------------------------------------------
 .overlay, #loadingOverlay {

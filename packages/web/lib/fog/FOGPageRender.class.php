@@ -459,7 +459,7 @@ trait FOGPageRender
             $fields = self::fastmerge(
                 $fields,
                 [
-                    '<div class="hideFromDebug">'
+                    '<div class="hideFromDebug deploy-field-group">'
                     . self::makeLabel(
                         $labelClass,
                         'delayed',
@@ -473,7 +473,7 @@ trait FOGPageRender
                         'single'
                     )
                     . '</div>',
-                    '<div class="delayedinput d-none">'
+                    '<div class="delayedinput d-none deploy-field-group">'
                     . self::makeLabel(
                         $labelClass,
                         'delayedinput',
@@ -487,7 +487,7 @@ trait FOGPageRender
                         ''
                     )
                     . '</div>',
-                    '<div class="hideFromDebug">'
+                    '<div class="hideFromDebug deploy-field-group">'
                     . self::makeLabel(
                         $labelClass,
                         'cron',
@@ -501,7 +501,7 @@ trait FOGPageRender
                         'cron'
                     )
                     . '</div>',
-                    '<div class="croninput d-none">'
+                    '<div class="croninput d-none deploy-field-group">'
                     . self::makeLabel(
                         $labelClass,
                         'cronMin',
