@@ -832,28 +832,25 @@ abstract class FOGService extends FOGBase
                 unset($close);
             }
             unset($this->procPipes[$index]);
-            if ($this->isRunning($this->procRef[$index])) {
-                $pid = $this->getPID($this->procRef[$index]);
+            // procRef may be an array keyed by $index or a single resource
+            // (the multicast path collapses it to one resource via
+            // array_shift). Resolve to a single reference so we never index
+            // into a resource, which emits a warning under PHP 8.
+            $procRef = is_array($this->procRef)
+                ? ($this->procRef[$index] ?? null)
+                : $this->procRef;
+            if ($this->isRunning($procRef)) {
+                $pid = $this->getPID($procRef);
                 if ($pid) {
                     $this->killAll($pid, SIGTERM);
                 }
-                proc_terminate($this->procRef[$index], SIGTERM);
-                proc_close($this->procRef[$index]);
-                return (bool)$this->isRunning($this->procRef[$index]);
-            } elseif ($this->isRunning($this->procRef)) {
-                $pid = $this->getPID($this->procRef);
-                if ($pid) {
-                    $this->killAll($pid, SIGTERM);
-                }
-                proc_terminate($this->procRef, SIGTERM);
-                proc_close($this->procRef);
-                return (bool)$this->isRunning($this->procRef);
+                proc_terminate($procRef, SIGTERM);
+                proc_close($procRef);
+                return false;
             }
             // Process already exited — release the resource.
-            if (is_resource($this->procRef[$index])) {
-                proc_close($this->procRef[$index]);
-            } elseif (is_resource($this->procRef)) {
-                proc_close($this->procRef);
+            if (is_resource($procRef)) {
+                proc_close($procRef);
             }
         } else {
             if (isset($this->procRef[$itemType])
