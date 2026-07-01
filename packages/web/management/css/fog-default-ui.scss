@@ -459,6 +459,37 @@ dd {
   margin-top: 15px;
 }
 
+// The FOG Settings cache-stats dl carries very long values — most notably
+// the full comma-separated list of cached setting keys. Grid items default
+// to min-width:auto, so without this those values can't shrink and force the
+// whole card to scroll sideways. Let them shrink and wrap, and stack the
+// key/value pairs into a single column on narrow (mobile) screens.
+.dl-spaced dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+// The cached-keys list is collapsed behind a <details> summary showing the
+// count; the names only render (and wrap) once expanded.
+.cached-keys > summary {
+  cursor: pointer;
+}
+.cached-keys[open] > summary {
+  margin-bottom: 4px;
+}
+@media (max-width: 767px) {
+  .dl-spaced {
+    grid-template-columns: 1fr;
+  }
+  .dl-spaced dt {
+    padding-right: 0;
+  }
+  .dl-spaced dd {
+    grid-column-start: 1;
+    margin-left: 0;
+    margin-bottom: 10px;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // FOG Settings — left category nav + form panels
 // ---------------------------------------------------------------------------

@@ -1879,10 +1879,16 @@ class FOGConfigurationPage extends FOGPage
                 : (int) $flushAge . 's ' . _('ago'))
             . '</dd>';
         if (count($stats['cachedKeys']) > 0) {
+            // Collapsed by default: this list can run to hundreds of keys and
+            // would otherwise dominate the panel (worst on mobile). The count
+            // stays visible in the summary; tap/click to expand the names.
             echo '<dt>' . _('Cached keys') . '</dt><dd>'
+                . '<details class="cached-keys">'
+                . '<summary>' . (int) count($stats['cachedKeys'])
+                . ' ' . _('keys') . '</summary>'
                 . '<small class="text-muted">'
                 . Initiator::e(implode(', ', array_keys($stats['cachedKeys'])))
-                . '</small></dd>';
+                . '</small></details></dd>';
         }
         echo '</dl>';
         echo '</div>';

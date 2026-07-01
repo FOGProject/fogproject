@@ -7315,6 +7315,9 @@ msgstr "avvia i computer client"
 msgid "key"
 msgstr "chiave"
 
+msgid "keys"
+msgstr ""
+
 msgid "limited to 1Mbps on that node"
 msgstr "limitata a 1Mbps su quel nodo"
 

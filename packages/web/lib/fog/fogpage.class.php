@@ -2682,7 +2682,13 @@ abstract class FOGPage extends FOGBase
             );
         }
         $this->jsonHookResponse(
-            [$this->childClass => &$this->obj],
+            [
+                $this->childClass => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
             $hook
         );
     }

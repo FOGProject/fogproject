@@ -7667,6 +7667,9 @@ msgstr ""
 msgid "key"
 msgstr "DMI关键"
 
+msgid "keys"
+msgstr ""
+
 msgid "limited to 1Mbps on that node"
 msgstr ""
 

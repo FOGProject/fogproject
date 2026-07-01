@@ -7688,6 +7688,9 @@ msgstr "die Client Computer in den FOG"
 msgid "key"
 msgstr "aktiviert werden."
 
+msgid "keys"
+msgstr ""
+
 msgid "limited to 1Mbps on that node"
 msgstr "auf 1 MBit/s begrenzen, "
 
