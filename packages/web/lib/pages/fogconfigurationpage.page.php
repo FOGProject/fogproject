@@ -1928,7 +1928,7 @@ class FOGConfigurationPage extends FOGPage
 
         // Left category nav.
         echo '<div class="col-md-3 col-sm-4 settings-nav-col">';
-        echo '<ul class="nav nav-pills nav-stacked" id="settings-nav">';
+        echo '<ul class="nav nav-pills flex-column" id="settings-nav">';
         $first = true;
         foreach ($byCat as $cat => $catRows) {
             echo '<li class="settings-nav-item' . ($first ? ' active' : '') . '">'
