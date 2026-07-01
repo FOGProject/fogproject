@@ -10,14 +10,21 @@
   // measures width at init time, so any slider built while its panel was
   // hidden renders at zero width until relaid out.
   function relayoutVisibleSliders() {
-    $('.settings-panel:not(.d-none) .slider').each(function() {
+    $('#settings-content .slider:visible').each(function() {
       try {
         $(this).slider('relayout');
       } catch (e) {}
     });
   }
 
-  // Show a single category panel (nav mode). Falls back to the first
+  function isMobile() {
+    return window.matchMedia
+      && window.matchMedia('(max-width: 767px)').matches;
+  }
+
+  // Select a category. On desktop this is the single visible panel; on mobile
+  // it is the expanded accordion section. Visibility itself is driven by CSS
+  // off the .active class + the .searching mode flag. Falls back to the first
   // category when the requested one is gone (e.g. after a body reload).
   function showCategory(cat) {
     var $navItems = $('#settings-nav li'),
@@ -35,8 +42,9 @@
       $first.addClass('active');
     }
     activeCat = cat;
+    $('.settings-layout').removeClass('searching');
     $('.settings-panel').each(function() {
-      $(this).toggleClass('d-none', $(this).attr('data-cat') !== cat);
+      $(this).toggleClass('active', $(this).attr('data-cat') === cat);
     });
     $('.settings-noresults').addClass('d-none');
     relayoutVisibleSliders();
@@ -48,9 +56,11 @@
     term = (term || '').trim().toLowerCase();
     if (term === '') {
       $('.settings-row').removeClass('d-none');
+      $('.settings-panel').removeClass('d-none');
       showCategory(activeCat);
       return;
     }
+    $('.settings-layout').addClass('searching');
     $('#settings-nav li').removeClass('active');
     var anyVisible = false;
     $('.settings-panel').each(function() {
@@ -177,6 +187,21 @@
     $('#settings-search').val('');
     $('.settings-row').removeClass('d-none');
     showCategory($(this).attr('data-cat'));
+  });
+  // Mobile accordion: the panel title toggles its own section. No-op on
+  // desktop (the side-nav drives selection there) and while searching.
+  $('#settings-content').on('click', '.settings-panel-title', function() {
+    if (!isMobile() || $('#settings-search').val().trim() !== '') {
+      return;
+    }
+    var cat = $(this).attr('data-cat');
+    if (cat === activeCat) {
+      activeCat = null;
+      $('.settings-panel').removeClass('active');
+      $('#settings-nav li').removeClass('active');
+      return;
+    }
+    showCategory(cat);
   });
   $('#settings-search').on('input', function() {
     applySearch($(this).val());

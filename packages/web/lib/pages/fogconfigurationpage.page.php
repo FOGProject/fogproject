@@ -1945,10 +1945,16 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="col-md-9 col-sm-8 settings-panel-col">';
         $first = true;
         foreach ($byCat as $cat => $catRows) {
-            echo '<div class="settings-panel' . ($first ? '' : ' d-none') . '" '
+            echo '<div class="settings-panel' . ($first ? ' active' : '') . '" '
                 . 'data-cat="' . Initiator::e($cat) . '">';
-            echo '<h4 class="settings-panel-title">'
-                . Initiator::e($cat) . '</h4>';
+            // Doubles as a section heading on desktop and an accordion toggle
+            // on mobile (see fog.about.settings.js / fog-default-ui.scss).
+            echo '<h4 class="settings-panel-title" '
+                . 'data-cat="' . Initiator::e($cat) . '">'
+                . '<span>' . Initiator::e($cat) . '</span>'
+                . '<i class="fa fa-chevron-down settings-panel-caret"></i>'
+                . '</h4>';
+            echo '<div class="settings-panel-body">';
             foreach ($catRows as $row) {
                 $desc = trim((string) $row['settingDesc']);
                 $input = self::_renderSettingInput(
@@ -1976,7 +1982,8 @@ class FOGConfigurationPage extends FOGPage
                 echo '<div class="settings-control">' . $input . '</div>';
                 echo '</div>';
             }
-            echo '</div>';
+            echo '</div>'; // .settings-panel-body
+            echo '</div>'; // .settings-panel
             $first = false;
         }
         echo '<div class="settings-noresults d-none text-muted">'

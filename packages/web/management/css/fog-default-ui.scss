@@ -447,6 +447,7 @@ dd {
 // ---------------------------------------------------------------------------
 .settings-search-box {
   width: 220px;
+  max-width: 100%;
 }
 .settings-nav-col .nav-pills > li > a {
   padding: 6px 10px;
@@ -467,6 +468,10 @@ dd {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--fog-border-light);
 }
+// The accordion caret is mobile-only; the title is a plain heading on desktop.
+.settings-panel-caret {
+  display: none;
+}
 .settings-row .settings-label {
   font-weight: 600;
   word-break: break-all;
@@ -474,11 +479,68 @@ dd {
 .settings-noresults {
   padding: 15px;
 }
+
+// Desktop: left side-nav + a single visible panel. A search shows every
+// matching category at once, so only suppress non-active panels when NOT
+// searching.
 @media (min-width: 768px) {
   .settings-nav-col {
     border-right: 1px solid var(--fog-border-light);
     max-height: 70vh;
     overflow-y: auto;
+  }
+  .settings-layout:not(.searching) .settings-panel:not(.active) {
+    display: none;
+  }
+}
+
+// Mobile: drop the side-nav and turn each category into a tappable accordion
+// section. Only the active section's body is expanded; a search expands every
+// matching section (empty ones get .d-none from the JS, which wins via
+// !important).
+@media (max-width: 767px) {
+  .settings-nav-col {
+    display: none;
+  }
+  .settings-panel-col {
+    width: 100%;
+    float: none;
+  }
+  .settings-panel {
+    border: 1px solid var(--fog-border-light);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .settings-panel-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+    padding: 12px 15px;
+    border-bottom: 0;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .settings-panel-caret {
+    display: inline-block;
+    margin-left: 8px;
+    transition: transform 0.15s ease;
+  }
+  .settings-panel.active .settings-panel-caret {
+    transform: rotate(180deg);
+  }
+  .settings-panel-body {
+    padding: 0 15px 12px;
+  }
+  // Collapse every section that isn't the active one (nav mode). During a
+  // search the .searching flag lifts this so all matched sections stay open.
+  .settings-layout:not(.searching) .settings-panel:not(.active)
+    .settings-panel-body {
+    display: none;
+  }
+  .settings-layout:not(.searching) .settings-panel.active
+    .settings-panel-title {
+    border-bottom: 1px solid var(--fog-border-light);
   }
 }
 
