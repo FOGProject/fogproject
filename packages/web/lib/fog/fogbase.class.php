@@ -594,13 +594,15 @@ abstract class FOGBase
         //if (!$sysserial) {
         //    $sysserial = filter_input(INPUT_GET, 'sysserial');
         //}
-        // If encoded decode and store value
-        if ($encoded === true) {
-            $mac = base64_decode($mac);
-            //$sysuuid = base64_decode($sysuuid);
-            //$mbserial = base64_decode($mbserial);
-            //$sysserial = base64_decode($sysserial);
-        }
+        // Normalize the mac. stripAndDecode() rewrites $_REQUEST, but the mac
+        // is read here from the raw request via filter_input() (or passed in
+        // explicitly), which that rewrite never touches. FOS base64-encodes
+        // the mac on some paths (registration, deploy) and sends it plain on
+        // others (checkin, inventory task), so decode it conditionally the
+        // same way stripAndDecode() does: use the decoded value only when it
+        // is valid, else keep the plain value. The legacy $encoded flag is now
+        // redundant but kept for call-signature compatibility.
+        $mac = self::stripAndDecodeItem($mac);
         // See if we can find the host by system uuid rather than by mac's first.
         /*if ($sysuuid) {
             $Inventory = self::getClass('Inventory')
@@ -2594,18 +2596,38 @@ abstract class FOGBase
     public static function stripAndDecode(&$item)
     {
         foreach ((array) $item as $key => &$val) {
-            $tmp = str_replace(' ', '+', $val);
-            $tmp = base64_decode($tmp);
-            $tmp = trim($tmp);
-            if (mb_detect_encoding($tmp, 'utf-8', true)) {
-                $val = $tmp;
-            }
-            unset($tmp);
-            $item[$key] = Initiator::e(trim($val));
+            $item[$key] = self::stripAndDecodeItem($val);
             unset($val);
         }
 
         return $item;
+    }
+    /**
+     * Strips and decodes a single value.
+     *
+     * The client base64-encodes some values and sends others plain, so the
+     * decode is conditional: the decoded bytes are used only when they are
+     * valid UTF-8, otherwise the original (plain) value is kept. The result
+     * is then sanitized the same way every request value is. Exposed so code
+     * that reads a raw request value directly (e.g. filter_input(), which is
+     * not affected by stripAndDecode() rewriting $_REQUEST) can normalize it
+     * identically.
+     *
+     * @param mixed $val the value to strip and decode
+     *
+     * @return string
+     */
+    public static function stripAndDecodeItem($val)
+    {
+        $val = (string) ($val ?? '');
+        $tmp = str_replace(' ', '+', $val);
+        $tmp = base64_decode($tmp);
+        $tmp = trim($tmp);
+        if (mb_detect_encoding($tmp, 'utf-8', true)) {
+            $val = $tmp;
+        }
+
+        return Initiator::e(trim($val));
     }
     /**
      * Gets the master interface based on the ip found.
