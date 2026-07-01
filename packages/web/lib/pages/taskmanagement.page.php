@@ -333,8 +333,70 @@ class TaskManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        Route::active('snapintask');
-        echo Route::getData();
+
+        $states = self::getQueuedStates();
+        $states[] = self::getProgressState();
+        $stateList = implode(
+            ',',
+            array_map('intval', (array)$states)
+        );
+
+        $where = "`snapinTasks`.`stState` IN ($stateList)";
+
+        // Join snapins/hosts so the snapin and host NAMES are real, sortable
+        // columns (the generic snapintask listing only exposes their IDs, so
+        // sorting by "name" silently sorted by ID). Mirrors getActiveTasks().
+        $joins = "LEFT OUTER JOIN `snapins`
+            ON `snapinTasks`.`stSnapinID` = `snapins`.`sID`
+            LEFT OUTER JOIN `snapinJobs`
+            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
+            LEFT OUTER JOIN `hosts`
+            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `taskStates`
+            ON `snapinTasks`.`stState` = `taskStates`.`tsID`";
+        $snapinSqlStr = "SELECT `%s`
+            FROM `%s`
+            $joins
+            %s
+            %s
+            %s";
+        $snapinFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            $joins
+            %s";
+        $snapinTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            $joins
+            WHERE $where";
+        $columns = [
+            ['db' => 'stID', 'dt' => 'id'],
+            [
+                'db' => 'stID',
+                'dt' => 'DT_RowId',
+                'formatter' => function ($d, $row) {
+                    return 'row_' . $d;
+                }
+            ],
+            ['db' => 'stSnapinID', 'dt' => 'snapinid'],
+            ['db' => 'sName', 'dt' => 'snapinname'],
+            ['db' => 'hostID', 'dt' => 'hostid'],
+            ['db' => 'hostName', 'dt' => 'hostname'],
+            ['db' => 'stCheckinDate', 'dt' => 'checkin'],
+            ['db' => 'tsName', 'dt' => 'taskstatename'],
+            ['db' => 'tsIcon', 'dt' => 'taskstateicon'],
+        ];
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'snapinTasks',
+                'stID',
+                $columns,
+                $snapinSqlStr,
+                $snapinFilterStr,
+                $snapinTotalStr,
+                $where
+            )
+        ));
     }
     /**
      * Get the scheduled tasks list.

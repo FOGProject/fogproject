@@ -98,7 +98,6 @@
 
     var storagegroupImagesTable = $('#storagegroup-image-table').registerTable(onImageSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -200,7 +199,6 @@
 
     var storagegroupImagesPrimaryTable = $('#storagegroup-image-primary-table').registerTable(onImagePrimarySelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -331,7 +329,6 @@
 
     var storagegroupSnapinsTable = $('#storagegroup-snapin-table').registerTable(onSnapinSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -433,7 +430,6 @@
 
     var storagegroupSnapinsPrimaryTable = $('#storagegroup-snapin-primary-table').registerTable(onSnapinPrimarySelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -565,7 +561,6 @@
 
     var storagegroupStoragenodesTable = $('#storagegroup-storagenode-table').registerTable(onStoragenodeSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [

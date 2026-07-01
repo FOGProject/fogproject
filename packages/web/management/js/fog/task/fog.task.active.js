@@ -40,7 +40,8 @@
     // list (server-side only ever sends the current viewport window anyway).
     deferRender: false,
     order: [
-      [0, 'asc']
+      [0, 'asc'],
+      [4, 'desc']
     ],
     columns: [
       {data: 'hostname'},

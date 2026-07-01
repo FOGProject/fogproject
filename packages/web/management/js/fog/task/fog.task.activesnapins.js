@@ -22,11 +22,12 @@
     disableButtons(true);
     var table = $('#active-snapintasks-table').registerTable(onSelect, {
         order: [
-            [0, 'asc']
+            [0, 'asc'],
+            [2, 'desc']
         ],
         columns: [
-            {data: 'snapinLink'},
-            {data: 'hostLink'},
+            {data: 'snapinname'},
+            {data: 'hostname'},
             {data: 'checkin'},
             {data: 'taskstatename'}
         ],
@@ -37,7 +38,7 @@
                     return '<a href="../management/index.php?node=snapin&sub=edit&id='
                         + row.snapinid
                         + '">'
-                        + data
+                        + '(' + row.snapinid + ') - ' + data
                         + '</a>';
                 },
                 targets: 0
@@ -47,7 +48,7 @@
                     return '<a href="../management/index.php?node=host&sub=edit&id='
                         + row.hostid
                         + '">'
-                        + data
+                        + '(' + row.hostid + ') - ' + data
                         + '</a>';
                 },
                 targets: 1

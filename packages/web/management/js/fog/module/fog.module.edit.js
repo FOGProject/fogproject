@@ -96,7 +96,6 @@ $(function() {
 
     var moduleHostsTable = $('#module-host-table').registerTable(onHostSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [

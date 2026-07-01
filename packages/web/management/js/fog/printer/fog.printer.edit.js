@@ -166,7 +166,6 @@
 
     var printerHostsTable = $('#printer-host-table').registerTable(onHostSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -268,7 +267,6 @@
 
     var printerHostsDefaultTable = $('#printer-host-default-table').registerTable(onHostDefaultSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [

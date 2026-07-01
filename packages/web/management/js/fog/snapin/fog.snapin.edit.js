@@ -207,7 +207,6 @@
 
     var snapinHostsTable = $('#snapin-host-table').registerTable(onHostSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -312,7 +311,6 @@
 
     var snapinStoragegroupsTable = $('#snapin-storagegroup-table').registerTable(onStoragegroupSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [

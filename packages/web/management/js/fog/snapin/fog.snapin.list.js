@@ -18,7 +18,7 @@
     disableButtons(true);
     var table = $('#dataTable').registerTable(onSelect, {
         order: [
-            [2, 'asc']
+            [0, 'asc']
         ],
         columns: [
             {data: 'mainlink'},

@@ -121,7 +121,6 @@
 
     var imageHostsTable = $('#image-host-table').registerTable(onHostSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -223,7 +222,6 @@
 
     var imageStoragegroupsTable = $('#image-storagegroup-table').registerTable(onStoragegroupSelect, {
         order: [
-            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
