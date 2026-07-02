@@ -55,7 +55,8 @@ class MulticastSessionManager extends FOGManagerController
                 '',
                 [
                     'stateID' => $cancelled,
-                    'checkInTime' => self::niceDate()->format('Y-m-d H:i:s')
+                    'checkInTime' => self::niceDate()->format('Y-m-d H:i:s'),
+                    'stateChangedTime' => self::niceDate()->format('Y-m-d H:i:s')
                 ]
             );
         /*

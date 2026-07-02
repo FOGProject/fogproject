@@ -109,28 +109,28 @@
         {
           responsivePriority: -1,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + data + '</a>';
+            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + escapeHtml(data) + '</a>';
           },
           targets: 0
         },
         {
           responsivePriority: 0,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + data + '</a>';
+            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + escapeHtml(data) + '</a>';
           },
           targets: 1
         },
         {
           responsivePriority: 1,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeid + '">' + data + '</a>';
+            return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeid + '">' + escapeHtml(data) + '</a>';
           },
           targets: 2
         },
         {
           responsivePriority: 2,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + data + '</a>';
+            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + escapeHtml(data) + '</a>';
           },
           targets: 3
         },
@@ -344,7 +344,7 @@
             if (!row.hostid) {
               return escapeHtml(data);
             }
-            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + data + '</a>';
+            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + escapeHtml(data) + '</a>';
           },
           targets: 0
         },
@@ -354,14 +354,14 @@
             if (!row.imageid) {
               return escapeHtml(data);
             }
-            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + data + '</a>';
+            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + escapeHtml(data) + '</a>';
           },
           targets: 1
         },
         {
           render: function(data, type, row) {
-            return (data || '')
-              + ' <i class="fa fa-' + row.tasktypeicon + '"></i> ';
+            return escapeHtml(data || '')
+              + ' <i class="fa fa-' + escapeHtml(row.tasktypeicon || '') + '"></i> ';
           },
           targets: 2
         },
@@ -370,14 +370,14 @@
             if (!row.userid) {
               return escapeHtml(data);
             }
-            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + data + '</a>';
+            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + escapeHtml(data) + '</a>';
           },
           targets: 3
         },
         {
           render: function(data, type, row) {
-            return (data || '')
-              + ' <i class="fa fa-' + row.taskstateicon + '"></i> ';
+            return escapeHtml(data || '')
+              + ' <i class="fa fa-' + escapeHtml(row.taskstateicon || '') + '"></i> ';
           },
           targets: 4
         },
