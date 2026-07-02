@@ -1092,6 +1092,11 @@ msgstr "System Serial"
 msgid "Case Version"
 msgstr "Latest Version"
 
+msgid ""
+"Changing this setting takes effect after you reload the page. A hard refresh "
+"(Ctrl+F5, or Cmd+Shift+R) may be required."
+msgstr ""
+
 msgid "Channel"
 msgstr ""
 

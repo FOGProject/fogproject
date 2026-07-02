@@ -1084,10 +1084,30 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_IP' => true,
         ];
 
+        // Settings whose value is baked into the page shell (other/index.php)
+        // or the theme CSS loaded in the <head>. The settings page only reloads
+        // its own fragment after a save, so these do not visibly apply until the
+        // whole page is reloaded. Each was verified to be actively consumed:
+        //   FOG_THEME              -> page.class.php loads css/$FOG_THEME
+        //   FOG_VIEW_DEFAULT_SCREEN-> shell #pageLength (other/index.php)
+        //   FOG_TABLE_SCROLL_MODE  -> shell #scrollMode (other/index.php)
+        //   FOG_PLUGINSYS_ENABLED  -> plugin menus/pages loaded at boot
+        $refresh = [
+            'FOG_THEME' => true,
+            'FOG_VIEW_DEFAULT_SCREEN' => true,
+            'FOG_TABLE_SCROLL_MODE' => true,
+            'FOG_PLUGINSYS_ENABLED' => true,
+        ];
+        self::$HookManager->processEvent(
+            'NEEDSPAGEREFRESH',
+            ['needspagerefresh' => &$refresh]
+        );
+
         return [
             'checkbox' => $checkbox,
             'numeric' => $numeric,
             'ip' => $ip,
+            'refresh' => $refresh,
         ];
     }
     /**
@@ -1910,6 +1930,11 @@ class FOGConfigurationPage extends FOGPage
         $meta = $this->_settingsMeta();
         $needstobecheckbox = $meta['checkbox'];
         $needstobenumeric = $meta['numeric'];
+        $needsrefresh = $meta['refresh'];
+        $refreshtip = _(
+            'Changing this setting takes effect after you reload the page. '
+            . 'A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required.'
+        );
 
         $table = self::getClass('SettingManager')->getTable();
         $sql = 'SELECT `settingID`, `settingKey`, `settingDesc`, '
@@ -1963,6 +1988,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="settings-panel-body">';
             foreach ($catRows as $row) {
                 $desc = trim((string) $row['settingDesc']);
+                $wantsrefresh = isset($needsrefresh[$row['settingKey']]);
                 $input = self::_renderSettingInput(
                     $row,
                     $needstobenumeric,
@@ -1970,21 +1996,37 @@ class FOGConfigurationPage extends FOGPage
                 );
                 // Search haystack: key + description + value. Value is capped
                 // so a setting holding a long blob can't bloat the attribute.
+                // "refresh reload" lets the search box surface the flagged ones.
                 $haystack = strtolower(
                     $row['settingKey'] . ' ' . $desc . ' '
                     . substr((string) $row['settingValue'], 0, 200)
+                    . ($wantsrefresh ? ' refresh reload hard refresh' : '')
                 );
+                // One tooltip per label: the description, with the reload note
+                // appended for flagged settings. Keeping it on the label (not a
+                // nested icon) avoids two overlapping tooltips on the same row.
+                $tip = $desc;
+                if ($wantsrefresh) {
+                    $tip .= ($tip !== '' ? '  —  ' : '') . $refreshtip;
+                }
                 echo '<div class="form-group settings-row" '
                     . 'data-search="'
                     . Initiator::e($haystack)
                     . '">';
                 echo '<label class="col-form-label settings-label" for="'
                     . Initiator::e($row['settingKey']) . '"';
-                if ($desc !== '') {
+                if ($tip !== '') {
                     echo ' data-bs-toggle="tooltip" data-bs-placement="top" title="'
-                        . Initiator::e($desc) . '"';
+                        . Initiator::e($tip) . '"';
                 }
-                echo '>' . Initiator::e($row['settingKey']) . '</label>';
+                echo '>' . Initiator::e($row['settingKey']);
+                if ($wantsrefresh) {
+                    // Visual marker only (no own tooltip); the label tooltip
+                    // above already carries the reload note.
+                    echo ' <i class="fa fa-refresh text-muted settings-refresh-note"'
+                        . ' aria-hidden="true"></i>';
+                }
+                echo '</label>';
                 echo '<div class="settings-control">' . $input . '</div>';
                 echo '</div>';
             }
