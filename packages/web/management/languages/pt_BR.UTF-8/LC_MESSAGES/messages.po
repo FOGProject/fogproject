@@ -433,10 +433,6 @@ msgstr "Ativo"
 msgid "Active Directory"
 msgstr "Active Directory"
 
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "Tarefas Multicast ativos"
-
 msgid "Active Multicast Tasks"
 msgstr "Tarefas Multicast ativos"
 
@@ -659,6 +655,10 @@ msgstr "Todos os grupos de armazenamento"
 msgid "All Storage Nodes"
 msgstr "Todos os nós de armazenamento"
 
+#, fuzzy
+msgid "All Types"
+msgstr "Tipo de módulo"
+
 msgid "All files synced for this item"
 msgstr ""
 
@@ -865,6 +865,9 @@ msgstr "Opções de inicialização:"
 msgid "Boot files from"
 msgstr ""
 
+msgid "Both"
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Nome transmissão"
@@ -997,6 +1000,10 @@ msgstr "Delete Selected"
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Cancelled"
+msgstr "tarefa cancelada"
 
 msgid "Cancelled due to new tasking."
 msgstr "Cancelado devido à nova tarefa."
@@ -3155,6 +3162,10 @@ msgid "Images"
 msgstr "imagens"
 
 #, fuzzy
+msgid "Imaging"
+msgstr "imagiologia Log"
+
+#, fuzzy
 msgid "Imaging Completed"
 msgstr "após a conclusão da tarefa"
 
@@ -4649,6 +4660,9 @@ msgstr ""
 msgid "Organizational Unit"
 msgstr "Unidade organizacional"
 
+msgid "Other"
+msgstr ""
+
 #, fuzzy
 msgid "Other Primary"
 msgstr "MAC primária"
@@ -5127,6 +5141,10 @@ msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Receive"
+msgstr "Receber"
+
+#, fuzzy
+msgid "Recent"
 msgstr "Receber"
 
 #, fuzzy
@@ -5930,6 +5948,10 @@ msgstr ""
 
 msgid "State"
 msgstr "Estado"
+
+#, fuzzy
+msgid "State filter"
+msgstr "atualização da impressora falhou!"
 
 msgid "Status"
 msgstr "estado"
@@ -7267,6 +7289,9 @@ msgstr "Hospedar de Chave de Produto"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
+msgid "Wipes"
+msgstr ""
+
 msgid "Yearly"
 msgstr "Anual"
 
@@ -8010,6 +8035,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Uma imagem já existe com este nome!"
+
+#, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Tarefas Multicast ativos"
 
 #, fuzzy
 #~ msgid "Add Selected"

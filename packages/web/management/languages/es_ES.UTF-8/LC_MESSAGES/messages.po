@@ -436,10 +436,6 @@ msgid "Active Directory"
 msgstr "Directorio Activo"
 
 #, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "MulticastTask"
-
-#, fuzzy
 msgid "Active Multicast Tasks"
 msgstr "MulticastTask"
 
@@ -671,6 +667,10 @@ msgstr "Grupo de almacenamiento"
 msgid "All Storage Nodes"
 msgstr "nodo de almacenamiento"
 
+#, fuzzy
+msgid "All Types"
+msgstr "Tipo de módulo"
+
 msgid "All files synced for this item"
 msgstr ""
 
@@ -876,6 +876,9 @@ msgstr "Opciones de arranque:"
 msgid "Boot files from"
 msgstr ""
 
+msgid "Both"
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Nombre de host"
@@ -1010,6 +1013,10 @@ msgstr "Eliminar seleccionado"
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Eliminar seleccionado"
+
+#, fuzzy
+msgid "Cancelled"
+msgstr "tarea Cancelado"
 
 msgid "Cancelled due to new tasking."
 msgstr "Cancelada debido a las nuevas tareas a la vez."
@@ -3226,6 +3233,10 @@ msgid "Images"
 msgstr "Imagen"
 
 #, fuzzy
+msgid "Imaging"
+msgstr "Transferencia de imágenes Entrar"
+
+#, fuzzy
 msgid "Imaging Completed"
 msgstr "después de la realización de tareas"
 
@@ -4760,6 +4771,9 @@ msgstr ""
 msgid "Organizational Unit"
 msgstr "Unidad organizacional"
 
+msgid "Other"
+msgstr ""
+
 #, fuzzy
 msgid "Other Primary"
 msgstr "usuario principal"
@@ -5248,6 +5262,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Receive"
+msgstr "retirar"
+
+#, fuzzy
+msgid "Recent"
 msgstr "retirar"
 
 #, fuzzy
@@ -6068,6 +6086,10 @@ msgstr ""
 
 msgid "State"
 msgstr "Estado"
+
+#, fuzzy
+msgid "State filter"
+msgstr "actualización de la impresora ha fallado!"
 
 msgid "Status"
 msgstr "Estado"
@@ -7416,6 +7438,9 @@ msgstr "Clave del producto Grupo"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
+msgid "Wipes"
+msgstr ""
+
 msgid "Yearly"
 msgstr "Anual"
 
@@ -8155,6 +8180,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "MulticastTask"
 
 #, fuzzy
 #~ msgid "Add Selected"

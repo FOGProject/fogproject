@@ -826,7 +826,12 @@ class Host extends FOGController
                     )
                 ],
                 '',
-                ['stateID' => self::getCancelledState()]
+                [
+                    'stateID' => self::getCancelledState(),
+                    'stateChangedTime' => self::niceDate()->format(
+                        'Y-m-d H:i:s'
+                    )
+                ]
             );
     }
     /**

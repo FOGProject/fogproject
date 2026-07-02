@@ -60,7 +60,10 @@ class TaskManager extends FOGManagerController
         $this->update(
             $findWhere,
             '',
-            ['stateID' => $cancelled]
+            [
+                'stateID' => $cancelled,
+                'stateChangedTime' => self::niceDate()->format('Y-m-d H:i:s')
+            ]
         );
         $findWhere = [
             'hostID' => $hostIDs,

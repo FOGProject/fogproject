@@ -22,13 +22,6 @@
 class TaskManagement extends FOGPage
 {
     /**
-     * The buttons elements are more or less common
-     * to all of the pages.
-     *
-     * @var string
-     */
-    private $_buttons = '';
-    /**
      * The node this page works with.
      *
      * @var string
@@ -45,6 +38,203 @@ class TaskManagement extends FOGPage
     {
         $this->name = 'Task Management';
         parent::__construct($this->name);
+    }
+    /**
+     * The default landing: the tabbed task view.
+     *
+     * @param mixed ...$args Unused, signature match with FOGPage.
+     *
+     * @return void
+     */
+    public function index(...$args)
+    {
+        $this->_tabbed('active');
+    }
+    /**
+     * Legacy deep link: pre-select the active tasks tab.
+     *
+     * @return void
+     */
+    public function active()
+    {
+        $this->_tabbed('active');
+    }
+    /**
+     * Legacy deep link: pre-select the multicast tab.
+     *
+     * @return void
+     */
+    public function activemulticast()
+    {
+        $this->_tabbed('multicast');
+    }
+    /**
+     * Legacy deep link: pre-select the snapins tab.
+     *
+     * @return void
+     */
+    public function activesnapins()
+    {
+        $this->_tabbed('snapins');
+    }
+    /**
+     * Legacy deep link: pre-select the scheduled tab.
+     *
+     * @return void
+     */
+    public function activescheduled()
+    {
+        $this->_tabbed('scheduled');
+    }
+    /**
+     * Legacy deep link: pre-select the path deletions tab.
+     *
+     * @return void
+     */
+    public function activescheduleddels()
+    {
+        $this->_tabbed('deletions');
+    }
+    /**
+     * Deep link: pre-select the recent tasks tab.
+     *
+     * @return void
+     */
+    public function recent()
+    {
+        $this->_tabbed('recent');
+    }
+    /**
+     * Renders the single tabbed task page.
+     *
+     * @param string $initialTab The tab pane id to pre-select client side.
+     *
+     * @return void
+     */
+    private function _tabbed($initialTab)
+    {
+        $this->title = _('Task Management');
+        $badge = function ($key) {
+            return ' <span class="badge task-count-badge" data-count="'
+                . $key
+                . '"></span>';
+        };
+        $tabData = [
+            [
+                'name' => self::$foglang['ActiveTasks'] . $badge('active'),
+                'id' => 'active',
+                'generator' => function () {
+                    $this->_activePane();
+                }
+            ],
+            [
+                'name' => self::$foglang['ActiveMCTasks'] . $badge('multicast'),
+                'id' => 'multicast',
+                'generator' => function () {
+                    $this->_multicastPane();
+                }
+            ],
+            [
+                'name' => self::$foglang['ActiveSnapins'] . $badge('snapins'),
+                'id' => 'snapins',
+                'generator' => function () {
+                    $this->_snapinsPane();
+                }
+            ],
+            [
+                'name' => self::$foglang['ScheduledTasks'] . $badge('scheduled'),
+                'id' => 'scheduled',
+                'generator' => function () {
+                    $this->_scheduledPane();
+                }
+            ],
+            [
+                'name' => _('Queued Path Deletions') . $badge('deletions'),
+                'id' => 'deletions',
+                'generator' => function () {
+                    $this->_deletionsPane();
+                }
+            ],
+            [
+                'name' => _('Recent'),
+                'id' => 'recent',
+                'generator' => function () {
+                    $this->_recentPane();
+                }
+            ]
+        ];
+        self::$HookManager->processEvent(
+            'TASK_TABS',
+            ['tabData' => &$tabData]
+        );
+        echo self::tabFields($tabData, false);
+        $modalApprovalBtns = self::makeButton(
+            'tasking-send',
+            _('Create'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'tasking-close',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        echo self::makeModal(
+            'task-modal',
+            '<h4 class="card-title">'
+            . _('Create new tasking')
+            . '<span class="task-name"></span></h4>',
+            '<div id="task-form-holder"></div>',
+            $modalApprovalBtns,
+            '',
+            'success'
+        );
+        echo '<input type="hidden" id="task-initial-tab" value="'
+            . $initialTab
+            . '"/>';
+    }
+    /**
+     * The cancel/pause/resume footer buttons for one pane.
+     *
+     * Ids are suffixed so all panes can coexist in one page; the JS
+     * binds by class and reads the POST endpoint off the action prop.
+     *
+     * @param string $sub    The sub endpoint the cancel POST targets.
+     * @param string $suffix The per-pane button id suffix.
+     *
+     * @return string
+     */
+    private function _paneButtons($sub, $suffix)
+    {
+        $props = ' method="post" action="'
+            . '../management/index.php?node=task&sub='
+            . $sub
+            . '" ';
+        $buttons = self::makeButton(
+            'cancel-selected-' . $suffix,
+            _('Cancel Selected'),
+            'btn btn-danger cancel-selected float-start',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'pause-refresh-' . $suffix,
+            _('Pause Reload'),
+            'btn btn-warning pause-refresh float-start'
+        );
+        $buttons .= self::makeButton(
+            'resume-refresh-' . $suffix,
+            _('Resume Reload'),
+            'btn btn-success resume-refresh float-end'
+        );
+        return $buttons;
+    }
+    /**
+     * Renders the active tasks pane.
+     *
+     * @return void
+     */
+    private function _activePane()
+    {
         $this->headerData = [
             _('Host Name'),
             _('Image Name'),
@@ -67,26 +257,184 @@ class TaskManagement extends FOGPage
             [],
             []
         ];
-        $props = ' method="post" action="'
-            . $this->formAction
-            . '" ';
-
-        $this->_buttons .= self::makeButton(
-            'cancel-selected',
-            _('Cancel Selected'),
-            'btn btn-danger float-start',
-            $props
-        );
-        $this->_buttons .= self::makeButton(
-            'pause-refresh',
-            _('Pause Reload'),
-            'btn btn-warning float-start'
-        );
-        $this->_buttons .= self::makeButton(
-            'resume-refresh',
-            _('Resume Reload'),
-            'btn btn-success float-end'
-        );
+        echo '<!-- Active Tasks -->';
+        $this->render(12, 'active-tasks-table');
+        echo '<div class="btn-group">';
+        echo $this->_paneButtons('active', 'active');
+        echo '</div>';
+    }
+    /**
+     * Renders the active multicast tasks pane.
+     *
+     * @return void
+     */
+    private function _multicastPane()
+    {
+        $this->headerData = [
+            _('Task Name'),
+            _('Hosts in tasking'),
+            _('Start Time'),
+            _('Status')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Active Multi-cast Tasks -->';
+        $this->render(12, 'active-multicast-table');
+        echo '<div class="btn-group">';
+        echo $this->_paneButtons('activemulticast', 'multicast');
+        echo '</div>';
+    }
+    /**
+     * Renders the active snapin tasks pane.
+     *
+     * @return void
+     */
+    private function _snapinsPane()
+    {
+        $this->headerData = [
+            _('Snapin Name'),
+            _('Host Name'),
+            _('Start Time'),
+            _('Status')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Active Snapin Tasks -->';
+        $this->render(12, 'active-snapintasks-table');
+        echo '<div class="btn-group">';
+        echo $this->_paneButtons('activesnapins', 'snapins');
+        echo '</div>';
+    }
+    /**
+     * Renders the scheduled tasks pane.
+     *
+     * @return void
+     */
+    private function _scheduledPane()
+    {
+        $this->headerData = [
+            _('Host/Group Name'),
+            _('Task Type'),
+            _('Start Time'),
+            _('Active'),
+            _('Type')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Scheduled Tasks -->';
+        $this->render(12, 'scheduled-task-table');
+        echo '<div class="btn-group">';
+        echo $this->_paneButtons('activescheduled', 'scheduled');
+        echo '</div>';
+    }
+    /**
+     * Renders the queued path deletions pane.
+     *
+     * @return void
+     */
+    private function _deletionsPane()
+    {
+        $this->headerData = [
+            _('Storage Group Name'),
+            _('Path Name'),
+            _('Path Type'),
+            _('Created Time'),
+            _('Completed Time'),
+            _('Created By'),
+            _('State'),
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Scheduled Deletions -->';
+        $this->render(12, 'scheduled-deletion-table');
+        echo '<div class="btn-group">';
+        echo $this->_paneButtons('activescheduleddels', 'deletions');
+        echo '</div>';
+    }
+    /**
+     * Renders the recent (completed/cancelled) tasks pane.
+     *
+     * @return void
+     */
+    private function _recentPane()
+    {
+        $this->headerData = [
+            _('Host Name'),
+            _('Image Name'),
+            _('Task Type'),
+            _('Started By'),
+            _('State'),
+            _('Completed'),
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Recent Tasks -->';
+        echo '<div class="row mb-3">';
+        echo '<div class="col-sm-4">';
+        echo '<label class="form-label" for="recent-type-filter">'
+            . _('Task Type')
+            . '</label>';
+        echo '<select id="recent-type-filter" class="form-select" '
+            . 'autocomplete="off">';
+        echo '<option value="imaging" selected>' . _('Imaging') . '</option>';
+        echo '<option value="snapins">' . _('Snapins') . '</option>';
+        echo '<option value="wipes">' . _('Wipes') . '</option>';
+        echo '<option value="other">' . _('Other') . '</option>';
+        echo '<option value="all">' . _('All Types') . '</option>';
+        echo '</select>';
+        echo '</div>';
+        echo '<div class="col-sm-8">';
+        echo '<label class="form-label d-block">' . _('State') . '</label>';
+        echo '<div class="btn-group" role="group" aria-label="'
+            . _('State filter')
+            . '">';
+        echo '<input type="radio" class="btn-check" name="recent-state-filter"'
+            . ' id="recent-state-both" value="both" autocomplete="off" checked/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-both">'
+            . _('Both')
+            . '</label>';
+        echo '<input type="radio" class="btn-check" name="recent-state-filter"'
+            . ' id="recent-state-complete" value="complete" autocomplete="off"/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-complete">'
+            . _('Complete')
+            . '</label>';
+        echo '<input type="radio" class="btn-check" name="recent-state-filter"'
+            . ' id="recent-state-cancelled" value="cancelled" autocomplete="off"/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-cancelled">'
+            . _('Cancelled')
+            . '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        $this->render(12, 'recent-tasks-table');
     }
     /**
      * Get the active tasks
@@ -158,6 +506,167 @@ class TaskManagement extends FOGPage
             LEFT OUTER JOIN `users`
             ON `tasks`.`taskCreateBy` = `users`.`uName`
             WHERE $where";
+        $columns = $this->_taskJoinColumns();
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'tasks',
+                'taskID',
+                $columns,
+                $tasksSqlStr,
+                $tasksFilterStr,
+                $tasksTotalStr,
+                $where
+            )
+        ));
+    }
+    /**
+     * Get recently completed/cancelled tasks.
+     *
+     * The Recent tab posts two extra filter vars alongside the
+     * DataTables request: states (both|complete|cancelled) and
+     * typegroup (imaging|snapins|wipes|other|all).
+     *
+     * @return void
+     */
+    public function getRecentTasks()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $complete = (int)self::getCompleteState();
+        $cancelled = (int)self::getCancelledState();
+        switch ($pass_vars['states'] ?? '') {
+            case 'complete':
+                $states = [$complete];
+                break;
+            case 'cancelled':
+                $states = [$cancelled];
+                break;
+            default:
+                $states = [$complete, $cancelled];
+        }
+        $where = "`tasks`.`taskStateID` IN ("
+            . implode(',', $states)
+            . ")";
+
+        $groups = [
+            'imaging' => array_unique(
+                array_merge(
+                    TaskType::DEPLOYTASKS,
+                    TaskType::CAPTURETASKS
+                )
+            ),
+            'snapins' => TaskType::SNAPINTASKS,
+            'wipes' => TaskType::WIPETASKS
+        ];
+        $typegroup = $pass_vars['typegroup'] ?? 'imaging';
+        if (isset($groups[$typegroup])) {
+            $where .= " AND `tasks`.`taskTypeID` IN ("
+                . implode(',', $groups[$typegroup])
+                . ")";
+        } elseif ($typegroup == 'other') {
+            $where .= " AND `tasks`.`taskTypeID` NOT IN ("
+                . implode(',', array_unique(array_merge(...array_values($groups))))
+                . ")";
+        }
+        // Anything else ('all' included) adds no type clause.
+
+        $tasksSqlStr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `taskStates`
+            ON `tasks`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `hosts`
+            ON `tasks`.`taskHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `images`
+            ON `tasks`.`taskImageID` = `images`.`imageID`
+            LEFT OUTER JOIN `nfsGroupMembers`
+            ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            LEFT OUTER JOIN `users`
+            ON `tasks`.`taskCreateBy` = `users`.`uName`
+            %s
+            %s
+            %s";
+        $tasksFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `taskStates`
+            ON `tasks`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `hosts`
+            ON `tasks`.`taskHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `images`
+            ON `tasks`.`taskImageID` = `images`.`imageID`
+            LEFT OUTER JOIN `nfsGroupMembers`
+            ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            LEFT OUTER JOIN `users`
+            ON `tasks`.`taskCreateBy` = `users`.`uName`
+            %s";
+        $tasksTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `taskStates`
+            ON `tasks`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `hosts`
+            ON `tasks`.`taskHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `images`
+            ON `tasks`.`taskImageID` = `images`.`imageID`
+            LEFT OUTER JOIN `nfsGroupMembers`
+            ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            LEFT OUTER JOIN `users`
+            ON `tasks`.`taskCreateBy` = `users`.`uName`
+            WHERE $where";
+        $columns = $this->_taskJoinColumns();
+        $columns[] = [
+            'db' => 'taskStateChangedTime',
+            'dt' => 'statechanged',
+            'formatter' => function ($d, $row) {
+                // Rows created before taskStateChangedTime existed have
+                // NULL/zero dates; fall back to the newest of the task's
+                // check-in and creation times for display.
+                $empty = function ($v) {
+                    return !$v || strpos($v, '0000') === 0;
+                };
+                if (!$empty($d)) {
+                    return $d;
+                }
+                $best = '';
+                foreach (['taskCheckIn', 'taskCreateTime'] as $col) {
+                    $v = $row[$col] ?? '';
+                    if (!$empty($v) && $v > $best) {
+                        $best = $v;
+                    }
+                }
+                return $best;
+            }
+        ];
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'tasks',
+                'taskID',
+                $columns,
+                $tasksSqlStr,
+                $tasksFilterStr,
+                $tasksTotalStr,
+                $where
+            )
+        ));
+    }
+    /**
+     * The shared column set for the joined tasks queries.
+     *
+     * @return array
+     */
+    private function _taskJoinColumns()
+    {
+        $columns = [];
         foreach (self::getClass('TaskManager')
             ->getColumns() as $common => &$real
         ) {
@@ -225,18 +734,43 @@ class TaskManagement extends FOGPage
             break;
             unset($real);
         }
-        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'tasks',
-                'taskID',
-                $columns,
-                $tasksSqlStr,
-                $tasksFilterStr,
-                $tasksTotalStr,
-                $where
-            )
-        ));
+        return $columns;
+    }
+    /**
+     * Live counts for the tab badges. Each count mirrors the WHERE
+     * its tab's table query uses so badge and row counts agree.
+     *
+     * @return void
+     */
+    public function getTaskCounts()
+    {
+        header('Content-type: application/json');
+        $activeStates = [
+            self::getQueuedState(),
+            self::getCheckedInState(),
+            self::getProgressState()
+        ];
+        $queuedProgress = self::getQueuedStates();
+        $queuedProgress[] = self::getProgressState();
+        echo json_encode(
+            [
+                'active' => self::getClass('TaskManager')->count(
+                    ['stateID' => $activeStates]
+                ),
+                'multicast' => self::getClass('MulticastSessionManager')->count(
+                    ['stateID' => $activeStates]
+                ),
+                'snapins' => self::getClass('SnapinTaskManager')->count(
+                    ['stateID' => $queuedProgress]
+                ),
+                'scheduled' => self::getClass('ScheduledTaskManager')->count(
+                    ['isActive' => 1]
+                ),
+                'deletions' => self::getClass('FileDeleteQueueManager')->count(
+                    ['stateID' => $queuedProgress]
+                )
+            ]
+        );
     }
     /**
      * Get the active multicast tasks
@@ -431,31 +965,6 @@ class TaskManagement extends FOGPage
         echo Route::getData();
     }
     /**
-     * Display the active tasks.
-     *
-     * @return void
-     */
-    public function active()
-    {
-        $this->title = _('Active Tasks');
-        echo '<!-- Active Tasks -->';
-        echo '<div class="card">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        $this->render(12, 'active-tasks-table');
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo '<div class="btn-group">';
-        echo $this->_buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
      * For cancelling/forcing tasks.
      *
      * @return void
@@ -508,43 +1017,6 @@ class TaskManagement extends FOGPage
             ],
             $hook
         );
-    }
-    /**
-     * Display active multicast tasks.
-     *
-     * @return void
-     */
-    public function activemulticast()
-    {
-        $this->title = _('Active Multi-cast Tasks');
-        $this->headerData = [
-            _('Task Name'),
-            _('Hosts in tasking'),
-            _('Start Time'),
-            _('Status')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<!-- Active Multi-cast Tasks -->';
-        echo '<div class="card">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        $this->render(12, 'active-multicast-table');
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo '<div class="btn-group">';
-        echo $this->_buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Removes multicast sessions.
@@ -609,43 +1081,6 @@ class TaskManagement extends FOGPage
         );
     }
     /**
-     * Displays active snapin tasks.
-     *
-     * @return void
-     */
-    public function activesnapins()
-    {
-        $this->title = _('Active Snapin Tasks');
-        $this->headerData = [
-            _('Snapin Name'),
-            _('Host Name'),
-            _('Start Time'),
-            _('Status')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<!-- Active Snapin Tasks -->';
-        echo '<div class="card">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        $this->render(12, 'active-snapintasks-table');
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo '<div class="btn-group">';
-        echo $this->_buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
      * Cancels and snapin taskings.
      *
      * @return void
@@ -700,45 +1135,6 @@ class TaskManagement extends FOGPage
         );
     }
     /**
-     * Active scheduled tasks (delayed or cron)
-     *
-     * @return void
-     */
-    public function activescheduled()
-    {
-        $this->title = _('Scheduled Tasks');
-        $this->headerData = [
-            _('Host/Group Name'),
-            _('Task Type'),
-            _('Start Time'),
-            _('Active'),
-            _('Type')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<!-- Scheduled Tasks -->';
-        echo '<div class="card">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        $this->render(12, 'scheduled-task-table');
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo '<div class="btn-group">';
-        echo $this->_buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
      * Canceled tasks for us.
      *
      * @return void
@@ -791,49 +1187,6 @@ class TaskManagement extends FOGPage
             ],
             $hook
         );
-    }
-    /**
-     * Active scheduled path deletions
-     *
-     * @return void
-     */
-    public function activescheduleddels()
-    {
-        $this->title = _('Queued Path Deletions');
-        $this->headerData = [
-            _('Storage Group Name'),
-            _('Path Name'),
-            _('Path Type'),
-            _('Created Time'),
-            _('Completed Time'),
-            _('Created By'),
-            _('State'),
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-        echo '<!-- Scheduled Deletions -->';
-        echo '<div class="card">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        $this->render(12, 'scheduled-deletion-table');
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo '<div class="btn-group">';
-        echo $this->_buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Canceled scheduled path deletions.

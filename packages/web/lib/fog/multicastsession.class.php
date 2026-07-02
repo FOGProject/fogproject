@@ -111,7 +111,10 @@ class MulticastSession extends FOGController
         self::getClass('TaskManager')->update(
             ['id' => $taskIDs],
             '',
-            ['stateID' => self::getCancelledState()]
+            [
+                'stateID' => self::getCancelledState(),
+                'stateChangedTime' => self::niceDate()->format('Y-m-d H:i:s')
+            ]
         );
         Route::deletemass(
             'multicastsessionassociation',
@@ -140,7 +143,10 @@ class MulticastSession extends FOGController
         self::getClass('TaskManager')->update(
             ['id' => $taskIDs],
             '',
-            ['stateID' => self::getCompleteState()]
+            [
+                'stateID' => self::getCompleteState(),
+                'stateChangedTime' => self::niceDate()->format('Y-m-d H:i:s')
+            ]
         );
         Route::deletemass(
             'multicastsessionassociation',

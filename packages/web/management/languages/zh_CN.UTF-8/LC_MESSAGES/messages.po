@@ -433,10 +433,6 @@ msgstr "活性"
 msgid "Active Directory"
 msgstr "活动目录"
 
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "活动组播任务"
-
 msgid "Active Multicast Tasks"
 msgstr "活动组播任务"
 
@@ -659,6 +655,10 @@ msgstr "所有存储组"
 msgid "All Storage Nodes"
 msgstr "所有存储节点"
 
+#, fuzzy
+msgid "All Types"
+msgstr "模块类型"
+
 msgid "All files synced for this item"
 msgstr ""
 
@@ -865,6 +865,9 @@ msgstr "启动选项："
 msgid "Boot files from"
 msgstr ""
 
+msgid "Both"
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "广播名称"
@@ -997,6 +1000,10 @@ msgstr "删除所选"
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "删除所选"
+
+#, fuzzy
+msgid "Cancelled"
+msgstr "取消任务"
 
 msgid "Cancelled due to new tasking."
 msgstr "由于新的任务取消。"
@@ -3153,6 +3160,10 @@ msgid "Images"
 msgstr "图片"
 
 #, fuzzy
+msgid "Imaging"
+msgstr "成像测井"
+
+#, fuzzy
 msgid "Imaging Completed"
 msgstr "任务完成后，"
 
@@ -4645,6 +4656,9 @@ msgstr ""
 msgid "Organizational Unit"
 msgstr "组织单位"
 
+msgid "Other"
+msgstr ""
+
 #, fuzzy
 msgid "Other Primary"
 msgstr "主MAC"
@@ -5123,6 +5137,10 @@ msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Receive"
+msgstr "接收"
+
+#, fuzzy
+msgid "Recent"
 msgstr "接收"
 
 #, fuzzy
@@ -5926,6 +5944,10 @@ msgstr ""
 
 msgid "State"
 msgstr "州"
+
+#, fuzzy
+msgid "State filter"
+msgstr "打印机更新失败！"
 
 msgid "Status"
 msgstr "状态"
@@ -7258,6 +7280,9 @@ msgstr "主机产品密钥"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
+msgid "Wipes"
+msgstr ""
+
 msgid "Yearly"
 msgstr "每年"
 
@@ -7997,6 +8022,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "活动组播任务"
 
 #, fuzzy
 #~ msgid "Add Selected"

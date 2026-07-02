@@ -4282,3 +4282,14 @@ $this->schema[] = [
     "ALTER TABLE `printers` "
     . "MODIFY COLUMN `pIP` VARCHAR(255) NOT NULL",
 ];
+// 300
+$this->schema[] = [
+    // Tasks never recorded when they reached their current state, so the
+    // task list's Recent view had nothing to sort completed/cancelled work
+    // by. Stamped on every state transition (Task::set + the mass-update
+    // cancel/complete paths). NULL for rows that last changed state before
+    // this upgrade; readers fall back to
+    // GREATEST(taskCheckIn, taskCreateTime) for those.
+    "ALTER TABLE `tasks` "
+    . "ADD COLUMN `taskStateChangedTime` DATETIME NULL DEFAULT NULL",
+];

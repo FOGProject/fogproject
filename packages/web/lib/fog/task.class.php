@@ -59,7 +59,8 @@ class Task extends TaskType
         'isDebug' => 'taskIsDebug',
         'imageID' => 'taskImageID',
         'wol' => 'taskWOL',
-        'bypassbitlocker' => 'taskBypassBitlocker'
+        'bypassbitlocker' => 'taskBypassBitlocker',
+        'stateChangedTime' => 'taskStateChangedTime'
     ];
     /**
      * The required fields.
@@ -318,6 +319,14 @@ class Task extends TaskType
             && strlen($value) == 10
         ) {
             $value = self::niceDate($value)->format('Y-m-d H:i:s');
+        }
+        if ($this->key($key) == 'stateID'
+            && $this->get('stateID') != $value
+        ) {
+            parent::set(
+                'stateChangedTime',
+                self::niceDate()->format('Y-m-d H:i:s')
+            );
         }
 
         return parent::set($key, $value);

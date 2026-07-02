@@ -433,10 +433,6 @@ msgstr "Active"
 msgid "Active Directory"
 msgstr "Active Directory"
 
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "Active Multicast Tasks"
-
 msgid "Active Multicast Tasks"
 msgstr "Active Multicast Tasks"
 
@@ -659,6 +655,10 @@ msgstr "All Storage Groups"
 msgid "All Storage Nodes"
 msgstr "All Storage Nodes"
 
+#, fuzzy
+msgid "All Types"
+msgstr "Module Type"
+
 msgid "All files synced for this item"
 msgstr ""
 
@@ -865,6 +865,9 @@ msgstr "Boot Options:"
 msgid "Boot files from"
 msgstr ""
 
+msgid "Both"
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast Name"
@@ -997,6 +1000,10 @@ msgstr "Delete Selected"
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Cancelled"
+msgstr "Cancelled task"
 
 msgid "Cancelled due to new tasking."
 msgstr "Cancelled due to new tasking."
@@ -3152,6 +3159,10 @@ msgid "Images"
 msgstr "Images"
 
 #, fuzzy
+msgid "Imaging"
+msgstr "Imaging Log"
+
+#, fuzzy
 msgid "Imaging Completed"
 msgstr "after task completion"
 
@@ -4645,6 +4656,9 @@ msgstr ""
 msgid "Organizational Unit"
 msgstr "Organizational Unit"
 
+msgid "Other"
+msgstr ""
+
 #, fuzzy
 msgid "Other Primary"
 msgstr "Primary MAC"
@@ -5123,6 +5137,10 @@ msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Receive"
+msgstr "Receive"
+
+#, fuzzy
+msgid "Recent"
 msgstr "Receive"
 
 #, fuzzy
@@ -5926,6 +5944,10 @@ msgstr ""
 
 msgid "State"
 msgstr "State"
+
+#, fuzzy
+msgid "State filter"
+msgstr "Printer update failed!"
 
 msgid "Status"
 msgstr "Status"
@@ -7264,6 +7286,9 @@ msgstr "Host Product Key"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
+msgid "Wipes"
+msgstr ""
+
 msgid "Yearly"
 msgstr "Yearly"
 
@@ -8006,6 +8031,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "An image already exists with this name!"
+
+#, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Active Multicast Tasks"
 
 #, fuzzy
 #~ msgid "Add Selected"

@@ -348,9 +348,6 @@ msgstr ""
 msgid "Active Directory"
 msgstr ""
 
-msgid "Active Multi-cast Tasks"
-msgstr ""
-
 msgid "Active Multicast Tasks"
 msgstr ""
 
@@ -532,6 +529,9 @@ msgstr ""
 msgid "All Storage Nodes"
 msgstr ""
 
+msgid "All Types"
+msgstr ""
+
 msgid "All files synced for this item"
 msgstr ""
 
@@ -706,6 +706,9 @@ msgstr ""
 msgid "Boot files from"
 msgstr ""
 
+msgid "Both"
+msgstr ""
+
 msgid "Broadcast Address"
 msgstr ""
 
@@ -818,6 +821,9 @@ msgid "Cancel Selected Tasks"
 msgstr ""
 
 msgid "Cancel the selected tasks."
+msgstr ""
+
+msgid "Cancelled"
 msgstr ""
 
 msgid "Cancelled due to new tasking."
@@ -2634,6 +2640,9 @@ msgstr ""
 msgid "Images"
 msgstr ""
 
+msgid "Imaging"
+msgstr ""
+
 msgid "Imaging Completed"
 msgstr ""
 
@@ -3903,6 +3912,9 @@ msgstr ""
 msgid "Organizational Unit"
 msgstr ""
 
+msgid "Other"
+msgstr ""
+
 msgid "Other Primary"
 msgstr ""
 
@@ -4315,6 +4327,9 @@ msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Receive"
+msgstr ""
+
+msgid "Recent"
 msgstr ""
 
 msgid "Record not found"
@@ -4988,6 +5003,9 @@ msgid "Starting download"
 msgstr ""
 
 msgid "State"
+msgstr ""
+
+msgid "State filter"
 msgstr ""
 
 msgid "Status"
@@ -6113,6 +6131,9 @@ msgid "Windows Product key"
 msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
+msgstr ""
+
+msgid "Wipes"
 msgstr ""
 
 msgid "Yearly"

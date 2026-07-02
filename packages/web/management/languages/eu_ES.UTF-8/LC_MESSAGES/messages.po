@@ -429,10 +429,6 @@ msgstr "Aktiv"
 msgid "Active Directory"
 msgstr "Active Directory"
 
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "Aktive Multicast Tasks"
-
 msgid "Active Multicast Tasks"
 msgstr "Aktive Multicast-Tasks"
 
@@ -655,6 +651,10 @@ msgstr "Alle Speichergruppen"
 msgid "All Storage Nodes"
 msgstr "Alle Speicherknoten"
 
+#, fuzzy
+msgid "All Types"
+msgstr "Rollentyp"
+
 msgid "All files synced for this item"
 msgstr ""
 
@@ -863,6 +863,9 @@ msgstr "Boot-Optionen:"
 msgid "Boot files from"
 msgstr ""
 
+msgid "Both"
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast hinzugefügt!"
@@ -995,6 +998,10 @@ msgstr "Ausgewählte löschen"
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "Cancelled"
+msgstr "Stornierter Task"
 
 msgid "Cancelled due to new tasking."
 msgstr "Abgebrochen aufgrund neuer Aufgabe (Task)"
@@ -3153,6 +3160,10 @@ msgid "Images"
 msgstr "Images"
 
 #, fuzzy
+msgid "Imaging"
+msgstr "Imaging Log"
+
+#, fuzzy
 msgid "Imaging Completed"
 msgstr "Image Task vollständig"
 
@@ -4649,6 +4660,9 @@ msgstr "oder es wurde keine Nummer für die Beitrittssitzung definiert"
 msgid "Organizational Unit"
 msgstr "Organisationseinheit"
 
+msgid "Other"
+msgstr ""
+
 #, fuzzy
 msgid "Other Primary"
 msgstr "Primäre MAC"
@@ -5128,6 +5142,10 @@ msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Receive"
+msgstr "Erhalten"
+
+#, fuzzy
+msgid "Recent"
 msgstr "Erhalten"
 
 #, fuzzy
@@ -5931,6 +5949,10 @@ msgstr ""
 
 msgid "State"
 msgstr "Zustand"
+
+#, fuzzy
+msgid "State filter"
+msgstr "Drucker-Update fehlgeschlagen!"
 
 msgid "Status"
 msgstr "Status"
@@ -7274,6 +7296,9 @@ msgstr "Host Produktschlüssel"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Windows Keys ist ein Plugin, das Produktschlüssel für"
 
+msgid "Wipes"
+msgstr ""
+
 msgid "Yearly"
 msgstr "Jährlich"
 
@@ -8020,6 +8045,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Aktive Multicast Tasks"
 
 #, fuzzy
 #~ msgid "Add Selected"

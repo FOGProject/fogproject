@@ -671,13 +671,7 @@ abstract class FOGPage extends FOGBase
                 ];
                 break;
             case 'task':
-                $menu = [
-                    'active' => self::$foglang['ActiveTasks'],
-                    'activemulticast' => self::$foglang['ActiveMCTasks'],
-                    'activesnapins' => self::$foglang['ActiveSnapins'],
-                    'activescheduled' => self::$foglang['ScheduledTasks'],
-                    'activescheduleddels' => _('Queued Path Deletions')
-                ];
+                $menu = [];
                 break;
             case 'image':
                 self::arrayInsertBefore(
@@ -1237,11 +1231,6 @@ abstract class FOGPage extends FOGBase
                 $actionbox = '<div class="btn-actionbox">'
                     . $actionbox
                     . '</div>';
-            }
-            if (in_array($node, ['task'])
-                && (!$sub || $sub == 'list')
-            ) {
-                self::redirect("../management/index.php?node=$node&sub=active");
             }
             ob_start();
             echo '<table id="'

@@ -417,9 +417,6 @@ msgstr "Attivo"
 msgid "Active Directory"
 msgstr "Active Directory"
 
-msgid "Active Multi-cast Tasks"
-msgstr "Attività multi-cast attive"
-
 msgid "Active Multicast Tasks"
 msgstr "Compiti multicast attivi"
 
@@ -629,6 +626,10 @@ msgstr "Tutti i gruppi di archiviazione"
 msgid "All Storage Nodes"
 msgstr "Tutti i nodi di storage"
 
+#, fuzzy
+msgid "All Types"
+msgstr "Tipo regola"
+
 msgid "All files synced for this item"
 msgstr ""
 
@@ -829,6 +830,9 @@ msgstr "Opzioni di avvio:"
 msgid "Boot files from"
 msgstr ""
 
+msgid "Both"
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast aggiunto!"
@@ -954,6 +958,10 @@ msgstr "Elimina selezionato"
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Elimina selezionato"
+
+#, fuzzy
+msgid "Cancelled"
+msgstr "compito Annullato"
 
 msgid "Cancelled due to new tasking."
 msgstr "Annullato a causa della nuova tasking."
@@ -3030,6 +3038,10 @@ msgid "Images"
 msgstr "immagini"
 
 #, fuzzy
+msgid "Imaging"
+msgstr "Imaging Log"
+
+#, fuzzy
 msgid "Imaging Completed"
 msgstr "Attività di immagine completata"
 
@@ -4447,6 +4459,9 @@ msgstr "Oppure non è stato definito alcun numero per l'accesso alla sessione"
 msgid "Organizational Unit"
 msgstr "Unità organizzativa"
 
+msgid "Other"
+msgstr ""
+
 #, fuzzy
 msgid "Other Primary"
 msgstr "MAC primaria"
@@ -4905,6 +4920,10 @@ msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Receive"
+msgstr "Ricevere"
+
+#, fuzzy
+msgid "Recent"
 msgstr "Ricevere"
 
 msgid "Record not found"
@@ -5657,6 +5676,10 @@ msgstr ""
 
 msgid "State"
 msgstr "Stato"
+
+#, fuzzy
+msgid "State filter"
+msgstr "Aggiornamento della stampante non è riuscito!"
 
 msgid "Status"
 msgstr "Stato"
@@ -6933,6 +6956,9 @@ msgstr "Host Product Key"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Tasti di Windows è un plugin che associa le chiavi di prodotto"
 
+msgid "Wipes"
+msgstr ""
+
 msgid "Yearly"
 msgstr "Annuale"
 
@@ -7623,6 +7649,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Esiste già un ruolo con questo nome!"
+
+#~ msgid "Active Multi-cast Tasks"
+#~ msgstr "Attività multi-cast attive"
 
 #, fuzzy
 #~ msgid "Add Selected"
