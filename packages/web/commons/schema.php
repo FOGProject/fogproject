@@ -4293,3 +4293,13 @@ $this->schema[] = [
     "ALTER TABLE `tasks` "
     . "ADD COLUMN `taskStateChangedTime` DATETIME NULL DEFAULT NULL",
 ];
+// 301
+$this->schema[] = [
+    // Backfill taskStateChangedTime for rows that predate migration 300
+    // (all NULL), so the Recent view can sort by it. Uses the same
+    // GREATEST(taskCheckIn, taskCreateTime) the display formatter falls
+    // back to, so sorted order matches the shown dates.
+    "UPDATE `tasks` "
+    . "SET `taskStateChangedTime` = GREATEST(`taskCheckIn`, `taskCreateTime`) "
+    . "WHERE `taskStateChangedTime` IS NULL",
+];
