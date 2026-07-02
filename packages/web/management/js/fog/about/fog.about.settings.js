@@ -99,6 +99,23 @@
     });
   }
 
+  // Settings whose row carries the .settings-refresh-note icon only take
+  // effect after a full page reload (see fogconfigurationpage.page.php). On a
+  // successful save, follow the server's "saved" toast with a reminder so the
+  // user isn't left wondering why nothing changed. Call before reloadSettings()
+  // while the source element is still in the DOM.
+  function maybeNudgeRefresh(el) {
+    if (!$(el).closest('.settings-row').find('.settings-refresh-note').length) {
+      return;
+    }
+    $.notify(
+      'Reload required',
+      'This setting takes effect after you reload the page. A hard refresh '
+        + '(Ctrl+F5, or Cmd+Shift+R) may be required.',
+      'info'
+    );
+  }
+
   function saveCheckbox(el, val) {
     var opts = {};
     opts[$(el).attr('name')] = val;
@@ -106,6 +123,7 @@
       if (err) {
         return;
       }
+      maybeNudgeRefresh(el);
       reloadSettings();
     });
   }
@@ -165,6 +183,7 @@
           if (err) {
             return;
           }
+          maybeNudgeRefresh(el);
           reloadSettings();
         }, false);
       });
