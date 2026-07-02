@@ -1094,7 +1094,10 @@ abstract class FOGPage extends FOGBase
             $actionbox = '';
             $modals = '';
             if ($sub == 'list') {
-                if ($node != 'plugin') {
+                // Tasks are cancelled per-pane, never deleted; the tabbed
+                // task page hits sub=list via the no-sub default, so keep
+                // the delete actionbox off it.
+                if ($node != 'plugin' && $node != 'task') {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),

@@ -754,20 +754,30 @@ class TaskManagement extends FOGPage
         $queuedProgress[] = self::getProgressState();
         echo json_encode(
             [
-                'active' => self::getClass('TaskManager')->count(
-                    ['stateID' => $activeStates]
+                'active' => Route::getCount(
+                    'task',
+                    ['stateID' => $activeStates],
+                    true
                 ),
-                'multicast' => self::getClass('MulticastSessionManager')->count(
-                    ['stateID' => $activeStates]
+                'multicast' => Route::getCount(
+                    'multicastsession',
+                    ['stateID' => $activeStates],
+                    true
                 ),
-                'snapins' => self::getClass('SnapinTaskManager')->count(
-                    ['stateID' => $queuedProgress]
+                'snapins' => Route::getCount(
+                    'snapintask',
+                    ['stateID' => $queuedProgress],
+                    true
                 ),
-                'scheduled' => self::getClass('ScheduledTaskManager')->count(
-                    ['isActive' => 1]
+                'scheduled' => Route::getCount(
+                    'scheduledtask',
+                    ['isActive' => 1],
+                    true
                 ),
-                'deletions' => self::getClass('FileDeleteQueueManager')->count(
-                    ['stateID' => $queuedProgress]
+                'deletions' => Route::getCount(
+                    'filedeletequeue',
+                    ['stateID' => $queuedProgress],
+                    true
                 )
             ]
         );
