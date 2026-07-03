@@ -132,10 +132,6 @@ class ProcessLogin extends FOGPage
         $this->_username = $uname;
         $this->_password = $upass;
         $type = self::$FOGUser->get('type');
-        if (isset($_SESSION['FOG_LANG']) && $_SESSION['FOG_LANG'] != $ulang) {
-            $_SESSION['FOG_LANG'] = $ulang;
-            Initiator::language($ulang);
-        }
         self::$HookManager
             ->processEvent(
                 'USER_TYPE_HOOK',
@@ -143,6 +139,10 @@ class ProcessLogin extends FOGPage
             );
         if (!isset($_POST['login'])) {
             return;
+        }
+        if (isset($_SESSION['FOG_LANG']) && $_SESSION['FOG_LANG'] != $ulang) {
+            $_SESSION['FOG_LANG'] = $ulang;
+            Initiator::language($ulang);
         }
         if (!$this->_username) {
             self::setMessage(self::$foglang['InvalidLogin']);
@@ -193,6 +193,11 @@ class ProcessLogin extends FOGPage
             BASEPATH . 'fog_login_accepted.log'
         );
         chmod(BASEPATH . 'fog_login_accepted.log', 0200);
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $_SESSION['FOG_LANG'] = $ulang;
+        Initiator::language($ulang);
         $this->_setRedirMode();
     }
     /**
