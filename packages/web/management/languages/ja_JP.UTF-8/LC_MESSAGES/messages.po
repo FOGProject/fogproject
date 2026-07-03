@@ -1,0 +1,6895 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: mashiro-mikage <rin.natsume.love@gmail.com>\n"
+"Language-Team: \n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+
+msgid " * Image replication is globally disabled"
+msgstr "* イメージレプリケーションは全体設定で無効になっています"
+
+#, fuzzy
+msgid " * Image size is globally disabled"
+msgstr "* イメージサイズ機能は全体設定で無効になっています"
+
+msgid " * Multicast service is globally disabled"
+msgstr "* マルチキャストサービスは全体設定で無効になっています"
+
+msgid " * Ping hosts is globally disabled"
+msgstr "* ホストのPing機能は全体設定で無効になっています"
+
+msgid " * Snapin hash is globally disabled"
+msgstr "* スナップインハッシュ機能は全体設定で無効になっています"
+
+msgid " * Snapin replication is globally disabled"
+msgstr "* スナップインレプリケーションは全体設定で無効になっています"
+
+msgid " * Task Scheduler is globally disabled"
+msgstr "* タスクスケジューラは全体設定で無効になっています"
+
+msgid " Name"
+msgstr "名前"
+
+#, fuzzy
+msgid " No open slots "
+msgstr "空きスロットがありません"
+
+msgid " Task state has been updated, now the task is queued!"
+msgstr "タスクの状態が更新され、キューに登録されました！"
+
+msgid " | This is not the master node"
+msgstr "| これはマスターノードではありません"
+
+msgid " | Unable to find image path"
+msgstr "| イメージパスが見つかりません"
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "$_POST 変数が空です。Apache のエラーログを確認してください。"
+
+#, php-format
+msgid "%s ID %d is not valid"
+msgstr "%s ID %d は無効です"
+
+#, php-format
+msgid "%s ID %s is not valid"
+msgstr "%s ID %s は無効です"
+
+#, php-format
+msgid "%s Manager"
+msgstr "%s 管理"
+
+#, php-format
+msgid "%s Menu"
+msgstr "%s メニュー"
+
+#, php-format
+msgid "%s is required"
+msgstr "%s は必須です"
+
+msgid "1 Hour"
+msgstr "1時間"
+
+msgid "10 Minutes"
+msgstr "10分"
+
+msgid "2 Minutes"
+msgstr "2分"
+
+msgid "30 Minutes"
+msgstr "30分"
+
+msgid "<p>Dependencies: port TCP 445 open in the client side"
+msgstr ""
+"<p>依存関係: クライアント側で TCP ポート 445 が開放されている必要があります"
+
+msgid "<p>Possible status: Windows, Linux, FOS and Unknown"
+msgstr "<p>利用可能な状態: Windows、Linux、FOS、不明"
+
+msgid "<p>Version 1.5.5"
+msgstr "<p>バージョン 1.5.5"
+
+msgid "A LDAP setup already exists with this name!"
+msgstr "この名前の LDAP 設定は既に存在します！"
+
+#, fuzzy
+msgid "A Windows Key already exists with this name!"
+msgstr "この名前の Windows キーは既に存在します！"
+
+msgid "A broadcast address is required"
+msgstr "ブロードキャストアドレスは必須です"
+
+msgid "A broadcast already exists with this name!"
+msgstr "この名前のブロードキャストは既に存在します！"
+
+msgid "A description needs to be set"
+msgstr "説明は必須です"
+
+msgid "A file"
+msgstr "ファイル"
+
+msgid "A group already exists with this name!"
+msgstr "この名前のグループは既に存在します！"
+
+msgid "A group is required for a location"
+msgstr "ロケーションにはグループが必要です"
+
+msgid "A group is required!"
+msgstr "グループは必須です！"
+
+msgid "A group must be selected."
+msgstr "グループを選択してください。"
+
+msgid "A group name is required!"
+msgstr "グループ名は必須です！"
+
+msgid "A host already exists with this name!"
+msgstr "この名前のホストは既に存在します！"
+
+msgid "A host name is required!"
+msgstr "ホスト名は必須です！"
+
+msgid "A host with that name already exists"
+msgstr "その名前のホストは既に存在します"
+
+msgid "A host with this mac already exists with name"
+msgstr "この MAC アドレスを持つホストは既に存在します"
+
+msgid "A location with that name already exists."
+msgstr "この名前のロケーションは既に存在します。"
+
+msgid "A mac address is required!"
+msgstr "MAC アドレスは必須です！"
+
+msgid "A name is required!"
+msgstr "名前は必須です！"
+
+msgid "A name must be defined if using the \"name\" property"
+msgstr "\"name\" プロパティを使用する場合は、名前を定義する必要があります"
+
+msgid "A name must be set"
+msgstr "名前を設定する必要があります"
+
+msgid "A password is required!"
+msgstr "パスワードは必須です！"
+
+msgid "A printer already exists with this name!"
+msgstr "この名前のプリンターは既に存在します！"
+
+msgid "A printer name is required!"
+msgstr "プリンター名は必須です！"
+
+msgid "A role already exists with this name!"
+msgstr "この名前のロールは既に存在します！"
+
+msgid "A rule already exists with this name"
+msgstr "この名前のルールは既に存在します"
+
+msgid "A site already exists with this name!"
+msgstr "この名前のサイトは既に存在します！"
+
+msgid "A snapin already exists with this name!"
+msgstr "この名前のスナップインは既に存在します！"
+
+msgid "A snapin name is required!"
+msgstr "スナップイン名は必須です！"
+
+msgid "A storage group is required!"
+msgstr "ストレージグループは必須です！"
+
+msgid "A subnet group already exists with this name!"
+msgstr "この名前のサブネットグループは既に存在します！"
+
+msgid "A subnet group is already using this group."
+msgstr "このグループは既にサブネットグループで使用されています。"
+
+msgid "A subnetgroup already exists with this name!"
+msgstr "この名前のサブネットグループは既に存在します！"
+
+msgid "A task already exists for this host at the scheduled tasking"
+msgstr "このホストには、同じスケジュール時刻のタスクが既に存在します"
+
+msgid "A task state already exists with this name!"
+msgstr "この名前のタスク状態は既に存在します！"
+
+msgid "A task type already exists with this name!"
+msgstr "この名前のタスクタイプは既に存在します！"
+
+msgid "A user already exists with this name"
+msgstr "この名前のユーザーは既に存在します"
+
+msgid "A user name is required!"
+msgstr "ユーザー名は必須です！"
+
+msgid "A username already exists with this name!"
+msgstr "このユーザー名は既に存在します！"
+
+msgid "A valid database connection could not be made"
+msgstr "有効なデータベース接続を確立できませんでした"
+
+msgid "AD Domain"
+msgstr "AD ドメイン"
+
+msgid "AD Join"
+msgstr "AD 参加"
+
+msgid "AD OU"
+msgstr "AD OU"
+
+msgid "API Settings"
+msgstr "API 設定"
+
+msgid "API?"
+msgstr "API?"
+
+#, fuzzy
+msgid "About FOG Reports"
+msgstr "FOGレポートについて"
+
+msgid "Accepted"
+msgstr "承認済み"
+
+msgid "Access"
+msgstr "承認済み"
+
+msgid "Access Control Management"
+msgstr "アクセス制御管理"
+
+msgid "Access Control Role General"
+msgstr "アクセス制御ロール - 一般"
+
+msgid "Access Control Rule"
+msgstr "Access Control Rules"
+
+msgid "Access Control Rule General"
+msgstr "アクセス制御ルール"
+
+msgid "Access Control Rules"
+msgstr "アクセス制御ロール - 一般"
+
+#, fuzzy
+msgid "Access Controls"
+msgstr "アクセス制御"
+
+msgid "Access Denied"
+msgstr "アクセス拒否"
+
+msgid "Access Token"
+msgstr "アクセストークン"
+
+#, fuzzy
+msgid "Access level is still 0 or false"
+msgstr "アクセスレベルが 0 または false のままです"
+
+#, fuzzy
+msgid "Accessed By"
+msgstr "アクセス元"
+
+msgid "Account already linked"
+msgstr "アカウントは既にリンクされています"
+
+#, fuzzy
+msgid "Account linked to FOG GUI at"
+msgstr "FOG GUI にリンクされているアカウント："
+
+msgid "Account name to reset"
+msgstr "リセット対象のアカウント名"
+
+msgid "Account removed from FOG GUI at"
+msgstr "FOG GUI から削除されたアカウント："
+
+msgid "Account successfully added!"
+msgstr "アカウントが正常に追加されました！"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "Activate Plugins"
+msgstr "プラグインを有効化"
+
+msgid "Active"
+msgstr "有効"
+
+msgid "Active Directory"
+msgstr "Active Directory"
+
+#, fuzzy
+msgid "Active Multicast Tasks"
+msgstr "実行中のマルチキャストタスク"
+
+#, fuzzy
+msgid "Active Snapin Tasks"
+msgstr "実行中のスナップインタスク"
+
+msgid "Active Tasks"
+msgstr "実行中のタスク"
+
+msgid "Add"
+msgstr "追加"
+
+msgid "Add Directory"
+msgstr "ディレクトリを追加"
+
+msgid "Add Event"
+msgstr "イベントを追加"
+
+msgid "Add Hosts"
+msgstr "ホストを追加"
+
+msgid "Add LDAP server failed!"
+msgstr "LDAP サーバーの追加に失敗しました！"
+
+msgid "Add MAC"
+msgstr "MAC アドレスを追加"
+
+msgid "Add New Printer"
+msgstr "新しいプリンターを追加"
+
+msgid "Add Printers"
+msgstr "プリンターを追加"
+
+msgid "Add Pushbullet Account"
+msgstr "Pushbullet アカウントを追加"
+
+msgid "Add Rules"
+msgstr "ルールを追加"
+
+msgid "Add Slack Account"
+msgstr "Slack アカウントを追加"
+
+msgid "Add Snapins"
+msgstr "スナップインを追加"
+
+msgid "Add Storage Group"
+msgstr "ストレージグループを追加"
+
+msgid "Add Storage Groups"
+msgstr "ストレージグループを追加"
+
+msgid "Add Storage Node"
+msgstr "ストレージノードを追加"
+
+msgid "Add Subnetgroup failed!"
+msgstr "サブネットグループの追加に失敗しました！"
+
+msgid "Add User"
+msgstr "ユーザーを追加"
+
+msgid "Add Users"
+msgstr "ユーザーを追加"
+
+#, fuzzy
+msgid "Add Windows Key failed!"
+msgstr "Windows プロダクトキーの追加に失敗しました！"
+
+msgid "Add any custom text you would like"
+msgstr "任意のカスタムテキストを入力してください"
+
+msgid "Add broadcast failed!"
+msgstr "ブロードキャストの追加に失敗しました！"
+
+msgid "Add failed"
+msgstr "追加に失敗しました"
+
+msgid "Add group failed!"
+msgstr "グループの追加に失敗しました！"
+
+msgid "Add host failed!"
+msgstr "ホストの追加に失敗しました！"
+
+msgid "Add image failed!"
+msgstr "イメージの追加に失敗しました！"
+
+msgid "Add location failed!"
+msgstr "ロケーションの追加に失敗しました！"
+
+#, php-format
+msgid "Add new role"
+msgstr "新しいロールを追加"
+
+#, php-format
+msgid "Add new rule"
+msgstr "新しいルールを追加"
+
+msgid "Add printer failed!"
+msgstr "プリンターの追加に失敗しました！"
+
+msgid "Add role failed!"
+msgstr "ロールの追加に失敗しました！"
+
+msgid "Add rule failed!"
+msgstr "ルールの追加に失敗しました！"
+
+msgid "Add selected hosts"
+msgstr "選択したホストを追加"
+
+msgid "Add selected images"
+msgstr "選択したイメージを追加"
+
+msgid "Add selected printers"
+msgstr "選択したプリンターを追加"
+
+msgid "Add selected rules"
+msgstr "選択したルールを追加"
+
+msgid "Add selected snapins"
+msgstr "選択したスナップインを追加"
+
+msgid "Add selected storage groups"
+msgstr "選択したストレージグループを追加"
+
+msgid "Add selected users"
+msgstr "選択したユーザーを追加"
+
+msgid "Add site failed!"
+msgstr "サイトの追加に失敗しました！"
+
+msgid "Add snapin failed!"
+msgstr "スナップインの追加に失敗しました！"
+
+msgid "Add storage node failed!"
+msgstr "ストレージノードの追加に失敗しました！"
+
+msgid "Add task state failed!"
+msgstr "タスク状態の追加に失敗しました！"
+
+msgid "Add task type failed!"
+msgstr "タスクタイプの追加に失敗しました！"
+
+msgid "Add to group"
+msgstr "グループに追加"
+
+msgid "Add user failed!"
+msgstr "ユーザーの追加に失敗しました！"
+
+#, php-format
+msgid "Adding FOGPage: %s, Node: %s"
+msgstr "FOGPage を追加中: %s、ノード: %s"
+
+#, fuzzy
+msgid "Adding Key"
+msgstr "キーを追加中"
+
+#, fuzzy
+msgid "Additional Icon elements"
+msgstr "追加のアイコン要素"
+
+msgid "Additional MACs"
+msgstr "追加の MAC アドレス"
+
+msgid "Admin Group"
+msgstr "管理者グループ"
+
+#, fuzzy
+msgid "Advanced"
+msgstr "詳細"
+
+msgid "Advanced Actions"
+msgstr "詳細操作"
+
+#, fuzzy
+msgid "Advanced Login Required"
+msgstr "拡張ログインが必要"
+
+#, fuzzy
+msgid "Advanced Menu Login"
+msgstr "詳細メニュー用ログイン"
+
+msgid "Advanced Menu settings"
+msgstr "詳細メニュー設定"
+
+msgid "Advanced Options"
+msgstr "詳細オプション"
+
+msgid "Advanced Settings"
+msgstr "詳細設定"
+
+msgid "Advanced menu command"
+msgstr "詳細メニューコマンド"
+
+msgid "After image Action"
+msgstr "イメージ展開後の操作"
+
+msgid "Ago must be boolean"
+msgstr "Ago はブール値である必要があります"
+
+msgid "All"
+msgstr "すべて"
+
+msgid "All Groups"
+msgstr "すべてのグループ"
+
+msgid "All Hosts"
+msgstr "すべてのホスト"
+
+msgid "All Pending MACs approved"
+msgstr "保留中のすべての MAC アドレスを承認しました"
+
+msgid "All Storage Groups"
+msgstr "すべてのストレージグループ"
+
+msgid "All Storage Nodes"
+msgstr "すべてのストレージノード"
+
+msgid "All files synced for this item."
+msgstr "この項目のすべてのファイルが同期されました。"
+
+msgid "All methods of binding have failed"
+msgstr "すべてのバインド方法に失敗しました"
+
+msgid "All snapins"
+msgstr "すべてのスナップイン"
+
+msgid "Allows editing/creating of Task States fog currently has."
+msgstr "現在 FOG に登録されているタスク状態の編集および作成を許可します。"
+
+msgid "Allows editing/creating of Task Types fog currently has."
+msgstr "現在 FOG に登録されているタスクタイプの編集および作成を許可します。"
+
+msgid "Already created"
+msgstr "既に作成されています"
+
+msgid "Already registered as"
+msgstr "既に次の名前で登録されています:"
+
+msgid "Also confirm that the database is indeed running"
+msgstr "データベースが実際に稼働していることも確認してください"
+
+msgid "Although there are multiple levels already"
+msgstr "既に複数のレベルがありますが"
+
+msgid "An image already exists with this name!"
+msgstr "この名前のイメージは既に存在します！"
+
+msgid "Annually"
+msgstr "年単位"
+
+msgid "Applications"
+msgstr "アプリケーション"
+
+msgid "Approve"
+msgstr "承認"
+
+msgid "Approve All Pending MACs for All Hosts"
+msgstr "すべてのホストの保留中 MAC アドレスをすべて承認"
+
+msgid "Approve Host"
+msgstr "ホストを承認"
+
+msgid "Approve MAC"
+msgstr "MAC アドレスを承認"
+
+msgid "Approve Selected MACs"
+msgstr "選択した MAC アドレスを承認"
+
+msgid "Approve Success"
+msgstr "承認に成功しました"
+
+msgid "Approve all pending macs"
+msgstr "保留中の MAC アドレスをすべて承認"
+
+msgid "Approve all pending? "
+msgstr "保留中の項目をすべて承認しますか？ "
+
+msgid "Approve selected hosts"
+msgstr "選択したホストを承認"
+
+msgid "Approve this host?"
+msgstr "このホストを承認しますか？"
+
+msgid "Approved"
+msgstr "承認済み"
+
+msgid "Are you sure you wish to"
+msgstr "次の操作を実行しますか"
+
+msgid "Array"
+msgstr "配列"
+
+msgid "Assigned Image"
+msgstr "割り当てられたイメージ"
+
+msgid "Assignment saved successfully"
+msgstr "割り当てを正常に保存しました"
+
+msgid "Associate rule failed!"
+msgstr "ルールの関連付けに失敗しました！"
+
+msgid "Associated Sites"
+msgstr "関連付けられたサイト"
+
+msgid "Associates the files on nodes"
+msgstr "ノード上のファイルを関連付けます"
+
+msgid "Attempting to perform"
+msgstr "実行を試行しています"
+
+msgid "Attempting to ping"
+msgstr "ping を試行しています"
+
+msgid "Auto"
+msgstr "自動"
+
+msgid "Auto Log Out Time (in minutes)"
+msgstr "自動ログアウト時間（分）"
+
+msgid "Available Snapins"
+msgstr "利用可能なスナップイン"
+
+msgid "BIOS Date"
+msgstr "BIOS Date"
+
+msgid "BIOS Vendor"
+msgstr "BIOS ベンダー"
+
+msgid "BIOS Version"
+msgstr "BIOS バージョン"
+
+msgid "Bandwidth"
+msgstr "帯域幅"
+
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "帯域幅は 0 より大きい数値で指定してください"
+
+msgid "Barcode Numbers"
+msgstr "バーコード番号"
+
+msgid "Base Only"
+msgstr "ベースのみ"
+
+msgid "Basic Settings"
+msgstr "基本設定"
+
+msgid "Basic Tasks"
+msgstr "基本タスク"
+
+msgid "Bind DN"
+msgstr "バインド DN"
+
+msgid "Bind Password"
+msgstr "バインドパスワード"
+
+msgid "Bitrate"
+msgstr "ビットレート"
+
+msgid "Blank for default"
+msgstr "空欄の場合は既定値"
+
+msgid "Boot Exit settings"
+msgstr "ブート終了設定"
+
+msgid "Boot Key Sequence"
+msgstr "ブートキーシーケンス"
+
+msgid "Boot Options"
+msgstr "ブートオプション"
+
+msgid "Broadcast Create Fail"
+msgstr "ブロードキャストの作成に失敗しました"
+
+msgid "Broadcast Create Success"
+msgstr "ブロードキャストの作成に成功しました"
+
+msgid "Broadcast IP"
+msgstr "ブロードキャスト IP"
+
+msgid "Broadcast Name"
+msgstr "ブロードキャスト名"
+
+msgid "Broadcast Update Fail"
+msgstr "ブロードキャストの更新に失敗しました"
+
+msgid "Broadcast Update Success"
+msgstr "ブロードキャストの更新に成功しました"
+
+msgid "Broadcast added!"
+msgstr "ブロードキャストを追加しました！"
+
+msgid "Broadcast update failed!"
+msgstr "ブロードキャストの更新に失敗しました！"
+
+msgid "Broadcast updated!"
+msgstr "ブロードキャストを更新しました！"
+
+msgid "Browse"
+msgstr "参照"
+
+msgid "CPU Cache"
+msgstr "CPU キャッシュ"
+
+msgid "CPU Count"
+msgstr "CPU 数"
+
+msgid "CPU Manufacturer"
+msgstr "CPU 製造元"
+
+msgid "CPU Max Speed"
+msgstr "CPU 最大速度"
+
+msgid "CPU Model"
+msgstr "CPU モデル"
+
+msgid "CPU Normal Speed"
+msgstr "CPU 通常速度"
+
+msgid "CPU Speed"
+msgstr "CPU 速度"
+
+msgid "CPU Type"
+msgstr "CPU タイプ"
+
+msgid "CPU Version"
+msgstr "CPU バージョン"
+
+msgid "CUPS Printer"
+msgstr "CUPS プリンター"
+
+msgid "Call"
+msgstr "呼び出し"
+
+msgid "Can be a comma separated list."
+msgstr "カンマ区切りの一覧を指定できます。"
+
+msgid "Can not redeclare route"
+msgstr "ルートを再宣言できません"
+
+msgid "Cancelled due to new tasking."
+msgstr "新しいタスクによりキャンセルされました。"
+
+msgid "Cancelled task"
+msgstr "キャンセルされたタスク"
+
+msgid "Cannot add Primary mac as additional mac"
+msgstr "プライマリ MAC アドレスを追加 MAC アドレスとして追加できません"
+
+msgid "Cannot add a pre-existing primary mac"
+msgstr "既存のプライマリ MAC アドレスを追加できません"
+
+msgid "Cannot bind to the LDAP server"
+msgstr "LDAP サーバーにバインドできません"
+
+msgid "Cannot cancel tasks this way"
+msgstr "この方法ではタスクをキャンセルできません"
+
+msgid "Cannot change image when in tasking"
+msgstr "タスク実行中はイメージを変更できません"
+
+msgid "Cannot connect to"
+msgstr "接続できません:"
+
+msgid "Cannot connect to database"
+msgstr "データベースに接続できません"
+
+msgid "Cannot connect to ftp server"
+msgstr "FTP サーバーに接続できません"
+
+msgid "Cannot create tasking as image is not enabled"
+msgstr "イメージが有効ではないためタスクを作成できません"
+
+msgid "Cannot set tasking as image is not enabled"
+msgstr "イメージが有効ではないためタスクを設定できません"
+
+msgid "Cannot set tasking to invalid hosts"
+msgstr "無効なホストにタスクを設定できません"
+
+msgid "Cannot set tasking to pending hosts"
+msgstr "保留中のホストにタスクを設定できません"
+
+msgid "Cannot view from browser"
+msgstr "ブラウザーから表示できません"
+
+msgid "Capone Deploy"
+msgstr "Capone 展開"
+
+msgid "Capture"
+msgstr "キャプチャ"
+
+msgid "Captured"
+msgstr "キャプチャ済み"
+
+msgid "Change password"
+msgstr "パスワードを変更"
+
+msgid "Channel call is invalid"
+msgstr "チャネル呼び出しが無効です"
+
+msgid "Chassis Asset"
+msgstr "シャーシ資産情報"
+
+msgid "Chassis Manufacturer"
+msgstr "シャーシ製造元"
+
+msgid "Chassis Serial"
+msgstr "シャーシシリアル"
+
+msgid "Chassis Version"
+msgstr "シャーシバージョン"
+
+msgid "Chat is also available on the forums for more realtime help"
+msgstr "よりリアルタイムな支援が必要な場合はフォーラムのチャットも利用できます"
+
+msgid "Check here to see what hosts can be added"
+msgstr "追加可能なホストを確認するにはここをクリックしてください"
+
+msgid "Check here to see what images can be added"
+msgstr "追加可能なイメージを確認するにはここをクリックしてください"
+
+msgid "Check here to see what printers can be added"
+msgstr "追加可能なプリンターを確認するにはここをクリックしてください"
+
+msgid "Check here to see what rules can be added"
+msgstr "追加可能なルールを確認するにはここをクリックしてください"
+
+msgid "Check here to see what snapins can be added"
+msgstr "追加可能なスナップインを確認するにはここをクリックしてください"
+
+msgid "Check here to see what storage groups can be added"
+msgstr "追加可能なストレージグループを確認するにはここをクリックしてください"
+
+msgid "Check here to see what users can be added"
+msgstr "追加可能なユーザーを確認するにはここをクリックしてください"
+
+msgid "Check that database is running"
+msgstr "データベースが稼働していることを確認してください"
+
+msgid "Checkin Time"
+msgstr "チェックイン時刻"
+
+msgid "Checking if I am the group manager"
+msgstr "自身がグループマネージャーか確認しています"
+
+msgid "Checksum"
+msgstr "チェックサム"
+
+msgid "Checksums"
+msgstr "チェックサム"
+
+msgid "City/State/Zip"
+msgstr "市区町村/都道府県/郵便番号"
+
+msgid "Class"
+msgstr "クラス"
+
+msgid "Class is not extended from FOGPage"
+msgstr "クラスが FOGPage を継承していません"
+
+msgid "Class must extend event"
+msgstr "クラスは event を継承する必要があります"
+
+msgid "Class must extend hook"
+msgstr "クラスは hook を継承する必要があります"
+
+msgid "Class name must be a string"
+msgstr "クラス名は文字列で指定してください"
+
+msgid "Clear"
+msgstr "クリア"
+
+msgid "Clear Fields"
+msgstr "フィールドをクリア"
+
+msgid "Clear all fields?"
+msgstr "すべてのフィールドをクリアしますか？"
+
+msgid "Clear all history"
+msgstr "すべての履歴をクリア"
+
+msgid "Click"
+msgstr "クリック"
+
+msgid "Click Here"
+msgstr "ここをクリック"
+
+msgid "Client"
+msgstr "クライアント"
+
+msgid "Client Count"
+msgstr "クライアント数"
+
+msgid "Client Management"
+msgstr "クライアント管理"
+
+msgid "Client Modules Change Fail"
+msgstr "クライアントモジュールの変更に失敗しました"
+
+msgid "Client Modules Change Success"
+msgstr "クライアントモジュールを正常に変更しました"
+
+msgid "Client Settings"
+msgstr "クライアント設定"
+
+msgid "Client Updater"
+msgstr "クライアント更新"
+
+msgid "Client Version"
+msgstr "クライアントバージョン"
+
+msgid "Clients"
+msgstr "クライアント"
+
+msgid "Command"
+msgstr "コマンド"
+
+msgid "Complete"
+msgstr "完了"
+
+msgid "Complete Time"
+msgstr "完了時刻"
+
+msgid "Completed"
+msgstr "完了"
+
+msgid "Compression"
+msgstr "圧縮"
+
+msgid "Computer Information"
+msgstr "コンピューター情報"
+
+msgid "Computer Model"
+msgstr "コンピューターモデル"
+
+msgid "Config File"
+msgstr "構成ファイル"
+
+msgid "Configuration"
+msgstr "構成"
+
+msgid "Configuration Import/Export"
+msgstr "構成のインポート/エクスポート"
+
+msgid "Configuration Save"
+msgstr "構成を保存"
+
+msgid "Confirm tasking"
+msgstr "タスクを確認"
+
+msgid "Conflicting path/file"
+msgstr "競合するパス/ファイル"
+
+msgid "Copy from existing"
+msgstr "既存のものからコピー"
+
+msgid "Could not find a Storage Node in this group"
+msgstr "このグループ内にストレージノードが見つかりません"
+
+msgid "Could not find a Storage Node is"
+msgstr "ストレージノードが見つかりません"
+
+msgid "Could not find any"
+msgstr "見つかりませんでした"
+
+msgid "Could not find temp filename"
+msgstr "一時ファイル名が見つかりません"
+
+msgid "Could not notify"
+msgstr "通知できませんでした"
+
+msgid "Could not read snapin file"
+msgstr "スナップインファイルを読み取れませんでした"
+
+msgid "Could not read tmp file."
+msgstr "一時ファイルを読み取れませんでした。"
+
+msgid "Could not register"
+msgstr "登録できませんでした"
+
+msgid "Create"
+msgstr "作成"
+
+msgid "Create Image"
+msgstr "イメージを作成"
+
+#, php-format
+msgid "Create New %s"
+msgstr "新しい%sを作成"
+
+msgid "Create New Access Control Role"
+msgstr "新しいアクセス制御 ロールを作成"
+
+msgid "Create New Key"
+msgstr "新しいキーを作成"
+
+msgid "Create New LDAP"
+msgstr "新しいLDAPを作成"
+
+msgid "Create New Location"
+msgstr "新しいロケーションを作成"
+
+msgid "Create New Printer"
+msgstr "新しいプリンターを作成"
+
+msgid "Create New Snapin"
+msgstr "新しいスナップインを作成"
+
+msgid "Create New SubnetGroup?"
+msgstr "新しいサブネットグループを作成しますか？"
+
+msgid "Create New iPXE Menu Entry"
+msgstr "新しい iPXE メニューエントリを作成"
+
+msgid "Create Report?"
+msgstr "レポートを作成しますか？"
+
+msgid "Create Rule?"
+msgstr "ルールを作成しますか？"
+
+msgid "Create Site"
+msgstr "サイトを作成"
+
+msgid "Create Storage Group"
+msgstr "ストレージグループを作成"
+
+msgid "Create Storage Node"
+msgstr "ストレージノードを作成"
+
+msgid "Create Task state"
+msgstr "タスク状態を作成"
+
+msgid "Create Task type"
+msgstr "タスクタイプを作成"
+
+msgid "Create WOL Broadcast?"
+msgstr "WOL ブロードキャストを作成しますか？"
+
+msgid "Create new PM Schedule"
+msgstr "新しい電源管理スケジュールを作成"
+
+msgid "Create new group"
+msgstr "新しいグループを作成"
+
+msgid "Create user?"
+msgstr "ユーザーを作成しますか？"
+
+msgid "Created By"
+msgstr "作成者"
+
+msgid "Created Tasks For"
+msgstr "タスク作成対象"
+
+msgid "Created by FOG Reg on"
+msgstr "FOG 登録により作成:"
+
+msgid "Credits"
+msgstr "クレジット"
+
+msgid "Cron"
+msgstr "Cron"
+
+msgid "Cron Schedule"
+msgstr "Cron スケジュール"
+
+msgid "Cross platform"
+msgstr "クロスプラットフォーム"
+
+msgid "Current Associations"
+msgstr "現在の関連付け"
+
+msgid "Current Power Management settings"
+msgstr "現在の電源管理設定"
+
+msgid "Current Records"
+msgstr "現在のレコード"
+
+msgid "Current Sessions"
+msgstr "現在のセッション"
+
+msgid "Current files"
+msgstr "現在のファイル"
+
+msgid "Current settings"
+msgstr "現在の設定"
+
+msgid "DMI Field"
+msgstr "DMI フィールド"
+
+msgid "DMI Key"
+msgstr "DMI キー"
+
+msgid "DMI Result"
+msgstr "DMI 結果"
+
+msgid "Daily"
+msgstr "日単位"
+
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+msgid "Data is blank"
+msgstr "データが空です"
+
+msgid "Data must be an array or a callable item."
+msgstr "データは配列または呼び出し可能な項目である必要があります。"
+
+msgid "Database"
+msgstr "データベース"
+
+msgid "Database Failure"
+msgstr "データベース障害"
+
+msgid "Database Reverted"
+msgstr "データベースを元に戻しました"
+
+msgid "Database SQL"
+msgstr "データベース SQL"
+
+msgid "Database Schema Installer / Updater"
+msgstr "データベーススキーマのインストール/更新"
+
+msgid "Database Update Failed"
+msgstr "データベースの更新に失敗しました"
+
+msgid "Database changes reverted!"
+msgstr "データベースの変更を元に戻しました！"
+
+msgid "Database imported and added successfully!"
+msgstr "データベースを正常にインポートして追加しました！"
+
+msgid "Database not available"
+msgstr "データベースを利用できません"
+
+msgid "Database save failed"
+msgstr "データベースの保存に失敗しました"
+
+msgid "Date"
+msgstr "日付"
+
+msgid "Date and Time"
+msgstr "日時"
+
+msgid "Date of checkout"
+msgstr "貸出日"
+
+msgid "Day of month value is not valid"
+msgstr "月の日付の値が無効です"
+
+msgid "Day of week value is not valid"
+msgstr "曜日の値が無効です"
+
+msgid "Debug"
+msgstr "デバッグ"
+
+msgid "Debug Options"
+msgstr "デバッグオプション"
+
+msgid "Default"
+msgstr "既定"
+
+msgid "Default Height"
+msgstr "既定の高さ"
+
+msgid "Default Item"
+msgstr "既定の項目"
+
+msgid "Default Refresh Rate"
+msgstr "既定の更新レート"
+
+msgid "Default Width"
+msgstr "既定の幅"
+
+msgid "Default is disabled"
+msgstr "既定では無効"
+
+msgid "Default log out time (in minutes)"
+msgstr "既定のログアウト時間（分）"
+
+msgid "Delayed"
+msgstr "遅延"
+
+msgid "Delayed Start"
+msgstr "遅延開始"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "Delete Fail"
+msgstr "削除に失敗しました"
+
+msgid "Delete MACs"
+msgstr "MAC アドレスを削除"
+
+msgid "Delete Menu Item"
+msgstr "メニュー項目を削除"
+
+msgid "Delete Selected"
+msgstr "選択項目を削除"
+
+msgid "Delete Selected Items"
+msgstr "選択した項目を削除"
+
+msgid "Delete Selected MACs"
+msgstr "選択した MAC アドレスを削除"
+
+msgid "Delete Success"
+msgstr "削除に成功しました"
+
+msgid "Delete all PM tasks?"
+msgstr "すべての電源管理タスクを削除しますか？"
+
+msgid "Delete files"
+msgstr "ファイルを削除"
+
+msgid "Delete hosts within"
+msgstr "含まれるホストを削除"
+
+msgid "Delete selected"
+msgstr "選択項目を削除"
+
+msgid "Delete selected hosts"
+msgstr "選択したホストを削除"
+
+msgid "Deleted"
+msgstr "削除済み"
+
+msgid "Deleted Success"
+msgstr "正常に削除されました"
+
+msgid "Deleting remote file"
+msgstr "リモートファイルを削除しています"
+
+msgid "Deploy"
+msgstr "展開"
+
+msgid "Deploy Method"
+msgstr "展開方法"
+
+msgid "Deploy/Capture"
+msgstr "展開/キャプチャ"
+
+msgid "Description"
+msgstr "説明"
+
+msgid "Destroy failed"
+msgstr "破棄に失敗しました"
+
+msgid "Destroyed assignment"
+msgstr "割り当てを破棄しました"
+
+msgid "Destroyed assignments"
+msgstr "割り当てを破棄しました"
+
+msgid "Detailed documentation"
+msgstr "詳細ドキュメント"
+
+msgid "Device must be a string"
+msgstr "デバイスは文字列で指定してください"
+
+msgid "Diff parameter must be numeric"
+msgstr "Diff パラメーターは数値で指定してください"
+
+msgid "Directories"
+msgstr "ディレクトリ"
+
+msgid "Directory"
+msgstr "ディレクトリ"
+
+msgid "Directory Already Exists"
+msgstr "ディレクトリは既に存在します"
+
+msgid "Directory Cleaner"
+msgstr "ディレクトリクリーナー"
+
+msgid "Disabled"
+msgstr "無効"
+
+msgid "Display"
+msgstr "表示"
+
+msgid "Do not list on menu"
+msgstr "メニューに表示しない"
+
+msgid "Domain Password"
+msgstr "ドメインパスワード"
+
+msgid "Domain Password Legacy"
+msgstr "従来のドメインパスワード"
+
+msgid "Domain Username"
+msgstr "ドメインユーザー名"
+
+msgid "Domain name"
+msgstr "ドメイン名"
+
+msgid "Donate to FOG"
+msgstr "FOG に寄付"
+
+msgid "Done"
+msgstr "完了"
+
+msgid "Done, Failed to create tasking"
+msgstr "完了しましたが、タスクの作成に失敗しました"
+
+msgid "Done, with imaging!"
+msgstr "完了しました（イメージ処理あり）！"
+
+msgid "Done, without imaging!"
+msgstr "完了しました（イメージ処理なし）！"
+
+msgid "Done, without imaging! Invalid Login!"
+msgstr "完了しました（イメージ処理なし）！ログインが無効です！"
+
+msgid "Done, without imaging! No image assigned!"
+msgstr "完了しました（イメージ処理なし）！イメージが割り当てられていません！"
+
+msgid "Dot in Filename not allowed!"
+msgstr "ファイル名にドットは使用できません！"
+
+msgid "Download Failed"
+msgstr "ダウンロードに失敗しました"
+
+msgid "Downloading Initrd"
+msgstr "Initrd をダウンロードしています"
+
+msgid "Downloading Kernel"
+msgstr "カーネルをダウンロードしています"
+
+msgid "Dropped"
+msgstr "切断済み"
+
+msgid "Duration"
+msgstr "期間"
+
+msgid "ESC is defaulted"
+msgstr "ESC が既定です"
+
+msgid "Edit"
+msgstr "編集"
+
+msgid "Edit Host"
+msgstr "ホストを編集"
+
+msgid "Edit Image"
+msgstr "イメージを編集"
+
+msgid "Edit Node"
+msgstr "ノードを編集"
+
+msgid "Edit User"
+msgstr "ユーザーを編集"
+
+msgid "Editable"
+msgstr "編集可能"
+
+msgid "Either reboot or shutdown action must be used."
+msgstr "再起動またはシャットダウン操作のいずれかを使用する必要があります。"
+
+msgid "Email"
+msgstr "メール"
+
+msgid "Enable Nested Group Matching (Active Directory only)"
+msgstr "ネストされたグループ照合を有効化（Active Directory のみ）"
+
+msgid "Enable location Sending"
+msgstr "ロケーション送信を有効化"
+
+msgid "Enabled"
+msgstr "有効"
+
+msgid "Enabled as default"
+msgstr "既定で有効"
+
+msgid "End"
+msgstr "終了"
+
+msgid "End Date"
+msgstr "終了日"
+
+msgid "End Time"
+msgstr "終了時刻"
+
+msgid "Engineer"
+msgstr "担当者"
+
+msgid "Enter a group name to search for"
+msgstr "検索するグループ名を入力してください"
+
+msgid "Enter a hostname to search for"
+msgstr "検索するホスト名を入力してください"
+
+msgid "Enter a location name to search for"
+msgstr "検索するロケーション名を入力してください"
+
+msgid "Enter a model name to search for"
+msgstr "検索するモデル名を入力してください"
+
+msgid "Enter a site name to search for"
+msgstr "検索するサイト名を入力してください"
+
+msgid "Enter a snapin name to search for"
+msgstr "検索するスナップイン名を入力してください"
+
+msgid "Enter a term to search for"
+msgstr "検索する検索語を入力してください"
+
+msgid "Enter a username to search for"
+msgstr "検索するユーザー名を入力してください"
+
+msgid "Enter an image name to search for"
+msgstr "検索するイメージ名を入力してください"
+
+msgid "Enter an user name to search for"
+msgstr "検索するユーザー名を入力してください"
+
+msgid "Equipment Loan"
+msgstr "機器貸出"
+
+msgid "Error"
+msgstr "エラー"
+
+msgid "Error Code"
+msgstr "エラーコード"
+
+msgid "Error Message"
+msgstr "エラーメッセージ"
+
+msgid "Error Opening DB File"
+msgstr "DB ファイルを開くときにエラーが発生しました"
+
+msgid "Error multiple hosts returned for list of mac addresses"
+msgstr "MAC アドレス一覧に対して複数のホストが返されました"
+
+msgid "Error performing query"
+msgstr "クエリの実行中にエラーが発生しました"
+
+msgid "Error: Failed to download initrd"
+msgstr "エラー: initrd のダウンロードに失敗しました"
+
+msgid "Error: Failed to download kernel"
+msgstr "エラー: カーネルのダウンロードに失敗しました"
+
+msgid "Error: Failed to open temp file"
+msgstr "エラー: 一時ファイルを開けませんでした"
+
+msgid "Errors"
+msgstr "エラー"
+
+msgid "Errors on revert detected!"
+msgstr "復元中にエラーが検出されました！"
+
+msgid "Especially when your organization has many hosts"
+msgstr "組織に多数のホストがある場合は特に有用です"
+
+msgid "Estimated FOG Sites"
+msgstr "推定 FOG サイト数"
+
+msgid "Event"
+msgstr "イベント"
+
+msgid "Event Data must be an array"
+msgstr "イベントデータは配列である必要があります"
+
+msgid "Event and data are not set"
+msgstr "イベントとデータが設定されていません"
+
+msgid "Event must be a string"
+msgstr "イベントは文字列で指定してください"
+
+msgid "Exists item must be boolean"
+msgstr "Exists 項目はブール値で指定してください"
+
+msgid "Exit to Hard Drive Type"
+msgstr "ハードドライブへ終了するタイプ"
+
+msgid "Exit to Hard Drive Type(EFI)"
+msgstr "ハードドライブへ終了するタイプ（EFI）"
+
+msgid "Expand All"
+msgstr "すべて展開"
+
+msgid "Export"
+msgstr "エクスポート"
+
+msgid "Export Accesscontrols"
+msgstr "アクセス制御をエクスポート"
+
+msgid "Export CSV"
+msgstr "CSV をエクスポート"
+
+msgid "Export Checksums"
+msgstr "チェックサムをエクスポート"
+
+msgid "Export Complete"
+msgstr "エクスポートが完了しました"
+
+msgid "Export Configuration"
+msgstr "構成をエクスポート"
+
+msgid "Export Database"
+msgstr "データベースをエクスポート"
+
+msgid "Export Database?"
+msgstr "データベースをエクスポート"
+
+msgid "Export Groups"
+msgstr "グループをエクスポート"
+
+msgid "Export Hosts"
+msgstr "ホストをエクスポート"
+
+msgid "Export Images"
+msgstr "イメージをエクスポート"
+
+msgid "Export LDAPs"
+msgstr "LDAPをエクスポート"
+
+msgid "Export Locations"
+msgstr "ロケーションをエクスポート"
+
+msgid "Export PDF"
+msgstr "PDF をエクスポート"
+
+msgid "Export Printers"
+msgstr "プリンターをエクスポート"
+
+msgid "Export Sites"
+msgstr "サイトをエクスポート"
+
+msgid "Export Snapins"
+msgstr "スナップインをエクスポート"
+
+msgid "Export Subnetgroups"
+msgstr "サブネットグループをエクスポート"
+
+msgid "Export Task States"
+msgstr "タスク状態をエクスポート"
+
+msgid "Export Task Types"
+msgstr "タスクタイプをエクスポート"
+
+msgid "Export Users"
+msgstr "ユーザーをエクスポート"
+
+msgid "Export WOLBroadcasts"
+msgstr "WOL ブロードキャストをエクスポート"
+
+msgid "Export Windows Keys"
+msgstr "Windows キーをエクスポート"
+
+msgid "Extension"
+msgstr "拡張子"
+
+msgid "FOG"
+msgstr "FOG"
+
+msgid "FOG 1.2.0 and earlier"
+msgstr "FOG 1.2.0 以前"
+
+msgid "FOG 1.2.0 and earlier."
+msgstr "FOG 1.2.0 以前。"
+
+msgid "FOG Client"
+msgstr "FOG クライアント"
+
+msgid "FOG Client Download"
+msgstr "FOG クライアントのダウンロード"
+
+msgid "FOG Client Installer"
+msgstr "FOG クライアントインストーラー"
+
+msgid "FOG Client Service Updater"
+msgstr "FOG クライアントサービス更新"
+
+msgid "FOG Client Wiki"
+msgstr "FOG クライアント Wiki"
+
+msgid "FOG Client on Github"
+msgstr "Github の FOG クライアント"
+
+msgid "FOG Configuration"
+msgstr "FOG 構成"
+
+msgid "FOG Crypt"
+msgstr "FOG Crypt"
+
+msgid "FOG Equipment Loan Form"
+msgstr "FOG 機器貸出フォーム"
+
+msgid "FOG Forums"
+msgstr "FOG フォーラム"
+
+msgid "FOG General Help"
+msgstr "FOG 全般ヘルプ"
+
+msgid "FOG History - Search"
+msgstr "FOG 履歴 - Search"
+
+msgid "FOG Home Page"
+msgstr "FOG ホームページ"
+
+msgid "FOG Host - Search"
+msgstr "FOG ホスト - Search"
+
+msgid "FOG Host Inventory - Search"
+msgstr "FOG ホストインベントリ - 検索"
+
+msgid "FOG Host and Users - Search"
+msgstr "FOG ホストとユーザー - 検索"
+
+msgid "FOG Hosts and Users Login"
+msgstr "FOG ホストとユーザーのログイン"
+
+msgid "FOG Imaging - Search"
+msgstr "FOG イメージ処理 - 検索"
+
+msgid "FOG Imaging Log"
+msgstr "FOG イメージ処理ログ"
+
+msgid "FOG License Information"
+msgstr "FOG ライセンス情報"
+
+msgid "FOG Log Viewer"
+msgstr "FOG ログビューアー"
+
+msgid "FOG Managed Printers"
+msgstr "FOG 管理プリンター"
+
+msgid "FOG PXE Boot Menu Configuration"
+msgstr "FOG PXE ブートメニュー構成"
+
+msgid "FOG Project"
+msgstr "FOG Project"
+
+msgid "FOG Project on Github"
+msgstr "Github の FOG Project"
+
+msgid "FOG Reports exist to give you information about what"
+msgstr "FOG レポートは次の情報を提供します"
+
+msgid "FOG Settings"
+msgstr "FOG 設定"
+
+msgid "FOG Snapin - Search"
+msgstr "FOG スナップイン - Search"
+
+msgid "FOG Sourceforge Page"
+msgstr "FOG Sourceforge ページ"
+
+msgid "FOG System Settings"
+msgstr "FOG システム設定"
+
+msgid "FOG User tracking - Search"
+msgstr "FOG ユーザー追跡 - 検索"
+
+msgid "FOG User tracking history"
+msgstr "FOG ユーザー追跡履歴"
+
+msgid "FOG Version"
+msgstr "FOG バージョン"
+
+msgid "FOG Version Information"
+msgstr "FOG バージョン情報"
+
+msgid "FOG Virus Summary"
+msgstr "FOG ウイルス概要"
+
+msgid "FOG Wiki"
+msgstr "FOG Wiki"
+
+msgid "FOG database you can do so using"
+msgstr "FOG データベースは次を使用して操作できます"
+
+msgid "FOG did is now called Power Management"
+msgstr "FOG のこの機能は現在「電源管理」と呼ばれます"
+
+msgid "FOG is unable to communicate with the database"
+msgstr "FOG はデータベースと通信できません"
+
+msgid "FOG server defaulting under the folder"
+msgstr "FOG サーバーは次のフォルダー配下を既定とします"
+
+msgid "FTP Connection has failed"
+msgstr "FTP 接続に失敗しました"
+
+msgid "FTP Path"
+msgstr "FTP パス"
+
+msgid "FTP connection failed"
+msgstr "FTP 接続に失敗しました"
+
+msgid "Fail to destroy"
+msgstr "破棄に失敗しました"
+
+msgid "Failed"
+msgstr "失敗しました"
+
+msgid "Failed to"
+msgstr "失敗しました:"
+
+#, php-format
+msgid "Failed to Render Page: Node: %s, Error: %s"
+msgstr "ページのレンダリングに失敗しました: ノード: %s、エラー: %s"
+
+msgid "Failed to add snapin"
+msgstr "スナップインの追加に失敗しました"
+
+msgid "Failed to add/update snapin file"
+msgstr "スナップインファイルの追加/更新に失敗しました"
+
+msgid "Failed to connect"
+msgstr "接続に失敗しました"
+
+msgid "Failed to create"
+msgstr "作成に失敗しました"
+
+msgid "Failed to create Host"
+msgstr "ホストの作成に失敗しました"
+
+msgid "Failed to create Session"
+msgstr "セッションの作成に失敗しました"
+
+msgid "Failed to create Snapin Job"
+msgstr "スナップインジョブの作成に失敗しました"
+
+msgid "Failed to create inventory for this host"
+msgstr "このホストのインベントリ作成に失敗しました"
+
+msgid "Failed to create new Group"
+msgstr "新しいグループの作成に失敗しました"
+
+msgid "Failed to create scheduled tasking"
+msgstr "スケジュール済みタスクの作成に失敗しました"
+
+msgid "Failed to create snapin path on Master Node"
+msgstr "マスターノード上のスナップインパス作成に失敗しました"
+
+msgid "Failed to create task"
+msgstr "タスクの作成に失敗しました"
+
+msgid "Failed to create tasking"
+msgstr "タスクの作成に失敗しました"
+
+msgid "Failed to decrypt data on server"
+msgstr "サーバー上のデータ復号に失敗しました"
+
+msgid "Failed to delete file"
+msgstr "ファイルの削除に失敗しました"
+
+msgid "Failed to delete image files"
+msgstr "イメージファイルの削除に失敗しました"
+
+msgid "Failed to destroy"
+msgstr "破棄に失敗しました"
+
+msgid "Failed to destroy Storage Group"
+msgstr "ストレージグループの破棄に失敗しました"
+
+msgid "Failed to destroy Storage Node"
+msgstr "ストレージノードの破棄に失敗しました"
+
+msgid "Failed to install plugin"
+msgstr "プラグインのインストールに失敗しました"
+
+msgid "Failed to save assignment"
+msgstr "割り当ての保存に失敗しました"
+
+msgid "Failed to save plugin"
+msgstr "プラグインの保存に失敗しました"
+
+msgid "Failed to start tasking type"
+msgstr "タスクタイプの開始に失敗しました"
+
+msgid "Failed to update"
+msgstr "更新に失敗しました"
+
+msgid "Failed to update Host"
+msgstr "ホストの更新に失敗しました"
+
+msgid "Failed to update Session"
+msgstr "セッションの更新に失敗しました"
+
+msgid "Failed to update Task"
+msgstr "タスクの更新に失敗しました"
+
+msgid "Failed to update imaging log"
+msgstr "イメージ処理ログの更新に失敗しました"
+
+msgid "Failed to update task"
+msgstr "タスクの更新に失敗しました"
+
+msgid "Failed to update task log"
+msgstr "タスクログの更新に失敗しました"
+
+msgid "Failed to update/create image log"
+msgstr "イメージログの更新/作成に失敗しました"
+
+msgid "Failed to update/create task log"
+msgstr "タスクログの更新/作成に失敗しました"
+
+#, php-format
+msgid "Failed to upload \"%s\" to Master Node"
+msgstr "\"%s\" のマスターノードへのアップロードに失敗しました"
+
+msgid "Failed to write file to disk"
+msgstr "ディスクへのファイル書き込みに失敗しました"
+
+msgid "Fields and types must have equal count"
+msgstr "Fields と types must have equal count"
+
+msgid "Fields not defined for this class"
+msgstr "Fields not 定義済み for this class"
+
+msgid "File"
+msgstr "ファイル"
+
+msgid "File Integrity Management"
+msgstr "ファイル整合性管理"
+
+msgid "File Not Found"
+msgstr "ファイルが見つかりません"
+
+msgid "File System Information"
+msgstr "ファイルシステム情報"
+
+#, php-format
+msgid "File at index %d has an empty filename"
+msgstr "ファイル at index %d があります an empty filename"
+
+msgid "File does not exist"
+msgstr "ファイルが存在しません"
+
+msgid "File hash mismatch"
+msgstr "ファイルハッシュが一致しません"
+
+msgid "File must be a csv"
+msgstr "ファイルは CSV である必要があります"
+
+msgid "File or path cannot be reached"
+msgstr "ファイルまたはパスに到達できません"
+
+msgid "File or path does not exist"
+msgstr "ファイルまたはパスが存在しません"
+
+msgid "File size mismatch"
+msgstr "ファイルサイズが一致しません"
+
+msgid "File upload stopped by an extension"
+msgstr "ファイル upload stopped by an extension"
+
+msgid "Filesize"
+msgstr "ファイルサイズ"
+
+msgid "Filter"
+msgstr "フィルター"
+
+msgid "Finding any images associated"
+msgstr "Finding any イメージ associated"
+
+msgid "Finding any snapins associated"
+msgstr "Finding any スナップイン associated"
+
+msgid "For example, a GPO policy to push"
+msgstr "For example, a GPO policy to push"
+
+msgid "Forbidden (disallowed Origin)"
+msgstr "禁止されています（許可されていない Origin）"
+
+msgid "Forbidden (disallowed Referer)"
+msgstr "禁止されています（許可されていない Referer）"
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr "禁止されています（無効な CSRF トークン）"
+
+msgid "Force"
+msgstr "強制"
+
+msgid "Force task to start"
+msgstr "タスクを強制開始"
+
+msgid "Form"
+msgstr "フォーム"
+
+msgid "Forums are the most common and fastest method of getting"
+msgstr "Forums are the most common と fastest method of getting"
+
+msgid "Found"
+msgstr "検出されました"
+
+msgid "Found a scheduled task that should run."
+msgstr "Found a scheduled タスク that should run。"
+
+msgid "Found a wake on lan task that should run."
+msgstr "Found a wake on lan タスク that should run。"
+
+msgid "Found login information"
+msgstr "Found login information"
+
+msgid "Found snapin information"
+msgstr "Found スナップイン information"
+
+msgid "Free"
+msgstr "空き"
+
+msgid "Free Disk Space"
+msgstr "空きディスク領域"
+
+msgid "Free Memory"
+msgstr "空きメモリ"
+
+msgid "Friendly Name"
+msgstr "表示名"
+
+msgid "Full History Export"
+msgstr "全履歴をエクスポート"
+
+msgid "Full Inventory Export"
+msgstr "完全インベントリをエクスポート"
+
+msgid "Function"
+msgstr "関数"
+
+msgid "Function does not exist"
+msgstr "関数が存在しません"
+
+msgid "GNU General Public License"
+msgstr "GNU General Public License"
+
+msgid "GPU Products"
+msgstr "GPU 製品"
+
+msgid "GPU Vendors"
+msgstr "GPU ベンダー"
+
+msgid "General"
+msgstr "全般"
+
+msgid "General Information"
+msgstr "全般情報"
+
+msgid "Generate"
+msgstr "生成"
+
+msgid "Generic LDAP"
+msgstr "汎用 LDAP"
+
+msgid "Getting image size for"
+msgstr "Getting イメージ size for"
+
+msgid "Getting snapin hash and size for"
+msgstr "Getting スナップイン hash と size for"
+
+msgid "Got in line at"
+msgstr "Got in line at"
+
+msgid "Goto task list"
+msgstr "タスク一覧へ移動"
+
+msgid "Graph Enabled"
+msgstr "グラフ有効"
+
+msgid "Graphical"
+msgstr "グラフィカル"
+
+msgid "Green FOG"
+msgstr "Green FOG"
+
+msgid "Group"
+msgstr "グループ"
+
+msgid "Group Associations"
+msgstr "グループ 関連付け"
+
+msgid "Group Auto Logout"
+msgstr "グループ Auto Logout"
+
+msgid "Group Bios Exit Type"
+msgstr "グループ Bios Exit タイプ"
+
+msgid "Group Create Fail"
+msgstr "グループの作成に失敗しました"
+
+msgid "Group Create Success"
+msgstr "グループの作成に成功しました"
+
+msgid "Group Description"
+msgstr "グループの説明"
+
+msgid "Group EFI Exit Type"
+msgstr "グループ EFI Exit タイプ"
+
+msgid "Group FOG Client Module configuration"
+msgstr "グループ FOG クライアント モジュール 構成"
+
+msgid "Group Kernel"
+msgstr "グループ カーネル"
+
+msgid "Group Kernel Arguments"
+msgstr "グループ カーネル Arguments"
+
+msgid "Group Management"
+msgstr "グループ管理"
+
+msgid "Group Member Attribute"
+msgstr "グループ Member Attribute"
+
+msgid "Group Name"
+msgstr "グループ名"
+
+msgid "Group Power Management Remove"
+msgstr "グループ 電源管理 削除"
+
+msgid "Group Primary Disk"
+msgstr "グループ Primary Disk"
+
+msgid "Group Printers"
+msgstr "グループ プリンター"
+
+msgid "Group Product Key"
+msgstr "グループ プロダクトキー"
+
+msgid "Group Quick Deploy"
+msgstr "グループ Quick Deploy"
+
+msgid "Group Screen Resolution"
+msgstr "グループ Screen Resolution"
+
+msgid "Group Search DN"
+msgstr "グループ Search DN"
+
+msgid "Group Search DN did not return any results"
+msgstr "グループ検索 DN は結果を返しませんでした"
+
+msgid "Group Snapins"
+msgstr "グループ スナップイン"
+
+msgid "Group Update Fail"
+msgstr "グループの更新に失敗しました"
+
+msgid "Group Update Success"
+msgstr "グループの更新に成功しました"
+
+msgid "Group added!"
+msgstr "グループを追加しました！"
+
+msgid "Group general"
+msgstr "グループ全般"
+
+msgid "Group image"
+msgstr "グループ イメージ"
+
+msgid "Group image association"
+msgstr "グループ イメージ 関連付け"
+
+msgid "Group is not valid"
+msgstr "グループ is not 有効な"
+
+msgid "Group module settings"
+msgstr "グループ モジュール 設定"
+
+msgid "Group update failed!"
+msgstr "グループの更新に失敗しました！"
+
+msgid "Group updated!"
+msgstr "グループを更新しました！"
+
+msgid "Groups"
+msgstr "グループ"
+
+msgid "Groups are not allowed to schedule upload tasks"
+msgstr "グループ are not allowed to schedule upload タスク"
+
+msgid "HD Device"
+msgstr "HD デバイス"
+
+msgid "HD Firmware"
+msgstr "HD ファームウェア"
+
+msgid "HD Model"
+msgstr "HD モデル"
+
+msgid "HD Serial"
+msgstr "HD シリアル"
+
+msgid "Hard Disk Firmware"
+msgstr "ハードディスクファームウェア"
+
+msgid "Hard Disk Model"
+msgstr "ハードディスクモデル"
+
+msgid "Hard Disk Serial Number"
+msgstr "ハードディスクシリアル番号"
+
+msgid "Hardware Information"
+msgstr "ハードウェア情報"
+
+msgid "Hash"
+msgstr "ハッシュ"
+
+msgid "Have not locked the host for access"
+msgstr "Have not locked the ホスト for access"
+
+msgid "Height must be 120 pixels."
+msgstr "高さは 120 ピクセルである必要があります。"
+
+msgid "Help and Guide"
+msgstr "ヘルプとガイド"
+
+msgid "Hide Menu"
+msgstr "メニューを非表示"
+
+msgid "Hide Menu Timeout"
+msgstr "メニュー非表示タイムアウト"
+
+msgid "History Graph"
+msgstr "履歴グラフ"
+
+msgid "History ID"
+msgstr "履歴 ID"
+
+msgid "History IP"
+msgstr "履歴 IP"
+
+msgid "History Info"
+msgstr "履歴情報"
+
+msgid "History Time"
+msgstr "履歴時刻"
+
+msgid "History User"
+msgstr "履歴ユーザー"
+
+msgid "Home"
+msgstr "ホーム"
+
+msgid "Home Address"
+msgstr "自宅住所"
+
+msgid "Home Phone"
+msgstr "自宅電話番号"
+
+msgid "Host"
+msgstr "ホスト"
+
+msgid "Host AD Domain"
+msgstr "ホスト AD Domain"
+
+msgid "Host AD Join"
+msgstr "ホスト AD Join"
+
+msgid "Host AD OU"
+msgstr "ホスト AD OU"
+
+msgid "Host Add to Group Fail"
+msgstr "ホスト Add to グループ Fail"
+
+msgid "Host Add to Group Success"
+msgstr "ホスト Add to グループ Success"
+
+msgid "Host Associated"
+msgstr "ホスト Associated"
+
+msgid "Host Associated Snapins"
+msgstr "ホスト Associated スナップイン"
+
+msgid "Host Auto Logout"
+msgstr "ホスト Auto Logout"
+
+msgid "Host Bios Exit Type"
+msgstr "ホスト Bios Exit タイプ"
+
+msgid "Host Create Fail"
+msgstr "ホストの作成に失敗しました"
+
+msgid "Host Create Success"
+msgstr "ホストの作成に成功しました"
+
+msgid "Host Created"
+msgstr "ホスト Created"
+
+msgid "Host Desc"
+msgstr "ホスト Desc"
+
+msgid "Host Description"
+msgstr "ホストの説明"
+
+msgid "Host EFI Exit Type"
+msgstr "ホスト EFI Exit タイプ"
+
+msgid "Host FOG Client Module configuration"
+msgstr "ホスト FOG クライアント モジュール 構成"
+
+msgid "Host HD Device"
+msgstr "ホスト HD Device"
+
+msgid "Host Hardware Inventory"
+msgstr "ホスト Hardware インベントリ"
+
+msgid "Host ID"
+msgstr "ホスト ID"
+
+msgid "Host Image"
+msgstr "ホスト イメージ"
+
+msgid "Host Imaging History"
+msgstr "ホスト イメージ処理 履歴"
+
+msgid "Host Init"
+msgstr "ホスト Init"
+
+msgid "Host Invalid"
+msgstr "ホスト Invalid"
+
+msgid "Host Kernel"
+msgstr "ホスト カーネル"
+
+msgid "Host Kernel Arguments"
+msgstr "ホスト カーネル Arguments"
+
+msgid "Host List"
+msgstr "ホスト List"
+
+msgid "Host Listing Export"
+msgstr "ホスト Listing エクスポート"
+
+msgid "Host Location"
+msgstr "ホスト ロケーション"
+
+msgid "Host Login History"
+msgstr "ホスト ログイン 履歴"
+
+msgid "Host MAC"
+msgstr "ホスト MAC アドレス"
+
+msgid "Host Management"
+msgstr "ホスト管理"
+
+msgid "Host Membership"
+msgstr "ホスト メンバーシップ"
+
+msgid "Host Memory"
+msgstr "ホスト Memory"
+
+msgid "Host Name"
+msgstr "ホスト名"
+
+msgid "Host Pending MAC"
+msgstr "ホスト Pending MAC アドレス"
+
+msgid "Host Primary Disk"
+msgstr "ホスト Primary Disk"
+
+msgid "Host Primary MAC"
+msgstr "ホスト Primary MAC アドレス"
+
+msgid "Host Printers"
+msgstr "ホスト プリンター"
+
+msgid "Host Product Key"
+msgstr "ホスト プロダクトキー"
+
+msgid "Host Product Keys"
+msgstr "ホスト プロダクトキー"
+
+msgid "Host Registration"
+msgstr "ホスト Registration"
+
+msgid "Host Screen Resolution"
+msgstr "ホスト Screen Resolution"
+
+msgid "Host Site"
+msgstr "ホスト サイト"
+
+msgid "Host Snapin History"
+msgstr "ホスト スナップイン 履歴"
+
+msgid "Host Snapins"
+msgstr "ホスト スナップイン"
+
+msgid "Host Status"
+msgstr "ホスト Status"
+
+msgid "Host Status is a plugin that adds a new entry in the Host edit Page"
+msgstr "ホスト Status is a プラグイン that adds a new entry in the ホスト edit Page"
+
+msgid "Host Unassociated Snapins"
+msgstr "ホスト Unassociated スナップイン"
+
+msgid "Host Update Fail"
+msgstr "ホストの更新に失敗しました"
+
+msgid "Host Update Failed"
+msgstr "ホストの更新に失敗しました"
+
+msgid "Host Update Success"
+msgstr "ホストの更新に成功しました"
+
+msgid "Host Virus History"
+msgstr "ホスト ウイルス 履歴"
+
+msgid "Host added!"
+msgstr "ホストを追加しました！"
+
+msgid "Host approval failed."
+msgstr "ホスト approval failed。"
+
+msgid "Host approved"
+msgstr "ホスト approved"
+
+msgid "Host description"
+msgstr "ホストの説明"
+
+msgid "Host general"
+msgstr "ホスト全般"
+
+msgid "Host is already a member of an active task"
+msgstr "ホスト is already a member of an active タスク"
+
+msgid "Host is not valid"
+msgstr "ホスト is not 有効な"
+
+msgid "Host module settings"
+msgstr "ホスト モジュール 設定"
+
+msgid "Host name"
+msgstr "ホスト名"
+
+msgid "Host pairings"
+msgstr "ホスト pairings"
+
+msgid "Host printer configuration"
+msgstr "ホスト プリンター 構成"
+
+msgid "Host token is currently in use"
+msgstr "ホスト token is currently in use"
+
+msgid "Host updated!"
+msgstr "ホストを更新しました！"
+
+msgid "Host/Group Name"
+msgstr "ホスト/グループ名"
+
+msgid "Hostname"
+msgstr "ホスト名"
+
+msgid "Hostname / IP"
+msgstr "ホスト名 / IP"
+
+msgid "Hostname Changer"
+msgstr "ホスト名変更"
+
+msgid "Hosts"
+msgstr "ホスト"
+
+msgid "Hosts Associated"
+msgstr "ホスト Associated"
+
+msgid "Hosts do not have the same image assigned"
+msgstr "ホスト do not have the same イメージ assigned"
+
+msgid "Hosts in task"
+msgstr "ホスト in タスク"
+
+msgid "Hot Key Enabled"
+msgstr "Hot キー Enabled"
+
+msgid "Hot Key to use"
+msgstr "Hot キー to use"
+
+msgid "Hour value is not valid"
+msgstr "Hour value is not 有効な"
+
+msgid "Hourly"
+msgstr "時間単位"
+
+msgid "I am not the fog web server"
+msgstr "I am not the fog web サーバー"
+
+msgid "I am the group manager"
+msgstr "I am the グループ manager"
+
+msgid "I have read"
+msgstr "I have read"
+
+msgid "I.M.C."
+msgstr "I.M.C。"
+
+msgid "I.M.I."
+msgstr "I.M.I。"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "ID Must be set to edit"
+msgstr "ID Must be set to edit"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "IP Address"
+msgstr "IP アドレス"
+
+msgid "IP Passed is incorrect"
+msgstr "IP Passed is incorrect"
+
+msgid "Icon"
+msgstr "アイコン"
+
+msgid "Icon File not found"
+msgstr "Icon ファイル not found"
+
+msgid "If a new module is published the client will"
+msgstr "If a new モジュール is published the クライアント will"
+
+msgid "If action of ask or get"
+msgstr "If action of ask or get"
+
+msgid "If credentials are correct"
+msgstr "If credentials are correct"
+
+msgid "If none is specified"
+msgstr "指定しない場合"
+
+msgid "If off"
+msgstr "オフの場合"
+
+msgid "If on"
+msgstr "オンの場合"
+
+msgid "If there is not a task set"
+msgstr "If there is not a タスク set"
+
+msgid "If this is an upgrade"
+msgstr "If this is an upgrade"
+
+msgid "If you add a blank node"
+msgstr "If you add a blank ノード"
+
+msgid "If you are looking to configure settings for a specific host"
+msgstr "If you are looking to configure 設定 for a specific ホスト"
+
+msgid "If you need help understanding what items are needed please"
+msgstr "If you need help understanding what items are needed please"
+
+msgid "If you would like to backup your"
+msgstr "If you would like to backup your"
+
+msgid "Ignore MAC on Client"
+msgstr "クライアントの MAC アドレスを無視"
+
+msgid "Ignore MAC on Image"
+msgstr "イメージの MAC アドレスを無視"
+
+msgid "Image"
+msgstr "イメージ"
+
+msgid "Image Associated: "
+msgstr "イメージ Associated: "
+
+msgid "Image Association"
+msgstr "イメージ 関連付け"
+
+msgid "Image Associations"
+msgstr "イメージ 関連付け"
+
+msgid "Image Create Fail"
+msgstr "イメージの作成に失敗しました"
+
+msgid "Image Create Success"
+msgstr "イメージの作成に成功しました"
+
+msgid "Image Definition"
+msgstr "イメージ Definition"
+
+msgid "Image Desc"
+msgstr "イメージ Desc"
+
+msgid "Image Description"
+msgstr "イメージの説明"
+
+msgid "Image Enabled"
+msgstr "イメージ Enabled"
+
+msgid "Image General"
+msgstr "イメージ全般"
+
+msgid "Image History"
+msgstr "イメージ 履歴"
+
+msgid "Image ID"
+msgstr "イメージ ID"
+
+msgid "Image Management"
+msgstr "イメージ管理"
+
+msgid "Image Manager"
+msgstr "イメージ Manager"
+
+msgid "Image Membership"
+msgstr "イメージ メンバーシップ"
+
+msgid "Image Name"
+msgstr "イメージ名"
+
+msgid "Image Path"
+msgstr "イメージ パス"
+
+msgid "Image Replicator"
+msgstr "イメージ Replicator"
+
+msgid "Image Size"
+msgstr "イメージ Size"
+
+msgid "Image Size: ON CLIENT"
+msgstr "イメージ Size: ON クライアント"
+
+msgid "Image Size: ON SERVER"
+msgstr "イメージ Size: ON サーバー"
+
+msgid "Image Storage Groups"
+msgstr "イメージ ストレージグループ"
+
+msgid "Image Task Completed"
+msgstr "イメージ タスク Completed"
+
+msgid "Image Transfer Log"
+msgstr "イメージ Transfer Log"
+
+msgid "Image Type"
+msgstr "イメージ タイプ"
+
+msgid "Image Update Fail"
+msgstr "イメージの更新に失敗しました"
+
+msgid "Image Update Success"
+msgstr "イメージの更新に成功しました"
+
+msgid "Image Used"
+msgstr "イメージ Used"
+
+msgid "Image added!"
+msgstr "イメージを追加しました！"
+
+msgid "Image is not enabled"
+msgstr "イメージ is not enabled"
+
+msgid "Image is not valid"
+msgstr "イメージ is not 有効な"
+
+msgid "Image is protected and cannot be deleted"
+msgstr "イメージ is protected と cannot be deleted"
+
+msgid "Image to DMI Mappings"
+msgstr "イメージ to DMI Mappings"
+
+msgid "Image update failed!"
+msgstr "イメージの更新に失敗しました！"
+
+msgid "Image updated!"
+msgstr "イメージを更新しました！"
+
+msgid "Imaged"
+msgstr "Imaged"
+
+msgid "Imaged By"
+msgstr "Imaged By"
+
+msgid "Imaged For"
+msgstr "Imaged For"
+
+msgid "Imaged From"
+msgstr "Imaged From"
+
+msgid "Images"
+msgstr "イメージ"
+
+msgid "Imaging Completed"
+msgstr "イメージ処理 Completed"
+
+msgid "Imaging Duration"
+msgstr "イメージ処理 Duration"
+
+msgid "Imaging Log"
+msgstr "イメージ処理 Log"
+
+msgid "Imaging Over the last 30 days"
+msgstr "イメージ処理 Over the last 30 days"
+
+msgid "Imaging Started"
+msgstr "イメージ処理 Started"
+
+msgid "Import"
+msgstr "インポート"
+
+msgid "Import Accesscontrols"
+msgstr "アクセス制御をインポート"
+
+msgid "Import CSV"
+msgstr "CSV をインポート"
+
+msgid "Import CSV?"
+msgstr "CSV をインポートしますか？"
+
+msgid "Import Configuration"
+msgstr "構成をインポート"
+
+msgid "Import Database"
+msgstr "データベースをインポート"
+
+msgid "Import Database?"
+msgstr "データベースをインポートしますか？"
+
+msgid "Import FOG Reports"
+msgstr "FOG Reportsをインポート"
+
+msgid "Import Failed"
+msgstr "インポートに失敗しました"
+
+msgid "Import Groups"
+msgstr "グループをインポート"
+
+msgid "Import Hosts"
+msgstr "ホストをインポート"
+
+msgid "Import Images"
+msgstr "イメージをインポート"
+
+msgid "Import LDAPs"
+msgstr "LDAPをインポート"
+
+msgid "Import Locations"
+msgstr "ロケーションをインポート"
+
+msgid "Import Printers"
+msgstr "プリンターをインポート"
+
+msgid "Import Report?"
+msgstr "レポートをインポートしますか？"
+
+msgid "Import Reports"
+msgstr "Reportsをインポート"
+
+msgid "Import Sites"
+msgstr "サイトをインポート"
+
+msgid "Import Snapins"
+msgstr "スナップインをインポート"
+
+msgid "Import Subnetgroups"
+msgstr "サブネットグループをインポート"
+
+msgid "Import Successful"
+msgstr "インポートに成功しました"
+
+msgid "Import Task States"
+msgstr "タスク状態をインポート"
+
+msgid "Import Task Types"
+msgstr "タスクタイプをインポート"
+
+msgid "Import Users"
+msgstr "ユーザーをインポート"
+
+msgid "Import WOLBroadcasts"
+msgstr "WOL ブロードキャストをインポート"
+
+msgid "Import Windows Keys"
+msgstr "Windows キーをインポート"
+
+msgid "In"
+msgstr "イン"
+
+msgid "In FOG"
+msgstr "FOG 内"
+
+msgid "Included Items"
+msgstr "含まれる項目"
+
+msgid "Info"
+msgstr "情報"
+
+msgid "Information"
+msgstr "情報"
+
+msgid "Init"
+msgstr "Init"
+
+msgid "Initial Template"
+msgstr "初期テンプレート"
+
+msgid "Initrd Name"
+msgstr "Initrd 名"
+
+msgid "Initrd Update"
+msgstr "Initrd 更新"
+
+msgid "Install"
+msgstr "インストール"
+
+msgid "Install / Update Failed!"
+msgstr "インストール/更新に失敗しました！"
+
+msgid "Install / Update Successful!"
+msgstr "インストール/更新に成功しました！"
+
+msgid "Install Initrd"
+msgstr "Initrd をインストール"
+
+msgid "Install Kernel"
+msgstr "カーネルをインストール"
+
+msgid "Install Plugin"
+msgstr "プラグインをインストール"
+
+msgid "Install Plugins"
+msgstr "プラグインをインストール"
+
+msgid "Install/Update"
+msgstr "インストール/更新"
+
+msgid "Install/Update Now"
+msgstr "今すぐインストール/更新"
+
+msgid "Installed Plugins"
+msgstr "インストール済みプラグイン"
+
+msgid "Integrity Settings"
+msgstr "整合性設定"
+
+msgid "Interface"
+msgstr "インターフェイス"
+
+msgid "Interface not ready, waiting for it to come up"
+msgstr "インターフェイスの準備ができていません。起動を待機しています"
+
+msgid "Invalid"
+msgstr "無効"
+
+msgid "Invalid Class"
+msgstr "無効なClass"
+
+msgid "Invalid File"
+msgstr "無効なファイル"
+
+msgid "Invalid Folder"
+msgstr "無効なFolder"
+
+msgid "Invalid Host"
+msgstr "無効なホスト"
+
+msgid "Invalid Host Colors"
+msgstr "無効なホスト Colors"
+
+msgid "Invalid ID passed"
+msgstr "無効なID passed"
+
+msgid "Invalid IP"
+msgstr "無効なIP"
+
+msgid "Invalid Login"
+msgstr "無効なLogin"
+
+msgid "Invalid MAC Address!"
+msgstr "無効なMAC アドレス アドレス！"
+
+msgid "Invalid Multicast Session"
+msgstr "無効なMulticast セッション"
+
+msgid "Invalid Path"
+msgstr "無効なパス"
+
+msgid "Invalid Plugin Passed"
+msgstr "無効なプラグイン Passed"
+
+msgid "Invalid Server Information!"
+msgstr "無効なサーバー Information！"
+
+msgid "Invalid Snapin"
+msgstr "無効なスナップイン"
+
+msgid "Invalid Snapin Tasking"
+msgstr "無効なスナップイン Tasking"
+
+msgid "Invalid Snapin Tasking object"
+msgstr "無効なスナップイン Tasking object"
+
+msgid "Invalid Storage Group"
+msgstr "無効なストレージグループ"
+
+msgid "Invalid Storage Node"
+msgstr "無効なストレージノード"
+
+msgid "Invalid Task Type"
+msgstr "無効なタスクタイプ"
+
+msgid "Invalid Tasking"
+msgstr "無効なTasking"
+
+msgid "Invalid Timeout Value"
+msgstr "無効なTimeout Value"
+
+msgid "Invalid Type"
+msgstr "無効なタイプ"
+
+msgid "Invalid URL"
+msgstr "無効なURL"
+
+msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
+msgstr "cron フィールドの値が無効です。使用できるのは数字、*、/、-、カンマのみです。"
+
+msgid "Invalid data being parsed"
+msgstr "無効なdata being parsed"
+
+msgid "Invalid data found"
+msgstr "無効なdata found"
+
+msgid "Invalid date"
+msgstr "無効なdate"
+
+msgid "Invalid image"
+msgstr "無効なイメージ"
+
+msgid "Invalid image assigned to host"
+msgstr "無効なイメージ assigned to ホスト"
+
+msgid "Invalid key being added"
+msgstr "Invalid キー beingを追加しました"
+
+msgid "Invalid key being destroyed"
+msgstr "無効なキー being destroyed"
+
+msgid "Invalid key being removed"
+msgstr "無効なキー being removed"
+
+msgid "Invalid key being requested"
+msgstr "無効なキー being requested"
+
+msgid "Invalid key being set"
+msgstr "無効なキー being set"
+
+msgid "Invalid method called"
+msgstr "無効なmethod called"
+
+msgid "Invalid numeric entry"
+msgstr "無効なnumeric entry"
+
+msgid "Invalid object to try tasking"
+msgstr "無効なobject to try tasking"
+
+msgid "Invalid object type passed"
+msgstr "無効なobject タイプ passed"
+
+msgid "Invalid operational mode"
+msgstr "無効なoperational mode"
+
+msgid "Invalid path"
+msgstr "無効なパス"
+
+msgid "Invalid product key supplied"
+msgstr "無効なプロダクトキー supplied"
+
+msgid "Invalid scheduling type"
+msgstr "無効なscheduling タイプ"
+
+msgid "Invalid snapin"
+msgstr "無効なスナップイン"
+
+msgid "Invalid status payload"
+msgstr "無効なstatus payload"
+
+msgid "Invalid task"
+msgstr "無効なタスク"
+
+msgid "Invalid task id"
+msgstr "無効なタスク id"
+
+msgid "Invalid task id sent"
+msgstr "無効なタスク id sent"
+
+msgid "Invalid tasking type passed"
+msgstr "無効なtasking タイプ passed"
+
+msgid "Invalid tasking!"
+msgstr "無効なtasking！"
+
+msgid "Invalid token passed"
+msgstr "無効なtoken passed"
+
+msgid "Invalid token passed for host"
+msgstr "無効なtoken passed for ホスト"
+
+msgid "Invalid type, merge to add, diff to remove"
+msgstr "無効なタイプ, merge to add, diff to 削除"
+
+msgid "Invalid user and/or channel passed"
+msgstr "無効なユーザー and/or channel passed"
+
+msgid "Inventory"
+msgstr "インベントリ"
+
+msgid "Inventory ID"
+msgstr "インベントリ ID"
+
+msgid "Is Advanced"
+msgstr "詳細"
+
+msgid "Is Enabled"
+msgstr "有効"
+
+msgid "Is Graph Enabled"
+msgstr "グラフ有効"
+
+msgid "Is Group"
+msgstr "グループ"
+
+msgid "Is Master Node"
+msgstr "マスターノード"
+
+msgid "Is Pack"
+msgstr "パック"
+
+msgid "Is Restricted User "
+msgstr "制限付きユーザー "
+
+msgid "Is a"
+msgstr "次の種類です"
+
+msgid "Is restricted"
+msgstr "制限付き"
+
+msgid "It can be used on Windows"
+msgstr "It can be used on Windows"
+
+msgid "It is primarily geared for the smart installer methodology now"
+msgstr "It is primarily geared for the smart installer methodology now"
+
+msgid "It operates by getting the max bandwidth setting of the node"
+msgstr "It operates by getting the max bandwidth setting of the ノード"
+
+msgid "It tells the client to download snapins from"
+msgstr "It tells the クライアント to download スナップイン from"
+
+msgid "It will operate based on the fields the area typically requires"
+msgstr "It will operate based on the fields the area typically requires"
+
+msgid "Item removed successfully!"
+msgstr "項目を正常に削除しました！"
+
+msgid "Items must be an array"
+msgstr "項目は配列である必要があります"
+
+msgid "Job Create Date"
+msgstr "ジョブ作成日"
+
+msgid "Job Create Time"
+msgstr "ジョブ作成時刻"
+
+msgid "Join Domain after deploy"
+msgstr "展開後にドメイン参加"
+
+msgid "Kernel"
+msgstr "カーネル"
+
+msgid "Kernel Args"
+msgstr "カーネル引数"
+
+msgid "Kernel Arguments"
+msgstr "カーネル引数"
+
+msgid "Kernel Name"
+msgstr "カーネル名"
+
+msgid "Kernel Update"
+msgstr "カーネル更新"
+
+msgid "Kernel Versions"
+msgstr "カーネルバージョン"
+
+msgid "Kernels/Inits from location"
+msgstr "ロケーションからのカーネル/Init"
+
+msgid "Key"
+msgstr "キー"
+
+msgid "Key Name"
+msgstr "キー名"
+
+msgid "Key field must be a string"
+msgstr "キーフィールドは文字列で指定してください"
+
+msgid "Key must be a string"
+msgstr "キーは文字列で指定してください"
+
+msgid "Key must be a string or index"
+msgstr "キーは文字列またはインデックスで指定してください"
+
+msgid "Key must be an array of keys or a string."
+msgstr "キーはキー配列または文字列で指定してください。"
+
+msgid "Kill"
+msgstr "強制終了"
+
+msgid "LDAP Connection Name"
+msgstr "LDAP Connection名"
+
+msgid "LDAP Create Fail"
+msgstr "LDAPの作成に失敗しました"
+
+msgid "LDAP Create Success"
+msgstr "LDAPの作成に成功しました"
+
+msgid "LDAP General"
+msgstr "LDAP全般"
+
+msgid "LDAP Management"
+msgstr "LDAP管理"
+
+msgid "LDAP Ports"
+msgstr "LDAP Ports"
+
+msgid "LDAP Server"
+msgstr "LDAP サーバー"
+
+msgid "LDAP Server Address"
+msgstr "LDAP サーバー Address"
+
+msgid "LDAP Server Description"
+msgstr "LDAP サーバーの説明"
+
+msgid "LDAP Server Port"
+msgstr "LDAP サーバー Port"
+
+msgid "LDAP Server added!"
+msgstr "LDAP サーバーを追加しました！"
+
+msgid "LDAP Server updated!"
+msgstr "LDAP サーバーを更新しました！"
+
+msgid "LDAP Servers"
+msgstr "LDAP サーバー"
+
+msgid "LDAP Update Fail"
+msgstr "LDAPの更新に失敗しました"
+
+msgid "LDAP Update Success"
+msgstr "LDAPの更新に成功しました"
+
+msgid "Language"
+msgstr "言語"
+
+msgid "Last Captured"
+msgstr "最終キャプチャ"
+
+msgid "Last Deployed"
+msgstr "最終展開"
+
+msgid "Last Updated Time"
+msgstr "最終更新時刻"
+
+msgid "Last captured"
+msgstr "Last captured"
+
+msgid "Latest Development Version"
+msgstr "最新開発版"
+
+msgid "Latest Version"
+msgstr "最新バージョン"
+
+msgid "Leave a field blank to keep each host's current value."
+msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
+
+msgid "Level must be an integer"
+msgstr "Levelはintegerである必要があります"
+
+msgid "License"
+msgstr "ライセンス"
+
+msgid "Line"
+msgstr "行"
+
+msgid "Lines"
+msgstr "行"
+
+msgid "Link New Account"
+msgstr "Link New Account"
+
+msgid "Link Pushbullet Account"
+msgstr "Link Pushbullet Account"
+
+msgid "Link Pushbullet Account Fail"
+msgstr "Link Pushbullet Account Fail"
+
+msgid "Link Pushbullet Account Success"
+msgstr "Link Pushbullet Account Success"
+
+msgid "Link Slack Account"
+msgstr "Link Slack Account"
+
+msgid "Link Slack Account Fail"
+msgstr "Link Slack Account Fail"
+
+msgid "Link Slack Account Success"
+msgstr "Link Slack Account Success"
+
+msgid "Link must be a string"
+msgstr "Linkはstringである必要があります"
+
+msgid "Linux"
+msgstr "Linux"
+
+msgid "List"
+msgstr "一覧"
+
+#, php-format
+msgid "List All %s"
+msgstr "List All %s"
+
+#, php-format
+msgid "List all roles"
+msgstr "List all ロール"
+
+#, php-format
+msgid "List all rules"
+msgstr "List all ルール"
+
+msgid "Listener must be an array or an object"
+msgstr "Listenerはarray or an objectである必要があります"
+
+msgid "Load Average"
+msgstr "平均負荷"
+
+msgid "Load MAC Vendors"
+msgstr "MAC ベンダーを読み込み"
+
+msgid "Load failed"
+msgstr "読み込みに失敗しました"
+
+msgid "Loading data to field"
+msgstr "Loading data to field"
+
+msgid "Location"
+msgstr "ロケーション"
+
+msgid "Location Association"
+msgstr "ロケーション 関連付け"
+
+msgid "Location Create Fail"
+msgstr "ロケーションの作成に失敗しました"
+
+msgid "Location Create Success"
+msgstr "ロケーションの作成に成功しました"
+
+msgid "Location General"
+msgstr "ロケーション全般"
+
+msgid "Location Management"
+msgstr "ロケーション管理"
+
+msgid "Location Name"
+msgstr "ロケーション名"
+
+msgid "Location Update Fail"
+msgstr "ロケーションの更新に失敗しました"
+
+msgid "Location Update Success"
+msgstr "ロケーションの更新に成功しました"
+
+msgid "Location added!"
+msgstr "ロケーションを追加しました！"
+
+msgid "Location already Exists, please try again."
+msgstr "ロケーションは既に存在します。再試行してください。"
+
+msgid "Location is a plugin that allows your FOG Server"
+msgstr "ロケーション is a プラグイン that allows your FOG サーバー"
+
+msgid "Location update failed!"
+msgstr "ロケーションの更新に失敗しました！"
+
+msgid "Location updated!"
+msgstr "ロケーションを更新しました！"
+
+msgid "Location/Deployed"
+msgstr "ロケーション/Deployed"
+
+msgid "Locations"
+msgstr "ロケーション"
+
+msgid "Log Viewer"
+msgstr "ログビューアー"
+
+msgid "Login"
+msgstr "ログイン"
+
+msgid "Login History"
+msgstr "ログイン履歴"
+
+msgid "Login Users"
+msgstr "ログインユーザー"
+
+msgid "Login accepted"
+msgstr "ログインが承認されました"
+
+msgid "Login failed"
+msgstr "ログインに失敗しました"
+
+msgid "Login time"
+msgstr "ログイン時刻"
+
+msgid "Login with the FOG credentials and you will see the menu"
+msgstr "ログイン with the FOG credentials と you will see the メニュー"
+
+msgid "Logout"
+msgstr "ログアウト"
+
+msgid "Logout not found"
+msgstr "ログアウトが見つかりません"
+
+msgid "MAC"
+msgstr "MAC アドレス"
+
+msgid "MAC Address"
+msgstr "MAC アドレス"
+
+msgid "MAC Address List"
+msgstr "MAC アドレス一覧"
+
+msgid "MAC Address Manufacturer Listing"
+msgstr "MAC アドレス製造元一覧"
+
+msgid "MAC Format is invalid"
+msgstr "MAC アドレス形式が無効です"
+
+msgid "MAC address is already in use by another host"
+msgstr "MAC アドレスは別のホストで既に使用されています"
+
+msgid "MB Asset"
+msgstr "MB 資産情報"
+
+msgid "MB Manufacturer"
+msgstr "MB 製造元"
+
+msgid "MB Name"
+msgstr "MB名"
+
+msgid "MB Serial"
+msgstr "MB シリアル"
+
+msgid "MB Version"
+msgstr "MB バージョン"
+
+msgid "MSI"
+msgstr "MSI"
+
+msgid "Machine Details"
+msgstr "マシン詳細"
+
+msgid "Main Colors"
+msgstr "メインカラー"
+
+msgid "Main Menu"
+msgstr "メインメニュー"
+
+msgid "Main fallback pairings"
+msgstr "Main fallback pairings"
+
+msgid "Main pairings"
+msgstr "Main pairings"
+
+msgid "Make Changes"
+msgstr "変更を適用"
+
+msgid "Make Changes?"
+msgstr "変更を適用しますか？"
+
+msgid "Make Printer Changes"
+msgstr "プリンターの変更を適用"
+
+msgid "Make Snapin Changes"
+msgstr "スナップインの変更を適用"
+
+msgid "Make changes?"
+msgstr "変更を適用しますか？"
+
+#, php-format
+msgid "Malformed upload for \"%s\""
+msgstr "Malformed upload for \"%s\""
+
+msgid "Management"
+msgstr "管理"
+
+msgid "Management Login"
+msgstr "管理ログイン"
+
+msgid "Management Password"
+msgstr "管理パスワード"
+
+msgid "Management Username"
+msgstr "管理ユーザー名"
+
+msgid "Master Node"
+msgstr "マスターノード"
+
+msgid "Max"
+msgstr "最大"
+
+msgid "Max Clients"
+msgstr "最大クライアント数"
+
+msgid "Max Size"
+msgstr "最大サイズ"
+
+msgid "Members"
+msgstr "メンバー"
+
+msgid "Membership"
+msgstr "メンバーシップ"
+
+msgid "Memory"
+msgstr "メモリ"
+
+msgid "Menu Background File"
+msgstr "メニュー背景ファイル"
+
+msgid "Menu Hide/No Menu settings"
+msgstr "メニュー非表示/メニューなし設定"
+
+msgid "Menu Item"
+msgstr "メニュー項目"
+
+msgid "Menu Item or title cannot be blank"
+msgstr "メニュー項目またはタイトルは空にできません"
+
+msgid "Menu Show with"
+msgstr "メニュー Show with"
+
+msgid "Menu Timeout"
+msgstr "メニュータイムアウト"
+
+msgid "Menu colors, pairings, settings"
+msgstr "メニュー colors, pairings, 設定"
+
+msgid "Message"
+msgstr "メッセージ"
+
+msgid "Method does not exist"
+msgstr "メソッドが存在しません"
+
+msgid "Microsoft AD"
+msgstr "Microsoft AD"
+
+msgid "Midnight"
+msgstr "午前 0 時"
+
+msgid "Mind you"
+msgstr "Mind you"
+
+msgid "Minute value is not valid"
+msgstr "分の値が無効です"
+
+msgid "Miscellaneous"
+msgstr "その他"
+
+msgid "Missing a temporary folder"
+msgstr "一時フォルダーがありません"
+
+msgid "Missing one or more extensions."
+msgstr "1 つ以上の拡張機能がありません。"
+
+msgid "Mobile Group"
+msgstr "モバイルグループ"
+
+msgid "Mode"
+msgstr "モード"
+
+msgid "Model"
+msgstr "モデル"
+
+msgid "Module MD5"
+msgstr "モジュール MD5"
+
+msgid "Module Name"
+msgstr "モジュール名"
+
+msgid "Module Type"
+msgstr "モジュールタイプ"
+
+msgid "Module Update Fail"
+msgstr "モジュールの更新に失敗しました"
+
+msgid "Module Update Success"
+msgstr "モジュールの更新に成功しました"
+
+msgid "Module updated!"
+msgstr "モジュールを更新しました！"
+
+msgid "Modules added/updated successfully!"
+msgstr "モジュールを正常に追加/更新しました！"
+
+msgid "Month value is not valid"
+msgstr "月の値が無効です"
+
+msgid "Monthly"
+msgstr "月単位"
+
+msgid "Motherboard Asset Tag"
+msgstr "マザーボード資産タグ"
+
+msgid "Motherboard Manufacturer"
+msgstr "マザーボード製造元"
+
+msgid "Motherboard Product Name"
+msgstr "マザーボード製品名"
+
+msgid "Motherboard Serial Number"
+msgstr "マザーボードシリアル番号"
+
+msgid "Motherboard Version"
+msgstr "マザーボードバージョン"
+
+msgid "Multicast"
+msgstr "マルチキャスト"
+
+msgid "Multicast Image"
+msgstr "マルチキャストイメージ"
+
+msgid "Multicast Quick Deploy"
+msgstr "マルチキャストクイック展開"
+
+msgid "Multicast session created"
+msgstr "マルチキャストセッションを作成しました"
+
+msgid "Multicast tasks from groups"
+msgstr "グループからのマルチキャストタスク"
+
+msgid "MulticastTask"
+msgstr "マルチキャストタスク"
+
+msgid "Must be 0 through 23 for hours in a day."
+msgstr "Must be 0 through 23 for hours in a day。"
+
+msgid "Must be 0 through 59 for minutes in an hour."
+msgstr "Must be 0 through 59 for minutes in an hour。"
+
+msgid "Must be encrypted"
+msgstr "Must be encrypted"
+
+msgid "Must have a name to create the table"
+msgstr "Must have a 名前 to 作成 the table"
+
+msgid "Must have an image associated"
+msgstr "Must have an イメージ associated"
+
+msgid "Must use an"
+msgstr "Must use an"
+
+msgid "MySQL Administrator or by running"
+msgstr "MySQL Administrator or by running"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "NAME"
+msgstr "名前"
+
+msgid "NOT"
+msgstr "NOT"
+
+msgid "NOTE"
+msgstr "注意"
+
+msgid "NOTICE"
+msgstr "通知"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Name Change/AD Join Forced reboot"
+msgstr "名前 Change/AD Join Forced reboot"
+
+msgid "Need more support"
+msgstr "さらにサポートが必要な場合"
+
+msgid "Need the table name to drop"
+msgstr "Need the table 名前 to drop"
+
+msgid "Needs a 256-bit key"
+msgstr "Needs a 256-bit キー"
+
+msgid "Needs action string of ask, get, or list"
+msgstr "Needs action string of ask, get, or list"
+
+msgid "Network Information"
+msgstr "ネットワーク情報"
+
+msgid "Network Installer"
+msgstr "ネットワークインストーラー"
+
+msgid "Network Printer"
+msgstr "ネットワークプリンター"
+
+msgid "New"
+msgstr "新規"
+
+msgid "New Broadcast Address"
+msgstr "新しいブロードキャスト Address"
+
+msgid "New Client and Utilities"
+msgstr "新しいクライアント and Utilities"
+
+msgid "New Event"
+msgstr "新しいEvent"
+
+msgid "New Group"
+msgstr "新しいグループ"
+
+msgid "New Host"
+msgstr "新しいホスト"
+
+msgid "New Image"
+msgstr "新しいイメージ"
+
+msgid "New LDAP Server"
+msgstr "新しいLDAP サーバー"
+
+msgid "New Location"
+msgstr "新しいロケーション"
+
+msgid "New Role"
+msgstr "新しいロール"
+
+msgid "New Rule"
+msgstr "新しいルール"
+
+msgid "New Search"
+msgstr "新しいSearch"
+
+msgid "New Site"
+msgstr "新しいサイト"
+
+msgid "New Snapin"
+msgstr "新しいスナップイン"
+
+msgid "New Storage Group"
+msgstr "新しいストレージグループ"
+
+msgid "New Storage Node"
+msgstr "新しいストレージノード"
+
+msgid "New Subnetgroup"
+msgstr "新しいサブネットグループ"
+
+msgid "New Task State"
+msgstr "新しいタスク状態"
+
+msgid "New Task Type"
+msgstr "新しいタスクタイプ"
+
+msgid "New User"
+msgstr "新しいユーザー"
+
+msgid "New Windows Key"
+msgstr "新しいWindows キー"
+
+msgid "New iPXE Menu"
+msgstr "新しいiPXE メニュー"
+
+msgid "New key must be a string"
+msgstr "新しいキー must be a string"
+
+msgid "New power management task"
+msgstr "新しい電源管理 タスク"
+
+msgid "No"
+msgstr "いいえ"
+
+msgid "No Active Snapin Jobs Found For Host"
+msgstr "このホストの実行中スナップインジョブは見つかりません"
+
+msgid "No Active Task found for Host"
+msgstr "このホストの実行中タスクは見つかりません"
+
+msgid "No Data"
+msgstr "データなし"
+
+msgid "No Data Available"
+msgstr "利用可能なデータがありません"
+
+msgid "No FOGPage Class found for this node"
+msgstr "FOGPage Class found for this ノードがありません"
+
+msgid "No Host found for MAC Address"
+msgstr "MAC アドレスに一致するホストが見つかりません"
+
+msgid "No Image specified"
+msgstr "イメージ specifiedがありません"
+
+msgid "No Menu"
+msgstr "メニューなし"
+
+msgid "No Printer Management"
+msgstr "プリンター管理なし"
+
+msgid "No Site"
+msgstr "サイトなし"
+
+msgid "No access is allowed"
+msgstr "アクセスは許可されていません"
+
+msgid "No activity information available for this group"
+msgstr "activity information available for this グループがありません"
+
+msgid "No class value sent"
+msgstr "class value sentがありません"
+
+msgid "No complete time recorded"
+msgstr "完了時刻は記録されていません"
+
+msgid "No connection available"
+msgstr "利用可能な接続がありません"
+
+msgid "No connection to the database"
+msgstr "データベースへの接続がありません"
+
+msgid "No data found"
+msgstr "データが見つかりません"
+
+msgid "No data returned"
+msgstr "データが返されませんでした"
+
+msgid "No data to insert"
+msgstr "挿入するデータがありません"
+
+msgid "No database to work off"
+msgstr "データベース to work offがありません"
+
+msgid "No directories defined to be cleaned up"
+msgstr "ディレクトリ 定義済み to be cleaned upがありません"
+
+msgid "No fields passed"
+msgstr "fields passedがありません"
+
+msgid "No file uploaded!"
+msgstr "ファイルがアップロードされていません！"
+
+msgid "No file was uploaded"
+msgstr "ファイルはアップロードされませんでした"
+
+msgid "No friendly name defined"
+msgstr "friendly 名前 定義済みがありません"
+
+msgid "No groups defined, search will return all hosts."
+msgstr "グループ 定義済み, search will return all ホストがありません"
+
+msgid "No groups selected to be removed"
+msgstr "グループ selected to be removedがありません"
+
+msgid "No hosts available to task"
+msgstr "ホスト available to タスクがありません"
+
+msgid "No hosts to task"
+msgstr "ホスト to タスクがありません"
+
+msgid "No icons found"
+msgstr "icons foundがありません"
+
+msgid "No image specified"
+msgstr "イメージ specifiedがありません"
+
+msgid "No images associated with this group as master"
+msgstr "イメージ associated with this グループ as masterがありません"
+
+msgid "No items found"
+msgstr "項目が見つかりません"
+
+msgid "No key being requested"
+msgstr "キー being requestedがありません"
+
+msgid "No link established to the database"
+msgstr "link established to the データベースがありません"
+
+msgid "No master nodes are enabled to delete this image"
+msgstr "master ノード are enabled to 削除 this イメージがありません"
+
+msgid "No need to sync"
+msgstr "同期は不要です"
+
+msgid "No new tasks found"
+msgstr "新しいタスクは見つかりません"
+
+msgid "No node associated"
+msgstr "ノード associatedがありません"
+
+msgid "No node associated with any addresses of this system"
+msgstr "ノード associated with any addresses of this systemがありません"
+
+msgid "No open slots"
+msgstr "空きスロットがありません"
+
+msgid "No query passed"
+msgstr "クエリが渡されていません"
+
+msgid "No query result, use query() first"
+msgstr "query result, use query() firstがありません"
+
+msgid "No query sent"
+msgstr "クエリが送信されていません"
+
+msgid "No results found"
+msgstr "結果が見つかりません"
+
+msgid "No role selected"
+msgstr "ロール selectedがありません"
+
+msgid "No rule selected"
+msgstr "ルール selectedがありません"
+
+msgid "No site"
+msgstr "サイトがありません"
+
+msgid "No snapins associated with this group as master"
+msgstr "スナップイン associated with this グループ as masterがありません"
+
+msgid "No token passed to authenticate this host"
+msgstr "token passed to authenticate this ホストがありません"
+
+msgid "No valid Image defined for this host"
+msgstr "このホストに有効なイメージが定義されていません"
+
+msgid "No valid class sent"
+msgstr "有効な class sentがありません"
+
+msgid "No valid hosts found and"
+msgstr "有効な ホスト found andがありません"
+
+msgid "No valid storage nodes found"
+msgstr "有効な ストレージノード foundがありません"
+
+msgid "No valid tasks found"
+msgstr "有効な タスク foundがありません"
+
+msgid "No values passed"
+msgstr "values passedがありません"
+
+msgid "No viable macs to use"
+msgstr "viable MAC アドレス アドレス to useがありません"
+
+msgid "No viable storage groups found"
+msgstr "viable ストレージグループ foundがありません"
+
+msgid "Node"
+msgstr "ノード"
+
+msgid "Node Offline"
+msgstr "ノードはオフラインです"
+
+msgid "Node Parent"
+msgstr "親ノード"
+
+msgid "Node is unavailable"
+msgstr "ノードは利用できません"
+
+msgid "Node must be a string"
+msgstr "ノードは文字列で指定してください"
+
+msgid "Nodes"
+msgstr "ノード"
+
+msgid "Normal Snapin"
+msgstr "通常のスナップイン"
+
+msgid "Not Available"
+msgstr "利用不可"
+
+msgid "Not Registered Hosts"
+msgstr "未登録ホスト"
+
+msgid "Not Valid"
+msgstr "無効"
+
+msgid "Not a number"
+msgstr "数値ではありません"
+
+msgid "Not able to add"
+msgstr "Not able to add"
+
+msgid "Not all elements in filter or ports setting are integer"
+msgstr "Not all elements in filter or ports setting are integer"
+
+msgid "Not allowed here"
+msgstr "ここでは許可されていません"
+
+msgid "Not found"
+msgstr "見つかりません"
+
+msgid "Not protected"
+msgstr "保護されていません"
+
+msgid "Not set"
+msgstr "未設定"
+
+msgid "Not syncing"
+msgstr "同期していません"
+
+msgid "Not syncing Image"
+msgstr "Not syncing イメージ"
+
+msgid "Not syncing Snapin"
+msgstr "Not syncing スナップイン"
+
+msgid "Notes"
+msgstr "メモ"
+
+msgid "Nothing passed to search for"
+msgstr "検索対象が渡されていません"
+
+msgid "O/S"
+msgstr "OS"
+
+msgid "OS Name"
+msgstr "OS 名"
+
+msgid "Object"
+msgstr "オブジェクト"
+
+msgid "Old clients are the clients that came with FOG"
+msgstr "Old clients are the clients that came with FOG"
+
+msgid "Old key must be a string"
+msgstr "Old キーはstringである必要があります"
+
+msgid "On Dashboard"
+msgstr "ダッシュボードに表示"
+
+msgid "On reboot we will try to find a new node"
+msgstr "On reboot we will try to find a new ノード"
+
+msgid ""
+"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr "One or more ファイル must be uploaded via the \"snapinfiles[]\" multipart field"
+
+msgid "One or more macs are associated with a host"
+msgstr "One or more MAC アドレス アドレス are associated with a ホスト"
+
+msgid "Only Assigned Printers"
+msgstr "Only Assigned プリンター"
+
+msgid "Only allowed to have"
+msgstr "Only allowed to have"
+
+msgid "Open Source Computer Cloning Solution"
+msgstr "Open Source Computer Cloning Solution"
+
+msgid "Open VNC connection to"
+msgstr "Open VNC connection to"
+
+msgid "OpenLDAP"
+msgstr "OpenLDAP"
+
+msgid "Operating System"
+msgstr "オペレーティングシステム"
+
+msgid "Operation field not set"
+msgstr "操作フィールドが設定されていません"
+
+msgid "Option below enforces a login system"
+msgstr "Option below enforces a login system"
+
+msgid "Option sets if there will even"
+msgstr "Option sets if there will even"
+
+msgid "Option sets the ipxe keysequence to enter to gain menu"
+msgstr "Option sets the iPXE keysequence to enter to gain メニュー"
+
+msgid "Option sets the key sequence"
+msgstr "Option sets the キー sequence"
+
+msgid "Option specifies the background file to use"
+msgstr "Option specifies the background ファイル to use"
+
+msgid "Option specifies the color settings of the main menu items"
+msgstr "Option specifies the color 設定 of the main メニュー items"
+
+msgid "Option specifies the color text on the menu if the host"
+msgstr "Option specifies the color text on the メニュー if the ホスト"
+
+msgid "Option specifies the efi boot exit method ipxe will use"
+msgstr "Option specifies the efi boot exit method iPXE will use"
+
+msgid "Option specifies the legacy boot exit method ipxe will use"
+msgstr "Option specifies the legacy boot exit method iPXE will use"
+
+msgid "Option specifies the menu timeout"
+msgstr "Option specifies the メニュー timeout"
+
+msgid "Option specifies the pairings after host checks"
+msgstr "Option specifies the pairings after ホスト checks"
+
+msgid "Option specifies the pairings as a fallback"
+msgstr "Option specifies the pairings as a fallback"
+
+msgid "Option specifies the pairings of colors to"
+msgstr "Option specifies the pairings of colors to"
+
+msgid "Option specifies the timeout value for the hidden menu system"
+msgstr "Option specifies the timeout value for the hidden メニュー system"
+
+msgid "Or there was no number defined for joining session"
+msgstr "Or there was ありません number 定義済み for joining セッション"
+
+msgid "Organizational Unit"
+msgstr "組織単位"
+
+msgid "Other Tag #1"
+msgstr "その他タグ #1"
+
+msgid "Other Tag #2"
+msgstr "その他タグ #2"
+
+msgid "Other Tag 1"
+msgstr "その他タグ 1"
+
+msgid "Other Tag 2"
+msgstr "その他タグ 2"
+
+msgid "Otherwise it will just boot like normal"
+msgstr "Otherwise it will just boot like normal"
+
+msgid "PC Check-out Agreement"
+msgstr "PC Check-out Agreement"
+
+msgid "Parameters"
+msgstr "パラメーター"
+
+msgid "Parent"
+msgstr "親"
+
+msgid "Parent Node"
+msgstr "親ノード"
+
+msgid "Partclone"
+msgstr "Partclone"
+
+msgid "Partclone Compressed"
+msgstr "Partclone Compressed"
+
+msgid "Partclone Compressed 200MiB split"
+msgstr "Partclone Compressed 200MiB split"
+
+msgid "Partclone Gzip"
+msgstr "Partclone Gzip"
+
+msgid "Partclone Gzip Split 200MiB"
+msgstr "Partclone Gzip Split 200MiB"
+
+msgid "Partclone Uncompressed"
+msgstr "Partclone Uncompressed"
+
+msgid "Partclone Uncompressed 200MiB split"
+msgstr "Partclone Uncompressed 200MiB split"
+
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr "Partclone Uncompressed Split 200MiB"
+
+msgid "Partclone Zstd"
+msgstr "Partclone Zstd"
+
+msgid "Partclone Zstd Split 200MiB"
+msgstr "Partclone Zstd Split 200MiB"
+
+msgid "Partimage"
+msgstr "Partimage"
+
+msgid "Partition"
+msgstr "パーティション"
+
+msgid "Password"
+msgstr "パスワード"
+
+msgid "Password reset requires a user account to reset"
+msgstr "パスワード reset requires a ユーザー account to reset"
+
+msgid "Path"
+msgstr "パス"
+
+msgid "Path is unavailable"
+msgstr "パスは利用できません"
+
+msgid "Path not allowed"
+msgstr "パスは許可されていません"
+
+msgid "Pause"
+msgstr "一時停止"
+
+msgid "Pending Host List"
+msgstr "保留中ホスト一覧"
+
+msgid "Pending Hosts"
+msgstr "保留中ホスト"
+
+msgid "Pending MAC Actions"
+msgstr "保留中 MAC アドレス操作"
+
+msgid "Pending MAC Export"
+msgstr "保留中 MAC アドレスをエクスポート"
+
+msgid "Pending MACs"
+msgstr "保留中 MAC アドレス"
+
+msgid "Pending Registered Hosts"
+msgstr "保留中の登録済みホスト"
+
+msgid "Pending Registration created by FOG_CLIENT"
+msgstr "Pending Registration created by FOG_CLIENT"
+
+msgid "Pending hosts"
+msgstr "保留中ホスト"
+
+msgid "Pending macs"
+msgstr "保留中 MAC アドレス"
+
+msgid "Pending..."
+msgstr "保留中..."
+
+msgid "Percent"
+msgstr "パーセント"
+
+msgid "Perform Immediately?"
+msgstr "すぐに実行しますか？"
+
+msgid "Perform search"
+msgstr "検索を実行"
+
+msgid "Personal Information"
+msgstr "個人情報"
+
+msgid "Pick a template"
+msgstr "テンプレートを選択"
+
+msgid "Ping Hosts"
+msgstr "ホストへ ping"
+
+msgid "Please Enter an admin or mobile lookup name"
+msgstr "Please Enter an admin or mobile lookup名"
+
+msgid "Please Select an option"
+msgstr "オプションを選択してください"
+
+msgid "Please be very careful changing any of the following settings"
+msgstr "Please be very careful changing any of the following 設定"
+
+msgid "Please check your credentials in"
+msgstr "Please check your credentials in"
+
+msgid "Please choose a different name"
+msgstr "Please choose a different名"
+
+msgid "Please choose a different path"
+msgstr "Please choose a different パス"
+
+msgid "Please choose an image"
+msgstr "Please choose an イメージ"
+
+msgid "Please confirm you want to delete"
+msgstr "Please confirm you want to 削除"
+
+msgid "Please enter a Group Member Attribute"
+msgstr "a グループ Member Attributeを入力してください"
+
+msgid "Please enter a LDAP server address"
+msgstr "a LDAP サーバー addressを入力してください"
+
+msgid "Please enter a Search Base DN"
+msgstr "a Search Base DNを入力してください"
+
+msgid "Please enter a User Name Attribute"
+msgstr "a ユーザー名 Attributeを入力してください"
+
+msgid "Please enter a hostname"
+msgstr "a ホスト名を入力してください"
+
+msgid "Please enter a mac address"
+msgstr "a MAC アドレス アドレスを入力してください"
+
+msgid "Please enter a name for this LDAP server."
+msgstr "a 名前 for this LDAP サーバーを入力してください。"
+
+msgid "Please enter a name for this location."
+msgstr "a 名前 for this ロケーションを入力してください。"
+
+msgid "Please enter a valid CIDR subnet."
+msgstr "a 有効な CIDR subnetを入力してください。"
+
+msgid "Please enter a valid CIDR subnets comma separated list"
+msgstr "a 有効な CIDR subnets comma separated listを入力してください"
+
+msgid "Please enter a valid hostname"
+msgstr "a 有効な ホスト名を入力してください"
+
+msgid "Please enter a valid ip"
+msgstr "a 有効な ipを入力してください"
+
+msgid "Please enter a valid mac address"
+msgstr "a 有効な MAC アドレス アドレスを入力してください"
+
+msgid "Please enter an access token"
+msgstr "an access tokenを入力してください"
+
+msgid "Please input a session name"
+msgstr "Please input a セッション名"
+
+msgid "Please physically associate"
+msgstr "Please physically associate"
+
+msgid "Please select a valid ldap port"
+msgstr "Please select a 有効な LDAP port"
+
+msgid "Please select an LDAP port to use"
+msgstr "Please select an LDAP port to use"
+
+msgid "Please select an option"
+msgstr "Please select an option"
+
+msgid "Please select the snapin you want to install"
+msgstr "Please select the スナップイン you want to install"
+
+msgid "Please select the storage group this location relates to."
+msgstr "Please select the ストレージグループ this ロケーション relates to。"
+
+msgid "Please update your FOG Client, this is old and insecure"
+msgstr "Please 更新 your FOG クライアント, this is old と insecure"
+
+msgid "Please use another hostname"
+msgstr "Please use another ホスト名"
+
+msgid "Please wait until a slot is open"
+msgstr "Please wait until a slot is open"
+
+msgid "Plugin"
+msgstr "プラグイン"
+
+msgid "Plugin Configuration"
+msgstr "プラグイン構成"
+
+msgid "Plugin Description"
+msgstr "プラグインの説明"
+
+msgid "Plugin Installation"
+msgstr "プラグインのインストール"
+
+msgid "Plugin Installed!"
+msgstr "プラグインをインストールしました！"
+
+msgid "Plugin Management"
+msgstr "プラグイン管理"
+
+msgid "Plugin Name"
+msgstr "プラグイン名"
+
+msgid "Plugins"
+msgstr "プラグイン"
+
+msgid "Port"
+msgstr "ポート"
+
+msgid "Port is not valid ldap/ldaps port"
+msgstr "ポートは有効な ldap/ldaps ポートではありません"
+
+msgid "Postfix requires an action of login"
+msgstr "Postfix requires an action of login"
+
+msgid "Postfix requires an action of login, logout, or start to operate"
+msgstr "Postfix requires an action of login, logout, or start to operate"
+
+msgid "Power Management"
+msgstr "電源管理"
+
+msgid "Power Management Task run time"
+msgstr "電源管理タスク実行時刻"
+
+msgid "Primary Group"
+msgstr "プライマリグループ"
+
+msgid "Primary MAC"
+msgstr "プライマリ MAC アドレス"
+
+msgid "Primary Storage Group"
+msgstr "プライマリストレージグループ"
+
+msgid "Primary User"
+msgstr "プライマリユーザー"
+
+msgid "Printed"
+msgstr "印刷済み"
+
+msgid "Printer"
+msgstr "プリンター"
+
+msgid "Printer Alias"
+msgstr "プリンター Alias"
+
+msgid "Printer Associations"
+msgstr "プリンター 関連付け"
+
+msgid "Printer Config File"
+msgstr "プリンター Config ファイル"
+
+msgid "Printer Configuration"
+msgstr "プリンター 構成"
+
+msgid "Printer Create Fail"
+msgstr "プリンターの作成に失敗しました"
+
+msgid "Printer Create Success"
+msgstr "プリンターの作成に成功しました"
+
+msgid "Printer Description"
+msgstr "プリンターの説明"
+
+msgid "Printer General"
+msgstr "プリンター全般"
+
+msgid "Printer INF File"
+msgstr "プリンター INF ファイル"
+
+msgid "Printer IP"
+msgstr "プリンター IP"
+
+msgid "Printer IP/Hostname"
+msgstr "プリンター IP/ホスト名"
+
+msgid "Printer Management"
+msgstr "プリンター管理"
+
+msgid "Printer Model"
+msgstr "プリンター モデル"
+
+msgid "Printer Name"
+msgstr "プリンター名"
+
+msgid "Printer Name/Alias"
+msgstr "プリンター 名前/Alias"
+
+msgid "Printer Port"
+msgstr "プリンター Port"
+
+msgid "Printer Type"
+msgstr "プリンター タイプ"
+
+msgid "Printer Update Fail"
+msgstr "プリンターの更新に失敗しました"
+
+msgid "Printer Update Success"
+msgstr "プリンターの更新に成功しました"
+
+msgid "Printer added!"
+msgstr "プリンターを追加しました！"
+
+msgid "Printer name already exists"
+msgstr "プリンター 名前 already exists"
+
+msgid "Printer update failed!"
+msgstr "プリンターの更新に失敗しました！"
+
+msgid "Printer updated!"
+msgstr "プリンターを更新しました！"
+
+msgid "Printers"
+msgstr "プリンター"
+
+msgid "Private key failed"
+msgstr "秘密キーに失敗しました"
+
+msgid "Private key not found"
+msgstr "秘密キーが見つかりません"
+
+msgid "Private key not readable"
+msgstr "秘密キーを読み取れません"
+
+msgid "Private key path not found"
+msgstr "秘密キーのパスが見つかりません"
+
+msgid "Protected"
+msgstr "保護済み"
+
+msgid "Pushbullet Accounts"
+msgstr "Pushbullet アカウント"
+
+msgid "Pushbullet Management"
+msgstr "Pushbullet 管理"
+
+msgid "Quarantine"
+msgstr "隔離"
+
+msgid "Queued"
+msgstr "キュー済み"
+
+msgid "Quick"
+msgstr "クイック"
+
+msgid "RX"
+msgstr "RX"
+
+msgid "Reboot"
+msgstr "再起動"
+
+msgid "Reboot after deploy"
+msgstr "展開後に再起動"
+
+msgid "Reboot after install"
+msgstr "インストール後に再起動"
+
+msgid "Rebranding element has been successfully updated!"
+msgstr "Rebranding element has been successfullyを更新しました！"
+
+msgid "Receive"
+msgstr "受信"
+
+msgid "Recommended"
+msgstr "推奨"
+
+msgid "Record not found"
+msgstr "レコードが見つかりません"
+
+msgid "Register must be managed from hooks or events"
+msgstr "Register must be managed from hooks or events"
+
+msgid "Registered"
+msgstr "登録済み"
+
+msgid "Registered Hosts"
+msgstr "登録済みホスト"
+
+msgid "Releasing Staff Initials"
+msgstr "Releasing Staff Initials"
+
+msgid "Remit Hello Interval"
+msgstr "Remit Hello Interval"
+
+msgid "Remote address attempting to login"
+msgstr "Remote address attempting to login"
+
+msgid "Remove"
+msgstr "削除"
+
+msgid "Remove "
+msgstr "削除 "
+
+msgid "Remove Accesscontrol Rules"
+msgstr "削除 アクセス制御 ルール"
+
+msgid "Remove Associations"
+msgstr "削除 関連付け"
+
+msgid "Remove Hosts"
+msgstr "削除 ホスト"
+
+msgid "Remove Images"
+msgstr "削除 イメージ"
+
+msgid "Remove MAC"
+msgstr "削除 MAC アドレス"
+
+msgid "Remove Selected?"
+msgstr "削除 Selected？"
+
+msgid "Remove Users"
+msgstr "削除 ユーザー"
+
+msgid "Remove failed"
+msgstr "削除 failed"
+
+msgid "Remove selected "
+msgstr "削除 selected "
+
+msgid "Remove selected groups"
+msgstr "削除 selected グループ"
+
+msgid "Remove selected hosts"
+msgstr "削除 selected ホスト"
+
+msgid "Remove selected images"
+msgstr "削除 selected イメージ"
+
+msgid "Remove selected printers"
+msgstr "削除 selected プリンター"
+
+msgid "Remove selected rules"
+msgstr "削除 selected ルール"
+
+msgid "Remove selected snapins"
+msgstr "削除 selected スナップイン"
+
+msgid "Remove selected users"
+msgstr "削除 selected ユーザー"
+
+msgid "Remove snapins"
+msgstr "削除 スナップイン"
+
+msgid "Remove these items?"
+msgstr "削除 these items？"
+
+msgid "Removed"
+msgstr "削除済み"
+
+msgid "Removing Key"
+msgstr "Removing キー"
+
+msgid "Replay from journal"
+msgstr "Replay from journal"
+
+msgid "Replicate?"
+msgstr "Replicate？"
+
+msgid "Replicating"
+msgstr "Replicating"
+
+msgid "Replication Bandwidth"
+msgstr "レプリケーション帯域幅"
+
+msgid "Replication already running with PID"
+msgstr "Replication already running with PID"
+
+msgid "Report"
+msgstr "レポート"
+
+msgid "Report Management"
+msgstr "レポート管理"
+
+msgid "Reports"
+msgstr "レポート"
+
+msgid "Required database field is empty"
+msgstr "必須のデータベースフィールドが空です"
+
+msgid "Requires templates to process"
+msgstr "Requires templates to process"
+
+msgid "Reset Encryption Data"
+msgstr "暗号化データをリセット"
+
+msgid "Reset Token"
+msgstr "トークンをリセット"
+
+msgid "Result"
+msgstr "結果"
+
+msgid "Results"
+msgstr "結果"
+
+msgid "Return Code"
+msgstr "戻りコード"
+
+msgid "Return Desc"
+msgstr "戻り説明"
+
+msgid "Return code"
+msgstr "戻りコード"
+
+msgid "Returning array within key"
+msgstr "Returning array within キー"
+
+msgid "Returning value of key"
+msgstr "Returning value of キー"
+
+msgid "Reverse the file: (newest on top)"
+msgstr "Reverse the ファイル: (newest on top)"
+
+msgid "Rexmit Hello Interval"
+msgstr "Rexmit Hello Interval"
+
+msgid "Role"
+msgstr "ロール"
+
+msgid "Role Create Fail"
+msgstr "ロールの作成に失敗しました"
+
+msgid "Role Create Success"
+msgstr "ロールの作成に成功しました"
+
+msgid "Role Description"
+msgstr "ロールの説明"
+
+msgid "Role Name"
+msgstr "ロール名"
+
+msgid "Role Update Fail"
+msgstr "ロールの更新に失敗しました"
+
+msgid "Role Update Success"
+msgstr "ロールの更新に成功しました"
+
+msgid "Role added!"
+msgstr "ロールを追加しました！"
+
+msgid "Role update failed!"
+msgstr "ロールの更新に失敗しました！"
+
+msgid "Role updated!"
+msgstr "ロールを更新しました！"
+
+msgid "Routes should be an array or an instance of Traversable"
+msgstr "ルートは配列または Traversable のインスタンスである必要があります"
+
+msgid "Row"
+msgstr "行"
+
+msgid "Row number not set properly"
+msgstr "Row number not set properly"
+
+msgid "Rule Associate Fail"
+msgstr "ルール Associate Fail"
+
+msgid "Rule Associate Success"
+msgstr "ルール Associate Success"
+
+msgid "Rule Association"
+msgstr "ルール 関連付け"
+
+msgid "Rule Create Fail"
+msgstr "ルールの作成に失敗しました"
+
+msgid "Rule Create Success"
+msgstr "ルールの作成に成功しました"
+
+msgid "Rule Delete Fail"
+msgstr "ルールの削除に失敗しました"
+
+msgid "Rule Delete Success"
+msgstr "ルールの削除に成功しました"
+
+msgid "Rule Membership"
+msgstr "ルール メンバーシップ"
+
+msgid "Rule Name"
+msgstr "ルール名"
+
+msgid "Rule Type"
+msgstr "ルール タイプ"
+
+msgid "Rule Update Fail"
+msgstr "ルールの更新に失敗しました"
+
+msgid "Rule Update Success"
+msgstr "ルールの更新に成功しました"
+
+msgid "Rule Value"
+msgstr "ルール Value"
+
+msgid "Rule added!"
+msgstr "ルールを追加しました！"
+
+msgid "Rule associate success!"
+msgstr "ルール associate success！"
+
+msgid "Rule deleted successfully!"
+msgstr "ルール deleted successfully！"
+
+msgid "Rule type"
+msgstr "ルール タイプ"
+
+msgid "Rule updated!"
+msgstr "ルールを更新しました！"
+
+msgid "Rule value"
+msgstr "ルール value"
+
+msgid "Running Windows"
+msgstr "実行中の Windows"
+
+msgid "SQL Error"
+msgstr "SQL エラー"
+
+msgid "SSL Path"
+msgstr "SSL パス"
+
+msgid "Save Changes"
+msgstr "変更を保存"
+
+msgid "Save Initrd"
+msgstr "Initrd を保存"
+
+msgid "Save Kernel"
+msgstr "カーネルを保存"
+
+msgid ""
+"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
+"key update or missing auto-increment."
+msgstr "保存は完了しましたが、有効な ID が割り当てられませんでした（insertId=0）。重複キー更新または auto-increment の不足の可能性があります。"
+
+msgid "Saving data for"
+msgstr "データを保存しています:"
+
+msgid "Schedule"
+msgstr "スケジュール"
+
+msgid "Schedule Power"
+msgstr "スケジュール Power"
+
+msgid "Schedule as debug task"
+msgstr "スケジュール as debug タスク"
+
+msgid "Schedule cron-style"
+msgstr "スケジュール cron-style"
+
+msgid "Schedule delayed"
+msgstr "スケジュール delayed"
+
+msgid "Schedule instant"
+msgstr "スケジュール instant"
+
+msgid "Schedule with shutdown"
+msgstr "スケジュール with shutdown"
+
+msgid "Scheduled Task run time"
+msgstr "Scheduled タスク run time"
+
+msgid "Scheduled Tasks"
+msgstr "スケジュール済みタスク"
+
+msgid "Scheduled date is in the past"
+msgstr "Scheduled date is in the past"
+
+msgid "Scheduled tasks successfully created"
+msgstr "Scheduled タスク successfully created"
+
+msgid "Scheduler"
+msgstr "スケジューラー"
+
+msgid "Screen Height (in pixels)"
+msgstr "Screen Height (in pixels)"
+
+msgid "Screen Refresh Rate (in Hz)"
+msgstr "Screen Refresh Rate (in Hz)"
+
+msgid "Screen Width (in pixels)"
+msgstr "Screen Width (in pixels)"
+
+msgid "Search"
+msgstr "検索"
+
+msgid "Search Base DN"
+msgstr "検索ベース DN"
+
+msgid "Search DN"
+msgstr "検索 DN"
+
+msgid "Search DN did not return any results"
+msgstr "検索 DN は結果を返しませんでした"
+
+msgid "Search Method"
+msgstr "検索方法"
+
+msgid "Search Scope"
+msgstr "検索範囲"
+
+msgid "Search pattern"
+msgstr "検索パターン"
+
+msgid "Search results returned false"
+msgstr "Search results returned false"
+
+msgid "Second parameter must be in array(class,function)"
+msgstr "Second parameter must be in array(class,function)"
+
+msgid "Select Image"
+msgstr "イメージを選択"
+
+msgid "Select User"
+msgstr "ユーザーを選択"
+
+msgid "Select a cron type"
+msgstr "Select a cron タイプ"
+
+msgid "Select a valid image"
+msgstr "Select a 有効な イメージ"
+
+msgid "Select management level for these hosts"
+msgstr "Select 管理 level for these ホスト"
+
+msgid "Select management level for this host"
+msgstr "Select 管理 level このホストの"
+
+msgid "Select/Deselect All"
+msgstr "すべて選択/解除"
+
+msgid "Selected Logins"
+msgstr "選択したログイン"
+
+msgid "Selected groups's current activity"
+msgstr "Selected グループ's current activity"
+
+msgid "Selected hosts approved successfully"
+msgstr "Selected ホスト approved successfully"
+
+msgid "Selected hosts deleted successfully"
+msgstr "Selected ホスト deleted successfully"
+
+msgid "Selected node's disk usage"
+msgstr "Selected ノード's disk usage"
+
+msgid "Serial"
+msgstr "シリアル"
+
+msgid "Serial Number"
+msgstr "シリアル番号"
+
+msgid "Server Shell"
+msgstr "サーバーシェル"
+
+msgid "Server information"
+msgstr "サーバー情報"
+
+msgid "Server information at a glance."
+msgstr "サーバー情報の概要。"
+
+msgid "Service"
+msgstr "サービス"
+
+msgid "Service Configuration"
+msgstr "サービス構成"
+
+msgid "Service Master"
+msgstr "サービスマスター"
+
+msgid "Service Setting Update Failed"
+msgstr "Service Settingの更新に失敗しました"
+
+msgid "Service Setting Update Success"
+msgstr "Service Settingの更新に成功しました"
+
+msgid "Service Start"
+msgstr "サービス開始"
+
+msgid "Service Status"
+msgstr "サービス状態"
+
+msgid "Service Tag"
+msgstr "サービスタグ"
+
+msgid "Service general"
+msgstr "Service全般"
+
+msgid "Service update failed"
+msgstr "Serviceの更新に失敗しました"
+
+msgid "Session Name"
+msgstr "セッション名"
+
+msgid "Session name cannot be the same as an existing hostname"
+msgstr "セッション名を既存のホスト名と同じにすることはできません"
+
+msgid "Session timeout"
+msgstr "セッションタイムアウト"
+
+msgid "Session with that name already exists"
+msgstr "その名前のセッションは既に存在します"
+
+msgid "Set Failed"
+msgstr "Set Failed"
+
+msgid "Set failed"
+msgstr "Set failed"
+
+msgid "Setting Key"
+msgstr "Setting キー"
+
+msgid "Setting logout to one second prior to next login"
+msgstr "Setting logout to one second prior to next login"
+
+msgid "Settings"
+msgstr "設定"
+
+msgid "Settings Update Fail"
+msgstr "設定の更新に失敗しました"
+
+msgid "Settings Update Success"
+msgstr "設定の更新に成功しました"
+
+msgid "Settings successfully stored!"
+msgstr "設定を正常に保存しました！"
+
+msgid "Should anything go wrong"
+msgstr "Should anything go wrong"
+
+msgid "Shutdown"
+msgstr "シャットダウン"
+
+msgid "Shutdown after deploy"
+msgstr "展開後にシャットダウン"
+
+msgid "Shutdown after install"
+msgstr "インストール後にシャットダウン"
+
+msgid "Signed"
+msgstr "署名済み"
+
+msgid "Site"
+msgstr "サイト"
+
+msgid "Site Association"
+msgstr "サイト 関連付け"
+
+msgid "Site Control Management"
+msgstr "サイト Control管理"
+
+msgid "Site Create Fail"
+msgstr "サイトの作成に失敗しました"
+
+msgid "Site Create Success"
+msgstr "サイトの作成に成功しました"
+
+msgid "Site Description"
+msgstr "サイトの説明"
+
+msgid "Site General"
+msgstr "サイト全般"
+
+msgid "Site Name"
+msgstr "サイト名"
+
+msgid "Site Update Fail"
+msgstr "サイトの更新に失敗しました"
+
+msgid "Site Update Success"
+msgstr "サイトの更新に成功しました"
+
+msgid "Site Updated!"
+msgstr "サイトを更新しました！"
+
+msgid "Site added!"
+msgstr "サイトを追加しました！"
+
+msgid "Site update failed!"
+msgstr "サイトの更新に失敗しました！"
+
+msgid "Sites"
+msgstr "サイト"
+
+msgid "Size"
+msgstr "サイズ"
+
+msgid "Slack Accounts"
+msgstr "Slack アカウント"
+
+msgid "Slack Management"
+msgstr "Slack 管理"
+
+msgid "Smart Installer"
+msgstr "スマートインストーラー"
+
+msgid "Snapin"
+msgstr "スナップイン"
+
+msgid "Snapin Args"
+msgstr "スナップイン Args"
+
+msgid "Snapin Arguments"
+msgstr "スナップイン Arguments"
+
+msgid "Snapin Arguments Hidden"
+msgstr "スナップイン Arguments Hidden"
+
+msgid "Snapin Client"
+msgstr "スナップイン クライアント"
+
+msgid "Snapin Command"
+msgstr "スナップイン Command"
+
+msgid "Snapin Create Fail"
+msgstr "スナップインの作成に失敗しました"
+
+msgid "Snapin Create Success"
+msgstr "スナップインの作成に成功しました"
+
+msgid "Snapin Created"
+msgstr "スナップイン Created"
+
+msgid "Snapin Creation Date"
+msgstr "スナップイン Creation Date"
+
+msgid "Snapin Creation Time"
+msgstr "スナップイン Creation Time"
+
+msgid "Snapin Description"
+msgstr "スナップインの説明"
+
+msgid "Snapin Enabled"
+msgstr "スナップイン Enabled"
+
+msgid "Snapin File"
+msgstr "スナップイン ファイル"
+
+msgid "Snapin File (exists)"
+msgstr "スナップイン ファイル (exists)"
+
+msgid "Snapin File Upload Fail"
+msgstr "スナップイン ファイル Upload Fail"
+
+msgid "Snapin General"
+msgstr "スナップイン全般"
+
+msgid "Snapin Hash"
+msgstr "スナップイン Hash"
+
+msgid "Snapin History"
+msgstr "スナップイン 履歴"
+
+msgid "Snapin ID"
+msgstr "スナップイン ID"
+
+msgid "Snapin Locations"
+msgstr "スナップイン ロケーション"
+
+msgid "Snapin Log"
+msgstr "スナップイン Log"
+
+msgid "Snapin Management"
+msgstr "スナップイン管理"
+
+msgid "Snapin Name"
+msgstr "スナップイン名"
+
+msgid "Snapin Pack"
+msgstr "スナップイン Pack"
+
+msgid "Snapin Pack Arguments"
+msgstr "スナップイン Pack Arguments"
+
+msgid "Snapin Pack File"
+msgstr "スナップイン Pack ファイル"
+
+msgid "Snapin Pack Template"
+msgstr "スナップイン Pack Template"
+
+msgid "Snapin Path"
+msgstr "スナップイン パス"
+
+msgid "Snapin Protected"
+msgstr "スナップイン Protected"
+
+msgid "Snapin Replicator"
+msgstr "スナップイン Replicator"
+
+msgid "Snapin Return Code"
+msgstr "スナップイン Return Code"
+
+msgid "Snapin Return Detail"
+msgstr "スナップイン Return Detail"
+
+msgid "Snapin Run With"
+msgstr "スナップイン Run With"
+
+msgid "Snapin Run With Args"
+msgstr "スナップイン Run With Args"
+
+msgid "Snapin Run With Argument"
+msgstr "スナップイン Run With Argument"
+
+msgid "Snapin State"
+msgstr "スナップイン 状態"
+
+msgid "Snapin Storage Groups"
+msgstr "スナップイン ストレージグループ"
+
+msgid "Snapin Task is invalid"
+msgstr "スナップイン タスク is invalid"
+
+msgid "Snapin Template"
+msgstr "スナップイン Template"
+
+msgid "Snapin Timeout (seconds)"
+msgstr "スナップイン Timeout (seconds)"
+
+msgid "Snapin Transfer Log"
+msgstr "スナップイン Transfer Log"
+
+msgid "Snapin Type"
+msgstr "スナップイン タイプ"
+
+msgid "Snapin Update Fail"
+msgstr "スナップインの更新に失敗しました"
+
+msgid "Snapin Update Success"
+msgstr "スナップインの更新に成功しました"
+
+msgid "Snapin Used"
+msgstr "スナップイン Used"
+
+msgid "Snapin added!"
+msgstr "スナップインを追加しました！"
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "スナップインファイルが大きすぎます。php.ini の post_max_size を増やしてください。"
+
+msgid "Snapin is invalid"
+msgstr "スナップイン is invalid"
+
+msgid "Snapin is protected and cannot be deleted"
+msgstr "スナップイン is protected と cannot be deleted"
+
+msgid "Snapin task not completed"
+msgstr "スナップイン タスク not completed"
+
+msgid "Snapin to be installed"
+msgstr "スナップイン to be installed"
+
+msgid "Snapin update failed!"
+msgstr "スナップインの更新に失敗しました！"
+
+msgid "Snapin updated!"
+msgstr "スナップインを更新しました！"
+
+msgid "Snapins"
+msgstr "スナップイン"
+
+msgid "Snapins Are already deployed to this host"
+msgstr "スナップイン Are already deployed to this ホスト"
+
+msgid "So if you are trying to transmit to remote node A"
+msgstr "So if you are trying to transmit to remote ノード A"
+
+msgid "Somebody will be able to help in some form"
+msgstr "Somebody will be able to help in some form"
+
+msgid "Space variable must be boolean"
+msgstr "Space variable must be boolean"
+
+msgid "Specified download URL not allowed!"
+msgstr "Specified download URL not allowed！"
+
+msgid "Start"
+msgstr "開始"
+
+msgid "Start Date"
+msgstr "開始日"
+
+msgid "Start Multicast Session"
+msgstr "マルチキャストセッションを開始"
+
+msgid "Start Session"
+msgstr "セッションを開始"
+
+msgid "Start Time"
+msgstr "開始時刻"
+
+msgid "Started By:"
+msgstr "開始者:"
+
+msgid "Started sync for"
+msgstr "Started sync for"
+
+msgid "Starting Image Replication"
+msgstr "Starting イメージ Replication"
+
+msgid "Starting Image Size Service"
+msgstr "Starting イメージ Size Service"
+
+msgid "Starting Snapin Hashing Service"
+msgstr "Starting スナップイン Hashing Service"
+
+msgid "Starting Snapin Replication"
+msgstr "Starting スナップイン Replication"
+
+msgid "Starting Sync Actions"
+msgstr "Starting Sync Actions"
+
+msgid "Starting process"
+msgstr "Starting process"
+
+msgid "State"
+msgstr "状態"
+
+msgid "Static"
+msgstr "静的"
+
+msgid "Status"
+msgstr "状態"
+
+msgid "Stop Task"
+msgstr "タスクを停止"
+
+msgid "Storage"
+msgstr "ストレージ"
+
+msgid "Storage Group"
+msgstr "ストレージグループ"
+
+msgid "Storage Group Activity"
+msgstr "ストレージグループ Activity"
+
+msgid "Storage Group Already Exists"
+msgstr "ストレージグループ Already Exists"
+
+msgid "Storage Group Create Fail"
+msgstr "ストレージグループの作成に失敗しました"
+
+msgid "Storage Group Create Success"
+msgstr "ストレージグループの作成に成功しました"
+
+msgid "Storage Group Created"
+msgstr "ストレージグループ Created"
+
+msgid "Storage Group Description"
+msgstr "ストレージグループの説明"
+
+msgid "Storage Group General"
+msgstr "ストレージグループ全般"
+
+msgid "Storage Group Name"
+msgstr "ストレージグループ名"
+
+msgid "Storage Group Update Fail"
+msgstr "ストレージグループの更新に失敗しました"
+
+msgid "Storage Group Update Success"
+msgstr "ストレージグループの更新に成功しました"
+
+msgid "Storage Group Updated"
+msgstr "ストレージグループを更新しました"
+
+msgid "Storage Group deleted"
+msgstr "ストレージグループ deleted"
+
+msgid "Storage Group has no reachable Master Node"
+msgstr "ストレージグループに到達可能なマスターノードがありません"
+
+msgid "Storage Group not found"
+msgstr "ストレージグループ not found"
+
+msgid "Storage Group update failed!"
+msgstr "ストレージグループの更新に失敗しました！"
+
+msgid "Storage Group updated!"
+msgstr "ストレージグループを更新しました！"
+
+msgid "Storage Management"
+msgstr "Storage管理"
+
+msgid "Storage Node"
+msgstr "ストレージノード"
+
+msgid "Storage Node Create Fail"
+msgstr "ストレージノードの作成に失敗しました"
+
+msgid "Storage Node Create Success"
+msgstr "ストレージノードの作成に成功しました"
+
+msgid "Storage Node Created"
+msgstr "ストレージノード Created"
+
+msgid "Storage Node Description"
+msgstr "ストレージノードの説明"
+
+msgid "Storage Node Disk Usage"
+msgstr "ストレージノード Disk Usage"
+
+msgid "Storage Node General"
+msgstr "ストレージノード全般"
+
+msgid "Storage Node IP"
+msgstr "ストレージノード IP"
+
+msgid "Storage Node Interface"
+msgstr "ストレージノード Interface"
+
+msgid "Storage Node Max Clients"
+msgstr "ストレージノード 最大 Clients"
+
+msgid "Storage Node Name"
+msgstr "ストレージノード名"
+
+msgid "Storage Node Password"
+msgstr "ストレージノード パスワード"
+
+msgid "Storage Node Protocol"
+msgstr "ストレージノード Protocol"
+
+msgid "Storage Node Update Fail"
+msgstr "ストレージノードの更新に失敗しました"
+
+msgid "Storage Node Update Success"
+msgstr "ストレージノードの更新に成功しました"
+
+msgid "Storage Node Updated"
+msgstr "ストレージノードを更新しました"
+
+msgid "Storage Node Username"
+msgstr "ストレージノード ユーザー名"
+
+msgid "Storage Node added!"
+msgstr "ストレージノードを追加しました！"
+
+msgid "Storage Node already exists"
+msgstr "ストレージノード already exists"
+
+msgid "Storage Node deleted"
+msgstr "ストレージノード deleted"
+
+msgid "Storage Node update failed!"
+msgstr "ストレージノードの更新に失敗しました！"
+
+msgid "Storage Node updated!"
+msgstr "ストレージノードを更新しました！"
+
+msgid "String must be a string"
+msgstr "String は文字列で指定してください"
+
+msgid "Subnet Groups"
+msgstr "サブネットグループ"
+
+msgid "SubnetGroup General"
+msgstr "サブネットグループ全般"
+
+msgid "Subnetgroup Create Fail"
+msgstr "サブネットグループの作成に失敗しました"
+
+msgid "Subnetgroup Create Success"
+msgstr "サブネットグループの作成に成功しました"
+
+msgid "Subnetgroup Management"
+msgstr "サブネットグループ管理"
+
+msgid "Subnetgroup Update Fail"
+msgstr "サブネットグループの更新に失敗しました"
+
+msgid "Subnetgroup Update Success"
+msgstr "サブネットグループの更新に成功しました"
+
+msgid "Subnetgroup added!"
+msgstr "サブネットグループを追加しました！"
+
+msgid "Subnetgroup update failed!"
+msgstr "サブネットグループの更新に失敗しました！"
+
+msgid "Subnetgroup updated!"
+msgstr "サブネットグループを更新しました！"
+
+msgid "Subnets"
+msgstr "サブネット"
+
+msgid "Subtree Only"
+msgstr "サブツリーのみ"
+
+msgid "Subtree and Below"
+msgstr "サブツリー以下"
+
+msgid "Successful"
+msgstr "成功"
+
+msgid "Successfully added selected hosts to the group!"
+msgstr "Successfully added selected ホスト to the グループ！"
+
+msgid "Successfully created"
+msgstr "正常に作成されました"
+
+msgid "Successfully deleted"
+msgstr "正常に削除されました"
+
+msgid "System Manufacturer"
+msgstr "システム製造元"
+
+msgid "System Overview"
+msgstr "システム概要"
+
+msgid "System Product"
+msgstr "システム製品"
+
+msgid "System Serial"
+msgstr "システムシリアル"
+
+msgid "System Serial Number"
+msgstr "システムシリアル番号"
+
+msgid "System Tools"
+msgstr "システムツール"
+
+msgid "System Type"
+msgstr "システムタイプ"
+
+msgid "System UUID"
+msgstr "システム UUID"
+
+msgid "System Uptime"
+msgstr "システム稼働時間"
+
+msgid "System Version"
+msgstr "システムバージョン"
+
+msgid "TCP/IP"
+msgstr "TCP/IP"
+
+msgid "TCP/IP Port Printer"
+msgstr "TCP/IP ポートプリンター"
+
+msgid "TX"
+msgstr "TX"
+
+msgid "Table not defined for this class"
+msgstr "このクラスにテーブルが定義されていません"
+
+msgid "Task"
+msgstr "タスク"
+
+msgid "Task Checkin Date"
+msgstr "タスク Checkin Date"
+
+msgid "Task Checkin Time"
+msgstr "タスク Checkin Time"
+
+msgid "Task Complete Date"
+msgstr "タスク Complete Date"
+
+msgid "Task Complete Time"
+msgstr "タスク Complete Time"
+
+msgid "Task ID"
+msgstr "タスク ID"
+
+msgid "Task Management"
+msgstr "タスク管理"
+
+msgid "Task Name"
+msgstr "タスク名"
+
+msgid "Task Reboot"
+msgstr "タスク再起動"
+
+msgid "Task State"
+msgstr "タスク状態"
+
+msgid "Task State Create Fail"
+msgstr "タスク状態の作成に失敗しました"
+
+msgid "Task State Create Success"
+msgstr "タスク状態の作成に成功しました"
+
+msgid "Task State General"
+msgstr "タスク状態全般"
+
+msgid "Task State Management"
+msgstr "タスク状態管理"
+
+msgid "Task State Update Fail"
+msgstr "タスク状態の更新に失敗しました"
+
+msgid "Task State Update Success"
+msgstr "タスク状態の更新に成功しました"
+
+msgid "Task State Updated!"
+msgstr "タスク状態を更新しました！"
+
+msgid "Task State added!"
+msgstr "タスク状態を追加しました！"
+
+msgid "Task States"
+msgstr "タスク状態"
+
+msgid "Task Type"
+msgstr "タスクタイプ"
+
+msgid "Task Type Create Fail"
+msgstr "タスクタイプの作成に失敗しました"
+
+msgid "Task Type Create Success"
+msgstr "タスクタイプの作成に成功しました"
+
+msgid "Task Type General"
+msgstr "タスクタイプ全般"
+
+msgid "Task Type Management"
+msgstr "タスクタイプ管理"
+
+msgid "Task Type Update Fail"
+msgstr "タスクタイプの更新に失敗しました"
+
+msgid "Task Type Update Success"
+msgstr "タスクタイプの更新に成功しました"
+
+msgid "Task Type Updated!"
+msgstr "タスクタイプを更新しました！"
+
+msgid "Task Type added!"
+msgstr "タスクタイプを追加しました！"
+
+msgid "Task Type is not valid"
+msgstr "タスクタイプ is not 有効な"
+
+msgid "Task Types"
+msgstr "タスクタイプ"
+
+msgid "Task forced to start"
+msgstr "タスク forced to start"
+
+msgid "Task not created as there are no associated tasks"
+msgstr "関連付けられたタスクがないため、タスクは作成されませんでした"
+
+msgid "Task sent to"
+msgstr "タスク sent to"
+
+msgid "Task started"
+msgstr "タスク started"
+
+msgid "Task started for"
+msgstr "タスク started for"
+
+msgid "Task type is not valid"
+msgstr "タスクタイプ is not 有効な"
+
+msgid "Tasked Successfully"
+msgstr "Tasked Successfully"
+
+msgid "Tasked successfully, click active tasks to view in line."
+msgstr "タスクを正常に設定しました。キューを表示するには実行中のタスクをクリックしてください。"
+
+msgid "Tasking"
+msgstr "タスク実行"
+
+msgid "Tasking Failed"
+msgstr "Tasking Failed"
+
+msgid "Tasks"
+msgstr "タスク"
+
+msgid "Team"
+msgstr "チーム"
+
+msgid "Terminal"
+msgstr "ターミナル"
+
+msgid "Terms and Conditions"
+msgstr "利用条件"
+
+msgid "Text"
+msgstr "テキスト"
+
+msgid "The 'Is Master Node' setting defines which"
+msgstr "The 'Is マスター ノード' setting defines which"
+
+msgid "The assigned image is protected"
+msgstr "The assigned イメージ is protected"
+
+msgid "The below items are only used for the old client."
+msgstr "The below items are のみ used for the old クライアント。"
+
+msgid "The clients will checkin with the server from time"
+msgstr "The clients will checkin with the サーバー from time"
+
+msgid "The following errors occured"
+msgstr "次のエラーが発生しました"
+
+msgid "The following errors occurred"
+msgstr "次のエラーが発生しました"
+
+msgid "The image storage group assigned is not valid"
+msgstr "The イメージ ストレージグループ assigned is not 有効な"
+
+msgid "The installers for the fog client"
+msgstr "The installers for the fog クライアント"
+
+msgid "The key will be assigned to registered hosts when a"
+msgstr "The キー will be assigned to registered ホスト when a"
+
+msgid "The node trying to be used is currently"
+msgstr "The ノード trying to be used is currently"
+
+msgid "The old client is what was distributed with"
+msgstr "The old クライアント is what was distributed with"
+
+msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
+msgstr "The old クライアント is what was distributed with FOG 1.2.0 と 以前"
+
+msgid "The old client iswhat was distributed with"
+msgstr "The old クライアント iswhat was distributed with"
+
+msgid "The old client was distributed with FOG 1.2.0 and earlier."
+msgstr "The old クライアント was distributed with FOG 1.2.0 と 以前。"
+
+msgid "The primary mac associated is"
+msgstr "The primary MAC アドレス associated is"
+
+msgid "The settings tend to be global which affects all hosts."
+msgstr "The 設定 tend to be global which affects all ホスト。"
+
+msgid "The storage groups associated storage node is not valid"
+msgstr "The ストレージグループ associated ストレージノード is not 有効な"
+
+msgid "The uploaded file exceeds the max_file_size"
+msgstr "The uploaded ファイル exceeds the max_file_size"
+
+msgid "The uploaded file exceeds the upload_max_filesize"
+msgstr "The uploaded ファイル exceeds the upload_max_filesize"
+
+msgid "The uploaded file was only partially uploaded"
+msgstr "The uploaded ファイル was のみ partially uploaded"
+
+msgid "There are"
+msgstr "There are"
+
+msgid "There are currently"
+msgstr "There are currently"
+
+msgid "There are many reasons why this could be the case"
+msgstr "There are many reasons why this could be the case"
+
+msgid "There are no groups on this server"
+msgstr "There are ありません グループ on this サーバー"
+
+msgid "There are no hosts to task in this group"
+msgstr "There are ありません ホスト to タスク in this グループ"
+
+msgid "There are no images on this server"
+msgstr "There are ありません イメージ on this サーバー"
+
+msgid "There are no locations on this server"
+msgstr "There are ありません ロケーション on this サーバー"
+
+msgid "There are no other members to sync to"
+msgstr "There are ありません other members to sync to"
+
+msgid "There are no snapins associated with this host"
+msgstr "There are ありません スナップイン associated with this ホスト"
+
+msgid "There are no snapins on this server"
+msgstr "There are ありません スナップイン on this サーバー"
+
+msgid "There are open slots"
+msgstr "There are open slots"
+
+msgid "There is a host in a tasking"
+msgstr "There is a ホスト in a tasking"
+
+msgid "There is nothing to replicate"
+msgstr "There is nothing to replicate"
+
+msgid "There were errors during import!"
+msgstr "There were errors during インポート！"
+
+msgid "There you can download utilities such as FOG Prep"
+msgstr "There you can download utilities such as FOG Prep"
+
+msgid "This MAC Belongs to another host"
+msgstr "This MAC アドレス Belongs to another ホスト"
+
+msgid "This area will allow the host checking in to tell"
+msgstr "This area will allow the ホスト checking in to tell"
+
+msgid "This file will only work on Windows"
+msgstr "This ファイル will のみ work on Windows"
+
+msgid "This host already exists"
+msgstr "This ホスト already exists"
+
+msgid "This installation process may take a few minutes"
+msgstr "This installation process may take a few minutes"
+
+msgid "This is a cron style task that should not run now."
+msgstr "This is a cron style タスク that should not run now。"
+
+msgid "This is a cron style task that should run now."
+msgstr "This is a cron style タスク that should run now。"
+
+msgid "This is a single run task that should not run now."
+msgstr "This is a single run タスク that should not run now。"
+
+msgid "This is a single run task that should run now."
+msgstr "This is a single run タスク that should run now。"
+
+msgid "This is especially useful if you have multiple"
+msgstr "This is especially useful if you have multiple"
+
+msgid "This is ipxe script commands to operate with"
+msgstr "This is iPXE script commands to operate with"
+
+msgid "This is not the master for this group"
+msgstr "This is not the master for this グループ"
+
+msgid "This is not the primary group"
+msgstr "This is not the primary グループ"
+
+msgid "This is only here to maintain old client operations"
+msgstr "This is のみ here to maintain old クライアント operations"
+
+msgid "This is set in seconds and causes the default option"
+msgstr "This is set in seconds と causes the default option"
+
+msgid "This is the recommended installer to use now"
+msgstr "This is the recommended installer to use now"
+
+msgid "This is useful in the case of slow links between"
+msgstr "This is useful in the case of slow links between"
+
+msgid "This item allows you to edit all of the iPXE Menu items as you"
+msgstr "This item allows you to edit all of the iPXE メニュー items as you"
+
+msgid "This module did not work past Windows XP"
+msgstr "This モジュール did not work past Windows XP"
+
+msgid "This module did not work past Windows XP due"
+msgstr "This モジュール did not work past Windows XP due"
+
+msgid "This module did not work past Windows XP due to"
+msgstr "This モジュール did not work past Windows XP due to"
+
+msgid "This module did not work past Windows XP due to UAC."
+msgstr "This モジュール did not work past Windows XP due to UAC。"
+
+msgid "This module has been replaced in the new client"
+msgstr "This モジュール があります been replaced in the new クライアント"
+
+msgid "This module has since been replaced with Power Management."
+msgstr "This モジュール has since been replaced with Power管理"
+
+msgid "This module is only used"
+msgstr "This モジュール is のみ used"
+
+msgid "This module is only used on the old client"
+msgstr "This モジュール is のみ used on the old クライアント"
+
+msgid "This module is only used on the old client."
+msgstr "This モジュール is のみ used on the old クライアント。"
+
+msgid "This node does not appear to be online"
+msgstr "This ノード does not appear to be online"
+
+msgid "This page allows you to upload a CSV file into FOG to ease"
+msgstr "This page allows you to upload a CSV ファイル into FOG to ease"
+
+msgid "This plugin is not installed"
+msgstr "This プラグイン is not installed"
+
+msgid "This section allows you to customize or alter"
+msgstr "This section allows you to customize or alter"
+
+msgid ""
+"This section allows you to import known mac address makers into the FOG "
+"database for easier identification"
+msgstr "This section allows you to インポート known MAC アドレス アドレス makers into the FOG データベース for easier identification"
+
+msgid "This section allows you to update"
+msgstr "This section allows you to 更新"
+
+msgid "This section allows you to update the modules and"
+msgstr "This section allows you to 更新 the モジュール と"
+
+msgid "This section allows you to upload user"
+msgstr "This section allows you to upload ユーザー"
+
+msgid "This servers ip(s)"
+msgstr "This servers ip(s)"
+
+msgid "This setting"
+msgstr "This setting"
+
+msgid "This setting defines sending the"
+msgstr "This setting defines sending the"
+
+msgid "This setting limits the bandwidth for replication between nodes"
+msgstr "This setting limits the bandwidth for replication between ノード"
+
+msgid ""
+"This setting only adds and removes printers that are managed by FOG. If the "
+"printer exists in printer management but is not assigned to a host, it will "
+"remove the printer if it exists on the unassigned host. It will add printers "
+"to the host that are assigned."
+msgstr "This setting のみ adds と removes プリンター that are managed by FOG. If the プリンター exists in プリンター 管理 but is not assigned to a ホスト, it will 削除 the プリンター if it exists on the unassigned ホスト. It will add プリンター to the ホスト that are assigned。"
+
+msgid "This setting turns off all FOG Printer Management"
+msgstr "This setting turns off all FOG プリンター管理"
+
+msgid ""
+"This setting will only allow FOG Assigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr "This setting will のみ allow FOG Assigned プリンター to be added to the ホスト. Any プリンター that is not assigned will be removed including non-FOG managed プリンター。"
+
+msgid "This will allow you to configure how services"
+msgstr "This will allow you to configure how services"
+
+msgid "Those images should be activated with the associated"
+msgstr "Those イメージ should be activated with the associated"
+
+msgid "Time"
+msgstr "時刻"
+
+msgid "Time Already Exists"
+msgstr "Time Already Exists"
+
+msgid "Timeout"
+msgstr "タイムアウト"
+
+msgid "Title must be a string"
+msgstr "Titleはstringである必要があります"
+
+msgid "To be released only by"
+msgstr "To be released のみ by"
+
+msgid "To get started please select an item from the menu."
+msgstr "To get started please select an item from the メニュー。"
+
+msgid "To perform an imaging task an image must be assigned"
+msgstr "To perform an imaging タスク an イメージ must be assigned"
+
+msgid "To view a report, select an item from the menu"
+msgstr "To view a レポート, select an item from the メニュー"
+
+msgid "Toggle Navigation"
+msgstr "ナビゲーション切り替え"
+
+msgid "Too many MACs"
+msgstr "MAC アドレスが多すぎます"
+
+msgid "Total Disk Space"
+msgstr "合計ディスク領域"
+
+msgid "Total Memory"
+msgstr "合計メモリ"
+
+msgid "Total Rows"
+msgstr "合計行数"
+
+msgid "Transmit"
+msgstr "送信"
+
+msgid "Trying Snapin hash for"
+msgstr "Trying スナップイン hash for"
+
+msgid "Trying image size for"
+msgstr "Trying イメージ size for"
+
+msgid "Txt must be a string"
+msgstr "Txtはstringである必要があります"
+
+msgid "Type"
+msgstr "タイプ"
+
+msgid "UAC introduced in Vista and up"
+msgstr "UAC introduced in Vista と up"
+
+msgid "Unable to Authenticate"
+msgstr "認証できません"
+
+msgid "Unable to determine plugin details."
+msgstr "プラグインの詳細を特定できません。"
+
+msgid "Unable to find basic information!"
+msgstr "基本情報が見つかりません！"
+
+msgid "Unable to find master Storage Node"
+msgstr "マスターストレージノードが見つかりません"
+
+msgid "Unable to get server information!"
+msgstr "サーバー情報を取得できません！"
+
+msgid "Unable to open file for reading"
+msgstr "読み取り用にファイルを開けません"
+
+msgid "Unauthorized"
+msgstr "権限がありません"
+
+msgid "Unavailable"
+msgstr "利用不可"
+
+msgid "Unicaset"
+msgstr "ユニキャスト"
+
+msgid "Unit of time must be a string"
+msgstr "Unit of timeはstringである必要があります"
+
+msgid "Unknown"
+msgstr "不明"
+
+msgid "Unknown DB error"
+msgstr "不明な DB エラー"
+
+msgid "Unknown upload error occurred"
+msgstr "不明なアップロードエラーが発生しました"
+
+msgid "Unsupported URL Scheme"
+msgstr "サポートされていない URL スキーム"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "Update API?"
+msgstr "API を更新しますか？"
+
+msgid "Update Default Printer"
+msgstr "Default プリンターを更新"
+
+msgid "Update General?"
+msgstr "全般を更新しますか？"
+
+msgid "Update LDAP server failed!"
+msgstr "LDAP サーバーの更新に失敗しました！"
+
+msgid "Update MACs"
+msgstr "MAC アドレス アドレスを更新"
+
+msgid "Update PM Values"
+msgstr "PM Valuesを更新"
+
+msgid "Update Password?"
+msgstr "パスワードを更新しますか？"
+
+msgid "Update Windows Key failed!"
+msgstr "Windows キーの更新に失敗しました！"
+
+msgid "Update auto-logout time"
+msgstr "auto-logout timeを更新"
+
+msgid "Update default printer"
+msgstr "default プリンターを更新"
+
+msgid "Update display resolution"
+msgstr "display resolutionを更新"
+
+msgid "Update module configurations"
+msgstr "モジュール configurationsを更新"
+
+msgid "Update not required!"
+msgstr "not requiredを更新"
+
+msgid "Update primary group"
+msgstr "primary グループを更新"
+
+msgid "Update printer configuration"
+msgstr "プリンター 構成を更新"
+
+msgid "Update task state failed!"
+msgstr "タスク状態の更新に失敗しました！"
+
+msgid "Update/Remove Storage Groups"
+msgstr "更新/削除 ストレージグループ"
+
+msgid "Update/Remove printers"
+msgstr "更新/削除 プリンター"
+
+msgid "Upload Reports"
+msgstr "レポートをアップロード"
+
+#, php-format
+msgid "Upload failed (error code %d)"
+msgstr "アップロードに失敗しました（エラーコード %d）"
+
+#, php-format
+msgid "Upload failed for \"%s\" (error code %d)"
+msgstr "\"%s\" のアップロードに失敗しました（エラーコード %d）"
+
+msgid "Upload file"
+msgstr "ファイルをアップロード"
+
+msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr "アップロードファイルの拡張子は jpg、jpeg、png のいずれかである必要があります"
+
+msgid "Uptime"
+msgstr "稼働時間"
+
+msgid "Use Group Matching (recommended)"
+msgstr "Use グループ 照合 (recommended)"
+
+msgid "Use extreme caution with this setting"
+msgstr "Use extreme caution with this setting"
+
+msgid "Use inits and kernels from this node"
+msgstr "Use inits と kernels from this ノード"
+
+msgid "Use the following link to go to the client page."
+msgstr "Use the following link to go to the クライアント page。"
+
+msgid "Use the forums to post issues so others"
+msgstr "Use the forums to post issues so others"
+
+msgid "Use the links below if you need assistance"
+msgstr "Use the links below if you need assistance"
+
+msgid "Use this for network installs"
+msgstr "Use this for network installs"
+
+msgid "Used"
+msgstr "使用済み"
+
+msgid "Used Disk Space"
+msgstr "使用済みディスク領域"
+
+msgid "Used Memory"
+msgstr "使用済みメモリ"
+
+msgid "User"
+msgstr "ユーザー"
+
+msgid "User API Enabled"
+msgstr "ユーザー API Enabled"
+
+msgid "User API Settings"
+msgstr "ユーザー API 設定"
+
+msgid "User API Token"
+msgstr "ユーザー API Token"
+
+msgid "User Access Control"
+msgstr "ユーザー アクセス制御"
+
+msgid "User Already Exists"
+msgstr "ユーザー Already Exists"
+
+msgid "User Change Password"
+msgstr "ユーザー Change パスワード"
+
+msgid "User Cleanup"
+msgstr "ユーザー Cleanup"
+
+msgid "User Create Fail"
+msgstr "ユーザーの作成に失敗しました"
+
+msgid "User Create Success"
+msgstr "ユーザーの作成に成功しました"
+
+msgid "User DN"
+msgstr "ユーザー DN"
+
+msgid "User Filter"
+msgstr "ユーザー Filter"
+
+msgid "User General"
+msgstr "ユーザー全般"
+
+msgid "User Management"
+msgstr "ユーザー管理"
+
+msgid "User Name"
+msgstr "ユーザー名"
+
+msgid "User Name Attribute"
+msgstr "ユーザー名 Attribute"
+
+msgid "User Password"
+msgstr "ユーザー パスワード"
+
+msgid "User Password (confirm)"
+msgstr "ユーザー パスワード (confirm)"
+
+msgid "User Tracker"
+msgstr "ユーザー Tracker"
+
+msgid "User Update Fail"
+msgstr "ユーザーの更新に失敗しました"
+
+msgid "User Update Success"
+msgstr "ユーザーの更新に成功しました"
+
+msgid "User added!"
+msgstr "ユーザーを追加しました！"
+
+msgid "User call is invalid"
+msgstr "ユーザー call is invalid"
+
+msgid "User name"
+msgstr "ユーザー名"
+
+msgid "User update failed!"
+msgstr "ユーザーの更新に失敗しました！"
+
+msgid "User updated!"
+msgstr "ユーザーを更新しました！"
+
+msgid "User was not authorized by the LDAP server"
+msgstr "ユーザー was not authorized by the LDAP サーバー"
+
+msgid "User/Channel Name"
+msgstr "ユーザー/Channel名"
+
+msgid "User/Channel to post to"
+msgstr "ユーザー/Channel to post to"
+
+msgid "Username"
+msgstr "ユーザー名"
+
+msgid "Username cannot contain contiguous special characters"
+msgstr "ユーザー名に連続した特殊文字は使用できません"
+
+msgid "Username does not meet requirements"
+msgstr "ユーザー名が要件を満たしていません"
+
+msgid "Username must be at least 3 characters"
+msgstr "ユーザー名は 3 文字以上で指定してください"
+
+msgid "Username must be less than 41 characters"
+msgstr "ユーザー名は 41 文字未満で指定してください"
+
+msgid "Username must start with a word character"
+msgstr "ユーザー名は英数字またはアンダースコアで開始する必要があります"
+
+msgid "Users"
+msgstr "ユーザー"
+
+msgid "Using the group match function"
+msgstr "Using the グループ match function"
+
+msgid "VNC"
+msgstr "VNC"
+
+msgid "Valid Host Colors"
+msgstr "有効な ホスト Colors"
+
+msgid "Value"
+msgstr "値"
+
+msgid "Variable contains"
+msgstr "Variable contains"
+
+msgid "Version"
+msgstr "バージョン"
+
+msgid "Version 1.2.0 and earlier"
+msgstr "バージョン 1.2.0 と 以前"
+
+msgid "View History For"
+msgstr "View 履歴 For"
+
+msgid "View advanced tasks for this"
+msgstr "View advanced タスク for this"
+
+msgid "Virus History"
+msgstr "ウイルス履歴"
+
+msgid "Virus Name"
+msgstr "ウイルス名"
+
+msgid "Virus Report"
+msgstr "ウイルスレポート"
+
+msgid "Virus items removed!"
+msgstr "ウイルス項目を削除しました！"
+
+msgid "WOL Broadcast General"
+msgstr "WOL ブロードキャスト全般"
+
+msgid "WOL Broadcast Management"
+msgstr "WOL ブロードキャスト管理"
+
+msgid "WOL Broadcasts"
+msgstr "WOL ブロードキャスト"
+
+msgid "Wait time has changed to"
+msgstr "Wait time があります changed to"
+
+msgid "Waiting for mysql to be available"
+msgstr "Waiting for mysql to be available"
+
+msgid "Wake On Lan"
+msgstr "Wake On Lan"
+
+msgid "Wake on lan?"
+msgstr "Wake on lan を実行しますか？"
+
+msgid "We are group ID"
+msgstr "We are グループ ID"
+
+msgid "We are group name"
+msgstr "We are グループ名"
+
+msgid "We are node ID"
+msgstr "We are ノード ID"
+
+msgid "We are node name"
+msgstr "We are ノード名"
+
+msgid "We cannot connect to LDAP server"
+msgstr "We cannot connect to LDAP サーバー"
+
+msgid "Web Server"
+msgstr "Web サーバー"
+
+msgid "Web root"
+msgstr "Web ルート"
+
+msgid "Weekly"
+msgstr "週単位"
+
+msgid "When the plugin is removed, the assigned key will remain"
+msgstr "When the プラグイン is removed, the assigned キー will remain"
+
+msgid "Where to get help"
+msgstr "ヘルプの入手先"
+
+msgid "Width must be 650 pixels."
+msgstr "幅は 650 ピクセルである必要があります。"
+
+msgid "Window size must be greater than 1"
+msgstr "ウィンドウサイズは 1 より大きい必要があります"
+
+msgid "Windows Key"
+msgstr "Windows キー"
+
+msgid "Windows Key Create Fail"
+msgstr "Windows キーの作成に失敗しました"
+
+msgid "Windows Key Create Success"
+msgstr "Windows キーの作成に成功しました"
+
+msgid "Windows Key Description"
+msgstr "Windows キーの説明"
+
+msgid "Windows Key General"
+msgstr "Windows キー全般"
+
+msgid "Windows Key Management"
+msgstr "Windows キー管理"
+
+msgid "Windows Key Name"
+msgstr "Windows キー名"
+
+msgid "Windows Key Update Fail"
+msgstr "Windows キーの更新に失敗しました"
+
+msgid "Windows Key Update Success"
+msgstr "Windows キーの更新に成功しました"
+
+msgid "Windows Key added!"
+msgstr "Windows キーを追加しました！"
+
+msgid "Windows Key for Image"
+msgstr "Windows キー for イメージ"
+
+msgid "Windows Key updated!"
+msgstr "Windows キーを更新しました！"
+
+msgid "Windows Keys"
+msgstr "Windows キー"
+
+msgid "Windows keys is a plugin that associates product keys"
+msgstr "Windows キー is a プラグイン that associates プロダクトキー"
+
+msgid "Working with node"
+msgstr "Working with ノード"
+
+msgid "Wrong file name!"
+msgstr "ファイル名が正しくありません！"
+
+msgid "Yearly"
+msgstr "年単位"
+
+msgid "Yes"
+msgstr "はい"
+
+msgid "You are only allowed to assign"
+msgstr "You are のみ allowed to assign"
+
+msgid "You have version"
+msgstr "You have version"
+
+msgid "You must have at least one Storage Group"
+msgstr "少なくとも 1 つのストレージグループが必要です"
+
+msgid "You must have at least one group associated"
+msgstr "You must have at least one グループ associated"
+
+msgid "You must select an action to perform"
+msgstr "You must select an action to perform"
+
+msgid "Your FOG database schema is not up to date"
+msgstr "Your FOG データベース schema is not up to date"
+
+msgid "Your Location Here"
+msgstr "ここにロケーションを入力"
+
+msgid "Your database connection appears to be invalid"
+msgstr "Your データベース connection appears to be invalid"
+
+msgid "Your form is ready"
+msgstr "Your form is ready"
+
+msgid "Your server only allows"
+msgstr "Your サーバー のみ allows"
+
+msgid "Your system PHP Version is not sufficient"
+msgstr "Your system PHP バージョン is not sufficient"
+
+msgid "ZSTD Compressed"
+msgstr "ZSTD 圧縮"
+
+msgid "ZSTD Compressed 200MiB split"
+msgstr "ZSTD 圧縮 200MiB 分割"
+
+msgid "access to the hidden menu system"
+msgstr "非表示メニューシステムへのアクセス"
+
+msgid "additional macs"
+msgstr "追加 MAC アドレス"
+
+msgid "ago"
+msgstr "前"
+
+msgid "all current storage nodes"
+msgstr "all current ストレージノード"
+
+msgid "and Mac OS X"
+msgstr "と MAC アドレス OS X"
+
+msgid "and agree to all the"
+msgstr "と agree to all the"
+
+msgid "and both the legacy and new FOG clients."
+msgstr "と both the legacy と new FOG clients。"
+
+msgid "and cannot be captured"
+msgstr "と cannot be captured"
+
+msgid "and if the Database service is running"
+msgstr "と if the データベース service is running"
+
+msgid "and much easier on the server"
+msgstr "と much easier on the サーバー"
+
+msgid "and node A only has a 5Mbps and you want the speed"
+msgstr "と ノード A のみ があります a 5Mbps と you want the speed"
+
+msgid "and set it to master"
+msgstr "と set it to master"
+
+msgid "and stores their respective checksums"
+msgstr "と stores their respective チェックサム"
+
+msgid "and the equivalent module for what Green"
+msgstr "と the equivalent モジュール for what Green"
+
+msgid "and the location of the file on that"
+msgstr "と the ロケーション of the ファイル on that"
+
+msgid "as FOG will attempt to go out to the internet"
+msgstr "as FOG will attempt to go out to the internet"
+
+msgid "as its primary group"
+msgstr "as its primary グループ"
+
+msgid "as they can cause issues that are difficult to troubleshoot"
+msgstr "as they can cause issues that are difficult to troubleshoot"
+
+msgid "automatically"
+msgstr "自動的に"
+
+msgid "based task."
+msgstr "based タスク。"
+
+msgid "be the presence of a menu"
+msgstr "be the presence of a メニュー"
+
+msgid "before me"
+msgstr "before me"
+
+msgid "before me on this node"
+msgstr "before me on this ノード"
+
+msgid "between"
+msgstr "間"
+
+msgid "between different sites"
+msgstr "between different サイト"
+
+msgid "between host and global settings"
+msgstr "between ホスト と global 設定"
+
+msgid "boot the client computers"
+msgstr "boot the クライアント computers"
+
+msgid "but bind password is not set"
+msgstr "but bind パスワード is not set"
+
+msgid "but has recently failed for this host"
+msgstr "but があります recently failed このホストの"
+
+msgid "but there are"
+msgstr "but there are"
+
+msgid "check to ensure your filesystem has enough space"
+msgstr "check to ensure your filesystem があります enough space"
+
+msgid "client"
+msgstr "クライアント"
+
+msgid "clients"
+msgstr "クライアント"
+
+msgid "completed imaging."
+msgstr "completed imaging。"
+
+msgid "completed snapin tasking."
+msgstr "completed スナップイン tasking。"
+
+msgid "config files that run on the client computers."
+msgstr "config ファイル that run on the クライアント computers。"
+
+msgid "could not be cancelled"
+msgstr "could not be cancelled"
+
+msgid "could not be completed"
+msgstr "could not be completed"
+
+msgid "could not be killed"
+msgstr "could not be killed"
+
+msgid "day"
+msgstr "日"
+
+msgid "day of month"
+msgstr "月の日"
+
+msgid "day of week"
+msgstr "曜日"
+
+msgid "defined reports that may not be a part of"
+msgstr "定義済み reports that may not be a part of"
+
+msgid "deleted"
+msgstr "削除済み"
+
+msgid "deploy task occurs for it"
+msgstr "deploy タスク occurs for it"
+
+msgid "directive in php.ini"
+msgstr "directive in php.ini"
+
+msgid "directive specified in the HTML form"
+msgstr "directive specified in the HTML form"
+
+msgid "directory"
+msgstr "ディレクトリ"
+
+msgid "download the module and use it on the next"
+msgstr "download the モジュール と use it on the next"
+
+msgid "due to UAC introduced in Vista and up."
+msgstr "due to UAC introduced in Vista と up。"
+
+msgid "e.g."
+msgstr "例:"
+
+msgid "either already selected or uploaded"
+msgstr "either already selected or uploaded"
+
+msgid "either because you have updated"
+msgstr "either because you haveを更新しました"
+
+msgid "failed to execute, image file: "
+msgstr "execute, イメージ ファイル:に失敗しました "
+
+msgid "failed to execute, port must be even and numeric"
+msgstr "execute, port must be even and numericに失敗しました"
+
+msgid "failed to execute, there are no clients included"
+msgstr "execute, there are no clients includedに失敗しました"
+
+msgid "failed to login"
+msgstr "ログインに失敗しました"
+
+msgid "failed to start"
+msgstr "開始に失敗しました"
+
+msgid "faster"
+msgstr "高速"
+
+msgid "filesize"
+msgstr "ファイルサイズ"
+
+msgid "for Microsoft Windows to images"
+msgstr "for Microsoft Windows to イメージ"
+
+msgid "for the advanced menu parameters"
+msgstr "for the advanced メニュー parameters"
+
+msgid "for the menu background"
+msgstr "for the メニュー background"
+
+msgid "found"
+msgstr "検出されました"
+
+msgid "from"
+msgstr "送信元"
+
+msgid "function on client computers."
+msgstr "function on クライアント computers。"
+
+msgid "group"
+msgstr "グループ"
+
+msgid "has been cancelled"
+msgstr "があります been cancelled"
+
+msgid "has been completed"
+msgstr "があります been completed"
+
+msgid "has been killed"
+msgstr "があります been killed"
+
+msgid "has been started on port"
+msgstr "があります been started on port"
+
+msgid "has been successfully destroyed"
+msgstr "があります been successfully destroyed"
+
+msgid "has been successfully updated"
+msgstr "has been successfullyを更新しました"
+
+msgid "has failed to destroy"
+msgstr "があります failed to destroy"
+
+msgid "has failed to save"
+msgstr "があります failed to save"
+
+msgid "has started"
+msgstr "があります started"
+
+msgid "help with any aspect of FOG"
+msgstr "FOG に関するあらゆる支援"
+
+msgid "here"
+msgstr "ここ"
+
+msgid "host"
+msgstr "ホスト"
+
+msgid "hosts"
+msgstr "ホスト"
+
+msgid "hour"
+msgstr "時間"
+
+msgid "hr"
+msgstr "時"
+
+msgid "iPXE General Configuration"
+msgstr "iPXE 全般 構成"
+
+msgid "iPXE Item Create Fail"
+msgstr "iPXE 項目の作成に失敗しました"
+
+msgid "iPXE Item Create Success"
+msgstr "iPXE 項目の作成に成功しました"
+
+msgid "iPXE Item Remove Success"
+msgstr "iPXE 項目 削除 Success"
+
+msgid "iPXE Item Update Success"
+msgstr "iPXE 項目の更新に成功しました"
+
+msgid "iPXE Item added!"
+msgstr "iPXE 項目を追加しました！"
+
+msgid "iPXE Item create failed!"
+msgstr "iPXE 項目 作成 failed！"
+
+msgid "iPXE Menu Customization"
+msgstr "iPXE メニュー Customization"
+
+msgid "iPXE Menu Item Settings"
+msgstr "iPXE メニュー Item 設定"
+
+msgid "iPXE Menu Settings"
+msgstr "iPXE メニュー 設定"
+
+msgid "iPXE New Menu Entry"
+msgstr "iPXE New メニューエントリ"
+
+msgid "iPXE Settings updated successfully!"
+msgstr "iPXE 設定 updated successfully！"
+
+msgid "iPXE Update Fail"
+msgstr "iPXEの更新に失敗しました"
+
+msgid "iPXE Update Success"
+msgstr "iPXEの更新に成功しました"
+
+msgid "iPXE syntax is very finicky when it comes to editing"
+msgstr "iPXE 構文は編集時の判定が非常に厳密です"
+
+msgid "iPrint Printer"
+msgstr "iPrint プリンター"
+
+msgid "if there is a task"
+msgstr "if there is a タスク"
+
+msgid "if used incorrectly could potentially"
+msgstr "if used incorrectly could potentially"
+
+msgid "image"
+msgstr "イメージ"
+
+msgid "image file found, file: "
+msgstr "イメージ ファイル found, ファイル: "
+
+msgid "image replication"
+msgstr "イメージ replication"
+
+msgid "images"
+msgstr "イメージ"
+
+msgid "images to a storage group"
+msgstr "イメージ to a ストレージグループ"
+
+msgid "imaging failed."
+msgstr "imaging failed。"
+
+msgid "in seconds"
+msgstr "秒単位"
+
+msgid "install or update the FOG database"
+msgstr "install or 更新 the FOG データベース"
+
+msgid "is already running with pid: "
+msgstr "is already running with pid: "
+
+msgid "is going on with your FOG System"
+msgstr "is going on with your FOG System"
+
+msgid "is invalid"
+msgstr "無効です"
+
+msgid "is new"
+msgstr "新規です"
+
+msgid "is no longer running"
+msgstr "is ありません longer running"
+
+msgid "is now cancelled"
+msgstr "is now cancelled"
+
+msgid "is now completed"
+msgstr "is now completed"
+
+msgid "is open"
+msgstr "空いています"
+
+msgid "is protected"
+msgstr "保護されています"
+
+msgid "is protected, removal not allowed"
+msgstr "is protected, removal not allowed"
+
+msgid "is required"
+msgstr "必須です"
+
+msgid "is there one enabled"
+msgstr "is there one enabled"
+
+msgid "is valid"
+msgstr "有効です"
+
+msgid "it boots to the first device"
+msgstr "it boots to the first device"
+
+msgid "it performs that task"
+msgstr "it performs that タスク"
+
+msgid "it will distribute its store"
+msgstr "it will distribute its store"
+
+msgid "it will enforce login to gain access to the advanced"
+msgstr "it will enforce login to gain access to the advanced"
+
+msgid "it's transmitting to"
+msgstr "it's transmitting to"
+
+msgid "kernel to boot the client computers"
+msgstr "カーネル to boot the クライアント computers"
+
+msgid "key"
+msgstr "キー"
+
+msgid "limited to 1Mbps on that node"
+msgstr "limited to 1Mbps on that ノード"
+
+msgid "location url based on the host that checks in"
+msgstr "ロケーション url based on the ホスト that checks in"
+
+msgid "logged in"
+msgstr "ログイン済み"
+
+msgid "logout"
+msgstr "ログアウト"
+
+msgid "may see the issue and help and/or use the solutions"
+msgstr "may see the issue と help と/or use the solutions"
+
+msgid "meaning a node that has no images on it"
+msgstr "meaning a ノード that があります ありません イメージ on it"
+
+msgid "menu system"
+msgstr "メニュー system"
+
+msgid "migration or mass import new items"
+msgstr "migration or mass インポート new items"
+
+msgid "min"
+msgstr "分"
+
+msgid "minute"
+msgstr "分"
+
+msgid "minutes"
+msgstr "分"
+
+msgid "mod dates"
+msgstr "mod dates"
+
+msgid "month"
+msgstr "月"
+
+msgid "more secure"
+msgstr "より安全"
+
+msgid "multiple places to get your image"
+msgstr "multiple places to get your イメージ"
+
+msgid "must be specified"
+msgstr "指定が必要です"
+
+msgid "n/a"
+msgstr "N/A"
+
+msgid "no login will appear"
+msgstr "login will appearがありません"
+
+msgid "node is the distributor of the images"
+msgstr "ノード is the distributor of the イメージ"
+
+msgid "nodes containing this image"
+msgstr "ノード containing this イメージ"
+
+msgid "not found on this node"
+msgstr "not found on this ノード"
+
+msgid "object"
+msgstr "オブジェクト"
+
+msgid "of"
+msgstr "の"
+
+msgid "on the following pages of this document"
+msgstr "on the following pages of this document"
+
+msgid "on the old client"
+msgstr "on the old クライアント"
+
+msgid "open"
+msgstr "開く"
+
+msgid "or"
+msgstr "または"
+
+msgid "or no valid images specified"
+msgstr "or ありません 有効な イメージ specified"
+
+msgid "or start to operate"
+msgstr "or start to operate"
+
+msgid "or this is a new FOG installation"
+msgstr "or this is a new FOG installation"
+
+msgid "particular node"
+msgstr "particular ノード"
+
+msgid "per host"
+msgstr "per ホスト"
+
+msgid "please see the hosts service settings section."
+msgstr "please see the ホスト service 設定 section。"
+
+msgid "power management task(s) to run"
+msgstr "電源管理 タスク(s) to run"
+
+msgid "present and where/how they need to display"
+msgstr "present と where/how they need to display"
+
+msgid "previous install if needed"
+msgstr "previous install if needed"
+
+msgid "read-only"
+msgstr "読み取り専用"
+
+msgid "real insert time"
+msgstr "real insert time"
+
+msgid "require all hosts have the same image"
+msgstr "require all ホスト have the same イメージ"
+
+msgid "scheduled task(s) to run"
+msgstr "scheduled タスク(s) to run"
+
+msgid "second"
+msgstr "秒"
+
+msgid "seconds"
+msgstr "秒"
+
+msgid "see fit"
+msgstr "see fit"
+
+msgid "see the forums or lookup the commands and scripts available"
+msgstr "see the forums or lookup the commands と scripts available"
+
+msgid "sending on base port "
+msgstr "sending on base port "
+
+msgid "sites with clients moving back and forth"
+msgstr "サイト with clients moving back と forth"
+
+msgid "snapin"
+msgstr "スナップイン"
+
+msgid "snapin replication"
+msgstr "スナップイン replication"
+
+msgid "snapins"
+msgstr "スナップイン"
+
+msgid "snapins to a storage group"
+msgstr "スナップイン to a ストレージグループ"
+
+msgid "so if it seems like the process is hanging please be patient"
+msgstr "so if it seems like the process is hanging please be patient"
+
+msgid "so if you are unable to boot a client you may wish to"
+msgstr "so if you are unable to boot a クライアント you may wish to"
+
+msgid "successfully removed!"
+msgstr "正常に削除されました！"
+
+msgid "task found"
+msgstr "タスクが見つかりました"
+
+msgid "tasks in queue"
+msgstr "キュー内のタスク"
+
+msgid ""
+"that detects the status on the fly, poweron or poweroff and the OS, of the "
+"client"
+msgstr "that detects the status on the fly, poweron or poweroff と the OS, of the クライアント"
+
+msgid "the Initrd (initial ramdisk) which is used alongside the"
+msgstr "the Initrd (initial ramdisk) which is used alongside the"
+
+msgid "the Linux kernel which is used to"
+msgstr "the Linux カーネル which is used to"
+
+msgid "the advanced menu to use"
+msgstr "the advanced メニュー to use"
+
+msgid "the base FOG install"
+msgstr "the base FOG install"
+
+msgid "the following command in a terminal"
+msgstr "the following command in a terminal"
+
+msgid "the host defined location where available"
+msgstr "the ホスト 定義済み ロケーション where available"
+
+msgid "the main and the host"
+msgstr "the main と the ホスト"
+
+msgid "the way in which FOG operates"
+msgstr "the way in which FOG operates"
+
+msgid "there one enabled within this Storage Group"
+msgstr "there one enabled within this ストレージグループ"
+
+msgid "there will be a database backup stored on your"
+msgstr "there will be a データベース backup stored on your"
+
+msgid "this backup will enable you to return to the"
+msgstr "this backup will enable you to return to the"
+
+msgid "this is just another to ensure safety"
+msgstr "this is just another to ensure safety"
+
+msgid "this kernel holds all the drivers for the client computer"
+msgstr "this カーネル holds all the drivers for the クライアント computer"
+
+msgid "this one is already in use by another image"
+msgstr "this one is already in use by another イメージ"
+
+msgid "this one is reserved for FOG"
+msgstr "this one is reserved for FOG"
+
+msgid "this will save the backup in your home"
+msgstr "this will save the backup in your home"
+
+msgid "time the service is started."
+msgstr "time the service is started。"
+
+msgid "to UAC introduced in Vista and up"
+msgstr "to UAC introduced in Vista と up"
+
+msgid "to all nodes in the group"
+msgstr "to all ノード in the グループ"
+
+msgid "to be booted if no keys are pressed when the menu is"
+msgstr "to be booted if ありません keys are pressed when the メニュー is"
+
+msgid "to clear the field on every host in this group."
+msgstr "to clear the field on every ホスト in this グループ。"
+
+msgid "to get the requested Initrd"
+msgstr "to get the requested Initrd"
+
+msgid "to get the requested Kernel"
+msgstr "to get the requested カーネル"
+
+msgid "to login"
+msgstr "to login"
+
+msgid "to operate in an environment where there may be"
+msgstr "to operate in an environment where there may be"
+
+msgid "to review."
+msgstr "to review。"
+
+msgid "to signify if this is a user or channel to send to"
+msgstr "to signify if this is a ユーザー or channel to send to"
+
+msgid "to the client systems"
+msgstr "to the クライアント systems"
+
+msgid "to time to see if a new module is published."
+msgstr "to time to see if a new モジュール is published。"
+
+msgid "to transfer to"
+msgstr "to transfer to"
+
+msgid "to update hash values as needed"
+msgstr "to 更新 hash values as needed"
+
+msgid "to update size values as needed"
+msgstr "to 更新 size values as needed"
+
+msgid "unable to be updated"
+msgstr "unable to beを更新しました"
+
+msgid "unavailable"
+msgstr "利用不可"
+
+msgid "understood"
+msgstr "理解しました"
+
+msgid "update to a newer kernel which may have more drivers built in"
+msgstr "to a newer カーネル which may have more drivers built inを更新"
+
+msgid "used"
+msgstr "使用済み"
+
+msgid "user failed to login"
+msgstr "ユーザー failed to login"
+
+msgid "user successfully logged in"
+msgstr "ユーザー successfully logged in"
+
+msgid "username"
+msgstr "ユーザー名"
+
+msgid "version"
+msgstr "バージョン"
+
+msgid "we need a file name in the request"
+msgstr "we need a ファイル 名前 in the request"
+
+msgid "where to download the snapin"
+msgstr "where to download the スナップイン"
+
+msgid "which is empty"
+msgstr "which is empty"
+
+msgid "window"
+msgstr "ウィンドウ"
+
+msgid "wipe out all of your images stored on"
+msgstr "wipe out all of your イメージ stored on"
+
+msgid "with modules and config"
+msgstr "with モジュール と config"
+
+msgid "with the host"
+msgstr "with the ホスト"
+
+msgid "with this group"
+msgstr "with this グループ"
+
+msgid "would you like to install it now"
+msgstr "would you like to install it now"
+
+msgid "you set the bandwidth field on that node to 1000"
+msgstr "you set the bandwidth field on that ノード to 1000"

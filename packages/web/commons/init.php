@@ -81,7 +81,7 @@ class Initiator
 
     public static function language(string $lang = 'en'): void
     {
-        $validLangs = ['de' => 'DE', 'en' => 'US', 'es' => 'ES', 'eu' => 'ES', 'fr' => 'FR', 'it' => 'IT', 'pt' => 'BR', 'zh' => 'CN'];
+        $validLangs = ['de' => 'DE', 'en' => 'US', 'es' => 'ES', 'eu' => 'ES', 'fr' => 'FR', 'it' => 'IT', 'pt' => 'BR', 'zh' => 'CN', 'ja' => 'JP'];
         $lang = array_key_exists($lang, $validLangs) ? $lang : 'en';
         if (session_status() === PHP_SESSION_ACTIVE) {
             $_SESSION['FOG_LANG'] = $lang;
