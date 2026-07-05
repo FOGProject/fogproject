@@ -592,6 +592,31 @@ dd {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Sidebar nav-link arrow gutter
+//
+// The vendored AL4 sidebar pins the treeview arrow (.nav-arrow) absolutely at
+// right:1rem but reserves no matching right padding on the label, and the label
+// is white-space:nowrap. A wide, active (bold) group label — e.g. the "User
+// Administration" accordion — therefore runs its text straight under the arrow,
+// making the arrow nearly invisible. Lay the link out as a flex row and reserve
+// a right gutter so the label always stops short of the arrow column. The arrow
+// is a child of the <p> but is absolutely positioned against the .nav-link, so
+// the <p> overflow clips only the text, never the arrow. Labels that fit show in
+// full; only an over-long label ellipsizes.
+// ---------------------------------------------------------------------------
+.app-sidebar .sidebar-menu .nav-link {
+  display: flex;
+  align-items: center;
+}
+.app-sidebar .sidebar-menu .nav-link > p {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 1.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 // ===========================================================================
 // Dark theme
 //
