@@ -704,4 +704,44 @@ class Authorization extends FOGBase
         self::$_permCache = [];
         self::$_registry = null;
     }
+    /**
+     * Remove every rolePermissions row belonging to a node namespace.
+     *
+     * Called when a plugin is uninstalled so its permission strings do
+     * not linger in roles (and reappear as orphaned entries in the role
+     * permission matrix) after the node is gone from the registry.
+     * Matches the bare node, its wildcard and every scoped action:
+     * 'site', 'site.*', 'site.view', ... but never a sibling like
+     * 'siteother' (the dot boundary is required).
+     *
+     * @param string $nodePrefix the registry node (e.g. 'site')
+     *
+     * @return void
+     */
+    public static function purgePermissions($nodePrefix)
+    {
+        $nodePrefix = strtolower(trim((string)$nodePrefix));
+        if ('' === $nodePrefix) {
+            return;
+        }
+        $names = array_values(
+            array_unique(
+                array_filter(
+                    (array)Route::getIds('rolepermission', [], 'name')
+                )
+            )
+        );
+        $match = [];
+        foreach ($names as $name) {
+            if ($name === $nodePrefix
+                || 0 === strpos($name, $nodePrefix . '.')
+            ) {
+                $match[] = $name;
+            }
+        }
+        if (count($match)) {
+            Route::deletemass('rolepermission', ['name' => $match]);
+        }
+        self::resetCache();
+    }
 }

@@ -552,6 +552,9 @@ class PluginManagement extends FOGPage
                         . $Plugin->name
                     );
                 }
+                // Drop any role permissions scoped to this plugin's node so
+                // they do not linger after the node leaves the registry.
+                Authorization::purgePermissions(strtolower($Plugin->name));
             }
             if (!$PluginManager->update($ids, '', $install)) {
                 $serverFault = true;

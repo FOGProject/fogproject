@@ -62,6 +62,7 @@ class AddHelloWorldMenuItem extends Hook
             ['MAIN_MENU_DATA', 'menuData'],
             ['SEARCH_PAGES', 'addSearch'],
             ['PAGES_WITH_OBJECTS', 'addPageWithObject'],
+            ['PERMISSION_REGISTRY_DATA', 'permData'],
         ]);
     }
     /**
@@ -97,5 +98,20 @@ class AddHelloWorldMenuItem extends Hook
     public function addPageWithObject($arguments)
     {
         $arguments['PagesWithObjects'][] = $this->node;
+    }
+
+    /**
+     * Registers this plugin's permission node and actions so its pages
+     * are gated by RBAC and shown in the role permission matrix.
+     *
+     * @param mixed $arguments The permission registry to modify.
+     *
+     * @return void
+     */
+    public function permData($arguments)
+    {
+        $arguments['registry'][$this->node] = [
+            'view', 'create', 'edit', 'delete'
+        ];
     }
 }

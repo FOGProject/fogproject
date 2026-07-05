@@ -4515,3 +4515,40 @@ $this->schema[] = [
     . "UNIQUE KEY `rugGroupRole` (`rugGroupID`,`rugRoleID`)"
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
 ];
+// 311
+$this->schema[] = [
+    // Non-regression for native plugin RBAC. Plugin pages became RBAC-gated
+    // when each shipped plugin began self-registering its node via the
+    // PERMISSION_REGISTRY_DATA hook. Before that, plugin pages were ungated,
+    // so any role - including Technician - could reach every installed
+    // plugin. Grant Technician the wildcard for each shipped plugin node so
+    // upgraded technicians keep exactly the access they had. Administrator
+    // already holds '*' and needs nothing here; custom roles are the admin's
+    // to grant. INSERT IGNORE plus the (rpRoleID,rpName) unique key make
+    // this idempotent, and matching Technician by name means a renamed role
+    // is intentionally left untouched (same stance as step 306).
+    function () {
+        $pluginNodes = [
+            'capone', 'helloworld', 'ldap', 'location', 'ntfy', 'ou',
+            'pushbullet', 'site', 'slack', 'subnetgroup', 'taskstateedit',
+            'tasktypeedit', 'windowskey', 'wolbroadcast'
+        ];
+        $techIDs = self::$DB->query(
+            "SELECT `rID` FROM `roles` WHERE `rName` = 'Technician'"
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $values = [];
+        foreach ((array)$techIDs as $row) {
+            $rID = (int)$row['rID'];
+            foreach ($pluginNodes as $node) {
+                $values[] = "($rID,'$node.*')";
+            }
+        }
+        if (count($values ?: [])) {
+            self::$DB->query(
+                "INSERT IGNORE INTO `rolePermissions` (`rpRoleID`,`rpName`) "
+                . "VALUES " . implode(',', $values)
+            );
+        }
+        return true;
+    },
+];
