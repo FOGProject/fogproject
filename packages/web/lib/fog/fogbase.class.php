@@ -288,7 +288,8 @@ abstract class FOGBase
         'storagegroup',
         'storagenode',
         'task',
-        'user'
+        'user',
+        'usergroup'
     ];
     /**
      * Per-process cache of global settings.
