@@ -495,6 +495,15 @@ abstract class FOGPage extends FOGBase
             ]
         );
 
+        // Snapshot the full node list before permission filtering: the
+        // unknown-node guard below must still recognize real-but-denied
+        // nodes so they reach the dispatch gate for the proper deny
+        // response instead of a blind redirect.
+        $knownNodes = self::fastmerge(
+            array_keys($menu),
+            array_keys($hookMenu)
+        );
+
         // Drop main-menu nodes the user lacks view permission for. This is
         // presentation only -- the dispatch gate in FOGPageManager::render()
         // is the actual enforcement.
@@ -521,18 +530,8 @@ abstract class FOGPage extends FOGBase
             }
         }
 
-        if (count($menu ?: []) > 0) {
-            $links = array_keys($menu);
-        }
-        if (count($hookMenu ?: []) > 0) {
-            $links = self::fastmerge(
-                $links,
-                array_keys($hookMenu)
-            );
-        }
-
-        $links = self::fastmerge(
-            (array)$links,
+        $knownNodes = self::fastmerge(
+            $knownNodes,
             [
                 'home',
                 'logout',
@@ -544,7 +543,7 @@ abstract class FOGPage extends FOGBase
         );
 
         if ($node
-            && !in_array($node, $links)
+            && !in_array($node, $knownNodes)
         ) {
             self::redirect('../management/index.php');
         }
