@@ -210,15 +210,6 @@ class User extends FOGController
         return $passValid;
     }
     /**
-     * Gets/creates session id.
-     *
-     * @return string
-     */
-    private static function _getSessionID()
-    {
-        return session_id();
-    }
-    /**
      * Validates only the user and password
      *
      * @param string $username the username
@@ -260,7 +251,6 @@ class User extends FOGController
                     ->set('password', '', true)
                     ->set('type', $type);
             }
-            $sessionid = self::_getSessionID();
             $_SESSION['FOG_USER'] = $this->get('id');
             self::log(
                 sprintf(
@@ -375,21 +365,10 @@ class User extends FOGController
         }
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
-            $sessionid = self::_getSessionID();
-            if ($sessionid !== session_id()) {
-                if (session_id() !== '') {
-                    self::debug(
-                        'PHP session %s was already started, changing to %s',
-                        [
-                            session_id(),
-                            self::_getSessionID()
-                        ]
-                    );
-                    session_write_close();
-                }
-                session_id(session_regenerate_id());
-                session_start();
-            }
+            // Rotate the session ID and delete the old session to prevent
+            // fixation. Note: session_regenerate_id() returns bool, not
+            // the new ID.
+            session_regenerate_id(true);
             $_SESSION['sessioncreated'] = time();
             $_SESSION['authtime'] = time();
 
