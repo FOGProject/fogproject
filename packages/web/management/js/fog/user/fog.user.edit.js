@@ -129,4 +129,101 @@
             });
         });
     });
+
+    // ----------------------------------------------------
+    // ROLE ASSOCIATION TAB
+    var userRoleUpdateBtn = $('#user-role-send'),
+        userRoleRemoveBtn = $('#user-role-remove'),
+        userRoleDeleteConfirmBtn = $('#confirmroleDeleteModal');
+
+    function disableRoleButtons(disable) {
+        userRoleUpdateBtn.prop('disabled', disable);
+        userRoleRemoveBtn.prop('disabled', disable);
+    }
+
+    function onRoleSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableRoleButtons(disabled);
+    }
+
+    userRoleUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            toAdd = $.getSelectedIds(userRolesTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableRoleButtons(false);
+            if (err) {
+                return;
+            }
+            userRolesTable.draw(false);
+            userRolesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    userRoleRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#roleDelModal').modal('show');
+    });
+
+    var userRolesTable = $('#user-role-table').registerTable(onRoleSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mainLink'},
+            {data: 'association'},
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="form-check">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="userRoleAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='+Common.node+'&sub=getRolesList&id='+Common.id,
+            type: 'post'
+        }
+    });
+
+    userRoleDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(userRolesTable, userRoleUpdateBtn.attr('action'), function(err) {
+            $('#roleDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            userRolesTable.draw(false);
+            userRolesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    userRolesTable.on('draw', function() {
+        Common.iCheck('#user-role-table input');
+        $('#user-role-table input.associated').on('change', onUserRoleCheckboxSelect);
+        onRoleSelect(userRolesTable.rows({selected: true}));
+    });
+
+    var onUserRoleCheckboxSelect = function(e) {
+        $.checkItemUpdate(userRolesTable, this, e, userRoleUpdateBtn);
+    };
 })(jQuery);

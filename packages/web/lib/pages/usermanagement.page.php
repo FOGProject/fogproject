@@ -676,6 +676,43 @@ class UserManagement extends FOGPage
             ->set('token', $apitoken);
     }
     /**
+     * Present the roles tab.
+     *
+     * @return void
+     */
+    public function userRole()
+    {
+        $this->renderAssocTab(
+            'user-role',
+            _('Role Associations'),
+            _('Role Name'),
+            'role'
+        );
+    }
+    /**
+     * Update the user's role associations.
+     *
+     * @return void
+     */
+    public function userRolePost()
+    {
+        $this->assocPost('addRole', 'removeRole');
+        // assocPost only mutates the in-memory list; the save happens in
+        // editPost after this returns, so throwing here aborts the change.
+        $adminRemains = Authorization::adminExistsGiven(
+            [
+                'userRoles' => [
+                    (int)$this->obj->get('id') => (array)$this->obj->get('roles')
+                ]
+            ]
+        );
+        if (!$adminRemains) {
+            throw new Exception(
+                _('This change would leave no user with administrator access.')
+            );
+        }
+    }
+    /**
      * Enable user to edit a user.
      *
      * @return void
@@ -710,6 +747,15 @@ class UserManagement extends FOGPage
                 $this->userAPI();
             }
         ];
+
+        // Roles
+        $tabData[] = [
+            'name' => _('Roles'),
+            'id' => 'user-role',
+            'generator' => function () {
+                $this->userRole();
+            }
+        ];
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -736,12 +782,41 @@ class UserManagement extends FOGPage
                         break;
                     case 'user-api':
                         $this->userAPIPost();
+                        break;
+                    case 'user-role':
+                        $this->userRolePost();
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
                     throw new Exception(_('User update failed!'));
                 }
+                if ('user-role' === $tab) {
+                    Authorization::resetCache();
+                }
             }
+        );
+    }
+    /**
+     * Gets the role list for the roles association tab.
+     *
+     * @return void
+     */
+    public function getRolesList()
+    {
+        return $this->assocItemsList(
+            'role',
+            'roleuserassociation',
+            'roleUserAssoc',
+            '`roles`.`rID`',
+            '`roleUserAssoc`.`ruaRoleID`',
+            '`roleUserAssoc`.`ruaUserID`',
+            [
+                [
+                    'db' => 'userAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
 }

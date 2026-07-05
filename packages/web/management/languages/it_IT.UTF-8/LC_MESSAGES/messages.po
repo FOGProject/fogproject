@@ -205,6 +205,14 @@ msgid "A printer already exists with this name!"
 msgstr "Nome stampante già esistente on questo nome!"
 
 #, fuzzy
+msgid "A role already exists with this name!"
+msgstr "Esiste già un ruolo con questo nome!"
+
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "Un nome host con questo nome esiste già"
+
+#, fuzzy
 msgid "A rule already exists with that type-value pair!"
 msgstr "Esiste già un ruolo con questo nome!"
 
@@ -511,6 +519,10 @@ msgid "Add pushbullet account failed!"
 msgstr "Connessione Pushbullet Account fallita"
 
 #, fuzzy
+msgid "Add role failed!"
+msgstr "Aggiunta utente fallita!"
+
+#, fuzzy
 msgid "Add rule failed!"
 msgstr "Aggiunta utente fallita!"
 
@@ -569,6 +581,10 @@ msgid "Additional Icon Elements"
 msgstr "MAC aggiuntivi"
 
 msgid "Admin Group"
+msgstr "Gruppo amministrativo"
+
+#, fuzzy
+msgid "Administrator (full access)"
 msgstr "Gruppo amministrativo"
 
 #, fuzzy
@@ -739,6 +755,9 @@ msgid "Approving the selected pending hosts."
 msgstr "Approvare MAC selezionati"
 
 msgid "Architecture"
+msgstr ""
+
+msgid "Area"
 msgstr ""
 
 #, fuzzy
@@ -4591,6 +4610,10 @@ msgstr "Il tentativo di ping"
 msgid "Permission denied"
 msgstr "Nome sessione"
 
+#, fuzzy
+msgid "Permissions"
+msgstr "Versione"
+
 msgid "Persistent file"
 msgstr ""
 
@@ -4993,6 +5016,9 @@ msgstr "Rimosso"
 msgid "Removing Key"
 msgstr "Rimuovi chiave"
 
+msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
 msgid "Replicating"
 msgstr "Replicando"
 
@@ -5058,8 +5084,51 @@ msgstr ""
 msgid "Role Association"
 msgstr "Regole di associazione"
 
+#, fuzzy
+msgid "Role Associations"
+msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "Role Create Fail"
+msgstr "Creazione stampante fallita"
+
+#, fuzzy
+msgid "Role Create Success"
+msgstr "Creazione stampante riuscita"
+
+#, fuzzy
+msgid "Role Description"
+msgstr "Descrizione del ruolo"
+
 msgid "Role Name"
 msgstr "Nome regola"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Aggiornamento modulo non riuscito"
+
+#, fuzzy
+msgid "Role Update Success"
+msgstr "Aggiornamento del modulo completato"
+
+#, fuzzy
+msgid "Role User Associations"
+msgstr "Associazione Sito"
+
+#, fuzzy
+msgid "Role added!"
+msgstr "Stampante aggiunta"
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "aggiornato stampante!"
+
+msgid "Roles"
+msgstr ""
 
 msgid "Routes should be an array or an instance of Traversable"
 msgstr "I percorsi devono essere un array o un'istanza di Traversable"
@@ -6268,6 +6337,9 @@ msgstr "Non c'è nulla da replicare"
 msgid "There you can download utilities such as FOG Prep"
 msgstr "Qui è possibile scaricare programmi di utilità come FOG Prep"
 
+msgid "This change would leave no user with administrator access."
+msgstr ""
+
 msgid "This host already exists"
 msgstr "Questo host esiste già"
 
@@ -6867,6 +6939,9 @@ msgstr "Versione"
 #, fuzzy
 msgid "Versions"
 msgstr "Versione"
+
+msgid "View"
+msgstr ""
 
 msgid "WOL Broadcasts"
 msgstr "Broadcast WOL"
@@ -7681,10 +7756,6 @@ msgstr ""
 #~ msgstr "Aggiungi stampanti selezionate"
 
 #, fuzzy
-#~ msgid "Add role failed!"
-#~ msgstr "Aggiunta utente fallita!"
-
-#, fuzzy
 #~ msgid "An error occurred"
 #~ msgstr "Si è verificato errore di caricamento sconosciuto"
 
@@ -7863,26 +7934,6 @@ msgstr ""
 
 #~ msgid "Results"
 #~ msgstr "risultati"
-
-#, fuzzy
-#~ msgid "Role Create Fail"
-#~ msgstr "Creazione stampante fallita"
-
-#, fuzzy
-#~ msgid "Role Create Success"
-#~ msgstr "Creazione stampante riuscita"
-
-#, fuzzy
-#~ msgid "Role Update Fail"
-#~ msgstr "Aggiornamento modulo non riuscito"
-
-#, fuzzy
-#~ msgid "Role Update Success"
-#~ msgstr "Aggiornamento del modulo completato"
-
-#, fuzzy
-#~ msgid "Role added!"
-#~ msgstr "Stampante aggiunta"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "numero di riga non impostato correttamente"

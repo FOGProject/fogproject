@@ -282,6 +282,7 @@ abstract class FOGBase
         'module',
         'plugin',
         'printer',
+        'role',
         'setting',
         'snapin',
         'storagegroup',

@@ -214,6 +214,14 @@ msgid "A printer already exists with this name!"
 msgstr "An image already exists with this name!"
 
 #, fuzzy
+msgid "A role already exists with this name!"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "A hostname with that name already exists."
+
+#, fuzzy
 msgid "A rule already exists with that type-value pair!"
 msgstr "An image already exists with this name!"
 
@@ -535,6 +543,10 @@ msgid "Add pushbullet account failed!"
 msgstr "Link Pushbullet Account"
 
 #, fuzzy
+msgid "Add role failed!"
+msgstr "Add snapin failed!"
+
+#, fuzzy
 msgid "Add rule failed!"
 msgstr "Add snapin failed!"
 
@@ -598,6 +610,10 @@ msgstr "Additional MACs"
 
 #, fuzzy
 msgid "Admin Group"
+msgstr "Modify Group"
+
+#, fuzzy
+msgid "Administrator (full access)"
 msgstr "Modify Group"
 
 #, fuzzy
@@ -772,6 +788,9 @@ msgid "Approving the selected pending hosts."
 msgstr "Approve selected Hosts"
 
 msgid "Architecture"
+msgstr ""
+
+msgid "Area"
 msgstr ""
 
 #, fuzzy
@@ -4794,6 +4813,10 @@ msgstr "Attempting to ping"
 msgid "Permission denied"
 msgstr "Session Name"
 
+#, fuzzy
+msgid "Permissions"
+msgstr "Version"
+
 msgid "Persistent file"
 msgstr ""
 
@@ -5213,6 +5236,9 @@ msgstr "Removed"
 msgid "Removing Key"
 msgstr "Setting Key"
 
+msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
 #, fuzzy
 msgid "Replicating"
 msgstr "Replicate?"
@@ -5284,8 +5310,51 @@ msgid "Role Association"
 msgstr "Image Association"
 
 #, fuzzy
+msgid "Role Associations"
+msgstr "Image Association"
+
+#, fuzzy
+msgid "Role Create Fail"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Role Create Success"
+msgstr "Printer already exists"
+
+#, fuzzy
+msgid "Role Description"
+msgstr "Description"
+
+#, fuzzy
 msgid "Role Name"
 msgstr "Module Name"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Group create failed"
+
+#, fuzzy
+msgid "Role Update Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Role User Associations"
+msgstr "Image Association"
+
+#, fuzzy
+msgid "Role added!"
+msgstr "Printer Name"
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "Printer updated!"
+
+msgid "Roles"
+msgstr ""
 
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
@@ -6565,6 +6634,9 @@ msgstr "There is nothing to replicate"
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+msgid "This change would leave no user with administrator access."
+msgstr ""
+
 #, fuzzy
 msgid "This host already exists"
 msgstr "Printer already exists"
@@ -7189,6 +7261,9 @@ msgstr "Version"
 #, fuzzy
 msgid "Versions"
 msgstr "Version"
+
+msgid "View"
+msgstr ""
 
 #, fuzzy
 msgid "WOL Broadcasts"
@@ -8064,10 +8139,6 @@ msgstr ""
 #~ msgstr "Remove selected printers"
 
 #, fuzzy
-#~ msgid "Add role failed!"
-#~ msgstr "Add snapin failed!"
-
-#, fuzzy
 #~ msgid "An error occurred"
 #~ msgstr "Unknown upload error occurred.  Return code: "
 
@@ -8247,26 +8318,6 @@ msgstr ""
 
 #~ msgid "Results"
 #~ msgstr "Results"
-
-#, fuzzy
-#~ msgid "Role Create Fail"
-#~ msgstr "Printer update failed!"
-
-#, fuzzy
-#~ msgid "Role Create Success"
-#~ msgstr "Printer already exists"
-
-#, fuzzy
-#~ msgid "Role Update Fail"
-#~ msgstr "Group create failed"
-
-#, fuzzy
-#~ msgid "Role Update Success"
-#~ msgstr "User created"
-
-#, fuzzy
-#~ msgid "Role added!"
-#~ msgstr "Printer Name"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "Row number not set properly"

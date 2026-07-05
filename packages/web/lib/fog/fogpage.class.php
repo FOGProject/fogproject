@@ -433,6 +433,10 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Users'],
                 'fa fa-users'
             ],
+            'role' => [
+                _('Roles'),
+                'fa fa-key'
+            ],
             'ipxe' => [
                 _('iPXE Menu'),
                 'fa fa-bars'

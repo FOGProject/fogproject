@@ -215,6 +215,14 @@ msgid "A printer already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
+msgid "A role already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "Un nom d'hôte avec ce nom existe déjà."
+
+#, fuzzy
 msgid "A rule already exists with that type-value pair!"
 msgstr "Une image existe déjà avec ce nom!"
 
@@ -536,6 +544,10 @@ msgid "Add pushbullet account failed!"
 msgstr "Compte Lien Pushbullet"
 
 #, fuzzy
+msgid "Add role failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
 msgid "Add rule failed!"
 msgstr "Ajouter SnapIn a échoué!"
 
@@ -599,6 +611,10 @@ msgstr "MACs supplémentaires"
 
 #, fuzzy
 msgid "Admin Group"
+msgstr "Modifier Groupe"
+
+#, fuzzy
+msgid "Administrator (full access)"
 msgstr "Modifier Groupe"
 
 #, fuzzy
@@ -773,6 +789,9 @@ msgid "Approving the selected pending hosts."
 msgstr "Approuver hôtes sélectionnés"
 
 msgid "Architecture"
+msgstr ""
+
+msgid "Area"
 msgstr ""
 
 #, fuzzy
@@ -4799,6 +4818,10 @@ msgstr "Tenter de faire un ping"
 msgid "Permission denied"
 msgstr "Nom de session"
 
+#, fuzzy
+msgid "Permissions"
+msgstr "Version"
+
 msgid "Persistent file"
 msgstr ""
 
@@ -5220,6 +5243,9 @@ msgstr "supprimé"
 msgid "Removing Key"
 msgstr "touche de réglage"
 
+msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
 #, fuzzy
 msgid "Replicating"
 msgstr "Reproduire?"
@@ -5291,8 +5317,51 @@ msgid "Role Association"
 msgstr "Association Image"
 
 #, fuzzy
+msgid "Role Associations"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "Role Create Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Role Create Success"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
+msgid "Role Description"
+msgstr "La description"
+
+#, fuzzy
 msgid "Role Name"
 msgstr "Nom du module"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "Role Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Role User Associations"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "Role added!"
+msgstr "Nom de l'imprimante"
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "Imprimante mis à jour!"
+
+msgid "Roles"
+msgstr ""
 
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
@@ -6574,6 +6643,9 @@ msgstr "Il n'y a rien à répliquer"
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+msgid "This change would leave no user with administrator access."
+msgstr ""
+
 #, fuzzy
 msgid "This host already exists"
 msgstr "Imprimante existe déjà"
@@ -7196,6 +7268,9 @@ msgstr "Version"
 #, fuzzy
 msgid "Versions"
 msgstr "Version"
+
+msgid "View"
+msgstr ""
 
 #, fuzzy
 msgid "WOL Broadcasts"
@@ -8072,10 +8147,6 @@ msgstr ""
 #~ msgstr "Imprimante"
 
 #, fuzzy
-#~ msgid "Add role failed!"
-#~ msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
 #~ msgid "An error occurred"
 #~ msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
@@ -8259,26 +8330,6 @@ msgstr ""
 
 #~ msgid "Results"
 #~ msgstr "Résultats"
-
-#, fuzzy
-#~ msgid "Role Create Fail"
-#~ msgstr "mise à jour de l'imprimante a échoué!"
-
-#, fuzzy
-#~ msgid "Role Create Success"
-#~ msgstr "Imprimante existe déjà"
-
-#, fuzzy
-#~ msgid "Role Update Fail"
-#~ msgstr "Groupe create a échoué"
-
-#, fuzzy
-#~ msgid "Role Update Success"
-#~ msgstr "utilisateur créé"
-
-#, fuzzy
-#~ msgid "Role added!"
-#~ msgstr "Nom de l'imprimante"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "Numéro de ligne pas réglé correctement"

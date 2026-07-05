@@ -167,6 +167,12 @@ msgstr ""
 msgid "A printer already exists with this name!"
 msgstr ""
 
+msgid "A role already exists with this name!"
+msgstr ""
+
+msgid "A role with this name already exists!"
+msgstr ""
+
 msgid "A rule already exists with that type-value pair!"
 msgstr ""
 
@@ -429,6 +435,9 @@ msgstr ""
 msgid "Add pushbullet account failed!"
 msgstr ""
 
+msgid "Add role failed!"
+msgstr ""
+
 msgid "Add rule failed!"
 msgstr ""
 
@@ -479,6 +488,9 @@ msgid "Additional Icon Elements"
 msgstr ""
 
 msgid "Admin Group"
+msgstr ""
+
+msgid "Administrator (full access)"
 msgstr ""
 
 msgid "Administrator Group"
@@ -626,6 +638,9 @@ msgid "Approving the selected pending hosts."
 msgstr ""
 
 msgid "Architecture"
+msgstr ""
+
+msgid "Area"
 msgstr ""
 
 msgid "Assigned Group Name"
@@ -4031,6 +4046,9 @@ msgstr ""
 msgid "Permission denied"
 msgstr ""
 
+msgid "Permissions"
+msgstr ""
+
 msgid "Persistent file"
 msgstr ""
 
@@ -4392,6 +4410,9 @@ msgstr ""
 msgid "Removing Key"
 msgstr ""
 
+msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
 msgid "Replicating"
 msgstr ""
 
@@ -4454,7 +4475,40 @@ msgstr ""
 msgid "Role Association"
 msgstr ""
 
+msgid "Role Associations"
+msgstr ""
+
+msgid "Role Create Fail"
+msgstr ""
+
+msgid "Role Create Success"
+msgstr ""
+
+msgid "Role Description"
+msgstr ""
+
 msgid "Role Name"
+msgstr ""
+
+msgid "Role Update Fail"
+msgstr ""
+
+msgid "Role Update Success"
+msgstr ""
+
+msgid "Role User Associations"
+msgstr ""
+
+msgid "Role added!"
+msgstr ""
+
+msgid "Role update failed!"
+msgstr ""
+
+msgid "Role updated!"
+msgstr ""
+
+msgid "Roles"
 msgstr ""
 
 msgid "Routes should be an array or an instance of Traversable"
@@ -5524,6 +5578,9 @@ msgstr ""
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+msgid "This change would leave no user with administrator access."
+msgstr ""
+
 msgid "This host already exists"
 msgstr ""
 
@@ -6052,6 +6109,9 @@ msgid "Version"
 msgstr ""
 
 msgid "Versions"
+msgstr ""
+
+msgid "View"
 msgstr ""
 
 msgid "WOL Broadcasts"

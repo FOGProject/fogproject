@@ -53,6 +53,14 @@ class User extends FOGController
         'password'
     ];
     /**
+     * Additional fields.
+     *
+     * @var array
+     */
+    protected $additionalFields = [
+        'roles'
+    ];
+    /**
      * Generates an encrypted hash
      *
      * @param string $password the password
@@ -502,6 +510,64 @@ class User extends FOGController
     public function can($perm)
     {
         return Authorization::can($perm, (int)$this->get('id'));
+    }
+    /**
+     * Stores the user, syncing role associations when loaded.
+     * assocSetter no-ops unless 'roles' has been loaded/set, so save
+     * paths that never touch roles (e.g. password migration) are safe.
+     *
+     * @return bool
+     */
+    public function save()
+    {
+        parent::save();
+        return $this->assocSetter('RoleUser', 'role')->load();
+    }
+    /**
+     * Adds roles to the user.
+     *
+     * @param array $addArray the roles to add
+     *
+     * @return object
+     */
+    public function addRole($addArray)
+    {
+        return $this->addRemItem(
+            'roles',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Removes roles from the user.
+     *
+     * @param array $removeArray the roles to remove
+     *
+     * @return object
+     */
+    public function removeRole($removeArray)
+    {
+        return $this->addRemItem(
+            'roles',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Loads the user's roles.
+     *
+     * @return void
+     */
+    protected function loadRoles()
+    {
+        $this->set(
+            'roles',
+            (array)Route::getIds(
+                'roleuserassociation',
+                ['userID' => $this->get('id')],
+                'roleID'
+            )
+        );
     }
     /**
      * Removes the item from the database.

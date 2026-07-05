@@ -214,6 +214,14 @@ msgid "A printer already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
+msgid "A role already exists with this name!"
+msgstr "Uma imagem já existe com este nome!"
+
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "Um nome de host com esse nome já existe."
+
+#, fuzzy
 msgid "A rule already exists with that type-value pair!"
 msgstr "Uma imagem já existe com este nome!"
 
@@ -535,6 +543,10 @@ msgid "Add pushbullet account failed!"
 msgstr "Conta ligação Pushbullet"
 
 #, fuzzy
+msgid "Add role failed!"
+msgstr "Adicionar snap-in falhou!"
+
+#, fuzzy
 msgid "Add rule failed!"
 msgstr "Adicionar snap-in falhou!"
 
@@ -598,6 +610,10 @@ msgstr "MACs adicionais"
 
 #, fuzzy
 msgid "Admin Group"
+msgstr "modificar Grupo"
+
+#, fuzzy
+msgid "Administrator (full access)"
 msgstr "modificar Grupo"
 
 #, fuzzy
@@ -772,6 +788,9 @@ msgid "Approving the selected pending hosts."
 msgstr "Aprovar Hosts selecionados"
 
 msgid "Architecture"
+msgstr ""
+
+msgid "Area"
 msgstr ""
 
 #, fuzzy
@@ -4798,6 +4817,10 @@ msgstr "A tentativa de executar ping"
 msgid "Permission denied"
 msgstr "Nome da sessão"
 
+#, fuzzy
+msgid "Permissions"
+msgstr "Versão"
+
 msgid "Persistent file"
 msgstr ""
 
@@ -5217,6 +5240,9 @@ msgstr "Removido"
 msgid "Removing Key"
 msgstr "Definir Key"
 
+msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
 #, fuzzy
 msgid "Replicating"
 msgstr "Replicar?"
@@ -5288,8 +5314,51 @@ msgid "Role Association"
 msgstr "Associação imagem"
 
 #, fuzzy
+msgid "Role Associations"
+msgstr "Associação imagem"
+
+#, fuzzy
+msgid "Role Create Fail"
+msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+msgid "Role Create Success"
+msgstr "Impressora já existe"
+
+#, fuzzy
+msgid "Role Description"
+msgstr "Descrição"
+
+#, fuzzy
 msgid "Role Name"
 msgstr "Nome do módulo"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Grupo Criar falhou"
+
+#, fuzzy
+msgid "Role Update Success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "Role User Associations"
+msgstr "Associação imagem"
+
+#, fuzzy
+msgid "Role added!"
+msgstr "Nome da impressora"
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "Impressora atualizado!"
+
+msgid "Roles"
+msgstr ""
 
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
@@ -6570,6 +6639,9 @@ msgstr "Não há nada para replicar"
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+msgid "This change would leave no user with administrator access."
+msgstr ""
+
 #, fuzzy
 msgid "This host already exists"
 msgstr "Impressora já existe"
@@ -7192,6 +7264,9 @@ msgstr "Versão"
 #, fuzzy
 msgid "Versions"
 msgstr "Versão"
+
+msgid "View"
+msgstr ""
 
 #, fuzzy
 msgid "WOL Broadcasts"
@@ -8068,10 +8143,6 @@ msgstr ""
 #~ msgstr "Impressora"
 
 #, fuzzy
-#~ msgid "Add role failed!"
-#~ msgstr "Adicionar snap-in falhou!"
-
-#, fuzzy
 #~ msgid "An error occurred"
 #~ msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
@@ -8255,26 +8326,6 @@ msgstr ""
 
 #~ msgid "Results"
 #~ msgstr "Resultados"
-
-#, fuzzy
-#~ msgid "Role Create Fail"
-#~ msgstr "atualização da impressora falhou!"
-
-#, fuzzy
-#~ msgid "Role Create Success"
-#~ msgstr "Impressora já existe"
-
-#, fuzzy
-#~ msgid "Role Update Fail"
-#~ msgstr "Grupo Criar falhou"
-
-#, fuzzy
-#~ msgid "Role Update Success"
-#~ msgstr "usuário criado"
-
-#, fuzzy
-#~ msgid "Role added!"
-#~ msgstr "Nome da impressora"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "número da linha não definido adequadamente"

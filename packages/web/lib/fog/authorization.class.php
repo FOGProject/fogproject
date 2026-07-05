@@ -336,29 +336,101 @@ class Authorization extends FOGBase
      */
     public static function effectiveAdminExists($excludeUserIDs = [])
     {
-        $exclude = array_map('intval', (array)$excludeUserIDs);
+        return self::adminExistsGiven(['excludeUsers' => $excludeUserIDs]);
+    }
+    /**
+     * Would at least one effective administrator remain after applying the
+     * proposed changes? Simulates the change against current membership
+     * and star-role state without touching the database, so every lockout
+     * guard (role delete, permission edit, membership edit, user delete)
+     * asks the same question the same way.
+     *
+     * Recognized keys in $changes (all optional):
+     * - 'excludeUsers'     => [userID, ...] users to pretend do not exist
+     *                         (user deletion).
+     * - 'roleUsers'        => [roleID => [userID, ...]] proposed FULL
+     *                         membership of specific roles.
+     * - 'userRoles'        => [userID => [roleID, ...]] proposed FULL role
+     *                         list of specific users.
+     * - 'rolePermissions'  => [roleID => [perm, ...]] proposed FULL
+     *                         permission list of specific roles
+     *                         (memberships unchanged).
+     * - 'removeRoles'      => [roleID, ...] roles about to be deleted —
+     *                         their assocs vanish, so members may fall
+     *                         back to implicit admin.
+     *
+     * @param array $changes the proposed changes (see above)
+     *
+     * @return bool
+     */
+    public static function adminExistsGiven($changes = [])
+    {
         $types = [];
         self::$HookManager->processEvent(
             'USER_TYPES_FILTER',
             ['types' => &$types]
         );
-        $allUsers = Route::getIds('user');
-        $special = Route::getIds('user', ['types' => $types]);
-        $allUsers = array_diff($allUsers, $special, $exclude);
-        $rolled = Route::getIds('roleuserassociation', [], 'userID');
-        if (count(array_diff($allUsers, $rolled) ?: [])) {
+        $allUsers = array_map('intval', (array)Route::getIds('user'));
+        $special = array_map(
+            'intval',
+            (array)Route::getIds('user', ['types' => $types])
+        );
+        $exclude = array_map(
+            'intval',
+            (array)($changes['excludeUsers'] ?? [])
+        );
+        $users = array_diff($allUsers, $special, $exclude);
+        // Current membership as roleID => [userIDs].
+        $membership = [];
+        $rows = self::$DB
+            ->query('SELECT `ruaRoleID`, `ruaUserID` FROM `roleUserAssoc`')
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        foreach ((array)$rows as $row) {
+            $membership[(int)$row['ruaRoleID']][] = (int)$row['ruaUserID'];
+        }
+        $starRoles = array_map(
+            'intval',
+            (array)Route::getIds('rolepermission', ['name' => '*'], 'roleID')
+        );
+        foreach ((array)($changes['roleUsers'] ?? []) as $rid => $uids) {
+            $membership[(int)$rid] = array_map('intval', (array)$uids);
+        }
+        foreach ((array)($changes['userRoles'] ?? []) as $uid => $rids) {
+            $uid = (int)$uid;
+            foreach ($membership as $rid => &$uids2) {
+                $uids2 = array_values(array_diff($uids2, [$uid]));
+            }
+            unset($uids2);
+            foreach ((array)$rids as $rid) {
+                $membership[(int)$rid][] = $uid;
+            }
+        }
+        foreach ((array)($changes['rolePermissions'] ?? []) as $rid => $perms) {
+            $rid = (int)$rid;
+            $starRoles = array_values(array_diff($starRoles, [$rid]));
+            if (in_array('*', (array)$perms, true)) {
+                $starRoles[] = $rid;
+            }
+        }
+        foreach ((array)($changes['removeRoles'] ?? []) as $rid) {
+            unset($membership[(int)$rid]);
+            $starRoles = array_values(array_diff($starRoles, [(int)$rid]));
+        }
+        $rolled = [];
+        foreach ($membership as $uids2) {
+            $rolled = array_merge($rolled, $uids2);
+        }
+        if (count(array_diff($users, $rolled))) {
+            // A role-less user remains: implicit administrator.
             return true;
         }
-        $starRoles = Route::getIds('rolepermission', ['name' => '*'], 'roleID');
-        if (!count($starRoles ?: [])) {
-            return false;
+        foreach ($starRoles as $rid) {
+            if (count(array_intersect($membership[$rid] ?? [], $users))) {
+                return true;
+            }
         }
-        $starUsers = Route::getIds(
-            'roleuserassociation',
-            ['roleID' => $starRoles],
-            'userID'
-        );
-        return count(array_intersect($starUsers, $allUsers) ?: []) > 0;
+        return false;
     }
     /**
      * Reset the per-request caches (used after role/permission writes so
