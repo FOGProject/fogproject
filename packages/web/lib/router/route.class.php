@@ -439,6 +439,12 @@ class Route extends FOGBase
         if (self::$matches
             && is_callable(self::$matches['target'])
         ) {
+            Authorization::requireApiPermission(
+                Authorization::resolveApiPermission(
+                    self::$matches['name'] ?? '',
+                    self::$matches['params']['class'] ?? ''
+                )
+            );
             $args = array_values(self::$matches['params']);
             // Splitting call to get closure from 'target' index of self::$matches
             // from the execution of the closure.
@@ -483,6 +489,9 @@ class Route extends FOGBase
             ->set('token', $usertoken)
             ->load('token');
         if ($pwtoken->isValid() && $pwtoken->get('api')) {
+            // Bind the token's owner as the acting user so role-based
+            // authorization applies to token-authenticated requests.
+            self::$FOGUser = $pwtoken;
             return;
         }
         $auth = self::$FOGUser->passwordValidate(
@@ -1447,6 +1456,14 @@ class Route extends FOGBase
             );
             foreach (self::$searchPages as &$search) {
                 if ($search == 'task') {
+                    continue;
+                }
+                // Skip entities the acting user may not view; unknown
+                // (plugin-added) entries resolve to null = allowed.
+                if (!Authorization::can(
+                    Authorization::resolveApiPermission('list', $search)
+                )
+                ) {
                     continue;
                 }
                 $data['_lang'][$search] = (

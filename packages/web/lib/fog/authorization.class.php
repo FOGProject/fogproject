@@ -91,6 +91,112 @@ class Authorization extends FOGBase
         'initrdfetch' => 'settings.edit'
     ];
     /**
+     * API route name => permission action, for the class-parameterized
+     * routes (Route::$validClasses expansions). The route names already
+     * encode the HTTP method, so no method split is needed here.
+     *
+     * @var array
+     */
+    const API_ROUTE_ACTIONS = [
+        'list' => 'view',
+        'indiv' => 'view',
+        'search' => 'view',
+        'count' => 'view',
+        'names' => 'view',
+        'ids' => 'view',
+        'active' => 'view',
+        'create' => 'create',
+        'join' => 'create',
+        'update' => 'edit',
+        'delete' => 'delete',
+        'task' => 'task',
+        'cancel' => 'task'
+    ];
+    /**
+     * Fixed (non class-parameterized) API route name => full permission.
+     * null = no check beyond the authentication the Route constructor
+     * already enforces (or none at all for the unauthenticated routes:
+     * status, bandwidth). whoami only echoes .fogsettings server facts.
+     *
+     * @var array
+     */
+    const API_ROUTE_PERMISSIONS = [
+        'status' => null,
+        'bandwidth' => null,
+        'whoami' => null,
+        'unisearch' => null,
+        'export' => 'settings.edit',
+        'kernelUpdate' => 'settings.view',
+        'initrdUpdate' => 'settings.view',
+        'logfiles' => 'settings.view',
+        'pendingmacs' => 'host.view',
+        'snapinCreateWithFile' => 'snapin.create',
+        'uploadSnapinFiles' => 'snapin.create',
+        'settingsCacheView' => 'settings.view',
+        'settingsCacheFlush' => 'settings.edit',
+        'settingsCacheRefresh' => 'settings.edit'
+    ];
+    /**
+     * API model class => registry node. Sub-entities check their parent
+     * entity's permission (a host's power management schedule is host
+     * data, an imaging log is report data, ...). An action absent from
+     * the registry node (e.g. task.delete for lookup-table writes) is
+     * still a valid permission string but only the global '*' grants it,
+     * which deliberately reserves those writes for full administrators.
+     *
+     * @var array
+     */
+    const API_CLASS_ENTITIES = [
+        'filedeletequeue' => 'task',
+        'group' => 'group',
+        'groupassociation' => 'group',
+        'history' => 'report',
+        'hookevent' => 'settings',
+        'host' => 'host',
+        'hostautologout' => 'host',
+        'hostscreensetting' => 'host',
+        'image' => 'image',
+        'imageassociation' => 'image',
+        'imagepartitiontype' => 'image',
+        'imagetype' => 'image',
+        'imaginglog' => 'report',
+        'inventory' => 'host',
+        'ipxe' => 'ipxe',
+        'keysequence' => 'ipxe',
+        'macaddressassociation' => 'host',
+        'module' => 'module',
+        'moduleassociation' => 'module',
+        'multicastsession' => 'task',
+        'multicastsessionassociation' => 'task',
+        'nodefailure' => 'task',
+        'notifyevent' => 'settings',
+        'os' => 'image',
+        'oui' => 'settings',
+        'plugin' => 'plugin',
+        'powermanagement' => 'host',
+        'printer' => 'printer',
+        'printerassociation' => 'printer',
+        'pxemenuoptions' => 'ipxe',
+        'role' => 'role',
+        'rolepermission' => 'role',
+        'roleuserassociation' => 'role',
+        'scheduledtask' => 'task',
+        'setting' => 'settings',
+        'snapin' => 'snapin',
+        'snapinassociation' => 'snapin',
+        'snapingroupassociation' => 'snapin',
+        'snapinjob' => 'task',
+        'snapintask' => 'task',
+        'storagegroup' => 'storagegroup',
+        'storagenode' => 'storagenode',
+        'task' => 'task',
+        'tasklog' => 'task',
+        'taskstate' => 'task',
+        'tasktype' => 'task',
+        'user' => 'user',
+        'usertracking' => 'report'
+    ];
+    /**
      * Per-user permission cache for this request.
      * userID => array of permission strings, or null = implicit admin.
      *
@@ -338,6 +444,34 @@ class Authorization extends FOGBase
             'warning'
         );
         self::redirect('?node=home');
+    }
+    /**
+     * Resolve an API request to a required permission string.
+     *
+     * @param string $routeName the matched AltoRouter route name
+     * @param string $class     the model class url parameter, if any
+     *
+     * @return string|null the required permission, null = no check
+     */
+    public static function resolveApiPermission($routeName, $class = '')
+    {
+        $routeName = (string)$routeName;
+        if (array_key_exists($routeName, self::API_ROUTE_PERMISSIONS)) {
+            return self::API_ROUTE_PERMISSIONS[$routeName];
+        }
+        if (!isset(self::API_ROUTE_ACTIONS[$routeName])) {
+            // Unknown route (plugin-added): allow, matching the
+            // unregistered-page compatibility stance.
+            return null;
+        }
+        $class = strtolower(trim((string)$class));
+        if (!isset(self::API_CLASS_ENTITIES[$class])) {
+            // Unknown model class (plugin-added): allow.
+            return null;
+        }
+        return self::API_CLASS_ENTITIES[$class]
+            . '.'
+            . self::API_ROUTE_ACTIONS[$routeName];
     }
     /**
      * Enforce a permission for an API request. Returns silently when
