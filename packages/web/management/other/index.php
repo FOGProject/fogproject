@@ -233,6 +233,24 @@ foreach ((array)$this->javascripts as $javascript) {
     echo '<script src="' . htmlspecialchars($javascript, ENT_QUOTES, 'UTF-8') . '?ver=' . FOG_BCACHE_VER . '" type="text/javascript"></script>';
 }
 unset($this->javascripts);
+// Drain any queued flash messages and toast them once the JS bundle
+// (jQuery/pnotify) above has loaded. Nonce'd so the CSP allows it.
+$flashmessages = self::getMessage();
+if ($flashmessages) {
+    echo '<script nonce="' . htmlspecialchars(FOG_CSP_NONCE, ENT_QUOTES, 'UTF-8') . '">';
+    echo '$(function(){';
+    foreach ($flashmessages as $flashmessage) {
+        echo '$.notify('
+            . json_encode($flashmessage['title'] ?? '')
+            . ','
+            . json_encode($flashmessage['body'] ?? '')
+            . ','
+            . json_encode($flashmessage['type'] ?? 'info')
+            . ');';
+    }
+    echo '});';
+    echo '</script>';
+}
 ?>
     </div>
     <!-- Memory Usage: <?= self::formatByteSize(memory_get_usage(true)); ?> -->

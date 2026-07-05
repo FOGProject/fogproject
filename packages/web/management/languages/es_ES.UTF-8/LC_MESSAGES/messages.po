@@ -5665,6 +5665,10 @@ msgid "Session Create Success"
 msgstr "Nombre snapin"
 
 #, fuzzy
+msgid "Session Expired"
+msgstr "Nombre de sesión"
+
+#, fuzzy
 msgid "Session Image"
 msgstr "Nombre de sesión"
 
@@ -7471,6 +7475,9 @@ msgstr "Debe tener al menos un grupo de almacenamiento"
 #, fuzzy
 msgid "You must select an action to perform"
 msgstr "Debe especificar el alias y el puerto"
+
+msgid "You were logged out due to inactivity."
+msgstr ""
 
 msgid "Your FOG database schema is not up to date"
 msgstr ""

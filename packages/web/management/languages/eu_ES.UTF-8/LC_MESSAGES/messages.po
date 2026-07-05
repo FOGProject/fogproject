@@ -5538,6 +5538,10 @@ msgid "Session Create Success"
 msgstr "Snapin erfolgreich hinzugefügt"
 
 #, fuzzy
+msgid "Session Expired"
+msgstr "Sitzungsname"
+
+#, fuzzy
 msgid "Session Image"
 msgstr "Sitzungsname"
 
@@ -7328,6 +7332,9 @@ msgstr "Sie müssen mindestens eine Speichergruppe haben"
 #, fuzzy
 msgid "You must select an action to perform"
 msgstr "Sie müssen eine Aktion auswählen, die ausgeführt werden soll"
+
+msgid "You were logged out due to inactivity."
+msgstr ""
 
 msgid "Your FOG database schema is not up to date"
 msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"

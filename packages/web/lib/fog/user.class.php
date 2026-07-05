@@ -157,8 +157,10 @@ class User extends FOGController
             }
         }
         if ($remember && $passValid) {
-            // As we're doing remember me, set to always on
-            self::setSetting('FOG_ALWAYS_LOGGED_IN', '1');
+            // Remember-me is per-user, carried by the foguserauth* cookies
+            // and UserAuth token below. It must NOT touch the shared
+            // FOG_ALWAYS_LOGGED_IN setting -- doing so disabled the
+            // inactivity timeout for every user, install-wide.
             // Setup Cookie stuff.
             $current_time = self::nicedate()->getTimestamp();
             $cookieexp = $current_time + (2 * 24 * 60 * 60);
@@ -241,6 +243,7 @@ class User extends FOGController
                 return new self(0);
             }
             if (self::$FOGUser->isValid()) {
+                $type = self::$FOGUser->get('type');
                 self::$HookManager->processEvent(
                     'USER_TYPE_HOOK',
                     ['type' => &$type]
@@ -432,6 +435,11 @@ class User extends FOGController
                 $lastactivity = time() - $_SESSION['lastactivity'];
             }
             if ($lastactivity > $timeout) {
+                self::setMessage(
+                    _('You were logged out due to inactivity.'),
+                    _('Session Expired'),
+                    'warning'
+                );
                 self::redirect('../management/index.php?node=logout');
             }
         }
@@ -460,15 +468,18 @@ class User extends FOGController
         if (session_status() !== PHP_SESSION_ACTIVE) {
             return;
         }
-        $messages = isset($_SESION['FOG_MESSAGES']) ? $_SESSION['FOG_MESSAGES'] : null;
+        // Preserve any queued flash messages across the session rebuild so
+        // they can toast on the login page after we redirect (e.g. the
+        // "logged out due to inactivity" notice).
+        $messages = self::getMessage();
         // Destroy session
         session_unset();
         session_destroy();
         session_write_close();
         session_start();
-        $_SESSION=[];
-        if (isset($messages)) {
-            self::setMessage($messages);
+        $_SESSION = [];
+        if ($messages) {
+            $_SESSION['FOG_MESSAGES'] = $messages;
         }
     }
 

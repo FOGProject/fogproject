@@ -166,15 +166,29 @@ class Route extends FOGBase
             );
             exit;
         }
-        $unauthqueries = [
-            '/fog/system',
+        /**
+         * Routes reachable without API auth. The wildcard routes below
+         * vary in their trailing segment, so they are matched on their
+         * parent path via dirname(). The /system endpoints are matched
+         * exactly instead: status/info are public (dashboard polling),
+         * but privileged siblings like /system/export must NOT be swept
+         * in by a shared parent-path match.
+         */
+        $unauthprefixes = [
             '/fog/bandwidth',
             '/fog/storagegroupid',
             '/fog/storagenodeid'
         ];
-        $requribase = dirname(self::$requesturi);
+        $unauthexact = [
+            '/fog/system/status',
+            '/fog/system/info'
+        ];
+        $requripath = strtok((string)self::$requesturi, '?');
+        $requribase = dirname($requripath);
+        $isunauth = in_array($requribase, $unauthprefixes)
+            || in_array(rtrim($requripath, '/'), $unauthexact);
         if (!self::$FOGUser->isValid()
-            && !in_array($requribase, $unauthqueries)
+            && !$isunauth
         ) {
             /**
              * Test our token.
@@ -503,6 +517,16 @@ class Route extends FOGBase
      */
     public static function export()
     {
+        /**
+         * Belt-and-suspenders: this streams the entire database, so never
+         * serve it to an unauthenticated caller even if the routing
+         * whitelist is ever mis-scoped again. A valid session bypasses
+         * the token checks exactly as the constructor does.
+         */
+        if (!self::$FOGUser->isValid()) {
+            self::_testToken();
+            self::_testAuth();
+        }
         $backup_name = sprintf(
             'fog_backup_%s.sql',
             self::formatTime('', 'Ymd_His')

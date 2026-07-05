@@ -906,6 +906,45 @@ abstract class FOGBase
         exit;
     }
     /**
+     * Queue a flash message to be shown to the user on the next full page
+     * render. The message survives a logout/redirect (see User::logout)
+     * so callers can, for example, tell the user why they were signed out.
+     * The shape mirrors the client $.notify(title, body, type) helper.
+     *
+     * @param string $body  the message body
+     * @param string $title the message title
+     * @param string $type  success|info|warning|error
+     *
+     * @return void
+     */
+    public static function setMessage($body, $title = '', $type = 'info')
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
+        $_SESSION['FOG_MESSAGES'][] = [
+            'title' => (string)$title,
+            'body' => (string)$body,
+            'type' => (string)$type
+        ];
+    }
+    /**
+     * Pull and clear all queued flash messages.
+     *
+     * @return array list of ['title', 'body', 'type'] entries
+     */
+    public static function getMessage()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE
+            || empty($_SESSION['FOG_MESSAGES'])
+        ) {
+            return [];
+        }
+        $messages = $_SESSION['FOG_MESSAGES'];
+        unset($_SESSION['FOG_MESSAGES']);
+        return (array)$messages;
+    }
+    /**
      * Insert before key in array.
      *
      * @param string $key       the key to insert before

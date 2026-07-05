@@ -4660,6 +4660,9 @@ msgstr ""
 msgid "Session Create Success"
 msgstr ""
 
+msgid "Session Expired"
+msgstr ""
+
 msgid "Session Image"
 msgstr ""
 
@@ -6163,6 +6166,9 @@ msgid "You must have at least one Storage Group"
 msgstr ""
 
 msgid "You must select an action to perform"
+msgstr ""
+
+msgid "You were logged out due to inactivity."
 msgstr ""
 
 msgid "Your FOG database schema is not up to date"

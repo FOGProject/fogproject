@@ -5533,6 +5533,10 @@ msgid "Session Create Success"
 msgstr "更新管理单元"
 
 #, fuzzy
+msgid "Session Expired"
+msgstr "会话名称"
+
+#, fuzzy
 msgid "Session Image"
 msgstr "会话名称"
 
@@ -7312,6 +7316,9 @@ msgstr "您必须至少有一个存储组"
 #, fuzzy
 msgid "You must select an action to perform"
 msgstr "您必须指定别名和端口"
+
+msgid "You were logged out due to inactivity."
+msgstr ""
 
 msgid "Your FOG database schema is not up to date"
 msgstr ""

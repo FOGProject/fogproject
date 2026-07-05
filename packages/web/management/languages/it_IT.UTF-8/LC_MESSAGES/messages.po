@@ -5295,6 +5295,10 @@ msgid "Session Create Success"
 msgstr "Creazione Snapin completata"
 
 #, fuzzy
+msgid "Session Expired"
+msgstr "Nome sessione"
+
+#, fuzzy
 msgid "Session Image"
 msgstr "Nome sessione"
 
@@ -6987,6 +6991,9 @@ msgstr "È necessario disporre di almeno un gruppo di archiviazione"
 
 msgid "You must select an action to perform"
 msgstr "È necessario selezionare un'azione da eseguire"
+
+msgid "You were logged out due to inactivity."
+msgstr ""
 
 msgid "Your FOG database schema is not up to date"
 msgstr "Il tuo schema di database FOG non è aggiornato"
