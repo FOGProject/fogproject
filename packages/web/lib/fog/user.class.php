@@ -169,24 +169,8 @@ class User extends FOGController
             $expire = self::niceDate()
                 ->setTimestamp($cookieexp)
                 ->format('Y-m-d H:i:s');
-            setcookie(
-                'foguserauthpass',
-                $password,
-                $cookieexp,
-                null,
-                null,
-                null,
-                true
-            );
-            setcookie(
-                'foguserauthsel',
-                $selector,
-                $cookieexp,
-                null,
-                null,
-                null,
-                true
-            );
+            self::setAuthCookie('foguserauthpass', $password, $cookieexp);
+            self::setAuthCookie('foguserauthsel', $selector, $cookieexp);
 
             // Build and create authorization/authentication system.
             $password_hash = UserAuth::generateHash($password);
@@ -199,15 +183,7 @@ class User extends FOGController
                 ->save();
 
             // Set the id in the cookie for this particular auth item.
-            setcookie(
-                'foguserauthid',
-                $auth->get('id'),
-                $cookieexp,
-                null,
-                null,
-                null,
-                true
-            );
+            self::setAuthCookie('foguserauthid', $auth->get('id'), $cookieexp);
         }
         return $passValid;
     }
@@ -373,7 +349,6 @@ class User extends FOGController
             // the new ID.
             session_regenerate_id(true);
             $_SESSION['sessioncreated'] = time();
-            $_SESSION['authtime'] = time();
 
             $id = filter_input(INPUT_COOKIE, 'foguserauthid');
             $userauth = new UserAuth($id);
@@ -385,33 +360,9 @@ class User extends FOGController
                 $expire = self::niceDate()
                     ->setTimestamp($cookieexp)
                     ->format('Y-m-d H:i:s');
-                setcookie(
-                    'foguserauthpass',
-                    $password,
-                    $cookieexp,
-                    null,
-                    null,
-                    null,
-                    true
-                );
-                setcookie(
-                    'foguserauthsel',
-                    $selector,
-                    $cookieexp,
-                    null,
-                    null,
-                    null,
-                    true
-                );
-                setcookie(
-                    'foguserauthid',
-                    $userauth->get('id'),
-                    $cookieexp,
-                    null,
-                    null,
-                    null,
-                    true
-                );
+                self::setAuthCookie('foguserauthpass', $password, $cookieexp);
+                self::setAuthCookie('foguserauthsel', $selector, $cookieexp);
+                self::setAuthCookie('foguserauthid', $userauth->get('id'), $cookieexp);
 
                 $password_hash = $userauth->generateHash($password);
                 $selector_hash = $userauth->generateHash($selector);
@@ -462,7 +413,7 @@ class User extends FOGController
         $this
             ->set('id', 0)
             ->set('name', '')
-            ->set('password', '', '');
+            ->set('password', '', true);
 
         // If the session is already gone, return.
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -481,6 +432,38 @@ class User extends FOGController
         if ($messages) {
             $_SESSION['FOG_MESSAGES'] = $messages;
         }
+    }
+
+    /**
+     * Emit a remember-me auth cookie with hardened attributes.
+     *
+     * HttpOnly keeps it out of JS, SameSite=Lax blocks CSRF-style
+     * cross-site sends while still allowing top-level navigation
+     * (so auto-login on a fresh page load still works), and Secure is
+     * only set when the request is HTTPS so plain-HTTP LAN installs are
+     * not broken. Path/domain are left at the default so the cookie
+     * scope matches the prior positional-setcookie behavior.
+     *
+     * @param string $name     the cookie name
+     * @param string $value    the cookie value
+     * @param int    $cookieexp the expiry timestamp
+     *
+     * @return void
+     */
+    private static function setAuthCookie($name, $value, $cookieexp)
+    {
+        $secure = !empty($_SERVER['HTTPS'])
+            && strtolower((string)$_SERVER['HTTPS']) !== 'off';
+        setcookie(
+            $name,
+            (string)$value,
+            [
+                'expires' => $cookieexp,
+                'httponly' => true,
+                'secure' => $secure,
+                'samesite' => 'Lax',
+            ]
+        );
     }
 
     /**

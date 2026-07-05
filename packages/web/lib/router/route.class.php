@@ -439,7 +439,7 @@ class Route extends FOGBase
             filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
         );
         $passtoken = trim($passtoken);
-        if ($passtoken !== self::$_token) {
+        if (!hash_equals((string)self::$_token, (string)$passtoken)) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_FORBIDDEN
             );
