@@ -2706,6 +2706,7 @@ class HostManagement extends FOGPage
                 );
         }
         if (isset($_POST['pmadd']) || isset($_POST['pmaddod'])) {
+            $onDemand = (int)isset($_POST['pmaddod']);
             $min = trim(
                 filter_input(
                     INPUT_POST,
@@ -2746,11 +2747,13 @@ class HostManagement extends FOGPage
                 $this->obj->wakeOnLAN();
                 return;
             }
-            $min = FOGCron::_sanitizeCronField($min);
-            $hour = FOGCron::_sanitizeCronField($hour);
-            $dom = FOGCron::_sanitizeCronField($dom);
-            $month = FOGCron::_sanitizeCronField($month);
-            $dow = FOGCron::_sanitizeCronField($dow);
+            if (!$onDemand) {
+                $min = FOGCron::_sanitizeCronField($min);
+                $hour = FOGCron::_sanitizeCronField($hour);
+                $dom = FOGCron::_sanitizeCronField($dom);
+                $month = FOGCron::_sanitizeCronField($month);
+                $dow = FOGCron::_sanitizeCronField($dow);
+            }
             self::getClass('PowerManagement')
                 ->set('hostID', $this->obj->get('id'))
                 ->set('min', $min)

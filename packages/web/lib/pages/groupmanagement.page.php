@@ -1668,13 +1668,13 @@ class GroupManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $hostIDs = (array)$this->obj->get('hosts');
-        if (isset($_POST['pmadd'])) {
-            $onDemand = (int)isset($_POST['onDemand']);
-            $min = filter_input(INPUT_POST, 'scheduleCronMin');
-            $hour = filter_input(INPUT_POST, 'scheduleCronHour');
-            $dom = filter_input(INPUT_POST, 'scheduleCronDOM');
-            $month = filter_input(INPUT_POST, 'scheduleCronMonth');
-            $dow = filter_input(INPUT_POST, 'scheduleCronDOW');
+        if (isset($_POST['pmadd']) || isset($_POST['pmaddod'])) {
+            $onDemand = (int)isset($_POST['pmaddod']);
+            $min = trim((string)filter_input(INPUT_POST, 'scheduleCronMin'));
+            $hour = trim((string)filter_input(INPUT_POST, 'scheduleCronHour'));
+            $dom = trim((string)filter_input(INPUT_POST, 'scheduleCronDOM'));
+            $month = trim((string)filter_input(INPUT_POST, 'scheduleCronMonth'));
+            $dow = trim((string)filter_input(INPUT_POST, 'scheduleCronDOW'));
             $action = filter_input(INPUT_POST, 'action');
             if (!$action) {
                 throw new Exception(_('You must select an action to perform'));
@@ -1683,6 +1683,13 @@ class GroupManagement extends FOGPage
             if ($onDemand && $action === 'wol') {
                 $this->obj->wakeOnLAN();
                 return;
+            }
+            if (!$onDemand) {
+                $min = FOGCron::_sanitizeCronField($min);
+                $hour = FOGCron::_sanitizeCronField($hour);
+                $dom = FOGCron::_sanitizeCronField($dom);
+                $month = FOGCron::_sanitizeCronField($month);
+                $dow = FOGCron::_sanitizeCronField($dow);
             }
             foreach ((array)$hostIDs as &$hostID) {
                 $items[] = [
