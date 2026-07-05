@@ -137,9 +137,15 @@ unset($this->stylesheets);
                 </div>
                 <div class="sidebar-wrapper">
                     <div class="user-panel p-2">
+                        <?php if (Authorization::can(Authorization::resolvePagePermission('user', 'edit', false))): ?>
                         <a href="../management/index.php?node=user&sub=edit&id=<?= self::$FOGUser->get('id'); ?>" class="fog-user ajax-page-link d-block">
                             <?= htmlspecialchars(self::$FOGUser->getDisplayName(), ENT_QUOTES, 'UTF-8'); ?>
                         </a>
+                        <?php else: ?>
+                        <span class="fog-user d-block">
+                            <?= htmlspecialchars(self::$FOGUser->getDisplayName(), ENT_QUOTES, 'UTF-8'); ?>
+                        </span>
+                        <?php endif; ?>
                     </div>
                     <div class="p-2">
                         <?= FOGPage::makeFormTag('sidebar-form', 'universal-search-form', '../../fog/unisearch', 'post', 'application/x-www-form-urlencoded', true); ?>
@@ -177,36 +183,36 @@ unset($this->stylesheets);
                 <?= FOGPage::makeInput('reAuthDelete', 'reAuthDelete', '', 'hidden', 'reAuthDelete', self::getSetting('FOG_REAUTH_ON_DELETE')); ?>
                 <?php
             $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
-        if (in_array(strtolower($pageLength), ['search', 'list'])) {
-            $pageLength = 10;
-            $Setting = self::getClass('Setting')
-                ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
-                ->load('name')
-                ->set(
-                    'description',
-                    _(
-                        'This setting defines the number of items to display '
-                        . 'when listing/searching elements. The default value is 10.'
-                    )
-                )->set('value', $pageLength)
-                ->save();
-            unset($Setting);
-        }
-        ?>
+if (in_array(strtolower($pageLength), ['search', 'list'])) {
+    $pageLength = 10;
+    $Setting = self::getClass('Setting')
+        ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
+        ->load('name')
+        ->set(
+            'description',
+            _(
+                'This setting defines the number of items to display '
+                . 'when listing/searching elements. The default value is 10.'
+            )
+        )->set('value', $pageLength)
+        ->save();
+    unset($Setting);
+}
+?>
                 <?= FOGPage::makeInput('pageLength', 'pageLength', '', 'hidden', 'pageLength', self::getSetting('FOG_VIEW_DEFAULT_SCREEN')); ?>
                 <?= FOGPage::makeInput('scrollMode', 'scrollMode', '', 'hidden', 'scrollMode', self::getSetting('FOG_TABLE_SCROLL_MODE')); ?>
                 <?= FOGPage::makeInput('showpass', 'showpass', '', 'hidden', 'showpass', self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')); ?>
                 <?php
-                // No-role warning: a user with zero role assignments is an
-                // implicit administrator by design (upgrade stance). Warn
-                // them once roles are actually in use on this system.
-                $showNoRoleBanner = self::$FOGUser
-                    && self::$FOGUser->isValid()
-                    && null === Authorization::getPermissions()
-                    && self::getClass('RoleUserAssociationManager')
-                        ->distinct('userID') > 0;
-        if ($showNoRoleBanner):
-            ?>
+        // No-role warning: a user with zero role assignments is an
+        // implicit administrator by design (upgrade stance). Warn
+        // them once roles are actually in use on this system.
+        $showNoRoleBanner = self::$FOGUser
+            && self::$FOGUser->isValid()
+            && null === Authorization::getPermissions()
+            && self::getClass('RoleUserAssociationManager')
+                ->distinct('userID') > 0;
+if ($showNoRoleBanner):
+    ?>
                 <div class="container-fluid pt-3" id="no-role-banner">
                     <div class="alert alert-warning alert-dismissible fade show mb-0" role="alert">
                         <strong><?= _('No role assigned'); ?>:</strong>
