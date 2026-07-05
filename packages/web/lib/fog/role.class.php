@@ -155,11 +155,9 @@ class Role extends FOGController
             'USER_TYPES_FILTER',
             ['types' => &$types]
         );
-        $find = ['types' => $types];
-        $filtered = Route::getIds(
-            'user',
-            $find
-        );
+        $filtered = (count($types)
+            ? (array)Route::getIds('user', ['type' => $types])
+            : []);
         $associds = array_diff(
             $userids,
             $filtered

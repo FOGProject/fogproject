@@ -1851,10 +1851,10 @@ abstract class FOGPage extends FOGBase
             $msg = filter_input(INPUT_POST, 'msg');
             $br_ver = filter_input(INPUT_POST, 'buildroot');
             $tg_ver = filter_input(INPUT_POST, 'tag_name');
-            if ($_SESSION['allow_ajax_kdl']
-                && $_SESSION['dest-kernel-file']
-                && $_SESSION['tmp-kernel-file']
-                && $_SESSION['dl-kernel-file']
+            if (($_SESSION['allow_ajax_kdl'] ?? false)
+                && ($_SESSION['dest-kernel-file'] ?? '')
+                && ($_SESSION['tmp-kernel-file'] ?? '')
+                && ($_SESSION['dl-kernel-file'] ?? '')
             ) {
                 if ($msg == 'dl') {
                     $destFilename = $_SESSION['dest-kernel-file'];

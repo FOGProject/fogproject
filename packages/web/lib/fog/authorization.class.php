@@ -538,10 +538,12 @@ class Authorization extends FOGBase
             ['types' => &$types]
         );
         $allUsers = array_map('intval', (array)Route::getIds('user'));
-        $special = array_map(
-            'intval',
-            (array)Route::getIds('user', ['types' => $types])
-        );
+        $special = (count($types)
+            ? array_map(
+                'intval',
+                (array)Route::getIds('user', ['type' => $types])
+            )
+            : []);
         $exclude = array_map(
             'intval',
             (array)($changes['excludeUsers'] ?? [])
