@@ -2934,6 +2934,19 @@ class Route extends FOGBase
                         self::getClass('SnapinJobManager')->cancel($sjIDs);
                     }
                     break;
+                case 'user':
+                    $findWhere = ['userID' => $itemIDs];
+                    $removeItems = [
+                        'roleuserassociation' => $findWhere
+                    ];
+                    break;
+                case 'role':
+                    $findWhere = ['roleID' => $itemIDs];
+                    $removeItems = [
+                        'rolepermission' => $findWhere,
+                        'roleuserassociation' => $findWhere
+                    ];
+                    break;
                 default:
                     $findWhere = [];
                     $removeItems = [];

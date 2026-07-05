@@ -4910,6 +4910,10 @@ msgstr "macs pendientes"
 msgid "Performing ping"
 msgstr ""
 
+#, fuzzy
+msgid "Permission denied"
+msgstr "Nombre de sesión"
+
 msgid "Persistent file"
 msgstr ""
 
@@ -7461,6 +7465,13 @@ msgstr ""
 
 msgid "You are only allowed to assign"
 msgstr "Sólo se le permite asignar"
+
+#, php-format
+msgid "You do not have permission to access this page (%s required)."
+msgstr ""
+
+msgid "You do not have permission to perform this action."
+msgstr ""
 
 msgid "You may use _, ., -, or a space between."
 msgstr ""

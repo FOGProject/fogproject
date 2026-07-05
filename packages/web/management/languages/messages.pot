@@ -4028,6 +4028,9 @@ msgstr ""
 msgid "Performing ping"
 msgstr ""
 
+msgid "Permission denied"
+msgstr ""
+
 msgid "Persistent file"
 msgstr ""
 
@@ -6154,6 +6157,13 @@ msgid "You are currently running PHP Version"
 msgstr ""
 
 msgid "You are only allowed to assign"
+msgstr ""
+
+#, php-format
+msgid "You do not have permission to access this page (%s required)."
+msgstr ""
+
+msgid "You do not have permission to perform this action."
 msgstr ""
 
 msgid "You may use _, ., -, or a space between."

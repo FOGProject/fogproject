@@ -4303,3 +4303,161 @@ $this->schema[] = [
     . "SET `taskStateChangedTime` = GREATEST(`taskCheckIn`, `taskCreateTime`) "
     . "WHERE `taskStateChangedTime` IS NULL",
 ];
+// 302
+$this->schema[] = [
+    // Native role-based permissions (retiring the accesscontrol plugin).
+    // Adopt the plugin's roles table as native: identical layout, so this
+    // converges on both fresh installs and plugin-upgraded databases with
+    // zero data migration.
+    "CREATE TABLE IF NOT EXISTS `roles` ("
+    . "`rID` INT NOT NULL AUTO_INCREMENT,"
+    . "`rName` VARCHAR(255) NOT NULL,"
+    . "`rDesc` LONGTEXT NOT NULL,"
+    . "`rCreatedBy` VARCHAR(40) NOT NULL,"
+    . "`rCreatedTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+    . "PRIMARY KEY (`rID`),"
+    . "UNIQUE KEY `rName` (`rName`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];
+// 303
+$this->schema[] = [
+    // User <-> role assignments, adopted from the accesscontrol plugin.
+    // The native layout allows multiple roles per user (composite unique)
+    // and defaults ruaName so assocSetter inserts work under strict SQL
+    // mode; the closure below normalizes pre-existing plugin-era tables
+    // (lone UNIQUE on ruaUserID = one role per user, ruaName no default)
+    // to the same shape.
+    "CREATE TABLE IF NOT EXISTS `roleUserAssoc` ("
+    . "`ruaID` INT NOT NULL AUTO_INCREMENT,"
+    . "`ruaName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`ruaRoleID` INT NOT NULL,"
+    . "`ruaUserID` INT NOT NULL,"
+    . "PRIMARY KEY (`ruaID`),"
+    . "UNIQUE KEY `ruaRoleUser` (`ruaRoleID`,`ruaUserID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    function () {
+        $indexes = self::$DB->query(
+            "SELECT `INDEX_NAME` AS `iname`, "
+            . "GROUP_CONCAT(`COLUMN_NAME` ORDER BY `SEQ_IN_INDEX`) AS `cols`, "
+            . "MAX(`NON_UNIQUE`) AS `nonuniq` "
+            . "FROM `information_schema`.`STATISTICS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'roleUserAssoc' "
+            . "GROUP BY `INDEX_NAME`"
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $hasComposite = false;
+        $lonely = [];
+        foreach ((array)$indexes as $index) {
+            if ($index['nonuniq']) {
+                continue;
+            }
+            if ('ruaRoleID,ruaUserID' === $index['cols']) {
+                $hasComposite = true;
+            }
+            if ('ruaUserID' === $index['cols']) {
+                $lonely[] = $index['iname'];
+            }
+        }
+        if (!$hasComposite) {
+            // Collapse duplicate (role, user) pairs (only possible if the
+            // plugin's unique index was hand-removed) so the composite
+            // unique can land.
+            self::$DB->query(
+                "DELETE `a` FROM `roleUserAssoc` `a` "
+                . "INNER JOIN `roleUserAssoc` `b` "
+                . "ON `a`.`ruaRoleID` = `b`.`ruaRoleID` "
+                . "AND `a`.`ruaUserID` = `b`.`ruaUserID` "
+                . "AND `a`.`ruaID` > `b`.`ruaID`"
+            );
+            self::$DB->query(
+                "ALTER TABLE `roleUserAssoc` "
+                . "ADD UNIQUE INDEX `ruaRoleUser` (`ruaRoleID`,`ruaUserID`)"
+            );
+        }
+        // Drop the plugin's one-role-per-user constraint.
+        foreach ($lonely as $iname) {
+            self::$DB->query(
+                "ALTER TABLE `roleUserAssoc` "
+                . "DROP INDEX `" . $iname . "`"
+            );
+        }
+        self::$DB->query(
+            "ALTER TABLE `roleUserAssoc` "
+            . "MODIFY COLUMN `ruaName` VARCHAR(60) NOT NULL DEFAULT ''"
+        );
+        return true;
+    },
+];
+// 304
+$this->schema[] = [
+    // Permissions granted to roles. rpName holds '<node>.<action>'
+    // (e.g. 'host.edit'), a node wildcard ('host.*'), or the global
+    // wildcard '*'. A user's permissions are the union across all
+    // assigned roles; users with no role at all remain implicit
+    // administrators (see the Authorization class).
+    "CREATE TABLE IF NOT EXISTS `rolePermissions` ("
+    . "`rpID` INT NOT NULL AUTO_INCREMENT,"
+    . "`rpRoleID` INT NOT NULL,"
+    . "`rpName` VARCHAR(64) NOT NULL,"
+    . "PRIMARY KEY (`rpID`),"
+    . "UNIQUE KEY `rpRolePerm` (`rpRoleID`,`rpName`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];
+// 305
+$this->schema[] = [
+    // Seed the two default roles with the same IDs/names the plugin used,
+    // so this is a no-op on plugin-upgraded databases. IGNORE also covers
+    // the edge where a role of the same name exists under another ID.
+    "INSERT IGNORE INTO `roles` "
+    . "(`rID`,`rName`,`rDesc`,`rCreatedBy`,`rCreatedTime`) "
+    . "VALUES "
+    . "(1,'Administrator','FOG Administrator','fog',NOW()),"
+    . "(2,'Technician','FOG Technician','fog',NOW())",
+];
+// 306
+$this->schema[] = [
+    // Seed default permission sets, only into roles that have zero
+    // permission rows — re-runs never resurrect deliberately removed
+    // permissions. Technician (matched by name; a renamed role instead
+    // falls through to the wildcard rule below) gets the curated
+    // technician set. Every other zero-row role — Administrator and any
+    // custom plugin-era role, whose menu rules were cosmetic-only and are
+    // intentionally not migrated — gets the global wildcard, preserving
+    // its prior effective (full) access.
+    function () {
+        $techPermissions = [
+            'host.*', 'group.*', 'image.view', 'image.task', 'snapin.view',
+            'printer.*', 'task.view', 'task.task', 'report.view'
+        ];
+        $techIDs = self::$DB->query(
+            "SELECT `rID` FROM `roles` `r` "
+            . "WHERE `rName` = 'Technician' "
+            . "AND NOT EXISTS ("
+            . "SELECT 1 FROM `rolePermissions` `p` "
+            . "WHERE `p`.`rpRoleID` = `r`.`rID`"
+            . ")"
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $values = [];
+        foreach ((array)$techIDs as $row) {
+            $rID = (int)$row['rID'];
+            foreach ($techPermissions as $permission) {
+                $values[] = "($rID,'$permission')";
+            }
+        }
+        if (count($values ?: [])) {
+            self::$DB->query(
+                "INSERT IGNORE INTO `rolePermissions` (`rpRoleID`,`rpName`) "
+                . "VALUES " . implode(',', $values)
+            );
+        }
+        self::$DB->query(
+            "INSERT IGNORE INTO `rolePermissions` (`rpRoleID`,`rpName`) "
+            . "SELECT `rID`, '*' FROM `roles` `r` "
+            . "WHERE NOT EXISTS ("
+            . "SELECT 1 FROM `rolePermissions` `p` "
+            . "WHERE `p`.`rpRoleID` = `r`.`rID`"
+            . ")"
+        );
+        return true;
+    },
+];

@@ -493,6 +493,17 @@ class User extends FOGController
         return $this->get('name');
     }
     /**
+     * Does this user hold the given permission?
+     *
+     * @param string|null $perm permission string (e.g. 'host.edit')
+     *
+     * @return bool
+     */
+    public function can($perm)
+    {
+        return Authorization::can($perm, (int)$this->get('id'));
+    }
+    /**
      * Removes the item from the database.
      *
      * @param string $key the key to remove

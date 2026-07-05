@@ -4794,6 +4794,10 @@ msgstr "Pendente..."
 msgid "Performing ping"
 msgstr "A tentativa de executar ping"
 
+#, fuzzy
+msgid "Permission denied"
+msgstr "Nome da sessão"
+
 msgid "Persistent file"
 msgstr ""
 
@@ -7312,6 +7316,13 @@ msgstr ""
 
 msgid "You are only allowed to assign"
 msgstr "Você só está autorizado a transferir"
+
+#, php-format
+msgid "You do not have permission to access this page (%s required)."
+msgstr ""
+
+msgid "You do not have permission to perform this action."
+msgstr ""
 
 msgid "You may use _, ., -, or a space between."
 msgstr ""
