@@ -67,7 +67,7 @@ class SiteManager extends FOGManagerController
         );
     }
     /**
-     * The plugin's ordered, append-only schema migration list (all 4 tables).
+     * The plugin's ordered, append-only schema migration list.
      * Append new steps (e.g. "ALTER TABLE `site` ADD COLUMN ...") to the END.
      *
      * @return array
@@ -81,8 +81,19 @@ class SiteManager extends FOGManagerController
             self::getClass('SiteHostAssociationManager')->createSql(),
             // 2
             self::getClass('SiteUserAssociationManager')->createSql(),
-            // 3
-            self::getClass('SiteUserRestrictionManager')->createSql(),
+            // 3 - historical: siteUserRestriction, retired by step 4. The
+            // manager class is gone so its createSql() output is inlined
+            // (steps are immutable; fresh installs create then drop it).
+            'CREATE TABLE IF NOT EXISTS `siteUserRestriction` ('
+            . '`surID` INTEGER NOT NULL AUTO_INCREMENT,'
+            . '`surUserID` INTEGER NOT NULL,'
+            . "`surRestricted` ENUM('0', '1') NOT NULL,"
+            . 'PRIMARY KEY (`surID`)) ENGINE=InnoDB AUTO_INCREMENT=1'
+            . ' DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+            // 4 - the restriction feature was never enforced and its only
+            // reader (a hook listening for events that no longer fire) has
+            // been removed.
+            'DROP TABLE IF EXISTS `siteUserRestriction`',
         ];
     }
     /**
@@ -104,6 +115,9 @@ class SiteManager extends FOGManagerController
     public function uninstall()
     {
         self::getClass('SiteHostAssociationManager')->uninstall();
+        self::getClass('SiteUserAssociationManager')->uninstall();
+        // Installs that never applied schema step 4 still have this table.
+        self::$DB->query('DROP TABLE IF EXISTS `siteUserRestriction`');
         return parent::uninstall();
     }
 }

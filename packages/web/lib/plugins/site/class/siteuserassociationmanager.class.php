@@ -87,7 +87,6 @@ class SiteUserAssociationManager extends FOGManagerController
      */
     public function uninstall()
     {
-        self::getClass('SiteUserRestrictionManager')->uninstall();
         return parent::uninstall();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Injects access control stuff into the api system.
+ * Exposes the site plugin's objects to the REST API.
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Injects access control stuff into the api system.
+ * Exposes the site plugin's objects to the REST API.
  *
  * @category AddSiteAPI
  * @package  FOGProject

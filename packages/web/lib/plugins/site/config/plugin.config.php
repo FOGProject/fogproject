@@ -1,19 +1,19 @@
 <?php
 /**
- * Access control plugin
+ * Site plugin
  *
  * PHP version 5
  *
- * @category Access_Control
+ * @category Site
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Access control plugin
+ * Site plugin
  *
- * @category Access_Control
+ * @category Site
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -21,7 +21,8 @@
  */
 $fog_plugin = [];
 $fog_plugin['name'] = 'site';
-$fog_plugin['description'] = 'This plugin restricts the access to the item by site';
+$fog_plugin['description'] = 'Group hosts into sites and limit which hosts '
+    . 'each user sees in the host list based on their site membership';
 $fog_plugin['menuicon'] = 'fa fa-building fa-fw';
 $fog_plugin['menuicon_hover'] = null;
 $fog_plugin['entrypoint'] = 'html/run.php';

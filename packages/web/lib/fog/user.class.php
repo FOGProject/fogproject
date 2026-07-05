@@ -578,8 +578,8 @@ class User extends FOGController
      */
     public function destroy($key = 'id')
     {
-        // Funnel through the cascade authority so user-keyed plugin associations
-        // (accesscontrol roleUserAssoc, site siteUserAssoc/siteUserRestriction)
+        // Funnel through the cascade authority so user-keyed associations
+        // (native roleUserAssoc, site plugin siteUserAssoc)
         // are cleared via DELETEMASS_API on every delete path. deletemass also
         // deletes the user row; the trailing parent::destroy() is a harmless
         // no-op that preserves the audit-log/history entry.

@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Injects access control stuff into the api system.
+ * Lists only hosts related to the Sites of this user
  *
  * @category ListSiteHosts
  * @package  FOGProject

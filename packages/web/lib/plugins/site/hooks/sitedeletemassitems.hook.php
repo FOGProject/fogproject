@@ -76,14 +76,9 @@ class SiteDeleteMassItems extends Hook
                 $arguments['removeItems']['siteuserassociation'] = [
                     'userID' => $arguments['itemIDs']
                 ];
-                $arguments['removeItems']['siteuserrestriction'] = [
-                    'userID' => $arguments['itemIDs']
-                ];
                 break;
             case 'site':
-                // Deleting a site clears its host and user links. The user
-                // restriction table is keyed by userID only (no siteID), so it
-                // is cleaned on the user case rather than here.
+                // Deleting a site clears its host and user links.
                 $arguments['removeItems']['sitehostassociation'] = [
                     'siteID' => $arguments['itemIDs']
                 ];
