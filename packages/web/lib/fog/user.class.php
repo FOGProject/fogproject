@@ -172,6 +172,10 @@ class User extends FOGController
             self::setAuthCookie('foguserauthpass', $password, $cookieexp);
             self::setAuthCookie('foguserauthsel', $selector, $cookieexp);
 
+            // Trim expired tokens before adding a new one; this is the
+            // only point at which the userAuths table grows.
+            UserAuth::reapExpired();
+
             // Build and create authorization/authentication system.
             $password_hash = UserAuth::generateHash($password);
             $selector_hash = UserAuth::generateHash($selector);
@@ -212,9 +216,7 @@ class User extends FOGController
             self::PATTERN,
             $username
         );
-        if ($this->passwordValidate($username, $password, false, $remember)
-            || self::$FOGUser->isValid()
-        ) {
+        if ($this->passwordValidate($username, $password, false, $remember)) {
             if (!$test) {
                 return new self(0);
             }

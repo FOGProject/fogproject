@@ -187,7 +187,17 @@ class Route extends FOGBase
         $requribase = dirname($requripath);
         $isunauth = in_array($requribase, $unauthprefixes)
             || in_array(rtrim($requripath, '/'), $unauthexact);
-        if (!self::$FOGUser->isValid()
+        /**
+         * Snapshot auth state BEFORE running the token/basic-auth tests.
+         * At this point FOGUser is valid only when the request arrived
+         * already-authenticated via the browser session cookie (populated
+         * by loadglobals). Token/basic-auth API clients arrive invalid and
+         * become valid inside the block below, so they are excluded here.
+         * That distinction is what lets us enforce CSRF on session-cookie
+         * traffic (the CSRF-able surface) without touching headless clients.
+         */
+        $sessionAuthed = self::$FOGUser->isValid();
+        if (!$sessionAuthed
             && !$isunauth
         ) {
             /**
@@ -198,6 +208,16 @@ class Route extends FOGBase
              * Test our authentication.
              */
             self::_testAuth();
+        }
+        /**
+         * A valid session cookie authenticates API calls with no token,
+         * so state-changing routes reached that way are CSRF-able. The web
+         * UI already sends X-CSRF-Token on every same-origin request
+         * (bootstrap-csrf.js); headless clients use a token instead of a
+         * session cookie and are exempt via $sessionAuthed above.
+         */
+        if ($sessionAuthed) {
+            CSRF::requireForStateChanging();
         }
         /**
          * Ensure api has unlimited time.

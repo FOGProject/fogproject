@@ -62,4 +62,23 @@ class UserAuth extends FOGController
     ) {
         return User::generateHash($password, $cost);
     }
+    /**
+     * Deletes expired remember-me tokens so the userAuths table does
+     * not grow without bound. Called opportunistically when a new
+     * remember-me token is issued (login time), which is the only point
+     * at which the table grows.
+     *
+     * @return void
+     */
+    public static function reapExpired()
+    {
+        $now = self::niceDate()->format('Y-m-d H:i:s');
+        self::$DB->query(
+            'DELETE FROM `userAuths` '
+            . 'WHERE `uaExpireDate` < :now '
+            . 'OR `uaIsExpired` = 1',
+            [],
+            [':now' => $now]
+        );
+    }
 }
