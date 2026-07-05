@@ -6956,6 +6956,10 @@ msgstr "访问令牌"
 msgid "User API Token"
 msgstr "访问令牌"
 
+#, fuzzy
+msgid "User Administration"
+msgstr "图像协会"
+
 msgid "User Already Exists"
 msgstr "用户已存在"
 

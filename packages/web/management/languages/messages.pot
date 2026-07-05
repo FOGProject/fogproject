@@ -5874,6 +5874,9 @@ msgstr ""
 msgid "User API Token"
 msgstr ""
 
+msgid "User Administration"
+msgstr ""
+
 msgid "User Already Exists"
 msgstr ""
 

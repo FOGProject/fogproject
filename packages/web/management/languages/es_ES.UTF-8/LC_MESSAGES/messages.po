@@ -7115,6 +7115,10 @@ msgid "User API Token"
 msgstr "Nombre de usuario"
 
 #, fuzzy
+msgid "User Administration"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
 msgid "User Already Exists"
 msgstr "nombre de usuario ya existe"
 

@@ -570,71 +570,163 @@ abstract class FOGPage extends FOGBase
             return '';
         }
         global $node;
-        global $sub;
+        // Purely presentational grouping: some top-level nodes are nested under
+        // a synthetic "grouping label" parent that owns no node of its own. The
+        // children stay real nodes -- permission filtering, routing and the
+        // known-node guard are all handled upstream in buildMainMenuItems();
+        // this only changes how the survivors are rendered/nested.
+        $groups = self::_menuGroups();
+        // child node => group key, limited to children still present (i.e. that
+        // survived permission filtering) in this menu.
+        $childGroup = [];
+        foreach ($groups as $gkey => $g) {
+            foreach ($g['children'] as $child) {
+                if (array_key_exists($child, $menu)) {
+                    $childGroup[$child] = $gkey;
+                }
+            }
+        }
+        $renderedGroups = [];
         ob_start();
-        $links = $subs = [];
-        foreach ($menu as $link => &$title) {
-            $links[] = $link;
+        foreach ($menu as $link => $title) {
             if (!$node && 'home' == $link) {
                 $node = $link;
             }
-            $activelink = ($node == $link);
-            $subItems = array_filter(
-                self::_buildSubMenuItems($link)
-            );
-            $hasChildren = count($subItems ?: []) > 0;
-            // AL4: parents with children get .nav-item (+ .menu-open when active
-            // so the treeview JS renders them expanded on load); the link is a
-            // plain .nav-link (active reflects the current node). Leaf items get
-            // the .ajax-page-link so ADR-0004's chrome refresh handles the click.
-            echo '<li class="nav-item'
-                . ($hasChildren && $activelink ? ' menu-open' : '')
-                . '">';
-            echo '<a '
-                . (
-                    !$hasChildren ?
-                    'class="nav-link ajax-page-link' . ($activelink ? ' active' : '') . '" ' :
-                    'class="nav-link' . ($activelink ? ' active' : '') . '" '
-                )
-                . 'href="'
-                . (
-                    $hasChildren ?
-                    '#' :
-                    "../management/index.php?node=$link"
-                )
-                . '">';
-            echo '<i class="nav-icon ' . $title[1] . '"></i>';
-            echo '<p>' . $title[0];
-            if ($hasChildren) {
-                echo '<i class="nav-arrow fa fa-angle-left"></i>';
-            }
-            echo '</p>';
-            echo '</a>';
-            if ($hasChildren) {
-                echo '<ul class="nav nav-treeview">';
-                $subs[$link] = [];
-                foreach ($subItems as $subItem => $text) {
-                    $subs[$link][] = $subItem;
-                    echo '<li class="nav-item">';
-                    echo '<a class="nav-link ajax-page-link'
-                        . ($activelink && $sub == $subItem ? ' active' : '')
-                        . '" '
-                        . 'href="../management/index.php?node='
-                        . $link
-                        . '&sub='
-                        . $subItem
-                        . '">';
-                    echo '<i class="nav-icon fa fa-circle-o"></i>';
-                    echo '<p>' . $text . '</p>';
-                    echo '</a>';
-                    echo '</li>';
+            // A grouped child renders the whole group at the position of its
+            // first present member, then subsequent members are skipped.
+            if (isset($childGroup[$link])) {
+                $gkey = $childGroup[$link];
+                if (isset($renderedGroups[$gkey])) {
+                    continue;
                 }
-                echo '</ul>';
+                $renderedGroups[$gkey] = true;
+                self::_renderMenuGroup($groups[$gkey], $menu);
+                continue;
             }
-            echo '</li>';
-            unset($title);
+            self::_renderMenuNode($link, $title);
         }
         return ob_get_clean();
+    }
+    /**
+     * Presentational menu groupings: a grouping-label parent that nests a set
+     * of otherwise-independent top-level nodes. Keyed by a synthetic group key
+     * (NOT a real node); 'children' are real node keys, in display order.
+     *
+     * @return array
+     */
+    private static function _menuGroups()
+    {
+        return [
+            'useradmin' => [
+                'title'    => _('User Administration'),
+                'icon'     => 'fa fa-shield',
+                'children' => ['user', 'usergroup', 'role'],
+            ],
+        ];
+    }
+    /**
+     * Renders a grouping-label parent and nests its present children beneath it.
+     *
+     * @param array $group The group definition (title/icon/children).
+     * @param array $menu  The already permission-filtered menu.
+     *
+     * @return void
+     */
+    private static function _renderMenuGroup(array $group, array $menu)
+    {
+        global $node;
+        $children = array_values(
+            array_filter(
+                $group['children'],
+                function ($child) use ($menu) {
+                    return array_key_exists($child, $menu);
+                }
+            )
+        );
+        if (count($children) < 1) {
+            return;
+        }
+        // Open (and mark active) the group whenever the current node is one of
+        // its children so the treeview renders expanded on initial load.
+        $groupActive = in_array($node, $children, true);
+        echo '<li class="nav-item' . ($groupActive ? ' menu-open' : '') . '">';
+        echo '<a class="nav-link' . ($groupActive ? ' active' : '') . '" href="#">';
+        echo '<i class="nav-icon ' . $group['icon'] . '"></i>';
+        echo '<p>' . $group['title'];
+        echo '<i class="nav-arrow fa fa-angle-left"></i>';
+        echo '</p>';
+        echo '</a>';
+        echo '<ul class="nav nav-treeview">';
+        foreach ($children as $child) {
+            self::_renderMenuNode($child, $menu[$child]);
+        }
+        echo '</ul>';
+        echo '</li>';
+    }
+    /**
+     * Renders a single top-level (or nested) menu node and its sub items.
+     *
+     * @param string $link  The node key.
+     * @param array  $title [0] display title, [1] icon class.
+     *
+     * @return void
+     */
+    private static function _renderMenuNode($link, $title)
+    {
+        global $node;
+        global $sub;
+        $activelink = ($node == $link);
+        $subItems = array_filter(
+            self::_buildSubMenuItems($link)
+        );
+        $hasChildren = count($subItems ?: []) > 0;
+        // AL4: parents with children get .nav-item (+ .menu-open when active
+        // so the treeview JS renders them expanded on load); the link is a
+        // plain .nav-link (active reflects the current node). Leaf items get
+        // the .ajax-page-link so ADR-0004's chrome refresh handles the click.
+        echo '<li class="nav-item'
+            . ($hasChildren && $activelink ? ' menu-open' : '')
+            . '">';
+        echo '<a '
+            . (
+                !$hasChildren ?
+                'class="nav-link ajax-page-link' . ($activelink ? ' active' : '') . '" ' :
+                'class="nav-link' . ($activelink ? ' active' : '') . '" '
+            )
+            . 'href="'
+            . (
+                $hasChildren ?
+                '#' :
+                "../management/index.php?node=$link"
+            )
+            . '">';
+        echo '<i class="nav-icon ' . $title[1] . '"></i>';
+        echo '<p>' . $title[0];
+        if ($hasChildren) {
+            echo '<i class="nav-arrow fa fa-angle-left"></i>';
+        }
+        echo '</p>';
+        echo '</a>';
+        if ($hasChildren) {
+            echo '<ul class="nav nav-treeview">';
+            foreach ($subItems as $subItem => $text) {
+                echo '<li class="nav-item">';
+                echo '<a class="nav-link ajax-page-link'
+                    . ($activelink && $sub == $subItem ? ' active' : '')
+                    . '" '
+                    . 'href="../management/index.php?node='
+                    . $link
+                    . '&sub='
+                    . $subItem
+                    . '">';
+                echo '<i class="nav-icon fa fa-circle-o"></i>';
+                echo '<p>' . $text . '</p>';
+                echo '</a>';
+                echo '</li>';
+            }
+            echo '</ul>';
+        }
+        echo '</li>';
     }
     /**
      * Creates the sub menu items.

@@ -6971,6 +6971,10 @@ msgstr "API-Zugangstoken"
 msgid "User API Token"
 msgstr "API-Zugangstoken"
 
+#, fuzzy
+msgid "User Administration"
+msgstr "Site Zugehörigkeit"
+
 msgid "User Already Exists"
 msgstr "Benutzer ist bereits vorhanden"
 

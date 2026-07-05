@@ -6965,6 +6965,10 @@ msgstr "token de acesso"
 msgid "User API Token"
 msgstr "token de acesso"
 
+#, fuzzy
+msgid "User Administration"
+msgstr "Associação imagem"
+
 msgid "User Already Exists"
 msgstr "Usuário já existe"
 

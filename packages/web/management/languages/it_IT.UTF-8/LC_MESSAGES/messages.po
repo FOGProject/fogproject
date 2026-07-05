@@ -6655,6 +6655,10 @@ msgstr "API Utente Token"
 msgid "User API Token"
 msgstr "API Utente Token"
 
+#, fuzzy
+msgid "User Administration"
+msgstr "Associazione Sito"
+
 msgid "User Already Exists"
 msgstr "L'utente esiste già"
 
