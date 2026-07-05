@@ -4471,3 +4471,47 @@ $this->schema[] = [
     // never enforced and deleting data is not this migration's call.
     "DELETE FROM `plugins` WHERE `pName` = 'accesscontrol'",
 ];
+// 308
+$this->schema[] = [
+    // User groups: a named group of users that roles can attach to. A
+    // user's effective permissions are the union of roles assigned
+    // directly to the user and roles assigned to any group the user
+    // belongs to (see Authorization::getPermissions()). Groups are flat.
+    "CREATE TABLE IF NOT EXISTS `userGroups` ("
+    . "`ugID` INT NOT NULL AUTO_INCREMENT,"
+    . "`ugName` VARCHAR(255) NOT NULL,"
+    . "`ugDesc` LONGTEXT NOT NULL,"
+    . "`ugCreatedBy` VARCHAR(40) NOT NULL,"
+    . "`ugCreatedTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+    . "PRIMARY KEY (`ugID`),"
+    . "UNIQUE KEY `ugName` (`ugName`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];
+// 309
+$this->schema[] = [
+    // User <-> group membership. Composite unique keeps a user in a group
+    // at most once; ugmName defaults so assocSetter batch inserts work
+    // under strict SQL mode.
+    "CREATE TABLE IF NOT EXISTS `userGroupMembers` ("
+    . "`ugmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`ugmName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`ugmGroupID` INT NOT NULL,"
+    . "`ugmUserID` INT NOT NULL,"
+    . "PRIMARY KEY (`ugmID`),"
+    . "UNIQUE KEY `ugmGroupUser` (`ugmGroupID`,`ugmUserID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];
+// 310
+$this->schema[] = [
+    // Group <-> role assignments. Composite unique keeps a role on a
+    // group at most once; rugName defaults so assocSetter batch inserts
+    // work under strict SQL mode.
+    "CREATE TABLE IF NOT EXISTS `roleUserGroupAssoc` ("
+    . "`rugID` INT NOT NULL AUTO_INCREMENT,"
+    . "`rugName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`rugGroupID` INT NOT NULL,"
+    . "`rugRoleID` INT NOT NULL,"
+    . "PRIMARY KEY (`rugID`),"
+    . "UNIQUE KEY `rugGroupRole` (`rugGroupID`,`rugRoleID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];

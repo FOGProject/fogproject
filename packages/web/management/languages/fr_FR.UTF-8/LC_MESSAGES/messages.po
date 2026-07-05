@@ -269,6 +269,14 @@ msgid "A user already exists with this name"
 msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
+msgid "A user group already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "A user group with this name already exists!"
+msgstr "Un nom d'hôte avec ce nom existe déjà."
+
+#, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
@@ -496,6 +504,10 @@ msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
 msgid "Add user failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Add user group failed!"
 msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
@@ -1333,6 +1345,10 @@ msgstr "Créer un nouveau %s"
 
 #, fuzzy
 msgid "Create New User"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Create New User Group"
 msgstr "Créer un nouveau %s"
 
 #, fuzzy
@@ -5115,6 +5131,9 @@ msgstr "supprimé"
 msgid "Removing Key"
 msgstr "touche de réglage"
 
+msgid "Removing this group would leave no user with administrator access."
+msgstr ""
+
 msgid "Removing this role would leave no user with administrator access."
 msgstr ""
 
@@ -5183,6 +5202,10 @@ msgstr "De retour valeur de clé"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role Association"
+msgstr "Association Image"
 
 #, fuzzy
 msgid "Role Associations"
@@ -6973,6 +6996,38 @@ msgid "User DN"
 msgstr "Nom d'utilisateur"
 
 #, fuzzy
+msgid "User Group Associations"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "User Group Create Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "User Group Create Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "User Group Member Associations"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "User Group Role Associations"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "User Group Update Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "User Group Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "User Groups"
+msgstr "Groupes"
+
+#, fuzzy
 msgid "User Logins"
 msgstr "Nombre de CPU"
 
@@ -7022,6 +7077,18 @@ msgstr "Nom de l'imprimante"
 
 msgid "User call is invalid"
 msgstr "appel de l'utilisateur est invalide"
+
+#, fuzzy
+msgid "User group added!"
+msgstr "Nom de l'imprimante"
+
+#, fuzzy
+msgid "User group update failed!"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "User group updated!"
+msgstr "mis à jour l'utilisateur"
 
 #, fuzzy
 msgid "User not found"
@@ -8280,10 +8347,6 @@ msgstr ""
 #~ msgid "Results"
 #~ msgstr "Résultats"
 
-#, fuzzy
-#~ msgid "Role Association"
-#~ msgstr "Association Image"
-
 #~ msgid "Row number not set properly"
 #~ msgstr "Numéro de ligne pas réglé correctement"
 
@@ -8396,10 +8459,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Installation / Mise à jour réussie!"
-
-#, fuzzy
-#~ msgid "User role updated!"
-#~ msgstr "mis à jour l'utilisateur"
 
 #, fuzzy
 #~ msgid "You have version"

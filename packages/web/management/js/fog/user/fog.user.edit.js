@@ -226,4 +226,101 @@
     var onUserRoleCheckboxSelect = function(e) {
         $.checkItemUpdate(userRolesTable, this, e, userRoleUpdateBtn);
     };
+
+    // ----------------------------------------------------
+    // GROUP ASSOCIATION TAB
+    var userGroupUpdateBtn = $('#user-group-send'),
+        userGroupRemoveBtn = $('#user-group-remove'),
+        userGroupDeleteConfirmBtn = $('#confirmusergroupDeleteModal');
+
+    function disableGroupButtons(disable) {
+        userGroupUpdateBtn.prop('disabled', disable);
+        userGroupRemoveBtn.prop('disabled', disable);
+    }
+
+    function onGroupSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableGroupButtons(disabled);
+    }
+
+    userGroupUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            toAdd = $.getSelectedIds(userGroupsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableGroupButtons(false);
+            if (err) {
+                return;
+            }
+            userGroupsTable.draw(false);
+            userGroupsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    userGroupRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#usergroupDelModal').modal('show');
+    });
+
+    var userGroupsTable = $('#user-group-table').registerTable(onGroupSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mainLink'},
+            {data: 'association'},
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="form-check">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="userGroupAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='+Common.node+'&sub=getGroupsList&id='+Common.id,
+            type: 'post'
+        }
+    });
+
+    userGroupDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(userGroupsTable, userGroupUpdateBtn.attr('action'), function(err) {
+            $('#usergroupDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            userGroupsTable.draw(false);
+            userGroupsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    userGroupsTable.on('draw', function() {
+        Common.iCheck('#user-group-table input');
+        $('#user-group-table input.associated').on('change', onUserGroupCheckboxSelect);
+        onGroupSelect(userGroupsTable.rows({selected: true}));
+    });
+
+    var onUserGroupCheckboxSelect = function(e) {
+        $.checkItemUpdate(userGroupsTable, this, e, userGroupUpdateBtn);
+    };
 })(jQuery);

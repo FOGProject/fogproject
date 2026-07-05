@@ -194,6 +194,9 @@ class Authorization extends FOGBase
         'taskstate' => 'task',
         'tasktype' => 'task',
         'user' => 'user',
+        'usergroup' => 'usergroup',
+        'usergroupmember' => 'usergroup',
+        'roleusergroupassociation' => 'usergroup',
         'usertracking' => 'report'
     ];
     /**
@@ -233,6 +236,7 @@ class Authorization extends FOGBase
             'printer' => ['view', 'create', 'edit', 'delete'],
             'module' => ['view', 'create', 'edit', 'delete'],
             'user' => ['view', 'create', 'edit', 'delete'],
+            'usergroup' => ['view', 'create', 'edit', 'delete'],
             'role' => ['view', 'create', 'edit', 'delete'],
             'storagenode' => ['view', 'create', 'edit', 'delete'],
             'storagegroup' => ['view', 'create', 'edit', 'delete'],
@@ -275,19 +279,34 @@ class Authorization extends FOGBase
         if (array_key_exists($userID, self::$_permCache)) {
             return self::$_permCache[$userID];
         }
-        // A LEFT JOIN keeps a row for a role that grants zero permissions
-        // (rpName NULL) so having-a-role is distinguishable from having
-        // no role at all.
+        // Effective permissions are the union of roles assigned directly to
+        // the user and roles assigned to any group the user belongs to. A
+        // LEFT JOIN keeps a row for a role that grants zero permissions
+        // (rpName NULL) so having-a-role is distinguishable from having no
+        // role at all; the group arm's inner JOIN yields a row only once a
+        // role actually reaches the user through a group (a role-less group
+        // confers nothing and leaves the user unmanaged).
         $sql = 'SELECT `rpName` '
             . 'FROM `roleUserAssoc` '
             . 'LEFT JOIN `rolePermissions` ON `rpRoleID` = `ruaRoleID` '
-            . 'WHERE `ruaUserID` = :userid';
+            . 'WHERE `ruaUserID` = :userid '
+            . 'UNION '
+            . 'SELECT `rpName` '
+            . 'FROM `userGroupMembers` '
+            . 'JOIN `roleUserGroupAssoc` ON `rugGroupID` = `ugmGroupID` '
+            . 'LEFT JOIN `rolePermissions` ON `rpRoleID` = `rugRoleID` '
+            . 'WHERE `ugmUserID` = :usergroupid';
         $rows = self::$DB
-            ->query($sql, [], ['userid' => $userID])
+            ->query(
+                $sql,
+                [],
+                ['userid' => $userID, 'usergroupid' => $userID]
+            )
             ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         if (!is_array($rows) || count($rows) < 1) {
-            // Zero role assignments = implicit administrator.
+            // Zero role assignments, direct or group-sourced = implicit
+            // administrator.
             return self::$_permCache[$userID] = null;
         }
         $perms = [];
@@ -525,6 +544,18 @@ class Authorization extends FOGBase
      * - 'removeRoles'      => [roleID, ...] roles about to be deleted —
      *                         their assocs vanish, so members may fall
      *                         back to implicit admin.
+     * - 'groupUsers'       => [groupID => [userID, ...]] proposed FULL
+     *                         membership of specific groups.
+     * - 'userGroups'       => [userID => [groupID, ...]] proposed FULL
+     *                         group list of specific users.
+     * - 'groupRoles'       => [groupID => [roleID, ...]] proposed FULL role
+     *                         list of specific groups.
+     * - 'removeGroups'     => [groupID, ...] groups about to be deleted —
+     *                         their memberships and role assignments vanish.
+     *
+     * A user is an effective administrator when they hold '*' — or no role
+     * at all — counting roles reached both directly and through any group
+     * they belong to.
      *
      * @param array $changes the proposed changes (see above)
      *
@@ -549,7 +580,7 @@ class Authorization extends FOGBase
             (array)($changes['excludeUsers'] ?? [])
         );
         $users = array_diff($allUsers, $special, $exclude);
-        // Current membership as roleID => [userIDs].
+        // Direct membership as roleID => [userIDs].
         $membership = [];
         $rows = self::$DB
             ->query('SELECT `ruaRoleID`, `ruaUserID` FROM `roleUserAssoc`')
@@ -558,10 +589,29 @@ class Authorization extends FOGBase
         foreach ((array)$rows as $row) {
             $membership[(int)$row['ruaRoleID']][] = (int)$row['ruaUserID'];
         }
+        // Group membership as groupID => [userIDs].
+        $groupMembers = [];
+        $rows = self::$DB
+            ->query('SELECT `ugmGroupID`, `ugmUserID` FROM `userGroupMembers`')
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        foreach ((array)$rows as $row) {
+            $groupMembers[(int)$row['ugmGroupID']][] = (int)$row['ugmUserID'];
+        }
+        // Group role assignments as groupID => [roleIDs].
+        $groupRoles = [];
+        $rows = self::$DB
+            ->query('SELECT `rugGroupID`, `rugRoleID` FROM `roleUserGroupAssoc`')
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        foreach ((array)$rows as $row) {
+            $groupRoles[(int)$row['rugGroupID']][] = (int)$row['rugRoleID'];
+        }
         $starRoles = array_map(
             'intval',
             (array)Route::getIds('rolepermission', ['name' => '*'], 'roleID')
         );
+        // Apply direct role<->user deltas.
         foreach ((array)($changes['roleUsers'] ?? []) as $rid => $uids) {
             $membership[(int)$rid] = array_map('intval', (array)$uids);
         }
@@ -575,6 +625,24 @@ class Authorization extends FOGBase
                 $membership[(int)$rid][] = $uid;
             }
         }
+        // Apply group<->user membership deltas.
+        foreach ((array)($changes['groupUsers'] ?? []) as $gid => $uids) {
+            $groupMembers[(int)$gid] = array_map('intval', (array)$uids);
+        }
+        foreach ((array)($changes['userGroups'] ?? []) as $uid => $gids) {
+            $uid = (int)$uid;
+            foreach ($groupMembers as $gid => &$uids2) {
+                $uids2 = array_values(array_diff($uids2, [$uid]));
+            }
+            unset($uids2);
+            foreach ((array)$gids as $gid) {
+                $groupMembers[(int)$gid][] = $uid;
+            }
+        }
+        // Apply group<->role deltas.
+        foreach ((array)($changes['groupRoles'] ?? []) as $gid => $rids) {
+            $groupRoles[(int)$gid] = array_map('intval', (array)$rids);
+        }
         foreach ((array)($changes['rolePermissions'] ?? []) as $rid => $perms) {
             $rid = (int)$rid;
             $starRoles = array_values(array_diff($starRoles, [$rid]));
@@ -583,8 +651,32 @@ class Authorization extends FOGBase
             }
         }
         foreach ((array)($changes['removeRoles'] ?? []) as $rid) {
-            unset($membership[(int)$rid]);
-            $starRoles = array_values(array_diff($starRoles, [(int)$rid]));
+            $rid = (int)$rid;
+            unset($membership[$rid]);
+            $starRoles = array_values(array_diff($starRoles, [$rid]));
+            // A deleted role also vanishes from every group that held it.
+            foreach ($groupRoles as $gid => &$rids2) {
+                $rids2 = array_values(array_diff($rids2, [$rid]));
+            }
+            unset($rids2);
+        }
+        foreach ((array)($changes['removeGroups'] ?? []) as $gid) {
+            $gid = (int)$gid;
+            unset($groupMembers[$gid], $groupRoles[$gid]);
+        }
+        // Fold group-sourced roles into effective membership: every member
+        // of a group inherits that group's roles.
+        foreach ($groupRoles as $gid => $rids) {
+            $members = $groupMembers[$gid] ?? [];
+            if (!count($members) || !count($rids)) {
+                continue;
+            }
+            foreach ($rids as $rid) {
+                $membership[$rid] = array_merge(
+                    $membership[$rid] ?? [],
+                    $members
+                );
+            }
         }
         $rolled = [];
         foreach ($membership as $uids2) {

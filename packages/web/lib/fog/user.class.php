@@ -58,7 +58,8 @@ class User extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'roles'
+        'roles',
+        'usergroups'
     ];
     /**
      * Generates an encrypted hash
@@ -521,7 +522,10 @@ class User extends FOGController
     public function save()
     {
         parent::save();
-        return $this->assocSetter('RoleUser', 'role')->load();
+        return $this
+            ->assocSetter('RoleUser', 'role')
+            ->assocSetter('UserGroupMember', 'usergroup', true)
+            ->load();
     }
     /**
      * Adds roles to the user.
@@ -566,6 +570,52 @@ class User extends FOGController
                 'roleuserassociation',
                 ['userID' => $this->get('id')],
                 'roleID'
+            )
+        );
+    }
+    /**
+     * Adds the user to the given groups.
+     *
+     * @param array $addArray the group ids to add
+     *
+     * @return object
+     */
+    public function addGroup($addArray)
+    {
+        return $this->addRemItem(
+            'usergroups',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Removes the user from the given groups.
+     *
+     * @param array $removeArray the group ids to remove
+     *
+     * @return object
+     */
+    public function removeGroup($removeArray)
+    {
+        return $this->addRemItem(
+            'usergroups',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Loads the groups this user belongs to.
+     *
+     * @return void
+     */
+    protected function loadUsergroups()
+    {
+        $this->set(
+            'usergroups',
+            (array)Route::getIds(
+                'usergroupmember',
+                ['userID' => $this->get('id')],
+                'usergroupID'
             )
         );
     }

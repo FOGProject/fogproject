@@ -263,6 +263,14 @@ msgid "A user already exists with this name"
 msgstr "Dieser Benutzername ist bereits vorhanden!"
 
 #, fuzzy
+msgid "A user group already exists with this name!"
+msgstr "Eine Gruppe mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
+msgid "A user group with this name already exists!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
+
+#, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Dieser Benutzername ist bereits vorhanden!"
 
@@ -492,6 +500,10 @@ msgstr "Hinzufügen eines Task-Typs fehlgeschlagen!"
 #, fuzzy
 msgid "Add user failed!"
 msgstr "Benutzer hinzufügen fehlgeschlagen!"
+
+#, fuzzy
+msgid "Add user group failed!"
+msgstr "Gruppe hinzufügen fehlgeschlagen!"
 
 #, fuzzy
 msgid "Add windows key failed!"
@@ -1329,6 +1341,10 @@ msgstr "Neue %s erstellen"
 #, fuzzy
 msgid "Create New User"
 msgstr "Neue %s erstellen"
+
+#, fuzzy
+msgid "Create New User Group"
+msgstr "Neuen Schlüssel erstellen"
 
 #, fuzzy
 msgid "Create New Windows Key"
@@ -5112,6 +5128,9 @@ msgstr "Entfernt"
 msgid "Removing Key"
 msgstr "Enfernen des Schlüssels"
 
+msgid "Removing this group would leave no user with administrator access."
+msgstr ""
+
 msgid "Removing this role would leave no user with administrator access."
 msgstr ""
 
@@ -5180,6 +5199,10 @@ msgstr "Wert des Schlüssels zurückgeben"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role Association"
+msgstr "Regel Zuordnung"
 
 #, fuzzy
 msgid "Role Associations"
@@ -6974,6 +6997,38 @@ msgid "User DN"
 msgstr "Benutzer DN"
 
 #, fuzzy
+msgid "User Group Associations"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+msgid "User Group Create Fail"
+msgstr "Gruppe erstellen fehlgeschlagen"
+
+#, fuzzy
+msgid "User Group Create Success"
+msgstr "Gruppe erfolgreich erstellt"
+
+#, fuzzy
+msgid "User Group Member Associations"
+msgstr "Regel Zuordnung"
+
+#, fuzzy
+msgid "User Group Role Associations"
+msgstr "Regel Zuordnung"
+
+#, fuzzy
+msgid "User Group Update Fail"
+msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#, fuzzy
+msgid "User Group Update Success"
+msgstr "Gruppe erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "User Groups"
+msgstr "Gruppen"
+
+#, fuzzy
 msgid "User Logins"
 msgstr "CPU-Anzahl"
 
@@ -7023,6 +7078,18 @@ msgstr "Benutzer hinzugefügt"
 
 msgid "User call is invalid"
 msgstr "Benutzeraufruf ist ungültig"
+
+#, fuzzy
+msgid "User group added!"
+msgstr "Benutzer hinzugefügt"
+
+#, fuzzy
+msgid "User group update failed!"
+msgstr "Benutzer-Update fehlgeschlagen"
+
+#, fuzzy
+msgid "User group updated!"
+msgstr "Benutzer aktualisiert"
 
 #, fuzzy
 msgid "User not found"
@@ -8285,10 +8352,6 @@ msgstr ""
 #~ msgid "Results"
 #~ msgstr "Ergebnisse"
 
-#, fuzzy
-#~ msgid "Role Association"
-#~ msgstr "Regel Zuordnung"
-
 #~ msgid "Row number not set properly"
 #~ msgstr "Zeilennummer nicht richtig eingestellt"
 
@@ -8401,10 +8464,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Benutzeraktualisierung erfolgreich!"
-
-#, fuzzy
-#~ msgid "User role updated!"
-#~ msgstr "Benutzer aktualisiert"
 
 #, fuzzy
 #~ msgid "You have version"

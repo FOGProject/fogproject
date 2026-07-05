@@ -81,6 +81,7 @@ class Route extends FOGBase
         'role',
         'rolepermission',
         'roleuserassociation',
+        'roleusergroupassociation',
         'scheduledtask',
         'setting',
         'snapin',
@@ -95,6 +96,8 @@ class Route extends FOGBase
         'taskstate',
         'tasktype',
         'user',
+        'usergroup',
+        'usergroupmember',
         'usertracking',
     ];
     /**
@@ -2957,14 +2960,23 @@ class Route extends FOGBase
                 case 'user':
                     $findWhere = ['userID' => $itemIDs];
                     $removeItems = [
-                        'roleuserassociation' => $findWhere
+                        'roleuserassociation' => $findWhere,
+                        'usergroupmember' => $findWhere
                     ];
                     break;
                 case 'role':
                     $findWhere = ['roleID' => $itemIDs];
                     $removeItems = [
                         'rolepermission' => $findWhere,
-                        'roleuserassociation' => $findWhere
+                        'roleuserassociation' => $findWhere,
+                        'roleusergroupassociation' => $findWhere
+                    ];
+                    break;
+                case 'usergroup':
+                    $findWhere = ['usergroupID' => $itemIDs];
+                    $removeItems = [
+                        'usergroupmember' => $findWhere,
+                        'roleusergroupassociation' => $findWhere
                     ];
                     break;
                 default:

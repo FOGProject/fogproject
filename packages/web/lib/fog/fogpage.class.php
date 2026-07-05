@@ -109,7 +109,8 @@ abstract class FOGPage extends FOGBase
         'plugin',
         'printer',
         'task',
-        'role'
+        'role',
+        'usergroup'
     ];
     /**
      * The items table
@@ -433,6 +434,10 @@ abstract class FOGPage extends FOGBase
             'user' => [
                 self::$foglang['Users'],
                 'fa fa-users'
+            ],
+            'usergroup' => [
+                _('User Groups'),
+                'fa fa-address-book'
             ],
             'role' => [
                 _('Roles'),

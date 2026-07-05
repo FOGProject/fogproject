@@ -713,6 +713,43 @@ class UserManagement extends FOGPage
         }
     }
     /**
+     * Present the user groups tab.
+     *
+     * @return void
+     */
+    public function userGroup()
+    {
+        $this->renderAssocTab(
+            'user-group',
+            _('User Group Associations'),
+            _('Group Name'),
+            'usergroup'
+        );
+    }
+    /**
+     * Update the user's group associations.
+     *
+     * @return void
+     */
+    public function userGroupPost()
+    {
+        $this->assocPost('addGroup', 'removeGroup');
+        // assocPost only mutates the in-memory list; the save happens in
+        // editPost after this returns, so throwing here aborts the change.
+        $adminRemains = Authorization::adminExistsGiven(
+            [
+                'userGroups' => [
+                    (int)$this->obj->get('id') => (array)$this->obj->get('usergroups')
+                ]
+            ]
+        );
+        if (!$adminRemains) {
+            throw new Exception(
+                _('This change would leave no user with administrator access.')
+            );
+        }
+    }
+    /**
      * Enable user to edit a user.
      *
      * @return void
@@ -756,6 +793,15 @@ class UserManagement extends FOGPage
                 $this->userRole();
             }
         ];
+
+        // User Groups
+        $tabData[] = [
+            'name' => _('Groups'),
+            'id' => 'user-group',
+            'generator' => function () {
+                $this->userGroup();
+            }
+        ];
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -785,12 +831,15 @@ class UserManagement extends FOGPage
                         break;
                     case 'user-role':
                         $this->userRolePost();
+                        break;
+                    case 'user-group':
+                        $this->userGroupPost();
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
                     throw new Exception(_('User update failed!'));
                 }
-                if ('user-role' === $tab) {
+                if ('user-role' === $tab || 'user-group' === $tab) {
                     Authorization::resetCache();
                 }
             }
@@ -810,6 +859,29 @@ class UserManagement extends FOGPage
             '`roles`.`rID`',
             '`roleUserAssoc`.`ruaRoleID`',
             '`roleUserAssoc`.`ruaUserID`',
+            [
+                [
+                    'db' => 'userAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
+     * Gets the user group list for the groups association tab.
+     *
+     * @return void
+     */
+    public function getGroupsList()
+    {
+        return $this->assocItemsList(
+            'usergroup',
+            'usergroupmember',
+            'userGroupMembers',
+            '`userGroups`.`ugID`',
+            '`userGroupMembers`.`ugmGroupID`',
+            '`userGroupMembers`.`ugmUserID`',
             [
                 [
                     'db' => 'userAssoc',

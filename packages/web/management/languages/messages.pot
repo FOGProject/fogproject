@@ -209,6 +209,12 @@ msgstr ""
 msgid "A user already exists with this name"
 msgstr ""
 
+msgid "A user group already exists with this name!"
+msgstr ""
+
+msgid "A user group with this name already exists!"
+msgstr ""
+
 msgid "A username already exists with this name!"
 msgstr ""
 
@@ -400,6 +406,9 @@ msgid "Add task type failed!"
 msgstr ""
 
 msgid "Add user failed!"
+msgstr ""
+
+msgid "Add user group failed!"
 msgstr ""
 
 msgid "Add windows key failed!"
@@ -1098,6 +1107,9 @@ msgid "Create New Task Type"
 msgstr ""
 
 msgid "Create New User"
+msgstr ""
+
+msgid "Create New User Group"
 msgstr ""
 
 msgid "Create New Windows Key"
@@ -4314,6 +4326,9 @@ msgstr ""
 msgid "Removing Key"
 msgstr ""
 
+msgid "Removing this group would leave no user with administrator access."
+msgstr ""
+
 msgid "Removing this role would leave no user with administrator access."
 msgstr ""
 
@@ -4374,6 +4389,9 @@ msgid "Returning value of key"
 msgstr ""
 
 msgid "Reverse"
+msgstr ""
+
+msgid "Role Association"
 msgstr ""
 
 msgid "Role Associations"
@@ -5877,6 +5895,30 @@ msgstr ""
 msgid "User DN"
 msgstr ""
 
+msgid "User Group Associations"
+msgstr ""
+
+msgid "User Group Create Fail"
+msgstr ""
+
+msgid "User Group Create Success"
+msgstr ""
+
+msgid "User Group Member Associations"
+msgstr ""
+
+msgid "User Group Role Associations"
+msgstr ""
+
+msgid "User Group Update Fail"
+msgstr ""
+
+msgid "User Group Update Success"
+msgstr ""
+
+msgid "User Groups"
+msgstr ""
+
 msgid "User Logins"
 msgstr ""
 
@@ -5917,6 +5959,15 @@ msgid "User added!"
 msgstr ""
 
 msgid "User call is invalid"
+msgstr ""
+
+msgid "User group added!"
+msgstr ""
+
+msgid "User group update failed!"
+msgstr ""
+
+msgid "User group updated!"
 msgstr ""
 
 msgid "User not found"

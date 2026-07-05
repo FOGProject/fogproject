@@ -267,6 +267,14 @@ msgid "A user already exists with this name"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
+msgid "A user group already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+msgid "A user group with this name already exists!"
+msgstr "Sesión con ese nombre ya existe"
+
+#, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
@@ -503,6 +511,10 @@ msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "Add user failed!"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "Add user group failed!"
 msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
@@ -1343,6 +1355,10 @@ msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Create New User"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Create New User Group"
 msgstr "Crear nuevo grupo"
 
 #, fuzzy
@@ -5237,6 +5253,9 @@ msgstr "retirar"
 msgid "Removing Key"
 msgstr "Configuración Tecla"
 
+msgid "Removing this group would leave no user with administrator access."
+msgstr ""
+
 msgid "Removing this role would leave no user with administrator access."
 msgstr ""
 
@@ -5307,6 +5326,10 @@ msgstr "Volviendo valor de clave"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role Association"
+msgstr "Asociación para la imagen"
 
 #, fuzzy
 msgid "Role Associations"
@@ -7119,6 +7142,38 @@ msgid "User DN"
 msgstr "Nombre de usuario"
 
 #, fuzzy
+msgid "User Group Associations"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "User Group Create Fail"
+msgstr "Grupo Error de creación"
+
+#, fuzzy
+msgid "User Group Create Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "User Group Member Associations"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "User Group Role Associations"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "User Group Update Fail"
+msgstr "Grupo Error de creación"
+
+#, fuzzy
+msgid "User Group Update Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "User Groups"
+msgstr "Grupo"
+
+#, fuzzy
 msgid "User Logins"
 msgstr "Contador de la CPU"
 
@@ -7169,6 +7224,18 @@ msgstr "Nombre de la impresora"
 
 msgid "User call is invalid"
 msgstr ""
+
+#, fuzzy
+msgid "User group added!"
+msgstr "Nombre de la impresora"
+
+#, fuzzy
+msgid "User group update failed!"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "User group updated!"
+msgstr "el usuario actualiza"
 
 #, fuzzy
 msgid "User not found"
@@ -8425,10 +8492,6 @@ msgstr ""
 #~ msgstr "resultados"
 
 #, fuzzy
-#~ msgid "Role Association"
-#~ msgstr "Asociación para la imagen"
-
-#, fuzzy
 #~ msgid "Rule Association"
 #~ msgstr "Asociación para la imagen"
 
@@ -8537,10 +8600,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Actualizar impresora"
-
-#, fuzzy
-#~ msgid "User role updated!"
-#~ msgstr "el usuario actualiza"
 
 #, fuzzy
 #~ msgid "You have version"
