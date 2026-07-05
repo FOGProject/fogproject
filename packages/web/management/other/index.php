@@ -203,7 +203,8 @@ unset($this->stylesheets);
                 $showNoRoleBanner = self::$FOGUser
                     && self::$FOGUser->isValid()
                     && null === Authorization::getPermissions()
-                    && self::getClass('RoleUserAssociationManager')->count() > 0;
+                    && self::getClass('RoleUserAssociationManager')
+                        ->distinct('userID') > 0;
         if ($showNoRoleBanner):
             ?>
                 <div class="container-fluid pt-3" id="no-role-banner">
