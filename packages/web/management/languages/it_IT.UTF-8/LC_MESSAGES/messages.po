@@ -4269,6 +4269,10 @@ msgstr "Nessun risultato della query, utilizzare query () prima"
 msgid "No results found"
 msgstr "nessun risultato trovato"
 
+#, fuzzy
+msgid "No role assigned"
+msgstr "Nessun nodo associato"
+
 msgid "No settings match your search."
 msgstr ""
 
@@ -7618,6 +7622,11 @@ msgstr "c'è uno abilitato all'interno di questo gruppo di archiviazione"
 
 msgid "there will be a database backup stored on your"
 msgstr "Ci sarà un backup del database memorizzato sul tuo"
+
+msgid ""
+"this account has no role and therefore has full administrator access. Assign "
+"it a role to limit its permissions."
+msgstr ""
 
 msgid "this backup will enable you to return to the"
 msgstr "Questo backup vi permetterà di ritornare alla"

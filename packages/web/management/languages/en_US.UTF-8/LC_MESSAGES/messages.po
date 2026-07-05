@@ -4454,6 +4454,10 @@ msgstr "No query result, use query() first"
 msgid "No results found"
 msgstr "No results found"
 
+#, fuzzy
+msgid "No role assigned"
+msgstr "No node associated"
+
 msgid "No settings match your search."
 msgstr ""
 
@@ -7991,6 +7995,11 @@ msgstr ""
 "Could not find a Storage Node Is there one enabled within this Storage Group"
 
 msgid "there will be a database backup stored on your"
+msgstr ""
+
+msgid ""
+"this account has no role and therefore has full administrator access. Assign "
+"it a role to limit its permissions."
 msgstr ""
 
 msgid "this backup will enable you to return to the"

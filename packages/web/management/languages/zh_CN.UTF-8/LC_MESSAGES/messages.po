@@ -4455,6 +4455,10 @@ msgstr "没有查询结果，使用query（）首先"
 msgid "No results found"
 msgstr "未找到结果"
 
+#, fuzzy
+msgid "No role assigned"
+msgstr "无关联的节点"
+
 msgid "No settings match your search."
 msgstr ""
 
@@ -7982,6 +7986,11 @@ msgid "there one enabled within this Storage Group"
 msgstr "找不到存储节点是否有什么这个存储组中启用"
 
 msgid "there will be a database backup stored on your"
+msgstr ""
+
+msgid ""
+"this account has no role and therefore has full administrator access. Assign "
+"it a role to limit its permissions."
 msgstr ""
 
 msgid "this backup will enable you to return to the"

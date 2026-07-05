@@ -4459,6 +4459,10 @@ msgstr "Kein Abfrageergebnis, verwenden Sie zuerst query()"
 msgid "No results found"
 msgstr "Keine Ergebnisse gefunden"
 
+#, fuzzy
+msgid "No role assigned"
+msgstr "Kein Knoten verknüpft"
+
 msgid "No settings match your search."
 msgstr ""
 
@@ -8006,6 +8010,11 @@ msgstr "da innerhalb diese Speichergruppe einer aktiviert ist"
 
 msgid "there will be a database backup stored on your"
 msgstr "existiert ein Backup, gespeichert auf dem"
+
+msgid ""
+"this account has no role and therefore has full administrator access. Assign "
+"it a role to limit its permissions."
+msgstr ""
 
 msgid "this backup will enable you to return to the"
 msgstr "wird dieses Backup helfen, zur vorherigen"

@@ -163,6 +163,16 @@ class FOGPageManager extends FOGBase
                     self::checkAuthAndCSRF();
                 }
             }
+            // Role-based permission gate: every page load, AJAX fragment,
+            // and POST funnels through here. Resolution uses the base sub
+            // (not the Ajax/Post-suffixed method) plus the actual request
+            // method. Denial responds/redirects and exits.
+            if (!$schemaBootstrap) {
+                Authorization::requirePagePermission(
+                    $this->classValue,
+                    $this->methodValue
+                );
+            }
             if (self::$post) {
                 self::setRequest();
             } else {

@@ -4567,6 +4567,10 @@ msgstr ""
 msgid "No results found"
 msgstr "No se encontraron iconos"
 
+#, fuzzy
+msgid "No role assigned"
+msgstr "No nodo asociado"
+
 msgid "No settings match your search."
 msgstr ""
 
@@ -8141,6 +8145,11 @@ msgid "there one enabled within this Storage Group"
 msgstr ""
 
 msgid "there will be a database backup stored on your"
+msgstr ""
+
+msgid ""
+"this account has no role and therefore has full administrator access. Assign "
+"it a role to limit its permissions."
 msgstr ""
 
 msgid "this backup will enable you to return to the"

@@ -196,6 +196,36 @@ unset($this->stylesheets);
                 <?= FOGPage::makeInput('pageLength', 'pageLength', '', 'hidden', 'pageLength', self::getSetting('FOG_VIEW_DEFAULT_SCREEN')); ?>
                 <?= FOGPage::makeInput('scrollMode', 'scrollMode', '', 'hidden', 'scrollMode', self::getSetting('FOG_TABLE_SCROLL_MODE')); ?>
                 <?= FOGPage::makeInput('showpass', 'showpass', '', 'hidden', 'showpass', self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')); ?>
+                <?php
+                // No-role warning: a user with zero role assignments is an
+                // implicit administrator by design (upgrade stance). Warn
+                // them once roles are actually in use on this system.
+                $showNoRoleBanner = self::$FOGUser
+                    && self::$FOGUser->isValid()
+                    && null === Authorization::getPermissions()
+                    && self::getClass('RoleUserAssociationManager')->count() > 0;
+        if ($showNoRoleBanner):
+            ?>
+                <div class="container-fluid pt-3" id="no-role-banner">
+                    <div class="alert alert-warning alert-dismissible fade show mb-0" role="alert">
+                        <strong><?= _('No role assigned'); ?>:</strong>
+                        <?= _('this account has no role and therefore has full administrator access. Assign it a role to limit its permissions.'); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<?= _('Close'); ?>"></button>
+                    </div>
+                </div>
+                <script nonce="<?= htmlspecialchars(FOG_CSP_NONCE, ENT_QUOTES, 'UTF-8'); ?>">
+                (function() {
+                    var banner = document.getElementById('no-role-banner');
+                    if (window.sessionStorage.getItem('fogNoRoleBannerDismissed')) {
+                        banner.parentNode.removeChild(banner);
+                        return;
+                    }
+                    banner.querySelector('.btn-close').addEventListener('click', function() {
+                        window.sessionStorage.setItem('fogNoRoleBannerDismissed', '1');
+                    });
+                })();
+                </script>
+                <?php endif; ?>
                 <div id="ajaxPageWrapper">
                     <div class="app-content-header">
                         <div class="container-fluid">

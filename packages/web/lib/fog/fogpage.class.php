@@ -494,6 +494,22 @@ abstract class FOGPage extends FOGBase
             ]
         );
 
+        // Drop main-menu nodes the user lacks view permission for. This is
+        // presentation only -- the dispatch gate in FOGPageManager::render()
+        // is the actual enforcement.
+        foreach (array_keys($menu) as $menuNode) {
+            $perm = Authorization::resolvePagePermission($menuNode, '', false);
+            if (!Authorization::can($perm)) {
+                unset($menu[$menuNode]);
+            }
+        }
+        foreach (array_keys($hookMenu) as $menuNode) {
+            $perm = Authorization::resolvePagePermission($menuNode, '', false);
+            if (!Authorization::can($perm)) {
+                unset($hookMenu[$menuNode]);
+            }
+        }
+
         if (isset($menu['plugin']) && $menu['plugin']) {
             self::$pluginIsAvailable = true;
         }
@@ -735,6 +751,16 @@ abstract class FOGPage extends FOGBase
                 'refNode' => &$refNode
             ]
         );
+
+        // Drop sub-menu links the user lacks permission for (add/import ->
+        // create, multicast -> task, etc.). Presentation only -- dispatch
+        // enforcement lives in FOGPageManager::render().
+        foreach (array_keys($menu) as $subKey) {
+            $perm = Authorization::resolvePagePermission($node, $subKey, false);
+            if (!Authorization::can($perm)) {
+                unset($menu[$subKey]);
+            }
+        }
         return $menu;
     }
 

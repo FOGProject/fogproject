@@ -55,15 +55,40 @@ class Authorization extends FOGBase
     ];
     /**
      * Exact sub overrides that the naming conventions would misresolve.
-     * Shape: node => [sub => full permission string].
+     * Shape: node => [sub => permission]. A permission is either a full
+     * permission string or ['GET' => perm, 'POST' => perm] when the same
+     * sub reads on GET but mutates (task cancel) on POST.
      *
      * @var array
      */
     const SUB_OVERRIDES = [
-        'settings' => [
-            'kernelfetch' => 'settings.edit',
-            'initrdfetch' => 'settings.edit'
+        'task' => [
+            'active' => ['GET' => 'task.view', 'POST' => 'task.task'],
+            'activemulticast' => ['GET' => 'task.view', 'POST' => 'task.task'],
+            'activesnapins' => ['GET' => 'task.view', 'POST' => 'task.task'],
+            'activescheduled' => ['GET' => 'task.view', 'POST' => 'task.task'],
+            'activescheduleddels' => ['GET' => 'task.view', 'POST' => 'task.task']
+        ],
+        'host' => [
+            'savegroup' => 'group.create'
+        ],
+        'image' => [
+            'sessioncreate' => 'image.task',
+            'sessioncancel' => 'image.task',
+            'sessioncreatemodal' => 'image.task'
         ]
+    ];
+    /**
+     * Node-independent sub overrides, checked before the exempt-node
+     * bail-out: kernelfetch/initrdfetch live on the FOGPage base class and
+     * the download JS requests them with no node at all, so they dispatch
+     * under the exempt 'home' node and node-scoped overrides never fire.
+     *
+     * @var array
+     */
+    const GLOBAL_SUB_OVERRIDES = [
+        'kernelfetch' => 'settings.edit',
+        'initrdfetch' => 'settings.edit'
     ];
     /**
      * Per-user permission cache for this request.
@@ -200,11 +225,11 @@ class Authorization extends FOGBase
     /**
      * Resolve a management page request to a required permission.
      *
-     * Resolution order: exempt node -> null; node alias; unregistered
-     * node -> null (allow, plugin compatibility); explicit sub override;
-     * naming convention on the base sub; fallback GET -> view,
-     * POST -> edit (a convention miss can never let a view-only user
-     * write).
+     * Resolution order: node-independent sub override; exempt node ->
+     * null; node alias; unregistered node -> null (allow, plugin
+     * compatibility); explicit sub override; naming convention on the
+     * base sub; fallback GET -> view, POST -> edit (a convention miss can
+     * never let a view-only user write).
      *
      * @param string    $node   the page node (base value, e.g. 'host')
      * @param string    $sub    the base sub (without Ajax/Post suffix)
@@ -219,6 +244,11 @@ class Authorization extends FOGBase
             $isPost = 'POST' === ($_SERVER['REQUEST_METHOD'] ?? '');
         }
         $node = strtolower(trim((string)$node));
+        $sub = strtolower(trim((string)$sub));
+        $globals = self::GLOBAL_SUB_OVERRIDES;
+        if (isset($globals[$sub])) {
+            return $globals[$sub];
+        }
         if ('' === $node || in_array($node, self::EXEMPT_NODES, true)) {
             return null;
         }
@@ -230,10 +260,13 @@ class Authorization extends FOGBase
         if (!isset($registry[$node])) {
             return null;
         }
-        $sub = strtolower(trim((string)$sub));
         $overrides = self::SUB_OVERRIDES;
         if (isset($overrides[$node][$sub])) {
-            return $overrides[$node][$sub];
+            $override = $overrides[$node][$sub];
+            if (is_array($override)) {
+                return $override[$isPost ? 'POST' : 'GET'];
+            }
+            return $override;
         }
         return "{$node}." . self::_subToAction($sub, $isPost);
     }
@@ -266,7 +299,7 @@ class Authorization extends FOGBase
         if ('' === $sub
             || in_array($sub, ['list', 'search', 'membership'], true)
             || 0 === strpos($sub, 'export')
-            || preg_match('/^get.*list$/', $sub)
+            || 0 === strpos($sub, 'get')
         ) {
             return 'view';
         }

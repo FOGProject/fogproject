@@ -4457,6 +4457,10 @@ msgstr "Nenhum resultado consulta, use query () primeiro"
 msgid "No results found"
 msgstr "Nenhum resultado encontrado"
 
+#, fuzzy
+msgid "No role assigned"
+msgstr "No nó associado"
+
 msgid "No settings match your search."
 msgstr ""
 
@@ -7995,6 +7999,11 @@ msgstr ""
 "deste grupo de armazenamento"
 
 msgid "there will be a database backup stored on your"
+msgstr ""
+
+msgid ""
+"this account has no role and therefore has full administrator access. Assign "
+"it a role to limit its permissions."
 msgstr ""
 
 msgid "this backup will enable you to return to the"
