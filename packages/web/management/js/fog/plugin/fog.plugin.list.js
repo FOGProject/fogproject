@@ -52,6 +52,21 @@
         },
         columnDefs: [
             {
+                // Surface the "Update available" action on the plugin name,
+                // which is the always-visible column (responsivePriority -1).
+                // The Installed column that would otherwise carry it is a
+                // low-priority column and gets collapsed behind the responsive
+                // expander, hiding which plugin actually needs the update.
+                render: function(data, type, row) {
+                    // Keep sorting/searching keyed on the plain name only.
+                    if (type !== 'display') {
+                        return data;
+                    }
+                    if (row.needsupdate > 0) {
+                        return data + ' <button type="button" class="btn btn-warning btn-sm plugin-update-btn" data-id="'+row.id+'" title="Apply pending database update"><i class="fa fa-exclamation-triangle"></i> Update available</button>';
+                    }
+                    return data;
+                },
                 responsivePriority: -1,
                 targets: 0
             },
@@ -72,12 +87,13 @@
                 targets: 3
             },
             {
+                // Installed status only; the "Update available" action now
+                // rides on the always-visible name column above.
                 render: function(data, type, row) {
                     var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
                     var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
-                    var update = '<button type="button" class="btn btn-warning btn-sm plugin-update-btn" data-id="'+row.id+'" title="Apply pending database update"><i class="fa fa-exclamation-triangle"></i> Update available</button>';
                     if (data > 0) {
-                        return row.needsupdate > 0 ? update : enabled;
+                        return enabled;
                     } else {
                         return disabled;
                     }
