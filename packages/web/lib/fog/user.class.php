@@ -387,7 +387,16 @@ class User extends FOGController
             if (isset($_SESSION['lastactivity'])) {
                 $lastactivity = time() - $_SESSION['lastactivity'];
             }
-            if ($lastactivity > $timeout) {
+            // Never re-trip the inactivity redirect on the logout/login
+            // requests themselves. Page is constructed (and calls back into
+            // isLoggedIn) before index.php runs the logout handler, so firing
+            // here would redirect to node=logout again before logout() ever
+            // runs -- an infinite node=logout loop that also prevents the
+            // preserved "Session Expired" toast from ever reaching login.
+            $node = filter_input(INPUT_GET, 'node');
+            if ($lastactivity > $timeout
+                && !in_array($node, ['logout', 'login'], true)
+            ) {
                 self::setMessage(
                     _('You were logged out due to inactivity.'),
                     _('Session Expired'),
