@@ -108,7 +108,8 @@ abstract class FOGPage extends FOGBase
         'snapin',
         'plugin',
         'printer',
-        'task'
+        'task',
+        'role'
     ];
     /**
      * The items table
