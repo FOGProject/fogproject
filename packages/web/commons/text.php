@@ -379,7 +379,7 @@ $foglang['NotExtended'] = _('Class is not extended from FOGPage');
 $foglang['DoNotList'] = _('Do not list on menu');
 // Language menu options.
 $foglang['LanguagePhrase'] = _('Language');
-$foglang['Language']['zh'] = '中国的';
+$foglang['Language']['zh'] = '中文';
 $foglang['Language']['en'] = 'English';
 $foglang['Language']['es'] = 'Español';
 $foglang['Language']['fr'] = 'Français';
