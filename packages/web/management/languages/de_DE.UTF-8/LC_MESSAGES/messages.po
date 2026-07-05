@@ -197,10 +197,6 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
-msgid "A name with this type-value pair already exists!"
-msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
-
-#, fuzzy
 msgid "A port must be specified"
 msgstr "muss angegeben werden"
 
@@ -215,10 +211,6 @@ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 #, fuzzy
 msgid "A role with this name already exists!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
-
-#, fuzzy
-msgid "A rule already exists with that type-value pair!"
-msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -301,18 +293,6 @@ msgid "Access Control Management"
 msgstr "Zugriffssteuerung"
 
 #, fuzzy
-msgid "Access Control Name"
-msgstr "Zugriffskontrollen"
-
-#, fuzzy
-msgid "Access Control Rules"
-msgstr "Zugriffskontrollregeln"
-
-#, fuzzy
-msgid "Access Controls"
-msgstr "Zugriffskontrollen"
-
-#, fuzzy
 msgid "Access Denied"
 msgstr "Zugangs-Token"
 
@@ -325,70 +305,6 @@ msgstr "Zugriffsstufe ist immer noch 0 oder falsch"
 #, fuzzy
 msgid "Access token"
 msgstr "Zugangs-Token"
-
-#, fuzzy
-msgid "Accesscontrol Create Fail"
-msgstr "Snapin erstellen fehlgeschlagen"
-
-#, fuzzy
-msgid "Accesscontrol Create Success"
-msgstr "Snapin erfolgreich hinzugefügt"
-
-#, fuzzy
-msgid "Accesscontrol Description"
-msgstr "Rollenbeschreibung"
-
-#, fuzzy
-msgid "Accesscontrol Name"
-msgstr "Zugriffskontrollen"
-
-#, fuzzy
-msgid "Accesscontrol Rule Associations"
-msgstr "Zugriffskontrollregeln"
-
-#, fuzzy
-msgid "Accesscontrol Rule Name"
-msgstr "Zugriffskontrollen"
-
-#, fuzzy
-msgid "Accesscontrol Rule Role Associations"
-msgstr "Zugriffskontrollregeln"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Fail"
-msgstr "Modulupdate fehlgeschlagen"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Success"
-msgstr "Benutzeraktualisierung erfolgreich!"
-
-#, fuzzy
-msgid "Accesscontrol Rule updated!"
-msgstr "Zugriffskontrollregeln"
-
-#, fuzzy
-msgid "Accesscontrol Update Fail"
-msgstr "Kernel-Update"
-
-#, fuzzy
-msgid "Accesscontrol Update Success"
-msgstr "Benutzeraktualisierung erfolgreich!"
-
-#, fuzzy
-msgid "Accesscontrol User Associations"
-msgstr "Site Zugehörigkeit"
-
-#, fuzzy
-msgid "Accesscontrol added!"
-msgstr "Zugriffskontrollen"
-
-#, fuzzy
-msgid "Accesscontrol update failed!"
-msgstr "Drucker-Update fehlgeschlagen!"
-
-#, fuzzy
-msgid "Accesscontrol updated!"
-msgstr "Zugriffskontrollen"
 
 msgid "Accessed By"
 msgstr "Zugriff von"
@@ -483,10 +399,6 @@ msgid "Add To Group(s)"
 msgstr "Speichergruppe hinzufügen"
 
 #, fuzzy
-msgid "Add accesscontrol failed!"
-msgstr "Standort hinzufügen fehlgeschlagen"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "Hinzufügen eines Broadcasts fehlgeschlagen!"
 
@@ -540,10 +452,6 @@ msgstr "Verknüpfen eines Pushbullet-Accounts fehlgeschlagen"
 
 #, fuzzy
 msgid "Add role failed!"
-msgstr "Benutzer hinzufügen fehlgeschlagen!"
-
-#, fuzzy
-msgid "Add rule failed!"
 msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
 #, fuzzy
@@ -720,14 +628,6 @@ msgstr "Ein LDAP mit diesem Namen ist bereits vorhanden!"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
-msgid "An accesscontrol already exists with this name!"
-msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
-msgid "An accesscontrol with this name already exists!"
-msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 
 #, fuzzy
 msgid "An entry already exists with this name!"
@@ -1339,10 +1239,6 @@ msgid "Create New %s"
 msgstr "Neue %s erstellen"
 
 #, fuzzy
-msgid "Create New Accesscontrol"
-msgstr "Neuen Schlüssel erstellen"
-
-#, fuzzy
 msgid "Create New Broadcast"
 msgstr "Neue %s erstellen"
 
@@ -1396,10 +1292,6 @@ msgstr "Neuen Drucker erstellen"
 
 #, fuzzy
 msgid "Create New Role"
-msgstr "Neuen Schlüssel erstellen"
-
-#, fuzzy
-msgid "Create New Rule"
 msgstr "Neuen Schlüssel erstellen"
 
 #, fuzzy
@@ -1932,14 +1824,6 @@ msgstr "Standorte exportieren"
 #, fuzzy
 msgid "Export OUs"
 msgstr "Benutzer exportieren"
-
-#, fuzzy
-msgid "Export Roles"
-msgstr "Hosts exportieren"
-
-#, fuzzy
-msgid "Export Rules"
-msgstr "Import erfolgreich"
 
 #, fuzzy
 msgid "Export Sites"
@@ -3265,14 +3149,6 @@ msgid "Import Reports"
 msgstr "Berichte importieren"
 
 #, fuzzy
-msgid "Import Roles"
-msgstr "Berichte importieren"
-
-#, fuzzy
-msgid "Import Rules"
-msgstr "Berichte importieren"
-
-#, fuzzy
 msgid "Import Sites"
 msgstr "Sites importieren"
 
@@ -3813,14 +3689,6 @@ msgstr "Alle %s auflisten"
 #, fuzzy
 msgid "List All Plugins"
 msgstr "Plugins installieren"
-
-#, fuzzy
-msgid "List All Roles"
-msgstr "Alle %s auflisten"
-
-#, fuzzy
-msgid "List All Rules"
-msgstr "Alle %s auflisten"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5314,10 +5182,6 @@ msgid "Reverse"
 msgstr ""
 
 #, fuzzy
-msgid "Role Association"
-msgstr "Regel Zuordnung"
-
-#, fuzzy
 msgid "Role Associations"
 msgstr "Regel Zuordnung"
 
@@ -5369,46 +5233,6 @@ msgstr "Routen sollten ein Array oder eine Instanz von Traversable sein"
 
 msgid "Row"
 msgstr "Zeile"
-
-#, fuzzy
-msgid "Rule Association"
-msgstr "Regel Zuordnung"
-
-#, fuzzy
-msgid "Rule Create Fail"
-msgstr "Drucker erstellen fehlgeschlagen!"
-
-#, fuzzy
-msgid "Rule Create Success"
-msgstr "Drucker hinzufügen erfolgreich."
-
-#, fuzzy
-msgid "Rule Name"
-msgstr "Regelname"
-
-#, fuzzy
-msgid "Rule Node"
-msgstr "Regelname"
-
-#, fuzzy
-msgid "Rule Parent"
-msgstr "Regelname"
-
-#, fuzzy
-msgid "Rule Type"
-msgstr "Rollentyp"
-
-#, fuzzy
-msgid "Rule Value"
-msgstr "Regelwert"
-
-#, fuzzy
-msgid "Rule added!"
-msgstr "Drucker hinzugefügt"
-
-#, fuzzy
-msgid "Rule update failed!"
-msgstr "Drucker-Update fehlgeschlagen!"
 
 #, fuzzy
 msgid "Running Windows"
@@ -7167,18 +6991,6 @@ msgid "User Password"
 msgstr "Benutzerpasswort"
 
 #, fuzzy
-msgid "User Role"
-msgstr "Benutzer-Bereinigung"
-
-#, fuzzy
-msgid "User Role Update Fail"
-msgstr "Modulupdate fehlgeschlagen"
-
-#, fuzzy
-msgid "User Role Update Success"
-msgstr "Benutzeraktualisierung erfolgreich!"
-
-#, fuzzy
 msgid "User Site"
 msgstr "Neue Site"
 
@@ -7215,10 +7027,6 @@ msgstr "Benutzeraufruf ist ungültig"
 #, fuzzy
 msgid "User not found"
 msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
-
-#, fuzzy
-msgid "User role updated!"
-msgstr "Benutzer aktualisiert"
 
 #, fuzzy
 msgid "User update failed!"
@@ -8145,6 +7953,14 @@ msgstr ""
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
+#~ msgid "A name with this type-value pair already exists!"
+#~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
+
+#, fuzzy
+#~ msgid "A rule already exists with that type-value pair!"
+#~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
 #~ msgid "A rule already exists with this value!"
 #~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
@@ -8153,12 +7969,104 @@ msgstr ""
 #~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
+#~ msgid "Access Control Name"
+#~ msgstr "Zugriffskontrollen"
+
+#, fuzzy
+#~ msgid "Access Control Rules"
+#~ msgstr "Zugriffskontrollregeln"
+
+#, fuzzy
+#~ msgid "Access Controls"
+#~ msgstr "Zugriffskontrollen"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Fail"
+#~ msgstr "Snapin erstellen fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Success"
+#~ msgstr "Snapin erfolgreich hinzugefügt"
+
+#, fuzzy
+#~ msgid "Accesscontrol Description"
+#~ msgstr "Rollenbeschreibung"
+
+#, fuzzy
+#~ msgid "Accesscontrol Name"
+#~ msgstr "Zugriffskontrollen"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Associations"
+#~ msgstr "Zugriffskontrollregeln"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Name"
+#~ msgstr "Zugriffskontrollen"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Role Associations"
+#~ msgstr "Zugriffskontrollregeln"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Fail"
+#~ msgstr "Modulupdate fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Success"
+#~ msgstr "Benutzeraktualisierung erfolgreich!"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule updated!"
+#~ msgstr "Zugriffskontrollregeln"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Fail"
+#~ msgstr "Kernel-Update"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Success"
+#~ msgstr "Benutzeraktualisierung erfolgreich!"
+
+#, fuzzy
+#~ msgid "Accesscontrol User Associations"
+#~ msgstr "Site Zugehörigkeit"
+
+#, fuzzy
+#~ msgid "Accesscontrol added!"
+#~ msgstr "Zugriffskontrollen"
+
+#, fuzzy
+#~ msgid "Accesscontrol update failed!"
+#~ msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+#~ msgid "Accesscontrol updated!"
+#~ msgstr "Zugriffskontrollen"
+
+#, fuzzy
 #~ msgid "Active Multi-cast Tasks"
 #~ msgstr "Aktive Multicast Tasks"
 
 #, fuzzy
 #~ msgid "Add Selected"
 #~ msgstr "ausgewählte Images hinzufügen"
+
+#, fuzzy
+#~ msgid "Add accesscontrol failed!"
+#~ msgstr "Standort hinzufügen fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "Add rule failed!"
+#~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
+
+#, fuzzy
+#~ msgid "An accesscontrol already exists with this name!"
+#~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
+#~ msgid "An accesscontrol with this name already exists!"
+#~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 
 #, fuzzy
 #~ msgid "An error occurred"
@@ -8176,8 +8084,16 @@ msgstr ""
 #~ msgstr "Client Einstellungen"
 
 #, fuzzy
+#~ msgid "Create New Accesscontrol"
+#~ msgstr "Neuen Schlüssel erstellen"
+
+#, fuzzy
 #~ msgid "Create New Host Ext"
 #~ msgstr "Neue %s erstellen"
+
+#, fuzzy
+#~ msgid "Create New Rule"
+#~ msgstr "Neuen Schlüssel erstellen"
 
 #, fuzzy
 #~ msgid "Database connection unavailable"
@@ -8200,6 +8116,14 @@ msgstr ""
 
 #~ msgid "Export Printers"
 #~ msgstr "Drucker exportieren"
+
+#, fuzzy
+#~ msgid "Export Roles"
+#~ msgstr "Hosts exportieren"
+
+#, fuzzy
+#~ msgid "Export Rules"
+#~ msgstr "Import erfolgreich"
 
 #~ msgid "Export Snapins"
 #~ msgstr "Snapins exportieren"
@@ -8303,6 +8227,14 @@ msgstr ""
 #~ msgid "Import Printers"
 #~ msgstr "Drucker importieren"
 
+#, fuzzy
+#~ msgid "Import Roles"
+#~ msgstr "Berichte importieren"
+
+#, fuzzy
+#~ msgid "Import Rules"
+#~ msgstr "Berichte importieren"
+
 #~ msgid "Import Snapins"
 #~ msgstr "Snapins importieren"
 
@@ -8326,6 +8258,14 @@ msgstr ""
 #~ msgstr "Neueste SVN-Version"
 
 #, fuzzy
+#~ msgid "List All Roles"
+#~ msgstr "Alle %s auflisten"
+
+#, fuzzy
+#~ msgid "List All Rules"
+#~ msgstr "Alle %s auflisten"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "zugeordneter Host"
 
@@ -8345,8 +8285,40 @@ msgstr ""
 #~ msgid "Results"
 #~ msgstr "Ergebnisse"
 
+#, fuzzy
+#~ msgid "Role Association"
+#~ msgstr "Regel Zuordnung"
+
 #~ msgid "Row number not set properly"
 #~ msgstr "Zeilennummer nicht richtig eingestellt"
+
+#, fuzzy
+#~ msgid "Rule Association"
+#~ msgstr "Regel Zuordnung"
+
+#, fuzzy
+#~ msgid "Rule Create Fail"
+#~ msgstr "Drucker erstellen fehlgeschlagen!"
+
+#, fuzzy
+#~ msgid "Rule Create Success"
+#~ msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+#~ msgid "Rule Name"
+#~ msgstr "Regelname"
+
+#, fuzzy
+#~ msgid "Rule Node"
+#~ msgstr "Regelname"
+
+#, fuzzy
+#~ msgid "Rule Parent"
+#~ msgstr "Regelname"
+
+#, fuzzy
+#~ msgid "Rule Type"
+#~ msgstr "Rollentyp"
 
 #, fuzzy
 #~ msgid "Rule Update Fail"
@@ -8355,6 +8327,18 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule Update Success"
 #~ msgstr "Modulupdate erfolgreich"
+
+#, fuzzy
+#~ msgid "Rule Value"
+#~ msgstr "Regelwert"
+
+#, fuzzy
+#~ msgid "Rule added!"
+#~ msgstr "Drucker hinzugefügt"
+
+#, fuzzy
+#~ msgid "Rule update failed!"
+#~ msgstr "Drucker-Update fehlgeschlagen!"
 
 #, fuzzy
 #~ msgid "Snapin Created"
@@ -8405,6 +8389,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "Drucker Aktualisieren/Entfernen"
+
+#, fuzzy
+#~ msgid "User Role"
+#~ msgstr "Benutzer-Bereinigung"
+
+#, fuzzy
+#~ msgid "User Role Update Fail"
+#~ msgstr "Modulupdate fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "User Role Update Success"
+#~ msgstr "Benutzeraktualisierung erfolgreich!"
+
+#, fuzzy
+#~ msgid "User role updated!"
+#~ msgstr "Benutzer aktualisiert"
 
 #, fuzzy
 #~ msgid "You have version"

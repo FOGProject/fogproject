@@ -202,10 +202,6 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
-msgid "A name with this type-value pair already exists!"
-msgstr "A hostname with that name already exists."
-
-#, fuzzy
 msgid "A port must be specified"
 msgstr "No image specified"
 
@@ -220,10 +216,6 @@ msgstr "An image already exists with this name!"
 #, fuzzy
 msgid "A role with this name already exists!"
 msgstr "A hostname with that name already exists."
-
-#, fuzzy
-msgid "A rule already exists with that type-value pair!"
-msgstr "An image already exists with this name!"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -305,18 +297,6 @@ msgid "Access Control Management"
 msgstr "Access Control Management"
 
 #, fuzzy
-msgid "Access Control Name"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Access Control Rules"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Access Controls"
-msgstr "All Access Controls"
-
-#, fuzzy
 msgid "Access Denied"
 msgstr "Access Token"
 
@@ -329,70 +309,6 @@ msgstr ""
 #, fuzzy
 msgid "Access token"
 msgstr "Access Token"
-
-#, fuzzy
-msgid "Accesscontrol Create Fail"
-msgstr "Snapin updated"
-
-#, fuzzy
-msgid "Accesscontrol Create Success"
-msgstr "Snapin updated"
-
-#, fuzzy
-msgid "Accesscontrol Description"
-msgstr "Description"
-
-#, fuzzy
-msgid "Accesscontrol Name"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Accesscontrol Rule Associations"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Accesscontrol Rule Name"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Accesscontrol Rule Role Associations"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Fail"
-msgstr "Group create failed"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Success"
-msgstr "Install / Update Successful!"
-
-#, fuzzy
-msgid "Accesscontrol Rule updated!"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Accesscontrol Update Fail"
-msgstr "Kernel Update"
-
-#, fuzzy
-msgid "Accesscontrol Update Success"
-msgstr "Install / Update Successful!"
-
-#, fuzzy
-msgid "Accesscontrol User Associations"
-msgstr "Image Association"
-
-#, fuzzy
-msgid "Accesscontrol added!"
-msgstr "All Access Controls"
-
-#, fuzzy
-msgid "Accesscontrol update failed!"
-msgstr "Printer update failed!"
-
-#, fuzzy
-msgid "Accesscontrol updated!"
-msgstr "All Access Controls"
 
 msgid "Accessed By"
 msgstr "Accessed By"
@@ -487,10 +403,6 @@ msgid "Add To Group(s)"
 msgstr "Add Storage Group"
 
 #, fuzzy
-msgid "Add accesscontrol failed!"
-msgstr "Add snapin failed!"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "Add snapin failed!"
 
@@ -544,10 +456,6 @@ msgstr "Link Pushbullet Account"
 
 #, fuzzy
 msgid "Add role failed!"
-msgstr "Add snapin failed!"
-
-#, fuzzy
-msgid "Add rule failed!"
 msgstr "Add snapin failed!"
 
 #, fuzzy
@@ -722,14 +630,6 @@ msgstr "An image already exists with this name!"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "An image already exists with this name!"
-
-#, fuzzy
-msgid "An accesscontrol already exists with this name!"
-msgstr "An image already exists with this name!"
-
-#, fuzzy
-msgid "An accesscontrol with this name already exists!"
-msgstr "A hostname with that name already exists."
 
 #, fuzzy
 msgid "An entry already exists with this name!"
@@ -1340,10 +1240,6 @@ msgid "Create New %s"
 msgstr "Create New %s"
 
 #, fuzzy
-msgid "Create New Accesscontrol"
-msgstr "Create New %s"
-
-#, fuzzy
 msgid "Create New Broadcast"
 msgstr "Create New %s"
 
@@ -1397,10 +1293,6 @@ msgstr "Create New %s"
 
 #, fuzzy
 msgid "Create New Role"
-msgstr "Create New %s"
-
-#, fuzzy
-msgid "Create New Rule"
 msgstr "Create New %s"
 
 #, fuzzy
@@ -1932,14 +1824,6 @@ msgstr "Host Location"
 #, fuzzy
 msgid "Export OUs"
 msgstr "Export Users"
-
-#, fuzzy
-msgid "Export Roles"
-msgstr "Export Hosts"
-
-#, fuzzy
-msgid "Export Rules"
-msgstr "Successful"
 
 #, fuzzy
 msgid "Export Sites"
@@ -3264,14 +3148,6 @@ msgid "Import Reports"
 msgstr "Import Hosts"
 
 #, fuzzy
-msgid "Import Roles"
-msgstr "Import Hosts"
-
-#, fuzzy
-msgid "Import Rules"
-msgstr "Import Hosts"
-
-#, fuzzy
 msgid "Import Sites"
 msgstr "Import Printers"
 
@@ -3809,14 +3685,6 @@ msgstr "List All %s"
 #, fuzzy
 msgid "List All Plugins"
 msgstr "Install Plugins"
-
-#, fuzzy
-msgid "List All Roles"
-msgstr "List All %s"
-
-#, fuzzy
-msgid "List All Rules"
-msgstr "List All %s"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5310,10 +5178,6 @@ msgid "Reverse"
 msgstr ""
 
 #, fuzzy
-msgid "Role Association"
-msgstr "Image Association"
-
-#, fuzzy
 msgid "Role Associations"
 msgstr "Image Association"
 
@@ -5365,46 +5229,6 @@ msgstr ""
 
 msgid "Row"
 msgstr "Row"
-
-#, fuzzy
-msgid "Rule Association"
-msgstr "Image Association"
-
-#, fuzzy
-msgid "Rule Create Fail"
-msgstr "Printer update failed!"
-
-#, fuzzy
-msgid "Rule Create Success"
-msgstr "Printer already exists"
-
-#, fuzzy
-msgid "Rule Name"
-msgstr "Module Name"
-
-#, fuzzy
-msgid "Rule Node"
-msgstr "Module Name"
-
-#, fuzzy
-msgid "Rule Parent"
-msgstr "Module Name"
-
-#, fuzzy
-msgid "Rule Type"
-msgstr "Module Type"
-
-#, fuzzy
-msgid "Rule Value"
-msgstr "Value"
-
-#, fuzzy
-msgid "Rule added!"
-msgstr "Printer Name"
-
-#, fuzzy
-msgid "Rule update failed!"
-msgstr "Printer update failed!"
 
 #, fuzzy
 msgid "Running Windows"
@@ -7159,18 +6983,6 @@ msgid "User Password"
 msgstr "User Password"
 
 #, fuzzy
-msgid "User Role"
-msgstr "User Cleanup"
-
-#, fuzzy
-msgid "User Role Update Fail"
-msgstr "Group create failed"
-
-#, fuzzy
-msgid "User Role Update Success"
-msgstr "Install / Update Successful!"
-
-#, fuzzy
 msgid "User Site"
 msgstr "Add New Snapin"
 
@@ -7207,10 +7019,6 @@ msgstr "User call is invalid"
 #, fuzzy
 msgid "User not found"
 msgstr "Record not found, Error: %s"
-
-#, fuzzy
-msgid "User role updated!"
-msgstr "User updated"
 
 #, fuzzy
 msgid "User update failed!"
@@ -8132,6 +7940,14 @@ msgstr ""
 #~ msgstr "An image already exists with this name!"
 
 #, fuzzy
+#~ msgid "A name with this type-value pair already exists!"
+#~ msgstr "A hostname with that name already exists."
+
+#, fuzzy
+#~ msgid "A rule already exists with that type-value pair!"
+#~ msgstr "An image already exists with this name!"
+
+#, fuzzy
 #~ msgid "A rule already exists with this value!"
 #~ msgstr "An image already exists with this name!"
 
@@ -8140,12 +7956,104 @@ msgstr ""
 #~ msgstr "An image already exists with this name!"
 
 #, fuzzy
+#~ msgid "Access Control Name"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Access Control Rules"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Access Controls"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Fail"
+#~ msgstr "Snapin updated"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Success"
+#~ msgstr "Snapin updated"
+
+#, fuzzy
+#~ msgid "Accesscontrol Description"
+#~ msgstr "Description"
+
+#, fuzzy
+#~ msgid "Accesscontrol Name"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Associations"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Name"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Role Associations"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Fail"
+#~ msgstr "Group create failed"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Success"
+#~ msgstr "Install / Update Successful!"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule updated!"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Fail"
+#~ msgstr "Kernel Update"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Success"
+#~ msgstr "Install / Update Successful!"
+
+#, fuzzy
+#~ msgid "Accesscontrol User Associations"
+#~ msgstr "Image Association"
+
+#, fuzzy
+#~ msgid "Accesscontrol added!"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
+#~ msgid "Accesscontrol update failed!"
+#~ msgstr "Printer update failed!"
+
+#, fuzzy
+#~ msgid "Accesscontrol updated!"
+#~ msgstr "All Access Controls"
+
+#, fuzzy
 #~ msgid "Active Multi-cast Tasks"
 #~ msgstr "Active Multicast Tasks"
 
 #, fuzzy
 #~ msgid "Add Selected"
 #~ msgstr "Remove selected printers"
+
+#, fuzzy
+#~ msgid "Add accesscontrol failed!"
+#~ msgstr "Add snapin failed!"
+
+#, fuzzy
+#~ msgid "Add rule failed!"
+#~ msgstr "Add snapin failed!"
+
+#, fuzzy
+#~ msgid "An accesscontrol already exists with this name!"
+#~ msgstr "An image already exists with this name!"
+
+#, fuzzy
+#~ msgid "An accesscontrol with this name already exists!"
+#~ msgstr "A hostname with that name already exists."
 
 #, fuzzy
 #~ msgid "An error occurred"
@@ -8163,7 +8071,15 @@ msgstr ""
 #~ msgstr "Settings"
 
 #, fuzzy
+#~ msgid "Create New Accesscontrol"
+#~ msgstr "Create New %s"
+
+#, fuzzy
 #~ msgid "Create New Host Ext"
+#~ msgstr "Create New %s"
+
+#, fuzzy
+#~ msgid "Create New Rule"
 #~ msgstr "Create New %s"
 
 #, fuzzy
@@ -8187,6 +8103,14 @@ msgstr ""
 
 #~ msgid "Export Printers"
 #~ msgstr "Export Printers"
+
+#, fuzzy
+#~ msgid "Export Roles"
+#~ msgstr "Export Hosts"
+
+#, fuzzy
+#~ msgid "Export Rules"
+#~ msgstr "Successful"
 
 #~ msgid "Export Snapins"
 #~ msgstr "Export Snapins"
@@ -8286,6 +8210,14 @@ msgstr ""
 #~ msgid "Import Printers"
 #~ msgstr "Import Printers"
 
+#, fuzzy
+#~ msgid "Import Roles"
+#~ msgstr "Import Hosts"
+
+#, fuzzy
+#~ msgid "Import Rules"
+#~ msgstr "Import Hosts"
+
 #~ msgid "Import Snapins"
 #~ msgstr "Import Snapins"
 
@@ -8309,6 +8241,14 @@ msgstr ""
 #~ msgstr "Latest Version"
 
 #, fuzzy
+#~ msgid "List All Roles"
+#~ msgstr "List All %s"
+
+#, fuzzy
+#~ msgid "List All Rules"
+#~ msgstr "List All %s"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "No node associated"
 
@@ -8328,8 +8268,40 @@ msgstr ""
 #~ msgid "Results"
 #~ msgstr "Results"
 
+#, fuzzy
+#~ msgid "Role Association"
+#~ msgstr "Image Association"
+
 #~ msgid "Row number not set properly"
 #~ msgstr "Row number not set properly"
+
+#, fuzzy
+#~ msgid "Rule Association"
+#~ msgstr "Image Association"
+
+#, fuzzy
+#~ msgid "Rule Create Fail"
+#~ msgstr "Printer update failed!"
+
+#, fuzzy
+#~ msgid "Rule Create Success"
+#~ msgstr "Printer already exists"
+
+#, fuzzy
+#~ msgid "Rule Name"
+#~ msgstr "Module Name"
+
+#, fuzzy
+#~ msgid "Rule Node"
+#~ msgstr "Module Name"
+
+#, fuzzy
+#~ msgid "Rule Parent"
+#~ msgstr "Module Name"
+
+#, fuzzy
+#~ msgid "Rule Type"
+#~ msgstr "Module Type"
 
 #, fuzzy
 #~ msgid "Rule Update Fail"
@@ -8338,6 +8310,18 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule Update Success"
 #~ msgstr "User created"
+
+#, fuzzy
+#~ msgid "Rule Value"
+#~ msgstr "Value"
+
+#, fuzzy
+#~ msgid "Rule added!"
+#~ msgstr "Printer Name"
+
+#, fuzzy
+#~ msgid "Rule update failed!"
+#~ msgstr "Printer update failed!"
 
 #, fuzzy
 #~ msgid "Snapin Created"
@@ -8388,6 +8372,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "Update Printer"
+
+#, fuzzy
+#~ msgid "User Role"
+#~ msgstr "User Cleanup"
+
+#, fuzzy
+#~ msgid "User Role Update Fail"
+#~ msgstr "Group create failed"
+
+#, fuzzy
+#~ msgid "User Role Update Success"
+#~ msgstr "Install / Update Successful!"
+
+#, fuzzy
+#~ msgid "User role updated!"
+#~ msgstr "User updated"
 
 #, fuzzy
 #~ msgid "You have version"

@@ -200,10 +200,6 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
-msgid "A name with this type-value pair already exists!"
-msgstr "Sesión con ese nombre ya existe"
-
-#, fuzzy
 msgid "A port must be specified"
 msgstr "No hay imagen especificada"
 
@@ -218,10 +214,6 @@ msgstr "Una imagen ya existe con este nombre!"
 #, fuzzy
 msgid "A role with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
-
-#, fuzzy
-msgid "A rule already exists with that type-value pair!"
-msgstr "Una imagen ya existe con este nombre!"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -306,18 +298,6 @@ msgid "Access Control Management"
 msgstr "Sin administración de la impresora"
 
 #, fuzzy
-msgid "Access Control Name"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Access Control Rules"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Access Controls"
-msgstr "impresora iPrint"
-
-#, fuzzy
 msgid "Access Denied"
 msgstr "impresora iPrint"
 
@@ -329,70 +309,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Access token"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Accesscontrol Create Fail"
-msgstr "Nombre snapin"
-
-#, fuzzy
-msgid "Accesscontrol Create Success"
-msgstr "Nombre snapin"
-
-#, fuzzy
-msgid "Accesscontrol Description"
-msgstr "Descripción de la imagen"
-
-#, fuzzy
-msgid "Accesscontrol Name"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Accesscontrol Rule Associations"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Accesscontrol Rule Name"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Accesscontrol Rule Role Associations"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Fail"
-msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Success"
-msgstr "Actualizar impresora"
-
-#, fuzzy
-msgid "Accesscontrol Rule updated!"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Accesscontrol Update Fail"
-msgstr "Nombre del núcleo"
-
-#, fuzzy
-msgid "Accesscontrol Update Success"
-msgstr "Actualizar impresora"
-
-#, fuzzy
-msgid "Accesscontrol User Associations"
-msgstr "Asociación para la imagen"
-
-#, fuzzy
-msgid "Accesscontrol added!"
-msgstr "impresora iPrint"
-
-#, fuzzy
-msgid "Accesscontrol update failed!"
-msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-msgid "Accesscontrol updated!"
 msgstr "impresora iPrint"
 
 msgid "Accessed By"
@@ -494,10 +410,6 @@ msgid "Add To Group(s)"
 msgstr "Grupo de almacenamiento"
 
 #, fuzzy
-msgid "Add accesscontrol failed!"
-msgstr "Añadir fallidos SNAPin!"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "Añadir fallidos SNAPin!"
 
@@ -551,10 +463,6 @@ msgstr "Añadir nueva cuenta de usuario"
 
 #, fuzzy
 msgid "Add role failed!"
-msgstr "Añadir fallidos SNAPin!"
-
-#, fuzzy
-msgid "Add rule failed!"
 msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
@@ -733,14 +641,6 @@ msgstr "Una imagen ya existe con este nombre!"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
-
-#, fuzzy
-msgid "An accesscontrol already exists with this name!"
-msgstr "Una imagen ya existe con este nombre!"
-
-#, fuzzy
-msgid "An accesscontrol with this name already exists!"
-msgstr "Sesión con ese nombre ya existe"
 
 #, fuzzy
 msgid "An entry already exists with this name!"
@@ -1354,10 +1254,6 @@ msgid "Create New %s"
 msgstr "Crear nuevo grupo"
 
 #, fuzzy
-msgid "Create New Accesscontrol"
-msgstr "Crear nuevo grupo"
-
-#, fuzzy
 msgid "Create New Broadcast"
 msgstr "Crear nuevo grupo"
 
@@ -1411,10 +1307,6 @@ msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Create New Role"
-msgstr "Crear nuevo grupo"
-
-#, fuzzy
-msgid "Create New Rule"
 msgstr "Crear nuevo grupo"
 
 #, fuzzy
@@ -1965,14 +1857,6 @@ msgstr ""
 #, fuzzy
 msgid "Export OUs"
 msgstr "Exportar"
-
-#, fuzzy
-msgid "Export Roles"
-msgstr "Editar anfitrión"
-
-#, fuzzy
-msgid "Export Rules"
-msgstr "Exitoso"
 
 #, fuzzy
 msgid "Export Sites"
@@ -3339,14 +3223,6 @@ msgid "Import Reports"
 msgstr "Importar"
 
 #, fuzzy
-msgid "Import Roles"
-msgstr "Importar"
-
-#, fuzzy
-msgid "Import Rules"
-msgstr "Importar"
-
-#, fuzzy
 msgid "Import Sites"
 msgstr "Impresora TCP / IP Port"
 
@@ -3900,12 +3776,6 @@ msgstr ""
 #, fuzzy
 msgid "List All Plugins"
 msgstr "Nombre de la impresora"
-
-msgid "List All Roles"
-msgstr ""
-
-msgid "List All Rules"
-msgstr ""
 
 #, fuzzy
 msgid "List All Task States"
@@ -5439,10 +5309,6 @@ msgid "Reverse"
 msgstr ""
 
 #, fuzzy
-msgid "Role Association"
-msgstr "Asociación para la imagen"
-
-#, fuzzy
 msgid "Role Associations"
 msgstr "Asociación para la imagen"
 
@@ -5494,46 +5360,6 @@ msgstr ""
 
 msgid "Row"
 msgstr "Fila"
-
-#, fuzzy
-msgid "Rule Association"
-msgstr "Asociación para la imagen"
-
-#, fuzzy
-msgid "Rule Create Fail"
-msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-msgid "Rule Create Success"
-msgstr "Impresora ya existe"
-
-#, fuzzy
-msgid "Rule Name"
-msgstr "Nombre del módulo"
-
-#, fuzzy
-msgid "Rule Node"
-msgstr "Nombre del módulo"
-
-#, fuzzy
-msgid "Rule Parent"
-msgstr "Nombre del módulo"
-
-#, fuzzy
-msgid "Rule Type"
-msgstr "Tipo de módulo"
-
-#, fuzzy
-msgid "Rule Value"
-msgstr "Valor"
-
-#, fuzzy
-msgid "Rule added!"
-msgstr "Nombre de la impresora"
-
-#, fuzzy
-msgid "Rule update failed!"
-msgstr "actualización de la impresora ha fallado!"
 
 #, fuzzy
 msgid "Running Windows"
@@ -7310,18 +7136,6 @@ msgid "User Password"
 msgstr "Contraseña de usuario"
 
 #, fuzzy
-msgid "User Role"
-msgstr "snapin"
-
-#, fuzzy
-msgid "User Role Update Fail"
-msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "User Role Update Success"
-msgstr "Actualizar impresora"
-
-#, fuzzy
 msgid "User Site"
 msgstr "snapin"
 
@@ -7359,10 +7173,6 @@ msgstr ""
 #, fuzzy
 msgid "User not found"
 msgstr "Registro no encontrado, error: %s"
-
-#, fuzzy
-msgid "User role updated!"
-msgstr "el usuario actualiza"
 
 #, fuzzy
 msgid "User update failed!"
@@ -8281,6 +8091,14 @@ msgstr ""
 #~ msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
+#~ msgid "A name with this type-value pair already exists!"
+#~ msgstr "Sesión con ese nombre ya existe"
+
+#, fuzzy
+#~ msgid "A rule already exists with that type-value pair!"
+#~ msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
 #~ msgid "A rule already exists with this value!"
 #~ msgstr "Una imagen ya existe con este nombre!"
 
@@ -8289,12 +8107,104 @@ msgstr ""
 #~ msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
+#~ msgid "Access Control Name"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Access Control Rules"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Access Controls"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Fail"
+#~ msgstr "Nombre snapin"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Success"
+#~ msgstr "Nombre snapin"
+
+#, fuzzy
+#~ msgid "Accesscontrol Description"
+#~ msgstr "Descripción de la imagen"
+
+#, fuzzy
+#~ msgid "Accesscontrol Name"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Associations"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Name"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Role Associations"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Fail"
+#~ msgstr "Grupo Error de creación"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Success"
+#~ msgstr "Actualizar impresora"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule updated!"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Fail"
+#~ msgstr "Nombre del núcleo"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Success"
+#~ msgstr "Actualizar impresora"
+
+#, fuzzy
+#~ msgid "Accesscontrol User Associations"
+#~ msgstr "Asociación para la imagen"
+
+#, fuzzy
+#~ msgid "Accesscontrol added!"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Accesscontrol update failed!"
+#~ msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+#~ msgid "Accesscontrol updated!"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
 #~ msgid "Active Multi-cast Tasks"
 #~ msgstr "MulticastTask"
 
 #, fuzzy
 #~ msgid "Add Selected"
 #~ msgstr "Impresora"
+
+#, fuzzy
+#~ msgid "Add accesscontrol failed!"
+#~ msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+#~ msgid "Add rule failed!"
+#~ msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+#~ msgid "An accesscontrol already exists with this name!"
+#~ msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+#~ msgid "An accesscontrol with this name already exists!"
+#~ msgstr "Sesión con ese nombre ya existe"
 
 #, fuzzy
 #~ msgid "An error occurred"
@@ -8313,7 +8223,15 @@ msgstr ""
 #~ msgstr "Configuración Tecla"
 
 #, fuzzy
+#~ msgid "Create New Accesscontrol"
+#~ msgstr "Crear nuevo grupo"
+
+#, fuzzy
 #~ msgid "Create New Host Ext"
+#~ msgstr "Crear nuevo grupo"
+
+#, fuzzy
+#~ msgid "Create New Rule"
 #~ msgstr "Crear nuevo grupo"
 
 #, fuzzy
@@ -8339,6 +8257,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Export Printers"
 #~ msgstr "impresora iPrint"
+
+#, fuzzy
+#~ msgid "Export Roles"
+#~ msgstr "Editar anfitrión"
+
+#, fuzzy
+#~ msgid "Export Rules"
+#~ msgstr "Exitoso"
 
 #, fuzzy
 #~ msgid "Export Snapins"
@@ -8445,6 +8371,14 @@ msgstr ""
 #~ msgstr "Impresora TCP / IP Port"
 
 #, fuzzy
+#~ msgid "Import Roles"
+#~ msgstr "Importar"
+
+#, fuzzy
+#~ msgid "Import Rules"
+#~ msgstr "Importar"
+
+#, fuzzy
 #~ msgid "Import Snapins"
 #~ msgstr "snapins"
 
@@ -8491,12 +8425,56 @@ msgstr ""
 #~ msgstr "resultados"
 
 #, fuzzy
+#~ msgid "Role Association"
+#~ msgstr "Asociación para la imagen"
+
+#, fuzzy
+#~ msgid "Rule Association"
+#~ msgstr "Asociación para la imagen"
+
+#, fuzzy
+#~ msgid "Rule Create Fail"
+#~ msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+#~ msgid "Rule Create Success"
+#~ msgstr "Impresora ya existe"
+
+#, fuzzy
+#~ msgid "Rule Name"
+#~ msgstr "Nombre del módulo"
+
+#, fuzzy
+#~ msgid "Rule Node"
+#~ msgstr "Nombre del módulo"
+
+#, fuzzy
+#~ msgid "Rule Parent"
+#~ msgstr "Nombre del módulo"
+
+#, fuzzy
+#~ msgid "Rule Type"
+#~ msgstr "Tipo de módulo"
+
+#, fuzzy
 #~ msgid "Rule Update Fail"
 #~ msgstr "Grupo Error de creación"
 
 #, fuzzy
 #~ msgid "Rule Update Success"
 #~ msgstr "creado por el usuario"
+
+#, fuzzy
+#~ msgid "Rule Value"
+#~ msgstr "Valor"
+
+#, fuzzy
+#~ msgid "Rule added!"
+#~ msgstr "Nombre de la impresora"
+
+#, fuzzy
+#~ msgid "Rule update failed!"
+#~ msgstr "actualización de la impresora ha fallado!"
 
 #, fuzzy
 #~ msgid "Snapin Created"
@@ -8547,6 +8525,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "Eliminar todos los elementos seleccionados"
+
+#, fuzzy
+#~ msgid "User Role"
+#~ msgstr "snapin"
+
+#, fuzzy
+#~ msgid "User Role Update Fail"
+#~ msgstr "Grupo Error de creación"
+
+#, fuzzy
+#~ msgid "User Role Update Success"
+#~ msgstr "Actualizar impresora"
+
+#, fuzzy
+#~ msgid "User role updated!"
+#~ msgstr "el usuario actualiza"
 
 #, fuzzy
 #~ msgid "You have version"

@@ -158,9 +158,6 @@ msgstr ""
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
-msgid "A name with this type-value pair already exists!"
-msgstr ""
-
 msgid "A port must be specified"
 msgstr ""
 
@@ -171,9 +168,6 @@ msgid "A role already exists with this name!"
 msgstr ""
 
 msgid "A role with this name already exists!"
-msgstr ""
-
-msgid "A rule already exists with that type-value pair!"
 msgstr ""
 
 msgid "A server URL and topic endpoint are required"
@@ -243,15 +237,6 @@ msgstr ""
 msgid "Access Control Management"
 msgstr ""
 
-msgid "Access Control Name"
-msgstr ""
-
-msgid "Access Control Rules"
-msgstr ""
-
-msgid "Access Controls"
-msgstr ""
-
 msgid "Access Denied"
 msgstr ""
 
@@ -262,54 +247,6 @@ msgid "Access level is still 0 or false"
 msgstr ""
 
 msgid "Access token"
-msgstr ""
-
-msgid "Accesscontrol Create Fail"
-msgstr ""
-
-msgid "Accesscontrol Create Success"
-msgstr ""
-
-msgid "Accesscontrol Description"
-msgstr ""
-
-msgid "Accesscontrol Name"
-msgstr ""
-
-msgid "Accesscontrol Rule Associations"
-msgstr ""
-
-msgid "Accesscontrol Rule Name"
-msgstr ""
-
-msgid "Accesscontrol Rule Role Associations"
-msgstr ""
-
-msgid "Accesscontrol Rule Update Fail"
-msgstr ""
-
-msgid "Accesscontrol Rule Update Success"
-msgstr ""
-
-msgid "Accesscontrol Rule updated!"
-msgstr ""
-
-msgid "Accesscontrol Update Fail"
-msgstr ""
-
-msgid "Accesscontrol Update Success"
-msgstr ""
-
-msgid "Accesscontrol User Associations"
-msgstr ""
-
-msgid "Accesscontrol added!"
-msgstr ""
-
-msgid "Accesscontrol update failed!"
-msgstr ""
-
-msgid "Accesscontrol updated!"
 msgstr ""
 
 msgid "Accessed By"
@@ -393,9 +330,6 @@ msgstr ""
 msgid "Add To Group(s)"
 msgstr ""
 
-msgid "Add accesscontrol failed!"
-msgstr ""
-
 msgid "Add broadcast failed!"
 msgstr ""
 
@@ -436,9 +370,6 @@ msgid "Add pushbullet account failed!"
 msgstr ""
 
 msgid "Add role failed!"
-msgstr ""
-
-msgid "Add rule failed!"
 msgstr ""
 
 msgid "Add selected"
@@ -584,12 +515,6 @@ msgid "An LDAP server already exists with this name!"
 msgstr ""
 
 msgid "An OU already exists with this name!"
-msgstr ""
-
-msgid "An accesscontrol already exists with this name!"
-msgstr ""
-
-msgid "An accesscontrol with this name already exists!"
 msgstr ""
 
 msgid "An entry already exists with this name!"
@@ -1106,9 +1031,6 @@ msgstr ""
 msgid "Create New %s"
 msgstr ""
 
-msgid "Create New Accesscontrol"
-msgstr ""
-
 msgid "Create New Broadcast"
 msgstr ""
 
@@ -1149,9 +1071,6 @@ msgid "Create New Printer"
 msgstr ""
 
 msgid "Create New Role"
-msgstr ""
-
-msgid "Create New Rule"
 msgstr ""
 
 msgid "Create New Scheduled"
@@ -1610,12 +1529,6 @@ msgid "Export Locations"
 msgstr ""
 
 msgid "Export OUs"
-msgstr ""
-
-msgid "Export Roles"
-msgstr ""
-
-msgid "Export Rules"
 msgstr ""
 
 msgid "Export Sites"
@@ -2723,12 +2636,6 @@ msgstr ""
 msgid "Import Reports"
 msgstr ""
 
-msgid "Import Roles"
-msgstr ""
-
-msgid "Import Rules"
-msgstr ""
-
 msgid "Import Sites"
 msgstr ""
 
@@ -3184,12 +3091,6 @@ msgid "List All %s"
 msgstr ""
 
 msgid "List All Plugins"
-msgstr ""
-
-msgid "List All Roles"
-msgstr ""
-
-msgid "List All Rules"
 msgstr ""
 
 msgid "List All Task States"
@@ -4475,9 +4376,6 @@ msgstr ""
 msgid "Reverse"
 msgstr ""
 
-msgid "Role Association"
-msgstr ""
-
 msgid "Role Associations"
 msgstr ""
 
@@ -4518,36 +4416,6 @@ msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
 msgid "Row"
-msgstr ""
-
-msgid "Rule Association"
-msgstr ""
-
-msgid "Rule Create Fail"
-msgstr ""
-
-msgid "Rule Create Success"
-msgstr ""
-
-msgid "Rule Name"
-msgstr ""
-
-msgid "Rule Node"
-msgstr ""
-
-msgid "Rule Parent"
-msgstr ""
-
-msgid "Rule Type"
-msgstr ""
-
-msgid "Rule Value"
-msgstr ""
-
-msgid "Rule added!"
-msgstr ""
-
-msgid "Rule update failed!"
 msgstr ""
 
 msgid "Running Windows"
@@ -6024,15 +5892,6 @@ msgstr ""
 msgid "User Password"
 msgstr ""
 
-msgid "User Role"
-msgstr ""
-
-msgid "User Role Update Fail"
-msgstr ""
-
-msgid "User Role Update Success"
-msgstr ""
-
 msgid "User Site"
 msgstr ""
 
@@ -6061,9 +5920,6 @@ msgid "User call is invalid"
 msgstr ""
 
 msgid "User not found"
-msgstr ""
-
-msgid "User role updated!"
 msgstr ""
 
 msgid "User update failed!"

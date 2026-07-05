@@ -202,10 +202,6 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
-msgid "A name with this type-value pair already exists!"
-msgstr "使用此名称的主机名已经存在。"
-
-#, fuzzy
 msgid "A port must be specified"
 msgstr "没有指定的图像"
 
@@ -220,10 +216,6 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "A role with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
-
-#, fuzzy
-msgid "A rule already exists with that type-value pair!"
-msgstr "图像已经存在具有此名称！"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -305,18 +297,6 @@ msgid "Access Control Management"
 msgstr "门禁管理"
 
 #, fuzzy
-msgid "Access Control Name"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Access Control Rules"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Access Controls"
-msgstr "所有访问控制"
-
-#, fuzzy
 msgid "Access Denied"
 msgstr "访问令牌"
 
@@ -329,70 +309,6 @@ msgstr ""
 #, fuzzy
 msgid "Access token"
 msgstr "访问令牌"
-
-#, fuzzy
-msgid "Accesscontrol Create Fail"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Accesscontrol Create Success"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Accesscontrol Description"
-msgstr "描述"
-
-#, fuzzy
-msgid "Accesscontrol Name"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Accesscontrol Rule Associations"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Accesscontrol Rule Name"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Accesscontrol Rule Role Associations"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Accesscontrol Rule Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Accesscontrol Rule updated!"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Accesscontrol Update Fail"
-msgstr "内核更新"
-
-#, fuzzy
-msgid "Accesscontrol Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Accesscontrol User Associations"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Accesscontrol added!"
-msgstr "所有访问控制"
-
-#, fuzzy
-msgid "Accesscontrol update failed!"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Accesscontrol updated!"
-msgstr "所有访问控制"
 
 msgid "Accessed By"
 msgstr "通过访问"
@@ -487,10 +403,6 @@ msgid "Add To Group(s)"
 msgstr "添加存储组"
 
 #, fuzzy
-msgid "Add accesscontrol failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "添加管理单元失败！"
 
@@ -544,10 +456,6 @@ msgstr "链接Pushbullet账户"
 
 #, fuzzy
 msgid "Add role failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add rule failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
@@ -722,14 +630,6 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "An accesscontrol already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "An accesscontrol with this name already exists!"
-msgstr "使用此名称的主机名已经存在。"
 
 #, fuzzy
 msgid "An entry already exists with this name!"
@@ -1341,10 +1241,6 @@ msgid "Create New %s"
 msgstr "新建%s"
 
 #, fuzzy
-msgid "Create New Accesscontrol"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Create New Broadcast"
 msgstr "新建%s"
 
@@ -1398,10 +1294,6 @@ msgstr "新建%s"
 
 #, fuzzy
 msgid "Create New Role"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New Rule"
 msgstr "新建%s"
 
 #, fuzzy
@@ -1933,14 +1825,6 @@ msgstr "主机位置"
 #, fuzzy
 msgid "Export OUs"
 msgstr "导出用户"
-
-#, fuzzy
-msgid "Export Roles"
-msgstr "主机出口"
-
-#, fuzzy
-msgid "Export Rules"
-msgstr "成功"
 
 #, fuzzy
 msgid "Export Sites"
@@ -3265,14 +3149,6 @@ msgid "Import Reports"
 msgstr "进口主机"
 
 #, fuzzy
-msgid "Import Roles"
-msgstr "进口主机"
-
-#, fuzzy
-msgid "Import Rules"
-msgstr "进口主机"
-
-#, fuzzy
 msgid "Import Sites"
 msgstr "进口打印机"
 
@@ -3810,14 +3686,6 @@ msgstr "列表中的所有%s"
 #, fuzzy
 msgid "List All Plugins"
 msgstr "安装插件"
-
-#, fuzzy
-msgid "List All Roles"
-msgstr "列表中的所有%s"
-
-#, fuzzy
-msgid "List All Rules"
-msgstr "列表中的所有%s"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5310,10 +5178,6 @@ msgid "Reverse"
 msgstr ""
 
 #, fuzzy
-msgid "Role Association"
-msgstr "图像协会"
-
-#, fuzzy
 msgid "Role Associations"
 msgstr "图像协会"
 
@@ -5365,46 +5229,6 @@ msgstr ""
 
 msgid "Row"
 msgstr "行"
-
-#, fuzzy
-msgid "Rule Association"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Rule Create Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Rule Create Success"
-msgstr "打印机已经存在"
-
-#, fuzzy
-msgid "Rule Name"
-msgstr "模块名称"
-
-#, fuzzy
-msgid "Rule Node"
-msgstr "模块名称"
-
-#, fuzzy
-msgid "Rule Parent"
-msgstr "模块名称"
-
-#, fuzzy
-msgid "Rule Type"
-msgstr "模块类型"
-
-#, fuzzy
-msgid "Rule Value"
-msgstr "值"
-
-#, fuzzy
-msgid "Rule added!"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Rule update failed!"
-msgstr "打印机更新失败！"
 
 #, fuzzy
 msgid "Running Windows"
@@ -7153,18 +6977,6 @@ msgid "User Password"
 msgstr "用户密码"
 
 #, fuzzy
-msgid "User Role"
-msgstr "用户清理"
-
-#, fuzzy
-msgid "User Role Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "User Role Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
 msgid "User Site"
 msgstr "添加新的管理单元"
 
@@ -7201,10 +7013,6 @@ msgstr "用户调用无效"
 #, fuzzy
 msgid "User not found"
 msgstr "未发现记录，错误： %s"
-
-#, fuzzy
-msgid "User role updated!"
-msgstr "用户更新"
 
 #, fuzzy
 msgid "User update failed!"
@@ -8123,6 +7931,14 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "A name with this type-value pair already exists!"
+#~ msgstr "使用此名称的主机名已经存在。"
+
+#, fuzzy
+#~ msgid "A rule already exists with that type-value pair!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 #~ msgid "A rule already exists with this value!"
 #~ msgstr "图像已经存在具有此名称！"
 
@@ -8131,12 +7947,104 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "Access Control Name"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Access Control Rules"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Access Controls"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Fail"
+#~ msgstr "更新管理单元"
+
+#, fuzzy
+#~ msgid "Accesscontrol Create Success"
+#~ msgstr "更新管理单元"
+
+#, fuzzy
+#~ msgid "Accesscontrol Description"
+#~ msgstr "描述"
+
+#, fuzzy
+#~ msgid "Accesscontrol Name"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Associations"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Name"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Role Associations"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Accesscontrol Rule updated!"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Fail"
+#~ msgstr "内核更新"
+
+#, fuzzy
+#~ msgid "Accesscontrol Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Accesscontrol User Associations"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Accesscontrol added!"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
+#~ msgid "Accesscontrol update failed!"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Accesscontrol updated!"
+#~ msgstr "所有访问控制"
+
+#, fuzzy
 #~ msgid "Active Multi-cast Tasks"
 #~ msgstr "活动组播任务"
 
 #, fuzzy
 #~ msgid "Add Selected"
 #~ msgstr "打印机"
+
+#, fuzzy
+#~ msgid "Add accesscontrol failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add rule failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "An accesscontrol already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "An accesscontrol with this name already exists!"
+#~ msgstr "使用此名称的主机名已经存在。"
 
 #, fuzzy
 #~ msgid "An error occurred"
@@ -8154,7 +8062,15 @@ msgstr ""
 #~ msgstr "设置"
 
 #, fuzzy
+#~ msgid "Create New Accesscontrol"
+#~ msgstr "新建%s"
+
+#, fuzzy
 #~ msgid "Create New Host Ext"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Rule"
 #~ msgstr "新建%s"
 
 #, fuzzy
@@ -8178,6 +8094,14 @@ msgstr ""
 
 #~ msgid "Export Printers"
 #~ msgstr "出口打印机"
+
+#, fuzzy
+#~ msgid "Export Roles"
+#~ msgstr "主机出口"
+
+#, fuzzy
+#~ msgid "Export Rules"
+#~ msgstr "成功"
 
 #~ msgid "Export Snapins"
 #~ msgstr "出口Snapins"
@@ -8281,6 +8205,14 @@ msgstr ""
 #~ msgid "Import Printers"
 #~ msgstr "进口打印机"
 
+#, fuzzy
+#~ msgid "Import Roles"
+#~ msgstr "进口主机"
+
+#, fuzzy
+#~ msgid "Import Rules"
+#~ msgstr "进口主机"
+
 #~ msgid "Import Snapins"
 #~ msgstr "进口Snapins"
 
@@ -8304,6 +8236,14 @@ msgstr ""
 #~ msgstr "最新版本"
 
 #, fuzzy
+#~ msgid "List All Roles"
+#~ msgstr "列表中的所有%s"
+
+#, fuzzy
+#~ msgid "List All Rules"
+#~ msgstr "列表中的所有%s"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "无关联的节点"
 
@@ -8323,8 +8263,40 @@ msgstr ""
 #~ msgid "Results"
 #~ msgstr "结果"
 
+#, fuzzy
+#~ msgid "Role Association"
+#~ msgstr "图像协会"
+
 #~ msgid "Row number not set properly"
 #~ msgstr "行数设置不正确"
+
+#, fuzzy
+#~ msgid "Rule Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Rule Create Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Rule Create Success"
+#~ msgstr "打印机已经存在"
+
+#, fuzzy
+#~ msgid "Rule Name"
+#~ msgstr "模块名称"
+
+#, fuzzy
+#~ msgid "Rule Node"
+#~ msgstr "模块名称"
+
+#, fuzzy
+#~ msgid "Rule Parent"
+#~ msgstr "模块名称"
+
+#, fuzzy
+#~ msgid "Rule Type"
+#~ msgstr "模块类型"
 
 #, fuzzy
 #~ msgid "Rule Update Fail"
@@ -8333,6 +8305,18 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule Update Success"
 #~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Rule Value"
+#~ msgstr "值"
+
+#, fuzzy
+#~ msgid "Rule added!"
+#~ msgstr "打印机名称"
+
+#, fuzzy
+#~ msgid "Rule update failed!"
+#~ msgstr "打印机更新失败！"
 
 #, fuzzy
 #~ msgid "Snapin Created"
@@ -8383,6 +8367,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "删除选定的打印机"
+
+#, fuzzy
+#~ msgid "User Role"
+#~ msgstr "用户清理"
+
+#, fuzzy
+#~ msgid "User Role Update Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "User Role Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "User role updated!"
+#~ msgstr "用户更新"
 
 #, fuzzy
 #~ msgid "You have version"

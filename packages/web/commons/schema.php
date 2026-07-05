@@ -4461,3 +4461,13 @@ $this->schema[] = [
         return true;
     },
 ];
+// 307
+$this->schema[] = [
+    // Retire the accesscontrol plugin: roles and user assignments went
+    // native in steps 302-306 and the plugin code is removed from the
+    // tree, so drop its plugins-table row to keep Plugin Management from
+    // listing a ghost entry. The plugin's menu-rule tables (rules,
+    // roleRuleAssoc) are intentionally left in the database - they were
+    // never enforced and deleting data is not this migration's call.
+    "DELETE FROM `plugins` WHERE `pName` = 'accesscontrol'",
+];
