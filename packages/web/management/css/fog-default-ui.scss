@@ -661,17 +661,30 @@ dd {
     }
   }
 
-  // Cards: tighter body/header padding via the BS5 card tokens. The edit-tab
+  // Cards: tighter body/footer padding via the BS5 card tokens. The edit-tab
   // strip header (card-header p-0) is unaffected — that utility is !important.
   // .card-title stays at AL4's 1.1rem for hierarchy.
   .card {
     --bs-card-spacer-y: 0.75rem;
-    --bs-card-cap-padding-y: 0.4rem;
+    --bs-card-cap-padding-y: 0.4rem; // reaches .card-footer only — see below
+  }
+  // The cap token can't reach .card-header: adminlte4 re-declares a bare
+  // .card-header{padding:1rem 1rem} AFTER its bundled Bootstrap copy, so the
+  // var-consuming rule loses on source order. Override the header directly.
+  .card-header {
+    padding: 0.4rem 1rem;
+  }
+  // AL4's card tools (collapse/close) use margin:-1rem 0, calibrated to the
+  // 1rem header padding it assumes; re-pair with the compact padding.
+  .btn-tool {
+    margin: -0.4rem 0;
   }
 
-  // displayAlert() emits an un-classed <h4> title inside alerts; unpinned it
-  // renders at raw-h4 scale (~1.4rem) against 14px body text.
-  .alert h4 {
+  // displayAlert() emits an un-classed <h4> title inside alerts — and inside
+  // callouts when called with $isCallout=true (the dashboard notices use
+  // this); unpinned it renders at raw-h4 scale (~1.4rem) against 14px body.
+  .alert h4,
+  .callout h4 {
     font-size: 1.1rem;
   }
 
@@ -709,11 +722,30 @@ dd {
   }
 
   // Buttons: compact default. .btn-sm keeps its own (slightly smaller) vendor
-  // metrics so in-table buttons still sit below the default scale.
-  .btn:not(.btn-sm) {
+  // metrics so in-table buttons still sit below the default scale, and
+  // .btn-tool keeps AL4's tighter card-tool metrics (which this rule would
+  // otherwise out-specify).
+  .btn:not(.btn-sm):not(.btn-tool) {
     --bs-btn-font-size: 0.875rem;
     --bs-btn-padding-y: 0.3rem;
     --bs-btn-padding-x: 0.625rem;
+  }
+
+  // Vendor rem-pins that escape pane inheritance: split-button action menus
+  // and nav-tab overflow dropdowns pin --bs-dropdown-font-size:1rem; accordion
+  // headers (FOG settings, kernel update, log viewer) pin a literal 1rem; and
+  // the DataTables pager is Bootstrap pagination markup whose
+  // --bs-pagination-* tokens still sit at the 1rem scale. Retune all three.
+  .dropdown-menu {
+    --bs-dropdown-font-size: 0.875rem;
+  }
+  .accordion-button {
+    font-size: 0.875rem;
+  }
+  .pagination {
+    --bs-pagination-font-size: 0.875rem;
+    --bs-pagination-padding-y: 0.3rem;
+    --bs-pagination-padding-x: 0.625rem;
   }
 
   // select2 renders as the --default theme (no theme option is ever passed;
@@ -732,8 +764,9 @@ dd {
 }
 
 // select2 dropdowns are appended to <body> (or the owning modal), outside
-// .app-main — compact them at global scope to match the pane scale.
-.select2-container--default .select2-dropdown {
+// .app-main — compact them at body scope to match the pane scale. The login
+// page's language picker keeps vendor scale: its card is full-size 1rem.
+body:not(.login-page) .select2-container--default .select2-dropdown {
   font-size: 0.875rem;
   .select2-results__option {
     padding: 4px 8px;
@@ -1023,12 +1056,13 @@ dd {
     border-color: var(--fog-border);
     color: var(--fog-text) !important;
   }
-  // Paged DataTables render their pager as Bootstrap pagination markup
-  // (ul.pagination > li.paginate_button > a). Bootstrap paints the page links
-  // #fff with a #ddd border, and the disabled prev/next arrows the same, so on
-  // dark they read as white boxes. Re-surface the default + disabled + hover
-  // states; the .active (current) page keeps its primary-blue fill, which
-  // already reads fine on dark.
+  // Paged DataTables (DT 2.x bootstrap renderer) build their pager as
+  // ul.pagination > li.dt-paging-button.page-item > a.page-link. Bootstrap
+  // paints the page links #fff with a #ddd border, and the disabled prev/next
+  // arrows the same, so on dark they read as white boxes. Re-surface the
+  // default + disabled + hover states (the element selectors below match
+  // a.page-link fine); the .active (current) page keeps its primary-blue
+  // fill, which already reads fine on dark.
   .pagination > li > a,
   .pagination > li > span,
   .pagination > .disabled > a,
