@@ -36,6 +36,11 @@
 
     disableButtons(true);
     var table = $('#dataTable').registerTable(onSelect, {
+        // This list has only five short columns and a small, fixed row set,
+        // so the responsive collapse never helps here -- it just hides four
+        // columns behind a per-row expander at full width and makes the
+        // expander fight the row-click selection. Keep every column visible.
+        responsive: false,
         order: [
             [0, 'asc']
         ],
@@ -53,10 +58,8 @@
         columnDefs: [
             {
                 // Surface the "Update available" action on the plugin name,
-                // which is the always-visible column (responsivePriority -1).
-                // The Installed column that would otherwise carry it is a
-                // low-priority column and gets collapsed behind the responsive
-                // expander, hiding which plugin actually needs the update.
+                // the leftmost and most visible column, so it's obvious which
+                // plugin needs the update without scanning across to Installed.
                 render: function(data, type, row) {
                     // Keep sorting/searching keyed on the plain name only.
                     if (type !== 'display') {
