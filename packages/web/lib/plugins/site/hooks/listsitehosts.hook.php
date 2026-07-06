@@ -1,17 +1,17 @@
 <?php
 /**
- * Lists only hosts related to the Sites of this user
+ * Filters the host/user/group/usergroup lists to the user's Sites
  *
  * PHP version 5
  *
- * @category List only hosts related to the Site of this user
+ * @category List only objects related to the Site of this user
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Lists only hosts related to the Sites of this user
+ * Filters the host/user/group/usergroup lists to the user's Sites
  *
  * @category ListSiteHosts
  * @package  FOGProject
@@ -32,7 +32,7 @@ class ListSiteHosts extends Hook
      *
      * @var string
      */
-    public $description = 'Only show hosts related to the site the user is in.';
+    public $description = 'Only show objects related to the site the user is in.';
     /**
      * For posterity.
      *
@@ -54,44 +54,56 @@ class ListSiteHosts extends Hook
     {
         parent::__construct();
         $this->registerInstalled([
-            ['AJAX_DATA_DISPLAY_CHANGE', 'filterHostsSite'],
+            ['AJAX_DATA_DISPLAY_CHANGE', 'filterListSite'],
         ]);
     }
     /**
-     * This adjusts our list hosts to only show those associated to the site
-     * the user is defined to. If user isn't assigned to a host nothing happens.
+     * Restricts the host/user/group/usergroup list to objects within the
+     * acting user's site scope. Implicit admins / global '*' holders are
+     * left untouched (they see everything); a restricted user with no site
+     * sees an empty list (strict deny-all), matching the single-object
+     * boundary enforced by SiteScopeCheck.
      *
      * @param mixed $arguments The arguments to modify.
      *
      * @return void
      */
-    public function filterHostsSite($arguments)
+    public function filterListSite($arguments)
     {
         global $node;
-        if ($node != 'host') {
+        // node => [association class, object-id field]
+        $map = [
+            'host'      => ['sitehostassociation', 'hostID'],
+            'user'      => ['siteuserassociation', 'userID'],
+            'group'     => ['sitegroupassociation', 'groupID'],
+            'usergroup' => ['siteusergroupassociation', 'usergroupID'],
+        ];
+        if (!isset($map[$node])) {
             return;
         }
-        $find = ['userID' => self::$FOGUser->get('id')];
-        $sites = Route::getIds(
-            'siteuserassociation',
-            $find,
-            'siteID'
-        );
-        if (!$sites) {
+        // Unrestricted users bypass site scoping entirely.
+        if (Authorization::isUnrestricted()) {
             return;
         }
-        $find = ['siteID' => $sites];
-        $hosts = Route::getIds(
-            'sitehostassociation',
-            $find,
-            'hostID'
-        );
-        if (!$hosts) {
-            return;
+        $userID = (int)self::$FOGUser->get('id');
+        $sites = Site::userSiteIDs($userID);
+        // A restricted user with no site sees nothing; otherwise keep the
+        // objects linked to any of their sites. Fall back to a sentinel id
+        // that matches nothing so the re-listed payload stays empty.
+        $ids = [0];
+        if (!empty($sites)) {
+            $found = Route::getIds(
+                $map[$node][0],
+                ['siteID' => $sites],
+                $map[$node][1]
+            );
+            if (!empty($found)) {
+                $ids = $found;
+            }
         }
         Route::listem(
-            'host',
-            ['id' => $hosts]
+            $arguments['childClass'],
+            ['id' => $ids]
         );
         $arguments['data'] = Route::getData();
     }

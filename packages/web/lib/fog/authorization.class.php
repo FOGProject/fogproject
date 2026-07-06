@@ -528,6 +528,18 @@ class Authorization extends FOGBase
         return in_array('*', $perms, true);
     }
     /**
+     * Public view of _isUnrestricted for scope-enforcing plugins (Site) that
+     * must let implicit admins / global '*' holders bypass list filtering.
+     *
+     * @param int|null $userID the user id (defaults to current user)
+     *
+     * @return bool
+     */
+    public static function isUnrestricted($userID = null)
+    {
+        return self::_isUnrestricted($userID);
+    }
+    /**
      * Is a specific object within the acting user's object scope?
      *
      * Object scope is an OPTIONAL boundary layered on top of the verb
