@@ -954,10 +954,18 @@ $.fn.validateForm = function(input) {
     }
 
     if (!scrolling) {
-      scrolling = true;
-      $('html, body').animate({
-        scrollTop: parent.offset().top
-      }, 200);
+      // formFields() wraps rows in ".row mb-3", not a "form-group" div, so
+      // parent can be empty. Fall back to the field itself, and skip the
+      // scroll entirely if neither has an offset (e.g. inside a modal) so a
+      // missing offset can't crash validation and wedge the form.
+      var scrollTarget = parent.length ? parent : $(e),
+        scrollOffset = scrollTarget.offset();
+      if (scrollOffset) {
+        scrolling = true;
+        $('html, body').animate({
+          scrollTop: scrollOffset.top
+        }, 200);
+      }
     }
 
     var msgBlock = '<span class="invalid-feedback">' + invalidReason + '</span>'
