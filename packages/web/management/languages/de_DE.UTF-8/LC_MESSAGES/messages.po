@@ -2311,11 +2311,19 @@ msgid "Group"
 msgstr "Gruppe"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "Speicherknoten erstellt"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "Gruppen-Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "Gruppen-Snapins"
 
 #, fuzzy
@@ -5592,6 +5600,10 @@ msgid "Site Description"
 msgstr "Site Beschreibung"
 
 #, fuzzy
+msgid "Site Group Associations"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
 msgid "Site Host Associations"
 msgstr "zugeordneter Host"
 
@@ -5610,6 +5622,10 @@ msgstr "Host Aktualisierung erfolgreich!"
 #, fuzzy
 msgid "Site User Associations"
 msgstr "Site Zugehörigkeit"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "Speicherknoten erstellt"
 
 #, fuzzy
 msgid "Site added!"
@@ -7001,8 +7017,16 @@ msgid "User DN"
 msgstr "Benutzer DN"
 
 #, fuzzy
+msgid "User Group Association"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
 msgid "User Group Associations"
 msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "Gruppen-Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7015,6 +7039,10 @@ msgstr "Gruppe erfolgreich erstellt"
 #, fuzzy
 msgid "User Group Member Associations"
 msgstr "Regel Zuordnung"
+
+#, fuzzy
+msgid "User Group Name"
+msgstr "Gruppen-Snapins"
 
 #, fuzzy
 msgid "User Group Role Associations"

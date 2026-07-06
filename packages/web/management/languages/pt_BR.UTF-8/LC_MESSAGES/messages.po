@@ -2314,11 +2314,19 @@ msgid "Group"
 msgstr "Grupo"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "Nó de Armazenamento Criado"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "Nó de Armazenamento Criado"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "exportação Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "exportação Snapins"
 
 #, fuzzy
@@ -5592,6 +5600,10 @@ msgid "Site Description"
 msgstr "Descrição Printer"
 
 #, fuzzy
+msgid "Site Group Associations"
+msgstr "Nó de Armazenamento Criado"
+
+#, fuzzy
 msgid "Site Host Associations"
 msgstr "No nó associado"
 
@@ -5610,6 +5622,10 @@ msgstr "Instalar / Atualizar sucesso!"
 #, fuzzy
 msgid "Site User Associations"
 msgstr "Associação imagem"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "Nó de Armazenamento Criado"
 
 #, fuzzy
 msgid "Site added!"
@@ -6996,8 +7012,16 @@ msgid "User DN"
 msgstr "Nome de usuário"
 
 #, fuzzy
+msgid "User Group Association"
+msgstr "Nó de Armazenamento Criado"
+
+#, fuzzy
 msgid "User Group Associations"
 msgstr "Nó de Armazenamento Criado"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "exportação Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7010,6 +7034,10 @@ msgstr "usuário criado"
 #, fuzzy
 msgid "User Group Member Associations"
 msgstr "Associação imagem"
+
+#, fuzzy
+msgid "User Group Name"
+msgstr "exportação Snapins"
 
 #, fuzzy
 msgid "User Group Role Associations"

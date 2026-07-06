@@ -2222,11 +2222,19 @@ msgid "Group"
 msgstr "Gruppo"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "Storage Node Creato"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "Storage Node Creato"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "Gruppo Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "Gruppo Snapins"
 
 msgid "Group Create Fail"
@@ -5349,6 +5357,10 @@ msgid "Site Description"
 msgstr "Descrizione Sito"
 
 #, fuzzy
+msgid "Site Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
 msgid "Site Host Associations"
 msgstr "Host associato"
 
@@ -5366,6 +5378,10 @@ msgstr "Aggiornamento host completato!"
 #, fuzzy
 msgid "Site User Associations"
 msgstr "Associazione Sito"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "Storage Node Creato"
 
 #, fuzzy
 msgid "Site added!"
@@ -6683,8 +6699,16 @@ msgid "User DN"
 msgstr "User DN"
 
 #, fuzzy
+msgid "User Group Association"
+msgstr "Storage Node Creato"
+
+#, fuzzy
 msgid "User Group Associations"
 msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "Gruppo Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -6697,6 +6721,10 @@ msgstr "Creazione Gruppo completata"
 #, fuzzy
 msgid "User Group Member Associations"
 msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "User Group Name"
+msgstr "Gruppo Snapins"
 
 #, fuzzy
 msgid "User Group Role Associations"

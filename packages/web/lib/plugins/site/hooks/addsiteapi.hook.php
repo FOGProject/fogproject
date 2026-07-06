@@ -80,6 +80,16 @@ class AddSiteAPI extends Hook
             'dt' => 'usercount',
             'removeFromQuery' => true
         ];
+        $arguments['columns'][] = [
+            'db' => 'sgaMembers',
+            'dt' => 'groupcount',
+            'removeFromQuery' => true
+        ];
+        $arguments['columns'][] = [
+            'db' => 'sugaMembers',
+            'dt' => 'usergroupcount',
+            'removeFromQuery' => true
+        ];
     }
     /**
      * This function injects site elements for
@@ -95,7 +105,9 @@ class AddSiteAPI extends Hook
             $arguments['validClasses'],
             $this->node,
             'sitehostassociation',
-            'siteuserassociation'
+            'siteuserassociation',
+            'sitegroupassociation',
+            'siteusergroupassociation'
         );
     }
 }

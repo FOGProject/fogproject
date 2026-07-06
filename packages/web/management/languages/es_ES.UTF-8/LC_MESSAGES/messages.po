@@ -2359,11 +2359,19 @@ msgid "Group"
 msgstr "Grupo"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "snapins"
 
 #, fuzzy
@@ -5724,6 +5732,10 @@ msgid "Site Description"
 msgstr "Descripción de la impresora"
 
 #, fuzzy
+msgid "Site Group Associations"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
 msgid "Site Host Associations"
 msgstr "No nodo asociado"
 
@@ -5742,6 +5754,10 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Site User Associations"
 msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "nodo de almacenamiento"
 
 #, fuzzy
 msgid "Site added!"
@@ -7146,8 +7162,16 @@ msgid "User DN"
 msgstr "Nombre de usuario"
 
 #, fuzzy
+msgid "User Group Association"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
 msgid "User Group Associations"
 msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7160,6 +7184,10 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "User Group Member Associations"
 msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "User Group Name"
+msgstr "snapins"
 
 #, fuzzy
 msgid "User Group Role Associations"

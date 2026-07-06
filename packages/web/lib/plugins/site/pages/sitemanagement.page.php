@@ -39,10 +39,14 @@ class SiteManagement extends FOGPage
         $this->headerData = [
             _('Name'),
             _('Host Count'),
-            _('User Count')
+            _('User Count'),
+            _('Group Count'),
+            _('User Group Count')
         ];
         $this->attributes = [
             [],
+            ['width' => 5],
+            ['width' => 5],
             ['width' => 5],
             ['width' => 5]
         ];
@@ -314,6 +318,52 @@ class SiteManagement extends FOGPage
         $this->assocPost('addUser', 'removeUser');
     }
     /**
+     * Presents the groups list.
+     *
+     * @return void
+     */
+    public function siteGroups()
+    {
+        $this->renderAssocTab(
+            'site-group',
+            _('Site Group Associations'),
+            _('Group Name'),
+            'group'
+        );
+    }
+    /**
+     * Updates site groups.
+     *
+     * @return void
+     */
+    public function siteGroupPost()
+    {
+        $this->assocPost('addGroup', 'removeGroup');
+    }
+    /**
+     * Presents the user groups list.
+     *
+     * @return void
+     */
+    public function siteUserGroups()
+    {
+        $this->renderAssocTab(
+            'site-usergroup',
+            _('Site User Group Associations'),
+            _('User Group Name'),
+            'usergroup'
+        );
+    }
+    /**
+     * Updates site user groups.
+     *
+     * @return void
+     */
+    public function siteUserGroupPost()
+    {
+        $this->assocPost('addUserGroup', 'removeUserGroup');
+    }
+    /**
      * Edit.
      *
      * @return void
@@ -349,6 +399,20 @@ class SiteManagement extends FOGPage
                         'generator' => function () {
                             $this->siteUsers();
                         }
+                    ],
+                    [
+                        'name' => _('Group Association'),
+                        'id' => 'site-group',
+                        'generator' => function () {
+                            $this->siteGroups();
+                        }
+                    ],
+                    [
+                        'name' => _('User Group Association'),
+                        'id' => 'site-usergroup',
+                        'generator' => function () {
+                            $this->siteUserGroups();
+                        }
                     ]
                 ]
             ]
@@ -379,6 +443,12 @@ class SiteManagement extends FOGPage
                         break;
                     case 'site-user':
                         $this->siteUserPost();
+                        break;
+                    case 'site-group':
+                        $this->siteGroupPost();
+                        break;
+                    case 'site-usergroup':
+                        $this->siteUserGroupPost();
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
@@ -424,6 +494,52 @@ class SiteManagement extends FOGPage
             '`users`.`uID`',
             '`siteUserAssoc`.`suaUserID`',
             '`siteUserAssoc`.`suaSiteID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
+     * Gets the group list.
+     *
+     * @return void
+     */
+    public function getGroupsList()
+    {
+        return $this->assocItemsList(
+            'group',
+            'sitegroupassociation',
+            'siteGroupAssoc',
+            '`groups`.`groupID`',
+            '`siteGroupAssoc`.`sgaGroupID`',
+            '`siteGroupAssoc`.`sgaSiteID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
+     * Gets the user group list.
+     *
+     * @return void
+     */
+    public function getUserGroupsList()
+    {
+        return $this->assocItemsList(
+            'usergroup',
+            'siteusergroupassociation',
+            'siteUserGroupAssoc',
+            '`userGroups`.`ugID`',
+            '`siteUserGroupAssoc`.`sugaUserGroupID`',
+            '`siteUserGroupAssoc`.`sugaSiteID`',
             [
                 [
                     'db' => 'siteAssoc',

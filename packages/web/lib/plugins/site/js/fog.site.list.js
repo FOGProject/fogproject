@@ -21,7 +21,9 @@
         columns: [
             {data: 'mainlink'},
             {data: 'hostcount'},
-            {data: 'usercount'}
+            {data: 'usercount'},
+            {data: 'groupcount'},
+            {data: 'usergroupcount'}
         ],
         rowId: 'id',
         columnDefs: [
@@ -36,6 +38,14 @@
             {
                 responsivePriority: 0,
                 target: 2
+            },
+            {
+                responsivePriority: 0,
+                target: 3
+            },
+            {
+                responsivePriority: 0,
+                target: 4
             }
         ],
         processing: true,

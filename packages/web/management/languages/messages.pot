@@ -1946,10 +1946,16 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
+msgid "Group Association"
+msgstr ""
+
 msgid "Group Associations"
 msgstr ""
 
 msgid "Group BIOS Exit"
+msgstr ""
+
+msgid "Group Count"
 msgstr ""
 
 msgid "Group Create Fail"
@@ -4711,6 +4717,9 @@ msgstr ""
 msgid "Site Description"
 msgstr ""
 
+msgid "Site Group Associations"
+msgstr ""
+
 msgid "Site Host Associations"
 msgstr ""
 
@@ -4724,6 +4733,9 @@ msgid "Site Update Success"
 msgstr ""
 
 msgid "Site User Associations"
+msgstr ""
+
+msgid "Site User Group Associations"
 msgstr ""
 
 msgid "Site added!"
@@ -5898,7 +5910,13 @@ msgstr ""
 msgid "User DN"
 msgstr ""
 
+msgid "User Group Association"
+msgstr ""
+
 msgid "User Group Associations"
+msgstr ""
+
+msgid "User Group Count"
 msgstr ""
 
 msgid "User Group Create Fail"
@@ -5908,6 +5926,9 @@ msgid "User Group Create Success"
 msgstr ""
 
 msgid "User Group Member Associations"
+msgstr ""
+
+msgid "User Group Name"
 msgstr ""
 
 msgid "User Group Role Associations"

@@ -2311,11 +2311,19 @@ msgid "Group"
 msgstr "Group"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "Storage Node Created"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "Storage Node Created"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "Export Snapins"
 
 #, fuzzy
@@ -5588,6 +5596,10 @@ msgid "Site Description"
 msgstr "Printer Description"
 
 #, fuzzy
+msgid "Site Group Associations"
+msgstr "Storage Node Created"
+
+#, fuzzy
 msgid "Site Host Associations"
 msgstr "No node associated"
 
@@ -5606,6 +5618,10 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Site User Associations"
 msgstr "Image Association"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "Storage Node Created"
 
 #, fuzzy
 msgid "Site added!"
@@ -6993,8 +7009,16 @@ msgid "User DN"
 msgstr "User Name"
 
 #, fuzzy
+msgid "User Group Association"
+msgstr "Storage Node Created"
+
+#, fuzzy
 msgid "User Group Associations"
 msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "Export Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7007,6 +7031,10 @@ msgstr "User created"
 #, fuzzy
 msgid "User Group Member Associations"
 msgstr "Image Association"
+
+#, fuzzy
+msgid "User Group Name"
+msgstr "Export Snapins"
 
 #, fuzzy
 msgid "User Group Role Associations"

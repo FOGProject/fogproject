@@ -53,15 +53,23 @@ class Site extends FOGController
     protected $additionalFields = [
         'description',
         'users',
-        'hosts'
+        'hosts',
+        'groups',
+        'usergroups'
     ];
+    // COUNT(DISTINCT ...) so the four LEFT OUTER JOINs (which multiply rows
+    // together) don't inflate each other's member counts.
     protected $sqlQueryStr = "SELECT
-        COUNT(`shaHostID`) `shaMembers`,COUNT(`suaUserID`) `suaMembers`, `%s`
+        COUNT(DISTINCT `shaHostID`) `shaMembers`,COUNT(DISTINCT `suaUserID`) `suaMembers`,COUNT(DISTINCT `sgaGroupID`) `sgaMembers`,COUNT(DISTINCT `sugaUserGroupID`) `sugaMembers`, `%s`
         FROM `%s`
         LEFT OUTER JOIN `siteHostAssoc`
         ON `site`.`sID` = `siteHostAssoc`.`shaSiteID`
         LEFT OUTER JOIN `siteUserAssoc`
         ON `site`.`sID` = `siteUserAssoc`.`suaSiteID`
+        LEFT OUTER JOIN `siteGroupAssoc`
+        ON `site`.`sID` = `siteGroupAssoc`.`sgaSiteID`
+        LEFT OUTER JOIN `siteUserGroupAssoc`
+        ON `site`.`sID` = `siteUserGroupAssoc`.`sugaSiteID`
         %s
         GROUP BY `sID`,`shaSiteID`
         %s
@@ -132,6 +140,66 @@ class Site extends FOGController
         );
     }
     /**
+     * Add group to site.
+     *
+     * @param array $addArray The groups to add.
+     *
+     * @return object
+     */
+    public function addGroup($addArray)
+    {
+        return $this->addRemItem(
+            'groups',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Remove group from site.
+     *
+     * @param array $removeArray The groups to remove.
+     *
+     * @return object
+     */
+    public function removeGroup($removeArray)
+    {
+        return $this->addRemItem(
+            'groups',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Add user group to site.
+     *
+     * @param array $addArray The user groups to add.
+     *
+     * @return object
+     */
+    public function addUserGroup($addArray)
+    {
+        return $this->addRemItem(
+            'usergroups',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Remove user group from site.
+     *
+     * @param array $removeArray The user groups to remove.
+     *
+     * @return object
+     */
+    public function removeUserGroup($removeArray)
+    {
+        return $this->addRemItem(
+            'usergroups',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
      * Stores/updates the site
      *
      * @return object
@@ -142,6 +210,8 @@ class Site extends FOGController
         return $this
             ->assocSetter('SiteUserAssociation', 'user', true)
             ->assocSetter('SiteHostAssociation', 'host', true)
+            ->assocSetter('SiteGroupAssociation', 'group', true)
+            ->assocSetter('SiteUserGroupAssociation', 'usergroup', true)
             ->load();
     }
     /**
@@ -158,6 +228,36 @@ class Site extends FOGController
             'userID'
         );
         $this->set('users', (array)$siteuserassocs);
+    }
+    /**
+     * Load groups
+     *
+     * @return void
+     */
+    protected function loadGroups()
+    {
+        $find = ['siteID' => $this->get('id')];
+        $sitegroupassocs = Route::getIds(
+            'sitegroupassociation',
+            $find,
+            'groupID'
+        );
+        $this->set('groups', (array)$sitegroupassocs);
+    }
+    /**
+     * Load user groups
+     *
+     * @return void
+     */
+    protected function loadUsergroups()
+    {
+        $find = ['siteID' => $this->get('id')];
+        $siteusergroupassocs = Route::getIds(
+            'siteusergroupassociation',
+            $find,
+            'usergroupID'
+        );
+        $this->set('usergroups', (array)$siteusergroupassocs);
     }
     /**
      * Load hosts

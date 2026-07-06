@@ -2312,11 +2312,19 @@ msgid "Group"
 msgstr "组"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "存储节点创建"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "存储节点创建"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "出口Snapins"
 
 #, fuzzy
@@ -5588,6 +5596,10 @@ msgid "Site Description"
 msgstr "打印机说明"
 
 #, fuzzy
+msgid "Site Group Associations"
+msgstr "存储节点创建"
+
+#, fuzzy
 msgid "Site Host Associations"
 msgstr "无关联的节点"
 
@@ -5606,6 +5618,10 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Site User Associations"
 msgstr "图像协会"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "存储节点创建"
 
 #, fuzzy
 msgid "Site added!"
@@ -6987,8 +7003,16 @@ msgid "User DN"
 msgstr "用户名"
 
 #, fuzzy
+msgid "User Group Association"
+msgstr "存储节点创建"
+
+#, fuzzy
 msgid "User Group Associations"
 msgstr "存储节点创建"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "出口Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7001,6 +7025,10 @@ msgstr "用户创建"
 #, fuzzy
 msgid "User Group Member Associations"
 msgstr "图像协会"
+
+#, fuzzy
+msgid "User Group Name"
+msgstr "出口Snapins"
 
 #, fuzzy
 msgid "User Group Role Associations"
