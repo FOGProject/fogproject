@@ -94,6 +94,10 @@ class SiteManager extends FOGManagerController
             // reader (a hook listening for events that no longer fire) has
             // been removed.
             'DROP TABLE IF EXISTS `siteUserRestriction`',
+            // 5 - explicit group -> site scope (host groups).
+            self::getClass('SiteGroupAssociationManager')->createSql(),
+            // 6 - explicit user-group -> site scope.
+            self::getClass('SiteUserGroupAssociationManager')->createSql(),
         ];
     }
     /**
@@ -116,6 +120,8 @@ class SiteManager extends FOGManagerController
     {
         self::getClass('SiteHostAssociationManager')->uninstall();
         self::getClass('SiteUserAssociationManager')->uninstall();
+        self::getClass('SiteGroupAssociationManager')->uninstall();
+        self::getClass('SiteUserGroupAssociationManager')->uninstall();
         // Installs that never applied schema step 4 still have this table.
         self::$DB->query('DROP TABLE IF EXISTS `siteUserRestriction`');
         return parent::uninstall();

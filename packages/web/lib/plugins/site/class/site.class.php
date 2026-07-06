@@ -188,4 +188,117 @@ class Site extends FOGController
         Route::deletemass('site', ['id' => $this->get('id')]);
         return parent::destroy($key);
     }
+    /**
+     * Per-request cache of a user's site ids (keyed by userID).
+     *
+     * @var array
+     */
+    private static $_userSiteCache = [];
+    /**
+     * Map a scoped node to its [association class, object-id field].
+     * Returns null for a node the Site plugin does not scope.
+     *
+     * @param string $node the lowercased node
+     *
+     * @return array|null
+     */
+    private static function _assocFor($node)
+    {
+        switch (strtolower(trim((string)$node))) {
+            case 'host':
+                return ['sitehostassociation', 'hostID'];
+            case 'user':
+                return ['siteuserassociation', 'userID'];
+            case 'group':
+                return ['sitegroupassociation', 'groupID'];
+            case 'usergroup':
+                return ['siteusergroupassociation', 'usergroupID'];
+        }
+        return null;
+    }
+    /**
+     * The set of site ids a user is assigned to (via siteUserAssoc). A user
+     * with no assignment returns an empty set, which the scope checks treat
+     * as deny-all.
+     *
+     * @param int $userID the user id
+     *
+     * @return array int site ids
+     */
+    public static function userSiteIDs($userID)
+    {
+        $userID = (int)$userID;
+        if (array_key_exists($userID, self::$_userSiteCache)) {
+            return self::$_userSiteCache[$userID];
+        }
+        $sites = Route::getIds(
+            'siteuserassociation',
+            ['userID' => $userID],
+            'siteID'
+        );
+        return self::$_userSiteCache[$userID] = array_map(
+            'intval',
+            (array)$sites
+        );
+    }
+    /**
+     * Is a single object within a user's site scope? True only when the
+     * object shares at least one site with the user. A user with no sites,
+     * or an object with no site, is never in scope (strict deny-all). Nodes
+     * the plugin does not scope are always in scope.
+     *
+     * @param string $node   the node (host|user|group|usergroup)
+     * @param int    $id     the object id
+     * @param int    $userID the acting user id
+     *
+     * @return bool
+     */
+    public static function inScope($node, $id, $userID)
+    {
+        $assoc = self::_assocFor($node);
+        if (null === $assoc) {
+            return true;
+        }
+        $userSites = self::userSiteIDs($userID);
+        if (empty($userSites)) {
+            return false;
+        }
+        $hits = Route::getIds(
+            $assoc[0],
+            [$assoc[1] => (int)$id, 'siteID' => $userSites],
+            $assoc[1]
+        );
+        return count((array)$hits) > 0;
+    }
+    /**
+     * Filter a list of object ids down to those within a user's site scope.
+     * Single query: keeps ids linked to any of the user's sites. A user with
+     * no sites gets an empty list (deny-all); an unscoped node is unchanged.
+     *
+     * @param string $node   the node (host|user|group|usergroup)
+     * @param array  $ids    candidate object ids
+     * @param int    $userID the acting user id
+     *
+     * @return array int ids in scope
+     */
+    public static function filterInScope($node, $ids, $userID)
+    {
+        $ids = array_map('intval', (array)$ids);
+        $assoc = self::_assocFor($node);
+        if (null === $assoc) {
+            return $ids;
+        }
+        $userSites = self::userSiteIDs($userID);
+        if (empty($userSites) || empty($ids)) {
+            return [];
+        }
+        $inScope = Route::getIds(
+            $assoc[0],
+            [$assoc[1] => $ids, 'siteID' => $userSites],
+            $assoc[1]
+        );
+        return array_values(
+            array_intersect($ids, array_map('intval', (array)$inScope))
+        );
+    }
 }
