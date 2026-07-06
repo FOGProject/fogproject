@@ -164,7 +164,7 @@ class FOGConfigurationPage extends FOGPage
             echo '</div>';
             echo '<div id="'
                 . $id
-                . '" class="panel-collapse collapse">';
+                . '" class="collapse">';
             echo '<div class="card-body">';
             if (!$StorageNode->online) {
                 echo '<div class="alert alert-warning">';

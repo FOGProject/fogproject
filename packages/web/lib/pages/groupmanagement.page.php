@@ -1594,7 +1594,7 @@ class GroupManagement extends FOGPage
         $modaldeleteBtns = self::makeButton(
             'deletepowermanagementConfirm',
             _('Confirm'),
-            'btn btn-ouline float-end',
+            'btn btn-outline-secondary float-end',
             ' method="post" action="'
             . self::makeTabUpdateURL(
                 'group-powermanagement',
@@ -2743,7 +2743,7 @@ class GroupManagement extends FOGPage
         echo '</a>';
         echo '</h4>';
         echo '</div>';
-        echo '<div id="tasksBasic" class="panel-collapse collapse show">';
+        echo '<div id="tasksBasic" class="collapse show">';
         echo '<div class="card-body">';
         echo '<table class="table table-striped">';
         echo '<tbody>';
@@ -2764,7 +2764,7 @@ class GroupManagement extends FOGPage
         echo '</a>';
         echo '</h4>';
         echo '</div>';
-        echo '<div id="tasksAdvanced" class="panel-collapse collapse">';
+        echo '<div id="tasksAdvanced" class="collapse">';
         echo '<div class="card-body">';
         echo '<table class="table table-striped">';
         echo '<tbody>';

@@ -4400,9 +4400,9 @@ abstract class FOGPage extends FOGBase
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<tr>';
-            echo '<th><center>';
+            echo '<th class="text-center">';
             echo $field;
-            echo '</center></th>';
+            echo '</th>';
             echo '<th>';
             echo $input;
             echo '</th>';

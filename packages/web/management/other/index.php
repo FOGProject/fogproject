@@ -153,7 +153,7 @@ unset($this->stylesheets);
                         </form>
                     </div>
                     <nav class="mt-2">
-                        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" aria-label="<?= _('Main navigation'); ?>" data-accordion="false">
+                        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" aria-label="<?= _('Main navigation'); ?>" data-accordion="true">
                             <li class="nav-header"><?= _('MAIN NAVIGATION'); ?></li>
                             <?= $this->menu; ?>
                             <?php if (self::$pluginIsAvailable): ?>
@@ -164,7 +164,7 @@ unset($this->stylesheets);
                             <?php endif; ?>
                         </ul>
                         <?php if (self::$pluginIsAvailable): ?>
-                            <ul class="nav sidebar-menu flex-column plugin-options" data-lte-toggle="treeview" data-accordion="false">
+                            <ul class="nav sidebar-menu flex-column plugin-options" data-lte-toggle="treeview" data-accordion="true">
                                 <?= $this->menuHook; ?>
                             </ul>
                         <?php endif; ?>

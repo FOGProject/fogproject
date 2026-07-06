@@ -326,7 +326,7 @@ class ServerInfo extends FOGPage
             echo '</div>';
             echo '<div id="'
                 . $ethName
-                . '" class="panel-collapse collapse">';
+                . '" class="collapse">';
             echo '<div class="card-body">';
             echo $rendered;
             echo '</div>';
