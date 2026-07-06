@@ -882,6 +882,14 @@ class Host extends FOGController
             if ($snapin == -1) {
                 $snapin = $this->get('snapins');
             }
+            // Drop any 0/blank snapin id before it becomes a snapintask row
+            // that renders as a phantom "null" snapin. Mirrors the same guard
+            // save() applies to the snapinAssoc rows; legacy assoc rows that
+            // predate that guard still carry a snapinID of 0.
+            $snapin = self::positiveIntIds((array)$snapin);
+            if (count($snapin) < 1) {
+                throw new Exception(_('No snapins associated'));
+            }
             $nextSequence = 1;
             // listem order is ASC by the requested field, so the last row has max sequence.
             Route::listem(

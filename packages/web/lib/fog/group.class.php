@@ -869,7 +869,14 @@ class Group extends FOGController
             } else {
                 $snapins[$hostID] = [$snapin];
             }
+            // Drop 0/blank snapin ids (legacy snapinAssoc rows predating the
+            // save() guard) so they never become phantom "null" snapintasks.
+            // Must unset the whole host entry when nothing survives: the
+            // insert loop below zips array_keys($snapins) against $snapinJobs
+            // by index, so a lingering empty key would misalign job -> tasks.
+            $snapins[$hostID] = self::positiveIntIds($snapins[$hostID]);
             if (count($snapins[$hostID] ?: []) < 1) {
+                unset($snapins[$hostID]);
                 continue;
             }
             $snapinJobs[] = [
