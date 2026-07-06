@@ -211,7 +211,7 @@ class HostManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="card">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo $this->title;
@@ -375,7 +375,7 @@ class HostManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="card">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo $this->title;
@@ -4111,7 +4111,7 @@ class HostManagement extends FOGPage
         echo '<div id="taskAccordian">';
 
         // Basic Tasks
-        echo '<div class="panel card card-primary card-outline">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo '<a href="#tasksBasic" class="" data-bs-toggle="collapse" '
@@ -4132,7 +4132,7 @@ class HostManagement extends FOGPage
         echo '</div>';
 
         // Advanced Tasks
-        echo '<div class="panel card card-warning card-outline">';
+        echo '<div class="card card-warning card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo '<a href="#tasksAdvanced" class="" data-bs-toggle="collapse" '
