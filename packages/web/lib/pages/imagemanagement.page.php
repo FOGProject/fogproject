@@ -1577,6 +1577,21 @@ class ImageManagement extends FOGPage
             . "'"
         ];
 
+        // The multicast sessions datatable renders the image link from
+        // row.imageid / row.imagename, which come from the joined images
+        // table -- surface them as extra columns (the primary manager only
+        // exposes the numeric msImage id).
+        $columns = [
+            [
+                'db' => 'imageID',
+                'dt' => 'imageid'
+            ],
+            [
+                'db' => 'imageName',
+                'dt' => 'imagename'
+            ]
+        ];
+
         return $this->obj->getItemsList(
             'multicastsession',
             '',

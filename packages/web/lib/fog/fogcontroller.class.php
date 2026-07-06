@@ -1360,7 +1360,13 @@ abstract class FOGController extends FOGBase
         $itemID = $privars['id'];
         $itemassocID = strtolower(get_class($this)). 'ID';
         $secondID = strtolower(get_class($this)). 'Assoc';
-        $secondRID = (isset($secvars[$itemassocID]) ? $secvars[$itemassocID] : $secvars['id']);
+        // $secvars only exists when a secondary is supplied; $secondRID is
+        // likewise only consumed inside the secondary branches below, so keep
+        // its computation guarded to avoid touching an undefined $secvars.
+        $secondRID = '';
+        if ($secondary) {
+            $secondRID = (isset($secvars[$itemassocID]) ? $secvars[$itemassocID] : $secvars['id']);
+        }
 
         $qStr = trim($qStr);
         $qFilterStr = trim($qFilterStr);
