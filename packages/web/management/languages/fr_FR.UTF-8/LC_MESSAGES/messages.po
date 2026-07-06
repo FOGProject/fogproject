@@ -7020,6 +7020,22 @@ msgid "User Group Role Associations"
 msgstr "Association Image"
 
 #, fuzzy
+msgid "User Group Site"
+msgstr "Export SnapIns"
+
+#, fuzzy
+msgid "User Group Site Update Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "User Group Site Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "User Group Site Updated!"
+msgstr "Groupe ajouté"
+
+#, fuzzy
 msgid "User Group Update Fail"
 msgstr "Groupe create a échoué"
 

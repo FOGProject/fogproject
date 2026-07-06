@@ -5913,6 +5913,18 @@ msgstr ""
 msgid "User Group Role Associations"
 msgstr ""
 
+msgid "User Group Site"
+msgstr ""
+
+msgid "User Group Site Update Fail"
+msgstr ""
+
+msgid "User Group Site Update Success"
+msgstr ""
+
+msgid "User Group Site Updated!"
+msgstr ""
+
 msgid "User Group Update Fail"
 msgstr ""
 

@@ -77,12 +77,29 @@ class SiteDeleteMassItems extends Hook
                     'userID' => $arguments['itemIDs']
                 ];
                 break;
+            case 'group':
+                $arguments['removeItems']['sitegroupassociation'] = [
+                    'groupID' => $arguments['itemIDs']
+                ];
+                break;
+            case 'usergroup':
+                $arguments['removeItems']['siteusergroupassociation'] = [
+                    'usergroupID' => $arguments['itemIDs']
+                ];
+                break;
             case 'site':
-                // Deleting a site clears its host and user links.
+                // Deleting a site clears its host, user, group and
+                // usergroup links.
                 $arguments['removeItems']['sitehostassociation'] = [
                     'siteID' => $arguments['itemIDs']
                 ];
                 $arguments['removeItems']['siteuserassociation'] = [
+                    'siteID' => $arguments['itemIDs']
+                ];
+                $arguments['removeItems']['sitegroupassociation'] = [
+                    'siteID' => $arguments['itemIDs']
+                ];
+                $arguments['removeItems']['siteusergroupassociation'] = [
                     'siteID' => $arguments['itemIDs']
                 ];
                 break;

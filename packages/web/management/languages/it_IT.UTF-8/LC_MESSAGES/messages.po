@@ -6703,6 +6703,22 @@ msgid "User Group Role Associations"
 msgstr "Regole di associazione"
 
 #, fuzzy
+msgid "User Group Site"
+msgstr "Gruppo Snapins"
+
+#, fuzzy
+msgid "User Group Site Update Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "User Group Site Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "User Group Site Updated!"
+msgstr "Gruppo aggiornato!"
+
+#, fuzzy
 msgid "User Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
 

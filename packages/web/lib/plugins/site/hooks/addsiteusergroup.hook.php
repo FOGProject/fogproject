@@ -1,38 +1,38 @@
 <?php
 /**
- * Associate host of a group to a Site.
+ * Associate a user group to a Site.
  *
  * PHP version 7
  *
- * @category AddSiteGroup
+ * @category AddSiteUserGroup
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Associate host of a group to a Site.
+ * Associate a user group to a Site.
  *
- * @category AddSiteGroup
+ * @category AddSiteUserGroup
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddSiteGroup extends Hook
+class AddSiteUserGroup extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddSiteGroup';
+    public $name = 'AddSiteUserGroup';
     /**
      * The description of this hook.
      *
      * @var string
      */
-    public $description = 'Add the hosts of a group to a Site';
+    public $description = 'Add a user group to a Site';
     /**
      * For posterity.
      *
@@ -54,47 +54,59 @@ class AddSiteGroup extends Hook
     {
         parent::__construct();
         $this->registerInstalled([
-            ['PLUGINS_INJECT_TABDATA', 'groupTabData'],
-            ['GROUP_EDIT_SUCCESS', 'groupAddSiteEdit'],
-            ['GROUP_ADD_FIELDS', 'groupAddSiteField'],
+            ['PLUGINS_INJECT_TABDATA', 'usergroupTabData'],
+            ['USERGROUP_EDIT_SUCCESS', 'usergroupAddSiteEdit'],
+            ['USERGROUP_ADD_FIELDS', 'usergroupAddSiteField'],
         ]);
     }
     /**
-     * The group tab data.
+     * The user group tab data.
      *
      * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function groupTabData($arguments)
+    public function usergroupTabData($arguments)
     {
         global $node;
-        if ($node != 'group') {
+        if ($node != 'usergroup') {
             return;
         }
         $obj = $arguments['obj'];
         $arguments['pluginsTabData'][] = [
             'name' => _('Site Association'),
-            'id' => 'group-site',
+            'id' => 'usergroup-site',
             'generator' => function () use ($obj) {
-                $this->groupSite($obj);
+                $this->usergroupSite($obj);
             }
         ];
     }
     /**
-     * The group site display
+     * The user group site display
      *
-     * @param object $obj The group object we're working with.
+     * @param object $obj The user group object we're working with.
      *
      * @return void
      */
-    public function groupSite($obj)
+    public function usergroupSite($obj)
     {
-        $siteID = (int)filter_input(INPUT_POST, 'site');
-        if ($siteID < 1) {
-            // Preselect the group's currently assigned site.
-            $siteID = $this->_savedGroupSite($obj->get('id'));
+        Route::listem('siteusergroupassociation');
+        $items = json_decode(
+            Route::getData()
+        );
+        $site = 0;
+        foreach ((array)$items->data as &$item) {
+            if ($item->usergroupID == $obj->get('id')) {
+                $site = $item->siteID;
+                unset($item);
+                break;
+            }
+            unset($item);
         }
+        $siteID = (
+            (int)filter_input(INPUT_POST, 'site') ?:
+            $site
+        );
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
 
@@ -102,7 +114,7 @@ class AddSiteGroup extends Hook
             FOGPage::makeLabel(
                 'col-sm-3 col-form-label',
                 'site',
-                _('Group Site')
+                _('User Group Site')
             ) => $siteSelector
         ];
 
@@ -113,11 +125,11 @@ class AddSiteGroup extends Hook
         );
 
         self::$HookManager->processEvent(
-            'GROUP_SITE_FIELDS',
+            'USERGROUP_SITE_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
-                'Group' => &$obj
+                'UserGroup' => &$obj
             ]
         );
         $rendered = FOGPage::formFields($fields);
@@ -125,9 +137,9 @@ class AddSiteGroup extends Hook
 
         echo FOGPage::makeFormTag(
             '',
-            'group-site-form',
+            'usergroup-site-form',
             FOGPage::makeTabUpdateURL(
-                'group-site',
+                'usergroup-site',
                 $obj->get('id')
             ),
             'post',
@@ -156,45 +168,29 @@ class AddSiteGroup extends Hook
      *
      * @return void
      */
-    public function groupSitePost($obj)
+    public function usergroupSitePost($obj)
     {
         self::checkAuthAndCSRF();
         $siteID = trim(
             (int)filter_input(INPUT_POST, 'site')
         );
-        // Persist the explicit group -> site scope assignment (single site).
-        // This is the row object-scope enforces on, and it must persist even
-        // when the group currently has no hosts to fan out to.
-        Route::deletemass(
-            'sitegroupassociation',
-            ['groupID' => $obj->get('id')]
-        );
-        if ($siteID > 0) {
-            self::getClass('SiteGroupAssociationManager')
-                ->insertBatch(
-                    ['groupID', 'siteID'],
-                    [[$obj->get('id'), $siteID]]
-                );
-        }
-        // Fan the assignment out to the group's current hosts (existing
-        // behavior — keeps member hosts aligned to the same site).
-        $insert_fields = ['hostID', 'siteID'];
+        $insert_fields = ['usergroupID', 'siteID'];
         $insert_values = [];
-        $hosts = $obj->get('hosts');
-        if (count($hosts ?: [])) {
+        $usergroups = [$obj->get('id')];
+        if (count($usergroups ?: [])) {
             Route::deletemass(
-                'sitehostassociation',
-                ['hostID' => $hosts]
+                'siteusergroupassociation',
+                ['usergroupID' => $usergroups]
             );
             if ($siteID > 0) {
-                foreach ((array)$hosts as $ind => &$hostID) {
-                    $insert_values[] = [$hostID, $siteID];
-                    unset($hostID);
+                foreach ((array)$usergroups as $ind => &$usergroupID) {
+                    $insert_values[] = [$usergroupID, $siteID];
+                    unset($usergroupID);
                 }
             }
         }
         if (count($insert_values) > 0) {
-            self::getClass('SiteHostAssociationManager')
+            self::getClass('SiteUserGroupAssociationManager')
                 ->insertBatch(
                     $insert_fields,
                     $insert_values
@@ -202,35 +198,35 @@ class AddSiteGroup extends Hook
         }
     }
     /**
-     * The group site selector.
+     * The user group site selector.
      *
      * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function groupAddSiteEdit($arguments)
+    public function usergroupAddSiteEdit($arguments)
     {
         self::checkAuthAndCSRF();
         global $tab;
         global $node;
-        if ($node != 'group') {
+        if ($node != 'usergroup') {
             return;
         }
-        $obj = $arguments['Group'];
+        $obj = $arguments['UserGroup'];
         try {
             switch ($tab) {
-                case 'group-site':
-                    $this->groupSitePost($obj);
+                case 'usergroup-site':
+                    $this->usergroupSitePost($obj);
                     break;
                 default:
                     return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
-            $arguments['hook'] = 'GROUP_EDIT_SITE_SUCCESS';
+            $arguments['hook'] = 'USERGROUP_EDIT_SITE_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
-                    'msg' => _('Group Site Updated!'),
-                    'title' => _('Group Site Update Success')
+                    'msg' => _('User Group Site Updated!'),
+                    'title' => _('User Group Site Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -239,26 +235,26 @@ class AddSiteGroup extends Hook
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $arguments['hook'] = 'GROUP_EDIT_SITE_FAIL';
+            $arguments['hook'] = 'USERGROUP_EDIT_SITE_FAIL';
             $arguments['msg'] = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Group Update Site Fail')
+                    'title' => _('User Group Site Update Fail')
                 ]
             );
         }
     }
     /**
-     * The group site field for function add.
+     * The user group site field for function add.
      *
      * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function groupAddSiteField($arguments)
+    public function usergroupAddSiteField($arguments)
     {
         global $node;
-        if ($node != 'group') {
+        if ($node != 'usergroup') {
             return;
         }
         $siteID = (int)filter_input(INPUT_POST, 'site');
@@ -269,24 +265,8 @@ class AddSiteGroup extends Hook
             FOGPage::makeLabel(
                 'col-sm-3 col-form-label',
                 'site',
-                _('Group Site')
+                _('User Group Site')
             )
         ] = $siteSelector;
-    }
-    /**
-     * The group's currently assigned site id (0 if none).
-     *
-     * @param int $groupID The group id.
-     *
-     * @return int
-     */
-    private function _savedGroupSite($groupID)
-    {
-        $ids = Route::getIds(
-            'sitegroupassociation',
-            ['groupID' => (int)$groupID],
-            'siteID'
-        );
-        return (int)(reset($ids) ?: 0);
     }
 }

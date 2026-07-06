@@ -7013,6 +7013,22 @@ msgid "User Group Role Associations"
 msgstr "Image Association"
 
 #, fuzzy
+msgid "User Group Site"
+msgstr "Export Snapins"
+
+#, fuzzy
+msgid "User Group Site Update Fail"
+msgstr "Group create failed"
+
+#, fuzzy
+msgid "User Group Site Update Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "User Group Site Updated!"
+msgstr "Group added"
+
+#, fuzzy
 msgid "User Group Update Fail"
 msgstr "Group create failed"
 

@@ -7007,6 +7007,22 @@ msgid "User Group Role Associations"
 msgstr "图像协会"
 
 #, fuzzy
+msgid "User Group Site"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "User Group Site Update Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "User Group Site Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "User Group Site Updated!"
+msgstr "集团补充"
+
+#, fuzzy
 msgid "User Group Update Fail"
 msgstr "集团创建失败"
 

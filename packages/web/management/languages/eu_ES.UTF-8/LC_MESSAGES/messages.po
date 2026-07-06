@@ -7022,6 +7022,22 @@ msgid "User Group Role Associations"
 msgstr "Regel Zuordnung"
 
 #, fuzzy
+msgid "User Group Site"
+msgstr "Gruppen-Snapins"
+
+#, fuzzy
+msgid "User Group Site Update Fail"
+msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#, fuzzy
+msgid "User Group Site Update Success"
+msgstr "Gruppe erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "User Group Site Updated!"
+msgstr "Gruppe aktualisiert"
+
+#, fuzzy
 msgid "User Group Update Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
 
