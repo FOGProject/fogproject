@@ -152,7 +152,7 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            echo '<div class="panel card card-primary card-outline">';
+            echo '<div class="card card-primary card-outline">';
             echo '<div class="card-header">';
             echo '<h4 class="card-title">';
             echo '<a data-bs-toggle="collapse" data-bs-parent="#nodekernvers" href="#'
@@ -1841,7 +1841,7 @@ class FOGConfigurationPage extends FOGPage
     {
         $this->title = _('FOG Settings');
 
-        echo '<div class="card">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo _('FOG Settings');
@@ -2405,7 +2405,7 @@ class FOGConfigurationPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="card">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo $this->title;
