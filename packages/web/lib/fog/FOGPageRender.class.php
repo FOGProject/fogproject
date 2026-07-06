@@ -316,6 +316,49 @@ trait FOGPageRender
     }
 
     /**
+     * Renders the standard Edit -> General tab form.
+     *
+     * Wraps the verbatim tail shared by every full-CRUD page's xxxGeneral():
+     * a tab-update form tag, a single card with the pre-rendered fields in the
+     * body, and a footer holding the action buttons plus the delete modal.
+     *
+     * @param string $idBase   id base (e.g. 'module' -> 'module-general-form')
+     * @param string $rendered pre-rendered form fields (self::formFields(...))
+     * @param string $buttons  the footer action buttons markup
+     * @param string $enctype  form enctype, default urlencoded
+     *
+     * @return void
+     */
+    protected function renderGeneralForm(
+        $idBase,
+        $rendered,
+        $buttons,
+        $enctype = 'application/x-www-form-urlencoded'
+    ) {
+        echo self::makeFormTag(
+            '',
+            $idBase . '-general-form',
+            self::makeTabUpdateURL(
+                $idBase . '-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            $enctype,
+            true
+        );
+        echo '<div class="card">';
+        echo '<div class="card-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $buttons;
+        echo $this->deleteModal();
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+
+    /**
      * Renders the standard "Create New X" page form.
      *
      * Wraps the near-identical add() body shared by nearly every management

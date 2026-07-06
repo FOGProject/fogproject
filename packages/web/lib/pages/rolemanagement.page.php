@@ -260,27 +260,7 @@ class RoleManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            '',
-            'role-general-form',
-            self::makeTabUpdateURL(
-                'role-general',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="card">';
-        echo '<div class="card-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo $this->deleteModal();
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
+        $this->renderGeneralForm('role', $rendered, $buttons);
     }
     /**
      * Updates the role general element.

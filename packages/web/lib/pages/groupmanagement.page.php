@@ -634,35 +634,18 @@ class GroupManagement extends FOGPage
             '',
             'warning'
         );
-        echo self::makeFormTag(
-            '',
-            'group-general-form',
-            self::makeTabUpdateURL(
-                'group-general',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="card">';
-        echo '<div class="card-body">';
-        echo '<div class="alert alert-info" role="alert">'
+        $alert = '<div class="alert alert-info" role="alert">'
             . _('Leave a field blank to keep each host\'s current value.')
             . ' '
             . _('Type')
             . ' <code>NULL</code> '
             . _('to clear the field on every host in this group.')
             . '</div>';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo $modalreset;
-        echo $this->deleteModal();
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
+        $this->renderGeneralForm(
+            'group',
+            $alert . $rendered,
+            $buttons . $modalreset
+        );
     }
     /**
      * Group general post element

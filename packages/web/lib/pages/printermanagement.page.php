@@ -1369,31 +1369,15 @@ class PrinterManagement extends FOGPage
             ['buttons' => &$buttons]
         );
 
-        echo self::makeFormTag(
-            '',
-            'printer-general-form',
-            self::makeTabUpdateURL(
-                'printer-general',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
+        $this->renderGeneralForm(
+            'printer',
+            $printerCopy
+            . $printerNetwork
+            . $printeriPrint
+            . $printerCups
+            . $printerLocal,
+            $buttons
         );
-        echo '<div class="card">';
-        echo '<div class="card-body">';
-        echo $printerCopy;
-        echo $printerNetwork;
-        echo $printeriPrint;
-        echo $printerCups;
-        echo $printerLocal;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo $this->deleteModal();
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Edit printer object.

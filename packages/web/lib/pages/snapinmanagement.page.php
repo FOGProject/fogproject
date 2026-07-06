@@ -1044,27 +1044,12 @@ class SnapinManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            '',
-            'snapin-general-form',
-            self::makeTabUpdateURL(
-                'snapin-general',
-                $this->obj->get('id')
-            ),
-            'post',
-            'multipart/form-data',
-            true
+        $this->renderGeneralForm(
+            'snapin',
+            $rendered,
+            $buttons,
+            'multipart/form-data'
         );
-        echo '<div class="card">';
-        echo '<div class="card-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo $this->deleteModal();
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Snapin General Post

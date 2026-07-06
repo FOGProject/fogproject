@@ -1000,27 +1000,7 @@ class StorageNodeManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            '',
-            'storagenode-general-form',
-            self::makeTabUpdateURL(
-                'storagenode-general',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="card">';
-        echo '<div class="card-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo $this->deleteModal();
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
+        $this->renderGeneralForm('storagenode', $rendered, $buttons);
     }
     /**
      * Storage node general post update.
