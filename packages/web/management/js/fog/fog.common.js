@@ -1396,10 +1396,13 @@ function clearAllIntervals(){
 
     // AL4 treeview visibility is gated purely by the .menu-open class on the
     // parent .nav-item (CSS shows .menu-open > .nav-treeview). Collapse any open
-    // branch that does not contain the target link.
+    // branch that does not contain the target link. AL4's own expand animation
+    // leaves an inline "display:block" on the .nav-treeview; removing the class
+    // alone would leave that inline style winning over the CSS, so strip it too.
     $(".sidebar-menu .nav-item.menu-open").each(function(){
       if($(this).find(targetElement).length === 0){
-        $(this).removeClass('menu-open');
+        $(this).removeClass('menu-open')
+          .children('.nav-treeview').removeAttr('style');
       }
     });
 
@@ -1435,8 +1438,11 @@ function clearAllIntervals(){
       // marked active so the open ancestor is visibly highlighted too.
       $(".sidebar-menu .nav-link").removeClass('active');
       targetElement.addClass('active');
-      targetElement.parents('.nav-item').addClass('menu-open')
-        .children('.nav-link').addClass('active');
+      var $branch = targetElement.parents('.nav-item').addClass('menu-open');
+      $branch.children('.nav-link').addClass('active');
+      // Clear any inline style AL4 left from a prior collapse (display:none)
+      // so the CSS .menu-open rule can expand this branch.
+      $branch.children('.nav-treeview').removeAttr('style');
     });
   }
 
