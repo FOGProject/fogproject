@@ -71,6 +71,7 @@ class AddSiteJS extends Hook
             'user' => ['secondary' => true],
             'host' => ['secondary' => true],
             'group' => ['secondary' => true],
+            'usergroup' => ['secondary' => true],
         ]);
     }
 }
