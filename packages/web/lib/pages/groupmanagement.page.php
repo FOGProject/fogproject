@@ -1744,7 +1744,7 @@ class GroupManagement extends FOGPage
         echo _('Group Host Inventories');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="card card-body">';
+        echo '<div class="card-body">';
         if (!count($hostnames)) {
             echo _('No hosts associated to this group yet');
             echo '</div>';
@@ -1756,7 +1756,7 @@ class GroupManagement extends FOGPage
             if (!isset($hostnames[$i])) {
                 continue;
             }
-            echo '<div class="panel card card-primary card-outline">';
+            echo '<div class="card card-primary card-outline">';
             echo '<div class="card-header">';
             echo '<h4 class="card-title">';
             echo '<a data-bs-toggle="collapse" data-bs-parent="#accordion" href="#'
@@ -1768,7 +1768,7 @@ class GroupManagement extends FOGPage
             echo '</div>';
             echo '<div id="'
                 . $hostnames[$i]
-                . '" class="panel collapse collapse">';
+                . '" class="collapse">';
             $puser = $inventory->primaryUser;
             $other1 = $inventory->other1;
             $other2 = $inventory->other2;
@@ -2717,7 +2717,7 @@ class GroupManagement extends FOGPage
         echo '<div id="taskAccordian">';
 
         // Basic Tasks
-        echo '<div class="panel card card-primary card-outline">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo '<a href="#tasksBasic" class="" data-bs-toggle="collapse" '
@@ -2738,7 +2738,7 @@ class GroupManagement extends FOGPage
         echo '</div>';
 
         // Advanced Tasks
-        echo '<div class="panel card card-warning card-outline">';
+        echo '<div class="card card-warning card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo '<a href="#tasksAdvanced" class="" data-bs-toggle="collapse" '
