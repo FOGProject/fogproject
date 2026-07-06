@@ -185,22 +185,22 @@ class GroupManagement extends FOGPage
             _('Group Create Fail'),
             function (&$serverFault) {
                 $group = trim(
-                    filter_input(INPUT_POST, 'group')
+                    (string)filter_input(INPUT_POST, 'group')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 $kernel = trim(
-                    filter_input(INPUT_POST, 'kernel')
+                    (string)filter_input(INPUT_POST, 'kernel')
                 );
                 $args = trim(
-                    filter_input(INPUT_POST, 'args')
+                    (string)filter_input(INPUT_POST, 'args')
                 );
                 $init = trim(
-                    filter_input(INPUT_POST, 'init')
+                    (string)filter_input(INPUT_POST, 'init')
                 );
                 $dev = trim(
-                    filter_input(INPUT_POST, 'dev')
+                    (string)filter_input(INPUT_POST, 'dev')
                 );
                 $exists = self::getClass('GroupManager')
                     ->exists($group);
@@ -656,14 +656,14 @@ class GroupManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $group = trim(
-            filter_input(INPUT_POST, 'group')
+            (string)filter_input(INPUT_POST, 'group')
         );
         $desc = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $key = strtoupper(
             trim(
-                filter_input(INPUT_POST, 'key')
+                (string)filter_input(INPUT_POST, 'key')
             )
         );
         $productKey = preg_replace(
@@ -677,22 +677,22 @@ class GroupManagement extends FOGPage
         );
         $productKey = substr($productKey, 0, 29);
         $kernel = trim(
-            filter_input(INPUT_POST, 'kernel')
+            (string)filter_input(INPUT_POST, 'kernel')
         );
         $args = trim(
-            filter_input(INPUT_POST, 'args')
+            (string)filter_input(INPUT_POST, 'args')
         );
         $dev = trim(
-            filter_input(INPUT_POST, 'dev')
+            (string)filter_input(INPUT_POST, 'dev')
         );
         $init = trim(
-            filter_input(INPUT_POST, 'init')
+            (string)filter_input(INPUT_POST, 'init')
         );
         $bte = trim(
-            filter_input(INPUT_POST, 'bootTypeExit')
+            (string)filter_input(INPUT_POST, 'bootTypeExit')
         );
         $ebte = trim(
-            filter_input(INPUT_POST, 'efiBootTypeExit')
+            (string)filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         if ($group != $this->obj->get('name')) {
             if ($this->obj->getManager()->exists($group)) {
@@ -810,7 +810,7 @@ class GroupManagement extends FOGPage
         self::checkAuthAndCSRF();
         if (isset($_POST['confirmimage'])) {
             $image = trim(
-                filter_input(INPUT_POST, 'image')
+                (string)filter_input(INPUT_POST, 'image')
             );
             $this->obj->addImage($image);
         }
@@ -1619,7 +1619,7 @@ class GroupManagement extends FOGPage
             'warning'
         );
         echo '<!-- Power Management -->';
-        echo '<div class="card">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo _('Power Management');
@@ -2817,7 +2817,7 @@ class GroupManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        $printerID = trim(filter_input(INPUT_GET, 'printerID'));
+        $printerID = trim((string)filter_input(INPUT_GET, 'printerID'));
 
         $printersAvail = Route::getIds('printer', false);
         if (!count($printersAvail ?: [])) {
@@ -3149,7 +3149,7 @@ class GroupManagement extends FOGPage
                 $type = 1;
             }
 
-            $TaskType = new TaskType($type);
+            $TaskType = self::getClass('TaskType', $type);
 
             $this->title = $TaskType->get('name')
                 . ' '
@@ -3422,14 +3422,14 @@ class GroupManagement extends FOGPage
             }
 
             // Task Type setup
-            $TaskType = new TaskType($type);
+            $TaskType = self::getClass('TaskType', $type);
             if (!$TaskType->isValid()) {
                 throw new Exception(_('Task Type is invalid'));
             }
 
             // Password reset setup
             $passreset = trim(
-                filter_input(INPUT_POST, 'account')
+                (string)filter_input(INPUT_POST, 'account')
             );
             if (TaskType::PASSWORD_RESET == $type
                 && !$passreset
