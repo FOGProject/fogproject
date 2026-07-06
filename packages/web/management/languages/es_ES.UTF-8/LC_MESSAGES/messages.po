@@ -137,6 +137,9 @@ msgstr ""
 msgid "A LDAP setup already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
+msgid "A TCP/IP port printer requires an IP address or hostname."
+msgstr ""
+
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -2214,6 +2217,9 @@ msgstr ""
 #, fuzzy
 msgid "Flush Settings Cache"
 msgstr "Ajustes del sistema FOG"
+
+msgid "For a network/SMB share use its path, e.g."
+msgstr ""
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -4891,6 +4897,10 @@ msgid "Please enter a name"
 msgstr "Por favor introduce un nombre de sesión"
 
 #, fuzzy
+msgid "Please enter a printer name."
+msgstr "Por favor introduce un nombre de sesión"
+
+#, fuzzy
 msgid "Please enter a valid CIDR subnet."
 msgstr "Por favor introduce un nombre de sesión"
 
@@ -4911,6 +4921,10 @@ msgstr "Seleccionar una imagen válida"
 #, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "Por favor seleccione una opción"
+
+#, fuzzy
+msgid "Please select a valid printer type."
+msgstr "Seleccionar una imagen válida"
 
 msgid "Please select an option"
 msgstr "Por favor seleccione una opción"
@@ -7630,9 +7644,6 @@ msgstr "habilitado"
 #, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "está protegido, no se permite la eliminación"
-
-msgid "e.g."
-msgstr ""
 
 msgid "either already selected or uploaded"
 msgstr ""

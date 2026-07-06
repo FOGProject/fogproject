@@ -140,6 +140,9 @@ msgstr ""
 msgid "A LDAP setup already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
+msgid "A TCP/IP port printer requires an IP address or hostname."
+msgstr ""
+
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
@@ -2171,6 +2174,9 @@ msgstr ""
 #, fuzzy
 msgid "Flush Settings Cache"
 msgstr "Paramètres BROUILLARD"
+
+msgid "For a network/SMB share use its path, e.g."
+msgstr ""
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -4775,6 +4781,10 @@ msgid "Please enter a name"
 msgstr "S'il vous plaît entrer un nom d'hôte valide"
 
 #, fuzzy
+msgid "Please enter a printer name."
+msgstr "S'il vous plaît entrer un nom d'hôte valide"
+
+#, fuzzy
 msgid "Please enter a valid CIDR subnet."
 msgstr "S'il vous plaît entrer un nom d'hôte valide"
 
@@ -4794,6 +4804,10 @@ msgstr "Sélectionnez une image valide"
 #, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "S'il vous plaît entrer une adresse IP valide"
+
+#, fuzzy
+msgid "Please select a valid printer type."
+msgstr "Sélectionnez une image valide"
 
 msgid "Please select an option"
 msgstr "veuillez sélectionner une option"
@@ -7483,9 +7497,6 @@ msgstr "Activée"
 #, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "L'image est protégée et ne peut être supprimé"
-
-msgid "e.g."
-msgstr ""
 
 msgid "either already selected or uploaded"
 msgstr ""

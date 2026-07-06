@@ -137,6 +137,9 @@ msgstr ""
 msgid "A LDAP setup already exists with this name!"
 msgstr "Un'impostazione LDAP esiste già con questo nome!"
 
+msgid "A TCP/IP port printer requires an IP address or hostname."
+msgstr ""
+
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
@@ -2082,6 +2085,9 @@ msgstr ""
 #, fuzzy
 msgid "Flush Settings Cache"
 msgstr "Impostazioni FOG"
+
+msgid "For a network/SMB share use its path, e.g."
+msgstr ""
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -4567,6 +4573,10 @@ msgid "Please enter a name"
 msgstr "Si prega di inserire un nome host valido"
 
 #, fuzzy
+msgid "Please enter a printer name."
+msgstr "Si prega di inserire un nome host valido"
+
+#, fuzzy
 msgid "Please enter a valid CIDR subnet."
 msgstr "Si prega di inserire un nome host valido"
 
@@ -4585,6 +4595,10 @@ msgstr "Selezionare un'immagine valida"
 
 msgid "Please select a valid ldap port"
 msgstr "Seleziona una porta ldap valida"
+
+#, fuzzy
+msgid "Please select a valid printer type."
+msgstr "Selezionare un'immagine valida"
 
 msgid "Please select an option"
 msgstr "per favore selezionate un'opzione"
@@ -7142,9 +7156,6 @@ msgstr "Disabilitato"
 msgid "does not exist and cannot be created"
 msgstr "L'immagine è protetta e non può essere cancellato"
 
-msgid "e.g."
-msgstr "es."
-
 msgid "either already selected or uploaded"
 msgstr "già selezionati o caricati"
 
@@ -8120,6 +8131,9 @@ msgstr ""
 
 #~ msgid "but"
 #~ msgstr "ma"
+
+#~ msgid "e.g."
+#~ msgstr "es."
 
 #~ msgid "no database to"
 #~ msgstr "Nessun database a"

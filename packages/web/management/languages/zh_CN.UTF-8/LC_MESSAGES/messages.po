@@ -139,6 +139,9 @@ msgstr ""
 msgid "A LDAP setup already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
+msgid "A TCP/IP port printer requires an IP address or hostname."
+msgstr ""
+
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -2168,6 +2171,9 @@ msgstr ""
 #, fuzzy
 msgid "Flush Settings Cache"
 msgstr "FOG设置"
+
+msgid "For a network/SMB share use its path, e.g."
+msgstr ""
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
@@ -4770,6 +4776,10 @@ msgid "Please enter a name"
 msgstr "请输入一个有效的主机名"
 
 #, fuzzy
+msgid "Please enter a printer name."
+msgstr "请输入一个有效的主机名"
+
+#, fuzzy
 msgid "Please enter a valid CIDR subnet."
 msgstr "请输入一个有效的主机名"
 
@@ -4789,6 +4799,10 @@ msgstr "选择一个有效的图像"
 #, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "请输入一个有效的IP"
+
+#, fuzzy
+msgid "Please select a valid printer type."
+msgstr "选择一个有效的图像"
 
 msgid "Please select an option"
 msgstr "请选择一个选项"
@@ -7468,9 +7482,6 @@ msgstr "启用"
 #, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "图像被保护，不能被删除"
-
-msgid "e.g."
-msgstr ""
 
 msgid "either already selected or uploaded"
 msgstr ""

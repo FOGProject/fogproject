@@ -1,11 +1,20 @@
 (function($) {
-    var printertype = $('#printertype'),
-        printercopy = $('#printercopy'),
-        type = printertype.val().toLowerCase();
+    var printertype = $('#printertype');
+
+    // Show only the selected type's section. Hidden sections are disabled so
+    // their inputs stay out of the submitted FormData and out of validation.
+    function showType(type) {
+        $('.printer-type-section').each(function() {
+            var section = $(this),
+                match = section.hasClass(type);
+            section.toggleClass('d-none', !match);
+            section.find(':input').prop('disabled', !match);
+        });
+    }
 
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#printer'+type+':visible').val(),
+    var originalName = $('#printer').val(),
         updateName = function(newName) {
         var e = $('#pageTitle'),
             text = e.text();
@@ -41,8 +50,8 @@
             if (err) {
                 return;
             }
-            updateName($('#printer'+type).val());
-            originalName = $('#printer'+type).val();
+            updateName($('#printer').val());
+            originalName = $('#printer').val();
         }, ':input:visible');
     });
     generalDeleteBtn.on('click', function() {
@@ -66,58 +75,10 @@
         });
     });
 
-    // Hides the fields not currently selected.
-    $('.network,.iprint,.cups,.local').addClass('d-none');
-    $('.'+type).removeClass('d-none');
-    // On change hide all the fields and show the appropriate type.
+    showType(printertype.val().toLowerCase());
     printertype.on('change', function(e) {
         e.preventDefault();
-        type = printertype.val().toLowerCase();
-        $('.network,.iprint,.cups,.local').addClass('d-none');
-        $('.'+type).removeClass('d-none');
-    });
-    // Setup all fields to match when/where appropriate
-    $('[name="printer"]').on('change', function() {
-        var val = $(this).val();
-        $(this).each(function() {
-            $('[name="printer"]').val(val);
-        });
-    });
-    $('[name="description"]').on('change', function() {
-        var val = $(this).val();
-        $(this).each(function() {
-            $('[name="description"]').val(val);
-        });
-    });
-    $('[name="inf"]').on('change', function() {
-        var val = $(this).val();
-        $(this).each(function() {
-            $('[name="inf"]').val(val);
-        });
-    });
-    $('[name="port"]').on('change', function() {
-        var val = $(this).val();
-        $(this).each(function() {
-            $('[name="port"]').val(val);
-        });
-    });
-    $('[name="ip"]').on('change', function() {
-        var val = $(this).val();
-        $(this).each(function() {
-            $('[name="ip"]').val(val);
-        });
-    });
-    $('[name="model"]').on('change', function() {
-        var val = $(this).val();
-        $(this).each(function() {
-            $('[name="model"]').val(val);
-        });
-    });
-    $('[name="configFile"]').on('change', function() {
-        var val = $(this).val();
-        $(this).each(function() {
-            $('[name="configFile"]').val(val);
-        });
+        showType(printertype.val().toLowerCase());
     });
 
     // Associations

@@ -82,30 +82,43 @@ class PrinterManagement extends FOGPage
         ));
     }
     /**
-     * Forms for creating a new printer.
+     * Builds the unified printer form body shared by add(), addModal() and
+     * printerGeneral().
      *
-     * @return void
+     * The form is one always-visible common block (copy-from, type, name,
+     * description) followed by four type-specific blocks (only one shown at a
+     * time, toggled client-side). Requirements are relaxed to what a printer
+     * actually needs operationally: the name is always required and a TCP/IP
+     * port printer (Local) requires an IP/hostname to reach; everything else
+     * is optional. Port defaults to 9100 (RAW) server-side when left blank.
+     *
+     * @param array $values current field values keyed by
+     *                      printer/description/port/inf/ip/config/
+     *                      configFile/model
+     *
+     * @return string the concatenated form-section markup
      */
-    public function add()
+    private function _printerFormSections(array $values)
     {
-        $this->title = _('Create New Printer');
-
-        $printer = filter_input(INPUT_POST, 'printer');
-        $description = filter_input(INPUT_POST, 'description');
-        $port = filter_input(INPUT_POST, 'port');
-        $inf = filter_input(INPUT_POST, 'inf');
-        $ip = filter_input(INPUT_POST, 'ip');
-        $config = filter_input(INPUT_POST, 'printertype');
-        $configFile = filter_input(INPUT_POST, 'configFile');
-        $model = filter_input(INPUT_POST, 'model');
+        $printer = $values['printer'] ?? '';
+        $description = $values['description'] ?? '';
+        $port = $values['port'] ?? '';
+        $inf = $values['inf'] ?? '';
+        $ip = $values['ip'] ?? '';
+        $config = $values['config'] ?? '';
+        $configFile = $values['configFile'] ?? '';
+        $model = $values['model'] ?? '';
         if (!$config) {
             $config = 'Local';
         }
+
+        $labelClass = 'col-sm-3 col-form-label';
+
         $printerTypes = [
-            'Local'=>_('TCP/IP Port Printer'),
-            'iPrint'=>_('iPrint Printer'),
-            'Network'=>_('Network Printer'),
-            'Cups'=>_('CUPS Printer'),
+            'Local' => _('TCP/IP Port Printer'),
+            'iPrint' => _('iPrint Printer'),
+            'Network' => _('Network Printer'),
+            'Cups' => _('CUPS Printer'),
         ];
         $printerSel = self::selectForm(
             'printertype',
@@ -116,8 +129,12 @@ class PrinterManagement extends FOGPage
         $printercopySelector = self::getClass('PrinterManager')
             ->buildSelectBox('', 'printercopy');
 
-        $labelClass = 'col-sm-3 col-form-label';
-
+        // Common block: copy-from, type, name and description are shared by
+        // every type and always visible.
+        $nameLabel = _('Printer Name/Alias')
+            . '<br/><small class="text-muted">'
+            . _('For a network/SMB share use its path, e.g.')
+            . ' \\\\printerserver\\printername</small>';
         $fields = [
             self::makeLabel(
                 $labelClass,
@@ -128,48 +145,45 @@ class PrinterManagement extends FOGPage
                 $labelClass,
                 'printertype',
                 _('Printer Type')
-            ) => $printerSel
+            ) => $printerSel,
+            self::makeLabel(
+                $labelClass,
+                'printer',
+                $nameLabel
+            ) => self::makeInput(
+                'form-control printername-input',
+                'printer',
+                _('Printer Name'),
+                'text',
+                'printer',
+                $printer,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Printer Description')
+            ) => self::makeTextarea(
+                'form-control printerdescription-input',
+                'description',
+                _('Printer Description'),
+                'description',
+                $description
+            )
         ];
 
         self::$HookManager->processEvent(
             'PRINTER_COPY-TYPE_FIELDS',
             ['fields' => &$fields]
         );
-        $printerCopy = '<div class="printer-copy">'
+        $printerCommon = '<div class="printer-common">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
 
-        // Network
+        // Network — the share path lives in the name; only an optional
+        // configuration file is type-specific.
         $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printernetwork',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printernetwork',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptionnetwork',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptionnetwork',
-                $description
-            ),
             self::makeLabel(
                 $labelClass,
                 'configfilenetwork',
@@ -183,12 +197,11 @@ class PrinterManagement extends FOGPage
                 $configFile
             )
         ];
-
         self::$HookManager->processEvent(
             'PRINTER_NETWORK_FIELDS',
             ['fields' => &$fields]
         );
-        $printerNetwork = '<div class="network d-none">'
+        $printerNetwork = '<div class="printer-type-section network d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -197,44 +210,15 @@ class PrinterManagement extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'printeriprint',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printeriprint',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptioniprint',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptioniprint',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
                 'portiprint',
                 _('Printer Port')
             ) => self::makeInput(
                 'form-control printerport-input',
                 'port',
-                '9000',
+                '9100',
                 'text',
                 'portiprint',
-                $port,
-                true
+                $port
             ),
             self::makeLabel(
                 $labelClass,
@@ -249,13 +233,11 @@ class PrinterManagement extends FOGPage
                 $configFile
             )
         ];
-
         self::$HookManager->processEvent(
             'PRINTER_IPRINT_FIELDS',
             ['fields' => &$fields]
         );
-
-        $printeriPrint = '<div class="iprint d-none">'
+        $printeriPrint = '<div class="printer-type-section iprint d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -264,34 +246,6 @@ class PrinterManagement extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'printercups',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printercups',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptioncups',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptioncups',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
                 'infcups',
                 _('Printer INF File')
             ) => self::makeInput(
@@ -300,8 +254,7 @@ class PrinterManagement extends FOGPage
                 'C:\Windows\System32\Drivers\printer.inf',
                 'text',
                 'infcups',
-                $inf,
-                true
+                $inf
             ),
             self::makeLabel(
                 $labelClass,
@@ -313,12 +266,7 @@ class PrinterManagement extends FOGPage
                 '192.168.1.252 or printer.example.com:9100',
                 'text',
                 'ipcups',
-                $ip,
-                true,
-                false,
-                -1,
-                -1,
-                ''
+                $ip
             ),
             self::makeLabel(
                 $labelClass,
@@ -333,46 +281,18 @@ class PrinterManagement extends FOGPage
                 $configFile
             )
         ];
-
         self::$HookManager->processEvent(
             'PRINTER_CUPS_FIELDS',
             ['fields' => &$fields]
         );
-        $printerCups = '<div class="cups d-none">'
+        $printerCups = '<div class="printer-type-section cups d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
 
-        // Local
+        // Local (TCP/IP port printer) — needs somewhere to print to, so the
+        // IP/hostname is the one required type-specific field.
         $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printerlocal',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printerlocal',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptionlocal',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptionlocal',
-                $description
-            ),
             self::makeLabel(
                 $labelClass,
                 'portlocal',
@@ -380,11 +300,10 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerport-input',
                 'port',
-                '9000',
+                '9100',
                 'text',
                 'portlocal',
-                $port,
-                true
+                $port
             ),
             self::makeLabel(
                 $labelClass,
@@ -396,8 +315,7 @@ class PrinterManagement extends FOGPage
                 'C:\Windows\System32\Drivers\printer.inf',
                 'text',
                 'inflocal',
-                $inf,
-                true
+                $inf
             ),
             self::makeLabel(
                 $labelClass,
@@ -410,11 +328,7 @@ class PrinterManagement extends FOGPage
                 'text',
                 'iplocal',
                 $ip,
-                true,
-                false,
-                -1,
-                -1,
-                ''
+                true
             ),
             self::makeLabel(
                 $labelClass,
@@ -426,8 +340,7 @@ class PrinterManagement extends FOGPage
                 _('Printer Model'),
                 'text',
                 'modellocal',
-                $model,
-                true
+                $model
             ),
             self::makeLabel(
                 $labelClass,
@@ -442,15 +355,82 @@ class PrinterManagement extends FOGPage
                 $configFile
             )
         ];
-
         self::$HookManager->processEvent(
             'PRINTER_LOCAL_FIELDS',
             ['fields' => &$fields]
         );
-        $printerLocal = '<div class="local d-none">'
+        $printerLocal = '<div class="printer-type-section local d-none">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
+
+        return $printerCommon
+            . $printerNetwork
+            . $printeriPrint
+            . $printerCups
+            . $printerLocal;
+    }
+    /**
+     * Normalizes a submitted printer type to its canonical form, rejecting
+     * anything the model does not accept.
+     *
+     * @param string $config the raw submitted printertype
+     *
+     * @throws Exception when the type is empty or unknown
+     *
+     * @return string the canonical type (Local|Cups|iPrint|Network)
+     */
+    private function _normalizePrinterType($config)
+    {
+        switch (strtolower((string)$config)) {
+            case 'local':
+                return 'Local';
+            case 'cups':
+                return 'Cups';
+            case 'iprint':
+                return 'iPrint';
+            case 'network':
+                return 'Network';
+        }
+        throw new Exception(_('Please select a valid printer type.'));
+    }
+    /**
+     * Applies the default RAW port (9100) for port-based printer types when
+     * the port was left blank.
+     *
+     * @param string $printertype the canonical printer type
+     * @param string $port        the submitted port value
+     *
+     * @return string the port to store
+     */
+    private function _defaultPrinterPort($printertype, $port)
+    {
+        if ($port === '' && in_array($printertype, ['Local', 'iPrint'], true)) {
+            return '9100';
+        }
+        return $port;
+    }
+    /**
+     * Forms for creating a new printer.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Printer');
+
+        $sections = $this->_printerFormSections(
+            [
+                'printer' => filter_input(INPUT_POST, 'printer'),
+                'description' => filter_input(INPUT_POST, 'description'),
+                'port' => filter_input(INPUT_POST, 'port'),
+                'inf' => filter_input(INPUT_POST, 'inf'),
+                'ip' => filter_input(INPUT_POST, 'ip'),
+                'config' => filter_input(INPUT_POST, 'printertype'),
+                'configFile' => filter_input(INPUT_POST, 'configFile'),
+                'model' => filter_input(INPUT_POST, 'model')
+            ]
+        );
 
         $buttons = self::makeButton(
             'send',
@@ -465,7 +445,7 @@ class PrinterManagement extends FOGPage
 
         $this->renderCreateForm(
             'printer',
-            [[_('Create New Printer'), $printerCopy . $printerNetwork . $printeriPrint . $printerCups . $printerLocal]],
+            [[_('Create New Printer'), $sections]],
             $buttons
         );
     }
@@ -476,367 +456,18 @@ class PrinterManagement extends FOGPage
      */
     public function addModal()
     {
-        $printer = filter_input(INPUT_POST, 'printer');
-        $description = filter_input(INPUT_POST, 'description');
-        $port = filter_input(INPUT_POST, 'port');
-        $inf = filter_input(INPUT_POST, 'inf');
-        $ip = filter_input(INPUT_POST, 'ip');
-        $config = filter_input(INPUT_POST, 'printertype');
-        $configFile = filter_input(INPUT_POST, 'configFile');
-        $model = filter_input(INPUT_POST, 'model');
-        if (!$config) {
-            $config = 'Local';
-        }
-        $printerTypes = [
-            'Local'=>_('TCP/IP Port Printer'),
-            'iPrint'=>_('iPrint Printer'),
-            'Network'=>_('Network Printer'),
-            'Cups'=>_('CUPS Printer'),
-        ];
-        $printerSel = self::selectForm(
-            'printertype',
-            $printerTypes,
-            $config,
-            true
+        $sections = $this->_printerFormSections(
+            [
+                'printer' => filter_input(INPUT_POST, 'printer'),
+                'description' => filter_input(INPUT_POST, 'description'),
+                'port' => filter_input(INPUT_POST, 'port'),
+                'inf' => filter_input(INPUT_POST, 'inf'),
+                'ip' => filter_input(INPUT_POST, 'ip'),
+                'config' => filter_input(INPUT_POST, 'printertype'),
+                'configFile' => filter_input(INPUT_POST, 'configFile'),
+                'model' => filter_input(INPUT_POST, 'model')
+            ]
         );
-        $printercopySelector = self::getClass('PrinterManager')
-            ->buildSelectBox('', 'printercopy');
-
-        $labelClass = 'col-sm-3 col-form-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printercopy',
-                _('Copy from existing')
-            ) => $printercopySelector,
-            self::makeLabel(
-                $labelClass,
-                'printertype',
-                _('Printer Type')
-            ) => $printerSel
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_COPY-TYPE_FIELDS',
-            ['fields' => &$fields]
-        );
-        $printerCopy = '<div class="printer-copy">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // Network
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printernetwork',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printernetwork',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptionnetwork',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptionnetwork',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfilenetwork',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfilenetwork',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_NETWORK_FIELDS',
-            ['fields' => &$fields]
-        );
-        $printerNetwork = '<div class="network d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // iPrint
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printeriprint',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printeriprint',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptioniprint',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptioniprint',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'portiprint',
-                _('Printer Port')
-            ) => self::makeInput(
-                'form-control printerport-input',
-                'port',
-                '9000',
-                'text',
-                'portiprint',
-                $port,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfileiprint',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfileiprint',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_IPRINT_FIELDS',
-            ['fields' => &$fields]
-        );
-
-        $printeriPrint = '<div class="iprint d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // CUPS
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printercups',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printercups',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptioncups',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptioncups',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'infcups',
-                _('Printer INF File')
-            ) => self::makeInput(
-                'form-control printerinf-input',
-                'inf',
-                'C:\Windows\System32\Drivers\printer.inf',
-                'text',
-                'infcups',
-                $inf,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'ipcups',
-                _('Printer IP')
-            ) => self::makeInput(
-                'form-control printerip-input',
-                'ip',
-                '192.168.1.252 or printer.example.com:9100',
-                'text',
-                'ipcups',
-                $ip,
-                true,
-                false,
-                -1,
-                -1,
-                ''
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfilecups',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfilecups',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_CUPS_FIELDS',
-            ['fields' => &$fields]
-        );
-        $printerCups = '<div class="cups d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // Local
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printerlocal',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printerlocal',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptionlocal',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptionlocal',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'portlocal',
-                _('Printer Port')
-            ) => self::makeInput(
-                'form-control printerport-input',
-                'port',
-                '9000',
-                'text',
-                'portlocal',
-                $port,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inflocal',
-                _('Printer INF File')
-            ) => self::makeInput(
-                'form-control printerinf-input',
-                'inf',
-                'C:\Windows\System32\Drivers\printer.inf',
-                'text',
-                'inflocal',
-                $inf,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'iplocal',
-                _('Printer IP')
-            ) => self::makeInput(
-                'form-control printerip-input',
-                'ip',
-                '192.168.1.252 or printer.example.com:9100',
-                'text',
-                'iplocal',
-                $ip,
-                true,
-                false,
-                -1,
-                -1,
-                ''
-            ),
-            self::makeLabel(
-                $labelClass,
-                'modellocal',
-                _('Printer Model')
-            ) => self::makeInput(
-                'form-control printermodel-input',
-                'model',
-                _('Printer Model'),
-                'text',
-                'modellocal',
-                $model,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfilelocal',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfilelocal',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_LOCAL_FIELDS',
-            ['fields' => &$fields]
-        );
-        $printerLocal = '<div class="local d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
 
         echo self::makeFormTag(
             '',
@@ -846,11 +477,7 @@ class PrinterManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo $printerCopy;
-        echo $printerNetwork;
-        echo $printeriPrint;
-        echo $printerCups;
-        echo $printerLocal;
+        echo $sections;
         echo '</form>';
     }
     /**
@@ -863,32 +490,38 @@ class PrinterManagement extends FOGPage
         header('Content-type: application/json');
         self::$HookManager->processEvent('PRINTER_ADD_POST');
         $printer = trim(
-            filter_input(INPUT_POST, 'printer')
+            (string)filter_input(INPUT_POST, 'printer')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $port = trim(
-            filter_input(INPUT_POST, 'port')
+            (string)filter_input(INPUT_POST, 'port')
         );
         $inf = trim(
-            filter_input(INPUT_POST, 'inf')
+            (string)filter_input(INPUT_POST, 'inf')
         );
         $ip = trim(
-            filter_input(INPUT_POST, 'ip')
+            (string)filter_input(INPUT_POST, 'ip')
         );
         $config = trim(
-            filter_input(INPUT_POST, 'printertype')
+            (string)filter_input(INPUT_POST, 'printertype')
         );
         $configFile = trim(
-            filter_input(INPUT_POST, 'configFile')
+            (string)filter_input(INPUT_POST, 'configFile')
         );
         $model = trim(
-            filter_input(INPUT_POST, 'model')
+            (string)filter_input(INPUT_POST, 'model')
         );
 
+        $Printer = null;
         $serverFault = false;
         try {
+            if ($printer === '') {
+                throw new Exception(
+                    _('Please enter a printer name.')
+                );
+            }
             $exists = self::getClass('PrinterManager')
                 ->exists($printer);
             if ($exists) {
@@ -896,21 +529,12 @@ class PrinterManagement extends FOGPage
                     _('A printer already exists with this name!')
                 );
             }
-            switch (strtolower($config)) {
-                case 'local':
-                    $printertype = 'Local';
-                    break;
-                case 'cups':
-                    $printertype = 'Cups';
-                    break;
-                case 'iprint':
-                    $printertype = 'iPrint';
-                    break;
-                case 'network':
-                    $printertype = 'Network';
-                    break;
-                default:
-                    $printertype = '';
+            $printertype = $this->_normalizePrinterType($config);
+            $port = $this->_defaultPrinterPort($printertype, $port);
+            if ($printertype === 'Local' && $ip === '') {
+                throw new Exception(
+                    _('A TCP/IP port printer requires an IP address or hostname.')
+                );
             }
             $Printer = self::getClass('Printer')
                 ->set('name', $printer)
@@ -969,389 +593,42 @@ class PrinterManagement extends FOGPage
      */
     public function printerGeneral()
     {
-        $printer = (
-            filter_input(INPUT_POST, 'printer') ?:
-            $this->obj->get('name')
+        $sections = $this->_printerFormSections(
+            [
+                'printer' => (
+                    filter_input(INPUT_POST, 'printer') ?:
+                    $this->obj->get('name')
+                ),
+                'description' => (
+                    filter_input(INPUT_POST, 'description') ?:
+                    $this->obj->get('description')
+                ),
+                'port' => (
+                    filter_input(INPUT_POST, 'port') ?:
+                    $this->obj->get('port')
+                ),
+                'inf' => (
+                    filter_input(INPUT_POST, 'inf') ?:
+                    $this->obj->get('file')
+                ),
+                'ip' => (
+                    filter_input(INPUT_POST, 'ip') ?:
+                    $this->obj->get('ip')
+                ),
+                'config' => (
+                    filter_input(INPUT_POST, 'printertype') ?:
+                    $this->obj->get('config')
+                ),
+                'configFile' => (
+                    filter_input(INPUT_POST, 'configFile') ?:
+                    $this->obj->get('configFile')
+                ),
+                'model' => (
+                    filter_input(INPUT_POST, 'model') ?:
+                    $this->obj->get('model')
+                )
+            ]
         );
-        $description = (
-            filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description')
-        );
-        $port = (
-            filter_input(INPUT_POST, 'port') ?:
-            $this->obj->get('port')
-        );
-        $inf = (
-            filter_input(INPUT_POST, 'inf') ?:
-            $this->obj->get('file')
-        );
-        $ip = (
-            filter_input(INPUT_POST, 'ip') ?:
-            $this->obj->get('ip')
-        );
-        $config = (
-            filter_input(INPUT_POST, 'printertype') ?:
-            $this->obj->get('config')
-        );
-        $configFile = (
-            filter_input(INPUT_POST, 'configFile') ?:
-            $this->obj->get('configFile')
-        );
-        $model = (
-            filter_input(INPUT_POST, 'model') ?:
-            $this->obj->get('model')
-        );
-        $printerTypes = [
-            'Local'=>_('TCP/IP Port Printer'),
-            'iPrint'=>_('iPrint Printer'),
-            'Network'=>_('Network Printer'),
-            'Cups'=>_('CUPS Printer')
-        ];
-        $printerSel = self::selectForm(
-            'printertype',
-            $printerTypes,
-            $config,
-            true
-        );
-        $printercopySelector = self::getClass('PrinterManager')
-            ->buildSelectBox('', 'printercopy');
-
-        $labelClass = 'col-sm-3 col-form-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printercopy',
-                _('Copy from existing')
-            ) => $printercopySelector,
-            self::makeLabel(
-                $labelClass,
-                'printertype',
-                _('Printer Type')
-            ) => $printerSel
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_COPY-TYPE_FIELDS',
-            ['fields' => &$fields]
-        );
-
-        $printerCopy = '<div class="printer-copy">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // Network
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printernetwork',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printernetwork',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptionnetwork',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptionnetwork',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfilenetwork',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfilenetwork',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_NETWORK_FIELDS',
-            ['fields' => &$fields]
-        );
-        $printerNetwork = '<div class="network d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // iPrint
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printeriprint',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printeriprint',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptioniprint',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptioniprint',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'portiprint',
-                _('Printer Port')
-            ) => self::makeInput(
-                'form-control printerport-input',
-                'port',
-                '9000',
-                'text',
-                'portiprint',
-                $port,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfileiprint',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfileiprint',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_IPRINT_FIELDS',
-            ['fields' => &$fields]
-        );
-
-        $printeriPrint = '<div class="iprint d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // CUPS
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printercups',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printercups',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptioncups',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptioncups',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'infcups',
-                _('Printer INF File')
-            ) => self::makeInput(
-                'form-control printerinf-input',
-                'inf',
-                'C:\Windows\System32\Drivers\printer.inf',
-                'text',
-                'infcups',
-                $inf,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'ipcups',
-                _('Printer IP')
-            ) => self::makeInput(
-                'form-control printerip-input',
-                'ip',
-                '192.168.1.252 or printer.example.com:9100',
-                'text',
-                'ipcups',
-                $ip,
-                true,
-                false,
-                -1,
-                -1,
-                ''
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfilecups',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfilecups',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_CUPS_FIELDS',
-            ['fields' => &$fields]
-        );
-        $printerCups = '<div class="cups d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
-
-        // Local
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'printerlocal',
-                _('Printer Name/Alias')
-                . '<br/>('
-                . _('e.g.')
-                . ' \\\\printerserver\\printername'
-                . ')'
-            ) => self::makeInput(
-                'form-control printername-input',
-                'printer',
-                _('Printer Name'),
-                'text',
-                'printerlocal',
-                $printer,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'descriptionlocal',
-                _('Printer Description')
-            ) => self::makeTextarea(
-                'form-control printerdescription-input',
-                'description',
-                _('Printer Description'),
-                'descriptionlocal',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'portlocal',
-                _('Printer Port')
-            ) => self::makeInput(
-                'form-control printerport-input',
-                'port',
-                '9000',
-                'text',
-                'portlocal',
-                $port,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inflocal',
-                _('Printer INF File')
-            ) => self::makeInput(
-                'form-control printerinf-input',
-                'inf',
-                'C:\Windows\System32\Drivers\printer.inf',
-                'text',
-                'inflocal',
-                $inf,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'iplocal',
-                _('Printer IP')
-            ) => self::makeInput(
-                'form-control printerip-input',
-                'ip',
-                '192.168.1.252 or printer.example.com:9100',
-                'text',
-                'iplocal',
-                $ip,
-                true,
-                false,
-                -1,
-                -1,
-                ''
-            ),
-            self::makeLabel(
-                $labelClass,
-                'modellocal',
-                _('Printer Model')
-            ) => self::makeInput(
-                'form-control printermodel-input',
-                'model',
-                _('Printer Model'),
-                'text',
-                'modellocal',
-                $model,
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'configfilelocal',
-                _('Printer Configuration File')
-            ) => self::makeInput(
-                'form-control printerconfigfile-input',
-                'configFile',
-                _('Printer Configuration File'),
-                'text',
-                'configfilelocal',
-                $configFile
-            )
-        ];
-
-        self::$HookManager->processEvent(
-            'PRINTER_LOCAL_FIELDS',
-            ['fields' => &$fields]
-        );
-        $printerLocal = '<div class="local d-none">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
 
         $buttons = self::makeButton(
             'general-send',
@@ -1371,11 +648,7 @@ class PrinterManagement extends FOGPage
 
         $this->renderGeneralForm(
             'printer',
-            $printerCopy
-            . $printerNetwork
-            . $printeriPrint
-            . $printerCups
-            . $printerLocal,
+            $sections,
             $buttons
         );
     }
@@ -1422,30 +695,35 @@ class PrinterManagement extends FOGPage
     public function printerGeneralPost()
     {
         $printer = trim(
-            filter_input(INPUT_POST, 'printer')
+            (string)filter_input(INPUT_POST, 'printer')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $port = trim(
-            filter_input(INPUT_POST, 'port')
+            (string)filter_input(INPUT_POST, 'port')
         );
         $inf = trim(
-            filter_input(INPUT_POST, 'inf')
+            (string)filter_input(INPUT_POST, 'inf')
         );
         $ip = trim(
-            filter_input(INPUT_POST, 'ip')
+            (string)filter_input(INPUT_POST, 'ip')
         );
         $config = trim(
-            filter_input(INPUT_POST, 'printertype')
+            (string)filter_input(INPUT_POST, 'printertype')
         );
         $configFile = trim(
-            filter_input(INPUT_POST, 'configFile')
+            (string)filter_input(INPUT_POST, 'configFile')
         );
         $model = trim(
-            filter_input(INPUT_POST, 'model')
+            (string)filter_input(INPUT_POST, 'model')
         );
 
+        if ($printer === '') {
+            throw new Exception(
+                _('Please enter a printer name.')
+            );
+        }
         $exists = self::getClass('PrinterManager')
             ->exists($printer);
         if ($printer != $this->obj->get('name')
@@ -1455,21 +733,12 @@ class PrinterManagement extends FOGPage
                 _('A printer already exists with this name!')
             );
         }
-        switch (strtolower($config)) {
-            case 'local':
-                $printertype = 'Local';
-                break;
-            case 'cups':
-                $printertype = 'Cups';
-                break;
-            case 'iprint':
-                $printertype = 'iPrint';
-                break;
-            case 'network':
-                $printertype = 'Network';
-                break;
-            default:
-                $printertype = '';
+        $printertype = $this->_normalizePrinterType($config);
+        $port = $this->_defaultPrinterPort($printertype, $port);
+        if ($printertype === 'Local' && $ip === '') {
+            throw new Exception(
+                _('A TCP/IP port printer requires an IP address or hostname.')
+            );
         }
         $this->obj
             ->set('name', $printer)

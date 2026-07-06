@@ -110,6 +110,9 @@ msgstr ""
 msgid "A LDAP setup already exists with this name!"
 msgstr ""
 
+msgid "A TCP/IP port printer requires an IP address or hostname."
+msgstr ""
+
 msgid "A Windows Key already exists with this name!"
 msgstr ""
 
@@ -1818,6 +1821,9 @@ msgid "First row is a header"
 msgstr ""
 
 msgid "Flush Settings Cache"
+msgstr ""
+
+msgid "For a network/SMB share use its path, e.g."
 msgstr ""
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
@@ -4022,6 +4028,9 @@ msgstr ""
 msgid "Please enter a name"
 msgstr ""
 
+msgid "Please enter a printer name."
+msgstr ""
+
 msgid "Please enter a valid CIDR subnet."
 msgstr ""
 
@@ -4038,6 +4047,9 @@ msgid "Please select a valid image"
 msgstr ""
 
 msgid "Please select a valid ldap port"
+msgstr ""
+
+msgid "Please select a valid printer type."
 msgstr ""
 
 msgid "Please select an option"
@@ -6302,9 +6314,6 @@ msgid "disabled (all)"
 msgstr ""
 
 msgid "does not exist and cannot be created"
-msgstr ""
-
-msgid "e.g."
 msgstr ""
 
 msgid "either already selected or uploaded"
