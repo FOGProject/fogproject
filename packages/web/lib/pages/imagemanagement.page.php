@@ -861,7 +861,7 @@ class ImageManagement extends FOGPage
             'btn btn-info float-end',
             $props
         );
-        echo '<div class="card card-info card-outline">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo _('Image Primary Storage Group');
@@ -1242,9 +1242,6 @@ class ImageManagement extends FOGPage
             []
         ];
 
-        echo '<div class="card">';
-        echo '<div class="card-body">';
-
         echo '<!-- Create New Multicast Session -->';
         echo '<div id="multicastsessions">';
 
@@ -1335,9 +1332,6 @@ class ImageManagement extends FOGPage
         echo '</div>';
         echo '</div>';
 
-        echo '</div>';
-
-        echo '</div>';
         echo '</div>';
     }
     /**
