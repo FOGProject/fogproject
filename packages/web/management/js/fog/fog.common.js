@@ -557,11 +557,14 @@ $(document).on('click', '.fog-password-toggle', function(e) {
   icon.toggleClass('fa-eye', !reveal).toggleClass('fa-eye-slash', reveal);
   $(this).attr('aria-pressed', reveal ? 'true' : 'false');
 });
-$.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
-    return this.api().column(col, {order:'index'}).nodes().map(function(td, i) {
-      return $('input', td).prop('checked') ? '1' : '0';
-  });
-};
+// DataTables is not part of the slim (unauthenticated) asset set.
+if ($.fn.dataTable) {
+  $.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
+      return this.api().column(col, {order:'index'}).nodes().map(function(td, i) {
+        return $('input', td).prop('checked') ? '1' : '0';
+    });
+  };
+}
 /**
  * Adaptive height for infinite-scroll (Scroller) tables (#853).
  *
@@ -866,7 +869,10 @@ $.fn.validateForm = function(input) {
       //   invalid fields
       parent = $(e).closest('div[class^="form-group"]'),
       required = $(e).prop('required'),
-      val = $(e).inputmask('unmaskedvalue');
+      // inputmask is not part of the slim (unauthenticated) asset set
+      val = $.fn.inputmask
+        ? $(e).inputmask('unmaskedvalue')
+        : String($(e).val() || '');
     if(required) {
       if (val.length == 0) {
         isValid = false;
@@ -1055,7 +1061,9 @@ function reinitialize() {
 
   $.debugLog("=== DEBUG LOGGING ENABLED ===");
   setupIntegrations();
-  $(":input").inputmask(); // Setup all input masks
+  if ($.fn.inputmask) {
+    $(":input").inputmask(); // Setup all input masks
+  }
   Common.iCheck(); // Setup all checkboxes
   patchSelect2SearchId(); // Must run before any .select2() init below.
   // Setup all select elements. Anchor the dropdown to its closest modal when
@@ -1137,13 +1145,15 @@ function setupIntegrations() {
   };
   PNotify.prototype.options.styling = "bootstrap3";
 
-  // Extending input mask to add our types
-  $.extend($.inputmask.defaults.definitions, {
-    '#': {
-      validator: "[A-Fa-f0-9]",
-      cardinality: 1
-    }
-  });
+  // Extending input mask to add our types (absent on the slim asset set)
+  if ($.inputmask) {
+    $.extend($.inputmask.defaults.definitions, {
+      '#': {
+        validator: "[A-Fa-f0-9]",
+        cardinality: 1
+      }
+    });
+  }
 }
 
 function setupUniversalSearch() {
@@ -1280,9 +1290,11 @@ function setupPasswordReveal() {
       $('.filedisp').val(numFiles + ' files selected');
     }
   }).on('mouseover.fogReveal', function() {
-    $('[data-bs-toggle="tooltip"]').tooltip({
-      container: 'body'
-    });
+    if ($.fn.tooltip) {
+      $('[data-bs-toggle="tooltip"]').tooltip({
+        container: 'body'
+      });
+    }
   });
 }
 

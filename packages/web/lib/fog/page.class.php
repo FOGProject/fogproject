@@ -88,6 +88,43 @@ class Page extends FOGBase
      */
     protected $javascripts = [];
     /**
+     * Stylesheets that are common to every authenticated page.
+     *
+     * @var array
+     */
+    protected static $commonStylesheets = [
+        'css/bootstrap5.min.css',
+        'css/tempus-dominus.min.css',
+        'css/font-awesome.min.css',
+        'css/select2.min.css',
+        'css/select2-bootstrap-5-theme.min.css',
+        'css/ionicons.min.css',
+        'css/datatables.min.css',
+        'css/slider.css',
+        'css/pnotify.min.css',
+        'css/animate.css',
+        'css/pace.min.css',
+        'css/adminlte4.min.css',
+        'css/fog-default-ui.min.css'
+    ];
+    /**
+     * Stylesheets for unauthenticated pages (login, schema, client).
+     * Kept slim so the login page loads fast on slow/mobile connections.
+     *
+     * @var array
+     */
+    protected static $loginStylesheets = [
+        'css/bootstrap5.min.css',
+        'css/font-awesome.min.css',
+        'css/select2.min.css',
+        'css/select2-bootstrap-5-theme.min.css',
+        'css/pnotify.min.css',
+        'css/animate.css',
+        'css/pace.min.css',
+        'css/adminlte4.min.css',
+        'css/fog-default-ui.min.css'
+    ];
+    /**
      * Javascripts that are common to every page.
      * Currently, the contents of this array is added to $javascripts for output.
      *
@@ -123,6 +160,26 @@ class Page extends FOGBase
         'js/fog/theme.js'
     ];
     /**
+     * Javascripts for unauthenticated pages (login, schema, client).
+     * fog.common.js guards its DataTables/inputmask/tooltip integrations so it
+     * runs cleanly without the heavy libraries the full app list carries.
+     * adminlte4.min.js stays: the client download page renders card-collapse
+     * buttons whose behavior lives in its CardWidget.
+     *
+     * @var array
+     */
+    protected static $loginJavascripts = [
+        'js/jquery.min.js',
+        'js/lodash.min.js',
+        'js/select2.full.min.js',
+        'js/adminlte4.min.js',
+        'js/pnotify.min.js',
+        'js/pace.min.js',
+        'js/fog/bootstrap-csrf.js',
+        'js/fog/fog.common.js',
+        'js/fog/theme.js'
+    ];
+    /**
      * Initializes the page element
      *
      * @throws Exception
@@ -133,20 +190,12 @@ class Page extends FOGBase
         global $node;
         global $sub;
         parent::__construct();
-        $this
-            ->addCSS('css/bootstrap5.min.css')
-            ->addCSS('css/tempus-dominus.min.css')
-            ->addCSS('css/font-awesome.min.css')
-            ->addCSS('css/select2.min.css')
-            ->addCSS('css/select2-bootstrap-5-theme.min.css')
-            ->addCSS('css/ionicons.min.css')
-            ->addCSS('css/datatables.min.css')
-            ->addCSS('css/slider.css')
-            ->addCSS('css/pnotify.min.css')
-            ->addCSS('css/animate.css')
-            ->addCSS('css/pace.min.css')
-            ->addCSS('css/adminlte4.min.css')
-            ->addCSS('css/fog-default-ui.min.css');
+        $stylesheets = self::$FOGUser->isValid()
+            ? self::$commonStylesheets
+            : self::$loginStylesheets;
+        foreach ($stylesheets as $stylesheet) {
+            $this->addCSS($stylesheet);
+        }
         if (!$this->theme) {
             $this->theme = self::getSetting('FOG_THEME');
             if (!$this->theme) {
@@ -181,7 +230,9 @@ class Page extends FOGBase
         FOGPage::buildMainMenuItems($this->menu, $this->menuHook);
         $files = [];
         if (!self::_isContentOnly()) {
-            $files = self::$commonJavascripts;
+            $files = self::$FOGUser->isValid()
+                ? self::$commonJavascripts
+                : self::$loginJavascripts;
         }
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
