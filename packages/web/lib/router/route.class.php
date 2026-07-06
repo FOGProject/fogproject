@@ -448,6 +448,13 @@ class Route extends FOGBase
                     self::$matches['params']['class'] ?? ''
                 )
             );
+            // Object-scope boundary (optional, plugin-enforced): a per-object
+            // REST call carries the target id; confirm it is within the acting
+            // user's scope. Inert unless a listener registers.
+            Authorization::requireApiObjectScope(
+                self::$matches['params']['class'] ?? '',
+                self::$matches['params']['id'] ?? 0
+            );
             $args = array_values(self::$matches['params']);
             // Splitting call to get closure from 'target' index of self::$matches
             // from the execution of the closure.

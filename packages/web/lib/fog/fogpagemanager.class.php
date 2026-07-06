@@ -120,6 +120,7 @@ class FOGPageManager extends FOGBase
     {
         global $node;
         global $sub;
+        global $id;
         $nodes = [
             'client',
             'schema'
@@ -171,6 +172,14 @@ class FOGPageManager extends FOGBase
                 Authorization::requirePagePermission(
                     $this->classValue,
                     $this->methodValue
+                );
+                // Object-scope boundary (optional, plugin-enforced): when a
+                // single object is addressed by URL id, confirm it is within
+                // the acting user's scope. Inert unless a listener registers
+                // for OBJECT_SCOPE_CHECK.
+                Authorization::requirePageObjectScope(
+                    $this->classValue,
+                    $id
                 );
             }
             if (self::$post) {

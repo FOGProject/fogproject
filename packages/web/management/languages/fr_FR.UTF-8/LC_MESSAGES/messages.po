@@ -7279,6 +7279,9 @@ msgstr ""
 msgid "You are only allowed to assign"
 msgstr "Vous êtes seulement autorisé à attribuer"
 
+msgid "You do not have permission to access this item."
+msgstr ""
+
 #, php-format
 msgid "You do not have permission to access this page (%s required)."
 msgstr ""

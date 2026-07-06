@@ -511,6 +511,138 @@ class Authorization extends FOGBase
         );
     }
     /**
+     * Is the user unrestricted by object scope? Implicit administrators
+     * (no role) and holders of the global '*' see every object; object
+     * boundaries never apply to them.
+     *
+     * @param int|null $userID the user id (defaults to current user)
+     *
+     * @return bool
+     */
+    private static function _isUnrestricted($userID = null)
+    {
+        $perms = self::getPermissions($userID);
+        if (null === $perms) {
+            return true;
+        }
+        return in_array('*', $perms, true);
+    }
+    /**
+     * Is a specific object within the acting user's object scope?
+     *
+     * Object scope is an OPTIONAL boundary layered on top of the verb
+     * permission. It has no built-in meaning: a plugin (currently Site)
+     * enforces it by listening for OBJECT_SCOPE_CHECK and flipping
+     * 'allowed' to false for objects outside the user's scope. With no
+     * listener registered the boundary does not exist and every object is
+     * in scope, so this is inert on a stock install.
+     *
+     * Unrestricted users (implicit admin / global '*') and requests with
+     * no concrete single-object id (id < 1 — list, create, mass op) always
+     * pass; scope is only meaningful for one existing object.
+     *
+     * @param string   $node   the page/api node (e.g. 'host')
+     * @param int      $id     the target object id
+     * @param int|null $userID acting user (defaults to current user)
+     *
+     * @return bool
+     */
+    public static function objectInScope($node, $id, $userID = null)
+    {
+        $id = (int)$id;
+        if ($id < 1) {
+            return true;
+        }
+        if (self::_isUnrestricted($userID)) {
+            return true;
+        }
+        if (null === $userID) {
+            $userID = (
+                self::$FOGUser && self::$FOGUser->isValid() ?
+                (int)self::$FOGUser->get('id') :
+                0
+            );
+        }
+        $allowed = true;
+        self::$HookManager->processEvent(
+            'OBJECT_SCOPE_CHECK',
+            [
+                'node' => strtolower(trim((string)$node)),
+                'id' => $id,
+                'userID' => (int)$userID,
+                'allowed' => &$allowed
+            ]
+        );
+        return (bool)$allowed;
+    }
+    /**
+     * Enforce object scope for a management page request. Allowed →
+     * returns silently. Denied → 403 JSON (AJAX) or a flash message plus
+     * redirect home (full page), then exits. Mirrors the denial UX of
+     * requirePagePermission.
+     *
+     * @param string $node the page node
+     * @param int    $id   the target object id (0/none = skipped)
+     *
+     * @return void
+     */
+    public static function requirePageObjectScope($node, $id)
+    {
+        if (self::objectInScope($node, $id)) {
+            return;
+        }
+        if (self::$ajax) {
+            http_response_code(HTTPResponseCodes::HTTP_FORBIDDEN);
+            header('Content-Type: application/json');
+            echo json_encode(
+                ['error' => _('You do not have permission to perform this action.')]
+            );
+            exit;
+        }
+        self::setMessage(
+            _('You do not have permission to access this item.'),
+            _('Permission denied'),
+            'warning'
+        );
+        self::redirect('?node=home');
+    }
+    /**
+     * Enforce object scope across a batch of ids (mass op). Airtight
+     * stance: if ANY id is out of scope the whole request is denied — no
+     * silent drop of the offending ids. The first out-of-scope id denies
+     * and exits via requirePageObjectScope.
+     *
+     * @param string $node the page node
+     * @param array  $ids  the target object ids
+     *
+     * @return void
+     */
+    public static function requirePageObjectScopeMass($node, $ids)
+    {
+        foreach ((array)$ids as $id) {
+            self::requirePageObjectScope($node, $id);
+        }
+    }
+    /**
+     * Enforce object scope for an API request. Allowed → returns
+     * silently. Denied → 403 and exit.
+     *
+     * @param string $class the model class url parameter
+     * @param int    $id    the target object id (0/none = skipped)
+     *
+     * @return void
+     */
+    public static function requireApiObjectScope($class, $id)
+    {
+        if (self::objectInScope($class, $id)) {
+            return;
+        }
+        Route::sendResponse(
+            HTTPResponseCodes::HTTP_FORBIDDEN,
+            _('You do not have permission to perform this action.')
+        );
+    }
+    /**
      * Is there at least one effective administrator besides the excluded
      * users? An effective administrator is a user with no role at all
      * (implicit admin) or one holding the global '*' permission through

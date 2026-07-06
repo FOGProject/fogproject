@@ -1574,6 +1574,11 @@ abstract class FOGPage extends FOGBase
             ]
         );
         $remitems = $remitems['remitems'];
+        // Object-scope boundary (optional, plugin-enforced): mass delete is
+        // the one generic path that destroys objects by an id array rather
+        // than a single URL id, so it cannot rely on the page-manager gate.
+        // Airtight: deny the whole batch if any id is out of scope.
+        Authorization::requirePageObjectScopeMass($this->node, (array)$remitems);
         $andfiles = isset($_POST['andFile']) && $_POST['andFile'] == 1;
         $andhosts = isset($_POST['andHosts']) && $_POST['andHosts'] == 1;
         self::$HookManager->processEvent(
