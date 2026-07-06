@@ -362,8 +362,13 @@ class WindowsKeyManagement extends FOGPage
 
         echo '<!-- Images -->';
         echo '<div id="images">';
-        echo '<div class="card">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="updateimage" class="">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Images');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="card-body">';
         echo $this->render(12, 'windowskey-image-table', $buttons);
         echo '</div>';

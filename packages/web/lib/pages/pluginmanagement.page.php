@@ -135,7 +135,7 @@ class PluginManagement extends FOGPage
         );
         $buttons .= '</div>';
 
-        echo '<div class="card">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div id="plugins" class="">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
