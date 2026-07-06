@@ -787,7 +787,7 @@ class PrinterManagement extends FOGPage
             'btn btn-warning float-start',
             $props
         );
-        echo '<div class="card card-info card-outline">';
+        echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
         echo _('Set Printer as Default for Hosts');
