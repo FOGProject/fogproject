@@ -608,6 +608,20 @@ dd {
 .app-sidebar .sidebar-menu .nav-link {
   display: flex;
   align-items: center;
+  // Compact density (was BS5 default 1rem / .5rem 1rem / line-height 1.5): a
+  // smaller, tighter menu so more items fit without scrolling. Padding-x stays
+  // generous enough that the flex label + arrow-gutter rule below is unaffected.
+  font-size: 0.875rem;   // 14px
+  padding: 0.3rem 0.8rem;
+  line-height: 1.35;
+}
+// Item-to-item gap (vendored AL4 default is .2rem).
+.app-sidebar .sidebar-menu .nav-item > .nav-link {
+  margin-bottom: 0.05rem;
+}
+// Treeview (submenu) labels a touch smaller still, to read as nested.
+.app-sidebar .sidebar-menu .nav-treeview .nav-link {
+  font-size: 0.85rem;
 }
 .app-sidebar .sidebar-menu .nav-link > p {
   flex: 1 1 auto;
