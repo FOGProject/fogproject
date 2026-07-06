@@ -43,6 +43,15 @@ class Route extends FOGBase
      */
     public static $data = [];
     /**
+     * True only for requests that entered through the REST API
+     * (api/index.php constructs a Route; the web UI calls the static
+     * helpers). Lets listeners tell a genuine REST call apart from a web
+     * AJAX list without trusting the client-set X-Requested-With header.
+     *
+     * @var bool
+     */
+    public static $apiRequest = false;
+    /**
      * Stores the valid classes.
      *
      * @var array
@@ -147,6 +156,7 @@ class Route extends FOGBase
     public function __construct()
     {
         parent::__construct();
+        self::$apiRequest = true;
         list(
             self::$_enabled,
             self::$_token
