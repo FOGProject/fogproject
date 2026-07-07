@@ -437,6 +437,62 @@ class MulticastTask extends FOGService
         return $this->_MultiSess;
     }
     /**
+     * Returns the LV image filenames a dNpM.lvm sidecar names, in sidecar
+     * line order. udpcast synchronizes by file order alone, so this must
+     * skip exactly the lines the FOS client skips (swap LVs and volumes
+     * with no image file); any divergence misassigns every later stream.
+     * Returns false for a sidecar this server cannot parse (a newer
+     * LVMFORMAT) — the client refuses those before opening a receiver.
+     *
+     * @param string $sidecar full path to the dNpM.lvm sidecar
+     *
+     * @return array|false
+     */
+    private function _getLVMImageList($sidecar)
+    {
+        $lines = @file(
+            $sidecar,
+            FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
+        );
+        if (!$lines) {
+            return false;
+        }
+        switch (trim(array_shift($lines))) {
+            case 'LVMFORMAT 1':
+                $fstypefield = 4;
+                $imagefield = 5;
+                break;
+            case 'LVMFORMAT 2':
+                $fstypefield = 5;
+                $imagefield = 6;
+                break;
+            default:
+                return false;
+        }
+        $lvimages = [];
+        foreach ($lines as $line) {
+            $fields = preg_split('/\s+/', trim($line));
+            if ($fields[0] !== 'LV') {
+                continue;
+            }
+            if (isset($fields[$fstypefield])
+                && $fields[$fstypefield] == 'swap'
+            ) {
+                continue;
+            }
+            $image = (
+                isset($fields[$imagefield]) ?
+                $fields[$imagefield] :
+                ''
+            );
+            if ($image == '' || $image == '-') {
+                continue;
+            }
+            $lvimages[] = $image;
+        }
+        return $lvimages;
+    }
+    /**
      * Sets/Gets the command needed to start the tasking
      *
      * @return string
@@ -512,6 +568,8 @@ class MulticastTask extends FOGService
             ' --nopointopoint',
         ];
         $buildcmd = array_values(array_filter($buildcmd));
+        $lvfiles = [];
+        $lvmscan = false;
         switch ($this->getImageType()) {
             case 1:
                 switch ($this->getOSID()) {
@@ -536,6 +594,7 @@ class MulticastTask extends FOGService
                                 $filelist[] = 'rec.img.*';
                             }
                         } else {
+                            $lvmscan = true;
                             $filename = 'd1p%d.%s';
                             $iterator = new DirectoryIterator(
                                 $this->getImagePath()
@@ -560,6 +619,7 @@ class MulticastTask extends FOGService
                         unset($files, $sys, $rec);
                         break;
                     default:
+                        $lvmscan = true;
                         $filename = 'd1p%d.%s';
                         $iterator = new DirectoryIterator(
                             $this->getImagePath()
@@ -583,6 +643,7 @@ class MulticastTask extends FOGService
                 }
                 break;
             case 2:
+                $lvmscan = true;
                 $filename = 'd1p%d.%s';
                 $iterator = new DirectoryIterator(
                     $this->getImagePath()
@@ -605,6 +666,7 @@ class MulticastTask extends FOGService
                 unset($iterator);
                 break;
             case 3:
+                $lvmscan = true;
                 $filename = 'd%dp%d.%s';
                 $iterator = new DirectoryIterator(
                     $this->getImagePath()
@@ -639,6 +701,47 @@ class MulticastTask extends FOGService
                 }
                 unset($iterator);
         }
+        if ($lvmscan) {
+            /*
+             * Per-LV LVM images (dNpM.lvm sidecars) have no dNpM.img for
+             * that partition; a placeholder of that name keeps the sort
+             * and single-partition filter behaving as if it existed, and
+             * the send loop below expands it into the sidecar's LV image
+             * files in line order — the order the FOS client restores in.
+             */
+            $iterator = new DirectoryIterator(
+                $this->getImagePath()
+            );
+            foreach ($iterator as $fileInfo) {
+                if ($fileInfo->isDot()) {
+                    continue;
+                }
+                if (!preg_match(
+                    '/^(d\d+p\d+)\.lvm$/',
+                    $fileInfo->getFilename(),
+                    $match
+                )
+                ) {
+                    continue;
+                }
+                if ($this->getImageType() != 3
+                    && strpos($match[1], 'd1p') !== 0
+                ) {
+                    continue;
+                }
+                $lvimages = $this->_getLVMImageList(
+                    $this->getImagePath() . DS . $fileInfo->getFilename()
+                );
+                if ($lvimages === false) {
+                    continue;
+                }
+                $placeholder = $match[1] . '.img';
+                $filelist = array_diff((array)$filelist, [$placeholder]);
+                $filelist[] = $placeholder;
+                $lvfiles[$placeholder] = $lvimages;
+            }
+            unset($iterator);
+        }
         @natcasesort($filelist);
         $partid = self::getPartitions();
         if ($partid < 1) {
@@ -648,8 +751,18 @@ class MulticastTask extends FOGService
                 preg_grep("/^d[0-9]p$partid\.img$/", (array)$filelist)
             );
         }
+        $sendfiles = [];
+        foreach ($filelist as $file) {
+            if (!isset($lvfiles[$file])) {
+                $sendfiles[] = $file;
+                continue;
+            }
+            foreach ($lvfiles[$file] as $lvfile) {
+                $sendfiles[] = $lvfile;
+            }
+        }
         ob_start();
-        foreach ($filelist as $i => $file) {
+        foreach ($sendfiles as $i => $file) {
             printf(
                 '%s --file %s%s%s;',
                 sprintf(
@@ -668,7 +781,7 @@ class MulticastTask extends FOGService
                 $file
             );
         }
-        unset($filelist, $buildcmd);
+        unset($filelist, $sendfiles, $lvfiles, $buildcmd);
         return ob_get_clean();
     }
     /**
