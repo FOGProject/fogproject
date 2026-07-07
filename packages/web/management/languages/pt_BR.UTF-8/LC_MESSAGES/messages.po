@@ -2084,6 +2084,10 @@ msgid "File Delete Queue"
 msgstr "Falha ao excluir arquivo"
 
 #, fuzzy
+msgid "File Deleter"
+msgstr "Falha ao excluir arquivo"
+
+#, fuzzy
 msgid "File Not Found"
 msgstr "Ícone do Arquivo não encontrado"
 
@@ -2601,6 +2605,10 @@ msgstr "Ajuda e Guia"
 msgid "History Items"
 msgstr "ID de acolhimento"
 
+#, fuzzy
+msgid "History Report"
+msgstr "ID de acolhimento"
+
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -2832,6 +2840,9 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hosts"
+
+msgid "Hosts And Users"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts default:"
@@ -3469,6 +3480,10 @@ msgstr "Inventário"
 
 #, fuzzy
 msgid "Inventory List"
+msgstr "Inventário"
+
+#, fuzzy
+msgid "Inventory Report"
 msgstr "Inventário"
 
 #, fuzzy
@@ -4688,6 +4703,10 @@ msgstr "Lista de endereços MAC"
 msgid "Pending MACs"
 msgstr "pendentes MACs"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "macs pendentes"
+
 msgid "Pending Registered Hosts"
 msgstr "Enquanto se aguarda hosts registrados"
 
@@ -5030,6 +5049,10 @@ msgstr "caminho da chave privada não encontrados"
 
 #, fuzzy
 msgid "Product Key"
+msgstr "Hospedar de Chave de Produto"
+
+#, fuzzy
+msgid "Product Keys"
 msgstr "Hospedar de Chave de Produto"
 
 msgid "Progress"

@@ -2081,6 +2081,10 @@ msgid "File Delete Queue"
 msgstr "Failed to delete file"
 
 #, fuzzy
+msgid "File Deleter"
+msgstr "Failed to delete file"
+
+#, fuzzy
 msgid "File Not Found"
 msgstr "Icon File not found"
 
@@ -2598,6 +2602,10 @@ msgstr "Help and Guide"
 msgid "History Items"
 msgstr "Host ID"
 
+#, fuzzy
+msgid "History Report"
+msgstr "Host ID"
+
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -2829,6 +2837,9 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hosts"
+
+msgid "Hosts And Users"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts default:"
@@ -3466,6 +3477,10 @@ msgstr "Inventory"
 
 #, fuzzy
 msgid "Inventory List"
+msgstr "Inventory"
+
+#, fuzzy
+msgid "Inventory Report"
 msgstr "Inventory"
 
 #, fuzzy
@@ -4684,6 +4699,10 @@ msgstr "MAC Address List"
 msgid "Pending MACs"
 msgstr "Pending MACs"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "Pending macs"
+
 msgid "Pending Registered Hosts"
 msgstr "Pending Registered Hosts"
 
@@ -5026,6 +5045,10 @@ msgstr "Private key path not found"
 
 #, fuzzy
 msgid "Product Key"
+msgstr "Host Product Key"
+
+#, fuzzy
+msgid "Product Keys"
 msgstr "Host Product Key"
 
 msgid "Progress"

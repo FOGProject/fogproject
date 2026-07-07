@@ -52,6 +52,27 @@ class ReportManagement extends FOGPage
         return $files;
     }
     /**
+     * Never called at runtime. The report submenu labels are built
+     * dynamically from the report filenames, so xgettext cannot see
+     * them in the rendering code. Listing them literally here keeps
+     * their msgids in messages.pot when the pre-commit hook
+     * regenerates it from source.
+     *
+     * @return void
+     */
+    private static function _reportNamesForTranslation()
+    {
+        _('File Deleter');
+        _('History Report');
+        _('Host List');
+        _('Hosts And Users');
+        _('Imaging Log');
+        _('Inventory Report');
+        _('Pending Mac List');
+        _('Product Keys');
+        _('Snapin List');
+    }
+    /**
      * Initializes the report page.
      *
      * @param string $name The name if other than this.

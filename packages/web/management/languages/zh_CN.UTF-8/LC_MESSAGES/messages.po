@@ -2082,6 +2082,10 @@ msgid "File Delete Queue"
 msgstr "无法删除文件"
 
 #, fuzzy
+msgid "File Deleter"
+msgstr "无法删除文件"
+
+#, fuzzy
 msgid "File Not Found"
 msgstr "图标文件未找到"
 
@@ -2599,6 +2603,10 @@ msgstr "帮助和引导"
 msgid "History Items"
 msgstr "主机ID"
 
+#, fuzzy
+msgid "History Report"
+msgstr "主机ID"
+
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -2830,6 +2838,9 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "主机"
+
+msgid "Hosts And Users"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts default:"
@@ -3467,6 +3478,10 @@ msgstr "库存"
 
 #, fuzzy
 msgid "Inventory List"
+msgstr "库存"
+
+#, fuzzy
+msgid "Inventory Report"
 msgstr "库存"
 
 #, fuzzy
@@ -4684,6 +4699,10 @@ msgstr "MAC地址列表"
 msgid "Pending MACs"
 msgstr "待定的MAC"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "待淅淅沥沥"
+
 msgid "Pending Registered Hosts"
 msgstr "待注册主机"
 
@@ -5026,6 +5045,10 @@ msgstr "私钥未找到路径"
 
 #, fuzzy
 msgid "Product Key"
+msgstr "主机产品密钥"
+
+#, fuzzy
+msgid "Product Keys"
 msgstr "主机产品密钥"
 
 msgid "Progress"

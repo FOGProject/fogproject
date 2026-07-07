@@ -2000,6 +2000,10 @@ msgid "File Delete Queue"
 msgstr "Impossibile eliminare il file"
 
 #, fuzzy
+msgid "File Deleter"
+msgstr "Impossibile eliminare il file"
+
+#, fuzzy
 msgid "File Not Found"
 msgstr "File Icona non trovato"
 
@@ -2501,6 +2505,10 @@ msgstr "Aiuto e guida"
 msgid "History Items"
 msgstr "Grafico storico"
 
+#, fuzzy
+msgid "History Report"
+msgstr "Grafico storico"
+
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -2723,6 +2731,9 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "host"
+
+msgid "Hosts And Users"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts default:"
@@ -3323,6 +3334,10 @@ msgstr "Inventario"
 
 #, fuzzy
 msgid "Inventory List"
+msgstr "Inventario"
+
+#, fuzzy
+msgid "Inventory Report"
 msgstr "Inventario"
 
 #, fuzzy
@@ -4483,6 +4498,10 @@ msgstr "Indirizzo MAC"
 msgid "Pending MACs"
 msgstr "sospeso MAC"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "Mac in attesa"
+
 msgid "Pending Registered Hosts"
 msgstr "In attesa di host registrati"
 
@@ -4811,6 +4830,10 @@ msgstr "Percorso chiave privata non trovata"
 
 #, fuzzy
 msgid "Product Key"
+msgstr "Host Product Key"
+
+#, fuzzy
+msgid "Product Keys"
 msgstr "Host Product Key"
 
 msgid "Progress"

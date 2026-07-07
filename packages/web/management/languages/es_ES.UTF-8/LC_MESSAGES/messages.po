@@ -2129,6 +2129,10 @@ msgid "File Delete Queue"
 msgstr "No se pudo crear el usuario"
 
 #, fuzzy
+msgid "File Deleter"
+msgstr "No se pudo crear el usuario"
+
+#, fuzzy
 msgid "File Not Found"
 msgstr "Icono de archivo no encontrado"
 
@@ -2648,6 +2652,10 @@ msgstr "Ayuda y Guía"
 msgid "History Items"
 msgstr "ID de host"
 
+#, fuzzy
+msgid "History Report"
+msgstr "ID de host"
+
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -2894,6 +2902,9 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hospedadores"
+
+msgid "Hosts And Users"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts default:"
@@ -3550,6 +3561,10 @@ msgstr "ID de inventario"
 
 #, fuzzy
 msgid "Inventory List"
+msgstr "ID de inventario"
+
+#, fuzzy
+msgid "Inventory Report"
 msgstr "ID de inventario"
 
 #, fuzzy
@@ -4806,6 +4821,10 @@ msgid "Pending MACs"
 msgstr "macs pendientes"
 
 #, fuzzy
+msgid "Pending Mac List"
+msgstr "macs pendientes"
+
+#, fuzzy
 msgid "Pending Registered Hosts"
 msgstr "anfitriones pendientes"
 
@@ -5153,6 +5172,10 @@ msgstr "ruta de la clave privada no encontrado"
 
 #, fuzzy
 msgid "Product Key"
+msgstr "Clave del producto Grupo"
+
+#, fuzzy
+msgid "Product Keys"
 msgstr "Clave del producto Grupo"
 
 msgid "Progress"

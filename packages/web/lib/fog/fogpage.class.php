@@ -816,7 +816,7 @@ abstract class FOGPage extends FOGBase
                 $reportlink = "file&f=";
                 $menu = [];
                 foreach (ReportManagement::loadCustomReports() as &$report) {
-                    $item = ucwords(strtolower($report));
+                    $item = _(ucwords(strtolower($report)));
                     $menu[
                         sprintf(
                             '%s%s',

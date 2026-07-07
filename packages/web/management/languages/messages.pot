@@ -1748,6 +1748,9 @@ msgstr ""
 msgid "File Delete Queue"
 msgstr ""
 
+msgid "File Deleter"
+msgstr ""
+
 msgid "File Not Found"
 msgstr ""
 
@@ -2178,6 +2181,9 @@ msgstr ""
 msgid "History Items"
 msgstr ""
 
+msgid "History Report"
+msgstr ""
+
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -2368,6 +2374,9 @@ msgid "Hostname already used, please try again"
 msgstr ""
 
 msgid "Hosts"
+msgstr ""
+
+msgid "Hosts And Users"
 msgstr ""
 
 msgid "Hosts default:"
@@ -2901,6 +2910,9 @@ msgid "Inventory Edits"
 msgstr ""
 
 msgid "Inventory List"
+msgstr ""
+
+msgid "Inventory Report"
 msgstr ""
 
 msgid "Inventory Static"
@@ -3947,6 +3959,9 @@ msgstr ""
 msgid "Pending MACs"
 msgstr ""
 
+msgid "Pending Mac List"
+msgstr ""
+
 msgid "Pending Registered Hosts"
 msgstr ""
 
@@ -4239,6 +4254,9 @@ msgid "Private key path not found"
 msgstr ""
 
 msgid "Product Key"
+msgstr ""
+
+msgid "Product Keys"
 msgstr ""
 
 msgid "Progress"

@@ -2081,6 +2081,10 @@ msgid "File Delete Queue"
 msgstr "Löschen der Datei fehlgeschlagen"
 
 #, fuzzy
+msgid "File Deleter"
+msgstr "Löschen der Datei fehlgeschlagen"
+
+#, fuzzy
 msgid "File Not Found"
 msgstr "Icon-Datei nicht gefunden"
 
@@ -2599,6 +2603,10 @@ msgstr "Hilfe und Anleitung"
 msgid "History Items"
 msgstr "Verlaufs-ID"
 
+#, fuzzy
+msgid "History Report"
+msgstr "Verlaufs-ID"
+
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -2830,6 +2838,9 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hosts"
+
+msgid "Hosts And Users"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts default:"
@@ -3467,6 +3478,10 @@ msgstr "Inventar"
 
 #, fuzzy
 msgid "Inventory List"
+msgstr "Inventar"
+
+#, fuzzy
+msgid "Inventory Report"
 msgstr "Inventar"
 
 #, fuzzy
@@ -4687,6 +4702,10 @@ msgstr "MAC-Adresse"
 msgid "Pending MACs"
 msgstr "Ausstehende MACs"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "Ausstehende MACs"
+
 msgid "Pending Registered Hosts"
 msgstr "Ausstehende registrierte Hosts"
 
@@ -5030,6 +5049,10 @@ msgstr "Privater Schlüsselpfad nicht gefunden"
 
 #, fuzzy
 msgid "Product Key"
+msgstr "Host Produktschlüssel"
+
+#, fuzzy
+msgid "Product Keys"
 msgstr "Host Produktschlüssel"
 
 msgid "Progress"
