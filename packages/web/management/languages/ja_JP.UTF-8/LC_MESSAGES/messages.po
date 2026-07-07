@@ -6865,3 +6865,21 @@ msgstr "今すぐインストールしますか？"
 
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "そのノードの帯域幅を 1000 に設定した場合"
+
+msgid "History Report"
+msgstr "履歴レポート"
+
+msgid "Hosts And Users"
+msgstr "ホストとユーザー"
+
+msgid "Inventory Report"
+msgstr "インベントリレポート"
+
+msgid "Pending Mac List"
+msgstr "保留中の MAC 一覧"
+
+msgid "Product Keys"
+msgstr "プロダクトキー"
+
+msgid "User Tracking"
+msgstr "ユーザー追跡"
