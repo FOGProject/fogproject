@@ -2145,6 +2145,10 @@ msgstr "Historique des IP"
 msgid "History Info"
 msgstr "Historique des informations"
 
+#, fuzzy
+msgid "History Report"
+msgstr "Historique des utilisateurs"
+
 msgid "History Time"
 msgstr "Historique des horaires"
 
@@ -2375,6 +2379,10 @@ msgstr "Renommage machine"
 
 msgid "Hosts"
 msgstr "Machines"
+
+#, fuzzy
+msgid "Hosts And Users"
+msgstr "Connexion des machines et des utilisateurs du FOG"
 
 msgid "Hosts Associated"
 msgstr "Machines associées"
@@ -2937,6 +2945,10 @@ msgstr "Inventaire"
 
 msgid "Inventory ID"
 msgstr "N° d'inventaire"
+
+#, fuzzy
+msgid "Inventory Report"
+msgstr "Export complet Inventaire"
 
 msgid "Is Advanced"
 msgstr "Est avancée"
@@ -4058,6 +4070,10 @@ msgstr "En attente MAC Export"
 msgid "Pending MACs"
 msgstr "MACs en attente"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "Liste des machines en attente"
+
 msgid "Pending Registered Hosts"
 msgstr "Machines enregistrés en attente"
 
@@ -4337,6 +4353,10 @@ msgstr "Clé privée non lisible"
 
 msgid "Private key path not found"
 msgstr "Chemin de la clé privée non trouvée"
+
+#, fuzzy
+msgid "Product Keys"
+msgstr "Clés du produit de la machine"
 
 msgid "Protected"
 msgstr "Protégé"
@@ -6035,6 +6055,10 @@ msgid "User Password (confirm)"
 msgstr "Mot de passe de l'utilisateur (confirmation)"
 
 msgid "User Tracker"
+msgstr "Tracker utilisateur"
+
+#, fuzzy
+msgid "User Tracking"
 msgstr "Tracker utilisateur"
 
 msgid "User Update Fail"

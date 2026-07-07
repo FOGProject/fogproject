@@ -2432,6 +2432,10 @@ msgid "History Info"
 msgstr "Verlaufinformationen"
 
 #, fuzzy
+msgid "History Report"
+msgstr "Benutzerverlauf"
+
+#, fuzzy
 msgid "History Time"
 msgstr "Verlaufszeit"
 
@@ -2691,6 +2695,10 @@ msgstr "Hostname-Wechsler"
 
 msgid "Hosts"
 msgstr "Hosts"
+
+#, fuzzy
+msgid "Hosts And Users"
+msgstr "FOG Hosts und Benutzer-Login"
 
 #, fuzzy
 msgid "Hosts Associated"
@@ -3335,6 +3343,10 @@ msgstr "Inventar"
 
 msgid "Inventory ID"
 msgstr "Bestands-ID"
+
+#, fuzzy
+msgid "Inventory Report"
+msgstr "Vollständiger Inventur-Export"
 
 msgid "Is Advanced"
 msgstr "Ist fortgeschritten"
@@ -4581,6 +4593,10 @@ msgstr "exportieren aller ausstehende MACs"
 msgid "Pending MACs"
 msgstr "Ausstehende MACs"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "Liste der ausstehenden Hosts"
+
 msgid "Pending Registered Hosts"
 msgstr "Ausstehende registrierte Hosts"
 
@@ -4891,6 +4907,10 @@ msgstr "Private Schlüssel nicht lesbar"
 
 msgid "Private key path not found"
 msgstr "Privater Schlüsselpfad nicht gefunden"
+
+#, fuzzy
+msgid "Product Keys"
+msgstr "Host-Produkt-Schlüssel"
 
 msgid "Protected"
 msgstr "Geschützt"
@@ -6839,6 +6859,10 @@ msgid "User Password (confirm)"
 msgstr "Benutzerpasswort (bestätigen)"
 
 msgid "User Tracker"
+msgstr "Benutzer-Tracker"
+
+#, fuzzy
+msgid "User Tracking"
 msgstr "Benutzer-Tracker"
 
 #, fuzzy

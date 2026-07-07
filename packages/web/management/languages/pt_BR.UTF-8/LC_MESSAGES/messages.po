@@ -2127,6 +2127,10 @@ msgstr "IP de Histórico"
 msgid "History Info"
 msgstr "Info de Histórico"
 
+#, fuzzy
+msgid "History Report"
+msgstr "Usuário de Histórico"
+
 msgid "History Time"
 msgstr "Tempo de Histórico"
 
@@ -2356,6 +2360,10 @@ msgstr "Alterador de Hostname"
 
 msgid "Hosts"
 msgstr "Hosts"
+
+#, fuzzy
+msgid "Hosts And Users"
+msgstr "Login de Hosts e Usuários FOG"
 
 msgid "Hosts Associated"
 msgstr "Hosts Associados"
@@ -2911,6 +2919,10 @@ msgstr "Inventário"
 
 msgid "Inventory ID"
 msgstr "ID de Inventário"
+
+#, fuzzy
+msgid "Inventory Report"
+msgstr "Exportação de Inventário Completo"
 
 msgid "Is Advanced"
 msgstr "É Avançado"
@@ -4023,6 +4035,10 @@ msgstr "Exportação de MAC Pendente"
 msgid "Pending MACs"
 msgstr "MACs Pendentes"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "Lista de Hosts Pendentes"
+
 msgid "Pending Registered Hosts"
 msgstr "Hosts Registrados Pendentes"
 
@@ -4299,6 +4315,10 @@ msgstr "Chave privada não legível"
 
 msgid "Private key path not found"
 msgstr "Caminho da chave privada não encontrado"
+
+#, fuzzy
+msgid "Product Keys"
+msgstr "Chaves de Produto do Host"
 
 msgid "Protected"
 msgstr "Protegido"
@@ -5976,6 +5996,10 @@ msgid "User Password (confirm)"
 msgstr "Senha do Usuário (confirmar)"
 
 msgid "User Tracker"
+msgstr "Rastreador de Usuário"
+
+#, fuzzy
+msgid "User Tracking"
 msgstr "Rastreador de Usuário"
 
 msgid "User Update Fail"
