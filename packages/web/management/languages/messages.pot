@@ -6863,3 +6863,21 @@ msgstr ""
 
 msgid "you set the bandwidth field on that node to 1000"
 msgstr ""
+
+msgid "History Report"
+msgstr ""
+
+msgid "Hosts And Users"
+msgstr ""
+
+msgid "Inventory Report"
+msgstr ""
+
+msgid "Pending Mac List"
+msgstr ""
+
+msgid "Product Keys"
+msgstr ""
+
+msgid "User Tracking"
+msgstr ""

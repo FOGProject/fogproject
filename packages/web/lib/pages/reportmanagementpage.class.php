@@ -140,7 +140,7 @@ class ReportManagementPage extends FOGPage
                 $item[] = ucfirst(trim($rep));
                 unset($rep);
             }
-            $item = implode(' ', $item);
+            $item = _(implode(' ', $item));
             $this->menu = self::fastmerge(
                 (array)$this->menu,
                 array(
