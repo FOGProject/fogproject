@@ -36,7 +36,7 @@ class TaskstateeditManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Task State Management';
+        $this->name = _('Task State Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),

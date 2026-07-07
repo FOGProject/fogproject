@@ -36,7 +36,7 @@ class ImageManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Image Management';
+        $this->name = _('Image Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Image Name'),
@@ -1384,11 +1384,11 @@ class ImageManagement extends FOGPage
         $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
         if ($countmc >= $countmctot) {
             throw new Exception(
-                _(
-                    'Server is only configured to run '
-                    . $countmctot
-                    . ' multicast tasks!'
-                )
+                _('Server is only configured to run')
+                . ' '
+                . $countmctot
+                . ' '
+                . _('multicast tasks!')
             );
         }
         $StorageGroup = $Image->getStorageGroup();

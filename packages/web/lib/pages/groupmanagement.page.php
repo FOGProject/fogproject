@@ -40,7 +40,7 @@ class GroupManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Group Management';
+        $this->name = _('Group Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),

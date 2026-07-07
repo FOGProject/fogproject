@@ -36,7 +36,7 @@ class TasktypeeditManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Task Type Management';
+        $this->name = _('Task Type Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),

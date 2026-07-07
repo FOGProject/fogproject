@@ -228,7 +228,7 @@ class FOGPageManager extends FOGBase
             $this->_nodes[$class->node] = $class;
         } catch (Exception $e) {
             $this->debug(
-                'Failed to add Page: Node: %s, Page Class: %s, Error: $s',
+                _('Failed to add Page: Node: %s, Page Class: %s, Error: %s'),
                 [
                     $class->node,
                     get_class($class),

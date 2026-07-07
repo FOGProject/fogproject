@@ -93,13 +93,13 @@ class LogViewerHook extends Hook
         $systemlog = preg_grep('#(syslog$|messages$)#', $fogfiles);
         $systemlog = array_shift($systemlog);
         if ($systemlog) {
-            $arguments['files'][$arguments['StorageNode']->name]['System Log']
+            $arguments['files'][$arguments['StorageNode']->name][_('System Log')]
                 = $systemlog;
         }
         $dnflog = preg_grep('#(dnf.log$)#', $fogfiles);
         $dnflog = array_shift($dnflog);
         if ($dnflog) {
-            $arguments['files'][$arguments['StorageNode']->name]['DNF Log']
+            $arguments['files'][$arguments['StorageNode']->name][_('DNF Log')]
                 = $dnflog;
         }
     }

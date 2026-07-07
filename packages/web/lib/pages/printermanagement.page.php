@@ -42,7 +42,7 @@ class PrinterManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Printer Management';
+        $this->name = _('Printer Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Printer Name'),
@@ -263,7 +263,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252 or printer.example.com:9100',
+                _('192.168.1.252 or printer.example.com:9100'),
                 'text',
                 'ipcups',
                 $ip
@@ -324,7 +324,7 @@ class PrinterManagement extends FOGPage
             ) => self::makeInput(
                 'form-control printerip-input',
                 'ip',
-                '192.168.1.252 or printer.example.com:9100',
+                _('192.168.1.252 or printer.example.com:9100'),
                 'text',
                 'iplocal',
                 $ip,

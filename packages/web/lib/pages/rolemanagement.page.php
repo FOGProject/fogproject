@@ -36,7 +36,7 @@ class RoleManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Role Management';
+        $this->name = _('Role Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Role Name'),

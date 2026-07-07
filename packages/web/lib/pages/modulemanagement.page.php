@@ -40,7 +40,7 @@ class ModuleManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Module Management';
+        $this->name = _('Module Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),
@@ -98,7 +98,7 @@ class ModuleManagement extends FOGPage
             ) => self::makeInput(
                 'form-control moduleshortname-input',
                 'shortname',
-                'short',
+                _('short'),
                 'text',
                 'shortname',
                 $shortname
@@ -256,7 +256,7 @@ class ModuleManagement extends FOGPage
             ) => self::makeInput(
                 'form-control moduleshortname-input',
                 'shortname',
-                'short',
+                _('short'),
                 'text',
                 'shortname',
                 $shortname

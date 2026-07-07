@@ -36,7 +36,7 @@ class StorageGroupManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Storage Group Management';
+        $this->name = _('Storage Group Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Storage Group Name'),

@@ -36,7 +36,7 @@ class IpxeManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'iPXE Management';
+        $this->name = _('iPXE Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),

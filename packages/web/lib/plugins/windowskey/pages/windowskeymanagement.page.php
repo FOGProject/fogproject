@@ -36,7 +36,7 @@ class WindowsKeyManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Windows Key Management';
+        $this->name = _('Windows Key Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Windows Key Name'),

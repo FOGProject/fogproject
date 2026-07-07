@@ -51,6 +51,10 @@ msgid " | Unable to find image path"
 msgstr "Fehler beim Finden des Master Storage Nodes"
 
 #, php-format
+msgid "%s %s log (%s)"
+msgstr ""
+
+#, php-format
 msgid "%s Manager"
 msgstr "%s Manager"
 
@@ -81,6 +85,10 @@ msgstr ""
 msgid "(varies)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid ", Arguments = %s"
+msgstr "Kernel-Argumente"
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 Stunde"
@@ -99,6 +107,9 @@ msgid "100"
 msgstr ""
 
 msgid "192.168.1.0/24, 10.1.0.0/16"
+msgstr ""
+
+msgid "192.168.1.252 or printer.example.com:9100"
 msgstr ""
 
 msgid "2 Minutes"
@@ -327,6 +338,10 @@ msgstr "Zugriffskontrollen"
 msgid "Account already linked"
 msgstr "Konto ist bereits verknüpft"
 
+#, fuzzy
+msgid "Account linked"
+msgstr "Konto ist bereits verknüpft"
+
 msgid "Account linked to FOG GUI at"
 msgstr "Konto verknüpft mit FOG-GUI unter"
 
@@ -532,6 +547,10 @@ msgid "Admin Group"
 msgstr "Admingruppe"
 
 #, fuzzy
+msgid "Administrator"
+msgstr "Admingruppe"
+
+#, fuzzy
 msgid "Administrator (full access)"
 msgstr "Admingruppe"
 
@@ -643,6 +662,10 @@ msgstr "Ein LDAP mit diesem Namen ist bereits vorhanden!"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
+msgid "An SQL error occurred"
+msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
 #, fuzzy
 msgid "An entry already exists with this name!"
@@ -780,8 +803,14 @@ msgstr "Bandbreite sollte numerisch und größer als 0 sein."
 msgid "Base Only"
 msgstr "Nur Basis"
 
+msgid "Bash Script"
+msgstr ""
+
 msgid "Basic Tasks"
 msgstr "grundlegende Tasks"
+
+msgid "Batch Script"
+msgstr ""
 
 msgid "Bind DN"
 msgstr "DN binden"
@@ -979,6 +1008,10 @@ msgstr "Snapin erfolgreich hinzugefügt"
 
 msgid "Capone Deploy"
 msgstr "Capone Verteilung"
+
+#, fuzzy
+msgid "Capone Management"
+msgstr "Snapin-Management"
 
 #, fuzzy
 msgid "Capone Update Fail"
@@ -1418,6 +1451,9 @@ msgid "Current member-host AD state"
 msgstr ""
 
 msgid "DMI Field"
+msgstr ""
+
+msgid "DNF Log"
 msgstr ""
 
 msgid "Daily"
@@ -1946,6 +1982,10 @@ msgstr "Fehler beim Rendern der Seite: Knoten: %s, Fehler: %s"
 #, fuzzy
 msgid "Failed to SSH to Storage Node Named"
 msgstr "Zerstören des Speicherknotens fehlgeschlagen"
+
+#, fuzzy, php-format
+msgid "Failed to add Page: Node: %s, Page Class: %s, Error: %s"
+msgstr "Fehler beim Rendern der Seite: Knoten: %s, Fehler: %s"
 
 #, fuzzy
 msgid "Failed to add snapin"
@@ -2574,6 +2614,10 @@ msgstr "Host erstellen fehlgeschlagen"
 #, fuzzy
 msgid "Hello World Create Success"
 msgstr "Host erfolgreich erstellt"
+
+#, fuzzy
+msgid "Hello World Management"
+msgstr "Berichteverwaltung"
 
 #, fuzzy
 msgid "Hello World Update Fail"
@@ -3240,6 +3284,10 @@ msgstr "In "
 msgid "In FOG"
 msgstr "zu booten."
 
+#, php-format
+msgid "Index page of: %s%s"
+msgstr ""
+
 msgid "Infinite scroll"
 msgstr ""
 
@@ -3372,6 +3420,10 @@ msgstr "Ungültige Einheit"
 #, fuzzy
 msgid "Invalid Unit"
 msgstr "Ungültige Einheit"
+
+#, php-format
+msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
+msgstr ""
 
 msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
 msgstr ""
@@ -4061,6 +4113,10 @@ msgstr "Modulname"
 msgid "Module Host Associations"
 msgstr "Regel Zuordnung"
 
+#, fuzzy
+msgid "Module Management"
+msgstr "Gruppenverwaltung"
+
 msgid "Module Name"
 msgstr "Modulname"
 
@@ -4510,6 +4566,10 @@ msgid "OU Host Associations"
 msgstr "zugeordneter Host"
 
 #, fuzzy
+msgid "OU Management"
+msgstr "Verwaltung"
+
+#, fuzzy
 msgid "OU Name"
 msgstr "Betriebssystem"
 
@@ -4951,6 +5011,12 @@ msgstr "Power Management"
 msgid "Power Management Task run time"
 msgstr "Power Management"
 
+msgid "PowerShell Script"
+msgstr ""
+
+msgid "PowerShell x64 Script"
+msgstr ""
+
 #, fuzzy
 msgid "Primary"
 msgstr "Primäre MAC"
@@ -5068,6 +5134,10 @@ msgstr "Geschützt"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Accounts"
+
+#, fuzzy
+msgid "Pushbullet Management"
+msgstr "Client-Management"
 
 #, fuzzy
 msgid "Pushbullet Token"
@@ -5265,6 +5335,10 @@ msgstr "Drucker hinzufügen erfolgreich."
 #, fuzzy
 msgid "Role Description"
 msgstr "Rollenbeschreibung"
+
+#, fuzzy
+msgid "Role Management"
+msgstr "Power Management"
 
 #, fuzzy
 msgid "Role Name"
@@ -5470,8 +5544,9 @@ msgstr "Server-Shell"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-msgid "Server is only configured to run "
-msgstr ""
+#, fuzzy
+msgid "Server is only configured to run"
+msgstr "Service-Konfiguration"
 
 msgid "Service"
 msgstr "Service"
@@ -5646,6 +5721,10 @@ msgid "Site Host Associations"
 msgstr "zugeordneter Host"
 
 #, fuzzy
+msgid "Site Management"
+msgstr "Speicherverwaltung"
+
+#, fuzzy
 msgid "Site Name"
 msgstr "Sitename"
 
@@ -5705,6 +5784,10 @@ msgstr ""
 
 msgid "Slack Accounts"
 msgstr "Slack Accounts"
+
+#, fuzzy
+msgid "Slack Management"
+msgstr "Task-Management"
 
 #, fuzzy
 msgid "Slack Token"
@@ -5974,6 +6057,10 @@ msgid "Storage Group Image Associations"
 msgstr "Speicherknoten erstellt"
 
 #, fuzzy
+msgid "Storage Group Management"
+msgstr "Speicherverwaltung"
+
+#, fuzzy
 msgid "Storage Group Master Storage Node"
 msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
 
@@ -6184,6 +6271,10 @@ msgid "Subnet Group Description"
 msgstr "Gruppenbeschreibung"
 
 #, fuzzy
+msgid "Subnet Group Management"
+msgstr "Gruppenverwaltung"
+
+#, fuzzy
 msgid "Subnet Group Name"
 msgstr "Name der Speichergruppe"
 
@@ -6241,6 +6332,10 @@ msgstr ""
 
 msgid "Sync finished - "
 msgstr ""
+
+#, fuzzy
+msgid "System Log"
+msgstr "System Tools"
 
 msgid "System Manufacturer"
 msgstr "Systemhersteller"
@@ -6333,6 +6428,10 @@ msgid "Task State Icon"
 msgstr "Task Status"
 
 #, fuzzy
+msgid "Task State Management"
+msgstr "Task-Management"
+
+#, fuzzy
 msgid "Task State Name"
 msgstr "Task Status"
 
@@ -6369,6 +6468,10 @@ msgstr "Imagebeschreibung"
 #, fuzzy
 msgid "Task Type Icon"
 msgstr "Task-Typ"
+
+#, fuzzy
+msgid "Task Type Management"
+msgstr "Task-Management"
 
 #, fuzzy
 msgid "Task Type Name"
@@ -7075,6 +7178,10 @@ msgid "User Group Create Success"
 msgstr "Gruppe erfolgreich erstellt"
 
 #, fuzzy
+msgid "User Group Management"
+msgstr "Gruppenverwaltung"
+
+#, fuzzy
 msgid "User Group Member Associations"
 msgstr "Regel Zuordnung"
 
@@ -7219,6 +7326,9 @@ msgstr "Benutzer"
 msgid "Using the group match function"
 msgstr "Verwenden der Gruppenübereinstimmungsfunktion,"
 
+msgid "VB Script"
+msgstr ""
+
 msgid "VNC"
 msgstr ""
 
@@ -7237,6 +7347,10 @@ msgstr "Version"
 
 msgid "View"
 msgstr ""
+
+#, fuzzy
+msgid "WOL Broadcast Management"
+msgstr "Standortverwaltung"
 
 #, fuzzy
 msgid "WOL Broadcasts"
@@ -7312,6 +7426,10 @@ msgstr "Windows-Schlüssel erfolgreich erstellt"
 #, fuzzy
 msgid "Windows Key Description"
 msgstr "Windows-Schlüssel beschreibung"
+
+#, fuzzy
+msgid "Windows Key Management"
+msgstr "Windows-Schlüsselname"
 
 #, fuzzy
 msgid "Windows Key Name"
@@ -7394,6 +7512,10 @@ msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"
 
 msgid "Your database connection appears to be invalid"
 msgstr "Ihre Datenbankverbindung scheint ungültig zu sein"
+
+#, fuzzy
+msgid "access"
+msgstr "Zugang"
 
 #, fuzzy
 msgid "additional macs"
@@ -7536,6 +7658,10 @@ msgstr "entweder weil Sie aktualisiert haben"
 msgid "enabled (all)"
 msgstr "Aktiviert"
 
+#, fuzzy
+msgid "error"
+msgstr "Fehler"
+
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
 msgstr ""
@@ -7646,6 +7772,10 @@ msgstr "Snapin Update fehlgeschlagen"
 #, fuzzy
 msgid "iPXE Config Update Success"
 msgstr "iPXE Element erfolgreich aktualisiert!"
+
+#, fuzzy
+msgid "iPXE Management"
+msgstr "LDAP-Verwaltung"
 
 #, fuzzy
 msgid "iPXE Menu"
@@ -7812,6 +7942,10 @@ msgstr ""
 msgid "month"
 msgstr "Monat"
 
+#, fuzzy
+msgid "multicast tasks!"
+msgstr "Aktive Multicast-Tasks"
+
 msgid "multiple places to get your image"
 msgstr "Orte gibt, an denen Sie Ihr Image abrufen können"
 
@@ -7845,6 +7979,10 @@ msgstr "auf diesem Knoten nicht gefunden"
 #, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack Accounts"
+
+#, fuzzy
+msgid "ntfy Management"
+msgstr "Client-Management"
 
 #, fuzzy
 msgid "object"
@@ -7915,6 +8053,9 @@ msgstr ""
 #, fuzzy
 msgid "settings"
 msgstr "Einstellungen"
+
+msgid "short"
+msgstr ""
 
 msgid "sites with clients moving back and forth"
 msgstr "mit Clients haben, die zwischen verschiedenen "
@@ -8220,10 +8361,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "An accesscontrol with this name already exists!"
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
-
-#, fuzzy
-#~ msgid "An error occurred"
-#~ msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
 #, fuzzy
 #~ msgid "Bulk Changes"

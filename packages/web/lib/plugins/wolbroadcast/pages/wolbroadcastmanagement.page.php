@@ -36,7 +36,7 @@ class WOLBroadcastManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'WOL Broadcast Management';
+        $this->name = _('WOL Broadcast Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Broadcast Name'),

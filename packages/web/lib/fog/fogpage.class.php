@@ -909,11 +909,11 @@ abstract class FOGPage extends FOGBase
                 array_walk($args, $vals);
             }
             printf(
-                'Index page of: %s%s',
+                _('Index page of: %s%s'),
                 get_class($this),
                 (
                     count($args ?: []) ?
-                    sprintf(', Arguments = %s', implode(', ', $args)) :
+                    sprintf(_(', Arguments = %s'), implode(', ', $args)) :
                     ''
                 )
             );

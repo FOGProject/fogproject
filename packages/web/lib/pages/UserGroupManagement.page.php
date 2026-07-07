@@ -36,7 +36,7 @@ class UserGroupManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'User Group Management';
+        $this->name = _('User Group Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Group Name'),

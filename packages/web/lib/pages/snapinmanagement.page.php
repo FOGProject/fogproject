@@ -73,7 +73,7 @@ class SnapinManagement extends FOGPage
         /**
          * The real name not using our name passer.
          */
-        $this->name = 'Snapin Management';
+        $this->name = _('Snapin Management');
         /**
          * Pull in the FOG Page class items.
          */
@@ -131,24 +131,24 @@ class SnapinManagement extends FOGPage
                 'msiexec.exe',
                 '/i &quot;[FOG_SNAPIN_PATH]\\MyMST.mst&quot;'
             ],
-            'Batch Script' => [
+            _('Batch Script') => [
                 'cmd.exe',
                 '/c &quot;[FOG_SNAPIN_PATH]\\MyScript.bat&quot;'
             ],
-            'Bash Script' => [
+            _('Bash Script') => [
                 '/bin/bash',
                 '&quot;[FOG_SNAPIN_PATH]/MyScript.sh&quot;'
             ],
-            'VB Script' => [
+            _('VB Script') => [
                 'cscript.exe',
                 '&quot;[FOG_SNAPIN_PATH]\\MyScript.vbs&quot;'
             ],
-            'PowerShell Script' => [
+            _('PowerShell Script') => [
                 'powershell.exe',
                 '-ExecutionPolicy Bypass -NoProfile -File &quot;'
                 .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
             ],
-            'PowerShell x64 Script' => [
+            _('PowerShell x64 Script') => [
                 '&quot;%WINDIR%\\sysnative\\windowspowershell'
                 . '\\v1.0\\powershell.exe&quot;',
                 '-ExecutionPolicy Bypass -NoProfile -File &quot;'

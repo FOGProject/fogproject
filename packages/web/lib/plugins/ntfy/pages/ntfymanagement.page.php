@@ -38,7 +38,7 @@ class NtfyManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'ntfy Management';
+        $this->name = _('ntfy Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Server URL'),

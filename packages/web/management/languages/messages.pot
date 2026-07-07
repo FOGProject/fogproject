@@ -32,6 +32,10 @@ msgid " | Unable to find image path"
 msgstr ""
 
 #, php-format
+msgid "%s %s log (%s)"
+msgstr ""
+
+#, php-format
 msgid "%s Manager"
 msgstr ""
 
@@ -62,6 +66,10 @@ msgstr ""
 msgid "(varies)"
 msgstr ""
 
+#, php-format
+msgid ", Arguments = %s"
+msgstr ""
+
 msgid "1 Hour"
 msgstr ""
 
@@ -78,6 +86,9 @@ msgid "100"
 msgstr ""
 
 msgid "192.168.1.0/24, 10.1.0.0/16"
+msgstr ""
+
+msgid "192.168.1.252 or printer.example.com:9100"
 msgstr ""
 
 msgid "2 Minutes"
@@ -267,6 +278,9 @@ msgstr ""
 msgid "Account already linked"
 msgstr ""
 
+msgid "Account linked"
+msgstr ""
+
 msgid "Account linked to FOG GUI at"
 msgstr ""
 
@@ -433,6 +447,9 @@ msgstr ""
 msgid "Admin Group"
 msgstr ""
 
+msgid "Administrator"
+msgstr ""
+
 msgid "Administrator (full access)"
 msgstr ""
 
@@ -527,6 +544,9 @@ msgid "An LDAP server already exists with this name!"
 msgstr ""
 
 msgid "An OU already exists with this name!"
+msgstr ""
+
+msgid "An SQL error occurred"
 msgstr ""
 
 msgid "An entry already exists with this name!"
@@ -643,7 +663,13 @@ msgstr ""
 msgid "Base Only"
 msgstr ""
 
+msgid "Bash Script"
+msgstr ""
+
 msgid "Basic Tasks"
+msgstr ""
+
+msgid "Batch Script"
 msgstr ""
 
 msgid "Bind DN"
@@ -812,6 +838,9 @@ msgid "Capone Create Success"
 msgstr ""
 
 msgid "Capone Deploy"
+msgstr ""
+
+msgid "Capone Management"
 msgstr ""
 
 msgid "Capone Update Fail"
@@ -1175,6 +1204,9 @@ msgid "Current member-host AD state"
 msgstr ""
 
 msgid "DMI Field"
+msgstr ""
+
+msgid "DNF Log"
 msgstr ""
 
 msgid "Daily"
@@ -1635,6 +1667,10 @@ msgid "Failed to Render Page: Node: %s, Error: %s"
 msgstr ""
 
 msgid "Failed to SSH to Storage Node Named"
+msgstr ""
+
+#, php-format
+msgid "Failed to add Page: Node: %s, Page Class: %s, Error: %s"
 msgstr ""
 
 msgid "Failed to add snapin"
@@ -2158,6 +2194,9 @@ msgid "Hello World Create Fail"
 msgstr ""
 
 msgid "Hello World Create Success"
+msgstr ""
+
+msgid "Hello World Management"
 msgstr ""
 
 msgid "Hello World Update Fail"
@@ -2708,6 +2747,10 @@ msgstr ""
 msgid "In FOG"
 msgstr ""
 
+#, php-format
+msgid "Index page of: %s%s"
+msgstr ""
+
 msgid "Infinite scroll"
 msgstr ""
 
@@ -2820,6 +2863,10 @@ msgid "Invalid URL"
 msgstr ""
 
 msgid "Invalid Unit"
+msgstr ""
+
+#, php-format
+msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
 
 msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
@@ -3402,6 +3449,9 @@ msgstr ""
 msgid "Module Host Associations"
 msgstr ""
 
+msgid "Module Management"
+msgstr ""
+
 msgid "Module Name"
 msgstr ""
 
@@ -3791,6 +3841,9 @@ msgstr ""
 msgid "OU Host Associations"
 msgstr ""
 
+msgid "OU Management"
+msgstr ""
+
 msgid "OU Name"
 msgstr ""
 
@@ -4166,6 +4219,12 @@ msgstr ""
 msgid "Power Management Task run time"
 msgstr ""
 
+msgid "PowerShell Script"
+msgstr ""
+
+msgid "PowerShell x64 Script"
+msgstr ""
+
 msgid "Primary"
 msgstr ""
 
@@ -4269,6 +4328,9 @@ msgid "Protected"
 msgstr ""
 
 msgid "Pushbullet Accounts"
+msgstr ""
+
+msgid "Pushbullet Management"
 msgstr ""
 
 msgid "Pushbullet Token"
@@ -4442,6 +4504,9 @@ msgstr ""
 msgid "Role Description"
 msgstr ""
 
+msgid "Role Management"
+msgstr ""
+
 msgid "Role Name"
 msgstr ""
 
@@ -4612,7 +4677,7 @@ msgstr ""
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-msgid "Server is only configured to run "
+msgid "Server is only configured to run"
 msgstr ""
 
 msgid "Service"
@@ -4753,6 +4818,9 @@ msgstr ""
 msgid "Site Host Associations"
 msgstr ""
 
+msgid "Site Management"
+msgstr ""
+
 msgid "Site Name"
 msgstr ""
 
@@ -4801,6 +4869,9 @@ msgid "Skipping, will need manual removal"
 msgstr ""
 
 msgid "Slack Accounts"
+msgstr ""
+
+msgid "Slack Management"
 msgstr ""
 
 msgid "Slack Token"
@@ -5034,6 +5105,9 @@ msgstr ""
 msgid "Storage Group Image Associations"
 msgstr ""
 
+msgid "Storage Group Management"
+msgstr ""
+
 msgid "Storage Group Master Storage Node"
 msgstr ""
 
@@ -5205,6 +5279,9 @@ msgstr ""
 msgid "Subnet Group Description"
 msgstr ""
 
+msgid "Subnet Group Management"
+msgstr ""
+
 msgid "Subnet Group Name"
 msgstr ""
 
@@ -5252,6 +5329,9 @@ msgid "Switch to light mode"
 msgstr ""
 
 msgid "Sync finished - "
+msgstr ""
+
+msgid "System Log"
 msgstr ""
 
 msgid "System Manufacturer"
@@ -5332,6 +5412,9 @@ msgstr ""
 msgid "Task State Icon"
 msgstr ""
 
+msgid "Task State Management"
+msgstr ""
+
 msgid "Task State Name"
 msgstr ""
 
@@ -5360,6 +5443,9 @@ msgid "Task Type Description"
 msgstr ""
 
 msgid "Task Type Icon"
+msgstr ""
+
+msgid "Task Type Management"
 msgstr ""
 
 msgid "Task Type Name"
@@ -5955,6 +6041,9 @@ msgstr ""
 msgid "User Group Create Success"
 msgstr ""
 
+msgid "User Group Management"
+msgstr ""
+
 msgid "User Group Member Associations"
 msgstr ""
 
@@ -6072,6 +6161,9 @@ msgstr ""
 msgid "Using the group match function"
 msgstr ""
 
+msgid "VB Script"
+msgstr ""
+
 msgid "VNC"
 msgstr ""
 
@@ -6088,6 +6180,9 @@ msgid "Versions"
 msgstr ""
 
 msgid "View"
+msgstr ""
+
+msgid "WOL Broadcast Management"
 msgstr ""
 
 msgid "WOL Broadcasts"
@@ -6151,6 +6246,9 @@ msgid "Windows Key Create Success"
 msgstr ""
 
 msgid "Windows Key Description"
+msgstr ""
+
+msgid "Windows Key Management"
 msgstr ""
 
 msgid "Windows Key Name"
@@ -6224,6 +6322,9 @@ msgid "Your FOG database schema is not up to date"
 msgstr ""
 
 msgid "Your database connection appears to be invalid"
+msgstr ""
+
+msgid "access"
 msgstr ""
 
 msgid "additional macs"
@@ -6343,6 +6444,9 @@ msgstr ""
 msgid "enabled (all)"
 msgstr ""
 
+msgid "error"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
 msgstr ""
@@ -6435,6 +6539,9 @@ msgid "iPXE Config Update Fail"
 msgstr ""
 
 msgid "iPXE Config Update Success"
+msgstr ""
+
+msgid "iPXE Management"
 msgstr ""
 
 msgid "iPXE Menu"
@@ -6578,6 +6685,9 @@ msgstr ""
 msgid "month"
 msgstr ""
 
+msgid "multicast tasks!"
+msgstr ""
+
 msgid "multiple places to get your image"
 msgstr ""
 
@@ -6606,6 +6716,9 @@ msgid "not found on this node"
 msgstr ""
 
 msgid "ntfy Accounts"
+msgstr ""
+
+msgid "ntfy Management"
 msgstr ""
 
 msgid "object"
@@ -6669,6 +6782,9 @@ msgid "server does not appear to be online"
 msgstr ""
 
 msgid "settings"
+msgstr ""
+
+msgid "short"
 msgstr ""
 
 msgid "sites with clients moving back and forth"

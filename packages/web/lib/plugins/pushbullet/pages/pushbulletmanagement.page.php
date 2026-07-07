@@ -36,7 +36,7 @@ class PushbulletManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Pushbullet Management';
+        $this->name = _('Pushbullet Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),
@@ -138,7 +138,7 @@ class PushbulletManagement extends FOGPage
                 $userInfo->pushNote(
                     '',
                     'FOG',
-                    'Account linked'
+                    _('Account linked')
                 );
                 return $Pushbullet;
             }

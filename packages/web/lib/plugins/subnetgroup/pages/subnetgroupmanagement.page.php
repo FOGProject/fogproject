@@ -38,7 +38,7 @@ class SubnetGroupManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Subnet Group Management';
+        $this->name = _('Subnet Group Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),

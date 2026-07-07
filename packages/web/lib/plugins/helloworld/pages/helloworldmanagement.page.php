@@ -50,7 +50,7 @@ class HelloWorldManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Hello World Management';
+        $this->name = _('Hello World Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),

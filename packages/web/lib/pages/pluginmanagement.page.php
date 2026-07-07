@@ -37,7 +37,7 @@ class PluginManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Plugin Management';
+        $this->name = _('Plugin Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Plugin Name'),

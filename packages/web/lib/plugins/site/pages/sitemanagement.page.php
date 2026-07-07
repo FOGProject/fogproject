@@ -34,7 +34,7 @@ class SiteManagement extends FOGPage
         /**
          * The name to give.
          */
-        $this->name = 'Site Management';
+        $this->name = _('Site Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),

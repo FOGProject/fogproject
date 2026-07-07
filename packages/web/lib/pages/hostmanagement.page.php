@@ -40,7 +40,7 @@ class HostManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Host Management';
+        $this->name = _('Host Management');
         parent::__construct($this->name);
         if (!($this->obj instanceof Host && $this->obj->isValid())) {
             $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit');
@@ -4236,7 +4236,7 @@ class HostManagement extends FOGPage
                 ] = self::makeInput(
                     'form-control',
                     'account',
-                    'Administrator',
+                    _('Administrator'),
                     'text',
                     'account',
                     '',

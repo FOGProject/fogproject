@@ -36,7 +36,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'FOG Configuration';
+        $this->name = _('FOG Configuration');
         parent::__construct($this->name);
     }
     /**
@@ -2067,14 +2067,14 @@ class FOGConfigurationPage extends FOGPage
         );
 
         // Log selector.
-        $logtype = 'error';
+        $logtype = _('error');
         $logparse = function ($log) use (
             &$files,
             &$StorageNode,
             &$logtype
         ) {
             $str = sprintf(
-                '%s %s log (%s)',
+                _('%s %s log (%s)'),
                 (
                     preg_match('#nginx#i', $log) ?
                     'NGINX' :
@@ -2270,7 +2270,7 @@ class FOGConfigurationPage extends FOGPage
                     ),
                 ];
                 array_map($logparse, (array)$apacheerrlog);
-                $logtype = 'access';
+                $logtype = _('access');
                 array_map($logparse, (array)$apacheacclog);
                 foreach ((array)$imgtransferlogs as &$file) {
                     $str = self::stringBetween(

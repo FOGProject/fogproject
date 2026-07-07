@@ -93,7 +93,7 @@ class FOGCron extends FOGBase
         if (count($parts) !== 5) {
             throw new \InvalidArgumentException(
                 sprintf(
-                    'Invalid cron expression (expected 5 fields, got %d): "%s"',
+                    _('Invalid cron expression (expected 5 fields, got %d): "%s"'),
                     count($parts),
                     $cron
                 )

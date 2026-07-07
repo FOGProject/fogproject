@@ -38,7 +38,7 @@ class LocationManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Location Management';
+        $this->name = _('Location Management');
         parent::__construct($this->name);
         $this->headerData = [
             _('Location Name'),
