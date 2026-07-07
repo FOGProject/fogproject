@@ -41,6 +41,17 @@ if (isset($_REQUEST['client'])) {
         FOG_CLIENT_VERSION :
         '0.0.0'
     );
+} elseif (isset($_REQUEST['caps'])) {
+    /*
+     * Space-separated feature tokens probed by FOS before it relies on
+     * server-side behavior a version string can't identify. An older
+     * server answers this query with FOG_VERSION (no tokens), which
+     * probing clients treat as "capability absent".
+     *
+     * mclvm: multicast tasks emit per-LV LVM image files in sidecar
+     * order (fos docs/adr/0007).
+     */
+    $ver = 'mclvm';
 } elseif (isset($_REQUEST['url'])) {
     FOGCore::checkAuthAndCSRF();
     $url = $_REQUEST['url'];
@@ -79,7 +90,7 @@ if (isset($_REQUEST['client'])) {
     // restrict query params to known ones
     if (!empty($parts['query'])) {
         parse_str($parts['query'], $q);
-        $allowedKeys = ['client', 'clientver'];
+        $allowedKeys = ['client', 'clientver', 'caps'];
         foreach (array_keys($q) as $k) {
             if (!in_array($k, $allowedKeys, true)) {
                 http_response_code(403);
