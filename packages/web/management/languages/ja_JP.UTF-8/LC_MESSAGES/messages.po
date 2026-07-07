@@ -14,7 +14,6 @@ msgstr ""
 msgid " * Image replication is globally disabled"
 msgstr "* イメージレプリケーションは全体設定で無効になっています"
 
-#, fuzzy
 msgid " * Image size is globally disabled"
 msgstr "* イメージサイズ機能は全体設定で無効になっています"
 
@@ -36,7 +35,6 @@ msgstr "* タスクスケジューラは全体設定で無効になっていま�
 msgid " Name"
 msgstr "名前"
 
-#, fuzzy
 msgid " No open slots "
 msgstr "空きスロットがありません"
 
@@ -96,7 +94,6 @@ msgstr "<p>バージョン 1.5.5"
 msgid "A LDAP setup already exists with this name!"
 msgstr "この名前の LDAP 設定は既に存在します！"
 
-#, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "この名前の Windows キーは既に存在します！"
 
@@ -226,7 +223,6 @@ msgstr "API 設定"
 msgid "API?"
 msgstr "API？"
 
-#, fuzzy
 msgid "About FOG Reports"
 msgstr "FOG レポートについて"
 
@@ -251,29 +247,24 @@ msgstr "アクセス制御ルール - 一般"
 msgid "Access Control Rules"
 msgstr "アクセス制御ルール"
 
-#, fuzzy
 msgid "Access Controls"
 msgstr "アクセス制御"
 
-#, fuzzy
 msgid "Access Denied"
 msgstr "アクセス拒否"
 
 msgid "Access Token"
 msgstr "アクセストークン"
 
-#, fuzzy
 msgid "Access level is still 0 or false"
 msgstr "アクセスレベルが 0 または false のままです"
 
-#, fuzzy
 msgid "Accessed By"
 msgstr "アクセス元"
 
 msgid "Account already linked"
 msgstr "アカウントは既にリンクされています"
 
-#, fuzzy
 msgid "Account linked to FOG GUI at"
 msgstr "FOG GUI にリンクされているアカウント："
 
@@ -301,11 +292,9 @@ msgstr "有効"
 msgid "Active Directory"
 msgstr "Active Directory"
 
-#, fuzzy
 msgid "Active Multicast Tasks"
 msgstr "実行中のマルチキャストタスク"
 
-#, fuzzy
 msgid "Active Snapin Tasks"
 msgstr "実行中のスナップインタスク"
 
@@ -366,9 +355,8 @@ msgstr "ユーザーを追加"
 msgid "Add Users"
 msgstr "ユーザーを追加"
 
-#, fuzzy
 msgid "Add Windows Key failed!"
-msgstr "Windows プロダクトキーの追加に失敗しました！"
+msgstr "Windows キーの追加に失敗しました！"
 
 msgid "Add any custom text you would like"
 msgstr "任意のカスタムテキストを入力してください"
@@ -454,11 +442,9 @@ msgstr "ユーザーの追加に失敗しました！"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "FOGPage を追加中: %s、ノード: %s"
 
-#, fuzzy
 msgid "Adding Key"
 msgstr "キーを追加中"
 
-#, fuzzy
 msgid "Additional Icon elements"
 msgstr "追加のアイコン要素"
 
@@ -468,18 +454,15 @@ msgstr "追加の MAC アドレス"
 msgid "Admin Group"
 msgstr "管理者グループ"
 
-#, fuzzy
 msgid "Advanced"
 msgstr "詳細"
 
 msgid "Advanced Actions"
 msgstr "詳細操作"
 
-#, fuzzy
 msgid "Advanced Login Required"
 msgstr "詳細メニューにはログインが必要です"
 
-#, fuzzy
 msgid "Advanced Menu Login"
 msgstr "詳細メニューのログイン"
 
@@ -3131,7 +3114,7 @@ msgid "Listener must be an array or an object"
 msgstr "リスナーは配列またはオブジェクトである必要があります"
 
 msgid "Load Average"
-msgstr "平均負荷"
+msgstr "システム負荷"
 
 msgid "Load MAC Vendors"
 msgstr "MAC ベンダーを読み込み"
@@ -4713,7 +4696,7 @@ msgid "Server information"
 msgstr "サーバー情報"
 
 msgid "Server information at a glance."
-msgstr "サーバー情報の概要。"
+msgstr "サーバー情報の概要"
 
 msgid "Service"
 msgstr "サービス"
@@ -6065,7 +6048,7 @@ msgid "We cannot connect to LDAP server"
 msgstr "LDAP サーバーに接続できません"
 
 msgid "Web Server"
-msgstr "Web サーバー"
+msgstr "サーバー"
 
 msgid "Web root"
 msgstr "Web ルート"
