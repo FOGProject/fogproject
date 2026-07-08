@@ -3293,6 +3293,11 @@ EOFAPL
 )
     # Tier 1: base classes must validate or we refuse to start a broken server.
     _writeKeaConfig "$target" "$baseclasses"
+    if [[ ! -s $target ]]; then
+        echo "Failed"
+        echo "Kea base configuration could not be written to $target (verify $(dirname "$target") is a writable directory); see $error_log"
+        return 1
+    fi
     if command -v kea-dhcp4 >/dev/null 2>&1; then
         if ! kea-dhcp4 -t "$target" >>$error_log 2>&1; then
             echo "Failed"
@@ -3344,14 +3349,22 @@ configureDHCP() {
             [[ ! $(validip $routeraddress) -eq 0 ]] && routeraddress=$(echo $routeraddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
             [[ ! $(validip $dnsaddress) -eq 0 ]] && dnsaddress=$(echo $dnsaddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
             if [[ $dhcpengine == kea ]]; then
-                configureKeaDHCP || exit 1
+                if ! configureKeaDHCP; then
+                    # Honor -X/--exitFail: a Kea config failure must not abort
+                    # the whole installer, or later steps (TFTP/PXE) never run.
+                    [[ -z $exitFail ]] && exit 1
+                    return
+                fi
             else
             [[ -f $dhcpconfig ]] && dhcptouse=$dhcpconfig
             [[ -f $dhcpconfigother ]] && dhcptouse=$dhcpconfigother
             if [[ -z $dhcptouse || ! -f $dhcptouse ]]; then
                 echo "Failed"
                 echo "Could not find dhcp config file"
-                exit 1
+                # Honor -X/--exitFail: same as the Kea branch, don't abort the
+                # whole installer or later steps (TFTP/PXE) never run.
+                [[ -z $exitFail ]] && exit 1
+                return
             fi
             mv -fv "${dhcptouse}" "${dhcptouse}.${timestamp}" >>$error_log 2>&1
             echo "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample" > $dhcptouse
