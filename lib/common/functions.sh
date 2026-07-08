@@ -2934,6 +2934,66 @@ downloadfiles() {
     errorStat $?
     cd $cwd
 }
+# The architecture -> boot-file mapping below intentionally mirrors the ISC
+# "class" blocks in the ISC branch of configureDHCP(). Keep the two in sync.
+# Hoisted into a helper so the live Kea config (configureKeaDHCP) and the
+# copy-ready sample (writeKeaSample) can never drift apart.
+_keaBaseClasses() {
+    cat <<'EOFCLS'
+        {
+            "name": "FOG-Legacy-BIOS",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00000'",
+            "boot-file-name": "undionly.kkpxe"
+        },
+        {
+            "name": "FOG-UEFI-32-2",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00002'",
+            "boot-file-name": "i386-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-32-1",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00006'",
+            "boot-file-name": "i386-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-1",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-2",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00008'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-3",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00009'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-ARM64",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00011'",
+            "boot-file-name": "arm64-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-Surface-Pro-4",
+            "test": "substring(option[60].hex,0,32) == 'PXEClient:Arch:00007:UNDI:003016'",
+            "boot-file-name": "snponly.efi"
+        }
+EOFCLS
+}
+_keaAppleClass() {
+    cat <<'EOFAPL'
+        {
+            "name": "FOG-Apple-Intel-Netboot",
+            "test": "substring(option[60].text,0,14) == 'AAPLBSDPC/i386'",
+            "boot-file-name": "snponly.efi",
+            "option-data": [
+                { "code": 43, "csv-format": false, "data": "01:01:01:04:02:80:00:07:04:81:00:05:2a:09:0D:81:00:05:2a:08:69:50:58:45:2d:46:4f:47" }
+            ]
+        }
+EOFAPL
+}
 _writeKeaConfig() {
     # $1 = target file, $2 = client-classes block. Reads $interface, $ipaddress,
     # $network, $cidr, $startrange, $endrange and $optdata from the caller's scope.
@@ -2976,64 +3036,10 @@ configureKeaDHCP() {
                 { \"name\": \"routers\", \"data\": \"$routeraddress\" }"
     [[ $(validip $dnsaddress) -eq 0 ]] && optdata="${optdata},
                 { \"name\": \"domain-name-servers\", \"data\": \"$dnsaddress\" }"
-    # The architecture -> boot-file mapping below intentionally mirrors the ISC
-    # "class" blocks in the ISC branch of configureDHCP(). Keep the two in sync.
     local baseclasses
-    baseclasses=$(cat <<'EOFCLS'
-        {
-            "name": "FOG-Legacy-BIOS",
-            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00000'",
-            "boot-file-name": "undionly.kkpxe"
-        },
-        {
-            "name": "FOG-UEFI-32-2",
-            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00002'",
-            "boot-file-name": "i386-efi/snponly.efi"
-        },
-        {
-            "name": "FOG-UEFI-32-1",
-            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00006'",
-            "boot-file-name": "i386-efi/snponly.efi"
-        },
-        {
-            "name": "FOG-UEFI-64-1",
-            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
-            "boot-file-name": "snponly.efi"
-        },
-        {
-            "name": "FOG-UEFI-64-2",
-            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00008'",
-            "boot-file-name": "snponly.efi"
-        },
-        {
-            "name": "FOG-UEFI-64-3",
-            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00009'",
-            "boot-file-name": "snponly.efi"
-        },
-        {
-            "name": "FOG-UEFI-ARM64",
-            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00011'",
-            "boot-file-name": "arm64-efi/snponly.efi"
-        },
-        {
-            "name": "FOG-Surface-Pro-4",
-            "test": "substring(option[60].hex,0,32) == 'PXEClient:Arch:00007:UNDI:003016'",
-            "boot-file-name": "snponly.efi"
-        }
-EOFCLS
-)
+    baseclasses=$(_keaBaseClasses)
     local appleclass
-    appleclass=$(cat <<'EOFAPL'
-        {
-            "name": "FOG-Apple-Intel-Netboot",
-            "test": "substring(option[60].text,0,14) == 'AAPLBSDPC/i386'",
-            "boot-file-name": "snponly.efi",
-            "option-data": [
-                { "code": 43, "csv-format": false, "data": "01:01:01:04:02:80:00:07:04:81:00:05:2a:09:0D:81:00:05:2a:08:69:50:58:45:2d:46:4f:47" }
-            ]
-        }
-EOFAPL
-)
+    appleclass=$(_keaAppleClass)
     # Tier 1: base classes must validate or we refuse to start a broken server.
     _writeKeaConfig "$target" "$baseclasses"
     if [[ ! -s $target ]]; then
@@ -3062,6 +3068,39 @@ ${appleclass}"
     fi
     diffconfig "$target"
     return 0
+}
+writeKeaSample() {
+    # For admins who run a dedicated/external Kea DHCP server (FOG is NOT hosting
+    # DHCP): drop a ready-to-copy kea-dhcp4.conf next to the FOG web root so they
+    # have a working starting point instead of hand-writing one. Not activated and
+    # no service is touched here -- it is a reference file for their DHCP server.
+    local target="${webdirdest%/}/kea-dhcp4.conf.fog-sample"
+    [[ -z $webdirdest ]] && target="/etc/kea/kea-dhcp4.conf.fog-sample"
+    [[ -d $(dirname "$target") ]] || return 0
+    local sampleip
+    sampleip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
+    [[ -z $sampleip ]] && sampleip="$ipaddress"
+    [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
+    local network=$(mask2network $sampleip $submask)
+    local cidr=$(mask2cidr $submask)
+    local startrange=$(addToAddress $network 10)
+    local endrange=$(subtract1fromAddress $(interface2broadcast $interface))
+    local optdata="                { \"name\": \"subnet-mask\", \"data\": \"$submask\" }"
+    [[ $(validip $routeraddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"routers\", \"data\": \"$routeraddress\" }"
+    [[ $(validip $dnsaddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"domain-name-servers\", \"data\": \"$dnsaddress\" }"
+    # Full reference: base classes + Apple BSDP. The admin can trim as needed.
+    _writeKeaConfig "$target" "$(_keaBaseClasses),
+$(_keaAppleClass)"
+    if [[ -s $target ]]; then
+        echo
+        echo " * A sample Kea DHCP config for a dedicated/external DHCP server was"
+        echo " | written to: $target"
+        echo " | Copy it to your DHCP server as /etc/kea/kea-dhcp4.conf and adjust the"
+        echo " | subnet/pool/routers/domain-name-servers to match that network."
+        echo " | next-server is already set to this FOG server ($ipaddress)."
+    fi
 }
 configureDHCP() {
     if [[ $bldhcp -eq 1 && $dhcpengine == kea ]]; then
@@ -3229,6 +3268,7 @@ configureDHCP() {
             ;;
         *)
             echo "Skipped"
+            writeKeaSample
             ;;
     esac
 }
