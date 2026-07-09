@@ -2111,6 +2111,9 @@ msgstr "履歴 IP"
 msgid "History Info"
 msgstr "履歴情報"
 
+msgid "History Report"
+msgstr "履歴レポート"
+
 msgid "History Time"
 msgstr "履歴時刻"
 
@@ -2338,6 +2341,9 @@ msgstr "ホスト名変更"
 
 msgid "Hosts"
 msgstr "ホスト"
+
+msgid "Hosts And Users"
+msgstr "ホストとユーザー"
 
 msgid "Hosts Associated"
 msgstr "関連付けられたホスト"
@@ -2887,6 +2893,9 @@ msgstr "インベントリ"
 
 msgid "Inventory ID"
 msgstr "インベントリ ID"
+
+msgid "Inventory Report"
+msgstr "インベントリレポート"
 
 msgid "Is Advanced"
 msgstr "詳細"
@@ -3993,6 +4002,9 @@ msgstr "保留中 MAC アドレスをエクスポート"
 msgid "Pending MACs"
 msgstr "保留中 MAC アドレス"
 
+msgid "Pending Mac List"
+msgstr "保留中の MAC 一覧"
+
 msgid "Pending Registered Hosts"
 msgstr "保留中の登録済みホスト"
 
@@ -4265,6 +4277,9 @@ msgstr "秘密鍵を読み取れません"
 
 msgid "Private key path not found"
 msgstr "秘密鍵のパスが見つかりません"
+
+msgid "Product Keys"
+msgstr "プロダクトキー"
 
 msgid "Protected"
 msgstr "保護済み"
@@ -5921,6 +5936,9 @@ msgstr "ユーザーパスワード（確認）"
 msgid "User Tracker"
 msgstr "ユーザートラッカー"
 
+msgid "User Tracking"
+msgstr "ユーザー追跡"
+
 msgid "User Update Fail"
 msgstr "ユーザーの更新に失敗しました"
 
@@ -6865,21 +6883,3 @@ msgstr "今すぐインストールしますか？"
 
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "そのノードの帯域幅を 1000 に設定した場合"
-
-msgid "History Report"
-msgstr "履歴レポート"
-
-msgid "Hosts And Users"
-msgstr "ホストとユーザー"
-
-msgid "Inventory Report"
-msgstr "インベントリレポート"
-
-msgid "Pending Mac List"
-msgstr "保留中の MAC 一覧"
-
-msgid "Product Keys"
-msgstr "プロダクトキー"
-
-msgid "User Tracking"
-msgstr "ユーザー追跡"
