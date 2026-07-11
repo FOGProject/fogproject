@@ -406,7 +406,7 @@ checkInternetConnection() {
     dots "Testing internet connection"
     DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$error_log 2>&1
 
-    http_sites=("neverssl.com" "httpbin.org")
+    http_sites=("httpbin.org" "neverssl.com")
     https_sites=("github.com" "fogproject.org")
     dns_ok=0
     http_ok=0
@@ -683,6 +683,44 @@ addOndrejRepo() {
     LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/php >>$error_log 2>&1
     LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$error_log 2>&1
 }
+resolveDHCPEngine() {
+    # Decide between Kea and ISC-DHCP for the optional FOG-hosted DHCP service.
+    # Only relevant when FOG is actually building DHCP and the ISC package is
+    # still in the install set (the storage-node and bldhcp=0 paths strip it in
+    # doOSSpecificIncludes before we ever get here). Must run after repo setup
+    # so the Kea availability probe sees enabled repos (e.g. EPEL on RHEL).
+    [[ -z $keaconfig ]] && keaconfig="/etc/kea/kea-dhcp4.conf"
+    [[ $bldhcp -eq 1 ]] || return 0
+    local iscpkg="$dhcpname"
+    [[ -n $iscpkg && $packages == *"$iscpkg"* ]] || return 0
+    # Honor an explicit/persisted choice; an existing install is never switched.
+    dhcpengine="${dhcpengine,,}"
+    if [[ -z $dhcpengine ]]; then
+        x="$iscpkg"
+        eval $packageQuery >>$error_log 2>&1
+        if [[ $? -eq 0 ]]; then
+            # A prior ISC install is left on ISC unless the admin opts in.
+            dhcpengine="isc"
+        elif [[ -n $keapackage ]]; then
+            eval $packagelist "$keapackage" >>$error_log 2>&1
+            [[ $? -eq 0 ]] && dhcpengine="kea" || dhcpengine="isc"
+        else
+            dhcpengine="isc"
+        fi
+    fi
+    if [[ $dhcpengine == kea ]]; then
+        if [[ -z $keapackage || -z $keaservice ]]; then
+            echo " * Kea requested but not available for this OS; using ISC-DHCP"
+            dhcpengine="isc"
+        else
+            packages="${packages//$iscpkg/$keapackage}"
+            dhcpname="$keapackage"
+            dhcpd="$keaservice"
+            dhcpconfig="$keaconfig"
+            dhcpconfigother=""
+        fi
+    fi
+}
 installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
     packages="$packages unzip"
@@ -812,6 +850,7 @@ installPackages() {
         fi
     fi
     errorStat $?
+    resolveDHCPEngine
     packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
     newPackList=""
@@ -1522,25 +1561,6 @@ configureUsers() {
             echo "the installer again. Run: userdel $username"
             echo
             exit 1
-        else
-            lastlog -u $username | tail -n1 | grep "\*\*.*\*\*" >/dev/null 2>&1
-            if [[ $? -eq 1 ]]; then
-                echo "Already exists"
-                echo
-                echo "The account \"$username\" already exists and has been used to"
-                echo "log in to this server. We highly recommend you NOT use this"
-                echo "account as it is supposed to be a system account!"
-                echo
-                echo "Please remove the account \"$username\" manually before running"
-                echo "the installer again, or set the system username yourself."
-                echo
-                echo "To remove the account run: userdel $username"
-                echo
-                echo "To set a new service username run installer with:"
-                echo "username=<usernameForSystem> ./installfog.sh -y"
-                echo
-                exit 1
-            fi
         fi
         echo "Skipped"
     else
@@ -1669,276 +1689,84 @@ clearScreen() {
 }
 writeUpdateFile() {
     tmpDte=$(date +%c)
-    replace='s/[]"\/$&*.^|[]/\\&/g';
-    escversion=$(echo $version | sed -e $replace)
-    esctmpDte=$(echo $tmpDate | sed -e $replace)
-    escipaddress=$(echo $ipaddress | sed -e $replace)
-    escinterface=$(echo $interface | sed -e $replace)
-    escsubmask=$(echo $submask | sed -e $replace)
-    eschostname=$(echo $hostname | sed -e $replace)
-    escrouteraddress=$(echo $routeraddress | sed -e $replace)
-    escplainrouter=$(echo $plainrouter | sed -e $replace)
-    escdnsaddress=$(echo $dnsaddress | sed -e $replace)
-    escpassword=$(echo $password | sed -e $replace)
-    escosid=$(echo $osid | sed -e $replace)
-    escosname=$(echo $osname | sed -e $replace)
-    escdodhcp=$(echo $dodhcp | sed -e $replace)
-    escbldhcp=$(echo $bldhcp | sed -e $replace)
-    escdhcpd=$(echo $dhcpd | sed -e $replace)
-    escblexports=$(echo $blexports | sed -e $replace)
-    escinstalltype=$(echo $installtype | sed -e $replace)
-    escsnmysqlexternal=$(echo $snmysqlexternal | sed -e $replace)
-    escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
-    escsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\"\'\"\'/g)  # replace every ' with '"'"' for full bash escaping
-    sedescsnmysqlpass=$(echo "$escsnmysqlpass" | sed -e 's/[\&/]/\\&/g')  # then prefix every \ & and / with \ for sed escaping
-    escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
-    escmysqldbname=$(echo $mysqldbname | sed -e $replace)
-    escinstalllang=$(echo $installlang | sed -e $replace)
-    escstorageLocation=$(echo $storageLocation | sed -e $replace)
-    escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
-    escusername=$(echo $username | sed -e $replace)
-    escdocroot=$(echo $docroot | sed -e $replace)
-    escwebroot=$(echo $webroot | sed -e $replace)
-    esccaCreated=$(echo $caCreated | sed -e $replace)
-    eschttpproto=$(echo $httpproto | sed -e $replace)
-    escstartrange=$(echo $startrange | sed -e $replace)
-    escendrange=$(echo $endrange | sed -e $replace)
-    escpackages=$(echo $packages | sed -e $replace)
-    escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
-    esctftpAdvOpts=$(echo $tftpAdvOpts | sed -e $replace)
-    escsslpath=$(echo $sslpath | sed -e $replace)
-    escbackupPath=$(echo $backupPath | sed -e $replace)
-    escphp_ver=$(echo $php_ver | sed -e $replace)
-    escsslprivkey=$(echo $sslprivkey | sed -e $replace)
     [[ -z $copybackold || $copybackold -lt 1 ]] && copybackold=0
-    if [[ -f $fogprogramdir/.fogsettings ]]; then
-        grep -q "^## Start of FOG Settings" $fogprogramdir/.fogsettings || grep -q "^## Version:.*" $fogprogramdir/.fogsettings
-        if [[ $? == 0 ]]; then
-            grep -q "^## Version:.*$" $fogprogramdir/.fogsettings && \
-                sed -i "s/^## Version:.*/## Version: $escversion/g" $fogprogramdir/.fogsettings || \
-                echo "## Version: $version" >> $fogprogramdir/.fogsettings
-            grep -q "ipaddress=" $fogprogramdir/.fogsettings && \
-                sed -i "s/ipaddress=.*/ipaddress='$escipaddress'/g" $fogprogramdir/.fogsettings || \
-                echo "ipaddress='$ipaddress'" >> $fogprogramdir/.fogsettings
-            grep -q "copybackold=" $fogprogramdir/.fogsettings && \
-                sed -i "s/copybackold=.*/copybackold='$copybackold'/g" $fogprogramdir/.fogsettings || \
-                echo "copybackold='$copybackold'" >> $fogprogramdir/.fogsettings
-            grep -q "interface=" $fogprogramdir/.fogsettings && \
-                sed -i "s/interface=.*/interface='$escinterface'/g" $fogprogramdir/.fogsettings || \
-                echo "interface='$interface'" >> $fogprogramdir/.fogsettings
-            grep -q "submask=" $fogprogramdir/.fogsettings && \
-                sed -i "s/submask=.*/submask='$escsubmask'/g" $fogprogramdir/.fogsettings || \
-                echo "submask='$submask'" >> $fogprogramdir/.fogsettings
-            grep -q "hostname=" $fogprogramdir/.fogsettings && \
-                sed -i "s/hostname=.*/hostname='$eschostname'/g" $fogprogramdir/.fogsettings || \
-                echo "hostname='$hostname'" >> $fogprogramdir/.fogsettings
-            grep -q "routeraddress=" $fogprogramdir/.fogsettings && \
-                sed -i "s/routeraddress=.*/routeraddress='$escrouteraddress'/g" $fogprogramdir/.fogsettings || \
-                echo "routeraddress='$routeraddress'" >> $fogprogramdir/.fogsettings
-            grep -q "plainrouter=" $fogprogramdir/.fogsettings && \
-                sed -i "s/plainrouter=.*/plainrouter='$escplainrouter'/g" $fogprogramdir/.fogsettings || \
-                echo "plainrouter='$plainrouter'" >> $fogprogramdir/.fogsettings
-            grep -q "dnsaddress=" $fogprogramdir/.fogsettings && \
-                sed -i "s/dnsaddress=.*/dnsaddress='$escdnsaddress'/g" $fogprogramdir/.fogsettings || \
-                echo "dnsaddress='$dnsaddress'" >> $fogprogramdir/.fogsettings
-            grep -q "password=" $fogprogramdir/.fogsettings && \
-                sed -i "s/password=.*/password='$escpassword'/g" $fogprogramdir/.fogsettings || \
-                echo "password='$password'" >> $fogprogramdir/.fogsettings
-            grep -q "osid=" $fogprogramdir/.fogsettings && \
-                sed -i "s/osid=.*/osid='$osid'/g" $fogprogramdir/.fogsettings || \
-                echo "osid='$osid'" >> $fogprogramdir/.fogsettings
-            grep -q "osname=" $fogprogramdir/.fogsettings && \
-                sed -i "s/osname=.*/osname='$escosname'/g" $fogprogramdir/.fogsettings || \
-                echo "osname='$osname'" >> $fogprogramdir/.fogsettings
-            grep -q "dodhcp=" $fogprogramdir/.fogsettings && \
-                sed -i "s/dodhcp=.*/dodhcp='$escdodhcp'/g" $fogprogramdir/.fogsettings || \
-                echo "dodhcp='$dodhcp'" >> $fogprogramdir/.fogsettings
-            grep -q "bldhcp=" $fogprogramdir/.fogsettings && \
-                sed -i "s/bldhcp=.*/bldhcp='$escbldhcp'/g" $fogprogramdir/.fogsettings || \
-                echo "bldhcp='$bldhcp'" >> $fogprogramdir/.fogsettings
-            grep -q "dhcpd=" $fogprogramdir/.fogsettings && \
-                sed -i "s/dhcpd=.*/dhcpd='$escdhcpd'/g" $fogprogramdir/.fogsettings || \
-                echo "dhcpd='$dhcpd'" >> $fogprogramdir/.fogsettings
-            grep -q "blexports=" $fogprogramdir/.fogsettings && \
-                sed -i "s/blexports=.*/blexports='$escblexports'/g" $fogprogramdir/.fogsettings || \
-                echo "blexports='$blexports'" >> $fogprogramdir/.fogsettings
-            grep -q "installtype=" $fogprogramdir/.fogsettings && \
-                sed -i "s/installtype=.*/installtype='$escinstalltype'/g" $fogprogramdir/.fogsettings || \
-                echo "installtype='$installtype'" >> $fogprogramdir/.fogsettings
-            grep -q "snmysqlexternal=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlexternal=.*/snmysqlexternal='$escsnmysqlexternal'/g" $fogprogramdir/.fogsettings || \
-                echo "snmysqlexternal='$snmysqlexternal'" >> $fogprogramdir/.fogsettings
-            grep -q "snmysqluser=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqluser=.*/snmysqluser='$escsnmysqluser'/g" $fogprogramdir/.fogsettings || \
-                echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
-            grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlpass=.*/snmysqlpass='$sedescsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
-                echo "snmysqlpass='$escsnmysqlpass'" >> $fogprogramdir/.fogsettings
-            grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlhost=.*/snmysqlhost='$escsnmysqlhost'/g" $fogprogramdir/.fogsettings || \
-                echo "snmysqlhost='$snmysqlhost'" >> $fogprogramdir/.fogsettings
-            grep -q "mysqldbname=" $fogprogramdir/.fogsettings && \
-                sed -i "s/mysqldbname=.*/mysqldbname='$escmysqldbname'/g" $fogprogramdir/.fogsettings || \
-                echo "mysqldbname='$mysqldbname'" >> $fogprogramdir/.fogsettings
-            grep -q "installlang=" $fogprogramdir/.fogsettings && \
-                sed -i "s/installlang=.*/installlang='$escinstalllang'/g" $fogprogramdir/.fogsettings || \
-                echo "installlang='$installlang'" >> $fogprogramdir/.fogsettings
-            grep -q "storageLocation=" $fogprogramdir/.fogsettings && \
-                sed -i "s/storageLocation=.*/storageLocation='$escstorageLocation'/g" $fogprogramdir/.fogsettings || \
-                echo "storageLocation='$storageLocation'" >> $fogprogramdir/.fogsettings
-            grep -q "fogupdateloaded=" $fogprogramdir/.fogsettings && \
-                sed -i "s/fogupdateloaded=.*/fogupdateloaded=$escfogupdateloaded/g" $fogprogramdir/.fogsettings || \
-                echo "fogupdateloaded=$fogupdateloaded" >> $fogprogramdir/.fogsettings
-            grep -q "storageftpuser=" $fogprogramdir/.fogsettings && \
-                sed -i "/storageftpuser=/d" $fogprogramdir/.fogsettings
-            grep -q "storageftppass=" $fogprogramdir/.fogsettings && \
-                sed -i "/storageftppass=/d" $fogprogramdir/.fogsettings
-            grep -q "username=" $fogprogramdir/.fogsettings && \
-                sed -i "s/username=.*/username='$escusername'/g" $fogprogramdir/.fogsettings || \
-                echo "username='$username'" >> $fogprogramdir/.fogsettings
-            grep -q "docroot=" $fogprogramdir/.fogsettings && \
-                sed -i "s/docroot=.*/docroot='$escdocroot'/g" $fogprogramdir/.fogsettings || \
-                echo "docroot='$docroot'" >> $fogprogramdir/.fogsettings
-            grep -q "webroot=" $fogprogramdir/.fogsettings && \
-                sed -i "s/webroot=.*/webroot='$escwebroot'/g" $fogprogramdir/.fogsettings || \
-                echo "webroot='$webroot'" >> $fogprogramdir/.fogsettings
-            grep -q "caCreated=" $fogprogramdir/.fogsettings && \
-                sed -i "s/caCreated=.*/caCreated='$esccaCreated'/g" $fogprogramdir/.fogsettings || \
-                echo "caCreated='$caCreated'" >> $fogprogramdir/.fogsettings
-            grep -q "httpproto=" $fogprogramdir/.fogsettings && \
-                sed -i "s/httpproto=.*/httpproto='$eschttpproto'/g" $fogprogramdir/.fogsettings || \
-                echo "httpproto='$httpproto'" >> $fogprogramdir/.fogsettings
-            grep -q "startrange=" $fogprogramdir/.fogsettings && \
-                sed -i "s/startrange=.*/startrange='$escstartrange'/g" $fogprogramdir/.fogsettings || \
-                echo "startrange='$startrange'" >> $fogprogramdir/.fogsettings
-            grep -q "endrange=" $fogprogramdir/.fogsettings && \
-                sed -i "s/endrange=.*/endrange='$escendrange'/g" $fogprogramdir/.fogsettings || \
-                echo "endrange='$endrange'" >> $fogprogramdir/.fogsettings
-            grep -q "bootfilename=" $fogprogramdir/.fogsettings && \
-                sed -i "/bootfilename=.*$/d" $fogprogramdir/.fogsettings
-            grep -q "packages=" $fogprogramdir/.fogsettings && \
-                sed -i "s/packages=.*/packages='$escpackages'/g" $fogprogramdir/.fogsettings || \
-                echo "packages='$packages'" >> $fogprogramdir/.fogsettings
-            grep -q "noTftpBuild=" $fogprogramdir/.fogsettings && \
-                sed -i "s/noTftpBuild=.*/noTftpBuild='$escnoTftpBuild'/g" $fogprogramdir/.fogsettings || \
-                echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
-            grep -q "tftpAdvOpts=" $fogprogramdir/.fogsettings && \
-                sed -i "s/tftpAdvOpts=.*/tftpAdvOpts='$esctftpAdvOpts'/g" $fogprogramdir/.fogsettings || \
-                echo "tftpAdvOpts='$tftpAdvOpts'" >> $fogprogramdir/.fogsettings
-            grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
-                sed -i "/notpxedefaultfile=.*$/d" $fogprogramdir/.fogsettings
-            grep -q "sslpath=" $fogprogramdir/.fogsettings && \
-                sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
-                echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
-            grep -q "backupPath=" $fogprogramdir/.fogsettings && \
-                sed -i "s/backupPath=.*/backupPath='$escbackupPath'/g" $fogprogramdir/.fogsettings || \
-                echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
-            grep -q "php_ver=" $fogprogramdir/.fogsettings && \
-                sed -i "s/php_ver=.*/php_ver='$php_ver'/g" $fogprogramdir/.fogsettings || \
-                echo "php_ver='$php_ver'" >> $fogprogramdir/.fogsettings
-            grep -q "php_verAdds=" $fogprogramdir/.fogsettings && \
-                sed -i "/php_verAdds=/d" $fogprogramdir/.fogsettings
-            grep -q "sslprivkey=" $fogprogramdir/.fogsettings && \
-                sed -i "s/sslprivkey=.*/sslprivkey='$escsslprivkey'/g" $fogprogramdir/.fogsettings || \
-                echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
-            grep -q "sendreports=" $fogprogramdir/.fogsettings && \
-                sed -i "s/sendreports=.*/sendreports='$sendreports'/g" $fogprogramdir/.fogsettings || \
-                echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
-        else
-            echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
-            echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
-            echo "## Find more information about this file in the FOG Project wiki:" >> "$fogprogramdir/.fogsettings"
-            echo "##     https://wiki.fogproject.org/wiki/index.php?title=.fogsettings" >> "$fogprogramdir/.fogsettings"
-            echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
-            echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
-            echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
-            echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
-            echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
-            echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
-            echo "hostname='$hostname'" >> "$fogprogramdir/.fogsettings"
-            echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
-            echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
-            echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
-            echo "username='$username'" >> "$fogprogramdir/.fogsettings"
-            echo "password='$password'" >> "$fogprogramdir/.fogsettings"
-            echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
-            echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
-            echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
-            echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
-            echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
-            echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
-            echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
-            echo "snmysqlexternal='${snmysqlexternal:-0}'" >> "$fogprogramdir/.fogsettings"
-            echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
-            echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
-            echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
-            echo "mysqldbname='$mysqldbname'" >> "$fogprogramdir/.fogsettings"
-            echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
-            echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
-            echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
-            echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
-            echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
-            echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
-            echo "httpproto='$httpproto'" >> "$fogprogramdir/.fogsettings"
-            echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
-            echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
-            echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
-            echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-            echo "tftpAdvOpts='$tftpAdvOpts'" >> "$fogprogramdir/.fogsettings"
-            echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
-            echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
-            echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
-            echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
-            echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
-            echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
-        fi
+
+    # Managed keys, in the canonical order a freshly written file uses. This one
+    # list drives both the fresh write and the in-place upgrade merge, so the two
+    # can never drift apart again.
+    local -a managedKeys=(
+        ipaddress copybackold interface submask hostname routeraddress plainrouter
+        dnsaddress username password osid osname dodhcp bldhcp dhcpd dhcpengine
+        blexports installtype snmysqlexternal snmysqluser snmysqlpass snmysqlhost
+        mysqldbname installlang storageLocation fogupdateloaded docroot webroot
+        caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
+        sslpath backupPath php_ver sslprivkey sendreports
+    )
+    # Keys written by older installers that must be stripped on upgrade.
+    local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )
+
+    # Emit one "key='value'" line, single-quote-safe for any value (embedded
+    # single quotes become '\''). fogupdateloaded stays unquoted+numeric to
+    # match the historical file format.
+    settingLine() {
+        local key="$1" val
+        case "$key" in
+            fogupdateloaded) printf 'fogupdateloaded=%s\n' "${fogupdateloaded:-1}"; return ;;
+            *) val="${!key}" ;;
+        esac
+        printf "%s='%s'\n" "$key" "${val//\'/\'\\\'\'}"
+    }
+
+    local key
+    if [[ -f $fogprogramdir/.fogsettings ]] && \
+        { grep -q "^## Start of FOG Settings" "$fogprogramdir/.fogsettings" || grep -q "^## Version:" "$fogprogramdir/.fogsettings"; }; then
+        # Existing, valid file: update managed keys in place, strip deprecated
+        # keys, refresh the version header, and leave every other line untouched.
+        local managedLines depList
+        managedLines=$(for key in "${managedKeys[@]}"; do settingLine "$key"; done)
+        depList=$(printf '%s\n' "${deprecatedKeys[@]}")
+        mline="$managedLines" deps="$depList" ver="$version" awk '
+            BEGIN {
+                n = split(ENVIRON["mline"], ml, "\n")
+                for (i = 1; i <= n; i++) {
+                    eq = index(ml[i], "=")
+                    ORDER[i] = substr(ml[i], 1, eq - 1)
+                    MAP[ORDER[i]] = ml[i]
+                }
+                m = split(ENVIRON["deps"], dl, "\n")
+                for (i = 1; i <= m; i++) if (dl[i] != "") DEP[dl[i]] = 1
+                verline = "## Version: " ENVIRON["ver"]
+            }
+            {
+                if ($0 ~ /^## Version:/) { print verline; seenver = 1; next }
+                eq = index($0, "=")
+                key = (eq ? substr($0, 1, eq - 1) : "")
+                if (key != "" && (key in DEP)) next
+                if (key != "" && (key in MAP)) { print MAP[key]; SEEN[key] = 1; next }
+                print
+            }
+            END {
+                if (!seenver) print verline
+                for (i = 1; i <= n; i++) if (!(ORDER[i] in SEEN)) print MAP[ORDER[i]]
+            }
+        ' "$fogprogramdir/.fogsettings" > "$fogprogramdir/.fogsettings.tmp" \
+            && cat "$fogprogramdir/.fogsettings.tmp" > "$fogprogramdir/.fogsettings" \
+            && rm -f "$fogprogramdir/.fogsettings.tmp"
     else
-        echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
-        echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
-        echo "## Find more information about this file in the FOG Project wiki:" >> "$fogprogramdir/.fogsettings"
-        echo "##     https://wiki.fogproject.org/wiki/index.php?title=.fogsettings" >> "$fogprogramdir/.fogsettings"
-        echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
-        echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
-        echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
-        echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
-        echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
-        echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
-        echo "hostname='$hostname'" >> "$fogprogramdir/.fogsettings"
-        echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
-        echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
-        echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
-        echo "username='$username'" >> "$fogprogramdir/.fogsettings"
-        echo "password='$password'" >> "$fogprogramdir/.fogsettings"
-        echo "osid='$osid'" >> "$fogprogramdir/.fogsettings"
-        echo "osname='$osname'" >> "$fogprogramdir/.fogsettings"
-        echo "dodhcp='$dodhcp'" >> "$fogprogramdir/.fogsettings"
-        echo "bldhcp='$bldhcp'" >> "$fogprogramdir/.fogsettings"
-        echo "dhcpd='$dhcpd'" >> "$fogprogramdir/.fogsettings"
-        echo "blexports='$blexports'" >> "$fogprogramdir/.fogsettings"
-        echo "installtype='$installtype'" >> "$fogprogramdir/.fogsettings"
-        echo "snmysqlexternal='${snmysqlexternal:-0}'" >> "$fogprogramdir/.fogsettings"
-        echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
-        echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
-        echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
-        echo "mysqldbname='$mysqldbname'" >> "$fogprogramdir/.fogsettings"
-        echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
-        echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
-        echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
-        echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
-        echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
-        echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
-        echo "httpproto='$httpproto'" >> "$fogprogramdir/.fogsettings"
-        echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
-        echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
-        echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
-        echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-        echo "tftpAdvOpts='$tftpAdvOpts'" >> "$fogprogramdir/.fogsettings"
-        echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
-        echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
-        echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
-        echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
-        echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
-        echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
+        # No file, or a file with no recognizable header: (re)write from scratch.
+        # Fresh files default an empty snmysqlexternal to 0 (historical behavior;
+        # the in-place upgrade path leaves it as-is).
+        snmysqlexternal="${snmysqlexternal:-0}"
+        {
+            echo "## Start of FOG Settings"
+            echo "## Created by the FOG Installer"
+            echo "## Find more information about this file in the FOG Project wiki:"
+            echo "##     https://wiki.fogproject.org/wiki/index.php?title=.fogsettings"
+            echo "## Version: $version"
+            echo "## Install time: $tmpDte"
+            for key in "${managedKeys[@]}"; do settingLine "$key"; done
+            echo "## End of FOG Settings"
+        } > "$fogprogramdir/.fogsettings"
     fi
     # Remove world-readable permissions
     chmod 0600 "${fogprogramdir}/.fogsettings" >>$error_log 2>&1
@@ -2560,20 +2388,192 @@ downloadfiles() {
     errorStat $?
     cd $cwd
 }
+# The architecture -> boot-file mapping below intentionally mirrors the ISC
+# "class" blocks in the ISC branch of configureDHCP(). Keep the two in sync.
+# Hoisted into a helper so the live Kea config (configureKeaDHCP) and the
+# copy-ready sample (writeKeaSample) can never drift apart.
+_keaBaseClasses() {
+    cat <<'EOFCLS'
+        {
+            "name": "FOG-Legacy-BIOS",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00000'",
+            "boot-file-name": "undionly.kkpxe"
+        },
+        {
+            "name": "FOG-UEFI-32-2",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00002'",
+            "boot-file-name": "i386-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-32-1",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00006'",
+            "boot-file-name": "i386-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-1",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-2",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00008'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-64-3",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00009'",
+            "boot-file-name": "snponly.efi"
+        },
+        {
+            "name": "FOG-UEFI-ARM64",
+            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00011'",
+            "boot-file-name": "arm64-efi/snponly.efi"
+        },
+        {
+            "name": "FOG-Surface-Pro-4",
+            "test": "substring(option[60].hex,0,32) == 'PXEClient:Arch:00007:UNDI:003016'",
+            "boot-file-name": "snponly.efi"
+        }
+EOFCLS
+}
+_keaAppleClass() {
+    cat <<'EOFAPL'
+        {
+            "name": "FOG-Apple-Intel-Netboot",
+            "test": "substring(option[60].text,0,14) == 'AAPLBSDPC/i386'",
+            "boot-file-name": "snponly.efi",
+            "option-data": [
+                { "code": 43, "csv-format": false, "data": "01:01:01:04:02:80:00:07:04:81:00:05:2a:09:0D:81:00:05:2a:08:69:50:58:45:2d:46:4f:47" }
+            ]
+        }
+EOFAPL
+}
+_writeKeaConfig() {
+    # $1 = target file, $2 = client-classes block. Reads $interface, $ipaddress,
+    # $network, $cidr, $startrange, $endrange and $optdata from the caller's scope.
+    cat > "$1" <<EOFKEA
+{
+    "Dhcp4": {
+        "interfaces-config": { "interfaces": [ "$interface" ] },
+        "lease-database": { "type": "memfile", "lfc-interval": 3600 },
+        "valid-lifetime": 21600,
+        "max-valid-lifetime": 43200,
+        "next-server": "$ipaddress",
+        "option-data": [
+            { "name": "tftp-server-name", "data": "$ipaddress" }
+        ],
+        "subnet4": [
+            {
+                "id": 1,
+                "subnet": "$network/$cidr",
+                "pools": [ { "pool": "$startrange - $endrange" } ],
+                "option-data": [
+$optdata
+                ]
+            }
+        ],
+        "client-classes": [
+$2
+        ]
+    }
+}
+EOFKEA
+}
+configureKeaDHCP() {
+    local cidr=$(mask2cidr $submask)
+    local target="$dhcpconfig"
+    local tmp="${target}.fogtmp"
+    [[ -d $(dirname "$target") ]] || mkdir -p "$(dirname "$target")" >>$error_log 2>&1
+    [[ -f $target ]] && mv -fv "$target" "${target}.${timestamp}" >>$error_log 2>&1
+    local optdata="                { \"name\": \"subnet-mask\", \"data\": \"$submask\" }"
+    [[ $(validip $routeraddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"routers\", \"data\": \"$routeraddress\" }"
+    [[ $(validip $dnsaddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"domain-name-servers\", \"data\": \"$dnsaddress\" }"
+    local baseclasses
+    baseclasses=$(_keaBaseClasses)
+    local appleclass
+    appleclass=$(_keaAppleClass)
+    # Tier 1: base classes must validate or we refuse to start a broken server.
+    _writeKeaConfig "$target" "$baseclasses"
+    if [[ ! -s $target ]]; then
+        echo "Failed"
+        echo "Kea base configuration could not be written to $target (verify $(dirname "$target") is a writable directory); see $error_log"
+        return 1
+    fi
+    if command -v kea-dhcp4 >/dev/null 2>&1; then
+        if ! kea-dhcp4 -t "$target" >>$error_log 2>&1; then
+            echo "Failed"
+            echo "Kea base configuration failed validation (kea-dhcp4 -t); see $error_log"
+            return 1
+        fi
+        # Tier 2: best-effort Apple BSDP; drop if Kea rejects it.
+        _writeKeaConfig "$tmp" "${baseclasses},
+${appleclass}"
+        if kea-dhcp4 -t "$tmp" >>$error_log 2>&1; then
+            mv -f "$tmp" "$target"
+        else
+            rm -f "$tmp"
+            echo ""
+            echo " * Note: Apple Intel netboot (BSDP) is not supported under Kea and was skipped"
+        fi
+    else
+        echo " * Warning: kea-dhcp4 not found; wrote config without validation" >>$error_log 2>&1
+    fi
+    diffconfig "$target"
+    return 0
+}
+writeKeaSample() {
+    # For admins who run a dedicated/external Kea DHCP server (FOG is NOT hosting
+    # DHCP): drop a ready-to-copy kea-dhcp4.conf next to the FOG web root so they
+    # have a working starting point instead of hand-writing one. Not activated and
+    # no service is touched here -- it is a reference file for their DHCP server.
+    local target="${webdirdest%/}/kea-dhcp4.conf.fog-sample"
+    [[ -z $webdirdest ]] && target="/etc/kea/kea-dhcp4.conf.fog-sample"
+    [[ -d $(dirname "$target") ]] || return 0
+    local sampleip
+    sampleip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
+    [[ -z $sampleip ]] && sampleip="$ipaddress"
+    [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
+    local network=$(mask2network $sampleip $submask)
+    local cidr=$(mask2cidr $submask)
+    local startrange=$(addToAddress $network 10)
+    local endrange=$(subtract1fromAddress $(interface2broadcast $interface))
+    local optdata="                { \"name\": \"subnet-mask\", \"data\": \"$submask\" }"
+    [[ $(validip $routeraddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"routers\", \"data\": \"$routeraddress\" }"
+    [[ $(validip $dnsaddress) -eq 0 ]] && optdata="${optdata},
+                { \"name\": \"domain-name-servers\", \"data\": \"$dnsaddress\" }"
+    # Full reference: base classes + Apple BSDP. The admin can trim as needed.
+    _writeKeaConfig "$target" "$(_keaBaseClasses),
+$(_keaAppleClass)"
+    if [[ -s $target ]]; then
+        echo
+        echo " * A sample Kea DHCP config for a dedicated/external DHCP server was"
+        echo " | written to: $target"
+        echo " | Copy it to your DHCP server as /etc/kea/kea-dhcp4.conf and adjust the"
+        echo " | subnet/pool/routers/domain-name-servers to match that network."
+        echo " | next-server is already set to this FOG server ($ipaddress)."
+    fi
+}
 configureDHCP() {
-    case $linuxReleaseName_lower in
-        *debian*)
-            if [[ $bldhcp -eq 1 ]]; then
-                dots "Setting up and starting DHCP Server (incl. fix for Debian)"
-                sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
-            else
+    if [[ $bldhcp -eq 1 && $dhcpengine == kea ]]; then
+        dots "Setting up and starting DHCP Server (Kea)"
+    else
+        case $linuxReleaseName_lower in
+            *debian*)
+                if [[ $bldhcp -eq 1 ]]; then
+                    dots "Setting up and starting DHCP Server (incl. fix for Debian)"
+                    sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
+                else
+                    dots "Setting up and starting DHCP Server"
+                fi
+                ;;
+            *)
                 dots "Setting up and starting DHCP Server"
-            fi
-            ;;
-        *)
-            dots "Setting up and starting DHCP Server"
-            ;;
-    esac
+                ;;
+        esac
+    fi
     case $bldhcp in
         1)
             serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
@@ -2582,12 +2582,25 @@ configureDHCP() {
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
             [[ -z $endrange ]] && endrange=$(subtract1fromAddress $(echo $(interface2broadcast $interface)))
+            [[ ! $(validip $routeraddress) -eq 0 ]] && routeraddress=$(echo $routeraddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+            [[ ! $(validip $dnsaddress) -eq 0 ]] && dnsaddress=$(echo $dnsaddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+            if [[ $dhcpengine == kea ]]; then
+                if ! configureKeaDHCP; then
+                    # Honor -X/--exitFail: a Kea config failure must not abort
+                    # the whole installer, or later steps (TFTP/PXE) never run.
+                    [[ -z $exitFail ]] && exit 1
+                    return
+                fi
+            else
             [[ -f $dhcpconfig ]] && dhcptouse=$dhcpconfig
             [[ -f $dhcpconfigother ]] && dhcptouse=$dhcpconfigother
             if [[ -z $dhcptouse || ! -f $dhcptouse ]]; then
                 echo "Failed"
                 echo "Could not find dhcp config file"
-                exit 1
+                # Honor -X/--exitFail: same as the Kea branch, don't abort the
+                # whole installer or later steps (TFTP/PXE) never run.
+                [[ -z $exitFail ]] && exit 1
+                return
             fi
             mv -fv "${dhcptouse}" "${dhcptouse}.${timestamp}" >>$error_log 2>&1
             echo "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample" > $dhcptouse
@@ -2669,6 +2682,19 @@ configureDHCP() {
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             diffconfig "${dhcptouse}"
+            # Non-fatal syntax check; ISC has historically started without one.
+            if command -v dhcpd >/dev/null 2>&1; then
+                dhcpd -t -cf "$dhcptouse" >>$error_log 2>&1 || echo " * Warning: dhcpd -t reported issues with $dhcptouse (see $error_log)" >>$error_log 2>&1
+            fi
+            fi
+            # When FOG owns DHCP, make sure the other engine is not also bound to
+            # port 67 (covers an admin switching engines on an existing box).
+            otherdhcp=""
+            [[ $dhcpengine == kea ]] && otherdhcp="$iscservice" || otherdhcp="$keaservice"
+            if [[ -n $otherdhcp && $systemctl == yes ]]; then
+                systemctl is-active --quiet $otherdhcp && systemctl stop $otherdhcp >>$error_log 2>&1
+                systemctl is-enabled --quiet $otherdhcp && systemctl disable $otherdhcp >>$error_log 2>&1
+            fi
             case $systemctl in
                 yes)
                     systemctl is-enabled --quiet $dhcpd && true || systemctl enable $dhcpd >>$error_log 2>&1
@@ -2696,6 +2722,7 @@ configureDHCP() {
             ;;
         *)
             echo "Skipped"
+            writeKeaSample
             ;;
     esac
 }

@@ -2421,6 +2421,10 @@ msgid "History Info"
 msgstr ""
 
 #, fuzzy
+msgid "History Report"
+msgstr "Usuario"
+
+#, fuzzy
 msgid "History Time"
 msgstr "Fecha ya existe"
 
@@ -2705,6 +2709,10 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Equipos"
+
+#, fuzzy
+msgid "Hosts And Users"
+msgstr "Añadir usuarios"
 
 #, fuzzy
 msgid "Hosts Associated"
@@ -3345,6 +3353,10 @@ msgstr "Inventario"
 
 msgid "Inventory ID"
 msgstr "Inventario ID"
+
+#, fuzzy
+msgid "Inventory Report"
+msgstr "Inventario"
 
 #, fuzzy
 msgid "Is Advanced"
@@ -4575,6 +4587,10 @@ msgid "Pending MACs"
 msgstr ""
 
 #, fuzzy
+msgid "Pending Mac List"
+msgstr "Lista de equipos"
+
+#, fuzzy
 msgid "Pending Registered Hosts"
 msgstr "Equipos pendientes"
 
@@ -4889,6 +4905,10 @@ msgstr ""
 
 msgid "Private key path not found"
 msgstr ""
+
+#, fuzzy
+msgid "Product Keys"
+msgstr "Gestión de equipos"
 
 #, fuzzy
 msgid "Protected"
@@ -6779,6 +6799,10 @@ msgstr "Gestión de usuarios"
 
 msgid "User Tracker"
 msgstr ""
+
+#, fuzzy
+msgid "User Tracking"
+msgstr "Ya existe una tarea para este host en una tarea programada"
 
 #, fuzzy
 msgid "User Update Fail"

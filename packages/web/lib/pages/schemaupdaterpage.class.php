@@ -149,6 +149,7 @@ class SchemaUpdaterPage extends FOGPage
             _('and if the Database service is running'),
             _('check to ensure your filesystem has enough space')
         );
+        echo '<pre id="dberror" class="hiddeninitially"></pre>';
         echo '</div>';
         echo '</div>';
     }

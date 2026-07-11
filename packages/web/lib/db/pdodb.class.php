@@ -114,6 +114,15 @@ class PDODB extends DatabaseManager
     private static $_lastAffectedRows = 0;
 
     /**
+     * Stores the last connection error message (e.g. the SQLSTATE string
+     * returned by PDO when the database cannot be reached). Used to surface
+     * a meaningful diagnostic when no link can be established.
+     *
+     * @var string
+     */
+    private static $_connectError = '';
+
+    /**
      * Options for the connection
      *
      * @var array
@@ -245,6 +254,7 @@ class PDODB extends DatabaseManager
                 self::$_link = false;
                 $this->_connect(false);
             } else {
+                self::$_connectError = $e->getMessage();
                 $msg = sprintf(
                     '%s %s: %s: %s %s: %s',
                     _('Failed to'),
@@ -701,6 +711,27 @@ class PDODB extends DatabaseManager
     public function dbName()
     {
         return self::$_dbName;
+    }
+
+    /**
+     * Returns the last database connection error message, sanitized for
+     * display. The SQLSTATE code and human-readable reason are preserved;
+     * single-quoted identifiers (database user, host and name, which PDO
+     * embeds in access-denied style messages) are redacted so the message
+     * is safe to surface to any caller.
+     *
+     * @return string
+     */
+    public function connectError()
+    {
+        if (!self::$_connectError) {
+            return '';
+        }
+        return preg_replace(
+            "/'[^']*'/",
+            "'***'",
+            self::$_connectError
+        );
     }
 
     /**

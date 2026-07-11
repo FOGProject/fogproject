@@ -180,11 +180,21 @@ class User_Tracking extends ReportManagementPage
                 'hostID' => $hostIDs
             )
         );
-        Route::listem('usertracking');
-        $UserTrackings = json_decode(
-            Route::getData()
-        );
-        $UserTrackings = $UserTrackings->usertrackings;
+        // Filter in the query rather than loading the entire userTracking
+        // table into memory and discarding non-matches in PHP (the cause of
+        // the OOM in #700). $userIDs is already narrowed by username+hostID.
+        $UserTrackings = array();
+        if (count((array)$userIDs)) {
+            Route::listem(
+                'usertracking',
+                'name',
+                false,
+                array('id' => $userIDs)
+            );
+            $UserTrackings = json_decode(
+                Route::getData()
+            )->usertrackings;
+        }
         $sethost = $setuser = array();
         foreach ((array)$UserTrackings as &$User) {
             if (!in_array($User->id, $userIDs)) {
@@ -267,7 +277,16 @@ class User_Tracking extends ReportManagementPage
         if (!$hostID) {
             unset($hostID);
         }
-        Route::listem('usertracking');
+        // Push the host/user narrowing into the query so we only hydrate the
+        // matching userTracking rows instead of the whole table (#700 OOM).
+        $find = array();
+        if (isset($userID)) {
+            $find['username'] = $userID;
+        }
+        if (isset($hostID)) {
+            $find['hostID'] = $hostID;
+        }
+        Route::listem('usertracking', 'name', false, $find);
         $UserTrackings = json_decode(
             Route::getData()
         );

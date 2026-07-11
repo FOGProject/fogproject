@@ -2427,6 +2427,10 @@ msgid "History Info"
 msgstr "View History for"
 
 #, fuzzy
+msgid "History Report"
+msgstr "View History for"
+
+#, fuzzy
 msgid "History Time"
 msgstr "View History for"
 
@@ -2685,6 +2689,10 @@ msgstr "Hostname Changer"
 
 msgid "Hosts"
 msgstr "Hosts"
+
+#, fuzzy
+msgid "Hosts And Users"
+msgstr "FOG Hosts and Users Login"
 
 #, fuzzy
 msgid "Hosts Associated"
@@ -3328,6 +3336,10 @@ msgstr "Inventory"
 
 msgid "Inventory ID"
 msgstr "Inventory ID"
+
+#, fuzzy
+msgid "Inventory Report"
+msgstr "Full Inventory Export"
 
 msgid "Is Advanced"
 msgstr "Is Advanced"
@@ -4573,6 +4585,10 @@ msgstr "Pending MAC Export"
 msgid "Pending MACs"
 msgstr "Pending MACs"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "Pending Host List"
+
 msgid "Pending Registered Hosts"
 msgstr "Pending Registered Hosts"
 
@@ -4879,6 +4895,10 @@ msgstr "Private key not readable"
 
 msgid "Private key path not found"
 msgstr "Private key path not found"
+
+#, fuzzy
+msgid "Product Keys"
+msgstr "Host Product Key"
 
 msgid "Protected"
 msgstr "Protected"
@@ -6828,6 +6848,10 @@ msgid "User Password (confirm)"
 msgstr "User Password (confirm)"
 
 msgid "User Tracker"
+msgstr "User Tracker"
+
+#, fuzzy
+msgid "User Tracking"
 msgstr "User Tracker"
 
 #, fuzzy

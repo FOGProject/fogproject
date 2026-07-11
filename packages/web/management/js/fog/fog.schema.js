@@ -13,6 +13,11 @@ function runDBCheck() {
             if (data.running === false) {
                 $('#dbNotRunning').show();
                 $('#dbRunning').hide();
+                if (data.error) {
+                    $('#dberror').text(data.error).show();
+                } else {
+                    $('#dberror').text('').hide();
+                }
             } else {
                 $('#dbNotRunning').hide();
                 $('#dbRunning').show();

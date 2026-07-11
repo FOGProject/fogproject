@@ -170,7 +170,9 @@ class AccessControlRuleManager extends FOGManagerController
             . '(38, "SUB_MENULINK-logviewer", "SUB_MENULINK", '
             . '"logviewer", "menu", "fog", NOW(), "about"), '
             . '(39, "SUB_MENULINK-config", "SUB_MENULINK", '
-            . '"config", "menu", "fog", NOW(), "about")';
+            . '"config", "menu", "fog", NOW(), "about"), '
+            . '(40, "MAIN_MENU-accesscontrol", "MAIN_MENU", "accesscontrol", '
+            . '"main", "fog", NOW(), NULL)';
         if (self::$DB->query($sql)) {
             $sql = "CREATE UNIQUE INDEX `indexmul` "
                     . "`rules` (`ruleValue`, `ruleNode`)";

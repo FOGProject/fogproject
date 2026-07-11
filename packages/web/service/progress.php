@@ -62,7 +62,7 @@ try {
             && isset($str[5])
         ) {
             $Task->set('bpm', (float)$str[0])
-                ->set('timeElapsed', max(0, (float)$str[1]))
+                ->set('timeElapsed', strip_tags($str[1]))
                 ->set('timeRemaining', strip_tags($str[2]))
                 ->set('dataCopied', strip_tags($str[3]))
                 ->set('dataTotal', strip_tags($str[4]))

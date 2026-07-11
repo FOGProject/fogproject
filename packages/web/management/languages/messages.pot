@@ -2098,6 +2098,9 @@ msgstr ""
 msgid "History Info"
 msgstr ""
 
+msgid "History Report"
+msgstr ""
+
 msgid "History Time"
 msgstr ""
 
@@ -2324,6 +2327,9 @@ msgid "Hostname Changer"
 msgstr ""
 
 msgid "Hosts"
+msgstr ""
+
+msgid "Hosts And Users"
 msgstr ""
 
 msgid "Hosts Associated"
@@ -2873,6 +2879,9 @@ msgid "Inventory"
 msgstr ""
 
 msgid "Inventory ID"
+msgstr ""
+
+msgid "Inventory Report"
 msgstr ""
 
 msgid "Is Advanced"
@@ -3981,6 +3990,9 @@ msgstr ""
 msgid "Pending MACs"
 msgstr ""
 
+msgid "Pending Mac List"
+msgstr ""
+
 msgid "Pending Registered Hosts"
 msgstr ""
 
@@ -4252,6 +4264,9 @@ msgid "Private key not readable"
 msgstr ""
 
 msgid "Private key path not found"
+msgstr ""
+
+msgid "Product Keys"
 msgstr ""
 
 msgid "Protected"
@@ -5915,6 +5930,9 @@ msgid "User Password (confirm)"
 msgstr ""
 
 msgid "User Tracker"
+msgstr ""
+
+msgid "User Tracking"
 msgstr ""
 
 msgid "User Update Fail"

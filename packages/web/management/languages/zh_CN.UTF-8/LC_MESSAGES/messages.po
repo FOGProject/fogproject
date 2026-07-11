@@ -2124,6 +2124,10 @@ msgstr "历史IP"
 msgid "History Info"
 msgstr "历史信息"
 
+#, fuzzy
+msgid "History Report"
+msgstr "历史用户"
+
 msgid "History Time"
 msgstr "历史时间"
 
@@ -2351,6 +2355,10 @@ msgstr "更换主机名"
 
 msgid "Hosts"
 msgstr "主机"
+
+#, fuzzy
+msgid "Hosts And Users"
+msgstr "FOG主机和用户登录"
 
 msgid "Hosts Associated"
 msgstr "主机已关联"
@@ -2904,6 +2912,10 @@ msgstr "库存"
 
 msgid "Inventory ID"
 msgstr "库存ID"
+
+#, fuzzy
+msgid "Inventory Report"
+msgstr "完整库存导出"
 
 msgid "Is Advanced"
 msgstr "高级"
@@ -4013,6 +4025,10 @@ msgstr "待鉴权MAC导出"
 msgid "Pending MACs"
 msgstr "待鉴权MAC"
 
+#, fuzzy
+msgid "Pending Mac List"
+msgstr "待鉴权主机列表"
+
 msgid "Pending Registered Hosts"
 msgstr "待鉴权注册主机"
 
@@ -4285,6 +4301,10 @@ msgstr "私钥不可读"
 
 msgid "Private key path not found"
 msgstr "找不到私钥路径"
+
+#, fuzzy
+msgid "Product Keys"
+msgstr "主机产品密钥"
 
 msgid "Protected"
 msgstr "受保护"
@@ -5955,6 +5975,10 @@ msgid "User Password (confirm)"
 msgstr "用户密码（确认）"
 
 msgid "User Tracker"
+msgstr "用户跟踪"
+
+#, fuzzy
+msgid "User Tracking"
 msgstr "用户跟踪"
 
 msgid "User Update Fail"

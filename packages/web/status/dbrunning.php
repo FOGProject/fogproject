@@ -33,6 +33,16 @@ $ret = array(
     'running' => (bool)$link,
     'redirect' => (bool)$redirect,
 );
+/**
+ * When the database is unreachable, expose the underlying connection error
+ * (e.g. SQLSTATE[HY000] [2002] Permission denied) so the cause is diagnosable.
+ * The message is sanitized by connectError() -- the SQLSTATE/reason is kept
+ * while identifiers (db user/host/name) are redacted -- so it is safe to
+ * return even though this page is reachable pre-authentication.
+ */
+if (!$link) {
+    $ret['error'] = DatabaseManager::getDB()->connectError();
+}
 $ret = json_encode($ret);
 echo $ret;
 exit;
