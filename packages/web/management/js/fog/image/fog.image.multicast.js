@@ -20,6 +20,13 @@
         if (reloadinterval) {
             clearTimeout(reloadinterval);
         }
+        // Stop the auto-refresh once this page has been swapped out by an AJAX
+        // nav. setTimeout isn't tracked by clearAllIntervals(), and because the
+        // table is serverSide the draw() re-POSTs, so an unguarded re-arm would
+        // keep hitting getSessionsList forever after you leave.
+        if (!document.body.contains(sessionTable[0])) {
+            return;
+        }
         sessionsTable.draw(false);
         reloadinterval = setTimeout(reload, 5000);
     }

@@ -132,7 +132,6 @@ class Page extends FOGBase
      */
     protected static $commonJavascripts = [
         'js/jquery.min.js',
-        'js/lodash.min.js',
         'js/bootstrap5.bundle.min.js',
         'js/fog/bootstrap-jquery-shim.js',
         'js/bootstrap-slider.min.js',
@@ -170,7 +169,6 @@ class Page extends FOGBase
      */
     protected static $loginJavascripts = [
         'js/jquery.min.js',
-        'js/lodash.min.js',
         'js/select2.full.min.js',
         'js/adminlte4.min.js',
         'js/pnotify.min.js',

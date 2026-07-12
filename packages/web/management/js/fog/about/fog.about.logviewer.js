@@ -52,6 +52,12 @@
       });
     });
     logTimer = setTimeout(function() {
+      // Stop polling once this page has been swapped out by an AJAX nav.
+      // setTimeout isn't tracked by clearAllIntervals(), so without this the
+      // 10s POST to logtoview.php would keep firing forever after you leave.
+      if (!document.body.contains(logsGoHere[0])) {
+        return;
+      }
       getLogData(ip, file, length, reversed)
     }, 10000);
   }

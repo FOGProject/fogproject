@@ -112,16 +112,27 @@ $.apiCall = function(method, action, data, cb, processData) {
 $.capitalizeFirstLetter = function(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+// Fill only the keys of obj that are undefined from src (drop-in for the
+// single lodash symbol FOG used, _.defaults; mutates and returns obj).
+$.fogDefaults = function(obj, src) {
+  obj = obj || {};
+  for (var key in src) {
+    if (obj[key] === undefined) {
+      obj[key] = src[key];
+    }
+  }
+  return obj;
+}
 $.checkItemUpdate = function(table, item, e, prop, opts, done) {
   var method = prop.attr('method'),
     action = prop.attr('action');
   if (item.checked) {
-    opts = _.defaults(opts, {
+    opts = $.fogDefaults(opts, {
       confirmadd: 1,
       additems: [e.target.value]
     });
   } else {
-    opts = _.defaults(opts, {
+    opts = $.fogDefaults(opts, {
       confirmdel: 1,
       remitems: [e.target.value]
     });
@@ -144,10 +155,10 @@ $.debugLog = function(obj) {
 }
 $.deleteAssociated = function(table, url, cb, opts) {
   opts = opts || {};
-  opts = _.defaults(opts, {
+  opts = $.fogDefaults(opts, {
     rows: table.rows({selected: true})
   });
-  opts = _.defaults(opts, {
+  opts = $.fogDefaults(opts, {
     ids: opts.rows.ids().toArray()
   });
 
@@ -182,12 +193,12 @@ $.deleteAssociated = function(table, url, cb, opts) {
 };
 $.deleteSelected = function(table, cb, opts) {
   opts = opts || {};
-  opts = _.defaults(opts, {
+  opts = $.fogDefaults(opts, {
     node: Common.node,
     rows: table.rows({selected: true}),
     password: undefined
   });
-  opts = _.defaults(opts, {
+  opts = $.fogDefaults(opts, {
     ids: opts.rows.ids().toArray(),
     url: '../management/index.php?node=' + opts.node + '&sub=deletemulti',
   });
@@ -462,7 +473,7 @@ $.fn.registerModal = function(onOpen, onClose, opts) {
   var e = this;
   if (e._modalInit === undefined || !e._modalInit) {
     opts = opts || {};
-    opts = _.defaults(opts, {
+    opts = $.fogDefaults(opts, {
       backdrop: true,
       keyboard: true,
       focus: true,
@@ -751,7 +762,7 @@ $.fn.registerTable = function(onSelect, opts) {
     defaults.dom = "<'row'<'col-sm-6'><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-12'i>>";
   }
 
-  opts = _.defaults(opts, defaults);
+  opts = $.fogDefaults(opts, defaults);
 
   var table = $(this).DataTable(opts);
 
@@ -1010,8 +1021,10 @@ function reinitialize() {
   var pluginOptionsOpen = true,
     pluginOptionsAlt = $('.plugin-options-alternate');
 
-  // Animate the plugin items.
-  pluginOptionsAlt.on('click', function(event) {
+  // Animate the plugin items. reinitialize() runs on every AJAX nav and
+  // .plugin-options-alternate lives in the persistent chrome (never torn
+  // down), so clear any prior handler first to avoid stacking one per nav.
+  pluginOptionsAlt.off('click').on('click', function(event) {
     event.preventDefault();
     var whenDone = function() {
       $(window).resize();
