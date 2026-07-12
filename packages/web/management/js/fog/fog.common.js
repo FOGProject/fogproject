@@ -513,6 +513,13 @@ $.registerGeneralTab = function(opts) {
 //                    it renders as a host link via opts.columnDefs).
 // opts.columnDefs  - optional extra column defs, merged BEFORE the built-in
 //                    associated-checkbox renderer on the association column.
+// opts.checkboxRender - optional function(row) returning the FULL HTML for the
+//                    association column cell, replacing the built-in plain
+//                    checkbox. For tabs whose cell is not a simple on/off box
+//                    (group's tri-state All/Some/None badge + host drill-down).
+//                    The returned markup must still carry an
+//                    input.associated[value=row.id] so the toggle/add/remove
+//                    plumbing keeps working.
 // opts.onDraw      - optional function(table) run at the end of every table
 //                    redraw, after the checkbox styling/binding and button
 //                    enable/disable. For tabs that mirror a side panel off the
@@ -532,16 +539,19 @@ $.registerAssociationTab = function(opts) {
     deleteModal = $('#' + item + 'DelModal'),
     deleteConfirm = $('#confirm' + item + 'DeleteModal'),
     columns = opts.columns || [{data: 'mainLink'}, {data: 'association'}],
+    checkboxRender = opts.checkboxRender || function(row) {
+      var checkval = row.association === 'associated' ? ' checked' : '';
+      return '<div class="form-check">'
+        + '<input type="checkbox" class="associated" name="associate[]" id="'
+        + slug + '-associate-' + row.id
+        + '" value="' + row.id + '"'
+        + checkval
+        + '/>'
+        + '</div>';
+    },
     columnDefs = (opts.columnDefs || []).concat([{
       render: function(data, type, row) {
-        var checkval = row.association === 'associated' ? ' checked' : '';
-        return '<div class="form-check">'
-          + '<input type="checkbox" class="associated" name="associate[]" id="'
-          + slug + '-associate-' + row.id
-          + '" value="' + row.id + '"'
-          + checkval
-          + '/>'
-          + '</div>';
+        return checkboxRender(row);
       },
       targets: columns.length - 1
     }]);

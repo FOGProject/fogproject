@@ -229,157 +229,76 @@
     // ASSOCIATIONS
     // ---------------------------------------------------------------
     // HOST ASSOCIATION TAB
-    var groupHostUpdateBtn = $('#group-host-send'),
-        groupHostRemoveBtn = $('#group-host-remove'),
-        groupHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
-
-    function disableHostButtons(disable) {
-        groupHostUpdateBtn.prop('disabled', disable);
-        groupHostRemoveBtn.prop('disabled', disable);
-    }
-
-    function onHostSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableHostButtons(disabled);
-    }
-
-    groupHostUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(groupHostsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableHostButtons(false);
-            if (err) {
-                return;
-            }
-            groupHostsTable.draw(false);
-            groupHostsTable.rows({selected: true}).deselect();
-        });
+    var groupHostsTable = $.registerAssociationTab({
+        slug: 'group-host',
+        item: 'host',
+        sub: 'getHostsList'
     });
-
-    groupHostRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#hostDelModal').modal('show');
-    });
-
-    var groupHostsTable = $('#group-host-table').registerTable(onHostSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="groupHostAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostsList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    groupHostDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(groupHostsTable, groupHostUpdateBtn.attr('action'), function(err) {
-            $('#hostDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            groupHostsTable.draw(false);
-            groupHostsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    groupHostsTable.on('draw', function() {
-        Common.iCheck('#group-host-table input');
-        $('#group-host-table input.associated').on('change', onGroupHostCheckboxSelect);
-        onHostSelect(groupHostsTable.rows({selected: true}));
-    })
-
-    var onGroupHostCheckboxSelect = function(e) {
-        $.checkItemUpdate(groupHostsTable, this, e, groupHostUpdateBtn);
-    };
 
     // ---------------------------------------------------------------
-    // PRINTER TAB
+    // GROUP ASSOCIATION TRI-STATE (shared by the printer, snapin and
+    // module tabs). Each item shows All (checked) / Some (indeterminate) /
+    // None (unchecked) coverage across member hosts, an "n / total" badge,
+    // and an on-demand Has/Missing host drill-down (a DataTables child row).
     //
-    // Association Area
-    // ===============================================================
-    // GROUP ASSOCIATION TRI-STATE (shared: snapins, modules, printers)
-    // Each item shows All (checked) / Some (indeterminate) / None
-    // (unchecked) coverage across member hosts, an "n / total" badge, and
-    // an on-demand Has/Missing host drill-down (a DataTables child row).
+    // These plug into the generic $.registerAssociationTab via its
+    // checkboxRender/onDraw hooks; the tri-state badge markup and the
+    // drill-down AJAX stay group-local because they are not part of the
+    // generic (plain on/off) association-tab skeleton.
     // ---------------------------------------------------------------
-    function groupAssocColumnDef(entityType, idPrefix) {
-        return {
-            targets: 1,
-            orderable: true,
-            render: function(data, type, row) {
-                var state = row.association,
-                    cnt = (row.assocCount === undefined ? 0 : row.assocCount),
-                    total = (row.assocTotal === undefined ? 0 : row.assocTotal),
-                    checked = (state === 'all') ? ' checked' : '',
-                    label = (state === 'all')
-                        ? 'bg-success'
-                        : (state === 'some' ? 'bg-warning' : 'bg-secondary');
-                return '<div class="form-check" '
-                    + 'style="display:inline-block;vertical-align:middle;margin:0 6px 0 0;">'
-                    + '<input type="checkbox" class="associated" data-state="' + state + '" '
-                    + 'name="associate[]" id="' + idPrefix + row.id + '" value="' + row.id + '"'
-                    + checked + '/></div>'
-                    + '<a href="#" class="assoc-drill badge ' + label + '" '
-                    + 'data-id="' + row.id + '" data-type="' + entityType + '" '
-                    + 'title="Show which hosts have this">' + cnt + ' / ' + total + '</a>';
-            }
+
+    // Returns the checkboxRender function for a tri-state tab: the full
+    // association-cell markup (checkbox carrying data-state + the badge that
+    // opens the drill-down). The input keeps class="associated"/value=row.id
+    // so the generic add/remove/toggle plumbing keeps working.
+    function groupAssocRender(entityType, idPrefix) {
+        return function(row) {
+            var state = row.association,
+                cnt = (row.assocCount === undefined ? 0 : row.assocCount),
+                total = (row.assocTotal === undefined ? 0 : row.assocTotal),
+                checked = (state === 'all') ? ' checked' : '',
+                label = (state === 'all')
+                    ? 'bg-success'
+                    : (state === 'some' ? 'bg-warning' : 'bg-secondary');
+            return '<div class="form-check" '
+                + 'style="display:inline-block;vertical-align:middle;margin:0 6px 0 0;">'
+                + '<input type="checkbox" class="associated" data-state="' + state + '" '
+                + 'name="associate[]" id="' + idPrefix + row.id + '" value="' + row.id + '"'
+                + checked + '/></div>'
+                + '<a href="#" class="assoc-drill badge ' + label + '" '
+                + 'data-id="' + row.id + '" data-type="' + entityType + '" '
+                + 'title="Show which hosts have this">' + cnt + ' / ' + total + '</a>';
         };
     }
 
-    function setupGroupAssoc(table, tableSel, updateBtn, entityType, onChange) {
-        function changeHandler(e) {
-            // Pass onChange as the post-commit callback (not a synchronous call)
-            // so any dependent panel (e.g. the snapin run order) refreshes after
-            // the association save commits, not before. Firing it here would race
-            // the save and leave the panel one toggle stale.
-            $.checkItemUpdate(table, this, e, updateBtn, undefined, onChange);
-        }
-        table.on('draw', function() {
-            Common.iCheck(tableSel + ' input.associated');
-            $(tableSel + ' input.associated').each(function() {
-                if ($(this).data('state') === 'some') {
-                    $(this).prop('indeterminate', true);
+    // Wire a tri-state association tab: the standard $.registerAssociationTab
+    // skeleton plus the tri-state checkbox render, the post-draw indeterminate
+    // styling for "some" rows, and the Has/Missing host drill-down. cfg extends
+    // the generic opts with entityType/idPrefix (for the render + drill-down)
+    // and an optional onDraw (run after the indeterminate styling). Returns the
+    // DataTables instance.
+    function wireGroupAssocTab(cfg) {
+        var tableSel = '#' + cfg.slug + '-table';
+        var table = $.registerAssociationTab({
+            slug: cfg.slug,
+            item: cfg.item,
+            sub: cfg.sub,
+            columns: cfg.columns,
+            order: cfg.order,
+            checkboxRender: groupAssocRender(cfg.entityType, cfg.idPrefix),
+            afterCommit: cfg.afterCommit,
+            onDraw: function(t) {
+                $(tableSel + ' input.associated').each(function() {
+                    if ($(this).data('state') === 'some') {
+                        $(this).prop('indeterminate', true);
+                    }
+                });
+                if (typeof cfg.onDraw === 'function') {
+                    cfg.onDraw(t);
                 }
-            });
-            $(tableSel + ' input.associated')
-                .off('change', changeHandler)
-                .on('change', changeHandler);
+            }
         });
+        // On-demand Has/Missing host drill-down (a DataTables child row).
         $(tableSel).on('click', '.assoc-drill', function(e) {
             e.preventDefault();
             var tr = $(this).closest('tr'),
@@ -418,89 +337,21 @@
                 }
             });
         });
+        return table;
     }
 
-    var groupPrinterUpdateBtn = $('#group-printer-send'),
-        groupPrinterRemoveBtn = $('#group-printer-remove'),
-        groupPrinterDeleteConfirmBtn = $('#confirmprinterDeleteModal');
-
-    function disablePrinterButtons(disable) {
-        groupPrinterUpdateBtn.prop('disabled', disable);
-        groupPrinterRemoveBtn.prop('disabled', disable);
-    }
-
-    function onPrinterSelect(selected) {
-        var disabled = selected.count() == 0;
-        disablePrinterButtons(disabled);
-    }
-
-    groupPrinterUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(groupPrintersTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disablePrinterButtons(false);
-            if (err) {
-                return;
-            }
-            setTimeout(groupPrinterDefaultSelectorUpdate, 1000);
-        });
-    });
-
-    groupPrinterRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#printerDelModal').modal('show');
-    });
-
-    var groupPrintersTable = $('#group-printer-table').registerTable(onPrinterSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            groupAssocColumnDef('printer', 'groupPrinterAssoc_')
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getPrintersList&id='
-                + Common.id,
-            type: 'post'
+    // ---------------------------------------------------------------
+    // PRINTER TAB
+    // Association area
+    var groupPrintersTable = wireGroupAssocTab({
+        slug: 'group-printer',
+        item: 'printer',
+        sub: 'getPrintersList',
+        entityType: 'printer',
+        idPrefix: 'groupPrinterAssoc_',
+        onDraw: function() {
+            groupPrinterDefaultSelectorUpdate();
         }
-    });
-
-    setupGroupAssoc(
-        groupPrintersTable,
-        '#group-printer-table',
-        groupPrinterUpdateBtn,
-        'printer'
-    );
-
-    groupPrinterDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(groupPrintersTable, groupPrinterUpdateBtn.attr('action'), function(err) {
-            $('#printerDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            setTimeout(groupPrinterDefaultSelectorUpdate, 1000);
-        });
-    });
-
-    groupPrintersTable.on('draw', function() {
-        onPrinterSelect(groupPrintersTable.rows({selected: true}));
-        groupPrinterDefaultSelectorUpdate();
     });
 
     // Default area
@@ -564,91 +415,14 @@
 
     // ---------------------------------------------------------------
     // SNAPINS TAB
-    var groupSnapinUpdateBtn = $('#group-snapin-send'),
-        groupSnapinRemoveBtn = $('#group-snapin-remove'),
-        groupSnapinDeleteConfirmBtn = $('#confirmsnapinDeleteModal');
-
-    function disableSnapinButtons(disable) {
-        groupSnapinUpdateBtn.prop('disabled', disable);
-        groupSnapinRemoveBtn.prop('disabled', disable);
-    }
-
-    function onSnapinSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableSnapinButtons(disabled);
-    }
-
-    groupSnapinUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(groupSnapinsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableSnapinButtons(false);
-            if (err) {
-                return;
-            }
-            groupSnapinsTable.draw(false);
-            groupSnapinsTable.rows({selected: true}).deselect();
-            loadGroupSnapinOrder();
-        });
-    });
-
-    groupSnapinRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#snapinDelModal').modal('show');
-    });
-
-    var groupSnapinsTable = $('#group-snapin-table').registerTable(onSnapinSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            groupAssocColumnDef('snapin', 'groupSnapinAssoc_')
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getSnapinsList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    groupSnapinDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(groupSnapinsTable, groupSnapinUpdateBtn.attr('action'), function(err) {
-            $('#snapinDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            groupSnapinsTable.draw(false);
-            groupSnapinsTable.rows({selected: true}).deselect();
-            loadGroupSnapinOrder();
-        });
-    });
-
-    setupGroupAssoc(
-        groupSnapinsTable,
-        '#group-snapin-table',
-        groupSnapinUpdateBtn,
-        'snapin',
-        loadGroupSnapinOrder
-    );
-
-    groupSnapinsTable.on('draw', function() {
-        onSnapinSelect(groupSnapinsTable.rows({selected: true}));
+    // Association area
+    var groupSnapinsTable = wireGroupAssocTab({
+        slug: 'group-snapin',
+        item: 'snapin',
+        sub: 'getSnapinsList',
+        entityType: 'snapin',
+        idPrefix: 'groupSnapinAssoc_',
+        afterCommit: loadGroupSnapinOrder
     });
 
     // ---------------------------------------------------------------
@@ -755,87 +529,17 @@
     // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
-    var groupModuleUpdateBtn = $('#group-module-send'),
-        groupModuleRemoveBtn = $('#group-module-remove'),
-        groupModuleDeleteConfirmBtn = $('#confirmmoduleDeleteModal');
-
     // Association area
-    function disableModuleButtons(disable) {
-        groupModuleUpdateBtn.prop('disabled', disable);
-        groupModuleRemoveBtn.prop('disabled', disable);
-    }
-
-    function onModuleSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableModuleButtons(disabled);
-    }
-
-    groupModuleUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(groupModulesTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleButtons(false);
-            if (err) {
-                return;
-            }
-            groupModulesTable.draw(false);
-            groupModulesTable.rows({selected: true}).deselect();
-        });
-    });
-
-    groupModuleRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#moduleDelModal').modal('show');
-    });
-
-    var groupModulesTable = $('#group-module-table').registerTable(onModuleSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
+    var groupModulesTable = wireGroupAssocTab({
+        slug: 'group-module',
+        item: 'module',
+        sub: 'getModulesList',
+        entityType: 'module',
+        idPrefix: 'groupModuleAssoc_',
         columns: [
             {data: 'name'},
             {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            groupAssocColumnDef('module', 'groupModuleAssoc_')
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getModulesList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    groupModuleDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(groupModulesTable, groupModuleUpdateBtn.attr('action'), function(err) {
-            $('#moduleDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-        });
-    });
-
-    setupGroupAssoc(
-        groupModulesTable,
-        '#group-module-table',
-        groupModuleUpdateBtn,
-        'module'
-    );
-
-    groupModulesTable.on('draw', function() {
-        onModuleSelect(groupModulesTable.rows({selected: true}));
+        ]
     });
 
     // Display manager area
