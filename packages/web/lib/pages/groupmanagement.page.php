@@ -1040,13 +1040,8 @@ class GroupManagement extends FOGPage
         $this->assocPost('addPrinter', 'removePrinter');
         if (isset($_POST['confirmdefault'])) {
             $default = filter_input(INPUT_POST, 'default');
-            $this->obj->addPrinter($default);
-            $this->obj->updateDefault(
-                filter_input(
-                    INPUT_POST,
-                    'default'
-                )
-            );
+            $this->obj->addPrinter([$default]);
+            $this->obj->updateDefault($default);
         }
         if (isset($_POST['confirmlevelup'])) {
             $level = filter_input(INPUT_POST, 'level');
