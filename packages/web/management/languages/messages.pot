@@ -1880,9 +1880,6 @@ msgstr ""
 msgid "Force"
 msgstr ""
 
-msgid "Force Reboot"
-msgstr ""
-
 msgid "Forums"
 msgstr ""
 

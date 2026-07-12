@@ -2238,10 +2238,6 @@ msgid "Force"
 msgstr "Obliger"
 
 #, fuzzy
-msgid "Force Reboot"
-msgstr "Réinitialiser"
-
-#, fuzzy
 msgid "Forums"
 msgstr "BROUILLARD Forums"
 
@@ -8443,6 +8439,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Je ne suis pas le serveur web de brouillard"
+
+#, fuzzy
+#~ msgid "Force Reboot"
+#~ msgstr "Réinitialiser"
 
 #, fuzzy
 #~ msgid "Group module settings"

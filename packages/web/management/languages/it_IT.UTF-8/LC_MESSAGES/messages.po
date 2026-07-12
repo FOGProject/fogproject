@@ -2149,10 +2149,6 @@ msgid "Force"
 msgstr "Forza"
 
 #, fuzzy
-msgid "Force Reboot"
-msgstr "Riavvio"
-
-#, fuzzy
 msgid "Forums"
 msgstr "FOG Forum"
 
@@ -8055,6 +8051,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Io non sono il server web fog"
+
+#, fuzzy
+#~ msgid "Force Reboot"
+#~ msgstr "Riavvio"
 
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"

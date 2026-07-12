@@ -2281,10 +2281,6 @@ msgid "Force"
 msgstr "Fuerza"
 
 #, fuzzy
-msgid "Force Reboot"
-msgstr "Reiniciar"
-
-#, fuzzy
 msgid "Forums"
 msgstr "Foros FOG"
 
@@ -8589,6 +8585,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to refresh check-in time"
 #~ msgstr "No se pudo crear Sesión"
+
+#, fuzzy
+#~ msgid "Force Reboot"
+#~ msgstr "Reiniciar"
 
 #, fuzzy
 #~ msgid "Group module settings"

@@ -2237,10 +2237,6 @@ msgid "Force"
 msgstr "Força"
 
 #, fuzzy
-msgid "Force Reboot"
-msgstr "reinicialização"
-
-#, fuzzy
 msgid "Forums"
 msgstr "FOG Fóruns"
 
@@ -8439,6 +8435,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Eu não sou o servidor web nevoeiro"
+
+#, fuzzy
+#~ msgid "Force Reboot"
+#~ msgstr "reinicialização"
 
 #, fuzzy
 #~ msgid "Group module settings"

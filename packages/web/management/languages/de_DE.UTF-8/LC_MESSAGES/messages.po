@@ -2234,10 +2234,6 @@ msgid "Force"
 msgstr "zwingen"
 
 #, fuzzy
-msgid "Force Reboot"
-msgstr "Neustarten"
-
-#, fuzzy
 msgid "Forums"
 msgstr "FOG-Forum"
 
@@ -8448,6 +8444,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Ich bin nicht der FOG-Web-Server"
+
+#, fuzzy
+#~ msgid "Force Reboot"
+#~ msgstr "Neustarten"
 
 #, fuzzy
 #~ msgid "Group module settings"

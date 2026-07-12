@@ -1294,33 +1294,6 @@
         });
     });
 
-    // Host enforce ad join reboot and hostname changes area
-    var hostModuleEnforceBtn = $('#host-enforce-send'),
-        hostModuleEnforceForm = $('#host-enforce-form');
-
-    function disableModuleEnforceButtons(disable) {
-        hostModuleEnforceBtn.prop('disabled', disable);
-    }
-
-    hostModuleEnforceForm.on('submit', function(e) {
-        e.preventDefault();
-    })
-
-    hostModuleEnforceBtn.on('click', function(e) {
-        e.preventDefault();
-        disableModuleEnforceButtons(true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            opts = {
-                confirmenforcesend: 1,
-                enforce: $('#enforce')[0].checked
-            };
-      console.log(opts);
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleEnforceButtons(false);
-        });
-    });
-
     // ---------------------------------------------------------------
     // ACTIVE DIRECTORY TAB
     var ADForm = $('#active-directory-form'),

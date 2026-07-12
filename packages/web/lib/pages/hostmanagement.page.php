@@ -1087,6 +1087,8 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'dev') ?:
             ($this->obj->get('kernelDevice') ?: '')
         );
+        $enforce = (int)filter_input(INPUT_POST, 'enforce')
+            ?: $this->obj->get('enforce');
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -1190,6 +1192,23 @@ class HostManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'enforce',
+                _('Enforce Hostname | AD Join Reboots')
+            ) => self::makeInput(
+                '',
+                'enforce',
+                '',
+                'checkbox',
+                'enforce',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($enforce ? 'checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
                 'bootTypeExit',
                 _('Host BIOS Exit Type')
             ) => $this->exitNorm,
@@ -1226,6 +1245,19 @@ class HostManagement extends FOGPage
                 'Host' => &$this->obj
             ]
         );
+        // The enforce control moved here from the Service Settings tab; keep
+        // firing its plugin hook so any external listeners still contribute.
+        // Field additions merge into this form; button additions are appended.
+        $enforceButtons = '';
+        self::$HookManager->processEvent(
+            'HOST_ENFORCE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$enforceButtons,
+                'Host' => &$this->obj
+            ]
+        );
+        $buttons .= $enforceButtons;
         $rendered = self::formFields($fields);
         unset($fields);
 
@@ -1305,6 +1337,7 @@ class HostManagement extends FOGPage
         $ebte = trim(
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
+        $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
         if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {
                 throw new Exception(_('Please enter a valid hostname'));
@@ -1329,6 +1362,7 @@ class HostManagement extends FOGPage
             ->set('init', $init)
             ->set('biosexit', $bte)
             ->set('efiexit', $ebte)
+            ->set('enforce', $enforce)
             ->set('productKey', $productKey);
     }
     /**
@@ -2333,83 +2367,6 @@ class HostManagement extends FOGPage
             echo '</div>';
             echo '</div>';
         }
-
-        // Hostname changer reboot/domain join reboot forced.
-        $enforce = (int)filter_input(INPUT_POST, 'enforce') ?: $this->obj->get('enforce');
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'enforce',
-                _('Force Reboot')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($enforce ? 'checked' : '')
-            )
-        ];
-        $buttons = self::makeButton(
-            'host-enforce-send',
-            _('Update'),
-            'btn btn-primary float-end',
-            $props
-        );
-
-        self::$HookManager->processEvent(
-            'HOST_ENFORCE_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Host' => &$this->obj
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo '<div class="card card-warning card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Enforce Hostname | AD Join Reboots');
-        echo '</h4>';
-        echo '<p class="form-text">';
-        echo _(
-            'This tells the client to force reboots for host name '
-            . 'changing and AD Joining.'
-        );
-        echo '</p>';
-        echo '<p class="form-text">';
-        echo _(
-            'If disabled, the client will not make changes until all users '
-            . 'are logged off'
-        );
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo self::makeFormTag(
-            '',
-            'host-enforce-form',
-            self::makeTabUpdateURL(
-                'host-module',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Update the actual thing.
@@ -2459,10 +2416,6 @@ class HostManagement extends FOGPage
                 $tme = 0;
             }
             $this->obj->setAlo($tme);
-        }
-        if (isset($_POST['confirmenforcesend'])) {
-            $enforce = filter_input(INPUT_POST, 'enforce') == 'true' ? 1 : 0;
-            $this->obj->set('enforce', $enforce);
         }
     }
     /**

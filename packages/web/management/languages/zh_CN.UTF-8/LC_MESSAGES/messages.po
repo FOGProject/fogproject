@@ -2235,10 +2235,6 @@ msgid "Force"
 msgstr "力"
 
 #, fuzzy
-msgid "Force Reboot"
-msgstr "重启"
-
-#, fuzzy
 msgid "Forums"
 msgstr "FOG论坛"
 
@@ -8426,6 +8422,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "我不是雾Web服务器"
+
+#, fuzzy
+#~ msgid "Force Reboot"
+#~ msgstr "重启"
 
 #, fuzzy
 #~ msgid "Group module settings"
