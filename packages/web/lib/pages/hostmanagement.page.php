@@ -955,7 +955,7 @@ class HostManagement extends FOGPage
                     )
                 );
                 $productKey = substr($productKey, 0, 29);
-                $enforce = (int)filter_input(INPUT_POST, 'enforce');
+                $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
                 $image = (int)filter_input(INPUT_POST, 'image');
                 $kernel = trim(
                     filter_input(INPUT_POST, 'kernel')
