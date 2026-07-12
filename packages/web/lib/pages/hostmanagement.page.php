@@ -680,42 +680,14 @@ class HostManagement extends FOGPage
         $renderedad = self::formFields($fieldads);
         unset($fieldads);
 
-        echo self::makeFormTag(
-            '',
-            'host-create-form',
-            $this->formAction,
-            'post',
-            'application/x-www-form-urlencoded',
-            true
+        $this->renderCreateForm(
+            'host',
+            [
+                [_('Create New Host'), $rendered],
+                [_('Active Directory'), $renderedad]
+            ],
+            $buttons
         );
-        echo '<div class="card" id="host-create">';
-        echo '<div class="card-body">';
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Create New Host');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '</div>';
-
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Active Directory');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo $renderedad;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Creates a new host.
@@ -944,158 +916,127 @@ class HostManagement extends FOGPage
      */
     public function addPost()
     {
-        self::checkAuthAndCSRF();
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('HOST_ADD_POST');
-        $host = trim(
-            filter_input(INPUT_POST, 'host')
-        );
-        $mac = trim(
-            filter_input(INPUT_POST, 'mac')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $password = trim(
-            filter_input(INPUT_POST, 'domainpassword')
-        );
-        $useAD = (int)isset($_POST['domain']);
-        $domain = trim(
-            filter_input(INPUT_POST, 'domainname')
-        );
-        $ou = trim(
-            filter_input(INPUT_POST, 'ou')
-        );
-        $user = trim(
-            filter_input(INPUT_POST, 'domainuser')
-        );
-        $pass = $password;
-        $key = trim(
-            filter_input(INPUT_POST, 'key')
-        );
-        $productKey = preg_replace(
-            '/([\w+]{5})/',
-            '$1-',
-            str_replace(
-                '-',
-                '',
-                strtoupper($key)
-            )
-        );
-        $productKey = substr($productKey, 0, 29);
-        $enforce = (int)filter_input(INPUT_POST, 'enforce');
-        $image = (int)filter_input(INPUT_POST, 'image');
-        $kernel = trim(
-            filter_input(INPUT_POST, 'kernel')
-        );
-        $kernelArgs = trim(
-            filter_input(INPUT_POST, 'args')
-        );
-        $kernelDevice = trim(
-            filter_input(INPUT_POST, 'dev')
-        );
-        $init = trim(
-            filter_input(INPUT_POST, 'init')
-        );
-        $bootTypeExit = trim(
-            filter_input(INPUT_POST, 'bootTypeExit')
-        );
-        $efiBootTypeExit = trim(
-            filter_input(INPUT_POST, 'efiBootTypeExit')
-        );
-
-        $serverFault = false;
-        try {
-            $exists = self::getClass('HostManager')
-                ->exists($host);
-            if ($exists) {
-                throw new Exception(
-                    _('A host already exists with this name!')
+        $this->handleAddPost(
+            'Host',
+            'HOST_ADD',
+            _('Host added!'),
+            _('Host Create Success'),
+            _('Host Create Fail'),
+            function (&$serverFault) {
+                $host = trim(
+                    filter_input(INPUT_POST, 'host')
                 );
-            }
-            $MAC = new MACAddress($mac);
-            if (!$MAC->isValid()) {
-                throw new Exception(_('MAC Format is invalid'));
-            }
-            self::getClass('HostManager')->getHostByMacAddresses(
-                $MAC->__toString()
-            );
-            if (self::$Host->isValid()) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s',
-                        _('A host with this mac already exists with name'),
-                        self::$Host->get('name')
+                $mac = trim(
+                    filter_input(INPUT_POST, 'mac')
+                );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $password = trim(
+                    filter_input(INPUT_POST, 'domainpassword')
+                );
+                $useAD = (int)isset($_POST['domain']);
+                $domain = trim(
+                    filter_input(INPUT_POST, 'domainname')
+                );
+                $ou = trim(
+                    filter_input(INPUT_POST, 'ou')
+                );
+                $user = trim(
+                    filter_input(INPUT_POST, 'domainuser')
+                );
+                $pass = $password;
+                $key = trim(
+                    filter_input(INPUT_POST, 'key')
+                );
+                $productKey = preg_replace(
+                    '/([\w+]{5})/',
+                    '$1-',
+                    str_replace(
+                        '-',
+                        '',
+                        strtoupper($key)
                     )
                 );
-            }
-            $ModuleIDs = Route::getIds(
-                'module',
-                ['isDefault' => 1]
-            );
-            self::$Host
-                ->set('name', $host)
-                ->set('description', $description)
-                ->set('imageID', $image)
-                ->set('kernel', $kernel)
-                ->set('kernelArgs', $kernelArgs)
-                ->set('kernelDevice', $kernelDevice)
-                ->set('init', $init)
-                ->set('biosexit', $bootTypeExit)
-                ->set('efiexit', $efiBootTypeExit)
-                ->set('productKey', $productKey)
-                ->set('enforce', $enforce)
-                ->set('modules', $ModuleIDs)
-                ->addPriMAC($MAC)
-                ->setAD(
-                    $useAD,
-                    $domain,
-                    $ou,
-                    $user,
-                    $pass,
-                    true,
-                    true,
-                    $productKey
+                $productKey = substr($productKey, 0, 29);
+                $enforce = (int)filter_input(INPUT_POST, 'enforce');
+                $image = (int)filter_input(INPUT_POST, 'image');
+                $kernel = trim(
+                    filter_input(INPUT_POST, 'kernel')
                 );
-            if (!self::$Host->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add host failed!'));
+                $kernelArgs = trim(
+                    filter_input(INPUT_POST, 'args')
+                );
+                $kernelDevice = trim(
+                    filter_input(INPUT_POST, 'dev')
+                );
+                $init = trim(
+                    filter_input(INPUT_POST, 'init')
+                );
+                $bootTypeExit = trim(
+                    filter_input(INPUT_POST, 'bootTypeExit')
+                );
+                $efiBootTypeExit = trim(
+                    filter_input(INPUT_POST, 'efiBootTypeExit')
+                );
+
+                $exists = self::getClass('HostManager')
+                    ->exists($host);
+                if ($exists) {
+                    throw new Exception(
+                        _('A host already exists with this name!')
+                    );
+                }
+                $MAC = new MACAddress($mac);
+                if (!$MAC->isValid()) {
+                    throw new Exception(_('MAC Format is invalid'));
+                }
+                self::getClass('HostManager')->getHostByMacAddresses(
+                    $MAC->__toString()
+                );
+                if (self::$Host->isValid()) {
+                    throw new Exception(
+                        sprintf(
+                            '%s: %s',
+                            _('A host with this mac already exists with name'),
+                            self::$Host->get('name')
+                        )
+                    );
+                }
+                $ModuleIDs = Route::getIds(
+                    'module',
+                    ['isDefault' => 1]
+                );
+                self::$Host
+                    ->set('name', $host)
+                    ->set('description', $description)
+                    ->set('imageID', $image)
+                    ->set('kernel', $kernel)
+                    ->set('kernelArgs', $kernelArgs)
+                    ->set('kernelDevice', $kernelDevice)
+                    ->set('init', $init)
+                    ->set('biosexit', $bootTypeExit)
+                    ->set('efiexit', $efiBootTypeExit)
+                    ->set('productKey', $productKey)
+                    ->set('enforce', $enforce)
+                    ->set('modules', $ModuleIDs)
+                    ->addPriMAC($MAC)
+                    ->setAD(
+                        $useAD,
+                        $domain,
+                        $ou,
+                        $user,
+                        $pass,
+                        true,
+                        true,
+                        $productKey
+                    );
+                if (!self::$Host->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add host failed!'));
+                }
+                return self::$Host;
             }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'HOST_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Host added!'),
-                    'title' => _('Host Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'HOST_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Host Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=host&sub=edit&id='
-        //    . $Host->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'Host' => &self::$Host,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**
