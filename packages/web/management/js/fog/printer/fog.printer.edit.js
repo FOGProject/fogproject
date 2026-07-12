@@ -154,6 +154,7 @@
                 return;
             }
             printerHostsTable.draw(false);
+            printerHostsDefaultTable.draw(false);
             printerHostsTable.rows({selected: true}).deselect();
         });
     });
@@ -165,6 +166,7 @@
 
     var printerHostsTable = $('#printer-host-table').registerTable(onHostSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -220,7 +222,9 @@
     });
 
     var onPrinterHostCheckboxSelect = function(e) {
-        $.checkItemUpdate(printerHostsTable, this, e, printerHostUpdateBtn);
+        $.checkItemUpdate(printerHostsTable, this, e, printerHostUpdateBtn, {}, function() {
+            printerHostsDefaultTable.draw(false);
+        });
     };
 
     // Host Default Settings
@@ -266,6 +270,7 @@
 
     var printerHostsDefaultTable = $('#printer-host-default-table').registerTable(onHostDefaultSelect, {
         order: [
+            [1, 'desc'],
             [0, 'asc']
         ],
         columns: [
@@ -296,7 +301,7 @@
         ajax: {
             url: '../management/index.php?node='
                 + Common.node
-                + '&sub=getHostsList&id='
+                + '&sub=getHostsDefaultList&id='
                 + Common.id,
             type: 'post'
         }

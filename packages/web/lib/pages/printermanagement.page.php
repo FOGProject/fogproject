@@ -888,6 +888,37 @@ class PrinterManagement extends FOGPage
         );
     }
     /**
+     * Printer -> host list, limited to hosts already associated with this
+     * printer. Feeds the "Set Printer as Default for Hosts" table, where a
+     * default only makes sense for a host the printer is actually assigned to.
+     *
+     * Unlike getHostsList() this omits the removeFromQuery association column:
+     * with it present, pluck() reindexes past it and a server-side ORDER BY on
+     * the isDefault column misresolves to the association alias. Dropping it
+     * keeps isDefault index-aligned so the table can sort defaults-first.
+     *
+     * @return void
+     */
+    public function getHostsDefaultList()
+    {
+        $join = [
+            'LEFT OUTER JOIN `printerAssoc` ON '
+            . "`hosts`.`hostID` = `printerAssoc`.`paHostID` "
+            . "AND `printerAssoc`.`paPrinterID` = '" . $this->obj->get('id') . "'"
+        ];
+        $columns[] = [
+            'db' => 'paIsDefault',
+            'dt' => 'isDefault'
+        ];
+        return $this->obj->getItemsList(
+            'host',
+            'printerassociation',
+            $join,
+            '`printerAssoc`.`paHostID` IS NOT NULL',
+            $columns
+        );
+    }
+    /**
      * Save the edits.
      *
      * @return void
