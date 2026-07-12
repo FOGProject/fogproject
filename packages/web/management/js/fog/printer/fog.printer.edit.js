@@ -80,107 +80,16 @@
     // HOST TAB
 
     // Host Associations
-    var printerHostUpdateBtn = $('#printer-host-send'),
-        printerHostRemoveBtn = $('#printer-host-remove'),
-        printerHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
-
-    function disableHostButtons(disable) {
-        printerHostUpdateBtn.prop('disabled', disable);
-        printerHostRemoveBtn.prop('disabled', disable);
-    }
-
-    function onHostSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableHostButtons(disabled);
-    }
-
-    printerHostUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(printerHostsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableHostButtons(false);
-            if (err) {
-                return;
-            }
-            printerHostsTable.draw(false);
+    var printerHostsTable = $.registerAssociationTab({
+        slug: 'printer-host',
+        item: 'host',
+        sub: 'getHostsList',
+        afterCommit: function() {
+            // Keep the "default settings" table in sync whenever a host
+            // association is added, removed, or toggled.
             printerHostsDefaultTable.draw(false);
-            printerHostsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    printerHostRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#hostDelModal').modal('show');
-    });
-
-    var printerHostsTable = $('#printer-host-table').registerTable(onHostSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="printerHostAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostsList&id='
-                + Common.id,
-            type: 'post'
         }
     });
-
-    printerHostDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(printerHostsTable, printerHostUpdateBtn.attr('action'), function(err) {
-            $('#hostDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            printerHostsTable.draw(false);
-            printerHostsDefaultTable.draw(false);
-            printerHostsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    printerHostsTable.on('draw', function(e) {
-        Common.iCheck('#printer-host-table input');
-        $('#printer-host-table input.associated').on('change', onPrinterHostCheckboxSelect);
-        onHostSelect(printerHostsTable.rows({selected: true}));
-    });
-
-    var onPrinterHostCheckboxSelect = function(e) {
-        $.checkItemUpdate(printerHostsTable, this, e, printerHostUpdateBtn, {}, function() {
-            printerHostsDefaultTable.draw(false);
-        });
-    };
 
     // Host Default Settings
     var printerHostDefaultUpdateBtn = $('#printer-host-default-send'),
