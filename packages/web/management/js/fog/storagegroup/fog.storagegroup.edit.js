@@ -75,7 +75,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = storagegroupImagesTable.rows({selected: true}),
             toAdd = $.getSelectedIds(storagegroupImagesTable),
             opts = {
                 confirmadd: 1,
@@ -175,7 +174,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = storagegroupImagesPrimaryTable.rows({selected: true}),
             toAdd = $.getSelectedIds(storagegroupImagesPrimaryTable),
             opts = {
                 confirmaddprimary: 1,
@@ -238,7 +236,6 @@
     storagegroupImagePrimaryDeleteConfirmBtn.on('click', function(e) {
         var action = storagegroupImagePrimaryUpdateBtn.attr('action'),
             method = storagegroupImagePrimaryUpdateBtn.attr('method'),
-            rows = storagegroupImagesPrimaryTable.rows({selected: true}),
             opts = {
                 confirmdelprimary: 1,
                 remitems: $.getSelectedIds(storagegroupImagesPrimaryTable)
@@ -306,7 +303,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = storagegroupSnapinsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(storagegroupSnapinsTable),
             opts = {
                 confirmadd: 1,
@@ -406,7 +402,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = storagegroupSnapinsPrimaryTable.rows({selected: true}),
             toAdd = $.getSelectedIds(storagegroupSnapinsPrimaryTable),
             opts = {
                 confirmaddprimary: 1,
@@ -469,7 +464,6 @@
     storagegroupSnapinPrimaryDeleteConfirmBtn.on('click', function(e) {
         var action = storagegroupSnapinPrimaryUpdateBtn.attr('action'),
             method = storagegroupSnapinPrimaryUpdateBtn.attr('method'),
-            rows = storagegroupSnapinsPrimaryTable.rows({selected: true}),
             opts = {
                 confirmdelprimary: 1,
                 remitems: $.getSelectedIds(storagegrouPSnapinsPrimaryTable)
@@ -537,7 +531,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = storagegroupStoragenodeTable.rows({selected: true}),
             toAdd = $.getSelectedIds(storagegroupStoragenodesTable),
             opts = {
                 confirmadd: 1,

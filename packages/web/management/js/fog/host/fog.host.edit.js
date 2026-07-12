@@ -669,7 +669,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = hostGroupsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(hostGroupsTable),
             opts = {
                 confirmadd: 1,
@@ -785,7 +784,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = hostPrintersTable.rows({selected: true}),
             toAdd = $.getSelectedIds(hostPrintersTable),
             opts = {
                 confirmadd: 1,
@@ -941,7 +939,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = hostSnapinsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(hostSnapinsTable),
             opts = {
                 confirmadd: 1,
@@ -1139,7 +1136,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = hostModulesTable.rows({selected: true}),
             toAdd = $.getSelectedIds(hostModulesTable),
             opts = {
                 confirmadd: 1,
@@ -1531,7 +1527,6 @@
 
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = powermanagementTable.rows({selected: true}),
             toDel = $.getSelectedIds(powermanagementTable),
             opts = {
                 pmdelete: 1,

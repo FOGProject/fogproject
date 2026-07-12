@@ -142,7 +142,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = printerHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(printerHostsTable),
             opts = {
                 confirmadd: 1,
@@ -246,7 +245,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = printerHostsDefaultTable.rows({selected: true}),
             toAdd = $.getSelectedIds(printerHostsDefaultTable),
             opts = {
                 confirmadddefault: 1,
@@ -310,7 +308,6 @@
     printerHostDefaultDeleteConfirmBtn.on('click', function(e) {
         var method = printerHostDefaultUpdateBtn.attr('method'),
             action = printerHostDefaultUpdateBtn.attr('action'),
-            rows = printerHostsDefaultTable.rows({selected: true}),
             opts = {
                 confirmdeldefault: 1,
                 remitems: $.getSelectedIds(printerHostsDefaultTable)

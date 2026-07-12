@@ -98,7 +98,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = imageHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(imageHostsTable),
             opts = {
                 confirmadd: 1,
@@ -198,7 +197,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = imageStoragegroupsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(imageStoragegroupsTable),
             opts = {
                 confirmadd: 1,

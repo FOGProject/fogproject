@@ -73,7 +73,6 @@ $(function() {
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = moduleHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(moduleHostsTable),
             opts = {
                 confirmadd: 1,

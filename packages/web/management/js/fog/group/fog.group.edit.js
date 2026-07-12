@@ -287,7 +287,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = groupHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(groupHostsTable),
             opts = {
                 confirmadd: 1,
@@ -479,7 +478,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = groupPrintersTable.rows({selected: true}),
             toAdd = $.getSelectedIds(groupPrintersTable),
             opts = {
                 confirmadd: 1,
@@ -624,7 +622,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = groupSnapinsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(groupSnapinsTable),
             opts = {
                 confirmadd: 1,
@@ -817,7 +814,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = groupModulesTable.rows({selected: true}),
             toAdd = $.getSelectedIds(groupModulesTable),
             opts = {
                 confirmadd: 1,

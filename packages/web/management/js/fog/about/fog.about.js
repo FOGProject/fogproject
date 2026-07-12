@@ -10,16 +10,4 @@
     filename = filename.replace(/\\/g, '/').replace(/.*\//, "");
     $('input[name="banner"]').val(filename);
   });
-  tokenreset();
 })(jQuery);
-function setTimeoutElement() {
-  $('button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding, #install), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
-    if ($(this).is(':visible')) {
-      $(this).on('click', function(e) {
-        form = $(this).parents('form');
-        validator = form.validate(validatorOpts);
-      });
-    }
-  });
-  setTimeout(setTimeoutElement, 1000);
-}

@@ -184,7 +184,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = snapinHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(snapinHostsTable),
             opts = {
                 confirmadd: 1,
@@ -287,7 +286,6 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = snapinStoragegroupsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(snapinStoragegroupsTable),
             opts = {
                 confirmadd: 1,
