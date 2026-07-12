@@ -435,6 +435,116 @@ $.validateForm = function(form, input) {
   }
   $(form).validateForm(input);
 };
+// Snapin command-builder UI, shared by the snapin add / edit / list-create
+// forms. All three wired the same #snapinpack / #argTypes / .snapin-action /
+// .cmdletN handlers and rebuilt the hidden .snapincmd field identically.
+// Selectors stay document-scoped exactly as the original three inline copies
+// were (each page has a single snapin form context).
+//
+// opts.packHide      - also toggle .packhide with the template class (edit form
+//                      only; add / list-create have no .packhide elements).
+// opts.wirePackTypes - wire the #packTypes -> rw/rwa handler (add + edit; the
+//                      list create-modal has no #packTypes).
+$.initSnapinCommandUI = function(opts) {
+  opts = opts || {};
+  var ACTION_VAL = -1;
+  function packchanger(packval) {
+    switch (packval) {
+      case '0':
+        $('.packnotemplate').removeClass('d-none');
+        $('.packtemplate').addClass('d-none');
+        if (opts.packHide) {
+          $('.packhide').addClass('d-none');
+        }
+        break;
+      case '1':
+        $('.packnotemplate').addClass('d-none');
+        $('.packtemplate').removeClass('d-none');
+        if (opts.packHide) {
+          $('.packhide').removeClass('d-none');
+        }
+        break;
+    }
+  }
+  function updateCmdStore() {
+    if (typeof $('.cmdlet3').val() === 'undefined') {
+      return;
+    }
+    var cmd1 = $('.cmdlet1').val(),
+      cmd2 = $('.cmdlet2').val(),
+      cmd3 = $('.cmdlet3').val(),
+      cmd4 = $('.cmdlet4').val(),
+      test = $('[type="file"]');
+    if (test.length < 1) {
+      cmd3 = $('select.cmdlet3').val();
+    } else {
+      test = test[0].files.length;
+      if (test < 1) {
+        cmd3 = $('select.cmdlet3').val();
+      } else {
+        cmd3 = $('[type="file"]')[0].files[0].name;
+      }
+    }
+    var snapCMD = [cmd1, cmd2, cmd3, cmd4];
+    $('.snapincmd').val(snapCMD.join(' '));
+  }
+  // Allow radio to change properly but also be unset as maybe the user doesn't
+  // want an action to occur after the snapin completes.
+  var onRadioSelect = function() {
+    var action = $(this).val();
+    if (ACTION_VAL === -1) {
+      ACTION_VAL = action;
+    }
+    if (action === ACTION_VAL) {
+      $(this).prop('checked', false).trigger('change');
+      ACTION_VAL = 0;
+    } else {
+      ACTION_VAL = action;
+    }
+  };
+  // Make sure selectors are select2 friendly
+  packchanger($('#snapinpack').val());
+  // Make the change when the snapin pack selector changes.
+  $('#snapinpack').on('change', function() {
+    packchanger($(this).val());
+  });
+  $('#argTypes').on('change', function() {
+    var option = $('option:selected', this),
+      value = option.attr('value'),
+      rwarg = option.attr('rwargs'),
+      args = option.attr('args'),
+      rwinp = $('input[name=rw]'),
+      rwainp = $('input[name=rwa]'),
+      argsinp = $('input[name=args]');
+    if (value) {
+      rwinp.val(value);
+    }
+    rwainp.val(rwarg);
+    argsinp.val(args);
+    updateCmdStore();
+  });
+  if (opts.wirePackTypes) {
+    $('#packTypes').on('change', function() {
+      var option = $('option:selected', this),
+        file = option.attr('file'),
+        args = option.attr('args'),
+        rwinp = $('input[name=rw]'),
+        rwainp = $('input[name=rwa]');
+      rwinp.val(file);
+      rwainp.val(args);
+    });
+  }
+  // Setup action radio selector
+  $('.snapin-action').on('click', onRadioSelect);
+  updateCmdStore();
+  $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change keyup', function(e) {
+    e.preventDefault();
+    updateCmdStore();
+  });
+  $('.cmdlet3').on('change blur', function() {
+    updateCmdStore();
+  });
+};
 /**
  * Selector required elements.
  */
