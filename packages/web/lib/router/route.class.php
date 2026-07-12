@@ -13,6 +13,13 @@
 class Route extends FOGBase
 {
     /**
+     * Muted em-dash used to render an empty list cell (no value / no
+     * associated entity) consistently across every entity list.
+     *
+     * @var string
+     */
+    const EMPTY_CELL = '<span class="text-muted">&mdash;</span>';
+    /**
      * The api setup is enabled?
      *
      * @var bool
@@ -782,7 +789,7 @@ class Route extends FOGBase
                                 if (self::validDate($d)) {
                                     return self::niceDate($d)->format('Y-m-d H:i:s');
                                 }
-                                return _('No Data');
+                                return self::EMPTY_CELL;
                             }
                         ];
                         break;
@@ -837,7 +844,7 @@ class Route extends FOGBase
                             'dt' => 'groupLink',
                             'formatter' => function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 return '<a href="../management/index.php?node=group&'
                                     . 'sub=edit&id='
@@ -858,7 +865,7 @@ class Route extends FOGBase
                             'dt' => 'hostLink',
                             'formatter' => function ($d, $row) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 return '<a href="../management/index.php?node=host&'
                                     . 'sub=edit&id='
@@ -880,7 +887,7 @@ class Route extends FOGBase
                             'dt' => 'imageLink',
                             'formatter' => function ($d, $row) use ($classname) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 switch ($classname) {
                                     case 'imaginglog':
@@ -915,7 +922,7 @@ class Route extends FOGBase
                             'dt' => 'snapinLink',
                             'formatter' => function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 return '<a href="../management/index.php?node=snapin&'
                                     . 'sub=edit&id='
@@ -932,7 +939,7 @@ class Route extends FOGBase
                             'dt' => $common,
                             'formatter' => function ($d, $row) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 return Inventory::getMemory($d);
                             }
@@ -948,7 +955,7 @@ class Route extends FOGBase
                             'dt' => 'storagegroupLink',
                             'formatter' => function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 return '<a href="../management/index.php?node=storagegroup&'
                                     . 'sub=edit&id='
@@ -969,7 +976,7 @@ class Route extends FOGBase
                             'dt' => 'storagenodeLink',
                             'formatter' => function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 return '<a href="../management/index.php?node=storagenode&'
                                     . 'sub=edit&id='
@@ -990,7 +997,7 @@ class Route extends FOGBase
                             'dt' => 'userLink',
                             'formatter' => function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
-                                    return;
+                                    return self::EMPTY_CELL;
                                 }
                                 return '<a href="../management/index.php?node=user&'
                                     . 'sub=edit&id='
@@ -1058,7 +1065,7 @@ class Route extends FOGBase
                         'dt' => 'hostLink',
                         'formatter' => function ($d, $row) {
                             if (!$d) {
-                                return;
+                                return self::EMPTY_CELL;
                             }
                             return '<a href="../management/index.php?node=host&'
                                 . 'sub=edit&id='
@@ -1221,7 +1228,7 @@ class Route extends FOGBase
                         'dt' => 'snapinLink',
                         'formatter' => function ($d, $row) {
                             if (!$d) {
-                                return;
+                                return self::EMPTY_CELL;
                             }
                             return '<a href="../management/index.php?node=snapin&'
                                 . 'sub=edit&id='
