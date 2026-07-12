@@ -692,6 +692,7 @@
 
     var hostGroupsTable = $('#host-group-table').registerTable(onGroupSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -807,6 +808,7 @@
 
     var hostPrintersTable = $('#host-printer-table').registerTable(onPrinterSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -963,6 +965,7 @@
 
     var hostSnapinsTable = $('#host-snapin-table').registerTable(onSnapinSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -1159,6 +1162,7 @@
 
     var hostModulesTable = $('#host-module-table').registerTable(onModuleSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
