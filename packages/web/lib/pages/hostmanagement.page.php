@@ -1314,28 +1314,9 @@ class HostManagement extends FOGPage
             '',
             'warning'
         );
-        echo self::makeFormTag(
-            '',
-            'host-general-form',
-            self::makeTabUpdateURL(
-                'host-general',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="card">';
-        echo '<div class="card-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo $modalreset;
-        echo $this->deleteModal();
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
+        $buttons .= $modalreset;
+
+        $this->renderGeneralForm('host', $rendered, $buttons);
     }
     /**
      * Host general post update.
