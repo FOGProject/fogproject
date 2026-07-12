@@ -6,20 +6,8 @@
   }
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $("#host").val(),
-        updateName = function(newName) {
-            var e = $("#pageTitle"),
-                text = e.text();
-            text = text.replace(": " + originalName, ": " + newName);
-            document.title = text;
-            e.text(text);
-        },
-        generalForm = $('#host-general-form'),
-        generalFormBtn = $('#general-send'),
+    var generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
-        generalDeleteModal = $('#deleteModal'),
-        generalDeleteModalConfirm = $('#confirmDeleteModal'),
-        generalDeleteModalCancel = $('#closeDeleteModal'),
         resetEncryptionBtn = $('#reset-encryption-data'),
         resetEncryptionModal = $('#resetencryptionmodal'),
         resetEncryptionCancelBtn = $('#resetencryptionCancel'),
@@ -30,41 +18,9 @@
     $('#mac').inputmask({mask: Common.masks.mac});
     $('#key').inputmask({mask: Common.masks.productKey});
 
-    generalForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    generalFormBtn.on('click', function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        generalForm.processForm(function(err) {
-            generalFormBtn.prop('disabled', false);
-            generalDeleteBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            updateName($('#host').val())
-            originalName = $('#host').val();
-        });
-    });
-    generalDeleteBtn.on('click', function() {
-        generalDeleteModal.modal('show');
-    });
-    generalDeleteModalConfirm.on('click', function() {
-        var method = 'post',
-            action = '../management/index.php?node='
-            + Common.node
-            + '&sub=delete&id='
-            + Common.id;
-        $.apiCall(method, action, null, function(err) {
-            if (err) {
-                return;
-            }
-            setTimeout(function() {
-                window.location = '../management/index.php?node='
-                    + Common.node
-                    + '&sub=list';
-            }, 2000);
-        });
+    $.registerGeneralTab({
+        nameInputSel: '#host',
+        formSel: '#host-general-form'
     });
 
     // Reset encryption confirmation modal.

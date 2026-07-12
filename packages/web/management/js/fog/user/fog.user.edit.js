@@ -1,16 +1,7 @@
 (function($) {
     // ----------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#user').val(),
-        originalDisplayName = $('.fog-user').text();
-
-    var updateName = function(newName) {
-        var e = $('#pageTitle'),
-            text = e.text();
-        text = text.replace(": " + originalName, ": " + newName);
-        document.title = text;
-        e.text(text);
-    };
+    var originalDisplayName = $('.fog-user').text();
 
     var updateDisplayName = function(newName) {
         var e = $('.fog-user'),
@@ -19,63 +10,26 @@
         e.text(text);
     };
 
-    var generalForm = $('#user-general-form'),
-        generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete'),
-        generalDeleteModal = $('#deleteModal'),
-        generalDeleteModalConfirm = $('#confirmDeleteModal'),
-        generalDeleteModalCancel = $('#closeDeleteModal');
-
-    generalForm.on('submit',function(e) {
-        e.preventDefault();
-    });
-    generalFormBtn.on('click', function(e) {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        generalForm.processForm(function(err) {
-            generalFormBtn.prop('disabled', false);
-            generalDeleteBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            newName = $('#user').val().trim();
-            anchorFields = getQueryParams($('.fog-user').attr('href'));
-            foguser = {
-                node: anchorFields['node'],
-                sub: anchorFields['sub'],
-                id: anchorFields['id']
-            };
+    $.registerGeneralTab({
+        nameInputSel: '#user',
+        formSel: '#user-general-form',
+        trimName: true,
+        onRenameSuccess: function(newName) {
+            var anchorFields = getQueryParams($('.fog-user').attr('href')),
+                foguser = {
+                    node: anchorFields['node'],
+                    sub: anchorFields['sub'],
+                    id: anchorFields['id']
+                };
             if (Common.id == foguser.id) {
-                newDisplay = $('#display').val().trim();
+                var newDisplay = $('#display').val().trim();
                 if (!newDisplay) {
                     newDisplay = newName;
                 }
                 updateDisplayName(newDisplay);
                 originalDisplayName = newDisplay;
             }
-            updateName(newName);
-            originalName = newName;
-        });
-    });
-    generalDeleteBtn.on('click', function() {
-        generalDeleteModal.modal('show');
-    });
-    generalDeleteModalConfirm.on('click', function() {
-        var method = 'post',
-            action = '../management/index.php?node='
-                + Common.node
-                + '&sub=delete&id='
-                + Common.id;
-        $.apiCall(method, action, null, function(err) {
-            if (err) {
-                return;
-            }
-            setTimeout(function() {
-                window.location = '../management/index.php?node='
-                    + Common.node
-                    + '&sub=list';
-            }, 2000);
-        });
+        }
     });
 
     // ----------------------------------------------------

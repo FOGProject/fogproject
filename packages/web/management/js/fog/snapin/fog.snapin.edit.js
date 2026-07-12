@@ -1,40 +1,8 @@
 (function($) {
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#snapin').val(),
-        updateName = function(newName) {
-            var e = $('#pageTitle'),
-                text = e.text();
-            text = text.replace(': ' + originalName, ': ' + newName);
-            document.title = text;
-            e.text(text);
-        },
-        generalForm = $('#snapin-general-form'),
-        generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete'),
-        generalDeleteModal = $('#deleteModal'),
-        generalDeleteModalConfirm = $('#confirmDeleteModal'),
-        generalDeleteModalCancel = $('#closeDeleteModal'),
-        opts = {};
+    var opts = {};
 
-    generalForm.on('submit',function(e) {
-        e.preventDefault();
-    });
-    generalFormBtn.on('click', function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        generalForm.processForm(function(err) {
-            generalFormBtn.prop('disabled', false);
-            generalDeleteBtn.prop('disabled', false);
-            if (err)
-                return;
-            updateName($('#snapin').val());
-            originalName = $('#snapin').val();
-        });
-    });
-    generalDeleteBtn.on('click', function() {
-        generalDeleteModal.modal('show');
-    });
     // Shall we delete the snapin file as well?
     $('#andFile').on('change', function(e) {
         e.preventDefault();
@@ -43,23 +11,14 @@
         }
         opts = {andFile: 1};
     });
-    generalDeleteModalConfirm.on('click', function() {
-        var method = 'post',
-            action = '../management/index.php?node='
-                + Common.node
-                + '&sub=delete&id='
-                + Common.id;
-        $('#andFile').trigger('change');
-        $.apiCall(method, action, opts, function(err) {
-            if (err) {
-                return;
-            }
-            setTimeout(function() {
-                window.location = '../management/index.php?node='
-                    + Common.node
-                    + '&sub=list';
-            }, 2000);
-        });
+
+    $.registerGeneralTab({
+        nameInputSel: '#snapin',
+        formSel: '#snapin-general-form',
+        deleteOpts: function() {
+            $('#andFile').trigger('change');
+            return opts;
+        }
     });
 
     // Shared command-builder UI (fog.common.js). Edit form has .packhide

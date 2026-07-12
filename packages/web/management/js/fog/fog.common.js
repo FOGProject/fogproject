@@ -390,6 +390,99 @@ $.registerListPage = function(opts) {
 
   return table;
 };
+// Standard "General" edit-tab wiring, duplicated across every *.edit.js:
+//   - the form's submit event is suppressed (buttons drive it);
+//   - the save button disables itself + the delete button, runs processForm,
+//     re-enables both, and on success refreshes the page title (and #pageTitle
+//     text) from the renamed entity;
+//   - the delete button opens the confirm modal, whose confirm button issues
+//     the delete apiCall and redirects back to the list.
+//
+// opts.formSel          - required; the general <form> selector.
+// opts.nameInputSel     - the name field whose value drives the title refresh.
+//                         Omit for pages with no renameable title (e.g. capone)
+//                         to skip all rename/title handling.
+// opts.sendBtn          - save button   (default '#general-send').
+// opts.deleteBtn        - delete button (default '#general-delete').
+// opts.deleteModal      - confirm modal (default '#deleteModal').
+// opts.confirmSel       - modal confirm button (default '#confirmDeleteModal').
+// opts.updateTitle      - refresh document.title on rename (default true;
+//                         storagegroup passes false to keep its existing
+//                         behavior of only updating #pageTitle text).
+// opts.trimName         - trim the name value before using it (ipxe/user).
+// opts.processTarget    - processForm's field selector (printer: ':input:visible').
+// opts.deleteOpts       - function evaluated at confirm-time returning the opts
+//                         object for the delete apiCall (group/image/snapin read
+//                         their andHosts/andFile checkbox live here).
+// opts.onRenameSuccess  - function(newName, oldName) called after a successful
+//                         save, before originalName advances, for page-specific
+//                         follow-up (user display name, printer #printercopy).
+$.registerGeneralTab = function(opts) {
+  opts = opts || {};
+  var nameInput = opts.nameInputSel ? $(opts.nameInputSel) : null,
+    form = $(opts.formSel),
+    sendBtn = $(opts.sendBtn || '#general-send'),
+    deleteBtn = $(opts.deleteBtn || '#general-delete'),
+    deleteModal = $(opts.deleteModal || '#deleteModal'),
+    deleteConfirm = $(opts.confirmSel || '#confirmDeleteModal'),
+    updateTitle = opts.updateTitle !== false,
+    trimName = opts.trimName === true,
+    originalName = nameInput ? nameInput.val() : null;
+
+  function readName() {
+    var v = nameInput.val();
+    return trimName ? v.trim() : v;
+  }
+  function refreshTitle(newName) {
+    if (!updateTitle) {
+      return;
+    }
+    var e = $('#pageTitle'),
+      text = e.text().replace(': ' + originalName, ': ' + newName);
+    document.title = text;
+    e.text(text);
+  }
+
+  form.on('submit', function(e) {
+    e.preventDefault();
+  });
+  sendBtn.on('click', function() {
+    sendBtn.prop('disabled', true);
+    deleteBtn.prop('disabled', true);
+    form.processForm(function(err) {
+      sendBtn.prop('disabled', false);
+      deleteBtn.prop('disabled', false);
+      if (err) {
+        return;
+      }
+      if (nameInput) {
+        var newName = readName();
+        refreshTitle(newName);
+        if (typeof opts.onRenameSuccess === 'function') {
+          opts.onRenameSuccess(newName, originalName);
+        }
+        originalName = newName;
+      }
+    }, opts.processTarget);
+  });
+  deleteBtn.on('click', function() {
+    deleteModal.modal('show');
+  });
+  deleteConfirm.on('click', function() {
+    var action = '../management/index.php?node=' + Common.node
+        + '&sub=delete&id=' + Common.id,
+      delOpts = (typeof opts.deleteOpts === 'function') ? opts.deleteOpts() : null;
+    $.apiCall('post', action, delOpts, function(err) {
+      if (err) {
+        return;
+      }
+      setTimeout(function() {
+        window.location = '../management/index.php?node='
+          + Common.node + '&sub=list';
+      }, 2000);
+    });
+  });
+};
 $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();

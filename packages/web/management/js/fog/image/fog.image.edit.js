@@ -1,40 +1,8 @@
 (function($) {
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#image').val(),
-        updateName = function(newName) {
-            var e = $('#pageTitle'),
-                text = e.text();
-            text = text.replace(': ' + originalName, ': ' + newName);
-            document.title = text;
-            e.text(text);
-        },
-        generalForm = $('#image-general-form'),
-        generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete'),
-        generalDeleteModal = $('#deleteModal'),
-        generalDeleteModalConfirm = $('#confirmDeleteModal'),
-        generalDeleteModalCancel = $('#closeDeleteModal'),
-        opts = {};
+    var opts = {};
 
-    generalForm.on('submit',function(e) {
-        e.preventDefault();
-    });
-    generalFormBtn.on('click', function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        generalForm.processForm(function(err) {
-            generalFormBtn.prop('disabled', false);
-            generalDeleteBtn.prop('disabled', false);
-            if (err)
-                return;
-            updateName($('#image').val());
-            originalName = $('#image').val();
-        });
-    });
-    generalDeleteBtn.on('click', function() {
-        generalDeleteModal.modal('show');
-    });
     // Should we delete the image files too?
     $('#andFile').on('change', function(e) {
         e.preventDefault();
@@ -43,23 +11,14 @@
         }
         opts = {andFile: 1};
     });
-    generalDeleteModalConfirm.on('click', function() {
-        var method = 'post',
-            action = '../management/index.php?node='
-                + Common.node
-                + '&sub=delete&id='
-                + Common.id;
-        $('#andFile').trigger('change');
-        $.apiCall(method, action, opts, function(err) {
-            if (err) {
-                return;
-            }
-            setTimeout(function() {
-                window.location = '../management/index.php?node='
-                    + Common.node
-                    + '&sub=list';
-            }, 2000);
-        });
+
+    $.registerGeneralTab({
+        nameInputSel: '#image',
+        formSel: '#image-general-form',
+        deleteOpts: function() {
+            $('#andFile').trigger('change');
+            return opts;
+        }
     });
 
     $('.imagepath-input').on('keyup change blur focus focusout', function(e) {
