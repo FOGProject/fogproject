@@ -339,13 +339,13 @@ class WindowsKeyManagement extends FOGPage
             . '" ';
 
         $buttons = self::makeButton(
-            'image-add',
+            'windowskey-image-send',
             _('Add selected'),
             'btn btn-primary float-end',
             $props
         );
         $buttons .= self::makeButton(
-            'image-remove',
+            'windowskey-image-remove',
             _('Remove selected'),
             'btn btn-danger float-start',
             $props
@@ -387,16 +387,16 @@ class WindowsKeyManagement extends FOGPage
     public function windowsKeyImagePost()
     {
         self::checkAuthAndCSRF();
-        if (isset($_POST['updateimages'])) {
+        if (isset($_POST['confirmadd'])) {
             $image = filter_input_array(
                 INPUT_POST,
                 [
-                    'image' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $image = $image['image'];
+            $image = $image['additems'];
             if (count($image ?: []) > 0) {
                 $this->obj->addImage($image);
             }
