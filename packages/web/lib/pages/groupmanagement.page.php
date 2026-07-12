@@ -1037,35 +1037,7 @@ class GroupManagement extends FOGPage
      */
     public function groupPrinterPost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $printers = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $printers = $printers['additems'];
-            if (count($printers ?: []) > 0) {
-                $this->obj->addPrinter($printers);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $printers = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $printers = $printers['remitems'];
-            if (count($printers ?: []) > 0) {
-                $this->obj->removePrinter($printers);
-            }
-        }
+        $this->assocPost('addPrinter', 'removePrinter');
         if (isset($_POST['confirmdefault'])) {
             $default = filter_input(INPUT_POST, 'default');
             $this->obj->addPrinter($default);
@@ -1467,35 +1439,7 @@ class GroupManagement extends FOGPage
      */
     public function groupModulePost()
     {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmadd'])) {
-            $modules = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $modules = $modules['additems'];
-            if (count($modules ?: [])) {
-                $this->obj->addModule($modules);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $modules = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $modules = $modules['remitems'];
-            if (count($modules ?: [])) {
-                $this->obj->removeModule($modules);
-            }
-        }
+        $this->assocPost('addModule', 'removeModule');
         if (isset($_POST['confirmdisplaysend'])) {
             $x = (int)filter_input(INPUT_POST, 'x');
             $y = (int)filter_input(INPUT_POST, 'y');
