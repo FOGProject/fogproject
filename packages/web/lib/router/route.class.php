@@ -805,17 +805,24 @@ class Route extends FOGBase
                             'db' => $real,
                             'dt' => $common,
                             'formatter' => function ($d, $row) {
-                                $socketstr = socket_strerror((int)$d);
-                                $labelType = 'danger';
-                                if ($d == 0) {
-                                    $labelType = 'success';
-                                } elseif ($d == 6) {
-                                    $labelType = 'warning';
+                                // hostPingCode: NULL/'' = never pinged,
+                                // 0 = online, any non-zero errno = unreachable.
+                                // Only "online" is worth an attention color;
+                                // an unreachable host is the normal resting
+                                // state for a managed host, so keep it neutral
+                                // and surface the specific reason as the text.
+                                if ($d === null || $d === '') {
+                                    return '<span class="badge bg-secondary">'
+                                        . _('Not pinged')
+                                        . '</span>';
                                 }
-                                return '<span class="badge bg-'
-                                    . $labelType
-                                    . '">'
-                                    . _($socketstr)
+                                if ((int)$d === 0) {
+                                    return '<span class="badge bg-success">'
+                                        . _('Online')
+                                        . '</span>';
+                                }
+                                return '<span class="badge bg-secondary">'
+                                    . _(socket_strerror((int)$d))
                                     . '</span>';
                             }
                         ];

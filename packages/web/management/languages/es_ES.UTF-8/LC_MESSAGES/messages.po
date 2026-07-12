@@ -4635,6 +4635,10 @@ msgstr ""
 msgid "Not allowed here"
 msgstr ""
 
+#, fuzzy
+msgid "Not pinged"
+msgstr "Instalador inteligente (recomendado)"
+
 msgid "Not syncing"
 msgstr ""
 
@@ -4743,6 +4747,9 @@ msgstr ""
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Error, es una imagen asociada con este anfitrión"
+
+msgid "Online"
+msgstr ""
 
 #, fuzzy
 msgid "Only allowed to have"

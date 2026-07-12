@@ -4518,6 +4518,10 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "这里不允许"
 
+#, fuzzy
+msgid "Not pinged"
+msgstr "已安装的插件"
+
 msgid "Not syncing"
 msgstr ""
 
@@ -4626,6 +4630,9 @@ msgstr ""
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "错误，与此主机关联的图像"
+
+msgid "Online"
+msgstr ""
 
 #, fuzzy
 msgid "Only allowed to have"

@@ -4523,6 +4523,10 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "Non autorisé ici"
 
+#, fuzzy
+msgid "Not pinged"
+msgstr "Plugins installés"
+
 msgid "Not syncing"
 msgstr ""
 
@@ -4631,6 +4635,9 @@ msgstr ""
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Erreur, est une image associée à cet hôte"
+
+msgid "Online"
+msgstr ""
 
 #, fuzzy
 msgid "Only allowed to have"

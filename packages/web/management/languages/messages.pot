@@ -3805,6 +3805,9 @@ msgstr ""
 msgid "Not allowed here"
 msgstr ""
 
+msgid "Not pinged"
+msgstr ""
+
 msgid "Not syncing"
 msgstr ""
 
@@ -3895,6 +3898,9 @@ msgid ""
 msgstr ""
 
 msgid "One or more macs are associated with a host"
+msgstr ""
+
+msgid "Online"
 msgstr ""
 
 msgid "Only allowed to have"

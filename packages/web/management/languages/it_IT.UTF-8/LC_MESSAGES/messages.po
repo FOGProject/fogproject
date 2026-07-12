@@ -4328,6 +4328,10 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "Non ammessi qui"
 
+#, fuzzy
+msgid "Not pinged"
+msgstr "Non sincronizzo"
+
 msgid "Not syncing"
 msgstr "Non sincronizzo"
 
@@ -4433,6 +4437,9 @@ msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "Uno o più MAC sono associati a questo host"
+
+msgid "Online"
+msgstr ""
 
 msgid "Only allowed to have"
 msgstr "Permesso solo di avere"
