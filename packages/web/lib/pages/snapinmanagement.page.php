@@ -225,7 +225,7 @@ class SnapinManagement extends FOGPage
         ob_start();
         array_map(self::$buildSelectBox, $filelist);
         $selectFiles = '<select class='
-            . '"snapinfileexist-input cmdlet3 form-control" '
+            . '"snapinfileexist-input cmdlet3 form-control fog-select2" '
             . 'name="snapinfileexist" id="snapinfileexist">'
             . '<option value="">- '
             . _('Please select an option')
@@ -705,7 +705,7 @@ class SnapinManagement extends FOGPage
         ob_start();
         array_map(self::$buildSelectBox, $filelist);
         $selectFiles = '<select class='
-            . '"snapinfileexist-input cmdlet3 form-control" '
+            . '"snapinfileexist-input cmdlet3 form-control fog-select2" '
             . 'name="snapinfileexist" id="snapinfileexist">'
             . '<option value="">- '
             . _('Please select an option')

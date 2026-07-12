@@ -162,7 +162,6 @@
     $('.cmdlet3').on('change blur', function(e) {
         updateCmdStore();
     });
-    $('#snapinfileexist').select2({width: '100%'});
     // ASSOCIATIONS
     // ---------------------------------------------------------------
     // HOST TAB

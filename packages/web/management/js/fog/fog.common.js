@@ -112,6 +112,17 @@ $.apiCall = function(method, action, data, cb, processData) {
 $.capitalizeFirstLetter = function(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+// HTML-escape a value for safe insertion into DataTables render strings.
+// Regex version shared by the task and report pages. (host.edit.js keeps its
+// own DOM-textNode variant, which has different quote/null semantics.)
+$.escapeHtml = function(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 // Fill only the keys of obj that are undefined from src (drop-in for the
 // single lodash symbol FOG used, _.defaults; mutates and returns obj).
 $.fogDefaults = function(obj, src) {

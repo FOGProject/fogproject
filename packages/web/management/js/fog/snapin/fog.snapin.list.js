@@ -185,7 +185,6 @@
     $('.cmdlet3').on('change blur', function(e) {
         updateCmdStore();
     });
-    $('#snapinfileexist').select2({width: '100%'});
     deleteSelected.on('click', function() {
         disableButtons(true);
         $.deleteSelected(table, function(err) {

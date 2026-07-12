@@ -6,15 +6,6 @@
     return;
   }
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   // ---------------------------------------------------------------
   // PANE REGISTRY
   //
@@ -109,28 +100,28 @@
         {
           responsivePriority: -1,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + escapeHtml(data) + '</a>';
+            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 0
         },
         {
           responsivePriority: 0,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + escapeHtml(data) + '</a>';
+            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 1
         },
         {
           responsivePriority: 1,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeid + '">' + escapeHtml(data) + '</a>';
+            return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 2
         },
         {
           responsivePriority: 2,
           render: function(data, type, row) {
-            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + escapeHtml(data) + '</a>';
+            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 3
         },
@@ -169,15 +160,15 @@
             } else {
               data = parseInt(row.pct);
             }
-            return escapeHtml(row.timeElapsed)
+            return $.escapeHtml(row.timeElapsed)
               + ' / '
-              + escapeHtml(row.timeRemaining)
+              + $.escapeHtml(row.timeRemaining)
               + ' '
-              + escapeHtml(row.dataCopied)
+              + $.escapeHtml(row.dataCopied)
               + ' of '
-              + escapeHtml(row.dataTotal)
+              + $.escapeHtml(row.dataTotal)
               + ' ('
-              + escapeHtml(row.bpm)
+              + $.escapeHtml(row.bpm)
               + '/min)'
               + '<div class="progress progress-md active">'
               + '<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="'
@@ -342,9 +333,9 @@
           responsivePriority: -1,
           render: function(data, type, row) {
             if (!row.hostid) {
-              return escapeHtml(data);
+              return $.escapeHtml(data);
             }
-            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + escapeHtml(data) + '</a>';
+            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 0
         },
@@ -352,32 +343,32 @@
           responsivePriority: 1,
           render: function(data, type, row) {
             if (!row.imageid) {
-              return escapeHtml(data);
+              return $.escapeHtml(data);
             }
-            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + escapeHtml(data) + '</a>';
+            return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 1
         },
         {
           render: function(data, type, row) {
-            return escapeHtml(data || '')
-              + ' <i class="fa fa-' + escapeHtml(row.tasktypeicon || '') + '"></i> ';
+            return $.escapeHtml(data || '')
+              + ' <i class="fa fa-' + $.escapeHtml(row.tasktypeicon || '') + '"></i> ';
           },
           targets: 2
         },
         {
           render: function(data, type, row) {
             if (!row.userid) {
-              return escapeHtml(data);
+              return $.escapeHtml(data);
             }
-            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + escapeHtml(data) + '</a>';
+            return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 3
         },
         {
           render: function(data, type, row) {
-            return escapeHtml(data || '')
-              + ' <i class="fa fa-' + escapeHtml(row.taskstateicon || '') + '"></i> ';
+            return $.escapeHtml(data || '')
+              + ' <i class="fa fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i> ';
           },
           targets: 4
         },
@@ -396,7 +387,7 @@
               + row.hostid
               + '&type=' + row.typeID
               + '" class="taskitem" data-task-name="'
-              + escapeHtml(row.tasktypename + ' - ' + row.hostname)
+              + $.escapeHtml(row.tasktypename + ' - ' + row.hostname)
               + '" title="Run this task again">'
               + '<i class="fa fa-repeat"></i>'
               + '</a>';

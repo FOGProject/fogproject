@@ -1,13 +1,4 @@
 (function($) {
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   var reportString = window.atob(Common.f),
     reportButtons = [
       {
@@ -352,13 +343,13 @@
             {
               data: 'productKey',
               render: function(data) {
-                return escapeHtml(data);
+                return $.escapeHtml(data);
               }
             }
           ],
           rowGroup: {
             dataSrc: function(row) {
-              return escapeHtml(row.productKey);
+              return $.escapeHtml(row.productKey);
             }
           },
           rowId: 'id',
