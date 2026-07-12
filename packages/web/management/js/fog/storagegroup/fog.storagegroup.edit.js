@@ -421,7 +421,7 @@
             method = storagegroupSnapinPrimaryUpdateBtn.attr('method'),
             opts = {
                 confirmdelprimary: 1,
-                remitems: $.getSelectedIds(storagegrouPSnapinsPrimaryTable)
+                remitems: $.getSelectedIds(storagegroupSnapinsPrimaryTable)
             };
         $.apiCall(method,action,opts,function(err) {
             $('#unsetSnapinPrimaryModal').modal('hide');
