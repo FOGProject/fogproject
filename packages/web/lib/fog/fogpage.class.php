@@ -1157,6 +1157,7 @@ abstract class FOGPage extends FOGBase
      * @param string $footer The footer of the modal.
      * @param string $class  The class to assign the modal.
      * @param string $type   The type of the modal.
+     * @param string $size   Optional modal-dialog size class (e.g. modal-lg).
      *
      * @return string
      */
@@ -1166,7 +1167,8 @@ abstract class FOGPage extends FOGBase
         $body,
         $footer,
         $class = '',
-        $type = 'default'
+        $type = 'default',
+        $size = ''
     ) {
         ob_start();
         echo '<div class="modal modal-'
@@ -1180,7 +1182,9 @@ abstract class FOGPage extends FOGBase
             . '" style="display: none;" id="'
             . $id
             . '">';
-        echo '<div class="modal-dialog">';
+        echo '<div class="modal-dialog'
+            . ($size ? ' ' . $size : '')
+            . '">';
         echo '<div class="modal-content">';
         echo '<div class="modal-header">';
         echo $header;
@@ -1263,7 +1267,8 @@ abstract class FOGPage extends FOGBase
                                 'btn btn-primary float-end'
                             ),
                             '',
-                            'primary'
+                            'primary',
+                            'modal-lg'
                         );
                     }
                     if ($node == 'host') {

@@ -429,6 +429,9 @@ trait FOGPageRender
      * @param string      $entityKey   payload key for the entity class
      * @param string|null $entityClass class to instantiate (defaults to key)
      * @param string      $enctype     form enctype, default urlencoded
+     * @param callable    $extra       optional callback returning extra HTML
+     *                                 to emit inside the form after the fields
+     *                                 (e.g. host's Active Directory section)
      *
      * @return void
      */
@@ -437,7 +440,8 @@ trait FOGPageRender
         $hookEvent,
         $entityKey,
         $entityClass = null,
-        $enctype = 'application/x-www-form-urlencoded'
+        $enctype = 'application/x-www-form-urlencoded',
+        $extra = null
     ) {
         $fields = $this->_addFields();
 
@@ -460,6 +464,9 @@ trait FOGPageRender
             true
         );
         echo $rendered;
+        if (is_callable($extra)) {
+            echo $extra();
+        }
         echo '</form>';
     }
 

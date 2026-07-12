@@ -696,6 +696,53 @@ class HostManagement extends FOGPage
      */
     public function addModal()
     {
+        $this->renderAddModalForm(
+            'host',
+            'HOST_ADD_FIELDS',
+            'Host',
+            null,
+            'application/x-www-form-urlencoded',
+            function () {
+                $domain = filter_input(INPUT_POST, 'domain');
+                $domainname = filter_input(INPUT_POST, 'domainname');
+                $ou = filter_input(INPUT_POST, 'ou');
+                $domainuser = filter_input(INPUT_POST, 'domainuser');
+                $domainpassword = filter_input(INPUT_POST, 'domainpassword');
+
+                $fieldads = $this->adFieldsToDisplay(
+                    $domain,
+                    $domainname,
+                    $ou,
+                    $domainuser,
+                    $domainpassword,
+                    false,
+                    true
+                );
+                self::$HookManager->processEvent(
+                    'HOST_ADD_AD_FIELDS',
+                    [
+                        'fields' => &$fieldads,
+                        'Host' => self::getClass('Host')
+                    ]
+                );
+                $renderedad = self::formFields($fieldads);
+                unset($fieldads);
+
+                return '<hr/>'
+                    . '<h4 class="card-title">'
+                    . _('Active Directory')
+                    . '</h4>'
+                    . $renderedad;
+            }
+        );
+    }
+    /**
+     * Builds the create-host form fields (main section, sans AD).
+     *
+     * @return array
+     */
+    protected function _addFields()
+    {
         // Check all the post fields if they've already been set.
         $host = filter_input(INPUT_POST, 'host');
         $mac = filter_input(INPUT_POST, 'mac');
@@ -706,11 +753,6 @@ class HostManagement extends FOGPage
         $args = filter_input(INPUT_POST, 'args');
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
-        $domain = filter_input(INPUT_POST, 'domain');
-        $domainname = filter_input(INPUT_POST, 'domainname');
-        $ou = filter_input(INPUT_POST, 'ou');
-        $domainuser = filter_input(INPUT_POST, 'domainuser');
-        $domainpassword = filter_input(INPUT_POST, 'domainpassword');
         $enforce = isset($_POST['enforce']) ?: self::getSetting(
             'FOG_ENFORCE_HOST_CHANGES'
         );
@@ -719,7 +761,7 @@ class HostManagement extends FOGPage
 
         $labelClass = 'col-sm-3 col-form-label';
 
-        $fields = [
+        return [
             self::makeLabel(
                 $labelClass,
                 'host',
@@ -862,52 +904,6 @@ class HostManagement extends FOGPage
                 _('Host EFI Exit Type')
             ) => $this->exitEfi
         ];
-
-        self::$HookManager->processEvent(
-            'HOST_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Host' => self::getClass('Host')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $fieldads = $this->adFieldsToDisplay(
-            $domain,
-            $domainname,
-            $ou,
-            $domainuser,
-            $domainpassword,
-            false,
-            true
-        );
-
-        self::$HookManager->processEvent(
-            'HOST_ADD_AD_FIELDS',
-            [
-                'fields' => &$fieldads,
-                'Host' => self::getClass('Host')
-            ]
-        );
-        $renderedad = self::formFields($fieldads);
-        unset($fieldads);
-
-        echo self::makeFormTag(
-            '',
-            'create-form',
-            '../management/index.php?node=host&sub=add',
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '<hr/>';
-        echo '<h4 class="card-title">';
-        echo _('Active Directory');
-        echo '</h4>';
-        echo $renderedad;
-        echo '</form>';
     }
     /**
      * Handles the forum submission process.
