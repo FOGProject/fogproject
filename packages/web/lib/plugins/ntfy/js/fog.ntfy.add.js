@@ -1,13 +1,3 @@
 (function($) {
-    var createForm = $('#ntfy-create-form'),
-        createFormBtn = $('#send');
-    createForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    createFormBtn.on('click', function() {
-        createFormBtn.prop('disabled', true);
-        createForm.processForm(function(err) {
-            createFormBtn.prop('disabled', false);
-        });
-    });
+    $('#ntfy-create-form').wireCreateForm();
 })(jQuery);

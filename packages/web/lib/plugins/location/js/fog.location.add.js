@@ -1,17 +1,7 @@
 (function($) {
-    var createForm = $('#location-create-form'),
-        createFormBtn = $('#send'),
-        groupSelector = $('#storagegroup'),
+    var groupSelector = $('#storagegroup'),
         nodeSelector = $('#storagenode');
-    createForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    createFormBtn.on('click', function() {
-        createFormBtn.prop('disabled', true);
-        createForm.processForm(function(err) {
-            createFormBtn.prop('disabled', false);
-        });
-    });
+    $('#location-create-form').wireCreateForm();
     // Sets the group selector for the selected node.
     nodeSelector.on('change focus focusout', function(e) {
         e.preventDefault();

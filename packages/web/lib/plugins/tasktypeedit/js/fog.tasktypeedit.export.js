@@ -1,64 +1,13 @@
 (function($) {
-    var exportTable = $('#tasktypeedit-export-table').registerTable(null, {
-        buttons: exportButtons,
-        order: [
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'name'}, // 0
-            {data: 'description'}, // 1
-            {data: 'icon'}, // 2
-            {data: 'kernel'}, // 3
-            {data: 'kernelArgs'}, // 4
-            {data: 'type'}, // 5
-            {data: 'isAdvanced'}, // 6
-            {data: 'access'}, // 7
-            {data: 'initrd'} // 8
-        ],
-        columnDefs: [
-            {
-                targets: 1,
-                visible: false
-            },
-            {
-                targets: 2,
-                visible: false
-            },
-            {
-                targets: 3,
-                visible: false
-            },
-            {
-                targets: 4,
-                visible: false
-            },
-            {
-                targets: 5,
-                visible: false
-            },
-            {
-                targets: 6,
-                visible: false
-            },
-            {
-                targets: 8,
-                visible: false
-            }
-        ],
-        rowId: 'id',
-        processing: true,
-        serverSide: true,
-        select: false,
-        ajax: {
-            url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getExportList',
-            type: 'post'
-        }
-    });
-
-    // Enable searching
-    if (Common.search && Common.search.length > 0) {
-        exportTable.search(Common.search).draw();
-    }
+    $('#tasktypeedit-export-table').registerExportTable([
+        {data: 'name'},
+        {data: 'description', visible: false},
+        {data: 'icon', visible: false},
+        {data: 'kernel', visible: false},
+        {data: 'kernelArgs', visible: false},
+        {data: 'type', visible: false},
+        {data: 'isAdvanced', visible: false},
+        {data: 'access'},
+        {data: 'initrd', visible: false}
+    ]);
 })(jQuery);

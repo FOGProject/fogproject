@@ -1,19 +1,9 @@
 (function($) {
-    var createForm = $('#ldap-create-form'),
-        createFormBtn = $('#send'),
-        templateSel = $('#template'),
+    var templateSel = $('#template'),
         userNameAttr = $('#userNameAttr'),
         groupNameAttr = $('#groupNameAttr'),
         grpMemberAttr = $('#grpMemberAttr');
-    createForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    createFormBtn.on('click', function() {
-        createFormBtn.prop('disabled', true);
-        createForm.processForm(function(err) {
-            createFormBtn.prop('disabled', false);
-        });
-    });
+    $('#ldap-create-form').wireCreateForm();
     templateSel.on('change blur focus focusout', function(e) {
         e.preventDefault();
         selected = this.value;
