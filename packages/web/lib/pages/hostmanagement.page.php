@@ -3721,11 +3721,7 @@ class HostManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),

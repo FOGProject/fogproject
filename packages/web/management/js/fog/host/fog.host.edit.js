@@ -1700,7 +1700,7 @@
         powermanagementTable.search(Common.search).draw();
         // History
         hostHistoryLoginTable.search(Common.search).draw();
-        hostHistorymageTable.search(Common.search).draw();
+        hostHistoryImageTable.search(Common.search).draw();
         hostHistorySnapinTable.search(Common.search).draw();
     }
 })(jQuery);
