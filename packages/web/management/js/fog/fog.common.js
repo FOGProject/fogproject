@@ -469,6 +469,52 @@ $.fn.processForm = function(cb, input) {
     }
   }, false);
 };
+
+/**
+ * Wire an entity create form's #send button.
+ *
+ * Every add page renders a create form plus a single #send button and wired it
+ * one of two ways, which this preserves via opts.mode:
+ *   - 'disable' (default): disable #send, processForm(), re-enable on completion.
+ *     Used by group/host/image/module/printer/snapin/storagegroup/storagenode.
+ *   - 'clear': processForm(), and on success wipe every input so the form is
+ *     ready for the next entry. Used by the pages meant for adding many rows in
+ *     a row -- user/usergroup/role/ipxe.
+ * disableFormDefaults() already prevents the form's native submit, so the
+ * per-file submit->preventDefault bind is dropped as redundant. Each add page's
+ * DOM (and thus #send) is torn down and rebuilt on every visit, so the click
+ * bind here does not stack across navs and needs no namespace.
+ *
+ * @param {Object} opts optional: {mode:'disable'|'clear', selector} where
+ *                       selector is the processForm validate filter (printer
+ *                       passes ':input:visible' so only the shown type-section
+ *                       is validated).
+ * @return {jQuery} this
+ */
+$.fn.wireCreateForm = function(opts) {
+  opts = opts || {};
+  var createForm = this,
+    createFormBtn = $('#send'),
+    clear = (opts.mode === 'clear'),
+    selector = opts.selector;
+  createFormBtn.on('click', function() {
+    if (clear) {
+      createForm.processForm(function(err) {
+        if (err) {
+          return;
+        }
+        $(':input').val('');
+      }, selector);
+      return;
+    }
+    createFormBtn.prop('disabled', true);
+    createForm.processForm(function(err) {
+      createFormBtn.prop('disabled', false);
+    }, selector);
+  });
+  return this;
+};
+
 $.fn.registerModal = function(onOpen, onClose, opts) {
   var e = this;
   if (e._modalInit === undefined || !e._modalInit) {
@@ -779,6 +825,41 @@ $.fn.registerTable = function(onSelect, opts) {
     });
   }
 
+  return table;
+};
+/**
+ * Build an export-list DataTable.
+ *
+ * Every *.export.js page built the same server-side, non-selectable table off
+ * the shared exportButtons and the getExportList endpoint -- only the table's
+ * column list and default sort ever differed. This owns that shared envelope so
+ * each page is a single call: pass the columns (mark hidden ones with
+ * visible:false, as DataTables columns support directly) and, optionally, a
+ * non-default sort. The Common.search deep-link is wired the same way here that
+ * every page wired it by hand.
+ *
+ * @param {Array}  columns DataTables column defs ({data:'x'[, visible:false]})
+ * @param {Object} opts    optional overrides: {order}
+ * @return {DataTable}
+ */
+$.fn.registerExportTable = function(columns, opts) {
+  opts = opts || {};
+  var table = this.registerTable(null, {
+    buttons: exportButtons,
+    order: opts.order || [[0, 'asc']],
+    columns: columns,
+    rowId: 'id',
+    processing: true,
+    serverSide: true,
+    select: false,
+    ajax: {
+      url: '../management/index.php?node=' + Common.node + '&sub=getExportList',
+      type: 'post'
+    }
+  });
+  if (Common.search && Common.search.length > 0) {
+    table.search(Common.search).draw();
+  }
   return table;
 };
 /**
@@ -1093,6 +1174,7 @@ function reinitialize() {
     });
   });
   disableFormDefaults();
+  wireImportForm();
   setupPasswordReveal();
   setupUniversalSearch();
 };
@@ -1316,6 +1398,31 @@ function disableFormDefaults() {
   forms.forEach(function(form) {
     $(form).on('submit',function(e) {
       e.preventDefault();
+    });
+  });
+}
+
+/**
+ * Wire the CSV import form.
+ *
+ * Every node's import page renders the same #import-form / #import-send pair and
+ * nine byte-identical *.import.js files wired it the same way: disable the send
+ * button, processForm(), re-enable on completion. That wiring lives here now and
+ * self-activates whenever an import form is present. disableFormDefaults() (run
+ * just above in reinitialize) already prevents the form's native submit, so the
+ * per-file submit->preventDefault bind is dropped as redundant. Namespaced and
+ * rebound each reinitialize() so it never stacks across AJAX navs.
+ */
+function wireImportForm() {
+  var importForm = $('#import-form'),
+    importFormBtn = $('#import-send');
+  if (!importForm.length || !importFormBtn.length) {
+    return;
+  }
+  importFormBtn.off('click.fogImport').on('click.fogImport', function() {
+    importFormBtn.prop('disabled', true);
+    importForm.processForm(function(err) {
+      importFormBtn.prop('disabled', false);
     });
   });
 }

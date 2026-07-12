@@ -1,17 +1,7 @@
 (function($) {
-    var createForm = $('#snapin-create-form'),
-        createFormBtn = $('#send'),
-        packval = $('#snapinpack').val(),
+    var packval = $('#snapinpack').val(),
         ACTION_VAL = -1;
-    createForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    createFormBtn.on('click', function() {
-        createFormBtn.prop('disabled', true);
-        createForm.processForm(function(err) {
-            createFormBtn.prop('disabled', false);
-        });
-    });
+    $('#snapin-create-form').wireCreateForm();
 
     // Setup the changer as a function so I'm not typing
     // the same information twice in the same file.

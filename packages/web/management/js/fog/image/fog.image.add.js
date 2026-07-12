@@ -1,15 +1,5 @@
 (function($) {
-    var createForm = $('#image-create-form'),
-        createFormBtn = $('#send');
-    createForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    createFormBtn.on('click', function() {
-        createFormBtn.prop('disabled', true);
-        createForm.processForm(function(err) {
-            createFormBtn.prop('disabled', false);
-        });
-    });
+    $('#image-create-form').wireCreateForm();
     $('.imagepath-input').on('keyup change blur focus focusout', function(e) {
         var start = this.selectionStart,
             end = this.selectionEnd;

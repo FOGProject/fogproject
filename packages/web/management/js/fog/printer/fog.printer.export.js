@@ -1,84 +1,17 @@
 (function($) {
-    var exportTable = $('#printer-export-table').registerTable(null, {
-        buttons: exportButtons,
-        order: [
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'name'},
-            {data: 'description'},
-            {data: 'port'},
-            {data: 'file'},
-            {data: 'model'},
-            {data: 'config'},
-            {data: 'configFile'},
-            {data: 'ip'},
-            {data: 'pAnon2'},
-            {data: 'pAnon3'},
-            {data: 'pAnon4'},
-            {data: 'pAnon5'},
-            {data: 'associations'} // 12
-        ],
-        columnDefs: [
-            {
-                targets: 1,
-                visible: false
-            },
-            {
-                targets: 2,
-                visible: false
-            },
-            {
-                targets: 3,
-                visible: false
-            },
-            {
-                targets: 4,
-                visible: false
-            },
-            {
-                targets: 6,
-                visible: false
-            },
-            {
-                targets: 7,
-                visible: false
-            },
-            {
-                targets: 8,
-                visible: false
-            },
-            {
-                targets: 9,
-                visible: false
-            },
-            {
-                targets: 10,
-                visible: false
-            },
-            {
-                targets: 11,
-                visible: false
-            },
-            {
-                targets: 12,
-                visible: false
-            }
-        ],
-        rowId: 'id',
-        processing: true,
-        serverSide: true,
-        select: false,
-        ajax: {
-            url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getExportList',
-            type: 'post'
-        }
-    });
-
-    // Enable searching
-    if (Common.search && Common.search.length > 0) {
-        exportTable.search(Common.search).draw();
-    }
+    $('#printer-export-table').registerExportTable([
+        {data: 'name'},
+        {data: 'description', visible: false},
+        {data: 'port', visible: false},
+        {data: 'file', visible: false},
+        {data: 'model', visible: false},
+        {data: 'config'},
+        {data: 'configFile', visible: false},
+        {data: 'ip', visible: false},
+        {data: 'pAnon2', visible: false},
+        {data: 'pAnon3', visible: false},
+        {data: 'pAnon4', visible: false},
+        {data: 'pAnon5', visible: false},
+        {data: 'associations', visible: false}
+    ]);
 })(jQuery);

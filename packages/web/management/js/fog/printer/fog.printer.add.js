@@ -1,7 +1,5 @@
 (function($) {
-    var createForm = $('#printer-create-form'),
-        createFormBtn = $('#send'),
-        printertype = $('#printertype'),
+    var printertype = $('#printertype'),
         printercopy = $('#printercopy');
     // Show only the selected type's section. Hidden sections are disabled so
     // their inputs stay out of the submitted FormData and out of validation.
@@ -47,15 +45,7 @@
             }
         );
     }
-    createForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    createFormBtn.on('click', function() {
-        createFormBtn.prop('disabled', true);
-        createForm.processForm(function(err) {
-            createFormBtn.prop('disabled', false);
-        }, ':input:visible');
-    });
+    $('#printer-create-form').wireCreateForm({selector: ':input:visible'});
     showType(printertype.val().toLowerCase());
     printertype.on('change', function(e) {
         e.preventDefault();

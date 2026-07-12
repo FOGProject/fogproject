@@ -1,14 +1,3 @@
-(function($) {
-    var importFile = $('#importfile'),
-        importForm = $('#import-form'),
-        importFormBtn = $('#import-send');
-    importForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    importFormBtn.on('click', function() {
-        importFormBtn.prop('disabled', true);
-        importForm.processForm(function(err) {
-            importFormBtn.prop('disabled', false);
-        });
-    });
-})(jQuery);
+// Import form wiring is shared: wireImportForm() in fog.common.js activates for
+// any page rendering #import-form/#import-send. Kept as a stub so the JS loader
+// serves this file rather than falling back to fog.subnetgroup.list.js.
