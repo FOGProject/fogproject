@@ -487,103 +487,72 @@ class PrinterManagement extends FOGPage
      */
     public function addPost()
     {
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('PRINTER_ADD_POST');
-        $printer = trim(
-            (string)filter_input(INPUT_POST, 'printer')
-        );
-        $description = trim(
-            (string)filter_input(INPUT_POST, 'description')
-        );
-        $port = trim(
-            (string)filter_input(INPUT_POST, 'port')
-        );
-        $inf = trim(
-            (string)filter_input(INPUT_POST, 'inf')
-        );
-        $ip = trim(
-            (string)filter_input(INPUT_POST, 'ip')
-        );
-        $config = trim(
-            (string)filter_input(INPUT_POST, 'printertype')
-        );
-        $configFile = trim(
-            (string)filter_input(INPUT_POST, 'configFile')
-        );
-        $model = trim(
-            (string)filter_input(INPUT_POST, 'model')
-        );
+        $this->handleAddPost(
+            'Printer',
+            'PRINTER_ADD',
+            _('Printer added!'),
+            _('Printer Create Success'),
+            _('Printer Create Fail'),
+            function (&$serverFault) {
+                $printer = trim(
+                    (string)filter_input(INPUT_POST, 'printer')
+                );
+                $description = trim(
+                    (string)filter_input(INPUT_POST, 'description')
+                );
+                $port = trim(
+                    (string)filter_input(INPUT_POST, 'port')
+                );
+                $inf = trim(
+                    (string)filter_input(INPUT_POST, 'inf')
+                );
+                $ip = trim(
+                    (string)filter_input(INPUT_POST, 'ip')
+                );
+                $config = trim(
+                    (string)filter_input(INPUT_POST, 'printertype')
+                );
+                $configFile = trim(
+                    (string)filter_input(INPUT_POST, 'configFile')
+                );
+                $model = trim(
+                    (string)filter_input(INPUT_POST, 'model')
+                );
 
-        $Printer = null;
-        $serverFault = false;
-        try {
-            if ($printer === '') {
-                throw new Exception(
-                    _('Please enter a printer name.')
-                );
+                if ($printer === '') {
+                    throw new Exception(
+                        _('Please enter a printer name.')
+                    );
+                }
+                $exists = self::getClass('PrinterManager')
+                    ->exists($printer);
+                if ($exists) {
+                    throw new Exception(
+                        _('A printer already exists with this name!')
+                    );
+                }
+                $printertype = $this->_normalizePrinterType($config);
+                $port = $this->_defaultPrinterPort($printertype, $port);
+                if ($printertype === 'Local' && $ip === '') {
+                    throw new Exception(
+                        _('A TCP/IP port printer requires an IP address or hostname.')
+                    );
+                }
+                $Printer = self::getClass('Printer')
+                    ->set('name', $printer)
+                    ->set('description', $description)
+                    ->set('config', $printertype)
+                    ->set('model', $model)
+                    ->set('port', $port)
+                    ->set('file', $inf)
+                    ->set('configFile', $configFile)
+                    ->set('ip', $ip);
+                if (!$Printer->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Add printer failed!'));
+                }
+                return $Printer;
             }
-            $exists = self::getClass('PrinterManager')
-                ->exists($printer);
-            if ($exists) {
-                throw new Exception(
-                    _('A printer already exists with this name!')
-                );
-            }
-            $printertype = $this->_normalizePrinterType($config);
-            $port = $this->_defaultPrinterPort($printertype, $port);
-            if ($printertype === 'Local' && $ip === '') {
-                throw new Exception(
-                    _('A TCP/IP port printer requires an IP address or hostname.')
-                );
-            }
-            $Printer = self::getClass('Printer')
-                ->set('name', $printer)
-                ->set('description', $description)
-                ->set('config', $printertype)
-                ->set('model', $model)
-                ->set('port', $port)
-                ->set('file', $inf)
-                ->set('configFile', $configFile)
-                ->set('ip', $ip);
-            if (!$Printer->save()) {
-                $serverFault = true;
-                throw new Exception(_('Add printer failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'PRINTER_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Printer added!'),
-                    'title' => _('Printer Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'PRINTER_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Printer Create Fail')
-                ]
-            );
-        }
-        //header(
-        //    'Location: ../management/index.php?node=printer&sub=edit&id='
-        //    . $Printer->get('id')
-        //);
-        $this->jsonHookResponse(
-            [
-                'Printer' => &$Printer,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
     /**
@@ -828,34 +797,7 @@ class PrinterManagement extends FOGPage
      */
     public function printerHostPost()
     {
-        if (isset($_POST['confirmadd'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'additems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['additems'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->addHost($hosts);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['remitems'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->removeHost($hosts);
-            }
-        }
+        $this->assocPost('addHost', 'removeHost');
         if (isset($_POST['confirmadddefault'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
