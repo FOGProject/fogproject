@@ -894,58 +894,27 @@ class PrinterManagement extends FOGPage
      */
     public function editPost()
     {
-        header('Content-type: application/json');
-        self::$HookManager->processEvent(
-            'PRINTER_EDIT_POST',
-            ['Printer' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-                case 'printer-general':
-                    $this->printerGeneralPost();
-                    break;
-                case 'printer-host':
-                    $this->printerHostPost();
-                    break;
+        $this->handleEditPost(
+            'Printer',
+            'PRINTER_EDIT',
+            _('Printer updated!'),
+            _('Printer Update Success'),
+            _('Printer Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'printer-general':
+                        $this->printerGeneralPost();
+                        break;
+                    case 'printer-host':
+                        $this->printerHostPost();
+                        break;
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Printer update failed!'));
+                }
             }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Printer update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'PRINTER_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Printer updated!'),
-                    'title' => _('Printer Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'PRINTER_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Printer Update Fail')
-                ]
-            );
-        }
-        $this->jsonHookResponse(
-            [
-                'Printer' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
         );
     }
 }
