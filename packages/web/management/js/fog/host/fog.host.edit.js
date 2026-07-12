@@ -607,214 +607,25 @@
     // ASSOCIATIONS
     // ---------------------------------------------------------------
     // GROUP ASSOCIATION TAB
-    var hostGroupUpdateBtn = $('#host-group-send'),
-        hostGroupRemoveBtn = $('#host-group-remove'),
-        hostGroupDeleteConfirmBtn = $('#confirmgroupDeleteModal');
-
-    function disableGroupButtons(disable) {
-        hostGroupUpdateBtn.prop('disabled', disable);
-        hostGroupRemoveBtn.prop('disabled', disable);
-    }
-
-    function onGroupSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableGroupButtons(disabled);
-    }
-
-    hostGroupUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(hostGroupsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableGroupButtons(false);
-            if (err) {
-                return;
-            }
-            hostGroupsTable.draw(false);
-            hostGroupsTable.rows({selected: true}).deselect();
-        })
+    var hostGroupsTable = $.registerAssociationTab({
+        slug: 'host-group',
+        item: 'group',
+        sub: 'getGroupsList'
     });
-
-    hostGroupRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#groupDelModal').modal('show');
-    });
-
-    var hostGroupsTable = $('#host-group-table').registerTable(onGroupSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="hostGroupAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getGroupsList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    hostGroupDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(hostGroupsTable, hostGroupUpdateBtn.attr('action'), function(err) {
-            $('#groupDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            hostGroupsTable.draw(false);
-            hostGroupsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    // Wire an association table's per-row checkbox toggles to an immediate
-    // save, re-applying form-check styling and the selection summary on every
-    // redraw. onChange (optional) fires after each toggle for tabs that mirror
-    // a side panel from the association state (e.g. the snapin run order).
-    function setupHostAssoc(table, tableSel, updateBtn, onSelect, onChange) {
-        function changeHandler(e) {
-            // Pass onChange as the post-commit callback (not a synchronous call)
-            // so any dependent panel (e.g. the snapin run order) refreshes after
-            // the association save commits, not before. Firing it here would race
-            // the save and leave the panel one toggle stale.
-            $.checkItemUpdate(table, this, e, updateBtn, undefined, onChange);
-        }
-        table.on('draw', function() {
-            Common.iCheck(tableSel + ' input');
-            $(tableSel + ' input.associated')
-                .off('change', changeHandler)
-                .on('change', changeHandler);
-            onSelect(table.rows({selected: true}));
-        });
-    }
-
-    setupHostAssoc(hostGroupsTable, '#host-group-table', hostGroupUpdateBtn, onGroupSelect);
 
     // ---------------------------------------------------------------
     // PRINTER TAB
     //
-    // Association area
-    var hostPrinterUpdateBtn = $('#host-printer-send'),
-        hostPrinterRemoveBtn = $('#host-printer-remove'),
-        hostPrinterDeleteConfirmBtn = $('#confirmprinterDeleteModal');
-
-    function disablePrinterButtons(disable) {
-        hostPrinterUpdateBtn.prop('disabled', disable);
-        hostPrinterRemoveBtn.prop('disabled', disable);
-    }
-
-    function onPrinterSelect(selected) {
-        var disabled = selected.count() == 0;
-        disablePrinterButtons(disabled);
-    }
-
-    hostPrinterUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(hostPrintersTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disablePrinterButtons(false);
-            if (err) {
-                return;
-            }
-            hostPrintersTable.draw(false);
-            hostPrintersTable.rows({selected: true}).deselect();
-        });
+    // Association area — the default-printer selector (below) lists only
+    // associated printers, so refresh it on every redraw via onDraw. That fires
+    // on the post-save redraw $.checkItemUpdate triggers, which lands after the
+    // association commits (no race).
+    var hostPrintersTable = $.registerAssociationTab({
+        slug: 'host-printer',
+        item: 'printer',
+        sub: 'getPrintersList',
+        onDraw: hostPrinterDefaultSelectorUpdate
     });
-
-    hostPrinterRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#printerDelModal').modal('show');
-    });
-
-    var hostPrintersTable = $('#host-printer-table').registerTable(onPrinterSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="hostPrinterAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getPrintersList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    hostPrinterDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(hostPrintersTable, hostPrinterUpdateBtn.attr('action'), function(err) {
-            $('#printerDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            hostPrintersTable.draw(false);
-            hostPrintersTable.rows({selected: true}).deselect();
-        });
-    });
-
-    setupHostAssoc(hostPrintersTable, '#host-printer-table', hostPrinterUpdateBtn, onPrinterSelect);
-    // The default-printer selector lists only associated printers, so refresh
-    // it on every redraw — including the post-save redraw $.checkItemUpdate
-    // triggers, which lands after the association commits (no race).
-    hostPrintersTable.on('draw', hostPrinterDefaultSelectorUpdate);
 
     // Default area
     var hostPrinterDefaultUpdateBtn = $('#host-printer-default-send'),
@@ -877,97 +688,14 @@
 
     // ---------------------------------------------------------------
     // SNAPINS TAB
-    var hostSnapinUpdateBtn = $('#host-snapin-send'),
-        hostSnapinRemoveBtn = $('#host-snapin-remove'),
-        hostSnapinDeleteConfirmBtn = $('#confirmsnapinDeleteModal');
-
-    function disableSnapinButtons(disable) {
-        hostSnapinUpdateBtn.prop('disabled', disable);
-        hostSnapinRemoveBtn.prop('disabled', disable);
-    }
-
-    function onSnapinSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableSnapinButtons(disabled);
-    }
-
-    hostSnapinUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(hostSnapinsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableSnapinButtons(false);
-            if (err) {
-                return;
-            }
-            hostSnapinsTable.draw(false);
-            hostSnapinsTable.rows({selected: true}).deselect();
-            loadSnapinOrder();
-        })
+    // The snapin run-order panel (below) mirrors the associated set, so refresh
+    // it after every add/remove/toggle commits via afterCommit.
+    var hostSnapinsTable = $.registerAssociationTab({
+        slug: 'host-snapin',
+        item: 'snapin',
+        sub: 'getSnapinsList',
+        afterCommit: loadSnapinOrder
     });
-
-    hostSnapinRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#snapinDelModal').modal('show');
-    });
-
-    var hostSnapinsTable = $('#host-snapin-table').registerTable(onSnapinSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="hostSnapinAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getSnapinsList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    hostSnapinDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(hostSnapinsTable, hostSnapinUpdateBtn.attr('action'), function(err) {
-            $('#snapinDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            hostSnapinsTable.draw(false);
-            hostSnapinsTable.rows({selected: true}).deselect();
-            loadSnapinOrder();
-        });
-    });
-
-    setupHostAssoc(hostSnapinsTable, '#host-snapin-table', hostSnapinUpdateBtn, onSnapinSelect, loadSnapinOrder);
 
     // ---------------------------------------------------------------
     // SNAPIN RUN ORDER
@@ -1073,100 +801,23 @@
     // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
-    var hostModuleUpdateBtn = $('#host-module-send'),
-        hostModuleRemoveBtn = $('#host-module-remove'),
-        hostModuleDeleteConfirmBtn = $('#confirmmoduleDeleteModal');
-
-    // Association area
-    function disableModuleButtons(disable) {
-        hostModuleUpdateBtn.prop('disabled', disable);
-        hostModuleRemoveBtn.prop('disabled', disable);
-    }
-
-    function onModuleSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableModuleButtons(disabled);
-    }
-
-    hostModuleUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(hostModulesTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleButtons(false);
-            if (err) {
-                return;
-            }
-            hostModulesTable.draw(false);
-            hostModulesTable.rows({selected: true}).deselect();
-        });
-    });
-
-    hostModuleRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#moduleDelModal').modal('show');
-    });
-
-    var hostModulesTable = $('#host-module-table').registerTable(onModuleSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
+    // Association area — col 0 is the module name (not a mainLink), given
+    // responsivePriority so it never collapses.
+    var hostModulesTable = $.registerAssociationTab({
+        slug: 'host-module',
+        item: 'module',
+        sub: 'getModulesList',
         columns: [
             {data: 'name'},
             {data: 'association'}
         ],
-        rowId: 'id',
         columnDefs: [
             {
                 responsivePriority: -1,
                 targets: 0
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="hostModuleAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
             }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getModulesList&id='
-                + Common.id,
-            type: 'post'
-        }
+        ]
     });
-
-    hostModuleDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(hostModulesTable, hostModuleUpdateBtn.attr('action'), function(err) {
-            $('#moduleDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            hostModulesTable.draw(false);
-            hostModulesTable.rows({selected: true}).deselect();
-        });
-    });
-
-    setupHostAssoc(hostModulesTable, '#host-module-table', hostModuleUpdateBtn, onModuleSelect);
 
     // Display manager area
     var hostModuleDisplaymanBtn = $('#host-displayman-send'),

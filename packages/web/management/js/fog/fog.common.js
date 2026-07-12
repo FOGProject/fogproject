@@ -513,6 +513,14 @@ $.registerGeneralTab = function(opts) {
 //                    it renders as a host link via opts.columnDefs).
 // opts.columnDefs  - optional extra column defs, merged BEFORE the built-in
 //                    associated-checkbox renderer on the association column.
+// opts.onDraw      - optional function(table) run at the end of every table
+//                    redraw, after the checkbox styling/binding and button
+//                    enable/disable. For tabs that mirror a side panel off the
+//                    association state (host-printer's default-printer selector).
+// opts.afterCommit - optional function() run after a successful add, remove, or
+//                    per-row toggle commit. For tabs whose side panel must
+//                    refresh once the association save lands (host-snapin's run
+//                    order). Passed through as $.checkItemUpdate's done callback.
 // Returns the DataTable API instance.
 $.registerAssociationTab = function(opts) {
   opts = opts || {};
@@ -546,7 +554,7 @@ $.registerAssociationTab = function(opts) {
     disableButtons(selected.count() == 0);
   }
   function onCheckboxSelect(e) {
-    $.checkItemUpdate(table, this, e, updateBtn);
+    $.checkItemUpdate(table, this, e, updateBtn, undefined, opts.afterCommit);
   }
 
   var table = $(tableSel).registerTable(onSelect, {
@@ -577,6 +585,9 @@ $.registerAssociationTab = function(opts) {
       }
       table.draw(false);
       table.rows({selected: true}).deselect();
+      if (typeof opts.afterCommit === 'function') {
+        opts.afterCommit();
+      }
     });
   });
 
@@ -593,6 +604,9 @@ $.registerAssociationTab = function(opts) {
       }
       table.draw(false);
       table.rows({selected: true}).deselect();
+      if (typeof opts.afterCommit === 'function') {
+        opts.afterCommit();
+      }
     });
   });
 
@@ -600,6 +614,9 @@ $.registerAssociationTab = function(opts) {
     Common.iCheck(tableSel + ' input');
     $(tableSel + ' input.associated').on('change', onCheckboxSelect);
     onSelect(table.rows({selected: true}));
+    if (typeof opts.onDraw === 'function') {
+      opts.onDraw(table);
+    }
   });
 
   return table;

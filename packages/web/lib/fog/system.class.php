@@ -62,7 +62,7 @@ class System
         define('FOG_VERSION', '1.6.0-beta.2666');
         define('FOG_CHANNEL', 'Beta');
         define('FOG_SCHEMA', 311);
-        define('FOG_BCACHE_VER', 223);
+        define('FOG_BCACHE_VER', 224);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // FOG_BASE_DIR is intentionally hardcoded here. Deriving it from a setting would
         // create a circular dependency (getSetting() needs the cache dir before DB is up).
