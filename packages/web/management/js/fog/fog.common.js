@@ -300,6 +300,96 @@ $.deleteSelected = function(table, cb, opts) {
     });
   });
 };
+/**
+ * Wire a standard management list page.
+ *
+ * Nearly every top-level list (usergroup, role, group, user, module, and every
+ * plugin) is the same skeleton: a server-side #dataTable whose only per-page
+ * variation is its column set, a "create new" modal, and a "delete selected"
+ * button. This owns that skeleton so each *.list.js is a single call passing
+ * just its columns.
+ *
+ * Behavior is the historical first-class-page shape: after a successful create
+ * the table redraws and the modal hides (selection is left intact); after a
+ * successful delete $.deleteSelected redraws the table itself and the delete
+ * button is only re-enabled on error (on success nothing is selected, so it
+ * stays correctly disabled).
+ *
+ * @param {Object} opts
+ *   columns     {Array}  DataTables column defs (required)
+ *   columnDefs  {Array}  optional per-column defs (omit to leave unset)
+ *   order       {Array}  optional initial sort (DataTables default if omitted)
+ *   rowId       {String} optional row-id source column (usually 'id')
+ * @return {DataTable}
+ */
+$.registerListPage = function(opts) {
+  opts = opts || {};
+  var deleteSelected = $('#deleteSelected'),
+    createnewBtn = $('#createnew'),
+    createnewModal = $('#createnewModal'),
+    createForm = $('#create-form'),
+    createnewSendBtn = $('#send');
+
+  function disableButtons(disable) {
+    deleteSelected.prop('disabled', disable);
+  }
+  disableButtons(true);
+
+  var tableOpts = {
+    columns: opts.columns,
+    processing: true,
+    serverSide: true,
+    ajax: {
+      url: '../management/index.php?node=' + Common.node + '&sub=list',
+      type: 'post'
+    }
+  };
+  if (opts.order !== undefined) {
+    tableOpts.order = opts.order;
+  }
+  if (opts.rowId !== undefined) {
+    tableOpts.rowId = opts.rowId;
+  }
+  if (opts.columnDefs !== undefined) {
+    tableOpts.columnDefs = opts.columnDefs;
+  }
+
+  var table = $('#dataTable').registerTable(function(selected) {
+    disableButtons(selected.count() == 0);
+  }, tableOpts);
+
+  if (Common.search && Common.search.length > 0) {
+    table.search(Common.search).draw();
+  }
+
+  createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
+  createnewBtn.on('click', function(e) {
+    e.preventDefault();
+    createnewModal.modal('show');
+  });
+  createnewSendBtn.on('click', function(e) {
+    e.preventDefault();
+    createForm.processForm(function(err) {
+      if (err) {
+        return;
+      }
+      table.draw(false);
+      createnewModal.modal('hide');
+    });
+  });
+  deleteSelected.on('click', function() {
+    disableButtons(true);
+    $.deleteSelected(table, function(err) {
+      // if we couldn't delete the items, re-enable the buttons
+      // as the rows still exist and are selected.
+      if (err) {
+        disableButtons(false);
+      }
+    });
+  });
+
+  return table;
+};
 $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();
