@@ -27,207 +27,31 @@
     // ASSOCIATIONS
     // ---------------------------------------------------------------
     // HOST TAB
-    var snapinHostUpdateBtn = $('#snapin-host-send'),
-        snapinHostRemoveBtn = $('#snapin-host-remove'),
-        snapinHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
-
-    function disableHostButtons(disable) {
-        snapinHostUpdateBtn.prop('disabled', disable);
-        snapinHostRemoveBtn.prop('disabled', disable);
-    }
-
-    function onHostSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableHostButtons(disabled);
-    }
-
-    snapinHostUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(snapinHostsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableHostButtons(false);
-            if (err) {
-                return;
-            }
-            snapinHostsTable.draw(false);
-            snapinHostsTable.rows({selected:true}).deselect();
-        });
-    });
-
-    snapinHostRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#hostDelModal').modal('show');
-    });
-
-    var snapinHostsTable = $('#snapin-host-table').registerTable(onHostSelect, {
-        order: [
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'},
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinHostAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostsList&id='
-                + Common.id,
-            type: 'post'
+    var snapinHostsTable = $.registerAssociationTab({
+        slug: 'snapin-host',
+        item: 'host',
+        sub: 'getHostsList',
+        order: [[0, 'asc']],
+        onDraw: function() {
+            // Preserved: the host table's draw historically also refreshed the
+            // storagegroup primary selector (cross-tab). Kept behavior-neutral.
+            snapinStoragegroupPrimarySelectorUpdate();
         }
     });
-
-    snapinHostDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(snapinHostsTable, snapinHostUpdateBtn.attr('action'), function(err) {
-            $('#hostDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            snapinHostsTable.draw(false);
-            snapinHostsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    snapinHostsTable.on('draw', function() {
-        Common.iCheck('#snapin-host-table input');
-        $('#snapin-host-table input.associated').on('change', onSnapinHostCheckboxSelect);
-        onHostSelect(snapinHostsTable.rows({selected: true}));
-        snapinStoragegroupPrimarySelectorUpdate();
-    });
-
-    var onSnapinHostCheckboxSelect = function(e) {
-        $.checkItemUpdate(snapinHostsTable, this, e, snapinHostUpdateBtn);
-    };
 
     // ---------------------------------------------------------------
     // STORAGEGROUP TAB
     //
     // Association area
-    var snapinStoragegroupUpdateBtn = $('#snapin-storagegroup-send'),
-        snapinStoragegroupRemoveBtn = $('#snapin-storagegroup-remove'),
-        snapinStoragegroupDeleteConfirmBtn = $('#confirmstoragegroupDeleteModal');
-
-    function disableStoragegroupButtons(disable) {
-        snapinStoragegroupUpdateBtn.prop('disabled', disable);
-        snapinStoragegroupRemoveBtn.prop('disabled', disable);
-    }
-
-    function onStoragegroupSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableStoragegroupButtons(disabled);
-    }
-
-    snapinStoragegroupUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(snapinStoragegroupsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableStoragegroupButtons(false);
-            if (err) {
-                return;
-            }
-            snapinStoragegroupsTable.draw(false);
-            snapinStoragegroupsTable.rows({selected: true}).deselect();
+    var snapinStoragegroupsTable = $.registerAssociationTab({
+        slug: 'snapin-storagegroup',
+        item: 'storagegroup',
+        sub: 'getStoragegroupsList',
+        order: [[0, 'asc']],
+        afterCommit: function() {
             setTimeout(snapinStoragegroupPrimarySelectorUpdate, 1000);
-        });
-    });
-
-    snapinStoragegroupRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#storagegroupDelModal').modal('show');
-    });
-
-    var snapinStoragegroupsTable = $('#snapin-storagegroup-table').registerTable(onStoragegroupSelect, {
-        order: [
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinStoragegroupAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getStoragegroupsList&id='
-                + Common.id,
-            type: 'post'
         }
     });
-
-    snapinStoragegroupDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(snapinStoragegroupsTable, snapinStoragegroupUpdateBtn.attr('action'), function(err) {
-            $('#storagegroupDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            snapinStoragegroupsTable.draw(false);
-            snapinStoragegroupsTable.rows({selected: true}).deselect();
-            setTimeout(snapinStoragegroupPrimarySelectorUpdate, 1000);
-        });
-    });
-
-    snapinStoragegroupsTable.on('draw', function() {
-        Common.iCheck('#snapin-storagegroup-table input');
-        $('#snapin-storagegroup-table input.associated').on('change', onSnapinStoragegroupCheckboxSelect);
-        onStoragegroupSelect(snapinStoragegroupsTable.rows({selected: true}));
-    });
-
-    var onSnapinStoragegroupCheckboxSelect = function(e) {
-        $.checkItemUpdate(snapinStoragegroupsTable, this, e, snapinStoragegroupUpdateBtn);
-        setTimeout(snapinStoragegroupPrimarySelectorUpdate, 1000);
-    };
 
     // Primary area
     var snapinStoragegroupPrimaryUpdateBtn = $('#snapin-storagegroup-primary-send'),
