@@ -39,102 +39,12 @@
     // ASSOCIATIONS
     // ---------------------------------------------------------------
     // HOST TAB
-    var imageHostUpdateBtn = $('#image-host-send'),
-        imageHostRemoveBtn = $('#image-host-remove'),
-        imageHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
-
-    function disableHostButtons(disable) {
-        imageHostUpdateBtn.prop('disabled', disable);
-        imageHostRemoveBtn.prop('disabled', disable);
-    }
-
-    function onHostSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableHostButtons(disabled);
-    }
-
-    imageHostUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(imageHostsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableHostButtons(false);
-            if (err) {
-                return;
-            }
-            imageHostsTable.draw(false);
-            imageHostsTable.rows({selected: true}).deselect();
-        });
+    var imageHostsTable = $.registerAssociationTab({
+        slug: 'image-host',
+        item: 'host',
+        sub: 'getHostsList',
+        order: [[0, 'asc']]
     });
-
-    imageHostRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#hostDelModal').modal('show');
-    });
-
-    var imageHostsTable = $('#image-host-table').registerTable(onHostSelect, {
-        order: [
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="imageHostAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostsList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    imageHostDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(imageHostsTable, imageHostUpdateBtn.attr('action'), function(err) {
-            $('#hostDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            imageHostsTable.draw(false);
-            imageHostsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    imageHostsTable.on('draw', function(e) {
-        Common.iCheck('#image-host-table input');
-        $('#image-host-table input.associated').on('change', onImageHostCheckboxSelect);
-        onHostSelect(imageHostsTable.rows({selected: true}));
-    });
-
-    var onImageHostCheckboxSelect = function(e) {
-        $.checkItemUpdate(imageHostsTable, this, e, imageHostUpdateBtn);
-    };
 
     // ---------------------------------------------------------------
     // STORAGEGROUP TAB

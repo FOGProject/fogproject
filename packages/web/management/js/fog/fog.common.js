@@ -483,6 +483,127 @@ $.registerGeneralTab = function(opts) {
     });
   });
 };
+// -----------------------------------------------------------------------
+// $.registerAssociationTab(opts) - wire a standard "associated items" tab.
+//
+// Nearly every edit page carries one or more association tabs built from the
+// same skeleton: an Add-selected button, a Remove-selected button that opens a
+// confirm modal, a server-side DataTable with a per-row "associated" checkbox,
+// and per-row checkbox toggles that POST immediately. Only the slug, the modal
+// item name, the list endpoint, and (rarely) the sort/columns differ. This owns
+// that skeleton so each tab is a single call.
+//
+// Element / endpoint conventions, all derived from opts.slug / opts.item:
+//   table          #{slug}-table
+//   add button     #{slug}-send      (carries method= and action= for the POST)
+//   remove button  #{slug}-remove
+//   delete modal   #{item}DelModal
+//   confirm button #confirm{item}DeleteModal
+//   list endpoint  ?node={Common.node}&sub={opts.sub}&id={Common.id}
+//
+// opts.slug        - required; the tab slug (e.g. 'site-host', 'user-role').
+// opts.item        - required; the modal item type (e.g. 'host', 'user') keying
+//                    #{item}DelModal / #confirm{item}DeleteModal. Not always the
+//                    slug's suffix (usergroup-member's item is 'user').
+// opts.sub         - required; the list endpoint sub (e.g. 'getHostsList').
+// opts.order       - optional initial sort (default [[1,'asc'],[0,'asc']];
+//                    image/module pass [[0,'asc']]).
+// opts.columns     - optional DataTables columns (default the standard
+//                    mainLink + association pair; ou passes a {data:'name'} col0
+//                    it renders as a host link via opts.columnDefs).
+// opts.columnDefs  - optional extra column defs, merged BEFORE the built-in
+//                    associated-checkbox renderer on the association column.
+// Returns the DataTable API instance.
+$.registerAssociationTab = function(opts) {
+  opts = opts || {};
+  var slug = opts.slug,
+    item = opts.item,
+    tableSel = '#' + slug + '-table',
+    updateBtn = $('#' + slug + '-send'),
+    removeBtn = $('#' + slug + '-remove'),
+    deleteModal = $('#' + item + 'DelModal'),
+    deleteConfirm = $('#confirm' + item + 'DeleteModal'),
+    columns = opts.columns || [{data: 'mainLink'}, {data: 'association'}],
+    columnDefs = (opts.columnDefs || []).concat([{
+      render: function(data, type, row) {
+        var checkval = row.association === 'associated' ? ' checked' : '';
+        return '<div class="form-check">'
+          + '<input type="checkbox" class="associated" name="associate[]" id="'
+          + slug + '-associate-' + row.id
+          + '" value="' + row.id + '"'
+          + checkval
+          + '/>'
+          + '</div>';
+      },
+      targets: columns.length - 1
+    }]);
+
+  function disableButtons(disable) {
+    updateBtn.prop('disabled', disable);
+    removeBtn.prop('disabled', disable);
+  }
+  function onSelect(selected) {
+    disableButtons(selected.count() == 0);
+  }
+  function onCheckboxSelect(e) {
+    $.checkItemUpdate(table, this, e, updateBtn);
+  }
+
+  var table = $(tableSel).registerTable(onSelect, {
+    order: opts.order || [[1, 'asc'], [0, 'asc']],
+    columns: columns,
+    rowId: 'id',
+    columnDefs: columnDefs,
+    processing: true,
+    serverSide: true,
+    ajax: {
+      url: '../management/index.php?node=' + Common.node
+        + '&sub=' + opts.sub + '&id=' + Common.id,
+      type: 'post'
+    }
+  });
+
+  updateBtn.on('click', function(e) {
+    e.preventDefault();
+    var method = $(this).attr('method'),
+      action = $(this).attr('action');
+    $.apiCall(method, action, {
+      confirmadd: 1,
+      additems: $.getSelectedIds(table)
+    }, function(err) {
+      disableButtons(false);
+      if (err) {
+        return;
+      }
+      table.draw(false);
+      table.rows({selected: true}).deselect();
+    });
+  });
+
+  removeBtn.on('click', function(e) {
+    e.preventDefault();
+    deleteModal.modal('show');
+  });
+
+  deleteConfirm.on('click', function() {
+    $.deleteAssociated(table, updateBtn.attr('action'), function(err) {
+      deleteModal.modal('hide');
+      if (err) {
+        return;
+      }
+      table.draw(false);
+      table.rows({selected: true}).deselect();
+    });
+  });
+
+  table.on('draw', function() {
+    Common.iCheck(tableSel + ' input');
+    $(tableSel + ' input.associated').on('change', onCheckboxSelect);
+    onSelect(table.rows({selected: true}));
+  });
+
+  return table;
+};
 $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();
