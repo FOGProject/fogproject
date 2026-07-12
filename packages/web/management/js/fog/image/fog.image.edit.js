@@ -48,105 +48,15 @@
 
     // ---------------------------------------------------------------
     // STORAGEGROUP TAB
-    var imageStoragegroupUpdateBtn = $('#image-storagegroup-send'),
-        imageStoragegroupRemoveBtn = $('#image-storagegroup-remove'),
-        imageStoragegroupDeleteConfirmBtn = $('#confirmstoragegroupDeleteModal');
-
-    function disableStoragegroupButtons(disable) {
-        imageStoragegroupUpdateBtn.prop('disabled', disable);
-        imageStoragegroupRemoveBtn.prop('disabled', disable);
-    }
-
-    function onStoragegroupSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableStoragegroupButtons(disabled);
-    }
-
-    imageStoragegroupUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            toAdd = $.getSelectedIds(imageStoragegroupsTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableStoragegroupButtons(false);
-            if (err) {
-                return;
-            }
-            imageStoragegroupsTable.draw(false);
-            imageStoragegroupsTable.rows({selected: true}).deselect();
+    var imageStoragegroupsTable = $.registerAssociationTab({
+        slug: 'image-storagegroup',
+        item: 'storagegroup',
+        sub: 'getStoragegroupsList',
+        order: [[0, 'asc']],
+        afterCommit: function() {
             setTimeout(imageStoragegroupPrimarySelectorUpdate, 1000);
-        });
-    });
-
-    imageStoragegroupRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#storagegroupDelModal').modal('show');
-    });
-
-    var imageStoragegroupsTable = $('#image-storagegroup-table').registerTable(onStoragegroupSelect, {
-        order: [
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainLink'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="form-check">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="imageStoragegroupAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getStoragegroupsList&id='
-                + Common.id,
-            type: 'post'
         }
     });
-
-    imageStoragegroupDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(imageStoragegroupsTable, imageStoragegroupUpdateBtn.attr('action'), function(err) {
-            $('#storagegroupDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            imageStoragegroupsTable.draw(false);
-            imageStoragegroupsTable.rows({selected: true}).deselect();
-            setTimeout(imageStoragegroupPrimarySelectorUpdate, 1000);
-        });
-    });
-
-    imageStoragegroupsTable.on('draw', function() {
-        Common.iCheck('#image-storagegroup-table input');
-        $('#image-storagegroup-table input.associated').on('change', onImageStoragegroupCheckboxSelect);
-        onStoragegroupSelect(imageStoragegroupsTable.rows({selected: true}));
-    });
-
-    var onImageStoragegroupCheckboxSelect = function(e) {
-        $.checkItemUpdate(imageStoragegroupsTable, this, e, imageStoragegroupUpdateBtn);
-        setTimeout(imageStoragegroupPrimarySelectorUpdate, 1000);
-    };
 
     // Primary area
     var imageStoragegroupPrimaryUpdateBtn = $('#image-storagegroup-primary-send'),
