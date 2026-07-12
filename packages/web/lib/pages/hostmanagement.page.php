@@ -729,7 +729,7 @@ class HostManagement extends FOGPage
                 unset($fieldads);
 
                 return '<hr/>'
-                    . '<h4 class="card-title">'
+                    . '<h4 class="mt-2 mb-3">'
                     . _('Active Directory')
                     . '</h4>'
                     . $renderedad;
