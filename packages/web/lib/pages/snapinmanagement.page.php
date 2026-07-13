@@ -186,6 +186,40 @@ class SnapinManagement extends FOGPage
         return ob_get_clean();
     }
     /**
+     * Short inline-help snippets for the Snapin Pack fields.
+     *
+     * Keyed so _addFields() (create) and snapinGeneral() (edit) render
+     * identical help. The 'packargs' note carries the packtemplate class
+     * so the shared initSnapinCommandUI() toggle reveals it only when
+     * "Snapin Pack" is selected.
+     *
+     * @return array
+     */
+    private static function _packHelp()
+    {
+        return [
+            'type' => '<p class="form-text">'
+                . _(
+                    'Normal runs a single uploaded file. A Snapin Pack '
+                    . 'unzips an uploaded archive on the client, then runs '
+                    . 'a file from inside it.'
+                )
+                . '</p>',
+            'template' => '<p class="form-text">'
+                . _(
+                    'Optional. Pick a type to pre-fill the command fields '
+                    . 'below; you can still edit them afterward.'
+                )
+                . '</p>',
+            'packargs' => '<p class="form-text packtemplate d-none">'
+                . _(
+                    'Use [FOG_SNAPIN_PATH] in the arguments to point at the '
+                    . 'folder where the pack is unzipped on the client.'
+                )
+                . '</p>',
+        ];
+    }
+    /**
      * Builds the create-form fields (shared by add() and addModal()).
      *
      * @return array
@@ -255,6 +289,7 @@ class SnapinManagement extends FOGPage
             . '</select>';
 
         $labelClass = 'col-sm-3 col-form-label';
+        $help = self::_packHelp();
 
         return [
             self::makeLabel(
@@ -290,7 +325,7 @@ class SnapinManagement extends FOGPage
                 $labelClass,
                 'snapinpack',
                 _('Snapin Type')
-            ) => $packtypes,
+            ) => $packtypes . $help['type'],
             self::makeLabel(
                 $labelClass . ' packnotemplate d-none',
                 'argTypes',
@@ -300,7 +335,7 @@ class SnapinManagement extends FOGPage
                 $labelClass . ' packtemplate d-none',
                 'packTypes',
                 _('Snapin Pack Template')
-            ) => self::$_template1 . self::$_template2,
+            ) => self::$_template1 . self::$_template2 . $help['template'],
             self::makeLabel(
                 $labelClass . ' packnotemplate d-none',
                 'snaprw',
@@ -334,7 +369,7 @@ class SnapinManagement extends FOGPage
                 'text',
                 'snaprwa',
                 $rwa
-            ),
+            ) . $help['packargs'],
             self::makeLabel(
                 $labelClass,
                 'snapinfile',
@@ -736,6 +771,7 @@ class SnapinManagement extends FOGPage
             . '</select>';
 
         $labelClass = 'col-sm-3 col-form-label';
+        $help = self::_packHelp();
 
         $fields = [
             self::makeLabel(
@@ -766,7 +802,7 @@ class SnapinManagement extends FOGPage
                 $labelClass,
                 'snapinpack',
                 _('Snapin Type')
-            ) => $packtypes,
+            ) => $packtypes . $help['type'],
             self::makeLabel(
                 $labelClass . ' packnotemplate d-none',
                 'argTypes',
@@ -776,7 +812,7 @@ class SnapinManagement extends FOGPage
                 $labelClass . ' packtemplate d-none',
                 'packTypes',
                 _('Snapin Pack Template')
-            ) => self::$_template1 . self::$_template2,
+            ) => self::$_template1 . self::$_template2 . $help['template'],
             self::makeLabel(
                 $labelClass . ' packnotemplate d-none',
                 'snaprw',
@@ -810,7 +846,7 @@ class SnapinManagement extends FOGPage
                 'text',
                 'snaprwa',
                 $rwa
-            ),
+            ) . $help['packargs'],
             self::makeLabel(
                 $labelClass,
                 'snapinfile',

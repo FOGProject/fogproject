@@ -4499,6 +4499,11 @@ msgstr "Modify Group"
 msgid "Normal Snapin"
 msgstr "Invalid Snapin"
 
+msgid ""
+"Normal runs a single uploaded file. A Snapin Pack unzips an uploaded archive "
+"on the client, then runs a file from inside it."
+msgstr ""
+
 msgid "Not Available"
 msgstr "Not Available"
 
@@ -4657,6 +4662,11 @@ msgstr ""
 #, fuzzy
 msgid "Operation field not set"
 msgstr "Operation Field not set: %s"
+
+msgid ""
+"Optional. Pick a type to pre-fill the command fields below; you can still "
+"edit them afterward."
+msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr ""
@@ -7080,6 +7090,11 @@ msgid "Use Display Name from Directory"
 msgstr ""
 
 msgid "Use LDAP SSL"
+msgstr ""
+
+msgid ""
+"Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the pack "
+"is unzipped on the client."
 msgstr ""
 
 msgid "Use extreme caution with this setting"
