@@ -77,6 +77,17 @@ class Route extends FOGBase
      */
     protected static $expandDepth = 0;
     /**
+     * Depth of the current getter() serialization stack. Non-zero means we are
+     * serializing an object (or one of its sub-objects) and any listem()/getter
+     * call is INTERNAL, not the entity the API route targeted. Expansion is
+     * gated on this being 0 so it only decorates the top-level request and
+     * never leaks into the many internal list/getter calls fired while
+     * serializing relations.
+     *
+     * @var int
+     */
+    protected static $getterDepth = 0;
+    /**
      * Maximum relation-expansion depth. Related objects are serialized with
      * plain getter() (no further expansion), so expansion is one level deep
      * and cannot recurse back onto the parent entity.
@@ -709,7 +720,10 @@ class Route extends FOGBase
                 );
             }
             self::parseExpand();
-            if (self::expandRequested() && isset($pass_vars)) {
+            if (self::$getterDepth === 0
+                && self::expandRequested()
+                && isset($pass_vars)
+            ) {
                 // Expansion materializes a full object per row; bound memory
                 // by clamping an unbounded/oversized page to EXPAND_MAX_ITEMS.
                 $len = isset($pass_vars['length'])
@@ -1469,7 +1483,8 @@ class Route extends FOGBase
                 ]
             );
             self::$data['_lang'] = $classname;
-            if (self::expandRequested()
+            if (self::$getterDepth === 0
+                && self::expandRequested()
                 && isset(self::$data['data'])
                 && is_array(self::$data['data'])
             ) {
@@ -2575,6 +2590,7 @@ class Route extends FOGBase
      */
     public static function getter($classname, $class)
     {
+        self::$getterDepth++;
         try {
             if (!$class instanceof $classname) {
                 return;
@@ -2830,6 +2846,8 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
             );
+        } finally {
+            self::$getterDepth--;
         }
     }
     /**
