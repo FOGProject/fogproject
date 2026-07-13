@@ -118,7 +118,7 @@ class ReportManagement extends FOGPage
                 'import',
                 _('Browse')
                 . self::makeInput(
-                    'hidden',
+                    'd-none',
                     'report',
                     '',
                     'file',

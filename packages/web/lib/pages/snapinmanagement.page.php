@@ -380,7 +380,7 @@ class SnapinManagement extends FOGPage
                 'snapinfile',
                 _('Browse')
                 . self::makeInput(
-                    'hidden',
+                    'd-none',
                     'snapinfile',
                     '',
                     'file',
@@ -857,7 +857,7 @@ class SnapinManagement extends FOGPage
                 'snapinfile',
                 _('Browse')
                 . self::makeInput(
-                    'hidden',
+                    'd-none',
                     'snapinfile',
                     '',
                     'file',

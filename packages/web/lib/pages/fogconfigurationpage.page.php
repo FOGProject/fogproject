@@ -1404,7 +1404,7 @@ class FOGConfigurationPage extends FOGPage
                         $row['settingKey'],
                         _('Browse')
                         . self::makeInput(
-                            'hidden',
+                            'd-none',
                             $row['settingID'],
                             '',
                             'file',
@@ -2475,7 +2475,7 @@ class FOGConfigurationPage extends FOGPage
                 'import',
                 _('Browse')
                 . self::makeInput(
-                    'hidden',
+                    'd-none',
                     'dbFile',
                     '',
                     'file',

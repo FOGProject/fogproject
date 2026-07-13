@@ -2879,7 +2879,7 @@ abstract class FOGPage extends FOGBase
                 'import',
                 _('Browse')
                 . self::makeInput(
-                    'hidden',
+                    'd-none',
                     'file',
                     '',
                     'file',
