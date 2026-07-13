@@ -370,25 +370,31 @@ class User extends FOGController
             $id = filter_input(INPUT_COOKIE, 'foguserauthid');
             $userauth = new UserAuth($id);
             if ($userauth->isValid()) {
-                $current_time = self::niceDate()->getTimestamp();
-                $cookieexp = $current_time + (2 * 24 * 60 * 60);
-                $password = self::getToken(16);
-                $selector = self::getToken(32);
-                $expire = self::niceDate()
-                    ->setTimestamp($cookieexp)
-                    ->format('Y-m-d H:i:s');
-                self::setAuthCookie('foguserauthpass', $password, $cookieexp);
-                self::setAuthCookie('foguserauthsel', $selector, $cookieexp);
-                self::setAuthCookie('foguserauthid', $userauth->get('id'), $cookieexp);
-
-                $password_hash = $userauth->generateHash($password);
-                $selector_hash = $userauth->generateHash($selector);
-
-                $userauth
-                    ->set('expire', $expire)
-                    ->set('selector', $selector_hash)
-                    ->set('password', $password_hash)
-                    ->save();
+                // Do NOT rotate the remember-me secret here. FOG fires many
+                // AJAX requests in parallel; when several cross this 30-minute
+                // regenerate boundary at once, each one used to mint a fresh
+                // selector/password and overwrite the single userAuths row --
+                // desyncing the browser cookie from the stored hash, so the
+                // next remember-me auto-login failed password_verify() and
+                // silently logged the user out. The secret is now rotated only
+                // at a real login. Here we merely slide the 2-day expiry
+                // forward, re-using the existing cookie values so concurrent
+                // requests stay idempotent (same secret, only the expiry moves).
+                $password = filter_input(INPUT_COOKIE, 'foguserauthpass');
+                $selector = filter_input(INPUT_COOKIE, 'foguserauthsel');
+                if ($password && $selector) {
+                    $cookieexp = self::niceDate()->getTimestamp()
+                        + (2 * 24 * 60 * 60);
+                    $expire = self::niceDate()
+                        ->setTimestamp($cookieexp)
+                        ->format('Y-m-d H:i:s');
+                    self::setAuthCookie('foguserauthpass', $password, $cookieexp);
+                    self::setAuthCookie('foguserauthsel', $selector, $cookieexp);
+                    self::setAuthCookie('foguserauthid', $userauth->get('id'), $cookieexp);
+                    $userauth
+                        ->set('expire', $expire)
+                        ->save();
+                }
             }
         }
         if (!isset($_SESSION['FOG_USER'])) {
