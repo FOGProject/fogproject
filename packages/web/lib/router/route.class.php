@@ -59,6 +59,58 @@ class Route extends FOGBase
      */
     public static $apiRequest = false;
     /**
+     * Requested relation-expansion tokens (lowercased) from ?expand=a,b,c.
+     *
+     * @var array
+     */
+    public static $expand = [];
+    /**
+     * True when ?expand=all was requested (expand every known relation).
+     *
+     * @var bool
+     */
+    public static $expandAll = false;
+    /**
+     * Re-entrancy guard so relation expansion stays depth-limited.
+     *
+     * @var int
+     */
+    protected static $expandDepth = 0;
+    /**
+     * Maximum relation-expansion depth. Related objects are serialized with
+     * plain getter() (no further expansion), so expansion is one level deep
+     * and cannot recurse back onto the parent entity.
+     */
+    const EXPAND_MAX_DEPTH = 1;
+    /**
+     * Hard cap on how many items a single expanded relation (or an expanded
+     * list) will materialize, to bound memory. Overflow is truncated and
+     * flagged with a companion `<relation>_truncated` key.
+     */
+    const EXPAND_MAX_ITEMS = 2500;
+    /**
+     * Fields stripped from any host/user object serialized as a related or
+     * list item, so decrypted secrets are never exposed outside a direct
+     * single-entity GET.
+     *
+     * @var array
+     */
+    public static $sensitiveFields = [
+        'host' => [
+            'ADPass',
+            'ADPassLegacy',
+            'productKey',
+            'pub_key',
+            'sec_tok',
+            'sec_time',
+            'token',
+        ],
+        'user' => [
+            'password',
+            'token',
+        ],
+    ];
+    /**
      * Stores the valid classes.
      *
      * @var array
@@ -655,6 +707,20 @@ class Route extends FOGBase
                     file_get_contents('php://input'),
                     $pass_vars
                 );
+            }
+            self::parseExpand();
+            if (self::expandRequested() && isset($pass_vars)) {
+                // Expansion materializes a full object per row; bound memory
+                // by clamping an unbounded/oversized page to EXPAND_MAX_ITEMS.
+                $len = isset($pass_vars['length'])
+                    ? (int)$pass_vars['length']
+                    : 0;
+                if ($len <= 0 || $len > self::EXPAND_MAX_ITEMS) {
+                    $pass_vars['length'] = self::EXPAND_MAX_ITEMS;
+                    if (!isset($pass_vars['start'])) {
+                        $pass_vars['start'] = 0;
+                    }
+                }
             }
             if (empty($orderby)) {
                 $orderby = 'name';
@@ -1403,6 +1469,30 @@ class Route extends FOGBase
                 ]
             );
             self::$data['_lang'] = $classname;
+            if (self::expandRequested()
+                && isset(self::$data['data'])
+                && is_array(self::$data['data'])
+            ) {
+                foreach (self::$data['data'] as $i => $row) {
+                    $rid = isset($row['id']) ? (int)$row['id'] : 0;
+                    if ($rid < 1) {
+                        continue;
+                    }
+                    $robj = self::getClass($class, $rid);
+                    if (!$robj->isValid()) {
+                        continue;
+                    }
+                    $exp = self::getter($classname, $robj);
+                    if (!is_array($exp)) {
+                        continue;
+                    }
+                    // List rows never expose secrets (matches grid behavior).
+                    $exp = self::stripSensitive($classname, $exp);
+                    $exp = self::expandRelations($classname, $robj, $exp);
+                    $exp = self::enrichPluginItems($classname, $robj, $exp);
+                    self::$data['data'][$i] = FOGCore::fastmerge($row, $exp);
+                }
+            }
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
@@ -1653,6 +1743,17 @@ class Route extends FOGBase
             self::$data = self::getter(
                 $classname,
                 $class
+            );
+            self::parseExpand();
+            self::$data = self::expandRelations(
+                $classname,
+                $class,
+                self::$data
+            );
+            self::$data = self::enrichPluginItems(
+                $classname,
+                $class,
+                self::$data
             );
             self::$HookManager->processEvent(
                 'API_INDIVDATA_MAPPING',
@@ -2730,6 +2831,216 @@ class Route extends FOGBase
                 $e->getMessage()
             );
         }
+    }
+    /**
+     * Parses the ?expand=a,b,c[,all] query parameter into the static
+     * expansion state used by expandRelations()/enrichPluginItems().
+     *
+     * Called once at the entry of indiv()/listem(). Resets any prior state
+     * so a single PHP request that serves multiple entities stays clean.
+     *
+     * @return void
+     */
+    public static function parseExpand()
+    {
+        self::$expand = [];
+        self::$expandAll = false;
+        self::$expandDepth = 0;
+        $raw = filter_input(INPUT_GET, 'expand');
+        if ($raw === null || $raw === false || $raw === '') {
+            return;
+        }
+        $tokens = array_filter(
+            array_map('trim', explode(',', strtolower((string)$raw)))
+        );
+        if (in_array('all', $tokens, true)) {
+            self::$expandAll = true;
+        }
+        self::$expand = array_values($tokens);
+    }
+    /**
+     * True when the client asked for any relation expansion.
+     *
+     * @return bool
+     */
+    public static function expandRequested()
+    {
+        return self::$expandAll || !empty(self::$expand);
+    }
+    /**
+     * True when a specific relation token was requested (or ?expand=all).
+     *
+     * @param string $token The relation token to test.
+     *
+     * @return bool
+     */
+    public static function wantsExpand($token)
+    {
+        return self::$expandAll || in_array($token, self::$expand, true);
+    }
+    /**
+     * Removes decrypted secrets from a related/list object so they are only
+     * ever exposed on a direct single-entity GET.
+     *
+     * @param string $classname The class the data belongs to.
+     * @param mixed  $data      The serialized object (assoc array).
+     *
+     * @return mixed
+     */
+    public static function stripSensitive($classname, $data)
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+        foreach ((array)(self::$sensitiveFields[$classname] ?? []) as $field) {
+            unset($data[$field]);
+        }
+        return $data;
+    }
+    /**
+     * Declarative per-class relation map driving ?expand. Each entry:
+     *   token => ['class' => <target>, 'many' => bool, 'field' => <accessor>]
+     * where <accessor> is a get() key returning either a related object
+     * (many=false) or an array of integer ids (many=true).
+     *
+     * Only relations whose target getter does NOT re-embed the parent are
+     * listed, so expansion is inherently free of back-references.
+     *
+     * @param string $classname The entity being serialized.
+     *
+     * @return array
+     */
+    protected static function relationMap($classname)
+    {
+        $maps = [
+            'host' => [
+                'image' => [
+                    'class' => 'image',
+                    'many' => false,
+                    'field' => 'imagename',
+                ],
+                'snapins' => [
+                    'class' => 'snapin',
+                    'many' => true,
+                    'field' => 'snapins',
+                ],
+                'printers' => [
+                    'class' => 'printer',
+                    'many' => true,
+                    'field' => 'printers',
+                ],
+                'groups' => [
+                    'class' => 'group',
+                    'many' => true,
+                    'field' => 'groups',
+                ],
+                'modules' => [
+                    'class' => 'module',
+                    'many' => true,
+                    'field' => 'modules',
+                ],
+            ],
+        ];
+        return $maps[$classname] ?? [];
+    }
+    /**
+     * Additively inlines requested related objects onto an already
+     * serialized entity. Scalar foreign keys are preserved; expanded
+     * objects are added under their relation token. One-to-many relations
+     * become a capped array plus companion `<token>_total`/`<token>_truncated`
+     * keys. Related objects are serialized one level deep (no further
+     * expansion) and have their secrets stripped.
+     *
+     * @param string $classname The entity classname.
+     * @param object $class      The loaded entity object.
+     * @param array  $data       The serialized entity data.
+     *
+     * @return array
+     */
+    public static function expandRelations($classname, $class, $data)
+    {
+        if (!is_array($data) || !self::expandRequested()) {
+            return $data;
+        }
+        if (self::$expandDepth >= self::EXPAND_MAX_DEPTH) {
+            return $data;
+        }
+        $map = self::relationMap($classname);
+        if (empty($map)) {
+            return $data;
+        }
+        self::$expandDepth++;
+        foreach ($map as $token => $rel) {
+            if (!self::wantsExpand($token)) {
+                continue;
+            }
+            if (empty($rel['many'])) {
+                $obj = $class->get($rel['field']);
+                if ($obj instanceof FOGController && $obj->isValid()) {
+                    $g = self::getter($rel['class'], $obj);
+                    if (is_array($g)) {
+                        $data[$token] = self::stripSensitive($rel['class'], $g);
+                    }
+                }
+                continue;
+            }
+            $ids = self::positiveIntIds((array)$class->get($rel['field']));
+            $total = count($ids);
+            $truncated = false;
+            if ($total > self::EXPAND_MAX_ITEMS) {
+                $ids = array_slice($ids, 0, self::EXPAND_MAX_ITEMS);
+                $truncated = true;
+            }
+            $items = [];
+            foreach ($ids as $rid) {
+                $robj = self::getClass($rel['class'], $rid);
+                if (!$robj->isValid()) {
+                    continue;
+                }
+                $g = self::getter($rel['class'], $robj);
+                if (is_array($g)) {
+                    $items[] = self::stripSensitive($rel['class'], $g);
+                }
+            }
+            $data[$token] = $items;
+            $data[$token . '_total'] = $total;
+            $data[$token . '_truncated'] = $truncated;
+        }
+        self::$expandDepth--;
+        return $data;
+    }
+    /**
+     * Fires the API_PLUGIN_ITEMS event so plugins can inject their
+     * associations into a namespaced `pluginItems` envelope without
+     * clobbering core fields. Only invoked at the top level of a single
+     * GET or of each list row (never on nested/related objects), which is
+     * what keeps plugin back-references out of expanded children.
+     *
+     * @param string $classname The entity classname.
+     * @param object $class      The loaded entity object.
+     * @param array  $data       The serialized entity data.
+     *
+     * @return array
+     */
+    public static function enrichPluginItems($classname, $class, $data)
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+        $pluginItems = [];
+        self::$HookManager->processEvent(
+            'API_PLUGIN_ITEMS',
+            [
+                'data' => &$data,
+                'pluginItems' => &$pluginItems,
+                'classname' => &$classname,
+                'class' => &$class
+            ]
+        );
+        if (!empty($pluginItems)) {
+            $data['pluginItems'] = $pluginItems;
+        }
+        return $data;
     }
     /**
      * Returns the current bandwidth.
