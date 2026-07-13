@@ -22,15 +22,15 @@
             },
             {
                 responsivePriority: 0,
-                target: 2
+                targets: 2
             },
             {
                 responsivePriority: 0,
-                target: 3
+                targets: 3
             },
             {
                 responsivePriority: 0,
-                target: 4
+                targets: 4
             }
         ]
     });

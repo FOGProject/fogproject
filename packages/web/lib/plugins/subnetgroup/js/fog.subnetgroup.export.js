@@ -1,5 +1,5 @@
 (function($) {
-    $('#subnet-export-table').registerExportTable([
+    $('#subnetgroup-export-table').registerExportTable([
         {data: 'name'},
         {data: 'groupID'}
     ]);

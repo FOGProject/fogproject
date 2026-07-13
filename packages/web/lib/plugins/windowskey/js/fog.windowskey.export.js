@@ -20,7 +20,7 @@
             {data: 'createdTime'}, // 3
             {data: 'key'} // 4
         ],
-        columnsDef: [
+        columnDefs: [
             {
                 targets: 1,
                 visible: false

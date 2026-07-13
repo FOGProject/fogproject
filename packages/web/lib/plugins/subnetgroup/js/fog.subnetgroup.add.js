@@ -1,3 +1,3 @@
 (function($) {
-    $('#subnet-create-form').wireCreateForm();
+    $('#subnetgroup-create-form').wireCreateForm();
 })(jQuery);

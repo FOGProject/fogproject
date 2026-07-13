@@ -81,7 +81,7 @@
                 render: function(data, type, row) {
                     return '<a href="../management/index.php?node='
                         + Common.node
-                        + 'sub=edit&id='
+                        + '&sub=edit&id='
                         + row.imageid
                         + '">'
                         + row.imagename
