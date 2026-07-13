@@ -1181,7 +1181,7 @@ abstract class FOGPage extends FOGBase
             )
             . '" style="display: none;" id="'
             . $id
-            . '">';
+            . '" tabindex="-1">';
         echo '<div class="modal-dialog'
             . ($size ? ' ' . $size : '')
             . '">';
