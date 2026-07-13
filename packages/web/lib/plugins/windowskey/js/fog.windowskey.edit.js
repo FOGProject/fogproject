@@ -12,7 +12,6 @@ $(function() {
         slug: 'windowskey-image',
         item: 'image',
         sub: 'getImagesList',
-        order: [[0, 'asc']],
         columns: [
             {data: 'name'},
             {data: 'association'}

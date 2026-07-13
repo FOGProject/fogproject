@@ -42,8 +42,7 @@
     var imageHostsTable = $.registerAssociationTab({
         slug: 'image-host',
         item: 'host',
-        sub: 'getHostsList',
-        order: [[0, 'asc']]
+        sub: 'getHostsList'
     });
 
     // ---------------------------------------------------------------
@@ -52,7 +51,6 @@
         slug: 'image-storagegroup',
         item: 'storagegroup',
         sub: 'getStoragegroupsList',
-        order: [[0, 'asc']],
         afterCommit: function() {
             setTimeout(imageStoragegroupPrimarySelectorUpdate, 1000);
         }

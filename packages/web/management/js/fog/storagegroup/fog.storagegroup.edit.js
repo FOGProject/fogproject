@@ -16,7 +16,6 @@
         slug: 'storagegroup-image',
         item: 'image',
         sub: 'getImagesList',
-        order: [[0, 'asc']],
         afterCommit: function() {
             // Keep the primary-image table in sync on add/remove/toggle
             // (previously only refreshed on remove).
@@ -158,7 +157,6 @@
         slug: 'storagegroup-snapin',
         item: 'snapin',
         sub: 'getSnapinsList',
-        order: [[0, 'asc']],
         afterCommit: function() {
             // Keep the primary-snapin table in sync on add/remove/toggle
             // (previously only refreshed on remove).
@@ -300,7 +298,6 @@
         slug: 'storagegroup-storagenode',
         item: 'storagenode',
         sub: 'getStoragenodesList',
-        order: [[0, 'asc']],
         afterCommit: function() {
             setTimeout(storagegroupStoragenodeMasterSelectorUpdate, 1000);
         }

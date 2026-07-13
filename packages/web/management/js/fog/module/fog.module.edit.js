@@ -11,8 +11,7 @@ $(function() {
     var moduleHostsTable = $.registerAssociationTab({
         slug: 'module-host',
         item: 'host',
-        sub: 'getHostsList',
-        order: [[0, 'asc']]
+        sub: 'getHostsList'
     });
 
     if (Common.search && Common.search.length > 0) {

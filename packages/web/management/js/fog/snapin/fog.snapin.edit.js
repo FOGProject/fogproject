@@ -31,7 +31,6 @@
         slug: 'snapin-host',
         item: 'host',
         sub: 'getHostsList',
-        order: [[0, 'asc']],
         onDraw: function() {
             // Preserved: the host table's draw historically also refreshed the
             // storagegroup primary selector (cross-tab). Kept behavior-neutral.
@@ -47,7 +46,6 @@
         slug: 'snapin-storagegroup',
         item: 'storagegroup',
         sub: 'getStoragegroupsList',
-        order: [[0, 'asc']],
         afterCommit: function() {
             setTimeout(snapinStoragegroupPrimarySelectorUpdate, 1000);
         }

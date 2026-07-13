@@ -593,8 +593,8 @@ $.registerGeneralTab = function(opts) {
 //                    #{item}DelModal / #confirm{item}DeleteModal. Not always the
 //                    slug's suffix (usergroup-member's item is 'user').
 // opts.sub         - required; the list endpoint sub (e.g. 'getHostsList').
-// opts.order       - optional initial sort (default [[1,'asc'],[0,'asc']];
-//                    image/module pass [[0,'asc']]).
+// opts.order       - optional initial sort override (default
+//                    [[1,'asc'],[0,'asc']] — associated rows first, then name).
 // opts.columns     - optional DataTables columns (default the standard
 //                    mainLink + association pair; ou passes a {data:'name'} col0
 //                    it renders as a host link via opts.columnDefs).
@@ -709,7 +709,12 @@ $.registerAssociationTab = function(opts) {
 
   table.on('draw', function() {
     Common.iCheck(tableSel + ' input');
-    $(tableSel + ' input.associated').on('change', onCheckboxSelect);
+    // .off() before .on() so repeat draw events (responsive recalc, column
+    // adjust) don't stack duplicate change handlers on the same checkbox and
+    // fire N commit toasts per toggle. Mirrors the pre-factory setupHostAssoc.
+    $(tableSel + ' input.associated')
+      .off('change', onCheckboxSelect)
+      .on('change', onCheckboxSelect);
     onSelect(table.rows({selected: true}));
     if (typeof opts.onDraw === 'function') {
       opts.onDraw(table);
