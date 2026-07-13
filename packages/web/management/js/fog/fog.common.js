@@ -123,6 +123,93 @@ $.escapeHtml = function(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+// Windows product-key display mask (mirror of FOGBase::productKeyMask).
+// Empty -> ''. Already-masked (contains a bullet) -> returned unchanged so
+// re-masking a redisplayed value is idempotent. A well-formed Base24 key
+// (25 chars, tight charset) keeps its first and last group and bullets the
+// middle three; anything else is fully bulleted.
+$.productKeyMask = function(value) {
+  var str = String(value == null ? '' : value);
+  if (str.indexOf('•') !== -1) {
+    return str;
+  }
+  var stripped = str.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (stripped === '') {
+    return '';
+  }
+  var bullets = '•••••';
+  if (/^[BCDFGHJKMPQRTVWXY2346789]{25}$/.test(stripped)) {
+    return [
+      stripped.slice(0, 5),
+      bullets,
+      bullets,
+      bullets,
+      stripped.slice(20, 25)
+    ].join('-');
+  }
+  return [bullets, bullets, bullets, bullets, bullets].join('-');
+}
+// Wire a product-key input for consistent 5x5 entry.
+//  - A plain/empty value (add form, or a legacy plaintext key) gets the
+//    standard product-key inputmask immediately.
+//  - A stored value shown masked (contains a bullet) defers the inputmask so
+//    the masked display survives an untouched save (server keeps the stored
+//    key when it sees the bullets). The masked display would fail an
+//    exactlength check, so that attribute is stripped while masked and
+//    restored the moment the user genuinely edits the field. Tab-through,
+//    focus and modifier/navigation keys do NOT engage; a printable keystroke,
+//    paste or cut clears the field and starts a clean masked entry.
+$.initProductKeyField = function(selector) {
+  var $field = $(selector);
+  if (!$field.length) {
+    return;
+  }
+  var masked = String($field.val() || '').indexOf('•') !== -1;
+  if (!masked) {
+    $field.inputmask({mask: Common.masks.productKey});
+    return;
+  }
+  var savedExact = $field.attr('exactlength'),
+    engaged = false;
+  var engage = function() {
+    if (engaged) {
+      return;
+    }
+    engaged = true;
+    if (savedExact !== undefined) {
+      $field.attr('exactlength', savedExact);
+    }
+    $field.val('').inputmask({mask: Common.masks.productKey});
+  };
+  $field.removeAttr('exactlength');
+  $field.on('keydown', function(e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) {
+      return;
+    }
+    switch (e.key) {
+      case 'Tab':
+      case 'Shift':
+      case 'Control':
+      case 'Alt':
+      case 'Meta':
+      case 'Escape':
+      case 'Enter':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'Home':
+      case 'End':
+      case 'PageUp':
+      case 'PageDown':
+        return;
+    }
+    engage();
+  });
+  $field.on('paste cut', function() {
+    engage();
+  });
+}
 // Fill only the keys of obj that are undefined from src (drop-in for the
 // single lodash symbol FOG used, _.defaults; mutates and returns obj).
 $.fogDefaults = function(obj, src) {

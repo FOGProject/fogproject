@@ -331,25 +331,52 @@
       break;
       // Product Keys
     case 'product keys':
+      // Keys are masked by default (5x5 with the middle three groups
+      // bulleted). The reveal button flips this closure flag and redraws;
+      // both the column and the row-group header honour it. The full key is
+      // still present in the JSON payload, so this guards shoulder-surfing,
+      // not a determined viewer.
+      var revealKeys = false;
       var hostTable = $('#hostkeys-table'),
         table = hostTable.registerTable(null, {
           order: [
             [0, 'asc']
           ],
-          buttons: reportButtons,
+          buttons: reportButtons.concat([
+            {
+              text: '<i class="fa fa-eye"></i> Reveal keys',
+              action: function(e, dt, node, config) {
+                revealKeys = !revealKeys;
+                $(node).html(
+                  revealKeys
+                    ? '<i class="fa fa-eye-slash"></i> Hide keys'
+                    : '<i class="fa fa-eye"></i> Reveal keys'
+                );
+                dt.draw(false);
+              }
+            }
+          ]),
           columns: [
             {data: 'mainlink'},
             {data: 'primac'},
             {
               data: 'productKey',
-              render: function(data) {
-                return $.escapeHtml(data);
+              render: function(data, type) {
+                if (type !== 'display') {
+                  return data;
+                }
+                return revealKeys
+                  ? $.escapeHtml(data)
+                  : $.escapeHtml($.productKeyMask(data));
               }
             }
           ],
           rowGroup: {
-            dataSrc: function(row) {
-              return $.escapeHtml(row.productKey);
+            dataSrc: 'productKey',
+            startRender: function(rows, group) {
+              return revealKeys
+                ? $.escapeHtml(group)
+                : $.escapeHtml($.productKeyMask(group));
             }
           },
           rowId: 'id',

@@ -1568,6 +1568,142 @@ abstract class FOGBase
         return $token;
     }
     /**
+     * Strips a product key down to its raw alphanumeric characters.
+     *
+     * Removes hyphens, spaces, bullets and anything else, and uppercases
+     * what remains. Shared by the host, group and Windows Key product-key
+     * handling so the normalization lives in exactly one place.
+     *
+     * @param mixed $val the value to strip
+     *
+     * @return string
+     */
+    public static function productKeyStrip($val)
+    {
+        return preg_replace(
+            '/[^A-Z0-9]/',
+            '',
+            strtoupper((string)$val)
+        );
+    }
+    /**
+     * Formats a product key as XXXXX-XXXXX-XXXXX-XXXXX-XXXXX.
+     *
+     * Strips first, then regroups into hyphen-separated blocks of five.
+     * A short/long value is grouped as far as it goes (no padding).
+     *
+     * @param mixed $val the value to format
+     *
+     * @return string
+     */
+    public static function productKeyFormat($val)
+    {
+        $stripped = self::productKeyStrip($val);
+        if ($stripped === '') {
+            return '';
+        }
+        return rtrim(chunk_split($stripped, 5, '-'), '-');
+    }
+    /**
+     * Validates a Windows product key as true Base24.
+     *
+     * A valid key is exactly 25 characters drawn only from the Base24
+     * alphabet (BCDFGHJKMPQRTVWXY2346789). This is the tightest definition
+     * -- it excludes A E I O U L N S Z and 0 1.
+     *
+     * @param mixed $val the value to validate
+     *
+     * @return bool
+     */
+    public static function productKeyIsValid($val)
+    {
+        return (bool)preg_match(
+            '/^[BCDFGHJKMPQRTVWXY2346789]{25}$/',
+            self::productKeyStrip($val)
+        );
+    }
+    /**
+     * Tells whether a value is a masked product key.
+     *
+     * Masked keys carry the bullet character used by productKeyMask(); the
+     * key entry alphabet never produces one, so its presence unambiguously
+     * marks "this is the masked placeholder, not a real key".
+     *
+     * @param mixed $val the value to test
+     *
+     * @return bool
+     */
+    public static function productKeyIsMasked($val)
+    {
+        return strpos((string)$val, '•') !== false;
+    }
+    /**
+     * Masks a product key for display.
+     *
+     * A valid key shows its first and last groups with the middle three
+     * bulleted (ABCDE-•••••-•••••-•••••-VWXYZ). Any other non-empty value
+     * is fully bulleted so legacy/encrypted blobs never leak. Empty stays
+     * empty, and an already-masked value is returned unchanged so
+     * redisplaying a posted-back value is idempotent.
+     *
+     * @param mixed $val the value to mask
+     *
+     * @return string
+     */
+    public static function productKeyMask($val)
+    {
+        $val = (string)$val;
+        if ($val === '') {
+            return '';
+        }
+        if (self::productKeyIsMasked($val)) {
+            return $val;
+        }
+        $bullets = str_repeat('•', 5);
+        if (self::productKeyIsValid($val)) {
+            $groups = str_split(self::productKeyStrip($val), 5);
+            return implode(
+                '-',
+                [
+                    $groups[0],
+                    $bullets,
+                    $bullets,
+                    $bullets,
+                    $groups[4],
+                ]
+            );
+        }
+        return implode('-', array_fill(0, 5, $bullets));
+    }
+    /**
+     * Resolves a posted product-key value against the stored one.
+     *
+     * Mirrors the AD-password masking contract: if the posted value is the
+     * masked placeholder the field was untouched, so the stored value is
+     * kept as-is. An emptied field clears the key. Anything else must be a
+     * well-formed Base24 key or an exception is thrown (strict entry).
+     *
+     * @param mixed  $posted the value posted from the form
+     * @param string $stored the currently-stored value (kept when masked)
+     *
+     * @throws Exception when a non-empty value is not a valid product key
+     *
+     * @return string the value to persist
+     */
+    public static function productKeyResolve($posted, $stored = '')
+    {
+        if (self::productKeyIsMasked($posted)) {
+            return (string)$stored;
+        }
+        if (self::productKeyStrip($posted) === '') {
+            return '';
+        }
+        if (!self::productKeyIsValid($posted)) {
+            throw new Exception(_('Invalid Windows product key'));
+        }
+        return self::productKeyFormat($posted);
+    }
+    /**
      * AES Encrypt function.
      *
      * @param mixed  $data    the item to encrypt

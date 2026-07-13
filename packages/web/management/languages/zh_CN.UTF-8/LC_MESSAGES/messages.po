@@ -3416,6 +3416,10 @@ msgstr "无效的网址"
 msgid "Invalid Unit"
 msgstr "无效的网址"
 
+#, fuzzy
+msgid "Invalid Windows product key"
+msgstr "主机产品密钥"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""

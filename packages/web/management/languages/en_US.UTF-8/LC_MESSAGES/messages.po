@@ -3415,6 +3415,10 @@ msgstr "Invalid URL"
 msgid "Invalid Unit"
 msgstr "Invalid URL"
 
+#, fuzzy
+msgid "Invalid Windows product key"
+msgstr "Host Product Key"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""

@@ -147,8 +147,9 @@ class WindowsKeyManagement extends FOGPage
                 $description = trim(
                     filter_input(INPUT_POST, 'description')
                 );
-                $key = trim(
-                    filter_input(INPUT_POST, 'key')
+                $key = self::productKeyResolve(
+                    trim(filter_input(INPUT_POST, 'key')),
+                    ''
                 );
                 $exists = self::getClass('WindowsKeyManager')
                     ->exists($windowskey);
@@ -204,6 +205,7 @@ class WindowsKeyManagement extends FOGPage
         } elseif ($keyenc) {
             $key = $keytest;
         }
+        $key = self::productKeyMask($key);
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -306,8 +308,9 @@ class WindowsKeyManagement extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        $key = trim(
-            filter_input(INPUT_POST, 'key')
+        $key = self::productKeyResolve(
+            trim(filter_input(INPUT_POST, 'key')),
+            $this->obj->get('key')
         );
 
         $exists = self::getClass('WindowsKeyManager')

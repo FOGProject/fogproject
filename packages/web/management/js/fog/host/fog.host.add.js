@@ -31,5 +31,5 @@
         });
     });
     $('#mac').inputmask({mask: Common.masks.mac});
-    $('#key').inputmask({mask: Common.masks.productKey});
+    $.initProductKeyField('#key');
 })(jQuery);

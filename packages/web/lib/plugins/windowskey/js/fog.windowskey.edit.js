@@ -5,6 +5,7 @@ $(function() {
         nameInputSel: '#windowskey',
         formSel: '#windowskey-general-form'
     });
+    $.initProductKeyField('#key');
     // ---------------------------------------------------------------
     // IMAGE TAB
     var windowskeyImagesTable = $.registerAssociationTab({

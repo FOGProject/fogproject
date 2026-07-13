@@ -945,16 +945,7 @@ class HostManagement extends FOGPage
                 $key = trim(
                     filter_input(INPUT_POST, 'key')
                 );
-                $productKey = preg_replace(
-                    '/([\w+]{5})/',
-                    '$1-',
-                    str_replace(
-                        '-',
-                        '',
-                        strtoupper($key)
-                    )
-                );
-                $productKey = substr($productKey, 0, 29);
+                $productKey = self::productKeyResolve($key, '');
                 $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
                 $image = (int)filter_input(INPUT_POST, 'image');
                 $kernel = trim(
@@ -1070,7 +1061,7 @@ class HostManagement extends FOGPage
         } elseif ($enctest) {
             $productKey = $productKeytest;
         }
-        $key = $productKey;
+        $key = self::productKeyMask($productKey);
         $kernel = (
             filter_input(INPUT_POST, 'kernel') ?:
             ($this->obj->get('kernel') ?: '')
@@ -1304,21 +1295,13 @@ class HostManagement extends FOGPage
         $imageID = trim(
             filter_input(INPUT_POST, 'image')
         );
-        $key = strtoupper(
-            trim(
-                filter_input(INPUT_POST, 'key')
-            )
+        $key = trim(
+            filter_input(INPUT_POST, 'key')
         );
-        $productKey = preg_replace(
-            '/([\w+]{5})/',
-            '$1-',
-            str_replace(
-                '-',
-                '',
-                $key
-            )
+        $productKey = self::productKeyResolve(
+            $key,
+            $this->obj->get('productKey')
         );
-        $productKey = substr($productKey, 0, 29);
         $kernel = trim(
             filter_input(INPUT_POST, 'kernel')
         );

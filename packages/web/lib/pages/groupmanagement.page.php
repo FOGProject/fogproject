@@ -661,21 +661,20 @@ class GroupManagement extends FOGPage
         $desc = trim(
             (string)filter_input(INPUT_POST, 'description')
         );
-        $key = strtoupper(
-            trim(
-                (string)filter_input(INPUT_POST, 'key')
-            )
+        $key = trim(
+            (string)filter_input(INPUT_POST, 'key')
         );
-        $productKey = preg_replace(
-            '/([\w+]{5})/',
-            '$1-',
-            str_replace(
-                '-',
-                '',
-                $key
-            )
-        );
-        $productKey = substr($productKey, 0, 29);
+        // Empty = leave per-host value alone; literal "NULL" = clear it.
+        // Both are sentinels for the $resolve closure below, so they skip
+        // strict validation; anything else must be a valid Base24 key.
+        if ($key === '' || strcasecmp($key, 'NULL') === 0) {
+            $productKey = $key;
+        } else {
+            if (!self::productKeyIsValid($key)) {
+                throw new Exception(_('Invalid Windows product key'));
+            }
+            $productKey = self::productKeyFormat($key);
+        }
         $kernel = trim(
             (string)filter_input(INPUT_POST, 'kernel')
         );
@@ -724,7 +723,7 @@ class GroupManagement extends FOGPage
             'init'         => $init,
             'biosexit'     => $bte,
             'efiexit'      => $ebte,
-            'productKey'   => trim($productKey),
+            'productKey'   => $productKey,
         ];
         $updateHostItems = [];
         foreach ($candidates as $field => $value) {

@@ -10,7 +10,7 @@
         opts = {};
 
     // Mask for product key.
-    $('#key').inputmask({mask: Common.masks.productKey});
+    $.initProductKeyField('#key');
 
     $('#andHosts').on('change', function(e) {
         if (!this.checked) {

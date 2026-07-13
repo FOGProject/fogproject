@@ -3494,6 +3494,10 @@ msgstr "carpeta no válida"
 msgid "Invalid Unit"
 msgstr "carpeta no válida"
 
+#, fuzzy
+msgid "Invalid Windows product key"
+msgstr "Clave del producto Grupo"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
