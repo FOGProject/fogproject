@@ -5885,8 +5885,8 @@ msgid "Snapin Pack Arguments"
 msgstr "管理单元参数"
 
 #, fuzzy
-msgid "Snapin Pack File"
-msgstr "文件管理单元"
+msgid "Snapin Pack Run With"
+msgstr "管理单元运行方式"
 
 #, fuzzy
 msgid "Snapin Pack Template"
@@ -8632,6 +8632,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "更新管理单元"
+
+#, fuzzy
+#~ msgid "Snapin Pack File"
+#~ msgstr "文件管理单元"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

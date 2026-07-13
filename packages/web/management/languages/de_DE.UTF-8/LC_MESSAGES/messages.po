@@ -5889,8 +5889,8 @@ msgid "Snapin Pack Arguments"
 msgstr "Snapin PaketArgumente"
 
 #, fuzzy
-msgid "Snapin Pack File"
-msgstr "Snapin Paketdatei"
+msgid "Snapin Pack Run With"
+msgstr "Snapin läuft mit"
 
 #, fuzzy
 msgid "Snapin Pack Template"
@@ -8654,6 +8654,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "Snapin erstellt"
+
+#, fuzzy
+#~ msgid "Snapin Pack File"
+#~ msgstr "Snapin Paketdatei"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

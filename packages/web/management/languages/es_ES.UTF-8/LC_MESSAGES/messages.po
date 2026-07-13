@@ -6027,8 +6027,8 @@ msgid "Snapin Pack Arguments"
 msgstr "Nombre snapin"
 
 #, fuzzy
-msgid "Snapin Pack File"
-msgstr "Nombre snapin"
+msgid "Snapin Pack Run With"
+msgstr "snapin replicador"
 
 #, fuzzy
 msgid "Snapin Pack Template"
@@ -8789,6 +8789,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Snapin Created"
+#~ msgstr "Nombre snapin"
+
+#, fuzzy
+#~ msgid "Snapin Pack File"
 #~ msgstr "Nombre snapin"
 
 #, fuzzy

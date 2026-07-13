@@ -344,7 +344,7 @@ class SnapinManagement extends FOGPage
             . self::makeLabel(
                 $labelClass . ' packtemplate d-none',
                 'snaprw',
-                _('Snapin Pack File')
+                _('Snapin Pack Run With')
             ) => self::makeInput(
                 'form-control snapinrw-input cmdlet1',
                 'rw',
@@ -821,7 +821,7 @@ class SnapinManagement extends FOGPage
             . self::makeLabel(
                 $labelClass . ' packtemplate d-none',
                 'snaprw',
-                _('Snapin Pack File')
+                _('Snapin Pack Run With')
             ) => self::makeInput(
                 'form-control snapinrw-input cmdlet1',
                 'rw',

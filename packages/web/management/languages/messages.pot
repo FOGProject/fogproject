@@ -4962,7 +4962,7 @@ msgstr ""
 msgid "Snapin Pack Arguments"
 msgstr ""
 
-msgid "Snapin Pack File"
+msgid "Snapin Pack Run With"
 msgstr ""
 
 msgid "Snapin Pack Template"
