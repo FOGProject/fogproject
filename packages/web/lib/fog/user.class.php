@@ -346,19 +346,25 @@ class User extends FOGController
             $ist,
             $rst
         ) = self::getSetting($keys);
-        $authTime = 0;
-        if (isset($_SESSION['sessioncreated'])) {
-            $authTime = time() - $_SESSION['sessioncreated'];
+        if (!isset($_SESSION['sessioncreated'])) {
+            // First authenticated request in this session (fresh login or
+            // remember-me auto-login). Stamp the creation time now so the
+            // regenerate cadence is measured from here. Without this the
+            // unset case fell through to time()-0, which dwarfs regenTime
+            // and forced a regeneration on every brand-new session.
+            $_SESSION['sessioncreated'] = time();
         }
-        if (!$authTime) {
-            $authTime = time();
-        }
+        $authTime = time() - $_SESSION['sessioncreated'];
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
-            // Rotate the session ID and delete the old session to prevent
-            // fixation. Note: session_regenerate_id() returns bool, not
-            // the new ID.
-            session_regenerate_id(true);
+            // Rotate the session ID to prevent fixation. Pass false so the
+            // old session is NOT deleted immediately: FOG pages fire many
+            // AJAX requests in parallel, and any sibling still carrying the
+            // previous cookie would otherwise land on a deleted ID and --
+            // with session.use_strict_mode -- be handed a new empty session,
+            // silently logging the user out. The old session expires via gc.
+            // Note: session_regenerate_id() returns bool, not the new ID.
+            session_regenerate_id(false);
             $_SESSION['sessioncreated'] = time();
 
             $id = filter_input(INPUT_COOKIE, 'foguserauthid');
