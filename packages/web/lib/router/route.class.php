@@ -1511,11 +1511,17 @@ class Route extends FOGBase
                     if (!is_array($exp)) {
                         continue;
                     }
-                    // List rows never expose secrets (matches grid behavior).
-                    $exp = self::stripSensitive($classname, $exp);
                     $exp = self::expandRelations($classname, $robj, $exp);
                     $exp = self::enrichPluginItems($classname, $robj, $exp);
-                    $rows[$i] = FOGCore::fastmerge($row, $exp);
+                    // Strip AFTER merging so sensitive columns are removed
+                    // whether they come from the getter output ($exp, which
+                    // decrypts them) or from the raw grid row ($row, which
+                    // may carry the encrypted column). List rows never expose
+                    // secrets, matching the bare-grid contract.
+                    $rows[$i] = self::stripSensitive(
+                        $classname,
+                        FOGCore::fastmerge($row, $exp)
+                    );
                 }
                 $listData['data'] = $rows;
                 self::$data = $listData;
