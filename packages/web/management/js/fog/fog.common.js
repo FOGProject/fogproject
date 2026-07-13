@@ -760,11 +760,36 @@ $.getSelectedIds = function(table) {
   return rows.ids().toArray();
 };
 $.notify = function(title, body, type) {
-  new PNotify({
+  // De-dupe identical, still-visible notices. Repeated identical actions
+  // (clicking a button several times, or several genuine updates in a row)
+  // should collapse into the existing toast -- refreshing its auto-hide timer
+  // and showing a running count -- instead of piling separate toasts on the
+  // stack. Distinct messages still stack normally.
+  type = type || 'success';
+  var active = ($.notify._active = $.notify._active || {});
+  var key = type + ' ' + (title || '') + ' ' + (body || '');
+  var existing = active[key];
+  if (existing && existing.state !== 'closed' && existing.state !== 'closing') {
+    existing._fogCount = (existing._fogCount || 1) + 1;
+    existing.update({title: (title || '') + ' (×' + existing._fogCount + ')'});
+    existing.queueRemove(); // restart the auto-hide countdown
+    return existing;
+  }
+  // Prune references to notices that have since closed so the map can't grow
+  // unbounded across a long-lived (AJAX-navigated) page.
+  for (var k in active) {
+    if (active[k].state === 'closed') {
+      delete active[k];
+    }
+  }
+  var notice = new PNotify({
     title: title,
     text: body,
     type: type
   });
+  notice._fogCount = 1;
+  active[key] = notice;
+  return notice;
 };
 $.notifyFromAPI = function(res, isError) {
   if (res === undefined) {
