@@ -116,7 +116,7 @@
                 additems: toAdd
             };
         $.apiCall(method,action,opts,function(err) {
-            disableHostButtons(false);
+            disableHostDefaultButtons(false);
             if (err) {
                 return;
             }
