@@ -1976,6 +1976,26 @@ function setupPasswordReveal() {
         .find('input[type="text"]')
         .prop('type', 'password');
     }
+  }).on('click.fogReveal', 'label[for]', function(e) {
+    /**
+     * File choosers hide the real <input type="file"> behind a styled "Browse"
+     * <label> and rely on the browser to forward the label's click to that
+     * input. Inside a Bootstrap modal the focus-trap intercepts that native
+     * forwarding -- focus jumps to the first field and the picker never opens.
+     * Drive the picker explicitly with showPicker(), which does not depend on
+     * focus. This is a no-op for any label whose target is not a file input,
+     * and it is harmless on non-modal pages where native forwarding works.
+     */
+    var target = document.getElementById($(this).attr('for'));
+    if (!target || target.type !== 'file' || typeof target.showPicker !== 'function') {
+      return;
+    }
+    e.preventDefault();
+    try {
+      target.showPicker();
+    } catch (err) {
+      target.click();
+    }
   }).on('change.fogReveal', ':file', function() {
     var input = $(this),
       numFiles = input.get(0).files ? input.get(0).files.length : 1,
