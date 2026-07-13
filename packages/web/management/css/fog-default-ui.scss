@@ -418,9 +418,22 @@ header.main-header .mobile-logo {
   content: ": ";
 }
 
-.modal-body {
-    max-height: 480px;
-    overflow: auto;
+// Bounded scrollable modals: cap the modal CONTENT (not the dialog height) at
+// the viewport, so the header and footer stay pinned and the body scrolls
+// internally when a form is taller than the screen. Capping content rather than
+// forcing a full-height dialog keeps short modals compact. Replaces a flat
+// `.modal-body` max-height that buried tall-form controls (e.g. the
+// create-snapin "Browse" button) below the fold, under the footer, where clicks
+// were swallowed by Bootstrap's focus-trap. The 3.5rem matches the
+// .modal-dialog vertical margin (1.75rem top + bottom) at >=576px.
+.modal-content {
+    max-height: calc(100vh - 3.5rem);
+    overflow: hidden;
+}
+
+.modal-content > .modal-body {
+    overflow-y: auto;
+    min-height: 0;
 }
 
 .active > a, a.active {
