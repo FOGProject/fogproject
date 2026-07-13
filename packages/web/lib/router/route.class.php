@@ -718,6 +718,24 @@ class Route extends FOGBase
                     file_get_contents('php://input'),
                     $pass_vars
                 );
+                // DataTables POSTs carry pagination in the request body, but a
+                // plain GET (?length=3&start=0) carries it in the query string,
+                // which FOG's rewrite drops from $_GET. Fold ?length/?start in
+                // so GET clients get real pagination too. Only fill fields the
+                // body didn't already set.
+                $qsLen = self::queryParam('length');
+                if ($qsLen !== null && $qsLen !== ''
+                    && !isset($pass_vars['length'])
+                ) {
+                    $pass_vars['length'] = (int)$qsLen;
+                    $qsStart = self::queryParam('start');
+                    // Default start=0 so complex()'s LIMIT is well-formed; a
+                    // length without a start would otherwise LIMIT start,0 and
+                    // return zero rows.
+                    $pass_vars['start'] = ($qsStart !== null && $qsStart !== '')
+                        ? (int)$qsStart
+                        : 0;
+                }
             }
             self::parseExpand();
             if (self::$getterDepth === 0
@@ -1507,31 +1525,102 @@ class Route extends FOGBase
                     if (!$robj->isValid()) {
                         continue;
                     }
-                    $exp = self::getter($classname, $robj);
-                    if (!is_array($exp)) {
-                        continue;
-                    }
-                    $exp = self::expandRelations($classname, $robj, $exp);
+                    // Inline ONLY the requested relations onto the flat grid
+                    // row. Merging the full getter() output here would drag in
+                    // every relation the entity's base serialization embeds
+                    // (for Host: inventory/image/hostscreen/hostalo/macs),
+                    // which defeats the selective contract of ?expand=token.
+                    $exp = self::expandRelations($classname, $robj, $row);
                     $exp = self::enrichPluginItems($classname, $robj, $exp);
-                    // Strip AFTER merging so sensitive columns are removed
-                    // whether they come from the getter output ($exp, which
-                    // decrypts them) or from the raw grid row ($row, which
-                    // may carry the encrypted column). List rows never expose
-                    // secrets, matching the bare-grid contract.
-                    $rows[$i] = self::stripSensitive(
-                        $classname,
-                        FOGCore::fastmerge($row, $exp)
-                    );
+                    // Strip AFTER expanding so sensitive columns are removed
+                    // whether they arrive on the raw grid row (which may carry
+                    // the encrypted column) or on an inlined related object.
+                    // List rows never expose secrets, matching the bare-grid
+                    // contract.
+                    $rows[$i] = self::stripSensitive($classname, $exp);
                 }
                 $listData['data'] = $rows;
                 self::$data = $listData;
             }
+            self::paginate(isset($pass_vars) ? $pass_vars : []);
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
             );
         }
+    }
+    /**
+     * Annotates a list envelope with pagination metadata so a client can see
+     * that a response is a page and walk the pages without recomputing offsets.
+     *
+     * Always adds recordsReturned (rows actually in this response). When the
+     * request asked for a bounded page (?length) against a non-empty result
+     * set, also adds first/prev/next/last page URLs; each is null when it does
+     * not apply (e.g. prevUrl on the first page). recordsTotal/recordsFiltered
+     * keep their existing full-count meaning — the DataTables UI depends on it.
+     *
+     * @param array $pass_vars The resolved pagination request (start/length).
+     *
+     * @return void
+     */
+    public static function paginate($pass_vars)
+    {
+        if (!isset(self::$data['data']) || !is_array(self::$data['data'])) {
+            return;
+        }
+        self::$data['recordsReturned'] = count(self::$data['data']);
+        $length = isset($pass_vars['length']) ? (int)$pass_vars['length'] : 0;
+        $start = isset($pass_vars['start']) ? (int)$pass_vars['start'] : 0;
+        $filtered = isset(self::$data['recordsFiltered'])
+            ? (int)self::$data['recordsFiltered']
+            : 0;
+        if ($length <= 0 || $filtered <= 0) {
+            self::$data['firstUrl'] = null;
+            self::$data['prevUrl'] = null;
+            self::$data['nextUrl'] = null;
+            self::$data['lastUrl'] = null;
+            return;
+        }
+        if ($start < 0) {
+            $start = 0;
+        }
+        $lastStart = intdiv(max(0, $filtered - 1), $length) * $length;
+        self::$data['firstUrl'] = self::pageUrl(0, $length);
+        self::$data['prevUrl'] = $start > 0
+            ? self::pageUrl(max(0, $start - $length), $length)
+            : null;
+        self::$data['nextUrl'] = ($start + $length) < $filtered
+            ? self::pageUrl($start + $length, $length)
+            : null;
+        self::$data['lastUrl'] = self::pageUrl($lastStart, $length);
+    }
+    /**
+     * Builds a request-relative URL for a given pagination window, preserving
+     * every other query parameter of the current request.
+     *
+     * @param int $start  The row offset for the page.
+     * @param int $length The page size.
+     *
+     * @return string
+     */
+    public static function pageUrl($start, $length)
+    {
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $path = $uri;
+        $query = '';
+        $qpos = strpos($uri, '?');
+        if ($qpos !== false) {
+            $path = substr($uri, 0, $qpos);
+            $query = substr($uri, $qpos + 1);
+        }
+        $params = [];
+        if ($query !== '') {
+            parse_str($query, $params);
+        }
+        $params['start'] = (int)$start;
+        $params['length'] = (int)$length;
+        return $path . '?' . http_build_query($params);
     }
     /**
      * Presents the equivalent of a page's list all but only returns count.
@@ -2559,6 +2648,36 @@ class Route extends FOGBase
         exit;
     }
     /**
+     * Emits an RFC 5988 Link header from a paginated list envelope so clients
+     * that prefer headers over the body can walk pages. No-op unless the
+     * payload carries the pagination *Url fields paginate() adds.
+     *
+     * @param mixed $data The response payload.
+     *
+     * @return void
+     */
+    public static function emitLinkHeader($data)
+    {
+        if (!is_array($data) || headers_sent()) {
+            return;
+        }
+        $rels = [
+            'first' => $data['firstUrl'] ?? null,
+            'prev' => $data['prevUrl'] ?? null,
+            'next' => $data['nextUrl'] ?? null,
+            'last' => $data['lastUrl'] ?? null,
+        ];
+        $parts = [];
+        foreach ($rels as $rel => $url) {
+            if ($url) {
+                $parts[] = sprintf('<%s>; rel="%s"', $url, $rel);
+            }
+        }
+        if (count($parts) > 0) {
+            header('Link: ' . implode(', ', $parts));
+        }
+    }
+    /**
      * Gets json data
      *
      * @return string
@@ -2582,6 +2701,7 @@ class Route extends FOGBase
      */
     public static function printer($data, $code = false)
     {
+        self::emitLinkHeader($data);
         $message = json_encode(
             $data,
             JSON_UNESCAPED_UNICODE
