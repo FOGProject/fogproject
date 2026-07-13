@@ -2846,7 +2846,7 @@ class Route extends FOGBase
         self::$expand = [];
         self::$expandAll = false;
         self::$expandDepth = 0;
-        $raw = filter_input(INPUT_GET, 'expand');
+        $raw = self::queryParam('expand');
         if ($raw === null || $raw === false || $raw === '') {
             return;
         }
@@ -2857,6 +2857,39 @@ class Route extends FOGBase
             self::$expandAll = true;
         }
         self::$expand = array_values($tokens);
+    }
+    /**
+     * Reads a query-string parameter for the API.
+     *
+     * FOG's API is served through an nginx/apache internal rewrite to
+     * api/index.php that does not propagate the request's query string into
+     * QUERY_STRING/$_GET (the API otherwise takes every input from the request
+     * body). The original request line still carries the query string, so fall
+     * back to parsing REQUEST_URI when $_GET has not been populated.
+     *
+     * @param string $key The parameter name to read.
+     *
+     * @return string|null The raw value, or null when absent.
+     */
+    protected static function queryParam($key)
+    {
+        $val = filter_input(INPUT_GET, $key);
+        if ($val !== null && $val !== false) {
+            return $val;
+        }
+        $qs = $_SERVER['QUERY_STRING'] ?? '';
+        if ($qs === '') {
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+            $pos = strpos($uri, '?');
+            if ($pos !== false) {
+                $qs = substr($uri, $pos + 1);
+            }
+        }
+        if ($qs === '') {
+            return null;
+        }
+        parse_str($qs, $parsed);
+        return isset($parsed[$key]) ? (string)$parsed[$key] : null;
     }
     /**
      * True when the client asked for any relation expansion.
