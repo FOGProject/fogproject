@@ -1488,7 +1488,17 @@ class Route extends FOGBase
                 && isset(self::$data['data'])
                 && is_array(self::$data['data'])
             ) {
-                foreach (self::$data['data'] as $i => $row) {
+                // Serializing a row calls getter()/expandRelations()/plugin
+                // hooks, which reach helpers like getIds() that overwrite the
+                // shared static self::$data (getIds even leaves it an empty
+                // string). Snapshot the payload and enrich a local copy so the
+                // loop is immune to that clobbering, then restore it.
+                $listData = self::$data;
+                $rows = $listData['data'];
+                foreach ($rows as $i => $row) {
+                    if (!is_array($row)) {
+                        continue;
+                    }
                     $rid = isset($row['id']) ? (int)$row['id'] : 0;
                     if ($rid < 1) {
                         continue;
@@ -1505,8 +1515,10 @@ class Route extends FOGBase
                     $exp = self::stripSensitive($classname, $exp);
                     $exp = self::expandRelations($classname, $robj, $exp);
                     $exp = self::enrichPluginItems($classname, $robj, $exp);
-                    self::$data['data'][$i] = FOGCore::fastmerge($row, $exp);
+                    $rows[$i] = FOGCore::fastmerge($row, $exp);
                 }
+                $listData['data'] = $rows;
+                self::$data = $listData;
             }
         } catch (Exception $e) {
             self::sendResponse(
