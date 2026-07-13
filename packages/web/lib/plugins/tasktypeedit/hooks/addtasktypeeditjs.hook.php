@@ -68,6 +68,7 @@ class AddTaskTypeEditJS extends Hook
     {
         $this->injectPluginJS($arguments, [
             'tasktypeedit' => ['fallback' => true],
+            'report' => ['secondary' => true, 'fallback' => true],
         ]);
     }
 }

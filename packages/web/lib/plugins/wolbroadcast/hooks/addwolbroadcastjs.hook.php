@@ -68,6 +68,7 @@ class AddWOLBroadcastJS extends Hook
     {
         $this->injectPluginJS($arguments, [
             'wolbroadcast' => ['fallback' => true],
+            'report' => ['secondary' => true, 'fallback' => true],
         ]);
     }
 }

@@ -701,6 +701,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned Group"
+msgstr "Nome gruppo di archiviazione"
+
+#, fuzzy
 msgid "Assigned Group Name"
 msgstr "Nome gruppo di archiviazione"
 
@@ -1567,6 +1571,10 @@ msgid "Display Name Attribute"
 msgstr "Attributo nome utente"
 
 #, fuzzy
+msgid "Display Name Enabled"
+msgstr "Attributo nome utente"
+
+#, fuzzy
 msgid "Display With"
 msgstr "Display"
 
@@ -1802,6 +1810,10 @@ msgstr "Esportazione Completata"
 msgid "Export Configuration"
 msgstr "Esporta configurazione"
 
+#, fuzzy
+msgid "Export LDAP Servers"
+msgstr "LDAP Servers"
+
 msgid "Export Locations"
 msgstr "Esporta luoghi"
 
@@ -1825,6 +1837,10 @@ msgstr "Esporta Stato delle attività"
 
 msgid "Export Task Types"
 msgstr "Esporta tipi di attività"
+
+#, fuzzy
+msgid "Export WOL Broadcasts"
+msgstr "Host Export"
 
 msgid "Export Windows Keys"
 msgstr "Esporta chiavi Windows"
@@ -3160,6 +3176,10 @@ msgstr ""
 msgid "Information"
 msgstr "Informazioni"
 
+#, fuzzy
+msgid "Init"
+msgstr "Host Init"
+
 msgid "Init FS"
 msgstr ""
 
@@ -3396,6 +3416,10 @@ msgstr "Inventario"
 msgid "Inventory Static"
 msgstr "Inventario"
 
+#, fuzzy
+msgid "Is Advanced"
+msgstr "Avanzate"
+
 msgid "Is Enabled"
 msgstr "È abilitato"
 
@@ -3488,6 +3512,10 @@ msgid "LDAP"
 msgstr "OpenLDAP"
 
 msgid "LDAP Connection  Name"
+msgstr "Nome connessione LDAP"
+
+#, fuzzy
+msgid "LDAP Connection Name"
 msgstr "Nome connessione LDAP"
 
 msgid "LDAP Create Fail"
@@ -4475,6 +4503,9 @@ msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr "Oppure non è stato definito alcun numero per l'accesso alla sessione"
+
+msgid "Order"
+msgstr ""
 
 msgid "Organizational Unit"
 msgstr "Unità organizzativa"
@@ -6784,6 +6815,10 @@ msgstr "uptime"
 msgid "Use Display Name from Directory"
 msgstr ""
 
+#, fuzzy
+msgid "Use Group Match"
+msgstr "Host Luoghi"
+
 msgid "Use LDAP SSL"
 msgstr ""
 
@@ -6860,6 +6895,10 @@ msgstr "Creazione utente riuscita"
 
 msgid "User DN"
 msgstr "User DN"
+
+#, fuzzy
+msgid "User Group"
+msgstr "gruppi"
 
 #, fuzzy
 msgid "User Group Association"

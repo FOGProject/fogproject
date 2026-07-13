@@ -1,6 +1,6 @@
 <?php
 /**
- * Test report
+ * OU report.
  *
  * PHP Version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Test report
+ * OU report.
  *
  * @category OU_Report
  * @package  FOGProject
@@ -28,17 +28,22 @@ class OU_Report extends ReportManagement
      */
     public function file()
     {
-        $this->headerData = [];
-        $this->attributes = [];
-
-        $obj = self::getClass('OUManager');
-        foreach ($obj->getColumns() as $common => &$real) {
-            $this->headerData[] = $common;
-            $this->attributes[] = [];
-            unset($real);
-        }
-
         $this->title = _('Export OUs');
+
+        $this->headerData = [
+            _('OU Name'),
+            _('Description'),
+            _('Created By'),
+            _('Created Time'),
+            _('OU DN')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
 
         echo '<div class="card">';
         echo '<div class="card-header">';
@@ -50,8 +55,21 @@ class OU_Report extends ReportManagement
         echo '</p>';
         echo '</div>';
         echo '<div class="card-body">';
-        $this->render(12, 'ou-export-table');
+        echo $this->render(12, 'ou-report-table');
         echo '</div>';
         echo '</div>';
+    }
+    /**
+     * Returns the JSON data for this report.
+     *
+     * @return void
+     */
+    public function getList()
+    {
+        header('Content-type: application/json');
+        Route::listem('ou');
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo Route::getData();
+        exit;
     }
 }

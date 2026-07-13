@@ -68,6 +68,7 @@ class AddWindowsKeyJS extends Hook
     {
         $this->injectPluginJS($arguments, [
             'windowskey' => ['fallback' => true],
+            'report' => ['secondary' => true, 'fallback' => true],
             'image' => ['secondary' => true],
         ]);
     }

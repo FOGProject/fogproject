@@ -68,6 +68,7 @@ class AddSiteJS extends Hook
     {
         $this->injectPluginJS($arguments, [
             'site' => ['fallback' => true],
+            'report' => ['secondary' => true, 'fallback' => true],
             'user' => ['secondary' => true],
             'host' => ['secondary' => true],
             'group' => ['secondary' => true],

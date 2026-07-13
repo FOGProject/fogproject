@@ -730,6 +730,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned Group"
+msgstr "Name der Speichergruppe"
+
+#, fuzzy
 msgid "Assigned Group Name"
 msgstr "Name der Speichergruppe"
 
@@ -1634,6 +1638,10 @@ msgid "Display Name Attribute"
 msgstr "Benutzername Attribut"
 
 #, fuzzy
+msgid "Display Name Enabled"
+msgstr "Benutzername Attribut"
+
+#, fuzzy
 msgid "Display With"
 msgstr "Anzeige"
 
@@ -1873,6 +1881,10 @@ msgid "Export Configuration"
 msgstr "Konfiguration exportieren"
 
 #, fuzzy
+msgid "Export LDAP Servers"
+msgstr "LDAP-Server"
+
+#, fuzzy
 msgid "Export Locations"
 msgstr "Standorte exportieren"
 
@@ -1899,6 +1911,10 @@ msgstr "Taskstatus exportieren"
 #, fuzzy
 msgid "Export Task Types"
 msgstr "Task-Typen exportieren"
+
+#, fuzzy
+msgid "Export WOL Broadcasts"
+msgstr "Hosts exportieren"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -3290,6 +3306,10 @@ msgstr ""
 msgid "Information"
 msgstr "Informationen"
 
+#, fuzzy
+msgid "Init"
+msgstr "Host Init"
+
 msgid "Init FS"
 msgstr ""
 
@@ -3540,6 +3560,10 @@ msgstr "Inventar"
 msgid "Inventory Static"
 msgstr "Inventar"
 
+#, fuzzy
+msgid "Is Advanced"
+msgstr "Erweitert"
+
 msgid "Is Enabled"
 msgstr "ist aktiviert"
 
@@ -3637,6 +3661,10 @@ msgstr "OpenLDAP"
 
 #, fuzzy
 msgid "LDAP Connection  Name"
+msgstr "LDAP Verbindungsname"
+
+#, fuzzy
+msgid "LDAP Connection Name"
 msgstr "LDAP Verbindungsname"
 
 #, fuzzy
@@ -4673,6 +4701,9 @@ msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr "oder es wurde keine Nummer für die Beitrittssitzung definiert"
+
+msgid "Order"
+msgstr ""
 
 msgid "Organizational Unit"
 msgstr "Organisationseinheit"
@@ -7097,6 +7128,10 @@ msgstr "Betriebszeit"
 msgid "Use Display Name from Directory"
 msgstr ""
 
+#, fuzzy
+msgid "Use Group Match"
+msgstr "Host Standort"
+
 msgid "Use LDAP SSL"
 msgstr ""
 
@@ -7177,6 +7212,10 @@ msgstr "Benutzer erfolgreich erstellt"
 #, fuzzy
 msgid "User DN"
 msgstr "Benutzer DN"
+
+#, fuzzy
+msgid "User Group"
+msgstr "Gruppen"
 
 #, fuzzy
 msgid "User Group Association"

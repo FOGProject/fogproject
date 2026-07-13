@@ -743,6 +743,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned Group"
+msgstr "Nombre del grupo de almacenamiento"
+
+#, fuzzy
 msgid "Assigned Group Name"
 msgstr "Nombre del grupo de almacenamiento"
 
@@ -1663,6 +1667,10 @@ msgid "Display Name Attribute"
 msgstr "Nombre de usuario"
 
 #, fuzzy
+msgid "Display Name Enabled"
+msgstr "Nombre de usuario"
+
+#, fuzzy
 msgid "Display With"
 msgstr "Diariamente"
 
@@ -1906,6 +1914,10 @@ msgstr "impresora iPrint"
 msgid "Export Configuration"
 msgstr "Configuración"
 
+#, fuzzy
+msgid "Export LDAP Servers"
+msgstr "servidor TFTP"
+
 msgid "Export Locations"
 msgstr ""
 
@@ -1931,6 +1943,10 @@ msgstr ""
 #, fuzzy
 msgid "Export Task Types"
 msgstr "Tipo de tarea"
+
+#, fuzzy
+msgid "Export WOL Broadcasts"
+msgstr "Editar anfitrión"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -3363,6 +3379,10 @@ msgstr ""
 msgid "Information"
 msgstr "Información"
 
+#, fuzzy
+msgid "Init"
+msgstr "ID de host"
+
 msgid "Init FS"
 msgstr ""
 
@@ -3624,6 +3644,10 @@ msgid "Inventory Static"
 msgstr "ID de inventario"
 
 #, fuzzy
+msgid "Is Advanced"
+msgstr "Avanzado"
+
+#, fuzzy
 msgid "Is Enabled"
 msgstr "habilitado"
 
@@ -3722,6 +3746,10 @@ msgstr ""
 
 msgid "LDAP Connection  Name"
 msgstr ""
+
+#, fuzzy
+msgid "LDAP Connection Name"
+msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "LDAP Create Fail"
@@ -4786,6 +4814,9 @@ msgid ""
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
+msgstr ""
+
+msgid "Order"
 msgstr ""
 
 msgid "Organizational Unit"
@@ -7241,6 +7272,10 @@ msgstr "el tiempo de actividad"
 msgid "Use Display Name from Directory"
 msgstr ""
 
+#, fuzzy
+msgid "Use Group Match"
+msgstr "Lista de host"
+
 msgid "Use LDAP SSL"
 msgstr ""
 
@@ -7322,6 +7357,10 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "User DN"
 msgstr "Nombre de usuario"
+
+#, fuzzy
+msgid "User Group"
+msgstr "Grupo"
 
 #, fuzzy
 msgid "User Group Association"

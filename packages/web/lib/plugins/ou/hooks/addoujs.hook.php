@@ -70,7 +70,7 @@ class AddOUJS extends Hook
     {
         $this->injectPluginJS($arguments, [
             'ou' => ['fallback' => true],
-            'report' => ['secondary' => true],
+            'report' => ['secondary' => true, 'fallback' => true],
             'host' => ['secondary' => true],
             'group' => ['secondary' => true],
         ]);

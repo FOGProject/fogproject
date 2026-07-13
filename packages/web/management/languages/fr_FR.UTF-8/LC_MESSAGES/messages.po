@@ -733,6 +733,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned Group"
+msgstr "Nom du groupe de stockage"
+
+#, fuzzy
 msgid "Assigned Group Name"
 msgstr "Nom du groupe de stockage"
 
@@ -1639,6 +1643,10 @@ msgid "Display Name Attribute"
 msgstr "Nom d'utilisateur"
 
 #, fuzzy
+msgid "Display Name Enabled"
+msgstr "Nom d'utilisateur"
+
+#, fuzzy
 msgid "Display With"
 msgstr "Afficher"
 
@@ -1877,6 +1885,10 @@ msgid "Export Configuration"
 msgstr "Exporter la configuration"
 
 #, fuzzy
+msgid "Export LDAP Servers"
+msgstr "Serveur LDAP"
+
+#, fuzzy
 msgid "Export Locations"
 msgstr "hôte Lieu"
 
@@ -1903,6 +1915,10 @@ msgstr "Unis Groupe"
 #, fuzzy
 msgid "Export Task Types"
 msgstr "Types de tâches"
+
+#, fuzzy
+msgid "Export WOL Broadcasts"
+msgstr "Les hôtes à l'exportation"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -3293,6 +3309,10 @@ msgstr ""
 msgid "Information"
 msgstr "Information"
 
+#, fuzzy
+msgid "Init"
+msgstr "Liste des hôtes"
+
 msgid "Init FS"
 msgstr ""
 
@@ -3543,6 +3563,10 @@ msgstr "Inventaire"
 msgid "Inventory Static"
 msgstr "Inventaire"
 
+#, fuzzy
+msgid "Is Advanced"
+msgstr "Avancée"
+
 msgid "Is Enabled"
 msgstr "Est autorisé"
 
@@ -3637,6 +3661,10 @@ msgstr ""
 
 #, fuzzy
 msgid "LDAP Connection  Name"
+msgstr "Nom de la localisation"
+
+#, fuzzy
+msgid "LDAP Connection Name"
 msgstr "Nom de la localisation"
 
 #, fuzzy
@@ -4674,6 +4702,9 @@ msgid ""
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
+msgstr ""
+
+msgid "Order"
 msgstr ""
 
 msgid "Organizational Unit"
@@ -7096,6 +7127,10 @@ msgstr "uptime"
 msgid "Use Display Name from Directory"
 msgstr ""
 
+#, fuzzy
+msgid "Use Group Match"
+msgstr "hôte Lieu"
+
 msgid "Use LDAP SSL"
 msgstr ""
 
@@ -7176,6 +7211,10 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "User DN"
 msgstr "Nom d'utilisateur"
+
+#, fuzzy
+msgid "User Group"
+msgstr "Groupes"
 
 #, fuzzy
 msgid "User Group Association"

@@ -1,34 +1,8 @@
 (function($) {
-  var reportString = window.atob(Common.f),
-    reportButtons = [
-      {
-        extend: 'copy',
-        text: '<i class="fa fa-copy"></i> Copy'
-      },
-      {
-        extend: 'csv',
-        text: '<i class="fa fa-file-excel-o"></i> CSV'
-      },
-      {
-        extend: 'excel',
-        text: '<i class="fa fa-file-excel-o"></i> Excel'
-      },
-      {
-        extend: 'print',
-        text: '<i class="fa fa-print"></i> Print'
-      },
-      {
-        extend: 'colvis',
-        text: '<i class="fa fa-columns"></i> Column Visibility'
-      },
-      {
-        text: '<i class="fa fa-refresh"></i> Refresh',
-        action: function(e, dt, node, config) {
-          dt.clear().draw();
-          dt.ajax.reload();
-        }
-      }
-    ];
+  // reportButtons is defined globally in fog.common.js and shared with the
+  // plugin report tables (registerReportTable), so every report toolbar is
+  // identical.
+  var reportString = window.atob(Common.f);
 
   // This will call our respective calls
   // to report the requested data.

@@ -44,6 +44,38 @@ var shouldReAuth,
       }
     }
   ],
+  // Toolbar for report tables. Same as exportButtons minus the "CSV (All)"
+  // full-export action -- reports are a read-only view, not an import source,
+  // so the standard client-side CSV button is all they need.
+  reportButtons = [
+    {
+      extend: 'copy',
+      text: '<i class="fa fa-copy"></i> Copy'
+    },
+    {
+      extend: 'csv',
+      text: '<i class="fa fa-file-excel-o"></i> CSV'
+    },
+    {
+      extend: 'excel',
+      text: '<i class="fa fa-file-excel-o"></i> Excel'
+    },
+    {
+      extend: 'print',
+      text: '<i class="fa fa-print"></i> Print'
+    },
+    {
+      extend: 'colvis',
+      text: '<i class="fa fa-columns"></i> Column Visibility'
+    },
+    {
+      text: '<i class="fa fa-refresh"></i> Refresh',
+      action: function(e, dt, node, config) {
+        dt.clear().draw();
+        dt.ajax.reload();
+      }
+    }
+  ],
   $_GET,
   Common;
 /**
@@ -1398,6 +1430,39 @@ $.fn.registerExportTable = function(columns, opts) {
     select: false,
     ajax: {
       url: '../management/index.php?node=' + Common.node + '&sub=getExportList',
+      type: 'post'
+    }
+  });
+  if (Common.search && Common.search.length > 0) {
+    table.search(Common.search).draw();
+  }
+  return table;
+};
+/**
+ * Register a plugin report table.
+ *
+ * Mirror of registerExportTable for the Reports node: same serverSide plumbing
+ * and column contract, but the toolbar is reportButtons (no full-export CSV)
+ * and the data comes from the report's own getList() via
+ * node=report&sub=getList&f=<report>, keyed off Common.f. Every plugin report
+ * JS calls this so the tables stay identical across plugins.
+ *
+ * @param {Array}  columns DataTables column defs ({data:'name'}, ...).
+ * @param {Object} opts    Optional overrides (order).
+ * @return {Object} the DataTables API for the registered table.
+ */
+$.fn.registerReportTable = function(columns, opts) {
+  opts = opts || {};
+  var table = this.registerTable(null, {
+    buttons: reportButtons,
+    order: opts.order || [[0, 'asc']],
+    columns: columns,
+    rowId: 'id',
+    processing: true,
+    serverSide: true,
+    select: false,
+    ajax: {
+      url: '../management/index.php?node=report&sub=getList&f=' + Common.f,
       type: 'post'
     }
   });

@@ -732,6 +732,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned Group"
+msgstr "存储组名称"
+
+#, fuzzy
 msgid "Assigned Group Name"
 msgstr "存储组名称"
 
@@ -1636,6 +1640,10 @@ msgid "Display Name Attribute"
 msgstr "用户名"
 
 #, fuzzy
+msgid "Display Name Enabled"
+msgstr "用户名"
+
+#, fuzzy
 msgid "Display With"
 msgstr "显示"
 
@@ -1874,6 +1882,10 @@ msgid "Export Configuration"
 msgstr "导出配置"
 
 #, fuzzy
+msgid "Export LDAP Servers"
+msgstr "LDAP服务器"
+
+#, fuzzy
 msgid "Export Locations"
 msgstr "主机位置"
 
@@ -1900,6 +1912,10 @@ msgstr "任务的国家"
 #, fuzzy
 msgid "Export Task Types"
 msgstr "任务类型"
+
+#, fuzzy
+msgid "Export WOL Broadcasts"
+msgstr "主机出口"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -3290,6 +3306,10 @@ msgstr ""
 msgid "Information"
 msgstr "信息"
 
+#, fuzzy
+msgid "Init"
+msgstr "主机列表"
+
 msgid "Init FS"
 msgstr ""
 
@@ -3540,6 +3560,10 @@ msgstr "库存"
 msgid "Inventory Static"
 msgstr "库存"
 
+#, fuzzy
+msgid "Is Advanced"
+msgstr "高级"
+
 msgid "Is Enabled"
 msgstr "已启用"
 
@@ -3634,6 +3658,10 @@ msgstr ""
 
 #, fuzzy
 msgid "LDAP Connection  Name"
+msgstr "地点名称"
+
+#, fuzzy
+msgid "LDAP Connection Name"
 msgstr "地点名称"
 
 #, fuzzy
@@ -4669,6 +4697,9 @@ msgid ""
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
+msgstr ""
+
+msgid "Order"
 msgstr ""
 
 msgid "Organizational Unit"
@@ -7083,6 +7114,10 @@ msgstr "正常运行时间"
 msgid "Use Display Name from Directory"
 msgstr ""
 
+#, fuzzy
+msgid "Use Group Match"
+msgstr "主机位置"
+
 msgid "Use LDAP SSL"
 msgstr ""
 
@@ -7163,6 +7198,10 @@ msgstr "用户创建"
 #, fuzzy
 msgid "User DN"
 msgstr "用户名"
+
+#, fuzzy
+msgid "User Group"
+msgstr "组"
 
 #, fuzzy
 msgid "User Group Association"
