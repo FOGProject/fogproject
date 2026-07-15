@@ -466,7 +466,7 @@ listPackages() {
             packages="$packages php-bcmath bc"
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php-intl"
-                for i in fr de eu es pt zh en; do
+                for i in fr de eu es pt zh en ja; do
                     packages="$packages glibc-langpack-${i}"
                 done
             fi
@@ -492,7 +492,7 @@ listPackages() {
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php-intl"
                 if [[ $installlang -eq 1 ]]; then
-                    for i in fr de eu es pt zh-hans en; do
+                    for i in fr de eu es pt zh-hans en ja; do
                         packages="$packages language-pack-${i}"
                     done
                 fi
@@ -876,7 +876,7 @@ installPackages() {
             packages="$packages php-bcmath bc"
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php-intl"
-                for i in fr de eu es pt zh en; do
+                for i in fr de eu es pt zh en ja; do
                     packages="$packages glibc-langpack-${i}";
                 done
             fi
@@ -934,7 +934,7 @@ installPackages() {
             case $linuxReleaseName_lower in
                 *ubuntu*|*mint*)
                     if [[ $installlang -eq 1 ]]; then
-                        for i in fr de eu es pt zh-hans en; do
+                        for i in fr de eu es pt zh-hans en ja; do
                             packages="$packages language-pack-${i}";
                         done
                     fi
