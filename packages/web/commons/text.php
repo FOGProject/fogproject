@@ -392,3 +392,4 @@ $foglangt['Language']['fr'] = 'Français';
 $foglangt['Language']['de'] = 'Deutsch';
 $foglangt['Language']['it'] = 'Italiano';
 $foglangt['Language']['pt'] = 'Português';
+$foglangt['Language']['ja'] = '日本語';
