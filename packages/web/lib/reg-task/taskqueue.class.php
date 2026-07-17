@@ -453,10 +453,43 @@ class TaskQueue extends TaskingElement
         if (!self::$FOGSSH->connect()) {
             throw new Exception(_('Unable to connect to ssh during move upload'));
         }
+        // Move any existing image aside instead of deleting it up front. If the
+        // rename below fails we can put it back, rather than having destroyed
+        // the previous image for a capture that never landed.
+        $backup = sprintf('%s.movetmp', $dest);
+        $moved = false;
         if (self::$FOGSSH->exists($dest)) {
-            self::$FOGSSH->delete($dest);
+            self::$FOGSSH->delete($backup);
+            if (!self::$FOGSSH->sftp_rename($dest, $backup)) {
+                self::$FOGSSH->disconnect();
+                throw new Exception(
+                    sprintf(
+                        '%s: %s',
+                        _('Unable to move the existing image aside'),
+                        $dest
+                    )
+                );
+            }
+            $moved = true;
         }
-        self::$FOGSSH->sftp_rename($src, $dest);
+        if (!self::$FOGSSH->sftp_rename($src, $dest)) {
+            if ($moved) {
+                self::$FOGSSH->sftp_rename($backup, $dest);
+            }
+            self::$FOGSSH->disconnect();
+            throw new Exception(
+                sprintf(
+                    '%s: %s -> %s. %s',
+                    _('Unable to move the captured image into place'),
+                    $src,
+                    $dest,
+                    _('Check the capture folder is owned by and writable to the storage node user')
+                )
+            );
+        }
+        if ($moved) {
+            self::$FOGSSH->delete($backup);
+        }
         self::$FOGSSH->sftp_chmod($dest, 0775);
         self::$FOGSSH->disconnect();
         if ($this->Image->get('format') == 1) {

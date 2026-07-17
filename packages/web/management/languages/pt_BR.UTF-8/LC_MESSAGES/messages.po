@@ -1092,6 +1092,10 @@ msgstr "Número de série"
 msgid "Chassis Version"
 msgstr "chassis Versão"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -6958,6 +6962,14 @@ msgstr "Falha ao atualizar tarefa"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Falha ao destruir Storage Node"
+
+#, fuzzy
+msgid "Unable to move the captured image into place"
+msgstr "Falha ao atualizar tarefa"
+
+#, fuzzy
+msgid "Unable to move the existing image aside"
+msgstr "Falha ao excluir arquivos de imagem"
 
 msgid "Unable to open file for reading"
 msgstr "Não é possível abrir arquivo para leitura"

@@ -330,7 +330,12 @@ class FOGFTP
         $newname
     ) {
         if (!@ftp_rename($this->_link, $oldname, $newname)) {
-            if (!$this->put($newname, $oldname, $this->mode)) {
+            // Only fall back to uploading when oldname is a real local file.
+            // A remote path that happens to exist locally as a directory would
+            // otherwise be "uploaded" as an empty file and report success.
+            if (!is_file($oldname)
+                || !$this->put($newname, $oldname, $this->mode)
+            ) {
                 $this->ftperror($this->data);
             }
         }

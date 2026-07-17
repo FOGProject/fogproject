@@ -1032,6 +1032,10 @@ msgstr "シャーシシリアル"
 msgid "Chassis Version"
 msgstr "シャーシバージョン"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -6585,6 +6589,14 @@ msgstr "プラグインの詳細を特定できません。"
 
 msgid "Unable to find master Storage Node"
 msgstr "マスターストレージノードが見つかりません"
+
+#, fuzzy
+msgid "Unable to move the captured image into place"
+msgstr "実行に失敗しました。イメージファイル: "
+
+#, fuzzy
+msgid "Unable to move the existing image aside"
+msgstr "イメージファイルの削除に失敗しました"
 
 msgid "Unable to open file for reading"
 msgstr "読み取り用にファイルを開けません"

@@ -1047,6 +1047,10 @@ msgstr "Numero di serie"
 msgid "Chassis Version"
 msgstr "Telaio Version"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -6653,6 +6657,14 @@ msgstr "Impossibile aggiornare compito"
 
 msgid "Unable to find master Storage Node"
 msgstr "Impossibile trovare il Nodo Archiviazione master"
+
+#, fuzzy
+msgid "Unable to move the captured image into place"
+msgstr "Impossibile aggiornare compito"
+
+#, fuzzy
+msgid "Unable to move the existing image aside"
+msgstr "Impossibile eliminare i file di immagine"
 
 msgid "Unable to open file for reading"
 msgstr "Impossibile aprire il file per la lettura"

@@ -1092,6 +1092,10 @@ msgstr "序列号"
 msgid "Chassis Version"
 msgstr "机箱版本"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -6949,6 +6953,14 @@ msgstr "无法更新任务"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "未能摧毁存储节点"
+
+#, fuzzy
+msgid "Unable to move the captured image into place"
+msgstr "无法更新任务"
+
+#, fuzzy
+msgid "Unable to move the existing image aside"
+msgstr "无法删除图像文件"
 
 msgid "Unable to open file for reading"
 msgstr "无法打开文件进行读取"
