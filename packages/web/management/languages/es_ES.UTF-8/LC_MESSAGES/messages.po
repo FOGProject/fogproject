@@ -952,6 +952,10 @@ msgstr ""
 msgid "Check that database is running"
 msgstr "Campo obligatorio está vacio"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 #, fuzzy
 msgid "Checkin Time"
 msgstr "Fecha ya existe"
@@ -6577,6 +6581,9 @@ msgstr "No se puede encontrar el nodo de almacenamiento:"
 #, fuzzy
 msgid "Unable to get server information!"
 msgstr "Información de hardware"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr ""

@@ -962,6 +962,10 @@ msgstr "Check here to see what printers can be added"
 msgid "Check that database is running"
 msgstr "Check that database is running"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 #, fuzzy
 msgid "Checkin Time"
 msgstr "Task Checkin Time"
@@ -6625,6 +6629,9 @@ msgstr "Failed to destroy Storage Node"
 #, fuzzy
 msgid "Unable to get server information!"
 msgstr "Unable to pull server information!"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr "Unable to open file for reading"

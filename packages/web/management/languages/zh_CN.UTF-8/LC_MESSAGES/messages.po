@@ -833,6 +833,10 @@ msgstr "点击以查看可添加用户"
 msgid "Check that database is running"
 msgstr "检查数据库运行状态"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checkin Time"
 msgstr "登录时间"
 
@@ -5785,6 +5789,9 @@ msgstr "找不到主存储节点"
 
 msgid "Unable to get server information!"
 msgstr "无法拉取服务器的信息！"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr "无法打开文件进行读取"

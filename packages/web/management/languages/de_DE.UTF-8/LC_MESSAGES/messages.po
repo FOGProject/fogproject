@@ -965,6 +965,10 @@ msgstr "Überprüfen Sie hier, welche Drucker hinzugefügt werden können"
 msgid "Check that database is running"
 msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 #, fuzzy
 msgid "Checkin Time"
 msgstr "Check-in-Zeit"
@@ -6636,6 +6640,9 @@ msgstr "Fehler beim Finden des Master Storage Nodes"
 #, fuzzy
 msgid "Unable to get server information!"
 msgstr "Es konnten keine Serverinformationen abgerufen werden!"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr "Datei kann zum Lesen nicht geöffnet werden"

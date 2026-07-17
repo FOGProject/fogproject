@@ -841,6 +841,10 @@ msgstr "Vérifiez ici pour voir quels utilisateurs peuvent être ajoutés"
 msgid "Check that database is running"
 msgstr "Vérifiez que la base de données est en cours d'exécution"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checkin Time"
 msgstr "Heure d'enregistrement"
 
@@ -5864,6 +5868,9 @@ msgstr "Impossible de trouver le nœud de stockage principal"
 #, fuzzy
 msgid "Unable to get server information!"
 msgstr "Impossible d'obtenir des informations sur le serveur !"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr "Impossible d'ouvrir le fichier pour la lecture"

@@ -810,6 +810,10 @@ msgstr ""
 msgid "Check that database is running"
 msgstr ""
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checkin Time"
 msgstr ""
 
@@ -5739,6 +5743,9 @@ msgid "Unable to find master Storage Node"
 msgstr ""
 
 msgid "Unable to get server information!"
+msgstr ""
+
+msgid "Unable to move the captured image into place"
 msgstr ""
 
 msgid "Unable to open file for reading"

@@ -401,9 +401,41 @@ class TaskQueue extends TaskingElement
             ->set('host', $this->StorageNode->get('ip'))
             ->set('username', $this->StorageNode->get('user'))
             ->set('password', $this->StorageNode->get('pass'))
-            ->connect()
-            ->delete($dest)
-            ->rename($src, $dest)
+            ->connect();
+        /**
+         * Move any existing image aside instead of deleting it up front. If the
+         * rename below fails we can put it back, rather than having destroyed
+         * the previous image for a capture that never landed.
+         */
+        $backup = sprintf('%s.movetmp', $dest);
+        $moved = false;
+        if (self::$FOGFTP->exists($dest)) {
+            self::$FOGFTP->delete($backup);
+            self::$FOGFTP->rename($dest, $backup);
+            $moved = true;
+        }
+        try {
+            self::$FOGFTP->rename($src, $dest);
+        } catch (Exception $e) {
+            if ($moved) {
+                self::$FOGFTP->rename($backup, $dest);
+            }
+            self::$FOGFTP->close();
+            throw new Exception(
+                sprintf(
+                    '%s: %s -> %s. %s. %s',
+                    _('Unable to move the captured image into place'),
+                    $src,
+                    $dest,
+                    _('Check the capture folder is owned by and writable to the storage node user'),
+                    $e->getMessage()
+                )
+            );
+        }
+        if ($moved) {
+            self::$FOGFTP->delete($backup);
+        }
+        self::$FOGFTP
             ->chmod(0775, $dest)
             ->close();
         if ($this->Image->get('format') == 1) {

@@ -1483,6 +1483,15 @@ EOF
     dots "Setting up exports file"
     if [[ $blexports != 1 ]]; then
         echo "Skipped"
+        if [[ -f "$nfsconfig" ]] && grep -q "no_root_squash" "$nfsconfig"; then
+            echo
+            echo "  ** WARNING: ${nfsconfig} still exports with no_root_squash."
+            echo "  ** Captures land as root, so moving the image out of"
+            echo "  ** ${storageLocation}/dev fails with '550 Rename failed'."
+            echo "  ** Replace the ${storageLocation}/dev export options with:"
+            echo "  **   all_squash,anonuid=$(id -u $username),anongid=$(id -g $username)"
+            echo
+        fi
     else
         mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$error_log 2>&1
         userId=$(id -u $username)
