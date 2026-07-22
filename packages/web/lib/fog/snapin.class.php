@@ -275,7 +275,7 @@ class Snapin extends FOGController
         $groupids = array_filter($groupids);
         if (count($groupids) < 1) {
             $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
+            $groupids = self::minId($groupids);
         }
         $this->set('storagegroups', (array)$groupids);
     }
@@ -334,7 +334,7 @@ class Snapin extends FOGController
         $count = count($groupids);
         if ($count < 1) {
             $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
+            $groupids = self::minId($groupids);
             if ($groupids < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
@@ -348,7 +348,7 @@ class Snapin extends FOGController
             unset($groupid);
         }
         if (count($primaryGroup) < 1) {
-            $primaryGroup = @min((array) $groupids);
+            $primaryGroup = self::minId((array) $groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
@@ -379,7 +379,7 @@ class Snapin extends FOGController
         }
         if ($primaryCount < 1) {
             $groupid = self::getSubObjectIDs('StorageGroup');
-            $groupid = @min($groupid);
+            $groupid = self::minId($groupid);
             $this->setPrimaryGroup($groupid);
         }
         $assocID = self::getSubObjectIDs(
@@ -389,7 +389,7 @@ class Snapin extends FOGController
                 'snapinID' => $this->get('id'),
             )
         );
-        $assocID = @min((array) $assocID);
+        $assocID = self::minId((array) $assocID);
 
         return self::getClass('SnapinGroupAssociation', $assocID)->isPrimary();
     }

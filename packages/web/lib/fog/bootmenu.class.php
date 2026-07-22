@@ -234,7 +234,7 @@ class BootMenu extends FOGBase
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        $StorageNodeID = @min(
+        $StorageNodeID = self::minId(
             self::getSubObjectIDs(
                 'StorageNode',
                 array(
@@ -399,7 +399,7 @@ class BootMenu extends FOGBase
                         'StorageNode'
                     );
                 }
-                $StorageNode = new StorageNode(@min($storageNodeIDs));
+                $StorageNode = new StorageNode(self::minId($storageNodeIDs));
             }
         } else {
             $StorageNode = current($StorageNodes);
@@ -457,7 +457,7 @@ class BootMenu extends FOGBase
         $this->_initrd = "imgfetch $imagefile";
         self::$HookManager
             ->processEvent('BOOT_MENU_ITEM');
-        $PXEMenuID = @max(
+        $PXEMenuID = self::maxId(
             self::getSubObjectIDs(
                 'PXEMenuOptions',
                 array(
@@ -1454,7 +1454,7 @@ class BootMenu extends FOGBase
             $TaskType = $Task->getTaskType();
             $imagingTasks = $TaskType->isImagingTask();
             if ($TaskType->isMulticast()) {
-                $msaID = @max(
+                $msaID = self::maxId(
                     self::getSubObjectIDs(
                         'MulticastSessionAssociation',
                         array(

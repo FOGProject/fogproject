@@ -477,7 +477,7 @@ class Group extends FOGController
         $imagingTypes = $TaskType->isImagingTask();
         $now = $this->niceDate();
         if ($imagingTypes) {
-            $imageID = @min(
+            $imageID = self::minId(
                 self::getSubObjectIDs(
                     'Host',
                     array(
@@ -904,7 +904,7 @@ class Group extends FOGController
         $adpasspat = "/^\*{32}$/";
         $adpassglobalpat = "/^#{32}$/";
         if (preg_match($adpasspat, $pass)) {
-            $tempHost = new Host(@max($this->get('hosts')));
+            $tempHost = new Host(self::maxId($this->get('hosts')));
             $pass = $tempHost->get('ADPass');
             unset($tempHost);
         } elseif (preg_match($adpassglobalpat, $pass)) {

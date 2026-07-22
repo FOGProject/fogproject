@@ -2156,6 +2156,37 @@ abstract class FOGBase
         return TaskState::getCancelledState();
     }
     /**
+     * Safe min() over a collection that may be empty.
+     *
+     * PHP 8's min()/max() throw an uncaught ValueError on an empty array
+     * (the @ operator does not suppress it, and it is an Error not an
+     * Exception so surrounding try/catch blocks miss it). Use these
+     * wrappers wherever the source collection can legitimately be empty.
+     *
+     * @param mixed $ids the collection (or scalar) to reduce
+     *
+     * @return mixed the minimum value, or 0 when empty
+     */
+    public static function minId($ids)
+    {
+        $ids = (array)$ids;
+        return empty($ids) ? 0 : min($ids);
+    }
+    /**
+     * Safe max() over a collection that may be empty.
+     *
+     * @param mixed $ids the collection (or scalar) to reduce
+     *
+     * @return mixed the maximum value, or 0 when empty
+     *
+     * @see self::minId()
+     */
+    public static function maxId($ids)
+    {
+        $ids = (array)$ids;
+        return empty($ids) ? 0 : max($ids);
+    }
+    /**
      * Put string between two strings.
      *
      * @param string $string the string to insert
