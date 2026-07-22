@@ -50,15 +50,14 @@ try {
     $Image = $Task->getImage();
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {
+            $msIDs = FOGCore::getSubObjectIDs(
+                'MulticastSessionAssociation',
+                array('taskID' => $Task->get('id')),
+                'msID'
+            );
             $MulticastSession = FOGCore::getClass(
                 'MulticastSession',
-                @max(
-                    FOGCore::getSubObjectIDs(
-                        'MulticastSessionAssociation',
-                        array('taskID' => $Task->get('id')),
-                        'msID'
-                    )
-                )
+                $msIDs ? max($msIDs) : 0
             );
             $taskImgID = $Task->get('imageID');
             $mcImgID = $MulticastSession->get('image');
