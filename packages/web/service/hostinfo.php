@@ -61,7 +61,7 @@ try {
 
             $MulticastSession = FOGCore::getClass(
                 'MulticastSession',
-                @max($msIDs)
+                $msIDs ? max($msIDs) : 0
             );
             $taskImgID = $Task->get('imageID');
             $mcImgID = $MulticastSession->get('image');
