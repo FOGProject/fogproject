@@ -291,7 +291,7 @@ class BootMenu extends FOGBase
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        $StorageNodeID = @min(Route::getIds('storagenode', ['isEnabled' => 1, 'isMaster' => 1]));
+        $StorageNodeID = self::minId(Route::getIds('storagenode', ['isEnabled' => 1, 'isMaster' => 1]));
         $StorageNode = new StorageNode($StorageNodeID);
         $serviceNames = [
             'FOG_EFI_BOOT_EXIT_TYPE',
@@ -436,7 +436,7 @@ class BootMenu extends FOGBase
                 if (count($storageNodeIDs ?: []) < 1) {
                     $storageNodeIDs = Route::getIds('storagenode', false);
                 }
-                $StorageNode = new StorageNode(@min($storageNodeIDs));
+                $StorageNode = new StorageNode(self::minId($storageNodeIDs));
             }
         } else {
             $first = array_shift($StorageNodes->data);
@@ -480,7 +480,7 @@ class BootMenu extends FOGBase
         $this->_initrd = "imgfetch $imagefile";
         self::$HookManager
             ->processEvent('BOOT_MENU_ITEM');
-        $PXEMenuID = @max(Route::getIds('pxemenuoptions', ['default' => 1]));
+        $PXEMenuID = self::maxId(Route::getIds('pxemenuoptions', ['default' => 1]));
         $defaultMenu = new PXEMenuOptions($PXEMenuID);
         $menuname = (
             $defaultMenu->isValid() ?
@@ -1325,7 +1325,7 @@ class BootMenu extends FOGBase
             $TaskType = $Task->getTaskType();
             $imagingTasks = $TaskType->isImagingTask();
             if ($TaskType->isMulticast()) {
-                $msaID = @max(Route::getIds('multicastsessionassociation', ['taskID' => $Task->get('id')]));
+                $msaID = self::maxId(Route::getIds('multicastsessionassociation', ['taskID' => $Task->get('id')]));
                 $MulticastSessionAssoc = new MulticastSessionAssociation($msaID);
                 $MulticastSession = $MulticastSessionAssoc->getMulticastSession();
                 if ($MulticastSession && $MulticastSession->isValid()) {

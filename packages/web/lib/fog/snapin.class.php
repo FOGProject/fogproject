@@ -235,7 +235,7 @@ class Snapin extends FOGController
         );
         if (count($groups ?: []) < 1) {
             $groups = Route::getIds('storagegroup', false);
-            $groups = [@min($groups)];
+            $groups = [self::minId($groups)];
         }
         $this->set('storagegroups', $groups);
     }
@@ -281,7 +281,7 @@ class Snapin extends FOGController
         $count = count($groupids);
         if ($count < 1) {
             $groupids = Route::getIds('storagegroup', false);
-            $groupids = [@min($groupids)];
+            $groupids = [self::minId($groupids)];
             if (count($groupids) < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
@@ -295,7 +295,7 @@ class Snapin extends FOGController
             unset($groupid);
         }
         if (count($primaryGroup) < 1) {
-            $primaryGroup = @min($groupids);
+            $primaryGroup = self::minId($groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
@@ -329,7 +329,7 @@ class Snapin extends FOGController
         }
         if ($primaryCount < 1) {
             $groupid = Route::getIds('storagegroup', false);
-            $groupid = @min($groupid);
+            $groupid = self::minId($groupid);
             if ($groupid > 0) {
                 self::setPrimaryGroup($groupid, $snapinID);
             }
@@ -342,7 +342,7 @@ class Snapin extends FOGController
             'snapingroupassociation',
             $find
         );
-        $assocID = @min($assocID);
+        $assocID = self::minId($assocID);
 
         return self::getClass('SnapinGroupAssociation', $assocID)->isPrimary();
     }
@@ -422,7 +422,7 @@ class Snapin extends FOGController
         $runWithArgs = trim((string)($post['rwa'] ?? ''));
         $storagegroup = (int)trim((string)($post['storagegroup'] ?? ''));
         if (!$storagegroup) {
-            $storagegroup = @min(Route::getIds('storagegroup', false));
+            $storagegroup = self::minId(Route::getIds('storagegroup', false));
         }
         $snapinfile = basename(trim((string)($post['snapinfileexist'] ?? '')));
         $uploadfile = '';

@@ -548,7 +548,7 @@ class Group extends FOGController
         $now = $this->niceDate();
         if ($imagingTypes) {
             $find = ['id' => $hostids];
-            $imageID = @min(Route::getIds('host', $find, 'imageID'));
+            $imageID = self::minId(Route::getIds('host', $find, 'imageID'));
             $Image = new Image($imageID);
             if (!$Image->isValid()) {
                 throw new Exception(self::$foglang['ImageNotValid']);

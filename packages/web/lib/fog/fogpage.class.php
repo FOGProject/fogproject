@@ -4028,7 +4028,7 @@ abstract class FOGPage extends FOGBase
                                 ['imageID' => $Item->get('id')]
                             ) < 1
                         ) {
-                            $sgid = @min(
+                            $sgid = self::minId(
                                 Route::getIds('storagegroup', false) ?: []
                             );
                             if ($sgid > 0) {

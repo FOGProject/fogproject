@@ -265,7 +265,7 @@ class Image extends FOGController
         );
         if (count($groups) < 1) {
             $groups = Route::getIds('storagegroup', false);
-            $groups = [@min($groups)];
+            $groups = [self::minId($groups)];
         }
         $this->set('storagegroups', $groups);
     }
@@ -311,7 +311,7 @@ class Image extends FOGController
         $count = count($groupids);
         if ($count < 1) {
             $groupids = Route::getIds('storagegroup', false);
-            $groupids = [@min($groupids)];
+            $groupids = [self::minId($groupids)];
             if (count($groupids) < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
@@ -325,7 +325,7 @@ class Image extends FOGController
             unset($groupid);
         }
         if (count($primaryGroup) < 1) {
-            $primaryGroup = @min($groupids);
+            $primaryGroup = self::minId($groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
@@ -404,7 +404,7 @@ class Image extends FOGController
             if (count($groupids) < 1) {
                 $groupids = Route::getIds('storagegroup', false);
             }
-            $groupid = @min($groupids);
+            $groupid = self::minId($groupids);
             if ($groupid > 0) {
                 self::setPrimaryGroup($groupid, $imageID);
             }
@@ -417,7 +417,7 @@ class Image extends FOGController
             'imageassociation',
             $find
         );
-        $assocID = @min($assocID);
+        $assocID = self::minId($assocID);
 
         return self::getClass('ImageAssociation', $assocID)->isPrimary();
     }
@@ -438,9 +438,9 @@ class Image extends FOGController
             'storagegroupID'
         );
         if (count($groupids ?: []) < 1) {
-            $groupid = @min($this->get('storagegroups'));
+            $groupid = self::minId($this->get('storagegroups'));
         } else {
-            $groupid = @min($groupids);
+            $groupid = self::minId($groupids);
         }
         return new StorageGroup($groupid);
     }

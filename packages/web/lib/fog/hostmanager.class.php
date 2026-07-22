@@ -203,7 +203,7 @@ class HostManager extends FOGManagerController
                 }
                 // Sort host ID by frequency (descending order) and get the most frequent one
                 arsort($hostIDCounts);
-                $mostFrequentHostIDs = array_keys($hostIDCounts, max($hostIDCounts));
+                $mostFrequentHostIDs = array_keys($hostIDCounts, self::maxId($hostIDCounts));
 
                 // Check if there is a tie for the most frequent host ID
                 if (count($mostFrequentHostIDs) > 1) {
@@ -231,6 +231,6 @@ class HostManager extends FOGManagerController
                 $MACHost = $mostFrequentHostIDs;
             }
         }
-        self::$Host = new Host(@max($MACHost));
+        self::$Host = new Host(self::maxId($MACHost));
     }
 }
