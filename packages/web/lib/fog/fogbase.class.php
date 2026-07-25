@@ -353,6 +353,19 @@ abstract class FOGBase
      */
     public static $mySchema = 0;
     /**
+     * Schema step that backfilled roles onto every pre-RBAC local account.
+     *
+     * A database below this version predates RBAC: role assignments either do
+     * not exist yet or are incomplete, so permission checks there report "no
+     * access" for accounts that are in fact administrators. isSchemaAdmin()
+     * uses it to bound the legacy uType fallback to exactly that window. A
+     * fixed step number, not FOG_SCHEMA -- it must not follow future bumps,
+     * or the fallback would revive on every subsequent upgrade.
+     *
+     * @var int
+     */
+    const RBAC_ROLE_BACKFILL_SCHEMA = 316;
+    /**
      * Allows pages to include the main gui or not.
      *
      * @var bool
@@ -3663,6 +3676,32 @@ abstract class FOGBase
     public static function isSchemaAdmin()
     {
         if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+            return false;
+        }
+        // RBAC is the authority. A schema deploy rewrites the whole database,
+        // so the global '*' holder -- and only the global '*' holder -- gets
+        // to drive one. No scoped role, however broad, qualifies.
+        if (Authorization::isUnrestricted()) {
+            return true;
+        }
+        // Legacy fallback, deliberately confined to the pre-RBAC upgrade
+        // window and nothing else.
+        //
+        // Schema step 316 is what gives every pre-existing local account an
+        // explicit role (uType 0 -> Administrator, uType 1 -> Legacy
+        // Restricted). Until it has run, roleUserAssoc either does not exist
+        // at all or holds no row for this user, so getPermissions() correctly
+        // resolves to nothing and the check above cannot succeed. Without
+        // this branch an administrator upgrading from any pre-RBAC release
+        // would find the schema updater -- the one page able to create the
+        // role tables in the first place -- permanently unreachable.
+        //
+        // Keyed on the installed schema version rather than probing for the
+        // tables so that it retires itself: the moment the deploy it enables
+        // finishes, mySchema is 316 and this branch is dead for good. uType
+        // is a migration input here, not a standing second opinion on who is
+        // an administrator.
+        if (self::$mySchema >= self::RBAC_ROLE_BACKFILL_SCHEMA) {
             return false;
         }
         // Resolve the type through USER_TYPE_HOOK, the same way ProcessLogin
