@@ -95,11 +95,20 @@ class FilterSiteMassData extends Hook
         if (Authorization::isUnrestricted()) {
             return;
         }
-        $data = &$arguments['data'];
-        if (empty($data['data']) || !is_array($data['data'])) {
+        // Snapshot the envelope by value rather than working through a live
+        // reference to Route::$data. Site::filterInScope() below issues its
+        // own Route::getIds(), and getIds() finishes with `self::$data = ''`
+        // -- so the payload this hook is filtering was being blanked out from
+        // under it mid-method. Reading $data['data'] afterwards then hit
+        // "Cannot access offset of type string on string" and 500'd the
+        // request. Any restricted user listing a scoped class over REST hit
+        // this; it stayed hidden because that needs an API user who holds a
+        // non-'*' role, which nothing exercised until now.
+        $payload = $arguments['data'];
+        if (empty($payload['data']) || !is_array($payload['data'])) {
             return;
         }
-        $rows = $data['data'];
+        $rows = $payload['data'];
         $ids = [];
         foreach ($rows as $row) {
             $ids[] = (int)(
@@ -119,10 +128,16 @@ class FilterSiteMassData extends Hook
             }
         }
         if (count($kept) === count($rows)) {
+            // Nothing filtered, but Route::$data may still have been clobbered
+            // by the lookups above, so restore the snapshot before returning
+            // instead of leaving the caller with an empty payload.
+            $arguments['data'] = $payload;
             return;
         }
-        $data['data'] = array_values($kept);
-        $data['recordsFiltered'] = count($kept);
-        $data['recordsTotal'] = count($kept);
+        $payload['data'] = array_values($kept);
+        $payload['recordsFiltered'] = count($kept);
+        $payload['recordsTotal'] = count($kept);
+        // Single write-back through the reference the HookManager handed us.
+        $arguments['data'] = $payload;
     }
 }
