@@ -207,6 +207,15 @@
       columnDefs: [
         {
           render: function(data, type, row) {
+            if (type !== 'display') {
+              return data;
+            }
+            return fogMulticastClients(data, row.sessclients);
+          },
+          targets: 1
+        },
+        {
+          render: function(data, type, row) {
             return '<i class="fa fa-' + row.taskstateicon + '"></i>';
           },
           targets: 3

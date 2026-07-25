@@ -1,3 +1,23 @@
+/**
+ * Renders a multicast session's client count as joined/expected.
+ *
+ * msClients is -1 or -2 until the first host checks in, which is a sentinel
+ * meaning "nobody yet", not a count. Showing it raw made 0-of-30 and
+ * 29-of-30 indistinguishable. msSessClients is 0 for sessions created
+ * without an expected size, which have no total to count towards.
+ */
+function fogMulticastClients(joined, expected) {
+  joined = parseInt(joined, 10);
+  expected = parseInt(expected, 10);
+  if (isNaN(joined) || joined < 0) {
+    joined = 0;
+  }
+  if (isNaN(expected) || expected < 1) {
+    return joined + ' / <span class="text-muted">&mdash;</span>';
+  }
+  return joined + ' / ' + expected;
+}
+
 var shouldReAuth,
   reAuthModal,
   deleteConfirmButton,

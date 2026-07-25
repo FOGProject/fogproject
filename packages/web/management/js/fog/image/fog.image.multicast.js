@@ -91,6 +91,15 @@
             },
             {
                 render: function(data, type, row) {
+                    if (type !== 'display') {
+                        return data;
+                    }
+                    return fogMulticastClients(data, row.sessclients);
+                },
+                targets: 2
+            },
+            {
+                render: function(data, type, row) {
                     data = parseInt(data);
                     return '<div class="progress progress-md active">'
                         + '<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="'
