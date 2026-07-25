@@ -358,6 +358,11 @@ class Route extends FOGBase
     /**
      * Just ensures the where items are consistent for later use
      *
+     * A STRING argument is request-supplied (the `[*:whereItems]` URL
+     * segment), so its values get the caller-facing wildcard convenience --
+     * see expandSearchWildcards(). An ARRAY argument came from PHP code and
+     * is left exactly as passed, so a value is matched literally.
+     *
      * @param string|array $whereItems The test item.
      * @return array $whereItems The normalized structure
      */
@@ -372,6 +377,46 @@ class Route extends FOGBase
                     $whereItems[$key] = explode(',', $val);
                 }
             }
+            $whereItems = self::expandSearchWildcards($whereItems);
+        }
+        return $whereItems;
+    }
+    /**
+     * Turn the caller-facing wildcards '*' and '+' into the SQL '%'.
+     *
+     * This USED to live in _buildSql(), where it ran against every filter
+     * value including ones built in PHP -- so any internal lookup whose
+     * value could legitimately contain '*' or '+' silently became a LIKE
+     * against a wildcard. Authorization::adminExistsGiven() looked up the
+     * holders of the RBAC global permission with ['name' => '*'], which
+     * compiled to `rpName LIKE '%'` and matched every permission row; the
+     * lockout guard consequently believed an administrator always remained
+     * and let an install delete its last one.
+     *
+     * The convenience is real, but it belongs to values that came from the
+     * request -- a URL where-string or the JSON search body -- not to
+     * values assembled by code. Applying it at those two entry points
+     * instead of in the builder keeps the feature and removes the trap.
+     *
+     * _buildSql() still switches to LIKE when a value contains '%', so a
+     * caller that genuinely wants a pattern (the capone plugin looks up
+     * 'FOG_PLUGIN_CAPONE_%') passes one and is unaffected.
+     *
+     * @param array $whereItems the parsed filters
+     *
+     * @return array
+     */
+    public static function expandSearchWildcards($whereItems)
+    {
+        foreach ((array)$whereItems as $key => $val) {
+            if (is_array($val)) {
+                // Array values compile to IN (...) and were never wildcarded.
+                continue;
+            }
+            if (!is_string($val)) {
+                continue;
+            }
+            $whereItems[$key] = str_replace(['+', '*'], '%', $val);
         }
         return $whereItems;
     }
@@ -2584,7 +2629,10 @@ class Route extends FOGBase
                 unset($key);
             }
 
-            return $find;
+            // Request-supplied, so the caller-facing '*'/'+' wildcards apply
+            // here (they used to be expanded down in _buildSql, which also
+            // caught internally-built filters -- see expandSearchWildcards).
+            return self::expandSearchWildcards($find);
         } catch (Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
@@ -3705,12 +3753,16 @@ class Route extends FOGBase
                             $where .= ' IN (' . implode(',', $placeholders) . ')';
                         }
                     } else {
-                        $field = str_replace(
-                            ['+', '*'],
-                            '%',
-                            $field
-                        );
-                        $oper = false !== strpos($field, '%') ? 'LIKE' : '=';
+                        // No wildcard rewriting here. '*'/'+' are expanded at
+                        // the request-facing entry points only (see
+                        // expandSearchWildcards); a value assembled in PHP is
+                        // matched literally, so a permission string like '*'
+                        // or a path containing '+' cannot turn itself into a
+                        // LIKE that matches far more than the caller meant. A
+                        // caller wanting a pattern passes '%' explicitly.
+                        $oper = false !== strpos((string)$field, '%')
+                            ? 'LIKE'
+                            : '=';
                         if ($retWhere) {
                             $db = DatabaseManager::getLink();
                             $where .= ' ' . $oper . ' ' . $db->quote($field);
