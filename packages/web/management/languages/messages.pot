@@ -2918,6 +2918,9 @@ msgstr ""
 msgid "It can be used on Windows"
 msgstr ""
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr ""
 
@@ -5429,6 +5432,9 @@ msgid "Terms and Conditions"
 msgstr ""
 
 msgid "Text"
+msgstr ""
+
+msgid "That session has already started"
 msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"

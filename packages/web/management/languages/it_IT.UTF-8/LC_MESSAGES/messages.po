@@ -3041,6 +3041,9 @@ msgstr "È limitato"
 msgid "It can be used on Windows"
 msgstr "Può essere utilizzato in Windows"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr "È destinato principalmente alla metodologia Smart Installer ora"
 
@@ -5637,6 +5640,10 @@ msgstr "Termini e condizioni"
 
 msgid "Text"
 msgstr "Testo"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "Questo host esiste già"
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "L'impostazione \"nodo master\" definisce quale"

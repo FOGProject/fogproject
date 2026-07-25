@@ -2951,6 +2951,9 @@ msgstr "受限"
 msgid "It can be used on Windows"
 msgstr "在Windows上可用"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr "它现在主要针对智能安装方法"
 
@@ -5470,6 +5473,10 @@ msgstr "条款和条件"
 
 msgid "Text"
 msgstr "文本"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "主机已经存在"
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "'是否为主节点' 设置定义了哪个"

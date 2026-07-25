@@ -2934,6 +2934,9 @@ msgstr "制限付き"
 msgid "It can be used on Windows"
 msgstr "Windows で使用できます"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr "現在は主にスマートインストーラー方式向けに設計されています"
 
@@ -5457,6 +5460,10 @@ msgstr "利用条件"
 
 msgid "Text"
 msgstr "テキスト"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "このホストは既に存在します"
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "「マスターノード」設定は、どのノードを"

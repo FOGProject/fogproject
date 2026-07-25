@@ -880,6 +880,32 @@ class BootMenu extends FOGBase
             $this->_parseMe($Send);
             return;
         }
+        // The session exists but the sender is already transmitting, so
+        // joining now would pull a partial image while still counting this
+        // host as part of the session. Say so rather than claiming no
+        // session has that name.
+        if (!$MulticastSession->isJoinable()) {
+            $Send['checksession'] = array(
+                'echo That session has already started and can no longer '
+                . 'be joined.',
+                'clear sessname',
+                'sleep 3',
+                'set arch ${buildarch}',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
+                'params',
+                'param mac0 ${net0/mac}',
+                'param arch ${arch}',
+                'param platform ${platform}',
+                'param sessionJoin 1',
+                'param sysuuid ${uuid}',
+                'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+                'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                ':bootme',
+                "chain -ar $this->_booturl/ipxe/boot.php##params",
+            );
+            $this->_parseMe($Send);
+            return;
+        }
         $this->multijoin($MulticastSession->get('id'));
     }
     /**

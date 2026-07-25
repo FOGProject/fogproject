@@ -85,10 +85,16 @@ class MulticastTask extends FOGService
                 'taskID'
             );
             $taskIDs = json_decode(Route::getData(), true);
-            $count = count($taskIDs ?: []);
-            if ($count < 1) {
-                $count = $Task->sessclients;
-            }
+            // udp-sender waits for this many receivers before transmitting,
+            // so it must be the number expected to join, not merely the
+            // number that happen to have joined by the time the daemon first
+            // sees the session. Using the joined count alone made a named
+            // session start as soon as its early arrivals connected, which
+            // is exactly the straggler that sessclients exists to wait for.
+            $count = max(
+                count($taskIDs ?: []),
+                (int)$Task->sessclients
+            );
             if ($count < 1) {
                 self::getClass('MulticastSessionManager')->update(
                     ['id' => $Task->id],
@@ -512,12 +518,13 @@ class MulticastTask extends FOGService
                 null
             ),
             sprintf(
+                // The whole-inventory fallback is gone: getAllMulticastTasks()
+                // cancels any session whose count is below one before it ever
+                // constructs the task, and that is the only construction site,
+                // so the fallback could never fire -- but if it had, it would
+                // have held the sender for every host FOG knows about.
                 ' --min-receivers %d',
-                (
-                    $this->getClientCount() ?
-                    $this->getClientCount():
-                    self::getClass('HostManager')->count()
-                )
+                $this->getClientCount()
             ),
             sprintf(' --max-wait %s', '%d'),
             (

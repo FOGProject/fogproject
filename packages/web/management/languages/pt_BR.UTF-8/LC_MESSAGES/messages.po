@@ -2958,6 +2958,9 @@ msgstr "É restrito"
 msgid "It can be used on Windows"
 msgstr "Pode ser usado no Windows"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr ""
 "É voltado principalmente para a metodologia de instalador inteligente agora"
@@ -5486,6 +5489,10 @@ msgstr "Termos e Condições"
 
 msgid "Text"
 msgstr "Texto"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "Este host já existe"
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "A configuração 'É Nó Mestre' define qual"

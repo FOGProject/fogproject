@@ -1432,6 +1432,7 @@ class Host extends FOGController
                     return $MulticastSession;
                 };
                 $assoc = false;
+                $MulticastSession = null;
                 $showStates = self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
@@ -1462,6 +1463,21 @@ class Host extends FOGController
                 $MultiSessJoin = array_values($MultiSessJoin);
                 if (is_array($MultiSessJoin) && count($MultiSessJoin)) {
                     $MulticastSession = array_shift($MultiSessJoin);
+                    // Joining a session that is already transmitting hands
+                    // this host a partial image while still counting it as
+                    // part of the session.
+                    if (!$MulticastSession->isJoinable()) {
+                        if ($sessionjoin) {
+                            throw new Exception(
+                                _('That session has already started')
+                                . '. '
+                                . _('It can no longer be joined')
+                            );
+                        }
+                        // Not joining by name, so a fresh session is the
+                        // right answer rather than a partial image.
+                        $MulticastSession = null;
+                    }
                 }
                 unset($MultiSessJoin);
                 if ($MulticastSession instanceof MulticastSession

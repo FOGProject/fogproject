@@ -3384,6 +3384,9 @@ msgstr "ist eingeschränkt"
 msgid "It can be used on Windows"
 msgstr "Kompatibel mit Windows,"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 #, fuzzy
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr "Diese richtet sich in erster Linie für den Smart Installer"
@@ -6275,6 +6278,10 @@ msgstr "Allgemeine Geschäftsbedingungen"
 
 msgid "Text"
 msgstr "Text"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "Dieser Host ist bereits vorhanden."
 
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
