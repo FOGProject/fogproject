@@ -898,6 +898,186 @@ class Authorization extends FOGBase
         return false;
     }
     /**
+     * Builds the adminExistsGiven() change map for deleting rows of an
+     * RBAC-relevant class, then refuses the delete if it would leave the
+     * install with no effective administrator.
+     *
+     * The guards used to live only in the three management pages, so every
+     * path that was not those pages -- the REST API, assocSetter()'s
+     * cascade, a plugin calling the ORM -- walked straight past them. Both
+     * delete paths in this codebase issue raw SQL (Route::deletemass() and
+     * FOGController::destroy() each build their own DELETE), so the guard
+     * has to sit on the operations rather than on a model method, which is
+     * what makes it a standing property rather than a UI courtesy.
+     *
+     * Unrecognised classes are not RBAC-relevant and pass through
+     * untouched.
+     *
+     * @param string $classname the model class being deleted from
+     * @param array  $ids       the ids of the rows being removed
+     *
+     * @throws Exception when no administrator would remain
+     * @return void
+     */
+    public static function assertAdminRemainsAfterDelete($classname, $ids)
+    {
+        $ids = array_values(
+            array_filter(array_map('intval', (array)$ids))
+        );
+        if (count($ids) < 1) {
+            return;
+        }
+        $changes = [];
+        switch (strtolower((string)$classname)) {
+            case 'user':
+                $changes = ['excludeUsers' => $ids];
+                break;
+            case 'role':
+                $changes = ['removeRoles' => $ids];
+                break;
+            case 'usergroup':
+                $changes = ['removeGroups' => $ids];
+                break;
+            case 'rolepermission':
+                $changes = [
+                    'rolePermissions' => self::_remaining(
+                        'rolepermission',
+                        $ids,
+                        'roleID',
+                        'name'
+                    )
+                ];
+                break;
+            case 'roleuserassociation':
+                $changes = [
+                    'userRoles' => self::_remaining(
+                        'roleuserassociation',
+                        $ids,
+                        'userID',
+                        'roleID'
+                    )
+                ];
+                break;
+            case 'roleusergroupassociation':
+                $changes = [
+                    'groupRoles' => self::_remaining(
+                        'roleusergroupassociation',
+                        $ids,
+                        'usergroupID',
+                        'roleID'
+                    )
+                ];
+                break;
+            case 'usergroupmember':
+                $changes = [
+                    'userGroups' => self::_remaining(
+                        'usergroupmember',
+                        $ids,
+                        'userID',
+                        'usergroupID'
+                    )
+                ];
+                break;
+            default:
+                return;
+        }
+        if (self::adminExistsGiven($changes)) {
+            return;
+        }
+        throw new Exception(
+            _('This would leave no account able to administer FOG.')
+        );
+    }
+    /**
+     * The state an association/permission table would be left in.
+     *
+     * adminExistsGiven() takes proposed FULL lists, not deltas, so for the
+     * rows being deleted we look up every owner they touch and return what
+     * that owner would still hold afterwards. Owners not named here are
+     * left alone by the simulation, which is why only the affected ones
+     * need computing.
+     *
+     * @param string $class   the association class
+     * @param array  $ids     the row ids being deleted
+     * @param string $ownerBy the field naming the owning entity
+     * @param string $valueBy the field holding the value being taken away
+     *
+     * @return array ownerID => [remaining values]
+     */
+    private static function _remaining($class, $ids, $ownerBy, $valueBy)
+    {
+        $owners = array_unique(
+            array_map(
+                'intval',
+                (array)Route::getIds($class, ['id' => $ids], $ownerBy)
+            )
+        );
+        $remaining = [];
+        foreach ($owners as $owner) {
+            $allIds = array_map(
+                'intval',
+                (array)Route::getIds($class, [$ownerBy => $owner], 'id')
+            );
+            $keptIds = array_values(array_diff($allIds, $ids));
+            $remaining[$owner] = (count($keptIds) < 1)
+                ? []
+                : array_values(
+                    (array)Route::getIds($class, ['id' => $keptIds], $valueBy)
+                );
+        }
+        return $remaining;
+    }
+    /**
+     * Refuses a permission grant that would be an escalation.
+     *
+     * A role permission row is a free-text string, so any caller able to
+     * create one could invent '*' and promote itself -- the role management
+     * page validated names against the registry, but the REST API reached
+     * the same table without passing through it.
+     *
+     * Two rules: the name has to be one the registry actually knows, and
+     * handing out the global wildcard requires already holding it. The
+     * second is what stops a role.create holder writing itself an
+     * administrator role.
+     *
+     * @param string $permName the permission string being granted
+     *
+     * @throws Exception when the grant is invalid or an escalation
+     * @return void
+     */
+    public static function assertCanGrant($permName)
+    {
+        $permName = trim((string)$permName);
+        if ('' === $permName) {
+            throw new Exception(_('A permission name is required.'));
+        }
+        if ('*' === $permName) {
+            if (!self::can('*')) {
+                throw new Exception(
+                    _('Only an administrator may grant full access.')
+                );
+            }
+            return;
+        }
+        $valid = ['*'];
+        foreach ((array)self::registry() as $node => $actions) {
+            $valid[] = $node;
+            $valid[] = $node . '.*';
+            foreach ((array)$actions as $action) {
+                $valid[] = $node . '.' . $action;
+            }
+        }
+        if (!in_array($permName, $valid, true)) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    _('Unknown permission'),
+                    $permName
+                )
+            );
+        }
+    }
+    /**
      * Reset the per-request caches (used after role/permission writes so
      * subsequent checks in the same request see the new state).
      *

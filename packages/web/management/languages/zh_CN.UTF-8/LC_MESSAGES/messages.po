@@ -216,6 +216,10 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
+msgid "A permission name is required."
+msgstr "图像名是必需的！"
+
+#, fuzzy
 msgid "A port must be specified"
 msgstr "没有指定的图像"
 
@@ -4697,6 +4701,10 @@ msgstr ""
 msgid "Only allowed to have"
 msgstr "您只能分配"
 
+#, fuzzy
+msgid "Only an administrator may grant full access."
+msgstr "修改组"
+
 msgid ""
 "Only snapins shared by every host in the group can be ordered here. Saving "
 "sets this order on each host (shared snapins run first, in this order; any "
@@ -6877,6 +6885,9 @@ msgstr "|这不是主要组"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG."
+msgstr ""
+
 msgid "Those images should be activated with the associated"
 msgstr ""
 
@@ -7082,6 +7093,10 @@ msgstr "未知"
 
 #, fuzzy
 msgid "Unknown DB error"
+msgstr "发生未知上传错误。返回代码："
+
+#, fuzzy
+msgid "Unknown permission"
 msgstr "发生未知上传错误。返回代码："
 
 #, fuzzy

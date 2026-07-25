@@ -223,6 +223,13 @@ class Role extends FOGController
         if (count($add ?: [])) {
             $insert_values = [];
             foreach ($add as $permission) {
+                // Rows are written with insertBatch rather than through
+                // RolePermission::save(), so the guard there does not see
+                // them -- this is the path PUT /fog/role/<id> takes. Only
+                // newly added strings are checked: a role may legitimately
+                // still hold a permission whose plugin has since been
+                // uninstalled, and re-saving it should not fail.
+                Authorization::assertCanGrant($permission);
                 $insert_values[] = [
                     $this->get('id'),
                     $permission

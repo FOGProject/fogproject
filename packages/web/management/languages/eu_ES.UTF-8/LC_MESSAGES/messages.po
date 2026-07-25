@@ -211,6 +211,10 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
+msgid "A permission name is required."
+msgstr "Ein Gruppenname ist erforderlich!"
+
+#, fuzzy
 msgid "A port must be specified"
 msgstr "muss angegeben werden"
 
@@ -4701,6 +4705,10 @@ msgstr ""
 msgid "Only allowed to have"
 msgstr "Sie dürfen nur"
 
+#, fuzzy
+msgid "Only an administrator may grant full access."
+msgstr "Admingruppe"
+
 msgid ""
 "Only snapins shared by every host in the group can be ordered here. Saving "
 "sets this order on each host (shared snapins run first, in this order; any "
@@ -6892,6 +6900,9 @@ msgstr "Dies ist nicht die primäre Gruppe"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG."
+msgstr ""
+
 msgid "Those images should be activated with the associated"
 msgstr "Diese Images sollten mit dem zugehörigen Schlüssel"
 
@@ -7097,6 +7108,10 @@ msgstr "Unbekannt"
 
 #, fuzzy
 msgid "Unknown DB error"
+msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
+
+#, fuzzy
+msgid "Unknown permission"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
 #, fuzzy
