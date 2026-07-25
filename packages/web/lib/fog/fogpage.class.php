@@ -2423,14 +2423,24 @@ abstract class FOGPage extends FOGBase
             );
             $key = $data[0];
             $token = $data[1];
+            // Do NOT clear pub_key on a token mismatch. authorize() is
+            // reachable before login and resolves the host from a spoofable
+            // mac alone, so the clear let any LAN caller wipe a host's AES
+            // session key -- locking its client out with #!ist until an
+            // administrator ran "Reset Encryption Data" -- with no crypto
+            // material at all (an absent sym_key/token decrypts to empty
+            // strings without throwing). The clear also had no protocol
+            // purpose: it leaves sec_tok intact, so a client that had
+            // genuinely lost its token could never recover through it.
+            // hash_equals is hygiene, not the crux -- both operands are
+            // strings, so there was no type-juggling bypass.
+            // Reported by Aisle Research (050 / 2.7.3).
             if (self::$Host->get('sec_tok')
-                && $token !== self::$Host->get('sec_tok')
+                && !hash_equals(
+                    (string)self::$Host->get('sec_tok'),
+                    (string)$token
+                )
             ) {
-                self::$Host
-                    ->set(
-                        'pub_key',
-                        null
-                    )->save()->load();
                 throw new Exception('#!ist');
             }
             if (self::$Host->get('sec_tok')

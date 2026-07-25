@@ -143,6 +143,18 @@ class BootMenu extends FOGBase
             'ADDomain',
             'createdBy',
         ];
+        // service/ipxe/boot.php is unauthenticated by necessity -- a booting
+        // NIC has no credential to present -- so what leaves here is the only
+        // control available. The hand-maintained list above had drifted from
+        // the router's and was emitting pub_key (the host's symmetric AES-256
+        // session key, not a public key), sec_tok, productKey and
+        // ADPassLegacy to anyone who POSTed a known mac. Source the secret
+        // names from Route::$sensitiveFields so the two lists cannot drift
+        // again when a new secret field is added.
+        // Reported by Aisle Research (086 / 4.28.2).
+        foreach (Route::$sensitiveFields as $fields) {
+            $ignore_keys = array_merge($ignore_keys, $fields);
+        }
         $output = [];
         foreach ($object as $property => $value) {
             if (in_array($property, $ignore_keys) or is_object($value) or !$value) {
@@ -151,6 +163,13 @@ class BootMenu extends FOGBase
             if (is_array($value)) {
                 $count = 0;
                 foreach ($value as $item) {
+                    // ?expand reaches this endpoint too, and an expanded
+                    // relation is an array of objects. Interpolating one is a
+                    // fatal ("could not be converted to string"), which turned
+                    // ?expand=all into an unauthenticated 500.
+                    if (!is_scalar($item)) {
+                        continue;
+                    }
                     $output[] = "set {$property}{$count} {$item}";
                     $count++;
                 }
