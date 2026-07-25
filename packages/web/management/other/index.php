@@ -203,20 +203,23 @@ if (in_array(strtolower($pageLength), ['search', 'list'])) {
                 <?= FOGPage::makeInput('scrollMode', 'scrollMode', '', 'hidden', 'scrollMode', self::getSetting('FOG_TABLE_SCROLL_MODE')); ?>
                 <?= FOGPage::makeInput('showpass', 'showpass', '', 'hidden', 'showpass', self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')); ?>
                 <?php
-        // No-role warning: a user with zero role assignments is an
-        // implicit administrator by design (upgrade stance). Warn
-        // them once roles are actually in use on this system.
+        // No-role warning: with deny-by-default a user holding zero roles
+        // can reach nothing but the exempt nodes (dashboard, logout), and
+        // every menu entry disappears -- which looks like a broken install
+        // rather than a permission state. Say so explicitly. The old
+        // "are roles in use anywhere?" guard is gone: it existed only to
+        // avoid nagging installs where no-role meant implicit admin, and
+        // no-role is now equally broken whether or not anyone else has a
+        // role.
         $showNoRoleBanner = self::$FOGUser
             && self::$FOGUser->isValid()
-            && null === Authorization::getPermissions()
-            && self::getClass('RoleUserAssociationManager')
-                ->distinct('userID') > 0;
+            && !count(Authorization::getPermissions());
 if ($showNoRoleBanner):
     ?>
                 <div class="container-fluid pt-3" id="no-role-banner">
                     <div class="alert alert-warning alert-dismissible fade show mb-0" role="alert">
                         <strong><?= _('No role assigned'); ?>:</strong>
-                        <?= _('this account has no role and therefore has full administrator access. Assign it a role to limit its permissions.'); ?>
+                        <?= _('this account has no role, so it has no access to any management page. Ask an administrator to assign it a role.'); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<?= _('Close'); ?>"></button>
                     </div>
                 </div>

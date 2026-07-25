@@ -14,8 +14,9 @@
  * Role — native role-based access control.
  *
  * A role is a named set of permissions (see RolePermission) assigned to
- * users (see RoleUserAssociation). Users with no role at all are treated
- * as implicit administrators — see Authorization::getPermissions().
+ * users (see RoleUserAssociation) or to whole user groups (see
+ * RoleUserGroupAssociation). Access is deny-by-default: a user with no
+ * role can do nothing — see Authorization::getPermissions().
  *
  * The roles/roleUserAssoc tables are shared with (and adopted from) the
  * retired accesscontrol plugin, so plugin-era roles and user assignments
@@ -223,6 +224,13 @@ class Role extends FOGController
         if (count($add ?: [])) {
             $insert_values = [];
             foreach ($add as $permission) {
+                // Rows are written with insertBatch rather than through
+                // RolePermission::save(), so the guard there does not see
+                // them -- this is the path PUT /fog/role/<id> takes. Only
+                // newly added strings are checked: a role may legitimately
+                // still hold a permission whose plugin has since been
+                // uninstalled, and re-saving it should not fail.
+                Authorization::assertCanGrant($permission);
                 $insert_values[] = [
                     $this->get('id'),
                     $permission
@@ -246,8 +254,9 @@ class Role extends FOGController
     {
         // Funnel cleanup through the cascade authority (the role case in
         // Route::deletemass removes the rolePermissions and roleUserAssoc
-        // rows). Members of a deleted role fall back to implicit-admin
-        // access, consistent with the no-role upgrade stance.
+        // rows). Members lose whatever this role granted them; the
+        // last-administrator guard in Route::deletemass is what keeps that
+        // from locking the install out.
         Route::deletemass('role', ['id' => $this->get('id')]);
         return parent::destroy($key);
     }

@@ -211,6 +211,10 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
+msgid "A permission name is required."
+msgstr "Ein Gruppenname ist erforderlich!"
+
+#, fuzzy
 msgid "A port must be specified"
 msgstr "muss angegeben werden"
 
@@ -297,6 +301,9 @@ msgstr "Eine gültige Datenbankverbindung konnte nicht hergestellt werden"
 #, fuzzy
 msgid "API"
 msgstr "API?"
+
+msgid "API class is not mapped to a permission node"
+msgstr ""
 
 msgid "API?"
 msgstr "API?"
@@ -4696,9 +4703,18 @@ msgstr "Eine oder mehrere MACs sind mit einem Host verknüpft"
 msgid "Online"
 msgstr ""
 
+msgid ""
+"Only administrators may use it until the plugin registers a matching "
+"permission node."
+msgstr ""
+
 #, fuzzy
 msgid "Only allowed to have"
 msgstr "Sie dürfen nur"
+
+#, fuzzy
+msgid "Only an administrator may grant full access."
+msgstr "Admingruppe"
 
 msgid ""
 "Only snapins shared by every host in the group can be ordered here. Saving "
@@ -6891,6 +6907,9 @@ msgstr "Dies ist nicht die primäre Gruppe"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG."
+msgstr ""
+
 msgid "Those images should be activated with the associated"
 msgstr "Diese Images sollten mit dem zugehörigen Schlüssel"
 
@@ -7096,6 +7115,10 @@ msgstr "Unbekannt"
 
 #, fuzzy
 msgid "Unknown DB error"
+msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
+
+#, fuzzy
+msgid "Unknown permission"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
 #, fuzzy
@@ -8244,8 +8267,8 @@ msgid "there will be a database backup stored on your"
 msgstr "existiert ein Backup, gespeichert auf dem"
 
 msgid ""
-"this account has no role and therefore has full administrator access. Assign "
-"it a role to limit its permissions."
+"this account has no role, so it has no access to any management page. Ask an "
+"administrator to assign it a role."
 msgstr ""
 
 msgid "this backup will enable you to return to the"

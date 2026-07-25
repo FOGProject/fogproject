@@ -60,4 +60,22 @@ class RolePermission extends FOGController
     {
         return new Role($this->get('roleID'));
     }
+    /**
+     * Stores the permission, refusing an invalid or escalating grant.
+     *
+     * The permission string is free text as far as the table is concerned,
+     * so anything able to write this row could invent '*' and promote
+     * itself. The role management page validated names against the
+     * registry before writing; the REST API reached the same table without
+     * doing so, which made role.create a self-grant path to full access.
+     * Validating here means every writer is covered rather than the one
+     * that remembered to ask.
+     *
+     * @return bool
+     */
+    public function save()
+    {
+        Authorization::assertCanGrant($this->get('name'));
+        return parent::save();
+    }
 }

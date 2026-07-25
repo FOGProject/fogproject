@@ -106,6 +106,13 @@ class Route extends FOGBase
      *
      * @var array
      */
+    /**
+     * Recursion depth of deletemass(), so the lockout guard runs once per
+     * operation rather than once per cascaded table.
+     *
+     * @var int
+     */
+    private static $_deleteDepth = 0;
     public static $sensitiveFields = [
         'host' => [
             'ADPass',
@@ -3428,6 +3435,18 @@ class Route extends FOGBase
 
             self::ids($classname, $whereItems);
             $itemIDs = json_decode(Route::getData(), true);
+            // Lockout guard. Only at the outermost call: the cascade below
+            // re-enters deletemass() for each dependent table, and those
+            // intermediate states are part of one operation that has
+            // already been judged as a whole -- checking them individually
+            // would refuse deletes that are actually fine.
+            if (self::$_deleteDepth < 1) {
+                Authorization::assertAdminRemainsAfterDelete(
+                    $classname,
+                    $itemIDs
+                );
+            }
+            self::$_deleteDepth++;
             switch ($classname) {
                 case 'host':
                     $snapinjobIDs = ['jobID' => Route::getIds('snapinjob', ['hostID' => $itemIDs])];
@@ -3581,6 +3600,9 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
             );
+        } finally {
+            // max() because the guard above can throw before the increment.
+            self::$_deleteDepth = max(0, self::$_deleteDepth - 1);
         }
     }
     /**

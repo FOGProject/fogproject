@@ -793,6 +793,20 @@ abstract class FOGController extends FOGBase
                     )
                 );
             }
+            // Lockout guard for the other delete path. Route::deletemass()
+            // covers the API and assocSetter()'s cascade; this covers a
+            // model destroyed directly. Both build their own DELETE, so
+            // neither can rely on the other. Only the by-id form is
+            // guarded: destroying by some other key is a bulk operation
+            // that goes through deletemass() in practice, and resolving
+            // arbitrary keys to ids here would cost a query on every
+            // destroy() in the system.
+            if ('id' === $key) {
+                Authorization::assertAdminRemainsAfterDelete(
+                    strtolower(get_class($this)),
+                    [$val]
+                );
+            }
             $column = $this->databaseFields[$key];
             $eColumn = sprintf(
                 '`%s`.`%s`',

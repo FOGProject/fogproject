@@ -4393,8 +4393,8 @@ $this->schema[] = [
     // Permissions granted to roles. rpName holds '<node>.<action>'
     // (e.g. 'host.edit'), a node wildcard ('host.*'), or the global
     // wildcard '*'. A user's permissions are the union across all
-    // assigned roles; users with no role at all remain implicit
-    // administrators (see the Authorization class).
+    // assigned roles; access is deny-by-default, so a user with no role
+    // holds nothing (see the Authorization class).
     "CREATE TABLE IF NOT EXISTS `rolePermissions` ("
     . "`rpID` INT NOT NULL AUTO_INCREMENT,"
     . "`rpRoleID` INT NOT NULL,"
@@ -4648,4 +4648,75 @@ $this->schema[] = [
     . "imaging networks in CIDR form and/or individual addresses, for example "
     . "10.0.0.0/8,192.168.5.20. Leave empty to allow any source, which is the "
     . "default and matches the behaviour of earlier versions.','','Security')",
+];
+// 316
+$this->schema[] = [
+    // Materialise the implicit-administrator fallback into real roles, so
+    // that fallback can be removed.
+    //
+    // Authorization::getPermissions() has treated "no role rows at all" as
+    // full access since RBAC landed, to keep an upgrade from locking
+    // everyone out before any role was assigned. That makes an accidental
+    // role deletion a silent promotion, and it is the reason a role-less
+    // account created by an auth plugin was an administrator. Removing it
+    // requires that every account which relies on it today first holds a
+    // role that says the same thing explicitly.
+    //
+    // uType is the only record of what these accounts were: 0 was an
+    // administrator, 1 the mobile tier whose UI was deleted in 2017.
+    "INSERT IGNORE INTO `roles` "
+    . "(`rName`,`rDesc`,`rCreatedBy`,`rCreatedTime`) "
+    . "VALUES ('Legacy Restricted','Pre-1.6 restricted (mobile) tier: "
+    . "deploy and monitor only','fog',NOW())",
+    // Deliberately not the seeded Technician role: Technician carries
+    // host.* and group.*, which is strictly broader than the old mobile
+    // tier could ever do. This grants what that tier actually had -- see
+    // and task hosts and images, watch tasks, read reports -- and nothing
+    // that edits or deletes.
+    "INSERT IGNORE INTO `rolePermissions` (`rpRoleID`,`rpName`) "
+    . "SELECT `r`.`rID`, `p`.`n` FROM `roles` `r` JOIN ("
+    . "SELECT 'host.view' AS `n` "
+    . "UNION ALL SELECT 'host.task' "
+    . "UNION ALL SELECT 'image.view' "
+    . "UNION ALL SELECT 'image.task' "
+    . "UNION ALL SELECT 'task.view' "
+    . "UNION ALL SELECT 'task.task' "
+    . "UNION ALL SELECT 'report.view'"
+    . ") `p` WHERE `r`.`rName` = 'Legacy Restricted'",
+    // Only accounts that hold no role at all, directly or through a group,
+    // are touched: those are exactly the ones relying on the fallback.
+    // Anyone already carrying a role has been deliberately scoped and must
+    // not be promoted.
+    //
+    // Externally sourced accounts are excluded. Their provenance stamp
+    // already denies them by default and their provider assigns their role
+    // at login; backfilling them from uType would hand every LDAP account
+    // the administrator role that the previous release removed.
+    //
+    // The role-less tests go through derived tables rather than a plain
+    // subquery on roleUserAssoc because MySQL refuses to read the insert
+    // target directly (ER_UPDATE_TABLE_USED); a derived table materialises
+    // first and is allowed.
+    "INSERT IGNORE INTO `roleUserAssoc` (`ruaRoleID`,`ruaUserID`) "
+    . "SELECT `r`.`rID`, `u`.`uId` FROM `users` `u` "
+    . "JOIN `roles` `r` ON `r`.`rName` = 'Administrator' "
+    . "WHERE `u`.`uType` = 0 AND `u`.`uAuthSource` = '' "
+    . "AND `u`.`uId` NOT IN ("
+    . "SELECT `d`.`uid` FROM (SELECT DISTINCT `ruaUserID` AS `uid` "
+    . "FROM `roleUserAssoc`) `d`) "
+    . "AND `u`.`uId` NOT IN ("
+    . "SELECT `g`.`uid` FROM (SELECT DISTINCT `gm`.`ugmUserID` AS `uid` "
+    . "FROM `userGroupMembers` `gm` JOIN `roleUserGroupAssoc` `rg` "
+    . "ON `rg`.`rugGroupID` = `gm`.`ugmGroupID`) `g`)",
+    "INSERT IGNORE INTO `roleUserAssoc` (`ruaRoleID`,`ruaUserID`) "
+    . "SELECT `r`.`rID`, `u`.`uId` FROM `users` `u` "
+    . "JOIN `roles` `r` ON `r`.`rName` = 'Legacy Restricted' "
+    . "WHERE `u`.`uType` = 1 AND `u`.`uAuthSource` = '' "
+    . "AND `u`.`uId` NOT IN ("
+    . "SELECT `d`.`uid` FROM (SELECT DISTINCT `ruaUserID` AS `uid` "
+    . "FROM `roleUserAssoc`) `d`) "
+    . "AND `u`.`uId` NOT IN ("
+    . "SELECT `g`.`uid` FROM (SELECT DISTINCT `gm`.`ugmUserID` AS `uid` "
+    . "FROM `userGroupMembers` `gm` JOIN `roleUserGroupAssoc` `rg` "
+    . "ON `rg`.`rugGroupID` = `gm`.`ugmGroupID`) `g`)",
 ];

@@ -17,10 +17,11 @@
  * a node wildcard ('host.*'), or the global wildcard '*'. A user's
  * permissions are the union across all roles assigned to them.
  *
- * Upgrade stance: a user with NO role at all is an implicit administrator
- * (full access). Deny only ever applies once a user has at least one role.
- * getPermissions() therefore distinguishes null (no roles = implicit
- * admin) from an empty array (roles granting nothing = deny).
+ * Access is deny-by-default: a user holds exactly what their roles grant,
+ * and an account with no role can do nothing. Earlier 1.6 betas treated
+ * "no role" as an implicit administrator so that adopting RBAC could not
+ * lock an install out; schema step 316 converted those accounts to
+ * explicit roles and the fallback was removed.
  *
  * @category Authorization
  * @package  FOGProject
@@ -206,7 +207,7 @@ class Authorization extends FOGBase
     ];
     /**
      * Per-user permission cache for this request.
-     * userID => array of permission strings, or null = implicit admin.
+     * userID => array of permission strings.
      *
      * @var array
      */
@@ -263,8 +264,7 @@ class Authorization extends FOGBase
      *
      * @param int $userID the user id (defaults to the current user)
      *
-     * @return array|null permission strings; null = user has no role at
-     *                    all and is an implicit administrator.
+     * @return array permission strings; empty = no access.
      */
     public static function getPermissions($userID = null)
     {
@@ -285,12 +285,12 @@ class Authorization extends FOGBase
             return self::$_permCache[$userID];
         }
         // Effective permissions are the union of roles assigned directly to
-        // the user and roles assigned to any group the user belongs to. A
-        // LEFT JOIN keeps a row for a role that grants zero permissions
-        // (rpName NULL) so having-a-role is distinguishable from having no
-        // role at all; the group arm's inner JOIN yields a row only once a
-        // role actually reaches the user through a group (a role-less group
-        // confers nothing and leaves the user unmanaged).
+        // the user and roles assigned to any group the user belongs to. The
+        // LEFT JOIN on rolePermissions keeps a row for a role that grants
+        // nothing (rpName NULL) rather than dropping the assignment; the
+        // group arm's inner JOIN yields a row only once a role actually
+        // reaches the user through a group, so a role-less group confers
+        // nothing. Either way an empty result means no access.
         $sql = 'SELECT `rpName` '
             . 'FROM `roleUserAssoc` '
             . 'LEFT JOIN `rolePermissions` ON `rpRoleID` = `ruaRoleID` '
@@ -310,27 +310,19 @@ class Authorization extends FOGBase
             ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         if (!is_array($rows) || count($rows) < 1) {
-            // Zero role assignments, direct or group-sourced.
+            // Zero role assignments, direct or group-sourced, grants
+            // nothing. This used to mean "implicit administrator" so that
+            // adopting RBAC could not lock an install out before any role
+            // was assigned; schema step 316 turned every account that
+            // relied on that into an explicit role, so the fallback has
+            // done its job and is gone.
             //
-            // For a LOCAL account this stays "implicit administrator", which
-            // is what keeps an upgrade from locking every existing user out
-            // before any role has been assigned.
-            //
-            // For an EXTERNALLY authenticated account it must not. An auth
-            // plugin creates its users on the fly at login, so a role-less
-            // externally sourced user is the normal case rather than the
-            // upgrade edge case the fallback was written for -- which made
-            // every LDAP-authenticated user a full administrator once RBAC
-            // landed. Deny instead: an external identity gets exactly the
-            // roles its provider mapped to it, and nothing by default.
-            //
-            // This is checked here, in the resolver, rather than at account
-            // creation, so it holds for every account with a provider stamp
-            // no matter how or when that account came to exist.
-            if ('' !== self::_authSource($userID)) {
-                return self::$_permCache[$userID] = [];
-            }
-            return self::$_permCache[$userID] = null;
+            // Deny is what makes the rest of the system trustworthy: while
+            // the fallback existed, removing a user's last role promoted
+            // them instead of restricting them, and every guard against
+            // that had to be remembered by each caller rather than being a
+            // property of the resolver.
+            return self::$_permCache[$userID] = [];
         }
         $perms = [];
         foreach ($rows as $row) {
@@ -342,43 +334,6 @@ class Authorization extends FOGBase
         return self::$_permCache[$userID] = array_values(
             array_unique($perms)
         );
-    }
-    /**
-     * The external provider that authenticates a user, '' when local.
-     *
-     * Read straight from the table rather than through the User model so a
-     * permission lookup cannot recurse back into a controller that may
-     * itself consult permissions. Only ever called on the zero-role path,
-     * so this costs nothing for the common case.
-     *
-     * @param int $userID the user id
-     *
-     * @return string
-     */
-    private static function _authSource($userID)
-    {
-        // The whole row, not the single column: this runs on every request
-        // that reaches the zero-role branch, including during the window
-        // between deploying this code and running the schema update, when
-        // `uAuthSource` does not exist yet. Naming the column in the SELECT
-        // would make that query fail and deny every user until the update
-        // ran -- and the update itself is reached through an authenticated
-        // page. Selecting the row degrades to "no such column, therefore
-        // local", which is exactly the pre-upgrade behaviour.
-        $row = self::$DB
-            ->query(
-                'SELECT * FROM `users` WHERE `uId` = :userid',
-                [],
-                ['userid' => (int)$userID]
-            )
-            ->fetch()
-            ->get();
-        // No row at all is a different matter: the id does not name a real
-        // user, so there is no provenance to trust and nothing to grant.
-        if (!is_array($row) || count($row) < 1) {
-            return 'unknown';
-        }
-        return trim((string)($row['uAuthSource'] ?? ''));
     }
     /**
      * Does the user hold the given permission?
@@ -395,9 +350,6 @@ class Authorization extends FOGBase
             return true;
         }
         $perms = self::getPermissions($userID);
-        if (null === $perms) {
-            return true;
-        }
         if (in_array('*', $perms, true)
             || in_array($perm, $perms, true)
         ) {
@@ -544,13 +496,71 @@ class Authorization extends FOGBase
             return null;
         }
         $class = strtolower(trim((string)$class));
-        if (!isset(self::API_CLASS_ENTITIES[$class])) {
-            // Unknown model class (plugin-added): allow.
-            return null;
+        $entity = self::API_CLASS_ENTITIES[$class] ?? self::_pluginEntity($class);
+        if ('' === $entity) {
+            // A class nothing claims. Previously this returned null, which
+            // meant allow, so every plugin-added REST class was reachable
+            // by any authenticated user regardless of role -- a role
+            // granting nothing could still create and delete Site and
+            // Location objects.
+            //
+            // Deny by requiring a permission no role can be granted: the
+            // registry has no 'unmapped' node, so assertCanGrant() will not
+            // issue it and only a holder of '*' satisfies it. That keeps a
+            // third-party plugin working for administrators instead of
+            // breaking it outright, while restricted roles lose the free
+            // pass. The log line names the class so the fix is obvious.
+            error_log(
+                sprintf(
+                    '%s: %s. %s',
+                    _('API class is not mapped to a permission node'),
+                    $class,
+                    _('Only administrators may use it until the plugin '
+                        . 'registers a matching permission node.')
+                )
+            );
+            return 'unmapped.' . $class;
         }
-        return self::API_CLASS_ENTITIES[$class]
+        return $entity
             . '.'
             . self::API_ROUTE_ACTIONS[$routeName];
+    }
+    /**
+     * The permission node owning a plugin-added API class, '' if none.
+     *
+     * Plugins already declare their node in PERMISSION_REGISTRY_DATA and
+     * name their API classes after it -- either the node itself ('site') or
+     * the node followed by an association suffix ('sitehostassociation'),
+     * exactly as core does for 'groupassociation' => 'group'. Deriving the
+     * mapping from what plugins already register means no plugin has to be
+     * edited and no second registration can drift out of step with the
+     * first.
+     *
+     * Longest match wins, so a node cannot shadow a more specific one, and
+     * the association suffix is required rather than accepting any prefix
+     * -- without it a node like 'site' would claim any class merely
+     * starting with those letters.
+     *
+     * @param string $class the lowercased API class name
+     *
+     * @return string
+     */
+    private static function _pluginEntity($class)
+    {
+        $best = '';
+        foreach (array_keys((array)self::registry()) as $node) {
+            $node = strtolower((string)$node);
+            if ('' === $node || strlen($node) <= strlen($best)) {
+                continue;
+            }
+            if ($class === $node
+                || (0 === strpos($class, $node)
+                    && 'association' === substr($class, -11))
+            ) {
+                $best = $node;
+            }
+        }
+        return $best;
     }
     /**
      * Enforce a permission for an API request. Returns silently when
@@ -571,9 +581,8 @@ class Authorization extends FOGBase
         );
     }
     /**
-     * Is the user unrestricted by object scope? Implicit administrators
-     * (no role) and holders of the global '*' see every object; object
-     * boundaries never apply to them.
+     * Is the user unrestricted by object scope? Holders of the global '*'
+     * see every object; object boundaries never apply to them.
      *
      * @param int|null $userID the user id (defaults to current user)
      *
@@ -581,15 +590,11 @@ class Authorization extends FOGBase
      */
     private static function _isUnrestricted($userID = null)
     {
-        $perms = self::getPermissions($userID);
-        if (null === $perms) {
-            return true;
-        }
-        return in_array('*', $perms, true);
+        return in_array('*', self::getPermissions($userID), true);
     }
     /**
      * Public view of _isUnrestricted for scope-enforcing plugins (Site) that
-     * must let implicit admins / global '*' holders bypass list filtering.
+     * must let global '*' holders bypass list filtering.
      *
      * @param int|null $userID the user id (defaults to current user)
      *
@@ -609,7 +614,7 @@ class Authorization extends FOGBase
      * listener registered the boundary does not exist and every object is
      * in scope, so this is inert on a stock install.
      *
-     * Unrestricted users (implicit admin / global '*') and requests with
+     * Unrestricted users (global '*' holders) and requests with
      * no concrete single-object id (id < 1 — list, create, mass op) always
      * pass; scope is only meaningful for one existing object.
      *
@@ -716,9 +721,9 @@ class Authorization extends FOGBase
     }
     /**
      * Is there at least one effective administrator besides the excluded
-     * users? An effective administrator is a user with no role at all
-     * (implicit admin) or one holding the global '*' permission through
-     * any role. Used by the lockout guards in role/user management.
+     * users? An effective administrator is a user holding the global '*'
+     * permission through any role, directly or via a group. Used by the
+     * lockout guards in role/user management and by the delete guard.
      *
      * @param array $excludeUserIDs user ids to pretend do not exist
      *
@@ -746,8 +751,8 @@ class Authorization extends FOGBase
      *                         permission list of specific roles
      *                         (memberships unchanged).
      * - 'removeRoles'      => [roleID, ...] roles about to be deleted —
-     *                         their assocs vanish, so members may fall
-     *                         back to implicit admin.
+     *                         their assocs vanish, so members lose whatever
+     *                         those roles granted them.
      * - 'groupUsers'       => [groupID => [userID, ...]] proposed FULL
      *                         membership of specific groups.
      * - 'userGroups'       => [userID => [groupID, ...]] proposed FULL
@@ -757,9 +762,8 @@ class Authorization extends FOGBase
      * - 'removeGroups'     => [groupID, ...] groups about to be deleted —
      *                         their memberships and role assignments vanish.
      *
-     * A user is an effective administrator when they hold '*' — or no role
-     * at all — counting roles reached both directly and through any group
-     * they belong to.
+     * A user is an effective administrator when they hold '*', counting
+     * roles reached both directly and through any group they belong to.
      *
      * @param array $changes the proposed changes (see above)
      *
@@ -882,20 +886,197 @@ class Authorization extends FOGBase
                 );
             }
         }
-        $rolled = [];
-        foreach ($membership as $uids2) {
-            $rolled = array_merge($rolled, $uids2);
-        }
-        if (count(array_diff($users, $rolled))) {
-            // A role-less user remains: implicit administrator.
-            return true;
-        }
+        // A role-less user used to count as an implicit administrator here.
+        // With the fallback gone they have no access at all, so treating
+        // them as proof that someone can still administer FOG would make
+        // this guard answer "yes" precisely when an install has locked
+        // itself out. Only a real holder of '*' counts now.
         foreach ($starRoles as $rid) {
             if (count(array_intersect($membership[$rid] ?? [], $users))) {
                 return true;
             }
         }
         return false;
+    }
+    /**
+     * Builds the adminExistsGiven() change map for deleting rows of an
+     * RBAC-relevant class, then refuses the delete if it would leave the
+     * install with no effective administrator.
+     *
+     * The guards used to live only in the three management pages, so every
+     * path that was not those pages -- the REST API, assocSetter()'s
+     * cascade, a plugin calling the ORM -- walked straight past them. Both
+     * delete paths in this codebase issue raw SQL (Route::deletemass() and
+     * FOGController::destroy() each build their own DELETE), so the guard
+     * has to sit on the operations rather than on a model method, which is
+     * what makes it a standing property rather than a UI courtesy.
+     *
+     * Unrecognised classes are not RBAC-relevant and pass through
+     * untouched.
+     *
+     * @param string $classname the model class being deleted from
+     * @param array  $ids       the ids of the rows being removed
+     *
+     * @throws Exception when no administrator would remain
+     * @return void
+     */
+    public static function assertAdminRemainsAfterDelete($classname, $ids)
+    {
+        $ids = array_values(
+            array_filter(array_map('intval', (array)$ids))
+        );
+        if (count($ids) < 1) {
+            return;
+        }
+        $changes = [];
+        switch (strtolower((string)$classname)) {
+            case 'user':
+                $changes = ['excludeUsers' => $ids];
+                break;
+            case 'role':
+                $changes = ['removeRoles' => $ids];
+                break;
+            case 'usergroup':
+                $changes = ['removeGroups' => $ids];
+                break;
+            case 'rolepermission':
+                $changes = [
+                    'rolePermissions' => self::_remaining(
+                        'rolepermission',
+                        $ids,
+                        'roleID',
+                        'name'
+                    )
+                ];
+                break;
+            case 'roleuserassociation':
+                $changes = [
+                    'userRoles' => self::_remaining(
+                        'roleuserassociation',
+                        $ids,
+                        'userID',
+                        'roleID'
+                    )
+                ];
+                break;
+            case 'roleusergroupassociation':
+                $changes = [
+                    'groupRoles' => self::_remaining(
+                        'roleusergroupassociation',
+                        $ids,
+                        'usergroupID',
+                        'roleID'
+                    )
+                ];
+                break;
+            case 'usergroupmember':
+                $changes = [
+                    'userGroups' => self::_remaining(
+                        'usergroupmember',
+                        $ids,
+                        'userID',
+                        'usergroupID'
+                    )
+                ];
+                break;
+            default:
+                return;
+        }
+        if (self::adminExistsGiven($changes)) {
+            return;
+        }
+        throw new Exception(
+            _('This would leave no account able to administer FOG.')
+        );
+    }
+    /**
+     * The state an association/permission table would be left in.
+     *
+     * adminExistsGiven() takes proposed FULL lists, not deltas, so for the
+     * rows being deleted we look up every owner they touch and return what
+     * that owner would still hold afterwards. Owners not named here are
+     * left alone by the simulation, which is why only the affected ones
+     * need computing.
+     *
+     * @param string $class   the association class
+     * @param array  $ids     the row ids being deleted
+     * @param string $ownerBy the field naming the owning entity
+     * @param string $valueBy the field holding the value being taken away
+     *
+     * @return array ownerID => [remaining values]
+     */
+    private static function _remaining($class, $ids, $ownerBy, $valueBy)
+    {
+        $owners = array_unique(
+            array_map(
+                'intval',
+                (array)Route::getIds($class, ['id' => $ids], $ownerBy)
+            )
+        );
+        $remaining = [];
+        foreach ($owners as $owner) {
+            $allIds = array_map(
+                'intval',
+                (array)Route::getIds($class, [$ownerBy => $owner], 'id')
+            );
+            $keptIds = array_values(array_diff($allIds, $ids));
+            $remaining[$owner] = (count($keptIds) < 1)
+                ? []
+                : array_values(
+                    (array)Route::getIds($class, ['id' => $keptIds], $valueBy)
+                );
+        }
+        return $remaining;
+    }
+    /**
+     * Refuses a permission grant that would be an escalation.
+     *
+     * A role permission row is a free-text string, so any caller able to
+     * create one could invent '*' and promote itself -- the role management
+     * page validated names against the registry, but the REST API reached
+     * the same table without passing through it.
+     *
+     * Two rules: the name has to be one the registry actually knows, and
+     * handing out the global wildcard requires already holding it. The
+     * second is what stops a role.create holder writing itself an
+     * administrator role.
+     *
+     * @param string $permName the permission string being granted
+     *
+     * @throws Exception when the grant is invalid or an escalation
+     * @return void
+     */
+    public static function assertCanGrant($permName)
+    {
+        $permName = trim((string)$permName);
+        if ('' === $permName) {
+            throw new Exception(_('A permission name is required.'));
+        }
+        if ('*' === $permName) {
+            if (!self::can('*')) {
+                throw new Exception(
+                    _('Only an administrator may grant full access.')
+                );
+            }
+            return;
+        }
+        $valid = ['*'];
+        foreach ((array)self::registry() as $node => $actions) {
+            $valid[] = $node;
+            $valid[] = $node . '.*';
+            foreach ((array)$actions as $action) {
+                $valid[] = $node . '.' . $action;
+            }
+        }
+        if (!in_array($permName, $valid, true)) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    _('Unknown permission'),
+                    $permName
+                )
+            );
+        }
     }
     /**
      * Reset the per-request caches (used after role/permission writes so

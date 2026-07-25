@@ -216,6 +216,10 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 #, fuzzy
+msgid "A permission name is required."
+msgstr "Um nome de imagem é necessário!"
+
+#, fuzzy
 msgid "A port must be specified"
 msgstr "Nenhuma imagem especificada"
 
@@ -300,6 +304,9 @@ msgid "A valid database connection could not be made"
 msgstr ""
 
 msgid "API"
+msgstr ""
+
+msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API?"
@@ -4697,9 +4704,18 @@ msgstr "Erro, é uma imagem associada com este anfitrião"
 msgid "Online"
 msgstr ""
 
+msgid ""
+"Only administrators may use it until the plugin registers a matching "
+"permission node."
+msgstr ""
+
 #, fuzzy
 msgid "Only allowed to have"
 msgstr "Você só está autorizado a transferir"
+
+#, fuzzy
+msgid "Only an administrator may grant full access."
+msgstr "modificar Grupo"
 
 msgid ""
 "Only snapins shared by every host in the group can be ordered here. Saving "
@@ -6886,6 +6902,9 @@ msgstr " | Este não é o grupo primário"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG."
+msgstr ""
+
 msgid "Those images should be activated with the associated"
 msgstr ""
 
@@ -7091,6 +7110,10 @@ msgstr "Desconhecido"
 
 #, fuzzy
 msgid "Unknown DB error"
+msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
+
+#, fuzzy
+msgid "Unknown permission"
 msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
 #, fuzzy
@@ -8235,8 +8258,8 @@ msgid "there will be a database backup stored on your"
 msgstr ""
 
 msgid ""
-"this account has no role and therefore has full administrator access. Assign "
-"it a role to limit its permissions."
+"this account has no role, so it has no access to any management page. Ask an "
+"administrator to assign it a role."
 msgstr ""
 
 msgid "this backup will enable you to return to the"

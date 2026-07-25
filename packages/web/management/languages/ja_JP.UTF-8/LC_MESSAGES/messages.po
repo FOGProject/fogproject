@@ -200,6 +200,10 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr "\"name\" プロパティを使用する場合は、名前を定義する必要があります"
 
 #, fuzzy
+msgid "A permission name is required."
+msgstr "プリンター名は必須です！"
+
+#, fuzzy
 msgid "A port must be specified"
 msgstr "指定する必要があります"
 
@@ -277,6 +281,9 @@ msgstr "有効なデータベース接続を確立できませんでした"
 #, fuzzy
 msgid "API"
 msgstr "API？"
+
+msgid "API class is not mapped to a permission node"
+msgstr ""
 
 msgid "API?"
 msgstr "API？"
@@ -4461,8 +4468,16 @@ msgstr "1 つ以上の MAC アドレスがホストに関連付けられてい�
 msgid "Online"
 msgstr ""
 
+msgid ""
+"Only administrators may use it until the plugin registers a matching "
+"permission node."
+msgstr ""
+
 msgid "Only allowed to have"
 msgstr "使用できるのは次のみです"
+
+msgid "Only an administrator may grant full access."
+msgstr ""
 
 msgid ""
 "Only snapins shared by every host in the group can be ordered here. Saving "
@@ -6522,6 +6537,9 @@ msgstr ""
 msgid "This will set the configuration level to all hosts in this group"
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
+msgid "This would leave no account able to administer FOG."
+msgstr ""
+
 msgid "Those images should be activated with the associated"
 msgstr "これらのイメージは関連付けられた"
 
@@ -6718,6 +6736,10 @@ msgid "Unknown"
 msgstr "不明"
 
 msgid "Unknown DB error"
+msgstr "不明なデータベースエラー"
+
+#, fuzzy
+msgid "Unknown permission"
 msgstr "不明なデータベースエラー"
 
 msgid "Unknown upload error occurred"
@@ -7790,8 +7812,8 @@ msgid "there will be a database backup stored on your"
 msgstr "データベースのバックアップが保存されます"
 
 msgid ""
-"this account has no role and therefore has full administrator access. Assign "
-"it a role to limit its permissions."
+"this account has no role, so it has no access to any management page. Ask an "
+"administrator to assign it a role."
 msgstr ""
 
 msgid "this backup will enable you to return to the"
@@ -7961,9 +7983,6 @@ msgstr ""
 
 #~ msgid "A password is required!"
 #~ msgstr "パスワードは必須です！"
-
-#~ msgid "A printer name is required!"
-#~ msgstr "プリンター名は必須です！"
 
 #~ msgid "A rule already exists with this name"
 #~ msgstr "この名前のルールは既に存在します"
