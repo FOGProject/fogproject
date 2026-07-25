@@ -454,16 +454,12 @@ class Snapin extends FOGController
                 )
             );
         }
-        if (preg_match('#ssl#i', $snapinfile)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    '%s, %s.',
-                    _('Please choose a different name'),
-                    _('this one is reserved for FOG')
-                )
-            );
-        }
-        $snapinfile = preg_replace('/[^\-\w\.]+/', '_', $snapinfile);
+        // Single chokepoint for both the uploaded name and the
+        // 'snapinfileexist' selection -- they merge into $snapinfile
+        // above, so the helper's reserved-name and dot rejection cover
+        // both. Was an open-coded copy of the 'ssl' check plus the
+        // normalization regex, which let '.' through (035 / 2.3.1).
+        $snapinfile = self::sanitizeSnapinFileName($snapinfile);
         $StorageGroup = new StorageGroup($storagegroup);
         $StorageNode = $StorageGroup->getMasterStorageNode();
         if ($uploadfile && (int)($files['snapinfile']['error'] ?? 0) > 0) {
@@ -512,7 +508,11 @@ class Snapin extends FOGController
                 }
             }
             if (self::$FOGSSH->exists($dest)) {
-                if (!self::$FOGSSH->delete($dest)) {
+                // unlinkFile, not delete: delete() recurses into a
+                // directory when the unlink fails (035 / 2.3.1). This
+                // guard is also now live -- delete() returned $this on
+                // every path, so the !delete() test could never fire.
+                if (!self::$FOGSSH->unlinkFile($dest)) {
                     throw new \RuntimeException(
                         _('Failed to delete existing snapin file')
                     );
@@ -550,13 +550,24 @@ class Snapin extends FOGController
      * material under the snapin path; allowing it would let an upload
      * shadow or clobber a cert/key.
      *
+     * '.' and '..' are rejected outright: they survive basename() and
+     * the [^-\w.] normalization below untouched, so a snapin filename
+     * of '.' made $dest the snapin directory itself. FOGSSH::delete()
+     * then fell back to its recursive branch and unlinked every snapin
+     * payload on the group's master node. Rejecting exactly '', '.'
+     * and '..' is sufficient -- after normalization no other value can
+     * contain a path separator, so no other value can name anything
+     * but a file inside the snapin directory.
+     * Reported by Aisle Research (035 / 2.3.1).
+     *
      * @param string $basename The candidate basename (already
      *                         basename()'d by the caller)
      *
      * @return string Sanitized basename
      *
      * @throws \InvalidArgumentException If $basename matches the
-     *                                   reserved 'ssl' pattern
+     *                                   reserved 'ssl' pattern, or
+     *                                   normalizes to '', '.' or '..'
      */
     public static function sanitizeSnapinFileName(string $basename): string
     {
@@ -569,7 +580,16 @@ class Snapin extends FOGController
                 )
             );
         }
-        return preg_replace('/[^\-\w\.]+/', '_', $basename);
+        $basename = preg_replace('/[^\-\w\.]+/', '_', $basename);
+        if ('' === $basename
+            || '.' === $basename
+            || '..' === $basename
+        ) {
+            throw new \InvalidArgumentException(
+                _('Invalid snapin filename')
+            );
+        }
+        return $basename;
     }
     /**
      * Transfers one or more uploaded files to a Storage Node's snapin
@@ -665,7 +685,9 @@ class Snapin extends FOGController
                     $t['basename']
                 );
                 if (self::$FOGSSH->exists($dest)) {
-                    if (!self::$FOGSSH->delete($dest)) {
+                    // See uploadAndCreate above -- non-recursive
+                    // removal only (035 / 2.3.1).
+                    if (!self::$FOGSSH->unlinkFile($dest)) {
                         throw new \RuntimeException(
                             sprintf(
                                 '%s: %s',

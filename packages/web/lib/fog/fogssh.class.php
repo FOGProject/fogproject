@@ -360,6 +360,27 @@ class FOGSSH
         return $tempArray;
     }
     /**
+     * Removes a single regular file. Never recurses, and never falls
+     * back to a directory walk.
+     *
+     * delete() below is the recursive helper: when both sftp_rmdir and
+     * sftp_unlink fail (which is what happens when $path is a
+     * directory) it scans that directory and unlinks its contents. The
+     * snapin upload paths only ever mean "overwrite this one file", so
+     * they call this instead -- a bad filename there can now fail the
+     * upload, but it can no longer empty the snapin directory.
+     * Reported by Aisle Research (035 / 2.3.1).
+     *
+     * @param string $path The file to remove
+     *
+     * @return bool True if the file was removed
+     */
+    public function unlinkFile($path)
+    {
+        $this->sftp();
+        return @unlink("ssh2.sftp://{$this->_sftp}{$path}");
+    }
+    /**
      * Deletes the item passed
      * This is the method called for the delete.
      *

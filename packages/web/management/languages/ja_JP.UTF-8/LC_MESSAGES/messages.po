@@ -2905,6 +2905,21 @@ msgstr "イメージの MAC アドレスを無視"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "無効なマルチキャストセッション"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "無効なマルチキャストセッション"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "無効なマルチキャストセッション"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "イメージ"
 
@@ -3373,6 +3388,10 @@ msgstr "指定されたプロダクトキーが無効です"
 
 msgid "Invalid scheduling type"
 msgstr "無効なスケジュールタイプです"
+
+#, fuzzy
+msgid "Invalid snapin filename"
+msgstr "無効なスナップイン"
 
 msgid "Invalid status payload"
 msgstr "無効なステータスペイロードです"
@@ -4196,6 +4215,9 @@ msgstr "フィールドが渡されていません"
 
 msgid "No file was uploaded"
 msgstr "ファイルはアップロードされませんでした"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 #, fuzzy
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
@@ -8944,9 +8966,6 @@ msgstr ""
 
 #~ msgid "Invalid operational mode"
 #~ msgstr "無効な動作モードです"
-
-#~ msgid "Invalid snapin"
-#~ msgstr "無効なスナップイン"
 
 #~ msgid "Invalid task"
 #~ msgstr "無効なタスク"

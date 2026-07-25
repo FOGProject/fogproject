@@ -3042,6 +3042,21 @@ msgstr "客户"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "开始多播会话"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "开始多播会话"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "开始多播会话"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "图片"
 
@@ -3551,6 +3566,10 @@ msgstr "无效的令牌传递"
 #, fuzzy
 msgid "Invalid scheduling type"
 msgstr "无效的对象类型传递"
+
+#, fuzzy
+msgid "Invalid snapin filename"
+msgstr "无效的管理单元任务处理"
 
 #, fuzzy
 msgid "Invalid status payload"
@@ -4417,6 +4436,9 @@ msgstr "否字段通过"
 
 msgid "No file was uploaded"
 msgstr "没有文件被上传"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""

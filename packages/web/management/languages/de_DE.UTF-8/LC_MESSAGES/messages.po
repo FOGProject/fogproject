@@ -3042,6 +3042,21 @@ msgstr "Client"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "ungültige Multicast-Sitzung"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "ungültige Multicast-Sitzung"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "ungültige Multicast-Sitzung"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "Image"
 
@@ -3551,6 +3566,10 @@ msgstr "Ungültiger Token übergeben"
 #, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Ungültiger Tasking Typ übergeben"
+
+#, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Ungültiges Snapin-Tasking"
 
 #, fuzzy
 msgid "Invalid status payload"
@@ -4420,6 +4439,9 @@ msgstr "Keine Felder übergeben"
 
 msgid "No file was uploaded"
 msgstr "Keine Datei wurde hochgeladen"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
