@@ -66,7 +66,55 @@ class AddLDAPAPI extends Hook
         // statement.
         $this->registerInstalled([
             ['API_VALID_CLASSES', 'injectAPIElements'],
+            ['CUSTOMIZE_DT_COLUMNS', 'customizeDT'],
         ]);
+    }
+    /**
+     * Adds the owning server column to the LDAP group list.
+     *
+     * The list JSON is built from the table's own columns, so a group row
+     * carries lgServerID and no server name. Route only knows how to turn
+     * a handful of core id columns into a link, and lgServerID is not one
+     * of them -- without this the datatable asks for a column the payload
+     * never had and every visit to the list opens a DataTables warning
+     * alert.
+     *
+     * Done through this hook rather than by adding a case to Route so a
+     * plugin concern stays in the plugin. A 'serverID' case in core would
+     * also be a global claim on a very generic column name; any future
+     * entity with its own serverID would inherit a link to an LDAP server.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function customizeDT($arguments)
+    {
+        if ($arguments['classname'] != 'ldapgroup') {
+            return;
+        }
+        $arguments['columns'][] = [
+            'db' => 'lgServerID',
+            'dt' => 'ldapserver',
+            'formatter' => function ($d, $row) {
+                if (!$d) {
+                    return Route::EMPTY_CELL;
+                }
+                $name = self::getClass('LDAP', $d)->get('name');
+                // A group outliving its server should still list, not fatal.
+                if (!$name) {
+                    return Route::EMPTY_CELL;
+                }
+                return '<a href="../management/index.php?node=ldap&'
+                    . 'sub=edit&id='
+                    . $d
+                    . '">'
+                    . '(' . $d . ') - ' . Initiator::e($name)
+                    . '</a>';
+            }
+        ];
     }
     /**
      * This function injects site elements for
