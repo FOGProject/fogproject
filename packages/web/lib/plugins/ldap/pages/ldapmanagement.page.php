@@ -606,10 +606,12 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'bindDN') ?:
             $this->obj->get('bindDN')
         );
-        $bindPwd = (
-            filter_input(INPUT_POST, 'bindPwd') ?:
-            $this->obj->get('bindPwd')
-        );
+        // Deliberately NOT seeded from the stored value. type="password"
+        // hides it on screen but the value attribute is still in the page
+        // source, so rendering it handed the directory service account
+        // credential to anyone who could open the edit page. Blank means
+        // "unchanged" on save; see ldapGeneralPost().
+        $bindPwd = (string)filter_input(INPUT_POST, 'bindPwd');
         $template = filter_input(INPUT_POST, 'template');
         $searchScopes = [
             _('Base Only'),
@@ -896,7 +898,7 @@ class LDAPManagement extends FOGPage
             . self::makeInput(
                 'form-control ldapbindpwd-input',
                 'bindPwd',
-                '',
+                _('Leave blank to keep the current password'),
                 'password',
                 'bindPwd',
                 $bindPwd
@@ -1083,12 +1085,18 @@ class LDAPManagement extends FOGPage
             ->set('userGroup', $userGroup)
             ->set('searchScope', $searchScope)
             ->set('bindDN', $bindDN)
-            ->set('bindPwd', $bindPwd)
             ->set('useGroupMatch', $useGroupMatch)
             ->set('grpSearchDN', $grpSearchDN)
             ->set('displayNameOn', $displayNameOn)
             ->set('allowapi', $isAPI)
             ->set('displayNameAttr', $displayNameAttr);
+        // The edit form no longer renders the stored password back into the
+        // field, so an empty submission means "leave it as it is" rather
+        // than "clear it". Without this an admin editing any other setting
+        // on the page would silently wipe the bind credential.
+        if ('' !== $bindPwd) {
+            $this->obj->set('bindPwd', $bindPwd);
+        }
     }
     /**
      * Presents the user with fields to edit
@@ -1143,6 +1151,33 @@ class LDAPManagement extends FOGPage
             $filters
         );
 
+        // Role mapping. Read individually rather than through the batched
+        // $find above: that form returns values positionally, so a setting
+        // an admin has blanked out would shift every later value by one.
+        $adminRole = (
+            filter_input(INPUT_POST, 'adminrole') ?:
+            self::getSetting('FOG_PLUGIN_LDAP_ADMIN_ROLE')
+        );
+        $userRole = (
+            filter_input(INPUT_POST, 'userrole') ?:
+            self::getSetting('FOG_PLUGIN_LDAP_USER_ROLE')
+        );
+        $nomatchRole = (
+            filter_input(INPUT_POST, 'nomatchrole') ?:
+            self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
+        );
+
+        // Route::names() would emit a JSON content-type header into what is
+        // an HTML fragment, so build the id => name map from ids(). Both
+        // calls order by name, so the two lists line up.
+        $roleIds = Route::getIds('role', [], 'id');
+        $roleNames = Route::getIds('role', [], 'name');
+        $roles = (
+            count($roleIds) === count($roleNames) ?
+            array_combine($roleIds, $roleNames) :
+            []
+        );
+
         $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
@@ -1171,7 +1206,50 @@ class LDAPManagement extends FOGPage
                 'port',
                 $port,
                 true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'adminrole',
+                _('Role for LDAP admin group')
+            ) => self::selectForm(
+                'adminrole',
+                $roles,
+                $adminRole,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'userrole',
+                _('Role for LDAP user group')
+            ) => self::selectForm(
+                'userrole',
+                $roles,
+                $userRole,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'nomatchrole',
+                _('Role when group matching is off')
+            ) => self::selectForm(
+                'nomatchrole',
+                $roles,
+                $nomatchRole,
+                true
             )
+            // Spelled out rather than left implicit: on a server with group
+            // matching off this role is granted to everyone who can bind,
+            // which is the whole directory. An admin choosing it should see
+            // that, not have to infer it.
+            . '<small class="form-text text-muted">'
+            . _(
+                'Applies to LDAP servers that have group matching '
+                . 'disabled. On those servers FOG cannot tell an '
+                . 'administrator from any other account, so every user who '
+                . 'can authenticate against the directory receives this '
+                . 'role.'
+            )
+            . '</small>'
         ];
 
         $buttons = self::makeButton(
@@ -1235,6 +1313,11 @@ class LDAPManagement extends FOGPage
         $port = trim(
             filter_input(INPUT_POST, 'port')
         );
+        $roleFields = [
+            'adminrole' => 'FOG_PLUGIN_LDAP_ADMIN_ROLE',
+            'userrole' => 'FOG_PLUGIN_LDAP_USER_ROLE',
+            'nomatchrole' => 'FOG_PLUGIN_LDAP_NOMATCH_ROLE'
+        ];
 
         $serverFault = false;
         try {
@@ -1269,6 +1352,26 @@ class LDAPManagement extends FOGPage
             if (!self::setSetting('FOG_PLUGIN_LDAP_PORTS', implode(',', $ports))) {
                 $serverFault = true;
                 throw new Exception(_('Unable to set ldap ports.'));
+            }
+            // Blank is a legitimate choice meaning "grant nothing", so only
+            // a non-blank value is checked -- and it is checked against the
+            // roles that actually exist, because a setting naming a deleted
+            // role would otherwise fail silently at login.
+            $validRoles = array_map(
+                'strval',
+                (array)Route::getIds('role', [], 'id')
+            );
+            foreach ($roleFields as $field => $settingKey) {
+                $roleId = trim((string)filter_input(INPUT_POST, $field));
+                if ('' !== $roleId && !in_array($roleId, $validRoles, true)) {
+                    throw new Exception(
+                        _('A selected role no longer exists')
+                    );
+                }
+                if (!self::setSetting($settingKey, $roleId)) {
+                    $serverFault = true;
+                    throw new Exception(_('Unable to set LDAP role mapping.'));
+                }
             }
             $hook = 'LDAP_GLOBAL_EDIT_SUCCESS';
             $code = HTTPResponseCodes::HTTP_ACCEPTED;

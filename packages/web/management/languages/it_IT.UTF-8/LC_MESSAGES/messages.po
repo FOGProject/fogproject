@@ -222,6 +222,9 @@ msgstr "Esiste già un ruolo con questo nome!"
 msgid "A role with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
 
+msgid "A selected role no longer exists"
+msgstr ""
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -666,6 +669,12 @@ msgstr "Annualmente"
 
 msgid "Applications"
 msgstr "Applicazioni"
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
+msgstr ""
 
 msgid "Approve"
 msgstr "Approva"
@@ -3610,6 +3619,9 @@ msgstr "Ultima versione"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave blank to keep the current password"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
 
@@ -5193,6 +5205,12 @@ msgstr "Associazione Sito"
 msgid "Role added!"
 msgstr "Stampante aggiunta"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 #, fuzzy
 msgid "Role update failed!"
 msgstr "Aggiornamento della stampante non è riuscito!"
@@ -5200,6 +5218,9 @@ msgstr "Aggiornamento della stampante non è riuscito!"
 #, fuzzy
 msgid "Role updated!"
 msgstr "aggiornato stampante!"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -6331,6 +6352,11 @@ msgstr ""
 msgid "The 'Is Master Node' setting defines which"
 msgstr "L'impostazione \"nodo master\" definisce quale"
 
+msgid ""
+"The FOG schema update must be run before this plugin can be updated: "
+"users.uAuthSource does not exist yet."
+msgstr ""
+
 #, fuzzy
 msgid "The current user is invalid."
 msgstr "Tipo di attività non è valido"
@@ -6690,6 +6716,10 @@ msgstr "Impossibile aprire il file per la lettura"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "Impossibile aggiornare compito"
+
+#, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "Impossibile aprire il file per la lettura"
 
 #, fuzzy
 msgid "Unable to set action field"

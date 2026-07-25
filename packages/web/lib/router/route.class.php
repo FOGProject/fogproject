@@ -120,6 +120,13 @@ class Route extends FOGBase
             'password',
             'token',
         ],
+        // The directory service account's password. Unlike a host's ADPass
+        // there is no consumer that legitimately reads this back out over
+        // the API -- only the web tier binds with it -- so it has no reason
+        // to appear in a listing.
+        'ldap' => [
+            'bindPwd',
+        ],
     ];
     /**
      * Stores the valid classes.
@@ -593,6 +600,21 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_UNAUTHORIZED
             );
         }
+        // passwordValidate() proves the credential; it says nothing about
+        // whether this account may use the API. The token branch above
+        // tests uAllowAPI, so without the same test here turning "Allow
+        // API" off left basic auth as an unaffected way in.
+        //
+        // Reloading also gives the acting user a fully populated object,
+        // matching what the token branch binds -- passwordValidate() only
+        // fills in id, name and type on the object it was called against.
+        $apiUser = self::getClass('User', (int)self::$FOGUser->get('id'));
+        if (!$apiUser->isValid() || !$apiUser->get('api')) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_UNAUTHORIZED
+            );
+        }
+        self::$FOGUser = $apiUser;
     }
     /**
      * Sends the response code through break head as needed.

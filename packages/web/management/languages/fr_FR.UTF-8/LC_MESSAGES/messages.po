@@ -232,6 +232,9 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "A role with this name already exists!"
 msgstr "Un nom d'hôte avec ce nom existe déjà."
 
+msgid "A selected role no longer exists"
+msgstr ""
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -697,6 +700,12 @@ msgstr "Annuellement"
 #, fuzzy
 msgid "Applications"
 msgstr "actes"
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
+msgstr ""
 
 #, fuzzy
 msgid "Approve"
@@ -3767,6 +3776,9 @@ msgstr "Dernière version"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave blank to keep the current password"
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Événement doit être une chaîne"
@@ -5424,6 +5436,12 @@ msgstr "Association Image"
 msgid "Role added!"
 msgstr "Nom de l'imprimante"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 #, fuzzy
 msgid "Role update failed!"
 msgstr "mise à jour de l'imprimante a échoué!"
@@ -5431,6 +5449,9 @@ msgstr "mise à jour de l'imprimante a échoué!"
 #, fuzzy
 msgid "Role updated!"
 msgstr "Imprimante mis à jour!"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -6628,6 +6649,11 @@ msgstr ""
 msgid "The 'Is Master Node' setting defines which"
 msgstr "Ce paramètre définit "
 
+msgid ""
+"The FOG schema update must be run before this plugin can be updated: "
+"users.uAuthSource does not exist yet."
+msgstr ""
+
 #, fuzzy
 msgid "The current user is invalid."
 msgstr "Type de tâche n'est pas valide"
@@ -6999,6 +7025,10 @@ msgstr "Impossible d'ouvrir le fichier pour la lecture"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "Impossible de mettre à jour la tâche"
+
+#, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "Impossible d'ouvrir le fichier pour la lecture"
 
 #, fuzzy
 msgid "Unable to set action field"
