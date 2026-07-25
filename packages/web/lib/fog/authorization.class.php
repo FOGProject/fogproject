@@ -544,13 +544,71 @@ class Authorization extends FOGBase
             return null;
         }
         $class = strtolower(trim((string)$class));
-        if (!isset(self::API_CLASS_ENTITIES[$class])) {
-            // Unknown model class (plugin-added): allow.
-            return null;
+        $entity = self::API_CLASS_ENTITIES[$class] ?? self::_pluginEntity($class);
+        if ('' === $entity) {
+            // A class nothing claims. Previously this returned null, which
+            // meant allow, so every plugin-added REST class was reachable
+            // by any authenticated user regardless of role -- a role
+            // granting nothing could still create and delete Site and
+            // Location objects.
+            //
+            // Deny by requiring a permission no role can be granted: the
+            // registry has no 'unmapped' node, so assertCanGrant() will not
+            // issue it and only a holder of '*' satisfies it. That keeps a
+            // third-party plugin working for administrators instead of
+            // breaking it outright, while restricted roles lose the free
+            // pass. The log line names the class so the fix is obvious.
+            error_log(
+                sprintf(
+                    '%s: %s. %s',
+                    _('API class is not mapped to a permission node'),
+                    $class,
+                    _('Only administrators may use it until the plugin '
+                        . 'registers a matching permission node.')
+                )
+            );
+            return 'unmapped.' . $class;
         }
-        return self::API_CLASS_ENTITIES[$class]
+        return $entity
             . '.'
             . self::API_ROUTE_ACTIONS[$routeName];
+    }
+    /**
+     * The permission node owning a plugin-added API class, '' if none.
+     *
+     * Plugins already declare their node in PERMISSION_REGISTRY_DATA and
+     * name their API classes after it -- either the node itself ('site') or
+     * the node followed by an association suffix ('sitehostassociation'),
+     * exactly as core does for 'groupassociation' => 'group'. Deriving the
+     * mapping from what plugins already register means no plugin has to be
+     * edited and no second registration can drift out of step with the
+     * first.
+     *
+     * Longest match wins, so a node cannot shadow a more specific one, and
+     * the association suffix is required rather than accepting any prefix
+     * -- without it a node like 'site' would claim any class merely
+     * starting with those letters.
+     *
+     * @param string $class the lowercased API class name
+     *
+     * @return string
+     */
+    private static function _pluginEntity($class)
+    {
+        $best = '';
+        foreach (array_keys((array)self::registry()) as $node) {
+            $node = strtolower((string)$node);
+            if ('' === $node || strlen($node) <= strlen($best)) {
+                continue;
+            }
+            if ($class === $node
+                || (0 === strpos($class, $node)
+                    && 'association' === substr($class, -11))
+            ) {
+                $best = $node;
+            }
+        }
+        return $best;
     }
     /**
      * Enforce a permission for an API request. Returns silently when

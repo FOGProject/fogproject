@@ -302,6 +302,9 @@ msgstr "Eine gültige Datenbankverbindung konnte nicht hergestellt werden"
 msgid "API"
 msgstr "API?"
 
+msgid "API class is not mapped to a permission node"
+msgstr ""
+
 msgid "API?"
 msgstr "API?"
 
@@ -4698,6 +4701,11 @@ msgid "One or more macs are associated with a host"
 msgstr "Eine oder mehrere MACs sind mit einem Host verknüpft"
 
 msgid "Online"
+msgstr ""
+
+msgid ""
+"Only administrators may use it until the plugin registers a matching "
+"permission node."
 msgstr ""
 
 #, fuzzy

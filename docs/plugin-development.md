@@ -256,6 +256,19 @@ The example ships three hooks:
 - **API** (`AddHelloWorldAPI`) — `API_VALID_CLASSES` exposes the node over REST
   so `/fog/helloworld` reuses the same ORM as the UI.
 
+> **Name API classes after your permission node.** Access to a REST class is
+> resolved to `<node>.<action>` by matching the class name against the nodes
+> registered through `PERMISSION_REGISTRY_DATA`. A class is claimed by a node
+> when it either *is* the node (`site`) or *starts with* the node and ends in
+> `association` (`sitehostassociation`) — the same shape core uses for
+> `groupassociation` → `group`. Longest match wins.
+>
+> A class no node claims is restricted to administrators and logs a line
+> naming it. That is deliberate: an unmapped class used to be readable and
+> writable by **any** authenticated user regardless of role. If your endpoint
+> is admin-only when you did not intend it to be, check the log and rename the
+> class (or register the node) rather than working around it.
+
 ### 4.6 JavaScript — `js/fog.helloworld.*.js`
 
 One file per sub‑page (`list`, `add`, `edit`), each an IIFE. The **list** file
@@ -370,7 +383,7 @@ Global configuration lives in the `globalSettings` table.
 | `SEARCH_PAGES` | make the node searchable |
 | `PAGES_WITH_OBJECTS` | enable the object (edit/delete) flow for the node |
 | `PAGE_JS_FILES` | inject JS files for the current page |
-| `API_VALID_CLASSES` | expose the node over the REST API |
+| `API_VALID_CLASSES` | expose the node over the REST API (name classes after your permission node — see §4.5) |
 | `<NODE>_ADD_FIELDS` / `_GENERAL_FIELDS` | let others extend your forms |
 | `<NODE>_ADD_POST` / `_EDIT_POST` / `_ADD_SUCCESS` / `_ADD_FAIL` | extension points around your saves |
 
