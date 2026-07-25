@@ -464,7 +464,8 @@ abstract class FOGPage extends FOGBase
                 'fa fa-cloud-download'
             ]
         ];
-        if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+        $pluginSysOn = (bool)self::getSetting('FOG_PLUGINSYS_ENABLED');
+        if ($pluginSysOn) {
             self::arrayInsertAfter(
                 'client',
                 $menu,
@@ -525,15 +526,29 @@ abstract class FOGPage extends FOGBase
             }
         }
 
-        if (isset($menu['plugin']) && $menu['plugin']) {
-            self::$pluginIsAvailable = true;
-        }
-
         foreach ($hookMenu as $key => &$value) {
             if (array_key_exists($key, $menu)) {
                 unset($hookMenu[$key]);
             }
         }
+
+        // The PLUGIN OPTIONS sidebar section renders only when this is set,
+        // so it has to mean "this user can see at least one plugin menu
+        // entry" -- NOT "this user can administer the plugin system".
+        //
+        // It used to key on $menu['plugin'], the Plugin Management node,
+        // which needs plugin.view: the right to install and remove plugins.
+        // A user holding site.view could open ?node=site&sub=list by URL and
+        // work in it, but the whole section that links there was hidden, so
+        // every plugin page was unreachable by navigation for anyone who was
+        // not a plugin administrator.
+        //
+        // Evaluated after the dedup above, which can empty $hookMenu, so an
+        // empty PLUGIN OPTIONS header never renders. $hookMenu is already
+        // permission-filtered, so this only ever reveals entries the user may
+        // view; the dispatch gate in FOGPageManager::render() remains the
+        // enforcement point either way.
+        self::$pluginIsAvailable = $pluginSysOn && count($hookMenu ?: []) > 0;
 
         $knownNodes = self::fastmerge(
             $knownNodes,
