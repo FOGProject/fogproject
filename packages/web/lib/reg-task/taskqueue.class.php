@@ -41,7 +41,11 @@ class TaskQueue extends TaskingElement
                     'getOptimalStorageNode'
                 );
                 if ($this->Task->isMulticast()) {
-                    $msID = @min(
+                    // A task with no multicastsessionassociation rows gives an
+                    // empty array here; PHP 8's min() would throw an uncaught
+                    // ValueError instead of reaching the isValid() check below,
+                    // which is the intended way this failure surfaces.
+                    $msID = self::minId(
                         self::getSubObjectIDs(
                             'MulticastSessionAssociation',
                             array(

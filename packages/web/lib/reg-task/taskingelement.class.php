@@ -283,7 +283,11 @@ abstract class TaskingElement extends FOGBase
                 'image' => $this->Image->get('name'),
             )
         );
-        $ilID = @max($ilID);
+        // getSubObjectIDs can legitimately return an empty array when no open
+        // imaging log exists for this host/image, and PHP 8's max() throws an
+        // uncaught ValueError on that (@ cannot suppress an Error). maxId()
+        // yields 0, which makes the ImagingLog below a new row as intended.
+        $ilID = self::maxId($ilID);
         return self::getClass('ImagingLog', $ilID)
             ->set('finish', self::formatTime('', 'Y-m-d H:i:s'))
             ->save();
