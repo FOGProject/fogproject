@@ -61,8 +61,11 @@ try {
 
             $MulticastSession = FOGCore::getClass(
                 'MulticastSession',
-                $msIDs ? max($msIDs) : 0
+                FOGCore::maxId($msIDs)
             );
+            if (!$MulticastSession->isValid()) {
+                throw new Exception(_('Invalid Multicast Session'));
+            }
             $taskImgID = $Task->get('imageID');
             $mcImgID = $MulticastSession->get('image');
             if ($taskImgID != $mcImgID) {

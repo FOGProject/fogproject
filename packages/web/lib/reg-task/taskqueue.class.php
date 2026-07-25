@@ -127,7 +127,7 @@ class TaskQueue extends TaskingElement
                     ? 'getMasterStorageNode'
                     : 'getOptimalStorageNode';
                 if ($this->Task->isMulticast()) {
-                    $msID = @min(Route::getIds('multicastsessionassociation', ['taskID' => $this->Task->get('id')], 'msID'));
+                    $msID = self::minId(Route::getIds('multicastsessionassociation', ['taskID' => $this->Task->get('id')], 'msID'));
                     $MulticastSession = self::getClass(
                         'MulticastSession',
                         $msID

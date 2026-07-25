@@ -744,6 +744,7 @@ class BootMenu extends FOGBase
         $Sessions = json_decode(
             Route::getData()
         );
+        $MulticastSessionID = 0;
         foreach ($Sessions->data as &$MulticastSession) {
             if ($MulticastSession->sessclients < 1) {
                 $MulticastSessionID = 0;

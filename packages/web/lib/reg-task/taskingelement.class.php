@@ -322,7 +322,7 @@ abstract class TaskingElement extends FOGBase
             'imaginglog',
             $find
         );
-        $ilID = @max($ilID ?? 0);
+        $ilID = self::maxId($ilID);
         return self::getClass('ImagingLog', $ilID)
             ->set('finish', self::formatTime('', 'Y-m-d H:i:s'))
             ->save();

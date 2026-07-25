@@ -826,12 +826,13 @@ class MulticastTask extends FOGService
             ['msID' => $this->_intID],
             'taskID'
         );
+        $TaskPercent = [];
         foreach ($MSAssocs as $TaskID) {
             $TaskPercent[] = self::getClass('Task', $TaskID)->get('percent');
         }
-        $TaskPercent = array_unique((array)$TaskPercent);
+        $TaskPercent = array_unique($TaskPercent);
         $this->_MultiSess
-            ->set('percent', @max($TaskPercent))
+            ->set('percent', self::maxId($TaskPercent))
             ->save();
     }
     /**
