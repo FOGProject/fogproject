@@ -142,9 +142,6 @@ msgstr ""
 msgid "A filename is required!"
 msgstr ""
 
-msgid "A filter must be specified"
-msgstr ""
-
 msgid "A group already exists with this name!"
 msgstr ""
 
@@ -514,9 +511,6 @@ msgid "All Types"
 msgstr ""
 
 msgid "All files synced for this item"
-msgstr ""
-
-msgid "All filters must be numeric and greater than 1"
 msgstr ""
 
 msgid "All hosts must have the same image assigned"
@@ -3144,9 +3138,6 @@ msgid "LDAP Server updated!"
 msgstr ""
 
 msgid "LDAP Servers"
-msgstr ""
-
-msgid "LDAP User Filter"
 msgstr ""
 
 msgid "Language"
@@ -5959,9 +5950,6 @@ msgid "Unable to set dmi field"
 msgstr ""
 
 msgid "Unable to set ldap ports."
-msgstr ""
-
-msgid "Unable to set user filter."
 msgstr ""
 
 msgid "Unable to uninstall, no method exists for "

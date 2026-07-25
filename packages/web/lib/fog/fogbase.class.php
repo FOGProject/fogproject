@@ -3345,11 +3345,14 @@ abstract class FOGBase
                 $user = self::$FOGUser->get('name');
             }
             $pass = filter_input(INPUT_POST, 'fogguipass');
+            // Re-authentication proves a human with valid credentials is
+            // present; it is not a second authorization step. Whether this
+            // deletion is allowed was already decided by the node's delete
+            // permission before we got here.
             $validate = self::getClass('User')
                 ->passwordValidate(
                     $user,
-                    $pass,
-                    true
+                    $pass
                 );
             if (!$validate) {
                 header('Content-type: application/json');

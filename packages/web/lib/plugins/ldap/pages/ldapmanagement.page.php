@@ -1125,35 +1125,15 @@ class LDAPManagement extends FOGPage
     public function globalsettings()
     {
         $this->title = _('Editing Global LDAP Settings');
-        $find = [
-            'name' => [
-                'FOG_PLUGIN_LDAP_PORTS',
-                'FOG_PLUGIN_LDAP_USER_FILTER'
-            ]
-        ];
-        $settings = Route::getIds(
-            'setting',
-            $find,
-            'value'
-        );
-        list(
-            $ports,
-            $filters
-        ) = $settings;
-
         $port = (
             filter_input(INPUT_POST, 'port') ?:
-            $ports
+            self::getSetting('FOG_PLUGIN_LDAP_PORTS')
         );
 
-        $filter = (
-            filter_input(INPUT_POST, 'filter') ?:
-            $filters
-        );
-
-        // Role mapping. Read individually rather than through the batched
-        // $find above: that form returns values positionally, so a setting
-        // an admin has blanked out would shift every later value by one.
+        // Role mapping. Read one setting at a time rather than batching them
+        // into a single Route::getIds('setting', ...) call: that form returns
+        // values positionally, so a setting an admin has blanked out would
+        // shift every later value by one.
         $adminRole = (
             filter_input(INPUT_POST, 'adminrole') ?:
             self::getSetting('FOG_PLUGIN_LDAP_ADMIN_ROLE')
@@ -1181,19 +1161,6 @@ class LDAPManagement extends FOGPage
         $labelClass = 'col-sm-3 col-form-label';
 
         $fields = [
-            self::makeLabel(
-                $labelClass,
-                'filter',
-                _('LDAP User Filter')
-            ) => self::makeInput(
-                'form-control ldapuserfilter-input',
-                'filter',
-                '990,991',
-                'text',
-                'filter',
-                $filter,
-                true
-            ),
             self::makeLabel(
                 $labelClass,
                 'port',
@@ -1307,9 +1274,6 @@ class LDAPManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         header('Content-type: application/json');
-        $filter = trim(
-            filter_input(INPUT_POST, 'filter')
-        );
         $port = trim(
             filter_input(INPUT_POST, 'port')
         );
@@ -1321,18 +1285,6 @@ class LDAPManagement extends FOGPage
 
         $serverFault = false;
         try {
-            if (!$filter) {
-                throw new Exception(_('A filter must be specified'));
-            }
-            $filter = preg_replace('#\s+#', '', $filter);
-            $filters = explode(',', $filter);
-            foreach ($filters as &$filter) {
-                $filter = intval($filter);
-                if (!is_int($filter) || $filter < 2) {
-                    throw new Exception(_('All filters must be numeric and greater than 1'));
-                }
-                unset($filter);
-            }
             if (!$port) {
                 throw new Exception(_('A port must be specified'));
             }
@@ -1344,10 +1296,6 @@ class LDAPManagement extends FOGPage
                     throw new Exception(_('All ports must be numeric, greater than 0, and less than 65536'));
                 }
                 unset($port);
-            }
-            if (!self::setSetting('FOG_PLUGIN_LDAP_USER_FILTER', implode(',', $filters))) {
-                $serverFault = true;
-                throw new Exception(_('Unable to set user filter.'));
             }
             if (!self::setSetting('FOG_PLUGIN_LDAP_PORTS', implode(',', $ports))) {
                 $serverFault = true;

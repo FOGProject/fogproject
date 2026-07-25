@@ -25,7 +25,11 @@
  */
 class LDAPPluginHook extends Hook
 {
-    const LDAP_TYPES = ['990', '991'];
+    /**
+     * Legacy uType sentinels. No longer written -- retained only to read
+     * rows created before provenance moved to uAuthSource: setLdapType()
+     * and LDAPManager::backfillIdentities().
+     */
     const LDAP_ADMIN = '990';
     const LDAP_MOBILE = '991';
     /**
@@ -43,12 +47,6 @@ class LDAPPluginHook extends Hook
     const TIER_NOMATCH = 1;
     const TIER_USER = 2;
     const TIER_ADMIN = 3;
-    /**
-     * The user types to filter
-     *
-     * @var array
-     */
-    private static $_userTypes = [];
     /**
      * The name of this hook.
      *
@@ -84,19 +82,15 @@ class LDAPPluginHook extends Hook
         if (!in_array($this->node, self::$pluginsinstalled)) {
             return;
         }
-        $userFilterTypes = self::getSetting('FOG_PLUGIN_LDAP_USER_FILTER');
-        $types = explode(',', $userFilterTypes);
-        foreach ($types as &$type) {
-            $type = trim($type);
-            if (!$type) {
-                continue;
-            }
-            self::$_userTypes[] = $type;
-            unset($type);
-        }
-        if (count(self::$_userTypes) < 1) {
-            self::$_userTypes = self::LDAP_TYPES;
-        }
+        // FOG_PLUGIN_LDAP_USER_FILTER is gone. It existed to answer "which
+        // existing user rows does this plugin own?" by listing the uType
+        // sentinels it wrote (990,991), which made the answer an
+        // admin-editable, API-writable list of magic numbers on a column
+        // shared with every other consumer of uType. uAuthSource answers
+        // the same question directly and cannot be confused with another
+        // provider's rows, so the setting has no job left -- see
+        // checkAddUser() and LDAPManager::uninstall().
+        //
         // USER_TYPES_FILTER, USER_TYPE_VALID and USER_LOGGING_OUT are no
         // longer registered. All three defended the pre-RBAC two-tier model
         // and under roles they combined into "an LDAP user can never hold a
@@ -132,20 +126,28 @@ class LDAPPluginHook extends Hook
     {
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
-        $ldapTypes = self::$_userTypes;
         /**
-         * Check the user and validate the type is not
-         * our ldap inserted items. If not return as the
-         * user is already allowed.
+         * An existing row that this plugin does not own is left alone --
+         * a local account named the same as a directory account must not
+         * be hijacked into an LDAP login, and neither must a row belonging
+         * to some other auth provider.
+         *
+         * Ownership is the provenance stamp, not the uType sentinels this
+         * used to read. Rows created before the stamp existed are stamped
+         * by LDAPManager::backfillIdentities(), which runs from this
+         * plugin's own migration list -- so the two always ship together
+         * and a legacy row is never left unrecognised.
+         *
+         * A row that does not exist yet falls through, which is what
+         * creates the account on a directory user's first login.
          */
         $tmpUser = $arguments['user']
             ->set('name', $user)
             ->load('name');
-        if ($tmpUser->isValid()) {
-            $ldapType = $tmpUser->get('type');
-            if (!in_array($ldapType, $ldapTypes)) {
-                return;
-            }
+        if ($tmpUser->isValid()
+            && self::AUTH_SOURCE !== trim((string)$tmpUser->get('authsource'))
+        ) {
+            return;
         }
         /**
          * Create our new user (initially at least)
@@ -209,18 +211,15 @@ class LDAPPluginHook extends Hook
             !$tmpUser->isValid()
             || self::AUTH_SOURCE !== $tmpUser->get('authsource')
         );
-        // uType is kept as the marker identifying a row this plugin owns --
-        // uninstall() and FOG_PLUGIN_LDAP_USER_FILTER both key on it -- but
-        // it no longer decides anything. Authorization comes from the role
-        // assigned below; provenance comes from authsource.
+        // uType is no longer written. It carried two meanings at once --
+        // "this plugin owns the row" and "this account is an admin" -- and
+        // both have moved: provenance is authsource, authorization is the
+        // role assigned below. Writing a sentinel nothing reads would only
+        // invite something to start reading it again. Rows created before
+        // this change keep their 990/991; nothing consults it.
         $tmpUser
             ->set('name', $user)
             ->set('display', $displayName)
-            ->set('type', (
-                self::TIER_ADMIN === $bestTier ?
-                self::LDAP_ADMIN :
-                self::LDAP_MOBILE
-            ))
             ->set('api', $ldapAPI)
             ->set('authsource', self::AUTH_SOURCE);
         if ($needsPassword) {
@@ -299,7 +298,17 @@ class LDAPPluginHook extends Hook
         $userObj->set('roles', array_values(array_unique($roles)));
     }
     /**
-     * Sets our ldap types
+     * Maps this plugin's legacy uType sentinels back onto core's 0/1.
+     *
+     * Retained for exactly one caller: FOGBase::isSchemaAdmin()'s fallback
+     * for a database still below the schema step that backfills roles. On
+     * such an install a directory administrator's row predates both the
+     * role tables and the authsource stamp, and 990 is the only evidence
+     * of what the account was -- without this mapping that admin could not
+     * reach the schema updater to create the tables in the first place.
+     *
+     * Nothing writes 990/991 any more, and that fallback retires itself
+     * once the backfill runs, so this goes inert on its own.
      *
      * @param mixed $arguments the item to adjust
      *

@@ -85,17 +85,25 @@ class User extends FOGController
     /**
      * Validates the users password and user
      *
-     * @param string $username  the username to test
-     * @param string $password  the password to test
-     * @param string $adminTest the admin test
-     * @param bool   $remember  Are we remembering user?
+     * The $adminTest parameter is gone. It made the credential typed into
+     * the re-authentication prompt (FOG_REAUTH_ON_DELETE) have to belong to
+     * a uType 0 account -- pre-RBAC shorthand for "not a mobile user", back
+     * when FOG had exactly two tiers and the mobile one could not perform a
+     * destructive action anyway. Under roles the tiering is the role's job:
+     * the acting user has already had to pass the node's delete permission
+     * before checkauth() is reached, so re-testing an account type here
+     * decided nothing and would, if translated literally to "must hold '*'",
+     * have newly blocked every scoped role from deleting anything.
+     *
+     * @param string $username the username to test
+     * @param string $password the password to test
+     * @param bool   $remember Are we remembering user?
      *
      * @return bool
      */
     public function passwordValidate(
         $username,
         $password,
-        $adminTest = false,
         $remember = false
     ) {
         /**
@@ -188,11 +196,6 @@ class User extends FOGController
             ->set('password', '', true)
             ->set('type', $type);
         unset($tmpUser);
-        if ($adminTest === true) {
-            if ($this->get('type') > 0) {
-                $passValid = false;
-            }
-        }
         if ($remember && $passValid) {
             // Remember-me is per-user, carried by the foguserauth* cookies
             // and UserAuth token below. It must NOT touch the shared
@@ -253,7 +256,7 @@ class User extends FOGController
             self::PATTERN,
             $username
         );
-        if ($this->passwordValidate($username, $password, false, $remember)) {
+        if ($this->passwordValidate($username, $password, $remember)) {
             if (!$test) {
                 return new self(0);
             }

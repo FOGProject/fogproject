@@ -172,10 +172,6 @@ msgid "A filename is required!"
 msgstr "Ein Gruppenname ist erforderlich!"
 
 #, fuzzy
-msgid "A filter must be specified"
-msgstr "muss angegeben werden"
-
-#, fuzzy
 msgid "A group already exists with this name!"
 msgstr "Eine Gruppe mit diesem Namen ist bereits vorhanden!"
 
@@ -625,10 +621,6 @@ msgstr "Rollentyp"
 
 msgid "All files synced for this item"
 msgstr ""
-
-#, fuzzy
-msgid "All filters must be numeric and greater than 1"
-msgstr "Bandbreite sollte numerisch und größer als 0 sein."
 
 msgid "All hosts must have the same image assigned"
 msgstr ""
@@ -3751,10 +3743,6 @@ msgstr "LDAP-Server aktualisiert"
 
 #, fuzzy
 msgid "LDAP Servers"
-msgstr "LDAP-Server"
-
-#, fuzzy
-msgid "LDAP User Filter"
 msgstr "LDAP-Server"
 
 msgid "Language"
@@ -7073,10 +7061,6 @@ msgstr "Datei kann zum Lesen nicht geöffnet werden"
 msgid "Unable to set ldap ports."
 msgstr "Datei kann zum Lesen nicht geöffnet werden"
 
-#, fuzzy
-msgid "Unable to set user filter."
-msgstr "Datei kann zum Lesen nicht geöffnet werden"
-
 msgid "Unable to uninstall, no method exists for "
 msgstr ""
 
@@ -8408,6 +8392,10 @@ msgid "{node}"
 msgstr ""
 
 #, fuzzy
+#~ msgid "A filter must be specified"
+#~ msgstr "muss angegeben werden"
+
+#, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
@@ -8518,6 +8506,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
+
+#, fuzzy
+#~ msgid "All filters must be numeric and greater than 1"
+#~ msgstr "Bandbreite sollte numerisch und größer als 0 sein."
 
 #, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
@@ -8713,6 +8705,10 @@ msgstr ""
 #~ msgstr "Ungültiger Typ"
 
 #, fuzzy
+#~ msgid "LDAP User Filter"
+#~ msgstr "LDAP-Server"
+
+#, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "Neueste SVN-Version"
 
@@ -8836,6 +8832,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Unable to find basic information!"
 #~ msgstr "Grundlegende Informationen nicht gefunden"
+
+#, fuzzy
+#~ msgid "Unable to set user filter."
+#~ msgstr "Datei kann zum Lesen nicht geöffnet werden"
 
 #, fuzzy
 #~ msgid "Update Master Node"

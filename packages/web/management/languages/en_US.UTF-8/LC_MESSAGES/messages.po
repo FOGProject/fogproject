@@ -177,10 +177,6 @@ msgid "A filename is required!"
 msgstr "An image name is required!"
 
 #, fuzzy
-msgid "A filter must be specified"
-msgstr "No image specified"
-
-#, fuzzy
 msgid "A group already exists with this name!"
 msgstr "An image already exists with this name!"
 
@@ -629,10 +625,6 @@ msgstr "Module Type"
 
 msgid "All files synced for this item"
 msgstr ""
-
-#, fuzzy
-msgid "All filters must be numeric and greater than 1"
-msgstr "Bandwidth should be numeric and greater than 0"
 
 msgid "All hosts must have the same image assigned"
 msgstr ""
@@ -3746,10 +3738,6 @@ msgstr "LDAP Server Name"
 
 #, fuzzy
 msgid "LDAP Servers"
-msgstr "LDAP Server"
-
-#, fuzzy
-msgid "LDAP User Filter"
 msgstr "LDAP Server"
 
 msgid "Language"
@@ -7064,10 +7052,6 @@ msgstr "Unable to open file for reading"
 msgid "Unable to set ldap ports."
 msgstr "Unable to open file for reading"
 
-#, fuzzy
-msgid "Unable to set user filter."
-msgstr "Unable to open file for reading"
-
 msgid "Unable to uninstall, no method exists for "
 msgstr ""
 
@@ -8394,6 +8378,10 @@ msgid "{node}"
 msgstr ""
 
 #, fuzzy
+#~ msgid "A filter must be specified"
+#~ msgstr "No image specified"
+
+#, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "An image already exists with this name!"
 
@@ -8504,6 +8492,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "Add snapin failed!"
+
+#, fuzzy
+#~ msgid "All filters must be numeric and greater than 1"
+#~ msgstr "Bandwidth should be numeric and greater than 0"
 
 #, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
@@ -8695,6 +8687,10 @@ msgstr ""
 #~ msgstr "Invalid type"
 
 #, fuzzy
+#~ msgid "LDAP User Filter"
+#~ msgstr "LDAP Server"
+
+#, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "Latest Version"
 
@@ -8818,6 +8814,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Unable to find basic information!"
 #~ msgstr "Unable to find basic information"
+
+#, fuzzy
+#~ msgid "Unable to set user filter."
+#~ msgstr "Unable to open file for reading"
 
 #, fuzzy
 #~ msgid "Update Master Node"

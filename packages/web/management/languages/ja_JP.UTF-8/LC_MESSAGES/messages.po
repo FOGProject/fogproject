@@ -165,10 +165,6 @@ msgstr ""
 msgid "A filename is required!"
 msgstr "名前は必須です！"
 
-#, fuzzy
-msgid "A filter must be specified"
-msgstr "指定する必要があります"
-
 msgid "A group already exists with this name!"
 msgstr "この名前のグループは既に存在します！"
 
@@ -589,10 +585,6 @@ msgstr "ルールタイプ"
 #, fuzzy
 msgid "All files synced for this item"
 msgstr "この項目のすべてのファイルが同期されました。"
-
-#, fuzzy
-msgid "All filters must be numeric and greater than 1"
-msgstr "帯域幅は 0 より大きい数値で指定してください"
 
 #, fuzzy
 msgid "All hosts must have the same image assigned"
@@ -3556,10 +3548,6 @@ msgstr "LDAP サーバーを更新しました！"
 
 msgid "LDAP Servers"
 msgstr "LDAP サーバー"
-
-#, fuzzy
-msgid "LDAP User Filter"
-msgstr "ユーザーフィルター"
 
 msgid "Language"
 msgstr "言語"
@@ -6694,10 +6682,6 @@ msgstr "更新できません"
 msgid "Unable to set ldap ports."
 msgstr "更新できません"
 
-#, fuzzy
-msgid "Unable to set user filter."
-msgstr "サーバー情報を取得できません！"
-
 msgid "Unable to uninstall, no method exists for "
 msgstr ""
 
@@ -7973,6 +7957,10 @@ msgstr ""
 #~ msgid "A broadcast address is required"
 #~ msgstr "ブロードキャストアドレスは必須です"
 
+#, fuzzy
+#~ msgid "A filter must be specified"
+#~ msgstr "指定する必要があります"
+
 #~ msgid "A group is required for a location"
 #~ msgstr "ロケーションにはグループが必要です"
 
@@ -8121,6 +8109,10 @@ msgstr ""
 
 #~ msgid "All Pending MACs approved"
 #~ msgstr "保留中のすべての MAC アドレスを承認しました"
+
+#, fuzzy
+#~ msgid "All filters must be numeric and greater than 1"
+#~ msgstr "帯域幅は 0 より大きい数値で指定してください"
 
 #~ msgid "All snapins"
 #~ msgstr "すべてのスナップイン"
@@ -8936,6 +8928,10 @@ msgstr ""
 
 #~ msgid "LDAP General"
 #~ msgstr "LDAP 全般"
+
+#, fuzzy
+#~ msgid "LDAP User Filter"
+#~ msgstr "ユーザーフィルター"
 
 #~ msgid "Last Updated Time"
 #~ msgstr "最終更新時刻"
@@ -9838,6 +9834,10 @@ msgstr ""
 
 #~ msgid "Unable to find basic information!"
 #~ msgstr "基本情報が見つかりません！"
+
+#, fuzzy
+#~ msgid "Unable to set user filter."
+#~ msgstr "サーバー情報を取得できません！"
 
 #~ msgid "Update General?"
 #~ msgstr "全般設定を更新しますか？"

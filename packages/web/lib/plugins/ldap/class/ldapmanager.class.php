@@ -171,12 +171,6 @@ class LDAPManager extends FOGManagerController
         ];
         $settings = [
             [
-                'FOG_PLUGIN_LDAP_USER_FILTER',
-                'Insert the filter type codes comma separated. Default: 990,991',
-                '990,991',
-                $category
-            ],
-            [
                 'FOG_PLUGIN_LDAP_PORTS',
                 'Allowed LDAP Ports as defined by user. Default: 389,636',
                 '389,636',
@@ -323,6 +317,88 @@ class LDAPManager extends FOGManagerController
         return true;
     }
     /**
+     * Turns each server's two group buckets into LDAPGroupMap rows.
+     *
+     * lsAdminGroup and lsUserGroup are already comma-separated lists of
+     * group names; what they lacked was any way to point different names
+     * at different roles. Every name in the admin list becomes a mapping
+     * to whatever FOG_PLUGIN_LDAP_ADMIN_ROLE names, and every name in the
+     * user list a mapping to FOG_PLUGIN_LDAP_USER_ROLE -- so this reshapes
+     * the data without changing anyone's access.
+     *
+     * Servers with group matching off are migrated too. Their group lists
+     * are inert while it stays off (nothing queries groups), but they are
+     * the admin's configuration and dropping them would lose work the
+     * moment they enabled matching.
+     *
+     * Idempotent: INSERT IGNORE against the unique index means re-running
+     * cannot duplicate a mapping, and an admin who has since deleted a
+     * mapping does not get it resurrected -- because the source columns
+     * are read as they are, and a second run inserts the same rows the
+     * first one did.
+     *
+     * Deliberately raw SQL rather than Route::getIds(): a directory group
+     * name can legitimately contain '+' (multi-valued RDNs) or '*', and
+     * Route's query builder rewrites both into a SQL wildcard, turning an
+     * exact lookup into a LIKE that matches far too much.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
+     *
+     * @return bool
+     */
+    public function migrateGroupMappings()
+    {
+        $roleByColumn = [
+            'lsAdminGroup' => trim(
+                (string)self::getSetting('FOG_PLUGIN_LDAP_ADMIN_ROLE')
+            ),
+            'lsUserGroup' => trim(
+                (string)self::getSetting('FOG_PLUGIN_LDAP_USER_ROLE')
+            )
+        ];
+        $servers = self::$DB
+            ->query(
+                'SELECT `lsID`, `lsAdminGroup`, `lsUserGroup` '
+                . 'FROM `LDAPServers`'
+            )
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        foreach ((array)$servers as $server) {
+            foreach ($roleByColumn as $column => $roleId) {
+                if ('' === $roleId) {
+                    // No role configured for this bucket, so there is
+                    // nothing for the group names to map to. Leaving the
+                    // source column alone means the admin can set the
+                    // mapping up by hand later without having lost it.
+                    continue;
+                }
+                $groups = array_filter(
+                    array_map(
+                        'trim',
+                        explode(',', (string)($server[$column] ?? ''))
+                    ),
+                    'strlen'
+                );
+                foreach ($groups as $group) {
+                    self::$DB->query(
+                        'INSERT IGNORE INTO `LDAPGroupMap` '
+                        . '(`lgmServerID`, `lgmGroup`, `lgmTargetType`, '
+                        . '`lgmTargetID`) '
+                        . 'VALUES (:server, :group, :type, :target)',
+                        [],
+                        [
+                            'server' => (int)$server['lsID'],
+                            'group' => $group,
+                            'type' => LDAPGroupMap::TARGET_ROLE,
+                            'target' => (int)$roleId
+                        ]
+                    );
+                }
+            }
+        }
+        return true;
+    }
+    /**
      * The plugin's ordered, append-only schema migration list. Append new
      * steps (e.g. "ALTER TABLE `LDAPServers` ADD COLUMN ...") to the END.
      *
@@ -350,6 +426,23 @@ class LDAPManager extends FOGManagerController
             function () {
                 return $this->backfillIdentities();
             },
+            // 4
+            // FOG_PLUGIN_LDAP_USER_FILTER answered "which user rows does
+            // this plugin own?" with a list of uType sentinels. uAuthSource
+            // answers it directly, so the setting is gone from the UI and
+            // from seedSettings(); drop the stored row too rather than
+            // leave an orphan an admin can still find and edit to no
+            // effect.
+            "DELETE FROM `globalSettings` "
+            . "WHERE `settingKey` = 'FOG_PLUGIN_LDAP_USER_FILTER'",
+            // 5
+            function () {
+                return self::getClass('LDAPGroupMapManager')->install();
+            },
+            // 6
+            function () {
+                return $this->migrateGroupMappings();
+            },
         ];
     }
     /**
@@ -370,7 +463,13 @@ class LDAPManager extends FOGManagerController
      */
     public function uninstall()
     {
-        $find = ['type' => LDAPPluginHook::LDAP_TYPES];
+        // Which rows this plugin owns is the provenance stamp, not the old
+        // uType sentinels. Keying on uType meant uninstalling could only
+        // find rows written by this plugin's own past versions, and would
+        // happily delete a local account that had somehow been given a 990
+        // -- uType is a shared column anyone can write, including over the
+        // API and CSV import.
+        $find = ['authsource' => LDAPPluginHook::AUTH_SOURCE];
         $userIDs = Route::getIds(
             'user',
             $find
@@ -385,6 +484,7 @@ class LDAPManager extends FOGManagerController
                 ['id' => $userIDs]
             );
         }
+        self::getClass('LDAPGroupMapManager')->uninstall();
         return parent::uninstall();
     }
 }
