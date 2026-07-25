@@ -232,6 +232,12 @@ msgstr ""
 msgid "A user group with this name already exists!"
 msgstr ""
 
+msgid ""
+"A user signing in through this server receives every role and user group "
+"mapped to a directory group they belong to. Mapping to a user group is "
+"preferred: the group holds the roles, so policy stays in one place."
+msgstr ""
+
 msgid "A username already exists with this name!"
 msgstr ""
 
@@ -267,9 +273,6 @@ msgid "Access Denied"
 msgstr ""
 
 msgid "Access Token"
-msgstr ""
-
-msgid "Access level is still 0 or false"
 msgstr ""
 
 msgid "Access token"
@@ -333,6 +336,9 @@ msgid "Active at 5 minutes or more"
 msgstr ""
 
 msgid "Add"
+msgstr ""
+
+msgid "Add Directory Group"
 msgstr ""
 
 msgid "Add Hello World failed!"
@@ -702,6 +708,9 @@ msgstr ""
 msgid "Both"
 msgstr ""
 
+msgid "Both a directory group and a target are required."
+msgstr ""
+
 msgid "Broadcast Address"
 msgstr ""
 
@@ -1063,10 +1072,16 @@ msgstr ""
 msgid "Could not read snapin file"
 msgstr ""
 
+msgid "Could not read the group mappings"
+msgstr ""
+
 msgid "Could not read tmp file."
 msgstr ""
 
 msgid "Could not register"
+msgstr ""
+
+msgid "Could not remove the group mappings"
 msgstr ""
 
 msgid "Could not send data from file"
@@ -1367,6 +1382,9 @@ msgid "Directory Already Exists"
 msgstr ""
 
 msgid "Directory Cleaner"
+msgstr ""
+
+msgid "Directory Group"
 msgstr ""
 
 msgid "Disable on all hosts"
@@ -2004,6 +2022,9 @@ msgstr ""
 msgid "Got in line at"
 msgstr ""
 
+msgid "Grants"
+msgstr ""
+
 msgid "Graph Color"
 msgstr ""
 
@@ -2088,7 +2109,16 @@ msgstr ""
 msgid "Group Management"
 msgstr ""
 
+msgid "Group Mappings"
+msgstr ""
+
 msgid "Group Matching"
+msgstr ""
+
+msgid ""
+"Group Matching is off for this server, so directory groups cannot be read "
+"and these mappings are not used. Users who can bind receive the fallback "
+"role from the global LDAP settings instead."
 msgstr ""
 
 msgid "Group Member Attribute"
@@ -3740,6 +3770,9 @@ msgstr ""
 msgid "No mac addresses to be removed"
 msgstr ""
 
+msgid "No mappings defined."
+msgstr ""
+
 msgid "No master nodes are enabled to delete this image"
 msgstr ""
 
@@ -4563,6 +4596,9 @@ msgid "Returning value of key"
 msgstr ""
 
 msgid "Reverse"
+msgstr ""
+
+msgid "Role"
 msgstr ""
 
 msgid "Role Association"
@@ -5602,6 +5638,9 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
+msgid "That mapping already exists."
+msgstr ""
+
 msgid "That session has already started"
 msgstr ""
 
@@ -5643,6 +5682,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+msgid "The selected target no longer exists."
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -5677,6 +5719,9 @@ msgid "There are no images available!"
 msgstr ""
 
 msgid "There are no members to sync to"
+msgstr ""
+
+msgid "There are no roles or user groups to map to yet."
 msgstr ""
 
 msgid "There are no snapins associated with this host"
@@ -6248,6 +6293,9 @@ msgid "User group update failed!"
 msgstr ""
 
 msgid "User group updated!"
+msgstr ""
+
+msgid "User matched none of the mapped groups"
 msgstr ""
 
 msgid "User not found"
@@ -6823,6 +6871,9 @@ msgid "n/a"
 msgstr ""
 
 msgid "never"
+msgstr ""
+
+msgid "no longer exists"
 msgstr ""
 
 msgid "no response from server"

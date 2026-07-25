@@ -279,6 +279,12 @@ msgstr "Esiste già un gruppo con questo nome!"
 msgid "A user group with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
 
+msgid ""
+"A user signing in through this server receives every role and user group "
+"mapped to a directory group they belong to. Mapping to a user group is "
+"preferred: the group holds the roles, so policy stays in one place."
+msgstr ""
+
 msgid "A username already exists with this name!"
 msgstr "Esiste già un nome utente con questo nome!"
 
@@ -317,9 +323,6 @@ msgstr "Token di accesso"
 
 msgid "Access Token"
 msgstr "Token di accesso"
-
-msgid "Access level is still 0 or false"
-msgstr "Il livello di accesso è ancora 0 o falso"
 
 #, fuzzy
 msgid "Access token"
@@ -389,6 +392,10 @@ msgstr ""
 
 msgid "Add"
 msgstr "Aggiungere"
+
+#, fuzzy
+msgid "Add Directory Group"
+msgstr "Aggiungere gruppo di archiviazione"
 
 #, fuzzy
 msgid "Add Hello World failed!"
@@ -813,6 +820,9 @@ msgstr ""
 msgid "Both"
 msgstr ""
 
+msgid "Both a directory group and a target are required."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast aggiunto!"
@@ -1214,11 +1224,18 @@ msgstr "Impossibile leggere il file tmp."
 msgid "Could not read snapin file"
 msgstr "Impossibile leggere il file snapin"
 
+#, fuzzy
+msgid "Could not read the group mappings"
+msgstr "Impossibile leggere il file tmp."
+
 msgid "Could not read tmp file."
 msgstr "Impossibile leggere il file tmp."
 
 msgid "Could not register"
 msgstr "Non posso registrare"
+
+msgid "Could not remove the group mappings"
+msgstr ""
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1570,6 +1587,10 @@ msgstr "Directory esiste già"
 
 msgid "Directory Cleaner"
 msgstr "directory Cleaner"
+
+#, fuzzy
+msgid "Directory Group"
+msgstr "elenco"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2285,6 +2306,9 @@ msgstr "Posizione aggiornata!"
 msgid "Got in line at"
 msgstr ""
 
+msgid "Grants"
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "grafico"
@@ -2388,8 +2412,18 @@ msgid "Group Management"
 msgstr "Direzione del Gruppo"
 
 #, fuzzy
+msgid "Group Mappings"
+msgstr "Host Luoghi"
+
+#, fuzzy
 msgid "Group Matching"
 msgstr "Host Luoghi"
+
+msgid ""
+"Group Matching is off for this server, so directory groups cannot be read "
+"and these mappings are not used. Users who can bind receive the fallback "
+"role from the global LDAP settings instead."
+msgstr ""
 
 msgid "Group Member Attribute"
 msgstr "Attributo membro del gruppo"
@@ -4254,6 +4288,10 @@ msgstr "Nessun collegamento stabilito al database"
 msgid "No mac addresses to be removed"
 msgstr ""
 
+#, fuzzy
+msgid "No mappings defined."
+msgstr "Non sincronizzo"
+
 msgid "No master nodes are enabled to delete this image"
 msgstr "Non nodi master sono abilitati per eliminare questa immagine"
 
@@ -5171,6 +5209,10 @@ msgstr "Tornando valore della chiave"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role"
+msgstr "Nome regola"
 
 #, fuzzy
 msgid "Role Association"
@@ -6354,6 +6396,10 @@ msgid "Text"
 msgstr "Testo"
 
 #, fuzzy
+msgid "That mapping already exists."
+msgstr "Questo host esiste già"
+
+#, fuzzy
 msgid "That session has already started"
 msgstr "Questo host esiste già"
 
@@ -6398,6 +6444,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "Il MAC primario associato è"
 
+msgid "The selected target no longer exists."
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 "Le impostazioni tendono ad essere le impostazioni globali che influenzano "
@@ -6440,6 +6489,10 @@ msgstr "Non ci sono immagini su questo server"
 #, fuzzy
 msgid "There are no members to sync to"
 msgstr "Non ci sono host a cui affidare compiti in questo gruppo"
+
+#, fuzzy
+msgid "There are no roles or user groups to map to yet."
+msgstr "Non ci sono gruppi su questo server"
 
 msgid "There are no snapins associated with this host"
 msgstr "Non ci sono snapins associati con questo host"
@@ -7100,6 +7153,9 @@ msgstr "Aggiornamento utente non riuscita"
 msgid "User group updated!"
 msgstr "Utente aggiornato"
 
+msgid "User matched none of the mapped groups"
+msgstr ""
+
 #, fuzzy
 msgid "User not found"
 msgstr "Record non trovato"
@@ -7726,6 +7782,10 @@ msgstr "n/d"
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "no longer exists"
+msgstr "non è più in esecuzione"
+
 msgid "no response from server"
 msgstr ""
 
@@ -8034,6 +8094,9 @@ msgstr ""
 
 #~ msgid "Access Controls"
 #~ msgstr "Controllo accessi"
+
+#~ msgid "Access level is still 0 or false"
+#~ msgstr "Il livello di accesso è ancora 0 o falso"
 
 #, fuzzy
 #~ msgid "Accesscontrol Create Fail"

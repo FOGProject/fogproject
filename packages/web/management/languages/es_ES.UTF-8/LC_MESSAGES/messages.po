@@ -291,6 +291,12 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A user group with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
 
+msgid ""
+"A user signing in through this server receives every role and user group "
+"mapped to a directory group they belong to. Mapping to a user group is "
+"preferred: the group holds the roles, so policy stays in one place."
+msgstr ""
+
 #, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -330,9 +336,6 @@ msgid "Access Denied"
 msgstr "impresora iPrint"
 
 msgid "Access Token"
-msgstr ""
-
-msgid "Access level is still 0 or false"
 msgstr ""
 
 #, fuzzy
@@ -408,6 +411,10 @@ msgstr ""
 
 msgid "Add"
 msgstr "Añadir"
+
+#, fuzzy
+msgid "Add Directory Group"
+msgstr "Grupo de almacenamiento"
 
 #, fuzzy
 msgid "Add Hello World failed!"
@@ -858,6 +865,9 @@ msgstr ""
 msgid "Both"
 msgstr ""
 
+msgid "Both a directory group and a target are required."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Nombre de host"
@@ -1288,12 +1298,19 @@ msgstr "No se pudo leer el archivo tmp."
 msgid "Could not read snapin file"
 msgstr "No se pudo leer el archivo tmp."
 
+#, fuzzy
+msgid "Could not read the group mappings"
+msgstr "No se pudo leer el archivo tmp."
+
 msgid "Could not read tmp file."
 msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not register"
 msgstr "No se pudo crear la impresora"
+
+msgid "Could not remove the group mappings"
+msgstr ""
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1666,6 +1683,10 @@ msgstr "nombre de usuario ya existe"
 #, fuzzy
 msgid "Directory Cleaner"
 msgstr "directorios Cleaned"
+
+#, fuzzy
+msgid "Directory Group"
+msgstr "Directorio"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2422,6 +2443,9 @@ msgstr "información de LDAP actualizado!"
 msgid "Got in line at"
 msgstr ""
 
+msgid "Grants"
+msgstr ""
+
 msgid "Graph Color"
 msgstr ""
 
@@ -2529,8 +2553,18 @@ msgid "Group Management"
 msgstr "Gestión de usuarios"
 
 #, fuzzy
+msgid "Group Mappings"
+msgstr "Lista de host"
+
+#, fuzzy
 msgid "Group Matching"
 msgstr "Lista de host"
+
+msgid ""
+"Group Matching is off for this server, so directory groups cannot be read "
+"and these mappings are not used. Users who can bind receive the fallback "
+"role from the global LDAP settings instead."
+msgstr ""
 
 msgid "Group Member Attribute"
 msgstr ""
@@ -4550,6 +4584,10 @@ msgstr "Haga clic en el botón para exportar la base de datos."
 msgid "No mac addresses to be removed"
 msgstr ""
 
+#, fuzzy
+msgid "No mappings defined."
+msgstr "Instalador inteligente (recomendado)"
+
 msgid "No master nodes are enabled to delete this image"
 msgstr ""
 
@@ -5525,6 +5563,10 @@ msgstr "Volviendo valor de clave"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role"
+msgstr "Nombre del módulo"
 
 #, fuzzy
 msgid "Role Association"
@@ -6811,6 +6853,10 @@ msgid "Text"
 msgstr "Siguiente"
 
 #, fuzzy
+msgid "That mapping already exists."
+msgstr "Impresora ya existe"
+
+#, fuzzy
 msgid "That session has already started"
 msgstr "Impresora ya existe"
 
@@ -6857,6 +6903,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "Error, es una imagen asociada con este anfitrión"
 
+msgid "The selected target no longer exists."
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -6899,6 +6948,10 @@ msgstr "No hay grupos en este servidor."
 
 #, fuzzy
 msgid "There are no members to sync to"
+msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+msgid "There are no roles or user groups to map to yet."
 msgstr "No hay grupos en este servidor."
 
 #, fuzzy
@@ -7566,6 +7619,9 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "User group updated!"
 msgstr "el usuario actualiza"
+
+msgid "User matched none of the mapped groups"
+msgstr ""
 
 #, fuzzy
 msgid "User not found"
@@ -8236,6 +8292,9 @@ msgid "n/a"
 msgstr ""
 
 msgid "never"
+msgstr ""
+
+msgid "no longer exists"
 msgstr ""
 
 msgid "no response from server"

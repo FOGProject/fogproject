@@ -548,12 +548,53 @@ class LDAP extends FOGController
         return $entries[0][$displayNameAttr][0];
     }
     /**
-     * Checks if the user/pass are valid
+     * Removes the server and the group mappings scoped to it.
      *
-     * @param string $user the username to validate
-     * @param string $pass the password to validate
+     * Mappings are per-server by design, so a mapping whose server is gone
+     * can never be read again. Deleting them keeps the table from
+     * accumulating rows nothing can reach, and stops a later server that
+     * happens to reuse this auto-increment id from inheriting them.
      *
-     * @return bool|int
+     * Refs https://github.com/FOGProject/fogproject/issues/882
+     *
+     * @param string $key the key to destroy on
+     *
+     * @return bool
+     */
+    public function destroy($key = 'id')
+    {
+        $id = (int)$this->get('id');
+        if ($id > 0) {
+            try {
+                self::$DB->query(
+                    'DELETE FROM `LDAPGroupMap` WHERE `lgmServerID` = :server',
+                    [],
+                    ['server' => $id]
+                );
+            } catch (Exception $e) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s: %s',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Could not remove the group mappings'),
+                        $e->getMessage()
+                    )
+                );
+            }
+        }
+        return parent::destroy($key);
+    }
+    /**
+     * Authenticates the user against this server.
+     *
+     * @param string $user the username to authenticate
+     * @param string $pass the password to authenticate with
+     *
+     * @return array|bool the matched mapped group names, or false when the
+     *                    server grants this user nothing. An empty array
+     *                    means the credential bound but group matching is
+     *                    off, so there was nothing to match against.
      */
     public function authLDAP($user, $pass)
     {
@@ -930,68 +971,142 @@ class LDAP extends FOGController
          */
         $userDN = $entries[0]['dn'];
         /**
-         * If use group match is used, get access level,
-         * otherwise group scanning isn't used. Assume all
-         * are admins.
+         * The bind above already proved the identity. What is left is
+         * "which of this server's mapped groups is this user in?", which
+         * only means anything when group matching is switched on.
+         *
+         * With group matching off we cannot enumerate groups at all, so
+         * the empty array below is not "matched nothing" -- it is "there
+         * was nothing to match against". The caller separates the two by
+         * reading useGroupMatch, and gives that case the single configured
+         * fallback role (FOG_PLUGIN_LDAP_NOMATCH_ROLE).
          */
-        if ($useGroupMatch) {
-            $accessLevel = $this->_getAccessLevel($grpNamAttr, $grpMemAttr, $userDN, $user);
-        } else {
-            $accessLevel = 2;
+        if (!$useGroupMatch) {
+            @$this->unbind();
+            return [];
         }
+        $matched = $this->_getMatchedGroups(
+            $grpNamAttr,
+            $grpMemAttr,
+            $userDN,
+            $user
+        );
         /**
          * Close our connection
          */
         @$this->unbind();
-
         /**
-         * If access level is not changed
-         *
-         * @return bool
+         * Group matching is on and the user is in none of the mapped
+         * groups, so this server grants nothing. Denying here preserves
+         * the old accessLevel == 0 behaviour: a bind alone has never been
+         * enough when the server is configured to check groups.
          */
-        if ($accessLevel == 0) {
+        if (empty($matched)) {
             error_log(
                 sprintf(
                     '%s %s() %s. %s!',
                     _('Plugin'),
                     __METHOD__,
-                    _('Access level is still 0 or false'),
+                    _('User matched none of the mapped groups'),
                     _('No access is allowed')
                 )
             );
             return false;
         }
         /**
-         * Return the access level
+         * Return the group names that matched
          *
-         * @return int
+         * @return array
          */
-        return $accessLevel;
+        return $matched;
     }
     /**
-     * Get's the access level
+     * The directory group names mapped to something on this server.
+     *
+     * Read with raw bound SQL rather than Route::getIds() on purpose:
+     * _buildSql() rewrites '*' and '+' in a scalar filter value into a SQL
+     * LIKE wildcard, and both are legal in an LDAP group name -- '+'
+     * separates the components of a multi-valued RDN. A group called
+     * "Techs+Chicago" would otherwise silently match rows it must not.
+     *
+     * @return array the distinct group names, empty when none are mapped
+     */
+    private function _mappedGroupNames()
+    {
+        try {
+            $rows = self::$DB
+                ->query(
+                    'SELECT DISTINCT `lgmGroup` FROM `LDAPGroupMap` '
+                    . 'WHERE `lgmServerID` = :server',
+                    [],
+                    ['server' => (int)$this->get('id')]
+                )
+                ->fetch('', 'fetch_all')
+                ->get();
+        } catch (Exception $e) {
+            error_log(
+                sprintf(
+                    '%s %s() %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Could not read the group mappings'),
+                    $e->getMessage()
+                )
+            );
+            return [];
+        }
+        /**
+         * PDODB reports a failed query as false rather than throwing
+         * (throwOnQueryError is off), and (array)false is [false], not [].
+         * Normalise before iterating or a missing table becomes a bogus
+         * row instead of no rows.
+         */
+        if (!is_array($rows)) {
+            return [];
+        }
+        $names = [];
+        foreach ((array)$rows as $row) {
+            $name = trim((string)($row['lgmGroup'] ?? ''));
+            if ('' !== $name) {
+                $names[] = $name;
+            }
+        }
+        return array_values(array_unique($names));
+    }
+    /**
+     * Which of this server's mapped groups the user belongs to.
+     *
+     * This replaces _getAccessLevel(), which answered the narrower
+     * question "is this user an admin, a plain user, or neither?" by
+     * running the same membership query twice -- once against the admin
+     * group list, once against the user group list -- and collapsing the
+     * answer to 2, 1 or 0. That shape could only ever express two tiers.
+     *
+     * Returning the matched names instead costs nothing: the old code
+     * already OR'd a comma-separated list of names into one filter, so
+     * asking for the group name attribute back turns two scalar queries
+     * into one that says which names matched. Everything above this is
+     * then free to treat membership as additive, the way RBAC does.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
      *
      * @param string $grpNamAttr the group name item
      * @param string $grpMemAttr the group finder item
      * @param string $userDN     the user dn information
      * @param string $user       the actual username
      *
-     * @return int
+     * @return array the mapped group names the user is a member of
      */
-    private function _getAccessLevel($grpNamAttr, $grpMemAttr, $userDN, $user)
+    private function _getMatchedGroups($grpNamAttr, $grpMemAttr, $userDN, $user)
     {
+        $mapped = $this->_mappedGroupNames();
         /**
-         * Preset our access level value
+         * Nothing is mapped, so nothing can match. Bail before querying
+         * the directory rather than building a filter with an empty OR.
          */
-        $accessLevel = false;
-        /**
-         * Get our admin group
-         */
-        $adminGroup = $this->get('adminGroup');
-        /**
-         * Get our user group
-         */
-        $userGroup = $this->get('userGroup');
+        if (empty($mapped)) {
+            return [];
+        }
         /**
          * The user name attribute in use (e.g. uid=)
          */
@@ -1008,18 +1123,21 @@ class LDAP extends FOGController
         /**
          * Group filter layout should be consistent across
          * the board.
+         *
+         * Group names are escaped here where the two-bucket version did
+         * not escape them. They now come from an admin-editable table
+         * rather than a settings string, and an unescaped '*' or ')' in a
+         * name would otherwise alter the filter's meaning.
          */
         $grpNamAttr_forimplode = ')(' . $grpNamAttr . '=';
-        $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
-        /**
-         * Setup our new filter
-         */
-        $adminGroups = explode(',', $adminGroup);
-        $adminGroups = array_map('trim', $adminGroups);
+        $escaped = [];
+        foreach ($mapped as $name) {
+            $escaped[] = $this->escape($name, null, LDAP_ESCAPE_FILTER);
+        }
         $filter = sprintf(
             '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             $grpNamAttr,
-            implode($grpNamAttr_forimplode, (array)$adminGroups),
+            implode($grpNamAttr_forimplode, $escaped),
             $grpMemAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
             $grpMemAttr,
@@ -1029,50 +1147,30 @@ class LDAP extends FOGController
             $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
         /**
-         * The attribute to get.
+         * Ask for the name back -- that is what turns "did anything match"
+         * into "which ones matched".
          */
-        $attr = [$grpMemAttr];
+        $attr = [$grpNamAttr, $grpMemAttr];
         /**
          * Read in the attributes
          */
         $result = $this->_result($grpSearchDN, $filter, $attr);
         if (false !== $result) {
-            return 2;
+            $matched = $this->_namesFromEntries(
+                $this->get_entries($result),
+                $grpNamAttr,
+                $mapped
+            );
+            if (!empty($matched)) {
+                return $matched;
+            }
         }
         /**
-         * If no record is returned then user is not in the
-         * admin group. Change the filter and check the mobile
-         * group for membership.
-         */
-        $userGroups = explode(',', $userGroup);
-        $userGroups = array_map('trim', $userGroups);
-        $filter = sprintf(
-            '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
-            $grpNamAttr,
-            implode($grpNamAttr_forimplode, (array)$userGroups),
-            $grpMemAttr,
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
-            $grpMemAttr,
-            $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER),
-            $grpMemAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER)
-        );
-        /**
-         * The attribute to get.
-         */
-        $attr = [$grpMemAttr];
-        /**
-         * Execute the ldap query
-         */
-        $result = $this->_result($grpSearchDN, $filter, $attr);
-        /**
-         * If no record is returned then lets try the looping method
-         */
-        if (false !== $result) {
-            return 1;
-        }
-        /**
+         * The filter returned nothing usable, so fall back to the looping
+         * method. This path is kept because some directories do not answer
+         * the compound filter above -- it is the same fallback the
+         * two-bucket version had, generalised from two names to N.
+         *
          * Setup the generalized filter
          */
         $filter = sprintf(
@@ -1082,7 +1180,7 @@ class LDAP extends FOGController
         /**
          * The attribute to get.
          */
-        $attr = [$grpMemAttr];
+        $attr = [$grpNamAttr, $grpMemAttr];
         /**
          * Read in the attributes
          */
@@ -1102,7 +1200,7 @@ class LDAP extends FOGController
                 )
             );
             @$this->unbind();
-            return false;
+            return [];
         }
         /**
          * Get the entries found
@@ -1118,6 +1216,7 @@ class LDAP extends FOGController
         /**
          * Check groups for membership
          */
+        $matched = [];
         foreach ((array)$entries as $entry) {
             /**
              * If this cycle doesn't have the dn, skip it
@@ -1126,82 +1225,72 @@ class LDAP extends FOGController
                 continue;
             }
             /**
-             * Get the dn entry we need to test against
+             * Which mapped names this group's dn corresponds to. The
+             * substring test is what the two-bucket version used, kept so
+             * directories that name a group only in its DN still match.
              */
             $dn = $entry['dn'];
-            /**
-             * Get the users related to this dn
-             */
-            $users = $entry[$grpMemAttr];
-            /**
-             * Tests the presence of our admin group
-             */
-            $admin = false;
-            if ($adminGroup) {
-                $admin = strpos($dn, $adminGroup);
+            $hits = [];
+            foreach ($mapped as $name) {
+                if (false !== stripos($dn, $name)) {
+                    $hits[] = $name;
+                }
             }
-            /**
-             * Tests the presence of our mobile group
-             */
-            $user = false;
-            if ($userGroup) {
-                $user = strpos($dn, $userGroup);
-            }
-            /**
-             * If we can't find our relative dn
-             * set go back to top of loop.
-             */
-            if (false === $admin
-                && false === $user
-            ) {
+            if (empty($hits)) {
                 continue;
             }
             /**
-             * If the dn is in the admin scope
+             * Test if the user dn exists in this group. Unlike the tiered
+             * version there is no early break: every group the user is in
+             * contributes, because the targets are additive.
              */
-            if (false !== $admin) {
-                /**
-                 * Test if the user dn exists in this group
-                 */
-                $adm = preg_grep($pat, $users);
-                /**
-                 * Ensure we only return "filled" items
-                 */
-                $adm = array_filter($adm);
-                /**
-                 * If so, no need to move on, set access level and break loop
-                 */
-                if (count($adm) > 0) {
-                    $accessLevel = 2;
-                    break;
-                }
+            $users = $entry[$grpMemAttr] ?? [];
+            $found = array_filter(preg_grep($pat, (array)$users));
+            if (count($found) > 0) {
+                $matched = array_merge($matched, $hits);
             }
-            /**
-             * If the dn is in the mobile scope
-             */
-            if (false !== $user) {
+        }
+        return array_values(array_unique($matched));
+    }
+    /**
+     * Pulls the mapped group names out of a set of directory entries.
+     *
+     * The directory decides the spelling it returns, so a name is matched
+     * case-insensitively and then reported using the spelling stored in
+     * the mapping table -- that is the one the lookup in
+     * LDAPPluginHook has to match against.
+     *
+     * @param array  $entries    entries as returned by get_entries()
+     * @param string $grpNamAttr the group name attribute
+     * @param array  $mapped     the mapped group names to match against
+     *
+     * @return array
+     */
+    private function _namesFromEntries($entries, $grpNamAttr, array $mapped)
+    {
+        $lookup = [];
+        foreach ($mapped as $name) {
+            $lookup[strtolower($name)] = $name;
+        }
+        $matched = [];
+        foreach ((array)$entries as $entry) {
+            if (!isset($entry[$grpNamAttr])) {
+                continue;
+            }
+            foreach ((array)$entry[$grpNamAttr] as $key => $value) {
                 /**
-                 * Test if the user dn exists in this group
+                 * get_entries() puts an item count alongside the values.
                  */
-                $usr = preg_grep($pat, $users);
-                /**
-                 * Ensure we only return "filled" items
-                 */
-                $usr = array_filter($usr);
-                /**
-                 * If so, set our access level. We remain in loop
-                 * so if another group has this same user as admin
-                 * it can get it's proper permissions.
-                 */
-                if (count($usr) > 0) {
-                    $accessLevel = 1;
+                if ('count' === $key) {
+                    continue;
+                }
+                $key = strtolower(trim((string)$value));
+                if (isset($lookup[$key])) {
+                    $matched[] = $lookup[$key];
                 }
             }
         }
-        /**
-         * Return the access level
-         */
-        return $accessLevel;
+        return array_values(array_unique($matched));
     }
     /**
      * Get the results

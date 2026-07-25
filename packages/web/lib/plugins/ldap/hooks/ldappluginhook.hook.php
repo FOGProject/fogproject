@@ -39,14 +39,22 @@ class LDAPPluginHook extends Hook
      */
     const AUTH_SOURCE = 'ldap';
     /**
-     * Access tiers, ordered: a higher tier wins when several LDAP servers
-     * answer for the same user. TIER_NOMATCH sits below a verified user
-     * match because it means "we could not check", not "we checked".
+     * The ordered access tiers (TIER_NONE/NOMATCH/USER/ADMIN) are gone.
+     *
+     * They existed because authLDAP() returned a scalar access level, so
+     * two servers answering for the same user had to be reconciled by
+     * ranking them. Now that real group membership is available the
+     * question does not arise: RBAC permissions are additive, so every
+     * group the user matched on every server contributes its target and
+     * nothing has to outrank anything.
+     *
+     * The one case that still needs a single configured answer -- a server
+     * with group matching switched off, which cannot enumerate groups --
+     * is handled inline in checkAddUser() by
+     * FOG_PLUGIN_LDAP_NOMATCH_ROLE.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
      */
-    const TIER_NONE = 0;
-    const TIER_NOMATCH = 1;
-    const TIER_USER = 2;
-    const TIER_ADMIN = 3;
     /**
      * The name of this hook.
      *
@@ -157,48 +165,61 @@ class LDAPPluginHook extends Hook
             Route::getData()
         );
         /**
-         * Authenticate against every configured LDAP server and keep the
-         * most privileged result (admin beats user beats unverified beats
-         * none). A server where the user is absent must not downgrade a
-         * match found on another server, so we accumulate the best tier and
-         * act on it once after the loop rather than per-server.
+         * Authenticate against every configured LDAP server and union what
+         * each one grants. Every server is asked, because a user can be
+         * present in more than one directory and each contributes its own
+         * group matches -- there is no "best" answer to stop early on.
          *
-         * A server with group matching disabled is its own tier rather than
-         * an admin match: authLDAP() returns 2 there, but it means "this
-         * account can bind and we have no way to check what it is", not
-         * "this account is an administrator". Ranking it below a verified
-         * user-group match keeps an unverifiable server from outranking a
-         * server that actually answered the question.
+         * A server where the user is absent contributes nothing and must
+         * not take anything away from a server where they are present,
+         * which is why the accumulators only ever grow.
+         *
+         * A server with group matching switched off cannot enumerate
+         * groups, so it can only say "this account binds". That earns the
+         * single configured fallback role and nothing more -- it means "we
+         * could not check what this account is", not "this account is an
+         * administrator".
          */
-        $bestTier = self::TIER_NONE;
+        $authenticated = false;
+        $roleIds = [];
+        $groupIds = [];
         $displayName = '';
         $ldapAPI = 0;
         foreach ($items->data as $ldap) {
             $LDAP = self::getClass('LDAP', $ldap->id);
-            $access = (int)$LDAP->authLDAP($user, $pass);
-            if ($access < 1) {
+            $matched = $LDAP->authLDAP($user, $pass);
+            if (false === $matched) {
                 continue;
             }
-            if (!$LDAP->get('useGroupMatch')) {
-                $tier = self::TIER_NOMATCH;
-            } elseif ($access >= 2) {
-                $tier = self::TIER_ADMIN;
-            } else {
-                $tier = self::TIER_USER;
-            }
-            if ($tier > $bestTier) {
-                $bestTier = $tier;
+            /**
+             * Display name and API access come from the first server that
+             * accepted the credential. With the tier ladder gone there is
+             * no "most privileged" server to prefer, and OR-ing allowapi
+             * across servers would let a server that grants nothing else
+             * still hand out API access.
+             */
+            if (!$authenticated) {
                 $displayName = $LDAP->getDisplayName($user, $pass);
                 $ldapAPI = $LDAP->get('allowapi');
-                /**
-                 * Admin is the highest tier; no need to keep looking.
-                 */
-                if ($bestTier >= self::TIER_ADMIN) {
-                    break;
-                }
             }
+            $authenticated = true;
+            if (!$LDAP->get('useGroupMatch')) {
+                $nomatch = trim(
+                    (string)self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
+                );
+                if ('' !== $nomatch) {
+                    $roleIds[] = $nomatch;
+                }
+                continue;
+            }
+            $targets = self::_targetsForGroups(
+                (int)$LDAP->get('id'),
+                (array)$matched
+            );
+            $roleIds = array_merge($roleIds, $targets['roles']);
+            $groupIds = array_merge($groupIds, $targets['usergroups']);
         }
-        if (self::TIER_NONE === $bestTier) {
+        if (!$authenticated) {
             $arguments['user'] = new User(-1);
             return;
         }
@@ -228,7 +249,7 @@ class LDAPPluginHook extends Hook
             // password can ever match.
             $tmpUser->set('password', self::getToken(64));
         }
-        $this->_syncRoles($tmpUser, self::_roleForTier($bestTier));
+        $this->_syncTargets($tmpUser, $roleIds, $groupIds);
         $tmpUser->save();
         $arguments['user'] = $tmpUser;
         // Tell core we have already proven this identity, so it skips the
@@ -236,66 +257,200 @@ class LDAPPluginHook extends Hook
         $arguments['authenticated'] = true;
     }
     /**
-     * The configured role id for an access tier, '' when unset.
+     * The roles and user groups a set of matched groups grants.
      *
-     * @param int $tier one of the TIER_* constants
+     * Raw bound SQL rather than Route::getIds() on purpose: _buildSql()
+     * turns '*' and '+' in a scalar filter value into a SQL LIKE wildcard,
+     * and both are legal in an LDAP group name ('+' separates the parts of
+     * a multi-valued RDN), so a group named "Techs+Chicago" would match
+     * mappings it must not.
      *
-     * @return string
+     * @param int   $serverId the LDAP server the names came from
+     * @param array $groups   the matched directory group names
+     *
+     * @return array ['roles' => [...], 'usergroups' => [...]]
      */
-    private static function _roleForTier($tier)
+    private static function _targetsForGroups($serverId, array $groups)
     {
-        switch ($tier) {
-            case self::TIER_ADMIN:
-                $key = 'FOG_PLUGIN_LDAP_ADMIN_ROLE';
-                break;
-            case self::TIER_USER:
-                $key = 'FOG_PLUGIN_LDAP_USER_ROLE';
-                break;
-            case self::TIER_NOMATCH:
-                $key = 'FOG_PLUGIN_LDAP_NOMATCH_ROLE';
-                break;
-            default:
-                return '';
+        $out = [
+            'roles' => [],
+            'usergroups' => []
+        ];
+        $groups = array_values(
+            array_filter(
+                array_map('trim', $groups),
+                'strlen'
+            )
+        );
+        if (empty($groups)) {
+            return $out;
         }
-        return trim((string)self::getSetting($key));
+        $names = [];
+        $binds = ['server' => (int)$serverId];
+        foreach ($groups as $index => $group) {
+            $key = 'g' . $index;
+            $names[] = ':' . $key;
+            $binds[$key] = $group;
+        }
+        try {
+            $rows = self::$DB
+                ->query(
+                    'SELECT `lgmTargetType`, `lgmTargetID` '
+                    . 'FROM `LDAPGroupMap` '
+                    . 'WHERE `lgmServerID` = :server '
+                    . 'AND `lgmGroup` IN (' . implode(',', $names) . ')',
+                    [],
+                    $binds
+                )
+                ->fetch('', 'fetch_all')
+                ->get();
+        } catch (Exception $e) {
+            error_log(
+                sprintf(
+                    '%s %s() %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Could not read the group mappings'),
+                    $e->getMessage()
+                )
+            );
+            return $out;
+        }
+        /**
+         * PDODB reports a failed query as false rather than throwing
+         * (throwOnQueryError is off), and (array)false is [false], not [].
+         */
+        if (!is_array($rows)) {
+            return $out;
+        }
+        foreach ($rows as $row) {
+            $id = trim((string)($row['lgmTargetID'] ?? ''));
+            if ('' === $id || '0' === $id) {
+                continue;
+            }
+            $type = (string)($row['lgmTargetType'] ?? '');
+            if (LDAPGroupMap::TARGET_USERGROUP === $type) {
+                $out['usergroups'][] = $id;
+            } else {
+                $out['roles'][] = $id;
+            }
+        }
+        $out['roles'] = array_values(array_unique($out['roles']));
+        $out['usergroups'] = array_values(array_unique($out['usergroups']));
+        return $out;
     }
     /**
-     * Makes the directory authoritative over the mapped roles only.
+     * Every role and user group this plugin considers its own to manage.
      *
-     * The three mapped roles are recomputed from the directory on every
-     * login, so revoking someone's LDAP group membership downgrades them
-     * the next time they sign in. Any other role an admin attached by hand
-     * is left alone -- without that carve-out the sync would silently
-     * revoke deliberate grants, and an admin would have no way to give an
-     * LDAP user anything extra.
+     * This is the carve-out that keeps the sync from stamping on manual
+     * grants: anything that appears as a mapping target is recomputed from
+     * the directory on each login, and anything else an admin attached by
+     * hand is left alone.
      *
-     * Reading get('roles') here is also what arms the sync: assocSetter()
-     * no-ops on an association that was never loaded or set, so the read
-     * below is load-bearing, not just informational.
+     * Deriving the set from the map rather than from a settings list is
+     * what makes it self-maintaining -- stop mapping a role and it stops
+     * being managed, exactly as clearing the old setting did.
      *
-     * @param User   $userObj the user being authenticated
-     * @param string $roleId  the role this login earns, '' for none
+     * The user-group half matters more than the role half: the Site plugin
+     * scopes on user groups, so a sync without this carve-out would
+     * silently move people between sites every time they signed in.
+     *
+     * @return array ['roles' => [...], 'usergroups' => [...]]
+     */
+    private static function _managedTargets()
+    {
+        $managed = [
+            'roles' => [],
+            'usergroups' => []
+        ];
+        try {
+            $rows = self::$DB
+                ->query(
+                    'SELECT DISTINCT `lgmTargetType`, `lgmTargetID` '
+                    . 'FROM `LDAPGroupMap`'
+                )
+                ->fetch('', 'fetch_all')
+                ->get();
+        } catch (Exception $e) {
+            error_log(
+                sprintf(
+                    '%s %s() %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Could not read the group mappings'),
+                    $e->getMessage()
+                )
+            );
+            $rows = [];
+        }
+        /**
+         * PDODB reports a failed query as false rather than throwing
+         * (throwOnQueryError is off), and (array)false is [false], not [].
+         */
+        if (!is_array($rows)) {
+            $rows = [];
+        }
+        foreach ($rows as $row) {
+            $id = trim((string)($row['lgmTargetID'] ?? ''));
+            if ('' === $id) {
+                continue;
+            }
+            $type = (string)($row['lgmTargetType'] ?? '');
+            if (LDAPGroupMap::TARGET_USERGROUP === $type) {
+                $managed['usergroups'][] = $id;
+            } else {
+                $managed['roles'][] = $id;
+            }
+        }
+        /**
+         * The no-match role is granted by this plugin but never appears in
+         * the map, so it has to be named explicitly or turning group
+         * matching back on would leave it attached forever.
+         */
+        $nomatch = trim(
+            (string)self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
+        );
+        if ('' !== $nomatch) {
+            $managed['roles'][] = $nomatch;
+        }
+        $managed['roles'] = array_values(array_unique($managed['roles']));
+        $managed['usergroups'] = array_values(
+            array_unique($managed['usergroups'])
+        );
+        return $managed;
+    }
+    /**
+     * Makes the directory authoritative over the mapped targets only.
+     *
+     * Every mapped role and user group is recomputed from the directory on
+     * each login, so removing someone from an LDAP group downgrades them
+     * the next time they sign in. Anything outside the managed set is left
+     * alone -- without that carve-out the sync would silently revoke
+     * deliberate grants, and an admin would have no way to give an LDAP
+     * user anything extra.
+     *
+     * Reading get('roles') and get('usergroups') here is also what arms the
+     * sync: assocSetter() no-ops on an association that was never loaded or
+     * set, so both reads are load-bearing, not just informational.
+     *
+     * @param User  $userObj  the user being authenticated
+     * @param array $roleIds  the role ids this login earns
+     * @param array $groupIds the user group ids this login earns
      *
      * @return void
      */
-    private function _syncRoles($userObj, $roleId)
+    private function _syncTargets($userObj, array $roleIds, array $groupIds)
     {
-        $managed = array_map(
-            'strval',
-            array_filter(
-                [
-                    self::getSetting('FOG_PLUGIN_LDAP_ADMIN_ROLE'),
-                    self::getSetting('FOG_PLUGIN_LDAP_USER_ROLE'),
-                    self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
-                ]
-            )
-        );
+        $managed = self::_managedTargets();
         $current = array_map('strval', (array)$userObj->get('roles'));
-        $roles = array_values(array_diff($current, $managed));
-        if ('' !== (string)$roleId) {
-            $roles[] = (string)$roleId;
-        }
+        $roles = array_diff($current, $managed['roles']);
+        $roles = array_merge($roles, array_map('strval', $roleIds));
         $userObj->set('roles', array_values(array_unique($roles)));
+
+        $current = array_map('strval', (array)$userObj->get('usergroups'));
+        $groups = array_diff($current, $managed['usergroups']);
+        $groups = array_merge($groups, array_map('strval', $groupIds));
+        $userObj->set('usergroups', array_values(array_unique($groups)));
     }
     /**
      * Maps this plugin's legacy uType sentinels back onto core's 0/1.

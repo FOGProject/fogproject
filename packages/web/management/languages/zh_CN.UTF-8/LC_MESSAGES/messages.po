@@ -292,6 +292,12 @@ msgstr "图像已经存在具有此名称！"
 msgid "A user group with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
+msgid ""
+"A user signing in through this server receives every role and user group "
+"mapped to a directory group they belong to. Mapping to a user group is "
+"preferred: the group holds the roles, so policy stays in one place."
+msgstr ""
+
 #, fuzzy
 msgid "A username already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -330,9 +336,6 @@ msgstr "访问令牌"
 
 msgid "Access Token"
 msgstr "访问令牌"
-
-msgid "Access level is still 0 or false"
-msgstr ""
 
 #, fuzzy
 msgid "Access token"
@@ -403,6 +406,10 @@ msgstr ""
 
 msgid "Add"
 msgstr "加"
+
+#, fuzzy
+msgid "Add Directory Group"
+msgstr "添加存储组"
 
 #, fuzzy
 msgid "Add Hello World failed!"
@@ -846,6 +853,9 @@ msgstr ""
 msgid "Both"
 msgstr ""
 
+msgid "Both a directory group and a target are required."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "广播名称"
@@ -1274,12 +1284,19 @@ msgstr "无法读取tmp文件。"
 msgid "Could not read snapin file"
 msgstr "无法读取tmp文件。"
 
+#, fuzzy
+msgid "Could not read the group mappings"
+msgstr "无法读取tmp文件。"
+
 msgid "Could not read tmp file."
 msgstr "无法读取tmp文件。"
 
 #, fuzzy
 msgid "Could not register"
 msgstr "无法创建打印机"
+
+msgid "Could not remove the group mappings"
+msgstr ""
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1639,6 +1656,10 @@ msgstr "目录已经存在"
 
 msgid "Directory Cleaner"
 msgstr "目录清洁"
+
+#, fuzzy
+msgid "Directory Group"
+msgstr "目录"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2375,6 +2396,9 @@ msgstr "更新位置"
 msgid "Got in line at"
 msgstr ""
 
+msgid "Grants"
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "图形"
@@ -2480,8 +2504,18 @@ msgid "Group Management"
 msgstr "集团管理"
 
 #, fuzzy
+msgid "Group Mappings"
+msgstr "主机位置"
+
+#, fuzzy
 msgid "Group Matching"
 msgstr "主机位置"
+
+msgid ""
+"Group Matching is off for this server, so directory groups cannot be read "
+"and these mappings are not used. Users who can bind receive the fallback "
+"role from the global LDAP settings instead."
+msgstr ""
 
 msgid "Group Member Attribute"
 msgstr ""
@@ -4437,6 +4471,10 @@ msgstr "没有连接到数据库"
 msgid "No mac addresses to be removed"
 msgstr ""
 
+#, fuzzy
+msgid "No mappings defined."
+msgstr "已安装的插件"
+
 msgid "No master nodes are enabled to delete this image"
 msgstr "无主节点启用删除这张图片"
 
@@ -5394,6 +5432,10 @@ msgstr "返回键的值"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role"
+msgstr "模块名称"
 
 #, fuzzy
 msgid "Role Association"
@@ -6643,6 +6685,10 @@ msgid "Text"
 msgstr "文本"
 
 #, fuzzy
+msgid "That mapping already exists."
+msgstr "打印机已经存在"
+
+#, fuzzy
 msgid "That session has already started"
 msgstr "打印机已经存在"
 
@@ -6688,6 +6734,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+msgid "The selected target no longer exists."
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -6729,6 +6778,10 @@ msgstr "有此服务器上没有图像。"
 
 #, fuzzy
 msgid "There are no members to sync to"
+msgstr "有此服务器上没有组。"
+
+#, fuzzy
+msgid "There are no roles or user groups to map to yet."
 msgstr "有此服务器上没有组。"
 
 msgid "There are no snapins associated with this host"
@@ -7407,6 +7460,9 @@ msgstr "用户更新失败"
 msgid "User group updated!"
 msgstr "用户更新"
 
+msgid "User matched none of the mapped groups"
+msgstr ""
+
 #, fuzzy
 msgid "User not found"
 msgstr "未发现记录，错误： %s"
@@ -8074,6 +8130,10 @@ msgstr "N / A"
 
 msgid "never"
 msgstr ""
+
+#, fuzzy
+msgid "no longer exists"
+msgstr "不复存在"
 
 msgid "no response from server"
 msgstr ""
