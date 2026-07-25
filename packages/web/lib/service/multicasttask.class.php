@@ -562,28 +562,115 @@ class MulticastTask extends FOGService
             $address = long2ip(ip2long($address) + $offset);
         }
         $maxwait = $this->getMaxwait();
+        /*
+         * Everything below is interpolated into a single string that
+         * startTask() hands to proc_open(), which runs it through
+         * /bin/sh as root -- so ';', '$()' and backticks in any token
+         * are live commands. Several of these tokens are attacker
+         * reachable: the node bitrate and hello interval, the duplex
+         * and rendezvous settings, the image path and the on-disk
+         * filenames below. Write-side validation cannot be the fix,
+         * because Route::edit() copies a JSON body straight into a
+         * model's databaseFields with no validation at all, and
+         * because filenames and .lvm sidecar contents are never
+         * "written" through FOG in the first place. So each value is
+         * validated and/or escaped here at the sink, which also covers
+         * sessions already queued with a historical msLogPath.
+         * Reported by Aisle Research (065 / 3.27.1).
+         */
+        $bitrate = trim((string)$this->getBitrate());
+        if ('' !== $bitrate
+            && !preg_match('/^[0-9]+[kmg]?$/i', $bitrate)
+        ) {
+            // Not (int) cast: '100m' is a legitimate value and casting
+            // would silently turn it into 100 bits/s.
+            self::outall(
+                sprintf(
+                    ' | %s: %s',
+                    _('Ignoring invalid multicast bitrate'),
+                    $bitrate
+                )
+            );
+            $bitrate = '';
+        }
+        $helloInterval = trim((string)$this->getHelloInterval());
+        if ('' !== $helloInterval
+            && !preg_match('/^[0-9]+$/', $helloInterval)
+        ) {
+            self::outall(
+                sprintf(
+                    ' | %s: %s',
+                    _('Ignoring invalid multicast hello interval'),
+                    $helloInterval
+                )
+            );
+            $helloInterval = '';
+        }
+        if ($multicastrdv
+            && !filter_var($multicastrdv, FILTER_VALIDATE_IP)
+        ) {
+            self::outall(
+                sprintf(
+                    ' | %s: %s',
+                    _('Ignoring invalid multicast rendezvous address'),
+                    $multicastrdv
+                )
+            );
+            $multicastrdv = '';
+        }
+        if ($duplex
+            && !in_array($duplex, ['--half-duplex', '--full-duplex'], true)
+        ) {
+            // Allowlist, not a sanitizer: the valid values start with
+            // dashes, so anything that rejects or escapes leading
+            // dashes would break multicast outright. These two are
+            // exactly what the configuration page's select offers.
+            // Dropping an unrecognized value leaves udp-sender on its
+            // own default, matching the existing "empty -> no flag".
+            self::outall(
+                sprintf(
+                    ' | %s: %s',
+                    _('Ignoring invalid multicast duplex setting'),
+                    $duplex
+                )
+            );
+            $duplex = '';
+        }
         $buildcmd = [
             UDPSENDERPATH,
             (
-                $this->getBitrate() ?
-                sprintf(' --max-bitrate %s', $this->getBitrate()) :
+                $bitrate ?
+                sprintf(' --max-bitrate %s', escapeshellarg($bitrate)) :
                 null
             ),
             (
-                $this->getHelloInterval() ?
-                sprintf(' --rexmit-hello-interval %s', $this->getHelloInterval()) :
+                $helloInterval ?
+                sprintf(
+                    ' --rexmit-hello-interval %s',
+                    escapeshellarg($helloInterval)
+                ) :
                 null
             ),
             (
                 $this->getInterface() ?
-                sprintf(' --interface %s', $this->getInterface()) :
+                // Derived locally from `ip route`, not from the
+                // database -- escaped anyway so the sink stays safe if
+                // that ever stops being true.
+                sprintf(' --interface %s', escapeshellarg($this->getInterface())) :
                 null
             ),
             sprintf(
                 ' --min-receivers %d',
                 $this->getClientCount()
             ),
-            ' --max-wait %d',
+            // {MAXWAIT} rather than '%d': the whole command used to be
+            // run back through sprintf() below, and escapeshellarg()
+            // does not neutralize '%'. Once the values are escaped, a
+            // '%' anywhere in them (a bitrate of '100%', a filename
+            // containing '%s') would turn an injection into a PHP 8
+            // ArgumentCountError and kill the daemon instead. Dropping
+            // the format string removes that class entirely.
+            ' --max-wait {MAXWAIT}',
             (
                 $address ?
                 sprintf(' --mcast-data-address %s', $address) :
@@ -594,7 +681,7 @@ class MulticastTask extends FOGService
                 sprintf(' --mcast-rdv-address %s', $multicastrdv) :
                 null
             ),
-            sprintf(' --portbase %s', $this->getPortBase()),
+            sprintf(' --portbase %d', $this->getPortBase()),
             sprintf(' %s', $duplex),
             ' --ttl 32',
             ' --nokbd',
@@ -794,27 +881,62 @@ class MulticastTask extends FOGService
                 $sendfiles[] = $lvfile;
             }
         }
+        /*
+         * 'sys.img.*' and 'rec.img.*' are pushed as literal wildcards
+         * above and were expanded by /bin/sh, which the escaping below
+         * would turn into a single literal filename that does not
+         * exist. Expand them here instead. glob()'s default sort is
+         * the same collating order the shell used and each entry is
+         * expanded in place, so the on-the-wire file order -- which is
+         * the only thing keeping the FOS receivers in sync -- does not
+         * change. Part of the 065 sink fix.
+         */
+        $expanded = [];
+        foreach ($sendfiles as $file) {
+            if (false === strpos($file, '*')) {
+                $expanded[] = $file;
+                continue;
+            }
+            $matches = glob(
+                rtrim($this->getImagePath(), DS) . DS . $file
+            );
+            if (empty($matches)) {
+                self::outall(
+                    sprintf(
+                        ' | %s: %s',
+                        _('No files matched multicast image pattern'),
+                        $file
+                    )
+                );
+                continue;
+            }
+            foreach ($matches as $match) {
+                $expanded[] = basename($match);
+            }
+        }
+        $sendfiles = $expanded;
         ob_start();
         foreach ($sendfiles as $i => $file) {
             printf(
-                '%s --file %s%s%s;',
-                sprintf(
-                    implode($buildcmd),
-                    (
+                '%s --file %s;',
+                str_replace(
+                    '{MAXWAIT}',
+                    (string)(
                         $i == 0 ?
                         $maxwait :
                         600
-                    )
+                    ),
+                    implode($buildcmd)
                 ),
-                rtrim(
-                    $this->getImagePath(),
-                    DS
-                ),
-                DS,
-                $file
+                escapeshellarg(
+                    rtrim(
+                        $this->getImagePath(),
+                        DS
+                    ) . DS . $file
+                )
             );
         }
-        unset($filelist, $sendfiles, $lvfiles, $buildcmd);
+        unset($filelist, $sendfiles, $expanded, $lvfiles, $buildcmd);
         return ob_get_clean();
     }
     /**

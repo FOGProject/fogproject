@@ -3011,6 +3011,21 @@ msgstr "Client"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "Démarrez Multicast session"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "Démarrez Multicast session"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "Démarrez Multicast session"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "image"
 
@@ -4390,6 +4405,9 @@ msgstr "Aucun champ passé"
 
 msgid "No file was uploaded"
 msgstr "Aucun fichier a été téléchargé"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""

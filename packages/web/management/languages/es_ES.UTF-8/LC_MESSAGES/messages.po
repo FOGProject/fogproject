@@ -3075,6 +3075,21 @@ msgstr "Clientela"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "Iniciar la sesión de multidifusión"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "Iniciar la sesión de multidifusión"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "Iniciar la sesión de multidifusión"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "Imagen"
 
@@ -4500,6 +4515,9 @@ msgstr "No hay campos pasaron"
 
 msgid "No file was uploaded"
 msgstr "Ningún archivo fue subido"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
