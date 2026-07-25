@@ -2899,6 +2899,10 @@ msgid "Invalid snapin"
 msgstr "无效的Snapin"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "无效的Snapin"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "无效任务ID"
 

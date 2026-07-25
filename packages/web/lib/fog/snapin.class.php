@@ -606,9 +606,19 @@ class Snapin extends FOGController
      * (reserved by FOG for its own SSL bits) and replaces any character
      * that is not a word char, dot, or hyphen with an underscore.
      *
+     * '.' and '..' are rejected outright: they survive basename() and
+     * the normalization below untouched, so they would name the snapin
+     * directory itself rather than a file in it. On working-1.6 that
+     * was exploitable -- FOGSSH::delete() recursed and emptied the
+     * directory. Here it is not, because FOGFTP::exists() rawlists the
+     * parent and skips the '.' and '..' entries, so FOGFTP::delete()
+     * no-ops and the ftp_put fails. This is parity hardening, not a
+     * security fix on this branch (035 / 2.3.1).
+     *
      * @param string $basename the raw basename to sanitize
      *
-     * @throws InvalidArgumentException if the name is reserved
+     * @throws InvalidArgumentException if the name is reserved or
+     *                                  normalizes to '', '.' or '..'
      *
      * @return string the sanitized basename
      */
@@ -624,7 +634,16 @@ class Snapin extends FOGController
                 )
             );
         }
-        return preg_replace('/[^\-\w\.]+/', '_', $basename);
+        $basename = preg_replace('/[^\-\w\.]+/', '_', $basename);
+        if ('' === $basename
+            || '.' === $basename
+            || '..' === $basename
+        ) {
+            throw new \InvalidArgumentException(
+                _('Invalid snapin filename')
+            );
+        }
+        return $basename;
     }
     /**
      * Push one or more uploaded files to the given StorageNode via FTP.

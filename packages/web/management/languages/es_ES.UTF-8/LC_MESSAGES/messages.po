@@ -3338,6 +3338,10 @@ msgid "Invalid snapin"
 msgstr "Login incorrecto"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Login incorrecto"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "Identificador de tarea incorrecto"
 

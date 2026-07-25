@@ -2882,6 +2882,10 @@ msgstr "無効なスケジュールタイプです"
 msgid "Invalid snapin"
 msgstr "無効なスナップイン"
 
+#, fuzzy
+msgid "Invalid snapin filename"
+msgstr "無効なスナップイン"
+
 msgid "Invalid status payload"
 msgstr "無効なステータスペイロードです"
 

@@ -2988,6 +2988,10 @@ msgid "Invalid snapin"
 msgstr "Snapin non valido"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Snapin non valido"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "ID attività non valido"
 

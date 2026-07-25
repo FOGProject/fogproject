@@ -2931,6 +2931,10 @@ msgid "Invalid snapin"
 msgstr "Snapin invalide"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Snapin invalide"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "ID tâche invalide"
 
