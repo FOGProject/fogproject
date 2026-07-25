@@ -690,13 +690,32 @@ class MulticastTask extends FOGService
         $buildcmd = array_values(array_filter($buildcmd));
         $lvfiles = [];
         $lvmscan = false;
+        // Every entry collected below is a bare filename that the send
+        // loop joins onto this directory. It is the image path itself
+        // in all but the single-file case, which reassigns it.
+        $imagedir = rtrim($this->getImagePath(), DS);
         switch ($this->getImageType()) {
             case 1:
                 switch ($this->getOSID()) {
                     case 1:
                     case 2:
                         if (is_file($this->getImagePath())) {
-                            $filelist[] = $this->getImagePath();
+                            // Here the image path names the image file
+                            // itself, not a directory holding one. The
+                            // send loop still assembles
+                            // "<directory>/<filename>", so it gets the
+                            // containing directory and the basename;
+                            // pushing the whole path made every --file
+                            // argument "<imagepath>/<imagepath>", which
+                            // cannot exist -- is_file() just proved the
+                            // first half is a file, so it holds
+                            // nothing. Multicast of a single-file image
+                            // has never worked on this branch.
+                            $imagedir = rtrim(
+                                dirname($this->getImagePath()),
+                                DS
+                            );
+                            $filelist[] = basename($this->getImagePath());
                             break;
                         }
                         // no break
@@ -897,9 +916,7 @@ class MulticastTask extends FOGService
                 $expanded[] = $file;
                 continue;
             }
-            $matches = glob(
-                rtrim($this->getImagePath(), DS) . DS . $file
-            );
+            $matches = glob($imagedir . DS . $file);
             if (empty($matches)) {
                 self::outall(
                     sprintf(
@@ -928,12 +945,7 @@ class MulticastTask extends FOGService
                     ),
                     implode($buildcmd)
                 ),
-                escapeshellarg(
-                    rtrim(
-                        $this->getImagePath(),
-                        DS
-                    ) . DS . $file
-                )
+                escapeshellarg($imagedir . DS . $file)
             );
         }
         unset($filelist, $sendfiles, $expanded, $lvfiles, $buildcmd);
