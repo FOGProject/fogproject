@@ -600,6 +600,21 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_UNAUTHORIZED
             );
         }
+        // passwordValidate() proves the credential; it says nothing about
+        // whether this account may use the API. The token branch above
+        // tests uAllowAPI, so without the same test here turning "Allow
+        // API" off left basic auth as an unaffected way in.
+        //
+        // Reloading also gives the acting user a fully populated object,
+        // matching what the token branch binds -- passwordValidate() only
+        // fills in id, name and type on the object it was called against.
+        $apiUser = self::getClass('User', (int)self::$FOGUser->get('id'));
+        if (!$apiUser->isValid() || !$apiUser->get('api')) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_UNAUTHORIZED
+            );
+        }
+        self::$FOGUser = $apiUser;
     }
     /**
      * Sends the response code through break head as needed.
