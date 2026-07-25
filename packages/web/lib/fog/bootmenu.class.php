@@ -270,19 +270,28 @@ class BootMenu extends FOGBase
         ];
         $sysuuid = filter_input(INPUT_POST, 'sysuuid') ?: filter_input(INPUT_GET, 'sysuuid') ?: '';
         if (self::$Host->isValid()) {
-            if (!self::$Host->get('inventory')->get('sysuuid')) {
-                if ($sysuuid && !preg_match(
+            // Aisle 019: validate EVERY write, not just the first one. The
+            // non-empty guard this replaces (removed by b0b303828e) meant a host
+            // that already had a sysuuid took the POSTed value UNVALIDATED, so a
+            // second unauthenticated boot.php POST could store arbitrary HTML --
+            // which the Inventory Report then rendered raw. A bare `mac=` POST
+            // with no sysuuid at all also blanked a good stored value.
+            // Skipping the write on a bad/absent value (rather than blanking it)
+            // keeps the legitimate motherboard-swap case that b0b303828e was
+            // presumably after: a well-formed UUID that differs from the stored
+            // one still updates. A malformed or missing one can no longer
+            // destroy what is already there.
+            if ($sysuuid
+                && preg_match(
                     '/^[0-9A-Fa-f]{8}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{12}$/',
                     $sysuuid
-                )) {
-                    $sysuuid = '';
-                }
-            }
-            if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid) {
+                )
+                && self::$Host->get('inventory')->get('sysuuid') != $sysuuid
+            ) {
                 self::$Host->get('inventory')->getManager()->update(
                     ['hostID' => self::$Host->get('id')],
                     '',
@@ -1251,10 +1260,29 @@ class BootMenu extends FOGBase
         if (!self::$Host->isValid()) {
             return;
         }
+        // Aisle 029: boot.php is unauthenticated and $_REQUEST is neither escaped
+        // nor stripAndDecode'd on this path, so this was a raw write of arbitrary
+        // attacker bytes into hostProductKey (which the Host Export table then
+        // rendered unescaped). Use the same contract the host/group save paths
+        // already enforce rather than inventing a second rule. An explicitly
+        // empty key is still accepted so clearing a key from the iPXE prompt
+        // keeps working; only non-empty malformed input is refused, and it
+        // reuses the existing keychangefail branch so the iPXE chain still
+        // gets a message.
+        $key = (string)($_REQUEST['key'] ?? '');
+        if ($key !== '' && !self::productKeyIsValid($key)) {
+            $Send['keychangefail'] = [
+                'echo Failed to change key',
+                'sleep 3'
+            ];
+            $this->_parseMe($Send);
+            $this->_chainBoot();
+            return;
+        }
         $update = self::$Host->getManager()->update(
             ['id' => self::$Host->get('id')],
             '',
-            ['productKey' => $_REQUEST['key']]
+            ['productKey' => self::productKeyFormat($key)]
         );
         if (!$update) {
             $Send['keychangefail'] = [

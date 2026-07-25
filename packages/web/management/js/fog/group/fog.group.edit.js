@@ -537,7 +537,11 @@
         entityType: 'module',
         idPrefix: 'groupModuleAssoc_',
         columns: [
-            {data: 'name'},
+            // Aisle 097: this tab overrides the default association column set,
+            // so it reads the raw 'name' field rather than the server-escaped
+            // mainLink. Latent today (module names are not user-writable through
+            // the UI) but it is the same sink shape as the snapin tab.
+            {data: 'name', render: $.fn.dataTable.render.text()},
             {data: 'association'}
         ]
     });

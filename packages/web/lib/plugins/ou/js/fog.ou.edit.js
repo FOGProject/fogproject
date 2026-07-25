@@ -19,11 +19,16 @@ $(function() {
         columnDefs: [
             {
                 responsivePriority: -1,
+                // Aisle 097: this tab supplies its own column-0 render, so it
+                // bypasses the server-side escape in FOGController's mainLink
+                // formatter and concatenated the name in raw. Mitigated today
+                // only by isHostnameSafe() on the write side -- do not rely on
+                // that staying the sole gate.
                 render: function(data, type, row) {
                     return '<a href="../management/index.php?node=host&sub=edit&id='
                         + row.id
                         + '">'
-                        + data
+                        + $.escapeHtml(data)
                         + '</a>';
                 },
                 targets: 0

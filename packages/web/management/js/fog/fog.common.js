@@ -1465,6 +1465,25 @@ $.fn.registerTable = function(onSelect, opts) {
  */
 $.fn.registerExportTable = function(columns, opts) {
   opts = opts || {};
+  // Aisle 029: export tables render raw DB columns, several of which are
+  // attacker-writable through unauthenticated surfaces (productKey via the iPXE
+  // keyset path, the inventory fields, etc), and DataTables writes cell data as
+  // HTML by default. Escaping here covers productKey plus the ~30 other raw
+  // columns and every *.export.js page at once, instead of hand-patching one.
+  // The t === 'display' guard is load-bearing: the Buttons CSV/copy exports ask
+  // for other types, and escaping those would put &amp;/&lt; into exported files
+  // and break import round-tripping. A column that intentionally emits markup
+  // opts out simply by supplying its own render.
+  columns = (columns || []).map(function(col) {
+    if (!col || col.render !== undefined) {
+      return col;
+    }
+    return $.extend({}, col, {
+      render: function(d, t) {
+        return t === 'display' ? $.escapeHtml(d) : d;
+      }
+    });
+  });
   var table = this.registerTable(null, {
     buttons: exportButtons,
     order: opts.order || [[0, 'asc']],

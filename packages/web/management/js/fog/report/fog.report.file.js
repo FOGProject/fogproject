@@ -206,50 +206,59 @@
             [0, 'asc']
           ],
           buttons: reportButtons,
+          // Aisle 019: every field below is fed by the UNAUTHENTICATED inventory
+          // submission surface (service/ipxe/boot.php and the inventory service),
+          // and DataTables writes cell data as HTML by default -- so a stored
+          // payload executed here. render.text() is the right layer: the server
+          // side must stay raw because Route::listem also feeds the CSV/exportAll
+          // path, where HTML entities would leak into exported files.
+          // 'hostLink' is deliberately excluded -- it is a server-built <a> and
+          // render.text() would print the markup literally, breaking navigation.
+          // Its hostName is escaped server-side in route.class.php instead.
           columns: [
             {data: 'hostLink'}, // 00
             // User set information
-            {data: 'primaryUser'},
-            {data: 'other1'},
-            {data: 'other2'},
+            {data: 'primaryUser', render: $.fn.dataTable.render.text()},
+            {data: 'other1', render: $.fn.dataTable.render.text()},
+            {data: 'other2', render: $.fn.dataTable.render.text()},
             // System
-            {data: 'sysman'}, // 01
-            {data: 'sysproduct'}, // 02 visible
-            {data: 'sysversion'}, // 03
-            {data: 'sysserial'}, // 04 visible
-            {data: 'sysuuid'}, // 05 visible
-            {data: 'systype'}, // 06
+            {data: 'sysman', render: $.fn.dataTable.render.text()}, // 01
+            {data: 'sysproduct', render: $.fn.dataTable.render.text()}, // 02 visible
+            {data: 'sysversion', render: $.fn.dataTable.render.text()}, // 03
+            {data: 'sysserial', render: $.fn.dataTable.render.text()}, // 04 visible
+            {data: 'sysuuid', render: $.fn.dataTable.render.text()}, // 05 visible
+            {data: 'systype', render: $.fn.dataTable.render.text()}, // 06
             // BIOS
-            {data: 'biosversion'}, // 07
-            {data: 'biosvendor'}, // 08
-            {data: 'biosdate'}, // 09
+            {data: 'biosversion', render: $.fn.dataTable.render.text()}, // 07
+            {data: 'biosvendor', render: $.fn.dataTable.render.text()}, // 08
+            {data: 'biosdate', render: $.fn.dataTable.render.text()}, // 09
             // Motherboard
-            {data: 'mbman'}, // 10
-            {data: 'mbproductname'}, // 11
-            {data: 'mbversion'}, // 12
-            {data: 'mbserial'}, // 13
-            {data: 'mbasset'}, // 14
+            {data: 'mbman', render: $.fn.dataTable.render.text()}, // 10
+            {data: 'mbproductname', render: $.fn.dataTable.render.text()}, // 11
+            {data: 'mbversion', render: $.fn.dataTable.render.text()}, // 12
+            {data: 'mbserial', render: $.fn.dataTable.render.text()}, // 13
+            {data: 'mbasset', render: $.fn.dataTable.render.text()}, // 14
             // CPU
-            {data: 'cpuman'}, // 15
-            {data: 'cpuversion'}, // 16
-            {data: 'cpucurrent'}, // 17
-            {data: 'cpumax'}, // 18
+            {data: 'cpuman', render: $.fn.dataTable.render.text()}, // 15
+            {data: 'cpuversion', render: $.fn.dataTable.render.text()}, // 16
+            {data: 'cpucurrent', render: $.fn.dataTable.render.text()}, // 17
+            {data: 'cpumax', render: $.fn.dataTable.render.text()}, // 18
             // Memory
-            {data: 'mem'}, // 19 visible
+            {data: 'mem', render: $.fn.dataTable.render.text()}, // 19 visible
             // Hard Disk
-            {data: 'hdmodel'}, // 20
-            {data: 'hdserial'}, // 21
-            {data: 'hdfirmware'}, // 22
+            {data: 'hdmodel', render: $.fn.dataTable.render.text()}, // 20
+            {data: 'hdserial', render: $.fn.dataTable.render.text()}, // 21
+            {data: 'hdfirmware', render: $.fn.dataTable.render.text()}, // 22
             // Case
-            {data: 'caseman'}, // 23
-            {data: 'casever'}, // 24
-            {data: 'caseserial'}, // 25
-            {data: 'caseasset'}, // 26
+            {data: 'caseman', render: $.fn.dataTable.render.text()}, // 23
+            {data: 'casever', render: $.fn.dataTable.render.text()}, // 24
+            {data: 'caseserial', render: $.fn.dataTable.render.text()}, // 25
+            {data: 'caseasset', render: $.fn.dataTable.render.text()}, // 26
             // GPU
-            {data: 'gpuvendors'}, // 27
-            {data: 'gpuproducts'}, // 28
+            {data: 'gpuvendors', render: $.fn.dataTable.render.text()}, // 27
+            {data: 'gpuproducts', render: $.fn.dataTable.render.text()}, // 28
             // name of host
-            {data: 'hostname'}, // 29 Not visible
+            {data: 'hostname', render: $.fn.dataTable.render.text()}, // 29 Not visible
           ],
           columnDefs: [
             {targets: [0, 5, 7, 8, 22], visible: true },

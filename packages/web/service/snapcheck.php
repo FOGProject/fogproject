@@ -58,6 +58,12 @@ try {
     }
     echo implode(' ', $snapinnames);
 } catch (Exception $e) {
-    echo $e->getMessage();
+    // Aisle 021: escape the error text at the sink. Today the reflected MAC is
+    // already neutralised upstream by stripAndDecodeItem(), so this is inert --
+    // but that makes the safety of this echo an accident of a shared helper.
+    // Escaping here keeps the sink safe if that helper is ever "fixed" for the
+    // cosmetic double-encoding. Only the catch path: the success echo above
+    // carries snapin names/args (quotes, ampersands) and must stay raw.
+    echo Initiator::e($e->getMessage());
 }
 exit;

@@ -1187,11 +1187,16 @@ class Route extends FOGBase
                             if (!$d) {
                                 return self::EMPTY_CELL;
                             }
+                            // Aisle 019: this column is an intentional anchor, so
+                            // the Inventory Report cannot neutralise it with
+                            // DataTables render.text() the way it now does for the
+                            // other columns -- escape the host name here instead.
+                            // Mirrors the 'mainlink' formatter above.
                             return '<a href="../management/index.php?node=host&'
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . '(' . $d . ') - ' . $row['hostName']
+                                . '(' . $d . ') - ' . Initiator::e($row['hostName'])
                                 . '</a>';
                         }
                     ];
