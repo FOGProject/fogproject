@@ -121,7 +121,21 @@ class DatabaseManager extends FOGCore
          */
         $isLoginPost = (self::$reqmethod === 'POST'
             && filter_input(INPUT_GET, 'sub') === 'login');
-        if (!in_array($filename, $okayFiles) && !$isLoginPost) {
+        /**
+         * Logout must complete for the same reason, from the other side. The
+         * session is destroyed in management/index.php, which never runs
+         * because establish() redirects during boot -- so the Logout link on
+         * a stale-schema install did nothing, and whoever was signed in could
+         * not get back to the login form to sign in as someone who can apply
+         * the update. The idle-timeout redirect in User::isLoggedIn() lands on
+         * the same node and looped for the same reason.
+         *
+         * Nothing is granted by letting this through: logout() only clears
+         * cookies and session state, touches no table, and the redirect that
+         * follows it comes straight back here unauthenticated.
+         */
+        $isLogout = (filter_input(INPUT_GET, 'node') === 'logout');
+        if (!in_array($filename, $okayFiles) && !$isLoginPost && !$isLogout) {
             /**
              * If we are not already redirected to schema updater,
              * perform our redirect.
