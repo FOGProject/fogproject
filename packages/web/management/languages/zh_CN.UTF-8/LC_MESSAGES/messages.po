@@ -5632,6 +5632,10 @@ msgstr "更新管理单元"
 msgid "Session Expired"
 msgstr "会话名称"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "会话名称"
+
 #, fuzzy
 msgid "Session Image"
 msgstr "会话名称"
@@ -8058,6 +8062,10 @@ msgstr ""
 msgid "or this is a new FOG installation"
 msgstr ""
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 #, fuzzy
 msgid "per host"
 msgstr "每个主机管理单元"
@@ -8133,12 +8141,20 @@ msgstr ""
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 #, fuzzy
 msgid "success"
 msgstr "访问"
 
 msgid "task found"
 msgstr "发现任务"
+
+#, fuzzy, php-format
+msgid "terminating so it can be restarted"
+msgstr "待主机"
 
 msgid "that there is or is not an issue. It just gives you an idea"
 msgstr ""

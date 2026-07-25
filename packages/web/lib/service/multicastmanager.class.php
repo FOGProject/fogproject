@@ -148,6 +148,88 @@ class MulticastManager extends FOGService
         return array_filter($new);
     }
     /**
+     * Is the given pid still a live udp-sender?
+     *
+     * Checks the command line as well as existence so a recycled pid
+     * belonging to an unrelated process is never mistaken for our sender.
+     *
+     * @param int $pid the pid to check
+     *
+     * @return bool
+     */
+    private function _isSenderAlive($pid)
+    {
+        $pid = (int)$pid;
+        if ($pid < 1) {
+            return false;
+        }
+        $cmdline = @file_get_contents(
+            sprintf('/proc/%d/cmdline', $pid)
+        );
+        if (!$cmdline) {
+            return false;
+        }
+        return strpos(
+            str_replace("\0", ' ', $cmdline),
+            basename(UDPSENDERPATH)
+        ) !== false;
+    }
+    /**
+     * Reconciles udp-senders this node owns but no longer tracks.
+     *
+     * procRef only ever lived in process memory, so a daemon restart lost
+     * every handle to a running sender. The re-forked daemon then saw an
+     * empty known-task list and spawned a second sender on the same
+     * portbase. There is no way to re-adopt a proc_open resource across a
+     * restart, so an orphan that is still alive is terminated: the session
+     * is still active and will be picked up and started cleanly, under a
+     * handle this daemon can actually monitor and kill later.
+     *
+     * @return void
+     */
+    private function _reconcileOrphanedSenders()
+    {
+        foreach ($this->checkIfNodeMaster() as $StorageNode) {
+            Route::listem(
+                'multicastsession',
+                ['sendernode' => $StorageNode->id]
+            );
+            $Sessions = json_decode(
+                Route::getData()
+            );
+            foreach ($Sessions->data as $Session) {
+                $pid = (int)$Session->senderpid;
+                if ($pid < 1) {
+                    continue;
+                }
+                if ($this->_isSenderAlive($pid)) {
+                    self::outall(
+                        sprintf(
+                            ' | ' . _('Session ID') . ': %s '
+                            . _('orphaned udp-sender pid') . ': %d '
+                            . _('terminating so it can be restarted'),
+                            $Session->id,
+                            $pid
+                        )
+                    );
+                    $this->killAll($pid, SIGKILL);
+                } else {
+                    self::outall(
+                        sprintf(
+                            ' | ' . _('Session ID') . ': %s '
+                            . _('stale sender reference cleared'),
+                            $Session->id
+                        )
+                    );
+                }
+                self::getClass('MulticastSession', $Session->id)
+                    ->set('senderpid', 0)
+                    ->set('sendernode', 0)
+                    ->save();
+            }
+        }
+    }
+    /**
      * Multicast tasks are a bit more than
      * the others, this is its service loop
      *
@@ -156,6 +238,8 @@ class MulticastManager extends FOGService
     private function _serviceLoop()
     {
         $KnownTasks = [];
+        // Any sender still recorded against this node predates our fork.
+        $this->_reconcileOrphanedSenders();
         while (true) {
             // Wait until db is ready.
             // This is in the loop just in case the db goes down in between sessions.

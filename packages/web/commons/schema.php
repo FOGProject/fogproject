@@ -4552,3 +4552,21 @@ $this->schema[] = [
         return true;
     },
 ];
+// 312
+$this->schema[] = [
+    // Sender ownership for multicast sessions. FOGMulticastManager tracked
+    // the udp-sender process only in MulticastTask::$procRef, which is
+    // in-process memory. A daemon restart lost every reference, so the
+    // orphaned sender kept holding its portbase while the re-forked daemon
+    // saw an empty known-task list and spawned a SECOND sender for the same
+    // session on the same ports. Persisting the pid, the owning storage node
+    // and the spawn time lets the daemon reconcile orphans on startup, lets
+    // sessions be scoped to the node that actually owns them, and lets the
+    // web tier tell whether a session has already begun transmitting.
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderPID` INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderNode` INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderStart` DATETIME NULL DEFAULT NULL",
+];

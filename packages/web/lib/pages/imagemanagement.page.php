@@ -1403,7 +1403,7 @@ class ImageManagement extends FOGPage
             ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
             ->set('interface', $StorageNode->get('interface'))
             ->set('logpath', $Image->get('path'))
-            ->set('storagegroupID', $StorageNode->get('id'))
+            ->set('storagegroupID', $StorageGroup->get('id'))
             ->set('clients', -2)
             ->set('maxwait', $sessiontimeout)
             ->set('shutdown', $sessionshutdown);

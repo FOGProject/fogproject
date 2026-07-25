@@ -5356,6 +5356,10 @@ msgstr "スナップインを作成しました"
 msgid "Session Expired"
 msgstr "セッション名"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "セッション名"
+
 #, fuzzy
 msgid "Session Image"
 msgstr "セッション名"
@@ -7628,6 +7632,10 @@ msgstr "または start を指定すると動作します"
 msgid "or this is a new FOG installation"
 msgstr "または、これは新しい FOG インストールです"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "per host"
 msgstr "ホストごと"
 
@@ -7699,12 +7707,20 @@ msgstr "処理が停止しているように見えても、しばらくお待ち
 msgid "so if you are unable to boot a client you may wish to"
 msgstr "クライアントを起動できない場合は、次の方法を試してください"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 #, fuzzy
 msgid "success"
 msgstr "アクセス"
 
 msgid "task found"
 msgstr "タスクが見つかりました"
+
+#, fuzzy, php-format
+msgid "terminating so it can be restarted"
+msgstr "また、キャプチャできません"
 
 msgid "that there is or is not an issue. It just gives you an idea"
 msgstr ""

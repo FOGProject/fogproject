@@ -49,6 +49,9 @@ class MulticastSession extends FOGController
         'storagegroupID' => 'msNFSGroupID',
         'shutdown' => 'msShutdown',
         'maxwait' => 'msMaxwait',
+        'senderpid' => 'msSenderPID',
+        'sendernode' => 'msSenderNode',
+        'senderstart' => 'msSenderStart',
         'anon5' => 'msAnon5'
     ];
     /**

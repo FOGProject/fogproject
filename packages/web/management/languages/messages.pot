@@ -4754,6 +4754,10 @@ msgstr ""
 msgid "Session Expired"
 msgstr ""
 
+#, php-format
+msgid "Session ID"
+msgstr ""
+
 msgid "Session Image"
 msgstr ""
 
@@ -6803,6 +6807,10 @@ msgstr ""
 msgid "or this is a new FOG installation"
 msgstr ""
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "per host"
 msgstr ""
 
@@ -6869,10 +6877,18 @@ msgstr ""
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "success"
 msgstr ""
 
 msgid "task found"
+msgstr ""
+
+#, php-format
+msgid "terminating so it can be restarted"
 msgstr ""
 
 msgid "that there is or is not an issue. It just gives you an idea"

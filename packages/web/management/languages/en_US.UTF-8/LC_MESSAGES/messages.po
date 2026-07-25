@@ -5632,6 +5632,10 @@ msgstr "Snapin updated"
 msgid "Session Expired"
 msgstr "Session Name"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "Session Name"
+
 #, fuzzy
 msgid "Session Image"
 msgstr "Session Name"
@@ -8066,6 +8070,10 @@ msgstr ""
 msgid "or this is a new FOG installation"
 msgstr ""
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 #, fuzzy
 msgid "per host"
 msgstr "snapin per host"
@@ -8141,12 +8149,20 @@ msgstr ""
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 #, fuzzy
 msgid "success"
 msgstr "Access"
 
 msgid "task found"
 msgstr "task found"
+
+#, fuzzy, php-format
+msgid "terminating so it can be restarted"
+msgstr "Pending hosts"
 
 msgid "that there is or is not an issue. It just gives you an idea"
 msgstr ""

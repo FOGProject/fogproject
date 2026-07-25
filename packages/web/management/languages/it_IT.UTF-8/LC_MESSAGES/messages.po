@@ -5399,6 +5399,10 @@ msgstr "Creazione Snapin completata"
 msgid "Session Expired"
 msgstr "Nome sessione"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "Nome sessione"
+
 #, fuzzy
 msgid "Session Image"
 msgstr "Nome sessione"
@@ -7706,6 +7710,10 @@ msgstr "o iniziare ad operare"
 msgid "or this is a new FOG installation"
 msgstr "o questa è una nuova installazione di FOG"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "per host"
 msgstr "per host"
 
@@ -7775,12 +7783,20 @@ msgstr "se il processo sembra bloccato portate pazienza"
 msgid "so if you are unable to boot a client you may wish to"
 msgstr "pertanto se non si è in grado di abbiare un client tu puoi"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 #, fuzzy
 msgid "success"
 msgstr "Accesso"
 
 msgid "task found"
 msgstr "compito trovato"
+
+#, fuzzy, php-format
+msgid "terminating so it can be restarted"
+msgstr "host in sospeso"
 
 msgid "that there is or is not an issue. It just gives you an idea"
 msgstr ""
