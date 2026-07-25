@@ -1726,7 +1726,12 @@ class ImageManagementPage extends FOGPage
                 ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->set('interface', $StorageNode->get('interface'))
                 ->set('logpath', $Image->get('path'))
-                ->set('storagegroupID', $StorageNode->get('id'))
+                // A storage GROUP id, matching what Host and Group write
+                // here. This wrote a storage NODE id, which was latent while
+                // nothing read the column and invisible on single-node
+                // installs where the two ids coincide -- but the daemon now
+                // scopes session discovery by it.
+                ->set('storagegroupID', $StorageGroup->get('id'))
                 ->set('clients', -2);
             if (!$MulticastSession->save()) {
                 self::setMessage(_('Failed to create Session'));

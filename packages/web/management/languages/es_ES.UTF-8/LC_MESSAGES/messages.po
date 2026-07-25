@@ -5427,6 +5427,10 @@ msgstr "Servicio"
 msgid "Service update failed"
 msgstr "Fallo al actualizar"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "Nombre"
+
 #, fuzzy
 msgid "Session Name"
 msgstr "Nombre"
@@ -7623,6 +7627,10 @@ msgstr ""
 msgid "or this is a new FOG installation"
 msgstr "Nuevo"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr ""
 
@@ -7699,6 +7707,10 @@ msgstr ""
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 #, fuzzy
 msgid "successfully removed!"
 msgstr "Eliminado"
@@ -7710,6 +7722,10 @@ msgstr "No hay tareas activas para este equipo"
 #, fuzzy
 msgid "tasks in queue"
 msgstr "Tareas"
+
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "

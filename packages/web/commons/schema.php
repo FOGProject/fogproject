@@ -3785,3 +3785,46 @@ $this->schema[] = array(
     // host:port targets (e.g. CUPS/IPP queues). Widen to VARCHAR(255).
     "ALTER TABLE `printers` MODIFY COLUMN `pIP` VARCHAR(255) NOT NULL"
 );
+// 275
+// Cross-branch hazard, read before adding step 276 here.
+//
+// The updater applies steps by ARRAY INDEX -- schemaupdaterpage does
+// array_slice($this->schema, $mySchema) -- so an install sitting at
+// version 275 resumes at step 276 no matter which branch it moves to.
+// working-1.6 already occupies index 275 with a guarded catch-up that
+// adds nfsGroupMembers.ngmGraphColor, and a 1.5.x install that upgrades
+// to 1.6 would jump straight past it and never gain that column.
+// Duplicate-column errors are tolerated by the updater (error 1060 is in
+// its ignore list), so re-running a migration is safe; SKIPPING one is
+// not. This step therefore carries 1.6's index-275 work as well as its
+// own, column-guarded so it is a no-op wherever the column already
+// exists. Any future step added here must do the same for the matching
+// 1.6 index.
+$columnGraphColor = array_filter(
+    (array)DatabaseManager::getColumns(
+        'nfsGroupMembers',
+        'ngmGraphColor'
+    )
+);
+$this->schema[] = array(
+    (
+        count($columnGraphColor ?: []) ?
+        '' :
+        "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmGraphColor` "
+        . "VARCHAR(6) AFTER `ngmHelloInterval`"
+    ),
+    // Sender ownership for multicast sessions. FOGMulticastManager tracked
+    // the udp-sender process only in MulticastTask::$procRef, which is
+    // in-process memory. A daemon restart lost every reference, so the
+    // orphaned sender kept holding its portbase while the re-forked daemon
+    // saw an empty known-task list and spawned a SECOND sender for the same
+    // session on the same ports. Persisting the pid, the owning storage node
+    // and the spawn time lets the daemon reconcile orphans on startup and
+    // lets sessions be scoped to the node that actually owns them.
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderPID` INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderNode` INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderStart` DATETIME NULL DEFAULT NULL",
+);

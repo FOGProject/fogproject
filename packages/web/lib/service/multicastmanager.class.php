@@ -165,6 +165,97 @@ class MulticastManager extends FOGService
         return array_filter($new);
     }
     /**
+     * Is the given pid still a live udp-sender?
+     *
+     * Checks the command line as well as existence so a recycled pid
+     * belonging to an unrelated process is never mistaken for our sender.
+     *
+     * @param int $pid the pid to check
+     *
+     * @return bool
+     */
+    private function _isSenderAlive($pid)
+    {
+        $pid = (int)$pid;
+        if ($pid < 1) {
+            return false;
+        }
+        $cmdline = @file_get_contents(
+            sprintf('/proc/%d/cmdline', $pid)
+        );
+        if (!$cmdline) {
+            return false;
+        }
+        return strpos(
+            str_replace("\0", ' ', $cmdline),
+            basename(UDPSENDERPATH)
+        ) !== false;
+    }
+    /**
+     * Reconciles udp-senders this node owns but no longer tracks.
+     *
+     * procRef only ever lived in process memory, so a daemon restart lost
+     * every handle to a running sender. The re-forked daemon then saw an
+     * empty known-task list and spawned a second sender on the same
+     * portbase. There is no way to re-adopt a proc_open resource across a
+     * restart, so an orphan that is still alive is terminated: the session
+     * is still active and will be picked up and started cleanly, under a
+     * handle this daemon can actually monitor and kill later.
+     *
+     * @return void
+     */
+    private function _reconcileOrphanedSenders()
+    {
+        foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+            Route::listem(
+                'multicastsession',
+                'name',
+                false,
+                array('sendernode' => $StorageNode->get('id'))
+            );
+            $Sessions = json_decode(
+                Route::getData()
+            );
+            foreach ((array)$Sessions->multicastsessions as &$Session) {
+                $pid = (int)$Session->senderpid;
+                if ($pid < 1) {
+                    unset($Session);
+                    continue;
+                }
+                if ($this->_isSenderAlive($pid)) {
+                    self::outall(
+                        sprintf(
+                            ' | ' . _('Session ID') . ': %s '
+                            . _('orphaned udp-sender pid') . ': %d '
+                            . _('terminating so it can be restarted'),
+                            $Session->id,
+                            $pid
+                        )
+                    );
+                    $this->killAll($pid, SIGKILL);
+                } else {
+                    self::outall(
+                        sprintf(
+                            ' | ' . _('Session ID') . ': %s '
+                            . _('stale sender reference cleared'),
+                            $Session->id
+                        )
+                    );
+                }
+                self::getClass('MulticastSessionManager')->update(
+                    array('id' => $Session->id),
+                    '',
+                    array(
+                        'senderpid' => 0,
+                        'sendernode' => 0
+                    )
+                );
+                unset($Session);
+            }
+            unset($StorageNode);
+        }
+    }
+    /**
      * Multicast tasks are a bit more than
      * the others, this is its service loop
      *
@@ -220,6 +311,17 @@ class MulticastManager extends FOGService
 
                 // Common string used for logging.
                 $startStr = ' | ' . _('Task ID') . ': %s '. _('Name') . ': %s %s';
+
+                // Any sender still recorded against a node we master
+                // predates this fork, so reconcile once before the first
+                // pass. Deliberately inside the loop's try and after
+                // waitDbReady() rather than ahead of the loop: it needs the
+                // database, and checkIfNodeMaster() throws when this server
+                // masters no node -- a normal configuration that must not
+                // kill the daemon at startup.
+                if ($first) {
+                    $this->_reconcileOrphanedSenders();
+                }
 
                 // A session that leaves the active set -- cancelled from the
                 // UI, completed elsewhere, or deleted outright -- vanishes

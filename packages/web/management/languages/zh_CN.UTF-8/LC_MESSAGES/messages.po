@@ -4774,6 +4774,10 @@ msgstr "服务通用"
 msgid "Service update failed"
 msgstr "服务更新失败"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "会话名称"
+
 msgid "Session Name"
 msgstr "会话名称"
 
@@ -6705,6 +6709,10 @@ msgstr "或者启动操作"
 msgid "or this is a new FOG installation"
 msgstr "或者这是一个新FOG安装包"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr "特定节点"
 
@@ -6771,6 +6779,10 @@ msgstr "所以如果看起来进程卡住了，请耐心等待"
 msgid "so if you are unable to boot a client you may wish to"
 msgstr "所以如果你无法启动客户端，你可能希望"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "successfully removed!"
 msgstr "成功移除!"
 
@@ -6779,6 +6791,10 @@ msgstr "发现任务"
 
 msgid "tasks in queue"
 msgstr "队列中的任务"
+
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "

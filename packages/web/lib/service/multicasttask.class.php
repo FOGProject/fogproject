@@ -57,8 +57,22 @@ class MulticastTask extends FOGService
                 $StorageNode->ip
             )
         );
+        $myStorageGroupID = $StorageNode->storagegroupID;
         unset($StorageNode);
-        Route::active('multicastsession');
+        // Scope sessions to the group this node actually serves. This used
+        // to be an unscoped Route::active('multicastsession'), so every
+        // master evaluated every session and the only thing standing between
+        // two groups and two udp-senders on one session was whether both
+        // happened to hold the image file -- which replication makes likely.
+        Route::listem(
+            'multicastsession',
+            'name',
+            false,
+            array(
+                'stateID' => $queuedStates,
+                'storagegroupID' => $myStorageGroupID
+            )
+        );
         $Tasks = json_decode(
             Route::getData()
         );
@@ -114,7 +128,8 @@ class MulticastTask extends FOGService
                 $Task->isDD,
                 $Image->osID,
                 ($Task->clients == -2 ? 1 : 0),
-                $taskIDs
+                $taskIDs,
+                $myStorageNodeID
             );
             unset($Task);
         }
@@ -187,6 +202,12 @@ class MulticastTask extends FOGService
      */
     private $_MultiSess;
     /**
+     * The storage node this task's sender belongs to
+     *
+     * @var int
+     */
+    private $_intNodeID = 0;
+    /**
      * This tasks process reference
      *
      * @var resource
@@ -211,6 +232,7 @@ class MulticastTask extends FOGService
      * @param int    $osid      the os id
      * @param bool   $nameSess  the named session
      * @param array  $taskIDs   the task ids
+     * @param int    $nodeID    the storage node owning this sender
      *
      * @return void
      */
@@ -224,7 +246,8 @@ class MulticastTask extends FOGService
         $imagetype = '',
         $osid = '',
         $nameSess = '',
-        $taskIDs = ''
+        $taskIDs = '',
+        $nodeID = 0
     ) {
         parent::__construct();
         $overridePort = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
@@ -242,6 +265,7 @@ class MulticastTask extends FOGService
         $this->_intOSID = $osid;
         $this->_isNameSess = $nameSess;
         $this->_taskIDs = $taskIDs;
+        $this->_intNodeID = (int)$nodeID;
         $this->_MultiSess = new MulticastSession($this->getID());
     }
     /**
@@ -688,10 +712,27 @@ class MulticastTask extends FOGService
         }
         $this->startTasking($this->getCMD(), $this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
+        $running = $this->isRunning($this->procRef);
+        // Persist who owns this sender. procRef alone is in-process memory,
+        // so without this a daemon restart cannot tell an orphaned sender
+        // from a session that never started. Saving the whole object is safe
+        // here, unlike in updateStats(): _MultiSess was loaded when this
+        // task was constructed a moment ago, so it is not yet stale.
         $this->_MultiSess
             ->set('stateID', self::getQueuedState())
-            ->save();
-        return $this->isRunning($this->procRef);
+            ->set('senderpid', $running ? (int)$this->getPID($this->procRef) : 0)
+            ->set('sendernode', $running ? $this->_intNodeID : 0);
+        if ($running) {
+            // Only set on a successful start. Leaving it untouched otherwise
+            // avoids writing NULL to the DATETIME through the ORM -- PDODB
+            // does not throw on query error, so that would fail silently.
+            $this->_MultiSess->set(
+                'senderstart',
+                self::niceDate()->format('Y-m-d H:i:s')
+            );
+        }
+        $this->_MultiSess->save();
+        return $running;
     }
     /**
      * Kills the tasking as needed
@@ -704,7 +745,36 @@ class MulticastTask extends FOGService
         if (file_exists($this->getUDPCastLogFile())) {
             unlink($this->getUDPCastLogFile());
         }
+        $this->clearSenderRef();
         return true;
+    }
+    /**
+     * Clears the persisted sender ownership for this session.
+     *
+     * Called once the sender is gone (killed, completed or cancelled) so
+     * startup reconciliation does not later mistake a stale row for a live
+     * orphan. senderstart is deliberately left alone: nothing reads it while
+     * senderpid is 0, and keeping it records when the sender last ran.
+     *
+     * This writes the two columns directly rather than saving _MultiSess.
+     * That object was loaded when the task was constructed and is stale by
+     * the time a sender is killed -- FOGController::save() writes every
+     * field it holds, so saving it here would put the pre-cancel state,
+     * name and client count back and hand the session straight back to the
+     * daemon to start again.
+     *
+     * @return void
+     */
+    public function clearSenderRef()
+    {
+        self::getClass('MulticastSessionManager')->update(
+            array('id' => $this->_intID),
+            '',
+            array(
+                'senderpid' => 0,
+                'sendernode' => 0
+            )
+        );
     }
     /**
      * Updates the stats of the tasking

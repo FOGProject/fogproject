@@ -4760,6 +4760,10 @@ msgstr "サービス全般"
 msgid "Service update failed"
 msgstr "サービスの更新に失敗しました"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "セッション名"
+
 msgid "Session Name"
 msgstr "セッション名"
 
@@ -6694,6 +6698,10 @@ msgstr "または start を指定すると動作します"
 msgid "or this is a new FOG installation"
 msgstr "または、これは新しい FOG インストールです"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr "特定のノード"
 
@@ -6761,6 +6769,10 @@ msgstr "処理が停止しているように見えても、しばらくお待ち
 msgid "so if you are unable to boot a client you may wish to"
 msgstr "クライアントを起動できない場合は、次の方法を試してください"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "successfully removed!"
 msgstr "正常に削除しました！"
 
@@ -6769,6 +6781,10 @@ msgstr "タスクが見つかりました"
 
 msgid "tasks in queue"
 msgstr "キュー内のタスク"
+
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "

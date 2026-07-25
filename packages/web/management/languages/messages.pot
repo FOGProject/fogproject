@@ -4737,6 +4737,10 @@ msgstr ""
 msgid "Service update failed"
 msgstr ""
 
+#, php-format
+msgid "Session ID"
+msgstr ""
+
 msgid "Session Name"
 msgstr ""
 
@@ -6659,6 +6663,10 @@ msgstr ""
 msgid "or this is a new FOG installation"
 msgstr ""
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr ""
 
@@ -6725,6 +6733,10 @@ msgstr ""
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "successfully removed!"
 msgstr ""
 
@@ -6732,6 +6744,10 @@ msgid "task found"
 msgstr ""
 
 msgid "tasks in queue"
+msgstr ""
+
+#, php-format
+msgid "terminating so it can be restarted"
 msgstr ""
 
 msgid ""

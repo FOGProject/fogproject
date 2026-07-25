@@ -4828,6 +4828,10 @@ msgstr "À propos des services"
 msgid "Service update failed"
 msgstr "La mise à jour du service a échoué"
 
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "Nom de session"
+
 msgid "Session Name"
 msgstr "Nom de session"
 
@@ -6798,6 +6802,10 @@ msgstr "ou commencer à fonctionner"
 msgid "or this is a new FOG installation"
 msgstr "ou il s'agit d'une nouvelle installation de FOG"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr "nœud particulier"
 
@@ -6868,6 +6876,10 @@ msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 "donc si vous ne parvenez pas à démarrer un client, vous pouvez souhaiter"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "successfully removed!"
 msgstr "supprimé avec succès !"
 
@@ -6876,6 +6888,10 @@ msgstr "tâche trouvée"
 
 msgid "tasks in queue"
 msgstr "tâches dans la file d'attente"
+
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "
