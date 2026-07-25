@@ -664,6 +664,16 @@ msgstr "この名前のグループは既に存在します！"
 msgid "Annually"
 msgstr "毎年"
 
+msgid ""
+"Anyone signing in through one of these directory groups is placed in this "
+"user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid ""
+"Anyone signing in through one of these directory groups receives this role. "
+"Roles granted this way are recomputed on every sign in."
+msgstr ""
+
 msgid "Applications"
 msgstr "アプリケーション"
 
@@ -4261,6 +4271,14 @@ msgstr "挿入するデータがありません"
 
 msgid "No database to work off"
 msgstr "使用するデータベースがありません"
+
+#, fuzzy
+msgid "No directory group feeds this user group."
+msgstr "使用可能なストレージグループが見つかりません"
+
+#, fuzzy
+msgid "No directory group grants this role."
+msgstr "使用可能なストレージグループが見つかりません"
 
 #, fuzzy
 msgid "No directory groups defined."

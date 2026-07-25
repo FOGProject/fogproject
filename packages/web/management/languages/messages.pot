@@ -582,6 +582,16 @@ msgstr ""
 msgid "Annually"
 msgstr ""
 
+msgid ""
+"Anyone signing in through one of these directory groups is placed in this "
+"user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid ""
+"Anyone signing in through one of these directory groups receives this role. "
+"Roles granted this way are recomputed on every sign in."
+msgstr ""
+
 msgid "Applications"
 msgstr ""
 
@@ -3771,6 +3781,12 @@ msgid "No data to insert"
 msgstr ""
 
 msgid "No database to work off"
+msgstr ""
+
+msgid "No directory group feeds this user group."
+msgstr ""
+
+msgid "No directory group grants this role."
 msgstr ""
 
 msgid "No directory groups defined."

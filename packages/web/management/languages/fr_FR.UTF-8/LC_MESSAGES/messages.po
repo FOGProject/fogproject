@@ -707,6 +707,16 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "Annually"
 msgstr "Annuellement"
 
+msgid ""
+"Anyone signing in through one of these directory groups is placed in this "
+"user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid ""
+"Anyone signing in through one of these directory groups receives this role. "
+"Roles granted this way are recomputed on every sign in."
+msgstr ""
+
 #, fuzzy
 msgid "Applications"
 msgstr "actes"
@@ -4486,6 +4496,14 @@ msgstr "Aucune donnée retournés"
 
 msgid "No database to work off"
 msgstr "Aucune base de données de travailler hors"
+
+#, fuzzy
+msgid "No directory group feeds this user group."
+msgstr "Plugins installés"
+
+#, fuzzy
+msgid "No directory group grants this role."
+msgstr "Plugins installés"
 
 #, fuzzy
 msgid "No directory groups defined."

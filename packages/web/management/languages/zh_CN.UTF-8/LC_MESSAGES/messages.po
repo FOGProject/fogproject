@@ -706,6 +706,16 @@ msgstr "图像已经存在具有此名称！"
 msgid "Annually"
 msgstr "每年"
 
+msgid ""
+"Anyone signing in through one of these directory groups is placed in this "
+"user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid ""
+"Anyone signing in through one of these directory groups receives this role. "
+"Roles granted this way are recomputed on every sign in."
+msgstr ""
+
 #, fuzzy
 msgid "Applications"
 msgstr "操作"
@@ -4483,6 +4493,14 @@ msgstr "无数据返回"
 
 msgid "No database to work off"
 msgstr "没有数据库工作关闭"
+
+#, fuzzy
+msgid "No directory group feeds this user group."
+msgstr "已安装的插件"
+
+#, fuzzy
+msgid "No directory group grants this role."
+msgstr "已安装的插件"
 
 #, fuzzy
 msgid "No directory groups defined."

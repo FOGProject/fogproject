@@ -718,6 +718,16 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "Annually"
 msgstr "Anualmente"
 
+msgid ""
+"Anyone signing in through one of these directory groups is placed in this "
+"user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid ""
+"Anyone signing in through one of these directory groups receives this role. "
+"Roles granted this way are recomputed on every sign in."
+msgstr ""
+
 #, fuzzy
 msgid "Applications"
 msgstr "Comportamiento"
@@ -4596,6 +4606,14 @@ msgstr "No se obtuvieron datos"
 #, fuzzy
 msgid "No database to work off"
 msgstr "No se obtuvieron datos"
+
+#, fuzzy
+msgid "No directory group feeds this user group."
+msgstr "Instalador inteligente (recomendado)"
+
+#, fuzzy
+msgid "No directory group grants this role."
+msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy
 msgid "No directory groups defined."

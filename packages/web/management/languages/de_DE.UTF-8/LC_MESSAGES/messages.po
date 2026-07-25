@@ -704,6 +704,16 @@ msgstr "Eine Gruppe mit diesem Namen ist bereits vorhanden!"
 msgid "Annually"
 msgstr "Jährlich"
 
+msgid ""
+"Anyone signing in through one of these directory groups is placed in this "
+"user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid ""
+"Anyone signing in through one of these directory groups receives this role. "
+"Roles granted this way are recomputed on every sign in."
+msgstr ""
+
 #, fuzzy
 msgid "Applications"
 msgstr "Anwendungen"
@@ -4486,6 +4496,14 @@ msgstr "Keine Daten zum Einfügen"
 
 msgid "No database to work off"
 msgstr "Keine Datenbank zum Arbeiten"
+
+#, fuzzy
+msgid "No directory group feeds this user group."
+msgstr "Keine brauchbaren Speichergruppen gefunden"
+
+#, fuzzy
+msgid "No directory group grants this role."
+msgstr "Keine brauchbaren Speichergruppen gefunden"
 
 #, fuzzy
 msgid "No directory groups defined."
