@@ -713,9 +713,7 @@ msgid ""
 "can authenticate against the directory receives this role."
 msgstr ""
 
-msgid ""
-"Applying a database schema update requires an administrator account. Sign in "
-"as an administrator to continue."
+msgid "Applying a database schema update requires an administrator account."
 msgstr ""
 
 #, fuzzy
@@ -3932,6 +3930,9 @@ msgstr "Locations"
 
 msgid "Log Viewer"
 msgstr "Log Viewer"
+
+msgid "Log out and sign in as an administrator"
+msgstr ""
 
 msgid "Login"
 msgstr "Login"
