@@ -302,6 +302,23 @@ class MulticastManager extends FOGService
             self::$_mcOn = self::getSetting('MULTICASTGLOBALENABLED');
 
             try {
+                // Any sender still recorded against a node we master
+                // predates this fork, so reconcile once before the first
+                // pass.
+                //
+                // Inside the try, because its first act is
+                // checkIfNodeMaster(), which throws when this server masters
+                // no node -- an ordinary configuration for a server running
+                // this daemon, and one that must not kill it.
+                //
+                // Above the disabled check, because an orphaned sender left
+                // by a previous run must still be cleaned up after multicast
+                // is switched off -- that is precisely when nothing else
+                // will ever come along to kill it.
+                if ($first) {
+                    $this->_reconcileOrphanedSenders();
+                }
+
                 // If disabled, state and restart loop.
                 if (self::$_mcOn < 1) {
                     throw new Exception(
@@ -311,17 +328,6 @@ class MulticastManager extends FOGService
 
                 // Common string used for logging.
                 $startStr = ' | ' . _('Task ID') . ': %s '. _('Name') . ': %s %s';
-
-                // Any sender still recorded against a node we master
-                // predates this fork, so reconcile once before the first
-                // pass. Deliberately inside the loop's try and after
-                // waitDbReady() rather than ahead of the loop: it needs the
-                // database, and checkIfNodeMaster() throws when this server
-                // masters no node -- a normal configuration that must not
-                // kill the daemon at startup.
-                if ($first) {
-                    $this->_reconcileOrphanedSenders();
-                }
 
                 // A session that leaves the active set -- cancelled from the
                 // UI, completed elsewhere, or deleted outright -- vanishes
