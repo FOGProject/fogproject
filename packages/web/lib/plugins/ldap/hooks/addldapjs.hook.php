@@ -66,10 +66,14 @@ class AddLDAPJS extends Hook
      */
     public function injectJSFiles($arguments)
     {
+        // role/usergroup carry the injected LDAP Groups association tab, so
+        // they need this plugin's JS on a page that is not its own node.
         $this->injectPluginJS($arguments, [
             'ldap' => ['fallback' => true],
             'ldapgroup' => ['fallback' => true],
             'report' => ['secondary' => true, 'fallback' => true],
+            'role' => ['secondary' => true],
+            'usergroup' => ['secondary' => true],
         ]);
     }
 }

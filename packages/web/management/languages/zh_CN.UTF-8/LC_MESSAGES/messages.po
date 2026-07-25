@@ -575,10 +575,6 @@ msgstr "修改组"
 msgid "Administrator (full access)"
 msgstr "修改组"
 
-#, fuzzy
-msgid "Administrator Group"
-msgstr "修改组"
-
 msgid "Advanced"
 msgstr "高级"
 
@@ -3775,6 +3771,10 @@ msgid "LDAP Create Success"
 msgstr "用户创建"
 
 #, fuzzy
+msgid "LDAP Group Associations"
+msgstr "图像协会"
+
+#, fuzzy
 msgid "LDAP Group Create Fail"
 msgstr "集团创建失败"
 
@@ -3805,6 +3805,10 @@ msgstr "存储节点创建"
 #, fuzzy
 msgid "LDAP Group added!"
 msgstr "集团补充"
+
+#, fuzzy
+msgid "LDAP Group associations updated!"
+msgstr "更新位置"
 
 #, fuzzy
 msgid "LDAP Group update failed!"
@@ -4507,14 +4511,6 @@ msgid "No database to work off"
 msgstr "没有数据库工作关闭"
 
 #, fuzzy
-msgid "No directory group feeds this user group."
-msgstr "已安装的插件"
-
-#, fuzzy
-msgid "No directory group grants this role."
-msgstr "已安装的插件"
-
-#, fuzzy
 msgid "No directory groups defined."
 msgstr "已安装的插件"
 
@@ -4691,10 +4687,6 @@ msgstr "没有可用的散列"
 #, fuzzy
 msgid "Nodes"
 msgstr "节点"
-
-#, fuzzy
-msgid "Non-Administrator Group"
-msgstr "修改组"
 
 #, fuzzy
 msgid "Normal Snapin"
@@ -5044,10 +5036,6 @@ msgstr "状态"
 msgid "Ping completed with status"
 msgstr ""
 
-#, fuzzy
-msgid "Please Enter an admin or mobile lookup name"
-msgstr "这个位置输入名称。"
-
 msgid "Please Select an option"
 msgstr "请选择一个选项"
 
@@ -5067,6 +5055,10 @@ msgstr "请选择一个图像"
 
 msgid "Please confirm you want to delete"
 msgstr "请确认您要删除"
+
+msgid ""
+"Please confirm you would like to dissociate the selected directory groups"
+msgstr ""
 
 msgid ""
 "Please confirm you would like to unset the default printer from  the "
@@ -5458,6 +5450,10 @@ msgstr "去掉"
 #, fuzzy
 msgid "Remove Fail"
 msgstr "去除"
+
+#, fuzzy
+msgid "Remove LDAP Group Associations"
+msgstr "图像协会"
 
 #, fuzzy
 msgid "Remove associated files"
@@ -7784,6 +7780,9 @@ msgstr ""
 msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
+msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
 msgid "You do not have permission to perform this action."
 msgstr ""
 
@@ -8663,6 +8662,10 @@ msgstr ""
 #~ msgstr "添加管理单元失败！"
 
 #, fuzzy
+#~ msgid "Administrator Group"
+#~ msgstr "修改组"
+
+#, fuzzy
 #~ msgid "All filters must be numeric and greater than 1"
 #~ msgstr "带宽应该是数字和大于0"
 
@@ -8879,11 +8882,27 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "无关联的节点"
 
+#, fuzzy
+#~ msgid "No directory group feeds this user group."
+#~ msgstr "已安装的插件"
+
+#, fuzzy
+#~ msgid "No directory group grants this role."
+#~ msgstr "已安装的插件"
+
 #~ msgid "No query sent"
 #~ msgstr "没有查询发送"
 
 #~ msgid "No valid class sent"
 #~ msgstr "发送无有效类"
+
+#, fuzzy
+#~ msgid "Non-Administrator Group"
+#~ msgstr "修改组"
+
+#, fuzzy
+#~ msgid "Please Enter an admin or mobile lookup name"
+#~ msgstr "这个位置输入名称。"
 
 #~ msgid "Printer Alias"
 #~ msgstr "打印机别名"

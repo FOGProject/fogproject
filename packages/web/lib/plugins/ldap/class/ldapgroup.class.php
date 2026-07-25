@@ -86,6 +86,35 @@ class LDAPGroup extends FOGController
         ]
     ];
     /**
+     * A datatable cell linking to the server a group belongs to.
+     *
+     * The same group name can legitimately exist on more than one
+     * directory, so a bare "mathematicians" is ambiguous wherever groups
+     * from several servers are listed together -- which is every list
+     * except the per-server summary. Shared by the group list and by the
+     * association tabs so the two cannot describe a group differently.
+     *
+     * @param mixed $serverID the lgServerID value for the row
+     *
+     * @return string the cell markup
+     */
+    public static function serverLinkCell($serverID)
+    {
+        if (!$serverID) {
+            return Route::EMPTY_CELL;
+        }
+        $name = self::getClass('LDAP', $serverID)->get('name');
+        // A group outliving its server should still list, not fatal.
+        if (!$name) {
+            return Route::EMPTY_CELL;
+        }
+        return '<a href="../management/index.php?node=ldap&sub=edit&id='
+            . $serverID
+            . '">'
+            . '(' . $serverID . ') - ' . Initiator::e($name)
+            . '</a>';
+    }
+    /**
      * Stores the group, syncing both association sets.
      *
      * assocSetter() no-ops on an association that was never loaded or set,

@@ -505,4 +505,110 @@ class LDAPGroupManagement extends FOGPage
             ]
         );
     }
+    /**
+     * Lists every directory group, flagged by whether it feeds the owner.
+     *
+     * The mirror of the two lists above, for the tabs this plugin injects
+     * onto the Role and User Group pages. It cannot go through
+     * assocItemsList(): that helper reads the owner from $this->obj, and
+     * here $this->obj is whatever LDAPGroup the id happened to name, while
+     * the real owner is the role or user group being edited on the other
+     * page. The owner is therefore passed explicitly.
+     *
+     * These live on the plugin's node rather than on the core pages
+     * because a plugin cannot add a sub method to a core page class --
+     * FOGPageManager dispatches with method_exists() against the page.
+     *
+     * @param object $owner     the role or user group being edited
+     * @param string $secondary the association class for that owner type
+     * @param string $table     the association table
+     * @param string $itemCol   the association's group column
+     * @param string $ownerCol  the association's owner column
+     * @param string $assocDt   the association flag getItemsList() emits,
+     *                          '<lowercased owner class>Assoc'
+     *
+     * @return void
+     */
+    private function _feedList(
+        $owner,
+        $secondary,
+        $table,
+        $itemCol,
+        $ownerCol,
+        $assocDt
+    ) {
+        $join = [
+            "LEFT OUTER JOIN `$table` ON "
+            . "`LDAPGroups`.`lgID` = $itemCol "
+            . "AND $ownerCol = '" . $owner->get('id') . "'"
+        ];
+        return $owner->getItemsList(
+            'ldapgroup',
+            $secondary,
+            $join,
+            '',
+            [
+                // The same group name can exist on several directories, so
+                // the row has to say which one it came from.
+                [
+                    'db' => 'lgServerID',
+                    'dt' => 'ldapserver',
+                    'formatter' => function ($d, $row) {
+                        return LDAPGroup::serverLinkCell($d);
+                    }
+                ],
+                [
+                    'db' => $assocDt,
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
+     * The owner id for the reverse lists, or 0 when absent.
+     *
+     * Read from its own parameter rather than from 'id': the association
+     * tab helper appends the page's own id, which on the role page is the
+     * role -- passing that as 'id' here would load a same-numbered
+     * LDAPGroup and read as the wrong entity.
+     *
+     * @return int
+     */
+    private static function _ownerID()
+    {
+        return (int)filter_input(INPUT_GET, 'ownerID');
+    }
+    /**
+     * Lists directory groups against the role being edited.
+     *
+     * @return void
+     */
+    public function getRoleFeedList()
+    {
+        return $this->_feedList(
+            self::getClass('Role', self::_ownerID()),
+            'ldapgrouproleassociation',
+            'ldapGroupRoleAssoc',
+            '`ldapGroupRoleAssoc`.`lgraGroupID`',
+            '`ldapGroupRoleAssoc`.`lgraRoleID`',
+            'roleAssoc'
+        );
+    }
+    /**
+     * Lists directory groups against the user group being edited.
+     *
+     * @return void
+     */
+    public function getUserGroupFeedList()
+    {
+        return $this->_feedList(
+            self::getClass('UserGroup', self::_ownerID()),
+            'ldapgroupusergroupassociation',
+            'ldapGroupUserGroupAssoc',
+            '`ldapGroupUserGroupAssoc`.`lgugGroupID`',
+            '`ldapGroupUserGroupAssoc`.`lgugUserGroupID`',
+            'usergroupAssoc'
+        );
+    }
 }

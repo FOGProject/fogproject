@@ -644,7 +644,14 @@ $.registerGeneralTab = function(opts) {
 // opts.item        - required; the modal item type (e.g. 'host', 'user') keying
 //                    #{item}DelModal / #confirm{item}DeleteModal. Not always the
 //                    slug's suffix (usergroup-member's item is 'user').
-// opts.sub         - required; the list endpoint sub (e.g. 'getHostsList').
+// opts.sub         - required unless opts.url is given; the list endpoint sub
+//                    (e.g. 'getHostsList').
+// opts.url         - optional full list endpoint, replacing the derived one.
+//                    Needed by a PLUGIN tab injected onto a core page: the
+//                    derived URL points at the page's own node, and a plugin
+//                    cannot add a sub method to a core page class, so its
+//                    table has to be served from the plugin's own node. Core
+//                    tabs should leave this unset and keep the convention.
 // opts.order       - optional initial sort override (default
 //                    [[1,'asc'],[0,'asc']] — associated rows first, then name).
 // opts.columns     - optional DataTables columns (default the standard
@@ -714,8 +721,9 @@ $.registerAssociationTab = function(opts) {
     processing: true,
     serverSide: true,
     ajax: {
-      url: '../management/index.php?node=' + Common.node
-        + '&sub=' + opts.sub + '&id=' + Common.id,
+      url: opts.url
+        || ('../management/index.php?node=' + Common.node
+          + '&sub=' + opts.sub + '&id=' + Common.id),
       type: 'post'
     }
   });

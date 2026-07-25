@@ -48,10 +48,8 @@ class LDAPManagement extends FOGPage
             _('LDAP Connection  Name'),
             _('LDAP Server'),
             _('Port'),
-            _('Admin Group'),
         ];
         $this->attributes = [
-            [],
             [],
             [],
             []
@@ -70,8 +68,6 @@ class LDAPManagement extends FOGPage
         $port = filter_input(INPUT_POST, 'port');
         $searchDN = filter_input(INPUT_POST, 'searchDN');
         $grpSearchDN = filter_input(INPUT_POST, 'grpSearchDN');
-        $adminGroup = filter_input(INPUT_POST, 'adminGroup');
-        $userGroup = filter_input(INPUT_POST, 'userGroup');
         $userNameAttr = filter_input(INPUT_POST, 'userNameAttr');
         $groupNameAttr = filter_input(INPUT_POST, 'groupNameAttr');
         $grpMemberAttr = filter_input(INPUT_POST, 'grpMemberAttr');
@@ -272,30 +268,6 @@ class LDAPManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'adminGroup',
-                _('Administrator Group')
-            ) => self::makeInput(
-                'form-control ldapadmingroup-input',
-                'adminGroup',
-                _('Domain Admins'),
-                'text',
-                'adminGroup',
-                $adminGroup
-            ),
-            self::makeLabel(
-                $labelClass,
-                'userGroup',
-                _('Non-Administrator Group')
-            ) => self::makeInput(
-                'form-control ldapusergroup-input',
-                'userGroup',
-                _('Users'),
-                'text',
-                'userGroup',
-                $userGroup
-            ),
-            self::makeLabel(
-                $labelClass,
                 'template',
                 _('Initial Template')
             ) => $initialSel,
@@ -462,12 +434,6 @@ class LDAPManagement extends FOGPage
                 $grpSearchDN = trim(
                     filter_input(INPUT_POST, 'grpSearchDN')
                 );
-                $adminGroup = trim(
-                    filter_input(INPUT_POST, 'adminGroup')
-                );
-                $userGroup = trim(
-                    filter_input(INPUT_POST, 'userGroup')
-                );
                 $userNameAttr = trim(
                     filter_input(INPUT_POST, 'userNameAttr')
                 );
@@ -507,11 +473,6 @@ class LDAPManagement extends FOGPage
                         _('Please select a valid ldap port')
                     );
                 }
-                if (empty($adminGroup) && empty($userGroup)) {
-                    throw new Exception(
-                        _('Please Enter an admin or mobile lookup name')
-                    );
-                }
                 $exists = self::getClass('LDAPManager')
                     ->exists($ldap);
                 if ($exists) {
@@ -529,8 +490,6 @@ class LDAPManagement extends FOGPage
                     ->set('userNamAttr', $userNameAttr)
                     ->set('grpNamAttr', $groupNameAttr)
                     ->set('grpMemberAttr', $grpMemberAttr)
-                    ->set('adminGroup', $adminGroup)
-                    ->set('userGroup', $userGroup)
                     ->set('searchScope', $searchScope)
                     ->set('bindDN', $bindDN)
                     ->set('bindPwd', $bindPwd)
@@ -577,14 +536,6 @@ class LDAPManagement extends FOGPage
         $grpSearchDN = (
             filter_input(INPUT_POST, 'grpSearchDN') ?:
             $this->obj->get('grpSearchDN')
-        );
-        $adminGroup = (
-            filter_input(INPUT_POST, 'adminGroup') ?:
-            $this->obj->get('adminGroup')
-        );
-        $userGroup = (
-            filter_input(INPUT_POST, 'userGroup') ?:
-            $this->obj->get('userGroup')
         );
         $userNameAttr = (
             filter_input(INPUT_POST, 'userNameAttr') ?:
@@ -808,30 +759,6 @@ class LDAPManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'adminGroup',
-                _('Administrator Group')
-            ) => self::makeInput(
-                'form-control ldapadmingroup-input',
-                'adminGroup',
-                _('Domain Admins'),
-                'text',
-                'adminGroup',
-                $adminGroup
-            ),
-            self::makeLabel(
-                $labelClass,
-                'userGroup',
-                _('Non-Administrator Group')
-            ) => self::makeInput(
-                'form-control ldapusergroup-input',
-                'userGroup',
-                _('Users'),
-                'text',
-                'userGroup',
-                $userGroup
-            ),
-            self::makeLabel(
-                $labelClass,
                 'template',
                 _('Initial Template')
             ) => $initialSel,
@@ -1011,12 +938,6 @@ class LDAPManagement extends FOGPage
         $grpSearchDN = trim(
             filter_input(INPUT_POST, 'grpSearchDN')
         );
-        $adminGroup = trim(
-            filter_input(INPUT_POST, 'adminGroup')
-        );
-        $userGroup = trim(
-            filter_input(INPUT_POST, 'userGroup')
-        );
         $userNameAttr = trim(
             filter_input(INPUT_POST, 'userNameAttr')
         );
@@ -1057,11 +978,6 @@ class LDAPManagement extends FOGPage
                 _('Please select a valid ldap port')
             );
         }
-        if (empty($adminGroup) && empty($userGroup)) {
-            throw new Exception(
-                _('Please Enter an admin or mobile lookup name')
-            );
-        }
         $exists = self::getClass('LDAPManager')
             ->exists($ldap);
         if ($ldap != $this->obj->get('name')
@@ -1081,8 +997,6 @@ class LDAPManagement extends FOGPage
             ->set('userNamAttr', $userNameAttr)
             ->set('grpNamAttr', $groupNameAttr)
             ->set('grpMemberAttr', $grpMemberAttr)
-            ->set('adminGroup', $adminGroup)
-            ->set('userGroup', $userGroup)
             ->set('searchScope', $searchScope)
             ->set('bindDN', $bindDN)
             ->set('useGroupMatch', $useGroupMatch)

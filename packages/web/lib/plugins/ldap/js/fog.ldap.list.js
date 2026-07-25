@@ -6,8 +6,7 @@
         columns: [
             {data: 'mainlink'},
             {data: 'address'},
-            {data: 'port'},
-            {data: 'adminGroup'}
+            {data: 'port'}
         ],
         rowId: 'id',
         columnDefs: [

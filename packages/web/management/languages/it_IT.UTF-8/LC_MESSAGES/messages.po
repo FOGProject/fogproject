@@ -548,10 +548,6 @@ msgstr "Gruppo amministrativo"
 msgid "Administrator (full access)"
 msgstr "Gruppo amministrativo"
 
-#, fuzzy
-msgid "Administrator Group"
-msgstr "Gruppo amministrativo"
-
 msgid "Advanced"
 msgstr "Avanzate"
 
@@ -3627,6 +3623,10 @@ msgid "LDAP Create Success"
 msgstr "LDAP Creazione Riusciata"
 
 #, fuzzy
+msgid "LDAP Group Associations"
+msgstr "Regole di associazione"
+
+#, fuzzy
 msgid "LDAP Group Create Fail"
 msgstr "Creazione Gruppo fallita"
 
@@ -3657,6 +3657,10 @@ msgstr "Storage Node Creato"
 #, fuzzy
 msgid "LDAP Group added!"
 msgstr "Gruppo aggiunto!"
+
+#, fuzzy
+msgid "LDAP Group associations updated!"
+msgstr "Posizione aggiornata!"
 
 #, fuzzy
 msgid "LDAP Group update failed!"
@@ -4329,14 +4333,6 @@ msgid "No database to work off"
 msgstr "Nessun database di lavorare off"
 
 #, fuzzy
-msgid "No directory group feeds this user group."
-msgstr "Nessun gruppo di storage disponibile trovato"
-
-#, fuzzy
-msgid "No directory group grants this role."
-msgstr "Nessun gruppo di storage disponibile trovato"
-
-#, fuzzy
 msgid "No directory groups defined."
 msgstr "Nessun gruppo di storage disponibile trovato"
 
@@ -4502,10 +4498,6 @@ msgstr "Percorso non disponibile"
 
 msgid "Nodes"
 msgstr "Nodi"
-
-#, fuzzy
-msgid "Non-Administrator Group"
-msgstr "Gruppo amministrativo"
 
 msgid "Normal Snapin"
 msgstr "Snapin normale"
@@ -4843,9 +4835,6 @@ msgstr "Stato"
 msgid "Ping completed with status"
 msgstr ""
 
-msgid "Please Enter an admin or mobile lookup name"
-msgstr "Inserisci un nome di amministratore o di ricerca per cellulari"
-
 msgid "Please Select an option"
 msgstr "Per favore selezionate un'opzione"
 
@@ -4864,6 +4853,10 @@ msgstr "Scegliere un immagine"
 
 msgid "Please confirm you want to delete"
 msgstr "Conferma che desideri eliminare"
+
+msgid ""
+"Please confirm you would like to dissociate the selected directory groups"
+msgstr ""
 
 msgid ""
 "Please confirm you would like to unset the default printer from  the "
@@ -5242,6 +5235,10 @@ msgstr "Rimuovere"
 #, fuzzy
 msgid "Remove Fail"
 msgstr "Rimozione fallita"
+
+#, fuzzy
+msgid "Remove LDAP Group Associations"
+msgstr "Regole di associazione"
 
 #, fuzzy
 msgid "Remove associated files"
@@ -7466,6 +7463,9 @@ msgstr ""
 msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
+msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
 msgid "You do not have permission to perform this action."
 msgstr ""
 
@@ -8296,6 +8296,10 @@ msgstr ""
 #~ msgstr "Aggiunta utente fallita!"
 
 #, fuzzy
+#~ msgid "Administrator Group"
+#~ msgstr "Gruppo amministrativo"
+
+#, fuzzy
 #~ msgid "All filters must be numeric and greater than 1"
 #~ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 
@@ -8508,6 +8512,14 @@ msgstr ""
 #~ msgstr "Host associato"
 
 #, fuzzy
+#~ msgid "No directory group feeds this user group."
+#~ msgstr "Nessun gruppo di storage disponibile trovato"
+
+#, fuzzy
+#~ msgid "No directory group grants this role."
+#~ msgstr "Nessun gruppo di storage disponibile trovato"
+
+#, fuzzy
 #~ msgid "No mappings defined."
 #~ msgstr "Non sincronizzo"
 
@@ -8516,6 +8528,13 @@ msgstr ""
 
 #~ msgid "No valid class sent"
 #~ msgstr "Nessun classe valido inviato"
+
+#, fuzzy
+#~ msgid "Non-Administrator Group"
+#~ msgstr "Gruppo amministrativo"
+
+#~ msgid "Please Enter an admin or mobile lookup name"
+#~ msgstr "Inserisci un nome di amministratore o di ricerca per cellulari"
 
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"

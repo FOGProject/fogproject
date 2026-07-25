@@ -99,20 +99,7 @@ class AddLDAPAPI extends Hook
             'db' => 'lgServerID',
             'dt' => 'ldapserver',
             'formatter' => function ($d, $row) {
-                if (!$d) {
-                    return Route::EMPTY_CELL;
-                }
-                $name = self::getClass('LDAP', $d)->get('name');
-                // A group outliving its server should still list, not fatal.
-                if (!$name) {
-                    return Route::EMPTY_CELL;
-                }
-                return '<a href="../management/index.php?node=ldap&'
-                    . 'sub=edit&id='
-                    . $d
-                    . '">'
-                    . '(' . $d . ') - ' . Initiator::e($name)
-                    . '</a>';
+                return LDAPGroup::serverLinkCell($d);
             }
         ];
     }

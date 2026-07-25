@@ -575,10 +575,6 @@ msgstr "modificar Grupo"
 msgid "Administrator (full access)"
 msgstr "modificar Grupo"
 
-#, fuzzy
-msgid "Administrator Group"
-msgstr "modificar Grupo"
-
 msgid "Advanced"
 msgstr "avançado"
 
@@ -3777,6 +3773,10 @@ msgid "LDAP Create Success"
 msgstr "usuário criado"
 
 #, fuzzy
+msgid "LDAP Group Associations"
+msgstr "Associação imagem"
+
+#, fuzzy
 msgid "LDAP Group Create Fail"
 msgstr "Grupo Criar falhou"
 
@@ -3807,6 +3807,10 @@ msgstr "Nó de Armazenamento Criado"
 #, fuzzy
 msgid "LDAP Group added!"
 msgstr "grupo adicionado"
+
+#, fuzzy
+msgid "LDAP Group associations updated!"
+msgstr "Localização Atualizado"
 
 #, fuzzy
 msgid "LDAP Group update failed!"
@@ -4509,14 +4513,6 @@ msgid "No database to work off"
 msgstr "Nenhum banco de dados para trabalhar fora"
 
 #, fuzzy
-msgid "No directory group feeds this user group."
-msgstr "Plugins instalados"
-
-#, fuzzy
-msgid "No directory group grants this role."
-msgstr "Plugins instalados"
-
-#, fuzzy
 msgid "No directory groups defined."
 msgstr "Plugins instalados"
 
@@ -4695,10 +4691,6 @@ msgstr "Nenhum de hash disponíveis"
 #, fuzzy
 msgid "Nodes"
 msgstr "Nó"
-
-#, fuzzy
-msgid "Non-Administrator Group"
-msgstr "modificar Grupo"
 
 #, fuzzy
 msgid "Normal Snapin"
@@ -5048,10 +5040,6 @@ msgstr "estado"
 msgid "Ping completed with status"
 msgstr ""
 
-#, fuzzy
-msgid "Please Enter an admin or mobile lookup name"
-msgstr "Por favor, indique um nome para este local."
-
 msgid "Please Select an option"
 msgstr "Por favor selecione uma opção"
 
@@ -5071,6 +5059,10 @@ msgstr "Por favor, escolha uma imagem"
 
 msgid "Please confirm you want to delete"
 msgstr "Por favor, confirme que você deseja excluir"
+
+msgid ""
+"Please confirm you would like to dissociate the selected directory groups"
+msgstr ""
 
 msgid ""
 "Please confirm you would like to unset the default printer from  the "
@@ -5462,6 +5454,10 @@ msgstr "Remover"
 #, fuzzy
 msgid "Remove Fail"
 msgstr "Removido"
+
+#, fuzzy
+msgid "Remove LDAP Group Associations"
+msgstr "Associação imagem"
 
 #, fuzzy
 msgid "Remove associated files"
@@ -7793,6 +7789,9 @@ msgstr ""
 msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
+msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
 msgid "You do not have permission to perform this action."
 msgstr ""
 
@@ -8676,6 +8675,10 @@ msgstr ""
 #~ msgstr "Adicionar snap-in falhou!"
 
 #, fuzzy
+#~ msgid "Administrator Group"
+#~ msgstr "modificar Grupo"
+
+#, fuzzy
 #~ msgid "All filters must be numeric and greater than 1"
 #~ msgstr "A largura de banda deve ser numérico e maior do que 0"
 
@@ -8892,11 +8895,27 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "No nó associado"
 
+#, fuzzy
+#~ msgid "No directory group feeds this user group."
+#~ msgstr "Plugins instalados"
+
+#, fuzzy
+#~ msgid "No directory group grants this role."
+#~ msgstr "Plugins instalados"
+
 #~ msgid "No query sent"
 #~ msgstr "Sem consulta enviada"
 
 #~ msgid "No valid class sent"
 #~ msgstr "Nenhuma classe válida enviada"
+
+#, fuzzy
+#~ msgid "Non-Administrator Group"
+#~ msgstr "modificar Grupo"
+
+#, fuzzy
+#~ msgid "Please Enter an admin or mobile lookup name"
+#~ msgstr "Por favor, indique um nome para este local."
 
 #~ msgid "Printer Alias"
 #~ msgstr "Printer Alias"
