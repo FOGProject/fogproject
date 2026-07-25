@@ -505,8 +505,6 @@ class BootMenu extends FOGBase
             $this->verifyCreds();
         } elseif (isset($_REQUEST['key'])) {
             $this->keyset();
-        } elseif (isset($_REQUEST['sessname'])) {
-            $this->sesscheck();
         } elseif (!self::$Host->isValid()) {
             $this->printDefault();
         } else {
@@ -737,6 +735,13 @@ class BootMenu extends FOGBase
             $this->sesscreate();
             return;
         }
+        // cancel() and complete() blank msName, so an empty name is not a
+        // harmless miss -- it can match a real row, and it would create a
+        // session nobody could ever name to join.
+        if ('' === trim($_REQUEST['sessname'])) {
+            $this->_sessRename();
+            return;
+        }
         $findWhere = [
             'name' => trim($_REQUEST['sessname']),
             'stateID' => self::fastmerge(
@@ -817,6 +822,12 @@ class BootMenu extends FOGBase
                 'param platform ${platform}',
                 'param sessionJoin 1',
                 'param sysuuid ${uuid}',
+                // iPXE keeps these set after the initial login, so every
+                // hop back into this flow stays authenticated. Without them
+                // the follow-up request arrived anonymous and the session
+                // lookup ran with no idea who was asking.
+                'param username ${username}',
+                'param password ${password}',
             ],
             $extraParams,
             [
@@ -861,11 +872,12 @@ class BootMenu extends FOGBase
      */
     public function sesscreate()
     {
+        $sessname = trim($_REQUEST['sessname']);
         $expected = (int)$_REQUEST['sessclients'];
         $minutes = isset($_REQUEST['sessminutes'])
             ? (int)$_REQUEST['sessminutes']
             : 0;
-        if ($expected < 1 || $minutes < 1) {
+        if ('' === $sessname || $expected < 1 || $minutes < 1) {
             $this->_sessRename();
             return;
         }
@@ -890,7 +902,7 @@ class BootMenu extends FOGBase
         $tasktype = json_decode(Route::getData());
         self::$Host->createImagePackage(
             $tasktype,
-            trim($_REQUEST['sessname']),
+            $sessname,
             $shutdown,
             $isdebug,
             -1,
@@ -913,23 +925,11 @@ class BootMenu extends FOGBase
      */
     public function sessjoin()
     {
-        $Send['joinsession'] = [
-            'set arch ${buildarch}',
-            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
-            'echo -n Please enter the session name to join > ',
-            'read sessname',
-            'params',
-            'param mac0 ${net0/mac}',
-            'param arch ${arch}',
-            'param platform ${platform}',
-            'param sessname ${sessname}',
-            'param sysuuid ${uuid}',
-            'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-            'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ':bootme',
-            "chain -ar $this->_booturl/ipxe/boot.php##params",
-        ];
-        $this->_parseMe($Send);
+        // Same prompt and same chain as every other return into this flow,
+        // which is what carries the credentials forward. The hand-rolled
+        // block this replaced forwarded neither them nor sessionJoin, so
+        // the name the operator typed came back to an anonymous request.
+        $this->_sessRename();
     }
     /**
      * False taskings are taskings for hosts that may not be
@@ -1188,13 +1188,19 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
+        // Not every chain back into the join flow carries extraargs, and
+        // passing an unset key to stripos()/preg_match() emits a warning
+        // straight into the iPXE script this is building.
+        $extraargs = isset($_REQUEST['extraargs'])
+            ? $_REQUEST['extraargs']
+            : '';
         $shutdown = stripos(
             'shutdown=1',
-            $_REQUEST['extraargs']
+            $extraargs
         );
         $isdebug = preg_match(
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_REQUEST['extraargs']
+            $extraargs
         );
         if (self::$Host->isValid() && !self::$Host->get('pending')) {
             Route::indiv('tasktype', TaskType::MULTICAST);
@@ -1338,7 +1344,26 @@ class BootMenu extends FOGBase
             } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
                 $this->setTasking($_REQUEST['imageID'] ?? '');
             } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
-                $this->sessjoin();
+                // Joining or creating a session builds real tasking against
+                // a host, so holding a valid password is not enough -- the
+                // account has to actually be allowed to task. Unrestricted
+                // accounts short-circuit inside can() and are unaffected.
+                if (!$tmpUser->can('task.task')) {
+                    $Send['nosessperm'] = [
+                        'echo That account may not join multicast sessions.',
+                        'sleep 3'
+                    ];
+                    $this->_parseMe($Send);
+                    $this->_chainBoot();
+                    return;
+                }
+                // The name can arrive with the credentials, in which case
+                // there is nothing left to prompt for.
+                if (isset($_REQUEST['sessname'])) {
+                    $this->sesscheck();
+                } else {
+                    $this->sessjoin();
+                }
             } elseif (isset($_REQUEST['menuaccess']) && $_REQUEST['menuaccess']) {
                 //unset($this->_hiddenmenu);
                 $this->_hiddenmenu = false;
