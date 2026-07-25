@@ -728,9 +728,18 @@ class MulticastTask extends FOGService
             unset($Task);
         }
         $TaskPercent = array_unique((array)$TaskPercent);
-        $this->_MultiSess
-            ->set('percent', @max($TaskPercent))
-            ->save();
+        // Write the one column this owns. updateStats() runs against the
+        // task held in $KnownTasks, whose _MultiSess was loaded when the
+        // session was first seen, and FOGController::save() writes every
+        // field it holds -- so saving the whole object here put that
+        // first-seen snapshot back every tick. That silently undid the
+        // clients counter TaskQueue::checkIn() increments as hosts arrive,
+        // which is why a session's client count never climbed.
+        self::getClass('MulticastSessionManager')->update(
+            ['id' => $this->_intID],
+            '',
+            ['percent' => max($TaskPercent)]
+        );
     }
     /**
      * Updates task ID list in case of MC session joins via PXE menu
