@@ -1372,30 +1372,12 @@ class ImageManagement extends FOGPage
         if (!$sessiontimeout) {
             $sessiontimeout = self::getSetting('FOG_UDPCAST_MAXWAIT') * 60;
         }
-        $countmc = Route::getCount(
-            'multicastsession',
-            [
-                'stateID' => self::fastmerge(
-                    (array)self::getQueuedStates(),
-                    (array)self::getProgressState()
-                )
-            ]
-        );
-        $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
-        if ($countmc >= $countmctot) {
-            throw new Exception(
-                _('Server is only configured to run')
-                . ' '
-                . $countmctot
-                . ' '
-                . _('multicast tasks!')
-            );
-        }
+        MulticastSession::assertCapacity();
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getMasterStorageNode();
         return self::getClass('MulticastSession')
             ->set('name', $sessionname)
-            ->set('port', self::getSetting('FOG_UDPCAST_STARTINGPORT'))
+            ->set('port', MulticastSession::allocatePort())
             ->set('image', $Image->get('id'))
             ->set('stateID', 0)
             ->set('sessclients', $sessioncount)

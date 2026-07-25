@@ -1859,6 +1859,9 @@ msgstr "Ereignis und Daten sind nicht gesetzt"
 msgid "Event must be a string"
 msgstr "Ereignisname muss eine Zeichenfolge sein."
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "Bestehendes Objekt muss boolean sein"
 
@@ -5599,8 +5602,8 @@ msgstr "Server-Shell"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-#, fuzzy
-msgid "Server is only configured to run"
+#, fuzzy, php-format
+msgid "Server is only configured to run %d multicast tasks"
 msgstr "Service-Konfiguration"
 
 msgid "Service"
@@ -8029,10 +8032,6 @@ msgstr ""
 msgid "month"
 msgstr "Monat"
 
-#, fuzzy
-msgid "multicast tasks!"
-msgstr "Aktive Multicast-Tasks"
-
 msgid "multiple places to get your image"
 msgstr "Orte gibt, an denen Sie Ihr Image abrufen können"
 
@@ -8813,6 +8812,10 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "z.B."
+
+#, fuzzy
+#~ msgid "multicast tasks!"
+#~ msgstr "Aktive Multicast-Tasks"
 
 #, fuzzy
 #~ msgid "no database to"

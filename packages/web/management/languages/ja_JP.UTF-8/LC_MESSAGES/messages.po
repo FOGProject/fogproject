@@ -1774,6 +1774,9 @@ msgstr "イベントとデータが設定されていません"
 msgid "Event must be a string"
 msgstr "イベントは文字列で指定してください"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
 
@@ -5319,8 +5322,8 @@ msgstr "サーバーシェル"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-#, fuzzy
-msgid "Server is only configured to run"
+#, fuzzy, php-format
+msgid "Server is only configured to run %d multicast tasks"
 msgstr "サービス設定"
 
 msgid "Service"
@@ -7581,10 +7584,6 @@ msgstr ""
 
 msgid "month"
 msgstr "月"
-
-#, fuzzy
-msgid "multicast tasks!"
-msgstr "マルチキャストタスク"
 
 msgid "multiple places to get your image"
 msgstr "イメージの取得元が複数ある"
@@ -10058,6 +10057,10 @@ msgstr ""
 
 #~ msgid "more secure"
 #~ msgstr "より安全"
+
+#, fuzzy
+#~ msgid "multicast tasks!"
+#~ msgstr "マルチキャストタスク"
 
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"

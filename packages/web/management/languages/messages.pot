@@ -1561,6 +1561,9 @@ msgstr ""
 msgid "Event must be a string"
 msgstr ""
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -4724,7 +4727,8 @@ msgstr ""
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-msgid "Server is only configured to run"
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
 msgstr ""
 
 msgid "Service"
@@ -6757,9 +6761,6 @@ msgid "moments from now"
 msgstr ""
 
 msgid "month"
-msgstr ""
-
-msgid "multicast tasks!"
 msgstr ""
 
 msgid "multiple places to get your image"

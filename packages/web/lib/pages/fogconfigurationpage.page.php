@@ -1067,9 +1067,13 @@ class FOGConfigurationPage extends FOGPage
             'FOG_REGENERATE_TIMEOUT' => ['set' => $regenrange],
             // Multicast Settings
             'FOG_UDPCAST_STARTINGPORT' => ['min' => 1, 'max' => 65535],
-            'FOG_MULTICASE_MAX_SESSIONS' => true,
+            // Was FOG_MULTICASE_MAX_SESSIONS, which matches no setting, so
+            // this bound had never actually been applied to anything.
+            'FOG_MULTICAST_MAX_SESSIONS' => true,
             'FOG_UDPCAST_MAXWAIT' => true,
-            'FOG_MULTICAST_PORT_OVERRIDE' => ['min' => 0, 'max' => 65535],
+            // Deliberately not numeric: this is now a comma separated pool
+            // of base ports. MulticastSession::portPool() drops anything
+            // udp-sender could not use.
             // Proxy Settings
             'FOG_PROXY_PORT' => ['min' => 0, 'max' => 65535],
             // User Management

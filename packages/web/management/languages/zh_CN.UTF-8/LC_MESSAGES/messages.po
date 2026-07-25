@@ -1860,6 +1860,9 @@ msgstr ""
 msgid "Event must be a string"
 msgstr "事件必须是字符串"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -5594,8 +5597,8 @@ msgstr "服务器外壳"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-#, fuzzy
-msgid "Server is only configured to run"
+#, fuzzy, php-format
+msgid "Server is only configured to run %d multicast tasks"
 msgstr "服务配置"
 
 msgid "Service"
@@ -8008,10 +8011,6 @@ msgstr ""
 msgid "month"
 msgstr "每月一次"
 
-#, fuzzy
-msgid "multicast tasks!"
-msgstr "活动组播任务"
-
 msgid "multiple places to get your image"
 msgstr ""
 
@@ -8782,6 +8781,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "我面前"
+
+#, fuzzy
+#~ msgid "multicast tasks!"
+#~ msgstr "活动组播任务"
 
 #, fuzzy
 #~ msgid "no database to"

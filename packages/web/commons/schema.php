@@ -4570,3 +4570,19 @@ $this->schema[] = [
     "ALTER TABLE `multicastSessions` "
     . "ADD COLUMN `msSenderStart` DATETIME NULL DEFAULT NULL",
 ];
+// 313
+$this->schema[] = [
+    // FOG_MULTICAST_PORT_OVERRIDE is now a pool rather than a single port.
+    // It previously forced every concurrent session onto one portbase, so
+    // a second session could never actually run; as a comma separated list
+    // each entry is one concurrently runnable session, allocated at session
+    // creation. The stored value stays valid -- a single port is simply a
+    // pool of one, which is what the old setting effectively meant.
+    "UPDATE `globalSettings` SET `settingDesc` = 'This setting defines the "
+    . "multicast base ports FOG may use. Enter a comma separated list, for "
+    . "example 63100,63200,63300 -- each port is one multicast session that "
+    . "can run at the same time, and a session takes the port plus the one "
+    . "above it. Ports must be even and between 1024 and 65534; anything "
+    . "else is ignored. Default is 0, which is disabled and lets FOG pick a "
+    . "port per session.' WHERE `settingKey` = 'FOG_MULTICAST_PORT_OVERRIDE'",
+];

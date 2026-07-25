@@ -99,6 +99,135 @@ class MulticastSession extends FOGController
         return new TaskState($this->get('stateID'));
     }
     /**
+     * The states in which a session is considered to be occupying capacity.
+     *
+     * @return array
+     */
+    public static function activeStates()
+    {
+        return self::fastmerge(
+            self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
+    }
+    /**
+     * How many sessions are currently active, server wide.
+     *
+     * @return int
+     */
+    public static function activeCount()
+    {
+        return (int)Route::getCount(
+            'multicastsession',
+            ['stateID' => self::activeStates()]
+        );
+    }
+    /**
+     * The base ports currently held by active sessions.
+     *
+     * @return array
+     */
+    public static function activePorts()
+    {
+        return array_map(
+            'intval',
+            (array)Route::getIds(
+                'multicastsession',
+                ['stateID' => self::activeStates()],
+                'port'
+            )
+        );
+    }
+    /**
+     * The configured pool of multicast base ports.
+     *
+     * FOG_MULTICAST_PORT_OVERRIDE accepts a comma separated list, one entry
+     * per concurrently runnable session. Entries that udp-sender could not
+     * use are dropped rather than allowed to fail at spawn time: it takes
+     * the base port and base+1, so the value has to be even and leave room
+     * above it. An empty or entirely unusable setting yields an empty pool,
+     * which callers treat as "not configured".
+     *
+     * @return array
+     */
+    public static function portPool()
+    {
+        $raw = (string)self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
+        $ports = [];
+        foreach (preg_split('#[\s,]+#', $raw, -1, PREG_SPLIT_NO_EMPTY) as $p) {
+            if (!ctype_digit($p)) {
+                continue;
+            }
+            $p = (int)$p;
+            if ($p < 1024 || $p > 65534 || $p % 2 !== 0) {
+                continue;
+            }
+            $ports[$p] = $p;
+        }
+        return array_values($ports);
+    }
+    /**
+     * Throws when the server is already running its configured maximum.
+     *
+     * FOG_MULTICAST_MAX_SESSIONS was only ever checked when a session was
+     * created from Image Management, so sessions created from a host, a
+     * group or a booting machine walked straight past it and the setting
+     * never meant what it said.
+     *
+     * @throws Exception
+     * @return void
+     */
+    public static function assertCapacity()
+    {
+        $max = (int)self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
+        if ($max > 0 && self::activeCount() >= $max) {
+            throw new Exception(
+                sprintf(
+                    _('Server is only configured to run %d multicast tasks'),
+                    $max
+                )
+            );
+        }
+    }
+    /**
+     * Picks a base port for a new session.
+     *
+     * With a pool configured, the first port no active session is holding
+     * is taken -- which is what makes the pool a concurrency limit rather
+     * than one shared port every session collided on. Without a pool, the
+     * historical rotating start port is kept.
+     *
+     * @throws Exception
+     * @return int
+     */
+    public static function allocatePort()
+    {
+        $pool = self::portPool();
+        if (count($pool)) {
+            $inUse = self::activePorts();
+            foreach ($pool as $port) {
+                if (!in_array($port, $inUse, true)) {
+                    return $port;
+                }
+            }
+            throw new Exception(
+                _('Every configured multicast port is already in use')
+            );
+        }
+        $port = (int)self::getSetting('FOG_UDPCAST_STARTINGPORT');
+        $next = mt_rand(24576, 32766) * 2;
+        while ($next === $port) {
+            $next = mt_rand(24576, 32766) * 2;
+        }
+        // A setting that udp-sender would reject outright is replaced now
+        // rather than handed on to fail at spawn time.
+        if ($port < 1024 || $port > 65534 || $port % 2 !== 0) {
+            $port = $next;
+        }
+        self::setSetting('FOG_UDPCAST_STARTINGPORT', $next);
+        return $port;
+    }
+    /**
      * Returns the task ids associated with this session.
      *
      * @return array

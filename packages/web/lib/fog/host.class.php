@@ -1174,11 +1174,10 @@ class Host extends FOGController
                 ) {
                     $assoc = true;
                 } else {
-                    $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
-                    $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
+                    MulticastSession::assertCapacity();
                     $MulticastSession = self::getClass('MulticastSession')
                         ->set('name', $taskName)
-                        ->set('port', ($portOverride ? $portOverride : $port))
+                        ->set('port', MulticastSession::allocatePort())
                         ->set('logpath', $this->getImage()->get('path'))
                         ->set('image', $this->getImage()->get('id'))
                         ->set('interface', $StorageNode->get('interface'))
@@ -1205,18 +1204,6 @@ class Host extends FOGController
                         throw new Exception(_('Failed to create multicast task'));
                     }
                     $assoc = true;
-                    if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
-                        $randomnumber = mt_rand(24576, 32766)*2;
-                        while ($randomnumber
-                            == $MulticastSession->get('port')
-                        ) {
-                            $randomnumber = mt_rand(24576, 32766)*2;
-                        }
-                        self::setSetting(
-                            'FOG_UDPCAST_STARTINGPORT',
-                            $randomnumber
-                        );
-                    }
                 }
                 if ($assoc) {
                     $stat = self::getClass('MulticastSessionAssociation')

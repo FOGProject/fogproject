@@ -252,14 +252,14 @@ class MulticastTask extends FOGService
         $nodeID = 0
     ) {
         parent::__construct();
-        $overridePort = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
         $this->_intID = $id;
         $this->_strName = $name;
-        if ($overridePort) {
-            $this->_intPort = $overridePort;
-        } else {
-            $this->_intPort = $port;
-        }
+        // The port stored on the session is authoritative. This used to be
+        // overridden with FOG_MULTICAST_PORT_OVERRIDE, which forced every
+        // concurrent session onto one portbase; that setting is now a pool
+        // allocated from at session creation, so re-reading it here would
+        // both undo the allocation and fail outright on a list.
+        $this->_intPort = $port;
         $this->_strImage = $image;
         $this->_strEth = $eth;
         $this->_intClients = $clients;
@@ -543,13 +543,23 @@ class MulticastTask extends FOGService
             $multicastrdv
         ) = self::getSetting($keys);
         if ($address) {
-            $address = long2ip(
-                ip2long($address) + (
-                    (
-                        $this->getPortBase() / 2 + 1
-                    ) % max(1, (int)self::getSetting('FOG_MULTICAST_MAX_SESSIONS'))
-                )
-            );
+            // Each concurrent session needs its own data address. With a
+            // port pool configured the port's position in that pool gives
+            // one directly, which is what guarantees two sessions cannot
+            // land on the same address. Without a pool this falls back to
+            // deriving an offset from the portbase, wrapped by the session
+            // cap -- the historical behaviour, and the reason
+            // FOG_MULTICAST_MAX_SESSIONS ended up doubling as a modulus.
+            $pool = MulticastSession::portPool();
+            $index = array_search((int)$this->getPortBase(), $pool, true);
+            if (false !== $index) {
+                $offset = $index + 1;
+            } else {
+                $offset = (
+                    $this->getPortBase() / 2 + 1
+                ) % max(1, (int)self::getSetting('FOG_MULTICAST_MAX_SESSIONS'));
+            }
+            $address = long2ip(ip2long($address) + $offset);
         }
         $maxwait = $this->getMaxwait();
         $buildcmd = [
