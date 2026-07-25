@@ -83,13 +83,103 @@ backupDB() {
         echo "Done"
     fi
 }
+# Prove the web tier actually renders a page before we trust anything that
+# talks to it. A PHP fatal in the boot chain returns an empty (or truncated)
+# 500, which reads as a blank white page in a browser and which every other
+# check in this installer happily treats as success -- that is how an install
+# can print "Setup complete" over a completely dead site.
+# Refs https://forums.fogproject.org/topic/18204/
+checkWebTier() {
+    dots "Checking web server serves FOG"
+    local probeUrl="${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
+    local probeBody=$(mktemp)
+    # We care whether bytes came back at all, not just about the status code,
+    # because a pre-output fatal loses exactly that.
+    curl -sS -k --noproxy '*' -m 30 -fL -o "$probeBody" "$probeUrl" >>$error_log 2>&1
+    local probeStat=$?
+    local probeSize=$(stat -c %s "$probeBody" 2>/dev/null)
+    [[ -z $probeSize ]] && probeSize=0
+    rm -f "$probeBody"
+    if [[ $probeStat -eq 0 && $probeSize -gt 0 ]]; then
+        echo "Done"
+        return 0
+    fi
+    echo "Failed!"
+    echo
+    echo "   The web server did not return a usable page for:"
+    echo "     $probeUrl"
+    echo "   (curl exit ${probeStat}, ${probeSize} bytes of body)"
+    echo
+    echo "   An empty or truncated response with a 500 is almost always a PHP"
+    echo "   fatal in the FOG boot chain rather than a database problem. In a"
+    echo "   browser this looks like a blank white page. Check your web"
+    echo "   server's error log."
+    echo "   PHP in use: $(php -v 2>/dev/null | head -1)"
+    echo
+    [[ -z $exitFail ]] && exit 1
+    return 1
+}
+# Read the schema version straight out of MySQL. Echoes the number, or nothing
+# when the probe cannot run (external database mode, credentials we do not
+# hold, table not created yet). Callers must treat empty as "unknown" and never
+# as zero.
+schemaVersionInDB() {
+    [[ "${snmysqlexternal}" == "1" ]] && return 0
+    [[ -z $sqloptionsuser ]] && return 0
+    mysql $sqloptionsuser --password="${snmysqlpass}" -N -B --execute="SELECT vValue FROM \`${mysqldbname}\`.\`schemaVersion\` WHERE vID=1" 2>/dev/null | tail -1
+}
+# Confirm the deploy actually landed in the database. Neither update path used
+# to prove anything: the automatic branch only checked curl's exit status, and
+# the manual branch accepted any keypress -- so a failed schema update still
+# marched on to "Setup complete".
+verifySchemaDeploy() {
+    local expected=$(grep -o "define('FOG_SCHEMA', *[0-9]*" $webdirdest/lib/fog/system.class.php 2>/dev/null | grep -o '[0-9]*$')
+    local deployed=$(schemaVersionInDB)
+    if [[ -z $expected || -z $deployed ]]; then
+        echo " * Skipping schema verification (unable to read the schema version)"
+        return 0
+    fi
+    dots "Verifying database schema"
+    if [[ $deployed -ge $expected ]]; then
+        echo "Done"
+        return 0
+    fi
+    echo "Failed!"
+    echo
+    echo "   The database schema is still at version ${deployed}; this release"
+    echo "   requires ${expected}. The update did not complete, so FOG will not"
+    echo "   work correctly."
+    echo
+    echo "   Re-run this installer once the cause is resolved."
+    echo
+    [[ -z $exitFail ]] && exit 1
+    return 1
+}
 updateDB() {
+    # This substitution has to happen on BOTH paths. It used to sit inside the
+    # [Yy] branch, and dbupdate is set in exactly one place (bin/installfog.sh,
+    # under -y), so every interactive install baked the literal '/images/'
+    # default into commons/schema.php instead of $storageLocation.
+    local replace='s/[]"\/$&*.^|[]/\\&/g'
+    local escstorageLocation=$(echo $storageLocation | sed -e $replace)
+    sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
+    # Same root cause, the other half: with dbupdate unset every interactive
+    # install fell through to the manual browser path, which verifies nothing
+    # and hands the install token out on stdout. Default to the automatic path
+    # and make opting out deliberate. backupDB has already run by this point,
+    # so the historical reason to pause here is covered.
+    if [[ -z $dbupdate ]]; then
+        if [[ -n $autoaccept || ! -t 0 ]]; then
+            dbupdate="yes"
+        else
+            echo
+            read -p " * Install/update the FOG database schema now? (Y/n) " dbupdate
+            [[ -z $dbupdate ]] && dbupdate="yes"
+        fi
+    fi
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            local replace='s/[]"\/$&*.^|[]/\\&/g'
-            local escstorageLocation=$(echo $storageLocation | sed -e $replace)
-            sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
             curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' -fksL ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
             errorStat $?
             ;;
@@ -104,6 +194,7 @@ updateDB() {
             echo
             ;;
     esac
+    verifySchemaDeploy
     # ---------------------------------------------------------
     # External Unprivileged Database Implementation
     # Bypass DB user management (fogstorage) requiring root GRANT

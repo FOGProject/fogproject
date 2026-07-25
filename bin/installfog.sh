@@ -610,6 +610,7 @@ while [[ -z $blGo ]]; do
                     configureMySql
                     backupReports
                     configureHttpd
+                    checkWebTier
                     backupDB
                     updateDB
                     configureStorage
