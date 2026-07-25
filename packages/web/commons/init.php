@@ -33,7 +33,15 @@ class Initiator
         }
     }
 
-    public static function e(mixed $value): string
+    /**
+     * No native `mixed` type hint here on purpose. `mixed` is a real type only
+     * from PHP 8.0; on 7.4 the parser reads it as a *class* name, so every call
+     * throws an uncaught TypeError ("must be an instance of mixed") and the
+     * request dies with a zero-byte 500 before any output. _verCheck() below
+     * still admits 7.4, so that is a supported target. The (string) cast makes
+     * the hint redundant anyway. Refs forums.fogproject.org topic 18204.
+     */
+    public static function e($value): string
     {
         return htmlspecialchars((string)($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
