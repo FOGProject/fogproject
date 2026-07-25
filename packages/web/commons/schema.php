@@ -4553,7 +4553,19 @@ $this->schema[] = [
     },
 ];
 // 312
-$this->schema[] = [
+// Guarded because working-1.6 and dev-branch assign different step numbers
+// to the same migration -- they forked at step 264 -- so an install can
+// arrive here having already gained these columns from the dev-branch port
+// of this change. Steps 275 and 276 exist for exactly this reason. Without
+// the guard the duplicate ADD COLUMN would fail, and PDODB does not throw
+// on query errors, so it would fail silently rather than visibly.
+$columnmsSenderPID = array_filter(
+    (array)DatabaseManager::getColumns(
+        'multicastSessions',
+        'msSenderPID'
+    )
+);
+$this->schema[] = count($columnmsSenderPID ?: []) ? [] : [
     // Sender ownership for multicast sessions. FOGMulticastManager tracked
     // the udp-sender process only in MulticastTask::$procRef, which is
     // in-process memory. A daemon restart lost every reference, so the
