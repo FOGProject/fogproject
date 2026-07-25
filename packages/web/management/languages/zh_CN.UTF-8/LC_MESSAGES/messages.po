@@ -185,6 +185,10 @@ msgid "A group must be selected."
 msgstr "存储组中删除"
 
 #, fuzzy
+msgid "A group name is required!"
+msgstr "图像名是必需的！"
+
+#, fuzzy
 msgid "A host already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -294,8 +298,8 @@ msgstr "使用此名称的主机名已经存在。"
 
 msgid ""
 "A user signing in through this server receives every role and user group "
-"mapped to a directory group they belong to. Mapping to a user group is "
-"preferred: the group holds the roles, so policy stays in one place."
+"granted by a directory group they belong to. Select a group to change what "
+"it grants."
 msgstr ""
 
 #, fuzzy
@@ -408,10 +412,6 @@ msgid "Add"
 msgstr "加"
 
 #, fuzzy
-msgid "Add Directory Group"
-msgstr "添加存储组"
-
-#, fuzzy
 msgid "Add Hello World failed!"
 msgstr "添加管理单元失败！"
 
@@ -422,6 +422,10 @@ msgstr "添加到组"
 #, fuzzy
 msgid "Add Hosts to Groups Success"
 msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Add LDAP group failed!"
+msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Add LDAP server failed!"
@@ -851,9 +855,6 @@ msgid "Boot files from"
 msgstr ""
 
 msgid "Both"
-msgstr ""
-
-msgid "Both a directory group and a target are required."
 msgstr ""
 
 #, fuzzy
@@ -1295,9 +1296,6 @@ msgstr "无法读取tmp文件。"
 msgid "Could not register"
 msgstr "无法创建打印机"
 
-msgid "Could not remove the group mappings"
-msgstr ""
-
 #, fuzzy
 msgid "Could not send data from file"
 msgstr "无法读取tmp文件。"
@@ -1354,6 +1352,10 @@ msgstr "新建%s"
 
 #, fuzzy
 msgid "Create New Ipxe Menu"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Create New LDAP Group"
 msgstr "新建%s"
 
 #, fuzzy
@@ -1659,6 +1661,10 @@ msgstr "目录清洁"
 
 #, fuzzy
 msgid "Directory Group"
+msgstr "目录"
+
+#, fuzzy
+msgid "Directory Group Name"
 msgstr "目录"
 
 #, fuzzy
@@ -3746,6 +3752,50 @@ msgstr "用户创建"
 msgid "LDAP Create Success"
 msgstr "用户创建"
 
+#, fuzzy
+msgid "LDAP Group Create Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "LDAP Group Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "LDAP Group Management"
+msgstr "集团管理"
+
+#, fuzzy
+msgid "LDAP Group Role Associations"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "LDAP Group Update Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "LDAP Group Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "LDAP Group User Group Associations"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "LDAP Group added!"
+msgstr "集团补充"
+
+#, fuzzy
+msgid "LDAP Group update failed!"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "LDAP Group updated!"
+msgstr "集团补充"
+
+#, fuzzy
+msgid "LDAP Groups"
+msgstr "组"
+
 msgid "LDAP Management"
 msgstr "LDAP管理"
 
@@ -4103,6 +4153,12 @@ msgstr "最大尺寸"
 msgid "Members"
 msgstr "会员"
 
+msgid ""
+"Members of this directory group receive these roles on sign in. Roles are "
+"recomputed from the directory each time, so removing someone from the group "
+"downgrades them at their next login."
+msgstr ""
+
 msgid "Membership"
 msgstr "籍"
 
@@ -4428,6 +4484,10 @@ msgstr "无数据返回"
 msgid "No database to work off"
 msgstr "没有数据库工作关闭"
 
+#, fuzzy
+msgid "No directory groups defined."
+msgstr "已安装的插件"
+
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -4492,10 +4552,6 @@ msgstr "没有连接到数据库"
 
 msgid "No mac addresses to be removed"
 msgstr ""
-
-#, fuzzy
-msgid "No mappings defined."
-msgstr "已安装的插件"
 
 msgid "No master nodes are enabled to delete this image"
 msgstr "无主节点启用删除这张图片"
@@ -4655,6 +4711,9 @@ msgstr "无连接来获取管理单元"
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "存储节点名称"
+
+msgid "Nothing yet"
+msgstr ""
 
 msgid "O/S"
 msgstr "O / S"
@@ -5027,6 +5086,10 @@ msgstr "请输入一个有效的IP"
 msgid "Please select a valid printer type."
 msgstr "选择一个有效的图像"
 
+#, fuzzy
+msgid "Please select an LDAP server!"
+msgstr "请选择一个选项"
+
 msgid "Please select an option"
 msgstr "请选择一个选项"
 
@@ -5154,6 +5217,12 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid ""
+"Preferred over mapping straight to a role: the user group holds the roles, "
+"so policy stays in one place and the directory only decides who is in which "
+"bucket."
 msgstr ""
 
 #, fuzzy
@@ -6707,8 +6776,8 @@ msgid "Text"
 msgstr "文本"
 
 #, fuzzy
-msgid "That mapping already exists."
-msgstr "打印机已经存在"
+msgid "That group is already defined for this server!"
+msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "That session has already started"
@@ -6756,9 +6825,6 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
-msgid "The selected target no longer exists."
-msgstr ""
-
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -6800,10 +6866,6 @@ msgstr "有此服务器上没有图像。"
 
 #, fuzzy
 msgid "There are no members to sync to"
-msgstr "有此服务器上没有组。"
-
-#, fuzzy
-msgid "There are no roles or user groups to map to yet."
 msgstr "有此服务器上没有组。"
 
 msgid "There are no snapins associated with this host"
@@ -8153,10 +8215,6 @@ msgstr "N / A"
 msgid "never"
 msgstr ""
 
-#, fuzzy
-msgid "no longer exists"
-msgstr "不复存在"
-
 msgid "no response from server"
 msgstr ""
 
@@ -8555,6 +8613,10 @@ msgstr ""
 #~ msgstr "活动组播任务"
 
 #, fuzzy
+#~ msgid "Add Directory Group"
+#~ msgstr "添加存储组"
+
+#, fuzzy
 #~ msgid "Add Selected"
 #~ msgstr "打印机"
 
@@ -8870,6 +8932,10 @@ msgstr ""
 #~ msgstr "任务登录时间"
 
 #, fuzzy
+#~ msgid "That mapping already exists."
+#~ msgstr "打印机已经存在"
+
+#, fuzzy
 #~ msgid "There are no images on this server"
 #~ msgstr "有此服务器上没有图像。"
 
@@ -8879,6 +8945,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "There are no ous on this server"
+#~ msgstr "有此服务器上没有组。"
+
+#, fuzzy
+#~ msgid "There are no roles or user groups to map to yet."
 #~ msgstr "有此服务器上没有组。"
 
 #, fuzzy
@@ -8938,6 +9008,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "没有数据库工作关闭"
+
+#, fuzzy
+#~ msgid "no longer exists"
+#~ msgstr "不复存在"
 
 #, fuzzy
 #~ msgid "version"

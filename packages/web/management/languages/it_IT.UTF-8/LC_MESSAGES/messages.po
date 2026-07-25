@@ -179,6 +179,10 @@ msgstr "Esiste già un gruppo con questo nome!"
 msgid "A group must be selected."
 msgstr "Storage Group cancellato"
 
+#, fuzzy
+msgid "A group name is required!"
+msgstr "È richiesto un nome di gruppo!"
+
 msgid "A host already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
 
@@ -281,8 +285,8 @@ msgstr "Un nome host con questo nome esiste già"
 
 msgid ""
 "A user signing in through this server receives every role and user group "
-"mapped to a directory group they belong to. Mapping to a user group is "
-"preferred: the group holds the roles, so policy stays in one place."
+"granted by a directory group they belong to. Select a group to change what "
+"it grants."
 msgstr ""
 
 msgid "A username already exists with this name!"
@@ -394,10 +398,6 @@ msgid "Add"
 msgstr "Aggiungere"
 
 #, fuzzy
-msgid "Add Directory Group"
-msgstr "Aggiungere gruppo di archiviazione"
-
-#, fuzzy
 msgid "Add Hello World failed!"
 msgstr "Aggiunta utente fallita!"
 
@@ -408,6 +408,10 @@ msgstr "Aggiunta host al gruppo fallita"
 #, fuzzy
 msgid "Add Hosts to Groups Success"
 msgstr "Aggiunta host al gruppo completata"
+
+#, fuzzy
+msgid "Add LDAP group failed!"
+msgstr "Aggiunta gruppo non riuscito!"
 
 msgid "Add LDAP server failed!"
 msgstr "Aggiunta LDAP server fallita!"
@@ -818,9 +822,6 @@ msgid "Boot files from"
 msgstr ""
 
 msgid "Both"
-msgstr ""
-
-msgid "Both a directory group and a target are required."
 msgstr ""
 
 #, fuzzy
@@ -1234,9 +1235,6 @@ msgstr "Impossibile leggere il file tmp."
 msgid "Could not register"
 msgstr "Non posso registrare"
 
-msgid "Could not remove the group mappings"
-msgstr ""
-
 #, fuzzy
 msgid "Could not send data from file"
 msgstr "Impossibile leggere il file tmp."
@@ -1293,6 +1291,10 @@ msgstr "Crea nuovo %s"
 
 #, fuzzy
 msgid "Create New Ipxe Menu"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "Create New LDAP Group"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
@@ -1590,6 +1592,10 @@ msgstr "directory Cleaner"
 
 #, fuzzy
 msgid "Directory Group"
+msgstr "elenco"
+
+#, fuzzy
+msgid "Directory Group Name"
 msgstr "elenco"
 
 #, fuzzy
@@ -3598,6 +3604,50 @@ msgstr "LDAP Creazione Fallita"
 msgid "LDAP Create Success"
 msgstr "LDAP Creazione Riusciata"
 
+#, fuzzy
+msgid "LDAP Group Create Fail"
+msgstr "Creazione Gruppo fallita"
+
+#, fuzzy
+msgid "LDAP Group Create Success"
+msgstr "Creazione Gruppo completata"
+
+#, fuzzy
+msgid "LDAP Group Management"
+msgstr "Direzione del Gruppo"
+
+#, fuzzy
+msgid "LDAP Group Role Associations"
+msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "LDAP Group Update Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "LDAP Group Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "LDAP Group User Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "LDAP Group added!"
+msgstr "Gruppo aggiunto!"
+
+#, fuzzy
+msgid "LDAP Group update failed!"
+msgstr "Aggiornamento del gruppo non riuscito!"
+
+#, fuzzy
+msgid "LDAP Group updated!"
+msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+msgid "LDAP Groups"
+msgstr "gruppi"
+
 msgid "LDAP Management"
 msgstr "Gestione LDAP"
 
@@ -3931,6 +3981,12 @@ msgstr "Dimensione massima"
 msgid "Members"
 msgstr "Utenti"
 
+msgid ""
+"Members of this directory group receive these roles on sign in. Roles are "
+"recomputed from the directory each time, so removing someone from the group "
+"downgrades them at their next login."
+msgstr ""
+
 msgid "Membership"
 msgstr "membri"
 
@@ -4250,6 +4306,10 @@ msgstr "Nessun dato da inserire"
 msgid "No database to work off"
 msgstr "Nessun database di lavorare off"
 
+#, fuzzy
+msgid "No directory groups defined."
+msgstr "Nessun gruppo di storage disponibile trovato"
+
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -4309,10 +4369,6 @@ msgstr "Nessun collegamento stabilito al database"
 
 msgid "No mac addresses to be removed"
 msgstr ""
-
-#, fuzzy
-msgid "No mappings defined."
-msgstr "Non sincronizzo"
 
 msgid "No master nodes are enabled to delete this image"
 msgstr "Non nodi master sono abilitati per eliminare questa immagine"
@@ -4464,6 +4520,9 @@ msgstr "Non sincronizzazione gli Snapin"
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "Nome Storage Node"
+
+msgid "Nothing yet"
+msgstr ""
 
 msgid "O/S"
 msgstr "O / S"
@@ -4823,6 +4882,10 @@ msgstr "Seleziona una porta ldap valida"
 msgid "Please select a valid printer type."
 msgstr "Selezionare un'immagine valida"
 
+#, fuzzy
+msgid "Please select an LDAP server!"
+msgstr "per favore selezionate un'opzione"
+
 msgid "Please select an option"
 msgstr "per favore selezionate un'opzione"
 
@@ -4945,6 +5008,12 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid ""
+"Preferred over mapping straight to a role: the user group holds the roles, "
+"so policy stays in one place and the directory only decides who is in which "
+"bucket."
 msgstr ""
 
 #, fuzzy
@@ -6418,8 +6487,8 @@ msgid "Text"
 msgstr "Testo"
 
 #, fuzzy
-msgid "That mapping already exists."
-msgstr "Questo host esiste già"
+msgid "That group is already defined for this server!"
+msgstr "Un host già esiste con questo nome!"
 
 #, fuzzy
 msgid "That session has already started"
@@ -6466,9 +6535,6 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "Il MAC primario associato è"
 
-msgid "The selected target no longer exists."
-msgstr ""
-
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 "Le impostazioni tendono ad essere le impostazioni globali che influenzano "
@@ -6511,10 +6577,6 @@ msgstr "Non ci sono immagini su questo server"
 #, fuzzy
 msgid "There are no members to sync to"
 msgstr "Non ci sono host a cui affidare compiti in questo gruppo"
-
-#, fuzzy
-msgid "There are no roles or user groups to map to yet."
-msgstr "Non ci sono gruppi su questo server"
 
 msgid "There are no snapins associated with this host"
 msgstr "Non ci sono snapins associati con questo host"
@@ -7804,10 +7866,6 @@ msgstr "n/d"
 msgid "never"
 msgstr ""
 
-#, fuzzy
-msgid "no longer exists"
-msgstr "non è più in esecuzione"
-
 msgid "no response from server"
 msgstr ""
 
@@ -8188,6 +8246,10 @@ msgstr ""
 #~ msgstr "Attività multi-cast attive"
 
 #, fuzzy
+#~ msgid "Add Directory Group"
+#~ msgstr "Aggiungere gruppo di archiviazione"
+
+#, fuzzy
 #~ msgid "Add Selected"
 #~ msgstr "Aggiungi stampanti selezionate"
 
@@ -8411,6 +8473,10 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "Host associato"
 
+#, fuzzy
+#~ msgid "No mappings defined."
+#~ msgstr "Non sincronizzo"
+
 #~ msgid "No query sent"
 #~ msgstr "No query inviata"
 
@@ -8492,6 +8558,10 @@ msgstr ""
 #~ msgid "Task run time"
 #~ msgstr "Task Ora di Arrivo"
 
+#, fuzzy
+#~ msgid "That mapping already exists."
+#~ msgstr "Questo host esiste già"
+
 #~ msgid "There are no images on this server"
 #~ msgstr "Non ci sono immagini su questo server"
 
@@ -8500,6 +8570,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "There are no ous on this server"
+#~ msgstr "Non ci sono gruppi su questo server"
+
+#, fuzzy
+#~ msgid "There are no roles or user groups to map to yet."
 #~ msgstr "Non ci sono gruppi su questo server"
 
 #~ msgid "There are no snapins on this server"
@@ -8559,6 +8633,10 @@ msgstr ""
 
 #~ msgid "no database to"
 #~ msgstr "Nessun database a"
+
+#, fuzzy
+#~ msgid "no longer exists"
+#~ msgstr "non è più in esecuzione"
 
 #~ msgid "version"
 #~ msgstr "versione"

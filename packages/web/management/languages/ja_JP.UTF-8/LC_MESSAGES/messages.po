@@ -171,6 +171,9 @@ msgstr "この名前のグループは既に存在します！"
 msgid "A group must be selected."
 msgstr "グループを選択してください。"
 
+msgid "A group name is required!"
+msgstr "グループ名は必須です！"
+
 msgid "A host already exists with this name!"
 msgstr "この名前のホストは既に存在します！"
 
@@ -270,8 +273,8 @@ msgstr "その名前のホストは既に存在します"
 
 msgid ""
 "A user signing in through this server receives every role and user group "
-"mapped to a directory group they belong to. Mapping to a user group is "
-"preferred: the group holds the roles, so policy stays in one place."
+"granted by a directory group they belong to. Select a group to change what "
+"it grants."
 msgstr ""
 
 msgid "A username already exists with this name!"
@@ -383,10 +386,6 @@ msgid "Add"
 msgstr "追加"
 
 #, fuzzy
-msgid "Add Directory Group"
-msgstr "ディレクトリを追加"
-
-#, fuzzy
 msgid "Add Hello World failed!"
 msgstr "ロールの追加に失敗しました！"
 
@@ -397,6 +396,10 @@ msgstr "ホストのグループ追加に失敗しました"
 #, fuzzy
 msgid "Add Hosts to Groups Success"
 msgstr "ホストをグループに追加しました"
+
+#, fuzzy
+msgid "Add LDAP group failed!"
+msgstr "グループの追加に失敗しました！"
 
 msgid "Add LDAP server failed!"
 msgstr "LDAP サーバーの追加に失敗しました！"
@@ -805,9 +808,6 @@ msgid "Boot files from"
 msgstr ""
 
 msgid "Both"
-msgstr ""
-
-msgid "Both a directory group and a target are required."
 msgstr ""
 
 #, fuzzy
@@ -1220,9 +1220,6 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not register"
 msgstr "登録できませんでした"
 
-msgid "Could not remove the group mappings"
-msgstr ""
-
 #, fuzzy
 msgid "Could not send data from file"
 msgstr "一時ファイルを読み取れませんでした。"
@@ -1280,6 +1277,10 @@ msgstr "新しいプリンターを作成"
 #, fuzzy
 msgid "Create New Ipxe Menu"
 msgstr "新しいキーを作成"
+
+#, fuzzy
+msgid "Create New LDAP Group"
+msgstr "新しいグループを作成"
 
 #, fuzzy
 msgid "Create New LDAP Server"
@@ -1576,6 +1577,10 @@ msgstr "ディレクトリクリーナー"
 
 #, fuzzy
 msgid "Directory Group"
+msgstr "ディレクトリ"
+
+#, fuzzy
+msgid "Directory Group Name"
 msgstr "ディレクトリ"
 
 msgid "Disable on all hosts"
@@ -3559,6 +3564,50 @@ msgstr "LDAP の作成に失敗しました"
 msgid "LDAP Create Success"
 msgstr "LDAP を作成しました"
 
+#, fuzzy
+msgid "LDAP Group Create Fail"
+msgstr "グループの作成に失敗しました"
+
+#, fuzzy
+msgid "LDAP Group Create Success"
+msgstr "グループの作成に成功しました"
+
+#, fuzzy
+msgid "LDAP Group Management"
+msgstr "グループ管理"
+
+#, fuzzy
+msgid "LDAP Group Role Associations"
+msgstr "グループの関連付け"
+
+#, fuzzy
+msgid "LDAP Group Update Fail"
+msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+msgid "LDAP Group Update Success"
+msgstr "グループの更新に成功しました"
+
+#, fuzzy
+msgid "LDAP Group User Group Associations"
+msgstr "グループの関連付け"
+
+#, fuzzy
+msgid "LDAP Group added!"
+msgstr "グループを追加しました！"
+
+#, fuzzy
+msgid "LDAP Group update failed!"
+msgstr "グループの更新に失敗しました！"
+
+#, fuzzy
+msgid "LDAP Group updated!"
+msgstr "グループを更新しました！"
+
+#, fuzzy
+msgid "LDAP Groups"
+msgstr "すべてのグループ"
+
 msgid "LDAP Management"
 msgstr "LDAP 管理"
 
@@ -3888,6 +3937,12 @@ msgstr "最大サイズ"
 msgid "Members"
 msgstr "メンバー"
 
+msgid ""
+"Members of this directory group receive these roles on sign in. Roles are "
+"recomputed from the directory each time, so removing someone from the group "
+"downgrades them at their next login."
+msgstr ""
+
 msgid "Membership"
 msgstr "メンバーシップ"
 
@@ -4207,6 +4262,10 @@ msgstr "挿入するデータがありません"
 msgid "No database to work off"
 msgstr "使用するデータベースがありません"
 
+#, fuzzy
+msgid "No directory groups defined."
+msgstr "使用可能なストレージグループが見つかりません"
+
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -4271,10 +4330,6 @@ msgstr "データベースへのリンクが確立されていません"
 #, fuzzy
 msgid "No mac addresses to be removed"
 msgstr "削除するグループが選択されていません"
-
-#, fuzzy
-msgid "No mappings defined."
-msgstr "同期していません"
 
 msgid "No master nodes are enabled to delete this image"
 msgstr "このイメージを削除できる有効なマスターノードがありません"
@@ -4423,6 +4478,9 @@ msgstr "スナップインを同期していません"
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "ストレージノード名"
+
+msgid "Nothing yet"
+msgstr ""
 
 msgid "O/S"
 msgstr "OS"
@@ -4784,6 +4842,10 @@ msgstr "有効な LDAP ポートを選択してください"
 msgid "Please select a valid printer type."
 msgstr "有効な LDAP ポートを選択してください"
 
+#, fuzzy
+msgid "Please select an LDAP server!"
+msgstr "使用する LDAP ポートを選択してください"
+
 msgid "Please select an option"
 msgstr "オプションを選択してください"
 
@@ -4908,6 +4970,12 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid ""
+"Preferred over mapping straight to a role: the user group holds the roles, "
+"so policy stays in one place and the directory only decides who is in which "
+"bucket."
 msgstr ""
 
 #, fuzzy
@@ -6360,8 +6428,8 @@ msgid "Text"
 msgstr "テキスト"
 
 #, fuzzy
-msgid "That mapping already exists."
-msgstr "このホストは既に存在します"
+msgid "That group is already defined for this server!"
+msgstr "このグループは既にサブネットグループで使用されています。"
 
 #, fuzzy
 msgid "That session has already started"
@@ -6407,10 +6475,6 @@ msgstr "これは既に別のイメージで使用されています"
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
 
-#, fuzzy
-msgid "The selected target no longer exists."
-msgstr "選択したプリンターを追加"
-
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
 
@@ -6450,10 +6514,6 @@ msgstr "このサーバーにはイメージがありません"
 #, fuzzy
 msgid "There are no members to sync to"
 msgstr "同期対象のメンバーがありません"
-
-#, fuzzy
-msgid "There are no roles or user groups to map to yet."
-msgstr "このサーバーにはグループがありません"
 
 msgid "There are no snapins associated with this host"
 msgstr "このホストには関連付けられたスナップインがありません"
@@ -7728,10 +7788,6 @@ msgstr "N/A"
 msgid "never"
 msgstr ""
 
-#, fuzzy
-msgid "no longer exists"
-msgstr "選択したプリンターを追加"
-
 msgid "no response from server"
 msgstr ""
 
@@ -8050,9 +8106,6 @@ msgstr ""
 #~ msgid "A group is required!"
 #~ msgstr "グループは必須です！"
 
-#~ msgid "A group name is required!"
-#~ msgstr "グループ名は必須です！"
-
 #~ msgid "A host name is required!"
 #~ msgstr "ホスト名は必須です！"
 
@@ -8118,6 +8171,10 @@ msgstr ""
 
 #~ msgid "Account removed from FOG GUI at"
 #~ msgstr "FOG GUI から削除されたアカウント:"
+
+#, fuzzy
+#~ msgid "Add Directory Group"
+#~ msgstr "ディレクトリを追加"
 
 #~ msgid "Add Event"
 #~ msgstr "イベントを追加"
@@ -8186,9 +8243,6 @@ msgstr ""
 
 #~ msgid "After image Action"
 #~ msgstr "イメージ処理後の操作"
-
-#~ msgid "All Groups"
-#~ msgstr "すべてのグループ"
 
 #~ msgid "All Pending MACs approved"
 #~ msgstr "保留中のすべての MAC アドレスを承認しました"
@@ -9226,6 +9280,10 @@ msgstr ""
 #~ msgstr ""
 #~ "グループが定義されていないため、検索ではすべてのホストが対象となります。"
 
+#, fuzzy
+#~ msgid "No mappings defined."
+#~ msgstr "同期していません"
+
 #~ msgid "No node associated with any addresses of this system"
 #~ msgstr "このシステムのどのアドレスにも関連付けられたノードがありません"
 
@@ -9414,9 +9472,6 @@ msgstr ""
 
 #~ msgid "Please input a session name"
 #~ msgstr "セッション名を入力してください"
-
-#~ msgid "Please select an LDAP port to use"
-#~ msgstr "使用する LDAP ポートを選択してください"
 
 #~ msgid "Please select the snapin you want to install"
 #~ msgstr "インストールするスナップインを選択してください"
@@ -9782,6 +9837,10 @@ msgstr ""
 #~ msgid "Terms and Conditions"
 #~ msgstr "利用条件"
 
+#, fuzzy
+#~ msgid "That mapping already exists."
+#~ msgstr "このホストは既に存在します"
+
 #~ msgid "The below items are only used for the old client."
 #~ msgstr "以下の項目は旧クライアントでのみ使用されます。"
 
@@ -9806,11 +9865,19 @@ msgstr ""
 #~ msgid "The old client was distributed with FOG 1.2.0 and earlier."
 #~ msgstr "旧クライアントは FOG 1.2.0 以前で配布されていました。"
 
+#, fuzzy
+#~ msgid "The selected target no longer exists."
+#~ msgstr "選択したプリンターを追加"
+
 #~ msgid "There are currently"
 #~ msgstr "現在"
 
 #~ msgid "There are no locations on this server"
 #~ msgstr "このサーバーにはロケーションがありません"
+
+#, fuzzy
+#~ msgid "There are no roles or user groups to map to yet."
+#~ msgstr "このサーバーにはグループがありません"
 
 #~ msgid "There were errors during import!"
 #~ msgstr "インポート中にエラーが発生しました！"
@@ -10206,6 +10273,10 @@ msgstr ""
 
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"
+
+#, fuzzy
+#~ msgid "no longer exists"
+#~ msgstr "選択したプリンターを追加"
 
 #~ msgid "of"
 #~ msgstr "の"

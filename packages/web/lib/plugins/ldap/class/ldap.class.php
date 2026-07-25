@@ -565,22 +565,18 @@ class LDAP extends FOGController
     {
         $id = (int)$this->get('id');
         if ($id > 0) {
-            try {
-                self::$DB->query(
-                    'DELETE FROM `LDAPGroupMap` WHERE `lgmServerID` = :server',
-                    [],
-                    ['server' => $id]
-                );
-            } catch (Exception $e) {
-                error_log(
-                    sprintf(
-                        '%s %s() %s: %s',
-                        _('Plugin'),
-                        __METHOD__,
-                        _('Could not remove the group mappings'),
-                        $e->getMessage()
-                    )
-                );
+            /**
+             * Destroyed one at a time rather than with a mass delete, so
+             * each group also takes its role and user group associations
+             * with it -- LDAPGroup::destroy() is what knows about those.
+             */
+            $groupIds = (array)Route::getIds(
+                'ldapgroup',
+                ['serverID' => $id],
+                'id'
+            );
+            foreach ($groupIds as $groupId) {
+                self::getClass('LDAPGroup', (int)$groupId)->destroy();
             }
         }
         return parent::destroy($key);
@@ -1036,8 +1032,8 @@ class LDAP extends FOGController
         try {
             $rows = self::$DB
                 ->query(
-                    'SELECT DISTINCT `lgmGroup` FROM `LDAPGroupMap` '
-                    . 'WHERE `lgmServerID` = :server',
+                    'SELECT `lgName` FROM `LDAPGroups` '
+                    . 'WHERE `lgServerID` = :server',
                     [],
                     ['server' => (int)$this->get('id')]
                 )
@@ -1065,8 +1061,8 @@ class LDAP extends FOGController
             return [];
         }
         $names = [];
-        foreach ((array)$rows as $row) {
-            $name = trim((string)($row['lgmGroup'] ?? ''));
+        foreach ($rows as $row) {
+            $name = trim((string)($row['lgName'] ?? ''));
             if ('' !== $name) {
                 $names[] = $name;
             }

@@ -148,6 +148,9 @@ msgstr ""
 msgid "A group must be selected."
 msgstr ""
 
+msgid "A group name is required!"
+msgstr ""
+
 msgid "A host already exists with this name!"
 msgstr ""
 
@@ -234,8 +237,8 @@ msgstr ""
 
 msgid ""
 "A user signing in through this server receives every role and user group "
-"mapped to a directory group they belong to. Mapping to a user group is "
-"preferred: the group holds the roles, so policy stays in one place."
+"granted by a directory group they belong to. Select a group to change what "
+"it grants."
 msgstr ""
 
 msgid "A username already exists with this name!"
@@ -338,9 +341,6 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-msgid "Add Directory Group"
-msgstr ""
-
 msgid "Add Hello World failed!"
 msgstr ""
 
@@ -348,6 +348,9 @@ msgid "Add Hosts to Group Fail"
 msgstr ""
 
 msgid "Add Hosts to Groups Success"
+msgstr ""
+
+msgid "Add LDAP group failed!"
 msgstr ""
 
 msgid "Add LDAP server failed!"
@@ -706,9 +709,6 @@ msgid "Boot files from"
 msgstr ""
 
 msgid "Both"
-msgstr ""
-
-msgid "Both a directory group and a target are required."
 msgstr ""
 
 msgid "Broadcast Address"
@@ -1081,9 +1081,6 @@ msgstr ""
 msgid "Could not register"
 msgstr ""
 
-msgid "Could not remove the group mappings"
-msgstr ""
-
 msgid "Could not send data from file"
 msgstr ""
 
@@ -1128,6 +1125,9 @@ msgid "Create New Immediate"
 msgstr ""
 
 msgid "Create New Ipxe Menu"
+msgstr ""
+
+msgid "Create New LDAP Group"
 msgstr ""
 
 msgid "Create New LDAP Server"
@@ -1385,6 +1385,9 @@ msgid "Directory Cleaner"
 msgstr ""
 
 msgid "Directory Group"
+msgstr ""
+
+msgid "Directory Group Name"
 msgstr ""
 
 msgid "Disable on all hosts"
@@ -3146,6 +3149,39 @@ msgstr ""
 msgid "LDAP Create Success"
 msgstr ""
 
+msgid "LDAP Group Create Fail"
+msgstr ""
+
+msgid "LDAP Group Create Success"
+msgstr ""
+
+msgid "LDAP Group Management"
+msgstr ""
+
+msgid "LDAP Group Role Associations"
+msgstr ""
+
+msgid "LDAP Group Update Fail"
+msgstr ""
+
+msgid "LDAP Group Update Success"
+msgstr ""
+
+msgid "LDAP Group User Group Associations"
+msgstr ""
+
+msgid "LDAP Group added!"
+msgstr ""
+
+msgid "LDAP Group update failed!"
+msgstr ""
+
+msgid "LDAP Group updated!"
+msgstr ""
+
+msgid "LDAP Groups"
+msgstr ""
+
 msgid "LDAP Management"
 msgstr ""
 
@@ -3447,6 +3483,12 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
+msgid ""
+"Members of this directory group receive these roles on sign in. Roles are "
+"recomputed from the directory each time, so removing someone from the group "
+"downgrades them at their next login."
+msgstr ""
+
 msgid "Membership"
 msgstr ""
 
@@ -3731,6 +3773,9 @@ msgstr ""
 msgid "No database to work off"
 msgstr ""
 
+msgid "No directory groups defined."
+msgstr ""
+
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -3786,9 +3831,6 @@ msgid "No link established to the database"
 msgstr ""
 
 msgid "No mac addresses to be removed"
-msgstr ""
-
-msgid "No mappings defined."
 msgstr ""
 
 msgid "No master nodes are enabled to delete this image"
@@ -3923,6 +3965,9 @@ msgid "Not syncing Snapin"
 msgstr ""
 
 msgid "Nothing to do on Storage Node Named"
+msgstr ""
+
+msgid "Nothing yet"
 msgstr ""
 
 msgid "O/S"
@@ -4247,6 +4292,9 @@ msgstr ""
 msgid "Please select a valid printer type."
 msgstr ""
 
+msgid "Please select an LDAP server!"
+msgstr ""
+
 msgid "Please select an option"
 msgstr ""
 
@@ -4350,6 +4398,12 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid ""
+"Preferred over mapping straight to a role: the user group holds the roles, "
+"so policy stays in one place and the directory only decides who is in which "
+"bucket."
 msgstr ""
 
 msgid "Primary"
@@ -5656,7 +5710,7 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-msgid "That mapping already exists."
+msgid "That group is already defined for this server!"
 msgstr ""
 
 msgid "That session has already started"
@@ -5700,9 +5754,6 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
-msgid "The selected target no longer exists."
-msgstr ""
-
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -5737,9 +5788,6 @@ msgid "There are no images available!"
 msgstr ""
 
 msgid "There are no members to sync to"
-msgstr ""
-
-msgid "There are no roles or user groups to map to yet."
 msgstr ""
 
 msgid "There are no snapins associated with this host"
@@ -6889,9 +6937,6 @@ msgid "n/a"
 msgstr ""
 
 msgid "never"
-msgstr ""
-
-msgid "no longer exists"
 msgstr ""
 
 msgid "no response from server"

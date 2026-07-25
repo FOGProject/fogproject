@@ -185,6 +185,10 @@ msgid "A group must be selected."
 msgstr "Grupo de armazenamento excluído"
 
 #, fuzzy
+msgid "A group name is required!"
+msgstr "Um nome de imagem é necessário!"
+
+#, fuzzy
 msgid "A host already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
@@ -294,8 +298,8 @@ msgstr "Um nome de host com esse nome já existe."
 
 msgid ""
 "A user signing in through this server receives every role and user group "
-"mapped to a directory group they belong to. Mapping to a user group is "
-"preferred: the group holds the roles, so policy stays in one place."
+"granted by a directory group they belong to. Select a group to change what "
+"it grants."
 msgstr ""
 
 #, fuzzy
@@ -408,10 +412,6 @@ msgid "Add"
 msgstr "Adicionar"
 
 #, fuzzy
-msgid "Add Directory Group"
-msgstr "Adicionar grupo de armazenamento"
-
-#, fuzzy
 msgid "Add Hello World failed!"
 msgstr "Adicionar snap-in falhou!"
 
@@ -422,6 +422,10 @@ msgstr "Adicionar ao grupo"
 #, fuzzy
 msgid "Add Hosts to Groups Success"
 msgstr "Instalar / Atualizar sucesso!"
+
+#, fuzzy
+msgid "Add LDAP group failed!"
+msgstr "Adicionar snap-in falhou!"
 
 #, fuzzy
 msgid "Add LDAP server failed!"
@@ -851,9 +855,6 @@ msgid "Boot files from"
 msgstr ""
 
 msgid "Both"
-msgstr ""
-
-msgid "Both a directory group and a target are required."
 msgstr ""
 
 #, fuzzy
@@ -1297,9 +1298,6 @@ msgstr "Não foi possível ler o arquivo tmp."
 msgid "Could not register"
 msgstr "Não foi possível criar impressora"
 
-msgid "Could not remove the group mappings"
-msgstr ""
-
 #, fuzzy
 msgid "Could not send data from file"
 msgstr "Não foi possível ler o arquivo tmp."
@@ -1356,6 +1354,10 @@ msgstr "Criar novo %s"
 
 #, fuzzy
 msgid "Create New Ipxe Menu"
+msgstr "Criar novo %s"
+
+#, fuzzy
+msgid "Create New LDAP Group"
 msgstr "Criar novo %s"
 
 #, fuzzy
@@ -1661,6 +1663,10 @@ msgstr "Cleaner diretório"
 
 #, fuzzy
 msgid "Directory Group"
+msgstr "Diretório"
+
+#, fuzzy
+msgid "Directory Group Name"
 msgstr "Diretório"
 
 #, fuzzy
@@ -3748,6 +3754,50 @@ msgstr "usuário criado"
 msgid "LDAP Create Success"
 msgstr "usuário criado"
 
+#, fuzzy
+msgid "LDAP Group Create Fail"
+msgstr "Grupo Criar falhou"
+
+#, fuzzy
+msgid "LDAP Group Create Success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "LDAP Group Management"
+msgstr "grupo de Gestão"
+
+#, fuzzy
+msgid "LDAP Group Role Associations"
+msgstr "Associação imagem"
+
+#, fuzzy
+msgid "LDAP Group Update Fail"
+msgstr "Grupo Criar falhou"
+
+#, fuzzy
+msgid "LDAP Group Update Success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "LDAP Group User Group Associations"
+msgstr "Nó de Armazenamento Criado"
+
+#, fuzzy
+msgid "LDAP Group added!"
+msgstr "grupo adicionado"
+
+#, fuzzy
+msgid "LDAP Group update failed!"
+msgstr "atualização do utilizador falhou"
+
+#, fuzzy
+msgid "LDAP Group updated!"
+msgstr "grupo adicionado"
+
+#, fuzzy
+msgid "LDAP Groups"
+msgstr "grupos"
+
 msgid "LDAP Management"
 msgstr "Gestão LDAP"
 
@@ -4105,6 +4155,12 @@ msgstr "Max Size"
 msgid "Members"
 msgstr "Membros"
 
+msgid ""
+"Members of this directory group receive these roles on sign in. Roles are "
+"recomputed from the directory each time, so removing someone from the group "
+"downgrades them at their next login."
+msgstr ""
+
 msgid "Membership"
 msgstr "Membership"
 
@@ -4430,6 +4486,10 @@ msgstr "Não há dados retornados"
 msgid "No database to work off"
 msgstr "Nenhum banco de dados para trabalhar fora"
 
+#, fuzzy
+msgid "No directory groups defined."
+msgstr "Plugins instalados"
+
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -4494,10 +4554,6 @@ msgstr "Sem conexão com o banco de dados"
 
 msgid "No mac addresses to be removed"
 msgstr ""
-
-#, fuzzy
-msgid "No mappings defined."
-msgstr "Plugins instalados"
 
 msgid "No master nodes are enabled to delete this image"
 msgstr "Nenhum nós mestre são habilitadas para apagar esta imagem"
@@ -4659,6 +4715,9 @@ msgstr "Sem conexão para obter Snapin"
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "Nome Storage Node"
+
+msgid "Nothing yet"
+msgstr ""
 
 msgid "O/S"
 msgstr "O / S"
@@ -5031,6 +5090,10 @@ msgstr "Por favor insira um IP válido"
 msgid "Please select a valid printer type."
 msgstr "Selecione uma imagem válida"
 
+#, fuzzy
+msgid "Please select an LDAP server!"
+msgstr "Por favor selecione uma opção"
+
 msgid "Please select an option"
 msgstr "Por favor selecione uma opção"
 
@@ -5158,6 +5221,12 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid ""
+"Preferred over mapping straight to a role: the user group holds the roles, "
+"so policy stays in one place and the directory only decides who is in which "
+"bucket."
 msgstr ""
 
 #, fuzzy
@@ -6711,8 +6780,8 @@ msgid "Text"
 msgstr "Texto"
 
 #, fuzzy
-msgid "That mapping already exists."
-msgstr "Impressora já existe"
+msgid "That group is already defined for this server!"
+msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
 msgid "That session has already started"
@@ -6761,9 +6830,6 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
-msgid "The selected target no longer exists."
-msgstr ""
-
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -6805,10 +6871,6 @@ msgstr "Não há imagens neste servidor."
 
 #, fuzzy
 msgid "There are no members to sync to"
-msgstr "Não existem grupos neste servidor."
-
-#, fuzzy
-msgid "There are no roles or user groups to map to yet."
 msgstr "Não existem grupos neste servidor."
 
 msgid "There are no snapins associated with this host"
@@ -8164,10 +8226,6 @@ msgstr "n / D"
 msgid "never"
 msgstr ""
 
-#, fuzzy
-msgid "no longer exists"
-msgstr " não existe mais"
-
 msgid "no response from server"
 msgstr ""
 
@@ -8568,6 +8626,10 @@ msgstr ""
 #~ msgstr "Tarefas Multicast ativos"
 
 #, fuzzy
+#~ msgid "Add Directory Group"
+#~ msgstr "Adicionar grupo de armazenamento"
+
+#, fuzzy
 #~ msgid "Add Selected"
 #~ msgstr "Impressora"
 
@@ -8883,6 +8945,10 @@ msgstr ""
 #~ msgstr "Tarefa Checkin Tempo"
 
 #, fuzzy
+#~ msgid "That mapping already exists."
+#~ msgstr "Impressora já existe"
+
+#, fuzzy
 #~ msgid "There are no images on this server"
 #~ msgstr "Não há imagens neste servidor."
 
@@ -8892,6 +8958,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "There are no ous on this server"
+#~ msgstr "Não existem grupos neste servidor."
+
+#, fuzzy
+#~ msgid "There are no roles or user groups to map to yet."
 #~ msgstr "Não existem grupos neste servidor."
 
 #, fuzzy
@@ -8953,6 +9023,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Nenhum banco de dados para trabalhar fora"
+
+#, fuzzy
+#~ msgid "no longer exists"
+#~ msgstr " não existe mais"
 
 #, fuzzy
 #~ msgid "version"

@@ -348,6 +348,176 @@ class LDAPManager extends FOGManagerController
      */
     public function migrateGroupMappings()
     {
+        /**
+         * Idempotence guard. This runs on every plugin install because
+         * applyUpdates() replays the whole list from zero, and a seed that
+         * re-ran would resurrect mappings an admin had deliberately
+         * deleted. Any existing row means the migration has already
+         * happened.
+         */
+        if ($this->_ldapGroupCount() > 0) {
+            return true;
+        }
+        /**
+         * LDAPGroupMap was the first shape of this feature: one row per
+         * (group name, target) pair. It shipped only briefly, and an
+         * install that has it already folded lsAdminGroup/lsUserGroup into
+         * it, so it is the better source when present.
+         */
+        if ($this->_tableExists('LDAPGroupMap')) {
+            return $this->_migrateFromGroupMap();
+        }
+        return $this->_migrateFromServerColumns();
+    }
+    /**
+     * How many directory groups are defined.
+     *
+     * @return int
+     */
+    private function _ldapGroupCount()
+    {
+        try {
+            $rows = self::$DB
+                ->query('SELECT COUNT(`lgID`) AS `cnt` FROM `LDAPGroups`')
+                ->fetch('', 'fetch_all')
+                ->get();
+        } catch (Exception $e) {
+            return 0;
+        }
+        if (!is_array($rows) || empty($rows)) {
+            return 0;
+        }
+        return (int)($rows[0]['cnt'] ?? 0);
+    }
+    /**
+     * Whether a table is present in the current database.
+     *
+     * @param string $table the table name
+     *
+     * @return bool
+     */
+    private function _tableExists($table)
+    {
+        try {
+            $rows = self::$DB
+                ->query('SHOW TABLES LIKE :table', [], ['table' => $table])
+                ->fetch('', 'fetch_all')
+                ->get();
+        } catch (Exception $e) {
+            return false;
+        }
+        return is_array($rows) && !empty($rows);
+    }
+    /**
+     * Ensures a directory group row exists and returns its id.
+     *
+     * INSERT IGNORE then SELECT rather than lastInsertId, because the row
+     * may already exist -- the unique index on (server, name) is what makes
+     * the whole migration safe to replay.
+     *
+     * @param int    $serverId the LDAP server the group belongs to
+     * @param string $name     the directory group name
+     *
+     * @return int the group id, 0 when it could not be created
+     */
+    private function _ensureGroup($serverId, $name)
+    {
+        self::$DB->query(
+            'INSERT IGNORE INTO `LDAPGroups` (`lgServerID`, `lgName`) '
+            . 'VALUES (:server, :name)',
+            [],
+            ['server' => (int)$serverId, 'name' => $name]
+        );
+        $rows = self::$DB
+            ->query(
+                'SELECT `lgID` FROM `LDAPGroups` '
+                . 'WHERE `lgServerID` = :server AND `lgName` = :name',
+                [],
+                ['server' => (int)$serverId, 'name' => $name]
+            )
+            ->fetch('', 'fetch_all')
+            ->get();
+        if (!is_array($rows) || empty($rows)) {
+            return 0;
+        }
+        return (int)($rows[0]['lgID'] ?? 0);
+    }
+    /**
+     * Links a directory group to a role or a user group.
+     *
+     * @param int    $groupId  the LDAPGroups row id
+     * @param string $type     'role' or 'usergroup'
+     * @param int    $targetId the role or user group id
+     *
+     * @return void
+     */
+    private function _linkGroup($groupId, $type, $targetId)
+    {
+        if ($groupId < 1 || $targetId < 1) {
+            return;
+        }
+        if ('usergroup' === $type) {
+            $sql = 'INSERT IGNORE INTO `ldapGroupUserGroupAssoc` '
+                . '(`lgugGroupID`, `lgugUserGroupID`) '
+                . 'VALUES (:group, :target)';
+        } else {
+            $sql = 'INSERT IGNORE INTO `ldapGroupRoleAssoc` '
+                . '(`lgraGroupID`, `lgraRoleID`) '
+                . 'VALUES (:group, :target)';
+        }
+        self::$DB->query(
+            $sql,
+            [],
+            ['group' => (int)$groupId, 'target' => (int)$targetId]
+        );
+    }
+    /**
+     * Moves LDAPGroupMap rows into the group + association tables.
+     *
+     * @return bool
+     */
+    private function _migrateFromGroupMap()
+    {
+        $rows = self::$DB
+            ->query(
+                'SELECT `lgmServerID`, `lgmGroup`, `lgmTargetType`, '
+                . '`lgmTargetID` FROM `LDAPGroupMap`'
+            )
+            ->fetch('', 'fetch_all')
+            ->get();
+        if (!is_array($rows)) {
+            return true;
+        }
+        foreach ($rows as $row) {
+            $name = trim((string)($row['lgmGroup'] ?? ''));
+            if ('' === $name) {
+                continue;
+            }
+            $groupId = $this->_ensureGroup(
+                (int)($row['lgmServerID'] ?? 0),
+                $name
+            );
+            $this->_linkGroup(
+                $groupId,
+                (string)($row['lgmTargetType'] ?? 'role'),
+                (int)($row['lgmTargetID'] ?? 0)
+            );
+        }
+        return true;
+    }
+    /**
+     * Seeds the group + association tables from the original two buckets.
+     *
+     * lsAdminGroup and lsUserGroup are comma-separated name lists, each
+     * pointing at one globally configured role. Both columns and both
+     * settings are left in place: they are the migration's only input, and
+     * an install that re-runs before an admin has authored anything must
+     * still be able to reconstruct the same mappings.
+     *
+     * @return bool
+     */
+    private function _migrateFromServerColumns()
+    {
         $roleByColumn = [
             'lsAdminGroup' => trim(
                 (string)self::getSetting('FOG_PLUGIN_LDAP_ADMIN_ROLE')
@@ -361,9 +531,12 @@ class LDAPManager extends FOGManagerController
                 'SELECT `lsID`, `lsAdminGroup`, `lsUserGroup` '
                 . 'FROM `LDAPServers`'
             )
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch('', 'fetch_all')
             ->get();
-        foreach ((array)$servers as $server) {
+        if (!is_array($servers)) {
+            return true;
+        }
+        foreach ($servers as $server) {
             foreach ($roleByColumn as $column => $roleId) {
                 if ('' === $roleId) {
                     // No role configured for this bucket, so there is
@@ -380,19 +553,11 @@ class LDAPManager extends FOGManagerController
                     'strlen'
                 );
                 foreach ($groups as $group) {
-                    self::$DB->query(
-                        'INSERT IGNORE INTO `LDAPGroupMap` '
-                        . '(`lgmServerID`, `lgmGroup`, `lgmTargetType`, '
-                        . '`lgmTargetID`) '
-                        . 'VALUES (:server, :group, :type, :target)',
-                        [],
-                        [
-                            'server' => (int)$server['lsID'],
-                            'group' => $group,
-                            'type' => LDAPGroupMap::TARGET_ROLE,
-                            'target' => (int)$roleId
-                        ]
+                    $groupId = $this->_ensureGroup(
+                        (int)$server['lsID'],
+                        $group
                     );
+                    $this->_linkGroup($groupId, 'role', (int)$roleId);
                 }
             }
         }
@@ -436,13 +601,34 @@ class LDAPManager extends FOGManagerController
             "DELETE FROM `globalSettings` "
             . "WHERE `settingKey` = 'FOG_PLUGIN_LDAP_USER_FILTER'",
             // 5
+            // Steps 5 and 6 used to create LDAPGroupMap and migrate the two
+            // buckets into it. That table is superseded by LDAPGroups plus
+            // two association tables, so those steps are replaced rather
+            // than appended to. Safe because applyUpdates() replays this
+            // list from zero on every install -- position carries no state
+            // for this plugin -- and step 9 drops the old table for the
+            // installs that did take it.
             function () {
-                return self::getClass('LDAPGroupMapManager')->install();
+                return self::getClass('LDAPGroupManager')->install();
             },
             // 6
             function () {
+                return self::getClass('LDAPGroupRoleAssociationManager')
+                    ->install();
+            },
+            // 7
+            function () {
+                return self::getClass('LDAPGroupUserGroupAssociationManager')
+                    ->install();
+            },
+            // 8
+            function () {
                 return $this->migrateGroupMappings();
             },
+            // 9
+            // Dropped only after step 8 has copied it out. Ordering within
+            // the list is what makes that safe.
+            'DROP TABLE IF EXISTS `LDAPGroupMap`',
         ];
     }
     /**
@@ -484,7 +670,12 @@ class LDAPManager extends FOGManagerController
                 ['id' => $userIDs]
             );
         }
-        self::getClass('LDAPGroupMapManager')->uninstall();
+        // Associations first, then the groups they point at: dropping the
+        // groups first would leave association rows referencing ids that no
+        // longer exist if either drop failed part way.
+        self::getClass('LDAPGroupRoleAssociationManager')->uninstall();
+        self::getClass('LDAPGroupUserGroupAssociationManager')->uninstall();
+        self::getClass('LDAPGroupManager')->uninstall();
         return parent::uninstall();
     }
 }

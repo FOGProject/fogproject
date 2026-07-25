@@ -4,46 +4,39 @@
  *
  * PHP version 5
  *
- * @category LDAPGroupMapManager
+ * @category LDAPGroupUserGroupAssociationManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Manager for the directory-group to role/user-group mappings.
+ * Manager for the ldapGroupUserGroupAssoc table.
  *
  * Refs https://github.com/FOGProject/fogproject/issues/882
  *
- * @category LDAPGroupMapManager
+ * @category LDAPGroupUserGroupAssociationManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class LDAPGroupMapManager extends FOGManagerController
+class LDAPGroupUserGroupAssociationManager extends FOGManagerController
 {
     /**
-     * The table name.
+     * The base table name.
      *
      * @var string
      */
-    public $tablename = 'LDAPGroupMap';
+    public $tablename = 'ldapGroupUserGroupAssoc';
     /**
      * Returns the CREATE TABLE (IF NOT EXISTS) statement for this table.
      *
-     * Non-destructive and safe to re-run. Used as a step in
-     * LDAPManager::schema().
+     * Non-destructive and safe to re-run; used as a step in
+     * LDAPManager::schema(), which always replays its list from zero.
      *
-     * The unique index across all four meaningful columns is what makes
-     * the migration below idempotent: re-running it can only INSERT IGNORE
-     * over rows that already exist. It also stops the same group being
-     * mapped to the same target twice, which would be invisible in the UI
-     * and would double nothing but confusion.
-     *
-     * lgmGroup is VARCHAR(255) rather than LONGTEXT (which is what
-     * lsAdminGroup/lsUserGroup used) because it has to be indexable, and
-     * one row now holds one group instead of a comma-separated list.
+     * The unique index makes the association idempotent -- checking an
+     * already-checked user group cannot create a second row.
      *
      * @return string
      */
@@ -53,45 +46,39 @@ class LDAPGroupMapManager extends FOGManagerController
             $this->tablename,
             true,
             [
-                'lgmID',
-                'lgmServerID',
-                'lgmGroup',
-                'lgmTargetType',
-                'lgmTargetID'
+                'lgugID',
+                'lgugName',
+                'lgugGroupID',
+                'lgugUserGroupID'
             ],
             [
                 'INTEGER',
+                'VARCHAR(60)',
                 'INTEGER',
-                'VARCHAR(255)',
-                "ENUM('role', 'usergroup')",
                 'INTEGER'
             ],
             [
                 false,
                 false,
                 false,
-                false,
                 false
             ],
             [
                 false,
+                "''",
                 false,
-                false,
-                "'role'",
                 false
             ],
             [
                 [
-                    'lgmServerID',
-                    'lgmGroup',
-                    'lgmTargetType',
-                    'lgmTargetID'
+                    'lgugGroupID',
+                    'lgugUserGroupID'
                 ]
             ],
             'InnoDB',
             'utf8',
-            'lgmID',
-            'lgmID'
+            'lgugID',
+            'lgugID'
         );
     }
     /**

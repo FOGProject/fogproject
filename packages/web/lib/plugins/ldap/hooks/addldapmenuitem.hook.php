@@ -26,6 +26,13 @@
 class AddLDAPMenuItem extends Hook
 {
     /**
+     * The second node this plugin owns: the directory groups whose
+     * associations decide what a signing-in user receives.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
+     */
+    const GROUP_NODE = 'ldapgroup';
+    /**
      * The name of this hook.
      *
      * @var string
@@ -92,6 +99,12 @@ class AddLDAPMenuItem extends Hook
     {
         $arguments['hook_main'][$this->node]
             = [_('LDAP Servers'), 'fa fa-key'];
+        // Groups get their own node because granting a role or a user group
+        // is an ordinary association, and the shared association tab needs
+        // the group itself to be the owning object. See
+        // LDAPGroupManagement.
+        $arguments['hook_main'][self::GROUP_NODE]
+            = [_('LDAP Groups'), 'fa fa-users'];
     }
     /**
      * Adds the plugin page to the search page lists
@@ -103,6 +116,7 @@ class AddLDAPMenuItem extends Hook
     public function addSearch($arguments)
     {
         $arguments['searchPages'][] = $this->node;
+        $arguments['searchPages'][] = self::GROUP_NODE;
     }
     /**
      * Adds the plugin page to use internalized objects
@@ -114,6 +128,7 @@ class AddLDAPMenuItem extends Hook
     public function addPageWithObject($arguments)
     {
         $arguments['PagesWithObjects'][] = $this->node;
+        $arguments['PagesWithObjects'][] = self::GROUP_NODE;
     }
 
     /**
@@ -127,6 +142,12 @@ class AddLDAPMenuItem extends Hook
     public function permData($arguments)
     {
         $arguments['registry'][$this->node] = [
+            'view', 'create', 'edit', 'delete'
+        ];
+        // Registered separately so a role can be given the ability to
+        // manage servers without the ability to change what a directory
+        // group grants -- the latter is the one that hands out access.
+        $arguments['registry'][self::GROUP_NODE] = [
             'view', 'create', 'edit', 'delete'
         ];
     }

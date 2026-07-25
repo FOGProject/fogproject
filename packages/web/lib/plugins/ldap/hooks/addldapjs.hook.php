@@ -68,6 +68,7 @@ class AddLDAPJS extends Hook
     {
         $this->injectPluginJS($arguments, [
             'ldap' => ['fallback' => true],
+            'ldapgroup' => ['fallback' => true],
             'report' => ['secondary' => true, 'fallback' => true],
         ]);
     }

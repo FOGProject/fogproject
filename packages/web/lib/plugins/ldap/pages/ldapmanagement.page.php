@@ -1363,77 +1363,12 @@ class LDAPManagement extends FOGPage
         );
     }
     /**
-     * The selectable mapping targets, keyed "type:id".
+     * The directory groups defined for the server being edited.
      *
-     * Roles and user groups share one control rather than getting a type
-     * selector plus a dependent id selector. Two dependent controls need
-     * javascript to stay consistent and can be posted in an impossible
-     * combination; one list cannot.
-     *
-     * @return array
-     */
-    private static function _mapTargetChoices()
-    {
-        $choices = [];
-        $ids = (array)Route::getIds('role', [], 'id');
-        $names = (array)Route::getIds('role', [], 'name');
-        if (count($ids) === count($names)) {
-            foreach (array_combine($ids, $names) as $id => $name) {
-                $key = LDAPGroupMap::TARGET_ROLE . ':' . $id;
-                $choices[$key] = sprintf('%s - %s', _('Role'), $name);
-            }
-        }
-        $ids = (array)Route::getIds('usergroup', [], 'id');
-        $names = (array)Route::getIds('usergroup', [], 'name');
-        if (count($ids) === count($names)) {
-            foreach (array_combine($ids, $names) as $id => $name) {
-                $key = LDAPGroupMap::TARGET_USERGROUP . ':' . $id;
-                $choices[$key] = sprintf('%s - %s', _('User Group'), $name);
-            }
-        }
-        return $choices;
-    }
-    /**
-     * The mappings already defined for the server being edited.
-     *
-     * Raw bound SQL rather than Route::getIds() for the same reason the
-     * rest of this feature uses it: _buildSql() turns '*' and '+' in a
-     * scalar filter value into a SQL wildcard. The server id here could
-     * not trip that, but keeping one access pattern means nobody has to
-     * remember which of the two is in play when they add a filter later.
-     *
-     * @return array
-     */
-    private function _currentMappings()
-    {
-        try {
-            $rows = self::$DB
-                ->query(
-                    'SELECT `lgmID`, `lgmGroup`, `lgmTargetType`, '
-                    . '`lgmTargetID` FROM `LDAPGroupMap` '
-                    . 'WHERE `lgmServerID` = :server '
-                    . 'ORDER BY `lgmGroup`',
-                    [],
-                    ['server' => (int)$this->obj->get('id')]
-                )
-                ->fetch('', 'fetch_all')
-                ->get();
-        } catch (Exception $e) {
-            return [];
-        }
-        /**
-         * PDODB reports a failed query as false rather than throwing
-         * (throwOnQueryError is off), and (array)false is [false], not [].
-         * Normalise or a missing table renders as one blank mapping row.
-         */
-        return is_array($rows) ? $rows : [];
-    }
-    /**
-     * The directory group to role/user group mappings for this server.
-     *
-     * Authoring lives here, on the server, because a group name only means
-     * something relative to the directory it came from -- the same "Admins"
-     * in two directories is two different groups.
+     * Read-only: what a group grants is edited on the group's own page,
+     * where roles and user groups are ordinary association tabs. This tab
+     * exists so an admin looking at a server can see and reach its groups
+     * without having to know they live under a separate node.
      *
      * Refs https://github.com/FOGProject/fogproject/issues/882
      *
@@ -1441,34 +1376,21 @@ class LDAPManagement extends FOGPage
      */
     public function ldapGroupMap()
     {
-        $choices = self::_mapTargetChoices();
-        $mappings = $this->_currentMappings();
+        $groups = $this->_currentGroups();
 
-        echo self::makeFormTag(
-            '',
-            'ldap-groupmap-form',
-            self::makeTabUpdateURL(
-                'ldap-groupmap',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
         echo '<div class="card">';
         echo '<div class="card-body">';
         echo '<p>';
         echo _(
             'A user signing in through this server receives every role and '
-            . 'user group mapped to a directory group they belong to. '
-            . 'Mapping to a user group is preferred: the group holds the '
-            . 'roles, so policy stays in one place.'
+            . 'user group granted by a directory group they belong to. '
+            . 'Select a group to change what it grants.'
         );
         echo '</p>';
         /**
-         * Group matching is what makes these mappings readable at all, so
-         * say so here rather than leaving an admin to wonder why a mapping
-         * they just added does nothing.
+         * Group matching is what makes these groups readable at all, so say
+         * so here rather than leaving an admin to wonder why a group they
+         * just added does nothing.
          */
         if (!$this->obj->get('useGroupMatch')) {
             echo '<div class="alert alert-warning">';
@@ -1482,190 +1404,92 @@ class LDAPManagement extends FOGPage
             );
             echo '</div>';
         }
-        if (empty($choices)) {
-            echo '<div class="alert alert-warning">';
-            echo Initiator::e(
-                _('There are no roles or user groups to map to yet.')
-            );
-            echo '</div>';
-        }
         echo '<table class="table table-striped">';
         echo '<thead><tr>';
         echo '<th>' . _('Directory Group') . '</th>';
         echo '<th>' . _('Grants') . '</th>';
-        echo '<th>' . _('Remove') . '</th>';
         echo '</tr></thead><tbody>';
-        if (empty($mappings)) {
+        if (empty($groups)) {
             printf(
-                '<tr><td colspan="3">%s</td></tr>',
-                Initiator::e(_('No mappings defined.'))
+                '<tr><td colspan="2">%s</td></tr>',
+                Initiator::e(_('No directory groups defined.'))
             );
         }
-        foreach ($mappings as $map) {
-            $key = $map['lgmTargetType'] . ':' . $map['lgmTargetID'];
-            /**
-             * A target that no longer exists is shown rather than hidden,
-             * because a mapping that silently grants nothing is exactly
-             * what an admin comes to this page to find.
-             */
-            $label = (
-                $choices[$key] ??
-                sprintf(
-                    '%s (%s)',
-                    $key,
-                    _('no longer exists')
-                )
-            );
+        foreach ($groups as $group) {
+            $grants = self::_grantSummary((int)$group['lgID']);
             printf(
-                '<tr><td>%s</td><td>%s</td>'
-                . '<td><input type="checkbox" name="mapRemove[]" '
-                . 'value="%s"/></td></tr>',
-                Initiator::e($map['lgmGroup']),
-                Initiator::e($label),
-                Initiator::e($map['lgmID'])
+                '<tr><td><a href="?node=ldapgroup&sub=edit&id=%s">%s</a>'
+                . '</td><td>%s</td></tr>',
+                Initiator::e($group['lgID']),
+                Initiator::e($group['lgName']),
+                Initiator::e($grants)
             );
         }
         echo '</tbody></table>';
-
-        $labelClass = 'col-sm-3 col-form-label';
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'mapGroup',
-                _('Add Directory Group')
-            ) => self::makeInput(
-                'form-control ldapmapgroup-input',
-                'mapGroup',
-                _('Domain Admins'),
-                'text',
-                'mapGroup'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'mapTarget',
-                _('Grants')
-            ) => self::selectForm(
-                'mapTarget',
-                $choices,
-                '',
-                true
-            )
-        ];
-        $buttons = self::makeButton(
-            'groupmap-send',
-            _('Update'),
-            'btn btn-primary float-end'
+        printf(
+            '<a class="btn btn-primary" href="?node=ldapgroup&sub=add">%s</a>',
+            Initiator::e(_('Create New LDAP Group'))
         );
-        self::$HookManager->processEvent(
-            'LDAP_GROUPMAP_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'LDAP' => self::getClass('LDAP')
-            ]
-        );
-        echo self::formFields($fields);
-        unset($fields);
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</form>';
     }
     /**
-     * Applies removals and the optional addition from the mapping tab.
+     * The directory groups belonging to the server being edited.
      *
-     * @throws Exception
-     *
-     * @return void
+     * @return array
      */
-    public function ldapGroupMapPost()
+    private function _currentGroups()
     {
-        self::checkAuthAndCSRF();
-        $remove = filter_input_array(
-            INPUT_POST,
-            [
-                'mapRemove' => [
-                    'filter' => FILTER_VALIDATE_INT,
-                    'flags' => FILTER_REQUIRE_ARRAY
-                ]
-            ]
-        );
-        $remove = array_filter((array)($remove['mapRemove'] ?? []));
-        foreach ($remove as $id) {
-            $map = self::getClass('LDAPGroupMap', (int)$id);
-            /**
-             * Only rows belonging to the server being edited, so a crafted
-             * post cannot delete another server's mappings.
-             */
-            if (!$map->isValid()
-                || (int)$map->get('serverID') !== (int)$this->obj->get('id')
-            ) {
-                continue;
+        try {
+            $rows = self::$DB
+                ->query(
+                    'SELECT `lgID`, `lgName` FROM `LDAPGroups` '
+                    . 'WHERE `lgServerID` = :server ORDER BY `lgName`',
+                    [],
+                    ['server' => (int)$this->obj->get('id')]
+                )
+                ->fetch('', 'fetch_all')
+                ->get();
+        } catch (Exception $e) {
+            return [];
+        }
+        /**
+         * PDODB reports a failed query as false rather than throwing
+         * (throwOnQueryError is off), and (array)false is [false], not [].
+         */
+        return is_array($rows) ? $rows : [];
+    }
+    /**
+     * A human summary of what one directory group grants.
+     *
+     * @param int $groupId the LDAPGroups row id
+     *
+     * @return string
+     */
+    private static function _grantSummary($groupId)
+    {
+        $group = self::getClass('LDAPGroup', $groupId);
+        $names = [];
+        foreach ((array)$group->get('roles') as $roleId) {
+            $role = self::getClass('Role', (int)$roleId);
+            if ($role->isValid()) {
+                $names[] = sprintf('%s - %s', _('Role'), $role->get('name'));
             }
-            $map->destroy();
         }
-        $group = trim((string)filter_input(INPUT_POST, 'mapGroup'));
-        $target = trim((string)filter_input(INPUT_POST, 'mapTarget'));
-        /**
-         * Nothing to add is not an error -- this same post is how removals
-         * are submitted.
-         */
-        if ('' === $group && '' === $target) {
-            return;
+        foreach ((array)$group->get('usergroups') as $ugId) {
+            $usergroup = self::getClass('UserGroup', (int)$ugId);
+            if ($usergroup->isValid()) {
+                $names[] = sprintf(
+                    '%s - %s',
+                    _('User Group'),
+                    $usergroup->get('name')
+                );
+            }
         }
-        if ('' === $group || '' === $target) {
-            throw new Exception(
-                _('Both a directory group and a target are required.')
-            );
+        if (empty($names)) {
+            return _('Nothing yet');
         }
-        $choices = self::_mapTargetChoices();
-        /**
-         * Validated against the rendered list rather than parsed, so a
-         * posted target must be one that actually exists. A mapping naming
-         * a deleted role would otherwise fail silently at login.
-         */
-        if (!isset($choices[$target])) {
-            throw new Exception(_('The selected target no longer exists.'));
-        }
-        list($type, $targetId) = explode(':', $target, 2);
-        /**
-         * Raw bound SQL, not a manager count(): the group name is typed by
-         * the admin and _buildSql() turns '*' or '+' in a scalar filter
-         * value into a SQL wildcard, which would report a duplicate that
-         * is not one. The unique index is the real guard; this only exists
-         * to turn its error into a readable message.
-         */
-        $exists = self::$DB
-            ->query(
-                'SELECT `lgmID` FROM `LDAPGroupMap` '
-                . 'WHERE `lgmServerID` = :server AND `lgmGroup` = :group '
-                . 'AND `lgmTargetType` = :type AND `lgmTargetID` = :target',
-                [],
-                [
-                    'server' => (int)$this->obj->get('id'),
-                    'group' => $group,
-                    'type' => $type,
-                    'target' => (int)$targetId
-                ]
-            )
-            ->fetch('', 'fetch_all')
-            ->get();
-        /**
-         * is_array, not !empty: PDODB reports a failed query as false, and
-         * (array)false is [false] -- which would report every new mapping
-         * as a duplicate.
-         */
-        if (is_array($exists) && !empty($exists)) {
-            throw new Exception(_('That mapping already exists.'));
-        }
-        self::getClass('LDAPGroupMap')
-            ->set('serverID', $this->obj->get('id'))
-            ->set('name', $group)
-            ->set('targetType', $type)
-            ->set('targetID', $targetId)
-            ->save();
+        return implode(', ', $names);
     }
     /**
      * Updates the current item
@@ -1685,9 +1509,6 @@ class LDAPManagement extends FOGPage
                 switch ($tab) {
                     case 'ldap-general':
                         $this->ldapGeneralPost();
-                        break;
-                    case 'ldap-groupmap':
-                        $this->ldapGroupMapPost();
                         break;
                 }
                 if (!$this->obj->save()) {

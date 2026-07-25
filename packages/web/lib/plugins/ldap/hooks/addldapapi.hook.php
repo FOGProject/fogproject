@@ -78,6 +78,12 @@ class AddLDAPAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'][] = $this->node;
+        array_push(
+            $arguments['validClasses'],
+            $this->node,
+            'ldapgroup',
+            'ldapgrouproleassociation',
+            'ldapgroupusergroupassociation'
+        );
     }
 }

@@ -259,6 +259,9 @@ class LDAPPluginHook extends Hook
     /**
      * The roles and user groups a set of matched groups grants.
      *
+     * One query per target kind, joining the group table to its
+     * association table, rather than one query per group.
+     *
      * Raw bound SQL rather than Route::getIds() on purpose: _buildSql()
      * turns '*' and '+' in a scalar filter value into a SQL LIKE wildcard,
      * and both are legal in an LDAP group name ('+' separates the parts of
@@ -292,16 +295,35 @@ class LDAPPluginHook extends Hook
             $names[] = ':' . $key;
             $binds[$key] = $group;
         }
+        $in = implode(',', $names);
+        $queries = [
+            'roles' => 'SELECT `lgraRoleID` AS `target` '
+                . 'FROM `ldapGroupRoleAssoc` '
+                . 'INNER JOIN `LDAPGroups` ON `lgID` = `lgraGroupID` '
+                . 'WHERE `lgServerID` = :server AND `lgName` IN (' . $in . ')',
+            'usergroups' => 'SELECT `lgugUserGroupID` AS `target` '
+                . 'FROM `ldapGroupUserGroupAssoc` '
+                . 'INNER JOIN `LDAPGroups` ON `lgID` = `lgugGroupID` '
+                . 'WHERE `lgServerID` = :server AND `lgName` IN (' . $in . ')'
+        ];
+        foreach ($queries as $kind => $sql) {
+            $out[$kind] = self::_targetIds($sql, $binds);
+        }
+        return $out;
+    }
+    /**
+     * Runs a target-id query and returns the ids it produced.
+     *
+     * @param string $sql   the query to run
+     * @param array  $binds the bound values
+     *
+     * @return array
+     */
+    private static function _targetIds($sql, array $binds)
+    {
         try {
             $rows = self::$DB
-                ->query(
-                    'SELECT `lgmTargetType`, `lgmTargetID` '
-                    . 'FROM `LDAPGroupMap` '
-                    . 'WHERE `lgmServerID` = :server '
-                    . 'AND `lgmGroup` IN (' . implode(',', $names) . ')',
-                    [],
-                    $binds
-                )
+                ->query($sql, [], $binds)
                 ->fetch('', 'fetch_all')
                 ->get();
         } catch (Exception $e) {
@@ -314,42 +336,35 @@ class LDAPPluginHook extends Hook
                     $e->getMessage()
                 )
             );
-            return $out;
+            return [];
         }
         /**
          * PDODB reports a failed query as false rather than throwing
          * (throwOnQueryError is off), and (array)false is [false], not [].
          */
         if (!is_array($rows)) {
-            return $out;
+            return [];
         }
+        $ids = [];
         foreach ($rows as $row) {
-            $id = trim((string)($row['lgmTargetID'] ?? ''));
-            if ('' === $id || '0' === $id) {
-                continue;
-            }
-            $type = (string)($row['lgmTargetType'] ?? '');
-            if (LDAPGroupMap::TARGET_USERGROUP === $type) {
-                $out['usergroups'][] = $id;
-            } else {
-                $out['roles'][] = $id;
+            $id = trim((string)($row['target'] ?? ''));
+            if ('' !== $id && '0' !== $id) {
+                $ids[] = $id;
             }
         }
-        $out['roles'] = array_values(array_unique($out['roles']));
-        $out['usergroups'] = array_values(array_unique($out['usergroups']));
-        return $out;
+        return array_values(array_unique($ids));
     }
     /**
      * Every role and user group this plugin considers its own to manage.
      *
      * This is the carve-out that keeps the sync from stamping on manual
-     * grants: anything that appears as a mapping target is recomputed from
-     * the directory on each login, and anything else an admin attached by
-     * hand is left alone.
+     * grants: anything that appears as an association target is recomputed
+     * from the directory on each login, and anything else an admin attached
+     * by hand is left alone.
      *
-     * Deriving the set from the map rather than from a settings list is
-     * what makes it self-maintaining -- stop mapping a role and it stops
-     * being managed, exactly as clearing the old setting did.
+     * Deriving the set from the associations rather than from a settings
+     * list is what makes it self-maintaining -- stop granting a role and it
+     * stops being managed, exactly as clearing the old setting did.
      *
      * The user-group half matters more than the role half: the Site plugin
      * scopes on user groups, so a sync without this carve-out would
@@ -360,63 +375,31 @@ class LDAPPluginHook extends Hook
     private static function _managedTargets()
     {
         $managed = [
-            'roles' => [],
-            'usergroups' => []
+            'roles' => self::_targetIds(
+                'SELECT DISTINCT `lgraRoleID` AS `target` '
+                . 'FROM `ldapGroupRoleAssoc`',
+                []
+            ),
+            'usergroups' => self::_targetIds(
+                'SELECT DISTINCT `lgugUserGroupID` AS `target` '
+                . 'FROM `ldapGroupUserGroupAssoc`',
+                []
+            )
         ];
-        try {
-            $rows = self::$DB
-                ->query(
-                    'SELECT DISTINCT `lgmTargetType`, `lgmTargetID` '
-                    . 'FROM `LDAPGroupMap`'
-                )
-                ->fetch('', 'fetch_all')
-                ->get();
-        } catch (Exception $e) {
-            error_log(
-                sprintf(
-                    '%s %s() %s: %s',
-                    _('Plugin'),
-                    __METHOD__,
-                    _('Could not read the group mappings'),
-                    $e->getMessage()
-                )
-            );
-            $rows = [];
-        }
         /**
-         * PDODB reports a failed query as false rather than throwing
-         * (throwOnQueryError is off), and (array)false is [false], not [].
-         */
-        if (!is_array($rows)) {
-            $rows = [];
-        }
-        foreach ($rows as $row) {
-            $id = trim((string)($row['lgmTargetID'] ?? ''));
-            if ('' === $id) {
-                continue;
-            }
-            $type = (string)($row['lgmTargetType'] ?? '');
-            if (LDAPGroupMap::TARGET_USERGROUP === $type) {
-                $managed['usergroups'][] = $id;
-            } else {
-                $managed['roles'][] = $id;
-            }
-        }
-        /**
-         * The no-match role is granted by this plugin but never appears in
-         * the map, so it has to be named explicitly or turning group
-         * matching back on would leave it attached forever.
+         * The no-match role is granted by this plugin but is never an
+         * association target, so it has to be named explicitly or turning
+         * group matching back on would leave it attached forever.
          */
         $nomatch = trim(
             (string)self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
         );
         if ('' !== $nomatch) {
             $managed['roles'][] = $nomatch;
+            $managed['roles'] = array_values(
+                array_unique($managed['roles'])
+            );
         }
-        $managed['roles'] = array_values(array_unique($managed['roles']));
-        $managed['usergroups'] = array_values(
-            array_unique($managed['usergroups'])
-        );
         return $managed;
     }
     /**
