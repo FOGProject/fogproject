@@ -2438,6 +2438,18 @@ msgstr ""
 msgid "Ignore MAC on Image"
 msgstr ""
 
+msgid "Ignoring invalid multicast bitrate"
+msgstr ""
+
+msgid "Ignoring invalid multicast duplex setting"
+msgstr ""
+
+msgid "Ignoring invalid multicast hello interval"
+msgstr ""
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr ""
 
@@ -3640,6 +3652,9 @@ msgid "No file uploaded!"
 msgstr ""
 
 msgid "No file was uploaded"
+msgstr ""
+
+msgid "No files matched multicast image pattern"
 msgstr ""
 
 msgid "No friendly name defined"

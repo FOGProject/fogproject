@@ -2466,6 +2466,21 @@ msgstr "忽略客户端上的MAC地址"
 msgid "Ignore MAC on Image"
 msgstr "忽略镜像上的MAC地址"
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "无效多播会话"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "无效多播会话"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "无效多播会话"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "镜像"
 
@@ -3675,6 +3690,9 @@ msgstr "没有文件上传!"
 
 msgid "No file was uploaded"
 msgstr "没有文件被上传"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No friendly name defined"
 msgstr "未定义友好名称"

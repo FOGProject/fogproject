@@ -2829,6 +2829,21 @@ msgstr "Cliente"
 msgid "Ignore MAC on Image"
 msgstr "Lista de MAC Address"
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "Multicast"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "Multicast"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "Multicast"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "Imagen"
 
@@ -4211,6 +4226,9 @@ msgstr "Archivo"
 
 msgid "No file was uploaded"
 msgstr "Archivo no fue subido"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 #, fuzzy
 msgid "No friendly name defined"

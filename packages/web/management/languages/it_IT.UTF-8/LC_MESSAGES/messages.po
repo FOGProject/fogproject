@@ -2545,6 +2545,21 @@ msgstr "Ignora MAC sul client"
 msgid "Ignore MAC on Image"
 msgstr "Ignorare MAC sull'immagine"
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "Sessione multicast non valida"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "Sessione multicast non valida"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "Sessione multicast non valida"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "Immagine"
 
@@ -3771,6 +3786,9 @@ msgstr "Nessun file caricato"
 
 msgid "No file was uploaded"
 msgstr "Nessun file è stato caricato"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No friendly name defined"
 msgstr "Nessun nome amichevole definito"

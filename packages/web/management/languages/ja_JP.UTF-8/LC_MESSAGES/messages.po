@@ -2452,6 +2452,21 @@ msgstr "クライアントの MAC アドレスを無視"
 msgid "Ignore MAC on Image"
 msgstr "イメージの MAC アドレスを無視"
 
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "無効なマルチキャストセッション"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "無効なマルチキャストセッション"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "無効なマルチキャストセッション"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "イメージ"
 
@@ -3657,6 +3672,9 @@ msgstr "ファイルがアップロードされていません！"
 
 msgid "No file was uploaded"
 msgstr "ファイルはアップロードされませんでした"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No friendly name defined"
 msgstr "表示名が定義されていません"
