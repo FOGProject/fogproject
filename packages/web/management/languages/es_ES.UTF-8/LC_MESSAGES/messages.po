@@ -229,6 +229,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A role with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
 
+msgid "A selected role no longer exists"
+msgstr ""
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -707,6 +710,12 @@ msgstr "Anualmente"
 #, fuzzy
 msgid "Applications"
 msgstr "Comportamiento"
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
+msgstr ""
 
 #, fuzzy
 msgid "Approve"
@@ -5547,6 +5556,12 @@ msgstr "Asociación para la imagen"
 msgid "Role added!"
 msgstr "Nombre de la impresora"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 #, fuzzy
 msgid "Role update failed!"
 msgstr "actualización de la impresora ha fallado!"
@@ -5554,6 +5569,9 @@ msgstr "actualización de la impresora ha fallado!"
 #, fuzzy
 msgid "Role updated!"
 msgstr "Impresora actualiza!"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -7141,6 +7159,10 @@ msgstr "No se puede abrir archivo para lectura"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "No se pudo crear la tarea"
+
+#, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "No se puede abrir archivo para lectura"
 
 #, fuzzy
 msgid "Unable to set action field"

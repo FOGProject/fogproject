@@ -213,6 +213,10 @@ msgstr "この名前のロールは既に存在します！"
 msgid "A role with this name already exists!"
 msgstr "その名前のホストは既に存在します"
 
+#, fuzzy
+msgid "A selected role no longer exists"
+msgstr "選択したプリンターを追加"
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -653,6 +657,12 @@ msgstr "毎年"
 
 msgid "Applications"
 msgstr "アプリケーション"
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
+msgstr ""
 
 msgid "Approve"
 msgstr "承認"
@@ -5146,11 +5156,20 @@ msgstr "ルールの関連付け"
 msgid "Role added!"
 msgstr "ロールを追加しました！"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 msgid "Role update failed!"
 msgstr "ロールの更新に失敗しました！"
 
 msgid "Role updated!"
 msgstr "ロールを更新しました！"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 #, fuzzy
 msgid "Roles"
@@ -6623,6 +6642,10 @@ msgid "Unable to remove protected items"
 msgstr ""
 
 #, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "更新できません"
+
+#, fuzzy
 msgid "Unable to set action field"
 msgstr "更新できません"
 
@@ -8027,9 +8050,6 @@ msgstr ""
 #, php-format
 #~ msgid "Add new rule"
 #~ msgstr "新しいルールを追加"
-
-#~ msgid "Add selected printers"
-#~ msgstr "選択したプリンターを追加"
 
 #~ msgid "Add selected rules"
 #~ msgstr "選択したルールを追加"

@@ -226,6 +226,9 @@ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 msgid "A role with this name already exists!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 
+msgid "A selected role no longer exists"
+msgstr ""
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -694,6 +697,12 @@ msgstr "Jährlich"
 #, fuzzy
 msgid "Applications"
 msgstr "Anwendungen"
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
+msgstr ""
 
 #, fuzzy
 msgid "Approve"
@@ -5422,6 +5431,12 @@ msgstr "Site Zugehörigkeit"
 msgid "Role added!"
 msgstr "Drucker hinzugefügt"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 #, fuzzy
 msgid "Role update failed!"
 msgstr "Drucker-Update fehlgeschlagen!"
@@ -5429,6 +5444,9 @@ msgstr "Drucker-Update fehlgeschlagen!"
 #, fuzzy
 msgid "Role updated!"
 msgstr "Drucker aktualisiert!"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -7001,6 +7019,10 @@ msgstr "Datei kann zum Lesen nicht geöffnet werden"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "Fehler beim Aktualisieren des Tasks"
+
+#, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "Datei kann zum Lesen nicht geöffnet werden"
 
 #, fuzzy
 msgid "Unable to set action field"

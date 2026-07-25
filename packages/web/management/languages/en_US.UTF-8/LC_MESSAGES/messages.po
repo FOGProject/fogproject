@@ -231,6 +231,9 @@ msgstr "An image already exists with this name!"
 msgid "A role with this name already exists!"
 msgstr "A hostname with that name already exists."
 
+msgid "A selected role no longer exists"
+msgstr ""
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -696,6 +699,12 @@ msgstr "Annually"
 #, fuzzy
 msgid "Applications"
 msgstr "Actions"
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
+msgstr ""
 
 #, fuzzy
 msgid "Approve"
@@ -5417,6 +5426,12 @@ msgstr "Image Association"
 msgid "Role added!"
 msgstr "Printer Name"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 #, fuzzy
 msgid "Role update failed!"
 msgstr "Printer update failed!"
@@ -5424,6 +5439,9 @@ msgstr "Printer update failed!"
 #, fuzzy
 msgid "Role updated!"
 msgstr "Printer updated!"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -6992,6 +7010,10 @@ msgstr "Unable to open file for reading"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "Failed to update task"
+
+#, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "Unable to open file for reading"
 
 #, fuzzy
 msgid "Unable to set action field"

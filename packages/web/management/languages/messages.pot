@@ -184,6 +184,9 @@ msgstr ""
 msgid "A role with this name already exists!"
 msgstr ""
 
+msgid "A selected role no longer exists"
+msgstr ""
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -571,6 +574,12 @@ msgid "Annually"
 msgstr ""
 
 msgid "Applications"
+msgstr ""
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
 msgstr ""
 
 msgid "Approve"
@@ -4575,10 +4584,19 @@ msgstr ""
 msgid "Role added!"
 msgstr ""
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 msgid "Role update failed!"
 msgstr ""
 
 msgid "Role updated!"
+msgstr ""
+
+msgid "Role when group matching is off"
 msgstr ""
 
 msgid "Roles"
@@ -5894,6 +5912,9 @@ msgid "Unable to open file for reading"
 msgstr ""
 
 msgid "Unable to remove protected items"
+msgstr ""
+
+msgid "Unable to set LDAP role mapping."
 msgstr ""
 
 msgid "Unable to set action field"

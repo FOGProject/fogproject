@@ -181,6 +181,36 @@ class LDAPManager extends FOGManagerController
                 'Allowed LDAP Ports as defined by user. Default: 389,636',
                 '389,636',
                 $category
+            ],
+            [
+                'FOG_PLUGIN_LDAP_ADMIN_ROLE',
+                'Role granted to a user found in an LDAP server\'s admin '
+                . 'group. Blank grants nothing.',
+                self::_defaultRoleId('Administrator'),
+                $category
+            ],
+            [
+                'FOG_PLUGIN_LDAP_USER_ROLE',
+                'Role granted to a user found in an LDAP server\'s user '
+                . 'group. Blank grants nothing.',
+                self::_defaultRoleId('Technician'),
+                $category
+            ],
+            [
+                // Group matching is per-server and off by default, and with
+                // it off the directory cannot tell an admin from anyone who
+                // can bind -- so this is the role EVERY bindable account
+                // gets on such a server. It used to be hardcoded to full
+                // administrator, which made every account in the directory
+                // a FOG superuser on a stock config. Defaulting it to the
+                // technician tier keeps that from being the shipped
+                // behaviour while leaving the choice with the admin.
+                'FOG_PLUGIN_LDAP_NOMATCH_ROLE',
+                'Role granted to every account that can bind to an LDAP '
+                . 'server which has group matching disabled. Blank grants '
+                . 'nothing.',
+                self::_defaultRoleId('Technician'),
+                $category
             ]
         ];
         $SettingManager = self::getClass('SettingManager');
@@ -196,6 +226,24 @@ class LDAPManager extends FOGManagerController
         return true;
     }
     /**
+     * The id of a seeded role, looked up by name.
+     *
+     * Matched by name rather than by the ids the core schema seeds (1 and
+     * 2), following the precedent core itself sets when it back-grants the
+     * technician permission set: a role can be renamed or renumbered, and a
+     * blank default is a safe answer here because a blank role setting
+     * grants nothing.
+     *
+     * @param string $name the role name to resolve
+     *
+     * @return string
+     */
+    private static function _defaultRoleId($name)
+    {
+        $ids = Route::getIds('role', ['name' => $name], 'id');
+        return (string)(array_shift($ids) ?: '');
+    }
+    /**
      * The plugin's ordered, append-only schema migration list. Append new
      * steps (e.g. "ALTER TABLE `LDAPServers` ADD COLUMN ...") to the END.
      *
@@ -207,6 +255,15 @@ class LDAPManager extends FOGManagerController
             // 0
             $this->createSql(),
             // 1
+            function () {
+                return $this->seedSettings();
+            },
+            // 2
+            // seedSettings() again, deliberately. It only inserts settings
+            // that are missing, so re-running it is how an already-installed
+            // plugin picks up the role mapping keys added above without
+            // disturbing values an admin has already chosen. Step 1 does not
+            // re-run on an existing install; a new step does.
             function () {
                 return $this->seedSettings();
             },

@@ -231,6 +231,9 @@ msgstr "图像已经存在具有此名称！"
 msgid "A role with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
+msgid "A selected role no longer exists"
+msgstr ""
+
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
@@ -696,6 +699,12 @@ msgstr "每年"
 #, fuzzy
 msgid "Applications"
 msgstr "操作"
+
+msgid ""
+"Applies to LDAP servers that have group matching disabled. On those servers "
+"FOG cannot tell an administrator from any other account, so every user who "
+"can authenticate against the directory receives this role."
+msgstr ""
 
 #, fuzzy
 msgid "Approve"
@@ -5417,6 +5426,12 @@ msgstr "图像协会"
 msgid "Role added!"
 msgstr "打印机名称"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 #, fuzzy
 msgid "Role update failed!"
 msgstr "打印机更新失败！"
@@ -5424,6 +5439,9 @@ msgstr "打印机更新失败！"
 #, fuzzy
 msgid "Role updated!"
 msgstr "打印机更新！"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -6986,6 +7004,10 @@ msgstr "无法打开文件进行读取"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "无法更新任务"
+
+#, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "无法打开文件进行读取"
 
 #, fuzzy
 msgid "Unable to set action field"
