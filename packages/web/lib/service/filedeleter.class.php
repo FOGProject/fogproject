@@ -229,9 +229,19 @@ class FileDeleter extends FOGService
                         DS
                     );
                     $queued = str_replace('\\', '/', trim((string)$filedelete->path));
+                    // \.\.? matches a path component that is exactly
+                    // '.' or exactly '..'. The bare '.' case was the
+                    // gap: a snapin row could be persisted with
+                    // file='.' (snapinfileexist took any value), and
+                    // deleting it queued the snapin directory itself
+                    // for a root-level recursive delete on every
+                    // enabled node in the group (035 / 2.3.1).
+                    // Ordinary dotted names (pkg.tar.gz) are unaffected
+                    // -- the component must be only dots and bounded
+                    // by '/' or the string ends.
                     if ($queued === ''
                         || preg_match('#^/#', $queued)
-                        || preg_match('#(^|/)\\.\\.(/|$)#', $queued)
+                        || preg_match('#(^|/)\\.\\.?(/|$)#', $queued)
                     ) {
                         self::outall(_('Skipping unsafe queued delete path'));
                         continue;

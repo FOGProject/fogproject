@@ -3340,6 +3340,10 @@ msgstr "指定されたプロダクトキーが無効です"
 msgid "Invalid scheduling type"
 msgstr "無効なスケジュールタイプです"
 
+#, fuzzy
+msgid "Invalid snapin filename"
+msgstr "無効なスナップイン"
+
 msgid "Invalid status payload"
 msgstr "無効なステータスペイロードです"
 
@@ -8883,9 +8887,6 @@ msgstr ""
 
 #~ msgid "Invalid operational mode"
 #~ msgstr "無効な動作モードです"
-
-#~ msgid "Invalid snapin"
-#~ msgstr "無効なスナップイン"
 
 #~ msgid "Invalid task"
 #~ msgstr "無効なタスク"

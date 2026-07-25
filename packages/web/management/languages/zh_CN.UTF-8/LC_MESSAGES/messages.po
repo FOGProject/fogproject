@@ -3519,6 +3519,10 @@ msgid "Invalid scheduling type"
 msgstr "无效的对象类型传递"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "无效的管理单元任务处理"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "无效类"
 

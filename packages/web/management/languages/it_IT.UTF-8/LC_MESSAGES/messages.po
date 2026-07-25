@@ -3378,6 +3378,10 @@ msgid "Invalid scheduling type"
 msgstr "È passato il tipo di attività non valido"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Non valido Snapin Tasking"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "Classe non valido"
 

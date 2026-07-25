@@ -2951,6 +2951,9 @@ msgstr ""
 msgid "Invalid scheduling type"
 msgstr ""
 
+msgid "Invalid snapin filename"
+msgstr ""
+
 msgid "Invalid status payload"
 msgstr ""
 

@@ -1136,16 +1136,12 @@ class SnapinManagement extends FOGPage
                 )
             );
         }
-        if (preg_match('#ssl#i', $snapinfile)) {
-            throw new Exception(
-                sprintf(
-                    '%s, %s.',
-                    _('Please choose a different name'),
-                    _('this one is reserved for FOG')
-                )
-            );
-        }
-        $snapinfile = preg_replace('/[^\-\w\.]+/', '_', $snapinfile);
+        // Same chokepoint as Snapin::uploadAndCreate() -- rejects the
+        // reserved 'ssl' pattern and the '.'/'..' names that used to
+        // point $dest at the snapin directory itself (035 / 2.3.1).
+        // Throws InvalidArgumentException, which handleEditPost's
+        // catch (Exception) already surfaces to the user.
+        $snapinfile = Snapin::sanitizeSnapinFileName($snapinfile);
         $StorageNode = $this
             ->obj
             ->getStorageGroup()
@@ -1208,7 +1204,9 @@ class SnapinManagement extends FOGPage
                 }
             }
             if (self::$FOGSSH->exists($dest)) {
-                if (!self::$FOGSSH->delete($dest)) {
+                // Non-recursive removal only; delete() would walk the
+                // directory when the unlink fails (035 / 2.3.1).
+                if (!self::$FOGSSH->unlinkFile($dest)) {
                     throw new Exception(
                         _('Failed to delete existing snapin file')
                     );

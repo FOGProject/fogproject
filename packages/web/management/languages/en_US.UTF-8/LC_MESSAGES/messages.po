@@ -3518,6 +3518,10 @@ msgid "Invalid scheduling type"
 msgstr "Invalid object type passed"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Invalid Snapin Tasking"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "Invalid Class"
 
