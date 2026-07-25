@@ -3399,6 +3399,9 @@ msgstr "パック"
 msgid "Is a"
 msgstr "次の種類です"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 #, fuzzy
 msgid "It must be between 3 and 50 characters."
 msgstr "ユーザー名は 41 文字未満で指定してください"
@@ -6248,6 +6251,10 @@ msgstr "ターミナル"
 
 msgid "Text"
 msgstr "テキスト"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "このホストは既に存在します"
 
 msgid ""
 "The \"CSV (All)\" button exports every item that matches the current search "

@@ -3002,6 +3002,9 @@ msgstr ""
 msgid "Is a"
 msgstr ""
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It must be between 3 and 50 characters."
 msgstr ""
 
@@ -5554,6 +5557,9 @@ msgid "Terminal"
 msgstr ""
 
 msgid "Text"
+msgstr ""
+
+msgid "That session has already started"
 msgstr ""
 
 msgid ""

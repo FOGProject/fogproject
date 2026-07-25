@@ -3584,6 +3584,9 @@ msgstr "是"
 msgid "Is a"
 msgstr "是"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It must be between 3 and 50 characters."
 msgstr ""
 
@@ -6596,6 +6599,10 @@ msgstr "串行"
 
 msgid "Text"
 msgstr "文本"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "打印机已经存在"
 
 msgid ""
 "The \"CSV (All)\" button exports every item that matches the current search "

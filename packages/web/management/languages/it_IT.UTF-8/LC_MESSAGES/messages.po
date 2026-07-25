@@ -3439,6 +3439,9 @@ msgstr "È Pack"
 msgid "Is a"
 msgstr "È un"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It must be between 3 and 50 characters."
 msgstr ""
 
@@ -6307,6 +6310,10 @@ msgstr "Terminale"
 
 msgid "Text"
 msgstr "Testo"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "Questo host esiste già"
 
 msgid ""
 "The \"CSV (All)\" button exports every item that matches the current search "

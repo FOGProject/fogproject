@@ -961,7 +961,9 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false,
         $bypassbitlocker = false,
-        $snapinAbortOnFailure = false
+        $snapinAbortOnFailure = false,
+        $sessExpected = 0,
+        $sessMaxwait = 0
     ) {
         if (!$sessionjoin) {
             $taskName .= ' - '
@@ -1111,6 +1113,7 @@ class Host extends FOGController
             }
             if ($TaskType->isMulticast) {
                 $assoc = false;
+                $MulticastSession = null;
                 $showStates = self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
@@ -1149,6 +1152,21 @@ class Host extends FOGController
                 if (count($MultiSessJoin ?: [])) {
                     $MulticastSession = array_shift($MultiSessJoin);
                     $MulticastSession = new MulticastSession($MulticastSession->id);
+                    // Joining a session that is already transmitting hands
+                    // this host a partial image while still counting it as
+                    // part of the session.
+                    if (!$MulticastSession->isJoinable()) {
+                        if ($sessionjoin) {
+                            throw new Exception(
+                                _('That session has already started')
+                                . '. '
+                                . _('It can no longer be joined')
+                            );
+                        }
+                        // Not joining by name, so a fresh session is the
+                        // right answer rather than a partial image.
+                        $MulticastSession = null;
+                    }
                 }
                 unset($MultiSessJoin);
                 if ($MulticastSession instanceof MulticastSession
@@ -1170,7 +1188,17 @@ class Host extends FOGController
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
                         ->set('storagegroupID', $StorageNode->get('storagegroupID'))
                         ->set('clients', -1)
-                        ->set('maxwait', self::getSetting('FOG_UDPCAST_MAXWAIT') * 60)
+                        // sessclients is what makes a session joinable by
+                        // name and what udp-sender holds for; leaving it at
+                        // 0 is why sessions created from a booting machine
+                        // could never be joined by anyone else.
+                        ->set('sessclients', max(0, (int)$sessExpected))
+                        ->set(
+                            'maxwait',
+                            $sessMaxwait > 0
+                            ? (int)$sessMaxwait
+                            : self::getSetting('FOG_UDPCAST_MAXWAIT') * 60
+                        )
                         ->set('shutdown', (int)$shutdown);
                     if (!$MulticastSession->save()) {
                         $serverFault = true;

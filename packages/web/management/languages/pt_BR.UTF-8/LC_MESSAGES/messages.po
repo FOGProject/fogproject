@@ -3586,6 +3586,9 @@ msgstr "É uma"
 msgid "Is a"
 msgstr "É uma"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It must be between 3 and 50 characters."
 msgstr ""
 
@@ -6600,6 +6603,10 @@ msgstr "Serial"
 
 msgid "Text"
 msgstr "Texto"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "Impressora já existe"
 
 msgid ""
 "The \"CSV (All)\" button exports every item that matches the current search "

@@ -730,6 +730,13 @@ class BootMenu extends FOGBase
      */
     public function sesscheck()
     {
+        // The operator has already been told the name does not exist and
+        // answered the size and wait prompts, so this is a create, not a
+        // lookup.
+        if (isset($_REQUEST['sessclients'])) {
+            $this->sesscreate();
+            return;
+        }
         $findWhere = [
             'name' => trim($_REQUEST['sessname']),
             'stateID' => self::fastmerge(
@@ -757,10 +764,51 @@ class BootMenu extends FOGBase
         }
         $MulticastSession = new MulticastSession($MulticastSessionID);
         if (!$MulticastSession->isValid()) {
-            $Send['checksession'] = [
-                'echo No session found with that name.',
-                'clear sessname',
-                'sleep 3',
+            // No such session. Rather than dumping the operator back out,
+            // offer to create it -- but only with a size and a wait, since
+            // a session with neither can never be joined by anyone else.
+            $this->_sessChain(
+                [
+                    'echo No session found with that name.',
+                    'echo -n Clients expected to join, including this one '
+                    . '(0 to re-enter the name) > ',
+                    'read sessclients',
+                    'echo -n Minutes to wait for them before starting > ',
+                    'read sessminutes',
+                ],
+                [
+                    'param sessname ${sessname}',
+                    'param sessclients ${sessclients}',
+                    'param sessminutes ${sessminutes}',
+                ]
+            );
+            return;
+        }
+        if (!$MulticastSession->isJoinable()) {
+            $this->_sessRename(
+                [
+                    'echo That session has already started and can no '
+                    . 'longer be joined.',
+                    'sleep 3',
+                ]
+            );
+            return;
+        }
+        $this->multijoin($MulticastSession->get('id'));
+    }
+    /**
+     * Builds and sends an iPXE chain back into the session join flow.
+     *
+     * @param array $pre         lines emitted before the params block
+     * @param array $extraParams additional param lines to carry back
+     *
+     * @return void
+     */
+    private function _sessChain($pre, $extraParams = [])
+    {
+        $Send['checksession'] = array_merge(
+            $pre,
+            [
                 'set arch ${buildarch}',
                 'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'params',
@@ -769,15 +817,94 @@ class BootMenu extends FOGBase
                 'param platform ${platform}',
                 'param sessionJoin 1',
                 'param sysuuid ${uuid}',
+            ],
+            $extraParams,
+            [
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
-            ];
-            $this->_parseMe($Send);
+            ]
+        );
+        $this->_parseMe($Send);
+    }
+    /**
+     * Sends the operator back to the session name prompt.
+     *
+     * @param array $pre lines emitted before the prompt
+     *
+     * @return void
+     */
+    private function _sessRename($pre = [])
+    {
+        $this->_sessChain(
+            array_merge(
+                $pre,
+                [
+                    'echo -n Please enter the session name to join > ',
+                    'read sessname',
+                ]
+            ),
+            ['param sessname ${sessname}']
+        );
+    }
+    /**
+     * Creates a named multicast session from a booting machine.
+     *
+     * Reached when the operator answered the size and wait prompts after
+     * naming a session that does not exist yet. Both answers are required:
+     * sessclients is what lets anyone else join the session by name and
+     * what udp-sender holds for, and the wait is the window in which they
+     * can do it.
+     *
+     * @return void
+     */
+    public function sesscreate()
+    {
+        $expected = (int)$_REQUEST['sessclients'];
+        $minutes = isset($_REQUEST['sessminutes'])
+            ? (int)$_REQUEST['sessminutes']
+            : 0;
+        if ($expected < 1 || $minutes < 1) {
+            $this->_sessRename();
             return;
         }
-        $this->multijoin($MulticastSession->get('id'));
+        if (!self::$Host->isValid() || self::$Host->get('pending')) {
+            $this->_sessRename(
+                [
+                    'echo Only a registered host can create a session.',
+                    'sleep 3',
+                ]
+            );
+            return;
+        }
+        $extraargs = isset($_REQUEST['extraargs'])
+            ? $_REQUEST['extraargs']
+            : '';
+        $shutdown = stripos('shutdown=1', $extraargs);
+        $isdebug = preg_match(
+            '#isdebug=yes|mode=debug|mode=onlydebug#i',
+            $extraargs
+        );
+        Route::indiv('tasktype', TaskType::MULTICAST);
+        $tasktype = json_decode(Route::getData());
+        self::$Host->createImagePackage(
+            $tasktype,
+            trim($_REQUEST['sessname']),
+            $shutdown,
+            $isdebug,
+            -1,
+            false,
+            isset($_REQUEST['username']) ? $_REQUEST['username'] : '',
+            '',
+            true,
+            true,
+            false,
+            false,
+            $expected,
+            $minutes * 60
+        );
+        $this->_chainBoot(false, true);
     }
     /**
      * Asks user what the name of the session is they want to join

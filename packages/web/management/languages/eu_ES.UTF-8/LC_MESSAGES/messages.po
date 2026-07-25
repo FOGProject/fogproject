@@ -3585,6 +3585,9 @@ msgstr "Ist ein Paket"
 msgid "Is a"
 msgstr "Ist ein"
 
+msgid "It can no longer be joined"
+msgstr ""
+
 msgid "It must be between 3 and 50 characters."
 msgstr ""
 
@@ -6602,6 +6605,10 @@ msgstr "Terminal"
 
 msgid "Text"
 msgstr "Text"
+
+#, fuzzy
+msgid "That session has already started"
+msgstr "Dieser Host ist bereits vorhanden."
 
 msgid ""
 "The \"CSV (All)\" button exports every item that matches the current search "

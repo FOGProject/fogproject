@@ -82,10 +82,16 @@ class MulticastTask extends FOGService
                 $find,
                 'taskID'
             );
-            $count = count($taskIDs ?: []);
-            if ($count < 1) {
-                $count = $Task->sessclients;
-            }
+            // udp-sender waits for this many receivers before transmitting,
+            // so it must be the number expected to join, not merely the
+            // number that happen to have joined by the time the daemon first
+            // sees the session. Using the joined count alone made a named
+            // session start as soon as its early arrivals connected, which
+            // is exactly the straggler that sessclients exists to wait for.
+            $count = max(
+                count($taskIDs ?: []),
+                (int)$Task->sessclients
+            );
             if ($count < 1) {
                 self::getClass('MulticastSessionManager')->update(
                     ['id' => $Task->id],
@@ -546,7 +552,6 @@ class MulticastTask extends FOGService
             );
         }
         $maxwait = $this->getMaxwait();
-        $hostCount = Route::getCount('host');
         $buildcmd = [
             UDPSENDERPATH,
             (
@@ -566,11 +571,7 @@ class MulticastTask extends FOGService
             ),
             sprintf(
                 ' --min-receivers %d',
-                (
-                    $this->getClientCount() ?
-                    $this->getClientCount() :
-                    $hostCount
-                )
+                $this->getClientCount()
             ),
             ' --max-wait %d',
             (
