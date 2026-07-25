@@ -815,10 +815,29 @@ class Authorization extends FOGBase
         foreach ((array)$rows as $row) {
             $groupRoles[(int)$row['rugGroupID']][] = (int)$row['rugRoleID'];
         }
-        $starRoles = array_map(
-            'intval',
-            (array)Route::getIds('rolepermission', ['name' => '*'], 'roleID')
-        );
+        // Raw SQL, NOT Route::getIds(). The query builder treats '*' and '+'
+        // in a scalar filter value as user-facing wildcards: _buildSql()
+        // rewrites them to '%' and switches the comparison to LIKE, so
+        // ['name' => '*'] compiled to `rpName LIKE '%'` and matched EVERY
+        // permission row. This guard therefore saw every role that grants
+        // anything at all as a holder of the global '*', and answered "an
+        // administrator remains" for practically any deletion -- verified by
+        // deleting the only '*' role on a live install and locking it out.
+        // The RBAC permission string collides with the builder's own
+        // wildcard syntax, so the lookup has to bypass the builder.
+        $rows = self::$DB
+            ->query(
+                'SELECT DISTINCT `rpRoleID` FROM `rolePermissions` '
+                . 'WHERE `rpName` = :perm',
+                [],
+                ['perm' => '*']
+            )
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        $starRoles = [];
+        foreach ((array)$rows as $row) {
+            $starRoles[] = (int)$row['rpRoleID'];
+        }
         // Apply direct role<->user deltas.
         foreach ((array)($changes['roleUsers'] ?? []) as $rid => $uids) {
             $membership[(int)$rid] = array_map('intval', (array)$uids);
