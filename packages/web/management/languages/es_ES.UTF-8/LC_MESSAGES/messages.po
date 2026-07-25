@@ -4188,6 +4188,9 @@ msgstr "Impresora actualiza!"
 msgid "Message"
 msgstr "Mensaje"
 
+msgid "Method Not Allowed"
+msgstr ""
+
 msgid "Method does not exist"
 msgstr "Método no existe"
 

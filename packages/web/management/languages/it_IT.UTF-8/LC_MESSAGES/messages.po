@@ -3912,6 +3912,10 @@ msgstr "aggiornato stampante!"
 msgid "Message"
 msgstr "Messaggio"
 
+#, fuzzy
+msgid "Method Not Allowed"
+msgstr "Non ammessi qui"
+
 msgid "Method does not exist"
 msgstr "Metodo non esiste"
 

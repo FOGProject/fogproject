@@ -3869,6 +3869,10 @@ msgstr "モジュールを更新しました！"
 msgid "Message"
 msgstr "メッセージ"
 
+#, fuzzy
+msgid "Method Not Allowed"
+msgstr "パスは許可されていません"
+
 msgid "Method does not exist"
 msgstr "メソッドが存在しません"
 

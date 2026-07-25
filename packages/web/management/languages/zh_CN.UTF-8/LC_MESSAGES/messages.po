@@ -4084,6 +4084,10 @@ msgstr "打印机更新！"
 msgid "Message"
 msgstr "信息"
 
+#, fuzzy
+msgid "Method Not Allowed"
+msgstr "这里不允许"
+
 msgid "Method does not exist"
 msgstr "方法不存在"
 

@@ -4088,6 +4088,10 @@ msgstr "Drucker aktualisiert!"
 msgid "Message"
 msgstr "Nachricht"
 
+#, fuzzy
+msgid "Method Not Allowed"
+msgstr "Hier nicht erlaubt"
+
 msgid "Method does not exist"
 msgstr "Diese Methode ist nicht vorhanden"
 

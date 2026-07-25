@@ -4086,6 +4086,10 @@ msgstr "Impressora atualizado!"
 msgid "Message"
 msgstr "Mensagem"
 
+#, fuzzy
+msgid "Method Not Allowed"
+msgstr "Não permitido aqui"
+
 msgid "Method does not exist"
 msgstr "O método não existe"
 

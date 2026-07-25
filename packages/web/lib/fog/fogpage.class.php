@@ -2751,6 +2751,30 @@ abstract class FOGPage extends FOGBase
      */
     public function delete()
     {
+        // The dispatcher's CSRF gate keys on an Ajax/Post method-name suffix
+        // (fogpagemanager.class.php), and "delete" has neither, so this
+        // destructive handler was reachable by plain cross-site GET
+        // navigation -- which the SameSite=Lax session cookie still rides
+        // along on. The method assertion is the load-bearing half: on a GET,
+        // CSRF::requireForStateChanging() returns early by design and would
+        // never have fired. Every shipped caller already POSTs with a token
+        // ($.registerGeneralTab in fog.common.js), so this is transparent to
+        // the UI. Deliberately NOT calling checkauth() here -- the edit-page
+        // delete modal carries no password field, so with the default
+        // FOG_REAUTH_ON_DELETE=1 that would 401 every legitimate delete.
+        // Reported by Aisle Research (064 / 3.25.1).
+        if ('POST' !== strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET')) {
+            header('Content-type: application/json');
+            http_response_code(HTTPResponseCodes::HTTP_METHOD_NOT_ALLOWED);
+            echo json_encode(
+                [
+                    'error' => _('Method Not Allowed'),
+                    'title' => _('Delete Fail')
+                ]
+            );
+            exit;
+        }
+        self::checkAuthAndCSRF();
         global $node;
         header('Content-type: application/json');
         $ucnode = strtoupper($node);

@@ -4083,6 +4083,10 @@ msgstr "Printer updated!"
 msgid "Message"
 msgstr "Message"
 
+#, fuzzy
+msgid "Method Not Allowed"
+msgstr "Not allowed here"
+
 msgid "Method does not exist"
 msgstr "Method does not exist"
 

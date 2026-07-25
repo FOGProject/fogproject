@@ -3426,6 +3426,9 @@ msgstr ""
 msgid "Message"
 msgstr ""
 
+msgid "Method Not Allowed"
+msgstr ""
+
 msgid "Method does not exist"
 msgstr ""
 
