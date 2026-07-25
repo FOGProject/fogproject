@@ -64,17 +64,27 @@ class SchemaUpdaterPage extends FOGPage
         // the form is wired up, and it reloads ?node=schema on success.
         if (self::hasFogUsers() && !self::isSchemaAdmin()) {
             // A non-admin who is already signed in gets bounced here by the
-            // same stale-schema redirect, and a bare "Sign in to start your
-            // session" under their own name in the sidebar reads as a broken
-            // page rather than a permission answer. Say what happened before
-            // showing the form -- the form still has to be here, because
-            // signing in as an administrator is the only way forward and
-            // there is no other reachable page to do it on.
+            // same stale-schema redirect. They are shown the way out rather
+            // than a login form, because the form does not work for them:
+            // page.class.php only enqueues fog.login.js when the user is
+            // INVALID, so for a signed-in user nothing intercepts the submit,
+            // the browser posts natively, and loginPost() answers with
+            // Content-type: application/json -- a raw JSON blob on screen
+            // instead of a reloaded page.
+            //
+            // Sending them through logout is also the honest sequence: it
+            // ends the session that cannot do this, and the login form they
+            // land on afterwards is the wired one. Logout survives the
+            // stale-schema redirect for exactly this reason (see the
+            // carve-out in DatabaseManager::establish()).
             if (self::$FOGUser && self::$FOGUser->isValid()) {
                 printf(
                     '<div class="container-fluid pt-3">'
                     . '<div class="alert alert-warning" role="alert">'
-                    . '<strong>%s</strong> %s</div></div>',
+                    . '<p><strong>%s</strong> %s</p>'
+                    . '<a href="../management/index.php?node=logout" '
+                    . 'class="btn btn-primary">%s</a>'
+                    . '</div></div>',
                     Initiator::e(
                         sprintf(
                             _('Signed in as %s.'),
@@ -84,11 +94,12 @@ class SchemaUpdaterPage extends FOGPage
                     Initiator::e(
                         _(
                             'Applying a database schema update requires an '
-                            . 'administrator account. Sign in as an '
-                            . 'administrator to continue.'
+                            . 'administrator account.'
                         )
-                    )
+                    ),
+                    Initiator::e(_('Log out and sign in as an administrator'))
                 );
+                return;
             }
             ProcessLogin::mainLoginForm();
             return;
