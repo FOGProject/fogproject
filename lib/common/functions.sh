@@ -2304,6 +2304,11 @@ EOF
                     echo "    fastcgi_index index.php;" >> "$phploc"
                     echo "    include fastcgi.conf;" >> "$phploc"
                     echo "    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;" >> "$phploc"
+                    # The API supports HTTP basic auth, but nginx forwards
+                    # only the fastcgi_params whitelist and Authorization is
+                    # not on it, so PHP_AUTH_USER/PHP_AUTH_PW were never
+                    # populated and basic auth could not succeed.
+                    echo "    fastcgi_param HTTP_AUTHORIZATION \$http_authorization;" >> "$phploc"
                     echo "    fastcgi_buffers 16 16k;" >> "$phploc"
                     echo "    fastcgi_buffer_size 32k;" >> "$phploc"
                     echo "}" >> "$phploc"
@@ -2467,6 +2472,14 @@ EOF
                         echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
+                    # The API supports HTTP basic auth, but proxy_fcgi drops
+                    # the Authorization header, so PHP_AUTH_USER/PHP_AUTH_PW
+                    # were never populated and basic auth could not succeed.
+                    # SetEnvIf is used in preference to CGIPassAuth because
+                    # CGIPassAuth needs httpd >= 2.4.13 and an unknown
+                    # directive stops Apache from starting at all; SetEnvIf
+                    # works on every 2.4 and is a no-op under mod_php.
+                    echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    ServerAlias $hostname" >> "$etcconf"
@@ -2488,6 +2501,8 @@ EOF
                             echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                         fi
                         echo "    </FilesMatch>" >> "$etcconf"
+                        # Keeps API basic auth working; see the :80 vhost.
+                        echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
                         echo "    ServerName $ipaddress" >> "$etcconf"
                         echo "    ServerAlias $hostname" >> "$etcconf"
                         echo "    DocumentRoot $docroot" >> "$etcconf"
@@ -2558,6 +2573,8 @@ EOF
                             echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                         fi
                         echo "    </FilesMatch>" >> "$etcconf"
+                        # Keeps API basic auth working; see the :80 vhost.
+                        echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
                         echo "    ServerName $ipaddress" >> "$etcconf"
                         echo "    ServerAlias $hostname" >> "$etcconf"
                         echo "    DocumentRoot $docroot" >> "$etcconf"
