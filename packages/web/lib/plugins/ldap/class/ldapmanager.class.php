@@ -171,12 +171,6 @@ class LDAPManager extends FOGManagerController
         ];
         $settings = [
             [
-                'FOG_PLUGIN_LDAP_USER_FILTER',
-                'Insert the filter type codes comma separated. Default: 990,991',
-                '990,991',
-                $category
-            ],
-            [
                 'FOG_PLUGIN_LDAP_PORTS',
                 'Allowed LDAP Ports as defined by user. Default: 389,636',
                 '389,636',
@@ -350,6 +344,15 @@ class LDAPManager extends FOGManagerController
             function () {
                 return $this->backfillIdentities();
             },
+            // 4
+            // FOG_PLUGIN_LDAP_USER_FILTER answered "which user rows does
+            // this plugin own?" with a list of uType sentinels. uAuthSource
+            // answers it directly, so the setting is gone from the UI and
+            // from seedSettings(); drop the stored row too rather than
+            // leave an orphan an admin can still find and edit to no
+            // effect.
+            "DELETE FROM `globalSettings` "
+            . "WHERE `settingKey` = 'FOG_PLUGIN_LDAP_USER_FILTER'",
         ];
     }
     /**
@@ -370,7 +373,13 @@ class LDAPManager extends FOGManagerController
      */
     public function uninstall()
     {
-        $find = ['type' => LDAPPluginHook::LDAP_TYPES];
+        // Which rows this plugin owns is the provenance stamp, not the old
+        // uType sentinels. Keying on uType meant uninstalling could only
+        // find rows written by this plugin's own past versions, and would
+        // happily delete a local account that had somehow been given a 990
+        // -- uType is a shared column anyone can write, including over the
+        // API and CSV import.
+        $find = ['authsource' => LDAPPluginHook::AUTH_SOURCE];
         $userIDs = Route::getIds(
             'user',
             $find

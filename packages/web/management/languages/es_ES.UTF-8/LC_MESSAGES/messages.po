@@ -175,10 +175,6 @@ msgid "A filename is required!"
 msgstr "Se requiere un nombre de imagen!"
 
 #, fuzzy
-msgid "A filter must be specified"
-msgstr "No hay imagen especificada"
-
-#, fuzzy
 msgid "A group already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
@@ -640,9 +636,6 @@ msgid "All Types"
 msgstr "Tipo de módulo"
 
 msgid "All files synced for this item"
-msgstr ""
-
-msgid "All filters must be numeric and greater than 1"
 msgstr ""
 
 msgid "All hosts must have the same image assigned"
@@ -3837,10 +3830,6 @@ msgstr "Impresora actualiza!"
 
 #, fuzzy
 msgid "LDAP Servers"
-msgstr "servidor TFTP"
-
-#, fuzzy
-msgid "LDAP User Filter"
 msgstr "servidor TFTP"
 
 msgid "Language"
@@ -7213,10 +7202,6 @@ msgstr "No se puede abrir archivo para lectura"
 msgid "Unable to set ldap ports."
 msgstr "No se puede abrir archivo para lectura"
 
-#, fuzzy
-msgid "Unable to set user filter."
-msgstr "No se puede abrir archivo para lectura"
-
 msgid "Unable to uninstall, no method exists for "
 msgstr ""
 
@@ -8544,6 +8529,10 @@ msgid "{node}"
 msgstr ""
 
 #, fuzzy
+#~ msgid "A filter must be specified"
+#~ msgstr "No hay imagen especificada"
+
+#, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Una imagen ya existe con este nombre!"
 
@@ -8856,6 +8845,10 @@ msgstr ""
 #~ msgstr "tipo no válido"
 
 #, fuzzy
+#~ msgid "LDAP User Filter"
+#~ msgstr "servidor TFTP"
+
+#, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "Versión del sistema"
 
@@ -8970,6 +8963,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Unable to find basic information!"
 #~ msgstr "No se puede encontrar información básica"
+
+#, fuzzy
+#~ msgid "Unable to set user filter."
+#~ msgstr "No se puede abrir archivo para lectura"
 
 #, fuzzy
 #~ msgid "Update Master Node"
