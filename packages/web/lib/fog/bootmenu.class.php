@@ -278,7 +278,7 @@ class BootMenu extends FOGBase
             }
             Route::listem('inventory', ['hostID' => self::$Host->get('id')]);
             $inventory = json_decode(Route::getData());
-            if ($inventory) {
+            if (!empty($inventory->data)) {
                 $inventory_items = self::generateIpxeItems($inventory->data[0]);
                 foreach ($inventory_items as $item) {
                     $Send['inventoryinfo'][] = $item;
