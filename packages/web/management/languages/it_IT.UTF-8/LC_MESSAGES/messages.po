@@ -6349,6 +6349,11 @@ msgstr ""
 msgid "The 'Is Master Node' setting defines which"
 msgstr "L'impostazione \"nodo master\" definisce quale"
 
+msgid ""
+"The FOG schema update must be run before this plugin can be updated: "
+"users.uAuthSource does not exist yet."
+msgstr ""
+
 #, fuzzy
 msgid "The current user is invalid."
 msgstr "Tipo di attività non è valido"

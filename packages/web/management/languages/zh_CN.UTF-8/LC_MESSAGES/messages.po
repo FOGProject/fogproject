@@ -6639,6 +6639,11 @@ msgstr ""
 msgid "The 'Is Master Node' setting defines which"
 msgstr "此设置定义"
 
+msgid ""
+"The FOG schema update must be run before this plugin can be updated: "
+"users.uAuthSource does not exist yet."
+msgstr ""
+
 #, fuzzy
 msgid "The current user is invalid."
 msgstr "任务类型无效"

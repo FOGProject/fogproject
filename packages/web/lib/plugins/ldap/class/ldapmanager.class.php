@@ -244,6 +244,85 @@ class LDAPManager extends FOGManagerController
         return (string)(array_shift($ids) ?: '');
     }
     /**
+     * Brings shadow rows created before role mapping into the new model.
+     *
+     * Rows this plugin created previously carry uType 990/991, no
+     * provenance stamp and no role, which under native RBAC resolves to
+     * implicit administrator. Two things have to happen to them, and
+     * neither can wait for the user to log in again: the stamp is what
+     * stops core accepting a local password against the row, and the role
+     * is what stops the zero-role fallback granting everything.
+     *
+     * 990 is deliberately mapped to the admin role even though it also
+     * covers users of a server with group matching disabled -- the old code
+     * stored both as 990. Mapping them all to the admin role preserves the
+     * access these accounts have today rather than cutting anyone off mid
+     * upgrade, and the first login afterwards re-syncs each of them to the
+     * tier they actually belong to, because role sync is authoritative over
+     * the mapped roles. An account that never logs in again holds a visible,
+     * revocable role instead of silent implicit administrator, which is the
+     * improvement either way.
+     *
+     * @return mixed true, or an error string to halt the update
+     */
+    public function backfillIdentities()
+    {
+        // uAuthSource arrives in core schema step 314. A plugin update can
+        // be run before the core update has happened, and PDODB does not
+        // throw on query errors, so stamping a column that is not there yet
+        // would fail silently and leave these rows unprotected.
+        $column = array_filter(
+            (array)DatabaseManager::getColumns('users', 'uAuthSource')
+        );
+        if (count($column) < 1) {
+            return _(
+                'The FOG schema update must be run before this plugin can '
+                . 'be updated: users.uAuthSource does not exist yet.'
+            );
+        }
+        $roleByType = [
+            LDAPPluginHook::LDAP_ADMIN => self::getSetting(
+                'FOG_PLUGIN_LDAP_ADMIN_ROLE'
+            ),
+            LDAPPluginHook::LDAP_MOBILE => self::getSetting(
+                'FOG_PLUGIN_LDAP_USER_ROLE'
+            )
+        ];
+        foreach ($roleByType as $uType => $roleId) {
+            $roleId = trim((string)$roleId);
+            if ('' === $roleId) {
+                // No mapping configured: stamp only. The row ends up with a
+                // provenance and no role, which denies rather than grants.
+                continue;
+            }
+            // INSERT IGNORE leans on the unique (ruaRoleID, ruaUserID) key
+            // so re-running the update cannot duplicate a grant.
+            self::$DB->query(
+                'INSERT IGNORE INTO `roleUserAssoc` '
+                . '(`ruaRoleID`, `ruaUserID`) '
+                . 'SELECT :roleid, `uId` FROM `users` '
+                . 'WHERE `uType` = :utype',
+                [],
+                ['roleid' => $roleId, 'utype' => $uType]
+            );
+        }
+        // Stamped last, so a failure part way through leaves rows without
+        // provenance rather than with provenance and no role -- the former
+        // is the pre-existing state, the latter would lock the account out.
+        self::$DB->query(
+            'UPDATE `users` SET `uAuthSource` = :source '
+            . 'WHERE `uType` IN (:admintype, :mobiletype) '
+            . "AND `uAuthSource` = ''",
+            [],
+            [
+                'source' => LDAPPluginHook::AUTH_SOURCE,
+                'admintype' => LDAPPluginHook::LDAP_ADMIN,
+                'mobiletype' => LDAPPluginHook::LDAP_MOBILE
+            ]
+        );
+        return true;
+    }
+    /**
      * The plugin's ordered, append-only schema migration list. Append new
      * steps (e.g. "ALTER TABLE `LDAPServers` ADD COLUMN ...") to the END.
      *
@@ -266,6 +345,10 @@ class LDAPManager extends FOGManagerController
             // re-run on an existing install; a new step does.
             function () {
                 return $this->seedSettings();
+            },
+            // 3
+            function () {
+                return $this->backfillIdentities();
             },
         ];
     }

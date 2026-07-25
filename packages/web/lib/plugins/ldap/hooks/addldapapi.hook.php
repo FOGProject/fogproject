@@ -53,39 +53,20 @@ class AddLDAPAPI extends Hook
     public function __construct()
     {
         parent::__construct();
+        // API_MASSDATA_MAPPING/adjustMassData is no longer registered. It
+        // hid every LDAP user from User Management, which made sense while
+        // an LDAP user was an unmanageable shadow row, but they now hold
+        // real roles an admin needs to be able to see and change. Hiding
+        // them also meant the accounts with the most access on an install
+        // were the only ones absent from the user list.
+        //
+        // It carried a latent bug too: it appended " WHERE ..." to ttlstr
+        // unconditionally, so stacking it with another plugin that filters
+        // the same list (the site plugin) produced two WHERE clauses in one
+        // statement.
         $this->registerInstalled([
             ['API_VALID_CLASSES', 'injectAPIElements'],
-            ['API_MASSDATA_MAPPING', 'adjustMassData'],
         ]);
-    }
-    /**
-     * Remove the users with ldap types from the list.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function adjustMassData($arguments)
-    {
-        if ($arguments['classname'] != 'user') {
-            return;
-        }
-        $where = "`users`.`uType` NOT IN ('"
-            . implode("','", LDAPPluginHook::LDAP_TYPES)
-            . "')";
-
-        $arguments['ttlstr'] .= " WHERE $where";
-
-        $arguments['data'] = FOGManagerController::complex(
-            $arguments['pass_vars'],
-            $arguments['table'],
-            $arguments['tableID'],
-            $arguments['columns'],
-            $arguments['sqlstr'],
-            $arguments['fltrstr'],
-            $arguments['ttlstr'],
-            $where
-        );
     }
     /**
      * This function injects site elements for

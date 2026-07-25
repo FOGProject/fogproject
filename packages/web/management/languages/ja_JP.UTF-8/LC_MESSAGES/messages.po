@@ -6291,6 +6291,11 @@ msgstr ""
 msgid "The 'Is Master Node' setting defines which"
 msgstr "「マスターノード」設定は、どのノードを"
 
+msgid ""
+"The FOG schema update must be run before this plugin can be updated: "
+"users.uAuthSource does not exist yet."
+msgstr ""
+
 msgid "The current user is invalid."
 msgstr ""
 
