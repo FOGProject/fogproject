@@ -603,11 +603,19 @@ class LDAPManager extends FOGManagerController
             // 5
             // Steps 5 and 6 used to create LDAPGroupMap and migrate the two
             // buckets into it. That table is superseded by LDAPGroups plus
-            // two association tables, so those steps are replaced rather
-            // than appended to. Safe because applyUpdates() replays this
-            // list from zero on every install -- position carries no state
-            // for this plugin -- and step 9 drops the old table for the
-            // installs that did take it.
+            // two association tables, and these two slots were rewritten in
+            // place to build the new ones instead.
+            //
+            // That rewrite was a mistake, and steps 10-16 exist to repair
+            // it. Plugin::installdb() passes the plugin's stored pSchema as
+            // $applied, so applyUpdates() SKIPS the first $applied steps --
+            // it does not replay from zero. An install that had already
+            // recorded 7 applied steps therefore never ran the rewritten 5,
+            // 6 and 7, and ended up with the migration and the DROP running
+            // against tables that were never created.
+            //
+            // Rewriting a step that anyone has already applied is invisible
+            // to them. Only ever append.
             function () {
                 return self::getClass('LDAPGroupManager')->install();
             },
@@ -628,6 +636,44 @@ class LDAPManager extends FOGManagerController
             // 9
             // Dropped only after step 8 has copied it out. Ordering within
             // the list is what makes that safe.
+            'DROP TABLE IF EXISTS `LDAPGroupMap`',
+            // 10-16: repair for the in-place rewrite of steps 5-7 described
+            // above. Every one of these is idempotent, so an install that
+            // ran 5-9 correctly passes straight through them, while an
+            // install that skipped them gets the tables, the migration and
+            // the drop it missed -- in that order, so the drop still cannot
+            // outrun the copy.
+            // 10
+            function () {
+                return self::getClass('LDAPGroupManager')->install();
+            },
+            // 11
+            function () {
+                return self::getClass('LDAPGroupRoleAssociationManager')
+                    ->install();
+            },
+            // 12
+            function () {
+                return self::getClass('LDAPGroupUserGroupAssociationManager')
+                    ->install();
+            },
+            // 13
+            // CREATE TABLE IF NOT EXISTS cannot repair a table that already
+            // exists, so a partial run that created an association table
+            // before the name column was added leaves it without one --
+            // and Route::ids() orders by name, so every lookup against it
+            // fails. ALTER explicitly; applyUpdates() tolerates 1060 when
+            // the column is already there.
+            "ALTER TABLE `ldapGroupRoleAssoc` "
+            . "ADD COLUMN `lgraName` VARCHAR(60) NOT NULL DEFAULT ''",
+            // 14
+            "ALTER TABLE `ldapGroupUserGroupAssoc` "
+            . "ADD COLUMN `lgugName` VARCHAR(60) NOT NULL DEFAULT ''",
+            // 15
+            function () {
+                return $this->migrateGroupMappings();
+            },
+            // 16
             'DROP TABLE IF EXISTS `LDAPGroupMap`',
         ];
     }
