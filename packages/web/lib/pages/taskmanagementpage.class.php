@@ -188,10 +188,16 @@ class TaskManagementPage extends FOGPage
                 'forced' => $Task->isForced,
                 'type' => Initiator::e($Task->type->name),
                 'elapsed' => isset($Task->timeElapsed) ? Initiator::e($Task->timeElapsed) : '',
-                'remains' => isset($Task->timeRemaining) ? $Task->timeRemaining : '',
+                // Aisle 020: these three are rendered as HTML alongside 'elapsed'
+                // and 'bpm', which are already escaped. They are writable past
+                // strip_tags via PUT /fog/task/<id>/edit mass-assignment, so escape
+                // at the same layer rather than adding a second client-side pass.
+                // 'percent' is left raw deliberately -- fog.js consumes it through
+                // parseInt(), never as markup.
+                'remains' => isset($Task->timeRemaining) ? Initiator::e($Task->timeRemaining) : '',
                 'percent' => isset($Task->pct) ? $Task->pct : '',
-                'copied' => isset($Task->dataCopied) ? $Task->dataCopied : '',
-                'total' => isset($Task->dataTotal) ? $Task->dataTotal : '',
+                'copied' => isset($Task->dataCopied) ? Initiator::e($Task->dataCopied) : '',
+                'total' => isset($Task->dataTotal) ? Initiator::e($Task->dataTotal) : '',
                 'bpm' => isset($Task->bpm) ? Initiator::e($Task->bpm) : '',
                 'details_taskname' => (
                     (isset($Task->name) && $Task->name) ?

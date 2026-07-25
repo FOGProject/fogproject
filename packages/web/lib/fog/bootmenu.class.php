@@ -210,21 +210,29 @@ class BootMenu extends FOGBase
             $sysuuid = filter_input(INPUT_POST, 'sysuuid')
                 ?: filter_input(INPUT_GET, 'sysuuid')
                 ?: '';
-            if (!self::$Host->get('inventory')->get('sysuuid')) {
-                if ($sysuuid && !preg_match(
+            // Aisle 019: only ever accept a well-formed UUID. Previously the
+            // regex ran only when no sysuuid was stored yet, and the value was
+            // then saved unconditionally -- so an unauthenticated boot.php POST
+            // could overwrite an existing sysuuid with arbitrary text, and a bare
+            // `mac=` POST (no sysuuid) blanked a good stored value. Assigning
+            // only on a valid, changed value fixes both while leaving the
+            // save() itself in place, so the inventory row is still created for
+            // a host that does not have one yet.
+            $Inventory = self::$Host->get('inventory');
+            if ($sysuuid
+                && preg_match(
                     '/^[0-9A-Fa-f]{8}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{12}$/',
                     $sysuuid
-                )) {
-                    $sysuuid = '';
-                }
+                )
+                && $Inventory->get('sysuuid') != $sysuuid
+            ) {
+                $Inventory->set('sysuuid', $sysuuid);
             }
-            self::$Host
-                ->get('inventory')
-                ->set('sysuuid', $sysuuid)
+            $Inventory
                 ->set('hostID', self::$Host->get('id'))
                 ->save();
         }
@@ -1252,7 +1260,18 @@ class BootMenu extends FOGBase
         if (!self::$Host->isValid()) {
             return;
         }
-        self::$Host->set('productKey', isset($_REQUEST['key']) ? $_REQUEST['key'] : '');
+        // Aisle 029 (parity with working-1.6): boot.php is unauthenticated and
+        // this wrote $_REQUEST['key'] straight into hostProductKey with no
+        // validation. Use the same charset rule the registration path already
+        // enforces (registration.class.php), including its empty carve-out so
+        // clearing a key from the iPXE prompt still works. 1.6's strict Base24
+        // helpers do not exist on this branch, and the looser rule here also
+        // avoids rejecting legacy/OEM keys that 1.5.x installs may hold.
+        $key = isset($_REQUEST['key']) ? (string)$_REQUEST['key'] : '';
+        if ($key !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $key)) {
+            return;
+        }
+        self::$Host->set('productKey', $key);
         if (!self::$Host->save()) {
             return;
         }

@@ -2081,6 +2081,23 @@ class GroupManagementPage extends FOGPage
                             $this->obj->wakeOnLAN();
                             break;
                         }
+                        // Aisle 023: the group PM path insertBatch'd these five
+                        // cron fields raw for every host in the group -- the host
+                        // path sanitized them, this one never got the port, so it
+                        // was still a way to store arbitrary text in the PM table.
+                        // Output escaping is currently the only other control here
+                        // (the REST powermanagement class bypasses FOGCron too), so
+                        // do not rely on the render layer alone. Guarded on
+                        // !$onDemand for the same reason as the host path: an
+                        // on-demand entry submits blank cron fields and the
+                        // allow-list regex rejects ''. Matches working-1.6.
+                        if (!$onDemand) {
+                            $min = FOGCron::_sanitizeCronField($min);
+                            $hour = FOGCron::_sanitizeCronField($hour);
+                            $dom = FOGCron::_sanitizeCronField($dom);
+                            $month = FOGCron::_sanitizeCronField($month);
+                            $dow = FOGCron::_sanitizeCronField($dow);
+                        }
                         $hostIDs = (array)$this->obj->get('hosts');
                         $items = array();
                         foreach ((array)$hostIDs as &$hostID) {

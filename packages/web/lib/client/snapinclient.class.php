@@ -508,6 +508,23 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 )
             );
         }
+        // Aisle 009: taskid is caller-supplied and was never bound to the job of
+        // the host we resolved from the MAC. Without this, any host with a single
+        // queued snapin could enumerate task ids and download every snapin binary
+        // on the server (the web tier streams them over its own FTP credentials),
+        // while flipping other hosts' SnapinTask rows to in-progress. The genuine
+        // client only ever sends back a jobtaskid it received from its own job.
+        // Same message as the isValid() failure above, so this is not an oracle
+        // for "exists but belongs to someone else".
+        if ((int)$SnapinTask->get('jobID') !== (int)$SnapinJob->get('id')) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    '#!er',
+                    _('Invalid Snapin Tasking object')
+                )
+            );
+        }
         $Snapin = $SnapinTask->getSnapin();
         if (!$Snapin->isValid()) {
             throw new Exception(_('Invalid Snapin'));
