@@ -564,6 +564,76 @@ class LDAPManager extends FOGManagerController
         return true;
     }
     /**
+     * Seeds the grant record for users who signed in before it existed.
+     *
+     * Without this, an existing LDAP user's first sign in after the upgrade
+     * finds nothing recorded, so nothing is revocable, and it then records
+     * only what they earn now -- which means a role they should have lost
+     * would survive that login and every one after it. Seeding from the
+     * current state closes that window.
+     *
+     * The seed deliberately reproduces the OLD managed-set rule: a grant is
+     * assumed to be this plugin's if the target is currently a mapping
+     * target (or is the no-match role). That is exactly what the sync would
+     * have considered its own a moment before the upgrade, so nothing an
+     * admin attached by hand is captured, and nothing the plugin granted is
+     * missed -- except a target whose last mapping was already deleted,
+     * which the old rule had already given away for good.
+     *
+     * Scoped to uAuthSource = 'ldap' so a local account that happens to
+     * hold a mapped role is never recorded as a plugin grant.
+     *
+     * @return bool
+     */
+    public function seedUserGrants()
+    {
+        $nomatch = trim(
+            (string)self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
+        );
+        $roleFilter = '`ruaRoleID` IN (SELECT `lgraRoleID` '
+            . 'FROM `ldapGroupRoleAssoc`)';
+        $binds = ['source' => LDAPPluginHook::AUTH_SOURCE];
+        if ('' !== $nomatch) {
+            $roleFilter = '(' . $roleFilter . ' OR `ruaRoleID` = :nomatch)';
+            $binds['nomatch'] = (int)$nomatch;
+        }
+        try {
+            self::$DB->query(
+                'INSERT IGNORE INTO `ldapUserGrant` '
+                . '(`lugUserID`, `lugTargetType`, `lugTargetID`) '
+                . "SELECT `ruaUserID`, 'role', `ruaRoleID` "
+                . 'FROM `roleUserAssoc` '
+                . 'INNER JOIN `users` ON `uID` = `ruaUserID` '
+                . 'WHERE `uAuthSource` = :source AND ' . $roleFilter,
+                [],
+                $binds
+            );
+            self::$DB->query(
+                'INSERT IGNORE INTO `ldapUserGrant` '
+                . '(`lugUserID`, `lugTargetType`, `lugTargetID`) '
+                . "SELECT `ugmUserID`, 'usergroup', `ugmGroupID` "
+                . 'FROM `userGroupMembers` '
+                . 'INNER JOIN `users` ON `uID` = `ugmUserID` '
+                . 'WHERE `uAuthSource` = :source '
+                . 'AND `ugmGroupID` IN (SELECT `lgugUserGroupID` '
+                . 'FROM `ldapGroupUserGroupAssoc`)',
+                [],
+                ['source' => LDAPPluginHook::AUTH_SOURCE]
+            );
+        } catch (Exception $e) {
+            error_log(
+                sprintf(
+                    '%s %s() %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Could not seed the granted targets'),
+                    $e->getMessage()
+                )
+            );
+        }
+        return true;
+    }
+    /**
      * The plugin's ordered, append-only schema migration list. Append new
      * steps (e.g. "ALTER TABLE `LDAPServers` ADD COLUMN ...") to the END.
      *
@@ -675,6 +745,14 @@ class LDAPManager extends FOGManagerController
             },
             // 16
             'DROP TABLE IF EXISTS `LDAPGroupMap`',
+            // 17
+            function () {
+                return self::getClass('LDAPUserGrantManager')->install();
+            },
+            // 18
+            function () {
+                return $this->seedUserGrants();
+            },
         ];
     }
     /**
@@ -719,6 +797,7 @@ class LDAPManager extends FOGManagerController
         // Associations first, then the groups they point at: dropping the
         // groups first would leave association rows referencing ids that no
         // longer exist if either drop failed part way.
+        self::getClass('LDAPUserGrantManager')->uninstall();
         self::getClass('LDAPGroupRoleAssociationManager')->uninstall();
         self::getClass('LDAPGroupUserGroupAssociationManager')->uninstall();
         self::getClass('LDAPGroupManager')->uninstall();

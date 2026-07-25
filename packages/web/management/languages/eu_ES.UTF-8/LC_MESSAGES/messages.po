@@ -1297,12 +1297,24 @@ msgstr "Snapin-Datei konnte nicht gelesen werden."
 msgid "Could not read the group mappings"
 msgstr "Tmp-Datei konnte nicht gelesen werden."
 
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "Tmp-Datei konnte nicht gelesen werden."
+
 msgid "Could not read tmp file."
+msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 msgid "Could not register"
 msgstr "Konnte nicht registriert werden."
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 msgid "Could not send data from file"

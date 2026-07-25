@@ -1224,11 +1224,23 @@ msgstr "スナップインファイルを読み取れませんでした"
 msgid "Could not read the group mappings"
 msgstr "一時ファイルを読み取れませんでした。"
 
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "一時ファイルを読み取れませんでした。"
+
 msgid "Could not read tmp file."
+msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "一時ファイルを読み取れませんでした。"
 
 msgid "Could not register"
 msgstr "登録できませんでした"
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not send data from file"

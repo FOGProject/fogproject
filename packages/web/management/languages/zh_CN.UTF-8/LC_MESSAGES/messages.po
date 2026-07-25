@@ -1299,12 +1299,24 @@ msgstr "无法读取tmp文件。"
 msgid "Could not read the group mappings"
 msgstr "无法读取tmp文件。"
 
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "无法读取tmp文件。"
+
 msgid "Could not read tmp file."
+msgstr "无法读取tmp文件。"
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "无法读取tmp文件。"
 
 #, fuzzy
 msgid "Could not register"
 msgstr "无法创建打印机"
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "无法读取tmp文件。"
 
 #, fuzzy
 msgid "Could not send data from file"

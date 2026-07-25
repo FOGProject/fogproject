@@ -251,6 +251,8 @@ class LDAPPluginHook extends Hook
         }
         $this->_syncTargets($tmpUser, $roleIds, $groupIds);
         $tmpUser->save();
+        // After the save: a first-time user has no id until then.
+        self::_recordGrants($tmpUser, $roleIds, $groupIds);
         $arguments['user'] = $tmpUser;
         // Tell core we have already proven this identity, so it skips the
         // local password compare instead of us having to make one succeed.
@@ -355,62 +357,147 @@ class LDAPPluginHook extends Hook
         return array_values(array_unique($ids));
     }
     /**
-     * Every role and user group this plugin considers its own to manage.
+     * What this plugin previously granted one user.
      *
-     * This is the carve-out that keeps the sync from stamping on manual
-     * grants: anything that appears as an association target is recomputed
-     * from the directory on each login, and anything else an admin attached
-     * by hand is left alone.
-     *
-     * Deriving the set from the associations rather than from a settings
-     * list is what makes it self-maintaining -- stop granting a role and it
-     * stops being managed, exactly as clearing the old setting did.
-     *
-     * The user-group half matters more than the role half: the Site plugin
-     * scopes on user groups, so a sync without this carve-out would
-     * silently move people between sites every time they signed in.
+     * @param int $userId the user being authenticated
      *
      * @return array ['roles' => [...], 'usergroups' => [...]]
      */
-    private static function _managedTargets()
+    private static function _priorGrants($userId)
     {
-        $managed = [
-            'roles' => self::_targetIds(
-                'SELECT DISTINCT `lgraRoleID` AS `target` '
-                . 'FROM `ldapGroupRoleAssoc`',
-                []
-            ),
-            'usergroups' => self::_targetIds(
-                'SELECT DISTINCT `lgugUserGroupID` AS `target` '
-                . 'FROM `ldapGroupUserGroupAssoc`',
-                []
-            )
+        $out = [
+            'roles' => [],
+            'usergroups' => []
         ];
-        /**
-         * The no-match role is granted by this plugin but is never an
-         * association target, so it has to be named explicitly or turning
-         * group matching back on would leave it attached forever.
-         */
-        $nomatch = trim(
-            (string)self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
-        );
-        if ('' !== $nomatch) {
-            $managed['roles'][] = $nomatch;
-            $managed['roles'] = array_values(
-                array_unique($managed['roles'])
-            );
+        if ((int)$userId < 1) {
+            return $out;
         }
-        return $managed;
+        try {
+            $rows = self::$DB
+                ->query(
+                    'SELECT `lugTargetType`, `lugTargetID` '
+                    . 'FROM `ldapUserGrant` WHERE `lugUserID` = :user',
+                    [],
+                    ['user' => (int)$userId]
+                )
+                ->fetch('', 'fetch_all')
+                ->get();
+        } catch (Exception $e) {
+            error_log(
+                sprintf(
+                    '%s %s() %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Could not read the recorded grants'),
+                    $e->getMessage()
+                )
+            );
+            return $out;
+        }
+        /**
+         * PDODB reports a failed query as false rather than throwing
+         * (throwOnQueryError is off), and (array)false is [false], not [].
+         */
+        if (!is_array($rows)) {
+            return $out;
+        }
+        foreach ($rows as $row) {
+            $id = trim((string)($row['lugTargetID'] ?? ''));
+            if ('' === $id || '0' === $id) {
+                continue;
+            }
+            $kind = (
+                LDAPUserGrant::TARGET_USERGROUP
+                === (string)($row['lugTargetType'] ?? '')
+                ? 'usergroups'
+                : 'roles'
+            );
+            $out[$kind][] = $id;
+        }
+        $out['roles'] = array_values(array_unique($out['roles']));
+        $out['usergroups'] = array_values(array_unique($out['usergroups']));
+        return $out;
     }
     /**
-     * Makes the directory authoritative over the mapped targets only.
+     * Replaces the record of what this plugin granted one user.
      *
-     * Every mapped role and user group is recomputed from the directory on
-     * each login, so removing someone from an LDAP group downgrades them
-     * the next time they sign in. Anything outside the managed set is left
-     * alone -- without that carve-out the sync would silently revoke
-     * deliberate grants, and an admin would have no way to give an LDAP
-     * user anything extra.
+     * Written after the save, because a first-time user has no id until
+     * then. Delete-then-insert rather than a diff: the set is tiny, and
+     * rewriting it wholesale means the record cannot drift out of step
+     * with what was actually applied.
+     *
+     * @param User  $userObj  the user that was just saved
+     * @param array $roleIds  the roles this login granted
+     * @param array $groupIds the user groups this login granted
+     *
+     * @return void
+     */
+    private static function _recordGrants($userObj, array $roleIds, array $groupIds)
+    {
+        $userId = (int)$userObj->get('id');
+        if ($userId < 1) {
+            return;
+        }
+        try {
+            self::$DB->query(
+                'DELETE FROM `ldapUserGrant` WHERE `lugUserID` = :user',
+                [],
+                ['user' => $userId]
+            );
+            $targets = [
+                LDAPUserGrant::TARGET_ROLE => $roleIds,
+                LDAPUserGrant::TARGET_USERGROUP => $groupIds
+            ];
+            foreach ($targets as $type => $ids) {
+                foreach (array_unique($ids) as $id) {
+                    if ((int)$id < 1) {
+                        continue;
+                    }
+                    self::$DB->query(
+                        'INSERT IGNORE INTO `ldapUserGrant` '
+                        . '(`lugUserID`, `lugTargetType`, `lugTargetID`) '
+                        . 'VALUES (:user, :type, :target)',
+                        [],
+                        [
+                            'user' => $userId,
+                            'type' => $type,
+                            'target' => (int)$id
+                        ]
+                    );
+                }
+            }
+        } catch (Exception $e) {
+            error_log(
+                sprintf(
+                    '%s %s() %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Could not record the granted targets'),
+                    $e->getMessage()
+                )
+            );
+        }
+    }
+    /**
+     * Makes the directory authoritative over this plugin's own grants.
+     *
+     * What the directory says is recomputed on each login, so removing
+     * someone from an LDAP group downgrades them the next time they sign
+     * in. Anything an admin attached by hand is left alone -- without that
+     * carve-out the sync would silently revoke deliberate grants, and an
+     * admin would have no way to give an LDAP user anything extra.
+     *
+     * The managed set is the union of what this plugin previously recorded
+     * for this user and what the directory grants now. Reading it from the
+     * record rather than from the mapping tables is what makes removing a
+     * mapping actually revoke: a target with no mappings left is still in
+     * the record, so it is still this plugin's to take away.
+     *
+     * A user whose record predates that table simply has nothing recorded,
+     * so their first sign in after the upgrade revokes nothing and writes
+     * the record; from the next one on, revocation is exact. Schema step 18
+     * seeds the record for existing users so even that first sign in
+     * behaves.
      *
      * Reading get('roles') and get('usergroups') here is also what arms the
      * sync: assocSetter() no-ops on an association that was never loaded or
@@ -424,14 +511,23 @@ class LDAPPluginHook extends Hook
      */
     private function _syncTargets($userObj, array $roleIds, array $groupIds)
     {
-        $managed = self::_managedTargets();
+        $prior = self::_priorGrants((int)$userObj->get('id'));
+        $managedRoles = array_merge(
+            $prior['roles'],
+            array_map('strval', $roleIds)
+        );
+        $managedGroups = array_merge(
+            $prior['usergroups'],
+            array_map('strval', $groupIds)
+        );
+
         $current = array_map('strval', (array)$userObj->get('roles'));
-        $roles = array_diff($current, $managed['roles']);
+        $roles = array_diff($current, $managedRoles);
         $roles = array_merge($roles, array_map('strval', $roleIds));
         $userObj->set('roles', array_values(array_unique($roles)));
 
         $current = array_map('strval', (array)$userObj->get('usergroups'));
-        $groups = array_diff($current, $managed['usergroups']);
+        $groups = array_diff($current, $managedGroups);
         $groups = array_merge($groups, array_map('strval', $groupIds));
         $userObj->set('usergroups', array_values(array_unique($groups)));
     }

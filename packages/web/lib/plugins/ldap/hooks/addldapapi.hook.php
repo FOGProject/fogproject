@@ -83,7 +83,8 @@ class AddLDAPAPI extends Hook
             $this->node,
             'ldapgroup',
             'ldapgrouproleassociation',
-            'ldapgroupusergroupassociation'
+            'ldapgroupusergroupassociation',
+            'ldapusergrant'
         );
     }
 }

@@ -1085,10 +1085,19 @@ msgstr ""
 msgid "Could not read the group mappings"
 msgstr ""
 
+msgid "Could not read the recorded grants"
+msgstr ""
+
 msgid "Could not read tmp file."
 msgstr ""
 
+msgid "Could not record the granted targets"
+msgstr ""
+
 msgid "Could not register"
+msgstr ""
+
+msgid "Could not seed the granted targets"
 msgstr ""
 
 msgid "Could not send data from file"

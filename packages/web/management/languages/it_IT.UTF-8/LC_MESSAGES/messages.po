@@ -1239,11 +1239,23 @@ msgstr "Impossibile leggere il file snapin"
 msgid "Could not read the group mappings"
 msgstr "Impossibile leggere il file tmp."
 
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "Impossibile leggere il file tmp."
+
 msgid "Could not read tmp file."
+msgstr "Impossibile leggere il file tmp."
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "Impossibile leggere il file tmp."
 
 msgid "Could not register"
 msgstr "Non posso registrare"
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "Impossibile leggere il file tmp."
 
 #, fuzzy
 msgid "Could not send data from file"

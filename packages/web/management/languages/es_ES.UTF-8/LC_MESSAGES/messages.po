@@ -1313,12 +1313,24 @@ msgstr "No se pudo leer el archivo tmp."
 msgid "Could not read the group mappings"
 msgstr "No se pudo leer el archivo tmp."
 
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "No se pudo leer el archivo tmp."
+
 msgid "Could not read tmp file."
+msgstr "No se pudo leer el archivo tmp."
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not register"
 msgstr "No se pudo crear la impresora"
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not send data from file"

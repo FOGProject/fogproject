@@ -1298,12 +1298,24 @@ msgstr "Could not read tmp file."
 msgid "Could not read the group mappings"
 msgstr "Could not read tmp file."
 
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "Could not read tmp file."
+
 msgid "Could not read tmp file."
+msgstr "Could not read tmp file."
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "Could not read tmp file."
 
 #, fuzzy
 msgid "Could not register"
 msgstr "Could not create printer"
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "Could not read tmp file."
 
 #, fuzzy
 msgid "Could not send data from file"
