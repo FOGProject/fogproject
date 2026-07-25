@@ -1554,6 +1554,72 @@ abstract class FOGBase
         return $sbin;
     }
     /**
+     * Tells whether a caller may be issued a host token.
+     *
+     * Aisle 016. status/hostgetkey.php is unauthenticated by necessity -- FOS
+     * has no credential during boot -- and identifies the caller only by a MAC,
+     * which is not a secret. The token it hands out is the sole gate on
+     * service/hostinfo.php, which returns server-decrypted plaintext AD join
+     * credentials and the product key. The only signal left to distinguish a
+     * booting client from an arbitrary caller is network position.
+     *
+     * Strict "REMOTE_ADDR must equal the host's recorded ip" cannot be the rule:
+     * it breaks a DHCP re-lease between PXE and FOS, a PXE NIC that differs from
+     * the OS NIC, a VLAN hop, a relayed DHCP, or a NAT'd storage node. So the
+     * policy is admin-declared instead, and DEFAULTS TO EMPTY = no restriction,
+     * which is exactly the behaviour before this setting existed. Sites that can
+     * state their imaging networks opt in; nobody's upgrade breaks.
+     *
+     * Accepts a comma/whitespace separated list of IPv4 CIDR ranges and/or
+     * literal addresses (v4 or v6).
+     *
+     * @param string $ip the caller address, normally REMOTE_ADDR
+     *
+     * @return bool
+     */
+    public static function hostKeySourceAllowed($ip)
+    {
+        $allowed = trim((string)self::getSetting('FOG_HOSTKEY_ALLOWED_SOURCES'));
+        if ($allowed === '') {
+            // Unconfigured: preserve pre-existing behaviour.
+            return true;
+        }
+        $ip = trim((string)$ip);
+        if ($ip === '') {
+            // A policy is configured but we cannot tell where the caller is.
+            return false;
+        }
+        $entries = preg_split('/[\s,]+/', $allowed, -1, PREG_SPLIT_NO_EMPTY);
+        foreach ((array)$entries as $entry) {
+            if (strcasecmp($entry, $ip) === 0) {
+                return true;
+            }
+            if (strpos($entry, '/') === false) {
+                continue;
+            }
+            list($subnet, $bits) = explode('/', $entry, 2);
+            $subnetLong = ip2long($subnet);
+            $ipLong = ip2long($ip);
+            // ip2long only speaks IPv4; a v6 caller falls through to the exact
+            // match above rather than being silently accepted by a v4 range.
+            if ($subnetLong === false || $ipLong === false) {
+                continue;
+            }
+            $bits = (int)$bits;
+            if ($bits < 0 || $bits > 32) {
+                continue;
+            }
+            if ($bits === 0) {
+                return true;
+            }
+            $mask = -1 << (32 - $bits);
+            if (($ipLong & $mask) === ($subnetLong & $mask)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
      * Create security token.
      *
      * @return string

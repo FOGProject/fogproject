@@ -4628,3 +4628,24 @@ $this->schema[] = count($columnuAuthSource ?: []) ? [] : [
     "ALTER TABLE `users` "
     . "ADD COLUMN `uAuthSource` VARCHAR(32) NOT NULL DEFAULT ''",
 ];
+// 315
+$this->schema[] = [
+    // Aisle 016. status/hostgetkey.php is unauthenticated and MAC-resolved, and
+    // the host token it returns is the only gate on service/hostinfo.php, which
+    // emits plaintext AD join credentials and the product key. Network position
+    // is the only signal available to tell a booting client from an arbitrary
+    // caller, and it cannot be inferred (DHCP re-lease, PXE vs OS NIC, VLAN hop,
+    // relayed DHCP, NAT all break a strict host-ip match), so the admin declares
+    // it. Empty is the default and means no restriction -- an upgrade changes
+    // nothing until a site opts in.
+    "INSERT IGNORE INTO `globalSettings`"
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)"
+    . "VALUES"
+    . "('FOG_HOSTKEY_ALLOWED_SOURCES','This setting restricts which source "
+    . "addresses may obtain a host token from status/hostgetkey.php, which is "
+    . "what unlocks the host information service (including Active Directory "
+    . "join credentials and the product key). Enter a comma separated list of "
+    . "imaging networks in CIDR form and/or individual addresses, for example "
+    . "10.0.0.0/8,192.168.5.20. Leave empty to allow any source, which is the "
+    . "default and matches the behaviour of earlier versions.','','Security')",
+];
