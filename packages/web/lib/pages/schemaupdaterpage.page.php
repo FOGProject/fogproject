@@ -79,11 +79,18 @@ class SchemaUpdaterPage extends FOGPage
             // carve-out in DatabaseManager::establish()).
             if (self::$FOGUser && self::$FOGUser->isValid()) {
                 printf(
+                    // alert-link, not btn-primary: a .btn inside a .alert
+                    // renders its label unreadably dark on the fill under the
+                    // dark theme. .alert-link is Bootstrap's own mechanism for
+                    // a link in this exact placement -- it takes its color
+                    // from --bs-alert-link-color, which the alert variant
+                    // defines per theme -- so it is legible in both without
+                    // this page having to know anything about the palette.
                     '<div class="container-fluid pt-3">'
                     . '<div class="alert alert-warning" role="alert">'
-                    . '<p><strong>%s</strong> %s</p>'
+                    . '<p class="mb-1"><strong>%s</strong> %s</p>'
                     . '<a href="../management/index.php?node=logout" '
-                    . 'class="btn btn-primary">%s</a>'
+                    . 'class="alert-link">%s</a>'
                     . '</div></div>',
                     Initiator::e(
                         sprintf(
