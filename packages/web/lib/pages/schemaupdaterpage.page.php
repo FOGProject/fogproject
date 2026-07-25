@@ -63,6 +63,33 @@ class SchemaUpdaterPage extends FOGPage
         // page.class.php already loads fog.login.js for any invalid user, so
         // the form is wired up, and it reloads ?node=schema on success.
         if (self::hasFogUsers() && !self::isSchemaAdmin()) {
+            // A non-admin who is already signed in gets bounced here by the
+            // same stale-schema redirect, and a bare "Sign in to start your
+            // session" under their own name in the sidebar reads as a broken
+            // page rather than a permission answer. Say what happened before
+            // showing the form -- the form still has to be here, because
+            // signing in as an administrator is the only way forward and
+            // there is no other reachable page to do it on.
+            if (self::$FOGUser && self::$FOGUser->isValid()) {
+                printf(
+                    '<div class="container-fluid pt-3">'
+                    . '<div class="alert alert-warning" role="alert">'
+                    . '<strong>%s</strong> %s</div></div>',
+                    Initiator::e(
+                        sprintf(
+                            _('Signed in as %s.'),
+                            self::$FOGUser->get('name')
+                        )
+                    ),
+                    Initiator::e(
+                        _(
+                            'Applying a database schema update requires an '
+                            . 'administrator account. Sign in as an '
+                            . 'administrator to continue.'
+                        )
+                    )
+                );
+            }
             ProcessLogin::mainLoginForm();
             return;
         }

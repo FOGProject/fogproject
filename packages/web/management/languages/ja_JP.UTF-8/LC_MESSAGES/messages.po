@@ -671,6 +671,11 @@ msgid ""
 "can authenticate against the directory receives this role."
 msgstr ""
 
+msgid ""
+"Applying a database schema update requires an administrator account. Sign in "
+"as an administrator to continue."
+msgstr ""
+
 msgid "Approve"
 msgstr "承認"
 
@@ -5508,6 +5513,10 @@ msgid "Sign In"
 msgstr "署名済み"
 
 msgid "Sign in to start your session"
+msgstr ""
+
+#, php-format
+msgid "Signed in as %s."
 msgstr ""
 
 msgid "Site"
