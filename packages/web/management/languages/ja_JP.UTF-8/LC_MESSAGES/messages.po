@@ -6553,6 +6553,9 @@ msgstr "無効です"
 msgid "is new"
 msgstr "新規です"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr "現在は実行されていません"
 

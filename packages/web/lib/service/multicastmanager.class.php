@@ -221,6 +221,44 @@ class MulticastManager extends FOGService
                 // Common string used for logging.
                 $startStr = ' | ' . _('Task ID') . ': %s '. _('Name') . ': %s %s';
 
+                // A session that leaves the active set -- cancelled from the
+                // UI, completed elsewhere, or deleted outright -- vanishes
+                // from the per-node task list before it can ever be matched
+                // below, because getAllMulticastTasks() sources that list
+                // from Route::active(), which filters to the queued and
+                // progress states. The sender it owns was therefore never
+                // killed and ran on holding its portbase until the daemon
+                // restarted. Sweep the known list against the sessions still
+                // active in the database instead.
+                //
+                // This runs once per tick rather than inside the node loop
+                // on purpose: $KnownTasks spans every node this server
+                // masters, so differencing it against one node's task list
+                // would flag another node's tasks as gone and kill them.
+                Route::ids(
+                    'multicastsession',
+                    ['stateID' => $queuedStates]
+                );
+                $activeIDs = (array)json_decode(Route::getData(), true);
+                foreach ($KnownTasks as $Known) {
+                    if (in_array($Known->getID(), $activeIDs)) {
+                        continue;
+                    }
+                    self::outall(
+                        sprintf(
+                            $startStr,
+                            $Known->getID(),
+                            $Known->getName(),
+                            _('is no longer active, stopping its sender')
+                        )
+                    );
+                    $Known->killTask();
+                    $KnownTasks = self::_removeFromKnownList(
+                        $KnownTasks,
+                        $Known->getID()
+                    );
+                }
+
                 foreach ($this->checkIfNodeMaster() as &$StorageNode) {
                     // Now that tasks are removed, lets check new/current tasks
                     $MulticastTask = new MulticastTask();

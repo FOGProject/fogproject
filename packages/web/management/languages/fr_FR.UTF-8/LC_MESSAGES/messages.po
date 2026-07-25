@@ -6655,6 +6655,9 @@ msgstr "est invalide"
 msgid "is new"
 msgstr "est nouveau"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr "ne fonctionne plus"
 

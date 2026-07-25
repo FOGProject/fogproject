@@ -7548,6 +7548,9 @@ msgstr "sind ungültig."
 msgid "is new"
 msgstr "ist neu"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 #, fuzzy
 msgid "is no longer running"
 msgstr "läuft nicht mehr"

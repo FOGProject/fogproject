@@ -6587,6 +6587,9 @@ msgstr "é inválido"
 msgid "is new"
 msgstr "é novo"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr "não está mais rodando"
 

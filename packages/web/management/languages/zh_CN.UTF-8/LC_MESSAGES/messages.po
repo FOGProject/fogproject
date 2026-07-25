@@ -6564,6 +6564,9 @@ msgstr "无效"
 msgid "is new"
 msgstr "新的"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr "不再运行"
 

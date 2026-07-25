@@ -7467,6 +7467,9 @@ msgstr "Login incorrecto"
 msgid "is new"
 msgstr "Nuevo"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr ""
 
