@@ -720,6 +720,43 @@ class Authorization extends FOGBase
         );
     }
     /**
+     * The ids of every role granting exactly this permission string.
+     *
+     * Reads the table directly rather than going through Route::getIds().
+     * Permission strings are the one kind of value that collides with the
+     * query builder's caller-facing wildcard syntax: '*' and '+' are what
+     * the RBAC grammar uses for "everything" and what the builder used to
+     * rewrite into a SQL '%'. Route::expandSearchWildcards() now confines
+     * that rewrite to request-supplied filters, but a permission lookup
+     * should not depend on that distinction holding -- it is the query
+     * whose wrong answer unlocks the install, so it owns its own SQL.
+     *
+     * Matches the exact string only. 'host.*' and '*' are DIFFERENT
+     * permissions here; wildcard semantics are applied when a permission is
+     * CHECKED (see can()), not when roles holding one are listed.
+     *
+     * @param string $permission the permission string, e.g. '*'
+     *
+     * @return array role ids
+     */
+    public static function rolesHolding($permission)
+    {
+        $rows = self::$DB
+            ->query(
+                'SELECT DISTINCT `rpRoleID` FROM `rolePermissions` '
+                . 'WHERE `rpName` = :perm',
+                [],
+                ['perm' => (string)$permission]
+            )
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        $roleIDs = [];
+        foreach ((array)$rows as $row) {
+            $roleIDs[] = (int)$row['rpRoleID'];
+        }
+        return $roleIDs;
+    }
+    /**
      * Is there at least one effective administrator besides the excluded
      * users? An effective administrator is a user holding the global '*'
      * permission through any role, directly or via a group. Used by the
@@ -815,29 +852,7 @@ class Authorization extends FOGBase
         foreach ((array)$rows as $row) {
             $groupRoles[(int)$row['rugGroupID']][] = (int)$row['rugRoleID'];
         }
-        // Raw SQL, NOT Route::getIds(). The query builder treats '*' and '+'
-        // in a scalar filter value as user-facing wildcards: _buildSql()
-        // rewrites them to '%' and switches the comparison to LIKE, so
-        // ['name' => '*'] compiled to `rpName LIKE '%'` and matched EVERY
-        // permission row. This guard therefore saw every role that grants
-        // anything at all as a holder of the global '*', and answered "an
-        // administrator remains" for practically any deletion -- verified by
-        // deleting the only '*' role on a live install and locking it out.
-        // The RBAC permission string collides with the builder's own
-        // wildcard syntax, so the lookup has to bypass the builder.
-        $rows = self::$DB
-            ->query(
-                'SELECT DISTINCT `rpRoleID` FROM `rolePermissions` '
-                . 'WHERE `rpName` = :perm',
-                [],
-                ['perm' => '*']
-            )
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
-            ->get();
-        $starRoles = [];
-        foreach ((array)$rows as $row) {
-            $starRoles[] = (int)$row['rpRoleID'];
-        }
+        $starRoles = self::rolesHolding('*');
         // Apply direct role<->user deltas.
         foreach ((array)($changes['roleUsers'] ?? []) as $rid => $uids) {
             $membership[(int)$rid] = array_map('intval', (array)$uids);
