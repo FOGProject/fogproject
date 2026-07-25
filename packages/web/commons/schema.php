@@ -4393,8 +4393,8 @@ $this->schema[] = [
     // Permissions granted to roles. rpName holds '<node>.<action>'
     // (e.g. 'host.edit'), a node wildcard ('host.*'), or the global
     // wildcard '*'. A user's permissions are the union across all
-    // assigned roles; users with no role at all remain implicit
-    // administrators (see the Authorization class).
+    // assigned roles; access is deny-by-default, so a user with no role
+    // holds nothing (see the Authorization class).
     "CREATE TABLE IF NOT EXISTS `rolePermissions` ("
     . "`rpID` INT NOT NULL AUTO_INCREMENT,"
     . "`rpRoleID` INT NOT NULL,"
