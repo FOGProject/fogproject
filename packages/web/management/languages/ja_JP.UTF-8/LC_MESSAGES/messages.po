@@ -268,6 +268,12 @@ msgstr "この名前のグループは既に存在します！"
 msgid "A user group with this name already exists!"
 msgstr "その名前のホストは既に存在します"
 
+msgid ""
+"A user signing in through this server receives every role and user group "
+"mapped to a directory group they belong to. Mapping to a user group is "
+"preferred: the group holds the roles, so policy stays in one place."
+msgstr ""
+
 msgid "A username already exists with this name!"
 msgstr "このユーザー名は既に存在します！"
 
@@ -305,9 +311,6 @@ msgstr "アクセス拒否"
 
 msgid "Access Token"
 msgstr "アクセストークン"
-
-msgid "Access level is still 0 or false"
-msgstr "アクセスレベルが 0 または false のままです"
 
 #, fuzzy
 msgid "Access token"
@@ -378,6 +381,10 @@ msgstr ""
 
 msgid "Add"
 msgstr "追加"
+
+#, fuzzy
+msgid "Add Directory Group"
+msgstr "ディレクトリを追加"
 
 #, fuzzy
 msgid "Add Hello World failed!"
@@ -800,6 +807,9 @@ msgstr ""
 msgid "Both"
 msgstr ""
 
+msgid "Both a directory group and a target are required."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "新しいブロードキャストアドレス"
@@ -1200,11 +1210,18 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not read snapin file"
 msgstr "スナップインファイルを読み取れませんでした"
 
+#, fuzzy
+msgid "Could not read the group mappings"
+msgstr "一時ファイルを読み取れませんでした。"
+
 msgid "Could not read tmp file."
 msgstr "一時ファイルを読み取れませんでした。"
 
 msgid "Could not register"
 msgstr "登録できませんでした"
+
+msgid "Could not remove the group mappings"
+msgstr ""
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1556,6 +1573,10 @@ msgstr "ディレクトリは既に存在します"
 
 msgid "Directory Cleaner"
 msgstr "ディレクトリクリーナー"
+
+#, fuzzy
+msgid "Directory Group"
+msgstr "ディレクトリ"
 
 msgid "Disable on all hosts"
 msgstr ""
@@ -2261,6 +2282,9 @@ msgstr "ロケーションを更新しました！"
 msgid "Got in line at"
 msgstr "キューに登録されました:"
 
+msgid "Grants"
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "メインカラー"
@@ -2363,8 +2387,18 @@ msgid "Group Management"
 msgstr "グループ管理"
 
 #, fuzzy
+msgid "Group Mappings"
+msgstr "グループ管理"
+
+#, fuzzy
 msgid "Group Matching"
 msgstr "グループ管理"
+
+msgid ""
+"Group Matching is off for this server, so directory groups cannot be read "
+"and these mappings are not used. Users who can bind receive the fallback "
+"role from the global LDAP settings instead."
+msgstr ""
 
 msgid "Group Member Attribute"
 msgstr "グループメンバー属性"
@@ -4238,6 +4272,10 @@ msgstr "データベースへのリンクが確立されていません"
 msgid "No mac addresses to be removed"
 msgstr "削除するグループが選択されていません"
 
+#, fuzzy
+msgid "No mappings defined."
+msgstr "同期していません"
+
 msgid "No master nodes are enabled to delete this image"
 msgstr "このイメージを削除できる有効なマスターノードがありません"
 
@@ -5153,6 +5191,10 @@ msgstr "キーの値を返しています"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role"
+msgstr "ロール"
 
 #, fuzzy
 msgid "Role Association"
@@ -6318,6 +6360,10 @@ msgid "Text"
 msgstr "テキスト"
 
 #, fuzzy
+msgid "That mapping already exists."
+msgstr "このホストは既に存在します"
+
+#, fuzzy
 msgid "That session has already started"
 msgstr "このホストは既に存在します"
 
@@ -6361,6 +6407,10 @@ msgstr "これは既に別のイメージで使用されています"
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
 
+#, fuzzy
+msgid "The selected target no longer exists."
+msgstr "選択したプリンターを追加"
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
 
@@ -6400,6 +6450,10 @@ msgstr "このサーバーにはイメージがありません"
 #, fuzzy
 msgid "There are no members to sync to"
 msgstr "同期対象のメンバーがありません"
+
+#, fuzzy
+msgid "There are no roles or user groups to map to yet."
+msgstr "このサーバーにはグループがありません"
 
 msgid "There are no snapins associated with this host"
 msgstr "このホストには関連付けられたスナップインがありません"
@@ -7056,6 +7110,9 @@ msgstr "ユーザーの更新に失敗しました！"
 msgid "User group updated!"
 msgstr "ユーザーを更新しました！"
 
+msgid "User matched none of the mapped groups"
+msgstr ""
+
 #, fuzzy
 msgid "User not found"
 msgstr "レコードが見つかりません"
@@ -7671,6 +7728,10 @@ msgstr "N/A"
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "no longer exists"
+msgstr "選択したプリンターを追加"
+
 msgid "no response from server"
 msgstr ""
 
@@ -8052,11 +8113,11 @@ msgstr ""
 #~ msgid "Access Controls"
 #~ msgstr "アクセス制御"
 
+#~ msgid "Access level is still 0 or false"
+#~ msgstr "アクセスレベルが 0 または false のままです"
+
 #~ msgid "Account removed from FOG GUI at"
 #~ msgstr "FOG GUI から削除されたアカウント:"
-
-#~ msgid "Add Directory"
-#~ msgstr "ディレクトリを追加"
 
 #~ msgid "Add Event"
 #~ msgstr "イベントを追加"

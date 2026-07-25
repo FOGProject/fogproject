@@ -292,6 +292,12 @@ msgstr "Uma imagem já existe com este nome!"
 msgid "A user group with this name already exists!"
 msgstr "Um nome de host com esse nome já existe."
 
+msgid ""
+"A user signing in through this server receives every role and user group "
+"mapped to a directory group they belong to. Mapping to a user group is "
+"preferred: the group holds the roles, so policy stays in one place."
+msgstr ""
+
 #, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
@@ -330,9 +336,6 @@ msgstr "token de acesso"
 
 msgid "Access Token"
 msgstr "token de acesso"
-
-msgid "Access level is still 0 or false"
-msgstr ""
 
 #, fuzzy
 msgid "Access token"
@@ -403,6 +406,10 @@ msgstr ""
 
 msgid "Add"
 msgstr "Adicionar"
+
+#, fuzzy
+msgid "Add Directory Group"
+msgstr "Adicionar grupo de armazenamento"
 
 #, fuzzy
 msgid "Add Hello World failed!"
@@ -846,6 +853,9 @@ msgstr ""
 msgid "Both"
 msgstr ""
 
+msgid "Both a directory group and a target are required."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Nome transmissão"
@@ -1276,12 +1286,19 @@ msgstr "Não foi possível ler o arquivo tmp."
 msgid "Could not read snapin file"
 msgstr "Não foi possível ler o arquivo tmp."
 
+#, fuzzy
+msgid "Could not read the group mappings"
+msgstr "Não foi possível ler o arquivo tmp."
+
 msgid "Could not read tmp file."
 msgstr "Não foi possível ler o arquivo tmp."
 
 #, fuzzy
 msgid "Could not register"
 msgstr "Não foi possível criar impressora"
+
+msgid "Could not remove the group mappings"
+msgstr ""
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1641,6 +1658,10 @@ msgstr "Diretório já existe"
 
 msgid "Directory Cleaner"
 msgstr "Cleaner diretório"
+
+#, fuzzy
+msgid "Directory Group"
+msgstr "Diretório"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2377,6 +2398,9 @@ msgstr "Localização Atualizado"
 msgid "Got in line at"
 msgstr ""
 
+msgid "Grants"
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "Gráfico"
@@ -2482,8 +2506,18 @@ msgid "Group Management"
 msgstr "grupo de Gestão"
 
 #, fuzzy
+msgid "Group Mappings"
+msgstr "anfitrião Localização"
+
+#, fuzzy
 msgid "Group Matching"
 msgstr "anfitrião Localização"
+
+msgid ""
+"Group Matching is off for this server, so directory groups cannot be read "
+"and these mappings are not used. Users who can bind receive the fallback "
+"role from the global LDAP settings instead."
+msgstr ""
 
 msgid "Group Member Attribute"
 msgstr ""
@@ -4461,6 +4495,10 @@ msgstr "Sem conexão com o banco de dados"
 msgid "No mac addresses to be removed"
 msgstr ""
 
+#, fuzzy
+msgid "No mappings defined."
+msgstr "Plugins instalados"
+
 msgid "No master nodes are enabled to delete this image"
 msgstr "Nenhum nós mestre são habilitadas para apagar esta imagem"
 
@@ -5420,6 +5458,10 @@ msgstr "Retornando valor da chave"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role"
+msgstr "Nome do módulo"
 
 #, fuzzy
 msgid "Role Association"
@@ -6669,6 +6711,10 @@ msgid "Text"
 msgstr "Texto"
 
 #, fuzzy
+msgid "That mapping already exists."
+msgstr "Impressora já existe"
+
+#, fuzzy
 msgid "That session has already started"
 msgstr "Impressora já existe"
 
@@ -6715,6 +6761,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+msgid "The selected target no longer exists."
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -6756,6 +6805,10 @@ msgstr "Não há imagens neste servidor."
 
 #, fuzzy
 msgid "There are no members to sync to"
+msgstr "Não existem grupos neste servidor."
+
+#, fuzzy
+msgid "There are no roles or user groups to map to yet."
 msgstr "Não existem grupos neste servidor."
 
 msgid "There are no snapins associated with this host"
@@ -7438,6 +7491,9 @@ msgstr "atualização do utilizador falhou"
 msgid "User group updated!"
 msgstr "usuário atualizada"
 
+msgid "User matched none of the mapped groups"
+msgstr ""
+
 #, fuzzy
 msgid "User not found"
 msgstr "Registro não encontrado, erro: %s"
@@ -8107,6 +8163,10 @@ msgstr "n / D"
 
 msgid "never"
 msgstr ""
+
+#, fuzzy
+msgid "no longer exists"
+msgstr " não existe mais"
 
 msgid "no response from server"
 msgstr ""

@@ -624,6 +624,76 @@ class Route extends FOGBase
         }
     }
     /**
+     * Reads a $_SERVER value, preferring filter_input.
+     *
+     * filter_input(INPUT_SERVER) reads the SAPI's original request table,
+     * not the live $_SERVER array. Keys PHP synthesises after startup --
+     * PHP_AUTH_USER/PHP_AUTH_PW among them -- can therefore come back null
+     * under FPM even though $_SERVER holds them. Falling back to $_SERVER
+     * is the only way to see them reliably; the value is treated as
+     * untrusted either way (see _basicAuthCredentials).
+     *
+     * @param string $key The $_SERVER key to read.
+     *
+     * @return string
+     */
+    private static function _serverVar($key)
+    {
+        $val = filter_input(INPUT_SERVER, $key);
+        if ($val === null || $val === false) {
+            $val = $_SERVER[$key] ?? '';
+        }
+        return (string)$val;
+    }
+    /**
+     * Resolves HTTP basic auth credentials for the current request.
+     *
+     * PHP only populates PHP_AUTH_USER/PHP_AUTH_PW when the Authorization
+     * header actually reaches it. Under FastCGI it does not arrive on its
+     * own: nginx passes only the fastcgi_params whitelist, and Apache's
+     * proxy_fcgi strips it unless CGIPassAuth/SetEnvIf puts it back. FOG's
+     * installer now emits that config, but every install that predates the
+     * fix still has webserver config without it, and those must keep
+     * working without a reinstall -- so decode the header ourselves when
+     * PHP_AUTH_USER is absent.
+     *
+     * REDIRECT_HTTP_AUTHORIZATION is checked too: the Apache vhost rewrites
+     * /fog/* into /fog/api/index.php, and Apache prefixes REDIRECT_ onto
+     * environment variables that survive an internal redirect.
+     *
+     * This only recovers a credential the client already sent. It is not a
+     * second way in: the caller still has to clear passwordValidate() and
+     * the uAllowAPI test below.
+     *
+     * @return array The username and password, empty strings if absent.
+     */
+    private static function _basicAuthCredentials()
+    {
+        $user = self::_serverVar('PHP_AUTH_USER');
+        if ($user !== '') {
+            return [$user, self::_serverVar('PHP_AUTH_PW')];
+        }
+        $keys = [
+            'HTTP_AUTHORIZATION',
+            'REDIRECT_HTTP_AUTHORIZATION'
+        ];
+        foreach ($keys as $key) {
+            $header = trim(self::_serverVar($key));
+            if (stripos($header, 'basic ') !== 0) {
+                continue;
+            }
+            // strict base64 decode: a malformed header is not a credential.
+            $decoded = base64_decode(substr($header, 6), true);
+            if ($decoded === false || strpos($decoded, ':') === false) {
+                continue;
+            }
+            // Split on the first colon only -- colons are legal in a
+            // password, but not in a username.
+            return explode(':', $decoded, 2);
+        }
+        return ['', ''];
+    }
+    /**
      * Test authentication.
      *
      * @return void
@@ -643,9 +713,10 @@ class Route extends FOGBase
             self::$FOGUser = $pwtoken;
             return;
         }
+        list($authUser, $authPass) = self::_basicAuthCredentials();
         $auth = self::$FOGUser->passwordValidate(
-            filter_input(INPUT_SERVER, 'PHP_AUTH_USER'),
-            filter_input(INPUT_SERVER, 'PHP_AUTH_PW')
+            $authUser,
+            $authPass
         );
         if (!$auth) {
             self::sendResponse(
@@ -2272,7 +2343,7 @@ class Route extends FOGBase
                 ($task->debug ?? false),
                 $deploySnapins,
                 $class instanceof Group,
-                filter_input(INPUT_SERVER, 'PHP_AUTH_USER') ?? 'API',
+                (self::_basicAuthCredentials()[0] ?: 'API'),
                 $task->passreset ?? '',
                 $task->sessionjoin ?? '',
                 $task->wol ?? 1,
