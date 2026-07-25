@@ -5569,6 +5569,10 @@ msgid "Role User Associations"
 msgstr "Image Association"
 
 #, fuzzy
+msgid "Role User Group Associations"
+msgstr "Storage Node Created"
+
+#, fuzzy
 msgid "Role added!"
 msgstr "Printer Name"
 

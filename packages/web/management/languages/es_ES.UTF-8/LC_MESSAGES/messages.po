@@ -5700,6 +5700,10 @@ msgid "Role User Associations"
 msgstr "Asociación para la imagen"
 
 #, fuzzy
+msgid "Role User Group Associations"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
 msgid "Role added!"
 msgstr "Nombre de la impresora"
 

@@ -63,6 +63,7 @@ class Role extends FOGController
      */
     protected $additionalFields = [
         'users',
+        'usergroups',
         'permissions'
     ];
     /**
@@ -91,6 +92,41 @@ class Role extends FOGController
     {
         return $this->addRemItem(
             'users',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Add user groups to this role.
+     *
+     * The role/user group link was previously editable only from the user
+     * group side, which made roleUserGroupAssoc the one asymmetric
+     * association in the product -- a role could hold user groups that its
+     * own edit page could neither show nor change.
+     *
+     * @param array $addArray The user group ids to add.
+     *
+     * @return object
+     */
+    public function addUserGroup($addArray)
+    {
+        return $this->addRemItem(
+            'usergroups',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Remove user groups from this role.
+     *
+     * @param array $removeArray The user group ids to remove.
+     *
+     * @return object
+     */
+    public function removeUserGroup($removeArray)
+    {
+        return $this->addRemItem(
+            'usergroups',
             (array)$removeArray,
             'diff'
         );
@@ -135,6 +171,7 @@ class Role extends FOGController
         parent::save();
         return $this
             ->assocSetter('RoleUser', 'user')
+            ->assocSetter('RoleUserGroup', 'usergroup')
             ->_syncPermissions()
             ->load();
     }
@@ -165,6 +202,25 @@ class Role extends FOGController
         );
         unset($filtered);
         $this->set('users', (array)$associds);
+    }
+    /**
+     * Load user groups assigned to this role.
+     *
+     * The mirror of UserGroup::loadRoles(), reading the same join table
+     * from the other side.
+     *
+     * @return void
+     */
+    protected function loadUsergroups()
+    {
+        $this->set(
+            'usergroups',
+            (array)Route::getIds(
+                'roleusergroupassociation',
+                ['roleID' => $this->get('id')],
+                'usergroupID'
+            )
+        );
     }
     /**
      * Load this role's permission names.

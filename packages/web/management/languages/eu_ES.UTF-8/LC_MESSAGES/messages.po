@@ -5574,6 +5574,10 @@ msgid "Role User Associations"
 msgstr "Site Zugehörigkeit"
 
 #, fuzzy
+msgid "Role User Group Associations"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
 msgid "Role added!"
 msgstr "Drucker hinzugefügt"
 

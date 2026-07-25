@@ -5569,6 +5569,10 @@ msgid "Role User Associations"
 msgstr "图像协会"
 
 #, fuzzy
+msgid "Role User Group Associations"
+msgstr "存储节点创建"
+
+#, fuzzy
 msgid "Role added!"
 msgstr "打印机名称"
 

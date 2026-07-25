@@ -505,6 +505,84 @@ class RoleManagement extends FOGPage
         }
     }
     /**
+     * Present the user groups tab.
+     *
+     * @return void
+     */
+    public function roleUserGroups()
+    {
+        $this->renderAssocTab(
+            'role-usergroup',
+            _('Role User Group Associations'),
+            _('User Group Name'),
+            'usergroup'
+        );
+    }
+    /**
+     * Update user groups.
+     *
+     * @return void
+     */
+    public function roleUserGroupPost()
+    {
+        $this->assocPost('addUserGroup', 'removeUserGroup');
+        // Same guard, and keyed the same way, as
+        // UserGroupManagement::usergroupRolePost(). Without it this page
+        // would be an unguarded route to exactly the lockout the user group
+        // page refuses: detaching the last user group that carries
+        // administrator access.
+        //
+        // adminExistsGiven() is keyed by group, not by role, and each entry
+        // REPLACES that group's whole role list -- so the in-memory user
+        // group list has to be inverted into "which roles does each group
+        // hold after this change", not merely which groups were touched.
+        $roleID = (int)$this->obj->get('id');
+        $attached = array_map('intval', (array)$this->obj->get('usergroups'));
+        $current = array_map(
+            'intval',
+            (array)Route::getIds(
+                'roleusergroupassociation',
+                ['roleID' => $roleID],
+                'usergroupID'
+            )
+        );
+        $groupRoles = [];
+        // Attached groups gain this role. Reading the group's stored roles
+        // and adding it is required: on a newly attached group the stored
+        // list does not contain this role yet, and passing it unchanged
+        // would understate the access the change actually grants.
+        foreach ($attached as $groupID) {
+            $roles = array_map(
+                'intval',
+                (array)self::getClass('UserGroup', $groupID)->get('roles')
+            );
+            $roles[] = $roleID;
+            $groupRoles[$groupID] = array_values(array_unique($roles));
+        }
+        // Detached groups keep their other roles but lose this one. Without
+        // this branch, removing the last group carrying administrator
+        // access would look like no change at all.
+        foreach (array_diff($current, $attached) as $groupID) {
+            $roles = array_map(
+                'intval',
+                (array)self::getClass('UserGroup', $groupID)->get('roles')
+            );
+            $groupRoles[$groupID] = array_values(
+                array_diff($roles, [$roleID])
+            );
+        }
+        // assocPost only mutates the in-memory list; the save happens in
+        // editPost after this returns, so throwing here aborts the change.
+        $adminRemains = Authorization::adminExistsGiven(
+            ['groupRoles' => $groupRoles]
+        );
+        if (!$adminRemains) {
+            throw new Exception(
+                _('This change would leave no user with administrator access.')
+            );
+        }
+    }
+    /**
      * The edit element.
      *
      * @return void
@@ -539,6 +617,15 @@ class RoleManagement extends FOGPage
                 $this->roleUsers();
             }
         ];
+
+        // User Group Association
+        $tabData[] = [
+            'name' => _('User Group Association'),
+            'id' => 'role-usergroup',
+            'generator' => function () {
+                $this->roleUserGroups();
+            }
+        ];
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -565,6 +652,9 @@ class RoleManagement extends FOGPage
                         break;
                     case 'role-user':
                         $this->roleUserPost();
+                        break;
+                    case 'role-usergroup':
+                        $this->roleUserGroupPost();
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
@@ -648,6 +738,29 @@ class RoleManagement extends FOGPage
             '`users`.`uID`',
             '`roleUserAssoc`.`ruaUserID`',
             '`roleUserAssoc`.`ruaRoleID`',
+            [
+                [
+                    'db' => 'roleAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
+     * Gets the user group list for the user groups association tab.
+     *
+     * @return void
+     */
+    public function getUserGroupsList()
+    {
+        return $this->assocItemsList(
+            'usergroup',
+            'roleusergroupassociation',
+            'roleUserGroupAssoc',
+            '`userGroups`.`ugID`',
+            '`roleUserGroupAssoc`.`rugGroupID`',
+            '`roleUserGroupAssoc`.`rugRoleID`',
             [
                 [
                     'db' => 'roleAssoc',

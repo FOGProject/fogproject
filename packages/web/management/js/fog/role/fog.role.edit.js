@@ -46,7 +46,16 @@ $(function() {
         sub: 'getUsersList'
     });
 
+    // ---------------------------------------------------------------
+    // USER GROUP ASSOCIATION TAB
+    var roleUserGroupsTable = $.registerAssociationTab({
+        slug: 'role-usergroup',
+        item: 'usergroup',
+        sub: 'getUserGroupsList'
+    });
+
     if (Common.search && Common.search.length > 0) {
         roleUsersTable.search(Common.search).draw();
+        roleUserGroupsTable.search(Common.search).draw();
     }
 });

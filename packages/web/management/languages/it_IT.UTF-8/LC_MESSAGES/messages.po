@@ -5345,6 +5345,10 @@ msgid "Role User Associations"
 msgstr "Associazione Sito"
 
 #, fuzzy
+msgid "Role User Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
 msgid "Role added!"
 msgstr "Stampante aggiunta"
 

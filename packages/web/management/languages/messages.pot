@@ -4703,6 +4703,9 @@ msgstr ""
 msgid "Role User Associations"
 msgstr ""
 
+msgid "Role User Group Associations"
+msgstr ""
+
 msgid "Role added!"
 msgstr ""
 

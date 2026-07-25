@@ -5298,6 +5298,10 @@ msgstr "ロールを更新しました"
 msgid "Role User Associations"
 msgstr "ルールの関連付け"
 
+#, fuzzy
+msgid "Role User Group Associations"
+msgstr "グループの関連付け"
+
 msgid "Role added!"
 msgstr "ロールを追加しました！"
 
