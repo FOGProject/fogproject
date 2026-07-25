@@ -1468,6 +1468,9 @@ msgstr "事件和数据未设置"
 msgid "Event must be a string"
 msgstr "事件必须是字符串"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "现存物品必须是布尔值"
 
@@ -4162,9 +4165,6 @@ msgstr "请升级你的FOG客户端，该版本已过时且不安全"
 msgid "Please use another hostname"
 msgstr "请输入另一个主机名"
 
-msgid "Please wait until a slot is open"
-msgstr "请等待至有开放插槽"
-
 msgid "Plugin"
 msgstr "插入"
 
@@ -4746,6 +4746,10 @@ msgstr "服务器信息"
 
 msgid "Server information at a glance."
 msgstr "服务器信息概览"
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
 
 msgid "Service"
 msgstr "服务"
@@ -5541,9 +5545,6 @@ msgstr "上传的文件只有部分被上传"
 msgid "There are"
 msgstr "有"
 
-msgid "There are currently"
-msgstr "目前有"
-
 msgid "There are many reasons why this could be the case"
 msgstr "这可能有很多原因"
 
@@ -6227,9 +6228,6 @@ msgstr "您的数据库连接似乎无效"
 msgid "Your form is ready"
 msgstr "您的表单已准备就绪"
 
-msgid "Your server only allows"
-msgstr "您的服务器只允许"
-
 msgid "Your system PHP Version is not sufficient"
 msgstr "您的系统PHP版本是不充分的"
 
@@ -6796,9 +6794,6 @@ msgstr "成功移除!"
 msgid "task found"
 msgstr "发现任务"
 
-msgid "tasks in queue"
-msgstr "队列中的任务"
-
 #, php-format
 msgid "terminating so it can be restarted"
 msgstr ""
@@ -7078,8 +7073,14 @@ msgstr "你将该节点的带宽字段设置为1000"
 #~ msgid "Legacy FOG Client"
 #~ msgstr "旧客户端FOG"
 
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "请等待至有开放插槽"
+
 #~ msgid "Session altered improperly"
 #~ msgstr "会议修改不当"
+
+#~ msgid "There are currently"
+#~ msgstr "目前有"
 
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
@@ -7091,6 +7092,9 @@ msgstr "你将该节点的带宽字段设置为1000"
 #~ msgid "User Agent Changed"
 #~ msgstr "用户代理更改"
 
+#~ msgid "Your server only allows"
+#~ msgstr "您的服务器只允许"
+
 #, fuzzy
 #~ msgid "file to"
 #~ msgstr "失败"
@@ -7098,3 +7102,6 @@ msgstr "你将该节点的带宽字段设置为1000"
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "没有数据库工作关闭"
+
+#~ msgid "tasks in queue"
+#~ msgstr "队列中的任务"

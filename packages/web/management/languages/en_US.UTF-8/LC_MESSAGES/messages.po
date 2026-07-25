@@ -1690,6 +1690,9 @@ msgstr ""
 msgid "Event must be a string"
 msgstr "Event must be a string"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -4737,10 +4740,6 @@ msgstr ""
 msgid "Please use another hostname"
 msgstr "Please enter a hostname"
 
-#, fuzzy
-msgid "Please wait until a slot is open"
-msgstr "Please enter an access token"
-
 msgid "Plugin"
 msgstr "Plugin"
 
@@ -5420,6 +5419,10 @@ msgstr "General Information"
 #, fuzzy
 msgid "Server information at a glance."
 msgstr "LDAP information updated!"
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
 
 msgid "Service"
 msgstr "Service"
@@ -6337,10 +6340,6 @@ msgstr "The uploaded file was only partially uploaded"
 msgid "There are"
 msgstr "There are"
 
-#, fuzzy
-msgid "There are currently"
-msgstr "There are"
-
 msgid "There are many reasons why this could be the case"
 msgstr ""
 
@@ -7138,10 +7137,6 @@ msgid "Your form is ready"
 msgstr "Your form is ready."
 
 #, fuzzy
-msgid "Your server only allows"
-msgstr "You are only allowed to assign"
-
-#, fuzzy
 msgid "Your system PHP Version is not sufficient"
 msgstr ""
 "Your systems PHP version is not sufficient. You have version %s, version %s "
@@ -7798,9 +7793,6 @@ msgstr "successfully removed"
 msgid "task found"
 msgstr "task found"
 
-msgid "tasks in queue"
-msgstr ""
-
 #, php-format
 msgid "terminating so it can be restarted"
 msgstr ""
@@ -8109,8 +8101,16 @@ msgstr ""
 #~ msgid "Legacy FOG Client"
 #~ msgstr "Legacy FOG Client"
 
+#, fuzzy
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "Please enter an access token"
+
 #~ msgid "Session altered improperly"
 #~ msgstr "Session altered improperly"
+
+#, fuzzy
+#~ msgid "There are currently"
+#~ msgstr "There are"
 
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
@@ -8123,6 +8123,10 @@ msgstr ""
 
 #~ msgid "User Agent Changed"
 #~ msgstr "User Agent Changed"
+
+#, fuzzy
+#~ msgid "Your server only allows"
+#~ msgstr "You are only allowed to assign"
 
 #, fuzzy
 #~ msgid "file to"

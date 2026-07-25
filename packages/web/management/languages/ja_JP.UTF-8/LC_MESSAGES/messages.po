@@ -1459,6 +1459,9 @@ msgstr "イベントとデータが設定されていません"
 msgid "Event must be a string"
 msgstr "イベントは文字列で指定してください"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
 
@@ -4146,9 +4149,6 @@ msgstr ""
 msgid "Please use another hostname"
 msgstr "別のホスト名を使用してください"
 
-msgid "Please wait until a slot is open"
-msgstr "空きスロットができるまでお待ちください"
-
 msgid "Plugin"
 msgstr "プラグイン"
 
@@ -4732,6 +4732,10 @@ msgstr "サーバー情報"
 
 msgid "Server information at a glance."
 msgstr "サーバー情報の概要"
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
 
 msgid "Service"
 msgstr "サービス"
@@ -5528,9 +5532,6 @@ msgstr "アップロードしたファイルは一部しかアップロードさ
 msgid "There are"
 msgstr "あります"
 
-msgid "There are currently"
-msgstr "現在"
-
 msgid "There are many reasons why this could be the case"
 msgstr "この問題にはさまざまな原因が考えられます"
 
@@ -6216,9 +6217,6 @@ msgstr "データベース接続が無効のようです"
 msgid "Your form is ready"
 msgstr "フォームの準備ができました"
 
-msgid "Your server only allows"
-msgstr "サーバーで許可されているのは次のみです"
-
 msgid "Your system PHP Version is not sufficient"
 msgstr "システムの PHP バージョンが要件を満たしていません"
 
@@ -6786,9 +6784,6 @@ msgstr "正常に削除しました！"
 msgid "task found"
 msgstr "タスクが見つかりました"
 
-msgid "tasks in queue"
-msgstr "キュー内のタスク"
-
 #, php-format
 msgid "terminating so it can be restarted"
 msgstr ""
@@ -6951,3 +6946,15 @@ msgstr "今すぐインストールしますか？"
 
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "そのノードの帯域幅を 1000 に設定した場合"
+
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "空きスロットができるまでお待ちください"
+
+#~ msgid "There are currently"
+#~ msgstr "現在"
+
+#~ msgid "Your server only allows"
+#~ msgstr "サーバーで許可されているのは次のみです"
+
+#~ msgid "tasks in queue"
+#~ msgstr "キュー内のタスク"

@@ -1662,6 +1662,9 @@ msgstr ""
 msgid "Event must be a string"
 msgstr ""
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -4735,9 +4738,6 @@ msgstr ""
 msgid "Please use another hostname"
 msgstr ""
 
-msgid "Please wait until a slot is open"
-msgstr ""
-
 msgid "Plugin"
 msgstr "Plugin"
 
@@ -5391,6 +5391,10 @@ msgstr "Información de hardware"
 #, fuzzy
 msgid "Server information at a glance."
 msgstr "Información de hardware"
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
 
 msgid "Service"
 msgstr "Servicio"
@@ -6331,9 +6335,6 @@ msgstr ""
 msgid "There are"
 msgstr ""
 
-msgid "There are currently"
-msgstr ""
-
 msgid "There are many reasons why this could be the case"
 msgstr ""
 
@@ -7080,9 +7081,6 @@ msgstr ""
 msgid "Your form is ready"
 msgstr ""
 
-msgid "Your server only allows"
-msgstr ""
-
 msgid "Your system PHP Version is not sufficient"
 msgstr ""
 
@@ -7726,10 +7724,6 @@ msgstr "Eliminado"
 msgid "task found"
 msgstr "No hay tareas activas para este equipo"
 
-#, fuzzy
-msgid "tasks in queue"
-msgstr "Tareas"
-
 #, php-format
 msgid "terminating so it can be restarted"
 msgstr ""
@@ -8036,6 +8030,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "task"
 #~ msgstr "Tarea"
+
+#, fuzzy
+#~ msgid "tasks in queue"
+#~ msgstr "Tareas"
 
 #, fuzzy
 #~ msgid "will not be added to this client"

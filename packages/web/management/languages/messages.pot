@@ -1445,6 +1445,9 @@ msgstr ""
 msgid "Event must be a string"
 msgstr ""
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -4126,9 +4129,6 @@ msgstr ""
 msgid "Please use another hostname"
 msgstr ""
 
-msgid "Please wait until a slot is open"
-msgstr ""
-
 msgid "Plugin"
 msgstr ""
 
@@ -4708,6 +4708,10 @@ msgid "Server information"
 msgstr ""
 
 msgid "Server information at a glance."
+msgstr ""
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
 msgstr ""
 
 msgid "Service"
@@ -5500,9 +5504,6 @@ msgstr ""
 msgid "There are"
 msgstr ""
 
-msgid "There are currently"
-msgstr ""
-
 msgid "There are many reasons why this could be the case"
 msgstr ""
 
@@ -6180,9 +6181,6 @@ msgstr ""
 msgid "Your form is ready"
 msgstr ""
 
-msgid "Your server only allows"
-msgstr ""
-
 msgid "Your system PHP Version is not sufficient"
 msgstr ""
 
@@ -6747,9 +6745,6 @@ msgid "successfully removed!"
 msgstr ""
 
 msgid "task found"
-msgstr ""
-
-msgid "tasks in queue"
 msgstr ""
 
 #, php-format

@@ -1694,6 +1694,9 @@ msgstr "Ereignis und Daten sind nicht gesetzt"
 msgid "Event must be a string"
 msgstr "Ereignisname muss eine Zeichenfolge sein."
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "Bestehendes Objekt muss boolean sein"
 
@@ -4749,10 +4752,6 @@ msgstr ""
 msgid "Please use another hostname"
 msgstr "Bitte geben Sie einen anderen Hostnamen ein"
 
-#, fuzzy
-msgid "Please wait until a slot is open"
-msgstr "Bitte warten, bis ein Slot offen ist"
-
 msgid "Plugin"
 msgstr "Plugin"
 
@@ -5433,6 +5432,10 @@ msgstr "Serverinformationen"
 #, fuzzy
 msgid "Server information at a glance."
 msgstr "Serverinformationen auf einen Blick"
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
 
 msgid "Service"
 msgstr "Service"
@@ -6353,10 +6356,6 @@ msgstr "Die hochgeladene Datei wurde nur teilweise hochgeladen"
 msgid "There are"
 msgstr "Es gibt"
 
-#, fuzzy
-msgid "There are currently"
-msgstr "Es gibt aktuell "
-
 msgid "There are many reasons why this could be the case"
 msgstr "Es gibt mehrere Möglichkeiten, wieso das so ist."
 
@@ -7149,10 +7148,6 @@ msgid "Your form is ready"
 msgstr "Ihr Formular ist fertig."
 
 #, fuzzy
-msgid "Your server only allows"
-msgstr "Ihr Server erlaubt nur "
-
-#, fuzzy
 msgid "Your system PHP Version is not sufficient"
 msgstr ""
 "Ihre PHP-Version ist nicht ausreichend. Sie haben Version %s, Version %s ist "
@@ -7815,9 +7810,6 @@ msgstr "erfolgreich entfernt!"
 msgid "task found"
 msgstr "Task gefunden"
 
-msgid "tasks in queue"
-msgstr "Tasks in der Warteschlange"
-
 #, php-format
 msgid "terminating so it can be restarted"
 msgstr ""
@@ -8127,6 +8119,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgid "Legacy FOG Client"
 #~ msgstr "Legacy FOG Client"
 
+#, fuzzy
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "Bitte warten, bis ein Slot offen ist"
+
 #~ msgid "Replicating ssl less private key"
 #~ msgstr "Replizieren von SSL-freiem privatem Schlüssel"
 
@@ -8138,6 +8134,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "The old client and fogcrypt, deprecated"
 #~ msgstr "Der alte Client und FOG Krypto, veraltet"
+
+#, fuzzy
+#~ msgid "There are currently"
+#~ msgstr "Es gibt aktuell "
 
 #~ msgid "This client is not being developed any further so any issues"
 #~ msgstr "Dieser Client wird nicht weiter entwickelt, so dass"
@@ -8158,6 +8158,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgid "We highly recommend you make the switch for more"
 #~ msgstr "Wir empfehlen dringend, den Umstieg auf"
 
+#, fuzzy
+#~ msgid "Your server only allows"
+#~ msgstr "Ihr Server erlaubt nur "
+
 #~ msgid "but"
 #~ msgstr "aber "
 
@@ -8174,6 +8178,9 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "security and faster client communication and management"
 #~ msgstr "mehr Sicherheit und schnellere Clientkommunikation und -management"
+
+#~ msgid "tasks in queue"
+#~ msgstr "Tasks in der Warteschlange"
 
 #~ msgid "that are not yet using the new client"
 #~ msgstr "die nicht die neuen Clients nutzen."

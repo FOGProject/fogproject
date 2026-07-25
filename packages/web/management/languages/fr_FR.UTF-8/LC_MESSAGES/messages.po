@@ -1482,6 +1482,9 @@ msgstr "L'événement et les données ne sont pas définis"
 msgid "Event must be a string"
 msgstr "Événement doit être une chaîne de caractères"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "L'élément Exists doit être booléen"
 
@@ -4211,9 +4214,6 @@ msgstr ""
 msgid "Please use another hostname"
 msgstr "Veuillez utiliser un autre nom de machine"
 
-msgid "Please wait until a slot is open"
-msgstr "Veuillez attendre qu'un créneau se libère"
-
 msgid "Plugin"
 msgstr "Greffon"
 
@@ -4800,6 +4800,10 @@ msgstr "Informations sur le serveur"
 
 msgid "Server information at a glance."
 msgstr "Informations sur le serveur en un coup d'œil."
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
 
 msgid "Service"
 msgstr "Service"
@@ -5609,9 +5613,6 @@ msgstr "Le fichier n'a été que partiellement téléchargé"
 msgid "There are"
 msgstr "Il y a"
 
-msgid "There are currently"
-msgstr "Il y a actuellement"
-
 msgid "There are many reasons why this could be the case"
 msgstr "Il y a plusieurs raisons pour lesquelles cela pourrait être le cas"
 
@@ -6311,9 +6312,6 @@ msgstr "Votre connexion à la base de données semble être invalide"
 msgid "Your form is ready"
 msgstr "Votre formulaire est prêt"
 
-msgid "Your server only allows"
-msgstr "Votre serveur ne permet que"
-
 msgid "Your system PHP Version is not sufficient"
 msgstr "La version PHP de votre système n'est pas suffisante"
 
@@ -6893,9 +6891,6 @@ msgstr "supprimé avec succès !"
 msgid "task found"
 msgstr "tâche trouvée"
 
-msgid "tasks in queue"
-msgstr "tâches dans la file d'attente"
-
 #, php-format
 msgid "terminating so it can be restarted"
 msgstr ""
@@ -7172,11 +7167,17 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgid "Legacy FOG Client"
 #~ msgstr "Héritage FOG client"
 
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "Veuillez attendre qu'un créneau se libère"
+
 #~ msgid "Replicating ssl less private key"
 #~ msgstr "Réplication de ssl sans clé privée"
 
 #~ msgid "Session altered improperly"
 #~ msgstr "Session modifiée incorrectement"
+
+#~ msgid "There are currently"
+#~ msgstr "Il y a actuellement"
 
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
@@ -7195,6 +7196,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgid "User Agent Changed"
 #~ msgstr "L'agent utilisateur modifié"
 
+#~ msgid "Your server only allows"
+#~ msgstr "Votre serveur ne permet que"
+
 #~ msgid "but"
 #~ msgstr "mais"
 
@@ -7204,3 +7208,6 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 
 #~ msgid "no database to"
 #~ msgstr "aucune base de données pour"
+
+#~ msgid "tasks in queue"
+#~ msgstr "tâches dans la file d'attente"

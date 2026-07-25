@@ -1471,6 +1471,9 @@ msgstr "Evento e dados não estão definidos"
 msgid "Event must be a string"
 msgstr "Evento deve ser uma string"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "Item 'Exists' deve ser booleano"
 
@@ -4176,9 +4179,6 @@ msgstr "Por favor, atualize seu Cliente FOG, este é antigo e inseguro"
 msgid "Please use another hostname"
 msgstr "Por favor, use outro nome de host"
 
-msgid "Please wait until a slot is open"
-msgstr "Por favor, aguarde até que um slot esteja aberto"
-
 msgid "Plugin"
 msgstr "Plugin"
 
@@ -4762,6 +4762,10 @@ msgstr "Informações do Servidor"
 
 msgid "Server information at a glance."
 msgstr "Informações do servidor em resumo."
+
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
 
 msgid "Service"
 msgstr "Serviço"
@@ -5557,9 +5561,6 @@ msgstr "O arquivo enviado foi apenas parcialmente carregado"
 msgid "There are"
 msgstr "Existem"
 
-msgid "There are currently"
-msgstr "Existem atualmente"
-
 msgid "There are many reasons why this could be the case"
 msgstr "Existem muitas razões pelas quais isso pode ser o caso"
 
@@ -6248,9 +6249,6 @@ msgstr "Sua conexão com o banco de dados parece ser inválida"
 msgid "Your form is ready"
 msgstr "Seu formulário está pronto"
 
-msgid "Your server only allows"
-msgstr "Seu servidor permite apenas"
-
 msgid "Your system PHP Version is not sufficient"
 msgstr "Sua versão PHP do sistema não é suficiente"
 
@@ -6819,9 +6817,6 @@ msgstr "removido com sucesso!"
 msgid "task found"
 msgstr "tarefa encontrada"
 
-msgid "tasks in queue"
-msgstr "tarefas na fila"
-
 #, php-format
 msgid "terminating so it can be restarted"
 msgstr ""
@@ -6998,3 +6993,15 @@ msgstr "você define o campo de largura de banda naquele nó para 1000"
 
 #~ msgid "LDAP Connection  Name"
 #~ msgstr "Nome da Conexão LDAP"
+
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "Por favor, aguarde até que um slot esteja aberto"
+
+#~ msgid "There are currently"
+#~ msgstr "Existem atualmente"
+
+#~ msgid "Your server only allows"
+#~ msgstr "Seu servidor permite apenas"
+
+#~ msgid "tasks in queue"
+#~ msgstr "tarefas na fila"

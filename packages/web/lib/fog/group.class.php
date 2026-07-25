@@ -502,32 +502,10 @@ class Group extends FOGController
                 throw new Exception(_('Unable to find master Storage Node'));
             }
             if ($TaskType->isMulticast()) {
-                list(
-                    $portOverride,
-                    $defaultPort
-                ) = self::getSubObjectIDs(
-                    'Service',
-                    array(
-                        'name' => array(
-                            'FOG_MULTICAST_PORT_OVERRIDE',
-                            'FOG_UDPCAST_STARTINGPORT',
-                        ),
-                    ),
-                    'value',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
-                );
-                if ($portOverride) {
-                    $port = $portOverride;
-                } else {
-                    $port = $defaultPort;
-                }
+                MulticastSession::assertCapacity();
                 $MulticastSession = self::getClass('MulticastSession')
                     ->set('name', $taskName)
-                    ->set('port', $port)
+                    ->set('port', MulticastSession::allocatePort())
                     ->set('logpath', $Image->get('path'))
                     ->set('image', $Image->get('id'))
                     ->set('interface', $StorageNode->get('interface'))
@@ -536,13 +514,7 @@ class Group extends FOGController
                     ->set('percent', 0)
                     ->set('isDD', $Image->get('imageTypeID'))
                     ->set('storagegroupID', $StorageGroup->get('id'));
-                if ($MulticastSession->save()) {
-                    $randomnumber = mt_rand(24576, 32766) * 2;
-                    while ($randomnumber == $MulticastSession->get('port')) {
-                        $randomnumber = mt_rand(24576, 32766) * 2;
-                    }
-                    self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
-                }
+                $MulticastSession->save();
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
                 $batchFields = array(
