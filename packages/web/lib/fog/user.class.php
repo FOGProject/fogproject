@@ -107,12 +107,23 @@ class User extends FOGController
             $username
         );
         $tmpUser = new User();
+        // An external provider (LDAP today, any auth plugin tomorrow) sets
+        // this to true to state that it has already proven the identity
+        // against its own directory. Without it a plugin had no way to say
+        // "this person is who they claim" and its only option was to write
+        // the directory password into uPass so the compare below would pass
+        // -- which is why FOG has been storing bcrypt hashes of live AD
+        // passwords. It is honoured ONLY for accounts carrying an
+        // authsource stamp, so it can never be used to bypass the password
+        // of a local account.
+        $authenticated = false;
         self::$HookManager->processEvent(
             'USER_LOGGING_IN',
             [
                 'username' => $username,
                 'password' => $password,
-                'user' => &$tmpUser
+                'user' => &$tmpUser,
+                'authenticated' => &$authenticated
             ]
         );
         $typeIsValid = true;
@@ -122,7 +133,19 @@ class User extends FOGController
                 ->set('name', $username)
                 ->load('name');
         }
-        if ($tmpUser->isValid()
+        $isExternal = ('' !== trim((string)$tmpUser->get('authsource')));
+        // An externally sourced account has no usable local password, so a
+        // local credential must never authenticate it. This is the check
+        // that makes a leftover shadow row harmless: with the auth plugin
+        // uninstalled or its server unreachable nothing vouches for the
+        // account, and the row stops being a login. It also replaces the
+        // LDAP plugin's own isLdapType() guard, which never fired because
+        // USER_TYPE_HOOK rewrote the type it tested one block earlier.
+        if ($isExternal && true !== $authenticated) {
+            return false;
+        }
+        if (!$isExternal
+            && $tmpUser->isValid()
             && preg_match('#^[a-f0-9]{32}$#i', $tmpUser->get('password'))
             && md5($password) === $tmpUser->get('password')
         ) {
@@ -130,7 +153,9 @@ class User extends FOGController
                 ->set('password', $password)
                 ->save();
         }
-        $passValid = (bool)password_verify(
+        // $isExternal implies $authenticated by the guard above, which
+        // returned for every other external case.
+        $passValid = $isExternal ? true : (bool)password_verify(
             $password,
             $tmpUser->get('password')
         );
