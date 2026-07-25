@@ -8092,6 +8092,9 @@ msgstr ""
 msgid "is new"
 msgstr "Línea"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr ""
 

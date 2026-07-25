@@ -7938,6 +7938,9 @@ msgstr ""
 msgid "is new"
 msgstr "Linha"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 #, fuzzy
 msgid "is no longer running"
 msgstr " não existe mais"

@@ -858,14 +858,25 @@ class MulticastTask extends FOGService
      * orphan. senderstart is deliberately left alone: nothing reads it while
      * senderpid is 0, and keeping it records when the sender last ran.
      *
+     * This writes the two columns directly rather than saving _MultiSess.
+     * That object was loaded when the task was constructed and is stale by
+     * the time a sender is killed -- FOGController::save() writes every
+     * field it holds, so saving it here would put the pre-cancel state,
+     * name and client count back and hand the session straight back to the
+     * daemon to start again.
+     *
      * @return void
      */
     public function clearSenderRef()
     {
-        $this->_MultiSess
-            ->set('senderpid', 0)
-            ->set('sendernode', 0)
-            ->save();
+        self::getClass('MulticastSessionManager')->update(
+            ['id' => $this->getID()],
+            '',
+            [
+                'senderpid' => 0,
+                'sendernode' => 0
+            ]
+        );
     }
     /**
      * Updates the stats of the tasking

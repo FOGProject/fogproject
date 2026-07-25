@@ -7927,6 +7927,9 @@ msgstr ""
 msgid "is new"
 msgstr "线"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 #, fuzzy
 msgid "is no longer running"
 msgstr "不复存在"
