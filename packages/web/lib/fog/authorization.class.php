@@ -305,8 +305,26 @@ class Authorization extends FOGBase
             ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         if (!is_array($rows) || count($rows) < 1) {
-            // Zero role assignments, direct or group-sourced = implicit
-            // administrator.
+            // Zero role assignments, direct or group-sourced.
+            //
+            // For a LOCAL account this stays "implicit administrator", which
+            // is what keeps an upgrade from locking every existing user out
+            // before any role has been assigned.
+            //
+            // For an EXTERNALLY authenticated account it must not. An auth
+            // plugin creates its users on the fly at login, so a role-less
+            // externally sourced user is the normal case rather than the
+            // upgrade edge case the fallback was written for -- which made
+            // every LDAP-authenticated user a full administrator once RBAC
+            // landed. Deny instead: an external identity gets exactly the
+            // roles its provider mapped to it, and nothing by default.
+            //
+            // This is checked here, in the resolver, rather than at account
+            // creation, so it holds for every account with a provider stamp
+            // no matter how or when that account came to exist.
+            if ('' !== self::_authSource($userID)) {
+                return self::$_permCache[$userID] = [];
+            }
             return self::$_permCache[$userID] = null;
         }
         $perms = [];
@@ -319,6 +337,43 @@ class Authorization extends FOGBase
         return self::$_permCache[$userID] = array_values(
             array_unique($perms)
         );
+    }
+    /**
+     * The external provider that authenticates a user, '' when local.
+     *
+     * Read straight from the table rather than through the User model so a
+     * permission lookup cannot recurse back into a controller that may
+     * itself consult permissions. Only ever called on the zero-role path,
+     * so this costs nothing for the common case.
+     *
+     * @param int $userID the user id
+     *
+     * @return string
+     */
+    private static function _authSource($userID)
+    {
+        // The whole row, not the single column: this runs on every request
+        // that reaches the zero-role branch, including during the window
+        // between deploying this code and running the schema update, when
+        // `uAuthSource` does not exist yet. Naming the column in the SELECT
+        // would make that query fail and deny every user until the update
+        // ran -- and the update itself is reached through an authenticated
+        // page. Selecting the row degrades to "no such column, therefore
+        // local", which is exactly the pre-upgrade behaviour.
+        $row = self::$DB
+            ->query(
+                'SELECT * FROM `users` WHERE `uId` = :userid',
+                [],
+                ['userid' => (int)$userID]
+            )
+            ->fetch()
+            ->get();
+        // No row at all is a different matter: the id does not name a real
+        // user, so there is no provenance to trust and nothing to grant.
+        if (!is_array($row) || count($row) < 1) {
+            return 'unknown';
+        }
+        return trim((string)($row['uAuthSource'] ?? ''));
     }
     /**
      * Does the user hold the given permission?

@@ -4598,3 +4598,33 @@ $this->schema[] = [
     . "else is ignored. Default is 0, which is disabled and lets FOG pick a "
     . "port per session.' WHERE `settingKey` = 'FOG_MULTICAST_PORT_OVERRIDE'",
 ];
+// Guarded for the same reason as step 312: working-1.6 and dev-branch number
+// the same migration differently, so an install may already carry the column.
+$columnuAuthSource = array_filter(
+    (array)DatabaseManager::getColumns(
+        'users',
+        'uAuthSource'
+    )
+);
+// 314
+$this->schema[] = count($columnuAuthSource ?: []) ? [] : [
+    // Records which external provider vouched for an account ('' = local).
+    //
+    // Authorization::getPermissions() treats "no role rows at all" as an
+    // implicit administrator so that upgrades cannot lock anyone out. The
+    // LDAP plugin has always created its users with no role rows, so after
+    // native RBAC landed every LDAP-authenticated user silently became a
+    // full administrator -- the plugin still wrote uType 990/991, and
+    // nothing reads uType for authorization any more.
+    //
+    // The provenance has to live in core, not in the plugin, because the
+    // rule it protects lives in core. It is deliberately NOT keyed on the
+    // plugin's uType sentinels: uType is a shared generic field that is
+    // admin-editable at runtime (FOG_PLUGIN_LDAP_USER_FILTER) and writable
+    // over the API and CSV import, and a second auth plugin would have to
+    // invent its own magic numbers and hope they never collide. Storing the
+    // provider name makes the deny-by-default a standing property of the
+    // resolver rather than a check that runs once at login.
+    "ALTER TABLE `users` "
+    . "ADD COLUMN `uAuthSource` VARCHAR(32) NOT NULL DEFAULT ''",
+];

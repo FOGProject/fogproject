@@ -41,7 +41,10 @@ class User extends FOGController
         'type' => 'uType',
         'display' => 'uDisplay',
         'api' => 'uAllowAPI',
-        'token' => 'uAPIToken'
+        'token' => 'uAPIToken',
+        // '' = local account. Non-empty names the external provider that
+        // authenticates this user (e.g. 'ldap'); see schema step 314.
+        'authsource' => 'uAuthSource'
     ];
     /**
      * The required fields
