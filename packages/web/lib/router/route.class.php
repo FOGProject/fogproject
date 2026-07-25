@@ -120,6 +120,13 @@ class Route extends FOGBase
             'password',
             'token',
         ],
+        // The directory service account's password. Unlike a host's ADPass
+        // there is no consumer that legitimately reads this back out over
+        // the API -- only the web tier binds with it -- so it has no reason
+        // to appear in a listing.
+        'ldap' => [
+            'bindPwd',
+        ],
     ];
     /**
      * Stores the valid classes.

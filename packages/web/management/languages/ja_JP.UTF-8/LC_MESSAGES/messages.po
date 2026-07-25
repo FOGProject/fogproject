@@ -3580,6 +3580,10 @@ msgstr "最新バージョン"
 msgid "Leave a field blank to keep each host's current value."
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
 
+#, fuzzy
+msgid "Leave blank to keep the current password"
+msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
+
 msgid "Level must be an integer"
 msgstr "レベルは整数である必要があります"
 

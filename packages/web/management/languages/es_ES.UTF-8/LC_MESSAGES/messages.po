@@ -3864,6 +3864,9 @@ msgstr "Versión del sistema"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave blank to keep the current password"
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Evento debe ser una cadena"

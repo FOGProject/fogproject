@@ -45,14 +45,14 @@ class LDAP_Report extends ReportManagement
             _('User Group'),
             _('Search Scope'),
             _('Bind DN'),
-            _('Bind Password'),
+            // Bind Password removed: the export handed out the directory
+            // service account credential in cleartext.
             _('Group Search DN'),
             _('Use Group Match'),
             _('Display Name Enabled'),
             _('Display Name Attribute')
         ];
         $this->attributes = [
-            [],
             [],
             [],
             [],

@@ -163,6 +163,11 @@ class Authorization extends FOGBase
         'inventory' => 'host',
         'ipxe' => 'ipxe',
         'keysequence' => 'ipxe',
+        // Plugin-added classes otherwise fall through to the fail-open
+        // branch below and are readable by any authenticated user. This one
+        // carries a directory service account credential, so it is mapped
+        // explicitly ahead of the general fix for that fallback.
+        'ldap' => 'ldap',
         'macaddressassociation' => 'host',
         'module' => 'module',
         'moduleassociation' => 'module',

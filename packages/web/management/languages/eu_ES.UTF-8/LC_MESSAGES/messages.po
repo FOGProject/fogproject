@@ -3777,6 +3777,9 @@ msgstr "Neueste Version"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave blank to keep the current password"
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Level muss eine integer sein."

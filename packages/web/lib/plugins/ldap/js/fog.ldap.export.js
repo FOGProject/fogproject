@@ -14,7 +14,6 @@
         {data: 'userGroup', visible: false},
         {data: 'searchScope', visible: false},
         {data: 'bindDN', visible: false},
-        {data: 'bindPwd', visible: false},
         {data: 'grpSearchDN', visible: false},
         {data: 'useGroupMatch', visible: false},
         {data: 'displayNameOn', visible: false},

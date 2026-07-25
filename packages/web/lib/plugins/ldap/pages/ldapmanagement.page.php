@@ -606,10 +606,12 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'bindDN') ?:
             $this->obj->get('bindDN')
         );
-        $bindPwd = (
-            filter_input(INPUT_POST, 'bindPwd') ?:
-            $this->obj->get('bindPwd')
-        );
+        // Deliberately NOT seeded from the stored value. type="password"
+        // hides it on screen but the value attribute is still in the page
+        // source, so rendering it handed the directory service account
+        // credential to anyone who could open the edit page. Blank means
+        // "unchanged" on save; see ldapGeneralPost().
+        $bindPwd = (string)filter_input(INPUT_POST, 'bindPwd');
         $template = filter_input(INPUT_POST, 'template');
         $searchScopes = [
             _('Base Only'),
@@ -896,7 +898,7 @@ class LDAPManagement extends FOGPage
             . self::makeInput(
                 'form-control ldapbindpwd-input',
                 'bindPwd',
-                '',
+                _('Leave blank to keep the current password'),
                 'password',
                 'bindPwd',
                 $bindPwd
@@ -1083,12 +1085,18 @@ class LDAPManagement extends FOGPage
             ->set('userGroup', $userGroup)
             ->set('searchScope', $searchScope)
             ->set('bindDN', $bindDN)
-            ->set('bindPwd', $bindPwd)
             ->set('useGroupMatch', $useGroupMatch)
             ->set('grpSearchDN', $grpSearchDN)
             ->set('displayNameOn', $displayNameOn)
             ->set('allowapi', $isAPI)
             ->set('displayNameAttr', $displayNameAttr);
+        // The edit form no longer renders the stored password back into the
+        // field, so an empty submission means "leave it as it is" rather
+        // than "clear it". Without this an admin editing any other setting
+        // on the page would silently wipe the bind credential.
+        if ('' !== $bindPwd) {
+            $this->obj->set('bindPwd', $bindPwd);
+        }
     }
     /**
      * Presents the user with fields to edit
