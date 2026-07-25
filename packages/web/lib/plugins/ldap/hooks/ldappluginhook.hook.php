@@ -29,6 +29,21 @@ class LDAPPluginHook extends Hook
     const LDAP_ADMIN = '990';
     const LDAP_MOBILE = '991';
     /**
+     * Stamped on users.uAuthSource so core knows this account is
+     * externally authenticated and must not fall back to implicit
+     * administrator or to a local password compare.
+     */
+    const AUTH_SOURCE = 'ldap';
+    /**
+     * Access tiers, ordered: a higher tier wins when several LDAP servers
+     * answer for the same user. TIER_NOMATCH sits below a verified user
+     * match because it means "we could not check", not "we checked".
+     */
+    const TIER_NONE = 0;
+    const TIER_NOMATCH = 1;
+    const TIER_USER = 2;
+    const TIER_ADMIN = 3;
+    /**
      * The user types to filter
      *
      * @var array
@@ -82,21 +97,27 @@ class LDAPPluginHook extends Hook
         if (count(self::$_userTypes) < 1) {
             self::$_userTypes = self::LDAP_TYPES;
         }
+        // USER_TYPES_FILTER, USER_TYPE_VALID and USER_LOGGING_OUT are no
+        // longer registered. All three defended the pre-RBAC two-tier model
+        // and under roles they combined into "an LDAP user can never hold a
+        // role":
+        //  - USER_TYPES_FILTER made Role::loadUsers() and
+        //    UserGroup::loadUsers() array_diff LDAP users out of their
+        //    membership lists, so the next save of any role deleted their
+        //    roleUserAssoc rows -- including rows nobody had touched.
+        //  - USER_LOGGING_OUT destroyed the user row outright, taking its
+        //    roles with it, and only fired on an explicit logout anyway.
+        //  - USER_TYPE_VALID (isLdapType) was dead: USER_TYPE_HOOK rewrites
+        //    990/991 to 0/1 one block earlier, so it only ever saw the
+        //    rewritten value. Core's authsource check replaces it.
+        // This plugin is the only registrant of all three, so the core
+        // firings simply go inert.
         self::$HookManager->register(
             'USER_LOGGING_IN',
             [$this, 'checkAddUser']
         )->register(
             'USER_TYPE_HOOK',
             [$this, 'setLdapType']
-        )->register(
-            'USER_TYPES_FILTER',
-            [$this, 'setTypeFilter']
-        )->register(
-            'USER_TYPE_VALID',
-            [$this, 'isLdapType']
-        )->register(
-            'USER_LOGGING_OUT',
-            [$this, 'removeLdapShadow']
         );
     }
     /**
@@ -135,54 +156,147 @@ class LDAPPluginHook extends Hook
         );
         /**
          * Authenticate against every configured LDAP server and keep the
-         * most privileged result (admin beats mobile beats none). A server
-         * where the user is absent must not downgrade a match found on
-         * another server, so we accumulate the best access level and act on
-         * it once after the loop rather than per-server.
+         * most privileged result (admin beats user beats unverified beats
+         * none). A server where the user is absent must not downgrade a
+         * match found on another server, so we accumulate the best tier and
+         * act on it once after the loop rather than per-server.
+         *
+         * A server with group matching disabled is its own tier rather than
+         * an admin match: authLDAP() returns 2 there, but it means "this
+         * account can bind and we have no way to check what it is", not
+         * "this account is an administrator". Ranking it below a verified
+         * user-group match keeps an unverifiable server from outranking a
+         * server that actually answered the question.
          */
-        $bestAccess = 0;
+        $bestTier = self::TIER_NONE;
         $displayName = '';
         $ldapAPI = 0;
         foreach ($items->data as $ldap) {
             $LDAP = self::getClass('LDAP', $ldap->id);
             $access = (int)$LDAP->authLDAP($user, $pass);
-            if ($access > $bestAccess) {
-                $bestAccess = $access;
+            if ($access < 1) {
+                continue;
+            }
+            if (!$LDAP->get('useGroupMatch')) {
+                $tier = self::TIER_NOMATCH;
+            } elseif ($access >= 2) {
+                $tier = self::TIER_ADMIN;
+            } else {
+                $tier = self::TIER_USER;
+            }
+            if ($tier > $bestTier) {
+                $bestTier = $tier;
                 $displayName = $LDAP->getDisplayName($user, $pass);
                 $ldapAPI = $LDAP->get('allowapi');
                 /**
-                 * Admin is the highest level; no need to keep looking.
+                 * Admin is the highest tier; no need to keep looking.
                  */
-                if ($bestAccess >= 2) {
+                if ($bestTier >= self::TIER_ADMIN) {
                     break;
                 }
             }
         }
-        switch ($bestAccess) {
-            case 2:
-                // This is an admin account.
-                $tmpUser
-                    ->set('name', $user)
-                    ->set('password', $pass)
-                    ->set('display', $displayName)
-                    ->set('type', self::LDAP_ADMIN)
-                    ->set('api', $ldapAPI)
-                    ->save();
+        if (self::TIER_NONE === $bestTier) {
+            $arguments['user'] = new User(-1);
+            return;
+        }
+        // Rows this plugin created before it stopped storing directory
+        // passwords still hold a bcrypt hash of the user's real password.
+        // Overwrite uPass once, on the first login after the upgrade, and
+        // leave it alone thereafter -- hashing a fresh token on every login
+        // would burn a bcrypt round per sign-in for no benefit.
+        $needsPassword = (
+            !$tmpUser->isValid()
+            || self::AUTH_SOURCE !== $tmpUser->get('authsource')
+        );
+        // uType is kept as the marker identifying a row this plugin owns --
+        // uninstall() and FOG_PLUGIN_LDAP_USER_FILTER both key on it -- but
+        // it no longer decides anything. Authorization comes from the role
+        // assigned below; provenance comes from authsource.
+        $tmpUser
+            ->set('name', $user)
+            ->set('display', $displayName)
+            ->set('type', (
+                self::TIER_ADMIN === $bestTier ?
+                self::LDAP_ADMIN :
+                self::LDAP_MOBILE
+            ))
+            ->set('api', $ldapAPI)
+            ->set('authsource', self::AUTH_SOURCE);
+        if ($needsPassword) {
+            // Never the directory password. The account is authenticated by
+            // the vouch below, so uPass only has to be something no typed
+            // password can ever match.
+            $tmpUser->set('password', self::getToken(64));
+        }
+        $this->_syncRoles($tmpUser, self::_roleForTier($bestTier));
+        $tmpUser->save();
+        $arguments['user'] = $tmpUser;
+        // Tell core we have already proven this identity, so it skips the
+        // local password compare instead of us having to make one succeed.
+        $arguments['authenticated'] = true;
+    }
+    /**
+     * The configured role id for an access tier, '' when unset.
+     *
+     * @param int $tier one of the TIER_* constants
+     *
+     * @return string
+     */
+    private static function _roleForTier($tier)
+    {
+        switch ($tier) {
+            case self::TIER_ADMIN:
+                $key = 'FOG_PLUGIN_LDAP_ADMIN_ROLE';
                 break;
-            case 1:
-                // This is an unprivileged user account.
-                $tmpUser
-                    ->set('name', $user)
-                    ->set('password', $pass)
-                    ->set('display', $displayName)
-                    ->set('type', self::LDAP_MOBILE)
-                    ->set('api', $ldapAPI)
-                    ->save();
+            case self::TIER_USER:
+                $key = 'FOG_PLUGIN_LDAP_USER_ROLE';
+                break;
+            case self::TIER_NOMATCH:
+                $key = 'FOG_PLUGIN_LDAP_NOMATCH_ROLE';
                 break;
             default:
-                $tmpUser = new User(-1);
+                return '';
         }
-        $arguments['user'] = $tmpUser;
+        return trim((string)self::getSetting($key));
+    }
+    /**
+     * Makes the directory authoritative over the mapped roles only.
+     *
+     * The three mapped roles are recomputed from the directory on every
+     * login, so revoking someone's LDAP group membership downgrades them
+     * the next time they sign in. Any other role an admin attached by hand
+     * is left alone -- without that carve-out the sync would silently
+     * revoke deliberate grants, and an admin would have no way to give an
+     * LDAP user anything extra.
+     *
+     * Reading get('roles') here is also what arms the sync: assocSetter()
+     * no-ops on an association that was never loaded or set, so the read
+     * below is load-bearing, not just informational.
+     *
+     * @param User   $userObj the user being authenticated
+     * @param string $roleId  the role this login earns, '' for none
+     *
+     * @return void
+     */
+    private function _syncRoles($userObj, $roleId)
+    {
+        $managed = array_map(
+            'strval',
+            array_filter(
+                [
+                    self::getSetting('FOG_PLUGIN_LDAP_ADMIN_ROLE'),
+                    self::getSetting('FOG_PLUGIN_LDAP_USER_ROLE'),
+                    self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
+                ]
+            )
+        );
+        $current = array_map('strval', (array)$userObj->get('roles'));
+        $roles = array_values(array_diff($current, $managed));
+        if ('' !== (string)$roleId) {
+            $roles[] = (string)$roleId;
+        }
+        $userObj->set('roles', array_values(array_unique($roles)));
     }
     /**
      * Sets our ldap types
@@ -197,46 +311,6 @@ class LDAPPluginHook extends Hook
             $arguments['type'] = 0;
         } elseif ($arguments['type'] == self::LDAP_MOBILE) {
             $arguments['type'] = 1;
-        }
-    }
-    /**
-     * Sets our user type to filter from user list
-     *
-     * @param mixed $arguments the item to adjust
-     *
-     * @return void
-     */
-    public function setTypeFilter($arguments)
-    {
-        $arguments['types'] = self::$_userTypes;
-    }
-    /**
-     * Tests if the user is containing the ldap types.
-     *
-     * @param mixed $arguments the item to adjust
-     *
-     * @return void
-     */
-    public function isLdapType($arguments)
-    {
-        $types = self::$_userTypes;
-        if (in_array($arguments['type'], $types)) {
-            $arguments['typeIsValid'] = false;
-        }
-    }
-    /**
-     * Cleans up logged out users
-     *
-     * @return void
-     */
-    public function removeLdapShadow()
-    {
-        if (!self::$FOGUser instanceof User) {
-            return;
-        }
-        $types = self::$_userTypes;
-        if (in_array(self::$FOGUser->get('type'), $types)) {
-            self::$FOGUser->destroy();
         }
     }
 }
