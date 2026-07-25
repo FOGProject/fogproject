@@ -3251,6 +3251,9 @@ msgstr "Emplacements"
 msgid "Log Viewer"
 msgstr "Visionneuse de journaux"
 
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
+
 msgid "Login"
 msgstr "S'identifier"
 

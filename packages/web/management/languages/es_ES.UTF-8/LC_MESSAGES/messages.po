@@ -3686,6 +3686,9 @@ msgstr ""
 msgid "Log Viewer"
 msgstr "Visor de logs"
 
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
+
 msgid "Login"
 msgstr "Login"
 

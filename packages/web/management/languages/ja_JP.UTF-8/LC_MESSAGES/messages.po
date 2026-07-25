@@ -3198,6 +3198,9 @@ msgstr "ロケーション"
 msgid "Log Viewer"
 msgstr "ログビューアー"
 
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
+
 msgid "Login"
 msgstr "ログイン"
 

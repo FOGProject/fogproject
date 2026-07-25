@@ -3223,6 +3223,9 @@ msgstr "Localizações"
 msgid "Log Viewer"
 msgstr "Visualizador de Log"
 
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
+
 msgid "Login"
 msgstr "Login"
 
