@@ -238,8 +238,6 @@ class MulticastManager extends FOGService
     private function _serviceLoop()
     {
         $KnownTasks = [];
-        // Any sender still recorded against this node predates our fork.
-        $this->_reconcileOrphanedSenders();
         while (true) {
             // Wait until db is ready.
             // This is in the loop just in case the db goes down in between sessions.
@@ -277,6 +275,27 @@ class MulticastManager extends FOGService
             self::$_mcOn = self::getSetting('MULTICASTGLOBALENABLED');
 
             try {
+                // Any sender still recorded against a node we master
+                // predates this fork, so reconcile once before the first
+                // pass.
+                //
+                // Inside the try, because its first act is
+                // checkIfNodeMaster(), which throws when this server masters
+                // no node -- an ordinary configuration for a server running
+                // this daemon. Ahead of the loop that throw was uncaught and
+                // killed the child, which Service_persist() then re-forked
+                // into the same throw, so a non-master crash-looped instead
+                // of idling. In here the existing catch logs it per tick,
+                // which is what it did before reconciliation was added.
+                //
+                // Above the disabled check, because an orphaned sender left
+                // by a previous run must still be cleaned up after multicast
+                // is switched off -- that is precisely when nothing else
+                // will ever come along to kill it.
+                if ($first) {
+                    $this->_reconcileOrphanedSenders();
+                }
+
                 // If disabled, state and restart loop.
                 if (self::$_mcOn < 1) {
                     throw new Exception(
