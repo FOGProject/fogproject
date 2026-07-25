@@ -109,7 +109,19 @@ class DatabaseManager extends FOGCore
         /**
          * If the filename is okay, just perform our redirect.
          */
-        if (!in_array($filename, $okayFiles)) {
+        /**
+         * A login attempt must always be allowed to complete. While the schema
+         * is out of date every other request is sent to the schema updater, so
+         * hijacking the login route as well leaves an established install with
+         * no way to authenticate -- and therefore no way to reach the admin
+         * credential the update now requires. The POST is an XHR expecting
+         * JSON, so a 302 does not merely inconvenience it: jQuery follows the
+         * redirect as a GET, the credentials are discarded, and the user loops
+         * back to the schema page forever.
+         */
+        $isLoginPost = (self::$reqmethod === 'POST'
+            && filter_input(INPUT_GET, 'sub') === 'login');
+        if (!in_array($filename, $okayFiles) && !$isLoginPost) {
             /**
              * If we are not already redirected to schema updater,
              * perform our redirect.

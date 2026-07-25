@@ -341,6 +341,12 @@ abstract class FOGBase
      */
     private static $_initialized = false;
     /**
+     * Memoized result of hasFogUsers(). Null until first probed.
+     *
+     * @var bool|null
+     */
+    private static $_hasFogUsers = null;
+    /**
      * The current running schema information.
      *
      * @var int
@@ -3512,15 +3518,133 @@ abstract class FOGBase
      */
     public static function validInstallToken()
     {
+        return self::installTokenHeader() || self::installTokenParam();
+    }
+    /**
+     * Compares a candidate against FOG_SCHEMA_INSTALL_TOKEN in constant time.
+     *
+     * @param string|null $provided The value presented by the caller.
+     *
+     * @return bool
+     */
+    private static function _matchesInstallToken($provided)
+    {
         if (!defined('FOG_SCHEMA_INSTALL_TOKEN') || !FOG_SCHEMA_INSTALL_TOKEN) {
             return false;
         }
-        $provided = $_SERVER['HTTP_X_FOG_INSTALL_TOKEN']
-            ?? filter_input(INPUT_POST, 'fogtoken')
-            ?? filter_input(INPUT_GET, 'fogtoken');
         return is_string($provided)
             && $provided !== ''
             && hash_equals((string)FOG_SCHEMA_INSTALL_TOKEN, $provided);
+    }
+    /**
+     * The install token presented as a request header.
+     *
+     * This is the installer's own channel. A header cannot be set by a
+     * cross-site form, a link or an <img>, and it never lands in browser
+     * history, a bookmark or a Referer -- so it carries no CSRF exposure and
+     * no leak surface, and stays valid on fresh installs and upgrades alike.
+     * The installer's non-interactive update runs on upgrades too, where users
+     * already exist, so this channel must not be gated on install state.
+     *
+     * @return bool
+     */
+    public static function installTokenHeader()
+    {
+        return self::_matchesInstallToken(
+            $_SERVER['HTTP_X_FOG_INSTALL_TOKEN'] ?? null
+        );
+    }
+    /**
+     * The install token presented as a GET/POST parameter.
+     *
+     * This is the leaky copy: it is printed to the installer's stdout, ends up
+     * in the tee'd install log, and reaches browser history, bookmarks and
+     * access logs. Callers must additionally require !hasFogUsers(), which
+     * makes it self-expiring -- the deploy it authorizes creates the default
+     * user, after which this channel is permanently closed.
+     *
+     * @return bool
+     */
+    public static function installTokenParam()
+    {
+        return self::_matchesInstallToken(
+            filter_input(INPUT_POST, 'fogtoken')
+            ?? filter_input(INPUT_GET, 'fogtoken')
+        );
+    }
+    /**
+     * Does the caller hold a credential that permits a session-less schema
+     * deploy? Either the installer's header (always), or the URL token while
+     * the install is still userless.
+     *
+     * @return bool
+     */
+    public static function validSchemaBootstrap()
+    {
+        return self::installTokenHeader()
+            || (!self::hasFogUsers() && self::installTokenParam());
+    }
+    /**
+     * Is the current session a FOG administrator?
+     *
+     * Deliberately not is_authorized(), which is true for any valid user --
+     * including uType 1 mobile users -- and whose third clause nominally
+     * admits a registered fog-client. Schema deploys need to mean "an admin is
+     * driving this", nothing looser.
+     *
+     * @return bool
+     */
+    public static function isSchemaAdmin()
+    {
+        if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+            return false;
+        }
+        // Resolve the type through USER_TYPE_HOOK, the same way ProcessLogin
+        // does, so directory-sourced admins count. The LDAP plugin maps its
+        // own 990 (admin) to 0 and 991 (mobile) to 1, so this admits LDAP
+        // administrators without loosening anything -- mobile accounts, LDAP
+        // or local, still fail the === 0 test. Without it an LDAP-only site
+        // could never apply a schema update from the browser.
+        $type = self::$FOGUser->get('type');
+        if (self::$HookManager) {
+            self::$HookManager->processEvent(
+                'USER_TYPE_HOOK',
+                ['type' => &$type]
+            );
+        }
+        return (int)$type === 0;
+    }
+    /**
+     * Does this install have any FOG user rows yet?
+     *
+     * Distinguishes a fresh install (bootstrap token permitted) from an
+     * established one (admin login required). Runs against a possibly ancient
+     * schema, so it must degrade rather than throw: every PDODB failure path
+     * already returns falsy instead of raising, and an unknown answer is
+     * reported as "fresh" so recovery stays possible on a broken database.
+     *
+     * Counts user rows rather than uType = 0 rows on purpose: uType was
+     * VARCHAR(2) before it became INT, and MySQL coerces '' = 0 to true, so an
+     * admin-typed count is unreliable on legacy rows. "Any user exists" is the
+     * question being asked.
+     *
+     * @return bool
+     */
+    public static function hasFogUsers()
+    {
+        if (self::$_hasFogUsers !== null) {
+            return self::$_hasFogUsers;
+        }
+        self::$_hasFogUsers = false;
+        if (!self::$DB || !DatabaseManager::getLink()) {
+            return false;
+        }
+        $db = self::$DB->query('SELECT COUNT(`uId`) AS `total` FROM `users`');
+        if (false !== $db->error) {
+            return false;
+        }
+        self::$_hasFogUsers = ((int)$db->fetch()->get('total') > 0);
+        return self::$_hasFogUsers;
     }
     /**
      * Is Authorized to perform action simplified

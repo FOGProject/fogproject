@@ -91,7 +91,11 @@ backupDB() {
 # Refs https://forums.fogproject.org/topic/18204/
 checkWebTier() {
     dots "Checking web server serves FOG"
-    local probeUrl="${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
+    # No token on this probe. It is a pure liveness check -- 'schema' is an
+    # unauthenticated node and a plain GET renders regardless -- and a token in
+    # a query string lands in the web server access log and, on failure, in the
+    # installer's tee'd stdout. The deploy itself uses the header channel.
+    local probeUrl="${httpproto}://${ipaddress}${webroot}management/index.php?node=schema"
     local probeBody=$(mktemp)
     # We care whether bytes came back at all, not just about the status code,
     # because a pre-output fatal loses exactly that.
@@ -127,6 +131,20 @@ schemaVersionInDB() {
     [[ "${snmysqlexternal}" == "1" ]] && return 0
     [[ -z $sqloptionsuser ]] && return 0
     mysql $sqloptionsuser --password="${snmysqlpass}" -N -B --execute="SELECT vValue FROM \`${mysqldbname}\`.\`schemaVersion\` WHERE vID=1" 2>/dev/null | tail -1
+}
+# How many FOG users exist, i.e. is this an established install or a fresh one.
+# Echoes the count, or NOTHING when the probe cannot run. Empty means unknown
+# and must not be read as zero: guessing "fresh" would print a live token for
+# an established install, and guessing "established" would leave a genuinely
+# fresh install with no way to bootstrap. Callers show both instructions.
+fogUserCount() {
+    if [[ "${snmysqlexternal}" == "1" ]]; then
+        [[ -z $snmysqlhost || -z $snmysqluser ]] && return 0
+        mysql --host="${snmysqlhost}" --user="${snmysqluser}" --password="${snmysqlpass}" -N -B --execute="SELECT COUNT(*) FROM \`${mysqldbname}\`.\`users\`" 2>/dev/null | tail -1
+        return 0
+    fi
+    [[ -z $sqloptionsuser ]] && return 0
+    mysql $sqloptionsuser --password="${snmysqlpass}" -N -B --execute="SELECT COUNT(*) FROM \`${mysqldbname}\`.\`users\`" 2>/dev/null | tail -1
 }
 # Confirm the deploy actually landed in the database. Neither update path used
 # to prove anything: the automatic branch only checked curl's exit status, and
@@ -188,7 +206,26 @@ updateDB() {
             echo " * You still need to install/update your database schema."
             echo " * This can be done by opening a web browser and going to:"
             echo
-            echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
+            # On an established install the URL token is refused (it is gated on
+            # there being no users yet) and is not needed -- logging in as an
+            # admin is the credential. Only a fresh install gets a secret on
+            # screen. Failing toward the tokenized URL when the probe cannot run
+            # is safe: it still requires possession of the token.
+            local userCount=$(fogUserCount)
+            if [[ -z $userCount || $userCount -gt 0 ]]; then
+                echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema"
+                echo
+                echo " * Log in as a FOG administrator there, then click"
+                echo "   Install/Update now."
+            fi
+            if [[ -z $userCount || $userCount -eq 0 ]]; then
+                # Only a userless install can use the token, and only in a URL
+                # that has to be typed once. Shown alongside the login
+                # instruction when the user probe could not run, so we neither
+                # publish a secret needlessly nor strand a fresh install.
+                [[ -z $userCount ]] && echo " * If this is a brand new install with no FOG users yet, use:"
+                echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
+            fi
             echo
             read -p " * Press [Enter] key when database is updated/installed."
             echo

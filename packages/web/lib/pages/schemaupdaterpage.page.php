@@ -55,6 +55,17 @@ class SchemaUpdaterPage extends FOGPage
             "\n",
         ];
 
+        // Established install, no admin session: an admin login is the
+        // credential here, so render the login form itself rather than an
+        // update button that can only 403. It has to be THIS page: while the
+        // schema is stale DatabaseManager::establish() redirects every other
+        // request here, so there is no reachable login page to send them to.
+        // page.class.php already loads fog.login.js for any invalid user, so
+        // the form is wired up, and it reloads ?node=schema on success.
+        if (self::hasFogUsers() && !self::isSchemaAdmin()) {
+            ProcessLogin::mainLoginForm();
+            return;
+        }
         $buttons = self::makeButton(
             'schema-send',
             _('Install/Update now'),
@@ -69,11 +80,12 @@ class SchemaUpdaterPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        // Manual (non-curl) install flow: when the installer's URL carried a
-        // valid bootstrap token, carry it into the POST so the deploy can run
-        // before any user exists. Only emitted when the token already matched,
-        // so it is never disclosed to a token-less visitor.
-        if (self::validInstallToken()) {
+        // Fresh-install bootstrap only. Carrying the token into the POST lets
+        // the deploy run before any user exists. Emitted solely to a caller
+        // who already proved possession, and only while the install is still
+        // userless -- so it is never disclosed, and it stops working the
+        // moment this deploy creates the default user.
+        if (!self::hasFogUsers() && self::installTokenParam()) {
             echo '<input type="hidden" name="fogtoken" value="'
                 . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
                 . '"/>';
@@ -176,9 +188,22 @@ class SchemaUpdaterPage extends FOGPage
     public function indexPost()
     {
         header('Content-type: application/json');
-        // Defense in depth: the dispatcher already gates this, but never run a
-        // schema deploy for an anonymous caller lacking a valid install token.
-        if (!self::is_authorized(true) && !self::validInstallToken()) {
+        // Defense in depth: the dispatcher already gates this. Three tiers,
+        // keyed on the credential *channel* rather than on install state,
+        // because the installer's own non-interactive update runs on upgrades
+        // too -- where users already exist and no session is possible. See
+        // FOGBase::installTokenHeader()/installTokenParam().
+        if (self::installTokenHeader()) {
+            // Tier 1, the installer. A header cannot be driven cross-site.
+        } elseif (self::isSchemaAdmin()) {
+            // Tier 2, a human upgrading. The dispatcher's checkAuthAndCSRF()
+            // has already enforced CSRF on this POST; isSchemaAdmin() tightens
+            // is_authorized(), which also admits uType 1 mobile users.
+        } elseif (!self::hasFogUsers() && self::installTokenParam()) {
+            // Tier 3, fresh-install bootstrap. Dies once this deploy creates
+            // the default user, which is the point -- this is the copy of the
+            // token that reaches stdout, install logs and browser history.
+        } else {
             $this->jsonSend(HTTPResponseCodes::HTTP_FORBIDDEN, json_encode(
                 [
                     'error' => _('Unauthorized'),

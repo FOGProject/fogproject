@@ -146,12 +146,14 @@ class FOGPageManager extends FOGBase
             }
             // The schema deploy endpoint must run before any user/session or
             // database exists (fresh install), so it cannot satisfy
-            // checkAuthAndCSRF(). Allow it without auth ONLY when the
-            // per-install token (written to config.class.php by the installer)
-            // is presented. Every other node -- and schema without a valid
-            // token -- still requires auth (#825).
+            // checkAuthAndCSRF(). Allow it without auth ONLY when a valid
+            // bootstrap credential is presented: the installer's request
+            // header, or the URL token while the install is still userless.
+            // Every other node -- and schema without one -- still requires
+            // auth (#825). An admin upgrading needs no bypass; 'schema' is an
+            // Authorization::EXEMPT_NODES entry, so they pass the gate below.
             $schemaBootstrap = ($node === 'schema'
-                && self::validInstallToken());
+                && self::validSchemaBootstrap());
             if (self::$ajax && method_exists($class, $method.'Ajax')) {
                 $method .= 'Ajax';
                 if (!$schemaBootstrap) {
