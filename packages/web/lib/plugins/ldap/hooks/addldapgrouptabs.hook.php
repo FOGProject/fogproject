@@ -191,9 +191,6 @@ class AddLDAPGroupTabs extends Hook
         echo '</p>';
         echo '</div>';
         echo '<div class="card-body">';
-        echo '<div class="btn-actionbox">';
-        echo $buttons;
-        echo '</div>';
         echo '<table id="' . $slug . '-table" '
             . 'class="display table table-bordered table-striped">';
         echo '<thead><tr class="header">';
@@ -207,6 +204,12 @@ class AddLDAPGroupTabs extends Hook
             . _('Associated')
             . '</th>';
         echo '</tr></thead><tbody></tbody></table>';
+        // After the table, not before: FOGPage::process() returns the
+        // table markup followed by the actionbox, so every other
+        // association tab carries its buttons below the grid.
+        echo '<div class="btn-actionbox">';
+        echo $buttons;
+        echo '</div>';
         echo '</div>';
         echo '<div class="card-footer">';
         echo FOGPage::makeModal(
