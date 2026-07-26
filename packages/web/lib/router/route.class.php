@@ -3180,12 +3180,33 @@ class Route extends FOGBase
                     unset($data['images']);
                     break;
                 case 'snapintask':
-                    $sj = new Snapinjob($class->get('snapinjob')->get('id'));
-                    $host = new Host($class->get('snapinjob')->get('hostID'));
+                    // Same trap as the snapin task LIST (see the snapintask
+                    // case in the column setup above): a task whose job is
+                    // gone resolves get('snapinjob') to a STRING, and get()
+                    // on that is a fatal. Here it takes out the single-record
+                    // GET -- and, because create() returns the new record
+                    // through this same expansion, the create response too,
+                    // which is how it was found.
+                    //
+                    // Fall back to empty objects so the task still returns its
+                    // own fields rather than nothing at all. Same for the
+                    // snapin: a task can outlive it (one whose job is intact
+                    // is deliberately not swept by schema step 318).
+                    //
+                    // Refs https://github.com/FOGProject/fogproject/issues/895
+                    $snapinjob = $class->get('snapinjob');
+                    if (!is_object($snapinjob) || !$snapinjob->isValid()) {
+                        $snapinjob = new Snapinjob();
+                    }
+                    $sj = new Snapinjob($snapinjob->get('id'));
+                    $host = new Host($snapinjob->get('hostID'));
+                    $snapin = $class->get('snapin');
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
-                            'snapin' => $class->get('snapin')->get(),
+                            'snapin' => is_object($snapin)
+                                ? $snapin->get()
+                                : [],
                             'snapinjob' => self::getter(
                                 'snapinjob',
                                 $sj
