@@ -215,10 +215,11 @@ class Host extends FOGController
      */
     public function destroy($key = 'id')
     {
-        self::$HookManager->processEvent(
-            'DESTROY_HOST',
-            ['Host' => &$this]
-        );
+        // DESTROY_HOST is fired by Route::deletemass(), not here. Firing it
+        // here only reached the UI path -- the REST delete goes straight to
+        // deletemass and never builds a Host, so no listener ever heard about
+        // a host deleted over the API. See the destroy-event block there.
+        //
         // Funnel the child/association cleanup through the single cascade
         // authority (Route::deletemass) so the host single-delete path runs the
         // exact same removeItems map and fires DELETEMASS_API for plugins

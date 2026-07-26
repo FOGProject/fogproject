@@ -109,10 +109,10 @@ class Image extends FOGController
      */
     public function destroy($key = 'id')
     {
-        self::$HookManager->processEvent(
-            'DESTROY_IMAGE',
-            ['Image' => &$this]
-        );
+        // DESTROY_IMAGE is fired by Route::deletemass(), not here, for the same
+        // reason DESTROY_HOST moved: the REST delete path never builds an
+        // Image, so this override -- and the event with it -- never ran there.
+        //
         // Funnel cleanup through the single cascade authority: the image case in
         // Route::deletemass already resets HostManager imageID=0 and removes
         // imageassociation rows, and fires DELETEMASS_API for plugins. deletemass

@@ -117,6 +117,26 @@ class EventManager extends FOGBase
         return $this;
     }
     /**
+     * Tells whether anything is registered against an event.
+     *
+     * Lets a caller skip work it would only be doing to fill an event
+     * payload. Route::deletemass() uses it to avoid constructing an object
+     * per row for DESTROY_HOST/DESTROY_IMAGE when no hook is listening --
+     * on a mass delete that is one full model load per host that nothing
+     * would ever read. It deliberately does NOT test the listener's
+     * `active` flag; that is processEvent()'s call to make, and answering
+     * "could anyone care" is all this is for.
+     *
+     * @param string $event the event name to test
+     *
+     * @return bool
+     */
+    public function hasListeners($event)
+    {
+        return isset($this->data[$event])
+            && count((array) $this->data[$event]) > 0;
+    }
+    /**
      * Notifies the system of events.
      *
      * @param string $event     the event to notify against

@@ -3816,6 +3816,52 @@ class Route extends FOGBase
                 );
             }
             self::$_deleteDepth++;
+
+            // Per-object destroy events.
+            //
+            // DESTROY_HOST and DESTROY_IMAGE used to be fired by
+            // Host::destroy()/Image::destroy(), which meant they only ever
+            // reached a listener on the UI path: Route::delete() funnels the
+            // REST single-delete straight into here and deliberately never
+            // builds the object, so the override -- and with it the event --
+            // never ran. A plugin watching for a host being removed simply
+            // did not hear about it when the host went out over the API.
+            //
+            // Firing here instead puts the announcement on the one path every
+            // delete already shares, so it happens exactly once per object no
+            // matter which door the delete came in. It is fired BEFORE the
+            // switch below so a listener still sees the row and its
+            // associations intact, which is the order destroy() used.
+            //
+            // Building an object per id is the whole cost of doing this, and
+            // deletemass() is the mass path, so it is only paid when a hook is
+            // actually registered. With nothing listening the event name is
+            // still announced -- that is what records it in the hook catalog,
+            // and is unchanged -- just without a payload nobody would read.
+            //
+            // Refs https://github.com/FOGProject/fogproject/issues/895
+            $destroyEvents = [
+                'host' => ['DESTROY_HOST', 'Host'],
+                'image' => ['DESTROY_IMAGE', 'Image']
+            ];
+            if (isset($destroyEvents[$classname])) {
+                list($destroyEvent, $destroyKey) = $destroyEvents[$classname];
+                if (count($itemIDs ?: [])
+                    && self::$HookManager->hasListeners($destroyEvent)
+                ) {
+                    foreach ((array) $itemIDs as $destroyID) {
+                        $destroyObj = self::getClass($classname, $destroyID);
+                        self::$HookManager->processEvent(
+                            $destroyEvent,
+                            [$destroyKey => &$destroyObj]
+                        );
+                        unset($destroyObj);
+                    }
+                } else {
+                    self::$HookManager->processEvent($destroyEvent);
+                }
+            }
+
             switch ($classname) {
                 case 'host':
                     $snapinjobIDs = ['jobID' => Route::getIds('snapinjob', ['hostID' => $itemIDs])];

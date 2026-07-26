@@ -1323,6 +1323,15 @@ $.fn.makeColumnsResizable = function() {
     // column than the one grabbed. Leave that table alone rather than offer
     // strips that quietly do nothing.
     if (!colCount || colCount !== headers.length) {
+      // Hand the table back to the browser on the way out. A previous pass at
+      // a wider window left `fog-table-fixed` on it, and a fixed layout over a
+      // colgroup that no longer matches the header sizes the surviving columns
+      // as equal shares of the table -- so collapsing to mobile widths made the
+      // columns visibly wrong, not merely un-resizable. Dropping the class
+      // (and the widths that pass wrote) restores content-based sizing; the
+      // column-sizing pass on the way back out re-seeds and re-applies both.
+      parts.tables.removeClass('fog-table-fixed')
+        .find('colgroup > col').css('width', '');
       return;
     }
 
