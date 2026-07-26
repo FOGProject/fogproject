@@ -1148,6 +1148,134 @@ function fogTableParts(node) {
   };
 }
 
+// Column widths the user set by hand, remembered per table so that a
+// Responsive rebuild does not throw them away.
+//
+// Stored as each column's SHARE of the table rather than its pixel width, and
+// keyed on the column's original DataTables index rather than its position in
+// the current colgroup. Both parts are load-bearing:
+//
+//  - Responsive rebuilds the colgroup with only the columns still showing, so
+//    colgroup position 3 is a different column at 700px than at 1400px.
+//    data-dt-column keeps its original number even while the column is
+//    hidden, which makes it the one handle that survives the rebuild.
+//  - A pixel width measured in a 1400px-wide table means nothing in a 700px
+//    one. Shares restore the same PROPORTIONS at whatever width is available,
+//    which is what "my layout came back" actually feels like.
+//
+// Deliberately in-memory and per page load. localStorage would also survive a
+// reload, but that needs an answer for what happens when a table's columns
+// change underneath a stored layout, and this has no such answer yet.
+var fogColWidthStore = {};
+
+// A table with no id has no identity worth storing against.
+function fogTableKey(parts) {
+  return parts.body.attr('id') || '';
+}
+
+// Identity of the column at colgroup position i.
+function fogColKey(parts, i) {
+  return parts.headers.eq(i).attr('data-dt-column');
+}
+
+// The widths currently on the colgroup. After a drag this is where the truth
+// lives -- the header cells have not been re-measured yet.
+function fogCurrentColWidths(parts) {
+  return parts.visibleHead.find('colgroup > col').map(function() {
+    return parseFloat(this.style.width) || 0;
+  }).get();
+}
+
+// Record the layout a user gesture just produced.
+function fogRememberColWidths(parts, widths) {
+  var key = fogTableKey(parts),
+    total = 0,
+    store,
+    ck,
+    i;
+
+  if (!key || !widths || !widths.length) {
+    return;
+  }
+  for (i = 0; i < widths.length; i++) {
+    if (widths[i] <= 0) {
+      return;
+    }
+    total += widths[i];
+  }
+  store = fogColWidthStore[key] = fogColWidthStore[key] || {};
+  for (i = 0; i < widths.length; i++) {
+    ck = fogColKey(parts, i);
+    if (ck !== undefined) {
+      store[ck] = widths[i] / total;
+    }
+  }
+}
+
+// Rebuild a width row from what was remembered, or null when this table has
+// nothing stored for any column currently showing.
+//
+// The shares are renormalised over the showing columns, and that renormalising
+// is the whole trick for carrying a layout across a breakpoint: hide two of
+// five columns and the surviving three keep the same proportions to each other
+// that the user gave them, spread over the full table width.
+//
+// A column with nothing stored is not a reason to throw the layout away. It
+// happens routinely in normal use -- searching the host list down to a few
+// rows narrows the content enough that Responsive brings a previously hidden
+// column BACK, and refusing to restore then meant a search silently undid the
+// user's sizing. Such a column is given its own freshly measured width as its
+// share, so it slots in at its natural size while every remembered column
+// keeps its proportions relative to the others.
+function fogRestoredColWidths(parts, widths) {
+  var store = fogColWidthStore[fogTableKey(parts)],
+    shares = [],
+    sumShare = 0,
+    total = 0,
+    known = 0,
+    out = [],
+    widest = 0,
+    drift,
+    ck,
+    i;
+
+  if (!store || !widths || !widths.length) {
+    return null;
+  }
+  for (i = 0; i < widths.length; i++) {
+    if (widths[i] <= 0) {
+      return null;
+    }
+    total += widths[i];
+  }
+  for (i = 0; i < widths.length; i++) {
+    ck = fogColKey(parts, i);
+    if (ck !== undefined && store[ck] !== undefined) {
+      shares[i] = store[ck];
+      known++;
+    } else {
+      shares[i] = widths[i] / total;
+    }
+    sumShare += shares[i];
+  }
+  // Nothing remembered about any showing column: leave the seeded widths be.
+  if (!known || sumShare <= 0 || total <= 0) {
+    return null;
+  }
+  drift = total;
+  for (i = 0; i < widths.length; i++) {
+    out[i] = Math.max(40, Math.round(total * shares[i] / sumShare));
+    drift -= out[i];
+    if (out[i] > out[widest]) {
+      widest = i;
+    }
+  }
+  // Absorb the rounding into the widest column, where a pixel or two cannot
+  // push anything under the 40px floor.
+  out[widest] += drift;
+  return out;
+}
+
 // Write a column and its neighbour in one go, on every colgroup involved.
 function fogSetColPair(parts, i, widthA, widthB) {
   parts.tables.each(function() {
@@ -1216,7 +1344,7 @@ function fogFitColumn(parts, i, want, widths) {
     sumWeight += weights[j];
   }
   if (!sumWeight) {
-    return;
+    return null;
   }
   if (delta > 0) {
     delta = Math.min(delta, sumWeight);
@@ -1236,6 +1364,8 @@ function fogFitColumn(parts, i, want, widths) {
     return k === i ? a : a + b;
   }, 0);
   fogSetCols(parts, out);
+  // Handed back so the caller can remember the layout this produced.
+  return out;
 }
 
 // Widest content in a column, for double-click-to-fit.
@@ -1376,8 +1506,15 @@ $.fn.makeColumnsResizable = function() {
     // so measuring at that point records five identical widths and throws away
     // the content-based sizing the table actually had. Measure what the
     // browser worked out, write it down, and only then make it authoritative.
-    fogSeedColWidths(parts);
+    var seeded = fogSeedColWidths(parts),
+      restored = fogRestoredColWidths(parts, seeded);
     parts.tables.addClass('fog-table-fixed');
+    // Put a hand-set layout back on top of the freshly measured one. This runs
+    // on every column-sizing pass, so it covers the Responsive rebuild that
+    // prompted it and, for free, any redraw that re-measures the table.
+    if (restored) {
+      fogSetCols(parts, restored);
+    }
 
     headers.each(function(i) {
       var th = $(this);
@@ -1408,6 +1545,9 @@ $.fn.makeColumnsResizable = function() {
         function up() {
           $(document).off('mousemove.fogcol mouseup.fogcol');
           $('body').removeClass('fog-col-resizing');
+          // Remember where the drag settled, read off the colgroup rather
+          // than the header cells -- the cells have not been re-measured.
+          fogRememberColWidths(parts, fogCurrentColWidths(parts));
         }
         $('body').addClass('fog-col-resizing');
         $(document).on('mousemove.fogcol', move).on('mouseup.fogcol', up);
@@ -1424,7 +1564,7 @@ $.fn.makeColumnsResizable = function() {
         var widths = fogSeedColWidths(parts),
           want = fogNaturalColWidth(parts, i);
         if (want) {
-          fogFitColumn(parts, i, want, widths);
+          fogRememberColWidths(parts, fogFitColumn(parts, i, want, widths));
         }
       });
       // A plain click on the strip would still bubble to the sort handler.
