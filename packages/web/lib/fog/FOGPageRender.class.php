@@ -94,6 +94,90 @@ trait FOGPageRender
     }
 
     /**
+     * Renders the secondary "create the thing and associate it" card that sits
+     * below an association tab's grid.
+     *
+     * Why this exists: admins work out of the host page as their central point,
+     * and hitting a tab whose grid does not yet contain the thing they need
+     * meant navigating away, creating it, and navigating back. This closes that
+     * loop in place -- create, then associate to the entity being edited.
+     *
+     * The form BODY is deliberately not built here. The card ships empty and
+     * the browser pulls the real create form from the target node's own
+     * addModal endpoint (an AJAX request renders page-manager output only, so
+     * that endpoint already answers with a chrome-free fragment). Duplicating
+     * the field list here would let the two drift, and would silently drop any
+     * fields a plugin injects through the target's {NODE}_ADD_FIELDS hook.
+     *
+     * ACCESS CONTROL: the card is suppressed unless the acting user holds the
+     * target node's create permission. This is presentation only and grants
+     * nothing -- the create still POSTs to the real endpoint, which is gated by
+     * Authorization::requirePagePermission() exactly as before. It is here so a
+     * user who cannot create groups is not shown a form that would only fail.
+     *
+     * Collapsed by default so the tab still leads with its grid; the form is
+     * fetched on first expand rather than on page load.
+     *
+     * @param string $tabSlug    The association tab slug (e.g. 'host-group').
+     * @param string $title      Card title (already translated).
+     * @param string $helpText   Short explanation (already translated).
+     * @param string $createNode The node owning the create form (e.g. 'group').
+     *
+     * @return void
+     */
+    protected function renderCreateAndAssociateCard(
+        $tabSlug,
+        $title,
+        $helpText,
+        $createNode
+    ) {
+        if (!Authorization::can($createNode . '.create')) {
+            return;
+        }
+        $bodyId = $tabSlug . '-create-body';
+        printf(
+            '<div class="card card-secondary card-outline" id="%s-create-card" '
+            . 'data-create-node="%s" data-assoc-action="%s">',
+            Initiator::e($tabSlug),
+            Initiator::e($createNode),
+            Initiator::e(
+                self::makeTabUpdateURL($tabSlug, $this->obj->get('id'))
+            )
+        );
+        echo '<div class="card-header">';
+        printf(
+            '<h4 class="card-title"><button type="button" '
+            . 'class="btn btn-link p-0 text-decoration-none" '
+            . 'data-bs-toggle="collapse" data-bs-target="#%s" '
+            . 'aria-expanded="false" aria-controls="%s">%s</button></h4>',
+            Initiator::e($bodyId),
+            Initiator::e($bodyId),
+            Initiator::e($title)
+        );
+        printf('<p class="form-text">%s</p>', Initiator::e($helpText));
+        echo '</div>';
+        printf('<div class="collapse" id="%s">', Initiator::e($bodyId));
+        echo '<div class="card-body">';
+        printf(
+            '<div id="%s-create-form"></div>',
+            Initiator::e($tabSlug)
+        );
+        echo '</div>';
+        // text-end rather than float-end: the footer has no clearfix, so a
+        // floated button would escape the card's bottom border.
+        echo '<div class="card-footer text-end">';
+        printf(
+            '<button type="button" class="btn btn-primary" id="%s-create-send" '
+            . 'disabled>%s</button>',
+            Initiator::e($tabSlug),
+            Initiator::e(_('Create and associate'))
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+
+    /**
      * Renders a simple display tab: a box-primary panel with a title and a
      * single DataTable. Shared by the group/host history tabs whose only
      * differences are the column set, the title text and the table id.

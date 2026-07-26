@@ -612,6 +612,9 @@
         item: 'group',
         sub: 'getGroupsList'
     });
+    // Create-and-associate card below the grid. Inert unless the server
+    // rendered the card, which it only does for users who can create groups.
+    $.registerCreateAndAssociate('host-group', hostGroupsTable);
 
     // ---------------------------------------------------------------
     // PRINTER TAB

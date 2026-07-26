@@ -783,6 +783,125 @@ $.registerAssociationTab = function(opts) {
 
   return table;
 };
+// -----------------------------------------------------------------------
+// $.registerCreateAndAssociate(slug, table) - wire the "create the thing and
+// associate it" card that renderCreateAndAssociateCard() puts below an
+// association grid.
+//
+// Two-request flow, both against endpoints that already exist:
+//   1. GET  ?node={createNode}&sub=addModal   - the REAL create form. It is
+//      fetched rather than duplicated here so the fields (including any a
+//      plugin injects via {NODE}_ADD_FIELDS) can never drift from the create
+//      page's own.
+//   2. POST ?node={createNode}&sub=addPost    - the REAL create endpoint,
+//      which answers with the created entity under `object` (see
+//      FOGPagePost::attachCreatedObject). That id is then POSTed to the
+//      association tab's own update URL, i.e. the same call the "Add
+//      selected" button makes -- so the association goes through one code
+//      path, not two.
+//
+// If the create succeeds but no `object` comes back, the association is
+// skipped and the user is told: better a half-done step they can see than a
+// silent one. The grid is redrawn either way so the new row shows up.
+//
+// slug  - the association tab slug (e.g. 'host-group'), matching the card.
+// table - the tab's DataTable API instance, redrawn after a successful create.
+$.registerCreateAndAssociate = function(slug, table) {
+  var card = $('#' + slug + '-create-card'),
+    holder = $('#' + slug + '-create-form'),
+    sendBtn = $('#' + slug + '-create-send'),
+    body = $('#' + slug + '-create-body'),
+    createNode = card.data('create-node'),
+    assocAction = card.data('assoc-action'),
+    loaded = false;
+
+  if (!card.length || !holder.length) {
+    return;
+  }
+
+  // Lazily fetch the form the first time the card is opened, so a tab nobody
+  // expands costs nothing.
+  body.on('show.bs.collapse', function() {
+    if (loaded) {
+      return;
+    }
+    loaded = true;
+    $.get(
+      '../management/index.php?node=' + createNode + '&sub=addModal',
+      function(html) {
+        // Take the form's CONTENTS, not the <form> element: this card lives
+        // inside the edit page's own markup and a nested form is invalid.
+        // The hidden inputs (CSRF included) are children, so they survive.
+        var parsed = $('<div/>').html(html),
+          inner = parsed.find('#create-form'),
+          fragment = inner.length ? inner : parsed;
+        // Namespace the ids. The create form is written for its own page,
+        // where it is alone; dropped onto an edit page it can collide -- the
+        // group form's kernel/init/dev are also host fields -- and a
+        // duplicate id silently steals the host page's own selectors. Only
+        // id/for are rewritten; name is what the POST reads and must not
+        // change.
+        fragment.find('[id]').each(function() {
+          var el = $(this),
+            oldId = el.attr('id'),
+            newId = slug + '-create-' + oldId;
+          fragment.find('label[for="' + oldId + '"]').attr('for', newId);
+          el.attr('id', newId);
+        });
+        holder.html(fragment.html());
+        sendBtn.prop('disabled', false);
+      }
+    ).fail(function() {
+      // Let them retry by collapsing and reopening.
+      loaded = false;
+      $.notify(
+        'Error',
+        'Could not load the create form.',
+        'error'
+      );
+    });
+  });
+
+  sendBtn.on('click', function(e) {
+    e.preventDefault();
+    sendBtn.prop('disabled', true);
+    $.apiCall(
+      'post',
+      '../management/index.php?node=' + createNode + '&sub=addPost',
+      holder.find(':input').serialize(),
+      function(err, data) {
+        sendBtn.prop('disabled', false);
+        if (err) {
+          return;
+        }
+        // The create already reported success to the user; only redraw and,
+        // when we know what was made, associate it.
+        var id = data && data.object ? data.object.id : null;
+        if (!id) {
+          $.notify(
+            'Warning',
+            'Created, but it could not be associated automatically. '
+              + 'Add it from the list above.',
+            'notice'
+          );
+          if (table) {
+            table.draw(false);
+          }
+          return;
+        }
+        $.apiCall('post', assocAction, {
+          confirmadd: 1,
+          additems: [id]
+        }, function(assocErr) {
+          holder.find(':input').not(':button, :submit, [type=hidden]').val('');
+          if (table) {
+            table.draw(false);
+          }
+        });
+      }
+    );
+  });
+};
 $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();

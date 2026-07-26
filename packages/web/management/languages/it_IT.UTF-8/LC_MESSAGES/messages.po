@@ -1392,6 +1392,10 @@ msgid "Create Task Success"
 msgstr "Creazione utente riuscita"
 
 #, fuzzy
+msgid "Create and associate"
+msgstr "Nessun nodo associato"
+
+#, fuzzy
 msgid "Create new Session Task"
 msgstr "Crea nuovo snapin"
 
@@ -1419,6 +1423,11 @@ msgstr "Creato da"
 
 msgid "Created by FOG Reg on"
 msgstr "Creato da FOG Reg su"
+
+msgid ""
+"Creates the group and adds this host to it in one step, so a group that does "
+"not exist yet does not mean leaving this page."
+msgstr ""
 
 msgid "Credentials"
 msgstr ""

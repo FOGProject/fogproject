@@ -1375,6 +1375,10 @@ msgid "Create Task Success"
 msgstr "タスクタイプを作成"
 
 #, fuzzy
+msgid "Create and associate"
+msgstr "関連付けられたノードがありません"
+
+#, fuzzy
 msgid "Create new Session Task"
 msgstr "現在のセッション"
 
@@ -1403,6 +1407,11 @@ msgstr "ジョブ作成時刻"
 
 msgid "Created by FOG Reg on"
 msgstr "FOG Reg により作成:"
+
+msgid ""
+"Creates the group and adds this host to it in one step, so a group that does "
+"not exist yet does not mean leaving this page."
+msgstr ""
 
 #, fuzzy
 msgid "Credentials"

@@ -1453,6 +1453,10 @@ msgid "Create Task Success"
 msgstr "用户创建"
 
 #, fuzzy
+msgid "Create and associate"
+msgstr "无关联的节点"
+
+#, fuzzy
 msgid "Create new Session Task"
 msgstr "新建%s"
 
@@ -1480,6 +1484,11 @@ msgstr "由...制作"
 
 msgid "Created by FOG Reg on"
 msgstr "创建者FOG上注册"
+
+msgid ""
+"Creates the group and adds this host to it in one step, so a group that does "
+"not exist yet does not mean leaving this page."
+msgstr ""
 
 msgid "Credentials"
 msgstr ""

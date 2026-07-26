@@ -1826,6 +1826,16 @@ class HostManagement extends FOGPage
             _('Group Name'),
             'group'
         );
+        $this->renderCreateAndAssociateCard(
+            'host-group',
+            _('Create New Group'),
+            _(
+                'Creates the group and adds this host to it in one step, '
+                . 'so a group that does not exist yet does not mean leaving '
+                . 'this page.'
+            ),
+            'group'
+        );
     }
     /**
      * Host groups modifications.

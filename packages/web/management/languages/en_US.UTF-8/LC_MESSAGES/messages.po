@@ -1452,6 +1452,10 @@ msgid "Create Task Success"
 msgstr "User created"
 
 #, fuzzy
+msgid "Create and associate"
+msgstr "No node associated"
+
+#, fuzzy
 msgid "Create new Session Task"
 msgstr "Create New %s"
 
@@ -1479,6 +1483,11 @@ msgstr "Created By"
 
 msgid "Created by FOG Reg on"
 msgstr "Created by FOG Reg on"
+
+msgid ""
+"Creates the group and adds this host to it in one step, so a group that does "
+"not exist yet does not mean leaving this page."
+msgstr ""
 
 msgid "Credentials"
 msgstr ""
