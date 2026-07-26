@@ -53,10 +53,16 @@ class LDAP_Report extends ReportManagement
             _('Display Name Enabled'),
             _('Display Name Attribute'),
             _('Nested Groups'),
-            _('Nested Depth')
+            _('Nested Depth'),
+            // LDAPS certificate verification (#893). A path, not a secret, so
+            // unlike the bind password it is fine to export.
+            _('Certificate Verification'),
+            _('CA Certificate Path')
         ];
-        // One entry per headerData column, so this shrinks with it.
+        // One entry per headerData column, so this shrinks and grows with it.
         $this->attributes = [
+            [],
+            [],
             [],
             [],
             [],

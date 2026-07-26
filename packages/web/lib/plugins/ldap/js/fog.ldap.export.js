@@ -26,6 +26,8 @@
         // field to the model adds a <th> here whether this list follows or
         // not -- and DataTables throws when the counts disagree.
         {data: 'nestedGroups', visible: false},
-        {data: 'nestedDepth', visible: false}
+        {data: 'nestedDepth', visible: false},
+        {data: 'tlsVerify', visible: false},
+        {data: 'tlsCaCert', visible: false}
     ]);
 })(jQuery);

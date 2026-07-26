@@ -75,6 +75,87 @@ class LDAPManagement extends FOGPage
         ];
     }
     /**
+     * The LDAPS certificate verification levels, keyed by stored value.
+     *
+     * One list, used by both form renderers and by _tlsFromPost(), for the
+     * same reason _nestedStrategies() is: the set of legal values cannot
+     * drift between what the form offers and what a save accepts.
+     *
+     * 'inherit' is first and is the column default. The plugin set no TLS
+     * option at all before this, so ldap.conf governed, and asserting 'hard'
+     * on upgrade would break every install that had relaxed TLS_REQCERT to
+     * reach an internal CA.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/893
+     *
+     * @return array
+     */
+    private static function _tlsVerifyLevels()
+    {
+        return [
+            'inherit' => _('Inherit - use the system ldap.conf setting'),
+            'hard' => _('Hard - require a valid certificate'),
+            'never' => _('Never - do not verify (insecure)')
+        ];
+    }
+    /**
+     * Validates the LDAPS certificate fields out of a POST.
+     *
+     * Shared by addPost() and ldapGeneralPost() for the same reason
+     * _nestedFromPost() is: the two drifting apart is how a field ends up
+     * settable on edit but not on create.
+     *
+     * Deliberately does NOT reject an unreadable CA path. php-fpm may run as
+     * a different user than the one that placed the file (see GH-849), and
+     * admins routinely configure a server before its certificate is in
+     * place -- the same reasoning that lets an unverifiable chain strategy
+     * save. LDAP::_applyTlsOptions() logs the unreadable case at connect
+     * time, which is where it actually bites.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/893
+     *
+     * @throws Exception
+     * @return array verify and caCert, ready to set()
+     */
+    private static function _tlsFromPost()
+    {
+        $verify = trim((string)filter_input(INPUT_POST, 'tlsVerify'));
+        // Blank is the empty "- Please select an option -" entry every
+        // selectForm() emits, and it means the admin left it alone.
+        if ('' === $verify) {
+            $verify = 'inherit';
+        }
+        if (!array_key_exists($verify, self::_tlsVerifyLevels())) {
+            throw new Exception(
+                _('Please select a valid certificate verification level')
+            );
+        }
+        $caCert = trim((string)filter_input(INPUT_POST, 'tlsCaCert'));
+        if ('' !== $caCert) {
+            /**
+             * Absolute only. This path is handed to the OpenLDAP client
+             * inside the web server process, so a relative path resolves
+             * against php-fpm's working directory -- something an admin
+             * cannot see or reason about, and which differs between the
+             * Apache and nginx deployments. Better to refuse it here than
+             * to store a path that silently resolves somewhere else.
+             */
+            if ('/' !== $caCert[0]) {
+                throw new Exception(
+                    _('The CA certificate path must be absolute')
+                );
+            }
+            // The column is VARCHAR(255); refuse rather than let the store
+            // truncate the path into one that points at nothing.
+            if (strlen($caCert) > 255) {
+                throw new Exception(
+                    _('The CA certificate path is too long (255 characters max)')
+                );
+            }
+        }
+        return ['verify' => $verify, 'caCert' => $caCert];
+    }
+    /**
      * Placeholder for the per-server depth override, naming the global it
      * inherits so an admin can see what leaving it blank actually means.
      *
@@ -95,10 +176,14 @@ class LDAPManagement extends FOGPage
      * about what a legal value is -- the pair of them drifting apart is how
      * a field ends up settable on edit but not on create.
      *
+     * @param array $tls the validated _tlsFromPost() pair, needed because the
+     *                   chain probe below has to trust the certificate on the
+     *                   same terms the sign-in will
+     *
      * @throws Exception
      * @return array strategy and depth, ready to set()
      */
-    private static function _nestedFromPost()
+    private static function _nestedFromPost(array $tls)
     {
         $strategy = trim((string)filter_input(INPUT_POST, 'nestedGroups'));
         // Blank is the empty "- Please select an option -" entry every
@@ -139,13 +224,19 @@ class LDAPManagement extends FOGPage
          *
          * Address and port come from the POST rather than the stored object
          * because the admin may be pointing an existing server at a new
-         * directory in the same submission.
+         * directory in the same submission. The TLS pair comes from the same
+         * POST for the same reason, and because without it an LDAPS directory
+         * whose certificate only validates under this server's own settings
+         * answers "undeterminable" and its chain setting goes in unverified
+         * (#893).
          */
         if ('chain' === $strategy) {
             $supported = LDAP::supportsChain(
                 trim((string)filter_input(INPUT_POST, 'address')),
                 trim((string)filter_input(INPUT_POST, 'port')),
-                isset($_POST['isLDAPs'])
+                isset($_POST['isLDAPs']),
+                $tls['verify'],
+                $tls['caCert']
             );
             if (false === $supported) {
                 throw new Exception(
@@ -219,6 +310,14 @@ class LDAPManagement extends FOGPage
             true
         );
         $nestedDepth = filter_input(INPUT_POST, 'nestedDepth');
+        $tlsVerify = filter_input(INPUT_POST, 'tlsVerify');
+        $tlsSel = self::selectForm(
+            'tlsVerify',
+            self::_tlsVerifyLevels(),
+            $tlsVerify ?: 'inherit',
+            true
+        );
+        $tlsCaCert = filter_input(INPUT_POST, 'tlsCaCert');
         $useGroupMatch = isset($_POST['useGroupMatch']);
         $useMatch = (
             $useGroupMatch ?
@@ -314,6 +413,26 @@ class LDAPManagement extends FOGPage
                 'port',
                 _('LDAP Server Port')
             ) => $portssel,
+            // Grouped with the SSL toggle and the port rather than filed with
+            // the search settings: these three are the one cluster an admin
+            // touches when moving a server onto LDAPS (#893).
+            self::makeLabel(
+                $labelClass,
+                'tlsVerify',
+                _('Certificate Verification')
+            ) => $tlsSel,
+            self::makeLabel(
+                $labelClass,
+                'tlsCaCert',
+                _('CA Certificate Path')
+            ) => self::makeInput(
+                'form-control ldaptlscacert-input',
+                'tlsCaCert',
+                '/etc/ssl/certs/my-ca.pem',
+                'text',
+                'tlsCaCert',
+                $tlsCaCert
+            ),
             self::makeLabel(
                 $labelClass,
                 'groupmatch',
@@ -603,7 +722,10 @@ class LDAPManagement extends FOGPage
                         _('Please select a valid ldap port')
                     );
                 }
-                $nested = self::_nestedFromPost();
+                // TLS first: the chain probe inside _nestedFromPost() needs
+                // these to reach an LDAPS directory on this server's terms.
+                $tls = self::_tlsFromPost();
+                $nested = self::_nestedFromPost($tls);
                 $exists = self::getClass('LDAPManager')
                     ->exists($ldap);
                 if ($exists) {
@@ -630,6 +752,8 @@ class LDAPManagement extends FOGPage
                     ->set('allowapi', $isAPI)
                     ->set('nestedGroups', $nested['strategy'])
                     ->set('nestedDepth', $nested['depth'])
+                    ->set('tlsVerify', $tls['verify'])
+                    ->set('tlsCaCert', $tls['caCert'])
                     ->set('displayNameAttr', $displayNameAttr);
                 if (!$LDAP->save()) {
                     $serverFault = true;
@@ -746,6 +870,23 @@ class LDAPManagement extends FOGPage
             ?? (int)$this->obj->get('nestedDepth')
         );
         $nestedDepth = ((int)$nestedDepth > 0 ? (int)$nestedDepth : '');
+        $tlsVerify = (
+            filter_input(INPUT_POST, 'tlsVerify') ?:
+            $this->obj->get('tlsVerify')
+        );
+        $tlsSel = self::selectForm(
+            'tlsVerify',
+            self::_tlsVerifyLevels(),
+            $tlsVerify ?: 'inherit',
+            true
+        );
+        // ?? rather than ?: because this field is clearable: '' is a POST that
+        // blanked it out and must render blank, where ?: would hand the stored
+        // path straight back and make the field impossible to empty.
+        $tlsCaCert = (
+            filter_input(INPUT_POST, 'tlsCaCert')
+            ?? $this->obj->get('tlsCaCert')
+        );
         $useGroupMatch = (
             isset($_POST['useGroupMatch']) ?: $this->obj->get('useGroupMatch')
         );
@@ -843,6 +984,25 @@ class LDAPManagement extends FOGPage
                 'port',
                 _('LDAP Server Port')
             ) => $portssel,
+            // Same cluster as on the create form, in the same position, so an
+            // admin who learned the one finds the other where they expect.
+            self::makeLabel(
+                $labelClass,
+                'tlsVerify',
+                _('Certificate Verification')
+            ) => $tlsSel,
+            self::makeLabel(
+                $labelClass,
+                'tlsCaCert',
+                _('CA Certificate Path')
+            ) => self::makeInput(
+                'form-control ldaptlscacert-input',
+                'tlsCaCert',
+                '/etc/ssl/certs/my-ca.pem',
+                'text',
+                'tlsCaCert',
+                $tlsCaCert
+            ),
             self::makeLabel(
                 $labelClass,
                 'groupmatch',
@@ -1146,7 +1306,10 @@ class LDAPManagement extends FOGPage
                 _('Please select a valid ldap port')
             );
         }
-        $nested = self::_nestedFromPost();
+        // TLS first: the chain probe inside _nestedFromPost() needs these to
+        // reach an LDAPS directory on this server's terms.
+        $tls = self::_tlsFromPost();
+        $nested = self::_nestedFromPost($tls);
         $exists = self::getClass('LDAPManager')
             ->exists($ldap);
         if ($ldap != $this->obj->get('name')
@@ -1174,6 +1337,8 @@ class LDAPManagement extends FOGPage
             ->set('allowapi', $isAPI)
             ->set('nestedGroups', $nested['strategy'])
             ->set('nestedDepth', $nested['depth'])
+            ->set('tlsVerify', $tls['verify'])
+            ->set('tlsCaCert', $tls['caCert'])
             ->set('displayNameAttr', $displayNameAttr);
         // The edit form no longer renders the stored password back into the
         // field, so an empty submission means "leave it as it is" rather

@@ -868,6 +868,9 @@ msgstr "MB バージョン"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+msgid "CA Certificate Path"
+msgstr ""
+
 #, fuzzy
 msgid "CA Path"
 msgstr "パス"
@@ -1041,6 +1044,10 @@ msgstr "シャーシシリアル"
 #, fuzzy
 msgid "Case Version"
 msgstr "シャーシバージョン"
+
+#, fuzzy
+msgid "Certificate Verification"
+msgstr "新しいロケーションを作成"
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
@@ -2554,6 +2561,9 @@ msgstr "また、キャプチャできません"
 msgid "HTML Error Code"
 msgstr "エラーコード"
 
+msgid "Hard - require a valid certificate"
+msgstr ""
+
 msgid "Hard Disk Firmware"
 msgstr "ハードディスクファームウェア"
 
@@ -3255,6 +3265,9 @@ msgstr ""
 
 msgid "Information"
 msgstr "情報"
+
+msgid "Inherit - use the system ldap.conf setting"
+msgstr ""
 
 #, php-format
 msgid "Inherit global (%s)"
@@ -4278,6 +4291,9 @@ msgstr "ネットワークインストーラー"
 msgid "Network Printer"
 msgstr "ネットワークプリンター"
 
+msgid "Never - do not verify (insecure)"
+msgstr ""
+
 msgid "New"
 msgstr "新規"
 
@@ -4910,6 +4926,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr "物理的に関連付けてください"
+
+#, fuzzy
+msgid "Please select a valid certificate verification level"
+msgstr "有効な LDAP ポートを選択してください"
 
 #, fuzzy
 msgid "Please select a valid image"
@@ -6535,6 +6555,12 @@ msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "「マスターノード」設定は、どのノードを"
+
+msgid "The CA certificate path is too long (255 characters max)"
+msgstr ""
+
+msgid "The CA certificate path must be absolute"
+msgstr ""
 
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "

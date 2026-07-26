@@ -26,7 +26,9 @@
         // headerData list in ldap_report.report.php::file() -- so these two
         // only line up because that list gained the matching pair.
         {data: 'nestedGroups', visible: false},
-        {data: 'nestedDepth', visible: false}
+        {data: 'nestedDepth', visible: false},
+        {data: 'tlsVerify', visible: false},
+        {data: 'tlsCaCert', visible: false}
       ]);
       break;
   }

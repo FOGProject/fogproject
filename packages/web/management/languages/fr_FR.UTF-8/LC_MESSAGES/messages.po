@@ -922,6 +922,9 @@ msgstr "CPU Version"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+msgid "CA Certificate Path"
+msgstr ""
+
 #, fuzzy
 msgid "CA Path"
 msgstr "Chemin"
@@ -1102,6 +1105,10 @@ msgstr "Serial System"
 #, fuzzy
 msgid "Case Version"
 msgstr "Dernière version"
+
+#, fuzzy
+msgid "Certificate Verification"
+msgstr "Créer un nouveau %s"
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
@@ -2680,6 +2687,9 @@ msgstr ""
 msgid "HTML Error Code"
 msgstr "Code d'erreur"
 
+msgid "Hard - require a valid certificate"
+msgstr ""
+
 msgid "Hard Disk Firmware"
 msgstr ""
 
@@ -3422,6 +3432,9 @@ msgstr ""
 
 msgid "Information"
 msgstr "Information"
+
+msgid "Inherit - use the system ldap.conf setting"
+msgstr ""
 
 #, php-format
 msgid "Inherit global (%s)"
@@ -4497,6 +4510,9 @@ msgstr "Imprimante réseau"
 msgid "Network Printer"
 msgstr "Imprimante réseau"
 
+msgid "Never - do not verify (insecure)"
+msgstr ""
+
 msgid "New"
 msgstr "Nouveau"
 
@@ -5155,6 +5171,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr ""
+
+#, fuzzy
+msgid "Please select a valid certificate verification level"
+msgstr "Sélectionnez une image valide"
 
 #, fuzzy
 msgid "Please select a valid image"
@@ -6888,6 +6908,12 @@ msgstr ""
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "Ce paramètre définit "
+
+msgid "The CA certificate path is too long (255 characters max)"
+msgstr ""
+
+msgid "The CA certificate path must be absolute"
+msgstr ""
 
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "

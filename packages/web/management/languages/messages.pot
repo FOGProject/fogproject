@@ -766,6 +766,9 @@ msgstr ""
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+msgid "CA Certificate Path"
+msgstr ""
+
 msgid "CA Path"
 msgstr ""
 
@@ -914,6 +917,9 @@ msgid "Case Serial"
 msgstr ""
 
 msgid "Case Version"
+msgstr ""
+
+msgid "Certificate Verification"
 msgstr ""
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
@@ -2253,6 +2259,9 @@ msgstr ""
 msgid "HTML Error Code"
 msgstr ""
 
+msgid "Hard - require a valid certificate"
+msgstr ""
+
 msgid "Hard Disk Firmware"
 msgstr ""
 
@@ -2867,6 +2876,9 @@ msgid "Infinite scroll"
 msgstr ""
 
 msgid "Information"
+msgstr ""
+
+msgid "Inherit - use the system ldap.conf setting"
 msgstr ""
 
 #, php-format
@@ -3780,6 +3792,9 @@ msgstr ""
 msgid "Network Printer"
 msgstr ""
 
+msgid "Never - do not verify (insecure)"
+msgstr ""
+
 msgid "New"
 msgstr ""
 
@@ -4352,6 +4367,9 @@ msgid "Please note, the data here does not indicate"
 msgstr ""
 
 msgid "Please physically associate"
+msgstr ""
+
+msgid "Please select a valid certificate verification level"
 msgstr ""
 
 msgid "Please select a valid image"
@@ -5803,6 +5821,12 @@ msgid ""
 msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
+msgstr ""
+
+msgid "The CA certificate path is too long (255 characters max)"
+msgstr ""
+
+msgid "The CA certificate path must be absolute"
 msgstr ""
 
 msgid ""

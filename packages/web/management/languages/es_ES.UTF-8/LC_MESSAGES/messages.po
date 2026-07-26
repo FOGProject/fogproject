@@ -934,6 +934,9 @@ msgstr "Versión de la CPU"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+msgid "CA Certificate Path"
+msgstr ""
+
 #, fuzzy
 msgid "CA Path"
 msgstr "Camino"
@@ -1112,6 +1115,10 @@ msgstr "sistema de serie"
 #, fuzzy
 msgid "Case Version"
 msgstr "Versión del sistema"
+
+#, fuzzy
+msgid "Certificate Verification"
+msgstr "Crear nuevo grupo"
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
@@ -2727,6 +2734,9 @@ msgstr ""
 msgid "HTML Error Code"
 msgstr "Error"
 
+msgid "Hard - require a valid certificate"
+msgstr ""
+
 msgid "Hard Disk Firmware"
 msgstr ""
 
@@ -3493,6 +3503,9 @@ msgstr ""
 
 msgid "Information"
 msgstr "Información"
+
+msgid "Inherit - use the system ldap.conf setting"
+msgstr ""
 
 #, php-format
 msgid "Inherit global (%s)"
@@ -4603,6 +4616,9 @@ msgstr "impresora de red"
 msgid "Network Printer"
 msgstr "impresora de red"
 
+msgid "Never - do not verify (insecure)"
+msgstr ""
+
 msgid "New"
 msgstr ""
 
@@ -5273,6 +5289,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr ""
+
+#, fuzzy
+msgid "Please select a valid certificate verification level"
+msgstr "Seleccionar una imagen válida"
 
 #, fuzzy
 msgid "Please select a valid image"
@@ -7048,6 +7068,12 @@ msgid ""
 msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
+msgstr ""
+
+msgid "The CA certificate path is too long (255 characters max)"
+msgstr ""
+
+msgid "The CA certificate path must be absolute"
 msgstr ""
 
 msgid ""

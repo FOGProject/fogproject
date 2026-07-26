@@ -882,6 +882,9 @@ msgstr "Versione client"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+msgid "CA Certificate Path"
+msgstr ""
+
 #, fuzzy
 msgid "CA Path"
 msgstr "Percorso"
@@ -1056,6 +1059,10 @@ msgstr "Sistema seriale"
 #, fuzzy
 msgid "Case Version"
 msgstr "Ultima versione"
+
+#, fuzzy
+msgid "Certificate Verification"
+msgstr "Crea nuova posizione"
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
@@ -2580,6 +2587,9 @@ msgstr "e non può essere catturato"
 msgid "HTML Error Code"
 msgstr "Codice di errore"
 
+msgid "Hard - require a valid certificate"
+msgstr ""
+
 msgid "Hard Disk Firmware"
 msgstr ""
 
@@ -3290,6 +3300,9 @@ msgstr ""
 
 msgid "Information"
 msgstr "Informazioni"
+
+msgid "Inherit - use the system ldap.conf setting"
+msgstr ""
 
 #, php-format
 msgid "Inherit global (%s)"
@@ -4319,6 +4332,9 @@ msgstr "Installazione via rete"
 msgid "Network Printer"
 msgstr "stampante di rete"
 
+msgid "Never - do not verify (insecure)"
+msgstr ""
+
 msgid "New"
 msgstr "Nuovo"
 
@@ -4949,6 +4965,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr "Si prega di associare fisicamente"
+
+#, fuzzy
+msgid "Please select a valid certificate verification level"
+msgstr "Selezionare un'immagine valida"
 
 #, fuzzy
 msgid "Please select a valid image"
@@ -6593,6 +6613,12 @@ msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "L'impostazione \"nodo master\" definisce quale"
+
+msgid "The CA certificate path is too long (255 characters max)"
+msgstr ""
+
+msgid "The CA certificate path must be absolute"
+msgstr ""
 
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
