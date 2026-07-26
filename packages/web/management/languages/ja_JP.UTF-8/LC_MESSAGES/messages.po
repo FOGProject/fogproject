@@ -145,6 +145,10 @@ msgstr ""
 msgid "A Windows Key already exists with this name!"
 msgstr "この名前の Windows キーは既に存在します！"
 
+#, fuzzy
+msgid "A Windows Key already exists with this product key!"
+msgstr "この名前の Windows キーは既に存在します！"
+
 msgid "A broadcast already exists with this name!"
 msgstr "この名前のブロードキャストは既に存在します！"
 

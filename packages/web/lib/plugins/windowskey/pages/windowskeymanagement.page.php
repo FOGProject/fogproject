@@ -158,6 +158,19 @@ class WindowsKeyManagement extends FOGPage
                         _('A Windows Key already exists with this name!')
                     );
                 }
+                // The product key is checked here rather than left to a
+                // unique index, because save() would silently overwrite the
+                // record already holding it instead of failing. An empty key
+                // is skipped on purpose: clearing a key is a supported edit
+                // (productKeyResolve), so several records may have none.
+                if ($key !== ''
+                    && self::getClass('WindowsKeyManager')
+                        ->exists($key, 0, 'key')
+                ) {
+                    throw new Exception(
+                        _('A Windows Key already exists with this product key!')
+                    );
+                }
                 $WindowsKey = self::getClass('WindowsKey')
                     ->set('name', $windowskey)
                     ->set('description', $description)
@@ -320,6 +333,18 @@ class WindowsKeyManagement extends FOGPage
         ) {
             throw new Exception(
                 _('A Windows Key already exists with this name!')
+            );
+        }
+        // Same guard as addPost, and needed just as much here: retyping
+        // another record's product key would have overwritten that record.
+        // exists() excludes this row by id, so re-saving an unchanged key is
+        // not mistaken for a duplicate.
+        if ($key !== ''
+            && self::getClass('WindowsKeyManager')
+                ->exists($key, $this->obj->get('id'), 'key')
+        ) {
+            throw new Exception(
+                _('A Windows Key already exists with this product key!')
             );
         }
         $this->obj

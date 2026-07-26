@@ -127,6 +127,9 @@ msgstr ""
 msgid "A Windows Key already exists with this name!"
 msgstr ""
 
+msgid "A Windows Key already exists with this product key!"
+msgstr ""
+
 msgid "A broadcast already exists with this name!"
 msgstr ""
 

@@ -159,6 +159,10 @@ msgid "A Windows Key already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
+msgid "A Windows Key already exists with this product key!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 

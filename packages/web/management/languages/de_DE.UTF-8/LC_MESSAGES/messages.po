@@ -153,6 +153,10 @@ msgid "A Windows Key already exists with this name!"
 msgstr "Ein Windows-Schlüssel mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
+msgid "A Windows Key already exists with this product key!"
+msgstr "Ein Windows-Schlüssel mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
 

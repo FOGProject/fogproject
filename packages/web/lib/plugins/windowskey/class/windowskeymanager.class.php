@@ -71,8 +71,21 @@ class WindowsKeyManager extends FOGManagerController
                 'CURRENT_TIMESTAMP',
                 false
             ],
+            // wkName only. wkKey used to be unique here and could not be:
+            // the column is NOT NULL, and productKeyResolve() stores '' for a
+            // deliberately cleared key, so only ONE record was ever allowed to
+            // have no key. Worse, FOGController::save() writes INSERT ... ON
+            // DUPLICATE KEY UPDATE, so a second record carrying a key another
+            // already had did not error -- it silently renamed and repointed
+            // that other record while reporting "Windows Key added!".
+            // Duplicate keys are still refused, but by the page (see
+            // windowskeymanagement's addPost/windowsKeyGeneralPost), which can
+            // say so and can let empty keys through. Kept as a false rather
+            // than removed so wkName stays `index1`: Schema::createTable()
+            // names indexes by position, and shifting it would give fresh
+            // installs a different index name from migrated ones.
             [
-                'wkKey',
+                false,
                 'wkName'
             ],
             'InnoDB',
@@ -95,6 +108,14 @@ class WindowsKeyManager extends FOGManagerController
             $this->createSql(),
             // 1
             self::getClass('WindowsKeyAssociationManager')->createSql(),
+            // 2 - retire UNIQUE (wkKey); see createSql() for why it could not
+            // hold. It sat at position 0, hence `index0`. applyUpdates()
+            // tolerates 1091, which is what a fresh install -- built from the
+            // corrected createSql() above -- will hit.
+            sprintf(
+                'ALTER TABLE `%s` DROP INDEX `index0`',
+                $this->tablename
+            ),
         ];
     }
     /**
