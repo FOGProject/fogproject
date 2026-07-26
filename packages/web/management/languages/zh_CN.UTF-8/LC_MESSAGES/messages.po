@@ -718,6 +718,12 @@ msgid ""
 "can authenticate against the directory receives this role."
 msgstr ""
 
+msgid ""
+"Applies to LDAP servers using the \"expand\" strategy, which walks one query "
+"per level of nesting on every sign-in. A server can override this on its own "
+"settings. Directories rarely nest more than three or four deep."
+msgstr ""
+
 msgid "Applying a database schema update requires an administrator account."
 msgstr ""
 
@@ -1598,6 +1604,9 @@ msgstr "默认宽度"
 #, fuzzy
 msgid "Default is disabled"
 msgstr "捐款将被禁用"
+
+msgid "Default nested group depth"
+msgstr ""
 
 msgid "Delayed"
 msgstr "延迟"
@@ -4449,6 +4458,10 @@ msgstr "事件必须是字符串"
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr ""
 
+#, fuzzy
+msgid "Nested group depth must be between 1 and 100"
+msgstr "事件必须是字符串"
+
 msgid "Network Information"
 msgstr "网络信息"
 
@@ -7238,6 +7251,10 @@ msgstr "无法打开文件进行读取"
 
 #, fuzzy
 msgid "Unable to set ldap ports."
+msgstr "无法打开文件进行读取"
+
+#, fuzzy
+msgid "Unable to set nested group depth."
 msgstr "无法打开文件进行读取"
 
 msgid "Unable to uninstall, no method exists for "

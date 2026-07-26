@@ -689,6 +689,12 @@ msgid ""
 "can authenticate against the directory receives this role."
 msgstr ""
 
+msgid ""
+"Applies to LDAP servers using the \"expand\" strategy, which walks one query "
+"per level of nesting on every sign-in. A server can override this on its own "
+"settings. Directories rarely nest more than three or four deep."
+msgstr ""
+
 msgid "Applying a database schema update requires an administrator account."
 msgstr ""
 
@@ -1535,6 +1541,9 @@ msgstr "Larghezza predefinita"
 
 msgid "Default is disabled"
 msgstr "Il valore predefinito è disabilitato"
+
+msgid "Default nested group depth"
+msgstr ""
 
 msgid "Delayed"
 msgstr "Ritardato"
@@ -4274,6 +4283,10 @@ msgstr "Nuova chiave deve essere una stringa"
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr ""
 
+#, fuzzy
+msgid "Nested group depth must be between 1 and 100"
+msgstr "Nuova chiave deve essere una stringa"
+
 msgid "Network Information"
 msgstr "Informationi di rete"
 
@@ -6944,6 +6957,10 @@ msgstr "Impossibile aprire il file per la lettura"
 
 #, fuzzy
 msgid "Unable to set ldap ports."
+msgstr "Impossibile aprire il file per la lettura"
+
+#, fuzzy
+msgid "Unable to set nested group depth."
 msgstr "Impossibile aprire il file per la lettura"
 
 msgid "Unable to uninstall, no method exists for "

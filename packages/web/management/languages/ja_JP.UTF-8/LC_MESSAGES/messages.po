@@ -676,6 +676,12 @@ msgid ""
 "can authenticate against the directory receives this role."
 msgstr ""
 
+msgid ""
+"Applies to LDAP servers using the \"expand\" strategy, which walks one query "
+"per level of nesting on every sign-in. A server can override this on its own "
+"settings. Directories rarely nest more than three or four deep."
+msgstr ""
+
 msgid "Applying a database schema update requires an administrator account."
 msgstr ""
 
@@ -1520,6 +1526,9 @@ msgstr "既定の幅"
 
 msgid "Default is disabled"
 msgstr "既定では無効です"
+
+msgid "Default nested group depth"
+msgstr ""
 
 msgid "Delayed"
 msgstr "遅延"
@@ -4233,6 +4242,10 @@ msgstr "新しいキーは文字列である必要があります"
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr "ユーザー名は 41 文字未満で指定してください"
 
+#, fuzzy
+msgid "Nested group depth must be between 1 and 100"
+msgstr "ユーザー名は 41 文字未満で指定してください"
+
 msgid "Network Information"
 msgstr "ネットワーク情報"
 
@@ -6876,6 +6889,10 @@ msgstr "更新できません"
 
 #, fuzzy
 msgid "Unable to set ldap ports."
+msgstr "更新できません"
+
+#, fuzzy
+msgid "Unable to set nested group depth."
 msgstr "更新できません"
 
 msgid "Unable to uninstall, no method exists for "

@@ -1211,6 +1211,10 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'nomatchrole') ?:
             self::getSetting('FOG_PLUGIN_LDAP_NOMATCH_ROLE')
         );
+        $nestedDepth = (
+            filter_input(INPUT_POST, 'nesteddepth') ?:
+            self::getSetting('FOG_PLUGIN_LDAP_NESTED_DEPTH')
+        );
 
         // Route::names() would emit a JSON content-type header into what is
         // an HTML fragment, so build the id => name map from ids(). Both
@@ -1239,6 +1243,31 @@ class LDAPManagement extends FOGPage
                 $port,
                 true
             ),
+            self::makeLabel(
+                $labelClass,
+                'nesteddepth',
+                _('Default nested group depth')
+            ) => self::makeInput(
+                'form-control ldapnesteddepth-input',
+                'nesteddepth',
+                '10',
+                'number',
+                'nesteddepth',
+                $nestedDepth,
+                true
+            )
+            // The cost is per sign-in and per server, and on the API's basic
+            // auth path a sign-in happens on every request -- so say what
+            // raising this actually buys the directory, rather than leaving
+            // it as a bare number.
+            . '<small class="form-text text-muted">'
+            . _(
+                'Applies to LDAP servers using the "expand" strategy, which '
+                . 'walks one query per level of nesting on every sign-in. A '
+                . 'server can override this on its own settings. Directories '
+                . 'rarely nest more than three or four deep.'
+            )
+            . '</small>',
             self::makeLabel(
                 $labelClass,
                 'adminrole',
@@ -1365,6 +1394,29 @@ class LDAPManagement extends FOGPage
             if (!self::setSetting('FOG_PLUGIN_LDAP_PORTS', implode(',', $ports))) {
                 $serverFault = true;
                 throw new Exception(_('Unable to set ldap ports.'));
+            }
+            // The global floor for the `expand` strategy. Unlike the
+            // per-server override, 0 is not "inherit" here -- there is
+            // nothing above this to inherit from -- so it has to be a real
+            // depth, and a depth of 0 would silently disable nesting on
+            // every server that did not set its own.
+            $nestedDepth = trim(
+                (string)filter_input(INPUT_POST, 'nesteddepth')
+            );
+            if (!is_numeric($nestedDepth)
+                || (int)$nestedDepth < 1
+                || (int)$nestedDepth > 100
+            ) {
+                throw new Exception(
+                    _('Nested group depth must be between 1 and 100')
+                );
+            }
+            if (!self::setSetting(
+                'FOG_PLUGIN_LDAP_NESTED_DEPTH',
+                (int)$nestedDepth
+            )) {
+                $serverFault = true;
+                throw new Exception(_('Unable to set nested group depth.'));
             }
             // Blank is a legitimate choice meaning "grant nothing", so only
             // a non-blank value is checked -- and it is checked against the
