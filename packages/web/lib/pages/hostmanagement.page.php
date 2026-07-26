@@ -1854,13 +1854,17 @@ class HostManagement extends FOGPage
      */
     public function hostPrinters()
     {
-        // Printer Associations
+        // Printer Associations. Trailing 'printer' opts this tab into the
+        // "Create New Printer" button and modal (see renderAssocCreate), so a
+        // printer that does not exist yet does not mean leaving the host page.
         $this->renderAssocTab(
             'host-printer',
             _('Host Printer Associations'),
             _('Printer Name'),
             'printer',
-            'btn btn-primary float-end'
+            'btn btn-primary float-end',
+            '',
+            'printer'
         );
 
         $props = ' method="post" action="'

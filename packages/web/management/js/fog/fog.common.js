@@ -807,8 +807,21 @@ $.registerAssociationTab = function(opts) {
 //
 // slug  - the association tab slug (e.g. 'host-group'), matching the button.
 // table - the tab's DataTable API instance, redrawn after a successful create.
-$.registerCreateAndAssociate = function(slug, table) {
-  var btn = $('#' + slug + '-create'),
+// opts.onForm   - optional callback(form) run once, right after the fetched form
+//      is in the DOM. Some create forms are not inert markup: the printer form's
+//      type sections and the snapin form's command builder are driven by JS that
+//      normally runs on the node's own page, and that JS does not travel with a
+//      fetched fragment. The tab passes its node's initialiser here rather than
+//      this helper carrying a node->initialiser map, which would make a shared
+//      helper grow a branch per node and put plugin nodes out of reach.
+// opts.validate - optional processForm() validate filter, mirroring
+//      wireCreateForm({selector}). The printer form needs ':input:visible'
+//      because its hidden type sections must not be validated; forms with
+//      nothing hidden leave it unset and validate everything.
+$.registerCreateAndAssociate = function(slug, table, opts) {
+  opts = opts || {};
+  var onForm = opts.onForm,
+    btn = $('#' + slug + '-create'),
     modal = $('#' + slug + '-createModal'),
     holder = $('#' + slug + '-create-form'),
     sendBtn = $('#' + slug + '-create-send'),
@@ -859,6 +872,13 @@ $.registerCreateAndAssociate = function(slug, table) {
           el.attr('id', newId);
         });
         holder.html(form);
+        // Before the keypress/focus wiring below, because an initialiser can
+        // change which fields are even visible -- the printer one hides every
+        // type section but the selected one -- and focusing a hidden field or
+        // binding Enter to it would be wrong.
+        if (typeof onForm === 'function') {
+          onForm(holder.find('form'));
+        }
         // Submit on Enter, matching the list page's create modal.
         holder.find(':input:not(textarea)').on('keypress', function(ev) {
           if (ev.which == 13) {
@@ -866,7 +886,9 @@ $.registerCreateAndAssociate = function(slug, table) {
             sendBtn.trigger('click');
           }
         });
-        holder.find(':input:first').trigger('focus');
+        // :visible so a form whose initialiser hid sections still opens with the
+        // caret in a field the user can actually see.
+        holder.find(':input:visible:first').trigger('focus');
       }
     ).fail(function() {
       // Let them retry by closing and reopening.
@@ -923,9 +945,15 @@ $.registerCreateAndAssociate = function(slug, table) {
         // Reset only after a clean run, so the next create starts empty.
         if (form[0]) {
           form[0].reset();
+          // reset() restores field VALUES but fires no events, so any UI an
+          // initialiser drives off a select -- the printer type sections, the
+          // snapin pack mode -- would be left displaying the previous choice
+          // against a reset select. Re-fire change so those handlers re-sync;
+          // they only read the current value, so running them again is safe.
+          form.find('select').trigger('change');
         }
       });
-    });
+    }, opts.validate);
   });
 };
 $.getSelectedIds = function(table) {

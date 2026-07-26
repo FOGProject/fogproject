@@ -612,8 +612,8 @@
         item: 'group',
         sub: 'getGroupsList'
     });
-    // Create-and-associate card below the grid. Inert unless the server
-    // rendered the card, which it only does for users who can create groups.
+    // Create-and-associate button/modal on the action row. Inert unless the
+    // server rendered them, which it only does for users who can create groups.
     $.registerCreateAndAssociate('host-group', hostGroupsTable);
 
     // ---------------------------------------------------------------
@@ -628,6 +628,18 @@
         item: 'printer',
         sub: 'getPrintersList',
         onDraw: hostPrinterDefaultSelectorUpdate
+    });
+    // The printer create form is not inert markup -- it hides every type
+    // section but the selected one -- and that JS lives on the printer pages,
+    // which do not load here. onForm runs the same initialiser against the
+    // fetched form; node:'printer' because the helper would otherwise ask
+    // ?node=host for getPrinterInfo. validate matches what the printer pages
+    // pass, so the hidden sections are not validated.
+    $.registerCreateAndAssociate('host-printer', hostPrintersTable, {
+        onForm: function(form) {
+            form.initPrinterFormUI({node: 'printer'});
+        },
+        validate: ':input:visible'
     });
 
     // Default area
