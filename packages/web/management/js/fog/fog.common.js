@@ -1104,14 +1104,47 @@ function fogTableParts(node) {
   var body = $(node),
     wrap = body.closest('.dt-container, .dataTables_wrapper'),
     head = wrap.find('.dt-scroll-head table, .dataTables_scrollHead table')
-      .first();
+      .first(),
+    visibleHead = head.length ? head : body,
+    allTh = visibleHead.find('thead tr:first > th'),
+    domIndex = [];
+
+  // Responsive hides a column by putting display:none on its cells, it does
+  // not remove them -- but DataTables' <colgroup> only ever carries the
+  // columns that are actually showing. So the two lists routinely differ in
+  // length, and they differ even at full width: the host list has always run
+  // six header cells against five <col>s because its Description column is
+  // hidden by default. Everything below addresses a column by its position in
+  // the COLGROUP, so work out once which header cell each of those positions
+  // belongs to instead of assuming the two line up 1:1.
+  //
+  // Comparing the counts without this is what left the host list with no
+  // resize strips at any width -- the guard read a permanent six-versus-five
+  // as "Responsive has collapsed this table" and bailed every time.
+  //
+  // Tested on the cell's OWN display rather than jQuery :visible on purpose:
+  // :visible is false for every cell of a table sitting in a not-yet-shown
+  // tab, which would throw away the mapping for a table that is merely
+  // off-screen rather than collapsed.
+  allTh.each(function (k) {
+    if ($(this).css('display') !== 'none') {
+      domIndex.push(k);
+    }
+  });
+
   return {
     // The header the user actually sees and grabs.
-    visibleHead: head.length ? head : body,
+    visibleHead: visibleHead,
     // The table holding the actual rows.
     body: body,
     // Every table whose colgroup has to stay in step.
-    tables: head.length ? head.add(body) : body
+    tables: head.length ? head.add(body) : body,
+    // The header cells that have a <col> behind them, in colgroup order.
+    headers: allTh.filter(function () {
+      return $(this).css('display') !== 'none';
+    }),
+    // colgroup position -> DOM position of the matching th/td.
+    domIndex: domIndex
   };
 }
 
@@ -1221,11 +1254,13 @@ function fogFitColumn(parts, i, want, widths) {
 // Measuring every row would mean rendering every row, which is precisely the
 // cost the scroller exists to avoid.
 function fogNaturalColWidth(parts, i) {
-  var cells = parts.body.find('tbody tr').map(function() {
-      return this.cells[i];
+  // i is a colgroup position; the row cells are in DOM order and still
+  // include any column Responsive has hidden, so translate before indexing.
+  var domI = parts.domIndex[i],
+    cells = parts.body.find('tbody tr').map(function() {
+      return this.cells[domI];
     }).get(),
-    title = parts.visibleHead.find('thead tr:first > th').eq(i)
-      .find('.dt-column-title'),
+    title = parts.headers.eq(i).find('.dt-column-title'),
     probe = cells.length ? $(cells[0]) : title,
     ruler = $('#fog-col-ruler');
 
@@ -1272,7 +1307,7 @@ function fogNaturalColWidth(parts, i) {
 // of empty <col>s (DataTables only fills them in when it sizes the table
 // itself), and there is no width to move around.
 function fogSeedColWidths(parts) {
-  var widths = parts.visibleHead.find('thead tr:first > th').map(function() {
+  var widths = parts.headers.map(function() {
     return $(this).outerWidth();
   }).get();
   // A table inside a not-yet-shown tab measures zero. Seeding "0px" then would
@@ -1301,7 +1336,7 @@ function fogSeedColWidths(parts) {
 $.fn.makeColumnsResizable = function() {
   return this.each(function() {
     var parts = fogTableParts(this),
-      headers = parts.visibleHead.find('thead tr:first > th'),
+      headers = parts.headers,
       colCount = parts.visibleHead.find('colgroup > col').length;
 
     // Clear every existing strip and build fresh ones, rather than skipping
@@ -1316,12 +1351,13 @@ $.fn.makeColumnsResizable = function() {
     // handler bound. Rebuilding is the only check a clone cannot fool.
     parts.tables.find('thead .fog-col-resizer').remove();
 
-    // The header cells and the <col>s have to line up 1:1, because everything
-    // below addresses a column by index. They do NOT line up once Responsive
-    // has collapsed columns away (a 700px-wide host list shows six header
-    // cells against three <col>s), and resizing there would move a different
-    // column than the one grabbed. Leave that table alone rather than offer
-    // strips that quietly do nothing.
+    // The showing header cells and the <col>s have to line up 1:1, because
+    // everything below addresses a column by its colgroup position. They
+    // normally do -- fogTableParts() drops the cells Responsive has hidden
+    // precisely so they can. If they still disagree the mapping is not
+    // trustworthy and a drag would move a different column than the one
+    // grabbed, so leave the table alone rather than offer strips that quietly
+    // do the wrong thing.
     if (!colCount || colCount !== headers.length) {
       // Hand the table back to the browser on the way out. A previous pass at
       // a wider window left `fog-table-fixed` on it, and a fixed layout over a
