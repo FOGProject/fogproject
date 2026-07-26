@@ -69,7 +69,17 @@ class LDAP extends FOGController
         'displayNameOn' => 'lsDisplayNameEnabled',
         'displayNameAttr' => 'lsDisplayNameAttr',
         'isLdaps' => 'lsIsLDAPs',
-        'allowapi' => 'lsAllowAPI'
+        'allowapi' => 'lsAllowAPI',
+        // Nested/transitive group membership (#884). Per server rather than
+        // global: whether nesting works and what it costs is a property of
+        // the directory, and one install can have an AD and an OpenLDAP
+        // configured at the same time.
+        //
+        // 'off' keeps today's direct-only resolution. Nothing reads either
+        // of these yet -- the strategies land in their own stories.
+        'nestedGroups' => 'lsNestedGroups',
+        // 0 means "inherit FOG_PLUGIN_LDAP_NESTED_DEPTH".
+        'nestedDepth' => 'lsNestedDepth'
     ];
     /**
      * The required fields

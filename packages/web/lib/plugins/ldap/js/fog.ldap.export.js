@@ -19,6 +19,13 @@
         {data: 'displayNameOn', visible: false},
         {data: 'displayNameAttr', visible: false},
         {data: 'isLdaps', visible: false},
-        {data: 'allowapi', visible: false}
+        {data: 'allowapi', visible: false},
+        // One entry per header cell. FOGPage::_buildExportColumns() builds
+        // the header row from LDAP::$databaseFields minus id (and minus
+        // bindPwd, which AddLDAPAPI::stripBindPassword() drops), so adding a
+        // field to the model adds a <th> here whether this list follows or
+        // not -- and DataTables throws when the counts disagree.
+        {data: 'nestedGroups', visible: false},
+        {data: 'nestedDepth', visible: false}
     ]);
 })(jQuery);

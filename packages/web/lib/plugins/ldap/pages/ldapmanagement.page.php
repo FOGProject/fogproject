@@ -56,6 +56,82 @@ class LDAPManagement extends FOGPage
         ];
     }
     /**
+     * The nested-group resolution strategies, keyed by stored value.
+     *
+     * One list, used by both form renderers and by both post handlers'
+     * validation, so the set of legal values cannot drift between what the
+     * form offers and what a save accepts.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/884
+     *
+     * @return array
+     */
+    private static function _nestedStrategies()
+    {
+        return [
+            'off' => _('Off - direct membership only'),
+            'expand' => _('Expand - walk the chain (any directory)'),
+            'chain' => _('Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)')
+        ];
+    }
+    /**
+     * Placeholder for the per-server depth override, naming the global it
+     * inherits so an admin can see what leaving it blank actually means.
+     *
+     * @return string
+     */
+    private static function _nestedDepthPlaceholder()
+    {
+        return sprintf(
+            /* translators: %s is the inherited default depth */
+            _('Inherit global (%s)'),
+            (int)self::getSetting('FOG_PLUGIN_LDAP_NESTED_DEPTH')
+        );
+    }
+    /**
+     * Validates the nested-group fields out of a POST.
+     *
+     * Shared by addPost() and ldapGeneralPost() so the two cannot disagree
+     * about what a legal value is -- the pair of them drifting apart is how
+     * a field ends up settable on edit but not on create.
+     *
+     * @throws Exception
+     * @return array strategy and depth, ready to set()
+     */
+    private static function _nestedFromPost()
+    {
+        $strategy = trim((string)filter_input(INPUT_POST, 'nestedGroups'));
+        // Blank is the empty "- Please select an option -" entry every
+        // selectForm() emits, and it means the admin left it alone.
+        if ('' === $strategy) {
+            $strategy = 'off';
+        }
+        if (!array_key_exists($strategy, self::_nestedStrategies())) {
+            throw new Exception(
+                _('Please select a valid nested group strategy')
+            );
+        }
+        $depth = trim((string)filter_input(INPUT_POST, 'nestedDepth'));
+        // Blank and 0 both mean "inherit the global", which is what the
+        // column's default already is.
+        if ('' === $depth) {
+            $depth = 0;
+        }
+        if (!is_numeric($depth)) {
+            throw new Exception(_('Nested depth must be a number'));
+        }
+        $depth = (int)$depth;
+        // Upper bound is a typo guard, not a policy: each level is one more
+        // query on every sign-in, and a fat-fingered 1000 would hang logins
+        // against a slow directory rather than fail visibly.
+        if ($depth < 0 || $depth > 100) {
+            throw new Exception(
+                _('Nested depth must be between 0 and 100, or blank to inherit')
+            );
+        }
+        return ['strategy' => $strategy, 'depth' => $depth];
+    }
+    /**
      * Builds the create-form fields (shared by add() and addModal()).
      *
      * @return array
@@ -106,6 +182,14 @@ class LDAPManagement extends FOGPage
             $ports,
             $port
         );
+        $nestedGroups = filter_input(INPUT_POST, 'nestedGroups');
+        $nestedSel = self::selectForm(
+            'nestedGroups',
+            self::_nestedStrategies(),
+            $nestedGroups ?: 'off',
+            true
+        );
+        $nestedDepth = filter_input(INPUT_POST, 'nestedDepth');
         $useGroupMatch = isset($_POST['useGroupMatch']);
         $useMatch = (
             $useGroupMatch ?
@@ -220,6 +304,23 @@ class LDAPManagement extends FOGPage
                 -1,
                 -1,
                 'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'nestedGroups',
+                _('Nested Groups')
+            ) => $nestedSel,
+            self::makeLabel(
+                $labelClass,
+                'nestedDepth',
+                _('Nested Depth')
+            ) => self::makeInput(
+                'form-control ldapnesteddepth-input',
+                'nestedDepth',
+                self::_nestedDepthPlaceholder(),
+                'number',
+                'nestedDepth',
+                $nestedDepth
             ),
             self::makeLabel(
                 $labelClass,
@@ -473,6 +574,7 @@ class LDAPManagement extends FOGPage
                         _('Please select a valid ldap port')
                     );
                 }
+                $nested = self::_nestedFromPost();
                 $exists = self::getClass('LDAPManager')
                     ->exists($ldap);
                 if ($exists) {
@@ -497,6 +599,8 @@ class LDAPManagement extends FOGPage
                     ->set('grpSearchDN', $grpSearchDN)
                     ->set('displayNameOn', $displayNameOn)
                     ->set('allowapi', $isAPI)
+                    ->set('nestedGroups', $nested['strategy'])
+                    ->set('nestedDepth', $nested['depth'])
                     ->set('displayNameAttr', $displayNameAttr);
                 if (!$LDAP->save()) {
                     $serverFault = true;
@@ -595,6 +699,24 @@ class LDAPManagement extends FOGPage
             $ports,
             $port
         );
+        $nestedGroups = (
+            filter_input(INPUT_POST, 'nestedGroups') ?:
+            $this->obj->get('nestedGroups')
+        );
+        $nestedSel = self::selectForm(
+            'nestedGroups',
+            self::_nestedStrategies(),
+            $nestedGroups ?: 'off',
+            true
+        );
+        // 0 is the stored "inherit" sentinel, and it must render as blank so
+        // the placeholder can say what it inherits -- printing a literal 0
+        // would read as a depth of zero.
+        $nestedDepth = (
+            filter_input(INPUT_POST, 'nestedDepth')
+            ?? (int)$this->obj->get('nestedDepth')
+        );
+        $nestedDepth = ((int)$nestedDepth > 0 ? (int)$nestedDepth : '');
         $useGroupMatch = (
             isset($_POST['useGroupMatch']) ?: $this->obj->get('useGroupMatch')
         );
@@ -711,6 +833,23 @@ class LDAPManagement extends FOGPage
                 -1,
                 -1,
                 $useMatch
+            ),
+            self::makeLabel(
+                $labelClass,
+                'nestedGroups',
+                _('Nested Groups')
+            ) => $nestedSel,
+            self::makeLabel(
+                $labelClass,
+                'nestedDepth',
+                _('Nested Depth')
+            ) => self::makeInput(
+                'form-control ldapnesteddepth-input',
+                'nestedDepth',
+                self::_nestedDepthPlaceholder(),
+                'number',
+                'nestedDepth',
+                $nestedDepth
             ),
             self::makeLabel(
                 $labelClass,
@@ -978,6 +1117,7 @@ class LDAPManagement extends FOGPage
                 _('Please select a valid ldap port')
             );
         }
+        $nested = self::_nestedFromPost();
         $exists = self::getClass('LDAPManager')
             ->exists($ldap);
         if ($ldap != $this->obj->get('name')
@@ -1003,6 +1143,8 @@ class LDAPManagement extends FOGPage
             ->set('grpSearchDN', $grpSearchDN)
             ->set('displayNameOn', $displayNameOn)
             ->set('allowapi', $isAPI)
+            ->set('nestedGroups', $nested['strategy'])
+            ->set('nestedDepth', $nested['depth'])
             ->set('displayNameAttr', $displayNameAttr);
         // The edit form no longer renders the stored password back into the
         // field, so an empty submission means "leave it as it is" rather

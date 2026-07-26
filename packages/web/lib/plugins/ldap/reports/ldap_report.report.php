@@ -51,10 +51,14 @@ class LDAP_Report extends ReportManagement
             _('Group Search DN'),
             _('Use Group Match'),
             _('Display Name Enabled'),
-            _('Display Name Attribute')
+            _('Display Name Attribute'),
+            _('Nested Groups'),
+            _('Nested Depth')
         ];
         // One entry per headerData column, so this shrinks with it.
         $this->attributes = [
+            [],
+            [],
             [],
             [],
             [],

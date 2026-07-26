@@ -21,7 +21,12 @@
         {data: 'grpSearchDN', visible: false},
         {data: 'useGroupMatch', visible: false},
         {data: 'displayNameOn', visible: false},
-        {data: 'displayNameAttr', visible: false}
+        {data: 'displayNameAttr', visible: false},
+        // Unlike the export, this table's header row is the explicit
+        // headerData list in ldap_report.report.php::file() -- so these two
+        // only line up because that list gained the matching pair.
+        {data: 'nestedGroups', visible: false},
+        {data: 'nestedDepth', visible: false}
       ]);
       break;
   }

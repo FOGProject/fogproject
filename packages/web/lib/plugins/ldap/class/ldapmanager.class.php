@@ -66,7 +66,13 @@ class LDAPManager extends FOGManagerController
                 'lsDisplayNameEnabled',
                 'lsDisplayNameAttr',
                 'lsIsLDAPs',
-                'lsAllowAPI'
+                'lsAllowAPI',
+                // Nested-group resolution is per server, because whether
+                // nesting works and what it costs is a property of the
+                // directory -- an install can have an AD and an OpenLDAP
+                // configured at once. See schema() steps 22-24.
+                'lsNestedGroups',
+                'lsNestedDepth'
             ],
             [
                 'INTEGER',
@@ -91,9 +97,17 @@ class LDAPManager extends FOGManagerController
                 "ENUM('0','1')",
                 'VARCHAR(255)',
                 "ENUM('0', '1')",
-                "ENUM('0', '1')"
+                "ENUM('0', '1')",
+                // Words rather than the 0/1/2 this table uses elsewhere:
+                // the value is read straight out in LDAP::authLDAP(), and a
+                // strategy name that says what it does beats a sentinel
+                // that needs a lookup table to interpret.
+                "ENUM('off', 'chain', 'expand')",
+                'INTEGER'
             ],
             [
+                false,
+                false,
                 false,
                 false,
                 false,
@@ -141,7 +155,15 @@ class LDAPManager extends FOGManagerController
                 false,
                 false,
                 false,
-                false
+                false,
+                // Default off: an existing install keeps resolving direct
+                // membership exactly as it does today, and turning nesting
+                // on stays a deliberate act with a visible cost.
+                'off',
+                // 0 means "inherit FOG_PLUGIN_LDAP_NESTED_DEPTH". A
+                // sentinel rather than NULL because every other column in
+                // this table is NOT NULL.
+                '0'
             ],
             [
                 'lsID',
@@ -204,6 +226,28 @@ class LDAPManager extends FOGManagerController
                 . 'server which has group matching disabled. Blank grants '
                 . 'nothing.',
                 self::_defaultRoleId('Technician'),
+                $category
+            ],
+            [
+                // The default ceiling for the `expand` strategy, which walks
+                // up one query per level. A server can override it with
+                // lsNestedDepth; 0 there means "use this".
+                //
+                // 10 is chosen to be effectively unreachable rather than
+                // protective. Real directories nest three or four deep, and
+                // `chain` has no limit at all -- so a cap low enough to bite
+                // would make the two strategies silently disagree on the same
+                // directory, which is precisely the "the group is mapped, the
+                // user is in it, and no access appears" complaint #884 exists
+                // to remove. LDAP::_getMatchedGroups() logs when the frontier
+                // is still non-empty at the cap, so hitting it is diagnosable
+                // rather than a silent wrong answer.
+                'FOG_PLUGIN_LDAP_NESTED_DEPTH',
+                'How many levels of nested group membership to walk when an '
+                . 'LDAP server uses the "expand" strategy. A server can '
+                . 'override this; each level costs one query per sign-in. '
+                . 'Default: 10',
+                '10',
                 $category
             ]
         ];
@@ -772,6 +816,30 @@ class LDAPManager extends FOGManagerController
             // 21
             "DELETE FROM `ldapGroupUserGroupAssoc` "
             . "WHERE `lgugUserGroupID` NOT IN (SELECT `ugID` FROM `userGroups`)",
+            // 22-24: nested/transitive group membership (#884).
+            //
+            // createSql() above carries these columns for a fresh install;
+            // these ALTERs are what an existing install gets. Appended, not
+            // folded into an earlier step -- installdb() skips the first
+            // pSchema steps rather than replaying from zero, so a rewritten
+            // step is invisible to anyone who has already passed it. That is
+            // exactly what broke installs in e39306e9c.
+            //
+            // applyUpdates() tolerates 1060 (duplicate column), so re-running
+            // is safe.
+            // 22
+            "ALTER TABLE `LDAPServers` ADD COLUMN `lsNestedGroups` "
+            . "ENUM('off', 'chain', 'expand') NOT NULL DEFAULT 'off'",
+            // 23
+            "ALTER TABLE `LDAPServers` ADD COLUMN `lsNestedDepth` "
+            . "INT(11) NOT NULL DEFAULT 0",
+            // 24
+            // seedSettings() again, so an existing install picks up
+            // FOG_PLUGIN_LDAP_NESTED_DEPTH. It only inserts what is missing,
+            // so an admin's chosen values are untouched.
+            function () {
+                return $this->seedSettings();
+            },
         ];
     }
     /**
