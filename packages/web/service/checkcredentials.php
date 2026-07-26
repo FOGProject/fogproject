@@ -60,7 +60,8 @@ $clearAttempts = function () use ($lockoutFile) {
 
 $attemptData = $getAttemptData();
 $timeDiff = time() - ($attemptData['timestamp'] ?? time());
-$isLocked = ($attemptData['attempts'] ?? 0) >= 5 && $timeDiff < $lockoutDuration;
+$isLocked = ($attemptData['attempts'] ?? 0) >= $maxAttempts
+    && $timeDiff < $lockoutDuration;
 
 if ($isLocked) {
     http_response_code(429);
@@ -68,14 +69,33 @@ if ($isLocked) {
     exit;
 }
 
+/**
+ * Read through filter_input rather than $_REQUEST.
+ *
+ * Initiator::sanitizeItems() walks $_GET, $_POST, $_COOKIE and $_SESSION --
+ * but not $_REQUEST, which PHP populates as a separate copy before any of
+ * that runs. Reading $_REQUEST therefore bypassed the boot-time
+ * sanitisation and made this the one entry point taking raw superglobal
+ * input, against the convention every other caller follows.
+ *
+ * POST is preferred over GET to match what $_REQUEST resolved to under
+ * PHP's default request_order of "GP", where POST overwrites GET.
+ */
+$readParam = function ($name) {
+    $value = filter_input(INPUT_POST, $name)
+        ?? filter_input(INPUT_GET, $name)
+        ?? '';
+    return trim((string)$value);
+};
+
 try {
-    $username = trim($_REQUEST['username'] ?? '');
+    $username = $readParam('username');
     $username = base64_decode($username, true);
     if (!is_string($username)) {
         throw new Exception('#!il');
     }
     $username = trim($username);
-    $password = trim($_REQUEST['password'] ?? '');
+    $password = $readParam('password');
     $password = base64_decode($password, true);
     if (!is_string($password)) {
         throw new Exception('#!il');
