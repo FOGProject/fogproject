@@ -147,45 +147,115 @@ class LDAP extends FOGController
         // 'userGroup',
     ];
     /**
-     * The process-inherited TLS verification level, read once per request.
+     * The configured TLS verification level, resolved once per request.
      *
      * @var int|null
      */
     private static $_tlsBaseline;
     /**
-     * The inherited verification level, so 'inherit' can be honoured.
+     * The client library's own default when nothing configures TLS_REQCERT.
      *
-     * These options are process-global in the OpenLDAP client, and
-     * ldap_get_option() refuses a null handle, so the only way to learn what
-     * the process started with is to ask a connection before anything has
-     * overridden it. ldap_connect() does no network I/O -- it just parses
-     * the URI -- so a throwaway handle is cheap and cannot fail on an
-     * unreachable directory.
+     * Measured against OpenLDAP with no TLS_REQCERT line anywhere: a fresh
+     * process reports 2 (demand). Used as the fallback rather than guessing,
+     * and it is at the strict end, so an unparseable configuration cannot
+     * quietly turn verification off.
      *
-     * Cached because it must be the value from *before* the first override:
-     * reading it again later would return whatever the previous server set.
+     * @var int
+     */
+    const TLS_REQCERT_DEFAULT = 2;
+    /**
+     * TLS_REQCERT keyword to LDAP_OPT_X_TLS_* level.
+     *
+     * @var array
+     */
+    const TLS_REQCERT_KEYWORDS = [
+        'never' => 0,
+        'hard' => 1,
+        'demand' => 2,
+        'allow' => 3,
+        'try' => 4
+    ];
+    /**
+     * The verification level 'inherit' should mean, from configuration.
+     *
+     * Read from configuration, NOT from the live client state, and that
+     * distinction is the whole point.
+     *
+     * This used to ask a throwaway ldap_connect() handle what the level was,
+     * on the reasoning that a connection is the only thing ldap_get_option()
+     * will answer for. That works in a one-shot process and is wrong under
+     * php-fpm, because these options are process-global and a worker serves
+     * thousands of requests. Measured: fresh worker reads 2 (demand, correct
+     * from ldap.conf); after one request for a server set to 'never' the same
+     * read returns 0; after a 'hard' server it returns 1. So 'inherit' did
+     * not mean "what ldap.conf says", it meant "whatever the previous request
+     * in this worker happened to leave set" -- and a server on 'inherit'
+     * could silently end up with verification disabled because an unrelated
+     * server set to 'never' was processed first. That is the same leak #893
+     * exists to close, one level down.
+     *
+     * Resolution order matches the client's own: the LDAPTLS_REQCERT
+     * environment variable wins, then TLS_REQCERT from the ldap.conf that
+     * LDAPCONF names or the distro ships, then the library default.
+     *
+     * Known gap, accepted: per-user files ($LDAPRC, ~/.ldaprc) are not
+     * consulted. They are read relative to the web server user's home, which
+     * is not an administered location on any supported deployment, and
+     * guessing at it would be less predictable than ignoring it.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/893
      *
      * @return int
      */
     private static function _tlsBaseline()
     {
-        if (null === self::$_tlsBaseline) {
-            $level = null;
-            $probe = @ldap_connect('ldap://127.0.0.1');
-            if ($probe
-                && @ldap_get_option($probe, LDAP_OPT_X_TLS_REQUIRE_CERT, $level)
-                && null !== $level
-            ) {
-                self::$_tlsBaseline = (int)$level;
-            } else {
-                /**
-                 * Could not read it, so assume the strict end rather than the
-                 * lax one. Guessing 'never' here would silently disable
-                 * verification for every server set to 'inherit'.
-                 */
-                self::$_tlsBaseline = LDAP_OPT_X_TLS_HARD;
+        if (null !== self::$_tlsBaseline) {
+            return self::$_tlsBaseline;
+        }
+        $keywords = self::TLS_REQCERT_KEYWORDS;
+
+        $env = strtolower(trim((string)getenv('LDAPTLS_REQCERT')));
+        if ('' !== $env && isset($keywords[$env])) {
+            self::$_tlsBaseline = $keywords[$env];
+            return self::$_tlsBaseline;
+        }
+
+        $files = [];
+        $ldapconf = trim((string)getenv('LDAPCONF'));
+        if ('' !== $ldapconf) {
+            // LDAPCONF replaces the system file rather than adding to it.
+            $files[] = $ldapconf;
+        } else {
+            $files[] = '/etc/openldap/ldap.conf';
+            $files[] = '/etc/ldap/ldap.conf';
+        }
+        foreach ($files as $file) {
+            if (!is_readable($file)) {
+                continue;
+            }
+            $lines = @file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ((array)$lines as $line) {
+                $line = trim($line);
+                // Comments are '#' at the start; directives are
+                // "KEYWORD value" and the keyword is case-insensitive.
+                if ('' === $line || '#' === $line[0]) {
+                    continue;
+                }
+                $parts = preg_split('/\s+/', $line, 2);
+                if (count($parts) < 2
+                    || 0 !== strcasecmp('TLS_REQCERT', $parts[0])
+                ) {
+                    continue;
+                }
+                $value = strtolower(trim($parts[1]));
+                if (isset($keywords[$value])) {
+                    self::$_tlsBaseline = $keywords[$value];
+                    return self::$_tlsBaseline;
+                }
             }
         }
+
+        self::$_tlsBaseline = self::TLS_REQCERT_DEFAULT;
         return self::$_tlsBaseline;
     }
     /**
