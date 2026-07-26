@@ -1455,10 +1455,6 @@ msgid "Create Task Success"
 msgstr "usuário criado"
 
 #, fuzzy
-msgid "Create and associate"
-msgstr "No nó associado"
-
-#, fuzzy
 msgid "Create new Session Task"
 msgstr "Criar novo %s"
 
@@ -1486,11 +1482,6 @@ msgstr "Criado por"
 
 msgid "Created by FOG Reg on"
 msgstr "Criado por FOG Reg em"
-
-msgid ""
-"Creates the group and adds this host to it in one step, so a group that does "
-"not exist yet does not mean leaving this page."
-msgstr ""
 
 msgid "Credentials"
 msgstr ""
@@ -8717,6 +8708,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Create New Rule"
 #~ msgstr "Criar novo %s"
+
+#, fuzzy
+#~ msgid "Create and associate"
+#~ msgstr "No nó associado"
 
 #, fuzzy
 #~ msgid "Database connection unavailable"

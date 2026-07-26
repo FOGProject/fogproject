@@ -1203,9 +1203,6 @@ msgstr ""
 msgid "Create Task Success"
 msgstr ""
 
-msgid "Create and associate"
-msgstr ""
-
 msgid "Create new Session Task"
 msgstr ""
 
@@ -1228,11 +1225,6 @@ msgid "Created Time"
 msgstr ""
 
 msgid "Created by FOG Reg on"
-msgstr ""
-
-msgid ""
-"Creates the group and adds this host to it in one step, so a group that does "
-"not exist yet does not mean leaving this page."
 msgstr ""
 
 msgid "Credentials"

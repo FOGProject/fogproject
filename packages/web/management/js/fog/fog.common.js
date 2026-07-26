@@ -784,122 +784,148 @@ $.registerAssociationTab = function(opts) {
   return table;
 };
 // -----------------------------------------------------------------------
-// $.registerCreateAndAssociate(slug, table) - wire the "create the thing and
-// associate it" card that renderCreateAndAssociateCard() puts below an
-// association grid.
+// $.registerCreateAndAssociate(slug, table) - wire the "Create New X" button
+// and modal that renderAssocCreate() adds to an association tab, so the thing
+// being associated can be created without leaving the page.
 //
 // Two-request flow, both against endpoints that already exist:
-//   1. GET  ?node={createNode}&sub=addModal   - the REAL create form. It is
-//      fetched rather than duplicated here so the fields (including any a
-//      plugin injects via {NODE}_ADD_FIELDS) can never drift from the create
-//      page's own.
-//   2. POST ?node={createNode}&sub=addPost    - the REAL create endpoint,
-//      which answers with the created entity under `object` (see
-//      FOGPagePost::attachCreatedObject). That id is then POSTed to the
-//      association tab's own update URL, i.e. the same call the "Add
-//      selected" button makes -- so the association goes through one code
-//      path, not two.
+//   1. GET  ?node={createNode}&sub=addModal - the REAL create form, fetched
+//      into the empty modal on first open. Fetched rather than duplicated here
+//      so the fields (including any a plugin injects via {NODE}_ADD_FIELDS)
+//      can never drift from the create page's own.
+//   2. The form's own action (?node={createNode}&sub=add, which the page
+//      manager routes to addPost() on POST) via processForm() -- the same call
+//      the node's list page makes from its own create modal, so validation,
+//      CSRF and error reporting all stay on one path. It answers with the
+//      created entity under `object` (see FOGPagePost::attachCreatedObject),
+//      and that id is POSTed to the association tab's update URL, i.e. the
+//      same call "Add selected" makes. So neither half is a second code path.
 //
 // If the create succeeds but no `object` comes back, the association is
 // skipped and the user is told: better a half-done step they can see than a
 // silent one. The grid is redrawn either way so the new row shows up.
 //
-// slug  - the association tab slug (e.g. 'host-group'), matching the card.
+// slug  - the association tab slug (e.g. 'host-group'), matching the button.
 // table - the tab's DataTable API instance, redrawn after a successful create.
 $.registerCreateAndAssociate = function(slug, table) {
-  var card = $('#' + slug + '-create-card'),
+  var btn = $('#' + slug + '-create'),
+    modal = $('#' + slug + '-createModal'),
     holder = $('#' + slug + '-create-form'),
     sendBtn = $('#' + slug + '-create-send'),
-    body = $('#' + slug + '-create-body'),
-    createNode = card.data('create-node'),
-    assocAction = card.data('assoc-action'),
+    createNode = btn.data('create-node'),
+    assocAction = btn.data('assoc-action'),
     loaded = false;
 
-  if (!card.length || !holder.length) {
+  if (!btn.length || !modal.length) {
     return;
   }
 
-  // Lazily fetch the form the first time the card is opened, so a tab nobody
-  // expands costs nothing.
-  body.on('show.bs.collapse', function() {
+  btn.on('click', function(e) {
+    e.preventDefault();
+    modal.modal('show');
+  });
+
+  // Lazily fetch the form the first time the modal is opened, so a tab nobody
+  // creates from costs nothing.
+  modal.on('show.bs.modal', function() {
     if (loaded) {
       return;
     }
     loaded = true;
+    holder.setLoading(true);
     $.get(
       '../management/index.php?node=' + createNode + '&sub=addModal',
       function(html) {
-        // Take the form's CONTENTS, not the <form> element: this card lives
-        // inside the edit page's own markup and a nested form is invalid.
-        // The hidden inputs (CSRF included) are children, so they survive.
         var parsed = $('<div/>').html(html),
-          inner = parsed.find('#create-form'),
-          fragment = inner.length ? inner : parsed;
+          form = parsed.find('#create-form');
+        holder.setLoading(false);
+        if (!form.length) {
+          loaded = false;
+          $.notify('Error', 'Could not load the create form.', 'error');
+          return;
+        }
         // Namespace the ids. The create form is written for its own page,
-        // where it is alone; dropped onto an edit page it can collide -- the
-        // group form's kernel/init/dev are also host fields -- and a
-        // duplicate id silently steals the host page's own selectors. Only
-        // id/for are rewritten; name is what the POST reads and must not
-        // change.
-        fragment.find('[id]').each(function() {
+        // where it is alone; a modal lives in the edit page's DOM for the
+        // life of the page, so its ids can collide -- the group form's
+        // kernel/init/dev are also host fields -- and a duplicate id silently
+        // steals the host page's own selectors. Only id/for are rewritten;
+        // name is what the POST reads and must not change.
+        form.attr('id', slug + '-create-realform');
+        form.find('[id]').each(function() {
           var el = $(this),
             oldId = el.attr('id'),
             newId = slug + '-create-' + oldId;
-          fragment.find('label[for="' + oldId + '"]').attr('for', newId);
+          form.find('label[for="' + oldId + '"]').attr('for', newId);
           el.attr('id', newId);
         });
-        holder.html(fragment.html());
-        sendBtn.prop('disabled', false);
+        holder.html(form);
+        // Submit on Enter, matching the list page's create modal.
+        holder.find(':input:not(textarea)').on('keypress', function(ev) {
+          if (ev.which == 13) {
+            ev.preventDefault();
+            sendBtn.trigger('click');
+          }
+        });
+        holder.find(':input:first').trigger('focus');
       }
     ).fail(function() {
-      // Let them retry by collapsing and reopening.
+      // Let them retry by closing and reopening.
       loaded = false;
-      $.notify(
-        'Error',
-        'Could not load the create form.',
-        'error'
-      );
+      holder.setLoading(false);
+      $.notify('Error', 'Could not load the create form.', 'error');
     });
+  });
+
+  // Clear validation state on close so a reopen does not show last time's
+  // errors. The values are deliberately kept: a create that failed is usually
+  // retried with a small edit, not retyped.
+  modal.on('hidden.bs.modal', function() {
+    holder.find('.is-invalid').removeClass('is-invalid');
+    holder.find('span.invalid-feedback').remove();
   });
 
   sendBtn.on('click', function(e) {
     e.preventDefault();
+    var form = holder.find('form');
+    if (!form.length) {
+      return;
+    }
     sendBtn.prop('disabled', true);
-    $.apiCall(
-      'post',
-      '../management/index.php?node=' + createNode + '&sub=addPost',
-      holder.find(':input').serialize(),
-      function(err, data) {
-        sendBtn.prop('disabled', false);
-        if (err) {
-          return;
-        }
-        // The create already reported success to the user; only redraw and,
-        // when we know what was made, associate it.
-        var id = data && data.object ? data.object.id : null;
-        if (!id) {
-          $.notify(
-            'Warning',
-            'Created, but it could not be associated automatically. '
-              + 'Add it from the list above.',
-            'notice'
-          );
-          if (table) {
-            table.draw(false);
-          }
-          return;
-        }
-        $.apiCall('post', assocAction, {
-          confirmadd: 1,
-          additems: [id]
-        }, function(assocErr) {
-          holder.find(':input').not(':button, :submit, [type=hidden]').val('');
-          if (table) {
-            table.draw(false);
-          }
-        });
+    form.processForm(function(err, data) {
+      sendBtn.prop('disabled', false);
+      if (err) {
+        return;
       }
-    );
+      // The create already reported success to the user; only redraw and,
+      // when we know what was made, associate it.
+      var id = data && data.object ? data.object.id : null;
+      if (!id) {
+        $.notify(
+          'Warning',
+          'Created, but it could not be associated automatically. '
+            + 'Add it from the list above.',
+          'notice'
+        );
+        if (table) {
+          table.draw(false);
+        }
+        modal.modal('hide');
+        return;
+      }
+      $.apiCall('post', assocAction, {
+        confirmadd: 1,
+        additems: [id]
+      }, function() {
+        if (table) {
+          table.draw(false);
+        }
+        modal.modal('hide');
+        // Reset only after a clean run, so the next create starts empty.
+        if (form[0]) {
+          form[0].reset();
+        }
+      });
+    });
   });
 };
 $.getSelectedIds = function(table) {

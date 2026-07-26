@@ -14,6 +14,21 @@ declare(strict_types=1);
  * @version  1.1
  */
 
+// Not an entry point: this is the page shell, included by Page::render()
+// with the application already booted, which is what makes the self::
+// references below resolve. It nonetheless sits under the document root
+// because management/other/ also serves ca.cert.der to fog-client, so a
+// direct request reaches it and dies on "Cannot access self:: when no
+// class scope is active" -- a bodyless 500 and a fatal in the log.
+//
+// BASEPATH is defined by commons/init.php and this file includes nothing,
+// so its absence means nobody booted us. 404 rather than 403: a fragment
+// that is not meant to be addressable should not confirm it exists.
+if (!defined('BASEPATH')) {
+    http_response_code(404);
+    exit;
+}
+
 // Ensure session is started
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();

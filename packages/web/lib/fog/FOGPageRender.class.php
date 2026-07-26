@@ -34,6 +34,9 @@ trait FOGPageRender
      *                          use 'btn btn-success float-end' instead of primary)
      * @param string $helpBlock optional translated help text rendered as
      *                          form-text in the card header (already escaped/safe)
+     * @param string $createNode optional node owning a create form (e.g. 'group').
+     *                          When given, the tab grows a "Create New X" button
+     *                          and the modal it opens. See renderAssocCreate().
      *
      * @return void
      */
@@ -43,7 +46,8 @@ trait FOGPageRender
         $colHeader,
         $delItem,
         $sendClass = 'btn btn-primary float-end',
-        $helpBlock = ''
+        $helpBlock = '',
+        $createNode = ''
     ) {
         $this->headerData = [
             $colHeader,
@@ -73,6 +77,15 @@ trait FOGPageRender
             $props
         );
 
+        $createModal = '';
+        if ($createNode !== '') {
+            $createModal = $this->renderAssocCreate(
+                $tabSlug,
+                $createNode,
+                $buttons
+            );
+        }
+
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
@@ -89,92 +102,97 @@ trait FOGPageRender
         echo '</div>';
         echo '<div class="card-footer">';
         echo $this->assocDelModal($delItem);
+        echo $createModal;
         echo '</div>';
         echo '</div>';
     }
 
     /**
-     * Renders the secondary "create the thing and associate it" card that sits
-     * below an association tab's grid.
+     * Gives an association tab a "Create New X" button plus the modal it opens,
+     * so the thing being associated can be made without leaving the page.
      *
      * Why this exists: admins work out of the host page as their central point,
      * and hitting a tab whose grid does not yet contain the thing they need
      * meant navigating away, creating it, and navigating back. This closes that
      * loop in place -- create, then associate to the entity being edited.
      *
-     * The form BODY is deliberately not built here. The card ships empty and
-     * the browser pulls the real create form from the target node's own
-     * addModal endpoint (an AJAX request renders page-manager output only, so
-     * that endpoint already answers with a chrome-free fragment). Duplicating
-     * the field list here would let the two drift, and would silently drop any
-     * fields a plugin injects through the target's {NODE}_ADD_FIELDS hook.
+     * The button joins the grid's own action row rather than opening a second
+     * card below it: it is one more thing you can do to this list, so it belongs
+     * with "Add selected"/"Remove selected". It is deliberately the SAME modal
+     * the node's list page shows for its own create -- same header wording, same
+     * Cancel/Create footer, same modal-lg -- so the form an admin already knows
+     * does not look different depending on where it was opened from.
      *
-     * ACCESS CONTROL: the card is suppressed unless the acting user holds the
-     * target node's create permission. This is presentation only and grants
-     * nothing -- the create still POSTs to the real endpoint, which is gated by
-     * Authorization::requirePagePermission() exactly as before. It is here so a
-     * user who cannot create groups is not shown a form that would only fail.
+     * The modal ships EMPTY and the browser pulls the real create form from the
+     * target node's addModal endpoint (an AJAX request renders page-manager
+     * output only, so that endpoint already answers chrome-free). The list page
+     * can build its form inline because it IS that node's page; an edit page on
+     * another node cannot -- FOGPage::__construct() redirects when the id does
+     * not resolve, so instantiating GroupManagement from HostManagement is not
+     * an option. Fetching also means the field list cannot drift from the create
+     * page's own, and anything a plugin injects via {NODE}_ADD_FIELDS still
+     * appears.
      *
-     * Collapsed by default so the tab still leads with its grid; the form is
-     * fetched on first expand rather than on page load.
+     * ACCESS CONTROL: the button and modal are suppressed unless the acting user
+     * holds the target node's create permission. This is presentation only and
+     * grants nothing -- the create still POSTs to the real endpoint, which is
+     * gated by Authorization::requirePagePermission() exactly as before. It is
+     * here so a user who cannot create groups is not shown a form that would
+     * only fail.
      *
      * @param string $tabSlug    The association tab slug (e.g. 'host-group').
-     * @param string $title      Card title (already translated).
-     * @param string $helpText   Short explanation (already translated).
      * @param string $createNode The node owning the create form (e.g. 'group').
+     * @param string $buttons    Action-row buttons, appended to by reference.
      *
-     * @return void
+     * @return string The modal markup, for the caller to place in the footer.
      */
-    protected function renderCreateAndAssociateCard(
-        $tabSlug,
-        $title,
-        $helpText,
-        $createNode
-    ) {
+    protected function renderAssocCreate($tabSlug, $createNode, &$buttons)
+    {
         if (!Authorization::can($createNode . '.create')) {
-            return;
+            return '';
         }
-        $bodyId = $tabSlug . '-create-body';
-        printf(
-            '<div class="card card-secondary card-outline" id="%s-create-card" '
-            . 'data-create-node="%s" data-assoc-action="%s">',
-            Initiator::e($tabSlug),
-            Initiator::e($createNode),
-            Initiator::e(
-                self::makeTabUpdateURL($tabSlug, $this->obj->get('id'))
+        $label = _('Create New') . ' ' . ucfirst(_($createNode));
+        // float-end so it sits on the right with "Add selected": creating is
+        // non-destructive, and destructive actions stay left (the "Remove
+        // selected" side) so destroying something takes deliberate travel.
+        // Secondary rather than primary keeps "Add selected" the row's primary.
+        // The node and the association endpoint ride on the button as data
+        // attributes -- that is what the JS reads, so no URL is rebuilt there.
+        $buttons .= self::makeButton(
+            "$tabSlug-create",
+            $label,
+            'btn btn-secondary float-end',
+            sprintf(
+                ' type="button" data-create-node="%s" data-assoc-action="%s" ',
+                Initiator::e($createNode),
+                Initiator::e(
+                    self::makeTabUpdateURL($tabSlug, $this->obj->get('id'))
+                )
             )
         );
-        echo '<div class="card-header">';
-        printf(
-            '<h4 class="card-title"><button type="button" '
-            . 'class="btn btn-link p-0 text-decoration-none" '
-            . 'data-bs-toggle="collapse" data-bs-target="#%s" '
-            . 'aria-expanded="false" aria-controls="%s">%s</button></h4>',
-            Initiator::e($bodyId),
-            Initiator::e($bodyId),
-            Initiator::e($title)
+        return self::makeModal(
+            "$tabSlug-createModal",
+            $label,
+            sprintf(
+                '<div id="%s-create-form"></div>',
+                Initiator::e($tabSlug)
+            ),
+            self::makeButton(
+                "$tabSlug-create-cancel",
+                _('Cancel'),
+                'btn btn-outline-secondary float-start',
+                ' type="button" data-bs-dismiss="modal" '
+            )
+            . self::makeButton(
+                "$tabSlug-create-send",
+                _('Create'),
+                'btn btn-primary float-end',
+                ' type="button" '
+            ),
+            '',
+            'primary',
+            'modal-lg'
         );
-        printf('<p class="form-text">%s</p>', Initiator::e($helpText));
-        echo '</div>';
-        printf('<div class="collapse" id="%s">', Initiator::e($bodyId));
-        echo '<div class="card-body">';
-        printf(
-            '<div id="%s-create-form"></div>',
-            Initiator::e($tabSlug)
-        );
-        echo '</div>';
-        // text-end rather than float-end: the footer has no clearfix, so a
-        // floated button would escape the card's bottom border.
-        echo '<div class="card-footer text-end">';
-        printf(
-            '<button type="button" class="btn btn-primary" id="%s-create-send" '
-            . 'disabled>%s</button>',
-            Initiator::e($tabSlug),
-            Initiator::e(_('Create and associate'))
-        );
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
 
     /**

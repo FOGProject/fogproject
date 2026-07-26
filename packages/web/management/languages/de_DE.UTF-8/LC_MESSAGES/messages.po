@@ -1451,10 +1451,6 @@ msgid "Create Task Success"
 msgstr "Benutzer erfolgreich erstellt"
 
 #, fuzzy
-msgid "Create and associate"
-msgstr "Kein Knoten verknüpft"
-
-#, fuzzy
 msgid "Create new Session Task"
 msgstr "Neues Snapin erstellen"
 
@@ -1482,11 +1478,6 @@ msgstr "Erstellt von"
 
 msgid "Created by FOG Reg on"
 msgstr "Erstellt von FOG Reg am"
-
-msgid ""
-"Creates the group and adds this host to it in one step, so a group that does "
-"not exist yet does not mean leaving this page."
-msgstr ""
 
 msgid "Credentials"
 msgstr ""
@@ -8728,6 +8719,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Create New Rule"
 #~ msgstr "Neuen Schlüssel erstellen"
+
+#, fuzzy
+#~ msgid "Create and associate"
+#~ msgstr "Kein Knoten verknüpft"
 
 #, fuzzy
 #~ msgid "Database connection unavailable"

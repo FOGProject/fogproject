@@ -1820,20 +1820,16 @@ class HostManagement extends FOGPage
      */
     public function hostGroups()
     {
+        // Trailing 'group' opts this tab into the "Create New Group" button and
+        // modal, so a group that does not exist yet does not mean leaving the
+        // host page to make it.
         $this->renderAssocTab(
             'host-group',
             _('Host Group Associations'),
             _('Group Name'),
-            'group'
-        );
-        $this->renderCreateAndAssociateCard(
-            'host-group',
-            _('Create New Group'),
-            _(
-                'Creates the group and adds this host to it in one step, '
-                . 'so a group that does not exist yet does not mean leaving '
-                . 'this page.'
-            ),
+            'group',
+            'btn btn-primary float-end',
+            '',
             'group'
         );
     }
