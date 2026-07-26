@@ -1441,10 +1441,15 @@ class HostManagement extends FOGPage
 
         // MAC Address Table
         $buttons = '<div class="btn-group float-end">';
+        // Secondary, not primary: this sits immediately LEFT of the primary
+        // split button in the same group, and two blues touching read as one
+        // wide button. The split button acts on the selected rows and stays the
+        // primary; adding a new address supports it. Same relationship as
+        // "Create New X" sitting left of "Add selected" on association tabs.
         $buttons .= self::makeButton(
             'macaddress-add',
             _('Add New MAC Address'),
-            'btn btn-primary'
+            'btn btn-secondary'
         );
         $buttons .= self::makeSplitButton(
             'macaddress-table-update-image',

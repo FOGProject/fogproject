@@ -230,13 +230,30 @@ button stand out — pick the one that matches what kind of action it is.
 common non-destructive actions sit under it and destroying something takes
 deliberate travel. Being explicit and purposeful is the point.
 
-Two consequences worth remembering:
+**Only ONE button in a right-side cluster is `btn-primary` — the rightmost.**
+Anything sitting to its left is `btn btn-secondary`. Two blues touching read as
+one wide button, so the supporting action must be visibly a lesser one. The
+reference pair is an association tab: `[Create New X (secondary)][Add selected
+(primary)]`, and the host MAC table repeats it: `[Add New MAC Address
+(secondary)][Mark selected… (primary split)]`.
+
+Watch the emission order, because the two containers reverse each other:
+- Bare `float-end` siblings — **first emitted lands rightmost**. So the primary
+  is emitted *first* and the secondary *after* it.
+- Inside `<div class="btn-group float-end">` — normal left-to-right flex order,
+  floats don't apply to children. So the secondary is emitted *first*.
+
+Three consequences worth remembering:
 - A card's primary commit button is `btn-primary` **even when the label isn't
-  "Update"** — "Make primary", "Make default", "Add New MAC Address" are all
-  the same kind of action. They were `btn-info` and read as a different one.
+  "Update"** — "Make primary" and "Make default" are the same kind of action.
+  They were `btn-info` and read as a different one.
 - Don't override `renderAssocTab()`'s `$sendClass`. Every association tab's
   "Add selected" is primary; nine tabs used to pass `btn-success` and the two
   colours got mixed inside a single page.
+- Adjacent right-side buttons that are *already* distinguishable are fine as
+  they are — e.g. image replication's `[Resume Reload (success)][Create
+  (primary)]`, where green marks a genuinely different operation. The rule is
+  "clearly different", not "always secondary".
 
 ---
 
