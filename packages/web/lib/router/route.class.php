@@ -2854,6 +2854,7 @@ class Route extends FOGBase
      */
     public static function printer($data, $code = false)
     {
+        $data = self::stripSensitivePayload($data);
         self::emitLinkHeader($data);
         $message = json_encode(
             $data,
@@ -2869,6 +2870,53 @@ class Route extends FOGBase
             HTTPResponseCodes::HTTP_SUCCESS,
             $message
         );
+    }
+    /**
+     * Removes sensitive columns from a list payload on its way out of the API.
+     *
+     * Stripping used to happen only inside listem()'s ?expand branch, so a
+     * PLAIN list -- overwhelmingly the common call -- returned the raw grid row
+     * untouched and handed ldap.bindPwd (and host.productKey wherever one is
+     * set) to any API caller. Whether a row was decorated with ?expand has
+     * nothing to do with whether it may carry a secret, so the guard has to be
+     * unconditional or it is not a guard.
+     *
+     * It belongs HERE, in the single emitter every API route returns through,
+     * and deliberately not in listem(). listem() is shared with the web tier:
+     * the LDAP login path calls Route::listem('ldap') and needs bindPwd to
+     * bind at all, and the Product Keys report calls Route::listem('host') and
+     * needs productKey to have anything to report. Both read the result with
+     * getData() and never reach printer(), so stripping at the emitter closes
+     * the API surface without breaking the internal callers that legitimately
+     * want the value. Stripping inside listem() would have broken LDAP
+     * authentication outright.
+     *
+     * Only list-shaped payloads are touched -- those carrying both the '_lang'
+     * classname stamp and a 'data' array. A single-entity GET is a flat object
+     * with neither, so it keeps the documented "secrets only on a direct
+     * single GET" contract that fog-client depends on for host ADPass.
+     *
+     * @param mixed $data The payload about to be encoded.
+     *
+     * @return mixed
+     */
+    public static function stripSensitivePayload($data)
+    {
+        if (!is_array($data)
+            || !isset($data['_lang'])
+            || !isset($data['data'])
+            || !is_array($data['data'])
+        ) {
+            return $data;
+        }
+        $classname = strtolower((string)$data['_lang']);
+        if (count((array)(self::$sensitiveFields[$classname] ?? [])) < 1) {
+            return $data;
+        }
+        foreach ($data['data'] as $i => $row) {
+            $data['data'][$i] = self::stripSensitive($classname, $row);
+        }
+        return $data;
     }
     /**
      * This is a commonizing element so list/search/getinfo
