@@ -240,12 +240,36 @@ class LDAP extends FOGController
          * elsewhere in this same install -- it cannot disable verification,
          * because the level above is always set explicitly. Naming a CA on
          * each server that needs one avoids it entirely.
+         *
+         * That "only ever adds an issuer" claim holds only because of the
+         * readability check below. An unreadable path does not add an issuer,
+         * it stops the client connecting at all -- and being process-global,
+         * it does so for the rest of the worker's life, not just this request.
+         * Skipping those is what keeps the leak benign.
          */
         $caCert = trim((string)$caCert);
-        if ('' !== $caCert) {
-            @ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $caCert);
+        if ('' === $caCert) {
+            return;
         }
-        if ('' !== $caCert && !is_readable($caCert)) {
+        /**
+         * Only set a path the client can actually read, and log rather than
+         * set when it cannot.
+         *
+         * Setting an unreadable CACERTFILE has no upside and one large
+         * downside: it does not merely fail verification, it makes the next
+         * ldap_connect() return false outright -- at every level, 'never'
+         * included -- and because the option is process-global it keeps doing
+         * so for every later LDAPS connect in that php-fpm worker, long after
+         * the request that set it. Measured while testing #893: a worker that
+         * had once seen a bad path reported "We cannot connect" for a server
+         * whose stored settings were perfectly fine.
+         *
+         * Skipping it instead leaves whatever the system already trusts in
+         * place, so a genuinely untrusted certificate fails as "unable to get
+         * local issuer certificate" -- which names the actual problem -- and
+         * one server's misconfiguration cannot take the others down with it.
+         */
+        if (!is_readable($caCert)) {
             error_log(
                 sprintf(
                     '%s %s() %s. %s: %s',
@@ -253,14 +277,17 @@ class LDAP extends FOGController
                     __METHOD__,
                     _(
                         'The configured LDAPS CA path cannot be read by the '
-                        . 'web server, so certificate verification will '
-                        . 'likely fail'
+                        . 'web server, so it is being ignored and the system '
+                        . 'trust store used instead; verification against a '
+                        . 'private CA will fail until the path is readable'
                     ),
                     _('CA Path'),
                     $caCert
                 )
             );
+            return;
         }
+        @ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $caCert);
     }
     /**
      * Stores the server, refusing a chain strategy the directory cannot do.
@@ -280,13 +307,25 @@ class LDAP extends FOGController
      */
     public function save()
     {
-        $this->_assertChainSupported();
+        /**
+         * ORDER IS LOAD-BEARING. The cheap local checks run before
+         * _assertChainSupported(), because that one opens a connection --
+         * and _applyTlsOptions() sets the TLS options **process-globally**
+         * before it does. Probing first meant a save carrying a bad CA path
+         * pushed that path into the worker's global CACERTFILE and only then
+         * got rejected, so the refusal still broke every later LDAPS connect
+         * handled by that php-fpm worker. Measured: the six-account
+         * regression came back interleaved, passing on fresh workers and
+         * failing with "We cannot connect" on the ones a rejected save had
+         * already touched. Validate, then probe.
+         */
         $this->_assertTlsVerifyValid();
-        // Trim before validating and storing: a trailing space makes the path
-        // unreadable, and an unreadable CA path takes the whole directory
+        // Trim before validating and storing: a trailing space alone makes the
+        // path unreadable, and an unreadable CA path takes the whole directory
         // offline (see assertValidCaCertPath()).
         $this->set('tlsCaCert', trim((string)$this->get('tlsCaCert')));
         self::assertValidCaCertPath($this->get('tlsCaCert'));
+        $this->_assertChainSupported();
         return parent::save();
     }
     /**
