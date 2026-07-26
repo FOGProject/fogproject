@@ -57,6 +57,13 @@ class Host extends FOGController
         'pending' => 'hostPending',
         'pub_key' => 'hostPubKey',
         'sec_tok' => 'hostSecToken',
+        // The token superseded by the most recent rotation. authorize()
+        // commits a rotated sec_tok before the client can possibly have
+        // received it, so a response lost in flight used to strand the client
+        // on a token the server no longer recognised -- an unrecoverable
+        // #!ist. Keeping one generation lets that client re-present its old
+        // token once and be handed the current one again.
+        'prev_sec_tok' => 'hostSecTokenPrev',
         'sec_time' => 'hostSecTime',
         'pingstatus' => 'hostPingCode',
         'biosexit' => 'hostExitBios',

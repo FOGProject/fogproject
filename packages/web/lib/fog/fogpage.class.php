@@ -3070,30 +3070,70 @@ abstract class FOGPage extends FOGBase
             );
             $key = $data[0];
             $token = $data[1];
-            // Do NOT clear pub_key on a token mismatch. authorize() is
-            // reachable before login and resolves the host from a spoofable
-            // mac alone, so the clear let any LAN caller wipe a host's AES
-            // session key -- locking its client out with #!ist until an
-            // administrator ran "Reset Encryption Data" -- with no crypto
-            // material at all (an absent sym_key/token decrypts to empty
-            // strings without throwing). The clear also had no protocol
-            // purpose: it leaves sec_tok intact, so a client that had
-            // genuinely lost its token could never recover through it.
+            /**
+             * Refuse before touching the record when there is no usable
+             * session key.
+             *
+             * authorize() is reachable before login and resolves the host from
+             * a request 'mac' alone, which is spoofable by design on an imaging
+             * LAN. An absent sym_key decrypts to an empty string without
+             * throwing, so a bare "mac=..." POST used to walk all the way to
+             * the write below -- rotating sec_tok and blanking pub_key on a
+             * host whose sec_tok happened to be empty (freshly registered, or
+             * just after a task completed, which clears it). The caller learned
+             * nothing, but the real client was stranded on a token the server
+             * had thrown away. That is the same LAN-caller lockout Aisle
+             * Research reported as 050 / 2.7.3, reached by a different route
+             * than the pub_key clear that finding named.
+             *
+             * aesencrypt() only ever accepts a 256-bit key, so 64 hex
+             * characters is the sole value any working client can have sent --
+             * anything else already failed further down, just after the
+             * destructive write instead of before it.
+             */
+            if (strlen($key) !== 64) {
+                throw new Exception('#!ihc');
+            }
+            $secTok = (string)self::$Host->get('sec_tok');
+            $prevTok = (string)self::$Host->get('prev_sec_tok');
             // hash_equals is hygiene, not the crux -- both operands are
             // strings, so there was no type-juggling bypass.
-            // Reported by Aisle Research (050 / 2.7.3).
-            if (self::$Host->get('sec_tok')
-                && !hash_equals(
-                    (string)self::$Host->get('sec_tok'),
-                    (string)$token
-                )
+            $matchesCurrent = $secTok !== ''
+                && hash_equals($secTok, (string)$token);
+            /**
+             * One generation of grace, and why it is needed.
+             *
+             * The rotation below is committed before the response carrying the
+             * new token can reach the client, so any interruption in between
+             * left the client holding a token the server had already discarded.
+             * There was no way back from that: the client has no #!ist handler,
+             * and the clear-pub_key "recovery" this code used to do never
+             * worked, because it left sec_tok in place so the very next attempt
+             * failed the same comparison. An administrator pressing Reset
+             * Encryption Data was the only exit.
+             *
+             * Accepting the immediately superseded token closes that hole: a
+             * client whose reply went missing re-presents it once and is handed
+             * the current token again. The cost is that a token stays usable
+             * one generation past its replacement, which is why it is retired
+             * the moment the client proves it holds the current one.
+             *
+             * The empty-sec_tok test is not redundant. The grace token only
+             * stands in for a current token that exists; without it a record
+             * that somehow held a previous token and no current one would
+             * skip the rotation below and hand the client an empty token.
+             */
+            $matchesPrev = $prevTok !== ''
+                && $secTok !== ''
+                && hash_equals($prevTok, (string)$token);
+            // Do NOT clear pub_key here on a mismatch. That let any LAN caller
+            // wipe a host's AES session key with no crypto material at all,
+            // and it had no protocol purpose. Reported as Aisle 050 / 2.7.3.
+            if ($secTok !== ''
+                && !$matchesCurrent
+                && !$matchesPrev
             ) {
                 throw new Exception('#!ist');
-            }
-            if (self::$Host->get('sec_tok')
-                && !$key
-            ) {
-                throw new Exception('#!ihc');
             }
             $expire = self::niceDate(self::$Host->get('sec_time'));
             if (self::niceDate() > $expire
@@ -3105,31 +3145,52 @@ abstract class FOGPage extends FOGBase
                         self::niceDate()
                             ->modify('+30 minutes')
                             ->format('Y-m-d H:i:s')
-                    )
-                    ->set(
-                        'sec_tok',
-                        self::createSecToken()
                     );
+                /**
+                 * Do not rotate again for a client that is retrying on the
+                 * superseded token: it never received the current one, so
+                 * issuing a third would strand it exactly as before. Hand back
+                 * what is already stored and let it catch up.
+                 */
+                if (!$matchesPrev) {
+                    self::$Host
+                        ->set('prev_sec_tok', $secTok)
+                        ->set(
+                            'sec_tok',
+                            self::createSecToken()
+                        );
+                }
+            } elseif ($matchesCurrent && $prevTok !== '') {
+                // The client is demonstrably on the current token, so the
+                // grace token has done its job and should stop being accepted.
+                self::$Host->set('prev_sec_tok', '');
             }
-            self::$Host
-                ->set('pub_key', $key)
-                ->save();
+            self::$Host->set('pub_key', $key);
             $vals['token'] = self::$Host->get('sec_tok');
+            /**
+             * Build the reply BEFORE committing. certEncrypt() can throw, and
+             * when it did the rotated token was already in the database while
+             * the client still held the old one -- the exact strand this
+             * function now has to work to avoid. Nothing is written unless
+             * there is something to send back.
+             */
             if (self::$json === true) {
-                printf(
+                $response = sprintf(
                     '#!en=%s',
                     self::certEncrypt(
                         json_encode($vals)
                     )
                 );
-                exit;
+            } else {
+                $response = sprintf(
+                    '#!en=%s',
+                    self::certEncrypt(
+                        "#!ok\n#token=" . self::$Host->get('sec_tok')
+                    )
+                );
             }
-            printf(
-                '#!en=%s',
-                self::certEncrypt(
-                    "#!ok\n#token=" . self::$Host->get('sec_tok')
-                )
-            );
+            self::$Host->save();
+            echo $response;
         } catch (Exception $e) {
             if (self::$json === true) {
                 if ($e->getMessage() == '#!ihc') {
@@ -3371,6 +3432,9 @@ abstract class FOGPage extends FOGBase
                 array(
                     'pub_key' => '',
                     'sec_tok' => '',
+                    // Reset must leave nothing behind that authorize() would
+                    // still accept, grace token included.
+                    'prev_sec_tok' => '',
                     'sec_time' => '0000-00-00 00:00:00'
                 )
             );

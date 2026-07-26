@@ -3868,3 +3868,31 @@ $this->schema[] = array(
     . "10.0.0.0/8,192.168.5.20. Leave empty to allow any source, which is the "
     . "default and matches the behaviour of earlier versions.','','Security')",
 );
+// Guarded because working-1.6 and dev-branch number the same migration
+// differently -- this is index 317 there -- so an install that has crossed
+// between the two may already carry the column.
+$columnhostSecTokenPrev = array_filter(
+    (array)DatabaseManager::getColumns(
+        'hosts',
+        'hostSecTokenPrev'
+    )
+);
+// 277
+$this->schema[] = count($columnhostSecTokenPrev ?: []) ? array() : array(
+    // FOGPage::authorize() rotates hostSecToken and COMMITS it before the
+    // encrypted response carrying the new token can reach the client. Anything
+    // that interrupts that delivery -- the encrypt throwing, a dropped
+    // connection, a deploy landing mid-request -- left the client holding a
+    // token the server had already discarded, and there was no way back: the
+    // client has no #!ist handler, and the server-side "recovery" that used to
+    // clear pub_key never worked because it left sec_tok in place. The only
+    // exit was an administrator pressing Reset Encryption Data.
+    //
+    // One generation of history closes that gap. A client whose reply went
+    // missing re-presents its previous token, is recognised, and is handed the
+    // current one again. The grace is retired as soon as the client proves it
+    // holds the current token, so a stolen token does not stay valid
+    // indefinitely.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostSecTokenPrev` LONGTEXT NOT NULL",
+);
