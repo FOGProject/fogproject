@@ -223,7 +223,13 @@ class DashboardPage extends FOGPage
                 ['fields' => &$fields]
             );
 
-        echo '<div class="row">';
+        // gy-3 because every card on this page is a column of this one row,
+        // and a BS5 row is --bs-gutter-y: 0 by default -- so the stacked
+        // full-width cards sat flush against the three across the top. A
+        // standalone .card carries no bottom margin of its own in BS5; the
+        // only rule that sets one is scoped to .card-group. gy- rather than
+        // g- keeps the horizontal gutter at its default 1.5rem.
+        echo '<div class="row gy-3">';
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
         echo '<div class="col-md-4">';
