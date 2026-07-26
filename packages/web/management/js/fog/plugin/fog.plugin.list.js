@@ -39,7 +39,8 @@
     // columns. registerTable already passes autoWidth:false, which stops
     // DataTables measuring but leaves the browser's content-driven sizing in
     // charge -- and that let the longest Description dictate the whole table.
-    // Also makes the columns drag-resizable; see makeColumnsResizable().
+    // Only safe alongside scroller:false below; under the scroller's nowrap
+    // cells a fixed layout makes text overflow its column instead of wrapping.
     $('#dataTable').addClass('fog-table-fixed');
     var table = $('#dataTable').registerTable(onSelect, {
         // This list has only five short columns and a small, fixed row set,
@@ -47,6 +48,20 @@
         // columns behind a per-row expander at full width and makes the
         // expander fight the row-click selection. Keep every column visible.
         responsive: false,
+        // Same reasoning, and it is what makes the widths below work. The
+        // scroller puts the table in DataTables' scroll mode: a cloned header
+        // table over a separately scrolling body, with white-space:nowrap
+        // forced on every cell so the two stay measurable. A description that
+        // cannot wrap simply runs out of its column and over its neighbour.
+        // Fifteen rows do not need a virtual scroller, so turning it off gives
+        // one plain table whose cells wrap and whose header is the real one.
+        scroller: false,
+        initComplete: function() {
+            // After init, not before: the table loads over ajax, and DataTables
+            // rebuilds the header during setup -- strips added earlier were
+            // discarded with it, which is why nothing was draggable.
+            $('#dataTable').makeColumnsResizable();
+        },
         order: [
             [0, 'asc']
         ],
@@ -117,10 +132,6 @@
             type: 'post'
         },
     });
-
-    // The percentage widths are a starting point, not a verdict -- let the
-    // user drag a border when they want more of Description or Location.
-    $('#dataTable').makeColumnsResizable();
 
     if (Common.search && Common.search.length > 0) {
         table.search(Common.search).draw();
