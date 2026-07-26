@@ -12,11 +12,8 @@
         {data: 'grpMemberAttr', visible: false},
         {data: 'searchScope', visible: false},
         {data: 'bindDN', visible: false},
-        // Carried so an exported server re-imports able to bind. The export
-        // is an admin-only migration format and already carries user.password,
-        // storagenode.pass/key and host.ADPass; Route::$sensitiveFields keeps
-        // bindPwd out of API listings, which is a different trust context.
-        {data: 'bindPwd', visible: false},
+        // No bindPwd: AddLDAPAPI::stripBindPassword() drops it from the column
+        // set (and so from the header row) via LDAP_EXPORT_ITEMS.
         {data: 'grpSearchDN', visible: false},
         {data: 'useGroupMatch', visible: false},
         {data: 'displayNameOn', visible: false},

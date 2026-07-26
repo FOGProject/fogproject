@@ -4875,27 +4875,20 @@ abstract class FOGPage extends FOGBase
      */
     public function export()
     {
-        // The data to use for building our table.
+        // The header row and the column set have to agree: DataTables walks
+        // each <th>, looks up aoColumns[i] and raises error 18 "Incorrect
+        // column count" for any header with no column behind it. Deriving the
+        // headers from _buildExportColumns() rather than walking getColumns()
+        // a second time means the two cannot drift, and a plugin that adds or
+        // drops a column through {CLASS}_EXPORT_ITEMS moves the matching
+        // header with it -- which is how the LDAP bind password stays out of
+        // the export without leaving an orphaned <th> behind.
         $this->headerData = [];
         $this->attributes = [];
 
-        $obj = self::getClass($this->childClass . 'Manager');
-
-        foreach ($obj->getColumns() as $common => &$real) {
-            if ('id' == $common) {
-                if ($this->childClass == 'Host') {
-                    $this->headerData[] = 'primac';
-                }
-                continue;
-            }
-            $this->headerData[] = $common;
-            $this->attributes[] = [];
-            unset($real);
-        }
-
-        // Trailing associations column (groups, snapins, etc.) when supported.
-        if (count(self::getAssociationConfig($this->childClass)) > 0) {
-            $this->headerData[] = 'associations';
+        list(, , $columns) = $this->_buildExportColumns();
+        foreach ($columns as $column) {
+            $this->headerData[] = $column['dt'];
             $this->attributes[] = [];
         }
 
@@ -4924,13 +4917,15 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
     }
     /**
-     * Build the shared export query pieces and column map used by both
-     * getExportList() (paged JSON for the on-screen table) and exportAll()
-     * (full CSV download).
+     * Build the shared export query pieces and column map used by
+     * getExportList() (paged JSON for the on-screen table), exportAll()
+     * (full CSV download) and export() (the header row).
      *
      * Prepends the primac column for hosts, appends the trailing associations
      * column where supported, and fires the *_EXPORT_ITEMS hook so plugins can
-     * adjust the column set.
+     * adjust the column set. Because export() takes its headers from here, a
+     * plugin adding or removing a column through that hook moves the matching
+     * <th> with it and the two cannot fall out of step.
      *
      * @return array [$table, $tableID, $columns, $sqlstr, $filterstr, $totalstr]
      */

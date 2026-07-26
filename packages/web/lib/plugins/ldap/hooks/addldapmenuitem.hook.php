@@ -81,6 +81,16 @@ class AddLDAPMenuItem extends Hook
      */
     public function menuUpdate($arguments)
     {
+        // Directory groups are a node of their own, so they need their own
+        // Export entry. FOGPage::export() is inherited and works for any
+        // node; what the core menu builder keys off ($foglang[$refNode])
+        // has no entry for a plugin node, so without this the page exists
+        // and is permission-gated but nothing links to it.
+        if ($arguments['node'] == self::GROUP_NODE) {
+            $arguments['menu']['export'] = self::$foglang['Export']
+                . ' ' . _('LDAP Groups');
+            return;
+        }
         if ($arguments['node'] != $this->node) {
             return;
         }

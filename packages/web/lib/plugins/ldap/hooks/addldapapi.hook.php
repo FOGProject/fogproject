@@ -67,7 +67,41 @@ class AddLDAPAPI extends Hook
         $this->registerInstalled([
             ['API_VALID_CLASSES', 'injectAPIElements'],
             ['CUSTOMIZE_DT_COLUMNS', 'customizeDT'],
+            ['LDAP_EXPORT_ITEMS', 'stripBindPassword'],
         ]);
+    }
+    /**
+     * Keeps the bind password out of the LDAP export.
+     *
+     * The directory service account credential is stored in cleartext, and
+     * only the web tier ever binds with it -- Route::$sensitiveFields already
+     * strips it from API listings and the LDAP report omits it for the same
+     * reason. The CSV export is the one bulk surface that still carried it.
+     *
+     * The cost is that an exported server re-imports unable to bind and the
+     * password has to be re-entered; handing the credential out in a
+     * downloadable file to get that convenience is the worse trade.
+     *
+     * FOGPage::export() builds its header row from these same columns, so
+     * removing the column here removes the <th> too and the table keeps a
+     * column for every header.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function stripBindPassword($arguments)
+    {
+        $arguments['columns'] = array_values(
+            array_filter(
+                $arguments['columns'],
+                function ($column) {
+                    return 'bindPwd' !== $column['dt'];
+                }
+            )
+        );
     }
     /**
      * Adds the owning server column to the LDAP group list.
