@@ -282,7 +282,64 @@ class LDAP extends FOGController
     {
         $this->_assertChainSupported();
         $this->_assertTlsVerifyValid();
+        // Trim before validating and storing: a trailing space makes the path
+        // unreadable, and an unreadable CA path takes the whole directory
+        // offline (see assertValidCaCertPath()).
+        $this->set('tlsCaCert', trim((string)$this->get('tlsCaCert')));
+        self::assertValidCaCertPath($this->get('tlsCaCert'));
         return parent::save();
+    }
+    /**
+     * Throws if a CA certificate path is one we know cannot work.
+     *
+     * The single authority on the rule: LDAP::save() calls it so every writer
+     * is covered, and the management page calls it too so the message lands on
+     * the form next to the field the admin just typed in. Public static
+     * because the page validates a POST before any object exists.
+     *
+     * This matters more than it looks. An unreadable CACERTFILE does not
+     * merely fail verification -- it makes the following ldap_connect()
+     * return false outright, **at every verification level including
+     * 'never'**. Measured: storing a relative path on the AD fixture dropped
+     * that server out of authentication completely, and the only symptom was
+     * users quietly losing the roles it granted. One unvalidated REST write
+     * could take a directory offline.
+     *
+     * Absolute only, because this path is read inside the web server process:
+     * a relative path resolves against php-fpm's working directory, which
+     * differs between the Apache and nginx deployments and which an admin
+     * cannot see. Length-capped because the column is VARCHAR(255) and a
+     * truncated path points at nothing.
+     *
+     * Readability is deliberately NOT checked here. php-fpm may run as a
+     * different user than the one that placed the file (GH-849), and admins
+     * configure a server before its certificate is in place -- the same
+     * reasoning that lets an unverifiable chain strategy save.
+     * _applyTlsOptions() logs that case at connect time.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/893
+     *
+     * @param string $caCert the path to check; empty is always valid
+     *
+     * @throws Exception
+     * @return void
+     */
+    public static function assertValidCaCertPath($caCert)
+    {
+        $caCert = trim((string)$caCert);
+        if ('' === $caCert) {
+            return;
+        }
+        if ('/' !== $caCert[0]) {
+            throw new Exception(
+                _('The CA certificate path must be absolute')
+            );
+        }
+        if (strlen($caCert) > 255) {
+            throw new Exception(
+                _('The CA certificate path is too long (255 characters max)')
+            );
+        }
     }
     /**
      * Throws if tlsVerify is not one of the levels the column allows.

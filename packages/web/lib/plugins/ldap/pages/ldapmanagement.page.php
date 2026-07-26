@@ -134,28 +134,14 @@ class LDAPManagement extends FOGPage
             );
         }
         $caCert = trim((string)filter_input(INPUT_POST, 'tlsCaCert'));
-        if ('' !== $caCert) {
-            /**
-             * Absolute only. This path is handed to the OpenLDAP client
-             * inside the web server process, so a relative path resolves
-             * against php-fpm's working directory -- something an admin
-             * cannot see or reason about, and which differs between the
-             * Apache and nginx deployments. Better to refuse it here than
-             * to store a path that silently resolves somewhere else.
-             */
-            if ('/' !== $caCert[0]) {
-                throw new Exception(
-                    _('The CA certificate path must be absolute')
-                );
-            }
-            // The column is VARCHAR(255); refuse rather than let the store
-            // truncate the path into one that points at nothing.
-            if (strlen($caCert) > 255) {
-                throw new Exception(
-                    _('The CA certificate path is too long (255 characters max)')
-                );
-            }
-        }
+        /**
+         * LDAP::save() enforces this too and is the authority -- every writer
+         * including the REST API goes through it. Calling the same assertion
+         * here is what puts a readable message on the form the admin is
+         * looking at, next to the field they just typed in, rather than
+         * letting the save fail further down. Same split as the chain guard.
+         */
+        LDAP::assertValidCaCertPath($caCert);
         return ['verify' => $verify, 'caCert' => $caCert];
     }
     /**
