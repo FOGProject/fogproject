@@ -132,6 +132,7 @@ To view the full list of commits with the code changes introducing these fixes a
 * Fix installer password character check
 * Correct option domain-name-servers on dhcpd.conf generation when empty
 * Fix host edit page load issue when snapin history has entries set to 0000-00-00 00:00:00 timestamp
+* Documented LDAP nested-group limitation on 1.5 installs where the LDAP plugin predates Feb 2026 (no plugin-table migration path in 1.5); resolution is wontfix on 1.5 and upgrade to 1.6 (#892, #884)
 
 ## fog-client
 
