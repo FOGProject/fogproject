@@ -132,6 +132,7 @@ class Route extends FOGBase
             'productKey',
             'pub_key',
             'sec_tok',
+            'prev_sec_tok',
             'sec_time',
             'token',
         ],

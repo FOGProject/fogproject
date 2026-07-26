@@ -535,12 +535,17 @@ class TaskQueue extends TaskingElement
             self::$Host
                 ->set('pub_key', '')
                 ->set('sec_tok', '')
+                // Clearing sec_tok without the grace token would leave a
+                // secret behind that nothing can use but that still sits in
+                // the database.
+                ->set('prev_sec_tok', '')
                 // On completetion reset token and lock
                 ->set('token', self::createSecToken())
                 ->set('tokenlock', false);
             $updateFields = [
                 'pub_key' => self::$Host->get('pub_key'),
                 'sec_tok' => self::$Host->get('sec_tok'),
+                'prev_sec_tok' => self::$Host->get('prev_sec_tok'),
                 'token' => self::$Host->get('token'),
                 'tokenlock' => self::$Host->get('tokenlock')
             ];
