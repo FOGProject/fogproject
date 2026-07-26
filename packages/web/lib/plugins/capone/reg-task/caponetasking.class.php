@@ -111,7 +111,7 @@ class CaponeTasking extends FOGBase
                         (
                             ob_get_contents() ?
                             ob_get_clean() :
-                            base64_encode(null)
+                            base64_encode('')
                         )
                     );
                 } catch (Exception $e) {

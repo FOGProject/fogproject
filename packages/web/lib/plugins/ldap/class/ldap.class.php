@@ -1221,23 +1221,29 @@ class LDAP extends FOGController
          * not escape them. They now come from an admin-editable table
          * rather than a settings string, and an unescaped '*' or ')' in a
          * name would otherwise alter the filter's meaning.
+         *
+         * The second argument is '' rather than null throughout this file:
+         * ldap_escape()'s $ignore is a non-nullable string, and passing null
+         * to a non-nullable internal parameter is deprecated in PHP 8.1+ and
+         * is slated to become a TypeError. '' is what null coerced to
+         * anyway, so this is the same escape with no notice attached.
          */
         $grpNamAttr_forimplode = ')(' . $grpNamAttr . '=';
         $escaped = [];
         foreach ($mapped as $name) {
-            $escaped[] = $this->escape($name, null, LDAP_ESCAPE_FILTER);
+            $escaped[] = $this->escape($name, '', LDAP_ESCAPE_FILTER);
         }
         $filter = sprintf(
             '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             $grpNamAttr,
             implode($grpNamAttr_forimplode, $escaped),
             $grpMemAttr,
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
+            $this->escape($userDN, '', LDAP_ESCAPE_FILTER),
             $grpMemAttr,
             $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER),
+            $this->escape($user, '', LDAP_ESCAPE_FILTER),
             $grpMemAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER)
+            $this->escape($user, '', LDAP_ESCAPE_FILTER)
         );
         /**
          * Ask for the name back -- that is what turns "did anything match"
@@ -1425,18 +1431,18 @@ class LDAP extends FOGController
             sprintf(
                 '(%s=%s)',
                 $grpMemAttr,
-                $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
+                $this->escape($userDN, '', LDAP_ESCAPE_FILTER)
             ),
             sprintf(
                 '(%s=%s=%s)',
                 $grpMemAttr,
                 $usrNamAttr,
-                $this->escape($user, null, LDAP_ESCAPE_FILTER)
+                $this->escape($user, '', LDAP_ESCAPE_FILTER)
             ),
             sprintf(
                 '(%s=%s)',
                 $grpMemAttr,
-                $this->escape($user, null, LDAP_ESCAPE_FILTER)
+                $this->escape($user, '', LDAP_ESCAPE_FILTER)
             )
         ];
         $visited = [];
@@ -1495,7 +1501,7 @@ class LDAP extends FOGController
                 $frontier[] = sprintf(
                     '(%s=%s)',
                     $grpMemAttr,
-                    $this->escape($dn, null, LDAP_ESCAPE_FILTER)
+                    $this->escape($dn, '', LDAP_ESCAPE_FILTER)
                 );
             }
         }
