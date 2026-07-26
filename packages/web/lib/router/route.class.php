@@ -1068,14 +1068,19 @@ class Route extends FOGBase
                         $columns[] = [
                             'db' => $real,
                             'dt' => 'mainlink',
+                            // `Name - (id)`, via the shared sink. This grid used to
+                            // emit `(id) - Name` while every association tab emitted
+                            // the other order; entityLink() settles it on the name
+                            // first, so the two agree. The pxemenuoptions -> ipxe
+                            // remap stays here: it is a quirk of how this class is
+                            // named versus its node, not something a link formatter
+                            // should know about.
                             'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
-                                return '<a href="../management/index.php?node='
-                                    . ($classname == 'pxemenuoptions' ? 'ipxe' : $classname)
-                                    . '&sub=edit&id='
-                                    . $row[$tmpcolumns['id']]
-                                    . '">'
-                                    . '(' . $row[$tmpcolumns['id']] . ') - ' . Initiator::e($d)
-                                    . '</a>';
+                                return self::entityLink(
+                                    ($classname == 'pxemenuoptions' ? 'ipxe' : $classname),
+                                    $row[$tmpcolumns['id']],
+                                    $d
+                                );
                             }
                         ];
                         break;

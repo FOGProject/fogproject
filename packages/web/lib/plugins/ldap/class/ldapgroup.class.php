@@ -108,11 +108,7 @@ class LDAPGroup extends FOGController
         if (!$name) {
             return Route::EMPTY_CELL;
         }
-        return '<a href="../management/index.php?node=ldap&sub=edit&id='
-            . $serverID
-            . '">'
-            . '(' . $serverID . ') - ' . Initiator::e($name)
-            . '</a>';
+        return self::entityLink('ldap', $serverID, $name);
     }
     /**
      * Stores the group, syncing both association sets.

@@ -1442,17 +1442,14 @@ abstract class FOGController extends FOGBase
                             // Aisle 097: entity names are stored verbatim (Initiator
                             // only trims and strips NULs), and this string is emitted
                             // as JSON then injected as raw HTML by DataTables column 0
-                            // in every association tab. Escaping at this shared sink
-                            // covers every tab using the default association column
-                            // set. Mirrors the 'mainlink' formatter in
-                            // route.class.php. $primary is an internal literal from
-                            // the calling page, so it needs no escaping.
-                            return '<a href="../management/index.php?node=' . $primary . '&'
-                                . 'sub=edit&id='
-                                . $row[$idField]
-                                . '">'
-                                . Initiator::e($d) . ' - (' . $row[$idField] . ')'
-                                . '</a>';
+                            // in every association tab. entityLink() escapes, so that
+                            // holds for every tab using the default association column
+                            // set -- and it is now the single sink for the `Name -
+                            // (id)` format, which the 'mainlink' formatter in
+                            // route.class.php also goes through. It did not before:
+                            // that one emitted `(id) - Name`, and the comment this
+                            // replaces wrongly claimed the two already matched.
+                            return self::entityLink($primary, $row[$idField], $d);
                         }
                     ];
                     break;

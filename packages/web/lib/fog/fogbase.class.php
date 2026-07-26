@@ -2859,6 +2859,39 @@ abstract class FOGBase
         return empty($ids) ? 0 : max($ids);
     }
     /**
+     * A datatable cell linking to an entity's edit page.
+     *
+     * The canonical format is `Name - (id)`. The name leads because it is what
+     * an admin actually reads and what every one of these grids sorts on; the
+     * id follows as the disambiguator for the case where two rows share a name.
+     *
+     * This exists because FOG's two shared sinks disagreed with each other:
+     * FOGController::getItemsList() emitted `Name - (id)` on every association
+     * tab while Route::mainlink emitted `(id) - Name` on every router-backed
+     * grid -- and a comment on the former claimed to mirror the latter, which
+     * it never did. One helper means the next sink cannot invent a third order.
+     *
+     * $node is an internal literal at every call site; it is escaped anyway so
+     * that stays true rather than being assumed.
+     *
+     * @param string $node the management node to link at
+     * @param mixed  $id   the entity's id
+     * @param string $name the entity's name
+     *
+     * @return string the cell markup
+     */
+    public static function entityLink($node, $id, $name)
+    {
+        return sprintf(
+            '<a href="../management/index.php?node=%s&sub=edit&id=%d">'
+            . '%s - (%d)</a>',
+            Initiator::e($node),
+            (int)$id,
+            Initiator::e($name),
+            (int)$id
+        );
+    }
+    /**
      * Put string between two strings.
      *
      * @param string $string the string to insert
