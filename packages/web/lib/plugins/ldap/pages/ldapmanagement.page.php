@@ -1343,9 +1343,12 @@ class LDAPManagement extends FOGPage
         // Constructive actions sit right, destructive left, matching every
         // other actionbox in FOG: the easy-to-reach side is for the safe
         // action, so destroying something takes deliberate travel.
-        echo '<div class="btn-actionbox">';
+        // text-end rather than float-end: .btn-actionbox has no clearfix, and
+        // this button is the last thing in the card body, so a float would
+        // collapse the wrapper and hang the button past the card's padding.
+        echo '<div class="btn-actionbox text-end">';
         printf(
-            '<a class="btn btn-primary float-end" href="?node=ldapgroup&sub=add">%s</a>',
+            '<a class="btn btn-primary" href="?node=ldapgroup&sub=add">%s</a>',
             Initiator::e(_('Create New LDAP Group'))
         );
         echo '</div>';
