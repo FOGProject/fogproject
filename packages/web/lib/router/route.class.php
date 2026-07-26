@@ -1483,29 +1483,51 @@ class Route extends FOGBase
                     ];
                     break;
                 case 'snapintask':
+                    // Every host column below is reached through the task's
+                    // job. When that job is not there -- deleted, or a stJobID
+                    // of 0 for a task that never had one -- get('host')
+                    // returns a STRING, and calling get() on it is a fatal,
+                    // not an empty cell. One such row took the entire snapin
+                    // task list down with "Call to a member function get() on
+                    // string". Resolve once, defensively, and let a row that
+                    // cannot name its host render blank instead of killing the
+                    // page for every other row.
+                    //
+                    // Schema step 318 sweeps the rows themselves; this is what
+                    // stops the next one being fatal.
+                    //
+                    // Refs https://github.com/FOGProject/fogproject/issues/895
+                    $snapinTaskHost = function ($jobID) {
+                        $host = self::getClass('snapinjob', $jobID)
+                            ->get('host');
+                        return is_object($host) && $host->isValid()
+                            ? $host
+                            : null;
+                    };
                     $columns[] = [
                         'db' => 'stJobID',
                         'dt' => 'hostID',
-                        'formatter' => function ($d, $row) {
-                            return self::getClass('snapinjob', $d)
-                                ->get('host')
-                                ->get('id');
+                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                            $host = $snapinTaskHost($d);
+                            return $host ? $host->get('id') : '';
                         }
                     ];
                     $columns[] = [
                         'db' => 'stJobID',
                         'dt' => 'hostname',
-                        'formatter' => function ($d, $row) {
-                            return self::getClass('snapinjob', $d)
-                                ->get('host')
-                                ->get('name');
+                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                            $host = $snapinTaskHost($d);
+                            return $host ? $host->get('name') : '';
                         }
                     ];
                     $columns[] = [
                         'db' => 'stJobID',
                         'dt' => 'hostLink',
-                        'formatter' => function ($d, $row) {
-                            $tmphost = self::getClass('snapinjob', $d)->get('host');
+                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                            $tmphost = $snapinTaskHost($d);
+                            if (!$tmphost) {
+                                return '';
+                            }
                             return '<a href="../management/index.php?node=host&'
                                 . 'sub=edit&id='
                                 . $tmphost->get('id')

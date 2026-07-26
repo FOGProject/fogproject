@@ -3650,6 +3650,10 @@ msgstr "carpeta no válida"
 msgid "Invalid Windows product key"
 msgstr "Clave del producto Grupo"
 
+#, fuzzy, php-format
+msgid "Invalid certificate verification level: %s"
+msgstr "Seleccionar una imagen válida"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""

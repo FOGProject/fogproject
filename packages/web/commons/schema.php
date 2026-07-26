@@ -4747,3 +4747,28 @@ $this->schema[] = count($columnhostSecTokenPrev ?: []) ? [] : [
     "ALTER TABLE `hosts` "
     . "ADD COLUMN `hostSecTokenPrev` LONGTEXT NOT NULL",
 ];
+// 318
+$this->schema[] = [
+    // Sweep snapin tasks that belong to no job.
+    //
+    // A task is only ever reachable through its job -- the snapin task list
+    // resolves stJobID to a snapinJob and then to that job's host to render a
+    // row. A task whose job is not there resolves to nothing, and the list
+    // endpoint dies on it with "Call to a member function get() on string"
+    // rather than skipping the row, so a single bad row takes the whole page
+    // down. (The renderer is guarded separately; this clears the rows.)
+    //
+    // Covers both shapes in one condition: a stJobID pointing at a job that
+    // has since been deleted, and a stJobID of 0, which is a task that never
+    // had a job at all. Neither is actionable and neither is displayable.
+    //
+    // Scoped through the join rather than by id so it stays correct on any
+    // install. Deliberately NOT keyed on the snapin: a task whose snapin is
+    // gone but whose job is intact is still a real record of what that job
+    // did, and it renders fine.
+    //
+    // Refs https://github.com/FOGProject/fogproject/issues/895
+    "DELETE `st` FROM `snapinTasks` `st` "
+    . "LEFT JOIN `snapinJobs` `sj` ON `sj`.`sjID` = `st`.`stJobID` "
+    . "WHERE `sj`.`sjID` IS NULL",
+];

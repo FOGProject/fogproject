@@ -3570,6 +3570,10 @@ msgstr "Invalid URL"
 msgid "Invalid Windows product key"
 msgstr "Host Product Key"
 
+#, fuzzy, php-format
+msgid "Invalid certificate verification level: %s"
+msgstr "Select a valid image"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""

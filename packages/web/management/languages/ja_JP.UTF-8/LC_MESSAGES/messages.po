@@ -3397,6 +3397,10 @@ msgstr "無効な URL"
 msgid "Invalid Windows product key"
 msgstr "指定されたプロダクトキーが無効です"
 
+#, fuzzy, php-format
+msgid "Invalid certificate verification level: %s"
+msgstr "有効な LDAP ポートを選択してください"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""

@@ -3571,6 +3571,10 @@ msgstr "无效的网址"
 msgid "Invalid Windows product key"
 msgstr "主机产品密钥"
 
+#, fuzzy, php-format
+msgid "Invalid certificate verification level: %s"
+msgstr "选择一个有效的图像"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
