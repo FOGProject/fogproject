@@ -84,13 +84,20 @@ class LocationManager extends FOGManagerController
                 false,
                 false
             ],
+            // Unique on identity only. There used to be a third entry here,
+            // UNIQUE (lStorageGroupID, lStorageNodeID), and it was wrong:
+            // nothing stops two locations sharing a storage group, and a
+            // location that names no specific node stores lStorageNodeID = 0,
+            // so EVERY such location in the same group collided on that pair.
+            // Because FOGController::save() writes INSERT ... ON DUPLICATE KEY
+            // UPDATE, the collision did not raise an error -- it silently
+            // renamed and repointed the existing location (moving its hosts
+            // with it) while reporting "Location added!". Dropped in step 2 of
+            // schema() below. lName stays unique; that is the constraint the
+            // create page actually checks and reports on.
             [
                 'lID',
-                'lName',
-                [
-                    'lStorageGroupID',
-                    'lStorageNodeID'
-                ]
+                'lName'
             ],
             'InnoDB',
             'utf8',
@@ -115,6 +122,18 @@ class LocationManager extends FOGManagerController
             $this->createSql(),
             // 1
             self::getClass('LocationAssociationManager')->createSql(),
+            // 2 - retire the bogus UNIQUE (lStorageGroupID, lStorageNodeID).
+            // See createSql() for what it was doing: silently overwriting an
+            // existing location instead of creating a second one in the same
+            // storage group. Existing installs carry the index and only lose
+            // it here. Schema::createTable() names its indexes by position,
+            // so this one is `index2`; applyUpdates() tolerates error 1091
+            // ("Can't DROP; does not exist"), which is what a fresh install
+            // -- built from the corrected createSql() above -- will hit.
+            sprintf(
+                'ALTER TABLE `%s` DROP INDEX `index2`',
+                $this->tablename
+            ),
         ];
     }
     /**
