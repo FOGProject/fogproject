@@ -1660,6 +1660,9 @@ msgstr "Verteilung"
 msgid "Deploy Method"
 msgstr "Verteilungsmethode"
 
+msgid "Depth"
+msgstr ""
+
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -3925,6 +3928,9 @@ msgstr ""
 msgid "Leave blank to keep the current password"
 msgstr ""
 
+msgid "Level"
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Level muss eine integer sein."
@@ -4461,9 +4467,16 @@ msgstr "Neuer Schlüsselname muss eine Zeichenfolge sein."
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr ""
 
+msgid "Nested group depth cap reached, so group membership may be incomplete"
+msgstr ""
+
 #, fuzzy
 msgid "Nested group depth must be between 1 and 100"
 msgstr "Neuer Schlüsselname muss eine Zeichenfolge sein."
+
+#, fuzzy
+msgid "Nested group search failed"
+msgstr "Benutzer-Update fehlgeschlagen"
 
 msgid "Network Information"
 msgstr "Netzwerkinformationen"
@@ -6870,6 +6883,11 @@ msgstr "Die Einstellung 'ist Masterknoten' definiert,"
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
 "users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid ""
+"The chain strategy is not implemented yet, resolving nesting with expand "
+"instead"
 msgstr ""
 
 #, fuzzy

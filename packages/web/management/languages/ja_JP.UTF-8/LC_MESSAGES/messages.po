@@ -1581,6 +1581,9 @@ msgstr "展開"
 msgid "Deploy Method"
 msgstr "展開方法"
 
+msgid "Depth"
+msgstr ""
+
 msgid "Description"
 msgstr "説明"
 
@@ -3730,6 +3733,9 @@ msgstr "各ホストの現在の値を維持する場合は、フィールドを
 msgid "Leave blank to keep the current password"
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
 
+msgid "Level"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "レベルは整数である必要があります"
 
@@ -4242,9 +4248,16 @@ msgstr "新しいキーは文字列である必要があります"
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr "ユーザー名は 41 文字未満で指定してください"
 
+msgid "Nested group depth cap reached, so group membership may be incomplete"
+msgstr ""
+
 #, fuzzy
 msgid "Nested group depth must be between 1 and 100"
 msgstr "ユーザー名は 41 文字未満で指定してください"
+
+#, fuzzy
+msgid "Nested group search failed"
+msgstr "ユーザーの更新に失敗しました！"
 
 msgid "Network Information"
 msgstr "ネットワーク情報"
@@ -6520,6 +6533,11 @@ msgstr "「マスターノード」設定は、どのノードを"
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
 "users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid ""
+"The chain strategy is not implemented yet, resolving nesting with expand "
+"instead"
 msgstr ""
 
 msgid "The current user is invalid."

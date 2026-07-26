@@ -1662,6 +1662,9 @@ msgstr "部署"
 msgid "Deploy Method"
 msgstr "部署方法"
 
+msgid "Depth"
+msgstr ""
+
 msgid "Description"
 msgstr "描述"
 
@@ -3922,6 +3925,9 @@ msgstr ""
 msgid "Leave blank to keep the current password"
 msgstr ""
 
+msgid "Level"
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "事件必须是字符串"
@@ -4458,9 +4464,16 @@ msgstr "事件必须是字符串"
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr ""
 
+msgid "Nested group depth cap reached, so group membership may be incomplete"
+msgstr ""
+
 #, fuzzy
 msgid "Nested group depth must be between 1 and 100"
 msgstr "事件必须是字符串"
+
+#, fuzzy
+msgid "Nested group search failed"
+msgstr "用户更新失败"
 
 msgid "Network Information"
 msgstr "网络信息"
@@ -6866,6 +6879,11 @@ msgstr "此设置定义"
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
 "users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid ""
+"The chain strategy is not implemented yet, resolving nesting with expand "
+"instead"
 msgstr ""
 
 #, fuzzy

@@ -1168,6 +1168,52 @@ class LDAP extends FOGController
                 . implode(',dc=', $parsedDN['DC']);
         }
         /**
+         * Nesting inverts the query, so it cannot share the filter below.
+         *
+         * The filter below ORs the *mapped* names in, which is only correct
+         * while membership is direct. The group that bridges a user to a
+         * mapped group is usually not itself mapped -- in
+         * "all-staff -> all-techs -> chicago-techs -> alice" nobody maps
+         * "chicago-techs" -- so a filter that names the mapped groups up
+         * front can never reach alice. _expandGroups() therefore discovers
+         * real membership first and intersects against the mapped names at
+         * the end.
+         *
+         * 'chain' pushes transitivity into the directory and keeps the
+         * single-query shape, so it stays with the filter below once it
+         * lands (story 3 of #884). Until then it resolves through the walk
+         * rather than silently degrading to direct-only: the admin asked
+         * for nesting, and answering with no nesting at all is the exact
+         * failure #884 exists to kill. Logged so it is not silent either.
+         *
+         * Refs https://github.com/FOGProject/fogproject/issues/884
+         */
+        $nested = (string)$this->get('nestedGroups');
+        if ('chain' === $nested) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('The chain strategy is not implemented yet, '
+                    . 'resolving nesting with expand instead'),
+                    _('LDAP Server'),
+                    $this->get('name')
+                )
+            );
+            $nested = 'expand';
+        }
+        if ('expand' === $nested) {
+            return $this->_expandGroups(
+                $grpNamAttr,
+                $grpMemAttr,
+                $grpSearchDN,
+                $userDN,
+                $user,
+                $mapped
+            );
+        }
+        /**
          * Group filter layout should be consistent across
          * the board.
          *
@@ -1300,6 +1346,200 @@ class LDAP extends FOGController
         return array_values(array_unique($matched));
     }
     /**
+     * How many levels the nested walk may descend on this server.
+     *
+     * Per-server override wins, 0 there means "inherit the global". The
+     * literal at the bottom is not a third setting: it is there because an
+     * absent or zero global would otherwise make `expand` resolve nothing
+     * at all, which is the silent no-op #884 exists to kill.
+     *
+     * @return int always at least 1
+     */
+    private function _nestedDepth()
+    {
+        $depth = (int)$this->get('nestedDepth');
+        if ($depth < 1) {
+            $depth = (int)self::getSetting('FOG_PLUGIN_LDAP_NESTED_DEPTH');
+        }
+        if ($depth < 1) {
+            $depth = 10;
+        }
+        return $depth;
+    }
+    /**
+     * Walks the group tree upwards from the user and reports the mapped
+     * groups reached, however many hops away they are.
+     *
+     * One query per level: the whole frontier is OR'd into a single filter
+     * rather than queried group by group, because a round trip is the
+     * expensive part (0.26 ms on loopback vs 36.66 ms to a remote
+     * directory). Measured, this is not a worry: OpenLDAP answered a
+     * 1.3 MB / 25,000-clause filter in 107 ms and Samba took 2,000
+     * clauses, so the visited-set and the depth cap bound this long before
+     * filter size does. Hence no breadth chunking and no breadth cap.
+     *
+     * Deliberately additive and deliberately widening: a parent group's
+     * role is granted to everyone beneath it, including users who already
+     * matched directly. There is no "only if nothing else matched" carve
+     * out, because that would make one user's roles depend on their other
+     * memberships.
+     *
+     * `memberUid`-style groups (posixGroup) stay direct-only here, and by
+     * schema rather than by choice -- memberUid holds bare usernames, so it
+     * cannot express a group inside a group. Levels 1+ still cost one
+     * query each against such a server; they simply match nothing.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/884
+     *
+     * @param string $grpNamAttr  the group name item
+     * @param string $grpMemAttr  the group finder item
+     * @param string $grpSearchDN where the groups live
+     * @param string $userDN      the user dn information
+     * @param string $user        the actual username
+     * @param array  $mapped      this server's mapped group names
+     *
+     * @return array the mapped group names the user reaches
+     */
+    private function _expandGroups(
+        $grpNamAttr,
+        $grpMemAttr,
+        $grpSearchDN,
+        $userDN,
+        $user,
+        array $mapped
+    ) {
+        /**
+         * The user name attribute in use (e.g. uid=)
+         */
+        $usrNamAttr = strtolower($this->get('userNamAttr'));
+        $cap = $this->_nestedDepth();
+        $attr = [$grpNamAttr, $grpMemAttr];
+        /**
+         * Level 0 seeds all three member forms the direct filter tests --
+         * full DN, attribute-qualified name, bare name. That is what makes
+         * `expand` a strict superset of `off`: switching nesting on can
+         * add access but can never take any away. Levels 1+ can only ever
+         * be DNs, because that is what the directory returns.
+         */
+        $frontier = [
+            sprintf(
+                '(%s=%s)',
+                $grpMemAttr,
+                $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
+            ),
+            sprintf(
+                '(%s=%s=%s)',
+                $grpMemAttr,
+                $usrNamAttr,
+                $this->escape($user, null, LDAP_ESCAPE_FILTER)
+            ),
+            sprintf(
+                '(%s=%s)',
+                $grpMemAttr,
+                $this->escape($user, null, LDAP_ESCAPE_FILTER)
+            )
+        ];
+        $visited = [];
+        $discovered = [];
+        for ($level = 0; $level < $cap && !empty($frontier); $level++) {
+            $filter = '(|' . implode('', $frontier) . ')';
+            $result = $this->_rawSearch($grpSearchDN, $filter, $attr);
+            /**
+             * The search itself failed, which is not the same as "this
+             * level has no parents". Stop walking and grant what was
+             * already proven rather than inventing the rest -- if level 0
+             * is what failed, nothing is proven and the caller denies.
+             */
+            if (false === $result) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s. %s: %s; %s: %s',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Nested group search failed'),
+                        _('LDAP Server'),
+                        $this->get('name'),
+                        _('Level'),
+                        $level
+                    )
+                );
+                break;
+            }
+            $entries = (array)$this->get_entries($result);
+            $count = (int)($entries['count'] ?? 0);
+            $frontier = [];
+            for ($i = 0; $i < $count; $i++) {
+                $dn = (string)($entries[$i]['dn'] ?? '');
+                if ('' === $dn) {
+                    continue;
+                }
+                /**
+                 * Keyed on the DN, lower-cased because DN comparison is
+                 * case insensitive and a directory that answers with a
+                 * different spelling at a different level would otherwise
+                 * re-walk the same group.
+                 *
+                 * Marked at discovery rather than at expansion, which is
+                 * what makes a diamond cost one query instead of two: both
+                 * paths into a group see it as visited the moment the first
+                 * one finds it. There is no separate cycle check because
+                 * this *is* the cycle handling -- cycle-a <-> cycle-b
+                 * terminates here, not at the depth cap.
+                 */
+                $key = strtolower($dn);
+                if (isset($visited[$key])) {
+                    continue;
+                }
+                $visited[$key] = true;
+                $discovered[] = $entries[$i];
+                $frontier[] = sprintf(
+                    '(%s=%s)',
+                    $grpMemAttr,
+                    $this->escape($dn, null, LDAP_ESCAPE_FILTER)
+                );
+            }
+        }
+        /**
+         * Still groups left to expand means the cap stopped the walk, so
+         * the answer below is incomplete and somebody is missing access
+         * they were configured to have. Say so loudly, naming what to
+         * raise: silent truncation is exactly the failure mode #884 was
+         * filed about.
+         */
+        if (!empty($frontier)) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s; %s: %s; %s: %d',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Nested group depth cap reached, so group '
+                    . 'membership may be incomplete'),
+                    _('LDAP Server'),
+                    $this->get('name'),
+                    _('Username'),
+                    $user,
+                    _('Depth'),
+                    $cap
+                )
+            );
+        }
+        /**
+         * Membership is already proven by the queries above, so all that
+         * is left is which of the discovered groups are mapped. The DN
+         * substring test is on because it is the crutch the `(member=*)`
+         * fallback offers today for directories that only name a group in
+         * its DN, and `expand` never reaches that fallback -- it would
+         * otherwise be the one thing nesting took away. It costs no extra
+         * query here; the groups are already in hand.
+         */
+        return $this->_namesFromEntries(
+            $discovered,
+            $grpNamAttr,
+            $mapped,
+            true
+        );
+    }
+    /**
      * Pulls the mapped group names out of a set of directory entries.
      *
      * The directory decides the spelling it returns, so a name is matched
@@ -1310,17 +1550,36 @@ class LDAP extends FOGController
      * @param array  $entries    entries as returned by get_entries()
      * @param string $grpNamAttr the group name attribute
      * @param array  $mapped     the mapped group names to match against
+     * @param bool   $matchDn    also match a mapped name as a DN substring
      *
      * @return array
      */
-    private function _namesFromEntries($entries, $grpNamAttr, array $mapped)
-    {
+    private function _namesFromEntries(
+        $entries,
+        $grpNamAttr,
+        array $mapped,
+        $matchDn = false
+    ) {
         $lookup = [];
         foreach ($mapped as $name) {
             $lookup[strtolower($name)] = $name;
         }
         $matched = [];
         foreach ((array)$entries as $entry) {
+            /**
+             * The DN test is the same loose substring compare the
+             * `(member=*)` fallback in _getMatchedGroups() has always used,
+             * and it is off unless a caller asks for it -- the mapped-name
+             * filter path must keep answering exactly what it answers
+             * today.
+             */
+            if ($matchDn && isset($entry['dn'])) {
+                foreach ($mapped as $name) {
+                    if (false !== stripos((string)$entry['dn'], $name)) {
+                        $matched[] = $name;
+                    }
+                }
+            }
             if (!isset($entry[$grpNamAttr])) {
                 continue;
             }
@@ -1340,6 +1599,54 @@ class LDAP extends FOGController
         return array_values(array_unique($matched));
     }
     /**
+     * The ldap_* read function this server's search scope asks for.
+     *
+     * Split out of _result() so the nested-group walk can run a search
+     * under the admin's configured scope without inheriting _result()'s
+     * "no entries means failure" verdict; see _expandGroups().
+     *
+     * Search scope
+     * 0 = read
+     * 1 = list (ls on current directory)
+     * 2 = search (ls -R on current directory)
+     *
+     * @return string the back half of the ldap_ function name
+     */
+    private function _searchMethod()
+    {
+        switch ((int)$this->get('searchScope')) {
+            case 1:
+                return 'list';
+            case 2:
+                return 'search';
+        }
+        return 'read';
+    }
+    /**
+     * Runs one search and hands back whatever the directory said.
+     *
+     * No interpretation: false means the search itself failed, a result
+     * with zero entries means the filter matched nothing. _result()
+     * collapses those two into false, which is fine for the callers that
+     * only need "did I get my one entry", but the nested walk has to tell
+     * "this level has no parents" from "the query broke".
+     *
+     * @param string $searchDN the search dn
+     * @param string $filter   filter string
+     * @param array  $attr     attributes to get
+     *
+     * @return resource|false
+     */
+    private function _rawSearch($searchDN, $filter, array $attr)
+    {
+        /**
+         * Ensure our search dn is utf-8 encoded for searching
+         */
+        $searchDN = mb_convert_encoding($searchDN, 'utf-8');
+        $method = $this->_searchMethod();
+        return $this->{$method}($searchDN, $filter, $attr);
+    }
+    /**
      * Get the results
      *
      * @param string $searchDN the search dn
@@ -1350,34 +1657,11 @@ class LDAP extends FOGController
      */
     private function _result($searchDN, $filter, array $attr)
     {
-        /**
-         * Search scope
-         * 0 = read
-         * 1 = list (ls on current directory)
-         * 2 = search (ls -R on current directory)
-         */
-        $searchScope = (int)$this->get('searchScope');
-        /**
-         * Set our method caller
-         */
-        switch ($searchScope) {
-            case 1:
-                $method = 'list';
-                break;
-            case 2:
-                $method = 'search';
-                break;
-            default:
-                $method = 'read';
-        }
-        /**
-         * Ensure our search dn is utf-8 encoded for searching
-         */
-        $searchDN = mb_convert_encoding($searchDN, 'utf-8');
+        $method = $this->_searchMethod();
         /**
          * Get the results
          */
-        $result = $this->{$method}($searchDN, $filter, $attr);
+        $result = $this->_rawSearch($searchDN, $filter, $attr);
         /**
          * Count our entries
          */

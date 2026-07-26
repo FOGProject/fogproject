@@ -1596,6 +1596,9 @@ msgstr "Distribuisci"
 msgid "Deploy Method"
 msgstr "Metodo Deploy"
 
+msgid "Depth"
+msgstr ""
+
 msgid "Description"
 msgstr "Descrizione"
 
@@ -3769,6 +3772,9 @@ msgstr ""
 msgid "Leave blank to keep the current password"
 msgstr ""
 
+msgid "Level"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
 
@@ -4283,9 +4289,16 @@ msgstr "Nuova chiave deve essere una stringa"
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr ""
 
+msgid "Nested group depth cap reached, so group membership may be incomplete"
+msgstr ""
+
 #, fuzzy
 msgid "Nested group depth must be between 1 and 100"
 msgstr "Nuova chiave deve essere una stringa"
+
+#, fuzzy
+msgid "Nested group search failed"
+msgstr "Aggiornamento utente non riuscita"
 
 msgid "Network Information"
 msgstr "Informationi di rete"
@@ -6578,6 +6591,11 @@ msgstr "L'impostazione \"nodo master\" definisce quale"
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
 "users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid ""
+"The chain strategy is not implemented yet, resolving nesting with expand "
+"instead"
 msgstr ""
 
 #, fuzzy
