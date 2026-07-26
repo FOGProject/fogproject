@@ -62,8 +62,20 @@ $attemptData = $getAttemptData();
 $timeDiff = time() - ($attemptData['timestamp'] ?? time());
 $isLocked = ($attemptData['attempts'] ?? 0) >= 5 && $timeDiff < $lockoutDuration;
 
+/**
+ * 200 with the '#!rl' body, not a 429.
+ *
+ * This endpoint speaks a body-level protocol: '#!ok', '#!il' and '#!rl' are
+ * the whole vocabulary, and the rate-limit case was the only one that also
+ * moved the status code. FOS reads it with `curl -Lks` and matches on the
+ * body, so the 429 bought nothing there and would have cost the body
+ * outright under a fetcher that treats 4xx as "no output".
+ *
+ * Nothing else calls this endpoint, and nothing keys on the status.
+ *
+ * Refs https://github.com/FOGProject/fogproject/issues/890
+ */
 if ($isLocked) {
-    http_response_code(429);
     echo '#!rl';
     exit;
 }
