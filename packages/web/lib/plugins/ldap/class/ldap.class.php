@@ -45,6 +45,19 @@ class LDAP extends FOGController
      */
     const CHAIN_CAPABILITY = '1.2.840.113556.1.4.800';
     /**
+     * The legal lsTlsVerify values, and the authority on them.
+     *
+     * The model owns this list rather than the management page because save()
+     * enforces it for every writer, and because it has to stay in step with
+     * the column's ENUM. The page's label map is presentation only and keys
+     * off these values.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/893
+     *
+     * @var array
+     */
+    const TLS_VERIFY_LEVELS = ['inherit', 'hard', 'never'];
+    /**
      * Ldap connection itself
      *
      * @var resource
@@ -268,7 +281,47 @@ class LDAP extends FOGController
     public function save()
     {
         $this->_assertChainSupported();
+        $this->_assertTlsVerifyValid();
         return parent::save();
+    }
+    /**
+     * Throws if tlsVerify is not one of the levels the column allows.
+     *
+     * Here rather than only in the management page's _tlsFromPost() for the
+     * same reason _assertChainSupported() is: the REST API reaches this table
+     * without going through the form. A PUT carrying {"tlsVerify":"garbage"}
+     * lands on a non-strict MySQL as '', which reads back as the column
+     * default -- silently relaxing verification on a server an admin had
+     * deliberately set to 'hard'. Validating on the way into the row covers
+     * every writer rather than the one that remembered to ask.
+     *
+     * Blank is normalised rather than refused. It is what a pre-#893 row or an
+     * earlier non-strict write leaves behind, and throwing on it would make an
+     * existing row impossible to save at all -- including impossible to fix.
+     * Normalising to 'inherit' matches the column default, so nothing changes
+     * behaviour; it only stops '' propagating.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/893
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function _assertTlsVerifyValid()
+    {
+        $verify = trim((string)$this->get('tlsVerify'));
+        if ('' === $verify) {
+            $this->set('tlsVerify', 'inherit');
+            return;
+        }
+        if (!in_array($verify, self::TLS_VERIFY_LEVELS, true)) {
+            throw new Exception(
+                sprintf(
+                    /* translators: %s is the rejected value */
+                    _('Invalid certificate verification level: %s'),
+                    $verify
+                )
+            );
+        }
     }
     /**
      * Throws if this server is set to chain but the directory cannot chain.

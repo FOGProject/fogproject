@@ -77,9 +77,12 @@ class LDAPManagement extends FOGPage
     /**
      * The LDAPS certificate verification levels, keyed by stored value.
      *
-     * One list, used by both form renderers and by _tlsFromPost(), for the
-     * same reason _nestedStrategies() is: the set of legal values cannot
-     * drift between what the form offers and what a save accepts.
+     * Labels only. LDAP::TLS_VERIFY_LEVELS is the authority on which values
+     * are legal -- it has to be, because LDAP::save() enforces it for the REST
+     * API too -- and _tlsFromPost() validates against that, not against these
+     * keys. A level added there without a label here shows up missing from the
+     * dropdown, which is visible; the reverse would be a value the form offers
+     * and every save rejects.
      *
      * 'inherit' is first and is the column default. The plugin set no TLS
      * option at all before this, so ldap.conf governed, and asserting 'hard'
@@ -125,7 +128,7 @@ class LDAPManagement extends FOGPage
         if ('' === $verify) {
             $verify = 'inherit';
         }
-        if (!array_key_exists($verify, self::_tlsVerifyLevels())) {
+        if (!in_array($verify, LDAP::TLS_VERIFY_LEVELS, true)) {
             throw new Exception(
                 _('Please select a valid certificate verification level')
             );
