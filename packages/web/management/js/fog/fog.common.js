@@ -940,7 +940,7 @@ $.notify = function(title, body, type) {
   // stack. Distinct messages still stack normally.
   type = type || 'success';
   var active = ($.notify._active = $.notify._active || {});
-  var key = type + ' ' + (title || '') + ' ' + (body || '');
+  var key = type + '\u0000' + (title || '') + '\u0000' + (body || '');
   var existing = active[key];
   if (existing && existing.state !== 'closed' && existing.state !== 'closing') {
     existing._fogCount = (existing._fogCount || 1) + 1;
