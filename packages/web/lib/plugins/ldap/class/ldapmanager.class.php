@@ -753,6 +753,25 @@ class LDAPManager extends FOGManagerController
             function () {
                 return $this->seedUserGrants();
             },
+            // 19-21: one-off sweep of rows orphaned before LDAPDeleteMassItems
+            // existed. Deleting a user, role or user group did not clear this
+            // plugin's rows, so an upgraded install can hold mappings and
+            // grant records pointing at ids that are gone. The hook stops new
+            // ones; these clear the backlog, which is otherwise unreachable
+            // from the UI.
+            // 19
+            "DELETE FROM `ldapUserGrant` "
+            . "WHERE `lugUserID` NOT IN (SELECT `uID` FROM `users`) "
+            . "OR (`lugTargetType` = 'role' "
+            . "AND `lugTargetID` NOT IN (SELECT `rID` FROM `roles`)) "
+            . "OR (`lugTargetType` = 'usergroup' "
+            . "AND `lugTargetID` NOT IN (SELECT `ugID` FROM `userGroups`))",
+            // 20
+            "DELETE FROM `ldapGroupRoleAssoc` "
+            . "WHERE `lgraRoleID` NOT IN (SELECT `rID` FROM `roles`)",
+            // 21
+            "DELETE FROM `ldapGroupUserGroupAssoc` "
+            . "WHERE `lgugUserGroupID` NOT IN (SELECT `ugID` FROM `userGroups`)",
         ];
     }
     /**
