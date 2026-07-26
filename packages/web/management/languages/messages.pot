@@ -3792,9 +3792,6 @@ msgstr ""
 msgid "No database to work off"
 msgstr ""
 
-msgid "No directory groups defined."
-msgstr ""
-
 msgid "No external data to download the file from"
 msgstr ""
 

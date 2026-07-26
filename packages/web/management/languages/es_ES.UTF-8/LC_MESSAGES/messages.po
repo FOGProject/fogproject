@@ -4619,10 +4619,6 @@ msgstr "No se obtuvieron datos"
 msgid "No database to work off"
 msgstr "No se obtuvieron datos"
 
-#, fuzzy
-msgid "No directory groups defined."
-msgstr "Instalador inteligente (recomendado)"
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -9044,6 +9040,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "No directory group grants this role."
+#~ msgstr "Instalador inteligente (recomendado)"
+
+#, fuzzy
+#~ msgid "No directory groups defined."
 #~ msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy

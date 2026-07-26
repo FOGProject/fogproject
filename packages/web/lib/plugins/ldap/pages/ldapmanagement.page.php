@@ -1290,8 +1290,6 @@ class LDAPManagement extends FOGPage
      */
     public function ldapGroupMap()
     {
-        $groups = $this->_currentGroups();
-
         echo '<div class="card">';
         echo '<div class="card-body">';
         echo '<p>';
@@ -1318,28 +1316,21 @@ class LDAPManagement extends FOGPage
             );
             echo '</div>';
         }
-        echo '<table class="table table-striped">';
-        echo '<thead><tr>';
-        echo '<th>' . _('Directory Group') . '</th>';
-        echo '<th>' . _('Grants') . '</th>';
-        echo '</tr></thead><tbody>';
-        if (empty($groups)) {
-            printf(
-                '<tr><td colspan="2">%s</td></tr>',
-                Initiator::e(_('No directory groups defined.'))
-            );
-        }
-        foreach ($groups as $group) {
-            $grants = self::_grantSummary((int)$group['lgID']);
-            printf(
-                '<tr><td><a href="?node=ldapgroup&sub=edit&id=%s">%s</a>'
-                . '</td><td>%s</td></tr>',
-                Initiator::e($group['lgID']),
-                Initiator::e($group['lgName']),
-                Initiator::e($grants)
-            );
-        }
-        echo '</tbody></table>';
+        // A real DataTable rather than a hand-built one. It is read-only, but
+        // the point of the shared table plumbing is that every grid in FOG
+        // sorts, searches and pages the same way -- and this one grows with
+        // the directory, so paging stops being optional at some size.
+        // Rows are fed by getGroupMapList().
+        echo '<table id="ldap-groupmap-table" '
+            . 'class="display table table-bordered table-striped">';
+        echo '<thead><tr class="header">';
+        echo '<th data-column="0" scope="col">'
+            . _('Directory Group')
+            . '</th>';
+        echo '<th data-column="1" scope="col">'
+            . _('Grants')
+            . '</th>';
+        echo '</tr></thead><tbody></tbody></table>';
         // Constructive actions sit right, destructive left, matching every
         // other actionbox in FOG: the easy-to-reach side is for the safe
         // action, so destroying something takes deliberate travel.
@@ -1356,62 +1347,106 @@ class LDAPManagement extends FOGPage
         echo '</div>';
     }
     /**
-     * The directory groups belonging to the server being edited.
+     * Feeds the Group Mappings datatable.
      *
-     * @return array
+     * Server-side so the grid pages rather than rendering every directory
+     * group at once, and scoped to the server being edited -- the groups are
+     * a property of this server, not a global list. The where goes in as a
+     * bound-safe integer because it is the object's own id.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
+     *
+     * @return void
      */
-    private function _currentGroups()
+    public function getGroupMapList()
     {
-        try {
-            $rows = self::$DB
-                ->query(
-                    'SELECT `lgID`, `lgName` FROM `LDAPGroups` '
-                    . 'WHERE `lgServerID` = :server ORDER BY `lgName`',
-                    [],
-                    ['server' => (int)$this->obj->get('id')]
+        header('Content-type: application/json');
+        $pass_vars = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $manager = self::getClass('LDAPGroupManager');
+        $columns = [
+            [
+                'db' => 'lgName',
+                'dt' => 'mainLink',
+                'formatter' => function ($d, $row) {
+                    return sprintf(
+                        '<a href="?node=ldapgroup&sub=edit&id=%1$s">'
+                        . '(%1$s) - %2$s</a>',
+                        Initiator::e($row['lgID']),
+                        Initiator::e($d)
+                    );
+                }
+            ],
+            [
+                'db' => 'lgID',
+                'dt' => 'grants',
+                'formatter' => function ($d, $row) {
+                    return self::_grantLinks((int)$d);
+                }
+            ],
+        ];
+
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                $manager->getTable(),
+                'lgID',
+                $columns,
+                $manager->getQueryStr(),
+                $manager->getFilterStr(),
+                $manager->getTotalStr(),
+                null,
+                sprintf(
+                    '`LDAPGroups`.`lgServerID` = %d',
+                    (int)$this->obj->get('id')
                 )
-                ->fetch('', 'fetch_all')
-                ->get();
-        } catch (Exception $e) {
-            return [];
-        }
-        /**
-         * PDODB reports a failed query as false rather than throwing
-         * (throwOnQueryError is off), and (array)false is [false], not [].
-         */
-        return is_array($rows) ? $rows : [];
+            )
+        ));
     }
     /**
-     * A human summary of what one directory group grants.
+     * What one directory group grants, as links to the things it grants.
+     *
+     * Linked rather than plain text for the same reason the group name is:
+     * the answer to "what does this grant?" is almost always followed by
+     * "let me go look at that", and every other reference in FOG is
+     * clickable.
      *
      * @param int $groupId the LDAPGroups row id
      *
      * @return string
      */
-    private static function _grantSummary($groupId)
+    private static function _grantLinks($groupId)
     {
         $group = self::getClass('LDAPGroup', $groupId);
-        $names = [];
-        foreach ((array)$group->get('roles') as $roleId) {
-            $role = self::getClass('Role', (int)$roleId);
-            if ($role->isValid()) {
-                $names[] = sprintf('%s - %s', _('Role'), $role->get('name'));
-            }
-        }
-        foreach ((array)$group->get('usergroups') as $ugId) {
-            $usergroup = self::getClass('UserGroup', (int)$ugId);
-            if ($usergroup->isValid()) {
-                $names[] = sprintf(
-                    '%s - %s',
-                    _('User Group'),
-                    $usergroup->get('name')
+        $links = [];
+        $targets = [
+            ['roles', 'Role', 'role', _('Role')],
+            ['usergroups', 'UserGroup', 'usergroup', _('User Group')],
+        ];
+        foreach ($targets as $target) {
+            list($getter, $class, $node, $label) = $target;
+            foreach ((array)$group->get($getter) as $id) {
+                $obj = self::getClass($class, (int)$id);
+                if (!$obj->isValid()) {
+                    continue;
+                }
+                $links[] = sprintf(
+                    '%s - <a href="?node=%s&sub=edit&id=%s">%s</a>',
+                    Initiator::e($label),
+                    $node,
+                    Initiator::e((int)$id),
+                    Initiator::e($obj->get('name'))
                 );
             }
         }
-        if (empty($names)) {
-            return _('Nothing yet');
+        if (empty($links)) {
+            return Initiator::e(_('Nothing yet'));
         }
-        return implode(', ', $names);
+        return implode(', ', $links);
     }
     /**
      * Updates the current item

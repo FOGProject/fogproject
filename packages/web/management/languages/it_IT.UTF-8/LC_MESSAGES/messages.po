@@ -4329,10 +4329,6 @@ msgstr "Nessun dato da inserire"
 msgid "No database to work off"
 msgstr "Nessun database di lavorare off"
 
-#, fuzzy
-msgid "No directory groups defined."
-msgstr "Nessun gruppo di storage disponibile trovato"
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -8517,6 +8513,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "No directory group grants this role."
+#~ msgstr "Nessun gruppo di storage disponibile trovato"
+
+#, fuzzy
+#~ msgid "No directory groups defined."
 #~ msgstr "Nessun gruppo di storage disponibile trovato"
 
 #, fuzzy

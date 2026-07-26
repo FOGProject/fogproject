@@ -4505,10 +4505,6 @@ msgstr "No data returned"
 msgid "No database to work off"
 msgstr "No database to work off"
 
-#, fuzzy
-msgid "No directory groups defined."
-msgstr "Installed Plugins"
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -8893,6 +8889,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "No directory group grants this role."
+#~ msgstr "Installed Plugins"
+
+#, fuzzy
+#~ msgid "No directory groups defined."
 #~ msgstr "Installed Plugins"
 
 #~ msgid "No query sent"

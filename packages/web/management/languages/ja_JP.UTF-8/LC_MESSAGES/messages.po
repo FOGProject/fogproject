@@ -4285,10 +4285,6 @@ msgstr "挿入するデータがありません"
 msgid "No database to work off"
 msgstr "使用するデータベースがありません"
 
-#, fuzzy
-msgid "No directory groups defined."
-msgstr "使用可能なストレージグループが見つかりません"
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -9318,6 +9314,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "No directory group grants this role."
+#~ msgstr "使用可能なストレージグループが見つかりません"
+
+#, fuzzy
+#~ msgid "No directory groups defined."
 #~ msgstr "使用可能なストレージグループが見つかりません"
 
 #~ msgid "No friendly name defined"

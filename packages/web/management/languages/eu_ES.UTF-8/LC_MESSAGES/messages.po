@@ -4510,10 +4510,6 @@ msgstr "Keine Daten zum Einfügen"
 msgid "No database to work off"
 msgstr "Keine Datenbank zum Arbeiten"
 
-#, fuzzy
-msgid "No directory groups defined."
-msgstr "Keine brauchbaren Speichergruppen gefunden"
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -8913,6 +8909,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "No directory group grants this role."
+#~ msgstr "Keine brauchbaren Speichergruppen gefunden"
+
+#, fuzzy
+#~ msgid "No directory groups defined."
 #~ msgstr "Keine brauchbaren Speichergruppen gefunden"
 
 #, fuzzy

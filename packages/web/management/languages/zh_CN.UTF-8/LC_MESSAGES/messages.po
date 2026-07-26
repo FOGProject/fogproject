@@ -4506,10 +4506,6 @@ msgstr "无数据返回"
 msgid "No database to work off"
 msgstr "没有数据库工作关闭"
 
-#, fuzzy
-msgid "No directory groups defined."
-msgstr "已安装的插件"
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -8888,6 +8884,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "No directory group grants this role."
+#~ msgstr "已安装的插件"
+
+#, fuzzy
+#~ msgid "No directory groups defined."
 #~ msgstr "已安装的插件"
 
 #~ msgid "No query sent"
