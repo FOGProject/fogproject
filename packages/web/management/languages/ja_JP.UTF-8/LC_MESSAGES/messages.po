@@ -2497,9 +2497,6 @@ msgstr "グループ プロダクトキー"
 msgid "Group Search DN"
 msgstr "グループ検索 DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "グループ検索 DN は結果を返しませんでした"
-
 #, fuzzy
 msgid "Group Site"
 msgstr "グループイメージ"
@@ -2543,6 +2540,10 @@ msgstr "グループを追加しました！"
 
 msgid "Group is not valid"
 msgstr "グループが無効です"
+
+#, fuzzy
+msgid "Group membership search failed"
+msgstr "ユーザーの更新に失敗しました！"
 
 msgid "Group update failed!"
 msgstr "グループの更新に失敗しました！"
@@ -8911,6 +8912,9 @@ msgstr ""
 
 #~ msgid "Group Screen Resolution"
 #~ msgstr "グループ画面解像度"
+
+#~ msgid "Group Search DN did not return any results"
+#~ msgstr "グループ検索 DN は結果を返しませんでした"
 
 #~ msgid "Group general"
 #~ msgstr "グループ全般"

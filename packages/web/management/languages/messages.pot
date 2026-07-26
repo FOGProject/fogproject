@@ -2205,9 +2205,6 @@ msgstr ""
 msgid "Group Search DN"
 msgstr ""
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 msgid "Group Site"
 msgstr ""
 
@@ -2242,6 +2239,9 @@ msgid "Group added!"
 msgstr ""
 
 msgid "Group is not valid"
+msgstr ""
+
+msgid "Group membership search failed"
 msgstr ""
 
 msgid "Group update failed!"

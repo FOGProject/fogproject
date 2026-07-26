@@ -2618,9 +2618,6 @@ msgstr "Groupe clé de produit"
 msgid "Group Search DN"
 msgstr "Recherche d'hôte"
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 #, fuzzy
 msgid "Group Site"
 msgstr "Export SnapIns"
@@ -2668,6 +2665,10 @@ msgstr "Groupe ajouté"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "Groupe est non valide"
+
+#, fuzzy
+msgid "Group membership search failed"
+msgstr "mise à jour de l'utilisateur a échoué"
 
 #, fuzzy
 msgid "Group update failed!"

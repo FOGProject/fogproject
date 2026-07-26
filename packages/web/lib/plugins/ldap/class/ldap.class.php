@@ -1791,22 +1791,63 @@ class LDAP extends FOGController
          * the compound filter above -- it is the same fallback the
          * two-bucket version had, generalised from two names to N.
          *
-         * Setup the generalized filter
+         * Scoped to the groups this user is actually in, rather than the
+         * '(memberAttr=*)' enumeration of the whole group subtree it used
+         * to be. _result() returns false both when the search fails and
+         * when it matched nothing, so "this user is in none of the mapped
+         * groups" is indistinguishable from "the filter broke" and the
+         * fallback therefore fires on *every* no-match login -- including
+         * every mistyped password, and every API request made with basic
+         * auth by an account that maps to nothing. Pulling an entire AD
+         * group subtree to answer "is this user in one of five groups?"
+         * made the cheapest request to send the most expensive one to
+         * serve.
+         *
+         * This is the same member half as the compound filter above, with
+         * only the group-name half dropped -- which is the half that
+         * fails on a server whose group name attribute is misconfigured,
+         * and the reason this fallback exists at all. Names are still
+         * matched below by DN substring, exactly as before, so what the
+         * fallback can match is unchanged: every entry this filter now
+         * excludes is one carrying no member value equal to the user's DN
+         * in any of the three forms, and such an entry could never have
+         * passed the userDN test below.
+         *
+         * Deliberately NOT transitive under 'chain': this path was direct
+         * only before, and widening it here would grant access that the
+         * enumeration never did.
+         *
+         * Refs https://github.com/FOGProject/fogproject/issues/891
          */
         $filter = sprintf(
-            '(%s=*)',
-            $grpMemAttr
+            '(|(%s=%s)(%s=%s=%s)(%s=%s))',
+            $grpMemAttr,
+            $this->escape($userDN, '', LDAP_ESCAPE_FILTER),
+            $grpMemAttr,
+            $usrNamAttr,
+            $this->escape($user, '', LDAP_ESCAPE_FILTER),
+            $grpMemAttr,
+            $this->escape($user, '', LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
          */
         $attr = [$grpNamAttr, $grpMemAttr];
         /**
-         * Read in the attributes
+         * Read in the attributes.
+         *
+         * _rawSearch() rather than _result() because the filter above is
+         * now targeted: zero entries means the user is in no groups at
+         * all, which is an answer and not a failure. Routing it through
+         * _result() would log that ordinary outcome as an error on every
+         * no-match login, and the message below would blame the group
+         * search DN for it.
+         *
+         * Refs https://github.com/FOGProject/fogproject/issues/891
          */
-        $result = $this->_result($grpSearchDN, $filter, $attr);
+        $result = $this->_rawSearch($grpSearchDN, $filter, $attr);
         /**
-         * Return immediately if the result is false
+         * Return immediately if the search itself failed
          */
         if (false === $result) {
             error_log(
@@ -1814,7 +1855,7 @@ class LDAP extends FOGController
                     '%s %s() %s. %s: %s',
                     _('Plugin'),
                     __METHOD__,
-                    _('Group Search DN did not return any results'),
+                    _('Group membership search failed'),
                     _('Group Search DN'),
                     $grpSearchDN
                 )

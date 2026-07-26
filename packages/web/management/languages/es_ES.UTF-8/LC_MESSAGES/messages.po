@@ -2664,9 +2664,6 @@ msgstr "Clave del producto Grupo"
 msgid "Group Search DN"
 msgstr "Disco de grupo primario"
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 #, fuzzy
 msgid "Group Site"
 msgstr "snapins"
@@ -2714,6 +2711,10 @@ msgstr "grupo añadió"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "tipo de tarea no es válida"
+
+#, fuzzy
+msgid "Group membership search failed"
+msgstr "actualización Valoración falló"
 
 #, fuzzy
 msgid "Group update failed!"

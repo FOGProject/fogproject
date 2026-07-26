@@ -2523,9 +2523,6 @@ msgstr "Product Key Group"
 msgid "Group Search DN"
 msgstr "Ricerca gruppo DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
-
 #, fuzzy
 msgid "Group Site"
 msgstr "Gruppo Snapins"
@@ -2569,6 +2566,10 @@ msgstr "Gruppo aggiunto!"
 
 msgid "Group is not valid"
 msgstr "Gruppo non valido"
+
+#, fuzzy
+msgid "Group membership search failed"
+msgstr "Aggiornamento utente non riuscita"
 
 msgid "Group update failed!"
 msgstr "Aggiornamento del gruppo non riuscito!"
@@ -8511,6 +8512,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Host Luoghi"
+
+#~ msgid "Group Search DN did not return any results"
+#~ msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
 
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"

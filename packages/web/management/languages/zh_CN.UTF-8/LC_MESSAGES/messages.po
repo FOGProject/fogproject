@@ -2615,9 +2615,6 @@ msgstr "集团产品密钥"
 msgid "Group Search DN"
 msgstr "主机搜索"
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 #, fuzzy
 msgid "Group Site"
 msgstr "出口Snapins"
@@ -2665,6 +2662,10 @@ msgstr "集团补充"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "集团是无效的"
+
+#, fuzzy
+msgid "Group membership search failed"
+msgstr "用户更新失败"
 
 #, fuzzy
 msgid "Group update failed!"
