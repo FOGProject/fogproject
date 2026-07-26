@@ -2009,9 +2009,6 @@ msgstr ""
 msgid "Group Search DN"
 msgstr ""
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 msgid "Group Snapins"
 msgstr ""
 
@@ -2034,6 +2031,9 @@ msgid "Group image association"
 msgstr ""
 
 msgid "Group is not valid"
+msgstr ""
+
+msgid "Group membership search returned no results"
 msgstr ""
 
 msgid "Group module settings"

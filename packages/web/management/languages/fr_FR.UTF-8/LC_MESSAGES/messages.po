@@ -2055,9 +2055,6 @@ msgstr "Groupe Résolution de l'écran"
 msgid "Group Search DN"
 msgstr "Recherche de groupe DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "La recherche de groupe DN n'a donné aucun résultat"
-
 msgid "Group Snapins"
 msgstr "Groupe de SnapIns"
 
@@ -2081,6 +2078,10 @@ msgstr "Association d'images du groupe"
 
 msgid "Group is not valid"
 msgstr "Groupe est non valide"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "La recherche de groupe DN n'a donné aucun résultat"
 
 msgid "Group module settings"
 msgstr "Paramètres du module de groupe"

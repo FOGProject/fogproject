@@ -2103,9 +2103,6 @@ msgstr "Gruppo risoluzione dello schermo"
 msgid "Group Search DN"
 msgstr "Ricerca gruppo DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
-
 msgid "Group Snapins"
 msgstr "Gruppo Snapins"
 
@@ -2129,6 +2126,10 @@ msgstr "Associazione immagine di gruppo"
 
 msgid "Group is not valid"
 msgstr "Gruppo non valido"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
 
 msgid "Group module settings"
 msgstr "Impostazioni modulo del gruppo"

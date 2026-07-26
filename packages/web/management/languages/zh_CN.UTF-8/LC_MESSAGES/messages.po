@@ -2035,9 +2035,6 @@ msgstr "群组屏幕分辨率"
 msgid "Group Search DN"
 msgstr "群组搜索DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "群组搜索DN无结果"
-
 msgid "Group Snapins"
 msgstr "群组Snapin"
 
@@ -2061,6 +2058,10 @@ msgstr "群组镜像关联"
 
 msgid "Group is not valid"
 msgstr "群组无效"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "群组搜索DN无结果"
 
 msgid "Group module settings"
 msgstr "群组模块设置"

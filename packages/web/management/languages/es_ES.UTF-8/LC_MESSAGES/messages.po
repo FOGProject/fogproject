@@ -2314,9 +2314,6 @@ msgstr "Grupo principal"
 msgid "Group Search DN"
 msgstr "Búsqueda"
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 #, fuzzy
 msgid "Group Snapins"
 msgstr "Exportar snapin"
@@ -2347,6 +2344,9 @@ msgstr "Asociación de imagen"
 
 msgid "Group is not valid"
 msgstr "Grupo no válido"
+
+msgid "Group membership search returned no results"
+msgstr ""
 
 #, fuzzy
 msgid "Group module settings"

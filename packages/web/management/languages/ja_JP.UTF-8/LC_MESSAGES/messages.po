@@ -2023,9 +2023,6 @@ msgstr "グループ画面解像度"
 msgid "Group Search DN"
 msgstr "グループ検索 DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "グループ検索 DN は結果を返しませんでした"
-
 msgid "Group Snapins"
 msgstr "グループ スナップイン"
 
@@ -2049,6 +2046,10 @@ msgstr "グループイメージの関連付け"
 
 msgid "Group is not valid"
 msgstr "グループが無効です"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "グループ検索 DN は結果を返しませんでした"
 
 msgid "Group module settings"
 msgstr "グループモジュール設定"

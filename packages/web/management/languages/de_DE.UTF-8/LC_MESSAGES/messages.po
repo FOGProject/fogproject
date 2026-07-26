@@ -2327,9 +2327,6 @@ msgstr "Gruppe Bildschirmauflösung"
 msgid "Group Search DN"
 msgstr "Gruppensuche DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "Gruppensuche DN gab keine Ergebnisse zurück"
-
 #, fuzzy
 msgid "Group Snapins"
 msgstr "Gruppen-Snapins"
@@ -2361,6 +2358,10 @@ msgstr "Gruppen Imagezugehörigkeit"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "Gruppe ist nicht gültig"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "Gruppensuche DN gab keine Ergebnisse zurück"
 
 #, fuzzy
 msgid "Group module settings"

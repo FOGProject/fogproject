@@ -694,11 +694,41 @@ class LDAP extends FOGController
             return 1;
         }
         /**
-         * Setup the generalized filter
+         * Setup the generalized filter, scoped to the groups this user is
+         * actually in rather than every group in the subtree.
+         *
+         * This used to be '(memberAttr=*)', which pulled the entire group
+         * subtree back to answer "is this user in one of these groups?".
+         * Both filters above hardcode '(name=%s)' for the group-name half
+         * and 'name' is an Active Directory attribute, so on OpenLDAP,
+         * FreeIPA or anything else they never match and this path is not
+         * a fallback at all -- it is how EVERY login resolves, successful
+         * ones included, and every basic-auth API request that
+         * re-authenticates.
+         *
+         * This is the member half of those filters with only the
+         * group-name half dropped, which is precisely the half that
+         * cannot work here. The strpos()/preg_grep() loop below is
+         * untouched, so what can match is unchanged: every entry this
+         * excludes carries no member value equal to the user's DN in any
+         * of the three forms, and could never have passed the $userDN
+         * test below.
+         *
+         * Deliberately NOT given the nested matching rule: this path was
+         * direct-only before, and widening it here would grant access the
+         * enumeration never did.
+         *
+         * Refs https://github.com/FOGProject/fogproject/issues/896
          */
         $filter = sprintf(
-            '(%s=*)',
-            $grpMemAttr
+            '(|(%s=%s)(%s=%s=%s)(%s=%s))',
+            $grpMemAttr,
+            $this->escape($userDN, '', LDAP_ESCAPE_FILTER),
+            $grpMemAttr,
+            $usrNamAttr,
+            $this->escape($user, '', LDAP_ESCAPE_FILTER),
+            $grpMemAttr,
+            $this->escape($user, '', LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
@@ -709,7 +739,19 @@ class LDAP extends FOGController
          */
         $result = $this->_result($grpSearchDN, $filter, $attr);
         /**
-         * Return immediately if the result is false
+         * Return immediately if the result is false.
+         *
+         * Message reworded because the filter above is now targeted:
+         * _result() returns false for zero entries as well as for a failed
+         * search, and with this filter zero entries most often means "this
+         * user is in no groups" -- an ordinary denial. Blaming the group
+         * search DN for that sent an admin looking at their configuration
+         * over a login that was simply refused. Returning false is
+         * unchanged and stays correct either way: $accessLevel is preset
+         * to false, so a user matching nothing already returned false, and
+         * the caller tests == 0.
+         *
+         * Refs https://github.com/FOGProject/fogproject/issues/896
          */
         if (false === $result) {
             error_log(
@@ -717,7 +759,7 @@ class LDAP extends FOGController
                     '%s %s() %s. %s: %s',
                     _('Plugin'),
                     __METHOD__,
-                    _('Group Search DN did not return any results'),
+                    _('Group membership search returned no results'),
                     _('Group Search DN'),
                     $grpSearchDN
                 )

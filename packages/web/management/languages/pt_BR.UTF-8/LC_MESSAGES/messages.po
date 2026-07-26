@@ -2038,9 +2038,6 @@ msgstr "Resolução de Tela do Grupo"
 msgid "Group Search DN"
 msgstr "DN de Pesquisa de Grupo"
 
-msgid "Group Search DN did not return any results"
-msgstr "DN de Pesquisa de Grupo não retornou nenhum resultado"
-
 msgid "Group Snapins"
 msgstr "Snapins do Grupo"
 
@@ -2064,6 +2061,10 @@ msgstr "Associação de imagem do grupo"
 
 msgid "Group is not valid"
 msgstr "Grupo não é válido"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "DN de Pesquisa de Grupo não retornou nenhum resultado"
 
 msgid "Group module settings"
 msgstr "Configurações de módulo do grupo"

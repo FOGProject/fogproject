@@ -2322,9 +2322,6 @@ msgstr "Group Screen Resolution"
 msgid "Group Search DN"
 msgstr "Host Search"
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 #, fuzzy
 msgid "Group Snapins"
 msgstr "Export Snapins"
@@ -2356,6 +2353,9 @@ msgstr "Image Association"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "Group is Invalid"
+
+msgid "Group membership search returned no results"
+msgstr ""
 
 #, fuzzy
 msgid "Group module settings"
