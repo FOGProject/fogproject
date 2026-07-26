@@ -1201,12 +1201,12 @@ class LDAPManagement extends FOGPage
             }
         ];
 
-        // Group Mappings
+        // Grants
         $tabData[] = [
-            'name' => _('Group Mappings'),
-            'id' => 'ldap-groupmap',
+            'name' => _('Grants'),
+            'id' => 'ldap-grants',
             'generator' => function () {
-                $this->ldapGroupMap();
+                $this->ldapGrants();
             }
         ];
         $this->renderEditTabs($tabData, $this->obj);
@@ -1500,18 +1500,30 @@ class LDAPManagement extends FOGPage
         );
     }
     /**
-     * The directory groups defined for the server being edited.
+     * What the server's directory groups grant, one card per kind of grant.
      *
      * Read-only: what a group grants is edited on the group's own page,
      * where roles and user groups are ordinary association tabs. This tab
      * exists so an admin looking at a server can see and reach its groups
      * without having to know they live under a separate node.
      *
+     * Two stacked cards rather than one grid. The single grid this replaces
+     * comma-joined both kinds of grant into one cell, which forced a
+     * "Role - " / "User Group - " prefix on every entry to stay readable and
+     * left the cell unsortable and unsearchable. A card heading carries that
+     * meaning for free, and separate feeds mean each card sorts and searches
+     * on the granted thing's own name.
+     *
+     * One row per mapping, not per group: a group granting two roles is two
+     * rows, and a group granting nothing of a kind is absent from that card
+     * rather than filling it with "Nothing yet". So each card reads as the
+     * list of grants it actually is.
+     *
      * Refs https://github.com/FOGProject/fogproject/issues/882
      *
      * @return void
      */
-    public function ldapGroupMap()
+    public function ldapGrants()
     {
         echo '<div class="card">';
         echo '<div class="card-body">';
@@ -1539,21 +1551,16 @@ class LDAPManagement extends FOGPage
             );
             echo '</div>';
         }
-        // A real DataTable rather than a hand-built one. It is read-only, but
-        // the point of the shared table plumbing is that every grid in FOG
-        // sorts, searches and pages the same way -- and this one grows with
-        // the directory, so paging stops being optional at some size.
-        // Rows are fed by getGroupMapList().
-        echo '<table id="ldap-groupmap-table" '
-            . 'class="display table table-bordered table-striped">';
-        echo '<thead><tr class="header">';
-        echo '<th data-column="0" scope="col">'
-            . _('Directory Group')
-            . '</th>';
-        echo '<th data-column="1" scope="col">'
-            . _('Grants')
-            . '</th>';
-        echo '</tr></thead><tbody></tbody></table>';
+        $this->_grantCard(
+            'ldap-grants-roles-table',
+            _('Roles'),
+            _('Role')
+        );
+        $this->_grantCard(
+            'ldap-grants-usergroups-table',
+            _('User Groups'),
+            _('User Group')
+        );
         // Constructive actions sit right, destructive left, matching every
         // other actionbox in FOG: the easy-to-reach side is for the safe
         // action, so destroying something takes deliberate travel.
@@ -1570,19 +1577,119 @@ class LDAPManagement extends FOGPage
         echo '</div>';
     }
     /**
-     * Feeds the Group Mappings datatable.
+     * One titled sub-card holding a read-only grants grid.
      *
-     * Server-side so the grid pages rather than rendering every directory
-     * group at once, and scoped to the server being edited -- the groups are
-     * a property of this server, not a global list. The where goes in as a
-     * bound-safe integer because it is the object's own id.
+     * card-primary card-outline nested in the tab's own card is the shape
+     * renderCreateForm() already uses for its titled sections, so the two
+     * cards read as sections of one tab rather than two unrelated panels.
      *
-     * Refs https://github.com/FOGProject/fogproject/issues/882
+     * Real DataTables rather than hand-built ones: the point of the shared
+     * table plumbing is that every grid in FOG sorts, searches and pages the
+     * same way, and these grow with the directory so paging stops being
+     * optional at some size. Rows come from _grantList() via the two subs.
+     *
+     * @param string $tableId     dom id, matched in fog.ldap.edit.js
+     * @param string $title       the card heading
+     * @param string $grantHeader the second column's heading
      *
      * @return void
      */
-    public function getGroupMapList()
+    private function _grantCard($tableId, $title, $grantHeader)
     {
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">' . Initiator::e($title) . '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        printf(
+            '<table id="%s" class="display table table-bordered '
+            . 'table-striped">',
+            Initiator::e($tableId)
+        );
+        echo '<thead><tr class="header">';
+        echo '<th data-column="0" scope="col">'
+            . Initiator::e(_('Directory Group'))
+            . '</th>';
+        echo '<th data-column="1" scope="col">'
+            . Initiator::e($grantHeader)
+            . '</th>';
+        echo '</tr></thead><tbody></tbody></table>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Feeds the Roles card.
+     *
+     * @return void
+     */
+    public function getGrantRoleList()
+    {
+        $this->_grantList('role');
+    }
+    /**
+     * Feeds the User Groups card.
+     *
+     * @return void
+     */
+    public function getGrantUserGroupList()
+    {
+        $this->_grantList('usergroup');
+    }
+    /**
+     * Feeds one of the two grants grids.
+     *
+     * Server-side so each grid pages rather than rendering every mapping at
+     * once, and scoped to the server being edited -- the groups are a
+     * property of this server, not a global list. The scope goes in as a
+     * bound-safe integer because it is the object's own id, and it goes in
+     * as the "all" condition so the count the grid reports is this server's
+     * rather than every server's.
+     *
+     * One body for both kinds, keyed off $kind, so the two feeds cannot
+     * drift apart: the only differences between them are table and column
+     * names.
+     *
+     * The joins live here rather than on the two association manager
+     * classes. complex() takes its query templates as arguments precisely so
+     * a caller can widen them, nothing else queries these tables this way,
+     * and a class-level override would silently reshape every other use of
+     * the manager.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/882
+     *
+     * @param string $kind either 'role' or 'usergroup'
+     *
+     * @return void
+     */
+    private function _grantList($kind)
+    {
+        // Per kind: the association table and its primary key, the two
+        // foreign keys on it, then the target's table, key, name column and
+        // the node its edit page lives at.
+        $kinds = [
+            'role' => [
+                'assoc' => 'ldapGroupRoleAssoc',
+                'assocId' => 'lgraID',
+                'groupKey' => 'lgraGroupID',
+                'targetKey' => 'lgraRoleID',
+                'targetTable' => 'roles',
+                'targetId' => 'rID',
+                'targetName' => 'rName',
+                'node' => 'role'
+            ],
+            'usergroup' => [
+                'assoc' => 'ldapGroupUserGroupAssoc',
+                'assocId' => 'lgugID',
+                'groupKey' => 'lgugGroupID',
+                'targetKey' => 'lgugUserGroupID',
+                'targetTable' => 'userGroups',
+                'targetId' => 'ugID',
+                'targetName' => 'ugName',
+                'node' => 'usergroup'
+            ]
+        ];
+        $map = $kinds[$kind];
+
         header('Content-type: application/json');
         $pass_vars = [];
         parse_str(
@@ -1590,86 +1697,104 @@ class LDAPManagement extends FOGPage
             $pass_vars
         );
 
-        $manager = self::getClass('LDAPGroupManager');
+        // LEFT OUTER rather than INNER on the target: #885 clears a deleted
+        // role's or user group's mappings, but a database restore or a
+        // hand-edited row can still leave one behind, and a stale mapping is
+        // live -- better shown in the grid than filtered silently out of it.
+        // The group join stays LEFT OUTER for symmetry; the server scope
+        // below excludes a mapping whose group is gone either way.
+        $joins = sprintf(
+            'LEFT OUTER JOIN `LDAPGroups`
+            ON `%1$s`.`%2$s` = `LDAPGroups`.`lgID`
+            LEFT OUTER JOIN `%3$s`
+            ON `%1$s`.`%4$s` = `%3$s`.`%5$s`',
+            $map['assoc'],
+            $map['groupKey'],
+            $map['targetTable'],
+            $map['targetKey'],
+            $map['targetId']
+        );
+        // complex() sprintf's these, so the slot counts have to match what it
+        // passes: columns/table/where/order/limit, then key/table/where, then
+        // key/table with the "all" condition appended by complex() itself.
+        $sqlStr = "SELECT `%s`
+            FROM `%s`
+            $joins
+            %s
+            %s
+            %s";
+        $filterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            $joins
+            %s";
+        $totalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            $joins";
+
         $columns = [
             [
                 'db' => 'lgName',
-                'dt' => 'mainLink',
-                'formatter' => function ($d, $row) {
-                    return sprintf(
-                        '<a href="?node=ldapgroup&sub=edit&id=%1$s">'
-                        . '(%1$s) - %2$s</a>',
-                        Initiator::e($row['lgID']),
-                        Initiator::e($d)
+                'dt' => 'groupLink',
+                'formatter' => function ($d, $row) use ($map) {
+                    return self::entityLink(
+                        'ldapgroup',
+                        $row[$map['groupKey']],
+                        $d
                     );
                 }
             ],
             [
-                'db' => 'lgID',
-                'dt' => 'grants',
-                'formatter' => function ($d, $row) {
-                    return self::_grantLinks((int)$d);
+                'db' => $map['targetName'],
+                'dt' => 'grantLink',
+                'formatter' => function ($d, $row) use ($map) {
+                    // Orphan mapping: no target row, so nothing to link to.
+                    // Keep the canonical shape so the id is still readable.
+                    if (null === $d) {
+                        return sprintf(
+                            '%s - (%d)',
+                            Initiator::e(_('Unknown')),
+                            (int)$row[$map['targetKey']]
+                        );
+                    }
+                    return self::entityLink(
+                        $map['node'],
+                        $row[$map['targetKey']],
+                        $d
+                    );
                 }
+            ],
+            // Not rendered. The two formatters above need these ids, and
+            // dataOutput() only ever sees columns that are in the SELECT
+            // list -- the client declares just the two visible ones, and
+            // filter()/order() match on the 'dt' name rather than position,
+            // so the extra pair costs nothing but the ids.
+            [
+                'db' => $map['groupKey'],
+                'dt' => 'groupID'
+            ],
+            [
+                'db' => $map['targetKey'],
+                'dt' => 'grantID'
             ],
         ];
 
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             FOGManagerController::complex(
                 $pass_vars,
-                $manager->getTable(),
-                'lgID',
+                $map['assoc'],
+                $map['assocId'],
                 $columns,
-                $manager->getQueryStr(),
-                $manager->getFilterStr(),
-                $manager->getTotalStr(),
+                $sqlStr,
+                $filterStr,
+                $totalStr,
                 null,
                 sprintf(
                     '`LDAPGroups`.`lgServerID` = %d',
                     (int)$this->obj->get('id')
-                )
+                ),
+                'groupLink'
             )
         ));
-    }
-    /**
-     * What one directory group grants, as links to the things it grants.
-     *
-     * Linked rather than plain text for the same reason the group name is:
-     * the answer to "what does this grant?" is almost always followed by
-     * "let me go look at that", and every other reference in FOG is
-     * clickable.
-     *
-     * @param int $groupId the LDAPGroups row id
-     *
-     * @return string
-     */
-    private static function _grantLinks($groupId)
-    {
-        $group = self::getClass('LDAPGroup', $groupId);
-        $links = [];
-        $targets = [
-            ['roles', 'Role', 'role', _('Role')],
-            ['usergroups', 'UserGroup', 'usergroup', _('User Group')],
-        ];
-        foreach ($targets as $target) {
-            list($getter, $class, $node, $label) = $target;
-            foreach ((array)$group->get($getter) as $id) {
-                $obj = self::getClass($class, (int)$id);
-                if (!$obj->isValid()) {
-                    continue;
-                }
-                $links[] = sprintf(
-                    '%s - <a href="?node=%s&sub=edit&id=%s">%s</a>',
-                    Initiator::e($label),
-                    $node,
-                    Initiator::e((int)$id),
-                    Initiator::e($obj->get('name'))
-                );
-            }
-        }
-        if (empty($links)) {
-            return Initiator::e(_('Nothing yet'));
-        }
-        return implode(', ', $links);
     }
     /**
      * Updates the current item

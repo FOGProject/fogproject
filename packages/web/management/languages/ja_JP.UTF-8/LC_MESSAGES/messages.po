@@ -2438,10 +2438,6 @@ msgid "Group Management"
 msgstr "グループ管理"
 
 #, fuzzy
-msgid "Group Mappings"
-msgstr "グループ管理"
-
-#, fuzzy
 msgid "Group Matching"
 msgstr "グループ管理"
 
@@ -4561,9 +4557,6 @@ msgstr "スナップインを同期していません"
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "ストレージノード名"
-
-msgid "Nothing yet"
-msgstr ""
 
 msgid "O/S"
 msgstr "OS"
@@ -8874,6 +8867,10 @@ msgstr ""
 
 #~ msgid "Group FOG Client Module configuration"
 #~ msgstr "グループ FOG クライアントモジュール設定"
+
+#, fuzzy
+#~ msgid "Group Mappings"
+#~ msgstr "グループ管理"
 
 #~ msgid "Group Power Management Remove"
 #~ msgstr "グループ電源管理を削除"

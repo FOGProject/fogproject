@@ -2604,10 +2604,6 @@ msgid "Group Management"
 msgstr "Gestión de usuarios"
 
 #, fuzzy
-msgid "Group Mappings"
-msgstr "Lista de host"
-
-#, fuzzy
 msgid "Group Matching"
 msgstr "Lista de host"
 
@@ -4908,9 +4904,6 @@ msgstr ""
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "nodo de almacenamiento"
-
-msgid "Nothing yet"
-msgstr ""
 
 #, fuzzy
 msgid "O/S"
@@ -9009,6 +9002,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "Reiniciar"
+
+#, fuzzy
+#~ msgid "Group Mappings"
+#~ msgstr "Lista de host"
 
 #, fuzzy
 #~ msgid "Group module settings"

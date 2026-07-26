@@ -2555,10 +2555,6 @@ msgid "Group Management"
 msgstr "集团管理"
 
 #, fuzzy
-msgid "Group Mappings"
-msgstr "主机位置"
-
-#, fuzzy
 msgid "Group Matching"
 msgstr "主机位置"
 
@@ -4792,9 +4788,6 @@ msgstr "无连接来获取管理单元"
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "存储节点名称"
-
-msgid "Nothing yet"
-msgstr ""
 
 msgid "O/S"
 msgstr "O / S"
@@ -8849,6 +8842,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "重启"
+
+#, fuzzy
+#~ msgid "Group Mappings"
+#~ msgstr "主机位置"
 
 #, fuzzy
 #~ msgid "Group module settings"

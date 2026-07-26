@@ -12,16 +12,27 @@ $(function() {
     });
 
     // ---------------------------------------------------------------
-    // GROUP MAPPINGS TAB
-    // Read-only, but registered like every other grid so it sorts,
-    // searches and pages the same way. select/buttons are off because
+    // GRANTS TAB
+    // One grid per card, each a row-per-mapping list scoped to this
+    // server. Read-only, but registered like every other grid so they
+    // sort, search and page the same way. select/buttons are off because
     // there is nothing to act on -- the row links are the interaction.
-    var groupMapTable = $('#ldap-groupmap-table');
-    if (groupMapTable.length) {
-        groupMapTable.registerTable(null, {
+    //
+    // Both grids are identical apart from the sub they read, so build
+    // them from one config: the pair cannot drift the way two
+    // hand-copied blocks would.
+    $.each({
+        'ldap-grants-roles-table': 'getGrantRoleList',
+        'ldap-grants-usergroups-table': 'getGrantUserGroupList'
+    }, function(tableId, sub) {
+        var grantTable = $('#' + tableId);
+        if (!grantTable.length) {
+            return;
+        }
+        grantTable.registerTable(null, {
             columns: [
-                {data: 'mainLink'},
-                {data: 'grants'}
+                {data: 'groupLink'},
+                {data: 'grantLink'}
             ],
             order: [[0, 'asc']],
             processing: true,
@@ -30,11 +41,11 @@ $(function() {
             buttons: [],
             ajax: {
                 url: '../management/index.php?node=ldap'
-                    + '&sub=getGroupMapList&id=' + Common.id,
+                    + '&sub=' + sub + '&id=' + Common.id,
                 type: 'post'
             }
         });
-    }
+    });
     templateSel.on('change blur focus focusout', function(e) {
         e.preventDefault();
         selected = this.value;

@@ -2154,9 +2154,6 @@ msgstr ""
 msgid "Group Management"
 msgstr ""
 
-msgid "Group Mappings"
-msgstr ""
-
 msgid "Group Matching"
 msgstr ""
 
@@ -4038,9 +4035,6 @@ msgid "Not syncing Snapin"
 msgstr ""
 
 msgid "Nothing to do on Storage Node Named"
-msgstr ""
-
-msgid "Nothing yet"
 msgstr ""
 
 msgid "O/S"

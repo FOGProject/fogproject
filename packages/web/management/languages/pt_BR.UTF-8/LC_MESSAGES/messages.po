@@ -2557,10 +2557,6 @@ msgid "Group Management"
 msgstr "grupo de Gestão"
 
 #, fuzzy
-msgid "Group Mappings"
-msgstr "anfitrião Localização"
-
-#, fuzzy
 msgid "Group Matching"
 msgstr "anfitrião Localização"
 
@@ -4796,9 +4792,6 @@ msgstr "Sem conexão para obter Snapin"
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "Nome Storage Node"
-
-msgid "Nothing yet"
-msgstr ""
 
 msgid "O/S"
 msgstr "O / S"
@@ -8862,6 +8855,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "reinicialização"
+
+#, fuzzy
+#~ msgid "Group Mappings"
+#~ msgstr "anfitrião Localização"
 
 #, fuzzy
 #~ msgid "Group module settings"
