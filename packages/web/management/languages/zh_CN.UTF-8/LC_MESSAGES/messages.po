@@ -1087,6 +1087,9 @@ msgstr "系统序列"
 msgid "Case Version"
 msgstr "最新版本"
 
+msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
+msgstr ""
+
 msgid ""
 "Changing this setting takes effect after you reload the page. A hard refresh "
 "(Ctrl+F5, or Cmd+Shift+R) may be required."
@@ -1916,6 +1919,9 @@ msgid "Every configured multicast port is already in use"
 msgstr ""
 
 msgid "Exists item must be boolean"
+msgstr ""
+
+msgid "Expand - walk the chain (any directory)"
 msgstr ""
 
 msgid "Export"
@@ -3393,6 +3399,10 @@ msgstr ""
 msgid "Information"
 msgstr "信息"
 
+#, php-format
+msgid "Inherit global (%s)"
+msgstr ""
+
 #, fuzzy
 msgid "Init"
 msgstr "主机列表"
@@ -3765,6 +3775,10 @@ msgstr "用户创建"
 #, fuzzy
 msgid "LDAP Create Success"
 msgstr "用户创建"
+
+#, fuzzy
+msgid "LDAP Group"
+msgstr "组"
 
 #, fuzzy
 msgid "LDAP Group Associations"
@@ -4421,6 +4435,20 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+msgid "Nested Depth"
+msgstr ""
+
+#, fuzzy
+msgid "Nested Groups"
+msgstr "组"
+
+#, fuzzy
+msgid "Nested depth must be a number"
+msgstr "事件必须是字符串"
+
+msgid "Nested depth must be between 0 and 100, or blank to inherit"
+msgstr ""
+
 msgid "Network Information"
 msgstr "网络信息"
 
@@ -4796,6 +4824,9 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
+msgid "Off - direct membership only"
+msgstr ""
+
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "事件必须是字符串"
@@ -5095,6 +5126,10 @@ msgstr "选择一个有效的图像"
 #, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "请输入一个有效的IP"
+
+#, fuzzy
+msgid "Please select a valid nested group strategy"
+msgstr "选择一个有效的图像"
 
 #, fuzzy
 msgid "Please select a valid printer type."

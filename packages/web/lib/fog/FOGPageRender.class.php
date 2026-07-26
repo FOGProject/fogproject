@@ -85,10 +85,11 @@ trait FOGPageRender
 
         $createModal = '';
         if ($createNode !== '') {
-            $createModal = $this->renderAssocCreate(
+            $createModal = self::renderAssocCreate(
                 $tabSlug,
                 $createNode,
-                $buttons
+                $buttons,
+                $this->obj->get('id')
             );
         }
 
@@ -146,18 +147,38 @@ trait FOGPageRender
      * here so a user who cannot create groups is not shown a form that would
      * only fail.
      *
+     * PUBLIC STATIC, and the owner id is a parameter rather than being read from
+     * $this->obj, so a PLUGIN can use it too. Plugins inject their tabs through
+     * PLUGINS_INJECT_TABDATA from a Hook, which is not a FOGPage and has no
+     * $this->obj -- it is handed the object being edited. Every plugin tab wants
+     * exactly this button and this modal, so they call in here rather than each
+     * hand-rolling markup the shared JS then has to keep guessing at.
+     *
      * @param string $tabSlug    The association tab slug (e.g. 'host-group').
      * @param string $createNode The node owning the create form (e.g. 'group').
      * @param string $buttons    Action-row buttons, appended to by reference.
+     * @param mixed  $ownerId    Id of the entity being edited (the association
+     *                           target), used to build the tab update URL.
+     * @param string $noun       Optional display name for the thing being
+     *                           created. Defaults to the node capitalised,
+     *                           which reads fine for group/printer/snapin but
+     *                           not for every node -- 'ou' and 'windowskey'
+     *                           would come out as "Ou" and "Windowskey".
      *
      * @return string The modal markup, for the caller to place in the footer.
      */
-    protected function renderAssocCreate($tabSlug, $createNode, &$buttons)
-    {
+    public static function renderAssocCreate(
+        $tabSlug,
+        $createNode,
+        &$buttons,
+        $ownerId,
+        $noun = ''
+    ) {
         if (!Authorization::can($createNode . '.create')) {
             return '';
         }
-        $label = _('Create New') . ' ' . ucfirst(_($createNode));
+        $label = _('Create New') . ' '
+            . ('' !== $noun ? $noun : ucfirst(_($createNode)));
         // float-end so it sits on the right with "Add selected": creating is
         // non-destructive, and destructive actions stay left (the "Remove
         // selected" side) so destroying something takes deliberate travel.
@@ -172,7 +193,7 @@ trait FOGPageRender
                 ' type="button" data-create-node="%s" data-assoc-action="%s" ',
                 Initiator::e($createNode),
                 Initiator::e(
-                    self::makeTabUpdateURL($tabSlug, $this->obj->get('id'))
+                    self::makeTabUpdateURL($tabSlug, $ownerId)
                 )
             )
         );

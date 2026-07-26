@@ -18,4 +18,9 @@
         url: '../management/index.php?node=ldapgroup'
             + '&sub=getRoleFeedList&ownerID=' + Common.id
     });
+    // "Create New LDAP Group" -- register a directory group without
+    // leaving the page, then associate it here. The ldapgroup create
+    // form is inert markup (see fog.ldapgroup.add.js, which only calls
+    // wireCreateForm), so no onForm initialiser is needed.
+    $.registerCreateAndAssociate('role-ldapgroup', ldapGroupsTable);
 })(jQuery);

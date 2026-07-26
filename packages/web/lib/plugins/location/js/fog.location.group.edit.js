@@ -1,17 +1,11 @@
 (function($) {
-    var locationForm = $('#group-location-form'),
-        locationFormBtn = $('#location-send');
-
-    locationForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    locationFormBtn.on('click',function(e) {
-        locationFormBtn.prop('disabled', true);
-        locationForm.processForm(function(err) {
-            locationFormBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-        });
+    // The whole tab -- Update wiring plus the create-and-associate button and
+    // modal -- is one shared helper (fog.common.js). These nine plugin tabs are
+    // the same card with a different noun, and each used to carry its own copy
+    // of the submit wiring.
+    $.registerSelectTab({
+        slug: 'group-location',
+        send: 'location-send',
+        node: 'location'
     });
 })(jQuery);

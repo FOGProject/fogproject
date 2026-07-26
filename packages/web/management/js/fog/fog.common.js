@@ -784,9 +784,9 @@ $.registerAssociationTab = function(opts) {
   return table;
 };
 // -----------------------------------------------------------------------
-// $.registerCreateAndAssociate(slug, table) - wire the "Create New X" button
-// and modal that renderAssocCreate() adds to an association tab, so the thing
-// being associated can be created without leaving the page.
+// wireCreateModal(slug, opts) - the machinery behind the "Create New X" button
+// and modal that renderAssocCreate() adds to a tab, so the thing being
+// associated can be created without leaving the page.
 //
 // Two-request flow, both against endpoints that already exist:
 //   1. GET  ?node={createNode}&sub=addModal - the REAL create form, fetched
@@ -797,16 +797,27 @@ $.registerAssociationTab = function(opts) {
 //      manager routes to addPost() on POST) via processForm() -- the same call
 //      the node's list page makes from its own create modal, so validation,
 //      CSRF and error reporting all stay on one path. It answers with the
-//      created entity under `object` (see FOGPagePost::attachCreatedObject),
-//      and that id is POSTed to the association tab's update URL, i.e. the
-//      same call "Add selected" makes. So neither half is a second code path.
+//      created entity under `object` (see FOGPagePost::attachCreatedObject).
+//
+// What happens with that created object is the ONE thing that differs between
+// the two tab shapes, so it is the one thing this does not decide: it hands the
+// object to opts.onCreated and lets the caller associate it. An association
+// GRID adds it by POSTing additems[] ($.registerCreateAndAssociate); a single
+// DROPDOWN tab adds it by selecting the new option and committing the tab's own
+// form ($.registerCreateAndSelect). Everything either side of that -- the lazy
+// fetch, the id namespacing, Enter-to-submit, validation state, the reset -- is
+// identical, and lives here once.
 //
 // If the create succeeds but no `object` comes back, the association is
 // skipped and the user is told: better a half-done step they can see than a
-// silent one. The grid is redrawn either way so the new row shows up.
+// silent one.
 //
-// slug  - the association tab slug (e.g. 'host-group'), matching the button.
-// table - the tab's DataTable API instance, redrawn after a successful create.
+// slug - the tab slug (e.g. 'host-group'), matching the button and modal ids.
+// opts.onCreated(obj, done) - required; associate obj, then call done() to
+//      close the modal and reset the create form for the next one.
+// opts.onSkipped - optional; run when the create succeeded but gave us no
+//      object to associate (the grid still wants a redraw so the new row shows).
+// opts.orphanMessage - required; what to tell the user in that case.
 // opts.onForm   - optional callback(form) run once, right after the fetched form
 //      is in the DOM. Some create forms are not inert markup: the printer form's
 //      type sections and the snapin form's command builder are driven by JS that
@@ -818,7 +829,7 @@ $.registerAssociationTab = function(opts) {
 //      wireCreateForm({selector}). The printer form needs ':input:visible'
 //      because its hidden type sections must not be validated; forms with
 //      nothing hidden leave it unset and validate everything.
-$.registerCreateAndAssociate = function(slug, table, opts) {
+function wireCreateModal(slug, opts) {
   opts = opts || {};
   var onForm = opts.onForm,
     btn = $('#' + slug + '-create'),
@@ -826,7 +837,6 @@ $.registerCreateAndAssociate = function(slug, table, opts) {
     holder = $('#' + slug + '-create-form'),
     sendBtn = $('#' + slug + '-create-send'),
     createNode = btn.data('create-node'),
-    assocAction = btn.data('assoc-action'),
     loaded = false;
 
   if (!btn.length || !modal.length) {
@@ -918,29 +928,18 @@ $.registerCreateAndAssociate = function(slug, table, opts) {
       if (err) {
         return;
       }
-      // The create already reported success to the user; only redraw and,
-      // when we know what was made, associate it.
-      var id = data && data.object ? data.object.id : null;
-      if (!id) {
-        $.notify(
-          'Warning',
-          'Created, but it could not be associated automatically. '
-            + 'Add it from the list above.',
-          'notice'
-        );
-        if (table) {
-          table.draw(false);
+      // The create already reported success to the user; all that is left is
+      // associating what was made, which only the caller knows how to do.
+      var obj = (data && data.object) ? data.object : null;
+      if (!obj || !obj.id) {
+        $.notify('Warning', opts.orphanMessage, 'notice');
+        if (typeof opts.onSkipped === 'function') {
+          opts.onSkipped();
         }
         modal.modal('hide');
         return;
       }
-      $.apiCall('post', assocAction, {
-        confirmadd: 1,
-        additems: [id]
-      }, function() {
-        if (table) {
-          table.draw(false);
-        }
+      opts.onCreated(obj, function() {
         modal.modal('hide');
         // Reset only after a clean run, so the next create starts empty.
         if (form[0]) {
@@ -955,6 +954,119 @@ $.registerCreateAndAssociate = function(slug, table, opts) {
       });
     }, opts.validate);
   });
+}
+// $.registerCreateAndAssociate(slug, table, opts) - create-and-associate for an
+// association GRID tab. The created id is POSTed to the tab's update URL, i.e.
+// the same call "Add selected" makes, so this is not a second write path. The
+// grid is redrawn whether or not the association half ran, so the new row shows
+// up either way.
+//
+// slug  - the association tab slug (e.g. 'host-group'), matching the button.
+// table - the tab's DataTable API instance, redrawn after a successful create.
+// opts  - onForm/validate, passed through to wireCreateModal().
+$.registerCreateAndAssociate = function(slug, table, opts) {
+  opts = opts || {};
+  // The endpoint rides on the button as a data attribute (renderAssocCreate
+  // puts it there), so no URL is rebuilt here.
+  var assocAction = $('#' + slug + '-create').data('assoc-action');
+  wireCreateModal(slug, {
+    onForm: opts.onForm,
+    validate: opts.validate,
+    orphanMessage: 'Created, but it could not be associated automatically. '
+      + 'Add it from the list above.',
+    onSkipped: function() {
+      if (table) {
+        table.draw(false);
+      }
+    },
+    onCreated: function(obj, done) {
+      $.apiCall('post', assocAction, {
+        confirmadd: 1,
+        additems: [obj.id]
+      }, function() {
+        if (table) {
+          table.draw(false);
+        }
+        done();
+      });
+    }
+  });
+};
+// $.registerCreateAndSelect(slug, opts) - create-and-associate for a tab whose
+// association is a single DROPDOWN rather than a grid (the location/site/ou/
+// windowskey plugin tabs). The new option is appended and selected, then the
+// tab's own Update button is clicked so the association is written by exactly
+// the path it would have taken had the admin picked the value by hand.
+//
+// Clicking the real button rather than POSTing here is deliberate: these tabs
+// carry plugin-specific behaviour on that button (site/location on a GROUP fans
+// the choice out to every member host), and duplicating the submit would mean
+// duplicating whatever the plugin does around it.
+//
+// opts.select - required; the tab's <select>, already resolved.
+// opts.send   - required; the tab's Update button, already resolved.
+// opts.onForm / opts.validate - passed through to wireCreateModal().
+$.registerCreateAndSelect = function(slug, opts) {
+  opts = opts || {};
+  wireCreateModal(slug, {
+    onForm: opts.onForm,
+    validate: opts.validate,
+    orphanMessage: 'Created, but it could not be selected automatically. '
+      + 'Pick it from the list above.',
+    onCreated: function(obj, done) {
+      // trigger('change') both re-syncs any select2 wrapper and lets anything
+      // else watching the field react, exactly as a manual pick would.
+      opts.select
+        .append($('<option/>', {value: obj.id, text: obj.name || obj.id}))
+        .val(obj.id)
+        .trigger('change');
+      done();
+      opts.send.trigger('click');
+    }
+  });
+};
+// $.registerSelectTab(opts) - wire a whole single-dropdown association tab.
+//
+// Nine plugin-injected tabs (location/site/ou on host+group, site on user+
+// usergroup, windowskey on image) render the same card: one select, one Update
+// button, in a form. Each shipped a near-identical JS file that did nothing but
+// processForm() that form. That wiring lives here now, along with the optional
+// create-and-select button, so a plugin tab is one call rather than a copy.
+//
+// opts.slug   - required; the tab slug (e.g. 'host-location'). The form is
+//               #{slug}-form and the create button/modal are #{slug}-create*.
+// opts.send   - required; the id of the tab's existing Update button
+//               (e.g. 'location-send'). Not derived from the slug because these
+//               ids predate the convention and are shared across a plugin's
+//               tabs -- renaming them would be a bigger change than this.
+// opts.select - optional; the select's NAME attribute, defaulting to opts.node.
+// opts.node   - optional; the node owning the create form (e.g. 'location').
+//               Omit and the tab is wired without a create button. Present but
+//               the user lacking {node}.create simply means renderAssocCreate()
+//               emitted no button, and the wiring no-ops.
+$.registerSelectTab = function(opts) {
+  opts = opts || {};
+  var form = $('#' + opts.slug + '-form'),
+    sendBtn = $('#' + opts.send);
+  if (!form.length || !sendBtn.length) {
+    return;
+  }
+  // No submit->preventDefault bind: disableFormDefaults() already blocks the
+  // native submit of every form on the page.
+  sendBtn.on('click', function() {
+    sendBtn.prop('disabled', true);
+    form.processForm(function() {
+      sendBtn.prop('disabled', false);
+    });
+  });
+  if (opts.node) {
+    $.registerCreateAndSelect(opts.slug, {
+      // By name, not id: the create modal namespaces every id it pulls in, but
+      // never a name, so a name cannot be captured by the fetched form.
+      select: form.find('[name="' + (opts.select || opts.node) + '"]'),
+      send: sendBtn
+    });
+  }
 };
 $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});

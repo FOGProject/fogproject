@@ -904,6 +904,9 @@ msgstr ""
 msgid "Case Version"
 msgstr ""
 
+msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
+msgstr ""
+
 msgid ""
 "Changing this setting takes effect after you reload the page. A hard refresh "
 "(Ctrl+F5, or Cmd+Shift+R) may be required."
@@ -1611,6 +1614,9 @@ msgid "Every configured multicast port is already in use"
 msgstr ""
 
 msgid "Exists item must be boolean"
+msgstr ""
+
+msgid "Expand - walk the chain (any directory)"
 msgstr ""
 
 msgid "Export"
@@ -2843,6 +2849,10 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
+#, php-format
+msgid "Inherit global (%s)"
+msgstr ""
+
 msgid "Init"
 msgstr ""
 
@@ -3160,6 +3170,9 @@ msgid "LDAP Create Fail"
 msgstr ""
 
 msgid "LDAP Create Success"
+msgstr ""
+
+msgid "LDAP Group"
 msgstr ""
 
 msgid "LDAP Group Associations"
@@ -3714,6 +3727,18 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+msgid "Nested Depth"
+msgstr ""
+
+msgid "Nested Groups"
+msgstr ""
+
+msgid "Nested depth must be a number"
+msgstr ""
+
+msgid "Nested depth must be between 0 and 100, or blank to inherit"
+msgstr ""
+
 msgid "Network Information"
 msgstr ""
 
@@ -4038,6 +4063,9 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
+msgid "Off - direct membership only"
+msgstr ""
+
 msgid "Old key must be a string"
 msgstr ""
 
@@ -4301,6 +4329,9 @@ msgid "Please select a valid image"
 msgstr ""
 
 msgid "Please select a valid ldap port"
+msgstr ""
+
+msgid "Please select a valid nested group strategy"
 msgstr ""
 
 msgid "Please select a valid printer type."

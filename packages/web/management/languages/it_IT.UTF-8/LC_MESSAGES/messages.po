@@ -1043,6 +1043,9 @@ msgstr "Sistema seriale"
 msgid "Case Version"
 msgstr "Ultima versione"
 
+msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
+msgstr ""
+
 msgid ""
 "Changing this setting takes effect after you reload the page. A hard refresh "
 "(Ctrl+F5, or Cmd+Shift+R) may be required."
@@ -1848,6 +1851,9 @@ msgstr ""
 
 msgid "Exists item must be boolean"
 msgstr "Exists deve essere boolean"
+
+msgid "Expand - walk the chain (any directory)"
+msgstr ""
 
 msgid "Export"
 msgstr "Esportare"
@@ -3264,6 +3270,10 @@ msgstr ""
 msgid "Information"
 msgstr "Informazioni"
 
+#, php-format
+msgid "Inherit global (%s)"
+msgstr ""
+
 #, fuzzy
 msgid "Init"
 msgstr "Host Init"
@@ -3618,6 +3628,10 @@ msgstr "LDAP Creazione Fallita"
 
 msgid "LDAP Create Success"
 msgstr "LDAP Creazione Riusciata"
+
+#, fuzzy
+msgid "LDAP Group"
+msgstr "gruppi"
 
 #, fuzzy
 msgid "LDAP Group Associations"
@@ -4246,6 +4260,20 @@ msgstr "Necessario il nome tabella da cancellare"
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+msgid "Nested Depth"
+msgstr ""
+
+#, fuzzy
+msgid "Nested Groups"
+msgstr "gruppi"
+
+#, fuzzy
+msgid "Nested depth must be a number"
+msgstr "Nuova chiave deve essere una stringa"
+
+msgid "Nested depth must be between 0 and 100, or blank to inherit"
+msgstr ""
+
 msgid "Network Information"
 msgstr "Informationi di rete"
 
@@ -4606,6 +4634,9 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
+msgid "Off - direct membership only"
+msgstr ""
+
 msgid "Old key must be a string"
 msgstr "Vecchia chiave deve essere una stringa"
 
@@ -4893,6 +4924,10 @@ msgstr "Selezionare un'immagine valida"
 
 msgid "Please select a valid ldap port"
 msgstr "Seleziona una porta ldap valida"
+
+#, fuzzy
+msgid "Please select a valid nested group strategy"
+msgstr "Selezionare un'immagine valida"
 
 #, fuzzy
 msgid "Please select a valid printer type."

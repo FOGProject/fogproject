@@ -1,17 +1,11 @@
 (function($) {
-    var siteForm = $('#usergroup-site-form'),
-        siteFormBtn = $('#site-send');
-
-    siteForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    siteFormBtn.on('click',function(e) {
-        siteFormBtn.prop('disabled', true);
-        siteForm.processForm(function(err) {
-            siteFormBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-        });
+    // The whole tab -- Update wiring plus the create-and-associate button and
+    // modal -- is one shared helper (fog.common.js). These nine plugin tabs are
+    // the same card with a different noun, and each used to carry its own copy
+    // of the submit wiring.
+    $.registerSelectTab({
+        slug: 'usergroup-site',
+        send: 'site-send',
+        node: 'site'
     });
 })(jQuery);

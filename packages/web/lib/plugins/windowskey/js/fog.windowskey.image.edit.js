@@ -1,16 +1,11 @@
 (function($) {
-    var windowskeyForm = $('#image-windowskey-form'),
-        windowskeyFormBtn = $('#windowskey-send');
-    windowskeyForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    windowskeyFormBtn.on('click', function(e) {
-        windowskeyFormBtn.prop('disabled', true);
-        windowskeyForm.processForm(function(err) {
-            windowskeyFormBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-        });
+    // The whole tab -- Update wiring plus the create-and-associate button and
+    // modal -- is one shared helper (fog.common.js). These nine plugin tabs are
+    // the same card with a different noun, and each used to carry its own copy
+    // of the submit wiring.
+    $.registerSelectTab({
+        slug: 'image-windowskey',
+        send: 'windowskey-send',
+        node: 'windowskey'
     });
 })(jQuery);

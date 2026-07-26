@@ -109,6 +109,18 @@ class AddOUGroup extends Hook
             _('Update'),
             'btn btn-primary float-end'
         );
+        // Create-and-associate, the same button and modal the core association
+        // tabs get. Added before the *_FIELDS event so a listener can still see
+        // it, and immediately after Update so Update stays the row's rightmost
+        // (primary) button with this one to its left. The modal it returns is
+        // echoed after the form -- see below for why it cannot go inside.
+        $createModal = FOGPage::renderAssocCreate(
+            'group-ou',
+            'ou',
+            $buttons,
+            $obj->get('id'),
+            _('OU')
+        );
 
         self::$HookManager->processEvent(
             'GROUP_OU_FIELDS',
@@ -146,6 +158,10 @@ class AddOUGroup extends Hook
         echo '</div>';
         echo '</div>';
         echo '</form>';
+        // Outside the form, deliberately. The modal holds the fetched create
+        // form, and a <form> inside another <form> is invalid markup: the
+        // browser drops the inner one and the create would post nothing.
+        echo $createModal;
     }
     /**
      * The OU updater element.

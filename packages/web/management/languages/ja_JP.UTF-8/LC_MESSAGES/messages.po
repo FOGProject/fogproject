@@ -1028,6 +1028,9 @@ msgstr "シャーシシリアル"
 msgid "Case Version"
 msgstr "シャーシバージョン"
 
+msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
+msgstr ""
+
 msgid ""
 "Changing this setting takes effect after you reload the page. A hard refresh "
 "(Ctrl+F5, or Cmd+Shift+R) may be required."
@@ -1832,6 +1835,9 @@ msgstr ""
 
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
+
+msgid "Expand - walk the chain (any directory)"
+msgstr ""
 
 msgid "Export"
 msgstr "エクスポート"
@@ -3229,6 +3235,10 @@ msgstr ""
 msgid "Information"
 msgstr "情報"
 
+#, php-format
+msgid "Inherit global (%s)"
+msgstr ""
+
 msgid "Init"
 msgstr "Init"
 
@@ -3578,6 +3588,10 @@ msgstr "LDAP の作成に失敗しました"
 
 msgid "LDAP Create Success"
 msgstr "LDAP を作成しました"
+
+#, fuzzy
+msgid "LDAP Group"
+msgstr "すべてのグループ"
 
 #, fuzzy
 msgid "LDAP Group Associations"
@@ -4204,6 +4218,21 @@ msgstr "削除するテーブル名が必要です"
 msgid "Needs a 256-bit key!"
 msgstr "256 ビットキーが必要です"
 
+msgid "Nested Depth"
+msgstr ""
+
+#, fuzzy
+msgid "Nested Groups"
+msgstr "グループ"
+
+#, fuzzy
+msgid "Nested depth must be a number"
+msgstr "新しいキーは文字列である必要があります"
+
+#, fuzzy
+msgid "Nested depth must be between 0 and 100, or blank to inherit"
+msgstr "ユーザー名は 41 文字未満で指定してください"
+
 msgid "Network Information"
 msgstr "ネットワーク情報"
 
@@ -4564,6 +4593,9 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
+msgid "Off - direct membership only"
+msgstr ""
+
 msgid "Old key must be a string"
 msgstr "古いキーは文字列である必要があります"
 
@@ -4852,6 +4884,10 @@ msgid "Please select a valid image"
 msgstr "有効なイメージを選択してください"
 
 msgid "Please select a valid ldap port"
+msgstr "有効な LDAP ポートを選択してください"
+
+#, fuzzy
+msgid "Please select a valid nested group strategy"
 msgstr "有効な LDAP ポートを選択してください"
 
 #, fuzzy

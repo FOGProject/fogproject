@@ -168,6 +168,17 @@ class AddLDAPGroupTabs extends Hook
             'btn btn-danger float-start',
             $props
         );
+        // Create-and-associate, exactly as a core association tab gets it.
+        // A directory group that has not been registered here yet is the
+        // normal case when wiring up a new role, and sending the admin to
+        // the LDAP Group page and back is the trip this removes.
+        $createModal = FOGPage::renderAssocCreate(
+            $slug,
+            'ldapgroup',
+            $buttons,
+            $obj->get('id'),
+            _('LDAP Group')
+        );
 
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
@@ -233,6 +244,10 @@ class AddLDAPGroupTabs extends Hook
             '',
             'warning'
         );
+        // Safe in the footer here, unlike the single-select plugin tabs: this
+        // card is not wrapped in a form, so the modal's own create form is not
+        // nested inside one.
+        echo $createModal;
         echo '</div>';
         echo '</div>';
     }

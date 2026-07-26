@@ -1087,6 +1087,9 @@ msgstr "Serial sistema"
 msgid "Case Version"
 msgstr "Última versão"
 
+msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
+msgstr ""
+
 msgid ""
 "Changing this setting takes effect after you reload the page. A hard refresh "
 "(Ctrl+F5, or Cmd+Shift+R) may be required."
@@ -1918,6 +1921,9 @@ msgid "Every configured multicast port is already in use"
 msgstr ""
 
 msgid "Exists item must be boolean"
+msgstr ""
+
+msgid "Expand - walk the chain (any directory)"
 msgstr ""
 
 msgid "Export"
@@ -3395,6 +3401,10 @@ msgstr ""
 msgid "Information"
 msgstr "Em formação"
 
+#, php-format
+msgid "Inherit global (%s)"
+msgstr ""
+
 #, fuzzy
 msgid "Init"
 msgstr "Lista de Host"
@@ -3767,6 +3777,10 @@ msgstr "usuário criado"
 #, fuzzy
 msgid "LDAP Create Success"
 msgstr "usuário criado"
+
+#, fuzzy
+msgid "LDAP Group"
+msgstr "grupos"
 
 #, fuzzy
 msgid "LDAP Group Associations"
@@ -4423,6 +4437,20 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+msgid "Nested Depth"
+msgstr ""
+
+#, fuzzy
+msgid "Nested Groups"
+msgstr "grupos"
+
+#, fuzzy
+msgid "Nested depth must be a number"
+msgstr "Evento deve ser uma string"
+
+msgid "Nested depth must be between 0 and 100, or blank to inherit"
+msgstr ""
+
 msgid "Network Information"
 msgstr "Informações de rede"
 
@@ -4800,6 +4828,9 @@ msgstr ""
 msgid "Off"
 msgstr ""
 
+msgid "Off - direct membership only"
+msgstr ""
+
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "Evento deve ser uma string"
@@ -5099,6 +5130,10 @@ msgstr "Selecione uma imagem válida"
 #, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "Por favor insira um IP válido"
+
+#, fuzzy
+msgid "Please select a valid nested group strategy"
+msgstr "Selecione uma imagem válida"
 
 #, fuzzy
 msgid "Please select a valid printer type."

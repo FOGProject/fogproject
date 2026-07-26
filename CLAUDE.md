@@ -255,6 +255,37 @@ Three consequences worth remembering:
   (primary)]`, where green marks a genuinely different operation. The rule is
   "clearly different", not "always secondary".
 
+### Create-and-associate on association tabs
+
+Any tab that associates a thing should also let you *create* that thing without
+leaving the page. `FOGPage::renderAssocCreate()` owns the button and the modal;
+it is public static and takes the owner id as a parameter, so **plugin hooks
+injecting a tab via `PLUGINS_INJECT_TABDATA` call the same helper** rather than
+hand-rolling markup the shared JS then has to guess at.
+
+The modal ships empty and the browser fetches the real form from
+`?node={createNode}&sub=addModal`, so the fields can never drift from the create
+page's own. The button is suppressed unless the user holds `{node}.create` —
+which means a plugin **must** register its permissions via
+`PERMISSION_REGISTRY_DATA` or the button is invisible to everyone but a `*`
+holder.
+
+Two JS entry points, by tab shape:
+
+| Tab shape | Wire with | Associates by |
+|---|---|---|
+| Association grid | `$.registerCreateAndAssociate(slug, table)` | POSTing `additems[]` |
+| Single dropdown | `$.registerSelectTab({slug, send, node})` | selecting the new option, then clicking the tab's own Update |
+
+**Trap:** the single-dropdown plugin tabs wrap their card in a `<form>`. The
+create modal contains its own `<form>`, and nested forms are invalid — the
+browser drops the inner one and the create posts nothing. Echo `$createModal`
+*after* `</form>`, not in the card-footer. Grid tabs have no wrapping form, so
+the footer is fine there.
+
+Pass the optional 5th `$noun` argument whenever `ucfirst($node)` would read
+badly — `ou` and `windowskey` become "Ou" and "Windowskey" without it.
+
 ---
 
 ## Key Files
