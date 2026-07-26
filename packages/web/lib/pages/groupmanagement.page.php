@@ -873,14 +873,20 @@ class GroupManagement extends FOGPage
      */
     public function groupPrinters()
     {
-        // Printer Associations
+        // Printer Associations. Trailing 'printer' opts this tab into the
+        // "Create New Printer" button and modal (see renderAssocCreate). The
+        // created printer is associated through this tab's own update URL, i.e.
+        // Group::addPrinter(), which inserts a row per member host -- so the new
+        // printer reaches every host in the group, exactly as "Add selected"
+        // does. The header text already tells the user that.
         $this->renderAssocTab(
             'group-printer',
             _('Group Printer Assignment'),
             _('Printer Name'),
             'printer',
             'btn btn-primary float-end',
-            _('This will perform the action on all hosts in this group')
+            _('This will perform the action on all hosts in this group'),
+            'printer'
         );
 
         $props = ' method="post" action="'
@@ -1058,6 +1064,10 @@ class GroupManagement extends FOGPage
      */
     public function groupSnapins()
     {
+        // Trailing 'snapin' opts this tab into the "Create New Snapin" button
+        // and modal (see renderAssocCreate). Association runs through
+        // Group::addSnapin(), which inserts a row per member host, so the new
+        // snapin lands on every host in the group like "Add selected" does.
         $this->renderAssocTab(
             'group-snapin',
             _('Group Snapin Assignment'),
@@ -1067,7 +1077,8 @@ class GroupManagement extends FOGPage
             _(
                 'This will perform the action on all hosts in this group. '
                 . 'A snapin is checked when every host in the group has it.'
-            )
+            ),
+            'snapin'
         );
 
         $props = ' method="post" action="'

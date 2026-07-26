@@ -353,6 +353,18 @@
             groupPrinterDefaultSelectorUpdate();
         }
     });
+    // The printer create form hides all but the selected type section, and that
+    // JS lives on the printer pages, which do not load here. node:'printer'
+    // because Common.node is 'group' here and would aim getPrinterInfo wrong.
+    // validate matches what the printer pages pass, so hidden sections are not
+    // validated. Association goes through Group::addPrinter(), which inserts a
+    // row per member host, so the new printer reaches the whole group.
+    $.registerCreateAndAssociate('group-printer', groupPrintersTable, {
+        onForm: function(form) {
+            form.initPrinterFormUI({node: 'printer'});
+        },
+        validate: ':input:visible'
+    });
 
     // Default area
     var groupPrinterDefaultUpdateBtn = $('#group-printer-default-send'),
@@ -423,6 +435,14 @@
         entityType: 'snapin',
         idPrefix: 'groupSnapinAssoc_',
         afterCommit: loadGroupSnapinOrder
+    });
+    // wirePackTypes matches the snapin ADD page, since this modal renders the
+    // same _addFields() form. Association goes through Group::addSnapin(), which
+    // inserts a row per member host, so the new snapin lands on the whole group.
+    $.registerCreateAndAssociate('group-snapin', groupSnapinsTable, {
+        onForm: function(form) {
+            form.initSnapinCommandUI({wirePackTypes: true});
+        }
     });
 
     // ---------------------------------------------------------------
