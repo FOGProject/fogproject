@@ -7,8 +7,39 @@ project_dir=$(git rev-parse --show-toplevel)
 
 psrfix() {
     command -v php-cs-fixer >/dev/null 2>&1 || return
-    "$(command -v php-cs-fixer)" fix "$project_dir/packages/web" --rules=@PSR2 >/dev/null 2>&1
-    git add "$project_dir/packages/web"
+    fixer=$(command -v php-cs-fixer)
+
+    # Only the PHP files staged for THIS commit.
+    #
+    # This used to run the fixer over all of packages/web and then
+    # `git add` the whole directory, which staged every modified file in
+    # the working tree whether or not it had anything to do with the
+    # commit. In a checkout with two sessions working at once that
+    # silently swept one session's work into the other's commit, under a
+    # message describing something else entirely.
+    #
+    # core.quotePath=false so non-ASCII names arrive verbatim rather than
+    # octal-escaped. -z is not used because POSIX sh cannot read NUL
+    # delimited input; a newline in a filename would still break this, and
+    # nothing in this repo has one.
+    git -c core.quotePath=false diff --cached --name-only \
+        --diff-filter=ACMR -- 'packages/web/*.php' |
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+
+        # Skip files that also have UNSTAGED changes. The fixer rewrites
+        # the working-tree copy, so `git add` here would stage the part
+        # that was deliberately held back with `git add -p`. A missed PSR2
+        # pass is cheaper than committing work someone chose to keep out.
+        if ! git diff --quiet -- "$f"; then
+            printf 'pre-commit: %s is partially staged, skipping PSR2 fix\n' \
+                "$f" >&2
+            continue
+        fi
+
+        "$fixer" fix "$project_dir/$f" --rules=@PSR2 >/dev/null 2>&1
+        git add "$project_dir/$f"
+    done
 }
 
 updateLanguage() {
