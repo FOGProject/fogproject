@@ -1309,9 +1309,15 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
 
   th,
   td {
-    // Fixed columns cannot grow, so a long unbroken value (a path, a URL)
-    // would otherwise spill out of its cell instead of wrapping.
-    overflow-wrap: anywhere;
+    // A fixed column cannot grow to fit, so anything longer than its share
+    // has to be clipped -- left alone it renders straight over the next
+    // column. Single-line + ellipsis rather than wrapping, because these
+    // tables keep DataTables' scroller, which sizes its virtual viewport
+    // from a uniform row height and breaks on variable-height rows. Pages
+    // using this class should put the full value on a title attribute.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   thead th {

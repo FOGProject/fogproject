@@ -39,8 +39,12 @@
     // columns. registerTable already passes autoWidth:false, which stops
     // DataTables measuring but leaves the browser's content-driven sizing in
     // charge -- and that let the longest Description dictate the whole table.
-    // Only safe alongside scroller:false below; under the scroller's nowrap
-    // cells a fixed layout makes text overflow its column instead of wrapping.
+    // The class also clips an over-long cell to an ellipsis. That is required
+    // here rather than cosmetic: this table keeps the scroller (virtual
+    // scrolling), which sizes its viewport from a UNIFORM row height, so rows
+    // have to stay one line. Wrapping Description would give variable-height
+    // rows and break the scroller's maths. The full text is on the cell's
+    // title attribute instead (see createdCell below).
     $('#dataTable').addClass('fog-table-fixed');
     var table = $('#dataTable').registerTable(onSelect, {
         // This list has only five short columns and a small, fixed row set,
@@ -48,20 +52,13 @@
         // columns behind a per-row expander at full width and makes the
         // expander fight the row-click selection. Keep every column visible.
         responsive: false,
-        // Same reasoning, and it is what makes the widths below work. The
-        // scroller puts the table in DataTables' scroll mode: a cloned header
-        // table over a separately scrolling body, with white-space:nowrap
-        // forced on every cell so the two stay measurable. A description that
-        // cannot wrap simply runs out of its column and over its neighbour.
-        // Fifteen rows do not need a virtual scroller, so turning it off gives
-        // one plain table whose cells wrap and whose header is the real one.
-        scroller: false,
-        initComplete: function() {
-            // After init, not before: the table loads over ajax, and DataTables
-            // rebuilds the header during setup -- strips added earlier were
-            // discarded with it, which is why nothing was draggable.
-            $('#dataTable').makeColumnsResizable();
-        },
+        // NOTE: no makeColumnsResizable() call here yet. With the scroller on,
+        // the header you actually see is a CLONE in .dt-scroll-head, and this
+        // table's own thead is hidden and used only for sizing -- so the drag
+        // strips attach where nobody can reach them. Making it work means
+        // driving the clone and keeping the two tables' widths in step, which
+        // is a bigger job than this page. The helper stays in fog.common.js
+        // for a non-scrolling table, where it is verified working.
         order: [
             [0, 'asc']
         ],
@@ -96,6 +93,12 @@
             },
             {
                 responsivePriority: 0,
+                // Description is clipped to one line, so put the whole of it
+                // on the cell as a tooltip -- otherwise the tail is simply
+                // unreadable rather than merely out of the way.
+                createdCell: function(td, cellData) {
+                    $(td).attr('title', cellData);
+                },
                 targets: 1
             },
             {
