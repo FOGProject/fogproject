@@ -54,8 +54,13 @@ class LDAP extends FOGController
         'userNamAttr' => 'lsUserNamAttr',
         'grpNamAttr' => 'lsGroupNamAttr',
         'grpMemberAttr' => 'lsGrpMemberAttr',
-        'adminGroup' => 'lsAdminGroup',
-        'userGroup' => 'lsUserGroup',
+        // lsAdminGroup/lsUserGroup are deliberately absent. The two group
+        // buckets were replaced by per-group LDAPGroups mappings, so nothing
+        // can write them any more and mapping them here only exposed dead
+        // values through the export, the report and the API. The COLUMNS stay
+        // (see LDAPManager::createSql): migrateGroupMappings() still folds
+        // them into LDAPGroups on the first install after the upgrade, and it
+        // reads them with raw SQL rather than through this map.
         'searchScope' => 'lsSearchScope',
         'bindDN' => 'lsBindDN',
         'bindPwd' => 'lsBindPwd',
@@ -1367,9 +1372,7 @@ class LDAP extends FOGController
         $keys = [
             'searchDN',
             'grpSearchDN',
-            'bindDN',
-            'adminGroup',
-            'userGroup'
+            'bindDN'
         ];
         if (in_array($key, $keys)) {
             $dn = trim(parent::get($key));

@@ -41,8 +41,9 @@ class LDAP_Report extends ReportManagement
             _('User Name Attribute'),
             _('Group Name Attribute'),
             _('Group Member Attribute'),
-            _('Admin Group'),
-            _('User Group'),
+            // Admin Group / User Group removed: the two group buckets were
+            // replaced by per-group LDAPGroups mappings, so the columns are
+            // no longer writable and only ever showed pre-upgrade leftovers.
             _('Search Scope'),
             _('Bind DN'),
             // Bind Password removed: the export handed out the directory
@@ -52,9 +53,8 @@ class LDAP_Report extends ReportManagement
             _('Display Name Enabled'),
             _('Display Name Attribute')
         ];
+        // One entry per headerData column, so this shrinks with it.
         $this->attributes = [
-            [],
-            [],
             [],
             [],
             [],

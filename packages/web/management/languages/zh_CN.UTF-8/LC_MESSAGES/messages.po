@@ -564,10 +564,6 @@ msgid "Additional Icon Elements"
 msgstr "附加的MAC"
 
 #, fuzzy
-msgid "Admin Group"
-msgstr "修改组"
-
-#, fuzzy
 msgid "Administrator"
 msgstr "修改组"
 
@@ -8660,6 +8656,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Admin Group"
+#~ msgstr "修改组"
 
 #, fuzzy
 #~ msgid "Administrator Group"

@@ -459,9 +459,6 @@ msgstr ""
 msgid "Additional Icon Elements"
 msgstr ""
 
-msgid "Admin Group"
-msgstr ""
-
 msgid "Administrator"
 msgstr ""
 

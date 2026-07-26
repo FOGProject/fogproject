@@ -10,8 +10,6 @@
         {data: 'userNamAttr', visible: false},
         {data: 'grpNamAttr'},
         {data: 'grpMemberAttr', visible: false},
-        {data: 'adminGroup'},
-        {data: 'userGroup', visible: false},
         {data: 'searchScope', visible: false},
         {data: 'bindDN', visible: false},
         // Carried so an exported server re-imports able to bind. The export

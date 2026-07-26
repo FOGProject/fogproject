@@ -537,9 +537,6 @@ msgstr "Aggiunta chiave"
 msgid "Additional Icon Elements"
 msgstr "MAC aggiuntivi"
 
-msgid "Admin Group"
-msgstr "Gruppo amministrativo"
-
 #, fuzzy
 msgid "Administrator"
 msgstr "Gruppo amministrativo"
@@ -8294,6 +8291,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "Aggiunta utente fallita!"
+
+#~ msgid "Admin Group"
+#~ msgstr "Gruppo amministrativo"
 
 #, fuzzy
 #~ msgid "Administrator Group"

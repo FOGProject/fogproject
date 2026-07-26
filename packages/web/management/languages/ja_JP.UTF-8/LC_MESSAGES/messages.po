@@ -523,9 +523,6 @@ msgstr "キーを追加中"
 msgid "Additional Icon Elements"
 msgstr "追加のアイコン要素"
 
-msgid "Admin Group"
-msgstr "管理者グループ"
-
 msgid "Administrator"
 msgstr ""
 
@@ -8260,6 +8257,9 @@ msgstr ""
 
 #~ msgid "Additional MACs"
 #~ msgstr "追加の MAC アドレス"
+
+#~ msgid "Admin Group"
+#~ msgstr "管理者グループ"
 
 #, fuzzy
 #~ msgid "Administrator Group"

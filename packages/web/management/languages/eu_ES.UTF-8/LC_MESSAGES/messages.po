@@ -560,10 +560,6 @@ msgid "Additional Icon Elements"
 msgstr "zusätzliche MACs haben"
 
 #, fuzzy
-msgid "Admin Group"
-msgstr "Admingruppe"
-
-#, fuzzy
 msgid "Administrator"
 msgstr "Admingruppe"
 
@@ -8685,6 +8681,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
+
+#, fuzzy
+#~ msgid "Admin Group"
+#~ msgstr "Admingruppe"
 
 #, fuzzy
 #~ msgid "Administrator Group"

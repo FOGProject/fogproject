@@ -16,8 +16,6 @@
         {data: 'userNamAttr', visible: false},
         {data: 'grpNamAttr'},
         {data: 'grpMemberAttr', visible: false},
-        {data: 'adminGroup'},
-        {data: 'userGroup', visible: false},
         {data: 'searchScope', visible: false},
         {data: 'bindDN', visible: false},
         {data: 'grpSearchDN', visible: false},

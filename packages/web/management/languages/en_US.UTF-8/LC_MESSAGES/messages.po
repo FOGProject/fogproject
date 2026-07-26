@@ -564,10 +564,6 @@ msgid "Additional Icon Elements"
 msgstr "Additional MACs"
 
 #, fuzzy
-msgid "Admin Group"
-msgstr "Modify Group"
-
-#, fuzzy
 msgid "Administrator"
 msgstr "Modify Group"
 
@@ -8669,6 +8665,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "Add snapin failed!"
+
+#, fuzzy
+#~ msgid "Admin Group"
+#~ msgstr "Modify Group"
 
 #, fuzzy
 #~ msgid "Administrator Group"
