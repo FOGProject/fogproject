@@ -160,9 +160,10 @@ class WindowsKeyManagement extends FOGPage
                 }
                 // The product key is checked here rather than left to a
                 // unique index, because save() would silently overwrite the
-                // record already holding it instead of failing. An empty key
-                // is skipped on purpose: clearing a key is a supported edit
-                // (productKeyResolve), so several records may have none.
+                // record already holding it instead of failing. The empty
+                // guard is belt-and-braces: 'key' is in databaseFieldsRequired
+                // so a blank one should never reach here, and a blank is not a
+                // meaningful duplicate of another blank anyway.
                 if ($key !== ''
                     && self::getClass('WindowsKeyManager')
                         ->exists($key, 0, 'key')
