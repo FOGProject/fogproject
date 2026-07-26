@@ -2922,6 +2922,12 @@ class Route extends FOGBase
      */
     public static function printer($data, $code = false)
     {
+        // Masking happens HERE and must not move into indiv()/getData(). The
+        // web tier reads through getData() and depends on it staying unmasked:
+        // FOGConfigurationPage::settingsPost() compares $Setting->value against
+        // the posted value to decide whether to write, so an absent 'value'
+        // would leave $val empty, defeat the short-circuit and fall through to
+        // writing. See fogconfigurationpage.page.php.
         $data = self::stripSensitivePayload($data);
         self::emitLinkHeader($data);
         $message = json_encode(

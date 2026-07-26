@@ -883,7 +883,12 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
   h1, h2, h3, h4, h5, h6 {
     color: var(--fog-heading);
   }
-  a {
+  // :not(.btn) because an anchor styled as a button takes its colour from the
+  // button classes. Without the exclusion this repainted the label of every
+  // <a class="btn btn-*"> to the link colour, so a primary button rendered
+  // blue-on-blue and its text was unreadable -- in dark mode only, which is
+  // why it went unnoticed.
+  a:not(.btn) {
     color: var(--fog-primary);
   }
   .text-muted {

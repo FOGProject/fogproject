@@ -1340,10 +1340,15 @@ class LDAPManagement extends FOGPage
             );
         }
         echo '</tbody></table>';
+        // Constructive actions sit right, destructive left, matching every
+        // other actionbox in FOG: the easy-to-reach side is for the safe
+        // action, so destroying something takes deliberate travel.
+        echo '<div class="btn-actionbox">';
         printf(
-            '<a class="btn btn-primary" href="?node=ldapgroup&sub=add">%s</a>',
+            '<a class="btn btn-primary float-end" href="?node=ldapgroup&sub=add">%s</a>',
             Initiator::e(_('Create New LDAP Group'))
         );
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
