@@ -97,10 +97,11 @@
     });
 
     // Shared command-builder UI (fog.common.js), scoped to the create form.
-    // No .packhide elements here. packTypes is NOT wired -- note _addFields()
-    // does render it in this modal, so its "Snapin Pack Template" select goes
-    // unwired; preserved as-is rather than changed while passing through.
-    createForm.initSnapinCommandUI();
+    // No .packhide elements here, so packHide stays off. wirePackTypes IS set:
+    // this modal renders the same _addFields() form the add page does, so it
+    // has a "Snapin Pack Template" select, and leaving it unwired meant picking
+    // a pack template here silently did nothing to Run With / Run With Args.
+    createForm.initSnapinCommandUI({wirePackTypes: true});
     deleteSelected.on('click', function() {
         disableButtons(true);
         $.deleteSelected(table, function(err) {

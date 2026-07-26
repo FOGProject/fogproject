@@ -122,6 +122,13 @@ class Group extends FOGController
      */
     public function addPrinter($addArray)
     {
+        // Drop any stale/blank ids (e.g. a 0 from an empty submission) so a
+        // group push can't seed phantom paPrinterID=0 rows on member hosts.
+        // The host-side path is already covered -- FOGController::addRemItem()
+        // array_filter()s before adding -- but this builds its insert batch
+        // directly, so nothing was filtering it. addSnapin() has carried the
+        // same guard for the same reason; addModule() now does too.
+        $addArray = self::positiveIntIds($addArray);
         if (count($addArray ?: []) > 0) {
             $insert_fields = ['hostID', 'printerID'];
             $insert_values = [];
@@ -309,6 +316,10 @@ class Group extends FOGController
      */
     public function addModule($addArray)
     {
+        // Same guard as addPrinter/addSnapin: this builds its insert batch
+        // directly rather than going through addRemItem()'s array_filter(),
+        // so a blank submission would seed phantom moduleID=0 rows.
+        $addArray = self::positiveIntIds($addArray);
         $insert_fields = ['hostID', 'moduleID', 'state'];
         $insert_values = [];
         $hostids = $this->get('hosts');
