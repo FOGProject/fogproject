@@ -1199,6 +1199,19 @@ class LDAPManagement extends FOGPage
             _('Update'),
             'btn btn-primary float-end'
         );
+        /**
+         * Sits immediately left of Update, so it must be emitted *after* it:
+         * bare float-end siblings stack right-to-left in emission order.
+         * Secondary rather than primary because two blues touching read as one
+         * wide button -- the supporting action has to be visibly the lesser
+         * one. An <a> rather than makeButton() because it navigates; a bare
+         * <button> inside this form would default to submit.
+         */
+        $buttons .= sprintf(
+            '<a class="btn btn-secondary float-end" '
+            . 'href="?node=ldapgroup&sub=add">%s</a>',
+            Initiator::e(_('Create New LDAP Group'))
+        );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
@@ -1726,18 +1739,10 @@ class LDAPManagement extends FOGPage
             _('User Groups'),
             _('User Group')
         );
-        // Constructive actions sit right, destructive left, matching every
-        // other actionbox in FOG: the easy-to-reach side is for the safe
-        // action, so destroying something takes deliberate travel.
-        // text-end rather than float-end: .btn-actionbox has no clearfix, and
-        // this button is the last thing in the card body, so a float would
-        // collapse the wrapper and hang the button past the card's padding.
-        echo '<div class="btn-actionbox text-end">';
-        printf(
-            '<a class="btn btn-primary" href="?node=ldapgroup&sub=add">%s</a>',
-            Initiator::e(_('Create New LDAP Group'))
-        );
-        echo '</div>';
+        // No create button here: it lives in the General tab's footer next to
+        // Update, where every other page keeps its commit-row actions. This
+        // tab is a read-only view, so an action button inside it was the odd
+        // one out.
         echo '</div>';
         echo '</div>';
     }
