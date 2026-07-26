@@ -98,7 +98,14 @@ class LDAP extends FOGController
         // of these yet -- the strategies land in their own stories.
         'nestedGroups' => 'lsNestedGroups',
         // 0 means "inherit FOG_PLUGIN_LDAP_NESTED_DEPTH".
-        'nestedDepth' => 'lsNestedDepth'
+        'nestedDepth' => 'lsNestedDepth',
+        // LDAPS certificate verification, per server (#893). 'inherit' means
+        // leave ldap.conf's TLS_REQCERT alone, which is what the plugin has
+        // always done; 'hard' and 'never' override it for this server only.
+        'tlsVerify' => 'lsTlsVerify',
+        // A CA file (or directory) to trust for this server. Empty means use
+        // whatever the system already trusts.
+        'tlsCaCert' => 'lsTlsCaCert'
     ];
     /**
      * The required fields
@@ -126,6 +133,122 @@ class LDAP extends FOGController
         // 'adminGroup',
         // 'userGroup',
     ];
+    /**
+     * The process-inherited TLS verification level, read once per request.
+     *
+     * @var int|null
+     */
+    private static $_tlsBaseline;
+    /**
+     * The inherited verification level, so 'inherit' can be honoured.
+     *
+     * These options are process-global in the OpenLDAP client, and
+     * ldap_get_option() refuses a null handle, so the only way to learn what
+     * the process started with is to ask a connection before anything has
+     * overridden it. ldap_connect() does no network I/O -- it just parses
+     * the URI -- so a throwaway handle is cheap and cannot fail on an
+     * unreachable directory.
+     *
+     * Cached because it must be the value from *before* the first override:
+     * reading it again later would return whatever the previous server set.
+     *
+     * @return int
+     */
+    private static function _tlsBaseline()
+    {
+        if (null === self::$_tlsBaseline) {
+            $level = null;
+            $probe = @ldap_connect('ldap://127.0.0.1');
+            if ($probe
+                && @ldap_get_option($probe, LDAP_OPT_X_TLS_REQUIRE_CERT, $level)
+                && null !== $level
+            ) {
+                self::$_tlsBaseline = (int)$level;
+            } else {
+                /**
+                 * Could not read it, so assume the strict end rather than the
+                 * lax one. Guessing 'never' here would silently disable
+                 * verification for every server set to 'inherit'.
+                 */
+                self::$_tlsBaseline = LDAP_OPT_X_TLS_HARD;
+            }
+        }
+        return self::$_tlsBaseline;
+    }
+    /**
+     * Applies this server's LDAPS certificate settings before connecting.
+     *
+     * Must be called immediately before every ldap_connect(), and must set
+     * the options *unconditionally* rather than only when this server asks
+     * for something unusual. Both options are process-global and authLDAP()
+     * walks every configured server in one request, so leaving a previous
+     * server's value in place would let one server's relaxed verification
+     * silently apply to the next one -- measured: after setting the global to
+     * HARD, the following connection reads HARD.
+     *
+     * Setting them on the connection handle instead does not work. The
+     * OpenLDAP client reads these at handle-creation time, so a
+     * post-connect set is accepted and then ignored, which is the trap that
+     * made this look like an unreachable server rather than a TLS failure.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/893
+     *
+     * @param string $verify  inherit, hard or never
+     * @param string $caCert  a CA file/directory to trust, or empty
+     *
+     * @return void
+     */
+    private static function _applyTlsOptions($verify, $caCert)
+    {
+        switch ((string)$verify) {
+            case 'never':
+                $level = LDAP_OPT_X_TLS_NEVER;
+                break;
+            case 'hard':
+                $level = LDAP_OPT_X_TLS_HARD;
+                break;
+            default:
+                $level = self::_tlsBaseline();
+        }
+        @ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, $level);
+        /**
+         * The CA path, unlike the level above, is set ONLY when this server
+         * names one, and deliberately so.
+         *
+         * ldap_get_option() reports nothing for CACERTFILE, so there is no
+         * baseline to restore and '' is the only available reset -- but
+         * ldap.conf may legitimately carry a TLS_CACERT, and blanking it on
+         * every connect would break installs that rely on it. Breaking a
+         * working configuration is worse than the alternative.
+         *
+         * The alternative, accepted knowingly: a CA named by one server stays
+         * set for a later server in the same request that names none. That
+         * leak only ever *adds* a trusted issuer the admin configured
+         * elsewhere in this same install -- it cannot disable verification,
+         * because the level above is always set explicitly. Naming a CA on
+         * each server that needs one avoids it entirely.
+         */
+        $caCert = trim((string)$caCert);
+        if ('' !== $caCert) {
+            @ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $caCert);
+        }
+        if ('' !== $caCert && !is_readable($caCert)) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _(
+                        'The configured LDAPS CA path cannot be read by the '
+                        . 'web server, so certificate verification will '
+                        . 'likely fail'
+                    ),
+                    _('CA Path'),
+                    $caCert
+                )
+            );
+        }
+    }
     /**
      * Stores the server, refusing a chain strategy the directory cannot do.
      *
@@ -168,7 +291,9 @@ class LDAP extends FOGController
         $supported = self::supportsChain(
             $this->get('address'),
             $this->get('port'),
-            $this->get('isLdaps')
+            $this->get('isLdaps'),
+            $this->get('tlsVerify'),
+            $this->get('tlsCaCert')
         );
         if (false === $supported) {
             throw new Exception(
@@ -213,11 +338,18 @@ class LDAP extends FOGController
      * @param string $address the directory address
      * @param int    $port    the port to reach it on
      * @param bool   $isLdaps whether that port speaks ldaps
+     * @param string $verify  this server's tls verification level
+     * @param string $caCert  this server's tls CA path
      *
      * @return bool|null true supported, false not, null undeterminable
      */
-    public static function supportsChain($address, $port, $isLdaps)
-    {
+    public static function supportsChain(
+        $address,
+        $port,
+        $isLdaps,
+        $verify = 'inherit',
+        $caCert = ''
+    ) {
         $address = trim((string)$address);
         if ('' === $address) {
             return null;
@@ -228,6 +360,12 @@ class LDAP extends FOGController
             $address,
             (int)$port
         );
+        /**
+         * The probe has to trust the certificate on the same terms the real
+         * sign-in will, or a server perfectly reachable over LDAPS answers
+         * "undeterminable" and its chain setting goes in unverified.
+         */
+        self::_applyTlsOptions($verify, $caCert);
         $conn = @ldap_connect($uri);
         if (!$conn) {
             return null;
@@ -479,6 +617,14 @@ class LDAP extends FOGController
         /**
          * Open connection to the server
          */
+        /**
+         * Immediately before the connect, never after: the OpenLDAP client
+         * reads the TLS options when the handle is created (#893).
+         */
+        self::_applyTlsOptions(
+            $this->get('tlsVerify'),
+            $this->get('tlsCaCert')
+        );
         self::$_ldapconn = ldap_connect($server);
         /**
          * If we can't connect return immediately
@@ -824,6 +970,14 @@ class LDAP extends FOGController
         /**
          * Open connection to the server
          */
+        /**
+         * Immediately before the connect, never after: the OpenLDAP client
+         * reads the TLS options when the handle is created (#893).
+         */
+        self::_applyTlsOptions(
+            $this->get('tlsVerify'),
+            $this->get('tlsCaCert')
+        );
         self::$_ldapconn = ldap_connect($server);
         /**
          * If we can't connect return immediately

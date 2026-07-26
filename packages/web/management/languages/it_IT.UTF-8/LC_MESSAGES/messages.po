@@ -882,6 +882,10 @@ msgstr "Versione client"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
+msgid "CA Path"
+msgstr "Percorso"
+
 msgid "CPU Cache"
 msgstr "cache della CPU"
 
@@ -6600,6 +6604,11 @@ msgstr "L'impostazione \"nodo master\" definisce quale"
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
 "users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid ""
+"The configured LDAPS CA path cannot be read by the web server, so "
+"certificate verification will likely fail"
 msgstr ""
 
 #, fuzzy

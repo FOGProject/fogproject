@@ -934,6 +934,10 @@ msgstr "Versión de la CPU"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
+msgid "CA Path"
+msgstr "Camino"
+
 msgid "CPU Cache"
 msgstr "caché de la CPU"
 
@@ -7056,6 +7060,11 @@ msgstr ""
 msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
 "users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid ""
+"The configured LDAPS CA path cannot be read by the web server, so "
+"certificate verification will likely fail"
 msgstr ""
 
 #, fuzzy

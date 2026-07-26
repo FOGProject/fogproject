@@ -72,7 +72,11 @@ class LDAPManager extends FOGManagerController
                 // directory -- an install can have an AD and an OpenLDAP
                 // configured at once. See schema() steps 22-24.
                 'lsNestedGroups',
-                'lsNestedDepth'
+                'lsNestedDepth',
+                // LDAPS certificate verification, per server. See schema()
+                // steps 25-26 and issue #893.
+                'lsTlsVerify',
+                'lsTlsCaCert'
             ],
             [
                 'INTEGER',
@@ -103,9 +107,17 @@ class LDAPManager extends FOGManagerController
                 // strategy name that says what it does beats a sentinel
                 // that needs a lookup table to interpret.
                 "ENUM('off', 'chain', 'expand')",
-                'INTEGER'
+                'INTEGER',
+                // 'inherit' means "leave whatever ldap.conf already does
+                // alone" -- the plugin sets no TLS option today, so making
+                // 'hard' the default would break installs that rely on a
+                // relaxed TLS_REQCERT to reach an internal CA.
+                "ENUM('inherit', 'hard', 'never')",
+                'VARCHAR(255)'
             ],
             [
+                false,
+                false,
                 false,
                 false,
                 false,
@@ -163,7 +175,13 @@ class LDAPManager extends FOGManagerController
                 // 0 means "inherit FOG_PLUGIN_LDAP_NESTED_DEPTH". A
                 // sentinel rather than NULL because every other column in
                 // this table is NOT NULL.
-                '0'
+                '0',
+                // Default 'inherit': the plugin sets no TLS option today, so
+                // ldap.conf governs. Defaulting to 'hard' would silently
+                // start asserting verification on installs that relaxed it
+                // there to reach an internal CA.
+                'inherit',
+                ''
             ],
             [
                 'lsID',
@@ -840,6 +858,22 @@ class LDAPManager extends FOGManagerController
             function () {
                 return $this->seedSettings();
             },
+            // LDAPS certificate verification (#893). Appended for the same
+            // reason as 22-24 above.
+            //
+            // 'inherit' is the default and it means "do not override
+            // whatever the system already does". That is not a cosmetic
+            // choice: today the plugin sets no TLS option at all, so
+            // ldap.conf's TLS_REQCERT governs, and installs that put
+            // 'never' or 'allow' there to make LDAPS work against an
+            // internal CA would break the moment an upgrade started
+            // asserting 'hard' for them.
+            // 25
+            "ALTER TABLE `LDAPServers` ADD COLUMN `lsTlsVerify` "
+            . "ENUM('inherit', 'hard', 'never') NOT NULL DEFAULT 'inherit'",
+            // 26
+            "ALTER TABLE `LDAPServers` ADD COLUMN `lsTlsCaCert` "
+            . "VARCHAR(255) NOT NULL DEFAULT ''",
         ];
     }
     /**
