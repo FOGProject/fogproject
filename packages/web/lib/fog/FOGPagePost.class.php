@@ -130,16 +130,65 @@ trait FOGPagePost
                 ]
             );
         }
-        $this->jsonHookResponse(
-            [
-                $entityKey => &$Entity,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
-        );
+        $args = [
+            $entityKey => &$Entity,
+            'hook' => &$hook,
+            'code' => &$code,
+            'msg' => &$msg,
+            'serverFault' => &$serverFault
+        ];
+        self::$HookManager->processEvent($hook, $args);
+        // Merged AFTER the hook, not before, so a listener that replaces $msg
+        // wholesale cannot silently drop the object. No listener does that
+        // today, but that is a snapshot, and a caller that stopped receiving
+        // the created object would fail in a confusing place.
+        $msg = self::attachCreatedObject($msg, $entityKey, $Entity);
+        $this->jsonSend($code, $msg);
+    }
+    /**
+     * Adds the created entity to a create response under 'object'.
+     *
+     * Serialized through Route::getter(), the same path a single-entity API
+     * GET uses, so a create answers in the shape callers already know and a
+     * client can act on the result -- associating it, linking to it -- without
+     * a second request to find out what it just made.
+     *
+     * Run through stripSensitive() because this helper is shared: Host goes
+     * through it too, and a host's serialization carries ADPass, productKey
+     * and its tokens. A create response is a new place for those to surface,
+     * and the client gains nothing from them -- it just supplied them.
+     *
+     * Failure is silent by design. The entity is already saved and the success
+     * message is already built; losing the convenience payload must not turn a
+     * successful create into an error.
+     *
+     * @param string $msg       The JSON response body built so far.
+     * @param string $entityKey The payload key, e.g. 'Group'.
+     * @param mixed  $Entity    The saved entity, or null when the create failed.
+     *
+     * @return string
+     */
+    protected static function attachCreatedObject($msg, $entityKey, $Entity)
+    {
+        if (!($Entity instanceof FOGController) || !$Entity->isValid()) {
+            return $msg;
+        }
+        $payload = json_decode($msg, true);
+        if (!is_array($payload) || isset($payload['error'])) {
+            return $msg;
+        }
+        try {
+            $classname = strtolower($entityKey);
+            $object = Route::getter($classname, $Entity);
+            if (!is_array($object)) {
+                return $msg;
+            }
+            $payload['object'] = Route::stripSensitive($classname, $object);
+        } catch (Exception $e) {
+            return $msg;
+        }
+        $encoded = json_encode($payload);
+        return false === $encoded ? $msg : $encoded;
     }
 
     /**

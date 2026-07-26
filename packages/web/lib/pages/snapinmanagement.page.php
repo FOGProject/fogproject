@@ -632,16 +632,22 @@ class SnapinManagement extends FOGPage
         //    'Location: ../management/index.php?node=snapin&sub=edit&id='
         //    . $Snapin->get('id')
         //);
-        $this->jsonHookResponse(
-            [
-                'Snapin' => &$Snapin,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ],
-            $hook
-        );
+        // Mirrors handleAddPost(): fire the hook, then attach the created
+        // object so a caller can act on the result without a second request.
+        // This endpoint is hand-rolled rather than using that helper (the file
+        // upload does not fit the closure), so the behaviour is repeated here
+        // deliberately -- a create should answer the same way whichever
+        // scaffold built it.
+        $args = [
+            'Snapin' => &$Snapin,
+            'hook' => &$hook,
+            'code' => &$code,
+            'msg' => &$msg,
+            'serverFault' => &$serverFault
+        ];
+        self::$HookManager->processEvent($hook, $args);
+        $msg = self::attachCreatedObject($msg, 'Snapin', $Snapin);
+        $this->jsonSend($code, $msg);
     }
     /**
      * Display snapin general edit elements.
