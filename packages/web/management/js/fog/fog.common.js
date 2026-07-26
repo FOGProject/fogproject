@@ -1068,6 +1068,67 @@ $.registerSelectTab = function(opts) {
     });
   }
 };
+// $.fn.makeColumnsResizable() - let the user drag a table's column borders.
+//
+// Opt-in, and deliberately not wired into registerTable(): every list page
+// shares that helper, and silently changing how all of them size their columns
+// is a bigger decision than one page's layout. Call it from the page that wants
+// it, on a table that also carries .fog-table-fixed -- a fixed layout is what
+// makes a width set here actually stick.
+//
+// No DataTables extension does this. The vendored bundle carries ColReorder
+// (moving columns) but nothing for resizing, so rather than add a dependency
+// for one page this does the small thing directly: a grab strip on each header,
+// and a drag that moves width from one column to its neighbour so the table's
+// total width never changes and nothing reflows sideways.
+//
+// The last column is skipped on purpose -- it is the one absorbing whatever
+// the others leave, so there is no neighbour to take width from.
+$.fn.makeColumnsResizable = function() {
+  return this.each(function() {
+    var headers = $(this).find('thead tr:first > th');
+    headers.each(function(i) {
+      var th = $(this);
+      // Idempotent: a page may call this again after a redraw, and DataTables
+      // keeps the same thead, so bailing on an existing handle avoids stacking
+      // duplicate strips and duplicate mousedown bindings.
+      if (i >= headers.length - 1 || th.find('.fog-col-resizer').length) {
+        return;
+      }
+      var handle = $('<span class="fog-col-resizer"></span>').appendTo(th);
+      handle.on('mousedown', function(ev) {
+        // Both stops matter: the header is a sort control, so without them a
+        // drag would also re-sort the table, and the browser would try to
+        // text-select the heading while dragging.
+        ev.preventDefault();
+        ev.stopPropagation();
+        var startX = ev.pageX,
+          next = th.next(),
+          startW = th.outerWidth(),
+          startNextW = next.outerWidth();
+        function move(e) {
+          var dx = e.pageX - startX;
+          // 40px floor so a column cannot be dragged away to nothing.
+          if (startW + dx < 40 || startNextW - dx < 40) {
+            return;
+          }
+          th.css('width', (startW + dx) + 'px');
+          next.css('width', (startNextW - dx) + 'px');
+        }
+        function up() {
+          $(document).off('mousemove.fogcol mouseup.fogcol');
+          $('body').removeClass('fog-col-resizing');
+        }
+        $('body').addClass('fog-col-resizing');
+        $(document).on('mousemove.fogcol', move).on('mouseup.fogcol', up);
+      });
+      // A plain click on the strip would still bubble to the sort handler.
+      handle.on('click', function(ev) {
+        ev.stopPropagation();
+      });
+    });
+  });
+};
 $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();

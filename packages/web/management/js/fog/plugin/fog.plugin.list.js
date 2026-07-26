@@ -35,6 +35,12 @@
     }
 
     disableButtons(true);
+    // Fixed layout, so the header's percentage widths actually decide the
+    // columns. registerTable already passes autoWidth:false, which stops
+    // DataTables measuring but leaves the browser's content-driven sizing in
+    // charge -- and that let the longest Description dictate the whole table.
+    // Also makes the columns drag-resizable; see makeColumnsResizable().
+    $('#dataTable').addClass('fog-table-fixed');
     var table = $('#dataTable').registerTable(onSelect, {
         // This list has only five short columns and a small, fixed row set,
         // so the responsive collapse never helps here -- it just hides four
@@ -111,6 +117,10 @@
             type: 'post'
         },
     });
+
+    // The percentage widths are a starting point, not a verdict -- let the
+    // user drag a border when they want more of Description or Location.
+    $('#dataTable').makeColumnsResizable();
 
     if (Common.search && Common.search.length > 0) {
         table.search(Common.search).draw();

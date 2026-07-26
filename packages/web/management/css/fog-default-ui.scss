@@ -1297,3 +1297,49 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
 [data-bs-theme="dark"] body {
   @include fog-dark-theme;
 }
+
+// Opt-in fixed-layout table. Without this a table sizes its columns to their
+// longest cell, so one long free-text column (plugin Description next to four
+// short values) takes most of the width while short headings wrap. Applied by
+// the page that wants it, not by registerTable(), so the other list pages keep
+// the sizing they already have. The header's width="NN%" attributes only mean
+// anything under a fixed layout, which is what this switches on.
+.fog-table-fixed {
+  table-layout: fixed;
+
+  th,
+  td {
+    // Fixed columns cannot grow, so a long unbroken value (a path, a URL)
+    // would otherwise spill out of its cell instead of wrapping.
+    overflow-wrap: anywhere;
+  }
+
+  thead th {
+    // Anchors the resize strip below.
+    position: relative;
+  }
+}
+
+// The drag strip $.fn.makeColumnsResizable() puts on each header. Sits on the
+// column's trailing edge, and stays invisible until pointed at so it does not
+// add furniture to a table nobody is resizing.
+.fog-col-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+
+  &:hover {
+    background: rgba(128, 128, 128, 0.35);
+  }
+}
+
+// Held on <body> for the duration of a drag: keeps the resize cursor even as
+// the pointer leaves the strip, and stops the drag selecting text as it goes.
+body.fog-col-resizing {
+  cursor: col-resize;
+  user-select: none;
+}

@@ -46,12 +46,18 @@ class PluginManagement extends FOGPage
             _('Activated'),
             _('Installed')
         ];
+        // Percentages, not content-driven widths. Without them the browser
+        // sizes columns to their longest cell, and Description -- a full
+        // sentence next to four short values -- took most of the table while
+        // Plugin Name wrapped. These proportions are only honoured because
+        // the table carries .fog-table-fixed (see fog.plugin.list.js), which
+        // switches it to a fixed layout.
         $this->attributes = [
-            [],
-            [],
-            [],
-            ['width' => 5],
-            ['width' => 5]
+            ['width' => '20%'],
+            ['width' => '38%'],
+            ['width' => '22%'],
+            ['width' => '10%'],
+            ['width' => '10%']
         ];
     }
     /**

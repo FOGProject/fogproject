@@ -1088,6 +1088,11 @@ msgstr ""
 msgid "Could not read snapin file"
 msgstr ""
 
+msgid ""
+"Could not read the directory to confirm it supports nested group chaining, "
+"saving the chain strategy unverified"
+msgstr ""
+
 msgid "Could not read the group mappings"
 msgstr ""
 
@@ -5808,11 +5813,6 @@ msgid ""
 "users.uAuthSource does not exist yet."
 msgstr ""
 
-msgid ""
-"The chain strategy is not implemented yet, resolving nesting with expand "
-"instead"
-msgstr ""
-
 msgid "The current user is invalid."
 msgstr ""
 
@@ -5892,6 +5892,11 @@ msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
 msgid "This change would leave no user with administrator access."
+msgstr ""
+
+msgid ""
+"This directory does not advertise support for nested group chaining, so the "
+"chain strategy would match nothing. Use the expand strategy instead."
 msgstr ""
 
 msgid "This host already exists"

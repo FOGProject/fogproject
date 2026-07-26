@@ -1241,6 +1241,11 @@ msgstr "Impossibile leggere il file tmp."
 msgid "Could not read snapin file"
 msgstr "Impossibile leggere il file snapin"
 
+msgid ""
+"Could not read the directory to confirm it supports nested group chaining, "
+"saving the chain strategy unverified"
+msgstr ""
+
 #, fuzzy
 msgid "Could not read the group mappings"
 msgstr "Impossibile leggere il file tmp."
@@ -6597,11 +6602,6 @@ msgid ""
 "users.uAuthSource does not exist yet."
 msgstr ""
 
-msgid ""
-"The chain strategy is not implemented yet, resolving nesting with expand "
-"instead"
-msgstr ""
-
 #, fuzzy
 msgid "The current user is invalid."
 msgstr "Tipo di attività non è valido"
@@ -6692,6 +6692,11 @@ msgid "There you can download utilities such as FOG Prep"
 msgstr "Qui è possibile scaricare programmi di utilità come FOG Prep"
 
 msgid "This change would leave no user with administrator access."
+msgstr ""
+
+msgid ""
+"This directory does not advertise support for nested group chaining, so the "
+"chain strategy would match nothing. Use the expand strategy instead."
 msgstr ""
 
 msgid "This host already exists"
