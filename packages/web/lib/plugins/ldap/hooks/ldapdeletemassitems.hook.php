@@ -60,12 +60,23 @@ class LDAPDeleteMassItems extends Hook
     /**
      * Prepares to clean up associations
      *
-     * The plugin already cascades in the direction it owns outright: an
-     * LDAPGroup clears its own associations, and deleting a server clears
-     * its groups. This is the other direction -- the TARGET being deleted
-     * -- which nothing covered, so a deleted role or user group left its
-     * mapping behind and a deleted user left the record of what the sync
-     * had granted them.
+     * Both directions, because the entity classes cannot cover their own.
+     *
+     * The TARGET being deleted (role, user group, user) was never covered
+     * anywhere, so a deleted role left its mapping behind and a deleted
+     * user left the record of what the sync had granted them.
+     *
+     * The SOURCE being deleted (an LDAP group, or a server and with it its
+     * groups) IS handled by LDAPGroup::destroy() and LDAP::destroy() -- but
+     * only when something actually calls destroy(). Route::delete(), which
+     * is the REST single-delete, funnels straight into deletemass() and
+     * never constructs the object, so on that path the overrides do not
+     * run at all and the mappings were orphaned. Deleting an LDAP group
+     * over the API demonstrably left its ldapGroupRoleAssoc rows behind.
+     * Every sibling plugin already carries its own case here for exactly
+     * this reason (location, site, ou, windowskey); ldap was the only one
+     * relying on destroy() alone. The destroy() overrides stay: they are
+     * what the UI path uses, and this makes the two agree.
      *
      * A surviving mapping is the one that matters: it is still live, so if
      * its target id is ever reused (database restore, import, migration)
@@ -83,6 +94,24 @@ class LDAPDeleteMassItems extends Hook
     public function deletemassitems($arguments)
     {
         switch ($arguments['classname']) {
+            case 'ldap':
+                // The server's groups. deletemass() runs each removeItems
+                // entry back through itself, so this re-enters as
+                // classname 'ldapgroup' below and each group still takes
+                // its own mappings with it -- the same one-at-a-time effect
+                // LDAP::destroy() gets by looping.
+                $arguments['removeItems']['ldapgroup'] = [
+                    'serverID' => $arguments['itemIDs']
+                ];
+                break;
+            case 'ldapgroup':
+                $arguments['removeItems']['ldapgrouproleassociation'] = [
+                    'ldapgroupID' => $arguments['itemIDs']
+                ];
+                $arguments['removeItems']['ldapgroupusergroupassociation'] = [
+                    'ldapgroupID' => $arguments['itemIDs']
+                ];
+                break;
             case 'user':
                 $arguments['removeItems']['ldapusergrant'] = [
                     'userID' => $arguments['itemIDs']
