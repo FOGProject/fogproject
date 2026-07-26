@@ -897,11 +897,21 @@ class Host extends FOGController
             if (count($snapin) < 1) {
                 throw new Exception(_('No snapins associated'));
             }
+            // The job id gets the same treatment as the snapin id above. A
+            // task is only reachable through its job, so one inserted against
+            // a jobID of 0 can never be shown, run or cancelled -- it is a row
+            // nothing can ever act on. save() failing is already caught above;
+            // this catches a save that reported success without leaving an id
+            // behind. See the matching guard in Group::createImagePackage().
+            $snapinJobID = (int)$SnapinJob->get('id');
+            if ($snapinJobID < 1) {
+                throw new Exception(_('Failed to create Snapin Job'));
+            }
             $nextSequence = 1;
             // listem order is ASC by the requested field, so the last row has max sequence.
             Route::listem(
                 'snapintask',
-                ['jobID' => $SnapinJob->get('id')],
+                ['jobID' => $snapinJobID],
                 false,
                 'AND',
                 'sequence'
@@ -916,7 +926,7 @@ class Host extends FOGController
             }
             foreach ((array)$snapin as &$snapinID) {
                 $insert_values[] = [
-                    $SnapinJob->get('id'),
+                    $snapinJobID,
                     $this->getQueuedState(),
                     $snapinID,
                     $nextSequence++

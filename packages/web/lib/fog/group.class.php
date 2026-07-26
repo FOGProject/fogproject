@@ -897,7 +897,31 @@ class Group extends FOGController
             $ids = range($first_id, $first_id + $affected_rows - 1);
             $snapinTasks = [];
             foreach (array_keys($snapins) as $i => $hostID) {
-                $jobID = $ids[$i];
+                // Only insert against a job id we actually got back.
+                //
+                // $ids is positional over the batch, so if insertBatch
+                // returned fewer rows than there are hosts, $ids[$i] is simply
+                // absent and the task lands with a jobID of 0 -- and range()
+                // makes that worse, because range(0, -1) counts DOWN and hands
+                // back [0, -1]. A task is only reachable through its job, so
+                // such a row can never be shown, run or cancelled; it just
+                // sits there, and until #895 it took the snapin task list down
+                // with it. One jobID-0 row on the 1.6 lab box is what put us
+                // onto this.
+                //
+                // Mirrors the positiveIntIds() guard the snapin id already
+                // gets a few lines up in Host::_createSnapinTasking().
+                $jobID = isset($ids[$i]) ? (int)$ids[$i] : 0;
+                if ($jobID < 1) {
+                    self::info(
+                        sprintf(
+                            'Skipping snapin tasking for host %s: no snapin '
+                            . 'job id was returned for it.',
+                            $hostID
+                        )
+                    );
+                    continue;
+                }
                 $snapinCount = count($snapins[$hostID] ?: []);
                 for ($j = 0; $j < $snapinCount; ++$j) {
                     $snapinTasks[] = [

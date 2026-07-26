@@ -3232,14 +3232,25 @@ class Route extends FOGBase
                     );
                     break;
                 case 'usertracking':
+                    // getter() is safe on its own -- it returns early unless
+                    // it is handed the right kind of object -- but the bare
+                    // hostname dereference beside it is not, and a login
+                    // record can outlive the host it was recorded against.
+                    // No such row exists on the box this was written against,
+                    // so this is the guard being made consistent rather than a
+                    // reproduced failure.
+                    // Refs https://github.com/FOGProject/fogproject/issues/895
+                    $utHost = $class->get('host');
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
                             'host' => self::getter(
                                 'host',
-                                $class->get('host')
+                                $utHost
                             ),
-                            'hostname' => $class->get('host')->get('name')
+                            'hostname' => is_object($utHost)
+                                ? $utHost->get('name')
+                                : ''
                         ]
                     );
                     break;
