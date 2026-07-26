@@ -1444,7 +1444,7 @@ class HostManagement extends FOGPage
         $buttons .= self::makeButton(
             'macaddress-add',
             _('Add New MAC Address'),
-            'btn btn-info'
+            'btn btn-primary'
         );
         $buttons .= self::makeSplitButton(
             'macaddress-table-update-image',
@@ -1869,7 +1869,7 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'host-printer-default-send',
             _('Update'),
-            'btn btn-info float-end',
+            'btn btn-primary float-end',
             $props
         );
         echo '<div class="card card-primary card-outline">';

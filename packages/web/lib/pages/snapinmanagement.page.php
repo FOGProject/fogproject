@@ -1310,7 +1310,7 @@ class SnapinManagement extends FOGPage
         $buttons = self::makeButton(
             'snapin-storagegroup-primary-send',
             _('Update'),
-            'btn btn-info float-end',
+            'btn btn-primary float-end',
             $props
         );
         echo '<div class="card card-info card-outline">';

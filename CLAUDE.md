@@ -213,6 +213,31 @@ self::$HookManager->processEvent('EVENT_NAME', ['data' => &$data]);
 - **Newer files**: `declare(strict_types=1)` at top; older files do not have this — don't add it retroactively
 - **Avoid `new` directly**: use `FOGBase::getClass()` or `FOGBase::getManager()` as appropriate
 
+### Button colour and alignment
+
+Position carries the meaning, colour follows it. Don't pick a colour to make a
+button stand out — pick the one that matches what kind of action it is.
+
+| Action | Class | Side |
+|---|---|---|
+| Create / Update / Add / commit the card | `btn btn-primary float-end` | **right** |
+| Destructive (Delete, Remove selected, Cancel task) | `btn btn-danger float-start` | **left** |
+| Cancel / dismiss in a modal | `btn btn-outline-secondary float-start` | left |
+| Genuinely different operation (Resume, Pause, Reset token) | `btn btn-success` / `btn-warning` | per case |
+| File "Browse" prefix inside an `input-group` | `btn btn-info` (via `makeLabel`) | n/a |
+
+**Why destructive goes left:** most people click with their right hand, so
+common non-destructive actions sit under it and destroying something takes
+deliberate travel. Being explicit and purposeful is the point.
+
+Two consequences worth remembering:
+- A card's primary commit button is `btn-primary` **even when the label isn't
+  "Update"** — "Make primary", "Make default", "Add New MAC Address" are all
+  the same kind of action. They were `btn-info` and read as a different one.
+- Don't override `renderAssocTab()`'s `$sendClass`. Every association tab's
+  "Add selected" is primary; nine tabs used to pass `btn-success` and the two
+  colours got mixed inside a single page.
+
 ---
 
 ## Key Files

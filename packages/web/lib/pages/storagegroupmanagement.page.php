@@ -348,7 +348,7 @@ class StorageGroupManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroup-image-primary-send',
             _('Make primary'),
-            'btn btn-info float-end',
+            'btn btn-primary float-end',
             $props
         );
         $buttons .= self::makeButton(
@@ -515,7 +515,7 @@ class StorageGroupManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroup-snapin-primary-send',
             _('Make primary'),
-            'btn btn-info float-end',
+            'btn btn-primary float-end',
             $props
         );
         $buttons .= self::makeButton(
@@ -681,7 +681,7 @@ class StorageGroupManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroup-storagenode-master-send',
             _('Update'),
-            'btn btn-info float-end',
+            'btn btn-primary float-end',
             $props
         );
         echo '<div class="card card-info card-outline">';

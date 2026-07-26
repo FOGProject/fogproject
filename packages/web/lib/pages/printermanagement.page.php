@@ -747,7 +747,7 @@ class PrinterManagement extends FOGPage
         $buttons = self::makeButton(
             'printer-host-default-send',
             _('Make default'),
-            'btn btn-info float-end',
+            'btn btn-primary float-end',
             $props
         );
         $buttons .= self::makeButton(
