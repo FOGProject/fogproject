@@ -1603,6 +1603,13 @@ class FOGConfigurationPage extends FOGPage
                 $vars
             );
             $combined = $vars + $_POST + $_FILES;
+            // Initialised before the loop, like the two sibling savers above.
+            // The body has three `continue` paths that skip the append, and
+            // $combined can be empty, so a post that changes nothing left
+            // $items undefined -- and the count below reads it, which is a
+            // warning rather than a silent 0. `?:` there was papering over
+            // the missing initialisation; `??` would have hidden it too.
+            $items = [];
             foreach ($combined as $key => &$val) {
                 Route::indiv('setting', $key);
                 if (!isset($_FILES[$key]) || !$_FILES[$key]) {
@@ -1743,7 +1750,7 @@ class FOGConfigurationPage extends FOGPage
                 $items[] = [$key, $name, $set];
                 unset($Setting);
             }
-            if (count($items ?: []) > 0) {
+            if (count($items) > 0) {
                 $SettingMan = self::getClass('SettingManager');
                 $insert_fields = [
                     'id',

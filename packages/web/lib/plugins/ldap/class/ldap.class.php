@@ -148,6 +148,21 @@ class LDAP extends FOGController
                 error_log(print_r($e, 1));
             } catch (Throwable $e) {
                 error_log(print_r($e, 1));
+            } finally {
+                // Clear the handle whatever happened, so the guard above
+                // means "there is a connection to close" rather than "one
+                // was opened at some point".
+                //
+                // Before PHP 8 this was self-correcting: ldap_unbind closed
+                // a resource and the stale value was merely useless. Under
+                // PHP 8.1+ the handle is an \LDAP\Connection object that
+                // stays truthy after closing, so a second unbind() walked
+                // straight past the guard into ldap_unbind on a closed
+                // connection -- which throws Error, is not suppressed by @,
+                // and landed in the catch below as a full print_r dump of
+                // the exception. That is ~50 log lines per LDAP sign in,
+                // because getDisplayName() opens with a defensive unbind().
+                self::$_ldapconn = null;
             }
         }
         return true;
