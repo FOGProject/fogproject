@@ -844,7 +844,7 @@ class ImageManagement extends FOGPage
             _('Image Storage Group Associations'),
             _('Storage Group Name'),
             'storagegroup',
-            'btn btn-success float-end'
+            'btn btn-primary float-end'
         );
 
         $props = ' method="post" action="'

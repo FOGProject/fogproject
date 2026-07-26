@@ -732,7 +732,7 @@ class PrinterManagement extends FOGPage
             _('Printer Host Associations'),
             _('Host Name'),
             'host',
-            'btn btn-success float-end'
+            'btn btn-primary float-end'
         );
 
         $props = ' method="post" action="'

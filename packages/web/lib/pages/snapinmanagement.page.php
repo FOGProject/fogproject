@@ -1296,7 +1296,7 @@ class SnapinManagement extends FOGPage
             _('Snapin Storage Group Associations'),
             _('Storage Group Name'),
             'storagegroup',
-            'btn btn-success float-end'
+            'btn btn-primary float-end'
         );
 
         $props = ' method="post" action="'

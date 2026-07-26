@@ -333,7 +333,7 @@ class StorageGroupManagement extends FOGPage
             _('Storage Group Image Associations'),
             _('Image Name'),
             'image',
-            'btn btn-success float-end'
+            'btn btn-primary float-end'
         );
 
         $props = ' method="post" action="'
@@ -500,7 +500,7 @@ class StorageGroupManagement extends FOGPage
             _('Storage Group Snapin Associations'),
             _('Snapin Name'),
             'snapin',
-            'btn btn-success float-end'
+            'btn btn-primary float-end'
         );
 
         $props = ' method="post" action="'
@@ -667,7 +667,7 @@ class StorageGroupManagement extends FOGPage
             _('Storage Group Storage Node Associations'),
             _('Storage Node Name'),
             'storagenode',
-            'btn btn-success float-end'
+            'btn btn-primary float-end'
         );
 
         $props = ' method="post" action="'

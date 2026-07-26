@@ -30,8 +30,14 @@ trait FOGPageRender
      * @param string $boxTitle  translated card title (e.g. _('Host Group Associations'))
      * @param string $colHeader translated first-column header (e.g. _('Group Name'))
      * @param string $delItem   singular item name passed to assocDelModal (e.g. 'group')
-     * @param string $sendClass css class for the "Add selected" button (some tabs
-     *                          use 'btn btn-success float-end' instead of primary)
+     * @param string $sendClass css class for the "Add selected" button. Kept as
+     *                          an escape hatch, but every association tab now
+     *                          takes the primary default: green read as a
+     *                          different KIND of action on tabs that are doing
+     *                          the same thing as their blue neighbours, and the
+     *                          two were mixed even within one page (host printer
+     *                          vs host group). Green stays for genuinely
+     *                          different actions like Resume.
      * @param string $helpBlock optional translated help text rendered as
      *                          form-text in the card header (already escaped/safe)
      * @param string $createNode optional node owning a create form (e.g. 'group').

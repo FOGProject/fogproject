@@ -1855,7 +1855,7 @@ class HostManagement extends FOGPage
             _('Host Printer Associations'),
             _('Printer Name'),
             'printer',
-            'btn btn-success float-end'
+            'btn btn-primary float-end'
         );
 
         $props = ' method="post" action="'

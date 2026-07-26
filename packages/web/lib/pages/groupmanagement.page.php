@@ -879,7 +879,7 @@ class GroupManagement extends FOGPage
             _('Group Printer Assignment'),
             _('Printer Name'),
             'printer',
-            'btn btn-success float-end',
+            'btn btn-primary float-end',
             _('This will perform the action on all hosts in this group')
         );
 
@@ -1063,7 +1063,7 @@ class GroupManagement extends FOGPage
             _('Group Snapin Assignment'),
             _('Snapin Name'),
             'snapin',
-            'btn btn-success float-end',
+            'btn btn-primary float-end',
             _(
                 'This will perform the action on all hosts in this group. '
                 . 'A snapin is checked when every host in the group has it.'
