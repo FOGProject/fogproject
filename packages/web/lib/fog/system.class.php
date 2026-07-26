@@ -59,10 +59,10 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.2822');
+        define('FOG_VERSION', '1.6.0-beta.2823');
         define('FOG_CHANNEL', 'Beta');
         define('FOG_SCHEMA', 317);
-        define('FOG_BCACHE_VER', 258);
+        define('FOG_BCACHE_VER', 260);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // FOG_BASE_DIR is intentionally hardcoded here. Deriving it from a setting would
         // create a circular dependency (getSetting() needs the cache dir before DB is up).

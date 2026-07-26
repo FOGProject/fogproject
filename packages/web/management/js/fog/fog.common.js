@@ -1068,31 +1068,275 @@ $.registerSelectTab = function(opts) {
     });
   }
 };
-// $.fn.makeColumnsResizable() - let the user drag a table's column borders.
+// Column resizing - let the user drag a table's column borders.
 //
-// Opt-in, and deliberately not wired into registerTable(): every list page
-// shares that helper, and silently changing how all of them size their columns
-// is a bigger decision than one page's layout. Call it from the page that wants
-// it, on a table that also carries .fog-table-fixed -- a fixed layout is what
-// makes a width set here actually stick.
+// No DataTables release has ever shipped this; the only third-party option
+// (Daniel Hobi's colResize) is an unmaintained fork that does not work against
+// DataTables 2.x, and the bundle we vendor carries ColReorder (moving columns)
+// but nothing for resizing. So this does the small thing directly rather than
+// take on a dead dependency.
 //
-// No DataTables extension does this. The vendored bundle carries ColReorder
-// (moving columns) but nothing for resizing, so rather than add a dependency
-// for one page this does the small thing directly: a grab strip on each header,
-// and a drag that moves width from one column to its neighbour so the table's
-// total width never changes and nothing reflows sideways.
+// HOW DATATABLES ACTUALLY HOLDS COLUMN WIDTHS -- this is the whole trick, and
+// getting it wrong is why the first attempt did nothing at all:
+//
+//   * Widths live on a <colgroup>, NOT on the <th> elements. Setting
+//     th.style.width is simply overruled by the <col>, so the drag appeared
+//     to do nothing.
+//   * In scroll mode (Scroller / scrollY) there are TWO tables -- a cloned
+//     header in .dt-scroll-head and the real table in .dt-scroll-body -- and
+//     each carries its OWN colgroup. Both have to be written or the header
+//     slides out of alignment with the body.
+//   * The header you can see and click in scroll mode is the CLONE. The real
+//     table's own thead is still in the DOM but hidden (its cells wrap their
+//     content in .dt-scroll-sizing), so grab strips attached there land
+//     somewhere no pointer can reach.
+//
+// So: attach the strips to whichever header is visible, and on drag rewrite
+// the matching <col> on every colgroup involved. Width is moved from one
+// column to its neighbour, so the table's total width never changes and
+// nothing reflows sideways.
 //
 // The last column is skipped on purpose -- it is the one absorbing whatever
 // the others leave, so there is no neighbour to take width from.
+
+// Resolve the pieces of a DataTable that resizing needs to talk to.
+function fogTableParts(node) {
+  var body = $(node),
+    wrap = body.closest('.dt-container, .dataTables_wrapper'),
+    head = wrap.find('.dt-scroll-head table, .dataTables_scrollHead table')
+      .first();
+  return {
+    // The header the user actually sees and grabs.
+    visibleHead: head.length ? head : body,
+    // The table holding the actual rows.
+    body: body,
+    // Every table whose colgroup has to stay in step.
+    tables: head.length ? head.add(body) : body
+  };
+}
+
+// Write a column and its neighbour in one go, on every colgroup involved.
+function fogSetColPair(parts, i, widthA, widthB) {
+  parts.tables.each(function() {
+    var cols = $(this).find('colgroup > col');
+    if (cols.length < i + 2) {
+      return;
+    }
+    cols[i].style.width = widthA + 'px';
+    cols[i + 1].style.width = widthB + 'px';
+  });
+}
+
+// Write a whole row of column widths, on every colgroup involved.
+function fogSetCols(parts, widths) {
+  parts.tables.each(function() {
+    var cols = $(this).find('colgroup > col');
+    if (cols.length !== widths.length) {
+      return;
+    }
+    cols.each(function(i) {
+      this.style.width = widths[i] + 'px';
+    });
+  });
+}
+
+// Resize column i to `want`, paying for it out of ALL the other columns rather
+// than only its right-hand neighbour.
+//
+// A drag takes width from the neighbour because the neighbour's border is the
+// thing being dragged. A fit has no such anchor, and charging the whole cost
+// to one column flattened it to the floor -- fitting the plugin Description
+// took 238px straight out of Location and left it unreadable.
+//
+// So the cost is spread, and a donor is only asked for space it does not need
+// for its OWN content: its floor is its own natural width, not a blind 40px.
+// Without that the fit simply maxed out, because one very long description
+// wants more width than the whole table has -- Description went to 1104px and
+// every other column collapsed to 40. Now a column widens by whatever the
+// others genuinely are not using, and stops there.
+//
+// The table's total width stays constant either way, so nothing reflows
+// sideways and no horizontal scrollbar appears.
+function fogFitColumn(parts, i, want, widths) {
+  var out = widths.slice(),
+    j,
+    weights = [],
+    sumWeight = 0,
+    floor,
+    delta = want - widths[i];
+
+  for (j = 0; j < widths.length; j++) {
+    if (j === i) {
+      weights[j] = 0;
+      continue;
+    }
+    if (delta > 0) {
+      // Never below what this column needs for its own content -- and never
+      // above its current width, so a column that is already too narrow is
+      // simply not asked to contribute.
+      floor = Math.min(widths[j], Math.max(40, fogNaturalColWidth(parts, j)));
+      weights[j] = Math.max(0, widths[j] - floor);
+    } else {
+      // Shrinking hands space back in proportion to current width.
+      weights[j] = widths[j];
+    }
+    sumWeight += weights[j];
+  }
+  if (!sumWeight) {
+    return;
+  }
+  if (delta > 0) {
+    delta = Math.min(delta, sumWeight);
+  } else {
+    delta = Math.max(delta, 40 - widths[i]);
+  }
+  for (j = 0; j < out.length; j++) {
+    if (j !== i) {
+      out[j] = Math.round(widths[j] - (delta * weights[j] / sumWeight));
+    }
+  }
+  // Absorb rounding drift into the fitted column so the widths still add up to
+  // exactly what they did before.
+  out[i] = widths.reduce(function(a, b) {
+    return a + b;
+  }, 0) - out.reduce(function(a, b, k) {
+    return k === i ? a : a + b;
+  }, 0);
+  fogSetCols(parts, out);
+}
+
+// Widest content in a column, for double-click-to-fit.
+//
+// Measured in an off-screen ruler that borrows the cell's font and padding,
+// rather than read off the cells themselves. A clipped cell reports its
+// clipped width, so once a column is too narrow there is no way to ask it how
+// wide it would like to be -- and reading scrollWidth would only ever let a
+// column grow, never shrink back to fit content that is shorter than it.
+//
+// The ruler takes innerHTML, not text, so a cell holding a badge or a button
+// measures as what it renders rather than as an empty string.
+//
+// Only RENDERED rows can be measured. With the scroller on that is the chunk
+// currently drawn, not the whole result set -- so this fits what you can see.
+// Measuring every row would mean rendering every row, which is precisely the
+// cost the scroller exists to avoid.
+function fogNaturalColWidth(parts, i) {
+  var cells = parts.body.find('tbody tr').map(function() {
+      return this.cells[i];
+    }).get(),
+    title = parts.visibleHead.find('thead tr:first > th').eq(i)
+      .find('.dt-column-title'),
+    probe = cells.length ? $(cells[0]) : title,
+    ruler = $('#fog-col-ruler');
+
+  if (!probe.length) {
+    return 0;
+  }
+  if (!ruler.length) {
+    ruler = $('<div id="fog-col-ruler"></div>').appendTo('body');
+  }
+  var cs = window.getComputedStyle(probe[0]),
+    max = 0;
+  ruler.css({
+    position: 'absolute',
+    top: '-9999px',
+    left: '-9999px',
+    visibility: 'hidden',
+    whiteSpace: 'nowrap',
+    fontFamily: cs.fontFamily,
+    fontSize: cs.fontSize,
+    fontWeight: cs.fontWeight,
+    paddingLeft: cs.paddingLeft,
+    paddingRight: cs.paddingRight
+  });
+  function measure(html, bold) {
+    ruler.css('font-weight', bold ? 'bold' : cs.fontWeight).html(html);
+    max = Math.max(max, Math.ceil(ruler[0].getBoundingClientRect().width));
+  }
+  // The heading counts too -- fitting a column so tightly that its own title
+  // is cut off is not a fit.
+  if (title.length) {
+    measure(title.html(), true);
+  }
+  $.each(cells, function() {
+    measure(this.innerHTML, false);
+  });
+  ruler.empty();
+  // Slack for the sort arrow and cell border, so a fresh fit does not land
+  // one pixel short and immediately re-clip what it just made room for.
+  return max + 24;
+}
+
+// Make sure each colgroup carries explicit px widths, seeded from whatever the
+// columns currently measure. Without this a non-scrolling table has a colgroup
+// of empty <col>s (DataTables only fills them in when it sizes the table
+// itself), and there is no width to move around.
+function fogSeedColWidths(parts) {
+  var widths = parts.visibleHead.find('thead tr:first > th').map(function() {
+    return $(this).outerWidth();
+  }).get();
+  // A table inside a not-yet-shown tab measures zero. Seeding "0px" then would
+  // stick, because seeding only fills in a col that has no width yet -- so
+  // leave it alone and let the column-sizing pass that fires when the tab is
+  // shown do the seeding against real numbers.
+  for (var w = 0; w < widths.length; w++) {
+    if (!widths[w]) {
+      return widths;
+    }
+  }
+  parts.tables.each(function() {
+    var cols = $(this).find('colgroup > col');
+    if (cols.length !== widths.length) {
+      return;
+    }
+    cols.each(function(i) {
+      if (!this.style.width) {
+        this.style.width = widths[i] + 'px';
+      }
+    });
+  });
+  return widths;
+}
+
 $.fn.makeColumnsResizable = function() {
   return this.each(function() {
-    var headers = $(this).find('thead tr:first > th');
+    var parts = fogTableParts(this),
+      headers = parts.visibleHead.find('thead tr:first > th'),
+      colCount = parts.visibleHead.find('colgroup > col').length;
+
+    // Clear every existing strip and build fresh ones, rather than skipping
+    // headers that look like they already have one.
+    //
+    // "Already has a strip" is not a safe test here. DataTables builds the
+    // visible scroll header by CLONING the real one, and a clone copies the
+    // strip's markup but not its event handlers -- so the first pass (which
+    // may run before the clone exists, and therefore wires the real header)
+    // leaves behind dead look-alike strips in the clone. Skipping on sight of
+    // one meant the visible header kept its corpses and never got a working
+    // handler bound. Rebuilding is the only check a clone cannot fool.
+    parts.tables.find('thead .fog-col-resizer').remove();
+
+    // The header cells and the <col>s have to line up 1:1, because everything
+    // below addresses a column by index. They do NOT line up once Responsive
+    // has collapsed columns away (a 700px-wide host list shows six header
+    // cells against three <col>s), and resizing there would move a different
+    // column than the one grabbed. Leave that table alone rather than offer
+    // strips that quietly do nothing.
+    if (!colCount || colCount !== headers.length) {
+      return;
+    }
+
+    // Seed BEFORE switching to a fixed layout, never after. A fixed layout
+    // with an empty colgroup makes every column an equal share of the table,
+    // so measuring at that point records five identical widths and throws away
+    // the content-based sizing the table actually had. Measure what the
+    // browser worked out, write it down, and only then make it authoritative.
+    fogSeedColWidths(parts);
+    parts.tables.addClass('fog-table-fixed');
+
     headers.each(function(i) {
       var th = $(this);
-      // Idempotent: a page may call this again after a redraw, and DataTables
-      // keeps the same thead, so bailing on an existing handle avoids stacking
-      // duplicate strips and duplicate mousedown bindings.
-      if (i >= headers.length - 1 || th.find('.fog-col-resizer').length) {
+      if (i >= headers.length - 1) {
         return;
       }
       var handle = $('<span class="fog-col-resizer"></span>').appendTo(th);
@@ -1102,18 +1346,19 @@ $.fn.makeColumnsResizable = function() {
         // text-select the heading while dragging.
         ev.preventDefault();
         ev.stopPropagation();
-        var startX = ev.pageX,
-          next = th.next(),
-          startW = th.outerWidth(),
-          startNextW = next.outerWidth();
+        // Re-seed on grab, not at wire-up time: the table may have been
+        // resized, re-drawn or had a column hidden since.
+        var widths = fogSeedColWidths(parts),
+          startX = ev.pageX,
+          startW = widths[i],
+          startNextW = widths[i + 1];
         function move(e) {
           var dx = e.pageX - startX;
           // 40px floor so a column cannot be dragged away to nothing.
           if (startW + dx < 40 || startNextW - dx < 40) {
             return;
           }
-          th.css('width', (startW + dx) + 'px');
-          next.css('width', (startNextW - dx) + 'px');
+          fogSetColPair(parts, i, startW + dx, startNextW - dx);
         }
         function up() {
           $(document).off('mousemove.fogcol mouseup.fogcol');
@@ -1122,6 +1367,21 @@ $.fn.makeColumnsResizable = function() {
         $('body').addClass('fog-col-resizing');
         $(document).on('mousemove.fogcol', move).on('mouseup.fogcol', up);
       });
+      // Double-click the strip to size the column to its widest content, the
+      // same gesture a spreadsheet uses.
+      //
+      // The cost is spread across the other columns rather than charged to the
+      // neighbour (see fogFitColumn), so the table's total width still never
+      // changes but no single column gets flattened to pay for the fit.
+      handle.on('dblclick', function(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        var widths = fogSeedColWidths(parts),
+          want = fogNaturalColWidth(parts, i);
+        if (want) {
+          fogFitColumn(parts, i, want, widths);
+        }
+      });
       // A plain click on the strip would still bubble to the sort handler.
       handle.on('click', function(ev) {
         ev.stopPropagation();
@@ -1129,6 +1389,25 @@ $.fn.makeColumnsResizable = function() {
     });
   });
 };
+// A clipped cell ends in an ellipsis, which makes the tail unreadable rather
+// than merely out of the way. Give it back on hover.
+//
+// Done on mouseenter, and delegated at the document, rather than stamping a
+// title on every cell as it is created: the check costs a layout read, and on
+// a 500-row table that is thousands of reads per draw for text nobody is
+// looking at. This measures exactly the one cell under the pointer.
+//
+// Cells holding only markup (the status badges, action buttons) have no text
+// and are skipped, so they do not sprout empty tooltips.
+$(document).on('mouseenter', '.fog-table-clip tbody td', function() {
+  if (this.title || this.scrollWidth <= this.clientWidth) {
+    return;
+  }
+  var txt = $(this).text().trim();
+  if (txt) {
+    this.title = txt;
+  }
+});
 $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();
@@ -1900,9 +2179,44 @@ $.fn.registerTable = function(onSelect, opts) {
     defaults.dom = "<'row'<'col-sm-6'><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-12'i>>";
   }
 
+  // Column resizing is on for every table. Pulled off opts before they reach
+  // DataTables, which has no such option and would only carry it around.
+  var columnResize = opts.columnResize !== false;
+  delete opts.columnResize;
+
+  if (infiniteScroll) {
+    // Clip overlong cells to an ellipsis rather than letting them run on.
+    //
+    // Scoped to scrolling tables on purpose. Scroller sizes its virtual
+    // viewport from a UNIFORM row height, so rows there have to stay one line
+    // -- and DataTables' own scroll CSS already forces white-space:nowrap for
+    // that reason, which today means long text simply overflows its column.
+    // Clipping is what turns that into something readable. A paged or grouped
+    // table has no such constraint and keeps wrapping, which is the better
+    // behaviour when rows are allowed to be tall.
+    $(this).addClass('fog-table-clip');
+  }
+
   opts = $.fogDefaults(opts, defaults);
 
   var table = $(this).DataTable(opts);
+
+  if (columnResize) {
+    var tableNode = $(this);
+    // Bound to column-sizing rather than draw: DataTables rebuilds the header
+    // (and, in scroll mode, re-clones it) whenever it recalculates widths --
+    // an ajax load, a tab becoming visible, a Responsive collapse -- and the
+    // strips go with it. draw fires on every Scroller redraw, which would mean
+    // re-measuring the header on every scroll tick for nothing.
+    table.on('column-sizing.dt', function() {
+      tableNode.makeColumnsResizable();
+    });
+    // First pass deferred: at this point an ajax table has not drawn yet and
+    // the scroll header clone may not exist.
+    setTimeout(function() {
+      tableNode.makeColumnsResizable();
+    }, 0);
+  }
 
   if (infiniteScroll) {
     // Size the scroll body to fill the available height now (deferred so the

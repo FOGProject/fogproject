@@ -1298,31 +1298,39 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
   @include fog-dark-theme;
 }
 
-// Opt-in fixed-layout table. Without this a table sizes its columns to their
-// longest cell, so one long free-text column (plugin Description next to four
-// short values) takes most of the width while short headings wrap. Applied by
-// the page that wants it, not by registerTable(), so the other list pages keep
-// the sizing they already have. The header's width="NN%" attributes only mean
-// anything under a fixed layout, which is what this switches on.
+// Fixed-layout table. Applied by $.fn.makeColumnsResizable(), which
+// registerTable() runs for every list table.
+//
+// Two jobs. It makes the header's width="NN%" attributes mean something --
+// without it a table sizes columns to their longest cell, so one long
+// free-text column (plugin Description next to four short values) takes most
+// of the width while short headings wrap. And it is what makes a dragged width
+// stick: under a fixed layout the <colgroup> widths are authoritative, whereas
+// an auto layout treats them as suggestions and lets content override them.
 .fog-table-fixed {
   table-layout: fixed;
-
-  th,
-  td {
-    // A fixed column cannot grow to fit, so anything longer than its share
-    // has to be clipped -- left alone it renders straight over the next
-    // column. Single-line + ellipsis rather than wrapping, because these
-    // tables keep DataTables' scroller, which sizes its virtual viewport
-    // from a uniform row height and breaks on variable-height rows. Pages
-    // using this class should put the full value on a title attribute.
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 
   thead th {
     // Anchors the resize strip below.
     position: relative;
+  }
+}
+
+// Clip an over-long cell to an ellipsis instead of letting it run on over its
+// neighbour. Separate from the layout above because it is NOT wanted
+// everywhere: registerTable() adds it only to scrolling tables, where
+// DataTables already forces white-space:nowrap so Scroller gets the uniform
+// row height its virtual viewport is sized from. A paged or grouped table has
+// no such constraint and is better off wrapping.
+//
+// The full text comes back on hover -- see the delegated mouseenter handler in
+// fog.common.js, which sets a title only on cells that are actually truncated.
+.fog-table-clip {
+  th,
+  td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

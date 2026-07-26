@@ -35,30 +35,17 @@
     }
 
     disableButtons(true);
-    // Fixed layout, so the header's percentage widths actually decide the
-    // columns. registerTable already passes autoWidth:false, which stops
-    // DataTables measuring but leaves the browser's content-driven sizing in
-    // charge -- and that let the longest Description dictate the whole table.
-    // The class also clips an over-long cell to an ellipsis. That is required
-    // here rather than cosmetic: this table keeps the scroller (virtual
-    // scrolling), which sizes its viewport from a UNIFORM row height, so rows
-    // have to stay one line. Wrapping Description would give variable-height
-    // rows and break the scroller's maths. The full text is on the cell's
-    // title attribute instead (see createdCell below).
-    $('#dataTable').addClass('fog-table-fixed');
+    // Fixed layout, clipping and column resizing all come from registerTable()
+    // now -- every list page gets them, so there is nothing to set up here.
+    // This page's header widths (20/38/22/10/10, set in pluginmanagement.page)
+    // are what the fixed layout then honours, instead of the longest
+    // Description dictating the whole table.
     var table = $('#dataTable').registerTable(onSelect, {
         // This list has only five short columns and a small, fixed row set,
         // so the responsive collapse never helps here -- it just hides four
         // columns behind a per-row expander at full width and makes the
         // expander fight the row-click selection. Keep every column visible.
         responsive: false,
-        // NOTE: no makeColumnsResizable() call here yet. With the scroller on,
-        // the header you actually see is a CLONE in .dt-scroll-head, and this
-        // table's own thead is hidden and used only for sizing -- so the drag
-        // strips attach where nobody can reach them. Making it work means
-        // driving the clone and keeping the two tables' widths in step, which
-        // is a bigger job than this page. The helper stays in fog.common.js
-        // for a non-scrolling table, where it is verified working.
         order: [
             [0, 'asc']
         ],
@@ -93,12 +80,6 @@
             },
             {
                 responsivePriority: 0,
-                // Description is clipped to one line, so put the whole of it
-                // on the cell as a tooltip -- otherwise the tail is simply
-                // unreadable rather than merely out of the way.
-                createdCell: function(td, cellData) {
-                    $(td).attr('title', cellData);
-                },
                 targets: 1
             },
             {
