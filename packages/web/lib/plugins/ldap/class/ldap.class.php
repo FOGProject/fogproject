@@ -26,6 +26,25 @@
 class LDAP extends FOGController
 {
     /**
+     * The matching rule that makes a member= test transitive.
+     *
+     * LDAP_MATCHING_RULE_IN_CHAIN. Active Directory only, and it only means
+     * anything against a DN value -- see _getMatchedGroups().
+     *
+     * @var string
+     */
+    const CHAIN_MATCHING_RULE = '1.2.840.113556.1.4.1941';
+    /**
+     * The rootDSE supportedCapabilities OID that says the rule above works.
+     *
+     * LDAP_CAP_ACTIVE_DIRECTORY_OID. Measured to discriminate correctly:
+     * Samba AD advertises it, OpenLDAP and ldap.forumsys.com advertise no
+     * capabilities at all.
+     *
+     * @var string
+     */
+    const CHAIN_CAPABILITY = '1.2.840.113556.1.4.800';
+    /**
      * Ldap connection itself
      *
      * @var resource
@@ -107,6 +126,137 @@ class LDAP extends FOGController
         // 'adminGroup',
         // 'userGroup',
     ];
+    /**
+     * Stores the server, refusing a chain strategy the directory cannot do.
+     *
+     * The guard lives here rather than in the add/edit post handlers because
+     * the REST API reaches this table without going through them: a
+     * PUT /fog/ldap/<id>/edit carrying {"nestedGroups":"chain"} was verified
+     * to store chain against an OpenLDAP server, where the matching rule
+     * matches nothing and every nested sign-in silently fails. Validating on
+     * the way into the row covers every writer rather than the one that
+     * remembered to ask -- the same reasoning as RolePermission::save().
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/884
+     *
+     * @throws Exception
+     * @return bool
+     */
+    public function save()
+    {
+        $this->_assertChainSupported();
+        return parent::save();
+    }
+    /**
+     * Throws if this server is set to chain but the directory cannot chain.
+     *
+     * Only a *successful* rootDSE read that lacks the capability is treated
+     * as a refusal. If the directory could not be read at all -- down, wrong
+     * port, TLS refused -- absence is not proven, so the save proceeds with
+     * a log line: admins routinely configure a server before it is
+     * reachable, and blocking that would make the plugin unconfigurable for
+     * a transient reason.
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function _assertChainSupported()
+    {
+        if ('chain' !== (string)$this->get('nestedGroups')) {
+            return;
+        }
+        $supported = self::supportsChain(
+            $this->get('address'),
+            $this->get('port'),
+            $this->get('isLdaps')
+        );
+        if (false === $supported) {
+            throw new Exception(
+                _(
+                    'This directory does not advertise support for nested '
+                    . 'group chaining, so the chain strategy would match '
+                    . 'nothing. Use the expand strategy instead.'
+                )
+            );
+        }
+        if (null === $supported) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _(
+                        'Could not read the directory to confirm it supports '
+                        . 'nested group chaining, saving the chain strategy '
+                        . 'unverified'
+                    ),
+                    _('LDAP Server'),
+                    $this->get('name')
+                )
+            );
+        }
+    }
+    /**
+     * Asks a directory whether it implements the chain matching rule.
+     *
+     * Reads rootDSE **anonymously** -- no bind. Active Directory allows that
+     * by design (it is how a client discovers the domain), and it means the
+     * answer does not depend on the bind credentials being correct yet, nor
+     * on Samba's default refusal of a simple bind over plaintext. Verified
+     * against the AD fixture over plain LDAP with no bind at all.
+     *
+     * Static, and using the raw ldap_* functions rather than this class's
+     * __call() wrapper, so probing cannot disturb self::$_ldapconn -- the
+     * page needs an answer while validating a POST, before any server object
+     * exists to hold a connection.
+     *
+     * @param string $address the directory address
+     * @param int    $port    the port to reach it on
+     * @param bool   $isLdaps whether that port speaks ldaps
+     *
+     * @return bool|null true supported, false not, null undeterminable
+     */
+    public static function supportsChain($address, $port, $isLdaps)
+    {
+        $address = trim((string)$address);
+        if ('' === $address) {
+            return null;
+        }
+        $uri = sprintf(
+            'ldap%s://%s:%d',
+            ($isLdaps ? 's' : ''),
+            $address,
+            (int)$port
+        );
+        $conn = @ldap_connect($uri);
+        if (!$conn) {
+            return null;
+        }
+        @ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+        @ldap_set_option($conn, LDAP_OPT_REFERRALS, 0);
+        /**
+         * Bounded so an unreachable directory cannot hang the save.
+         */
+        @ldap_set_option($conn, LDAP_OPT_NETWORK_TIMEOUT, 3);
+        $result = @ldap_read(
+            $conn,
+            '',
+            '(objectclass=*)',
+            ['supportedCapabilities']
+        );
+        if (false === $result) {
+            @ldap_unbind($conn);
+            return null;
+        }
+        $entries = (array)@ldap_get_entries($conn, $result);
+        @ldap_unbind($conn);
+        if (empty($entries['count'])) {
+            return null;
+        }
+        $caps = (array)($entries[0]['supportedcapabilities'] ?? []);
+        unset($caps['count']);
+        return in_array(self::CHAIN_CAPABILITY, $caps);
+    }
     /**
      * Magic function to enable ldap_ function calls using
      * an object oriented call structure
@@ -1179,30 +1329,13 @@ class LDAP extends FOGController
          * real membership first and intersects against the mapped names at
          * the end.
          *
-         * 'chain' pushes transitivity into the directory and keeps the
-         * single-query shape, so it stays with the filter below once it
-         * lands (story 3 of #884). Until then it resolves through the walk
-         * rather than silently degrading to direct-only: the admin asked
-         * for nesting, and answering with no nesting at all is the exact
-         * failure #884 exists to kill. Logged so it is not silent either.
+         * 'chain' keeps the filter below exactly as it is and lets the
+         * directory resolve transitivity server-side, so it stays a single
+         * query -- see the matching rule applied below.
          *
          * Refs https://github.com/FOGProject/fogproject/issues/884
          */
         $nested = (string)$this->get('nestedGroups');
-        if ('chain' === $nested) {
-            error_log(
-                sprintf(
-                    '%s %s() %s. %s: %s',
-                    _('Plugin'),
-                    __METHOD__,
-                    _('The chain strategy is not implemented yet, '
-                    . 'resolving nesting with expand instead'),
-                    _('LDAP Server'),
-                    $this->get('name')
-                )
-            );
-            $nested = 'expand';
-        }
         if ('expand' === $nested) {
             return $this->_expandGroups(
                 $grpNamAttr,
@@ -1233,11 +1366,26 @@ class LDAP extends FOGController
         foreach ($mapped as $name) {
             $escaped[] = $this->escape($name, '', LDAP_ESCAPE_FILTER);
         }
+        /**
+         * Under 'chain' the matching rule is appended to the member
+         * attribute in the FULL-DN alternative only, which is what makes the
+         * one query below transitive.
+         *
+         * Not the other two alternatives: the rule walks a DN through the
+         * directory, so it is meaningless against a bare or
+         * attribute-qualified username. 1.5 applies it to the qualified form
+         * as well, which cannot match anything. Leaving those two direct is
+         * also what keeps chain a superset of off.
+         */
+        $chainMemAttr = $grpMemAttr;
+        if ('chain' === $nested) {
+            $chainMemAttr .= ':' . self::CHAIN_MATCHING_RULE . ':';
+        }
         $filter = sprintf(
             '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             $grpNamAttr,
             implode($grpNamAttr_forimplode, $escaped),
-            $grpMemAttr,
+            $chainMemAttr,
             $this->escape($userDN, '', LDAP_ESCAPE_FILTER),
             $grpMemAttr,
             $usrNamAttr,

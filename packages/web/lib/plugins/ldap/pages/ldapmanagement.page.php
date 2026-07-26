@@ -129,6 +129,35 @@ class LDAPManagement extends FOGPage
                 _('Nested depth must be between 0 and 100, or blank to inherit')
             );
         }
+        /**
+         * Chain only works on a directory that implements the matching rule,
+         * so ask the directory before storing it. LDAP::save() refuses this
+         * too and is the authority -- every writer including the REST API
+         * goes through it -- but a throw here is what puts a readable
+         * message on the form the admin is looking at, next to the field
+         * they just changed.
+         *
+         * Address and port come from the POST rather than the stored object
+         * because the admin may be pointing an existing server at a new
+         * directory in the same submission.
+         */
+        if ('chain' === $strategy) {
+            $supported = LDAP::supportsChain(
+                trim((string)filter_input(INPUT_POST, 'address')),
+                trim((string)filter_input(INPUT_POST, 'port')),
+                isset($_POST['isLDAPs'])
+            );
+            if (false === $supported) {
+                throw new Exception(
+                    _(
+                        'This directory does not advertise support for '
+                        . 'nested group chaining, so the chain strategy '
+                        . 'would match nothing. Use the expand strategy '
+                        . 'instead.'
+                    )
+                );
+            }
+        }
         return ['strategy' => $strategy, 'depth' => $depth];
     }
     /**
