@@ -3188,18 +3188,25 @@ class Route extends FOGBase
                     // through this same expansion, the create response too,
                     // which is how it was found.
                     //
-                    // Fall back to empty objects so the task still returns its
-                    // own fields rather than nothing at all. Same for the
-                    // snapin: a task can outlive it (one whose job is intact
-                    // is deliberately not swept by schema step 318).
+                    // The relation is dropped entirely when the job is not there, rather
+                    // than substituted with an empty SnapinJob. An empty one is
+                    // still an instanceof, so getter() accepts it and runs the
+                    // 'snapinjob' expansion below -- which dereferences that
+                    // job's own state and fatals in turn. Guarding here and
+                    // handing the failure downstream just moves it.
+                    //
+                    // Same for the snapin: a task can outlive it (one whose job
+                    // is intact is deliberately not swept by schema step 318).
                     //
                     // Refs https://github.com/FOGProject/fogproject/issues/895
                     $snapinjob = $class->get('snapinjob');
-                    if (!is_object($snapinjob) || !$snapinjob->isValid()) {
-                        $snapinjob = new Snapinjob();
-                    }
-                    $sj = new Snapinjob($snapinjob->get('id'));
-                    $host = new Host($snapinjob->get('hostID'));
+                    $hasJob = is_object($snapinjob) && $snapinjob->isValid();
+                    $sj = $hasJob
+                        ? new Snapinjob($snapinjob->get('id'))
+                        : null;
+                    $host = $hasJob
+                        ? new Host($snapinjob->get('hostID'))
+                        : null;
                     $snapin = $class->get('snapin');
                     $data = FOGCore::fastmerge(
                         $class->get(),
@@ -3220,6 +3227,13 @@ class Route extends FOGBase
                     );
                     break;
                 case 'snapinjob':
+                    // Reached through getter() from the snapintask case above
+                    // as well as directly, so it has to stand up to a job that
+                    // does not resolve: an unloadable state comes back as a
+                    // string, and this was the fatal left over once the
+                    // snapintask case stopped throwing on its own.
+                    // Refs https://github.com/FOGProject/fogproject/issues/895
+                    $sjState = $class->get('state');
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
@@ -3227,7 +3241,9 @@ class Route extends FOGBase
                                 'host',
                                 $class->get('host')
                             ),
-                            'state' => $class->get('state')->get()
+                            'state' => is_object($sjState)
+                                ? $sjState->get()
+                                : []
                         ]
                     );
                     break;
