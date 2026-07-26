@@ -3803,6 +3803,28 @@ class Route extends FOGBase
                         'snapinassociation' => $findWhere,
                         'snapingroupassociation' => $findWhere
                     ];
+                    // Drop this snapin's tasks HERE, inline, and not by adding
+                    // 'snapintask' to $removeItems above.
+                    //
+                    // Two things depend on it, and both were broken:
+                    //
+                    //  - $removeItems is not processed until after this switch
+                    //    returns, so a snapin deleted over the REST path left
+                    //    its snapintask rows behind pointing at a snapin that
+                    //    no longer exists. Snapin::destroy() deletes them, so
+                    //    the UI path was clean and only the API orphaned them.
+                    //  - The loop below cancels any queued job this snapin was
+                    //    the last remaining task of, which it decides by
+                    //    counting the tasks still on each job. With those tasks
+                    //    still present every count came back non-zero, every
+                    //    job hit the `continue`, and the cancel was unreachable
+                    //    -- the job stayed queued forever against a deleted
+                    //    snapin. Deleting first is what makes the count mean
+                    //    "anything OTHER than what we just removed", which is
+                    //    the order Snapin::destroy() already used.
+                    //
+                    // Refs https://github.com/FOGProject/fogproject/issues/885
+                    Route::deletemass('snapintask', $findWhere);
                     $queuedStates = self::getQueuedStates();
                     $queuedStates[] = self::getProgressState();
                     $snapinjobIDs = Route::getIds(
