@@ -630,6 +630,12 @@ class LDAP extends FOGController
         }
         /**
          * Setup our new filter
+         *
+         * The second argument to escape() is '' rather than null in both
+         * filters below: ldap_escape()'s $ignore is a non-nullable string,
+         * and passing null to a non-nullable internal parameter is
+         * deprecated in PHP 8.1+ and is slated to become a TypeError. ''
+         * is what null coerced to anyway, so the escaping is unchanged.
          */
         $adminGroups = explode(',', $adminGroup);
         $adminGroups = array_map('trim', $adminGroups);
@@ -637,12 +643,12 @@ class LDAP extends FOGController
             '(&(|(name=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$adminGroups),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
+            $this->escape($userDN, '', LDAP_ESCAPE_FILTER),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER),
+            $this->escape($user, '', LDAP_ESCAPE_FILTER),
             $grpMemAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER)
+            $this->escape($user, '', LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
@@ -666,12 +672,12 @@ class LDAP extends FOGController
             '(&(|(name=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$userGroups),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
+            $this->escape($userDN, '', LDAP_ESCAPE_FILTER),
             $grpMemAttr . ($enableNestedGroup ? ":1.2.840.113556.1.4.1941:" : ""),
             $usrNamAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER),
+            $this->escape($user, '', LDAP_ESCAPE_FILTER),
             $grpMemAttr,
-            $this->escape($user, null, LDAP_ESCAPE_FILTER)
+            $this->escape($user, '', LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
