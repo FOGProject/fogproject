@@ -681,6 +681,20 @@ dd {
     --bs-card-spacer-y: 0.75rem;
     --bs-card-cap-padding-y: 0.4rem; // reaches .card-footer only — see below
   }
+  // A standalone BS5 .card carries no bottom margin (the only rule that sets
+  // one is scoped to .card-group), so pages that echo cards one after another
+  // -- the host Associations/Tasks tabs, printer default + config, most edit
+  // panes -- stacked them flush, border touching border. The dashboard had
+  // already worked around it locally with .row.gy-3.
+  //
+  // Adjacent-sibling rather than a blanket .card{margin-bottom} so it cannot
+  // double up with that gutter: dashboard cards each sit in their own .col-*,
+  // so they are not siblings and this never matches them. It also means a card
+  // is never given trailing margin it does not need, only separation from the
+  // card that actually follows it. 1rem matches gy-3 so both routes agree.
+  .card + .card {
+    margin-top: 1rem;
+  }
   // The cap token can't reach .card-header: adminlte4 re-declares a bare
   // .card-header{padding:1rem 1rem} AFTER its bundled Bootstrap copy, so the
   // var-consuming rule loses on source order. Override the header directly.
@@ -890,6 +904,24 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
   // why it went unnoticed.
   a:not(.btn) {
     color: var(--fog-primary);
+  }
+  // A .dropdown-item is an <a>, so the rule above repaints it too -- including
+  // the .active item, where Bootstrap has already paired white text with a
+  // primary-blue fill. An element+class selector outranks a bare element one,
+  // so the selected tab in a tab-strip dropdown came out primary-blue text on
+  // a primary-blue fill and read as an empty blue bar. Same blue-on-blue the
+  // :not(.btn) exclusion above fixed, wearing a different hat; light mode was
+  // unaffected because the link colour there is dark enough to survive.
+  //
+  // Handing the state colours back to Bootstrap's own tokens rather than
+  // hardcoding white, so they keep tracking the theme if the fill changes.
+  .dropdown-item.active,
+  .dropdown-item:active {
+    color: var(--bs-dropdown-link-active-color);
+  }
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    color: var(--bs-dropdown-link-hover-color);
   }
   .text-muted {
     color: var(--fog-text-muted);
