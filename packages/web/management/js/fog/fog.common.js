@@ -1199,6 +1199,100 @@ $.initSnapinCommandUI = function(opts) {
   });
 };
 /**
+ * Printer create-form UI, shared by the printer add page, the printer list
+ * page's create modal, and the create-and-associate modal on association tabs.
+ *
+ * Root-scoped on purpose. The three previous copies of this (fog.printer.add.js,
+ * fog.printer.list.js and fog.printer.edit.js, identical but for comment
+ * wording) looked their fields up document-wide via #printertype /
+ * #printercopy. That holds only while a page shows exactly
+ * one printer form. The create-and-associate modal breaks the assumption twice
+ * over: it injects a fetched form into a page that has fields of its own, and
+ * it namespaces the fragment's ids precisely so they cannot collide -- so an id
+ * lookup would find nothing. Matching on [name] instead survives that rename,
+ * because `name` is what the POST reads and is deliberately never rewritten.
+ *
+ * Everything else here was already class-based (.printer-type-section,
+ * .printerport-input and friends), and classes are untouched by namespacing;
+ * scoping them to the root just stops one form reaching into another.
+ *
+ * @param {Object} opts optional: {node} the node to ask for printer info,
+ *                      default 'printer'. The old copies used Common.node,
+ *                      which is right on the printer pages and wrong anywhere
+ *                      else -- from a host page it asked ?node=host for
+ *                      getPrinterInfo and quietly got nothing, so "Copy from
+ *                      existing" would have looked broken there.
+ * @return {jQuery} this
+ */
+$.fn.initPrinterFormUI = function(opts) {
+  opts = opts || {};
+  var root = this,
+    node = opts.node || 'printer',
+    printertype = root.find('[name="printertype"]'),
+    printercopy = root.find('[name="printercopy"]');
+
+  // Nothing to wire if this root holds no printer form.
+  if (!printertype.length) {
+    return this;
+  }
+
+  // Show only the selected type's section. Hidden sections are disabled so
+  // their inputs stay out of the submitted FormData and out of validation.
+  function showType(type) {
+    root.find('.printer-type-section').each(function() {
+      var section = $(this),
+        match = section.hasClass(type);
+      section.toggleClass('d-none', !match);
+      section.find(':input').prop('disabled', !match);
+    });
+  }
+  // Copy an existing printer's settings in. Each value is written to every type
+  // section's matching input by class; only the visible one is submitted. Name
+  // and description are left for the admin to fill in.
+  function copyFromExisting(id) {
+    if (!id) {
+      return;
+    }
+    $.getJSON(
+      '../management/index.php?node=' + node + '&sub=getPrinterInfo&id=' + id,
+      function(data) {
+        if (!data) {
+          return;
+        }
+        root.find('.printerport-input').val(data.port);
+        root.find('.printerinf-input').val(data.file);
+        root.find('.printerip-input').val(data.ip);
+        root.find('.printermodel-input').val(data.model);
+        root.find('.printerconfigfile-input').val(data.configFile);
+        var wanted = (data.config || '').toLowerCase(),
+          matched = null;
+        printertype.find('option').each(function() {
+          if ($(this).val().toLowerCase() === wanted) {
+            matched = $(this).val();
+          }
+        });
+        if (matched !== null) {
+          printertype.val(matched).trigger('change');
+        } else {
+          showType(wanted);
+        }
+      }
+    );
+  }
+
+  // || '' because a select with no selection returns null, and the previous
+  // copies called .toLowerCase() on it unguarded.
+  showType((printertype.val() || '').toLowerCase());
+  printertype.on('change', function(e) {
+    e.preventDefault();
+    showType((printertype.val() || '').toLowerCase());
+  });
+  printercopy.on('change', function() {
+    copyFromExisting($(this).val());
+  });
+  return this;
+};
+/**
  * Selector required elements.
  */
 $.fn.finishReAuth = function() {

@@ -1,52 +1,4 @@
 (function($) {
-    var printertype = $('#printertype'),
-        printercopy = $('#printercopy');
-
-    // Show only the selected type's section. Hidden sections are disabled so
-    // their inputs stay out of the submitted FormData and out of validation.
-    function showType(type) {
-        $('.printer-type-section').each(function() {
-            var section = $(this),
-                match = section.hasClass(type);
-            section.toggleClass('d-none', !match);
-            section.find(':input').prop('disabled', !match);
-        });
-    }
-    // Copy another printer's settings into this form. Each value is written to
-    // every type section's matching input by class; only the visible one is
-    // submitted. Name and description are left as the admin entered them.
-    function copyFromExisting(id) {
-        if (!id) {
-            return;
-        }
-        $.getJSON(
-            '../management/index.php?node=' + Common.node
-                + '&sub=getPrinterInfo&id=' + id,
-            function(data) {
-                if (!data) {
-                    return;
-                }
-                $('.printerport-input').val(data.port);
-                $('.printerinf-input').val(data.file);
-                $('.printerip-input').val(data.ip);
-                $('.printermodel-input').val(data.model);
-                $('.printerconfigfile-input').val(data.configFile);
-                var wanted = (data.config || '').toLowerCase(),
-                    matched = null;
-                printertype.find('option').each(function() {
-                    if ($(this).val().toLowerCase() === wanted) {
-                        matched = $(this).val();
-                    }
-                });
-                if (matched !== null) {
-                    printertype.val(matched).trigger('change');
-                } else {
-                    showType(wanted);
-                }
-            }
-        );
-    }
-
     // ---------------------------------------------------------------
     // GENERAL TAB
     $.registerGeneralTab({
@@ -66,14 +18,10 @@
         }
     });
 
-    showType(printertype.val().toLowerCase());
-    printertype.on('change', function(e) {
-        e.preventDefault();
-        showType(printertype.val().toLowerCase());
-    });
-    printercopy.on('change', function() {
-        copyFromExisting($(this).val());
-    });
+    // Type-section + copy-from-existing wiring, shared with the printer add and
+    // list pages via $.fn.initPrinterFormUI (fog.common.js). Scoped to the
+    // general form so it cannot reach the association tables below.
+    $('#printer-general-form').initPrinterFormUI();
 
     // Associations
     // ---------------------------------------------------------------
