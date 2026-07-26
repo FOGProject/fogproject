@@ -711,6 +711,16 @@
         sub: 'getSnapinsList',
         afterCommit: loadSnapinOrder
     });
+    // The snapin create form drives its command builder from JS that normally
+    // runs on the snapin pages, which do not load here. wirePackTypes matches
+    // the snapin ADD page, since this modal renders the same _addFields() form.
+    // The upload is multipart, which needs nothing extra: processForm() posts a
+    // FormData built from the form, so the file rides along.
+    $.registerCreateAndAssociate('host-snapin', hostSnapinsTable, {
+        onForm: function(form) {
+            form.initSnapinCommandUI({wirePackTypes: true});
+        }
+    });
 
     // ---------------------------------------------------------------
     // SNAPIN RUN ORDER

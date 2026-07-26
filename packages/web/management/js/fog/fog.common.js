@@ -1117,57 +1117,79 @@ $.validateForm = function(form, input) {
   $(form).validateForm(input);
 };
 // Snapin command-builder UI, shared by the snapin add / edit / list-create
-// forms. All three wired the same #snapinpack / #argTypes / .snapin-action /
-// .cmdletN handlers and rebuilt the hidden .snapincmd field identically.
-// Selectors stay document-scoped exactly as the original three inline copies
-// were (each page has a single snapin form context).
+// forms and the create-and-associate modal on association tabs. All of them
+// wire the same pack / argTypes / .snapin-action / .cmdletN handlers and rebuild
+// the hidden .snapincmd field identically.
+//
+// Root-scoped: call it on the form. This used to look everything up
+// document-wide, which held while "each page has a single snapin form context"
+// was true. The create-and-associate modal breaks that -- it injects a fetched
+// form into a page that has fields of its own -- so every lookup has to stay
+// inside the form it belongs to. That includes the [type=file] probe in
+// updateCmdStore, which would otherwise find a file input anywhere on the page.
+//
+// The two SUBMITTED selects are matched by [name], which survives the modal's id
+// namespacing because name is what the POST reads and is deliberately never
+// rewritten. Two traps here, both found the hard way:
+//   - snapinpack's name is 'packtype', which does NOT match its id.
+//   - packTypes has no name at all -- it is a UI-only control driving rw/rwa and
+//     is never submitted -- so it is matched on an id suffix, which resolves
+//     whether or not the id has been namespaced.
 //
 // opts.packHide      - also toggle .packhide with the template class (edit form
 //                      only; add / list-create have no .packhide elements).
-// opts.wirePackTypes - wire the #packTypes -> rw/rwa handler (add + edit; the
-//                      list create-modal has no #packTypes).
-$.initSnapinCommandUI = function(opts) {
+// opts.wirePackTypes - wire the packTypes -> rw/rwa handler. Note the snapin
+//                      LIST page's create modal does not pass this even though
+//                      _addFields() does render packTypes there, so its "Snapin
+//                      Pack Template" select goes unwired. Left as-is rather
+//                      than changed on the way past.
+$.fn.initSnapinCommandUI = function(opts) {
   opts = opts || {};
-  var ACTION_VAL = -1;
+  var root = this,
+    ACTION_VAL = -1,
+    snapinpack = root.find('[name="packtype"]'),
+    argTypes = root.find('[name="argTypes"]'),
+    packTypes = root.find('[id$="packTypes"]');
+
   function packchanger(packval) {
     switch (packval) {
       case '0':
-        $('.packnotemplate').removeClass('d-none');
-        $('.packtemplate').addClass('d-none');
+        root.find('.packnotemplate').removeClass('d-none');
+        root.find('.packtemplate').addClass('d-none');
         if (opts.packHide) {
-          $('.packhide').addClass('d-none');
+          root.find('.packhide').addClass('d-none');
         }
         break;
       case '1':
-        $('.packnotemplate').addClass('d-none');
-        $('.packtemplate').removeClass('d-none');
+        root.find('.packnotemplate').addClass('d-none');
+        root.find('.packtemplate').removeClass('d-none');
         if (opts.packHide) {
-          $('.packhide').removeClass('d-none');
+          root.find('.packhide').removeClass('d-none');
         }
         break;
     }
   }
   function updateCmdStore() {
-    if (typeof $('.cmdlet3').val() === 'undefined') {
+    if (typeof root.find('.cmdlet3').val() === 'undefined') {
       return;
     }
-    var cmd1 = $('.cmdlet1').val(),
-      cmd2 = $('.cmdlet2').val(),
-      cmd3 = $('.cmdlet3').val(),
-      cmd4 = $('.cmdlet4').val(),
-      test = $('[type="file"]');
+    var cmd1 = root.find('.cmdlet1').val(),
+      cmd2 = root.find('.cmdlet2').val(),
+      cmd3 = root.find('.cmdlet3').val(),
+      cmd4 = root.find('.cmdlet4').val(),
+      test = root.find('[type="file"]');
     if (test.length < 1) {
-      cmd3 = $('select.cmdlet3').val();
+      cmd3 = root.find('select.cmdlet3').val();
     } else {
       test = test[0].files.length;
       if (test < 1) {
-        cmd3 = $('select.cmdlet3').val();
+        cmd3 = root.find('select.cmdlet3').val();
       } else {
-        cmd3 = $('[type="file"]')[0].files[0].name;
+        cmd3 = root.find('[type="file"]')[0].files[0].name;
       }
     }
     var snapCMD = [cmd1, cmd2, cmd3, cmd4];
-    $('.snapincmd').val(snapCMD.join(' '));
+    root.find('.snapincmd').val(snapCMD.join(' '));
   }
   // Allow radio to change properly but also be unset as maybe the user doesn't
   // want an action to occur after the snapin completes.
@@ -1184,19 +1206,19 @@ $.initSnapinCommandUI = function(opts) {
     }
   };
   // Make sure selectors are select2 friendly
-  packchanger($('#snapinpack').val());
+  packchanger(snapinpack.val());
   // Make the change when the snapin pack selector changes.
-  $('#snapinpack').on('change', function() {
+  snapinpack.on('change', function() {
     packchanger($(this).val());
   });
-  $('#argTypes').on('change', function() {
+  argTypes.on('change', function() {
     var option = $('option:selected', this),
       value = option.attr('value'),
       rwarg = option.attr('rwargs'),
       args = option.attr('args'),
-      rwinp = $('input[name=rw]'),
-      rwainp = $('input[name=rwa]'),
-      argsinp = $('input[name=args]');
+      rwinp = root.find('input[name=rw]'),
+      rwainp = root.find('input[name=rwa]'),
+      argsinp = root.find('input[name=args]');
     if (value) {
       rwinp.val(value);
     }
@@ -1205,26 +1227,27 @@ $.initSnapinCommandUI = function(opts) {
     updateCmdStore();
   });
   if (opts.wirePackTypes) {
-    $('#packTypes').on('change', function() {
+    packTypes.on('change', function() {
       var option = $('option:selected', this),
         file = option.attr('file'),
         args = option.attr('args'),
-        rwinp = $('input[name=rw]'),
-        rwainp = $('input[name=rwa]');
+        rwinp = root.find('input[name=rw]'),
+        rwainp = root.find('input[name=rwa]');
       rwinp.val(file);
       rwainp.val(args);
     });
   }
   // Setup action radio selector
-  $('.snapin-action').on('click', onRadioSelect);
+  root.find('.snapin-action').on('click', onRadioSelect);
   updateCmdStore();
-  $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change keyup', function(e) {
+  root.find('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change keyup', function(e) {
     e.preventDefault();
     updateCmdStore();
   });
-  $('.cmdlet3').on('change blur', function() {
+  root.find('.cmdlet3').on('change blur', function() {
     updateCmdStore();
   });
+  return this;
 };
 /**
  * Printer create-form UI, shared by the printer add page, the printer list

@@ -21,9 +21,11 @@
         }
     });
 
-    // Shared command-builder UI (fog.common.js). Edit form has .packhide
-    // elements and wires #packTypes.
-    $.initSnapinCommandUI({packHide: true, wirePackTypes: true});
+    // Shared command-builder UI (fog.common.js), scoped to the general form so
+    // it cannot reach the association tables below. Edit form has .packhide
+    // elements and wires packTypes.
+    $('#snapin-general-form')
+        .initSnapinCommandUI({packHide: true, wirePackTypes: true});
     // ASSOCIATIONS
     // ---------------------------------------------------------------
     // HOST TAB

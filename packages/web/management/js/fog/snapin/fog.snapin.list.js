@@ -96,9 +96,11 @@
         });
     });
 
-    // Shared command-builder UI (fog.common.js). The list create-modal has no
-    // .packhide elements and no #packTypes selector, so no opts are passed.
-    $.initSnapinCommandUI();
+    // Shared command-builder UI (fog.common.js), scoped to the create form.
+    // No .packhide elements here. packTypes is NOT wired -- note _addFields()
+    // does render it in this modal, so its "Snapin Pack Template" select goes
+    // unwired; preserved as-is rather than changed while passing through.
+    createForm.initSnapinCommandUI();
     deleteSelected.on('click', function() {
         disableButtons(true);
         $.deleteSelected(table, function(err) {

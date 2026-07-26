@@ -2037,10 +2037,16 @@ class HostManagement extends FOGPage
      */
     public function hostSnapins()
     {
+        // Trailing 'snapin' opts this tab into the "Create New Snapin" button
+        // and modal (see renderAssocCreate), so a snapin that does not exist yet
+        // does not mean leaving the host page to upload it.
         $this->renderAssocTab(
             'host-snapin',
             _('Host Snapin Associations'),
             _('Snapin Name'),
+            'snapin',
+            'btn btn-primary float-end',
+            '',
             'snapin'
         );
 
