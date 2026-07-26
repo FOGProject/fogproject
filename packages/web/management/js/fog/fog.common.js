@@ -1471,6 +1471,19 @@ $.fn.registerTable = function(onSelect, opts) {
  * @param {Object} opts    optional overrides: {order}
  * @return {DataTable}
  */
+/**
+ * Register an export table.
+ *
+ * The columns array is POSITIONAL against the <th> row, which FOGPage::export()
+ * builds from the class's $databaseFields (plus 'primac' for hosts and a
+ * trailing 'associations' where getAssociationConfig() supplies one). So every
+ * field must appear here, in that same order -- DataTables walks each <th>,
+ * looks up aoColumns[i], and raises error 18 "Incorrect column count" when one
+ * is missing. Under the default errMode that is an alert the user dismisses
+ * before the page continues, so a field added to $databaseFields without a
+ * matching entry here shows up as a popup on the export page, not a silent
+ * omission. Add the column (visible: false is fine) whenever a field is added.
+ */
 $.fn.registerExportTable = function(columns, opts) {
   opts = opts || {};
   // Aisle 029: export tables render raw DB columns, several of which are

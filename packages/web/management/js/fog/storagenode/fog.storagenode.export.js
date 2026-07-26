@@ -9,6 +9,7 @@
         {data: 'path'},
         {data: 'ftppath'},
         {data: 'bitrate', visible: false},
+        {data: 'helloInterval', visible: false},
         {data: 'snapinpath'},
         {data: 'sslpath'},
         {data: 'ip'},
@@ -18,6 +19,7 @@
         {data: 'key', visible: false},
         {data: 'interface'},
         {data: 'bandwidth', visible: false},
-        {data: 'webroot'}
+        {data: 'webroot'},
+        {data: 'graphcolor', visible: false}
     ]);
 })(jQuery);

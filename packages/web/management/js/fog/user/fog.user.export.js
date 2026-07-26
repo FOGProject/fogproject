@@ -7,6 +7,7 @@
         {data: 'type', visible: false},
         {data: 'display'},
         {data: 'api', visible: false},
-        {data: 'token', visible: false}
+        {data: 'token', visible: false},
+        {data: 'authsource', visible: false}
     ]);
 })(jQuery);
