@@ -475,7 +475,12 @@ class LDAPGroupManagement extends FOGPage
             '`ldapGroupRoleAssoc`.`lgraGroupID`',
             [
                 [
-                    'db' => 'ldapGroupAssoc',
+                    // getItemsList() aliases the association flag as
+                    // strtolower(class) . 'Assoc', so this is 'ldapgroup',
+                    // not 'ldapGroup'. The lookup is a case-sensitive array
+                    // key, and a miss reads as dissociated -- the tab renders
+                    // fine and every checkbox is silently unchecked.
+                    'db' => 'ldapgroupAssoc',
                     'dt' => 'association',
                     'removeFromQuery' => true
                 ]
@@ -498,7 +503,12 @@ class LDAPGroupManagement extends FOGPage
             '`ldapGroupUserGroupAssoc`.`lgugGroupID`',
             [
                 [
-                    'db' => 'ldapGroupAssoc',
+                    // getItemsList() aliases the association flag as
+                    // strtolower(class) . 'Assoc', so this is 'ldapgroup',
+                    // not 'ldapGroup'. The lookup is a case-sensitive array
+                    // key, and a miss reads as dissociated -- the tab renders
+                    // fine and every checkbox is silently unchecked.
+                    'db' => 'ldapgroupAssoc',
                     'dt' => 'association',
                     'removeFromQuery' => true
                 ]
