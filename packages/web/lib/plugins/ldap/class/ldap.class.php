@@ -731,6 +731,21 @@ class LDAP extends FOGController
          */
         $parsedDN = $this->_ldapParseDn($searchDN);
         /**
+         * Whether the block below reads the user's DN back from the
+         * directory. When it does, $userDN already holds the canonical DN
+         * and the identical lookup further down is a wasted round trip --
+         * slapd's own log shows two identical
+         * (&(|(objectcategory=person)(objectclass=person))(uid=x)) queries
+         * for a single sign-in, and on a remote directory a round trip is
+         * ~35ms.
+         *
+         * On the else path the DN is *constructed* (uid=user,searchDN, or
+         * user@domain, or domain\user) rather than read back, and the
+         * guess that happened to bind is not necessarily the canonical DN,
+         * so that path still has to look it up.
+         */
+        $userDNFromSearch = ($useGroupMatch > 0 && !empty($bindDN));
+        /**
          * If binddn is set run through it.
          * Of course we don't need to do this if the
          * use group match isn't set.  We do still need
@@ -955,37 +970,43 @@ class LDAP extends FOGController
                 return false;
             }
         }
-        $attr = ['dn'];
-        $filter = sprintf(
-            '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
-            $usrNamAttr,
-            $user
-        );
-        $result = $this->_result($searchDN, $filter, $attr);
-        if (false === $result) {
-            error_log(
-                sprintf(
-                    '%s %s() %s. %s: %s; %s: %s',
-                    _('Plugin'),
-                    __METHOD__,
-                    _('Search DN did not return any results'),
-                    _('Search DN'),
-                    $searchDN,
-                    _('Filter'),
-                    $filter
-                )
+        /**
+         * Skipped when the bind-DN path above already read this exact
+         * answer back from the directory; see $userDNFromSearch.
+         */
+        if (!$userDNFromSearch) {
+            $attr = ['dn'];
+            $filter = sprintf(
+                '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
+                $usrNamAttr,
+                $user
             );
-            @$this->unbind();
-            return false;
+            $result = $this->_result($searchDN, $filter, $attr);
+            if (false === $result) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s. %s: %s; %s: %s',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Search DN did not return any results'),
+                        _('Search DN'),
+                        $searchDN,
+                        _('Filter'),
+                        $filter
+                    )
+                );
+                @$this->unbind();
+                return false;
+            }
+            /**
+             * Only one entry
+             */
+            $entries = $this->get_entries($result);
+            /**
+             * Pull out the user dn
+             */
+            $userDN = $entries[0]['dn'];
         }
-        /**
-         * Only one entry
-         */
-        $entries = $this->get_entries($result);
-        /**
-         * Pull out the user dn
-         */
-        $userDN = $entries[0]['dn'];
         /**
          * The bind above already proved the identity. What is left is
          * "which of this server's mapped groups is this user in?", which
