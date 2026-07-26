@@ -152,8 +152,16 @@ class BootMenu extends FOGBase
         // names from Route::$sensitiveFields so the two lists cannot drift
         // again when a new secret field is added.
         // Reported by Aisle Research (086 / 4.28.2).
-        foreach (Route::$sensitiveFields as $fields) {
-            $ignore_keys = array_merge($ignore_keys, $fields);
+        // Both tiers: $sensitiveAlwaysFields holds the secrets no client may
+        // read back at all, which this endpoint least of all -- it is the
+        // unauthenticated one. Iterating only $sensitiveFields would let a
+        // field silently leave this blocklist the moment it was promoted to
+        // the stricter tier, which is the exact drift this loop exists to
+        // prevent.
+        foreach ([Route::$sensitiveFields, Route::$sensitiveAlwaysFields] as $tier) {
+            foreach ($tier as $fields) {
+                $ignore_keys = array_merge($ignore_keys, $fields);
+            }
         }
         $output = [];
         foreach ($object as $property => $value) {

@@ -88,6 +88,18 @@ class Route extends FOGBase
      */
     protected static $getterDepth = 0;
     /**
+     * The class the current API route is serving, recorded so printer() can
+     * strip secrets from a payload that does not name its own class.
+     *
+     * A list payload carries a '_lang' stamp, but a single-entity GET is a
+     * flat object with no such marker. Rather than add one -- which would
+     * change the documented response shape for every consumer -- the class is
+     * kept alongside the payload and read back at the emitter.
+     *
+     * @var string
+     */
+    protected static $emitClassname = '';
+    /**
      * Maximum relation-expansion depth. Related objects are serialized with
      * plain getter() (no further expansion), so expansion is one level deep
      * and cannot recurse back onto the parent entity.
@@ -127,13 +139,66 @@ class Route extends FOGBase
             'password',
             'token',
         ],
-        // The directory service account's password. Unlike a host's ADPass
-        // there is no consumer that legitimately reads this back out over
-        // the API -- only the web tier binds with it -- so it has no reason
-        // to appear in a listing.
+    ];
+    /**
+     * Fields stripped from EVERY API payload, a direct single-entity GET
+     * included.
+     *
+     * The single-GET carve-out above exists for one reason: fog-client reads
+     * a host's ADPass back out to join a domain, so that field has a real
+     * consumer and cannot be closed off. Nothing reads the LDAP bind password
+     * back out -- only the web tier binds with it, and it does so through the
+     * ORM, not the API -- so it has no reason to leave the server at all.
+     *
+     * Anything listed here is also stripped from lists; the two tiers are
+     * unioned for list payloads. Add a field here rather than above whenever
+     * "some client legitimately needs to read this" is not true of it.
+     *
+     * @var array
+     */
+    public static $sensitiveAlwaysFields = [
         'ldap' => [
             'bindPwd',
         ],
+    ];
+    /**
+     * globalSettings rows whose VALUE is a credential.
+     *
+     * Settings are the odd one out: they are key/value rows, so the secret is
+     * the value of a particular *row* rather than a column present on every
+     * row. A setting matched here has its 'value' removed from API output
+     * while its name, description and category stay, so a consumer can still
+     * see the setting exists.
+     *
+     * Matching is a pattern plus a short explicit list rather than a hand
+     * maintained enumeration of every key, so a credential setting added
+     * later is masked by default instead of silently leaking until someone
+     * remembers to add it. The pattern deliberately requires PASSWORD/PASSWD/
+     * PWD and not a bare "PASS": FOG_USER_MINPASSLENGTH,
+     * FOG_USER_VALIDPASSCHARS and FOG_USER_VALIDPASSHELPMSG are password
+     * *policy* and must stay readable for the UI to describe its own rules.
+     *
+     * @var string
+     */
+    const SENSITIVE_SETTING_PATTERN = '#(PASSWORD|PASSWD|PWD|SECRET|TOKEN)#i';
+    /**
+     * Credential settings the pattern does not catch.
+     *
+     * @var array
+     */
+    public static $sensitiveSettings = [
+        'FOG_STORAGENODE_MYSQLPASS',
+    ];
+    /**
+     * Settings the pattern catches that are not credentials.
+     *
+     * FOG_ENABLE_SHOW_PASSWORDS is a boolean toggle whose name merely
+     * contains "PASSWORDS"; masking it would hide a UI preference.
+     *
+     * @var array
+     */
+    public static $sensitiveSettingsExempt = [
+        'FOG_ENABLE_SHOW_PASSWORDS',
     ];
     /**
      * Stores the valid classes.
@@ -2005,6 +2070,9 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
+            // Recorded for printer(): a single-entity payload is flat and does
+            // not name its own class.
+            self::$emitClassname = $classname;
             $class = new $class($id);
             if (!$class->isValid()) {
                 self::sendResponse(
@@ -2902,21 +2970,24 @@ class Route extends FOGBase
      */
     public static function stripSensitivePayload($data)
     {
-        if (!is_array($data)
-            || !isset($data['_lang'])
-            || !isset($data['data'])
-            || !is_array($data['data'])
-        ) {
+        if (!is_array($data)) {
             return $data;
         }
-        $classname = strtolower((string)$data['_lang']);
-        if (count((array)(self::$sensitiveFields[$classname] ?? [])) < 1) {
+        $classname = isset($data['_lang'])
+            ? strtolower((string)$data['_lang'])
+            : self::$emitClassname;
+        if ('' === $classname) {
             return $data;
         }
-        foreach ($data['data'] as $i => $row) {
-            $data['data'][$i] = self::stripSensitive($classname, $row);
+        if (isset($data['data']) && is_array($data['data'])) {
+            // List payload: both tiers, every row.
+            foreach ($data['data'] as $i => $row) {
+                $data['data'][$i] = self::stripSensitive($classname, $row);
+            }
+            return $data;
         }
-        return $data;
+        // Single-entity payload: only the fields no client may read back.
+        return self::stripSensitive($classname, $data, true);
     }
     /**
      * This is a commonizing element so list/search/getinfo
@@ -3277,15 +3348,64 @@ class Route extends FOGBase
      *
      * @return mixed
      */
-    public static function stripSensitive($classname, $data)
+    public static function stripSensitive($classname, $data, $alwaysOnly = false)
     {
         if (!is_array($data)) {
             return $data;
         }
-        foreach ((array)(self::$sensitiveFields[$classname] ?? []) as $field) {
+        $fields = (array)(self::$sensitiveAlwaysFields[$classname] ?? []);
+        if (!$alwaysOnly) {
+            $fields = array_merge(
+                $fields,
+                (array)(self::$sensitiveFields[$classname] ?? [])
+            );
+        }
+        foreach ($fields as $field) {
             unset($data[$field]);
         }
+        if ('setting' === $classname) {
+            $data = self::maskSensitiveSetting($data);
+        }
         return $data;
+    }
+    /**
+     * Blanks the value of a globalSettings row that holds a credential.
+     *
+     * Unlike every other class the sensitive part of a setting is not a
+     * column but the value of a particular key, so this keys off the row's
+     * name. The name/description/category stay, so the setting is still
+     * visible -- only its value goes.
+     *
+     * @param mixed $data A serialized setting row.
+     *
+     * @return mixed
+     */
+    public static function maskSensitiveSetting($data)
+    {
+        if (!is_array($data) || !isset($data['name'])) {
+            return $data;
+        }
+        if (self::isSensitiveSetting((string)$data['name'])) {
+            unset($data['value']);
+        }
+        return $data;
+    }
+    /**
+     * Whether a globalSettings key holds a credential.
+     *
+     * @param string $key The settingKey to test.
+     *
+     * @return bool
+     */
+    public static function isSensitiveSetting($key)
+    {
+        if (in_array($key, self::$sensitiveSettingsExempt, true)) {
+            return false;
+        }
+        if (in_array($key, self::$sensitiveSettings, true)) {
+            return true;
+        }
+        return 1 === preg_match(self::SENSITIVE_SETTING_PATTERN, $key);
     }
     /**
      * Declarative per-class relation map driving ?expand. Each entry:
