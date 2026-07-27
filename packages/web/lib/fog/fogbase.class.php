@@ -2618,11 +2618,23 @@ abstract class FOGBase
                 : null;
         }
 
+        // One entry per requested key, in the order asked for, whether or not
+        // the row exists. Every array-form caller destructures the result
+        // positionally -- list($dev, $log, $zzz) = getSetting($keys) -- so
+        // skipping an absent key shifted every later value one place to the
+        // left and left the last variable undefined. That is the same defect
+        // as issue #728 on 1.5, which reached it through getSubObjectIDs()
+        // instead; there the multicast daemon took its log filename from the
+        // device setting and ran with no sleep interval.
+        //
+        // null rather than '' to match what the single-key form above returns
+        // for a missing row, so both shapes agree and the existing "value or
+        // default" checks at the call sites keep working.
         $vals = [];
         foreach ($keys as $k) {
-            if (isset(self::$_settingsCache[$k])) {
-                $vals[] = self::$_settingsCache[$k]['value'];
-            }
+            $vals[] = isset(self::$_settingsCache[$k])
+                ? self::$_settingsCache[$k]['value']
+                : null;
         }
 
         return $vals;
