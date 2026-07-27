@@ -1696,6 +1696,111 @@ class Route extends FOGBase
         return $data;
     }
     /**
+     * Normalizes the filter argument and vets its keys.
+     *
+     * The /names and /ids routes take their filter as a URL segment
+     * ("[*:whereItems]"), and runMatches() hands matched segments over as
+     * the raw strings they are. Both methods then went straight into
+     * count($whereItems), which under PHP 8 is a TypeError -- so the
+     * filtered form of these endpoints returned a 500 on any PHP 8 install
+     * rather than a result. Parse the string into the array the rest of the
+     * method already expects.
+     *
+     * Keys are checked here because making the string parse is what puts
+     * them in reach: a key the class does not declare resolves to an empty
+     * column identifier, the DB rejects the statement, and the caller is
+     * told nothing useful. The offending key is named -- the caller is
+     * authenticated, and an unexplained filter error is the thing being
+     * fixed -- but never the SQL.
+     *
+     * @param string|array $whereItems The filter, as string or array.
+     * @param string       $class      Class to vet the keys against.
+     *
+     * @return array The normalized filter.
+     */
+    public static function handleWhereItems($whereItems, $class = null)
+    {
+        if (is_string($whereItems)) {
+            parse_str(urldecode($whereItems), $whereItems);
+            foreach ($whereItems as $key => $val) {
+                if (!empty($val) && false !== strpos($val, ',')) {
+                    $whereItems[$key] = explode(',', $val);
+                }
+            }
+        }
+        $whereItems = (array)$whereItems;
+        if (!$class || count($whereItems) < 1) {
+            return $whereItems;
+        }
+        $classVars = self::getClass($class, '', true);
+        $valid = array_keys((array)$classVars['databaseFields']);
+        $unknown = array_diff(array_keys($whereItems), $valid);
+        if (count($unknown) > 0) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    [
+                        'error' => sprintf(
+                            'Unknown filter field(s) for %s: %s',
+                            strtolower($class),
+                            implode(', ', $unknown)
+                        ),
+                        'valid' => $valid
+                    ]
+                )
+            );
+        }
+        return $whereItems;
+    }
+    /**
+     * Builds a parameterized WHERE clause for the given filter.
+     *
+     * names() and ids() each carried their own copy of this, both of which
+     * interpolated the value straight into the SQL string inside single
+     * quotes. That was survivable only because the filtered routes could
+     * never actually run -- see handleWhereItems(). Making them work puts
+     * request-supplied values on that path, so the values are bound rather
+     * than pasted.
+     *
+     * @param array $classVars  The queried class's vars.
+     * @param array $whereItems The normalized filter.
+     * @param array $params     Filled with the bound parameters.
+     *
+     * @return string The WHERE clause, or '' when there is no filter.
+     */
+    private static function _buildWhere($classVars, $whereItems, &$params)
+    {
+        $params = [];
+        if (count($whereItems) < 1) {
+            return '';
+        }
+        $where = '';
+        $idx = 0;
+        foreach ($whereItems as $key => $field) {
+            $where .= ('' === $where ? ' WHERE `' : ' AND `')
+                . $classVars['databaseFields'][$key]
+                . '`';
+            if (is_array($field)) {
+                $names = [];
+                foreach (array_values($field) as $i => $val) {
+                    $pname = 'where_' . $idx . '_' . $i;
+                    $names[] = ':' . $pname;
+                    $params[$pname] = $val;
+                }
+                $where .= ' IN (' . implode(',', $names) . ')';
+            } else {
+                $pname = 'where_' . $idx;
+                $params[$pname] = $field;
+                // A '%' still means a pattern, matching how the managers
+                // treat one; anything else is compared literally.
+                $where .= (false !== strpos((string)$field, '%') ? ' LIKE :' : ' = :')
+                    . $pname;
+            }
+            ++$idx;
+        }
+        return $where;
+    }
+    /**
      * Returns only the ids and names of the class passed in.
      *
      * @param string $class      The class to get list of.
@@ -1713,6 +1818,8 @@ class Route extends FOGBase
             true
         );
 
+        $whereItems = self::handleWhereItems($whereItems, $class);
+
         $sql = 'SELECT `'
             . $classVars['databaseFields']['id']
             . '`,`'
@@ -1721,37 +1828,14 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        if (count($whereItems) > 0) {
-            $where = '';
-            foreach ($whereItems as $key => &$field) {
-                if (!$where) {
-                    $where = ' WHERE `'
-                        . $classVars['databaseFields'][$key]
-                        . '`';
-                } else {
-                    $where .= ' AND `'
-                        . $classVars['databaseFields'][$key]
-                        . '`';
-                }
-                if (is_array($field)) {
-                    $where .= " IN ('"
-                        . implode("','", $field)
-                        . "')";
-                } else {
-                    $where .= " = '"
-                        . $field
-                        . "'";
-                }
-            }
-            $sql .= $where;
-        }
+        $sql .= self::_buildWhere($classVars, $whereItems, $params);
         $sql .= ' ORDER BY `'
             . (
                 $classVars['databaseFields']['name'] ?:
                 $classVars['databaseFields']['id']
             )
             . '` ASC';
-        $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $vals = self::$DB->query($sql, [], $params)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = [
                 'id' => $val[$classVars['databaseFields']['id']],
@@ -1784,36 +1868,52 @@ class Route extends FOGBase
             file_get_contents('php://input')
         );
 
+        $whereItems = self::handleWhereItems($whereItems, $class);
+
+        // getField is the other half of the URL ("/ids/id=1/name"), so an
+        // unrecognised value lands the same empty column identifier as an
+        // unknown filter key -- here in the SELECT rather than the WHERE.
+        //
+        // Answered rather than raised, and only when actually serving a
+        // request: sendResponse() exits, and ids() is called from the
+        // services and from the association helper in FOGController with a
+        // getField held in a variable. Exiting there would turn a bad field
+        // into a dead daemon, so off-request this only logs and leaves the
+        // pre-existing behaviour (a rejected query) alone.
+        if (!isset($classVars['databaseFields'][$getField])) {
+            $msg = sprintf(
+                'Route::ids: unknown field for %s: %s',
+                $classname,
+                $getField
+            );
+            if ('cli' === PHP_SAPI) {
+                self::error($msg);
+            } else {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    json_encode(
+                        [
+                            'error' => sprintf(
+                                'Unknown field for %s: %s',
+                                $classname,
+                                $getField
+                            ),
+                            'valid' => array_keys(
+                                (array)$classVars['databaseFields']
+                            )
+                        ]
+                    )
+                );
+            }
+        }
+
         $sql = 'SELECT `'
             . $classVars['databaseFields'][$getField]
             . '` FROM `'
             . $classVars['databaseTable']
             . '`';
 
-        if (count($whereItems) > 0) {
-            $where = '';
-            foreach ($whereItems as $key => &$field) {
-                if (!$where) {
-                    $where = ' WHERE `'
-                        . $classVars['databaseFields'][$key]
-                        . '`';
-                } else {
-                    $where .= ' AND `'
-                        . $classVars['databaseFields'][$key]
-                        . '`';
-                }
-                if (is_array($field)) {
-                    $where .= " IN ('"
-                        . implode("','", $field)
-                        . "')";
-                } else {
-                    $where .= " = '"
-                        . $field
-                        . "'";
-                }
-            }
-            $sql .= $where;
-        }
+        $sql .= self::_buildWhere($classVars, $whereItems, $params);
         $sql .= ' ORDER BY `'
             . (
                 (isset($classVars['databaseFields']['name']) && $classVars['databaseFields']['name']) ?
@@ -1821,7 +1921,7 @@ class Route extends FOGBase
                 $classVars['databaseFields']['id']
             )
             . '` ASC';
-        $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $vals = self::$DB->query($sql, [], $params)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = $val[$classVars['databaseFields'][$getField]];
             unset($val);
