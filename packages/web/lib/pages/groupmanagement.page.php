@@ -1051,7 +1051,7 @@ class GroupManagement extends FOGPage
         if (isset($_POST['confirmlevelup'])) {
             $level = filter_input(INPUT_POST, 'level');
             self::getClass('HostManager')->update(
-                ['id' => $this->get('hosts')],
+                ['id' => $this->obj->get('hosts')],
                 '',
                 ['printerLevel' => $level]
             );
