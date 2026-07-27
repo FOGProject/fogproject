@@ -1273,13 +1273,22 @@ abstract class FOGController extends FOGBase
             return $this;
         }
 
-        // Get the current items. Guard against a non-array fallback (e.g.
-        // an empty string) so a bad value can't cast to [''] below and be
-        // diffed in as a phantom "new" association.
-        $items = $this->get($plural);
-        if (!$items) {
-            $items = [];
-        }
+        // Get the current items, normalized to positive integer ids.
+        //
+        // Every relation routed through here diffs on a "{$alterItem}ID"
+        // column, so a non-positive or non-numeric entry can only ever be
+        // junk. Two shapes of junk reach this point: a wholly falsy get()
+        // fallback (an empty string casts to [''], which subtracts nothing
+        // from $cur and then inserts as id 0), and a 0 sitting inside an
+        // otherwise valid list.
+        //
+        // Filtering here rather than at the caller is the point. The filter
+        // used to live in Host::save() alone (8e31b5cf0), which left the
+        // other 23 assocSetter() call sites unguarded -- and patching a
+        // shared hole at one caller is what produced the snapin wipe this
+        // supersedes (PR #906). A standing property of the writer cannot be
+        // bypassed by a caller that does not know it needs to opt in.
+        $items = self::positiveIntIds($this->get($plural));
 
         // Fetch current associations from the database.
         $cur = Route::getIds(
