@@ -137,11 +137,12 @@ class Image extends FOGController
     public function save()
     {
         parent::save();
-        // isPopulated(), not isLoaded(): the latter is a test-and-set, so on
-        // a second save() of one instance the gate answered true while
-        // get('hosts') short-circuited to '', making the count() calls below
-        // a PHP 8 TypeError. See FOGProject/fogproject#906.
-        if ($this->isPopulated('hosts')) {
+        // isDirty(), not isPopulated(): isPopulated() is also true when
+        // 'hosts' was merely lazy-loaded for reading, which would make an
+        // unrelated image save (e.g. renaming it) re-run this whole
+        // reassignment block for a no-op result. isDirty() only reports
+        // true when the caller actually set the host list.
+        if ($this->isDirty('hosts')) {
             if (count($this->get('hosts')) > 0) {
                 $DBIDs = self::getSubObjectIDs(
                     'Host',

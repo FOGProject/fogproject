@@ -120,6 +120,14 @@ abstract class FOGBase
      */
     protected $isLoaded = array();
     /**
+     * Tracks which keys a caller has actually written (via set()/add()/
+     * remove()), as opposed to keys merely lazy-loaded for reading. See
+     * isDirty()'s docblock.
+     *
+     * @var array
+     */
+    protected $dirty = array();
+    /**
      * The length of a given string item.
      *
      * @var int
@@ -1018,6 +1026,38 @@ abstract class FOGBase
         $key = $this->key($key);
 
         return isset($this->data[$key]);
+    }
+    /**
+     * Whether a caller has actually written $key this request -- via
+     * set(), add(), or remove() -- as opposed to it merely being
+     * lazy-loaded for reading. A pure, side-effect-free predicate.
+     *
+     * Stricter than isPopulated(): a key can be populated (get() will
+     * return real data) without being dirty (nothing asked to change it).
+     * Use this instead of isPopulated() wherever the guard means "only do
+     * this if the caller actually intended a change" -- e.g. assocSetter(),
+     * which otherwise re-runs its DB diff on every save() for any
+     * association a request happened to read for display, even when
+     * nothing about it changed.
+     *
+     * set()/add()/remove() mark their key dirty as the last thing they do.
+     * loadItem() clears the mark for its own key immediately after
+     * dispatching to a loadX() method, since anything set() does purely to
+     * cache a lazy load is not a caller-driven change. Because a genuine
+     * write always marks dirty *after* any nested loadItem() call it
+     * triggers first (both check isLoaded() and lazy-load before
+     * mutating), a real change can never be erased by a load that
+     * happens to run first in the same call.
+     *
+     * @param string|int $key the key to check
+     *
+     * @return bool
+     */
+    protected function isDirty($key)
+    {
+        $key = $this->key($key);
+
+        return isset($this->dirty[$key]);
     }
     /**
      * Reduce a value to the positive integer ids it contains.

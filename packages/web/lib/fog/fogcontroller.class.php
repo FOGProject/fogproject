@@ -261,6 +261,7 @@ abstract class FOGController extends FOGBase
             );
             self::info($msg);
             $this->data[$key] = $value;
+            $this->dirty[$key] = true;
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -311,6 +312,7 @@ abstract class FOGController extends FOGBase
                 $this->data[$key] = array($this->data[$key]);
             }
             $this->data[$key][] = $value;
+            $this->dirty[$key] = true;
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -365,6 +367,7 @@ abstract class FOGController extends FOGBase
                 unset($this->data[$key][$ind]);
             }
             $this->data[$key] = array_values(array_filter($this->data[$key]));
+            $this->dirty[$key] = true;
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -871,6 +874,12 @@ abstract class FOGController extends FOGBase
         $methodCall = sprintf('load%s', ucfirst($key));
         if (method_exists($this, $methodCall)) {
             $this->{$methodCall}();
+            // A loadX() method caches what it fetched via set(), which
+            // marks $key dirty as an unavoidable side effect. That's a
+            // cache-fill, not a caller-driven change, so retract the mark
+            // immediately -- isDirty() should only ever report true for a
+            // key a caller actually meant to write.
+            unset($this->dirty[$key]);
         }
         unset($methodCall);
 
@@ -1146,13 +1155,15 @@ abstract class FOGController extends FOGBase
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
-        // Don't work on item that isn't populated yet. isPopulated(), not
-        // isLoaded(): isLoaded() marks a key loaded on every call, even one
-        // that answers false, so a bare isLoaded() gate anywhere else in the
-        // request could poison this check into proceeding on empty data --
-        // which diffs to "remove everything". isPopulated() has no such side
-        // effect. See FOGProject/fogproject#906.
-        if (!$this->isPopulated($plural)) {
+        // Don't work on an association the caller didn't actually touch.
+        // isDirty(), not isPopulated(): isPopulated() is also true when a
+        // key was merely lazy-loaded for reading (e.g. reported in a
+        // status response), which would otherwise make this run a full
+        // DB diff -- for a no-op result -- on every save() that happens
+        // to read this association first. isDirty() only reports true
+        // for a real caller-driven write, so an untouched association
+        // costs nothing here, not even the Route::ids() lookup below.
+        if (!$this->isDirty($plural)) {
             return $this;
         }
 
