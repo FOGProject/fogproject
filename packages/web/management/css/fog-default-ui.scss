@@ -44,6 +44,14 @@ $fog-toggle-hover-bg:     #367fa9; // skin-blue sidebar-toggle
 $fog-modal-footer-bg:     #dfdfdf;
 $fog-modal-footer-border: #bfbfbf;
 
+// The dismiss button in a modal footer, which opts out of the type-coloured
+// fill the other footer buttons get. Tokenised rather than a literal #FFF so
+// dark mode can re-point it -- the old hardcoded white was never visible
+// (its selector was dead, see the .float-start rule) and would have read as a
+// white slab on the dark footer the moment it was.
+$fog-modal-btn-plain-bg:  #fff;
+$fog-modal-btn-plain-fg:  $fog-text-muted;
+
 $fog-badge-bg:            #d2d6de;
 $fog-border-light:        #f4f4f4;
 
@@ -73,6 +81,8 @@ $fog-row-hover:           #eef4f9; // table-hover rows
   --fog-toggle-hover-bg:     #{$fog-toggle-hover-bg};
   --fog-modal-footer-bg:     #{$fog-modal-footer-bg};
   --fog-modal-footer-border: #{$fog-modal-footer-border};
+  --fog-modal-btn-plain-bg:  #{$fog-modal-btn-plain-bg};
+  --fog-modal-btn-plain-fg:  #{$fog-modal-btn-plain-fg};
   --fog-badge-bg:            #{$fog-badge-bg};
   --fog-border-light:        #{$fog-border-light};
   --fog-canvas:              #{$fog-canvas};
@@ -118,12 +128,8 @@ $fog-row-hover:           #eef4f9; // table-hover rows
   text-overflow: ellipsis;
 }
 
-.pull-right-container {
-  float: right;
-}
-
 // ---------------------------------------------------------------------------
-// Modernization pass — restrained polish on top of AdminLTE 2.4 / BS3.3.
+// Modernization pass — restrained polish on top of AdminLTE 4 / BS 5.3.3.
 //
 // CSS-only (no framework change): one coherent radius scale, a soft elevation
 // in place of the flat hard-frame look, flat inputs with a primary focus ring,
@@ -359,10 +365,15 @@ header.main-header .mobile-logo {
   color: #fff !important;
 }
 
-.modal .modal-dialog .modal-footer .btn.pull-left {
+// The dismiss button opts out of the type-coloured fill above. This targeted
+// .pull-left until the Bootstrap 5 migration renamed it .float-start, at which
+// point the selector stopped matching anything -- so every modal rendered both
+// footer buttons in the type colour, and a modal's commit button could not be
+// told apart from its cancel. Bootstrap 3 float helpers are gone; use BS5's.
+.modal .modal-dialog .modal-footer .btn.float-start {
   border: none;
-  background-color: #FFF !important;
-  color: var(--fog-text-muted) !important;
+  background-color: var(--fog-modal-btn-plain-bg) !important;
+  color: var(--fog-modal-btn-plain-fg) !important;
 }
 
 // ---------------------------------------------------------------------------
@@ -866,6 +877,10 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
   // Re-point the tokens so the footer reads as a raised dark strip.
   --fog-modal-footer-bg:     var(--bs-secondary-bg); // = --fog-surface-2 (distinct from body)
   --fog-modal-footer-border: var(--bs-border-color); // = --fog-border
+  // The plain dismiss button sits *on* that strip, so it needs to read as a
+  // recessed surface against it rather than the literal white of light mode.
+  --fog-modal-btn-plain-bg:  var(--bs-body-bg);     // = --fog-bg (sunken vs the footer)
+  --fog-modal-btn-plain-fg:  var(--bs-body-color);  // = --fog-text
 
   // -- DataTables 2.x striping --
   // Striping/hover/sorted-column shading are box-shadow overlays of
@@ -1148,12 +1163,14 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
     background-color: var(--fog-input-disabled-bg);
     color: var(--fog-text-muted);
   }
-  .input-group-addon,
   .input-group-text {
     background-color: var(--fog-surface-2);
     border-color: var(--fog-input-border);
     color: var(--fog-text);
   }
+  // Not dead code despite .btn-default being a Bootstrap 3 class: bootbox
+  // 4.4.0 is still enqueued (js/bootbox.min.js) and hardcodes it on its
+  // dismiss button. Delete this only when bootbox is upgraded or dropped.
   .btn-default {
     background-color: var(--fog-surface-2);
     border-color: var(--fog-border);
@@ -1250,10 +1267,6 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
   code {
     background-color: var(--fog-surface-2);
     color: var(--fog-warning);
-  }
-  .well {
-    background-color: var(--fog-bg);
-    border-color: var(--fog-border);
   }
 
   // -- loading overlay (white -> dark so it dims instead of flashing white) --
