@@ -129,10 +129,12 @@ class Image extends FOGController
     public function save()
     {
         parent::save();
-        // isPopulated(), not isLoaded(): isLoaded() marks a key loaded on
-        // every call even when it answers false, so it can't be trusted as
-        // a standalone "did the caller actually set hosts" precondition.
-        if ($this->isPopulated('hosts')) {
+        // isDirty(), not isPopulated(): isPopulated() is also true when
+        // 'hosts' was merely lazy-loaded for reading, which would make an
+        // unrelated image save (e.g. renaming it) re-run this whole
+        // reassignment block for a no-op result. isDirty() only reports
+        // true when the caller actually set the host list.
+        if ($this->isDirty('hosts')) {
             $ids = Route::getIds(
                 'host',
                 ['imageID' => $this->get('id')]

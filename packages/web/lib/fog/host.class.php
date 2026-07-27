@@ -291,7 +291,10 @@ class Host extends FOGController
         // assocSetter inserts new snapin associations with sequence 0; give
         // any unsequenced rows a run-order value after the existing ones so
         // newly added snapins land at the end rather than jumping to front.
-        if ($this->isPopulated('snapins')) {
+        // isDirty(), not isPopulated(): matches assocSetter()'s own gate --
+        // there's nothing new to sequence if the caller never touched
+        // snapins, even if something else in the request read them.
+        if ($this->isDirty('snapins')) {
             self::appendSnapinSequence($this->get('id'));
         }
         // Safety net: never leave the host with MAC rows but no primary MAC.
