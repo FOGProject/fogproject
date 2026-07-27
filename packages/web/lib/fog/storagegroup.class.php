@@ -452,8 +452,12 @@ class StorageGroup extends FOGController
     public function save()
     {
         parent::save();
+        // No assocSetter('StorageGroup', 'storagenode') here: it derived the
+        // plural 'storagenodes', which is not in $additionalFields and has no
+        // loader, so the key could never hold data and the call was dead.
+        // Node membership is managed by addNode()/removeNode(), which write
+        // StorageNodeManager directly and never touch that key.
         return $this
-            ->assocSetter('StorageGroup', 'storagenode', true)
             ->assocSetter('Image', 'image')
             ->assocSetter('SnapinGroup', 'snapin')
             ->load();

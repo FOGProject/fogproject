@@ -250,6 +250,22 @@ class Group extends FOGController
                     $insert_fields,
                     $insert_values
                 );
+            // insertBatch cannot carry the sequence: it upserts on the
+            // (saHostID, saSnapinID) unique key, so a snapin the host already
+            // had would have its deliberate run-order overwritten. The rows
+            // therefore land at sequence 0, which sorts them ahead of every
+            // deliberately ordered snapin (Host::loadSnapins orders by
+            // sequence ASC, and createSnapinTasking numbers the tasks in that
+            // order). Number them per host afterwards instead.
+            //
+            // Host::save() used to sweep these up incidentally -- its
+            // appendSnapinSequence() gate was always true, because
+            // assocSetter() had already consumed the isLoaded() flag it
+            // tested. Fixing that gate (#906/#910) correctly stopped the
+            // sweep, so the sequence is assigned here at the source.
+            foreach ($hosts as $hostID) {
+                Host::appendSnapinSequence($hostID);
+            }
         }
 
         return $this;

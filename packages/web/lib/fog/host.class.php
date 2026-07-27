@@ -295,7 +295,7 @@ class Host extends FOGController
         // there's nothing new to sequence if the caller never touched
         // snapins, even if something else in the request read them.
         if ($this->isDirty('snapins')) {
-            $this->_appendSnapinSequence();
+            self::appendSnapinSequence($this->get('id'));
         }
         // Safety net: never leave the host with MAC rows but no primary MAC.
         // The primac join requires hmPrimary='1', so a host with no primary
@@ -1560,7 +1560,7 @@ class Host extends FOGController
             }
         }
         // Staged in-memory here; the snapinAssoc rows (and their run-order
-        // sequence) are persisted in save() via assocSetter()/_appendSnapinSequence().
+        // sequence) are persisted in save() via assocSetter()/appendSnapinSequence().
         return $this->addRemItem(
             'snapins',
             (array)$addArray,
@@ -1586,13 +1586,28 @@ class Host extends FOGController
      * Assigns a run-order sequence to any snapin associations that do
      * not have one yet, placing newly added snapins after existing ones.
      *
-     * @return object
+     * Static and host-id-parameterized rather than an instance method so a
+     * caller that already knows the host id does not have to construct (and
+     * fully load) a Host just to sequence its rows. Group::addSnapin() is
+     * that caller: it writes snapinAssoc rows for every member host with a
+     * direct insertBatch, which cannot carry the sequence itself -- the
+     * batch upserts on the (saHostID, saSnapinID) unique key, so including
+     * sequence would overwrite the deliberate ordering of any snapin the
+     * host already had.
+     *
+     * @param int $hostID the host whose unsequenced rows to number
+     *
+     * @return void
      */
-    private function _appendSnapinSequence()
+    public static function appendSnapinSequence($hostID)
     {
+        $hostID = (int)$hostID;
+        if ($hostID < 1) {
+            return;
+        }
         Route::listem(
             'snapinassociation',
-            ['hostID' => $this->get('id')],
+            ['hostID' => $hostID],
             false,
             'AND',
             'sequence'
@@ -1613,14 +1628,13 @@ class Host extends FOGController
             self::getClass('SnapinAssociationManager')
                 ->update(
                     [
-                        'hostID' => $this->get('id'),
+                        'hostID' => $hostID,
                         'snapinID' => $snapinID
                     ],
                     '',
                     ['sequence' => ++$maxSequence]
                 );
         }
-        return $this;
     }
     /**
      * Sets the run order of the host's snapins from an ordered list of

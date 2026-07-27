@@ -7992,6 +7992,11 @@ msgstr "als primäre Gruppe finden"
 msgid "automatically"
 msgstr "einen neuen Knoten zu finden"
 
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
+
 msgid "based task."
 msgstr ""
 
