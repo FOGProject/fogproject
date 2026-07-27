@@ -672,6 +672,26 @@ class MulticastManager extends FOGService
                     }
                 }
                 // We need to iterate the completeTasks and cancelTasks
+                //
+                // Both loops re-clear the sender reference after the session
+                // is closed out. Every task reaching them has already been
+                // through killTask(), so clearSenderRef() has zeroed
+                // senderpid and sendernode -- but cancel() and complete()
+                // finish with save() on a session object loaded back when the
+                // task was constructed, which still holds the pre-kill pid,
+                // and FOGController::save() writes every field it holds. The
+                // row therefore ended a completed session naming a sender
+                // that is already dead.
+                //
+                // That matters because _reconcileOrphanedSenders() trusts the
+                // column on the next start, and _isSenderAlive() only asks
+                // whether the pid is *a* udp-sender, not whether it is this
+                // session's. A recycled pid belonging to another session's
+                // sender would be killed -- taking down an unrelated
+                // deployment. Clearing after, rather than inside cancel() or
+                // complete(), keeps the reference alive whenever the sender
+                // has NOT been killed, which is exactly what lets the
+                // reconciler find a real orphan.
                 foreach ($cancelTasks as $Task) {
                     $Session = $Task->getSess();
                     self::outall(
@@ -686,6 +706,7 @@ class MulticastManager extends FOGService
                             )
                         )
                     );
+                    $Task->clearSenderRef();
                 }
                 foreach ($completeTasks as $Task) {
                     $Session = $Task->getSess();
@@ -701,6 +722,7 @@ class MulticastManager extends FOGService
                             )
                         )
                     );
+                    $Task->clearSenderRef();
                 }
             } catch (Exception $e) {
                 self::outall($e->getMessage());
