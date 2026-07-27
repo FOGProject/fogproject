@@ -4384,11 +4384,19 @@ class Route extends FOGBase
     /**
      * Allows joining items.
      *
+     * Static because runMatches() dispatches routed targets through
+     * is_callable([__CLASS__, 'method']), which PHP 8 evaluates to false for
+     * a non-static method reference. This was the only non-static target of
+     * the 27 registered, so it was the only route that fell through to the
+     * 501 at the bottom of runMatches() -- the join endpoint answered 501 for
+     * every class and both verbs, and nothing it writes had ever executed
+     * over HTTP.
+     *
      * @param string $class The class to join items to.
      *
      * @return void
      */
-    public function joining($class)
+    public static function joining($class)
     {
         try {
             $classname = strtolower($class);

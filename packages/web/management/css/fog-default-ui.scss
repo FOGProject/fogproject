@@ -374,6 +374,14 @@ header.main-header .mobile-logo {
   border: none;
   background-color: var(--fog-modal-btn-plain-bg) !important;
   color: var(--fog-modal-btn-plain-fg) !important;
+  // .modal-footer is display:flex with justify-content:flex-end, so the float
+  // helpers are inert here and the buttons simply sit in DOM emission order --
+  // which left the create-tasking modal rendering Create on the left and
+  // Cancel on the right. margin-right:auto is the flex equivalent of "go
+  // left": it makes .float-start mean what it says regardless of the order a
+  // caller emits its buttons in, so every modal footer lands dismiss-left /
+  // commit-right without touching ~20 call sites.
+  margin-right: auto;
 }
 
 // ---------------------------------------------------------------------------
