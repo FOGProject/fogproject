@@ -303,7 +303,10 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('mac')) {
+        // isPopulated(), not isLoaded(): isLoaded() marks a key loaded on
+        // every call even when it answers false, so it can't be trusted as
+        // a standalone "did the caller actually set this" precondition.
+        if ($this->isPopulated('mac')) {
             if (!$this->get('mac')->isValid()) {
                 throw new Exception(self::$foglang['InvalidMAC']);
             }
@@ -381,7 +384,8 @@ class Host extends FOGController
                 $HostWithMAC
             );
         }
-        if ($this->isLoaded('additionalMACs')) {
+        // isPopulated(), not isLoaded() -- see the save() entry comment.
+        if ($this->isPopulated('additionalMACs')) {
             self::_retValidMacs(
                 $this->get('additionalMACs'),
                 $addMacs
@@ -483,7 +487,8 @@ class Host extends FOGController
                 $RemoveAddMAC
             );
         }
-        if ($this->isLoaded('pendingMACs')) {
+        // isPopulated(), not isLoaded() -- see the save() entry comment.
+        if ($this->isPopulated('pendingMACs')) {
             self::_retValidMacs($this->get('pendingMACs'), $pendMacs);
             $RealPendMACs = array_filter($pendMacs);
             unset($pendMacs);
@@ -581,7 +586,8 @@ class Host extends FOGController
                 $RemovePendMAC
             );
         }
-        if ($this->isLoaded('powermanagementtasks')) {
+        // isPopulated(), not isLoaded() -- see the save() entry comment.
+        if ($this->isPopulated('powermanagementtasks')) {
             $DBPowerManagementIDs = self::getSubObjectIDs(
                 'PowerManagement',
                 array('hostID'=>$this->get('id'))

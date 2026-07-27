@@ -960,7 +960,25 @@ abstract class FOGBase
         return -1;
     }
     /**
-     * Check if isLoaded.
+     * Internal recursion guard for the get()/set()/loadItem() lazy-load
+     * chain -- NOT a "does this key hold data" predicate.
+     *
+     * This is a test-and-set: every call marks $key loaded, even one that
+     * returns false. That side effect is required so a loadX() method's
+     * own set() call doesn't see "not loaded" again, re-trigger loadItem(),
+     * and recurse forever. It means a bare `if ($this->isLoaded($key))`
+     * used as a standalone precondition -- anywhere the false branch isn't
+     * immediately followed, in the same call, by an actual load -- will
+     * silently poison the flag for the rest of the request: later code
+     * that calls get($key) expecting a real lazy-loaded value instead
+     * sees the (now-true) flag, skips the real load, and falls back to
+     * get()'s "never set" default.
+     *
+     * Use isPopulated($key) instead for "do I actually have data for this
+     * key" checks -- it has no such side effect. This exact confusion, on
+     * the working-1.6 branch, caused phantom saSnapinID=0 rows (and, worse,
+     * mass-deletion of real associations) to be inserted on every FOG
+     * client check-in.
      *
      * @param string|int $key the key to see if loaded
      *
@@ -973,6 +991,30 @@ abstract class FOGBase
         $this->isLoaded[$key] = true;
 
         return $result ? $result : false;
+    }
+    /**
+     * Whether $key currently holds resolved data -- a pure,
+     * side-effect-free predicate. Unlike isLoaded() (a recursion guard for
+     * the internal lazy-load chain; see its docblock), this is safe to use
+     * as a standalone precondition anywhere the caller means "do I have
+     * real data for this key," e.g. "only sync this association if the
+     * caller actually touched it."
+     *
+     * Deliberately isset(), not array_key_exists(): get()'s own fallback
+     * to '' is gated the same way (`isset($this->data[$key]) ? ... : ''`),
+     * so this only reports true when get() is actually about to return
+     * real data instead of that fallback -- the two must agree, or a key
+     * explicitly set to null would read as "populated" here while get()
+     * still silently handed back ''.
+     *
+     * @param string|int $key the key to check
+     *
+     * @return bool
+     */
+    protected function isPopulated($key)
+    {
+        $key = $this->key($key);
+        return isset($this->data[$key]);
     }
     /**
      * Reset request variables.
