@@ -425,8 +425,23 @@ class StorageManagementPage extends FOGPage
             . Initiator::e($helloInterval)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
+            // Names both roles on purpose. This field drives the dashboard
+            // bandwidth graph (status/bandwidth.php?dev=), and it is the
+            // multicast interface fallback when the routing table cannot
+            // answer. Until that fallback existed nothing read it, so it
+            // drifted -- a reference server had a NIC recorded that no
+            // longer existed. Appended at the label rather than in
+            // $foglang['Interface'], so the hint stays scoped to this
+            // field and that shared string keeps its generic meaning.
             '<label for="interface">'
             . self::$foglang['Interface']
+            . '<br/>'
+            . '('
+            . _(
+                'bandwidth graph, and multicast when the interface '
+                . 'cannot be derived from the routing table'
+            )
+            . ')'
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="interface" id="interface" value="'
             . Initiator::e($interface)
@@ -802,8 +817,23 @@ class StorageManagementPage extends FOGPage
             . Initiator::e($helloInterval)
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
+            // Names both roles on purpose. This field drives the dashboard
+            // bandwidth graph (status/bandwidth.php?dev=), and it is the
+            // multicast interface fallback when the routing table cannot
+            // answer. Until that fallback existed nothing read it, so it
+            // drifted -- a reference server had a NIC recorded that no
+            // longer existed. Appended at the label rather than in
+            // $foglang['Interface'], so the hint stays scoped to this
+            // field and that shared string keeps its generic meaning.
             '<label for="interface">'
             . self::$foglang['Interface']
+            . '<br/>'
+            . '('
+            . _(
+                'bandwidth graph, and multicast when the interface '
+                . 'cannot be derived from the routing table'
+            )
+            . ')'
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="interface" id="interface" value="'
             . Initiator::e($interface)

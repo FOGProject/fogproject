@@ -7245,6 +7245,11 @@ msgstr ""
 msgid "automatically"
 msgstr ""
 
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
+
 #, fuzzy
 msgid "based task."
 msgstr "based task"
