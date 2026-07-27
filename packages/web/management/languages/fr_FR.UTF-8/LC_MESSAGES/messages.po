@@ -7382,6 +7382,14 @@ msgstr "Inconnu"
 msgid "Unknown DB error"
 msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
+#, php-format
+msgid "Unknown field for %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Unknown filter field(s) for %s: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Unknown permission"
 msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "

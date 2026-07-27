@@ -7383,6 +7383,14 @@ msgstr "Unbekannt"
 msgid "Unknown DB error"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
+#, php-format
+msgid "Unknown field for %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Unknown filter field(s) for %s: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Unknown permission"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"

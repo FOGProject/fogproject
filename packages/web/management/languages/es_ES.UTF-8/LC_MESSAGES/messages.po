@@ -7527,6 +7527,14 @@ msgstr "Desconocido"
 msgid "Unknown DB error"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
+#, php-format
+msgid "Unknown field for %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Unknown filter field(s) for %s: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Unknown permission"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "

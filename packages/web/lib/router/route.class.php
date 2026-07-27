@@ -429,10 +429,20 @@ class Route extends FOGBase
      * see expandSearchWildcards(). An ARRAY argument came from PHP code and
      * is left exactly as passed, so a value is matched literally.
      *
+     * A STRING argument is also the only way an arbitrary filter key can
+     * reach _buildSql: parse_str() takes whatever the URL segment spells.
+     * Pass $class to have those keys checked against the class before they
+     * get that far, so a caller is told its filter key is wrong instead of
+     * silently receiving a match-nothing result. The JSON search body needs
+     * no such check -- getsearchbody() already intersects with the class's
+     * own fields. Internal callers pass arrays and are not validated here;
+     * a bad key from PHP code is a programming error, handled in _buildSql.
+     *
      * @param string|array $whereItems The test item.
+     * @param string       $class      Class to validate request keys against.
      * @return array $whereItems The normalized structure
      */
-    public static function handleWhereItems($whereItems)
+    public static function handleWhereItems($whereItems, $class = null)
     {
         if (is_string($whereItems)) {
             parse_str(urldecode($whereItems), $whereItems);
@@ -444,8 +454,54 @@ class Route extends FOGBase
                 }
             }
             $whereItems = self::expandSearchWildcards($whereItems);
+            if ($class) {
+                self::_assertFilterKeys($whereItems, $class);
+            }
         }
         return $whereItems;
+    }
+    /**
+     * Rejects request-supplied filter keys the class does not declare.
+     *
+     * Without this an unknown key reached _buildSql, which mapped it to an
+     * empty column identifier and emitted `WHERE `` = :where_0`. The DB
+     * rejected that outright, so /count and /list answered with a raw
+     * SQLSTATE string and /ids and /names answered HTTP 200 with [] --
+     * indistinguishable from "your filter matched nothing".
+     *
+     * Names the offending key deliberately: the caller is already
+     * authenticated, and a filter error the caller cannot see the cause of
+     * is the thing being fixed. Only the key is echoed, never the SQL.
+     *
+     * @param array  $whereItems The parsed request filters.
+     * @param string $class      The class being queried.
+     *
+     * @return void
+     */
+    private static function _assertFilterKeys($whereItems, $class)
+    {
+        if (count($whereItems ?: []) < 1) {
+            return;
+        }
+        $classVars = self::getClass($class, '', true);
+        $valid = array_keys((array)$classVars['databaseFields']);
+        $unknown = array_diff(array_keys($whereItems), $valid);
+        if (count($unknown) < 1) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_BAD_REQUEST,
+            json_encode(
+                [
+                    'error' => sprintf(
+                        _('Unknown filter field(s) for %s: %s'),
+                        strtolower($class),
+                        implode(', ', $unknown)
+                    ),
+                    'valid' => $valid
+                ]
+            )
+        );
     }
     /**
      * Turn the caller-facing wildcards '*' and '+' into the SQL '%'.
@@ -968,7 +1024,7 @@ class Route extends FOGBase
             if (empty($orderby)) {
                 $orderby = 'name';
             }
-            $whereItems = self::handleWhereItems($whereItems);
+            $whereItems = self::handleWhereItems($whereItems, $class);
             if ('snapintask' === strtolower($class)
                 && isset($whereItems['jobID'])
             ) {
@@ -3706,12 +3762,33 @@ class Route extends FOGBase
                 $orderby = 'name';
             }
 
-            $whereItems = self::handleWhereItems($whereItems);
+            $whereItems = self::handleWhereItems($whereItems, $class);
             if (false !== $whereItems && count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
             if (isset($vars->getField) && $vars->getField) {
                 $getField = $vars->getField;
+            }
+            // Same empty-identifier trap as an unknown filter key, but on the
+            // selected column: getField is a URL segment ("/ids/id=1/name")
+            // or a JSON body field, so an unrecognised value compiled to
+            // `SELECT `` FROM ...` and returned HTTP 200 with [].
+            if (!isset($classVars['databaseFields'][$getField])) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    json_encode(
+                        [
+                            'error' => sprintf(
+                                _('Unknown field for %s: %s'),
+                                $classname,
+                                $getField
+                            ),
+                            'valid' => array_keys(
+                                (array)$classVars['databaseFields']
+                            )
+                        ]
+                    )
+                );
             }
 
             $sql = 'SELECT `'
@@ -4097,9 +4174,40 @@ class Route extends FOGBase
                 }
             );
 
-            // Filters were supplied but nothing survived (or any filter was an
-            // empty IN-set) → match nothing.
-            if ($hadFilters && ($emptyArrayFilter || count($whereItems) < 1)) {
+            // A key the class does not declare used to compile to an empty
+            // column identifier -- `WHERE `` = :where_0` -- which the DB
+            // rejects outright, so the caller got a failed query instead of
+            // an answer, and deletemass() callers never noticed because the
+            // return is not checked. Request-supplied keys are already
+            // refused by handleWhereItems(), so reaching here means PHP code
+            // named a field that does not exist: a programming error.
+            //
+            // Match nothing rather than drop the key, for the same reason as
+            // the empty IN-set above -- dropping it broadens the query. Log
+            // rather than throw: the catch at the foot of this method calls
+            // sendResponse(), which exits, and in a CLI service that turns a
+            // typo into a systemd restart loop (cf. 2d199fa4b).
+            $unknownKeys = array_diff(
+                array_keys($whereItems),
+                array_keys((array)$classVars['databaseFields'])
+            );
+            if (count($unknownKeys) > 0) {
+                self::error(
+                    sprintf(
+                        'Route::_buildSql: unknown filter field(s) for `%s`: %s',
+                        $classVars['databaseTable'],
+                        implode(', ', $unknownKeys)
+                    )
+                );
+            }
+
+            // Filters were supplied but nothing survived (an empty IN-set, or
+            // a field the class does not declare) → match nothing.
+            if ($hadFilters
+                && ($emptyArrayFilter
+                || count($unknownKeys) > 0
+                || count($whereItems) < 1)
+            ) {
                 if ($retWhere) {
                     return '1=0';
                 }
@@ -4224,7 +4332,7 @@ class Route extends FOGBase
                 . $classVars['databaseTable']
                 . '`';
             
-            $whereItems = self::handleWhereItems($whereItems);
+            $whereItems = self::handleWhereItems($whereItems, $classname);
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }

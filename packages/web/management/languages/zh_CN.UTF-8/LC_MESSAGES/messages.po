@@ -7369,6 +7369,14 @@ msgstr "未知"
 msgid "Unknown DB error"
 msgstr "发生未知上传错误。返回代码："
 
+#, php-format
+msgid "Unknown field for %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Unknown filter field(s) for %s: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Unknown permission"
 msgstr "发生未知上传错误。返回代码："

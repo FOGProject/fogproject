@@ -6227,6 +6227,14 @@ msgstr ""
 msgid "Unknown DB error"
 msgstr ""
 
+#, php-format
+msgid "Unknown field for %s: %s"
+msgstr ""
+
+#, php-format
+msgid "Unknown filter field(s) for %s: %s"
+msgstr ""
+
 msgid "Unknown permission"
 msgstr ""
 
