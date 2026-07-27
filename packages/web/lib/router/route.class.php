@@ -3773,22 +3773,41 @@ class Route extends FOGBase
             // selected column: getField is a URL segment ("/ids/id=1/name")
             // or a JSON body field, so an unrecognised value compiled to
             // `SELECT `` FROM ...` and returned HTTP 200 with [].
+            //
+            // Only answered when actually serving a request. Unlike a filter
+            // key -- which handleWhereItems() vets on the string form alone,
+            // so only ever for request input -- getField reaches here from
+            // the services and from FOGController's association helper,
+            // which passes it in a variable. sendResponse() exits, so
+            // answering unconditionally would turn a bad field into a dead
+            // daemon (cf. 2d199fa4b). Off-request, log and leave the
+            // pre-existing rejected-query behaviour alone.
             if (!isset($classVars['databaseFields'][$getField])) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_BAD_REQUEST,
-                    json_encode(
-                        [
-                            'error' => sprintf(
-                                _('Unknown field for %s: %s'),
-                                $classname,
-                                $getField
-                            ),
-                            'valid' => array_keys(
-                                (array)$classVars['databaseFields']
-                            )
-                        ]
-                    )
-                );
+                if ('cli' === PHP_SAPI) {
+                    self::error(
+                        sprintf(
+                            'Route::ids: unknown field for %s: %s',
+                            $classname,
+                            $getField
+                        )
+                    );
+                } else {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_BAD_REQUEST,
+                        json_encode(
+                            [
+                                'error' => sprintf(
+                                    _('Unknown field for %s: %s'),
+                                    $classname,
+                                    $getField
+                                ),
+                                'valid' => array_keys(
+                                    (array)$classVars['databaseFields']
+                                )
+                            ]
+                        )
+                    );
+                }
             }
 
             $sql = 'SELECT `'
