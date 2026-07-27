@@ -237,10 +237,23 @@ class StorageNodeManagement extends FOGPage
                 $graphcolor
             ),
             // Bandwidth/Network Limiting
+            // Names both roles on purpose. This field drives the dashboard
+            // bandwidth graph (status/bandwidth.php?dev=), and #908 made it
+            // the multicast interface fallback when the routing table
+            // cannot answer. Until then nothing read it, so it drifted --
+            // the reference server had a NIC recorded that no longer
+            // existed. A field whose purpose is stated is a field someone
+            // maintains.
             self::makeLabel(
                 $labelClass,
                 'interface',
                 _('Network Interface')
+                . '<br/>('
+                . _(
+                    'bandwidth graph, and multicast when the interface '
+                    . 'cannot be derived from the routing table'
+                )
+                . ')'
             ) => self::makeInput(
                 'form-control storagenodeinterface-input',
                 'interface',
@@ -843,10 +856,23 @@ class StorageNodeManagement extends FOGPage
                 $graphcolor
             ),
             // Bandwidth/Network Limiting
+            // Names both roles on purpose. This field drives the dashboard
+            // bandwidth graph (status/bandwidth.php?dev=), and #908 made it
+            // the multicast interface fallback when the routing table
+            // cannot answer. Until then nothing read it, so it drifted --
+            // the reference server had a NIC recorded that no longer
+            // existed. A field whose purpose is stated is a field someone
+            // maintains.
             self::makeLabel(
                 $labelClass,
                 'interface',
                 _('Network Interface')
+                . '<br/>('
+                . _(
+                    'bandwidth graph, and multicast when the interface '
+                    . 'cannot be derived from the routing table'
+                )
+                . ')'
             ) => self::makeInput(
                 'form-control storagenodeinterface-input',
                 'interface',

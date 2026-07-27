@@ -7990,6 +7990,11 @@ msgstr "Mise à jour de groupe principal"
 msgid "automatically"
 msgstr ""
 
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
+
 msgid "based task."
 msgstr ""
 
