@@ -1263,13 +1263,23 @@ abstract class FOGController extends FOGBase
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
-        // Don't work on item that isn't loaded yet.
-        if (!$this->isLoaded($plural)) {
+        // Don't work on item that isn't populated yet. isPopulated(), not
+        // isLoaded(): isLoaded() marks a key loaded on every call, even
+        // one that answers false, so a bare isLoaded() gate anywhere else
+        // in the request (present or future) could poison this check and
+        // make it proceed on stale/empty data. isPopulated() only reports
+        // true once real data is actually here.
+        if (!$this->isPopulated($plural)) {
             return $this;
         }
 
-        // Get the current items.
+        // Get the current items. Guard against a non-array fallback (e.g.
+        // an empty string) so a bad value can't cast to [''] below and be
+        // diffed in as a phantom "new" association.
         $items = $this->get($plural);
+        if (!$items) {
+            $items = [];
+        }
 
         // Fetch current associations from the database.
         $cur = Route::getIds(

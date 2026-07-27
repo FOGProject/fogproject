@@ -129,7 +129,10 @@ class Image extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        // isPopulated(), not isLoaded(): isLoaded() marks a key loaded on
+        // every call even when it answers false, so it can't be trusted as
+        // a standalone "did the caller actually set hosts" precondition.
+        if ($this->isPopulated('hosts')) {
             $ids = Route::getIds(
                 'host',
                 ['imageID' => $this->get('id')]

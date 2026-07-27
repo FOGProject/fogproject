@@ -281,7 +281,16 @@ class Host extends FOGController
         // write) before assocSetter persists it as a snapinAssoc row. Mirrors
         // the "< 1" guard on setSnapinOrder()'s save path; without this a 0
         // would be inserted and later surface as a phantom run-order entry.
-        if ($this->isLoaded('snapins')) {
+        //
+        // Gated on isPopulated(), not isLoaded(): isLoaded() marks a key
+        // loaded on every call, even when it answers false, which let this
+        // exact check poison assocSetter('Snapin', 'snapin') below into
+        // trusting stale state, skipping the real DB load, and falling back
+        // to get()'s empty-string default -- which then got cast to ['']
+        // and inserted as saSnapinID=0. isPopulated() is a pure predicate
+        // with no such side effect, so this only runs (and assocSetter only
+        // proceeds) when 'snapins' actually holds real data.
+        if ($this->isPopulated('snapins')) {
             $this->set(
                 'snapins',
                 self::positiveIntIds($this->get('snapins'))
@@ -295,7 +304,7 @@ class Host extends FOGController
         // assocSetter inserts new snapin associations with sequence 0; give
         // any unsequenced rows a run-order value after the existing ones so
         // newly added snapins land at the end rather than jumping to front.
-        if ($this->isLoaded('snapins')) {
+        if ($this->isPopulated('snapins')) {
             $this->_appendSnapinSequence();
         }
         // Safety net: never leave the host with MAC rows but no primary MAC.

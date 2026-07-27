@@ -248,7 +248,14 @@ class Role extends FOGController
      */
     private function _syncPermissions()
     {
-        if (!$this->isLoaded('permissions')) {
+        // Gated on isPopulated(), not isLoaded(): isLoaded() marks a key
+        // loaded on every call, even when it answers false, so a save that
+        // never touches permissions (e.g. a plain rename) would poison
+        // that flag, and a later get('permissions') on this same object
+        // (e.g. the API response after save()) would skip the real DB load
+        // and see an empty list instead of the role's actual permissions.
+        // isPopulated() is a pure predicate with no such side effect.
+        if (!$this->isPopulated('permissions')) {
             return $this;
         }
         $permissions = array_values(
