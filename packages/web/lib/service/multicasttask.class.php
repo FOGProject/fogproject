@@ -347,6 +347,25 @@ class MulticastTask extends FOGService
         return $this->_intImageType;
     }
     /**
+     * Returns the image's storage format
+     *
+     * Formats 2, 4 and 6 are the "Split 200MiB" options
+     * (imagemanagement.page.php:155-206) -- the same three FOS tests for
+     * when it decides to restore a partition with a "<name>*" glob rather
+     * than an exact filename. Mirroring the client's own condition is
+     * deliberate: this bug class comes from the two ends disagreeing about
+     * which files make up a partition.
+     *
+     * @return int
+     */
+    public function getImageFormat()
+    {
+        return (int)self::getClass(
+            'Image',
+            $this->_MultiSess->get('image')
+        )->get('format');
+    }
+    /**
      * Returns the client count
      *
      * @return int
@@ -475,6 +494,39 @@ class MulticastTask extends FOGService
     public function getNodeID()
     {
         return $this->_intNodeID;
+    }
+    /**
+     * Records a partition image file, if that is what it is.
+     *
+     * A partition captured in a "Split 200MiB" format is on disk as
+     * <name>.000, <name>.001 ... and never as a bare <name>. The extension
+     * test here used to be an exact 'img', and sscanf('d1p1.img.000',
+     * 'd1p%d.%s') yields 'img.000', so every chunk of every split
+     * partition was silently dropped and the partition was never
+     * transmitted at all. The list holds one entry per partition -- the
+     * base name -- and the send loop expands it back into the chunks, the
+     * way FOS does with its "<name>*" glob. Refs #898.
+     *
+     * @param array  $filelist the list being built
+     * @param string $filename the on-disk filename
+     * @param string $ext      the extension sscanf pulled off it
+     * @param bool   $split    whether the image is in a split format
+     *
+     * @return void
+     */
+    private function _addPartFile(&$filelist, $filename, $ext, $split)
+    {
+        if ($ext === 'img') {
+            $filelist[] = $filename;
+            return;
+        }
+        if (!$split || !preg_match('/^img\.[0-9]+$/', (string)$ext)) {
+            return;
+        }
+        $base = preg_replace('/\.[0-9]+$/', '', $filename);
+        if (!in_array($base, (array)$filelist, true)) {
+            $filelist[] = $base;
+        }
     }
     /**
      * Returns the LV image filenames a dNpM.lvm sidecar names, in sidecar
@@ -700,12 +752,20 @@ class MulticastTask extends FOGService
             ' --nopointopoint',
         ];
         $buildcmd = array_values(array_filter($buildcmd));
+        // Initialised up front because the LVM scan below reads it before
+        // adding its placeholder. An image directory where nothing matched
+        // -- every partition split, or a stray directory -- reached that
+        // array_diff() with $filelist never assigned, which is an
+        // undefined-variable warning now and a TypeError later.
+        $filelist = [];
         $lvfiles = [];
         $lvmscan = false;
         // Every entry collected below is a bare filename that the send
         // loop joins onto this directory. It is the image path itself
         // in all but the single-file case, which reassigns it.
         $imagedir = rtrim($this->getImagePath(), DS);
+        // Read once: the collection below and the send loop both need it.
+        $split = in_array($this->getImageFormat(), [2, 4, 6], true);
         switch ($this->getImageType()) {
             case 1:
                 switch ($this->getOSID()) {
@@ -760,9 +820,12 @@ class MulticastTask extends FOGService
                                     $part,
                                     $ext
                                 );
-                                if ($ext == 'img') {
-                                    $filelist[] = $fileInfo->getFilename();
-                                }
+                                $this->_addPartFile(
+                                    $filelist,
+                                    $fileInfo->getFilename(),
+                                    $ext,
+                                    $split
+                                );
                                 unset($part, $ext);
                             }
                             unset($iterator);
@@ -785,9 +848,12 @@ class MulticastTask extends FOGService
                                 $part,
                                 $ext
                             );
-                            if ($ext == 'img') {
-                                $filelist[] = $fileInfo->getFilename();
-                            }
+                            $this->_addPartFile(
+                                $filelist,
+                                $fileInfo->getFilename(),
+                                $ext,
+                                $split
+                            );
                             unset($part, $ext);
                         }
                         unset($iterator);
@@ -809,9 +875,12 @@ class MulticastTask extends FOGService
                         $part,
                         $ext
                     );
-                    if ($ext == 'img') {
-                        $filelist[] = $fileInfo->getFilename();
-                    }
+                    $this->_addPartFile(
+                        $filelist,
+                        $fileInfo->getFilename(),
+                        $ext,
+                        $split
+                    );
                     unset($part, $ext);
                 }
                 unset($iterator);
@@ -833,9 +902,12 @@ class MulticastTask extends FOGService
                         $part,
                         $ext
                     );
-                    if ($ext == 'img') {
-                        $filelist[] = $fileInfo->getFilename();
-                    }
+                    $this->_addPartFile(
+                        $filelist,
+                        $fileInfo->getFilename(),
+                        $ext,
+                        $split
+                    );
                     unset($device, $part, $ext);
                 }
                 unset($iterator);
@@ -934,13 +1006,47 @@ class MulticastTask extends FOGService
          * not change. Part of the 065 sink fix.
          */
         $streams = [];
+        $claimed = [];
         foreach ($sendfiles as $file) {
-            if (false === strpos($file, '*')) {
+            if (isset($claimed[$file])) {
+                continue;
+            }
+            if (false !== strpos($file, '*')) {
+                $matches = glob($imagedir . DS . $file);
+                if (empty($matches)) {
+                    self::outall(
+                        sprintf(
+                            ' | %s: %s',
+                            _('No files matched multicast image pattern'),
+                            $file
+                        )
+                    );
+                    continue;
+                }
+                $matches = array_map('basename', $matches);
+                if ('sys.img.*' === $file) {
+                    $streams[] = $matches;
+                    continue;
+                }
+                foreach ($matches as $match) {
+                    $streams[] = [$match];
+                }
+                continue;
+            }
+            if (!$split) {
                 $streams[] = [$file];
                 continue;
             }
-            $matches = glob($imagedir . DS . $file);
-            if (empty($matches)) {
+            /*
+             * Split formats store a partition (or an LV named by a .lvm
+             * sidecar) as <name>.000, <name>.001 ... and never as a bare
+             * <name>. FOS restores it with exactly this glob and cats the
+             * result into one receiver, so send it as one stream. $claimed
+             * keeps a chunk that also reached the list on its own from
+             * being sent a second time. Refs #898.
+             */
+            $chunks = glob($imagedir . DS . $file . '*');
+            if (empty($chunks)) {
                 self::outall(
                     sprintf(
                         ' | %s: %s',
@@ -950,14 +1056,11 @@ class MulticastTask extends FOGService
                 );
                 continue;
             }
-            $matches = array_map('basename', $matches);
-            if ('sys.img.*' === $file) {
-                $streams[] = $matches;
-                continue;
+            $chunks = array_map('basename', $chunks);
+            foreach ($chunks as $chunk) {
+                $claimed[$chunk] = true;
             }
-            foreach ($matches as $match) {
-                $streams[] = [$match];
-            }
+            $streams[] = $chunks;
         }
         ob_start();
         foreach ($streams as $i => $stream) {
