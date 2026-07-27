@@ -254,13 +254,19 @@ class Site extends FOGController
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
-        // Don't work on item that isn't loaded yet.
-        if (!$this->isLoaded($plural)) {
+        // Don't work on item that isn't populated yet. isPopulated(), not
+        // isLoaded(): isLoaded() marks a key loaded on every call, even one
+        // that answers false, so a bare isLoaded() gate anywhere else in the
+        // request could poison this check into proceeding on empty data.
+        // See FOGProject/fogproject#906.
+        if (!$this->isPopulated($plural)) {
             return $this;
         }
 
-        // Get the current items.
-        $items = $this->get($plural);
+        // Get the current items, normalized to positive integer ids -- this
+        // copy had no guard at all, so a falsy get() fallback reached
+        // array_diff() as a string and fatalled under PHP 8.
+        $items = self::positiveIntIds($this->get($plural));
         Route::ids(
             $classCall,
             [$objstr => $this->get('id')],

@@ -310,7 +310,7 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('mac')) {
+        if ($this->isPopulated('mac')) {
             if (!$this->get('mac')->isValid()) {
                 throw new Exception(self::$foglang['InvalidMAC']);
             }
@@ -388,7 +388,7 @@ class Host extends FOGController
                 $HostWithMAC
             );
         }
-        if ($this->isLoaded('additionalMACs')) {
+        if ($this->isPopulated('additionalMACs')) {
             self::_retValidMacs(
                 $this->get('additionalMACs'),
                 $addMacs
@@ -490,7 +490,7 @@ class Host extends FOGController
                 $RemoveAddMAC
             );
         }
-        if ($this->isLoaded('pendingMACs')) {
+        if ($this->isPopulated('pendingMACs')) {
             self::_retValidMacs($this->get('pendingMACs'), $pendMacs);
             $RealPendMACs = array_filter($pendMacs);
             unset($pendMacs);
@@ -588,7 +588,7 @@ class Host extends FOGController
                 $RemovePendMAC
             );
         }
-        if ($this->isLoaded('powermanagementtasks')) {
+        if ($this->isPopulated('powermanagementtasks')) {
             $DBPowerManagementIDs = self::getSubObjectIDs(
                 'PowerManagement',
                 array('hostID'=>$this->get('id'))

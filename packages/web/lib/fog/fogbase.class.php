@@ -966,7 +966,23 @@ abstract class FOGBase
         return -1;
     }
     /**
-     * Check if isLoaded.
+     * Internal recursion guard for the get()/set()/loadItem() lazy-load
+     * chain -- NOT a "does this key hold data" predicate.
+     *
+     * This is a test-and-set: every call marks $key loaded, even one that
+     * returns false. That side effect is required so a loadX() method's own
+     * set() call doesn't see "not loaded" again, re-trigger loadItem(), and
+     * recurse forever. It means a bare `if ($this->isLoaded($key))` used as
+     * a standalone precondition -- anywhere the false branch isn't
+     * immediately followed, in the same call, by an actual load -- silently
+     * poisons the flag for the rest of the request: later code calling
+     * get($key) and expecting a real lazy-loaded value instead sees the
+     * (now-true) flag, skips the load, and falls back to get()'s default.
+     *
+     * Use isPopulated($key) for "do I actually have data for this key"
+     * checks. On 1.6 this exact confusion made assocSetter() delete every
+     * snapin association for a host and insert a phantom snapinID=0 row on
+     * each client check-in (FOGProject/fogproject#906).
      *
      * @param string|int $key the key to see if loaded
      *
@@ -979,6 +995,52 @@ abstract class FOGBase
         $this->isLoaded[$key] = true;
 
         return $result ? $result : false;
+    }
+    /**
+     * Whether $key currently holds resolved data -- a pure, side-effect-free
+     * predicate. Unlike isLoaded() (a recursion guard for the internal
+     * lazy-load chain; see its docblock), this is safe to use as a
+     * standalone precondition anywhere the caller means "do I have real data
+     * for this key", e.g. "only sync this association if the caller actually
+     * touched it".
+     *
+     * Deliberately isset(), not array_key_exists(): get()'s own fallback to
+     * '' is gated the same way, so the two must agree or a key explicitly
+     * set to null would read as populated here while get() still handed back
+     * the '' fallback.
+     *
+     * @param string|int $key the key to check
+     *
+     * @return bool
+     */
+    protected function isPopulated($key)
+    {
+        $key = $this->key($key);
+
+        return isset($this->data[$key]);
+    }
+    /**
+     * Reduce a value to the positive integer ids it contains.
+     *
+     * Association writers diff on integer id columns, so a non-positive or
+     * non-numeric entry can only ever be junk -- and a falsy scalar casts to
+     * array('') which subtracts nothing from the current set and then
+     * inserts as id 0.
+     *
+     * @param mixed $ids the collection (or scalar) to reduce
+     *
+     * @return array
+     */
+    public static function positiveIntIds($ids)
+    {
+        return array_values(
+            array_filter(
+                array_map('intval', (array)$ids),
+                function ($id) {
+                    return $id > 0;
+                }
+            )
+        );
     }
     /**
      * Reset request variables.

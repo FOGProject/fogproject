@@ -137,7 +137,11 @@ class Image extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        // isPopulated(), not isLoaded(): the latter is a test-and-set, so on
+        // a second save() of one instance the gate answered true while
+        // get('hosts') short-circuited to '', making the count() calls below
+        // a PHP 8 TypeError. See FOGProject/fogproject#906.
+        if ($this->isPopulated('hosts')) {
             if (count($this->get('hosts')) > 0) {
                 $DBIDs = self::getSubObjectIDs(
                     'Host',
