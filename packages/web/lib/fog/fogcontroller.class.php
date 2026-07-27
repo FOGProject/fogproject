@@ -1146,16 +1146,21 @@ abstract class FOGController extends FOGBase
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
-        // Don't work on item that isn't loaded yet.
-        if (!$this->isLoaded($plural)) {
+        // Don't work on item that isn't populated yet. isPopulated(), not
+        // isLoaded(): isLoaded() marks a key loaded on every call, even one
+        // that answers false, so a bare isLoaded() gate anywhere else in the
+        // request could poison this check into proceeding on empty data --
+        // which diffs to "remove everything". isPopulated() has no such side
+        // effect. See FOGProject/fogproject#906.
+        if (!$this->isPopulated($plural)) {
             return $this;
         }
 
-        // Get the current items.
-        $items = $this->get($plural);
-        if (!$items) {
-            $items = array();
-        }
+        // Get the current items, normalized to positive integer ids. Every
+        // relation routed through here diffs on a "{$alterItem}ID" column, so
+        // a non-positive or non-numeric entry can only be junk -- whether a
+        // falsy get() fallback or a 0 sitting inside an otherwise valid list.
+        $items = self::positiveIntIds($this->get($plural));
         Route::ids(
             $classCall,
             [$objstr => $this->get('id')],
