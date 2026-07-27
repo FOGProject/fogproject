@@ -2851,6 +2851,10 @@ msgstr ""
 msgid "Image"
 msgstr "Imagen"
 
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
+msgstr ""
+
 #, fuzzy
 msgid "Image Associated: "
 msgstr "No hay snapin asociados a este equipo"

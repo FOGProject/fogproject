@@ -146,6 +146,38 @@ class MulticastTask extends FOGService
                 );
                 continue;
             }
+            // Route::indiv() answers a missing row with sendResponse(404),
+            // which ends in HTTPResponseCodes::breakHead()'s exit. That is
+            // correct for a web request and fatal here: it terminates the
+            // forked daemon child outright, with nothing written to
+            // multicast.log and no exception for the service loop to catch,
+            // so multicast stops dead until someone restarts the unit. All
+            // it takes is deleting an image while a session for it is still
+            // queued. Check the row exists first and skip the session
+            // instead -- the REST API's exit is load-bearing everywhere
+            // else, so it is left alone.
+            //
+            // isValid(), not an existence check: indiv() gates on isValid()
+            // rather than on the row being present, so an image that exists
+            // but fails validation -- osID of 0, a blank name or path --
+            // takes the daemon down exactly as a deleted one does. Testing
+            // for existence alone would leave that half of the bug open.
+            //
+            // imageID is the session's raw msImage. The expanded `image`
+            // object below cannot answer this: it keeps whatever id it was
+            // constructed with, so it reports a deleted image as present.
+            // Refs #907.
+            $imageID = (int)($Task->imageID ?? 0);
+            if (!self::getClass('Image', $imageID)->isValid()) {
+                self::outall(
+                    sprintf(
+                        ' | ' . _('Image %s for session %s is missing or invalid; skipping'),
+                        $imageID,
+                        $Task->name
+                    )
+                );
+                continue;
+            }
             Route::indiv(
                 'image',
                 $Task->image->id

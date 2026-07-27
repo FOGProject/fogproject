@@ -2489,6 +2489,10 @@ msgstr ""
 msgid "Image"
 msgstr "镜像"
 
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
+msgstr ""
+
 msgid "Image Associated: "
 msgstr "镜像关联于:"
 
