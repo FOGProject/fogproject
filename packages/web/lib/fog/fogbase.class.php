@@ -1124,6 +1124,13 @@ abstract class FOGBase
      * real data for this key," e.g. "only sync this association if the
      * caller actually touched it."
      *
+     * Deliberately isset(), not array_key_exists(): get()'s own fallback
+     * to '' is gated the same way (`isset($this->data[$key]) ? ... : ''`),
+     * so this only reports true when get() is actually about to return
+     * real data instead of that fallback -- the two must agree, or a key
+     * explicitly set to null would read as "populated" here while get()
+     * still silently handed back ''.
+     *
      * @param string|int $key the key to check
      *
      * @return bool
@@ -1131,7 +1138,7 @@ abstract class FOGBase
     protected function isPopulated($key)
     {
         $key = $this->key($key);
-        return array_key_exists($key, $this->data);
+        return isset($this->data[$key]);
     }
     /**
      * Reset request variables.
