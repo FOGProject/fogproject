@@ -254,12 +254,13 @@ class Site extends FOGController
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
-        // Don't work on item that isn't populated yet. isPopulated(), not
-        // isLoaded(): isLoaded() marks a key loaded on every call, even one
-        // that answers false, so a bare isLoaded() gate anywhere else in the
-        // request could poison this check into proceeding on empty data.
-        // See FOGProject/fogproject#906.
-        if (!$this->isPopulated($plural)) {
+        // Don't work on an association the caller didn't actually touch.
+        // isDirty(), not isPopulated(): isPopulated() is also true when a
+        // key was merely lazy-loaded for reading, which would otherwise
+        // make this run a full DB diff -- for a no-op result -- on every
+        // save() that happens to read this association first. isDirty()
+        // only reports true for a real caller-driven write.
+        if (!$this->isDirty($plural)) {
             return $this;
         }
 

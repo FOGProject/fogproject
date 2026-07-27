@@ -310,7 +310,12 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isPopulated('mac')) {
+        // isDirty(), not isPopulated(): isPopulated() is also true when
+        // 'mac' was merely lazy-loaded for reading, which would make an
+        // unrelated host save re-run this whole MAC-sync block for a
+        // no-op result. isDirty() only reports true when the caller
+        // actually set the primary MAC.
+        if ($this->isDirty('mac')) {
             if (!$this->get('mac')->isValid()) {
                 throw new Exception(self::$foglang['InvalidMAC']);
             }
@@ -388,7 +393,8 @@ class Host extends FOGController
                 $HostWithMAC
             );
         }
-        if ($this->isPopulated('additionalMACs')) {
+        // isDirty(), not isPopulated() -- see the save() entry comment.
+        if ($this->isDirty('additionalMACs')) {
             self::_retValidMacs(
                 $this->get('additionalMACs'),
                 $addMacs
@@ -490,7 +496,8 @@ class Host extends FOGController
                 $RemoveAddMAC
             );
         }
-        if ($this->isPopulated('pendingMACs')) {
+        // isDirty(), not isPopulated() -- see the save() entry comment.
+        if ($this->isDirty('pendingMACs')) {
             self::_retValidMacs($this->get('pendingMACs'), $pendMacs);
             $RealPendMACs = array_filter($pendMacs);
             unset($pendMacs);
@@ -588,7 +595,8 @@ class Host extends FOGController
                 $RemovePendMAC
             );
         }
-        if ($this->isPopulated('powermanagementtasks')) {
+        // isDirty(), not isPopulated() -- see the save() entry comment.
+        if ($this->isDirty('powermanagementtasks')) {
             $DBPowerManagementIDs = self::getSubObjectIDs(
                 'PowerManagement',
                 array('hostID'=>$this->get('id'))
