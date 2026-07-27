@@ -589,12 +589,20 @@ class Group extends FOGController
                     ->set('isDD', $Image->get('imageTypeID'))
                     ->set('maxwait', self::getSetting('FOG_UDPCAST_MAXWAIT') * 60)
                     ->set('storagegroupID', $StorageGroup->get('id'));
-                if ($MulticastSession->save()) {
-                    Route::deletemass(
-                        'multicastsessionassociation',
-                        ['hostID' => $hostids]
-                    );
-                }
+                // A deletemass() of multicastsessionassociation by 'hostID'
+                // used to hang off this save(). That table has only ever had
+                // msaID/msID/tID -- there is no hostID -- so _buildSql mapped
+                // the unknown key to an empty identifier and MariaDB rejected
+                // the statement outright (ER_BAD_FIELD_ERROR). deletemass()
+                // never checks its return and PDODB::$throwOnQueryError is
+                // off, so it failed silently and had done since it was added
+                // (222c247a8 merely converted an equally wrong ->destroy()).
+                // Nothing depended on it: assoc rows are cleared by taskID in
+                // TaskManager::cancel() and by msID in MulticastSession's
+                // cancel()/complete(). Removed rather than repaired -- a
+                // taskID rewrite would duplicate that cleanup and start
+                // deleting rows this path has never deleted.
+                $MulticastSession->save();
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
                 $batchFields = [
