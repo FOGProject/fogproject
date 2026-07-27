@@ -245,9 +245,12 @@ nothing inside a flex container**, and most of the containers here are flex:
   floats don't apply to children. So the secondary is emitted *first*.
 - Inside a **`.modal-footer`** — also flex (`justify-content: flex-end`), so
   floats are equally inert. `fog-default-ui.scss` maps `.float-start` onto
-  `margin-right: auto` there, which restores the intended meaning, so a modal's
-  dismiss button lands left and its commit button right whatever order they are
-  emitted in. Keep tagging the dismiss `float-start`; that class is what both
+  `order: -1` **plus** `margin-right: auto` there, so a modal's dismiss button
+  lands left and its commit button right whatever order they are emitted in.
+  Both parts matter: `order` is the only thing that reorders flex items, and
+  the auto margin only pushes the slack to one side — #919 shipped the margin
+  alone and the buttons stayed in emission order, just left-packed instead of
+  right-packed. Keep tagging the dismiss `float-start`; that class is what both
   the position and the plain (non type-coloured) fill key off.
 
 That flex/float mismatch has bitten twice: the task panes wrapped their buttons

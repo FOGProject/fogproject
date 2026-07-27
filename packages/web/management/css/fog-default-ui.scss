@@ -375,12 +375,21 @@ header.main-header .mobile-logo {
   background-color: var(--fog-modal-btn-plain-bg) !important;
   color: var(--fog-modal-btn-plain-fg) !important;
   // .modal-footer is display:flex with justify-content:flex-end, so the float
-  // helpers are inert here and the buttons simply sit in DOM emission order --
-  // which left the create-tasking modal rendering Create on the left and
-  // Cancel on the right. margin-right:auto is the flex equivalent of "go
-  // left": it makes .float-start mean what it says regardless of the order a
-  // caller emits its buttons in, so every modal footer lands dismiss-left /
-  // commit-right without touching ~20 call sites.
+  // helpers are inert here and the buttons sit in DOM emission order -- which
+  // left the create-tasking modal rendering Create on the left and Cancel on
+  // the right.
+  //
+  // Both declarations are needed and they do different jobs. order:-1 is what
+  // actually moves the dismiss button to the front of the flex line; an auto
+  // margin cannot reorder anything, it only absorbs free space. margin-right:
+  // auto then takes the slack to the dismiss button's right, pushing the
+  // commit button over to the far edge. #919 shipped the margin alone, which
+  // left-packed the pair without reordering it and did not fix the modal it
+  // was written for.
+  //
+  // Modals whose dismiss is already emitted first are unaffected: order:-1
+  // keeps a first child first.
+  order: -1;
   margin-right: auto;
 }
 
