@@ -254,7 +254,7 @@ That flex/float mismatch has bitten twice: the task panes wrapped their buttons
 in a bare `.btn-group`, which silently killed `float-start`/`float-end` and
 rendered all three as one left-aligned pill (#909); and the create-tasking
 modal emitted Create first, which in a flex footer put the commit button on the
-*left* (#916). If buttons come out in the wrong place, check the container's
+*left* (#919). If buttons come out in the wrong place, check the container's
 `display` before touching the classes.
 
 Three consequences worth remembering:
