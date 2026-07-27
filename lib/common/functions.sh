@@ -21,6 +21,29 @@ dots() {
     printf " * %s%*.*s" "$1" 0 $((60-${#1})) "$pad"
     return 0
 }
+# Create a symlink only when nothing already owns the destination.
+#
+# Bare `ln -s` logged "failed to create symbolic link ...: File exists" on every
+# re-install, because the link survives from the previous run. Harmless, but it
+# made a successful upgrade read as a failed one and sent at least one reporter
+# chasing the installer instead of the real fault (forums topic 18204).
+#
+# `ln -sf` is deliberately not used: some distros own these paths themselves
+# (Fedora ships /usr/lib/systemd/system/mysql.service), and clobbering a
+# packaged file is worse than skipping a link we did not need to make.
+linkIfAbsent() {
+    local target="$1" link="$2"
+    # A dangling link here is one we created ourselves on an older version, back
+    # when the systemd unit sources below were missing their .service suffix. It
+    # is useless to systemd -- and worse, one in /etc/systemd/system shadows the
+    # working unit in /usr/lib -- so replace it. A real file, or a link that
+    # resolves, is left strictly alone.
+    if [[ -L $link && ! -e $link ]]; then
+        rm -f "$link" >>$error_log 2>&1
+    fi
+    [[ -e $link || -L $link ]] && return 0
+    ln -s "$target" "$link" >>$error_log 2>&1
+}
 backupReports() {
     dots "Backing up user reports"
     [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$error_log
@@ -2080,7 +2103,9 @@ EOF
             fi
             diffconfig "${etcconf}"
             errorStat $?
-            ln -s $webdirdest $webdirdest/ >>$error_log 2>&1
+            # Self-referential link so /fog/fog/... resolves. $webdirdest carries
+            # a trailing slash, hence the basename.
+            linkIfAbsent $webdirdest ${webdirdest%/}/$(basename $webdirdest)
             case $osid in
                 1)
                     phpfpmconf='/etc/php-fpm.d/www.conf';
@@ -2102,7 +2127,13 @@ EOF
                 sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$error_log 2>&1
             fi
             if [[ $osid -eq 2 ]]; then
-                a2enmod php >>$error_log 2>&1
+                # No `a2enmod php` here. Debian/Ubuntu name that module
+                # php<version> (php7.4, php8.3), never plain php, so the call
+                # only ever printed "ERROR: Module php does not exist!" -- the
+                # line that made a working install look broken in forums topic
+                # 18204. Enabling mod_php would be wrong anyway: FOG serves PHP
+                # through FPM via proxy_fcgi below, and mod_php forces
+                # mpm_prefork, which conflicts.
                 a2enmod proxy_fcgi setenvif >>$error_log 2>&1
                 a2enmod rewrite >>$error_log 2>&1
                 a2enmod ssl >>$error_log 2>&1
