@@ -432,7 +432,7 @@ class Group extends FOGController
      * @param mixed  $sessionjoin   the multicast session to join
      * @param bool   $wol           whether to wake on lan or not
      *
-     * @return array
+     * @return string
      */
     public function createImagePackage(
         $taskTypeID,
