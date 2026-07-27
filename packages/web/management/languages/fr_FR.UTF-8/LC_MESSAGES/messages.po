@@ -3260,6 +3260,12 @@ msgstr "L'image est pas valide"
 msgid "Image is not enabled"
 msgstr "L'image est pas activé"
 
+#, fuzzy
+msgid "Image is not replicated to this storage group"
+msgstr ""
+"Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de "
+"stockage"
+
 msgid "Image is not valid"
 msgstr "L'image est pas valide"
 

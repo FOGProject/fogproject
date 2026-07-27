@@ -3256,6 +3256,11 @@ msgstr "Image is not valid"
 msgid "Image is not enabled"
 msgstr "Image is not enabled"
 
+#, fuzzy
+msgid "Image is not replicated to this storage group"
+msgstr ""
+"Could not find a Storage Node Is there one enabled within this Storage Group"
+
 msgid "Image is not valid"
 msgstr "Image is not valid"
 

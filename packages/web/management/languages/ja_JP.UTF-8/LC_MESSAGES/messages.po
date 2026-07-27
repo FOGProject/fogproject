@@ -3112,6 +3112,10 @@ msgstr "イメージが無効です"
 msgid "Image is not enabled"
 msgstr "イメージが有効ではありません"
 
+#, fuzzy
+msgid "Image is not replicated to this storage group"
+msgstr "このストレージグループ内に有効なものがあるか"
+
 msgid "Image is not valid"
 msgstr "イメージが無効です"
 

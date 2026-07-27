@@ -101,6 +101,15 @@ abstract class FOGService extends FOGBase
             ]
         );
         $StorageNodes = [];
+        // Initialised up front because it is handed to the hook below by
+        // reference. A server that masters no node never entered the loop,
+        // so $MasterIDs auto-vivified to null, and the Location plugin's
+        // alterMasters() then called fastmerge() with it -- `array + null`,
+        // a PHP 8 TypeError. Being an Error rather than an Exception it
+        // walked past the service loop's catch and killed the child, which
+        // was re-forked straight back into it. That is every non-master node
+        // running the multicast daemon with the Location plugin on (#815).
+        $MasterIDs = [];
         $StorageNodesFound = json_decode(
             Route::getData()
         );

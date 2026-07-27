@@ -3257,6 +3257,10 @@ msgstr "Image ist nicht gültig"
 msgid "Image is not enabled"
 msgstr "Abbild ist nicht aktiv"
 
+#, fuzzy
+msgid "Image is not replicated to this storage group"
+msgstr "da innerhalb diese Speichergruppe einer aktiviert ist"
+
 msgid "Image is not valid"
 msgstr "Image ist nicht gültig"
 

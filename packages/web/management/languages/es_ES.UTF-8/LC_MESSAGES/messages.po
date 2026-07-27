@@ -3328,6 +3328,10 @@ msgid "Image is not enabled"
 msgstr "La imagen no está habilitada"
 
 #, fuzzy
+msgid "Image is not replicated to this storage group"
+msgstr "Grupo de almacenamiento primaria"
+
+#, fuzzy
 msgid "Image is not valid"
 msgstr "La imagen no está habilitada"
 

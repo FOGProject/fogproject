@@ -3259,6 +3259,12 @@ msgstr "A imagem não é válida"
 msgid "Image is not enabled"
 msgstr "A imagem não está habilitado"
 
+#, fuzzy
+msgid "Image is not replicated to this storage group"
+msgstr ""
+"Não foi possível encontrar um nó de armazenamento Existe um ativado dentro "
+"deste grupo de armazenamento"
+
 msgid "Image is not valid"
 msgstr "A imagem não é válida"
 

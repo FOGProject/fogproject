@@ -153,7 +153,13 @@ class ChangeItems extends Hook
         foreach ($LocationAssocs->data as &$LocationAssoc) {
             $StorageGroup = self::getClass('Location', $LocationAssoc->locationID)
                 ->getStorageGroup();
-            if ($StorageGroup->isValid()) {
+            // Inverted since it was written: this skipped the groups it
+            // should have answered with and offered up only invalid ones,
+            // so every caller fell through to the image's or snapin's own
+            // group and a host's location never influenced the group at all.
+            // storageNodeSetting() overrode the node regardless, which is
+            // why the two could disagree.
+            if (!$StorageGroup->isValid()) {
                 continue;
             }
             $arguments['StorageGroup'] = $StorageGroup;
@@ -249,6 +255,9 @@ class ChangeItems extends Hook
             if (!$StorageNode->online) {
                 continue;
             }
+            if (!self::isLocalNode($StorageNode)) {
+                continue;
+            }
             if (!$StorageNode->isMaster) {
                 $StorageNode->isMaster = 1;
             }
@@ -265,9 +274,49 @@ class ChangeItems extends Hook
      */
     public function makeMaster($arguments)
     {
-        if (!$arguments['FOGServiceClass'] != 'MulticastTask') {
+        // CHECK_NODE_MASTER hands over the class *name*, not an instance.
+        // This read `(!$x) != 'MulticastTask'` -- the negation binds to $x, so
+        // the comparison is bool-vs-string and always true, and the promotion
+        // below has never run once since the hook was written. (dev-branch is
+        // broken differently to the same end: it tests `instanceof` against
+        // that same string.) With it dead, a location's node stayed a
+        // non-master, MulticastTask::getAllMulticastTasks() returned early on
+        // it, and only the group master ever ran a udp-sender -- so clients at
+        // every other site sat waiting on a stream that could not reach them,
+        // which is #815.
+        if ('MulticastTask' !== $arguments['FOGServiceClass']) {
+            return;
+        }
+        // Promote only a node this machine actually hosts. checkIfNodeMaster()
+        // narrows to local IPs deliberately: a promoted node's image path is
+        // read off local disk and its sender is spawned as a local process, so
+        // claiming a node that lives on another server would have this daemon
+        // stream on that node's behalf and would let
+        // _reconcileOrphanedSenders() clear -- or SIGKILL on a pid collision --
+        // a sender it does not own.
+        if (!self::isLocalNode($arguments['StorageNode'])) {
             return;
         }
         $arguments['StorageNode']->isMaster = 1;
+    }
+    /**
+     * Whether a storage node lives on the machine running this code.
+     *
+     * The multicast promotion above is only ever safe for a node this server
+     * hosts, and both callers need the same test, so it lives here rather
+     * than being written out twice.
+     *
+     * @param object $StorageNode The node to check.
+     *
+     * @return bool
+     */
+    protected static function isLocalNode($StorageNode)
+    {
+        self::getIPAddress();
+
+        return in_array(
+            self::resolveHostname($StorageNode->ip),
+            (array)self::$ips
+        );
     }
 }

@@ -3257,6 +3257,10 @@ msgstr "图片无效"
 msgid "Image is not enabled"
 msgstr "图片未启用"
 
+#, fuzzy
+msgid "Image is not replicated to this storage group"
+msgstr "找不到存储节点是否有什么这个存储组中启用"
+
 msgid "Image is not valid"
 msgstr "图片无效"
 

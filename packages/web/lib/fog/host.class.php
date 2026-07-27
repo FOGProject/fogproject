@@ -1053,15 +1053,84 @@ class Host extends FOGController
                 if (!$Image->get('isEnabled')) {
                     throw new Exception(_('Image is not enabled'));
                 }
-                $StorageGroup = $Image->getStorageGroup();
+                // Let plugins pick the group/node before falling back to the
+                // image's primary group. Every other place that resolves a
+                // node for a host -- TaskingElement and BootMenu -- already
+                // fires this, but tasking never did, so the Location plugin
+                // had no say in where a task was pointed. For multicast that
+                // was decisive: the session is stamped below with the node's
+                // group, so it always landed in the image's group no matter
+                // where the host was, only that group's master ever ran a
+                // udp-sender, and clients at every other site waited on a
+                // stream that could not reach them (#815). With the hook here
+                // each location's hosts get a session in their own group,
+                // served by the node next to them.
+                $Host = $this;
+                $StorageGroup = $StorageNode = null;
+                self::$HookManager->processEvent(
+                    'HOST_NEW_SETTINGS',
+                    [
+                        'Host' => &$Host,
+                        'StorageNode' => &$StorageNode,
+                        'StorageGroup' => &$StorageGroup,
+                        'TaskType' => &$TaskType
+                    ]
+                );
+                // A node carries its own group, and it is the node that ends
+                // up serving the task, so that pairing wins over any group
+                // the hook set separately -- otherwise the session could be
+                // stamped with one group while a node from another streams
+                // it.
+                if ($StorageNode instanceof StorageNode
+                    && $StorageNode->isValid()
+                ) {
+                    $StorageGroup = $StorageNode->getStorageGroup();
+                }
+                $hookGroup = (
+                    $StorageGroup instanceof StorageGroup
+                    && $StorageGroup->isValid()
+                );
+                if (!$hookGroup) {
+                    $StorageGroup = $Image->getStorageGroup();
+                }
                 if (!$StorageGroup->isValid()) {
                     throw new Exception(self::$foglang['ImageGroupNotValid']);
+                }
+                // Only a hook-chosen group needs checking; the image's own
+                // group holds the image by definition. Without this the task
+                // is created happily and the miss surfaces much later as a
+                // client sitting at gparted until it times out, so say it
+                // here instead. Captures are exempt: they write the image to
+                // the node rather than read it, and a first capture of a new
+                // image has no association to find yet.
+                if ($hookGroup && !$isCapture) {
+                    $inGroup = Route::getIds(
+                        'imageassociation',
+                        [
+                            'imageID' => $Image->get('id'),
+                            'storagegroupID' => $StorageGroup->get('id')
+                        ]
+                    );
+                    if (count($inGroup ?: []) < 1) {
+                        throw new Exception(
+                            sprintf(
+                                '%s: %s -> %s',
+                                _('Image is not replicated to this storage group'),
+                                $Image->get('name'),
+                                $StorageGroup->get('name')
+                            )
+                        );
+                    }
                 }
                 $getNode = 'getOptimalStorageNode';
                 if ($isCapture) {
                     $getNode = 'getMasterStorageNode';
                 }
-                $StorageNode = $StorageGroup->{$getNode}();
+                if (!($StorageNode instanceof StorageNode)
+                    || !$StorageNode->isValid()
+                ) {
+                    $StorageNode = $StorageGroup->{$getNode}();
+                }
                 if (!$StorageNode->isValid()) {
                     $msg = sprintf(
                         '%s %s',
@@ -1136,12 +1205,22 @@ class Host extends FOGController
                     self::getQueuedStates(),
                     (array)self::getProgressState()
                 );
+                // Both lookups are scoped to the group this host will be
+                // served from. A session only ever has one sender, running on
+                // its group's master, so a host that joins a session outside
+                // its own group is joining a stream that will never reach it.
+                // Unscoped, hosts at every site piled into whichever session
+                // for the image existed first. Scoped, each site's hosts
+                // converge on their own session -- same name, own group, own
+                // port, own local sender.
+                $mcGroupID = $StorageNode->get('storagegroupID');
                 if ($sessionjoin) {
                     Route::listem(
                         'multicastsession',
                         [
                             'name' => $taskName,
-                            'stateID' => $showStates
+                            'stateID' => $showStates,
+                            'storagegroupID' => $mcGroupID
                         ]
                     );
                     $MCSessions = json_decode(
@@ -1154,7 +1233,8 @@ class Host extends FOGController
                         'multicastsession',
                         [
                             'image' => $Image->get('id'),
-                            'stateID' => $showStates
+                            'stateID' => $showStates,
+                            'storagegroupID' => $mcGroupID
                         ]
                     );
                     $MCSessions = json_decode(

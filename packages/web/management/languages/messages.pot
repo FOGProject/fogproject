@@ -2739,6 +2739,9 @@ msgstr ""
 msgid "Image is not enabled"
 msgstr ""
 
+msgid "Image is not replicated to this storage group"
+msgstr ""
+
 msgid "Image is not valid"
 msgstr ""
 
