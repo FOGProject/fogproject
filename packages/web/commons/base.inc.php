@@ -11,10 +11,27 @@ declare(strict_types=1);
  * @link     https://fogproject.org
  */
 
+// The empty needle must short-circuit to true, matching PHP 8's str_contains()
+// -- "" is contained in every string. It cannot be left to strpos(), which on
+// 7.4 rejects an empty needle with a warning and returns false; that is what
+// made this polyfill disagree with the native function it stands in for.
 if (!function_exists('str_contains')) {
     function str_contains($haystack, $needle)
     {
-        return $needle !== '' && strpos($haystack, $needle) !== false;
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+}
+
+// str_starts_with() is PHP 8.0+, but _verCheck() admits 7.4 and the installer
+// takes the distro-default PHP with no version floor (Ubuntu 20.04 = 7.4.3).
+// SnapinClient::json() calls it, and an undefined-function fatal there is a
+// zero-byte 500 the FOG Client reads as a transport failure -- snapins just
+// silently never deploy. Same bug class as the `mixed` hint in init.php.
+// Refs forums.fogproject.org topic 18204.
+if (!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle)
+    {
+        return strncmp($haystack, $needle, strlen($needle)) === 0;
     }
 }
 
