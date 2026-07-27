@@ -4471,7 +4471,13 @@ class Route extends FOGBase
                                 if (isset($vars->modules)) {
                                     $c->addModule($vars->modules);
                                 }
-                                if ($vars->imageID) {
+                                // isset(), like every sibling guard: a group
+                                // join without an imageID otherwise emits an
+                                // "Undefined property" warning, which would
+                                // become a fatal under an ErrorException
+                                // converter. Only reachable at all since the
+                                // route stopped answering 501 (#919).
+                                if (isset($vars->imageID)) {
                                     $c->addImage($vars->imageID);
                                 }
                                 break;
