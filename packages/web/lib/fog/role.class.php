@@ -248,14 +248,15 @@ class Role extends FOGController
      */
     private function _syncPermissions()
     {
-        // Gated on isPopulated(), not isLoaded(): isLoaded() marks a key
-        // loaded on every call, even when it answers false, so a save that
-        // never touches permissions (e.g. a plain rename) would poison
-        // that flag, and a later get('permissions') on this same object
-        // (e.g. the API response after save()) would skip the real DB load
-        // and see an empty list instead of the role's actual permissions.
-        // isPopulated() is a pure predicate with no such side effect.
-        if (!$this->isPopulated('permissions')) {
+        // Gated on isDirty(), not isPopulated(): isPopulated() is also
+        // true when something merely read get('permissions') this request
+        // (e.g. building a status response) without changing it, which
+        // would make every such save() run this diff for a no-op result.
+        // isDirty() only reports true when the caller actually wrote
+        // 'permissions', so an untouched role's permissions cost nothing
+        // here and are never at risk of the stale-empty-list bug this
+        // guard exists to prevent in the first place.
+        if (!$this->isDirty('permissions')) {
             return $this;
         }
         $permissions = array_values(
