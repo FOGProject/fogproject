@@ -3122,6 +3122,10 @@ msgstr ""
 msgid "Image"
 msgstr "图片"
 
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
+msgstr ""
+
 #, fuzzy
 msgid "Image Associated"
 msgstr "图像协会"
