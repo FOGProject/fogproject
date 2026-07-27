@@ -913,19 +913,30 @@ class MulticastTask extends FOGService
             }
         }
         /*
+         * One entry per udp-sender invocation, each holding the list of
+         * files whose concatenation is that invocation's stream.
+         *
+         * FOS opens one udp-receiver per *partition*, not per file
+         * (funcs.sh writeImage() with mc=yes), and on the unicast path
+         * feeds that partition with "cat <path>/<name>*". So a partition
+         * split across several chunks has to arrive as a single stream;
+         * sending a sender per chunk misassigns every later partition.
+         * 'sys.img.*' is one such partition, while 'rec.img.NNN' is one
+         * partition each -- the asymmetry is FOS's, mirrored here rather
+         * than guessed at. Refs #897.
+         *
          * 'sys.img.*' and 'rec.img.*' are pushed as literal wildcards
          * above and were expanded by /bin/sh, which the escaping below
          * would turn into a single literal filename that does not
          * exist. Expand them here instead. glob()'s default sort is
-         * the same collating order the shell used and each entry is
-         * expanded in place, so the on-the-wire file order -- which is
-         * the only thing keeping the FOS receivers in sync -- does not
-         * change. Part of the 065 sink fix.
+         * the same collating order the shell used, so the on-the-wire
+         * order -- the only thing keeping the receivers in sync -- does
+         * not change. Part of the 065 sink fix.
          */
-        $expanded = [];
+        $streams = [];
         foreach ($sendfiles as $file) {
             if (false === strpos($file, '*')) {
-                $expanded[] = $file;
+                $streams[] = [$file];
                 continue;
             }
             $matches = glob($imagedir . DS . $file);
@@ -939,28 +950,46 @@ class MulticastTask extends FOGService
                 );
                 continue;
             }
+            $matches = array_map('basename', $matches);
+            if ('sys.img.*' === $file) {
+                $streams[] = $matches;
+                continue;
+            }
             foreach ($matches as $match) {
-                $expanded[] = basename($match);
+                $streams[] = [$match];
             }
         }
-        $sendfiles = $expanded;
         ob_start();
-        foreach ($sendfiles as $i => $file) {
-            printf(
-                '%s --file %s;',
-                str_replace(
-                    '{MAXWAIT}',
-                    (string)(
-                        $i == 0 ?
-                        $maxwait :
-                        600
-                    ),
-                    implode($buildcmd)
+        foreach ($streams as $i => $stream) {
+            $cmd = str_replace(
+                '{MAXWAIT}',
+                (string)(
+                    $i == 0 ?
+                    $maxwait :
+                    600
                 ),
-                escapeshellarg($imagedir . DS . $file)
+                implode($buildcmd)
             );
+            $paths = [];
+            foreach ($stream as $file) {
+                $paths[] = escapeshellarg($imagedir . DS . $file);
+            }
+            if (count($paths) > 1) {
+                // udp-sender accepts a single --file and discards the
+                // rest ("Extra argument ... ignored"), which is why a
+                // multi-chunk partition used to go out truncated. With no
+                // --file it reads stdin, so the chunks are concatenated
+                // onto it in the same order cat would use unicast.
+                printf(
+                    'cat %s | %s;',
+                    implode(' ', $paths),
+                    $cmd
+                );
+                continue;
+            }
+            printf('%s --file %s;', $cmd, $paths[0]);
         }
-        unset($filelist, $sendfiles, $expanded, $lvfiles, $buildcmd);
+        unset($filelist, $sendfiles, $streams, $lvfiles, $buildcmd);
         return ob_get_clean();
     }
     /**
