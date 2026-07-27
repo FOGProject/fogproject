@@ -175,6 +175,12 @@ class MulticastManager extends FOGService
         ) !== false;
     }
     /**
+     * Session IDs already reported as owned by another node.
+     *
+     * @var array
+     */
+    private $_claimNoted = [];
+    /**
      * Whether no other node already owns this session's sender.
      *
      * @param MulticastTask $curTask The task about to be started.
@@ -394,20 +400,41 @@ class MulticastManager extends FOGService
                         // to $KnownTasks: if the owning node's sender goes
                         // away the session stays active, and this node
                         // should be free to pick it up on a later tick.
-                        if ($new
-                            && !$this->_senderClaimIsFree($curTask)
-                        ) {
-                            self::outall(
-                                sprintf(
-                                    $startStr,
+                        if ($new) {
+                            if (!$this->_senderClaimIsFree($curTask)) {
+                                // Said once, not every tick. The session is
+                                // re-checked on each pass by design, so
+                                // logging unconditionally would write a line
+                                // per foreign session every sleep interval
+                                // for as long as the other node held it.
+                                if (!in_array(
                                     $curTask->getID(),
-                                    $curTask->getName(),
-                                    _('is already being sent by another node')
+                                    $this->_claimNoted
+                                )) {
+                                    $this->_claimNoted[] = $curTask->getID();
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $curTask->getID(),
+                                            $curTask->getName(),
+                                            _(
+                                                'is already being sent '
+                                                . 'by another node'
+                                            )
+                                        )
+                                    );
+                                }
+                                continue;
+                            }
+                            // Free to take, so forget any earlier note and
+                            // report again if it is lost to another node
+                            // later.
+                            $this->_claimNoted = array_values(
+                                array_diff(
+                                    $this->_claimNoted,
+                                    [$curTask->getID()]
                                 )
                             );
-                            continue;
-                        }
-                        if ($new) {
                             $KnownTasks[] = $curTask;
                             self::outall(
                                 sprintf(
