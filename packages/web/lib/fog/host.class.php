@@ -281,12 +281,20 @@ class Host extends FOGController
         // write) before assocSetter persists it as a snapinAssoc row. Mirrors
         // the "< 1" guard on setSnapinOrder()'s save path; without this a 0
         // would be inserted and later surface as a phantom run-order entry.
-        if ($this->isLoaded('snapins')) {
-            $this->set(
-                'snapins',
-                self::positiveIntIds($this->get('snapins'))
-            );
-        }
+        //
+        // Deliberately unconditional: FOGBase::isLoaded() marks a key loaded
+        // on every call, even when it answers false and nothing follows up
+        // by loading it. Gating this on isLoaded('snapins') let a plain
+        // check-in (nothing else touches 'snapins' first) poison that flag,
+        // so the assocSetter('Snapin', 'snapin') call below trusted it and
+        // skipped the real DB load, falling back to get()'s empty-string
+        // default -- which then got cast to ['' ] and inserted as saSnapinID=0.
+        // get() already lazy-loads correctly when not yet loaded, so just
+        // call it directly.
+        $this->set(
+            'snapins',
+            self::positiveIntIds($this->get('snapins'))
+        );
         $this
             ->assocSetter('Group', 'group')
             ->assocSetter('Module', 'module')
