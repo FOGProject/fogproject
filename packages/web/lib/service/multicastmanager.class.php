@@ -47,26 +47,23 @@ class MulticastManager extends FOGService
     public function __construct()
     {
         parent::__construct();
-        list(
-            $dev,
-            $log,
-            $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'MULTICASTDEVICEOUTPUT',
-                    'MULTICASTLOGFILENAME',
-                    self::$sleeptime
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        /*
+         * Read each setting by name rather than by position.
+         *
+         * This was a list() over getSubObjectIDs(), which returns only the
+         * rows that actually exist, ordered by name. One missing Service row
+         * therefore shifted every later value a place to the left and left
+         * the last variable undefined -- the "Undefined array key 0/1" in
+         * issue #728. The daemon then took its log filename from the device
+         * setting and its console device from the log filename, so multicast
+         * appeared to do nothing at all.
+         *
+         * getSetting() returns '' for a key with no row, which the defaults
+         * below already handle, and it cannot mix values up between keys.
+         */
+        $dev = self::getSetting('MULTICASTDEVICEOUTPUT');
+        $log = self::getSetting('MULTICASTLOGFILENAME');
+        $zzz = self::getSetting(self::$sleeptime);
         static::$log = sprintf(
             '%s%s',
             (

@@ -377,24 +377,12 @@ class MulticastTask extends FOGService
      */
     public function getUDPCastLogFile()
     {
-        list(
-            $filenam,
-            $logpath
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'MULTICASTLOGFILENAME',
-                    'SERVICE_LOG_PATH',
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        // By name, not by position -- see the note in MulticastManager's
+        // constructor. A missing SERVICE_LOG_PATH row used to leave $logpath
+        // undefined and put the log filename in its place, so the udpcast log
+        // was written to a path built out of the wrong setting.
+        $filenam = self::getSetting('MULTICASTLOGFILENAME');
+        $logpath = self::getSetting('SERVICE_LOG_PATH');
         return $this->altLog = sprintf(
             '/%s/%s.udpcast.%s',
             trim($logpath, '/'),
@@ -465,28 +453,15 @@ class MulticastTask extends FOGService
             $buildcmd,
             $cmd
         );
-        list(
-            $address,
-            $duplex,
-            $multicastrdv,
-            $maxwait
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'FOG_MULTICAST_ADDRESS',
-                    'FOG_MULTICAST_DUPLEX',
-                    'FOG_MULTICAST_RENDEZVOUS',
-                    'FOG_UDPCAST_MAXWAIT'
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        // By name, not by position -- see the note in MulticastManager's
+        // constructor. This one built the udp-sender command line, so a
+        // single missing row slid the duplex setting into the multicast
+        // address, the rendezvous address into duplex, and left maxwait
+        // undefined.
+        $address = self::getSetting('FOG_MULTICAST_ADDRESS');
+        $duplex = self::getSetting('FOG_MULTICAST_DUPLEX');
+        $multicastrdv = self::getSetting('FOG_MULTICAST_RENDEZVOUS');
+        $maxwait = self::getSetting('FOG_UDPCAST_MAXWAIT');
         $maxwait = (int)$maxwait;
         if (!$maxwait || $maxwait <= 0) {
             $maxwait = 10;
