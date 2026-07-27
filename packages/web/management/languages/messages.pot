@@ -2438,6 +2438,10 @@ msgstr ""
 msgid "Ignore MAC on Image"
 msgstr ""
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
 msgid "Ignoring invalid multicast bitrate"
 msgstr ""
 

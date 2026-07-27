@@ -2467,6 +2467,10 @@ msgstr "忽略客户端上的MAC地址"
 msgid "Ignore MAC on Image"
 msgstr "忽略镜像上的MAC地址"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
 #, fuzzy
 msgid "Ignoring invalid multicast bitrate"
 msgstr "无效多播会话"

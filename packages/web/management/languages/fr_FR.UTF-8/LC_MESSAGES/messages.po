@@ -2494,6 +2494,10 @@ msgstr "Ignorer MAC sur le client"
 msgid "Ignore MAC on Image"
 msgstr "Ignorez les MACs dans l'image"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
 #, fuzzy
 msgid "Ignoring invalid multicast bitrate"
 msgstr "Session multicast invalide"

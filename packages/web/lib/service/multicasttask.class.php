@@ -52,11 +52,45 @@ class MulticastTask extends FOGService
         if (!$StorageNode->isMaster) {
             return;
         }
+        // The interface udp-sender binds. Two sources can answer this and
+        // they disagree in practice, so the precedence is deliberate.
+        //
+        // The routing table wins. It answers "which device owns the address
+        // receivers reach this node at", which is definitionally the one to
+        // send from. The node's own Interface field (ngmInterface) is an
+        // unvalidated string that, until now, nothing ever read -- it is
+        // written onto every session as msInterface and then dropped -- so
+        // it has been free to drift since install time with no feedback.
+        // A field nothing reads is a field nobody maintains, and honouring
+        // it outright would break installs that work today. So it is
+        // demoted to a fallback for the case the routing lookup genuinely
+        // cannot answer -- a VIP, a bond, an address with no matching
+        // kernel route -- where the sender previously launched with no
+        // --interface at all and silently chose its own. Mismatches are
+        // logged rather than acted on, so a stale value becomes visible
+        // instead of staying invisible. Refs #908.
         $Interface = self::getMasterInterface(
             self::resolveHostname(
                 $StorageNode->ip
             )
         );
+        $configuredInterface = trim((string)($StorageNode->interface ?? ''));
+        if ($Interface
+            && $configuredInterface
+            && $configuredInterface !== $Interface
+        ) {
+            self::outall(
+                sprintf(
+                    ' | ' . _('Ignoring configured interface %s; %s routes over %s'),
+                    $configuredInterface,
+                    $StorageNode->ip,
+                    $Interface
+                )
+            );
+        }
+        if (!$Interface) {
+            $Interface = $configuredInterface;
+        }
         $myStorageGroupID = $StorageNode->storagegroupID;
         unset($StorageNode);
         // Scope sessions to the group this node actually serves. This used
@@ -627,9 +661,10 @@ class MulticastTask extends FOGService
             ),
             (
                 $this->getInterface() ?
-                // Derived locally from `ip route`, not from the
-                // database -- escaped anyway so the sink stays safe if
-                // that ever stops being true.
+                // Normally derived locally from `ip route`, but #908 added
+                // the node's stored Interface field as a fallback, so this
+                // can now genuinely come from the database. The escaping
+                // was already here for exactly that eventuality.
                 sprintf(' --interface %s', escapeshellarg($this->getInterface())) :
                 null
             ),

@@ -2453,6 +2453,10 @@ msgstr "クライアントの MAC アドレスを無視"
 msgid "Ignore MAC on Image"
 msgstr "イメージの MAC アドレスを無視"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
 #, fuzzy
 msgid "Ignoring invalid multicast bitrate"
 msgstr "無効なマルチキャストセッション"

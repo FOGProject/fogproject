@@ -2829,6 +2829,10 @@ msgstr "Cliente"
 msgid "Ignore MAC on Image"
 msgstr "Lista de MAC Address"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
 #, fuzzy
 msgid "Ignoring invalid multicast bitrate"
 msgstr "Multicast"
