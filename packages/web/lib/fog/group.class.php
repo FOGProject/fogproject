@@ -557,6 +557,13 @@ class Group extends FOGController
         }
         $imagingTypes = $TaskType->isImagingTask;
         $now = $this->niceDate();
+        // insertBatch() returns [insertID, affectedRows], which is what this
+        // method documents itself as returning. Only one of the three
+        // branches below was capturing it, so every other path fell off the
+        // end reading an undefined $stat -- a warning on PHP 8, and a null
+        // return where an array was promised. A wake-up task runs no batch at
+        // all, so the empty array is its honest answer.
+        $stat = [];
         if ($imagingTypes) {
             $find = ['id' => $hostids];
             $imageID = self::minId(Route::getIds('host', $find, 'imageID'));
@@ -722,7 +729,7 @@ class Group extends FOGController
                     ];
                 }
                 if (count($batchTask ?: []) > 0) {
-                    self::getClass('TaskManager')
+                    $stat = self::getClass('TaskManager')
                         ->insertBatch(
                             $batchFields,
                             $batchTask
@@ -773,7 +780,7 @@ class Group extends FOGController
                 ];
             }
             if (count($batchTask ?: []) > 0) {
-                self::getClass('TaskManager')
+                $stat = self::getClass('TaskManager')
                     ->insertBatch($batchFields, $batchTask);
             }
         } else {
