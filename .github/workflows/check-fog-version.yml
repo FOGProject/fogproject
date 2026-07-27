@@ -1,0 +1,137 @@
+name: Check FOG version
+
+# Backstop for packages/web/lib/fog/system.class.php's FOG_VERSION/FOG_CHANNEL.
+#
+# The only thing that normally bumps those defines is .githooks/pre-commit,
+# which is a client-side git hook. GitHub's web-UI merge button never runs
+# repo-tracked hooks, so a PR merged that way leaves the version stale. This
+# workflow independently recomputes what the version should be (same formula
+# as the hook, duplicated here on purpose — see .githooks/pre-commit) and,
+# only if it disagrees with what's actually committed, opens a PR so a human
+# can review and merge it. It never pushes to a protected branch directly and
+# never auto-merges.
+
+on:
+  push:
+    branches:
+      - working-1.6
+      - dev-branch
+      - stable
+      - 'rc-*'
+      - 'feature-*'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: fog-version-check-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Fetch branches used by the version formula
+        run: |
+          set -e
+          git fetch origin master:master
+          git fetch origin dev-branch:dev-branch
+
+      - name: Compute expected FOG_VERSION / FOG_CHANNEL
+        env:
+          GITBRANCH: ${{ github.ref_name }}
+        run: |
+          set -e
+          system_file="packages/web/lib/fog/system.class.php"
+
+          gitcom=$(git rev-list --tags --no-walk --max-count=1)
+          gitcount=$(git rev-list master..HEAD --count)
+
+          branchon=$(echo "$GITBRANCH" | awk -F'-' '{print $1}')
+          branchend=$(echo "$GITBRANCH" | awk -F'-' '{print $2}')
+
+          current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+          current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
+
+          verbegin=""
+          channel="$current_channel"
+          trunkversion="$current_version"
+
+          case "$branchon" in
+              dev)
+                  tagversion=$(git describe --tags "$gitcom")
+                  baseversion=${tagversion%.*}
+                  trunkversion="${baseversion}.${gitcount}"
+                  channel="Patches"
+                  ;;
+              stable)
+                  tagversion=$(git describe --tags "$gitcom")
+                  baseversion=${tagversion%.*}
+                  gitcount=$(git rev-list master..dev-branch --count)
+                  trunkversion="${baseversion}.${gitcount}"
+                  channel="Patches"
+                  ;;
+              working)
+                  verbegin="${branchend}.0-beta"
+                  trunkversion="${verbegin}.${gitcount}"
+                  channel="Beta"
+                  ;;
+              rc)
+                  channel="Release Candidate"
+                  version_prefix="${branchend}.0-RC"
+                  n=$(printf '%s\n' "$current_version" | sed -n "s/^${version_prefix}-\([0-9][0-9]*\)\$/\1/p")
+                  if [ -n "$n" ]; then
+                      trunkversion="${version_prefix}-$((n + 1))"
+                  else
+                      trunkversion="${version_prefix}-1"
+                  fi
+                  ;;
+              feature)
+                  verbegin="${branchend}.0-feature"
+                  trunkversion="${verbegin}.${gitcount}"
+                  channel="Feature"
+                  ;;
+          esac
+
+          sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" "$system_file"
+          sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" "$system_file"
+
+      - name: Open a PR if the committed version is stale
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITBRANCH: ${{ github.ref_name }}
+        run: |
+          set -e
+          system_file="packages/web/lib/fog/system.class.php"
+
+          if git diff --quiet -- "$system_file"; then
+            echo "Version already correct — no miss to catch."
+            exit 0
+          fi
+
+          echo "Version drift detected on $GITBRANCH:"
+          git diff -- "$system_file"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          fix_branch="bot/version-fix-${GITBRANCH}-${{ github.run_number }}"
+          git checkout -b "$fix_branch"
+          git add "$system_file"
+          git commit -m "chore: fix stale FOG_VERSION/FOG_CHANNEL on ${GITBRANCH}"
+          git push origin "$fix_branch"
+
+          gh pr create \
+            --base "$GITBRANCH" \
+            --head "$fix_branch" \
+            --title "Version drift on ${GITBRANCH}: needs review" \
+            --body "The committed FOG_VERSION/FOG_CHANNEL on \`${GITBRANCH}\` no longer matches what the pre-commit hook's formula computes for this branch — likely a PR merged via the GitHub UI without the hook running. This PR does **not** auto-merge; please review the diff against \`packages/web/lib/fog/system.class.php\` and merge manually if correct."
