@@ -248,16 +248,16 @@ class Role extends FOGController
      */
     private function _syncPermissions()
     {
-        // Deliberately unconditional: FOGBase::isLoaded() marks a key loaded
-        // on every call, even when it answers false and nothing follows up
-        // by loading it. Gating this on isLoaded('permissions') would let a
-        // save that never touches permissions (e.g. a plain rename) poison
-        // that flag, so any later get('permissions') on this same object
+        // Gated on isPopulated(), not isLoaded(): isLoaded() marks a key
+        // loaded on every call, even when it answers false, so a save that
+        // never touches permissions (e.g. a plain rename) would poison
+        // that flag, and a later get('permissions') on this same object
         // (e.g. the API response after save()) would skip the real DB load
         // and see an empty list instead of the role's actual permissions.
-        // get() already lazy-loads correctly when not yet loaded; when
-        // nothing changed, $permissions and $cur end up identical below and
-        // this is a no-op past the two SELECTs.
+        // isPopulated() is a pure predicate with no such side effect.
+        if (!$this->isPopulated('permissions')) {
+            return $this;
+        }
         $permissions = array_values(
             array_unique(
                 array_filter(

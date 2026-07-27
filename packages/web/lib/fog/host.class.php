@@ -282,19 +282,20 @@ class Host extends FOGController
         // the "< 1" guard on setSnapinOrder()'s save path; without this a 0
         // would be inserted and later surface as a phantom run-order entry.
         //
-        // Deliberately unconditional: FOGBase::isLoaded() marks a key loaded
-        // on every call, even when it answers false and nothing follows up
-        // by loading it. Gating this on isLoaded('snapins') let a plain
-        // check-in (nothing else touches 'snapins' first) poison that flag,
-        // so the assocSetter('Snapin', 'snapin') call below trusted it and
-        // skipped the real DB load, falling back to get()'s empty-string
-        // default -- which then got cast to ['' ] and inserted as saSnapinID=0.
-        // get() already lazy-loads correctly when not yet loaded, so just
-        // call it directly.
-        $this->set(
-            'snapins',
-            self::positiveIntIds($this->get('snapins'))
-        );
+        // Gated on isPopulated(), not isLoaded(): isLoaded() marks a key
+        // loaded on every call, even when it answers false, which let this
+        // exact check poison assocSetter('Snapin', 'snapin') below into
+        // trusting stale state, skipping the real DB load, and falling back
+        // to get()'s empty-string default -- which then got cast to ['']
+        // and inserted as saSnapinID=0. isPopulated() is a pure predicate
+        // with no such side effect, so this only runs (and assocSetter only
+        // proceeds) when 'snapins' actually holds real data.
+        if ($this->isPopulated('snapins')) {
+            $this->set(
+                'snapins',
+                self::positiveIntIds($this->get('snapins'))
+            );
+        }
         $this
             ->assocSetter('Group', 'group')
             ->assocSetter('Module', 'module')
@@ -303,7 +304,7 @@ class Host extends FOGController
         // assocSetter inserts new snapin associations with sequence 0; give
         // any unsequenced rows a run-order value after the existing ones so
         // newly added snapins land at the end rather than jumping to front.
-        if ($this->isLoaded('snapins')) {
+        if ($this->isPopulated('snapins')) {
             $this->_appendSnapinSequence();
         }
         // Safety net: never leave the host with MAC rows but no primary MAC.
