@@ -7851,6 +7851,10 @@ msgid "initrd (Initial Ramdisk) Update"
 msgstr ""
 
 #, fuzzy
+msgid "is already being sent by another node"
+msgstr "MAC アドレスは別のホストで既に使用されています"
+
+#, fuzzy
 msgid "is already running with pid"
 msgstr "は既に次の PID で実行中です: "
 

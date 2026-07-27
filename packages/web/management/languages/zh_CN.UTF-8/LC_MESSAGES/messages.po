@@ -8264,6 +8264,10 @@ msgstr ""
 msgid "initrd (Initial Ramdisk) Update"
 msgstr ""
 
+#, fuzzy
+msgid "is already being sent by another node"
+msgstr "MAC地址已被其他主机使用"
+
 msgid "is already running with pid"
 msgstr ""
 

@@ -8273,6 +8273,10 @@ msgstr ""
 msgid "initrd (Initial Ramdisk) Update"
 msgstr ""
 
+#, fuzzy
+msgid "is already being sent by another node"
+msgstr "MAC address is already in use by another host"
+
 msgid "is already running with pid"
 msgstr ""
 

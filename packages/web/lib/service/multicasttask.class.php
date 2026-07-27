@@ -465,6 +465,18 @@ class MulticastTask extends FOGService
         return $this->_MultiSess;
     }
     /**
+     * Returns the storage node this task would send from.
+     *
+     * Exposed so the manager can compare it against the session's recorded
+     * sender owner before starting a second sender for it.
+     *
+     * @return int
+     */
+    public function getNodeID()
+    {
+        return $this->_intNodeID;
+    }
+    /**
      * Returns the LV image filenames a dNpM.lvm sidecar names, in sidecar
      * line order. udpcast synchronizes by file order alone, so this must
      * skip exactly the lines the FOS client skips (swap LVs and volumes

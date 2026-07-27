@@ -8283,6 +8283,10 @@ msgstr "in Sekunden"
 msgid "initrd (Initial Ramdisk) Update"
 msgstr ""
 
+#, fuzzy
+msgid "is already being sent by another node"
+msgstr "Liste der MAC-Adressen"
+
 msgid "is already running with pid"
 msgstr "läuft bereits mit PID"
 

@@ -175,6 +175,23 @@ class MulticastManager extends FOGService
         ) !== false;
     }
     /**
+     * Whether no other node already owns this session's sender.
+     *
+     * @param MulticastTask $curTask The task about to be started.
+     *
+     * @return bool
+     */
+    private function _senderClaimIsFree($curTask)
+    {
+        $owner = (int)self::getClass(
+            'MulticastSession',
+            $curTask->getID()
+        )->get('sendernode');
+
+        return $owner < 1
+            || $owner === $curTask->getNodeID();
+    }
+    /**
      * Reconciles udp-senders this node owns but no longer tracks.
      *
      * procRef only ever lived in process memory, so a daemon restart lost
@@ -360,6 +377,36 @@ class MulticastManager extends FOGService
                             $KnownTasks,
                             $curTask->getID()
                         );
+                        // One session, one sender. That was only ever
+                        // implicit -- a session is served by its group's
+                        // master and there is one of those -- but the
+                        // Location plugin promotes further masters, so two
+                        // nodes can now reach the same session. The second
+                        // to start would overwrite senderpid/sendernode and
+                        // leave the first sender running with nothing
+                        // pointing at it: _reconcileOrphanedSenders() finds a
+                        // node's orphans by looking itself up in sendernode,
+                        // so the record it needs would name the other node.
+                        //
+                        // Read the claim back from the database rather than
+                        // from the session object built with the task list,
+                        // which may be a tick stale. Deliberately not added
+                        // to $KnownTasks: if the owning node's sender goes
+                        // away the session stays active, and this node
+                        // should be free to pick it up on a later tick.
+                        if ($new
+                            && !$this->_senderClaimIsFree($curTask)
+                        ) {
+                            self::outall(
+                                sprintf(
+                                    $startStr,
+                                    $curTask->getID(),
+                                    $curTask->getName(),
+                                    _('is already being sent by another node')
+                                )
+                            );
+                            continue;
+                        }
                         if ($new) {
                             $KnownTasks[] = $curTask;
                             self::outall(
