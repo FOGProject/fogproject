@@ -237,11 +237,25 @@ reference pair is an association tab: `[Create New X (secondary)][Add selected
 (primary)]`, and the host MAC table repeats it: `[Add New MAC Address
 (secondary)][Mark selected… (primary split)]`.
 
-Watch the emission order, because the two containers reverse each other:
-- Bare `float-end` siblings — **first emitted lands rightmost**. So the primary
-  is emitted *first* and the secondary *after* it.
+Watch the emission order, and check what the *container* is first — **floats do
+nothing inside a flex container**, and most of the containers here are flex:
+- Bare `float-end` siblings in a **block** container — **first emitted lands
+  rightmost**. So the primary is emitted *first* and the secondary *after* it.
 - Inside `<div class="btn-group float-end">` — normal left-to-right flex order,
   floats don't apply to children. So the secondary is emitted *first*.
+- Inside a **`.modal-footer`** — also flex (`justify-content: flex-end`), so
+  floats are equally inert. `fog-default-ui.scss` maps `.float-start` onto
+  `margin-right: auto` there, which restores the intended meaning, so a modal's
+  dismiss button lands left and its commit button right whatever order they are
+  emitted in. Keep tagging the dismiss `float-start`; that class is what both
+  the position and the plain (non type-coloured) fill key off.
+
+That flex/float mismatch has bitten twice: the task panes wrapped their buttons
+in a bare `.btn-group`, which silently killed `float-start`/`float-end` and
+rendered all three as one left-aligned pill (#909); and the create-tasking
+modal emitted Create first, which in a flex footer put the commit button on the
+*left* (#916). If buttons come out in the wrong place, check the container's
+`display` before touching the classes.
 
 Three consequences worth remembering:
 - A card's primary commit button is `btn-primary` **even when the label isn't
