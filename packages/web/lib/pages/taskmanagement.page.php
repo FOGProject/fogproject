@@ -168,10 +168,13 @@ class TaskManagement extends FOGPage
             ['tabData' => &$tabData]
         );
         echo self::tabFields($tabData, false);
+        // Create is this modal's commit action, so it is the primary and sits
+        // right; the dismiss sits left. Matches the multicast session modal on
+        // imagemanagement, which is the reference for this pane shape.
         $modalApprovalBtns = self::makeButton(
             'tasking-send',
             _('Create'),
-            'btn btn-outline-secondary float-end'
+            'btn btn-primary float-end'
         );
         $modalApprovalBtns .= self::makeButton(
             'tasking-close',
@@ -258,10 +261,11 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Active Tasks -->';
-        $this->render(12, 'active-tasks-table');
-        echo '<div class="btn-group">';
-        echo $this->_paneButtons('active', 'active');
-        echo '</div>';
+        $this->render(
+            12,
+            'active-tasks-table',
+            $this->_paneButtons('active', 'active')
+        );
     }
     /**
      * Renders the active multicast tasks pane.
@@ -283,10 +287,11 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Active Multi-cast Tasks -->';
-        $this->render(12, 'active-multicast-table');
-        echo '<div class="btn-group">';
-        echo $this->_paneButtons('activemulticast', 'multicast');
-        echo '</div>';
+        $this->render(
+            12,
+            'active-multicast-table',
+            $this->_paneButtons('activemulticast', 'multicast')
+        );
     }
     /**
      * Renders the active snapin tasks pane.
@@ -308,10 +313,11 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Active Snapin Tasks -->';
-        $this->render(12, 'active-snapintasks-table');
-        echo '<div class="btn-group">';
-        echo $this->_paneButtons('activesnapins', 'snapins');
-        echo '</div>';
+        $this->render(
+            12,
+            'active-snapintasks-table',
+            $this->_paneButtons('activesnapins', 'snapins')
+        );
     }
     /**
      * Renders the scheduled tasks pane.
@@ -335,10 +341,11 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Scheduled Tasks -->';
-        $this->render(12, 'scheduled-task-table');
-        echo '<div class="btn-group">';
-        echo $this->_paneButtons('activescheduled', 'scheduled');
-        echo '</div>';
+        $this->render(
+            12,
+            'scheduled-task-table',
+            $this->_paneButtons('activescheduled', 'scheduled')
+        );
     }
     /**
      * Renders the queued path deletions pane.
@@ -366,10 +373,11 @@ class TaskManagement extends FOGPage
             []
         ];
         echo '<!-- Scheduled Deletions -->';
-        $this->render(12, 'scheduled-deletion-table');
-        echo '<div class="btn-group">';
-        echo $this->_paneButtons('activescheduleddels', 'deletions');
-        echo '</div>';
+        $this->render(
+            12,
+            'scheduled-deletion-table',
+            $this->_paneButtons('activescheduleddels', 'deletions')
+        );
     }
     /**
      * Renders the recent (completed/cancelled) tasks pane.
