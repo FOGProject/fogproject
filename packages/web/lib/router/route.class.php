@@ -4444,7 +4444,7 @@ class Route extends FOGBase
                                     $c->addPrinter($vars->printers);
                                 }
                                 if (isset($vars->modules)) {
-                                    $c->addModules($vars->modules);
+                                    $c->addModule($vars->modules);
                                 }
                                 if (isset($vars->groups)) {
                                     $c->addGroup($vars->groups);
