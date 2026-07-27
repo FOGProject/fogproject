@@ -114,6 +114,11 @@ abstract class FOGService extends FOGBase
             Route::getData()
         );
         $StorageNodes = $StorageNodes->storagenodes;
+        // Initialised up front because a server that masters no node never
+        // enters the loop, and the find() below then read an undefined
+        // variable. That is every non-master node running any of the
+        // services -- the ordinary case for a storage node.
+        $MasterIDs = [];
         foreach ((array)$StorageNodes as &$StorageNode) {
             $ip = self::resolveHostname(
                 $StorageNode->ip
