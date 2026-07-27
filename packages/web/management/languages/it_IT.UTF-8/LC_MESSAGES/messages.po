@@ -6527,6 +6527,11 @@ msgstr "poiché possono causare problemi difficili da risolvere"
 msgid "automatically"
 msgstr "automaticamente"
 
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
+
 #, fuzzy
 msgid "based task."
 msgstr "un'attività in base"

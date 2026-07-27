@@ -6317,6 +6317,11 @@ msgstr "問題が発生した場合に原因の特定が困難になる可能性
 msgid "automatically"
 msgstr "自動的に"
 
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
+
 msgid "based task."
 msgstr "ベースのタスク。"
 

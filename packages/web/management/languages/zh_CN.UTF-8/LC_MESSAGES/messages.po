@@ -6328,6 +6328,11 @@ msgstr "因为它们可能导致难以排查的问题"
 msgid "automatically"
 msgstr "自动执行"
 
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
+
 msgid "based task."
 msgstr "基于任务."
 
