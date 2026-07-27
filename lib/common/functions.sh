@@ -1408,8 +1408,27 @@ configureMySql() {
     # ---------------------------------------------------------
     stopInitScript
     dots "Setting up and starting MySQL"
-    dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
-    [[ -z $dbservice ]] && dbservice=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    # Resolve exactly one unit name.
+    #
+    # `grep -o` prints one line per match, and `systemctl list-unit-files` lists
+    # the mysql/mysqld alias symlinks alongside the real unit -- so the fallback
+    # yielded a three-line $dbservice (it does on a stock Fedora box). Unquoted,
+    # that word-split into `systemctl enable|stop|start` as three arguments, two
+    # of them alias names rather than the real unit. The fallback is the
+    # fresh-install path: the primary lookup only sees units already running, and
+    # RedHat-family packages do not auto-start the DB.
+    dbunits=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    [[ -z $dbunits ]] && dbunits=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    # Preference is explicit because grep cannot express it -- `-e` order does not
+    # rank matches, it just reports whichever appeared first in the input. Real
+    # unit first, aliases after.
+    dbservice=""
+    for dbcandidate in mariadb.service mysqld.service mysql.service; do
+        if grep -qFx "$dbcandidate" <<<"$dbunits"; then
+            dbservice=$dbcandidate
+            break
+        fi
+    done
     for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$error_log 2>&1
     done
@@ -1422,9 +1441,9 @@ configureMySql() {
             chown -R mysql:mysql /var/lib/mysql >>$error_log 2>&1
             mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$error_log 2>&1
         fi
-        systemctl is-enabled --quiet $dbservice || systemctl enable $dbservice >>$error_log 2>&1
-        systemctl is-active --quiet $dbservice && systemctl stop $dbservice >>$error_log 2>&1
-        systemctl start $dbservice >>$error_log 2>&1
+        systemctl is-enabled --quiet "$dbservice" || systemctl enable "$dbservice" >>$error_log 2>&1
+        systemctl is-active --quiet "$dbservice" && systemctl stop "$dbservice" >>$error_log 2>&1
+        systemctl start "$dbservice" >>$error_log 2>&1
     else
         case $osid in
             1)
