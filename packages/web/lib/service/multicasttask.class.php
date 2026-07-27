@@ -75,19 +75,29 @@ class MulticastTask extends FOGService
                 $StorageNode->ip
             )
         );
+        // Said once per node, not every tick. This is re-derived on every
+        // pass, so logging unconditionally writes a line every sleep
+        // interval for as long as the field stays stale -- some 8,600 a day
+        // on the reference server. Keyed on the pair so a genuine change
+        // still reports. Same shape as the claim notice in 886966fa7.
+        static $mismatchNoted = [];
         $configuredInterface = trim((string)($StorageNode->interface ?? ''));
         if ($Interface
             && $configuredInterface
             && $configuredInterface !== $Interface
         ) {
-            self::outall(
-                sprintf(
-                    ' | ' . _('Ignoring configured interface %s; %s routes over %s'),
-                    $configuredInterface,
-                    $StorageNode->ip,
-                    $Interface
-                )
-            );
+            $noted = $configuredInterface . '|' . $Interface;
+            if (($mismatchNoted[$myStorageNodeID] ?? null) !== $noted) {
+                $mismatchNoted[$myStorageNodeID] = $noted;
+                self::outall(
+                    sprintf(
+                        ' | ' . _('Ignoring configured interface %s; %s routes over %s'),
+                        $configuredInterface,
+                        $StorageNode->ip,
+                        $Interface
+                    )
+                );
+            }
         }
         if (!$Interface) {
             $Interface = $configuredInterface;
