@@ -41,26 +41,13 @@ class SnapinHash extends FOGService
     public function __construct()
     {
         parent::__construct();
-        list(
-            $dev,
-            $log,
-            $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'SNAPINHASHDEVICEOUTPUT',
-                    'SNAPINHASHLOGFILENAME',
-                    self::$sleeptime
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        // By name, not by position -- see the note in MulticastManager's
+        // constructor (issue #728). getSubObjectIDs() returns only the rows
+        // that exist, so one missing Service row shifted every later value
+        // left and left the last undefined.
+        $dev = self::getSetting('SNAPINHASHDEVICEOUTPUT');
+        $log = self::getSetting('SNAPINHASHLOGFILENAME');
+        $zzz = self::getSetting(self::$sleeptime);
         static::$log = sprintf(
             '%s%s',
             (
