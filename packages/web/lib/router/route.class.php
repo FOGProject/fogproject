@@ -1720,15 +1720,20 @@ class Route extends FOGBase
      */
     public static function handleWhereItems($whereItems, $class = null)
     {
-        if (is_string($whereItems)) {
-            parse_str(urldecode($whereItems), $whereItems);
-            foreach ($whereItems as $key => $val) {
-                if (!empty($val) && false !== strpos($val, ',')) {
-                    $whereItems[$key] = explode(',', $val);
-                }
+        // Anything already an array was built in PHP. It is left alone, and
+        // deliberately not vetted: sendResponse() exits, so refusing a key
+        // here would let a typo in a service kill the daemon rather than
+        // return a bad result (cf. 2d199fa4b). Only the string form -- which
+        // nothing but the router produces -- is checked below.
+        if (!is_string($whereItems)) {
+            return is_array($whereItems) ? $whereItems : [];
+        }
+        parse_str(urldecode($whereItems), $whereItems);
+        foreach ($whereItems as $key => $val) {
+            if (!empty($val) && false !== strpos($val, ',')) {
+                $whereItems[$key] = explode(',', $val);
             }
         }
-        $whereItems = (array)$whereItems;
         if (!$class || count($whereItems) < 1) {
             return $whereItems;
         }
