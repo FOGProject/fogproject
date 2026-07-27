@@ -74,43 +74,66 @@ if (count($fields) < 1) {
 }
 
 /*
- * Match Route:: calls that name both the class and their filter keys as
- * literals -- the only form that can be checked without running anything.
- * One level of nesting is allowed so ['stateID' => [1, 2]] is still seen.
- * Calls built from variables are out of scope and are not reported.
+ * Two call shapes name both the class and their filter keys as literals --
+ * the only form checkable without running anything:
+ *
+ *   Route::listem('host', ['name' => 'x'])            (mostly 1.6)
+ *   getClass('HostManager')->find(['name' => 'x'])    (mostly 1.5)
+ *
+ * Both end at the same unguarded lookup -- _buildSql() for the first,
+ * FOGManagerController for the second -- so both are checked, and the test
+ * stays useful on either branch. One level of nesting is allowed so
+ * ['stateID' => [1, 2]] is still seen. Calls whose class or keys come from
+ * variables cannot be resolved statically and are not reported.
  */
+$patterns = [
+    [
+        'label' => "Route::%s('%s', ['%s' => ...])",
+        're' => "/Route::(deletemass|getIds|ids|listem|count|activeCount)"
+            . "\(\s*'([A-Za-z0-9_]+)'\s*,\s*\[((?:[^\]\[]|\[[^\]\[]*\])*)\]/s",
+    ],
+    [
+        'label' => "%2\$sManager->%1\$s(['%3\$s' => ...])",
+        're' => "/getClass\(\s*'([A-Za-z0-9_]+)Manager'\s*\)\s*(?:\n\s*)?"
+            . "->\s*(find|destroy|count|exists|update)\(\s*(?:array\(|\[)"
+            . "((?:[^\)\]\[\(]|\[[^\]\[]*\]|\([^\)\(]*\))*)/s",
+        'swap' => true,
+    ],
+];
+
 $failures = [];
-$re = "/Route::(deletemass|getIds|ids|listem|count|activeCount)"
-    . "\(\s*'([A-Za-z0-9_]+)'\s*,\s*\[((?:[^\]\[]|\[[^\]\[]*\])*)\]/s";
 foreach ($files as $path) {
     $src = file_get_contents($path);
-    if (!preg_match_all($re, $src, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
-        continue;
-    }
-    foreach ($matches as $m) {
-        $class = strtolower($m[2][0]);
-        if (!isset($fields[$class])) {
-            // Not a model with a field map (or named via an alias) -- the
-            // check has nothing to compare against, so say nothing.
+    foreach ($patterns as $pat) {
+        if (!preg_match_all($pat['re'], $src, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
             continue;
         }
-        preg_match_all("/'([A-Za-z0-9_]+)'\s*=>/", $m[3][0], $km);
-        foreach ($km[1] as $key) {
-            if (in_array($key, $fields[$class], true)) {
+        foreach ($matches as $m) {
+            // The manager pattern captures class first, method second.
+            $method = empty($pat['swap']) ? $m[1][0] : $m[2][0];
+            $named = empty($pat['swap']) ? $m[2][0] : $m[1][0];
+            $class = strtolower($named);
+            if (!isset($fields[$class])) {
+                // Not a model with a field map (or named via an alias) -- the
+                // check has nothing to compare against, so say nothing.
                 continue;
             }
-            $failures[] = sprintf(
-                "%s:%d\n    Route::%s('%s', ['%s' => ...])\n"
-                . "    '%s' is not a field of %s; declared: %s",
-                str_replace($root . '/', '', $path),
-                substr_count(substr($src, 0, $m[0][1]), "\n") + 1,
-                $m[1][0],
-                $m[2][0],
-                $key,
-                $key,
-                $m[2][0],
-                implode(', ', $fields[$class])
-            );
+            preg_match_all("/'([A-Za-z0-9_]+)'\s*=>/", $m[3][0], $km);
+            foreach ($km[1] as $key) {
+                if (in_array($key, $fields[$class], true)) {
+                    continue;
+                }
+                $failures[] = sprintf(
+                    "%s:%d\n    %s\n"
+                    . "    '%s' is not a field of %s; declared: %s",
+                    str_replace($root . '/', '', $path),
+                    substr_count(substr($src, 0, $m[0][1]), "\n") + 1,
+                    sprintf($pat['label'], $method, $named, $key),
+                    $key,
+                    $named,
+                    implode(', ', $fields[$class])
+                );
+            }
         }
     }
 }
