@@ -3102,6 +3102,10 @@ msgstr "Cliente"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
 #, fuzzy
 msgid "Ignoring invalid multicast bitrate"
 msgstr "Iniciar Sessão Multicast"
