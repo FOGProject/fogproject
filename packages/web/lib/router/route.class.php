@@ -1779,6 +1779,45 @@ class Route extends FOGBase
         if (count($whereItems) < 1) {
             return '';
         }
+
+        // Two filters cannot be compiled into working SQL, and both must
+        // match nothing rather than be dropped -- dropping one and letting
+        // the rest of the WHERE run returns rows the caller never asked for.
+        //
+        //   - a key the class does not declare, which resolves to an empty
+        //     column identifier the database rejects outright
+        //   - a filter passed as an empty array, meaning "IN ()", which is a
+        //     syntax error
+        //
+        // Request keys are already refused by handleWhereItems(), so an
+        // unknown one reaching here came from PHP naming a field that does
+        // not exist. Logged rather than raised: sendResponse() exits, and in
+        // a service that turns a typo into a restart loop (cf. 2d199fa4b).
+        // This matches _buildSql() on working-1.6.
+        $unknown = array_diff(
+            array_keys($whereItems),
+            array_keys((array)$classVars['databaseFields'])
+        );
+        if (count($unknown) > 0) {
+            self::error(
+                sprintf(
+                    'Route::_buildWhere: unknown filter field(s) for `%s`: %s',
+                    $classVars['databaseTable'],
+                    implode(', ', $unknown)
+                )
+            );
+        }
+        $emptyInSet = false;
+        foreach ($whereItems as $field) {
+            if (is_array($field) && count($field) < 1) {
+                $emptyInSet = true;
+                break;
+            }
+        }
+        if (count($unknown) > 0 || $emptyInSet) {
+            return ' WHERE 1=0';
+        }
+
         $where = '';
         $idx = 0;
         foreach ($whereItems as $key => $field) {
