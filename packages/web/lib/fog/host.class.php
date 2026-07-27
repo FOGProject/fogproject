@@ -277,25 +277,12 @@ class Host extends FOGController
             $objNeeded = false;
             unset($DBPowerManagementIDs, $RemovePowerManagementIDs);
         }
-        // Drop any stale/blank snapin id (e.g. a 0 slipping in from a non-UI
-        // write) before assocSetter persists it as a snapinAssoc row. Mirrors
-        // the "< 1" guard on setSnapinOrder()'s save path; without this a 0
-        // would be inserted and later surface as a phantom run-order entry.
-        //
-        // Gated on isPopulated(), not isLoaded(): isLoaded() marks a key
-        // loaded on every call, even when it answers false, which let this
-        // exact check poison assocSetter('Snapin', 'snapin') below into
-        // trusting stale state, skipping the real DB load, and falling back
-        // to get()'s empty-string default -- which then got cast to ['']
-        // and inserted as saSnapinID=0. isPopulated() is a pure predicate
-        // with no such side effect, so this only runs (and assocSetter only
-        // proceeds) when 'snapins' actually holds real data.
-        if ($this->isPopulated('snapins')) {
-            $this->set(
-                'snapins',
-                self::positiveIntIds($this->get('snapins'))
-            );
-        }
+        // The stale/blank snapin id filter that used to sit here (8e31b5cf0)
+        // now lives in assocSetter(), where it guards every relation instead
+        // of this one. Filtering at a single caller was the original mistake:
+        // it left the other assocSetter() call sites able to persist an id-0
+        // row, and the isLoaded() gate it needed in order to run at all is
+        // what poisoned assocSetter into wiping the host's snapins (PR #906).
         $this
             ->assocSetter('Group', 'group')
             ->assocSetter('Module', 'module')
