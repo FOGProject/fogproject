@@ -22,14 +22,7 @@ gitbranch="${1:-$(git branch --show-current)}"
 gitcom=$(git rev-list --tags --no-walk --max-count=1)
 
 git fetch origin master:master 2>/dev/null || true
-
-# Excludes this script's own prior fixup commits from the count. Without
-# this, a bot-pushed fixup is itself one more commit since master, so the
-# very next recompute (whether that's a bot-triggered CI sweep or a later
-# local commit) finds "drift" again and fixes it again, forever - that's
-# what actually caused the FOG_VERSION incident this was built to fix.
-gitcount=$(git rev-list master..HEAD --count \
-    --invert-grep --fixed-strings --grep='chore: fix stale FOG_VERSION/FOG_CHANNEL')
+gitcount=$(git rev-list master..HEAD --count)
 
 branchon=$(echo "$gitbranch" | awk -F'-' '{print $1}')
 branchend=$(echo "$gitbranch" | awk -F'-' '{print $2}')
@@ -37,48 +30,77 @@ branchend=$(echo "$gitbranch" | awk -F'-' '{print $2}')
 current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
 current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
 
-verbegin=""
-channel="$current_channel"
-trunkversion="$current_version"
+# Computes trunkversion/channel using the given commit count for the
+# count-based branch types (dev/working/feature). rc ignores it (it
+# increments off the currently committed suffix, not a commit count) and
+# stable overrides it with its own dev-branch-relative count - both
+# unchanged from the original formula.
+compute_version() {
+    count="$1"
+    verbegin=""
+    channel="$current_channel"
+    trunkversion="$current_version"
 
-case "$branchon" in
-    dev)
-        tagversion=$(git describe --tags "$gitcom")
-        baseversion=${tagversion%.*}
-        trunkversion="${baseversion}.${gitcount}"
-        channel="Patches"
-        ;;
-    stable)
-        tagversion=$(git describe --tags "$gitcom")
-        baseversion=${tagversion%.*}
-        gitcount=$(git rev-list master..dev-branch --count \
-            --invert-grep --fixed-strings --grep='chore: fix stale FOG_VERSION/FOG_CHANNEL') # Get the gitcount from dev-branch instead
-        trunkversion="${baseversion}.${gitcount}"
-        channel="Patches"
-        ;;
-    working)
-        verbegin="${branchend}.0-beta"
-        trunkversion="${verbegin}.${gitcount}"
-        channel="Beta"
-        ;;
-    rc)
-        channel="Release Candidate"
-        version_prefix="${branchend}.0-RC"
-        n=$(printf '%s\n' "$current_version" | sed -n "s/^${version_prefix}-\([0-9][0-9]*\)\$/\1/p")
-        if [ -n "$n" ]; then
-            last_rc_version=$n
-            next_rc_version=$((last_rc_version + 1))
-            trunkversion="${version_prefix}-${next_rc_version}"
-        else
-            trunkversion="${version_prefix}-1"
-        fi
-        ;;
-    feature)
-        verbegin="${branchend}.0-feature"
-        trunkversion="${verbegin}.${gitcount}"
-        channel="Feature"
-        ;;
-esac
+    case "$branchon" in
+        dev)
+            tagversion=$(git describe --tags "$gitcom")
+            baseversion=${tagversion%.*}
+            trunkversion="${baseversion}.${count}"
+            channel="Patches"
+            ;;
+        stable)
+            tagversion=$(git describe --tags "$gitcom")
+            baseversion=${tagversion%.*}
+            count=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
+            trunkversion="${baseversion}.${count}"
+            channel="Patches"
+            ;;
+        working)
+            verbegin="${branchend}.0-beta"
+            trunkversion="${verbegin}.${count}"
+            channel="Beta"
+            ;;
+        rc)
+            channel="Release Candidate"
+            version_prefix="${branchend}.0-RC"
+            n=$(printf '%s\n' "$current_version" | sed -n "s/^${version_prefix}-\([0-9][0-9]*\)\$/\1/p")
+            if [ -n "$n" ]; then
+                trunkversion="${version_prefix}-$((n + 1))"
+            else
+                trunkversion="${version_prefix}-1"
+            fi
+            ;;
+        feature)
+            verbegin="${branchend}.0-feature"
+            trunkversion="${verbegin}.${count}"
+            channel="Feature"
+            ;;
+    esac
+}
+
+# First pass: what the version already correctly is, if nothing writes a
+# new commit right now.
+compute_version "$gitcount"
+
+drifted=false
+[ "$trunkversion" != "$current_version" ] && drifted=true
+# dev-branch and stable deliberately carry no FOG_CHANNEL line at all (a
+# clean version string, no channel text) - current_channel is empty there
+# by design, not by omission, so it's excluded from drift detection rather
+# than treated as permanently "wrong".
+if [ -n "$current_channel" ] && [ "$channel" != "$current_channel" ]; then
+    drifted=true
+fi
+
+if [ "$drifted" = true ]; then
+    # What's committed disagrees, so whatever calls this script is about
+    # to add one more real commit to this branch to fix it. Recompute with
+    # gitcount+1 - the count that will actually be true once that commit
+    # exists - so the fix is correct the instant it lands instead of being
+    # wrong by exactly the commit that made it. Without this, the very next
+    # check finds "drift" again and fixes it again, forever.
+    compute_version "$((gitcount + 1))"
+fi
 
 sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" "$system_file"
 sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" "$system_file"
