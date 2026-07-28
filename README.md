@@ -29,7 +29,7 @@ This gives us a Production, Staging, and Dev branches to follow standard devops 
 | Staging          | dev-branch                                                                                                            | Patch
 | Dev              | working-*, {feature-name}                                                                                             | Major, Minor
 
-See also: [Version Sync Automation](https://docs.fogproject.org/development/version-sync-automation/) for how `FOG_VERSION`/`FOG_CHANNEL` are kept in sync with git state on each branch.
+See also: [Version Sync Automation](https://docs.fogproject.org/en/latest/version-sync-automation) for how `FOG_VERSION`/`FOG_CHANNEL` are kept in sync with git state on each branch.
 
 ### Version Format
 
