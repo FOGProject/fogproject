@@ -62,7 +62,16 @@ class SchemaUpdaterPage extends FOGPage
         // request here, so there is no reachable login page to send them to.
         // page.class.php already loads fog.login.js for any invalid user, so
         // the form is wired up, and it reloads ?node=schema on success.
-        if (self::hasFogUsers() && !self::isSchemaAdmin()) {
+        //
+        // validSchemaBootstrap() first, though: a caller holding the install
+        // token must not be sent to a login form. Logging in reads the schema
+        // this deploy is about to create, so on an upgrade that form cannot be
+        // passed at all -- see GH-927. The token IS the credential in that
+        // case, exactly as it is for the installer's own header.
+        if (!self::validSchemaBootstrap()
+            && self::hasFogUsers()
+            && !self::isSchemaAdmin()
+        ) {
             // A non-admin who is already signed in gets bounced here by the
             // same stale-schema redirect. They are shown the way out rather
             // than a login form, because the form does not work for them:
@@ -125,12 +134,13 @@ class SchemaUpdaterPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        // Fresh-install bootstrap only. Carrying the token into the POST lets
-        // the deploy run before any user exists. Emitted solely to a caller
-        // who already proved possession, and only while the install is still
-        // userless -- so it is never disclosed, and it stops working the
-        // moment this deploy creates the default user.
-        if (!self::hasFogUsers() && self::installTokenParam()) {
+        // Carry the token into the POST so the deploy runs without a session.
+        // Emitted solely to a caller who already proved possession, and only
+        // while a deploy is outstanding -- so it is never disclosed, and it
+        // stops working the moment this deploy brings the schema up to date.
+        // Not gated on hasFogUsers(): an upgrade has users and still needs
+        // this path, which is the whole of GH-927.
+        if (self::installTokenParam()) {
             echo '<input type="hidden" name="fogtoken" value="'
                 . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
                 . '"/>';
@@ -244,10 +254,13 @@ class SchemaUpdaterPage extends FOGPage
             // Tier 2, a human upgrading. The dispatcher's checkAuthAndCSRF()
             // has already enforced CSRF on this POST; isSchemaAdmin() tightens
             // is_authorized(), which also admits uType 1 mobile users.
-        } elseif (!self::hasFogUsers() && self::installTokenParam()) {
-            // Tier 3, fresh-install bootstrap. Dies once this deploy creates
-            // the default user, which is the point -- this is the copy of the
+        } elseif (self::schemaNeedsDeploy() && self::installTokenParam()) {
+            // Tier 3, browser bootstrap. Dies once this deploy brings the
+            // schema up to date, which is the point -- this is the copy of the
             // token that reaches stdout, install logs and browser history.
+            // Gated on a deploy being outstanding rather than on the install
+            // being userless: an upgrade has users and is exactly when the
+            // Tier 2 login is unusable. GH-927.
         } else {
             $this->jsonSend(HTTPResponseCodes::HTTP_FORBIDDEN, json_encode(
                 [
