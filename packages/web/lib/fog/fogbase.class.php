@@ -2880,9 +2880,9 @@ abstract class FOGBase
      *
      * This is the leaky copy: it is printed to the installer's stdout, ends up
      * in the tee'd install log, and reaches browser history, bookmarks and
-     * access logs. Callers must additionally require !hasFogUsers(), which
-     * makes it self-expiring -- the deploy it authorizes creates the default
-     * user, after which this channel is permanently closed.
+     * access logs. Callers must additionally require schemaNeedsDeploy(), which
+     * makes it self-expiring -- the deploy it authorizes brings the schema up
+     * to date, after which this channel is permanently closed.
      *
      * @return bool
      */
@@ -2892,6 +2892,51 @@ abstract class FOGBase
             filter_input(INPUT_POST, 'fogtoken')
             ?? filter_input(INPUT_GET, 'fogtoken')
         );
+    }
+    /**
+     * Is there actually a schema deploy outstanding?
+     *
+     * This is what makes the URL-token channel self-expiring. It used to be
+     * !hasFogUsers(), on the assumption that a token deploy only ever happens
+     * on a fresh install -- but an *upgrade* has users and a stale schema, and
+     * that is precisely when the browser path is needed. See GH-927.
+     *
+     * $mySchema stays 0 when the database could not be read, which reads as
+     * "behind" and keeps the recovery path open on a broken database. That is
+     * the same direction updateDB() already fails in, and it is safe: the
+     * caller still has to present the per-install secret.
+     *
+     * @return bool
+     */
+    public static function schemaNeedsDeploy()
+    {
+        return self::$mySchema < FOG_SCHEMA;
+    }
+    /**
+     * Does the caller hold a credential that permits a session-less schema
+     * deploy? Either the installer's header (always), or the URL token while a
+     * deploy is still outstanding.
+     *
+     * The URL token has to survive on an upgrade, not just a fresh install.
+     * The installer's fallback hands the admin a ?node=schema URL and tells
+     * them to log in there -- but on an old enough database that login reads
+     * schema the deploy has not created yet, so it cannot be passed. On
+     * working-1.6 that is an outright deadlock via StorageNode's
+     * `ngmGraphColor` (migration 275). This branch has no such column, so here
+     * it is the weaker form of the same defect: the tokenized URL is simply
+     * ignored on an upgrade, leaving the printed link useless. GH-927.
+     *
+     * Widening this to an upgrade does not weaken the channel. The header tier
+     * already accepts the identical secret with users present; this only adds
+     * the leakier transport for it, bounded to the window where a deploy is
+     * genuinely outstanding.
+     *
+     * @return bool
+     */
+    public static function validSchemaBootstrap()
+    {
+        return self::installTokenHeader()
+            || (self::schemaNeedsDeploy() && self::installTokenParam());
     }
     /**
      * Is the current session a FOG administrator?

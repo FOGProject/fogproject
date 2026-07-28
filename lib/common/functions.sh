@@ -238,6 +238,21 @@ updateDB() {
                 echo
                 echo " * Log in as a FOG administrator there, then click"
                 echo "   Install/Update Now."
+                echo
+                # The login above is not always usable on an upgrade: it reads
+                # the schema this deploy is about to create, so a model old
+                # enough can fail it outright (GH-927). The token channel now
+                # covers that case, but the secret is deliberately NOT echoed
+                # here -- this text lands in the install log, and users paste
+                # those into forum threads verbatim. Point at the file instead;
+                # anyone who can read it is already root.
+                echo " * If you cannot log in there, the schema can be deployed"
+                echo "   directly using the token in:"
+                echo "     ${webdirdest}lib/fog/config.class.php"
+                echo "   (the FOG_SCHEMA_INSTALL_TOKEN line), with:"
+                echo "     curl -X POST -H \"X-Fog-Install-Token: <token>\" \\"
+                echo "       -d \"schemaupdate=1\" \\"
+                echo "       \"${httpproto}://${ipaddress}${webroot}management/index.php?node=schema\""
             fi
             if [[ -z $userCount || $userCount -eq 0 ]]; then
                 # Only a userless install can use the token, and only in a URL
