@@ -95,7 +95,12 @@ function Service_Signal_handler($signo)
  */
 function Service_Register_Signal_handler()
 {
-    pcntl_signal(SIGCHLD, SIG_IGN);
+    // SIGCHLD is deliberately left at its default disposition. Setting it
+    // to SIG_IGN makes the kernel auto-reap children, which is mutually
+    // exclusive with the pcntl_waitpid() call in Service_persist(): the
+    // child is collected before we can wait on it, so waitpid() only ever
+    // returns -1/ECHILD and the re-fork path below it is dead code (#917).
+    // Zombies are prevented here by that waitpid(), not by ignoring SIGCHLD.
     pcntl_signal(SIGHUP, 'Service_Signal_handler');
     pcntl_signal(SIGINT, 'Service_Signal_handler');
     pcntl_signal(SIGQUIT, 'Service_Signal_handler');
@@ -156,37 +161,50 @@ function Service_persist($service_name)
                 } elseif ($reaped_pid > 0) {
                     break;
                 } else {
+                    // The child is unwaitable -- in practice ECHILD, meaning
+                    // it is already gone and its status was collected by
+                    // somebody else. That is a reason to fork a replacement,
+                    // not to kill the supervisor; exiting here is what left a
+                    // dying child with no log line and no restart (#917).
                     Service_Log_message(
                         $service_logpath,
                         $service_name,
-                        'pnctl_waitpid() failed.'
+                        "cannot wait on child process ($service_child_pid): "
+                        . pcntl_strerror(pcntl_get_last_error())
+                        . '. Assuming it is gone and re-forking.'
                     );
-                    exit(1);
+                    break;
                 }
                 sleep($service_sleep_time);
             }
-            if (pcntl_wifexited($status)) {
-                $code = pcntl_wexitstatus($status);
-                Service_Log_message(
-                    $service_logpath,
-                    $service_name,
-                    "child process ($service_child_pid) exited with code $code."
-                );
-            } elseif (pcntl_wifsignaled($status)) {
-                $sigcode = pcntl_wtermsig($status);
-                Service_Log_message(
-                    $service_logpath,
-                    $service_name,
-                    "child process ($service_child_pid) exited "
-                    . "due to signal $sigcode."
-                );
-            } else {
-                Service_Log_message(
-                    $service_logpath,
-                    $service_name,
-                    "child process ($service_child_pid) "
-                    . "stopped for unknown reason."
-                );
+            // $status only carries a real wait status when we actually
+            // reaped; on the ECHILD break above it is still 0 and would
+            // otherwise be misreported as a clean "exited with code 0".
+            if ($reaped_pid > 0) {
+                if (pcntl_wifexited($status)) {
+                    $code = pcntl_wexitstatus($status);
+                    Service_Log_message(
+                        $service_logpath,
+                        $service_name,
+                        "child process ($service_child_pid) "
+                        . "exited with code $code."
+                    );
+                } elseif (pcntl_wifsignaled($status)) {
+                    $sigcode = pcntl_wtermsig($status);
+                    Service_Log_message(
+                        $service_logpath,
+                        $service_name,
+                        "child process ($service_child_pid) exited "
+                        . "due to signal $sigcode."
+                    );
+                } else {
+                    Service_Log_message(
+                        $service_logpath,
+                        $service_name,
+                        "child process ($service_child_pid) "
+                        . "stopped for unknown reason."
+                    );
+                }
             }
             $service_child_pid = 0;
         } elseif ($service_child_pid == 0) {
