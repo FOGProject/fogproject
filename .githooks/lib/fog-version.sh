@@ -1,13 +1,12 @@
 #!/usr/bin/env sh
 #
-# Recomputes FOG_VERSION/FOG_CHANNEL for the given (or current) branch and
-# rewrites packages/web/lib/fog/system.class.php in place.
+# Computes what FOG_VERSION/FOG_CHANNEL should be for the given (or
+# current) branch and prints them, one per line (version, then channel).
 #
-# Deliberately does NOT `git add`, `git commit`, or assume it's running
-# mid-commit - it only touches the working tree. That's what lets it be
-# shared between .githooks/pre-commit (which stages the result itself,
-# mid-commit) and a CI job (which has no commit in progress and stages/
-# commits/pushes on its own afterward).
+# Deliberately does NOT touch packages/web/lib/fog/system.class.php or any
+# other file - purely a function of git state, so it's safe to run ad hoc
+# (locally or in CI) without leaving a dirty working tree behind. Pair with
+# apply-fog-version.sh to actually write the result somewhere.
 #
 # Usage: fog-version.sh [branch-name]
 #   branch-name defaults to the currently checked out branch.
@@ -102,5 +101,5 @@ if [ "$drifted" = true ]; then
     compute_version "$((gitcount + 1))"
 fi
 
-sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" "$system_file"
-sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" "$system_file"
+printf '%s\n' "$trunkversion"
+printf '%s\n' "$channel"
