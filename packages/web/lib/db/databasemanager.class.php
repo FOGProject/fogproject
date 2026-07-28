@@ -24,6 +24,14 @@
 class DatabaseManager extends FOGCore
 {
     /**
+     * Memoized column lists, keyed by lowercased table name.
+     *
+     * Populated by tableColumns(). Per-request only.
+     *
+     * @var array
+     */
+    private static $_tableColumns = [];
+    /**
      * Initiate the connection to the database.
      *
      * @return object
@@ -209,6 +217,55 @@ class DatabaseManager extends FOGCore
             ->query($query)
             ->fetch()
             ->get('vValue');
+    }
+    /**
+     * Every column name that actually exists on a table, lowercased.
+     *
+     * getColumns() costs a query per column, which is far too much to ask per
+     * field. This is one query per table, memoised for the request, so the
+     * schema-drift filter in FOGManagerController can afford to run on every
+     * read.
+     *
+     * Returns an empty array when the table is absent or unreadable. Callers
+     * must treat "empty" as "don't know" and filter nothing -- an unreadable
+     * information_schema must never look like "this table has no columns",
+     * which would strip every field off the model.
+     *
+     * @param string $table_name The table to describe.
+     *
+     * @return array
+     */
+    public static function tableColumns(string $table_name): array
+    {
+        $key = strtolower($table_name);
+        if (array_key_exists($key, self::$_tableColumns)) {
+            return self::$_tableColumns[$key];
+        }
+        self::$_tableColumns[$key] = [];
+        if (!self::$DB || !self::getLink()) {
+            return [];
+        }
+        $sql = sprintf(
+            "SELECT `COLUMN_NAME`"
+            . " FROM `information_schema`.`COLUMNS`"
+            . " WHERE `TABLE_SCHEMA` = %s"
+            . " AND `TABLE_NAME` = %s",
+            self::$DB->escape(self::$DB->dbName()),
+            self::$DB->escape($table_name)
+        );
+        $res = self::$DB->query($sql);
+        if (false !== $res->error) {
+            return [];
+        }
+        $cols = [];
+        $rows = $res->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get('COLUMN_NAME');
+        foreach ((array)$rows as $col) {
+            if (is_string($col) && $col !== '') {
+                $cols[] = strtolower($col);
+            }
+        }
+        self::$_tableColumns[$key] = $cols;
+        return $cols;
     }
     /**
      * Get columns from table testing for a specific column name

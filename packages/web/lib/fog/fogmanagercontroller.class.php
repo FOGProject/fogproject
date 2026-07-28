@@ -1188,11 +1188,40 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Gets the columns for this item.
      *
+     * Drops any field whose column is not actually on the table. A model can
+     * name a column that a *later* schema migration creates, and every read
+     * built from this list is an explicit column list -- so on a database
+     * that has not been migrated yet the whole query dies with
+     * "Unknown column" rather than merely missing a value. That is how a
+     * pre-275 database took the storage node grid down over `ngmGraphColor`
+     * (#927/#928), and how a plugin whose pSchema has fallen behind the core
+     * schema takes its own pages down (#737) -- note the second case happens
+     * with the *core* schema perfectly current, so this cannot be gated on
+     * "is an upgrade pending".
+     *
+     * Reads tolerate drift; writes deliberately do not. save()/insertBatch()
+     * still name every declared column, because silently dropping a column
+     * from an INSERT or UPDATE is data loss, and the correct answer there is
+     * to run the migration, not to write a short row.
+     *
+     * tableColumns() memoises per request, and returns an empty list when the
+     * table is absent or information_schema is unreadable -- which must mean
+     * "don't know", never "no columns", or this would strip the model bare.
+     *
      * @return []
      */
     public function getColumns()
     {
-        return $this->databaseFields;
+        $have = DatabaseManager::tableColumns($this->databaseTable);
+        if (!count($have)) {
+            return $this->databaseFields;
+        }
+        return array_filter(
+            $this->databaseFields,
+            function ($column) use ($have) {
+                return in_array(strtolower(trim($column)), $have, true);
+            }
+        );
     }
     /**
      * Gets the table for this item.
