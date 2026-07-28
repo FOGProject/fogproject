@@ -19,6 +19,17 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+// #917: every daemon entry point ran @error_reporting(0), so a fatal in a
+// child produced no output anywhere -- the service simply stopped doing work
+// while systemd still reported it active. Report real errors instead, but keep
+// display_errors off so nothing lands on stdout, where systemd would duplicate
+// it into the journal. E_DEPRECATED is masked because this 7.4-era codebase
+// emits enough of it to bury anything actionable. This has to run before the
+// require below so that loading base.inc.php is covered too; the log
+// destination is set further down, once the configured path is known.
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 require WEBROOT.'/commons/base.inc.php';
 $service_logpath = sprintf(
     '/%s/%s',
@@ -33,6 +44,18 @@ if (!$service_sleep_time) {
     $service_sleep_time = 10;
 }
 $service_child_pid = 0;
+// Tag used on error-log lines. The entry point sets $service_name only after
+// this file is required, and errors can happen before that, so fall back to
+// the script name and let Service_persist() refine it once it knows.
+$service_name_tag = basename(isset($argv[0]) ? $argv[0] : 'FOGService');
+// Now that the configured path is resolved, send PHP's own error output to
+// the same file the service writes to, so there is one place to look.
+ini_set('error_log', $service_logpath);
+// PHP's own log line carries no pid and no service name, and all eight
+// daemons share servicemaster.log -- so a fatal additionally gets an
+// attributed line naming the daemon and the process that died. The overlap is
+// deliberate: PHP's line has the file and line number, this one has identity.
+register_shutdown_function('Service_Fatal_handler');
 /**
  * Sends the service log messages
  *
@@ -44,16 +67,54 @@ $service_child_pid = 0;
  */
 function Service_Log_message($logpath, $name, $msg)
 {
-    $logfile = fopen($logpath, "a");
     $msg = sprintf(
         "[%s] %s %s\n",
         FOGCore::formatTime('now', 'm-d-y g:i:s a'),
         $name,
         $msg
     );
+    // An unwritable log path used to be fatal: fopen() returns false and on
+    // PHP 8 fwrite(false, ...) throws an uncaught TypeError, killing the
+    // daemon from inside the very routine meant to explain what went wrong --
+    // and under the old @error_reporting(0) it died without a word (#917).
+    // Fall back to error_log() so a bad path degrades to journald instead.
+    $logfile = @fopen($logpath, 'a');
+    if ($logfile === false) {
+        error_log(rtrim($msg));
+        return;
+    }
     fwrite($logfile, $msg);
     fflush($logfile);
     fclose($logfile);
+}
+/**
+ * Records a fatal error against the daemon and process it killed.
+ *
+ * Runs on every shutdown; only a fatal produces output, so a clean exit
+ * stays silent. See the register_shutdown_function() call above for why
+ * this exists alongside PHP's own error_log line (#917).
+ *
+ * @return void
+ */
+function Service_Fatal_handler()
+{
+    global $service_logpath;
+    global $service_name_tag;
+    $error = error_get_last();
+    if (!$error) {
+        return;
+    }
+    $fatal = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
+    if (!($error['type'] & $fatal)) {
+        return;
+    }
+    Service_Log_message(
+        $service_logpath,
+        $service_name_tag,
+        '('.posix_getpid().') died on a fatal error: '
+        . $error['message']
+        . ' in ' . $error['file'] . ' on line ' . $error['line'] . '.'
+    );
 }
 declare (ticks = 1);
 /**
@@ -131,7 +192,9 @@ function Service_persist($service_name)
     global $service_logpath;
     global $service_child_pid;
     global $service_sleep_time;
+    global $service_name_tag;
     $service_child_pid = 0;
+    $service_name_tag = $service_name;
     Service_Log_message($service_logpath, $service_name, 'Start');
     Service_Register_Signal_handler();
     for (;;) {
@@ -175,7 +238,6 @@ function Service_persist($service_name)
                     );
                     break;
                 }
-                sleep($service_sleep_time);
             }
             // $status only carries a real wait status when we actually
             // reaped; on the ECHILD break above it is still 0 and would
