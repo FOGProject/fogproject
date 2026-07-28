@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
 #
 # Computes what FOG_VERSION/FOG_CHANNEL should be for the given (or
-# current) branch and prints them, one per line (version, then channel).
+# current) branch and prints three lines: version, channel, and whether
+# that differs from what's currently committed (true/false) - so a caller
+# can skip writing/committing entirely when nothing needs to change,
+# instead of always writing and checking `git diff` afterward.
 #
 # Deliberately does NOT touch packages/web/lib/fog/system.class.php or any
 # other file - purely a function of git state, so it's safe to run ad hoc
@@ -103,3 +106,4 @@ fi
 
 printf '%s\n' "$trunkversion"
 printf '%s\n' "$channel"
+printf '%s\n' "$drifted"
