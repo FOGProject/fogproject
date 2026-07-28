@@ -59,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', 'ldap.0-feature.2815');
+        define('FOG_VERSION', 'ldap.0-feature.2816');
         define('FOG_CHANNEL', 'Feature');
         define('FOG_SCHEMA', 314);
         define('FOG_BCACHE_VER', 240);
