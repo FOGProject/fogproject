@@ -22,7 +22,14 @@ gitbranch="${1:-$(git branch --show-current)}"
 gitcom=$(git rev-list --tags --no-walk --max-count=1)
 
 git fetch origin master:master 2>/dev/null || true
-gitcount=$(git rev-list master..HEAD --count)
+
+# Excludes this script's own prior fixup commits from the count. Without
+# this, a bot-pushed fixup is itself one more commit since master, so the
+# very next recompute (whether that's a bot-triggered CI sweep or a later
+# local commit) finds "drift" again and fixes it again, forever - that's
+# what actually caused the FOG_VERSION incident this was built to fix.
+gitcount=$(git rev-list master..HEAD --count \
+    --invert-grep --fixed-strings --grep='chore: fix stale FOG_VERSION/FOG_CHANNEL')
 
 branchon=$(echo "$gitbranch" | awk -F'-' '{print $1}')
 branchend=$(echo "$gitbranch" | awk -F'-' '{print $2}')
@@ -44,7 +51,8 @@ case "$branchon" in
     stable)
         tagversion=$(git describe --tags "$gitcom")
         baseversion=${tagversion%.*}
-        gitcount=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
+        gitcount=$(git rev-list master..dev-branch --count \
+            --invert-grep --fixed-strings --grep='chore: fix stale FOG_VERSION/FOG_CHANNEL') # Get the gitcount from dev-branch instead
         trunkversion="${baseversion}.${gitcount}"
         channel="Patches"
         ;;
