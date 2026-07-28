@@ -61,11 +61,14 @@ psrfix
 # Define the path to the system file
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
-# Recompute FOG_VERSION/FOG_CHANNEL for the current branch. The logic is
+# Recompute FOG_VERSION/FOG_CHANNEL for the current branch. The formula is
 # shared with fog-workflows' CI check (see .githooks/lib/fog-version.sh) so
 # a local commit and CI's periodic sweep never compute two different
 # answers for the same branch state.
-sh "$project_dir/.githooks/lib/fog-version.sh"
+fog_version=$(sh "$project_dir/.githooks/lib/fog-version.sh")
+sh "$project_dir/.githooks/lib/apply-fog-version.sh" \
+    "$(printf '%s\n' "$fog_version" | sed -n '1p')" \
+    "$(printf '%s\n' "$fog_version" | sed -n '2p')"
 
 # Add the modified system file to the staging area
 git add "$system_file"
