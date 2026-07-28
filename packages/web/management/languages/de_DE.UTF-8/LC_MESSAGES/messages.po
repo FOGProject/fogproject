@@ -5054,10 +5054,6 @@ msgstr "Pfad ist nicht verfügbar"
 msgid "Path not allowed"
 msgstr "Hier nicht erlaubt"
 
-#, fuzzy
-msgid "Pause"
-msgstr "Pause"
-
 msgid "Pause Reload"
 msgstr ""
 
@@ -5627,10 +5623,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Result"
-msgstr "Ergebnis"
-
-#, fuzzy
-msgid "Resume"
 msgstr "Ergebnis"
 
 msgid "Resume Reload"
@@ -9082,6 +9074,10 @@ msgstr ""
 #~ msgstr "Admingruppe"
 
 #, fuzzy
+#~ msgid "Pause"
+#~ msgstr "Pause"
+
+#, fuzzy
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr ""
 #~ "Bitte geben Sie einen Namen für einen Admin oder einen mobilen Lookup ein."
@@ -9095,6 +9091,10 @@ msgstr ""
 
 #~ msgid "Results"
 #~ msgstr "Ergebnisse"
+
+#, fuzzy
+#~ msgid "Resume"
+#~ msgstr "Ergebnis"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "Zeilennummer nicht richtig eingestellt"

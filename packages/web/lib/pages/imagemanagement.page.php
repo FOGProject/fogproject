@@ -1264,15 +1264,15 @@ class ImageManagement extends FOGPage
             'btn btn-danger float-start',
             $props
         );
-        $buttons .= self::makeButton(
-            'session-pause',
-            _('Pause Reload'),
-            'btn btn-warning float-start'
-        );
-        $buttons .= self::makeButton(
-            'session-resume',
-            _('Resume Reload'),
-            'btn btn-success float-end'
+        // One self-relabelling toggle, not a pause/resume pair -- pausing the
+        // auto-refresh destroys nothing so it never belonged on the left with
+        // Cancel Selected, and only ever one of the two was pressable. Create
+        // holds primary as the rightmost of this cluster, so the toggle is
+        // secondary; bare float-end siblings in this block footer land
+        // first-emitted-rightmost, hence Create is emitted before it.
+        $buttons .= self::makeReloadToggle(
+            'session-reload-toggle',
+            'btn btn-secondary float-end'
         );
 
         $modalBtns = self::makeButton(

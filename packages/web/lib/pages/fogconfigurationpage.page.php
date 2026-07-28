@@ -2397,15 +2397,14 @@ class FOGConfigurationPage extends FOGPage
 
         $this->title = _('FOG Log Viewer');
 
-        $buttons = self::makeButton(
-            'logresume',
-            _('Resume'),
-            'btn btn-success float-end'
-        );
-        $buttons .= self::makeButton(
-            'logpause',
-            _('Pause'),
-            'btn btn-warning float-start'
+        // One self-relabelling toggle, not a pause/resume pair -- pausing the
+        // live tail destroys nothing so Pause never belonged on the left, and
+        // only ever one of the two was pressable. Labels are the shared
+        // "Pause/Resume Reload" pair so this button reads identically to the
+        // task and multicast panes. Sole right-side button, so primary.
+        $buttons = self::makeReloadToggle(
+            'logreload-toggle',
+            'btn btn-primary float-end'
         );
 
         echo self::makeFormTag(

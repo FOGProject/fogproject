@@ -417,21 +417,26 @@
   }
 
   // ---------------------------------------------------------------
-  // PER-PANE ACTION BUTTONS (cancel / pause / resume)
+  // PER-PANE ACTION BUTTONS (cancel / reload toggle)
   //
-  // Bound once, at the pane's first activation. Pause/resume only stop the
-  // shared tick for this pane; other panes keep their own state.
+  // Bound once, at the pane's first activation. The reload toggle only stops
+  // the shared tick for this pane; other panes keep their own state.
   function bindPaneButtons(pane) {
     var $pane = $('#' + pane.id),
-      cancelSelected = $pane.find('.cancel-selected'),
-      pauseReload = $pane.find('.pause-refresh'),
-      resumeReload = $pane.find('.resume-refresh');
+      cancelSelected = $pane.find('.cancel-selected');
     if (!cancelSelected.length) {
       return; // Recent has no action footer.
     }
     cancelSelected.prop('disabled', true);
-    pauseReload.prop('disabled', false);
-    resumeReload.prop('disabled', true);
+    $.registerReloadToggle($pane.find('.reload-toggle'), {
+      onPause: function() {
+        pane.paused = true;
+      },
+      onResume: function() {
+        pane.paused = false;
+        pane.table.ajax.reload(null, false);
+      }
+    });
     cancelSelected.on('click', function() {
       cancelSelected.prop('disabled', true);
       var toRemove = $.getSelectedIds(pane.table),
@@ -447,17 +452,6 @@
           cancelSelected.prop('disabled', false);
         }
       });
-    });
-    pauseReload.on('click', function() {
-      pauseReload.prop('disabled', true);
-      resumeReload.prop('disabled', false);
-      pane.paused = true;
-    });
-    resumeReload.on('click', function() {
-      resumeReload.prop('disabled', false);
-      pauseReload.prop('disabled', false);
-      pane.paused = false;
-      pane.table.ajax.reload(null, false);
     });
   }
 

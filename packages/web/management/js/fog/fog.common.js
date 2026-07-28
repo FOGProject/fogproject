@@ -1068,6 +1068,48 @@ $.registerSelectTab = function(opts) {
     });
   }
 };
+// $.registerReloadToggle(btn, opts) - wire the single pause/resume auto-refresh
+// button emitted by FOGPage::makeReloadToggle().
+//
+// This replaced a pause button and a resume button sitting side by side with one
+// of them always disabled, so every pane rendered a permanently dead control.
+// One button relabels itself instead: it always shows the action you can take.
+//
+// Both labels come off the button's own data attributes rather than being
+// written here, so the strings stay inside gettext on the PHP side. The colour
+// class is deliberately not touched - state is carried by the label alone, so
+// the button does not change colour under the cursor and cannot end up as a
+// second btn-primary next to a real one (the multicast pane's Create).
+//
+// btn   - the toggle button, a jQuery object or selector.
+// opts  - onPause/onResume callbacks. Called after the label has been swapped.
+$.registerReloadToggle = function(btn, opts) {
+  opts = opts || {};
+  var $btn = $(btn);
+  if (!$btn.length) {
+    return;
+  }
+  // Start live. Callers that render already-paused would set data-paused="1".
+  var paused = $btn.data('paused') === 1 || $btn.data('paused') === '1';
+  function paint() {
+    $btn.text(paused ? $btn.data('resume-label') : $btn.data('pause-label'));
+    $btn.attr('data-paused', paused ? '1' : '0');
+  }
+  paint();
+  $btn.prop('disabled', false);
+  $btn.on('click', function(e) {
+    e.preventDefault();
+    paused = !paused;
+    paint();
+    if (paused) {
+      if (opts.onPause) {
+        opts.onPause();
+      }
+    } else if (opts.onResume) {
+      opts.onResume();
+    }
+  });
+};
 // Column resizing - let the user drag a table's column borders.
 //
 // No DataTables release has ever shipped this; the only third-party option

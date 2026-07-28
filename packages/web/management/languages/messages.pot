@@ -4266,9 +4266,6 @@ msgstr ""
 msgid "Path not allowed"
 msgstr ""
 
-msgid "Pause"
-msgstr ""
-
 msgid "Pause Reload"
 msgstr ""
 
@@ -4760,9 +4757,6 @@ msgid ""
 msgstr ""
 
 msgid "Result"
-msgstr ""
-
-msgid "Resume"
 msgstr ""
 
 msgid "Resume Reload"

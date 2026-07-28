@@ -5051,10 +5051,6 @@ msgstr "没有可用的散列"
 msgid "Path not allowed"
 msgstr "这里不允许"
 
-#, fuzzy
-msgid "Pause"
-msgstr "用户"
-
 msgid "Pause Reload"
 msgstr ""
 
@@ -5624,10 +5620,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Result"
-msgstr "结果"
-
-#, fuzzy
-msgid "Resume"
 msgstr "结果"
 
 msgid "Resume Reload"
@@ -9051,6 +9043,10 @@ msgstr ""
 #~ msgstr "修改组"
 
 #, fuzzy
+#~ msgid "Pause"
+#~ msgstr "用户"
+
+#, fuzzy
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "这个位置输入名称。"
 
@@ -9062,6 +9058,10 @@ msgstr ""
 #~ msgstr "删除选定snapins"
 
 #~ msgid "Results"
+#~ msgstr "结果"
+
+#, fuzzy
+#~ msgid "Resume"
 #~ msgstr "结果"
 
 #~ msgid "Row number not set properly"

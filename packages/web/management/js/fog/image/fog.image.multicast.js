@@ -13,8 +13,7 @@
         // Main Table
         sessionTable = $('#multicast-sessions-table'),
         reloadinterval,
-        sessionResumeBtn = $('#session-resume'),
-        sessionPauseBtn = $('#session-pause');
+        sessionReloadToggle = $('#session-reload-toggle');
 
     function reload(callback, userpaging) {
         if (reloadinterval) {
@@ -141,8 +140,6 @@
             };
         $.apiCall(method, action, opts, function(err) {
             sessionCancelBtn.prop('disabled', false);
-            sessionPauseBtn.prop('disabled', false);
-            sessionResumeBtn.prop('disabled', true);
             if (err) {
                 return;
             }
@@ -158,17 +155,13 @@
 
     // Enable the reload elements. (Auto refresh)
     reload(null, false);
-    sessionPauseBtn.prop('disabled', false);
-    sessionResumeBtn.prop('disabled', true);
     sessionCancelBtn.prop('disabled', true);
-    sessionPauseBtn.on('click', function(e) {
-        sessionPauseBtn.prop('disabled', true);
-        sessionResumeBtn.prop('disabled', false);
-        clearTimeout(reloadinterval);
-    });
-    sessionResumeBtn.on('click', function(e) {
-        sessionPauseBtn.prop('disabled', false);
-        sessionResumeBtn.prop('disabled', true);
-        reload(null, false);
+    $.registerReloadToggle(sessionReloadToggle, {
+        onPause: function() {
+            clearTimeout(reloadinterval);
+        },
+        onResume: function() {
+            reload(null, false);
+        }
     });
 })(jQuery);

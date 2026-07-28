@@ -4814,9 +4814,6 @@ msgstr "パスは利用できません"
 msgid "Path not allowed"
 msgstr "パスは許可されていません"
 
-msgid "Pause"
-msgstr "一時停止"
-
 msgid "Pause Reload"
 msgstr ""
 
@@ -5364,10 +5361,6 @@ msgid ""
 msgstr ""
 
 msgid "Result"
-msgstr "結果"
-
-#, fuzzy
-msgid "Resume"
 msgstr "結果"
 
 msgid "Resume Reload"
@@ -9618,6 +9611,9 @@ msgstr ""
 #~ msgid "Partclone Compressed 200MiB split"
 #~ msgstr "Partclone Compressed 200MiB split"
 
+#~ msgid "Pause"
+#~ msgstr "一時停止"
+
 #~ msgid "Pending Host List"
 #~ msgstr "保留中ホスト一覧"
 
@@ -9787,6 +9783,10 @@ msgstr ""
 #~ msgstr "処理するテンプレートが必要です"
 
 #~ msgid "Results"
+#~ msgstr "結果"
+
+#, fuzzy
+#~ msgid "Resume"
 #~ msgstr "結果"
 
 #~ msgid "Return Desc"

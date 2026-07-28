@@ -2,8 +2,7 @@
   var logSelect = $('#logToView'),
     lineSelect = $('#linesToView'),
     reverse = $('#reverse:checkbox'),
-    pauseBtn = $('#logpause'),
-    resumeBtn = $('#logresume'),
+    reloadToggle = $('#logreload-toggle'),
     logviewerForm = $('#logviewer-form'),
     logsGoHere = $('#logsGoHere'),
     selectedLog = logSelect.val(),
@@ -17,8 +16,6 @@
   logviewerForm.on('submit', function(e) {
     e.preventDefault();
   });
-  pauseBtn.prop('disabled', false);
-  resumeBtn.prop('disabled', true);
 
   function getLogData(ip, file, length, reversed) {
     var logdata,
@@ -106,25 +103,19 @@
     getLogData(ip, file, selectedLines, reverseChecked);
   });
 
-  // Pause Button Clicked.
-  pauseBtn.on('click', function(e) {
-    e.preventDefault();
-    resumeBtn.prop('disabled', false);
-    $(this).prop('disabled', true);
-    if (logTimer) {
-      clearTimeout(logTimer);
+  // Pause/resume the tail. One button, relabelled by the shared helper.
+  $.registerReloadToggle(reloadToggle, {
+    onPause: function() {
+      if (logTimer) {
+        clearTimeout(logTimer);
+      }
+    },
+    onResume: function() {
+      if (logTimer) {
+        clearTimeout(logTimer);
+      }
+      getLogData(ip, file, selectedLines, reverseChecked);
     }
-  });
-
-  // Resume Button Clicked.
-  resumeBtn.on('click', function(e) {
-    e.preventDefault();
-    pauseBtn.prop('disabled', false);
-    $(this).prop('disabled', true);
-    if (logTimer) {
-      clearTimeout(logTimer);
-    }
-    getLogData(ip, file, selectedLines, reverseChecked);
   });
 
   // Start the reading!

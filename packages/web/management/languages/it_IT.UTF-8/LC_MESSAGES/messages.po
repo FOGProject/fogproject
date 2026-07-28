@@ -4852,9 +4852,6 @@ msgstr "Percorso non disponibile"
 msgid "Path not allowed"
 msgstr "Non ammessi qui"
 
-msgid "Pause"
-msgstr "Pausa"
-
 msgid "Pause Reload"
 msgstr ""
 
@@ -5404,10 +5401,6 @@ msgid ""
 msgstr ""
 
 msgid "Result"
-msgstr "Risultati"
-
-#, fuzzy
-msgid "Resume"
 msgstr "Risultati"
 
 msgid "Resume Reload"
@@ -8686,6 +8679,9 @@ msgstr ""
 #~ msgid "Non-Administrator Group"
 #~ msgstr "Gruppo amministrativo"
 
+#~ msgid "Pause"
+#~ msgstr "Pausa"
+
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "Inserisci un nome di amministratore o di ricerca per cellulari"
 
@@ -8698,6 +8694,10 @@ msgstr ""
 
 #~ msgid "Results"
 #~ msgstr "risultati"
+
+#, fuzzy
+#~ msgid "Resume"
+#~ msgstr "Risultati"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "numero di riga non impostato correttamente"

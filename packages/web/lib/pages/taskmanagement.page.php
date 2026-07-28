@@ -219,15 +219,13 @@ class TaskManagement extends FOGPage
             'btn btn-danger cancel-selected float-start',
             $props
         );
-        $buttons .= self::makeButton(
-            'pause-refresh-' . $suffix,
-            _('Pause Reload'),
-            'btn btn-warning pause-refresh float-start'
-        );
-        $buttons .= self::makeButton(
-            'resume-refresh-' . $suffix,
-            _('Resume Reload'),
-            'btn btn-success resume-refresh float-end'
+        // One self-relabelling toggle, not a pause/resume pair -- pausing the
+        // auto-refresh destroys nothing so it never belonged on the left with
+        // Cancel Selected, and only ever one of the two was pressable. It is
+        // the sole right-side button here, so it takes primary.
+        $buttons .= self::makeReloadToggle(
+            'reload-toggle-' . $suffix,
+            'btn btn-primary float-end'
         );
         return $buttons;
     }

@@ -1086,6 +1086,38 @@ abstract class FOGPage extends FOGBase
         return ob_get_clean();
     }
     /**
+     * Makes the single pause/resume auto-refresh toggle button.
+     *
+     * These used to be two buttons with one always disabled, so every pane
+     * permanently rendered a dead control. One button that relabels itself
+     * means the only thing on screen is the action you can actually take.
+     *
+     * Both labels ride along as data attributes so gettext stays server-side
+     * and the JS only has to swap text. The colour is fixed for the life of
+     * the button -- state is carried by the label, not by a colour change --
+     * so callers pass whatever class fits their footer (primary when it is
+     * the rightmost right-side button, secondary when something else there
+     * already holds primary). Wire it up with $.registerReloadToggle().
+     *
+     * @param string $id    The id of the button.
+     * @param string $class The class to associate to the button.
+     *
+     * @return string
+     */
+    public static function makeReloadToggle($id, $class = 'btn btn-primary float-end')
+    {
+        $pause = _('Pause Reload');
+        $resume = _('Resume Reload');
+        return self::makeButton(
+            $id,
+            $pause,
+            trim($class . ' reload-toggle'),
+            'type="button" data-paused="0"'
+            . ' data-pause-label="' . Initiator::e($pause) . '"'
+            . ' data-resume-label="' . Initiator::e($resume) . '"'
+        );
+    }
+    /**
      * Helps make a split button.
      *
      * @param string $id            The id of the main button

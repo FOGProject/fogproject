@@ -5058,10 +5058,6 @@ msgstr "Pas de hachage disponible"
 msgid "Path not allowed"
 msgstr "Non autorisé ici"
 
-#, fuzzy
-msgid "Pause"
-msgstr "Utilisateur"
-
 msgid "Pause Reload"
 msgstr ""
 
@@ -5633,10 +5629,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Result"
-msgstr "Résultats"
-
-#, fuzzy
-msgid "Resume"
 msgstr "Résultats"
 
 msgid "Resume Reload"
@@ -9070,6 +9062,10 @@ msgstr ""
 #~ msgstr "Modifier Groupe"
 
 #, fuzzy
+#~ msgid "Pause"
+#~ msgstr "Utilisateur"
+
+#, fuzzy
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "S'il vous plaît entrer un nom pour cet emplacement."
 
@@ -9081,6 +9077,10 @@ msgstr ""
 #~ msgstr "Retirer snapins sélectionnés"
 
 #~ msgid "Results"
+#~ msgstr "Résultats"
+
+#, fuzzy
+#~ msgid "Resume"
 #~ msgstr "Résultats"
 
 #~ msgid "Row number not set properly"

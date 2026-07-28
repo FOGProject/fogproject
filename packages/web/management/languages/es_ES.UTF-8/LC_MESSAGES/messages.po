@@ -5170,10 +5170,6 @@ msgstr "No se dispone de hash"
 msgid "Path not allowed"
 msgstr ""
 
-#, fuzzy
-msgid "Pause"
-msgstr "Usuario"
-
 msgid "Pause Reload"
 msgstr ""
 
@@ -5755,10 +5751,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Result"
-msgstr "resultados"
-
-#, fuzzy
-msgid "Resume"
 msgstr "resultados"
 
 msgid "Resume Reload"
@@ -9208,6 +9200,10 @@ msgstr ""
 #~ msgid "Non-Administrator Group"
 #~ msgstr "modificar Grupo"
 
+#, fuzzy
+#~ msgid "Pause"
+#~ msgstr "Usuario"
+
 #~ msgid "Printer Alias"
 #~ msgstr "impresora Alias"
 
@@ -9216,6 +9212,10 @@ msgstr ""
 #~ msgstr "Remoto"
 
 #~ msgid "Results"
+#~ msgstr "resultados"
+
+#, fuzzy
+#~ msgid "Resume"
 #~ msgstr "resultados"
 
 #, fuzzy
