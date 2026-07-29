@@ -207,6 +207,48 @@ class PDODB extends DatabaseManager
     }
 
     /**
+     * The default read deadline, in seconds, for a connection this class
+     * opens.
+     *
+     * Five minutes: far above any query FOG issues in a request, far below
+     * mysqlnd's own 86400. See _boundReadTimeout() for why it exists.
+     *
+     * @var int
+     */
+    const READ_TIMEOUT = 300;
+
+    /**
+     * Puts a ceiling on how long a read from MySQL may block.
+     *
+     * mysqlnd defaults net_read_timeout to 86400 -- a full day. If the server
+     * stops answering on an established connection (a hang, a dropped
+     * session, a restart leaving the socket half-open) PHP parks in read()
+     * for that long. Neither backstop people assume covers this actually
+     * does: max_execution_time does not count time in a blocking syscall
+     * (measured: still blocked at 40s with the limit set to 5), and php-fpm's
+     * request_terminate_timeout defaults to disabled. A stuck worker is held
+     * from a finite pool, so enough of them and the UI and API stop serving
+     * entirely. Refs #944.
+     *
+     * PDO::ATTR_TIMEOUT is deliberately not used: under mysqlnd it maps to
+     * MYSQL_OPT_CONNECT_TIMEOUT and bounds only the TCP connect, which in
+     * this failure succeeds. The read is what hangs.
+     *
+     * Only applied when the value is still mysqlnd's default, so an explicit
+     * choice always wins -- the daemons set their own before bootstrapping
+     * (packages/service/lib/service_lib.php) and an admin's php.ini is left
+     * alone.
+     *
+     * @return void
+     */
+    private static function _boundReadTimeout()
+    {
+        if ((int)ini_get('mysqlnd.net_read_timeout') === 86400) {
+            ini_set('mysqlnd.net_read_timeout', (string)self::READ_TIMEOUT);
+        }
+    }
+
+    /**
      * Connects the database as needed.
      *
      * @param bool $dbexists does db exist
@@ -220,6 +262,7 @@ class PDODB extends DatabaseManager
             if (self::$_link) {
                 return $this;
             }
+            self::_boundReadTimeout();
             $type = DATABASE_TYPE;
             $host = preg_replace('#p:#i', '', DATABASE_HOST);
             $user = DATABASE_USERNAME;
