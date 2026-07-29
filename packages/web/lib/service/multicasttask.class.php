@@ -1039,7 +1039,15 @@ class MulticastTask extends FOGService
             unset($iterator);
         }
         @natcasesort($filelist);
-        $partid = self::getPartitions();
+        // $this->, not self::: getPartitions() is an instance accessor like
+        // every other one on this class, and self:: binds statically to
+        // MulticastTask, so any subclass override is silently ignored. No
+        // subclass ships today, but it makes the method untestable in
+        // isolation -- an override is skipped, the real one runs
+        // Route::indiv() on whatever session is loaded, and a miss exits the
+        // process outright (the #907 path), which reads as the harness dying
+        // for no reason. Behaviour in the daemon is unchanged.
+        $partid = $this->getPartitions();
         if ($partid < 1) {
             $filelist = array_values((array)$filelist);
         } else {
