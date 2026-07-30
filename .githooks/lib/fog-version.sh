@@ -91,7 +91,10 @@ drifted=false
 # clean version string, no channel text) - current_channel is empty there
 # by design, not by omission, so it's excluded from drift detection rather
 # than treated as permanently "wrong".
-if [ -n "$current_channel" ] && [ "$channel" != "$current_channel" ]; then
+if { [ -n "$current_channel" ] && [ "$channel" != "$current_channel" ]; }; then
+    drifted=true
+fi
+if [ "$local" -eq 1 ]; then
     drifted=true
 fi
 
