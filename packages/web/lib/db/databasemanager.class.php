@@ -329,8 +329,23 @@ class DatabaseManager extends FOGCore
         if (!count($convert ?: [])) {
             return;
         }
-        foreach ($convert as $q) {
-            self::$DB->query($q);
+        /*
+         * ALTER TABLE ... ENGINE=InnoDB rebuilds the whole table, and on a
+         * large imagingLog or hosts that legitimately runs for minutes with
+         * the server sending nothing back. PDODB puts a 300s ceiling on reads
+         * so a wedged MySQL cannot hang a worker forever (#944) -- that
+         * ceiling is right for a request and wrong here, where tripping it
+         * would abandon a schema upgrade midway through rebuilding tables.
+         * Lift it for the duration and put back exactly what was there.
+         */
+        $readTimeout = ini_get('mysqlnd.net_read_timeout');
+        ini_set('mysqlnd.net_read_timeout', '86400');
+        try {
+            foreach ($convert as $q) {
+                self::$DB->query($q);
+            }
+        } finally {
+            ini_set('mysqlnd.net_read_timeout', (string)$readTimeout);
         }
     }
 }

@@ -30,6 +30,32 @@
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
+// #944: mysqlnd's read timeout defaults to 86400 -- a full day. If MySQL
+// stops answering on an established connection (server hang, dropped session,
+// a restart that leaves the socket half-open) the daemon blocks in read() for
+// up to 24 hours. That happens here, during the require below, which is
+// BEFORE Service_persist() forks -- so systemd reports the unit active with
+// Tasks: 1, servicemaster.log stays empty because the first 'Start' line is
+// written after the bootstrap, and only systemctl restart recovers it.
+//
+// PDO::ATTR_TIMEOUT is NOT the fix: under mysqlnd it maps to
+// MYSQL_OPT_CONNECT_TIMEOUT and bounds only the TCP connect, which in this
+// scenario succeeds -- measured still blocked at 40s with it set. This ini is
+// the only knob that bounds the read, and it is PHP_INI_ALL so ini_set works.
+//
+// Set here rather than in PDODB::$_options on purpose. The web tier already
+// has backstops (max_execution_time, php-fpm request_terminate_timeout) and a
+// hung request surfaces an error to somebody; a hung daemon is invisible. A
+// read deadline in the shared DB layer would bind every present and future
+// caller to solve a problem only the daemons have. This file is required by
+// all eight daemons and by nothing else.
+//
+// The value is hard-coded because the timeout exists in order to bound
+// reading the database -- it cannot itself be read from a globalSetting. 300s
+// is far above any real FOG daemon query and far below a day. When it trips,
+// PDO raises 'MySQL server has gone away', which the supervisor logs and
+// recovers from by re-forking (#917).
+ini_set('mysqlnd.net_read_timeout', '300');
 require WEBROOT.'/commons/base.inc.php';
 $service_logpath = sprintf(
     '/%s/%s',
