@@ -20,6 +20,7 @@ project_dir=$(git rev-parse --show-toplevel)
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
 gitbranch="${1:-$(git branch --show-current)}"
+local="${2:-0}"
 
 gitcom=$(git rev-list --tags --no-walk --max-count=1)
 
@@ -90,11 +91,14 @@ drifted=false
 # clean version string, no channel text) - current_channel is empty there
 # by design, not by omission, so it's excluded from drift detection rather
 # than treated as permanently "wrong".
-if [ -n "$current_channel" ] && [ "$channel" != "$current_channel" ]; then
+if { [ -n "$current_channel" ] && [ "$channel" != "$current_channel" ]; }; then
+    drifted=true
+fi
+if [ "$local" -eq 1 ]; then
     drifted=true
 fi
 
-if [ "$drifted" = true ]; then
+if [ "$drifted" = true ] || [ "$local" -eq 1 ]; then
     # What's committed disagrees, so whatever calls this script is about
     # to add one more real commit to this branch to fix it. Recompute with
     # gitcount+1 - the count that will actually be true once that commit

@@ -58,6 +58,8 @@ updateLanguage() {
 updateLanguage
 psrfix
 
+
+
 # Define the path to the system file
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
@@ -65,7 +67,8 @@ system_file="$project_dir/packages/web/lib/fog/system.class.php"
 # shared with fog-workflows' CI check (see .githooks/lib/fog-version.sh) so
 # a local commit and CI's periodic sweep never compute two different
 # answers for the same branch state.
-fog_version=$(sh "$project_dir/.githooks/lib/fog-version.sh")
+gitbranch=$(git branch --show-current)
+fog_version=$(sh "$project_dir/.githooks/lib/fog-version.sh" $gitbranch 1)
 if [ "$(printf '%s\n' "$fog_version" | sed -n '3p')" = "true" ]; then
     sh "$project_dir/.githooks/lib/apply-fog-version.sh" \
         "$(printf '%s\n' "$fog_version" | sed -n '1p')" \
@@ -74,4 +77,3 @@ if [ "$(printf '%s\n' "$fog_version" | sed -n '3p')" = "true" ]; then
     # Add the modified system file to the staging area
     git add "$system_file"
 fi
-
