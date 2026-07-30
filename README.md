@@ -25,11 +25,11 @@ See also: [Version Sync Automation](https://docs.fogproject.org/en/latest/versio
 
 Current version on each of the main branches (updated automatically - see the doc above):
 
-| Branch | Version |
+| Channel | Version |
 |---|---|
-| [`stable`](https://github.com/FOGProject/fogproject/tree/stable) | [![stable version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/stable.json)](https://github.com/FOGProject/fogproject/tree/stable) |
-| [`dev-branch`](https://github.com/FOGProject/fogproject/tree/dev-branch) | [![dev-branch version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/dev-branch.json)](https://github.com/FOGProject/fogproject/tree/dev-branch) |
-| [`working-1.6`](https://github.com/FOGProject/fogproject/tree/working-1.6) | [![working-1.6 version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/working-1.6.json)](https://github.com/FOGProject/fogproject/tree/working-1.6) |
+| [`Stable`](https://github.com/FOGProject/fogproject/tree/stable) | [![stable version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/stable.json)](https://github.com/FOGProject/fogproject/tree/stable) |
+| [`Staging`](https://github.com/FOGProject/fogproject/tree/dev-branch) | [![dev-branch version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/dev-branch.json)](https://github.com/FOGProject/fogproject/tree/dev-branch) |
+| [`Dev`](https://github.com/FOGProject/fogproject/tree/working-1.6) | [![working-1.6 version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/working-1.6.json)](https://github.com/FOGProject/fogproject/tree/working-1.6) |
 
 ### Version Format
 
