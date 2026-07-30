@@ -210,21 +210,29 @@ class BootMenu extends FOGBase
             $sysuuid = filter_input(INPUT_POST, 'sysuuid')
                 ?: filter_input(INPUT_GET, 'sysuuid')
                 ?: '';
-            if (!self::$Host->get('inventory')->get('sysuuid')) {
-                if ($sysuuid && !preg_match(
+            // Aisle 019: only ever accept a well-formed UUID. Previously the
+            // regex ran only when no sysuuid was stored yet, and the value was
+            // then saved unconditionally -- so an unauthenticated boot.php POST
+            // could overwrite an existing sysuuid with arbitrary text, and a bare
+            // `mac=` POST (no sysuuid) blanked a good stored value. Assigning
+            // only on a valid, changed value fixes both while leaving the
+            // save() itself in place, so the inventory row is still created for
+            // a host that does not have one yet.
+            $Inventory = self::$Host->get('inventory');
+            if ($sysuuid
+                && preg_match(
                     '/^[0-9A-Fa-f]{8}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{4}-'
                     . '[0-9A-Fa-f]{12}$/',
                     $sysuuid
-                )) {
-                    $sysuuid = '';
-                }
+                )
+                && $Inventory->get('sysuuid') != $sysuuid
+            ) {
+                $Inventory->set('sysuuid', $sysuuid);
             }
-            self::$Host
-                ->get('inventory')
-                ->set('sysuuid', $sysuuid)
+            $Inventory
                 ->set('hostID', self::$Host->get('id'))
                 ->save();
         }
@@ -234,7 +242,7 @@ class BootMenu extends FOGBase
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        $StorageNodeID = @min(
+        $StorageNodeID = self::minId(
             self::getSubObjectIDs(
                 'StorageNode',
                 array(
@@ -399,7 +407,7 @@ class BootMenu extends FOGBase
                         'StorageNode'
                     );
                 }
-                $StorageNode = new StorageNode(@min($storageNodeIDs));
+                $StorageNode = new StorageNode(self::minId($storageNodeIDs));
             }
         } else {
             $StorageNode = current($StorageNodes);
@@ -457,7 +465,7 @@ class BootMenu extends FOGBase
         $this->_initrd = "imgfetch $imagefile";
         self::$HookManager
             ->processEvent('BOOT_MENU_ITEM');
-        $PXEMenuID = @max(
+        $PXEMenuID = self::maxId(
             self::getSubObjectIDs(
                 'PXEMenuOptions',
                 array(
@@ -880,6 +888,32 @@ class BootMenu extends FOGBase
             $this->_parseMe($Send);
             return;
         }
+        // The session exists but the sender is already transmitting, so
+        // joining now would pull a partial image while still counting this
+        // host as part of the session. Say so rather than claiming no
+        // session has that name.
+        if (!$MulticastSession->isJoinable()) {
+            $Send['checksession'] = array(
+                'echo That session has already started and can no longer '
+                . 'be joined.',
+                'clear sessname',
+                'sleep 3',
+                'set arch ${buildarch}',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
+                'params',
+                'param mac0 ${net0/mac}',
+                'param arch ${arch}',
+                'param platform ${platform}',
+                'param sessionJoin 1',
+                'param sysuuid ${uuid}',
+                'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+                'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                ':bootme',
+                "chain -ar $this->_booturl/ipxe/boot.php##params",
+            );
+            $this->_parseMe($Send);
+            return;
+        }
         $this->multijoin($MulticastSession->get('id'));
     }
     /**
@@ -1226,7 +1260,18 @@ class BootMenu extends FOGBase
         if (!self::$Host->isValid()) {
             return;
         }
-        self::$Host->set('productKey', isset($_REQUEST['key']) ? $_REQUEST['key'] : '');
+        // Aisle 029 (parity with working-1.6): boot.php is unauthenticated and
+        // this wrote $_REQUEST['key'] straight into hostProductKey with no
+        // validation. Use the same charset rule the registration path already
+        // enforces (registration.class.php), including its empty carve-out so
+        // clearing a key from the iPXE prompt still works. 1.6's strict Base24
+        // helpers do not exist on this branch, and the looser rule here also
+        // avoids rejecting legacy/OEM keys that 1.5.x installs may hold.
+        $key = isset($_REQUEST['key']) ? (string)$_REQUEST['key'] : '';
+        if ($key !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $key)) {
+            return;
+        }
+        self::$Host->set('productKey', $key);
         if (!self::$Host->save()) {
             return;
         }
@@ -1454,7 +1499,7 @@ class BootMenu extends FOGBase
             $TaskType = $Task->getTaskType();
             $imagingTasks = $TaskType->isImagingTask();
             if ($TaskType->isMulticast()) {
-                $msaID = @max(
+                $msaID = self::maxId(
                     self::getSubObjectIDs(
                         'MulticastSessionAssociation',
                         array(

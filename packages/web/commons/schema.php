@@ -3785,3 +3785,114 @@ $this->schema[] = array(
     // host:port targets (e.g. CUPS/IPP queues). Widen to VARCHAR(255).
     "ALTER TABLE `printers` MODIFY COLUMN `pIP` VARCHAR(255) NOT NULL"
 );
+// 275
+// Cross-branch hazard, read before adding step 276 here.
+//
+// The updater applies steps by ARRAY INDEX -- schemaupdaterpage does
+// array_slice($this->schema, $mySchema) -- so an install sitting at
+// version 275 resumes at step 276 no matter which branch it moves to.
+// working-1.6 already occupies index 275 with a guarded catch-up that
+// adds nfsGroupMembers.ngmGraphColor, and a 1.5.x install that upgrades
+// to 1.6 would jump straight past it and never gain that column.
+// Duplicate-column errors are tolerated by the updater (error 1060 is in
+// its ignore list), so re-running a migration is safe; SKIPPING one is
+// not. This step therefore carries 1.6's index-275 work as well as its
+// own, column-guarded so it is a no-op wherever the column already
+// exists. Any future step added here must do the same for the matching
+// 1.6 index.
+$columnGraphColor = array_filter(
+    (array)DatabaseManager::getColumns(
+        'nfsGroupMembers',
+        'ngmGraphColor'
+    )
+);
+$this->schema[] = array(
+    (
+        count($columnGraphColor ?: []) ?
+        '' :
+        "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmGraphColor` "
+        . "VARCHAR(6) AFTER `ngmHelloInterval`"
+    ),
+    // Sender ownership for multicast sessions. FOGMulticastManager tracked
+    // the udp-sender process only in MulticastTask::$procRef, which is
+    // in-process memory. A daemon restart lost every reference, so the
+    // orphaned sender kept holding its portbase while the re-forked daemon
+    // saw an empty known-task list and spawned a SECOND sender for the same
+    // session on the same ports. Persisting the pid, the owning storage node
+    // and the spawn time lets the daemon reconcile orphans on startup and
+    // lets sessions be scoped to the node that actually owns them.
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderPID` INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderNode` INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msSenderStart` DATETIME NULL DEFAULT NULL",
+    // FOG_MULTICAST_PORT_OVERRIDE is now a pool rather than a single port.
+    // It previously forced every concurrent session onto one portbase, so
+    // a second session could never actually run; as a comma separated list
+    // each entry is one concurrently runnable session, allocated at session
+    // creation. The stored value stays valid -- a single port is simply a
+    // pool of one, which is what the old setting effectively meant.
+    //
+    // Folded into this step rather than given its own so that only one
+    // index is consumed on this branch: every index added here has to
+    // absorb the matching working-1.6 index (see the note above), and 1.6's
+    // next one along is a large guarded plugins/groups catch-up.
+    "UPDATE `globalSettings` SET `settingDesc` = 'This setting defines the "
+    . "multicast base ports FOG may use. Enter a comma separated list, for "
+    . "example 63100,63200,63300 -- each port is one multicast session that "
+    . "can run at the same time, and a session takes the port plus the one "
+    . "above it. Ports must be even and between 1024 and 65534; anything "
+    . "else is ignored. Default is 0, which is disabled and lets FOG pick a "
+    . "port per session.' WHERE `settingKey` = 'FOG_MULTICAST_PORT_OVERRIDE'",
+);
+// 276
+$this->schema[] = array(
+    // Aisle 016. status/hostgetkey.php is unauthenticated and MAC-resolved, and
+    // the host token it returns is the only gate on service/hostinfo.php, which
+    // emits plaintext AD join credentials and the product key. Network position
+    // is the only signal available to tell a booting client from an arbitrary
+    // caller, and it cannot be inferred (DHCP re-lease, PXE vs OS NIC, VLAN hop,
+    // relayed DHCP, NAT all break a strict host-ip match), so the admin declares
+    // it. Empty is the default and means no restriction -- an upgrade changes
+    // nothing until a site opts in. Consumes the index matching working-1.6's
+    // 314, per the pairing note on the step above.
+    "INSERT IGNORE INTO `globalSettings`"
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)"
+    . "VALUES"
+    . "('FOG_HOSTKEY_ALLOWED_SOURCES','This setting restricts which source "
+    . "addresses may obtain a host token from status/hostgetkey.php, which is "
+    . "what unlocks the host information service (including Active Directory "
+    . "join credentials and the product key). Enter a comma separated list of "
+    . "imaging networks in CIDR form and/or individual addresses, for example "
+    . "10.0.0.0/8,192.168.5.20. Leave empty to allow any source, which is the "
+    . "default and matches the behaviour of earlier versions.','','Security')",
+);
+// Guarded because working-1.6 and dev-branch number the same migration
+// differently -- this is index 317 there -- so an install that has crossed
+// between the two may already carry the column.
+$columnhostSecTokenPrev = array_filter(
+    (array)DatabaseManager::getColumns(
+        'hosts',
+        'hostSecTokenPrev'
+    )
+);
+// 277
+$this->schema[] = count($columnhostSecTokenPrev ?: []) ? array() : array(
+    // FOGPage::authorize() rotates hostSecToken and COMMITS it before the
+    // encrypted response carrying the new token can reach the client. Anything
+    // that interrupts that delivery -- the encrypt throwing, a dropped
+    // connection, a deploy landing mid-request -- left the client holding a
+    // token the server had already discarded, and there was no way back: the
+    // client has no #!ist handler, and the server-side "recovery" that used to
+    // clear pub_key never worked because it left sec_tok in place. The only
+    // exit was an administrator pressing Reset Encryption Data.
+    //
+    // One generation of history closes that gap. A client whose reply went
+    // missing re-presents its previous token, is recognised, and is handed the
+    // current one again. The grace is retired as soon as the client proves it
+    // holds the current token, so a stolen token does not stay valid
+    // indefinitely.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostSecTokenPrev` LONGTEXT NOT NULL",
+);

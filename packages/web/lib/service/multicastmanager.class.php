@@ -47,26 +47,23 @@ class MulticastManager extends FOGService
     public function __construct()
     {
         parent::__construct();
-        list(
-            $dev,
-            $log,
-            $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'MULTICASTDEVICEOUTPUT',
-                    'MULTICASTLOGFILENAME',
-                    self::$sleeptime
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        /*
+         * Read each setting by name rather than by position.
+         *
+         * This was a list() over getSubObjectIDs(), which returns only the
+         * rows that actually exist, ordered by name. One missing Service row
+         * therefore shifted every later value a place to the left and left
+         * the last variable undefined -- the "Undefined array key 0/1" in
+         * issue #728. The daemon then took its log filename from the device
+         * setting and its console device from the log filename, so multicast
+         * appeared to do nothing at all.
+         *
+         * getSetting() returns '' for a key with no row, which the defaults
+         * below already handle, and it cannot mix values up between keys.
+         */
+        $dev = self::getSetting('MULTICASTDEVICEOUTPUT');
+        $log = self::getSetting('MULTICASTLOGFILENAME');
+        $zzz = self::getSetting(self::$sleeptime);
         static::$log = sprintf(
             '%s%s',
             (
@@ -165,6 +162,97 @@ class MulticastManager extends FOGService
         return array_filter($new);
     }
     /**
+     * Is the given pid still a live udp-sender?
+     *
+     * Checks the command line as well as existence so a recycled pid
+     * belonging to an unrelated process is never mistaken for our sender.
+     *
+     * @param int $pid the pid to check
+     *
+     * @return bool
+     */
+    private function _isSenderAlive($pid)
+    {
+        $pid = (int)$pid;
+        if ($pid < 1) {
+            return false;
+        }
+        $cmdline = @file_get_contents(
+            sprintf('/proc/%d/cmdline', $pid)
+        );
+        if (!$cmdline) {
+            return false;
+        }
+        return strpos(
+            str_replace("\0", ' ', $cmdline),
+            basename(UDPSENDERPATH)
+        ) !== false;
+    }
+    /**
+     * Reconciles udp-senders this node owns but no longer tracks.
+     *
+     * procRef only ever lived in process memory, so a daemon restart lost
+     * every handle to a running sender. The re-forked daemon then saw an
+     * empty known-task list and spawned a second sender on the same
+     * portbase. There is no way to re-adopt a proc_open resource across a
+     * restart, so an orphan that is still alive is terminated: the session
+     * is still active and will be picked up and started cleanly, under a
+     * handle this daemon can actually monitor and kill later.
+     *
+     * @return void
+     */
+    private function _reconcileOrphanedSenders()
+    {
+        foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+            Route::listem(
+                'multicastsession',
+                'name',
+                false,
+                array('sendernode' => $StorageNode->get('id'))
+            );
+            $Sessions = json_decode(
+                Route::getData()
+            );
+            foreach ((array)$Sessions->multicastsessions as &$Session) {
+                $pid = (int)$Session->senderpid;
+                if ($pid < 1) {
+                    unset($Session);
+                    continue;
+                }
+                if ($this->_isSenderAlive($pid)) {
+                    self::outall(
+                        sprintf(
+                            ' | ' . _('Session ID') . ': %s '
+                            . _('orphaned udp-sender pid') . ': %d '
+                            . _('terminating so it can be restarted'),
+                            $Session->id,
+                            $pid
+                        )
+                    );
+                    $this->killAll($pid, SIGKILL);
+                } else {
+                    self::outall(
+                        sprintf(
+                            ' | ' . _('Session ID') . ': %s '
+                            . _('stale sender reference cleared'),
+                            $Session->id
+                        )
+                    );
+                }
+                self::getClass('MulticastSessionManager')->update(
+                    array('id' => $Session->id),
+                    '',
+                    array(
+                        'senderpid' => 0,
+                        'sendernode' => 0
+                    )
+                );
+                unset($Session);
+            }
+            unset($StorageNode);
+        }
+    }
+    /**
      * Multicast tasks are a bit more than
      * the others, this is its service loop
      *
@@ -211,6 +299,23 @@ class MulticastManager extends FOGService
             self::$_mcOn = self::getSetting('MULTICASTGLOBALENABLED');
 
             try {
+                // Any sender still recorded against a node we master
+                // predates this fork, so reconcile once before the first
+                // pass.
+                //
+                // Inside the try, because its first act is
+                // checkIfNodeMaster(), which throws when this server masters
+                // no node -- an ordinary configuration for a server running
+                // this daemon, and one that must not kill it.
+                //
+                // Above the disabled check, because an orphaned sender left
+                // by a previous run must still be cleaned up after multicast
+                // is switched off -- that is precisely when nothing else
+                // will ever come along to kill it.
+                if ($first) {
+                    $this->_reconcileOrphanedSenders();
+                }
+
                 // If disabled, state and restart loop.
                 if (self::$_mcOn < 1) {
                     throw new Exception(
@@ -220,6 +325,44 @@ class MulticastManager extends FOGService
 
                 // Common string used for logging.
                 $startStr = ' | ' . _('Task ID') . ': %s '. _('Name') . ': %s %s';
+
+                // A session that leaves the active set -- cancelled from the
+                // UI, completed elsewhere, or deleted outright -- vanishes
+                // from the per-node task list before it can ever be matched
+                // below, because getAllMulticastTasks() sources that list
+                // from Route::active(), which filters to the queued and
+                // progress states. The sender it owns was therefore never
+                // killed and ran on holding its portbase until the daemon
+                // restarted. Sweep the known list against the sessions still
+                // active in the database instead.
+                //
+                // This runs once per tick rather than inside the node loop
+                // on purpose: $KnownTasks spans every node this server
+                // masters, so differencing it against one node's task list
+                // would flag another node's tasks as gone and kill them.
+                Route::ids(
+                    'multicastsession',
+                    ['stateID' => $queuedStates]
+                );
+                $activeIDs = (array)json_decode(Route::getData(), true);
+                foreach ($KnownTasks as $Known) {
+                    if (in_array($Known->getID(), $activeIDs)) {
+                        continue;
+                    }
+                    self::outall(
+                        sprintf(
+                            $startStr,
+                            $Known->getID(),
+                            $Known->getName(),
+                            _('is no longer active, stopping its sender')
+                        )
+                    );
+                    $Known->killTask();
+                    $KnownTasks = self::_removeFromKnownList(
+                        $KnownTasks,
+                        $Known->getID()
+                    );
+                }
 
                 foreach ($this->checkIfNodeMaster() as &$StorageNode) {
                     // Now that tasks are removed, lets check new/current tasks
@@ -592,6 +735,26 @@ class MulticastManager extends FOGService
                     unset($StorageNode);
                 }
                 // We need to iterate the complete and cancelTasks
+                //
+                // Both loops re-clear the sender reference after the session
+                // is closed out. Every task reaching them has already been
+                // through killTask(), so clearSenderRef() has zeroed
+                // senderpid and sendernode -- but cancel() and complete()
+                // finish with save() on a session object loaded back when the
+                // task was constructed, which still holds the pre-kill pid,
+                // and FOGController::save() writes every field it holds. The
+                // row therefore ended a completed session naming a sender
+                // that is already dead.
+                //
+                // That matters because _reconcileOrphanedSenders() trusts the
+                // column on the next start, and _isSenderAlive() only asks
+                // whether the pid is *a* udp-sender, not whether it is this
+                // session's. A recycled pid belonging to another session's
+                // sender would be killed -- taking down an unrelated
+                // deployment. Clearing after, rather than inside cancel() or
+                // complete(), keeps the reference alive whenever the sender
+                // has NOT been killed, which is exactly what lets the
+                // reconciler find a real orphan.
                 foreach ($cancelTasks as &$Task) {
                     $Session = $Task->getSess();
                     self::outall(
@@ -606,6 +769,7 @@ class MulticastManager extends FOGService
                             )
                         )
                     );
+                    $Task->clearSenderRef();
                     unset($Task);
                 }
                 foreach ($completeTasks as &$Task) {
@@ -622,6 +786,7 @@ class MulticastManager extends FOGService
                             )
                         )
                     );
+                    $Task->clearSenderRef();
                     unset($Task);
                 }
             } catch (Exception $e) {

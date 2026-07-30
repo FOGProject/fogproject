@@ -1690,35 +1690,21 @@ class ImageManagementPage extends FOGPage
             if ($timeout > 0) {
                 self::setSetting('FOG_UDPCAST_MAXWAIT', $timeout);
             }
-            $countmc = self::getClass('MulticastSessionManager')
-                ->count(
-                    array(
-                        'stateID' => self::fastmerge(
-                            (array)self::getQueuedStates(),
-                            (array)self::getProgressState()
-                        )
-                    )
-                );
-            $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
             $Image = new Image($image);
             $StorageGroup = $Image->getStorageGroup();
             $StorageNode = $StorageGroup->getMasterStorageNode();
-            if ($countmc >= $countmctot) {
-                throw new Exception(
-                    sprintf(
-                        '%s<br/>%s %s %s<br/>%s %s',
-                        _('Please wait until a slot is open'),
-                        _('There are currently'),
-                        $countmc,
-                        _('tasks in queue'),
-                        _('Your server only allows'),
-                        $countmctot
-                    )
-                );
-            }
+            // The cap lives on MulticastSession now so that host, group and
+            // boot-menu creation are held to it as well; this page was the
+            // only place it had ever been checked.
+            MulticastSession::assertCapacity();
             $MulticastSession = self::getClass('MulticastSession')
                 ->set('name', $name)
-                ->set('port', self::getSetting('FOG_UDPCAST_STARTINGPORT'))
+                // Allocates from the port pool, or rotates the start port
+                // when no pool is configured. This used to read
+                // FOG_UDPCAST_STARTINGPORT and rotate it only afterwards, so
+                // two sessions created in quick succession from this page
+                // were handed the same port.
+                ->set('port', MulticastSession::allocatePort())
                 ->set('image', $Image->get('id'))
                 ->set('stateID', 0)
                 ->set('sessclients', $count)
@@ -1726,16 +1712,16 @@ class ImageManagementPage extends FOGPage
                 ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->set('interface', $StorageNode->get('interface'))
                 ->set('logpath', $Image->get('path'))
-                ->set('storagegroupID', $StorageNode->get('id'))
+                // A storage GROUP id, matching what Host and Group write
+                // here. This wrote a storage NODE id, which was latent while
+                // nothing read the column and invisible on single-node
+                // installs where the two ids coincide -- but the daemon now
+                // scopes session discovery by it.
+                ->set('storagegroupID', $StorageGroup->get('id'))
                 ->set('clients', -2);
             if (!$MulticastSession->save()) {
                 self::setMessage(_('Failed to create Session'));
             }
-            $randomnumber = mt_rand(24576, 32766)*2;
-            while ($randomnumber == $MulticastSession->get('port')) {
-                $randomnumber = mt_rand(24576, 32766)*2;
-            }
-            self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
             self::setMessage(
                 sprintf(
                     '%s<br/>%s %s %s',

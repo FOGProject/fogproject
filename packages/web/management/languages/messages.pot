@@ -810,6 +810,10 @@ msgstr ""
 msgid "Check that database is running"
 msgstr ""
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checkin Time"
 msgstr ""
 
@@ -1441,6 +1445,9 @@ msgstr ""
 msgid "Event must be a string"
 msgstr ""
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -2002,9 +2009,6 @@ msgstr ""
 msgid "Group Search DN"
 msgstr ""
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 msgid "Group Snapins"
 msgstr ""
 
@@ -2027,6 +2031,9 @@ msgid "Group image association"
 msgstr ""
 
 msgid "Group is not valid"
+msgstr ""
+
+msgid "Group membership search returned no results"
 msgstr ""
 
 msgid "Group module settings"
@@ -2431,7 +2438,27 @@ msgstr ""
 msgid "Ignore MAC on Image"
 msgstr ""
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
+msgid "Ignoring invalid multicast bitrate"
+msgstr ""
+
+msgid "Ignoring invalid multicast duplex setting"
+msgstr ""
+
+msgid "Ignoring invalid multicast hello interval"
+msgstr ""
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
+msgstr ""
+
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
 msgstr ""
 
 msgid "Image Associated: "
@@ -2845,6 +2872,9 @@ msgstr ""
 msgid "Invalid snapin"
 msgstr ""
 
+msgid "Invalid snapin filename"
+msgstr ""
+
 msgid "Invalid status payload"
 msgstr ""
 
@@ -2912,6 +2942,9 @@ msgid "Is restricted"
 msgstr ""
 
 msgid "It can be used on Windows"
+msgstr ""
+
+msgid "It can no longer be joined"
 msgstr ""
 
 msgid "It is primarily geared for the smart installer methodology now"
@@ -3170,6 +3203,9 @@ msgid "Locations"
 msgstr ""
 
 msgid "Log Viewer"
+msgstr ""
+
+msgid "Log in as a FOG administrator to apply this update"
 msgstr ""
 
 msgid "Login"
@@ -3627,6 +3663,9 @@ msgid "No file uploaded!"
 msgstr ""
 
 msgid "No file was uploaded"
+msgstr ""
+
+msgid "No files matched multicast image pattern"
 msgstr ""
 
 msgid "No friendly name defined"
@@ -4117,9 +4156,6 @@ msgid "Please update your FOG Client, this is old and insecure"
 msgstr ""
 
 msgid "Please use another hostname"
-msgstr ""
-
-msgid "Please wait until a slot is open"
 msgstr ""
 
 msgid "Plugin"
@@ -4703,6 +4739,10 @@ msgstr ""
 msgid "Server information at a glance."
 msgstr ""
 
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
+
 msgid "Service"
 msgstr ""
 
@@ -4731,6 +4771,10 @@ msgid "Service general"
 msgstr ""
 
 msgid "Service update failed"
+msgstr ""
+
+#, php-format
+msgid "Session ID"
 msgstr ""
 
 msgid "Session Name"
@@ -5423,6 +5467,9 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
+msgid "That session has already started"
+msgstr ""
+
 msgid "The 'Is Master Node' setting defines which"
 msgstr ""
 
@@ -5484,9 +5531,6 @@ msgid "The uploaded file was only partially uploaded"
 msgstr ""
 
 msgid "There are"
-msgstr ""
-
-msgid "There are currently"
 msgstr ""
 
 msgid "There are many reasons why this could be the case"
@@ -5739,6 +5783,9 @@ msgid "Unable to find master Storage Node"
 msgstr ""
 
 msgid "Unable to get server information!"
+msgstr ""
+
+msgid "Unable to move the captured image into place"
 msgstr ""
 
 msgid "Unable to open file for reading"
@@ -6163,9 +6210,6 @@ msgstr ""
 msgid "Your form is ready"
 msgstr ""
 
-msgid "Your server only allows"
-msgstr ""
-
 msgid "Your system PHP Version is not sufficient"
 msgstr ""
 
@@ -6230,6 +6274,11 @@ msgid "as they can cause issues that are difficult to troubleshoot"
 msgstr ""
 
 msgid "automatically"
+msgstr ""
+
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
 msgstr ""
 
 msgid "based task."
@@ -6511,6 +6560,9 @@ msgstr ""
 msgid "is new"
 msgstr ""
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr ""
 
@@ -6649,6 +6701,10 @@ msgstr ""
 msgid "or this is a new FOG installation"
 msgstr ""
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr ""
 
@@ -6715,13 +6771,18 @@ msgstr ""
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "successfully removed!"
 msgstr ""
 
 msgid "task found"
 msgstr ""
 
-msgid "tasks in queue"
+#, php-format
+msgid "terminating so it can be restarted"
 msgstr ""
 
 msgid ""

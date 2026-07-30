@@ -836,6 +836,10 @@ msgstr "Verifique aqui para ver quais usuários podem ser adicionados"
 msgid "Check that database is running"
 msgstr "Verifique se o banco de dados está em execução"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checkin Time"
 msgstr "Tempo de Checkin"
 
@@ -1467,6 +1471,9 @@ msgstr "Evento e dados não estão definidos"
 msgid "Event must be a string"
 msgstr "Evento deve ser uma string"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "Item 'Exists' deve ser booleano"
 
@@ -2031,9 +2038,6 @@ msgstr "Resolução de Tela do Grupo"
 msgid "Group Search DN"
 msgstr "DN de Pesquisa de Grupo"
 
-msgid "Group Search DN did not return any results"
-msgstr "DN de Pesquisa de Grupo não retornou nenhum resultado"
-
 msgid "Group Snapins"
 msgstr "Snapins do Grupo"
 
@@ -2057,6 +2061,10 @@ msgstr "Associação de imagem do grupo"
 
 msgid "Group is not valid"
 msgstr "Grupo não é válido"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "DN de Pesquisa de Grupo não retornou nenhum resultado"
 
 msgid "Group module settings"
 msgstr "Configurações de módulo do grupo"
@@ -2466,8 +2474,31 @@ msgstr "Ignorar MAC no Cliente"
 msgid "Ignore MAC on Image"
 msgstr "Ignorar MAC na Imagem"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "Sessão Multicast Inválida"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "Sessão Multicast Inválida"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "Sessão Multicast Inválida"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "Imagem"
+
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
+msgstr ""
 
 msgid "Image Associated: "
 msgstr "Imagem Associada: "
@@ -2884,6 +2915,10 @@ msgid "Invalid snapin"
 msgstr "Snapin inválido"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Snapin inválido"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "ID de tarefa inválido"
 
@@ -2953,6 +2988,9 @@ msgstr "É restrito"
 
 msgid "It can be used on Windows"
 msgstr "Pode ser usado no Windows"
+
+msgid "It can no longer be joined"
+msgstr ""
 
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr ""
@@ -3212,6 +3250,9 @@ msgstr "Localizações"
 
 msgid "Log Viewer"
 msgstr "Visualizador de Log"
+
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
 
 msgid "Login"
 msgstr "Login"
@@ -3671,6 +3712,9 @@ msgstr "Nenhum arquivo enviado!"
 
 msgid "No file was uploaded"
 msgstr "Nenhum arquivo foi enviado"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No friendly name defined"
 msgstr "Nenhum nome amigável definido"
@@ -4168,9 +4212,6 @@ msgstr "Por favor, atualize seu Cliente FOG, este é antigo e inseguro"
 
 msgid "Please use another hostname"
 msgstr "Por favor, use outro nome de host"
-
-msgid "Please wait until a slot is open"
-msgstr "Por favor, aguarde até que um slot esteja aberto"
 
 msgid "Plugin"
 msgstr "Plugin"
@@ -4756,6 +4797,10 @@ msgstr "Informações do Servidor"
 msgid "Server information at a glance."
 msgstr "Informações do servidor em resumo."
 
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
+
 msgid "Service"
 msgstr "Serviço"
 
@@ -4785,6 +4830,10 @@ msgstr "Geral do serviço"
 
 msgid "Service update failed"
 msgstr "Atualização do serviço falhou"
+
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "Nome da Sessão"
 
 msgid "Session Name"
 msgstr "Nome da Sessão"
@@ -5479,6 +5528,10 @@ msgstr "Termos e Condições"
 msgid "Text"
 msgstr "Texto"
 
+#, fuzzy
+msgid "That session has already started"
+msgstr "Este host já existe"
+
 msgid "The 'Is Master Node' setting defines which"
 msgstr "A configuração 'É Nó Mestre' define qual"
 
@@ -5541,9 +5594,6 @@ msgstr "O arquivo enviado foi apenas parcialmente carregado"
 
 msgid "There are"
 msgstr "Existem"
-
-msgid "There are currently"
-msgstr "Existem atualmente"
 
 msgid "There are many reasons why this could be the case"
 msgstr "Existem muitas razões pelas quais isso pode ser o caso"
@@ -5806,6 +5856,9 @@ msgstr "Não foi possível encontrar Nó de Armazenamento mestre"
 
 msgid "Unable to get server information!"
 msgstr "Não foi possível obter informações do servidor!"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr "Não foi possível abrir o arquivo para leitura"
@@ -6230,9 +6283,6 @@ msgstr "Sua conexão com o banco de dados parece ser inválida"
 msgid "Your form is ready"
 msgstr "Seu formulário está pronto"
 
-msgid "Your server only allows"
-msgstr "Seu servidor permite apenas"
-
 msgid "Your system PHP Version is not sufficient"
 msgstr "Sua versão PHP do sistema não é suficiente"
 
@@ -6298,6 +6348,11 @@ msgstr "pois podem causar problemas difíceis de solucionar"
 
 msgid "automatically"
 msgstr "automaticamente"
+
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
 
 msgid "based task."
 msgstr "tarefa baseada."
@@ -6580,6 +6635,9 @@ msgstr "é inválido"
 msgid "is new"
 msgstr "é novo"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr "não está mais rodando"
 
@@ -6718,6 +6776,10 @@ msgstr "ou iniciar para operar"
 msgid "or this is a new FOG installation"
 msgstr "ou esta é uma nova instalação do FOG"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr "nó particular"
 
@@ -6784,14 +6846,19 @@ msgstr "então se parecer que o processo está travando, por favor seja paciente
 msgid "so if you are unable to boot a client you may wish to"
 msgstr "então se você não conseguir inicializar um cliente, você pode querer"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "successfully removed!"
 msgstr "removido com sucesso!"
 
 msgid "task found"
 msgstr "tarefa encontrada"
 
-msgid "tasks in queue"
-msgstr "tarefas na fila"
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "
@@ -6965,3 +7032,15 @@ msgstr "você define o campo de largura de banda naquele nó para 1000"
 
 #~ msgid "LDAP Connection  Name"
 #~ msgstr "Nome da Conexão LDAP"
+
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "Por favor, aguarde até que um slot esteja aberto"
+
+#~ msgid "There are currently"
+#~ msgstr "Existem atualmente"
+
+#~ msgid "Your server only allows"
+#~ msgstr "Seu servidor permite apenas"
+
+#~ msgid "tasks in queue"
+#~ msgstr "tarefas na fila"

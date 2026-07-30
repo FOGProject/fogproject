@@ -114,6 +114,11 @@ abstract class FOGService extends FOGBase
             Route::getData()
         );
         $StorageNodes = $StorageNodes->storagenodes;
+        // Initialised up front because a server that masters no node never
+        // enters the loop, and the find() below then read an undefined
+        // variable. That is every non-master node running any of the
+        // services -- the ordinary case for a storage node.
+        $MasterIDs = [];
         foreach ((array)$StorageNodes as &$StorageNode) {
             $ip = self::resolveHostname(
                 $StorageNode->ip
@@ -935,28 +940,26 @@ abstract class FOGService extends FOGBase
                 }
                 unset($this->procPipes[$index]);
             }
-            if (is_array($this->procRef) && $this->isRunning($this->procRef[$index])) {
-                $pid = $this->getPID($this->procRef[$index]);
+            // procRef may be an array keyed by $index or a single resource
+            // (the multicast path collapses it to one resource via
+            // array_shift). Resolve to a single reference so we never index
+            // into a resource, which emits a "Trying to access array offset
+            // on resource" warning under PHP 8. Refs #945.
+            $procRef = is_array($this->procRef)
+                ? ($this->procRef[$index] ?? null)
+                : $this->procRef;
+            if ($this->isRunning($procRef)) {
+                $pid = $this->getPID($procRef);
                 if ($pid) {
                     $this->killAll($pid, SIGTERM);
                 }
-                proc_terminate($this->procRef[$index], SIGTERM);
-                proc_close($this->procRef[$index]);
-                return (bool)$this->isRunning($this->procRef[$index]);
-            } elseif ($this->isRunning($this->procRef)) {
-                $pid = $this->getPID($this->procRef);
-                if ($pid) {
-                    $this->killAll($pid, SIGTERM);
-                }
-                proc_terminate($this->procRef, SIGTERM);
-                proc_close($this->procRef);
-                return (bool)$this->isRunning($this->procRef);
+                proc_terminate($procRef, SIGTERM);
+                proc_close($procRef);
+                return false;
             }
             // Process already exited — release the resource.
-            if (is_resource($this->procRef[$index])) {
-                proc_close($this->procRef[$index]);
-            } elseif (is_resource($this->procRef)) {
-                proc_close($this->procRef);
+            if (is_resource($procRef)) {
+                proc_close($procRef);
             }
         } else {
             if (isset($this->procRef[$itemType]) &&
@@ -1003,7 +1006,12 @@ abstract class FOGService extends FOGBase
      */
     public function getPID($procRef)
     {
-        if (!$procRef) {
+        // is_resource(), not a truthy test: a proc resource that has already
+        // been proc_close()'d is still truthy, so !$procRef let it through to
+        // proc_get_status(), which throws on PHP 8 ("supplied resource is not
+        // a valid process resource"). is_resource() is false for a closed
+        // resource, so the guard catches it. Refs #945.
+        if (!is_resource($procRef)) {
             return false;
         }
         $ar = proc_get_status($procRef);
@@ -1018,7 +1026,10 @@ abstract class FOGService extends FOGBase
      */
     public function isRunning($procRef)
     {
-        if (!$procRef) {
+        // See getPID(): a closed resource is truthy but no longer valid, so
+        // is_resource() is the correct guard against proc_get_status()
+        // throwing on PHP 8. Refs #945.
+        if (!is_resource($procRef)) {
             return false;
         }
         $ar = proc_get_status($procRef);

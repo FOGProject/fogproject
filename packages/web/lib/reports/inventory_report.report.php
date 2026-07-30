@@ -286,12 +286,20 @@ class Inventory_Report extends ReportManagementPage
         foreach ((array)$Hosts as &$Host) {
             $Image = $Host->image;
             $Inventory = $Host->inventory;
+            // Aisle 019 (render half, this branch): these values come from the
+            // unauthenticated inventory submission surface and were emitted raw
+            // into the report table. sysuuid -- the field the report names -- is
+            // not displayed here, but sysproduct and sysserial are, and they are
+            // written by the same caller, so the sink is the same bug class.
+            // Escaping the DISPLAY array only: the addCSVCell() calls below feed
+            // the CSV export and must stay byte-exact or entities leak into
+            // exported files.
             $this->data[] = array(
-                'host_name' => $Host->name,
-                'host_mac' => $Host->primac,
-                'memory' => $Inventory->memory,
-                'sysprod' => $Inventory->sysproduct,
-                'sysser' => $Inventory->sysserial,
+                'host_name' => Initiator::e($Host->name),
+                'host_mac' => Initiator::e($Host->primac),
+                'memory' => Initiator::e($Inventory->memory),
+                'sysprod' => Initiator::e($Inventory->sysproduct),
+                'sysser' => Initiator::e($Inventory->sysserial),
             );
             foreach (self::$inventoryCsvHead as $head => &$classGet) {
                 switch ($head) {

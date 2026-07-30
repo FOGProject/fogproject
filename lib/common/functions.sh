@@ -21,6 +21,29 @@ dots() {
     printf " * %s%*.*s" "$1" 0 $((60-${#1})) "$pad"
     return 0
 }
+# Create a symlink only when nothing already owns the destination.
+#
+# Bare `ln -s` logged "failed to create symbolic link ...: File exists" on every
+# re-install, because the link survives from the previous run. Harmless, but it
+# made a successful upgrade read as a failed one and sent at least one reporter
+# chasing the installer instead of the real fault (forums topic 18204).
+#
+# `ln -sf` is deliberately not used: some distros own these paths themselves
+# (Fedora ships /usr/lib/systemd/system/mysql.service), and clobbering a
+# packaged file is worse than skipping a link we did not need to make.
+linkIfAbsent() {
+    local target="$1" link="$2"
+    # A dangling link here is one we created ourselves on an older version, back
+    # when the systemd unit sources below were missing their .service suffix. It
+    # is useless to systemd -- and worse, one in /etc/systemd/system shadows the
+    # working unit in /usr/lib -- so replace it. A real file, or a link that
+    # resolves, is left strictly alone.
+    if [[ -L $link && ! -e $link ]]; then
+        rm -f "$link" >>$error_log 2>&1
+    fi
+    [[ -e $link || -L $link ]] && return 0
+    ln -s "$target" "$link" >>$error_log 2>&1
+}
 backupReports() {
     dots "Backing up user reports"
     [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$error_log
@@ -82,13 +105,120 @@ backupDB() {
         echo "Done"
     fi
 }
+# Prove the web tier actually renders a page before we trust anything that
+# talks to it. A PHP fatal in the boot chain returns a zero-byte 500, which
+# reads as a blank white page in a browser and which every other check in this
+# installer happily treats as success -- that is how an install can print
+# "Setup complete" over a completely dead site.
+# Refs https://forums.fogproject.org/topic/18204/
+checkWebTier() {
+    dots "Checking web server serves FOG"
+    # No token on this probe. It is a pure liveness check -- 'schema' is an
+    # unauthenticated node and a plain GET renders regardless -- and a token in
+    # a query string lands in the web server access log and, on failure, in the
+    # installer's tee'd stdout. The deploy itself uses the header channel.
+    local probeUrl="${httpproto}://${ipaddress}${webroot}management/index.php?node=schema"
+    local probeBody=$(mktemp)
+    # No -q on the body: we care whether bytes came back at all, not just about
+    # the status code, because that is exactly what a pre-output fatal loses.
+    wget --no-check-certificate -q -O "$probeBody" --no-proxy "$probeUrl" >>$error_log 2>&1
+    local probeStat=$?
+    local probeSize=$(stat -c %s "$probeBody" 2>/dev/null)
+    [[ -z $probeSize ]] && probeSize=0
+    rm -f "$probeBody"
+    if [[ $probeStat -eq 0 && $probeSize -gt 0 ]]; then
+        echo "Done"
+        return 0
+    fi
+    echo "Failed!"
+    echo
+    echo "   The web server did not return a usable page for:"
+    echo "     $probeUrl"
+    echo "   (wget exit ${probeStat}, ${probeSize} bytes of body)"
+    echo
+    echo "   An empty response with a 500 is almost always a PHP fatal in the"
+    echo "   FOG boot chain rather than a database problem. In a browser this"
+    echo "   looks like a blank white page. Check your web server's error log."
+    echo "   PHP in use: $(php -v 2>/dev/null | head -1)"
+    echo
+    [[ -z $exitFail ]] && exit 1
+    return 1
+}
+# Read the schema version straight out of MySQL. Echoes the number, or nothing
+# when the probe cannot run (external database mode, credentials we do not
+# hold, table not created yet). Callers must treat empty as "unknown" and never
+# as zero.
+schemaVersionInDB() {
+    [[ "${snmysqlexternal}" == "1" ]] && return 0
+    [[ -z $sqloptionsuser ]] && return 0
+    mysql $sqloptionsuser --password="${snmysqlpass}" -N -B --execute="SELECT vValue FROM \`${mysqldbname}\`.\`schemaVersion\` WHERE vID=1" 2>/dev/null | tail -1
+}
+# How many FOG users exist, i.e. is this an established install or a fresh one.
+# Echoes the count, or NOTHING when the probe cannot run. Empty means unknown
+# and must not be read as zero: guessing "fresh" would print a live token for
+# an established install, and guessing "established" would leave a genuinely
+# fresh install with no way to bootstrap. Callers show both instructions.
+fogUserCount() {
+    if [[ "${snmysqlexternal}" == "1" ]]; then
+        [[ -z $snmysqlhost || -z $snmysqluser ]] && return 0
+        mysql --host="${snmysqlhost}" --user="${snmysqluser}" --password="${snmysqlpass}" -N -B --execute="SELECT COUNT(*) FROM \`${mysqldbname}\`.\`users\`" 2>/dev/null | tail -1
+        return 0
+    fi
+    [[ -z $sqloptionsuser ]] && return 0
+    mysql $sqloptionsuser --password="${snmysqlpass}" -N -B --execute="SELECT COUNT(*) FROM \`${mysqldbname}\`.\`users\`" 2>/dev/null | tail -1
+}
+# Confirm the deploy actually landed in the database. Neither update path used
+# to prove anything: the automatic branch only checked wget's exit status, and
+# the manual branch accepted any keypress -- so a failed schema update still
+# marched on to "Setup complete".
+verifySchemaDeploy() {
+    local expected=$(grep -o "define('FOG_SCHEMA', *[0-9]*" $webdirdest/lib/fog/system.class.php 2>/dev/null | grep -o '[0-9]*$')
+    local deployed=$(schemaVersionInDB)
+    if [[ -z $expected || -z $deployed ]]; then
+        echo " * Skipping schema verification (unable to read the schema version)"
+        return 0
+    fi
+    dots "Verifying database schema"
+    if [[ $deployed -ge $expected ]]; then
+        echo "Done"
+        return 0
+    fi
+    echo "Failed!"
+    echo
+    echo "   The database schema is still at version ${deployed}; this release"
+    echo "   requires ${expected}. The update did not complete, so FOG will not"
+    echo "   work correctly."
+    echo
+    echo "   Re-run this installer once the cause is resolved."
+    echo
+    [[ -z $exitFail ]] && exit 1
+    return 1
+}
 updateDB() {
+    # This substitution has to happen on BOTH paths. It used to sit inside the
+    # [Yy] branch, and dbupdate is set in exactly one place (bin/installfog.sh,
+    # under -y), so every interactive install baked the literal '/images/'
+    # default into commons/schema.php instead of $storageLocation.
+    local replace='s/[]"\/$&*.^|[]/\\&/g'
+    local escstorageLocation=$(echo $storageLocation | sed -e $replace)
+    sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
+    # Same root cause, the other half: with dbupdate unset every interactive
+    # install fell through to the manual browser path, which verifies nothing
+    # and hands the install token out on stdout. Default to the automatic path
+    # and make opting out deliberate. backupDB has already run by this point,
+    # so the historical reason to pause here is covered.
+    if [[ -z $dbupdate ]]; then
+        if [[ -n $autoaccept || ! -t 0 ]]; then
+            dbupdate="yes"
+        else
+            echo
+            read -p " * Install/update the FOG database schema now? (Y/n) " dbupdate
+            [[ -z $dbupdate ]] && dbupdate="yes"
+        fi
+    fi
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            local replace='s/[]"\/$&*.^|[]/\\&/g'
-            local escstorageLocation=$(echo $storageLocation | sed -e $replace)
-            sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
             wget --no-check-certificate -qO - --header="X-Fog-Install-Token: ${installToken}" --post-data="schemaupdate=1" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$error_log 2>&1
             errorStat $?
             ;;
@@ -97,12 +227,47 @@ updateDB() {
             echo " * You still need to install/update your database schema."
             echo " * This can be done by opening a web browser and going to:"
             echo
-            echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
+            # On an established install the URL token is refused (it is gated on
+            # there being no users yet) and is not needed -- logging in as an
+            # admin is the credential. Only a fresh install gets a secret on
+            # screen. Failing toward the tokenized URL when the probe cannot run
+            # is safe: it still requires possession of the token.
+            local userCount=$(fogUserCount)
+            if [[ -z $userCount || $userCount -gt 0 ]]; then
+                echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema"
+                echo
+                echo " * Log in as a FOG administrator there, then click"
+                echo "   Install/Update Now."
+                echo
+                # The login above is not always usable on an upgrade: it reads
+                # the schema this deploy is about to create, so a model old
+                # enough can fail it outright (GH-927). The token channel now
+                # covers that case, but the secret is deliberately NOT echoed
+                # here -- this text lands in the install log, and users paste
+                # those into forum threads verbatim. Point at the file instead;
+                # anyone who can read it is already root.
+                echo " * If you cannot log in there, the schema can be deployed"
+                echo "   directly using the token in:"
+                echo "     ${webdirdest}lib/fog/config.class.php"
+                echo "   (the FOG_SCHEMA_INSTALL_TOKEN line), with:"
+                echo "     curl -X POST -H \"X-Fog-Install-Token: <token>\" \\"
+                echo "       -d \"schemaupdate=1\" \\"
+                echo "       \"${httpproto}://${ipaddress}${webroot}management/index.php?node=schema\""
+            fi
+            if [[ -z $userCount || $userCount -eq 0 ]]; then
+                # Only a userless install can use the token, and only in a URL
+                # that has to be typed once. Shown alongside the login
+                # instruction when the user probe could not run, so we neither
+                # publish a secret needlessly nor strand a fresh install.
+                [[ -z $userCount ]] && echo " * If this is a brand new install with no FOG users yet, use:"
+                echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
+            fi
             echo
             read -p " * Press [Enter] key when database is updated/installed."
             echo
             ;;
     esac
+    verifySchemaDeploy
     # ---------------------------------------------------------
     # External Unprivileged Database Implementation
     # Bypass DB user management (fogstorage) requiring root GRANT
@@ -730,7 +895,7 @@ installPackages() {
             packages="$packages php-bcmath bc"
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php-intl"
-                for i in fr de eu es pt zh en; do
+                for i in fr de eu es pt zh en ja; do
                     packages="$packages glibc-langpack-${i}";
                 done
             fi
@@ -787,7 +952,7 @@ installPackages() {
             case $linuxReleaseName_lower in
                 *ubuntu*|*mint*)
                     if [[ $installlang -eq 1 ]]; then
-                        for i in fr de eu es pt zh-hans en; do
+                        for i in fr de eu es pt zh-hans en ja; do
                             packages="$packages language-pack-${i}";
                         done
                     fi
@@ -1258,8 +1423,27 @@ configureMySql() {
     # ---------------------------------------------------------
     stopInitScript
     dots "Setting up and starting MySQL"
-    dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
-    [[ -z $dbservice ]] && dbservice=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    # Resolve exactly one unit name.
+    #
+    # `grep -o` prints one line per match, and `systemctl list-unit-files` lists
+    # the mysql/mysqld alias symlinks alongside the real unit -- so the fallback
+    # yielded a three-line $dbservice (it does on a stock Fedora box). Unquoted,
+    # that word-split into `systemctl enable|stop|start` as three arguments, two
+    # of them alias names rather than the real unit. The fallback is the
+    # fresh-install path: the primary lookup only sees units already running, and
+    # RedHat-family packages do not auto-start the DB.
+    dbunits=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    [[ -z $dbunits ]] && dbunits=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    # Preference is explicit because grep cannot express it -- `-e` order does not
+    # rank matches, it just reports whichever appeared first in the input. Real
+    # unit first, aliases after.
+    dbservice=""
+    for dbcandidate in mariadb.service mysqld.service mysql.service; do
+        if grep -qFx "$dbcandidate" <<<"$dbunits"; then
+            dbservice=$dbcandidate
+            break
+        fi
+    done
     for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$error_log 2>&1
     done
@@ -1272,9 +1456,9 @@ configureMySql() {
             chown -R mysql:mysql /var/lib/mysql >>$error_log 2>&1
             mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$error_log 2>&1
         fi
-        systemctl is-enabled --quiet $dbservice || systemctl enable $dbservice >>$error_log 2>&1
-        systemctl is-active --quiet $dbservice && systemctl stop $dbservice >>$error_log 2>&1
-        systemctl start $dbservice >>$error_log 2>&1
+        systemctl is-enabled --quiet "$dbservice" || systemctl enable "$dbservice" >>$error_log 2>&1
+        systemctl is-active --quiet "$dbservice" && systemctl stop "$dbservice" >>$error_log 2>&1
+        systemctl start "$dbservice" >>$error_log 2>&1
     else
         case $osid in
             1)
@@ -1483,6 +1667,15 @@ EOF
     dots "Setting up exports file"
     if [[ $blexports != 1 ]]; then
         echo "Skipped"
+        if [[ -f "$nfsconfig" ]] && grep -q "no_root_squash" "$nfsconfig"; then
+            echo
+            echo "  ** WARNING: ${nfsconfig} still exports with no_root_squash."
+            echo "  ** Captures land as root, so moving the image out of"
+            echo "  ** ${storageLocation}/dev fails with '550 Rename failed'."
+            echo "  ** Replace the ${storageLocation}/dev export options with:"
+            echo "  **   all_squash,anonuid=$(id -u $username),anongid=$(id -g $username)"
+            echo
+        fi
     else
         mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$error_log 2>&1
         userId=$(id -u $username)
@@ -1944,7 +2137,9 @@ EOF
             fi
             diffconfig "${etcconf}"
             errorStat $?
-            ln -s $webdirdest $webdirdest/ >>$error_log 2>&1
+            # Self-referential link so /fog/fog/... resolves. $webdirdest carries
+            # a trailing slash, hence the basename.
+            linkIfAbsent $webdirdest ${webdirdest%/}/$(basename $webdirdest)
             case $osid in
                 1)
                     phpfpmconf='/etc/php-fpm.d/www.conf';
@@ -1966,7 +2161,13 @@ EOF
                 sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$error_log 2>&1
             fi
             if [[ $osid -eq 2 ]]; then
-                a2enmod php >>$error_log 2>&1
+                # No `a2enmod php` here. Debian/Ubuntu name that module
+                # php<version> (php7.4, php8.3), never plain php, so the call
+                # only ever printed "ERROR: Module php does not exist!" -- the
+                # line that made a working install look broken in forums topic
+                # 18204. Enabling mod_php would be wrong anyway: FOG serves PHP
+                # through FPM via proxy_fcgi below, and mod_php forces
+                # mpm_prefork, which conflicts.
                 a2enmod proxy_fcgi setenvif >>$error_log 2>&1
                 a2enmod rewrite >>$error_log 2>&1
                 a2enmod ssl >>$error_log 2>&1

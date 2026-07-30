@@ -49,28 +49,14 @@ class PingHosts extends FOGService
     public function __construct()
     {
         parent::__construct();
-        list(
-            self::$_fogWeb,
-            $dev,
-            $log,
-            $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'FOG_WEB_HOST',
-                    'PINGHOSTDEVICEOUTPUT',
-                    'PINGHOSTLOGFILENAME',
-                    self::$sleeptime
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        // By name, not by position -- see the note in MulticastManager's
+        // constructor (issue #728). getSubObjectIDs() returns only the rows
+        // that exist, so one missing Service row shifted every later value
+        // left and left the last undefined.
+        self::$_fogWeb = self::getSetting('FOG_WEB_HOST');
+        $dev = self::getSetting('PINGHOSTDEVICEOUTPUT');
+        $log = self::getSetting('PINGHOSTLOGFILENAME');
+        $zzz = self::getSetting(self::$sleeptime);
         static::$log = sprintf(
             '%s%s',
             (

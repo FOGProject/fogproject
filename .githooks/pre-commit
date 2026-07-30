@@ -7,8 +7,39 @@ project_dir=$(git rev-parse --show-toplevel)
 
 psrfix() {
     command -v php-cs-fixer >/dev/null 2>&1 || return
-    "$(command -v php-cs-fixer)" fix "$project_dir/packages/web" --rules=@PSR2 >/dev/null 2>&1
-    git add "$project_dir/packages/web"
+    fixer=$(command -v php-cs-fixer)
+
+    # Only the PHP files staged for THIS commit.
+    #
+    # This used to run the fixer over all of packages/web and then
+    # `git add` the whole directory, which staged every modified file in
+    # the working tree whether or not it had anything to do with the
+    # commit. In a checkout with two sessions working at once that
+    # silently swept one session's work into the other's commit, under a
+    # message describing something else entirely.
+    #
+    # core.quotePath=false so non-ASCII names arrive verbatim rather than
+    # octal-escaped. -z is not used because POSIX sh cannot read NUL
+    # delimited input; a newline in a filename would still break this, and
+    # nothing in this repo has one.
+    git -c core.quotePath=false diff --cached --name-only \
+        --diff-filter=ACMR -- 'packages/web/*.php' |
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+
+        # Skip files that also have UNSTAGED changes. The fixer rewrites
+        # the working-tree copy, so `git add` here would stage the part
+        # that was deliberately held back with `git add -p`. A missed PSR2
+        # pass is cheaper than committing work someone chose to keep out.
+        if ! git diff --quiet -- "$f"; then
+            printf 'pre-commit: %s is partially staged, skipping PSR2 fix\n' \
+                "$f" >&2
+            continue
+        fi
+
+        "$fixer" fix "$project_dir/$f" --rules=@PSR2 >/dev/null 2>&1
+        git add "$project_dir/$f"
+    done
 }
 
 updateLanguage() {
@@ -27,78 +58,23 @@ updateLanguage() {
 updateLanguage
 psrfix
 
-# Get the current branch name
-gitbranch=$(git branch --show-current)
 
-# Get the latest tag commit
-gitcom=$(git rev-list --tags --no-walk --max-count=1)
-
-# Count commits from the last tag to HEAD (as you had it)
-git fetch origin master:master 2>/dev/null || true
-gitcount=$(git rev-list master..HEAD --count)
-
-# Extract the first part of the branch name
-branchon=$(echo "$gitbranch" | awk -F'-' '{print $1}')
-
-# Extract the second part of the branch name
-branchend=$(echo "$gitbranch" | awk -F'-' '{print $2}')
 
 # Define the path to the system file
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
-current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
-current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
+# Recompute FOG_VERSION/FOG_CHANNEL for the current branch. The formula is
+# shared with fog-workflows' CI check (see .githooks/lib/fog-version.sh) so
+# a local commit and CI's periodic sweep never compute two different
+# answers for the same branch state.
+gitbranch=$(git branch --show-current)
+fog_version=$(sh "$project_dir/.githooks/lib/fog-version.sh" $gitbranch 1)
+if [ "$(printf '%s\n' "$fog_version" | sed -n '3p')" = "true" ]; then
+    sh "$project_dir/.githooks/lib/apply-fog-version.sh" \
+        "$(printf '%s\n' "$fog_version" | sed -n '1p')" \
+        "$(printf '%s\n' "$fog_version" | sed -n '2p')"
 
-verbegin=""
-channel="$current_channel"
-trunkversion="$current_version"
-
-case "$branchon" in
-    dev)
-        # Describe the tag and append the commit count correctly
-        tagversion=$(git describe --tags "$gitcom")
-        baseversion=${tagversion%.*}   # Retain everything before the last segment
-        trunkversion="${baseversion}.${gitcount}"
-        channel="Patches"
-        ;;
-    stable)
-        # Describe the tag and append the commit count correctly
-        tagversion=$(git describe --tags "$gitcom")
-        baseversion=${tagversion%.*}   # Retain everything before the last segment
-        gitcount=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
-        trunkversion="${baseversion}.${gitcount}"
-        channel="Patches"
-        ;;
-    working)
-        # Generate a version number based on the branchend and commit count for the working branch
-        verbegin="${branchend}.0-beta"
-        trunkversion="${verbegin}.${gitcount}"
-        channel="Beta"
-        ;;
-    rc)
-        channel="Release Candidate"
-        version_prefix="${branchend}.0-RC"
-        # POSIX regex replacement for [[ ... =~ ... ]] / BASH_REMATCH
-        n=$(printf '%s\n' "$current_version" | sed -n "s/^${version_prefix}-\([0-9][0-9]*\)\$/\1/p")
-        if [ -n "$n" ]; then
-            last_rc_version=$n
-            next_rc_version=$((last_rc_version + 1))
-            trunkversion="${version_prefix}-${next_rc_version}"
-        else
-            trunkversion="${version_prefix}-1"
-        fi
-        ;;
-    feature)
-        verbegin="${branchend}.0-feature"
-        trunkversion="${verbegin}.${gitcount}"
-        channel="Feature"
-        ;;
-esac
-
-# Update the version and channel in the system file
-sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" "$system_file"
-sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" "$system_file"
-
-# Add the modified system file to the staging area
-git add "$system_file"
+    # Add the modified system file to the staging area
+    git add "$system_file"
+fi
 

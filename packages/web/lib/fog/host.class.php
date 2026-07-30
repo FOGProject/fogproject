@@ -57,6 +57,13 @@ class Host extends FOGController
         'pending' => 'hostPending',
         'pub_key' => 'hostPubKey',
         'sec_tok' => 'hostSecToken',
+        // The token superseded by the most recent rotation. authorize()
+        // commits a rotated sec_tok before the client can possibly have
+        // received it, so a response lost in flight used to strand the client
+        // on a token the server no longer recognised -- an unrecoverable
+        // #!ist. Keeping one generation lets that client re-present its old
+        // token once and be handed the current one again.
+        'prev_sec_tok' => 'hostSecTokenPrev',
         'sec_time' => 'hostSecTime',
         'pingstatus' => 'hostPingCode',
         'biosexit' => 'hostExitBios',
@@ -303,7 +310,12 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('mac')) {
+        // isDirty(), not isPopulated(): isPopulated() is also true when
+        // 'mac' was merely lazy-loaded for reading, which would make an
+        // unrelated host save re-run this whole MAC-sync block for a
+        // no-op result. isDirty() only reports true when the caller
+        // actually set the primary MAC.
+        if ($this->isDirty('mac')) {
             if (!$this->get('mac')->isValid()) {
                 throw new Exception(self::$foglang['InvalidMAC']);
             }
@@ -381,7 +393,8 @@ class Host extends FOGController
                 $HostWithMAC
             );
         }
-        if ($this->isLoaded('additionalMACs')) {
+        // isDirty(), not isPopulated() -- see the save() entry comment.
+        if ($this->isDirty('additionalMACs')) {
             self::_retValidMacs(
                 $this->get('additionalMACs'),
                 $addMacs
@@ -483,7 +496,8 @@ class Host extends FOGController
                 $RemoveAddMAC
             );
         }
-        if ($this->isLoaded('pendingMACs')) {
+        // isDirty(), not isPopulated() -- see the save() entry comment.
+        if ($this->isDirty('pendingMACs')) {
             self::_retValidMacs($this->get('pendingMACs'), $pendMacs);
             $RealPendMACs = array_filter($pendMacs);
             unset($pendMacs);
@@ -581,7 +595,8 @@ class Host extends FOGController
                 $RemovePendMAC
             );
         }
-        if ($this->isLoaded('powermanagementtasks')) {
+        // isDirty(), not isPopulated() -- see the save() entry comment.
+        if ($this->isDirty('powermanagementtasks')) {
             $DBPowerManagementIDs = self::getSubObjectIDs(
                 'PowerManagement',
                 array('hostID'=>$this->get('id'))
@@ -1432,6 +1447,7 @@ class Host extends FOGController
                     return $MulticastSession;
                 };
                 $assoc = false;
+                $MulticastSession = null;
                 $showStates = self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
@@ -1462,6 +1478,21 @@ class Host extends FOGController
                 $MultiSessJoin = array_values($MultiSessJoin);
                 if (is_array($MultiSessJoin) && count($MultiSessJoin)) {
                     $MulticastSession = array_shift($MultiSessJoin);
+                    // Joining a session that is already transmitting hands
+                    // this host a partial image while still counting it as
+                    // part of the session.
+                    if (!$MulticastSession->isJoinable()) {
+                        if ($sessionjoin) {
+                            throw new Exception(
+                                _('That session has already started')
+                                . '. '
+                                . _('It can no longer be joined')
+                            );
+                        }
+                        // Not joining by name, so a fresh session is the
+                        // right answer rather than a partial image.
+                        $MulticastSession = null;
+                    }
                 }
                 unset($MultiSessJoin);
                 if ($MulticastSession instanceof MulticastSession
@@ -1469,11 +1500,10 @@ class Host extends FOGController
                 ) {
                     $assoc = true;
                 } else {
-                    $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
-                    $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
+                    MulticastSession::assertCapacity();
                     $MulticastSession = self::getClass('MulticastSession')
                         ->set('name', $taskName)
-                        ->set('port', ($portOverride ? $portOverride : $port))
+                        ->set('port', MulticastSession::allocatePort())
                         ->set('logpath', $this->getImage()->get('path'))
                         ->set('image', $this->getImage()->get('id'))
                         ->set('interface', $StorageNode->get('interface'))
@@ -1485,18 +1515,6 @@ class Host extends FOGController
                         ->set('clients', -1);
                     if ($MulticastSession->save()) {
                         $assoc = true;
-                        if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
-                            $randomnumber = mt_rand(24576, 32766)*2;
-                            while ($randomnumber
-                                == $MulticastSession->get('port')
-                            ) {
-                                $randomnumber = mt_rand(24576, 32766)*2;
-                            }
-                            self::setSetting(
-                                'FOG_UDPCAST_STARTINGPORT',
-                                $randomnumber
-                            );
-                        }
                     }
                 }
                 if ($assoc) {

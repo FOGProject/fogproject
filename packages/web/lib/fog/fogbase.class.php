@@ -120,6 +120,14 @@ abstract class FOGBase
      */
     protected $isLoaded = array();
     /**
+     * Tracks which keys a caller has actually written (via set()/add()/
+     * remove()), as opposed to keys merely lazy-loaded for reading. See
+     * isDirty()'s docblock.
+     *
+     * @var array
+     */
+    protected $dirty = array();
+    /**
      * The length of a given string item.
      *
      * @var int
@@ -278,6 +286,12 @@ abstract class FOGBase
      * @var bool
      */
     private static $_initialized = false;
+    /**
+     * Memoized result of hasFogUsers(). Null until first probed.
+     *
+     * @var bool|null
+     */
+    private static $_hasFogUsers = null;
     /**
      * The current running schema information.
      *
@@ -960,7 +974,23 @@ abstract class FOGBase
         return -1;
     }
     /**
-     * Check if isLoaded.
+     * Internal recursion guard for the get()/set()/loadItem() lazy-load
+     * chain -- NOT a "does this key hold data" predicate.
+     *
+     * This is a test-and-set: every call marks $key loaded, even one that
+     * returns false. That side effect is required so a loadX() method's own
+     * set() call doesn't see "not loaded" again, re-trigger loadItem(), and
+     * recurse forever. It means a bare `if ($this->isLoaded($key))` used as
+     * a standalone precondition -- anywhere the false branch isn't
+     * immediately followed, in the same call, by an actual load -- silently
+     * poisons the flag for the rest of the request: later code calling
+     * get($key) and expecting a real lazy-loaded value instead sees the
+     * (now-true) flag, skips the load, and falls back to get()'s default.
+     *
+     * Use isPopulated($key) for "do I actually have data for this key"
+     * checks. On 1.6 this exact confusion made assocSetter() delete every
+     * snapin association for a host and insert a phantom snapinID=0 row on
+     * each client check-in (FOGProject/fogproject#906).
      *
      * @param string|int $key the key to see if loaded
      *
@@ -973,6 +1003,84 @@ abstract class FOGBase
         $this->isLoaded[$key] = true;
 
         return $result ? $result : false;
+    }
+    /**
+     * Whether $key currently holds resolved data -- a pure, side-effect-free
+     * predicate. Unlike isLoaded() (a recursion guard for the internal
+     * lazy-load chain; see its docblock), this is safe to use as a
+     * standalone precondition anywhere the caller means "do I have real data
+     * for this key", e.g. "only sync this association if the caller actually
+     * touched it".
+     *
+     * Deliberately isset(), not array_key_exists(): get()'s own fallback to
+     * '' is gated the same way, so the two must agree or a key explicitly
+     * set to null would read as populated here while get() still handed back
+     * the '' fallback.
+     *
+     * @param string|int $key the key to check
+     *
+     * @return bool
+     */
+    protected function isPopulated($key)
+    {
+        $key = $this->key($key);
+
+        return isset($this->data[$key]);
+    }
+    /**
+     * Whether a caller has actually written $key this request -- via
+     * set(), add(), or remove() -- as opposed to it merely being
+     * lazy-loaded for reading. A pure, side-effect-free predicate.
+     *
+     * Stricter than isPopulated(): a key can be populated (get() will
+     * return real data) without being dirty (nothing asked to change it).
+     * Use this instead of isPopulated() wherever the guard means "only do
+     * this if the caller actually intended a change" -- e.g. assocSetter(),
+     * which otherwise re-runs its DB diff on every save() for any
+     * association a request happened to read for display, even when
+     * nothing about it changed.
+     *
+     * set()/add()/remove() mark their key dirty as the last thing they do.
+     * loadItem() clears the mark for its own key immediately after
+     * dispatching to a loadX() method, since anything set() does purely to
+     * cache a lazy load is not a caller-driven change. Because a genuine
+     * write always marks dirty *after* any nested loadItem() call it
+     * triggers first (both check isLoaded() and lazy-load before
+     * mutating), a real change can never be erased by a load that
+     * happens to run first in the same call.
+     *
+     * @param string|int $key the key to check
+     *
+     * @return bool
+     */
+    protected function isDirty($key)
+    {
+        $key = $this->key($key);
+
+        return isset($this->dirty[$key]);
+    }
+    /**
+     * Reduce a value to the positive integer ids it contains.
+     *
+     * Association writers diff on integer id columns, so a non-positive or
+     * non-numeric entry can only ever be junk -- and a falsy scalar casts to
+     * array('') which subtracts nothing from the current set and then
+     * inserts as id 0.
+     *
+     * @param mixed $ids the collection (or scalar) to reduce
+     *
+     * @return array
+     */
+    public static function positiveIntIds($ids)
+    {
+        return array_values(
+            array_filter(
+                array_map('intval', (array)$ids),
+                function ($id) {
+                    return $id > 0;
+                }
+            )
+        );
     }
     /**
      * Reset request variables.
@@ -1439,6 +1547,72 @@ abstract class FOGBase
         }
 
         return $sbin;
+    }
+    /**
+     * Tells whether a caller may be issued a host token.
+     *
+     * Aisle 016. status/hostgetkey.php is unauthenticated by necessity -- FOS
+     * has no credential during boot -- and identifies the caller only by a MAC,
+     * which is not a secret. The token it hands out is the sole gate on
+     * service/hostinfo.php, which returns server-decrypted plaintext AD join
+     * credentials and the product key. The only signal left to distinguish a
+     * booting client from an arbitrary caller is network position.
+     *
+     * Strict "REMOTE_ADDR must equal the host's recorded ip" cannot be the rule:
+     * it breaks a DHCP re-lease between PXE and FOS, a PXE NIC that differs from
+     * the OS NIC, a VLAN hop, a relayed DHCP, or a NAT'd storage node. So the
+     * policy is admin-declared instead, and DEFAULTS TO EMPTY = no restriction,
+     * which is exactly the behaviour before this setting existed. Sites that can
+     * state their imaging networks opt in; nobody's upgrade breaks.
+     *
+     * Accepts a comma/whitespace separated list of IPv4 CIDR ranges and/or
+     * literal addresses (v4 or v6).
+     *
+     * @param string $ip the caller address, normally REMOTE_ADDR
+     *
+     * @return bool
+     */
+    public static function hostKeySourceAllowed($ip)
+    {
+        $allowed = trim((string)self::getSetting('FOG_HOSTKEY_ALLOWED_SOURCES'));
+        if ($allowed === '') {
+            // Unconfigured: preserve pre-existing behaviour.
+            return true;
+        }
+        $ip = trim((string)$ip);
+        if ($ip === '') {
+            // A policy is configured but we cannot tell where the caller is.
+            return false;
+        }
+        $entries = preg_split('/[\s,]+/', $allowed, -1, PREG_SPLIT_NO_EMPTY);
+        foreach ((array)$entries as $entry) {
+            if (strcasecmp($entry, $ip) === 0) {
+                return true;
+            }
+            if (strpos($entry, '/') === false) {
+                continue;
+            }
+            list($subnet, $bits) = explode('/', $entry, 2);
+            $subnetLong = ip2long($subnet);
+            $ipLong = ip2long($ip);
+            // ip2long only speaks IPv4; a v6 caller falls through to the exact
+            // match above rather than being silently accepted by a v4 range.
+            if ($subnetLong === false || $ipLong === false) {
+                continue;
+            }
+            $bits = (int)$bits;
+            if ($bits < 0 || $bits > 32) {
+                continue;
+            }
+            if ($bits === 0) {
+                return true;
+            }
+            $mask = -1 << (32 - $bits);
+            if (($ipLong & $mask) === ($subnetLong & $mask)) {
+                return true;
+            }
+        }
+        return false;
     }
     /**
      * Create security token.
@@ -2156,6 +2330,37 @@ abstract class FOGBase
         return TaskState::getCancelledState();
     }
     /**
+     * Safe min() over a collection that may be empty.
+     *
+     * PHP 8's min()/max() throw an uncaught ValueError on an empty array
+     * (the @ operator does not suppress it, and it is an Error not an
+     * Exception so surrounding try/catch blocks miss it). Use these
+     * wrappers wherever the source collection can legitimately be empty.
+     *
+     * @param mixed $ids the collection (or scalar) to reduce
+     *
+     * @return mixed the minimum value, or 0 when empty
+     */
+    public static function minId($ids)
+    {
+        $ids = (array)$ids;
+        return empty($ids) ? 0 : min($ids);
+    }
+    /**
+     * Safe max() over a collection that may be empty.
+     *
+     * @param mixed $ids the collection (or scalar) to reduce
+     *
+     * @return mixed the maximum value, or 0 when empty
+     *
+     * @see self::minId()
+     */
+    public static function maxId($ids)
+    {
+        $ids = (array)$ids;
+        return empty($ids) ? 0 : max($ids);
+    }
+    /**
      * Put string between two strings.
      *
      * @param string $string the string to insert
@@ -2634,15 +2839,166 @@ abstract class FOGBase
      */
     public static function validInstallToken()
     {
+        return self::installTokenHeader() || self::installTokenParam();
+    }
+    /**
+     * Compares a candidate against FOG_SCHEMA_INSTALL_TOKEN in constant time.
+     *
+     * @param string|null $provided The value presented by the caller.
+     *
+     * @return bool
+     */
+    private static function _matchesInstallToken($provided)
+    {
         if (!defined('FOG_SCHEMA_INSTALL_TOKEN') || !FOG_SCHEMA_INSTALL_TOKEN) {
             return false;
         }
-        $provided = $_SERVER['HTTP_X_FOG_INSTALL_TOKEN']
-            ?? filter_input(INPUT_POST, 'fogtoken')
-            ?? filter_input(INPUT_GET, 'fogtoken');
         return is_string($provided)
             && $provided !== ''
             && hash_equals((string)FOG_SCHEMA_INSTALL_TOKEN, $provided);
+    }
+    /**
+     * The install token presented as a request header.
+     *
+     * This is the installer's own channel. A header cannot be set by a
+     * cross-site form, a link or an <img>, and it never lands in browser
+     * history, a bookmark or a Referer -- so it carries no CSRF exposure and
+     * no leak surface, and stays valid on fresh installs and upgrades alike.
+     * The installer's non-interactive update runs on upgrades too, where users
+     * already exist, so this channel must not be gated on install state.
+     *
+     * @return bool
+     */
+    public static function installTokenHeader()
+    {
+        return self::_matchesInstallToken(
+            $_SERVER['HTTP_X_FOG_INSTALL_TOKEN'] ?? null
+        );
+    }
+    /**
+     * The install token presented as a GET/POST parameter.
+     *
+     * This is the leaky copy: it is printed to the installer's stdout, ends up
+     * in the tee'd install log, and reaches browser history, bookmarks and
+     * access logs. Callers must additionally require schemaNeedsDeploy(), which
+     * makes it self-expiring -- the deploy it authorizes brings the schema up
+     * to date, after which this channel is permanently closed.
+     *
+     * @return bool
+     */
+    public static function installTokenParam()
+    {
+        return self::_matchesInstallToken(
+            filter_input(INPUT_POST, 'fogtoken')
+            ?? filter_input(INPUT_GET, 'fogtoken')
+        );
+    }
+    /**
+     * Is there actually a schema deploy outstanding?
+     *
+     * This is what makes the URL-token channel self-expiring. It used to be
+     * !hasFogUsers(), on the assumption that a token deploy only ever happens
+     * on a fresh install -- but an *upgrade* has users and a stale schema, and
+     * that is precisely when the browser path is needed. See GH-927.
+     *
+     * $mySchema stays 0 when the database could not be read, which reads as
+     * "behind" and keeps the recovery path open on a broken database. That is
+     * the same direction updateDB() already fails in, and it is safe: the
+     * caller still has to present the per-install secret.
+     *
+     * @return bool
+     */
+    public static function schemaNeedsDeploy()
+    {
+        return self::$mySchema < FOG_SCHEMA;
+    }
+    /**
+     * Does the caller hold a credential that permits a session-less schema
+     * deploy? Either the installer's header (always), or the URL token while a
+     * deploy is still outstanding.
+     *
+     * The URL token has to survive on an upgrade, not just a fresh install.
+     * The installer's fallback hands the admin a ?node=schema URL and tells
+     * them to log in there -- but on an old enough database that login reads
+     * schema the deploy has not created yet, so it cannot be passed. On
+     * working-1.6 that is an outright deadlock via StorageNode's
+     * `ngmGraphColor` (migration 275). This branch has no such column, so here
+     * it is the weaker form of the same defect: the tokenized URL is simply
+     * ignored on an upgrade, leaving the printed link useless. GH-927.
+     *
+     * Widening this to an upgrade does not weaken the channel. The header tier
+     * already accepts the identical secret with users present; this only adds
+     * the leakier transport for it, bounded to the window where a deploy is
+     * genuinely outstanding.
+     *
+     * @return bool
+     */
+    public static function validSchemaBootstrap()
+    {
+        return self::installTokenHeader()
+            || (self::schemaNeedsDeploy() && self::installTokenParam());
+    }
+    /**
+     * Is the current session a FOG administrator?
+     *
+     * Deliberately not is_authorized(), which is true for any valid user --
+     * including uType 1 mobile users -- and whose third clause nominally
+     * admits a registered fog-client. Schema deploys need to mean "an admin is
+     * driving this", nothing looser.
+     *
+     * @return bool
+     */
+    public static function isSchemaAdmin()
+    {
+        if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+            return false;
+        }
+        // Resolve the type through USER_TYPE_HOOK, the same way ProcessLogin
+        // does, so directory-sourced admins count. The LDAP plugin maps its
+        // own 990 (admin) to 0 and 991 (mobile) to 1, so this admits LDAP
+        // administrators without loosening anything -- mobile accounts, LDAP
+        // or local, still fail the === 0 test. Without it an LDAP-only site
+        // could never apply a schema update from the browser.
+        $type = self::$FOGUser->get('type');
+        if (self::$HookManager) {
+            self::$HookManager->processEvent(
+                'USER_TYPE_HOOK',
+                array('type' => &$type)
+            );
+        }
+        return (int)$type === 0;
+    }
+    /**
+     * Does this install have any FOG user rows yet?
+     *
+     * Distinguishes a fresh install (bootstrap token permitted) from an
+     * established one (admin login required). Runs against a possibly ancient
+     * schema, so it must degrade rather than throw: every PDODB failure path
+     * already returns falsy instead of raising, and an unknown answer is
+     * reported as "fresh" so recovery stays possible on a broken database.
+     *
+     * Counts user rows rather than uType = 0 rows on purpose: uType was
+     * VARCHAR(2) before it became INT, and MySQL coerces '' = 0 to true, so an
+     * admin-typed count is unreliable on legacy rows. "Any user exists" is the
+     * question being asked.
+     *
+     * @return bool
+     */
+    public static function hasFogUsers()
+    {
+        if (self::$_hasFogUsers !== null) {
+            return self::$_hasFogUsers;
+        }
+        self::$_hasFogUsers = false;
+        if (!self::$DB || !DatabaseManager::getLink()) {
+            return false;
+        }
+        $db = self::$DB->query('SELECT COUNT(`uId`) AS `total` FROM `users`');
+        if (false !== $db->error) {
+            return false;
+        }
+        self::$_hasFogUsers = ((int)$db->fetch()->get('total') > 0);
+        return self::$_hasFogUsers;
     }
     /**
      * Is Authorized to perform action simplified

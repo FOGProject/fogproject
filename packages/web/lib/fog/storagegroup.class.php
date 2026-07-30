@@ -225,7 +225,8 @@ class StorageGroup extends FOGController
             unset($Node);
         }
         if (empty($masternode)) {
-            $masternode = @min($this->get($getter));
+            $nodes = $this->get($getter);
+            $masternode = empty($nodes) ? null : min($nodes);
         }
         return new StorageNode($masternode);
     }
@@ -271,7 +272,8 @@ class StorageGroup extends FOGController
             unset($Node);
         }
         if (empty($winner)) {
-            $winner = @min($this->get($getter));
+            $nodes = $this->get($getter);
+            $winner = empty($nodes) ? null : min($nodes);
         } else {
             $winner = $winner->id;
         }

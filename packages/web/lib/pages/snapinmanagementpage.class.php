@@ -772,16 +772,11 @@ class SnapinManagementPage extends FOGPage
                     )
                 );
             }
-            if (preg_match('#ssl#i', $snapinfile)) {
-                throw new Exception(
-                    sprintf(
-                        '%s, %s.',
-                        _('Please choose a different name'),
-                        _('this one is reserved for FOG')
-                    )
-                );
-            }
-            $snapinfile = preg_replace('/[^-\w\.]+/', '_', $snapinfile);
+            // Single chokepoint for the uploaded name and the
+            // already-on-node selection alike; was an open-coded copy
+            // of the reserved-'ssl' check and the normalization regex,
+            // which let '.' through (035 / 2.3.1).
+            $snapinfile = Snapin::sanitizeSnapinFileName($snapinfile);
             $StorageGroup = new StorageGroup($storagegroup);
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$snapinfile && $_FILES['snapin']['error'] > 0) {
@@ -1532,16 +1527,10 @@ class SnapinManagementPage extends FOGPage
                 )
             );
         }
-        if (preg_match('#ssl#i', $snapinfile)) {
-            throw new Exception(
-                sprintf(
-                    '%s, %s.',
-                    _('Please choose a different name'),
-                    _('this one is reserved for FOG')
-                )
-            );
-        }
-        $snapinfile = preg_replace('/[^-\w\.]+/', '_', $snapinfile);
+        // Same chokepoint as addPost() above (035 / 2.3.1). Throws
+        // InvalidArgumentException, which editPost()'s catch
+        // (Exception) already surfaces to the user.
+        $snapinfile = Snapin::sanitizeSnapinFileName($snapinfile);
         $StorageNode = $this
             ->obj
             ->getStorageGroup()

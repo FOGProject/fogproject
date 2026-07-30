@@ -254,13 +254,20 @@ class Site extends FOGController
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
-        // Don't work on item that isn't loaded yet.
-        if (!$this->isLoaded($plural)) {
+        // Don't work on an association the caller didn't actually touch.
+        // isDirty(), not isPopulated(): isPopulated() is also true when a
+        // key was merely lazy-loaded for reading, which would otherwise
+        // make this run a full DB diff -- for a no-op result -- on every
+        // save() that happens to read this association first. isDirty()
+        // only reports true for a real caller-driven write.
+        if (!$this->isDirty($plural)) {
             return $this;
         }
 
-        // Get the current items.
-        $items = $this->get($plural);
+        // Get the current items, normalized to positive integer ids -- this
+        // copy had no guard at all, so a falsy get() fallback reached
+        // array_diff() as a string and fatalled under PHP 8.
+        $items = self::positiveIntIds($this->get($plural));
         Route::ids(
             $classCall,
             [$objstr => $this->get('id')],

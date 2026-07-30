@@ -157,7 +157,14 @@ class Equipment_Loan extends ReportManagementPage
                 _('PC Check-out Agreement'),
                 _('Personal Information'),
                 _('Name'),
-                $Inventory->get('primaryUser'),
+                // Aisle 081: every inventory value below reaches this report body
+                // raw. They are attacker-writable through the unauthenticated
+                // registration/inventory surface, and the earlier fix only patched
+                // the href further down -- the body was left alone. Escaping the
+                // field values (rather than the str_pad wrappers) keeps the diff
+                // obvious; for legitimate serials/asset tags htmlspecialchars is an
+                // identity transform, so the printed underscore rules are unchanged.
+                Initiator::e($Inventory->get('primaryUser')),
                 _('Location'),
                 _('Your Location Here'),
                 str_pad(_('Home Address'), 25),
@@ -180,8 +187,8 @@ class Equipment_Loan extends ReportManagementPage
                 str_pad(
                     sprintf(
                         '%s / %s',
-                        $Inventory->get('sysserial'),
-                        $Inventory->get('caseasset')
+                        Initiator::e($Inventory->get('sysserial')),
+                        Initiator::e($Inventory->get('caseasset'))
                     ),
                     65,
                     '_'
@@ -193,8 +200,8 @@ class Equipment_Loan extends ReportManagementPage
                 str_pad(
                     sprintf(
                         '%s %s',
-                        $Inventory->get('other1'),
-                        $Inventory->get('other2')
+                        Initiator::e($Inventory->get('other1')),
+                        Initiator::e($Inventory->get('other2'))
                     ),
                     65,
                     '_'
@@ -256,8 +263,12 @@ class Equipment_Loan extends ReportManagementPage
                     'filename' => $filename
                 ]
             );
+        // The href was missing its closing quote, so `alt=` was being parsed as
+        // part of the URL (and appended to the export filename) instead of
+        // starting a new attribute. Not a security issue -- htmlspecialchars
+        // leaves no raw quote to break out with -- but the markup was malformed.
         echo '<a id="pdfsub" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8')
-            . 'alt="'
+            . '" alt="'
             . _('Export PDF')
             . '" title="'
             . _('Export PDF')

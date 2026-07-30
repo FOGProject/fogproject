@@ -50,16 +50,23 @@ try {
     $Image = $Task->getImage();
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {
+            $msIDs = FOGCore::getSubObjectIDs(
+                'MulticastSessionAssociation',
+                array('taskID' => $Task->get('id')),
+                'msID'
+            );
             $MulticastSession = FOGCore::getClass(
                 'MulticastSession',
-                @max(
-                    FOGCore::getSubObjectIDs(
-                        'MulticastSessionAssociation',
-                        array('taskID' => $Task->get('id')),
-                        'msID'
-                    )
-                )
+                FOGCore::maxId($msIDs)
             );
+            // Without this an absent/stale session yields an invalid model
+            // whose image is '', and the block below would then write that ''
+            // into both the task and the host imageID -- corrupting the host
+            // record over a transient tasking problem. Fail the request the
+            // same way the guards above it do instead.
+            if (!$MulticastSession->isValid()) {
+                throw new Exception(_('Invalid Multicast Session'));
+            }
             $taskImgID = $Task->get('imageID');
             $mcImgID = $MulticastSession->get('image');
             if ($taskImgID != $mcImgID) {

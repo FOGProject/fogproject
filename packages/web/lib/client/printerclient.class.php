@@ -99,6 +99,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
             Route::getData()
         );
         $Printers = $Printers->printers;
+        $printers = array();
         foreach ((array)$Printers as &$Printer) {
             $printers[] = array(
                 'type' => $Printer->config,

@@ -811,10 +811,15 @@ class FOGFTP extends FOGGetSet
         $oldname,
         $newname
     ) {
-        if (!(@ftp_rename($this->_link, $oldname, $newname)
-            || $this->put($newname, $oldname))
-        ) {
-            $this->ftperror($this->data);
+        if (!@ftp_rename($this->_link, $oldname, $newname)) {
+            // Only fall back to uploading when oldname is a real local file.
+            // A remote path that happens to exist locally as a directory would
+            // otherwise be "uploaded" as an empty file and report success.
+            if (!is_file($oldname)
+                || !$this->put($newname, $oldname)
+            ) {
+                $this->ftperror($this->data);
+            }
         }
         return $this;
     }

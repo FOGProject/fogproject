@@ -833,6 +833,10 @@ msgstr "点击以查看可添加用户"
 msgid "Check that database is running"
 msgstr "检查数据库运行状态"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 msgid "Checkin Time"
 msgstr "登录时间"
 
@@ -1464,6 +1468,9 @@ msgstr "事件和数据未设置"
 msgid "Event must be a string"
 msgstr "事件必须是字符串"
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "现存物品必须是布尔值"
 
@@ -2028,9 +2035,6 @@ msgstr "群组屏幕分辨率"
 msgid "Group Search DN"
 msgstr "群组搜索DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "群组搜索DN无结果"
-
 msgid "Group Snapins"
 msgstr "群组Snapin"
 
@@ -2054,6 +2058,10 @@ msgstr "群组镜像关联"
 
 msgid "Group is not valid"
 msgstr "群组无效"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "群组搜索DN无结果"
 
 msgid "Group module settings"
 msgstr "群组模块设置"
@@ -2459,8 +2467,31 @@ msgstr "忽略客户端上的MAC地址"
 msgid "Ignore MAC on Image"
 msgstr "忽略镜像上的MAC地址"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "无效多播会话"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "无效多播会话"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "无效多播会话"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "镜像"
+
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
+msgstr ""
 
 msgid "Image Associated: "
 msgstr "镜像关联于:"
@@ -2877,6 +2908,10 @@ msgid "Invalid snapin"
 msgstr "无效的Snapin"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "无效的Snapin"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "无效任务ID"
 
@@ -2946,6 +2981,9 @@ msgstr "受限"
 
 msgid "It can be used on Windows"
 msgstr "在Windows上可用"
+
+msgid "It can no longer be joined"
+msgstr ""
 
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr "它现在主要针对智能安装方法"
@@ -3204,6 +3242,9 @@ msgstr "位置"
 
 msgid "Log Viewer"
 msgstr "日志查看器"
+
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
 
 msgid "Login"
 msgstr "登录"
@@ -3662,6 +3703,9 @@ msgstr "没有文件上传!"
 
 msgid "No file was uploaded"
 msgstr "没有文件被上传"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No friendly name defined"
 msgstr "未定义友好名称"
@@ -4154,9 +4198,6 @@ msgstr "请升级你的FOG客户端，该版本已过时且不安全"
 
 msgid "Please use another hostname"
 msgstr "请输入另一个主机名"
-
-msgid "Please wait until a slot is open"
-msgstr "请等待至有开放插槽"
 
 msgid "Plugin"
 msgstr "插入"
@@ -4740,6 +4781,10 @@ msgstr "服务器信息"
 msgid "Server information at a glance."
 msgstr "服务器信息概览"
 
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
+
 msgid "Service"
 msgstr "服务"
 
@@ -4769,6 +4814,10 @@ msgstr "服务通用"
 
 msgid "Service update failed"
 msgstr "服务更新失败"
+
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "会话名称"
 
 msgid "Session Name"
 msgstr "会话名称"
@@ -5463,6 +5512,10 @@ msgstr "条款和条件"
 msgid "Text"
 msgstr "文本"
 
+#, fuzzy
+msgid "That session has already started"
+msgstr "主机已经存在"
+
 msgid "The 'Is Master Node' setting defines which"
 msgstr "'是否为主节点' 设置定义了哪个"
 
@@ -5525,9 +5578,6 @@ msgstr "上传的文件只有部分被上传"
 
 msgid "There are"
 msgstr "有"
-
-msgid "There are currently"
-msgstr "目前有"
 
 msgid "There are many reasons why this could be the case"
 msgstr "这可能有很多原因"
@@ -5785,6 +5835,9 @@ msgstr "找不到主存储节点"
 
 msgid "Unable to get server information!"
 msgstr "无法拉取服务器的信息！"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr "无法打开文件进行读取"
@@ -6209,9 +6262,6 @@ msgstr "您的数据库连接似乎无效"
 msgid "Your form is ready"
 msgstr "您的表单已准备就绪"
 
-msgid "Your server only allows"
-msgstr "您的服务器只允许"
-
 msgid "Your system PHP Version is not sufficient"
 msgstr "您的系统PHP版本是不充分的"
 
@@ -6277,6 +6327,11 @@ msgstr "因为它们可能导致难以排查的问题"
 
 msgid "automatically"
 msgstr "自动执行"
+
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
 
 msgid "based task."
 msgstr "基于任务."
@@ -6557,6 +6612,9 @@ msgstr "无效"
 msgid "is new"
 msgstr "新的"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr "不再运行"
 
@@ -6695,6 +6753,10 @@ msgstr "或者启动操作"
 msgid "or this is a new FOG installation"
 msgstr "或者这是一个新FOG安装包"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr "特定节点"
 
@@ -6761,14 +6823,19 @@ msgstr "所以如果看起来进程卡住了，请耐心等待"
 msgid "so if you are unable to boot a client you may wish to"
 msgstr "所以如果你无法启动客户端，你可能希望"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 msgid "successfully removed!"
 msgstr "成功移除!"
 
 msgid "task found"
 msgstr "发现任务"
 
-msgid "tasks in queue"
-msgstr "队列中的任务"
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "
@@ -7045,8 +7112,14 @@ msgstr "你将该节点的带宽字段设置为1000"
 #~ msgid "Legacy FOG Client"
 #~ msgstr "旧客户端FOG"
 
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "请等待至有开放插槽"
+
 #~ msgid "Session altered improperly"
 #~ msgstr "会议修改不当"
+
+#~ msgid "There are currently"
+#~ msgstr "目前有"
 
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
@@ -7058,6 +7131,9 @@ msgstr "你将该节点的带宽字段设置为1000"
 #~ msgid "User Agent Changed"
 #~ msgstr "用户代理更改"
 
+#~ msgid "Your server only allows"
+#~ msgstr "您的服务器只允许"
+
 #, fuzzy
 #~ msgid "file to"
 #~ msgstr "失败"
@@ -7065,3 +7141,6 @@ msgstr "你将该节点的带宽字段设置为1000"
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "没有数据库工作关闭"
+
+#~ msgid "tasks in queue"
+#~ msgstr "队列中的任务"

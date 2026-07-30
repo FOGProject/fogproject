@@ -49,14 +49,24 @@ if [[ $systemctl == yes ]]; then
             initdpath="/usr/lib/systemd/system"
             ;;
     esac
+    # Alias mysql/mysqld onto whichever DB unit the distro actually ships, so the
+    # $dbservice lookup in functions.sh finds a name whatever the packaging.
+    #
+    # The /etc/systemd/system sources previously read `$initdpath/mariadb` with no
+    # .service suffix, which produced a *dangling* link. That is not cosmetic:
+    # /etc/systemd/system takes precedence over $initdpath, so a broken link there
+    # shadows the distro's working alias and systemd reports the unit as "bad" --
+    # which is what the `grep -v bad` guard in functions.sh is working around.
+    # linkIfAbsent() replaces such a link when it finds one, healing installs that
+    # already ran an affected version. Refs forums topic 18204.
     if [[ -e $initdpath/mariadb.service ]]; then
-        ln -s $initdpath/{mariadb,mysql}.service >>$error_log 2>&1
-        ln -s $initdpath/{mariadb,mysqld}.service >>$error_log 2>&1
-        ln -s $initdpath/mariadb /etc/systemd/system/mysql.service >>$error_log 2>&1
-        ln -s $initdpath/mariadb /etc/systemd/system/mysqld.service >>$error_log 2>&1
+        linkIfAbsent $initdpath/mariadb.service $initdpath/mysql.service
+        linkIfAbsent $initdpath/mariadb.service $initdpath/mysqld.service
+        linkIfAbsent $initdpath/mariadb.service /etc/systemd/system/mysql.service
+        linkIfAbsent $initdpath/mariadb.service /etc/systemd/system/mysqld.service
     elif [[ -e $initdpath/mysqld.service ]]; then
-        ln -s $initdpath/mysql{d,}.service >>$error_log 2>&1
-        ln -s $initdpath/mysqld.service /etc/systemd/system/mysql.service >>$error_log 2>&1
+        linkIfAbsent $initdpath/mysqld.service $initdpath/mysql.service
+        linkIfAbsent $initdpath/mysqld.service /etc/systemd/system/mysql.service
     fi
 else
     initdpath="/etc/init.d"

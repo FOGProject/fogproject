@@ -137,7 +137,12 @@ class Image extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        // isDirty(), not isPopulated(): isPopulated() is also true when
+        // 'hosts' was merely lazy-loaded for reading, which would make an
+        // unrelated image save (e.g. renaming it) re-run this whole
+        // reassignment block for a no-op result. isDirty() only reports
+        // true when the caller actually set the host list.
+        if ($this->isDirty('hosts')) {
             if (count($this->get('hosts')) > 0) {
                 $DBIDs = self::getSubObjectIDs(
                     'Host',
@@ -320,7 +325,7 @@ class Image extends FOGController
         $groupids = array_filter($groupids);
         if (count($groupids) < 1) {
             $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
+            $groupids = self::minId($groupids);
         }
         $this->set('storagegroups', (array)$groupids);
     }
@@ -379,7 +384,7 @@ class Image extends FOGController
         $groupids = $this->get('storagegroups');
         if (is_array($groupids) && count($groupids) < 1) {
             $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
+            $groupids = self::minId($groupids);
             if ($groupids < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
@@ -393,7 +398,7 @@ class Image extends FOGController
             unset($groupid);
         }
         if (is_array($primaryGroup) && count($primaryGroup) < 1) {
-            $primaryGroup = @min((array) $groupids);
+            $primaryGroup = self::minId((array) $groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
@@ -417,9 +422,9 @@ class Image extends FOGController
             'storagegroupID'
         );
         if (count($groupids ?: []) < 1) {
-            $groupid = @min($this->get('storagegroups'));
+            $groupid = self::minId($this->get('storagegroups'));
         } else {
-            $groupid = @min($groupids);
+            $groupid = self::minId($groupids);
         }
         return new StorageGroup($groupid);
     }
@@ -483,7 +488,7 @@ class Image extends FOGController
         }
         if ($primaryCount < 1) {
             $groupid = self::getSubObjectIDs('StorageGroup');
-            $groupid = @min($groupid);
+            $groupid = self::minId($groupid);
             $this->setPrimaryGroup($groupid);
         }
         $assocID = self::getSubObjectIDs(

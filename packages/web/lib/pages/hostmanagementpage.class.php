@@ -1816,7 +1816,11 @@ class HostManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'snapin_id' => $Snapin->id,
-                'snapin_name' => $Snapin->name,
+                // Aisle 097: snapin names are stored verbatim and this value is
+                // injected as raw HTML by the association/log DataTable. The
+                // group equivalent was escaped (groupmanagementpage:1027) but
+                // these host sinks were missed -- same field, same render path.
+                'snapin_name' => Initiator::e($Snapin->name),
                 'snapin_created' => self::niceDate(
                     $Snapin->createdTime
                 )->format('Y-m-d H:i:s')
@@ -1914,7 +1918,11 @@ class HostManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'snapin_id' => $Snapin->id,
-                'snapin_name' => $Snapin->name,
+                // Aisle 097: snapin names are stored verbatim and this value is
+                // injected as raw HTML by the association/log DataTable. The
+                // group equivalent was escaped (groupmanagementpage:1027) but
+                // these host sinks were missed -- same field, same render path.
+                'snapin_name' => Initiator::e($Snapin->name),
                 'snapin_created' => self::niceDate(
                     $Snapin->createdTime
                 )->format('Y-m-d H:i:s')
@@ -3139,7 +3147,11 @@ class HostManagementPage extends FOGPage
                 $diff = self::diff($start, $end);
             }
             $this->data[] = array(
-                'snapin_name' => $Snapin->name,
+                // Aisle 097: snapin names are stored verbatim and this value is
+                // injected as raw HTML by the association/log DataTable. The
+                // group equivalent was escaped (groupmanagementpage:1027) but
+                // these host sinks were missed -- same field, same render path.
+                'snapin_name' => Initiator::e($Snapin->name),
                 'snapin_start' => $start->format('Y-m-d H:i:s'),
                 'snapin_end' => $end,
                 'snapin_complete' => $SnapinTask->state->name,
@@ -3478,11 +3490,19 @@ class HostManagementPage extends FOGPage
                 $this->obj->wakeOnLAN();
                 return;
             }
-            $min = FOGCron::_sanitizeCronField($min);
-            $hour = FOGCron::_sanitizeCronField($hour);
-            $dom = FOGCron::_sanitizeCronField($dom);
-            $month = FOGCron::_sanitizeCronField($month);
-            $dow = FOGCron::_sanitizeCronField($dow);
+            // 023 regression fix: the PM form is one combined form -- ticking
+            // onDemand and choosing shutdown/reboot submits BLANK cron fields,
+            // falls past the wol-only early return above, and hits
+            // _sanitizeCronField(), whose /^[0-9\*\/\-\,]+$/ rejects ''. That
+            // broke immediate shutdown/reboot from the host PM tab. Only validate
+            // when the entry is actually a schedule. Matches working-1.6.
+            if (!$onDemand) {
+                $min = FOGCron::_sanitizeCronField($min);
+                $hour = FOGCron::_sanitizeCronField($hour);
+                $dom = FOGCron::_sanitizeCronField($dom);
+                $month = FOGCron::_sanitizeCronField($month);
+                $dow = FOGCron::_sanitizeCronField($dow);
+            }
             self::getClass('PowerManagement')
                 ->set('hostID', $this->obj->get('id'))
                 ->set('min', $min)

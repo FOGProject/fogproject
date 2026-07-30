@@ -261,6 +261,7 @@ abstract class FOGController extends FOGBase
             );
             self::info($msg);
             $this->data[$key] = $value;
+            $this->dirty[$key] = true;
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -311,6 +312,7 @@ abstract class FOGController extends FOGBase
                 $this->data[$key] = array($this->data[$key]);
             }
             $this->data[$key][] = $value;
+            $this->dirty[$key] = true;
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -365,6 +367,7 @@ abstract class FOGController extends FOGBase
                 unset($this->data[$key][$ind]);
             }
             $this->data[$key] = array_values(array_filter($this->data[$key]));
+            $this->dirty[$key] = true;
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -871,6 +874,12 @@ abstract class FOGController extends FOGBase
         $methodCall = sprintf('load%s', ucfirst($key));
         if (method_exists($this, $methodCall)) {
             $this->{$methodCall}();
+            // A loadX() method caches what it fetched via set(), which
+            // marks $key dirty as an unavoidable side effect. That's a
+            // cache-fill, not a caller-driven change, so retract the mark
+            // immediately -- isDirty() should only ever report true for a
+            // key a caller actually meant to write.
+            unset($this->dirty[$key]);
         }
         unset($methodCall);
 
@@ -1146,16 +1155,23 @@ abstract class FOGController extends FOGBase
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
-        // Don't work on item that isn't loaded yet.
-        if (!$this->isLoaded($plural)) {
+        // Don't work on an association the caller didn't actually touch.
+        // isDirty(), not isPopulated(): isPopulated() is also true when a
+        // key was merely lazy-loaded for reading (e.g. reported in a
+        // status response), which would otherwise make this run a full
+        // DB diff -- for a no-op result -- on every save() that happens
+        // to read this association first. isDirty() only reports true
+        // for a real caller-driven write, so an untouched association
+        // costs nothing here, not even the Route::ids() lookup below.
+        if (!$this->isDirty($plural)) {
             return $this;
         }
 
-        // Get the current items.
-        $items = $this->get($plural);
-        if (!$items) {
-            $items = array();
-        }
+        // Get the current items, normalized to positive integer ids. Every
+        // relation routed through here diffs on a "{$alterItem}ID" column, so
+        // a non-positive or non-numeric entry can only be junk -- whether a
+        // falsy get() fallback or a 0 sitting inside an otherwise valid list.
+        $items = self::positiveIntIds($this->get($plural));
         Route::ids(
             $classCall,
             [$objstr => $this->get('id')],

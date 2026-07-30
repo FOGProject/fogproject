@@ -105,26 +105,57 @@ class SchemaUpdaterPage extends FOGPage
         );
         echo '<br/>';
         echo '<br/>';
-        echo '<form class="form-horizontal" action="'
-            . $this->formAction
-            . '" method="post">';
-        echo '<div class="col-xs-offset-4 col-xs-4">';
-        // Manual (non-curl) install flow: when the installer's URL carried a
-        // valid bootstrap token, carry it into the POST so the deploy can run
-        // before any user exists. Only emitted when the token already matched,
-        // so it is never disclosed to a token-less visitor.
-        if (self::validInstallToken()) {
-            echo '<input type="hidden" name="fogtoken" value="'
-                . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
-                . '"/>';
+        // Established install, no admin session: there is nothing safe to
+        // offer here, so ask them to log in instead of showing a button that
+        // can only 403. The login form posts back to ?node=schema and lands
+        // straight back on this page.
+        //
+        // validSchemaBootstrap() first, though: a caller holding the install
+        // token must not be sent to a login form. The installer's fallback
+        // prints this URL for them, and on an old enough database the login
+        // reads schema the deploy has not created yet -- see GH-927. The token
+        // IS the credential in that case, exactly as it is for the installer.
+        if (!self::validSchemaBootstrap()
+            && self::hasFogUsers()
+            && !self::isSchemaAdmin()
+        ) {
+            printf(
+                '<p>%s.</p>',
+                _('Log in as a FOG administrator to apply this update')
+            );
+            // mainLoginForm() echoes; its form posts name="login" back to
+            // $this->formAction (?node=schema), which management/index.php
+            // hands to processMainLogin() on the next request.
+            self::getClass('ProcessLogin')->mainLoginForm();
+        } else {
+            echo '<form class="form-horizontal" action="'
+                . $this->formAction
+                . '" method="post">';
+            echo '<div class="col-xs-offset-4 col-xs-4">';
+            // Carry the token into the POST so the deploy runs without a
+            // session. Emitted solely to a caller who already proved
+            // possession, and only while a deploy is outstanding -- so it is
+            // never disclosed, and it stops working the moment this deploy
+            // brings the schema up to date. Not gated on hasFogUsers(): an
+            // upgrade has users and still needs this path. GH-927.
+            if (self::installTokenParam()) {
+                echo '<input type="hidden" name="fogtoken" value="'
+                    . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
+                    . '"/>';
+            }
+            if (self::isSchemaAdmin()) {
+                echo '<input type="hidden" name="_csrf" value="'
+                    . Initiator::e(CSRF::token())
+                    . '"/>';
+            }
+            echo '<input type="hidden" name="fogverified"/>';
+            echo '<button type="submit" class="btn btn-primary btn-block" name='
+                . '"confirm">';
+            echo _('Install/Update Now');
+            echo '</button>';
+            echo '</div>';
+            echo '</form>';
         }
-        echo '<input type="hidden" name="fogverified"/>';
-        echo '<button type="submit" class="btn btn-primary btn-block" name='
-            . '"confirm">';
-        echo _('Install/Update Now');
-        echo '</button>';
-        echo '</div>';
-        echo '</form>';
         echo '</div>';
         echo '</div>';
         // Failure
@@ -160,11 +191,25 @@ class SchemaUpdaterPage extends FOGPage
      */
     public function indexPost()
     {
-        // The schema deploy must work before any FOG user exists, so allow it
-        // for a logged-in admin OR a caller holding the per-install token. This
-        // replaces the old confirm/fogverified handshake, which carried no
-        // secret and could be replayed by anyone.
-        if (!self::is_authorized(true) && !self::validInstallToken()) {
+        // Three tiers, keyed on the credential *channel* rather than on
+        // install state, because the installer's own non-interactive update
+        // runs on upgrades too -- where users already exist and no session is
+        // possible. See FOGBase::installTokenHeader()/installTokenParam().
+        if (self::installTokenHeader()) {
+            // Tier 1, the installer. A header cannot be driven cross-site, so
+            // there is no CSRF exposure to protect against here.
+        } elseif (self::isSchemaAdmin()) {
+            // Tier 2, a human upgrading. Needs CSRF: without it any logged-in
+            // user could be made to POST a schema deploy from a hostile page.
+            CSRF::requireForStateChanging();
+        } elseif (self::schemaNeedsDeploy() && self::installTokenParam()) {
+            // Tier 3, browser bootstrap. Dies once this deploy brings the
+            // schema up to date, which is the point -- this is the copy of the
+            // token that reaches stdout, install logs and browser history.
+            // Gated on a deploy being outstanding rather than on the install
+            // being userless: an upgrade has users and is exactly when the
+            // Tier 2 login can be unusable. GH-927.
+        } else {
             http_response_code(403);
             printf('<p>%s</p>', _('Unauthorized'));
             return;

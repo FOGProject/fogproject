@@ -228,11 +228,15 @@ class Snapin_Log extends ReportManagementPage
             }
             $State = $SnapinTask->state;
             $this->data[] = array(
-                'host_name' => $Host->name,
+                // Aisle 137 (siblings): return/detail were escaped by the original
+                // fix but the name/state columns beside them were not, and they
+                // render through the same DataTable. Host and snapin names are
+                // stored verbatim, so escape them at the same layer.
+                'host_name' => Initiator::e($Host->name),
                 'checkin' => $SnapinTask->checkin,
                 'complete' => $SnapinTask->complete,
-                'snap_name' => $Snapin->name,
-                'snap_state' => $State->name,
+                'snap_name' => Initiator::e($Snapin->name),
+                'snap_state' => Initiator::e($State->name),
                 'snap_return' => Initiator::e($SnapinTask->return),
                 'snap_detail' => Initiator::e($SnapinTask->detail),
                 'snap_create' => self::formatTime(

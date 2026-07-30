@@ -952,6 +952,10 @@ msgstr ""
 msgid "Check that database is running"
 msgstr "Campo obligatorio está vacio"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 #, fuzzy
 msgid "Checkin Time"
 msgstr "Fecha ya existe"
@@ -1658,6 +1662,9 @@ msgstr ""
 msgid "Event must be a string"
 msgstr ""
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -2307,9 +2314,6 @@ msgstr "Grupo principal"
 msgid "Group Search DN"
 msgstr "Búsqueda"
 
-msgid "Group Search DN did not return any results"
-msgstr ""
-
 #, fuzzy
 msgid "Group Snapins"
 msgstr "Exportar snapin"
@@ -2340,6 +2344,9 @@ msgstr "Asociación de imagen"
 
 msgid "Group is not valid"
 msgstr "Grupo no válido"
+
+msgid "Group membership search returned no results"
+msgstr ""
 
 #, fuzzy
 msgid "Group module settings"
@@ -2822,8 +2829,31 @@ msgstr "Cliente"
 msgid "Ignore MAC on Image"
 msgstr "Lista de MAC Address"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "Multicast"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "Multicast"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "Multicast"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "Imagen"
+
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
+msgstr ""
 
 #, fuzzy
 msgid "Image Associated: "
@@ -3316,6 +3346,10 @@ msgid "Invalid snapin"
 msgstr "Login incorrecto"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Login incorrecto"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "Identificador de tarea incorrecto"
 
@@ -3388,6 +3422,9 @@ msgid "Is restricted"
 msgstr ""
 
 msgid "It can be used on Windows"
+msgstr ""
+
+msgid "It can no longer be joined"
 msgstr ""
 
 msgid "It is primarily geared for the smart installer methodology now"
@@ -3675,6 +3712,9 @@ msgstr ""
 
 msgid "Log Viewer"
 msgstr "Visor de logs"
+
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
 
 msgid "Login"
 msgstr "Login"
@@ -4198,6 +4238,9 @@ msgstr "Archivo"
 
 msgid "No file was uploaded"
 msgstr "Archivo no fue subido"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 #, fuzzy
 msgid "No friendly name defined"
@@ -4726,9 +4769,6 @@ msgid "Please update your FOG Client, this is old and insecure"
 msgstr ""
 
 msgid "Please use another hostname"
-msgstr ""
-
-msgid "Please wait until a slot is open"
 msgstr ""
 
 msgid "Plugin"
@@ -5385,6 +5425,10 @@ msgstr "Información de hardware"
 msgid "Server information at a glance."
 msgstr "Información de hardware"
 
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
+
 msgid "Service"
 msgstr "Servicio"
 
@@ -5422,6 +5466,10 @@ msgstr "Servicio"
 #, fuzzy
 msgid "Service update failed"
 msgstr "Fallo al actualizar"
+
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "Nombre"
 
 #, fuzzy
 msgid "Session Name"
@@ -6247,6 +6295,10 @@ msgstr ""
 msgid "Text"
 msgstr "Texto"
 
+#, fuzzy
+msgid "That session has already started"
+msgstr "Ya existe este equipo"
+
 msgid "The 'Is Master Node' setting defines which"
 msgstr ""
 
@@ -6314,9 +6366,6 @@ msgid "The uploaded file was only partially uploaded"
 msgstr ""
 
 msgid "There are"
-msgstr ""
-
-msgid "There are currently"
 msgstr ""
 
 msgid "There are many reasons why this could be the case"
@@ -6577,6 +6626,9 @@ msgstr "No se puede encontrar el nodo de almacenamiento:"
 #, fuzzy
 msgid "Unable to get server information!"
 msgstr "Información de hardware"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr ""
@@ -7062,9 +7114,6 @@ msgstr ""
 msgid "Your form is ready"
 msgstr ""
 
-msgid "Your server only allows"
-msgstr ""
-
 msgid "Your system PHP Version is not sufficient"
 msgstr ""
 
@@ -7132,6 +7181,11 @@ msgid "as they can cause issues that are difficult to troubleshoot"
 msgstr ""
 
 msgid "automatically"
+msgstr ""
+
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
 msgstr ""
 
 #, fuzzy
@@ -7460,6 +7514,9 @@ msgstr "Login incorrecto"
 msgid "is new"
 msgstr "Nuevo"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 msgid "is no longer running"
 msgstr ""
 
@@ -7613,6 +7670,10 @@ msgstr ""
 msgid "or this is a new FOG installation"
 msgstr "Nuevo"
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr ""
 
@@ -7689,6 +7750,10 @@ msgstr ""
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 #, fuzzy
 msgid "successfully removed!"
 msgstr "Eliminado"
@@ -7697,9 +7762,9 @@ msgstr "Eliminado"
 msgid "task found"
 msgstr "No hay tareas activas para este equipo"
 
-#, fuzzy
-msgid "tasks in queue"
-msgstr "Tareas"
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "
@@ -8003,6 +8068,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "task"
 #~ msgstr "Tarea"
+
+#, fuzzy
+#~ msgid "tasks in queue"
+#~ msgstr "Tareas"
 
 #, fuzzy
 #~ msgid "will not be added to this client"

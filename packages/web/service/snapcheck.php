@@ -65,6 +65,11 @@ try {
     }
     echo implode(' ', (array)$snapins);
 } catch (Exception $e) {
-    echo $e->getMessage();
+    // Aisle 021: the MAC is reflected raw into this error text on dev (there is
+    // no upstream stripAndDecodeItem normalisation as on 1.6), so escape at the
+    // sink. Only the catch path: the success echo above carries snapin names and
+    // args (quotes, ampersands) which must stay byte-exact or client-side snapin
+    // execution breaks.
+    echo Initiator::e($e->getMessage());
 }
 exit;

@@ -965,6 +965,10 @@ msgstr "Überprüfen Sie hier, welche Drucker hinzugefügt werden können"
 msgid "Check that database is running"
 msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 
+msgid ""
+"Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
 #, fuzzy
 msgid "Checkin Time"
 msgstr "Check-in-Zeit"
@@ -1690,6 +1694,9 @@ msgstr "Ereignis und Daten sind nicht gesetzt"
 msgid "Event must be a string"
 msgstr "Ereignisname muss eine Zeichenfolge sein."
 
+msgid "Every configured multicast port is already in use"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr "Bestehendes Objekt muss boolean sein"
 
@@ -2320,9 +2327,6 @@ msgstr "Gruppe Bildschirmauflösung"
 msgid "Group Search DN"
 msgstr "Gruppensuche DN"
 
-msgid "Group Search DN did not return any results"
-msgstr "Gruppensuche DN gab keine Ergebnisse zurück"
-
 #, fuzzy
 msgid "Group Snapins"
 msgstr "Gruppen-Snapins"
@@ -2354,6 +2358,10 @@ msgstr "Gruppen Imagezugehörigkeit"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "Gruppe ist nicht gültig"
+
+#, fuzzy
+msgid "Group membership search returned no results"
+msgstr "Gruppensuche DN gab keine Ergebnisse zurück"
 
 #, fuzzy
 msgid "Group module settings"
@@ -2813,8 +2821,31 @@ msgstr "MAC auf dem Client ignorieren"
 msgid "Ignore MAC on Image"
 msgstr "Ignoriere MAC-Adresse beim Image"
 
+#, php-format
+msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
+#, fuzzy
+msgid "Ignoring invalid multicast bitrate"
+msgstr "ungültige Multicast-Sitzung"
+
+#, fuzzy
+msgid "Ignoring invalid multicast duplex setting"
+msgstr "ungültige Multicast-Sitzung"
+
+#, fuzzy
+msgid "Ignoring invalid multicast hello interval"
+msgstr "ungültige Multicast-Sitzung"
+
+msgid "Ignoring invalid multicast rendezvous address"
+msgstr ""
+
 msgid "Image"
 msgstr "Image"
+
+#, php-format
+msgid "Image %s for session %s is missing or invalid; skipping"
+msgstr ""
 
 #, fuzzy
 msgid "Image Associated: "
@@ -3303,6 +3334,10 @@ msgid "Invalid snapin"
 msgstr "Ungültiger Snapin"
 
 #, fuzzy
+msgid "Invalid snapin filename"
+msgstr "Ungültiger Snapin"
+
+#, fuzzy
 msgid "Invalid status payload"
 msgstr "Ungültige Task-ID"
 
@@ -3379,6 +3414,9 @@ msgstr "ist eingeschränkt"
 
 msgid "It can be used on Windows"
 msgstr "Kompatibel mit Windows,"
+
+msgid "It can no longer be joined"
+msgstr ""
 
 #, fuzzy
 msgid "It is primarily geared for the smart installer methodology now"
@@ -3681,6 +3719,9 @@ msgstr "Standorte"
 
 msgid "Log Viewer"
 msgstr "Log-Viewer"
+
+msgid "Log in as a FOG administrator to apply this update"
+msgstr ""
 
 msgid "Login"
 msgstr "Anmeldung"
@@ -4183,6 +4224,9 @@ msgstr "Keine Datei hochgeladen"
 
 msgid "No file was uploaded"
 msgstr "Keine Datei wurde hochgeladen"
+
+msgid "No files matched multicast image pattern"
+msgstr ""
 
 msgid "No friendly name defined"
 msgstr "Kein nutzerfreundlicher Name vergeben"
@@ -4741,10 +4785,6 @@ msgstr ""
 #, fuzzy
 msgid "Please use another hostname"
 msgstr "Bitte geben Sie einen anderen Hostnamen ein"
-
-#, fuzzy
-msgid "Please wait until a slot is open"
-msgstr "Bitte warten, bis ein Slot offen ist"
 
 msgid "Plugin"
 msgstr "Plugin"
@@ -5427,6 +5467,10 @@ msgstr "Serverinformationen"
 msgid "Server information at a glance."
 msgstr "Serverinformationen auf einen Blick"
 
+#, php-format
+msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
+
 msgid "Service"
 msgstr "Service"
 
@@ -5460,6 +5504,10 @@ msgstr "Service allgemein"
 
 msgid "Service update failed"
 msgstr "Service-Update fehlgeschlagen"
+
+#, fuzzy, php-format
+msgid "Session ID"
+msgstr "Sitzungsname"
 
 msgid "Session Name"
 msgstr "Sitzungsname"
@@ -6269,6 +6317,10 @@ msgid "Text"
 msgstr "Text"
 
 #, fuzzy
+msgid "That session has already started"
+msgstr "Dieser Host ist bereits vorhanden."
+
+#, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "Die Einstellung 'ist Masterknoten' definiert,"
 
@@ -6337,10 +6389,6 @@ msgstr "Die hochgeladene Datei wurde nur teilweise hochgeladen"
 
 msgid "There are"
 msgstr "Es gibt"
-
-#, fuzzy
-msgid "There are currently"
-msgstr "Es gibt aktuell "
 
 msgid "There are many reasons why this could be the case"
 msgstr "Es gibt mehrere Möglichkeiten, wieso das so ist."
@@ -6636,6 +6684,9 @@ msgstr "Fehler beim Finden des Master Storage Nodes"
 #, fuzzy
 msgid "Unable to get server information!"
 msgstr "Es konnten keine Serverinformationen abgerufen werden!"
+
+msgid "Unable to move the captured image into place"
+msgstr ""
 
 msgid "Unable to open file for reading"
 msgstr "Datei kann zum Lesen nicht geöffnet werden"
@@ -7131,10 +7182,6 @@ msgid "Your form is ready"
 msgstr "Ihr Formular ist fertig."
 
 #, fuzzy
-msgid "Your server only allows"
-msgstr "Ihr Server erlaubt nur "
-
-#, fuzzy
 msgid "Your system PHP Version is not sufficient"
 msgstr ""
 "Ihre PHP-Version ist nicht ausreichend. Sie haben Version %s, Version %s ist "
@@ -7209,6 +7256,11 @@ msgstr "da sie Probleme verursachen kann, die sehr schwierig zu lösen sind."
 
 msgid "automatically"
 msgstr "einen neuen Knoten zu finden"
+
+msgid ""
+"bandwidth graph, and multicast when the interface cannot be derived from the "
+"routing table"
+msgstr ""
 
 #, fuzzy
 msgid "based task."
@@ -7541,6 +7593,9 @@ msgstr "sind ungültig."
 msgid "is new"
 msgstr "ist neu"
 
+msgid "is no longer active, stopping its sender"
+msgstr ""
+
 #, fuzzy
 msgid "is no longer running"
 msgstr "läuft nicht mehr"
@@ -7699,6 +7754,10 @@ msgstr "oder Start zum Ausführen"
 msgid "or this is a new FOG installation"
 msgstr "oder weil dies eine neue FOG-Installation ist."
 
+#, php-format
+msgid "orphaned udp-sender pid"
+msgstr ""
+
 msgid "particular node"
 msgstr "bestimmten Knoten"
 
@@ -7779,6 +7838,10 @@ msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 "Wenn Sie also nicht in der Lage sind, einen Client zu booten, können Sie"
 
+#, php-format
+msgid "stale sender reference cleared"
+msgstr ""
+
 #, fuzzy
 msgid "successfully removed!"
 msgstr "erfolgreich entfernt!"
@@ -7786,8 +7849,9 @@ msgstr "erfolgreich entfernt!"
 msgid "task found"
 msgstr "Task gefunden"
 
-msgid "tasks in queue"
-msgstr "Tasks in der Warteschlange"
+#, php-format
+msgid "terminating so it can be restarted"
+msgstr ""
 
 msgid ""
 "that detects the status on the fly, poweron or poweroff and the OS, of the "
@@ -8094,6 +8158,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgid "Legacy FOG Client"
 #~ msgstr "Legacy FOG Client"
 
+#, fuzzy
+#~ msgid "Please wait until a slot is open"
+#~ msgstr "Bitte warten, bis ein Slot offen ist"
+
 #~ msgid "Replicating ssl less private key"
 #~ msgstr "Replizieren von SSL-freiem privatem Schlüssel"
 
@@ -8105,6 +8173,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "The old client and fogcrypt, deprecated"
 #~ msgstr "Der alte Client und FOG Krypto, veraltet"
+
+#, fuzzy
+#~ msgid "There are currently"
+#~ msgstr "Es gibt aktuell "
 
 #~ msgid "This client is not being developed any further so any issues"
 #~ msgstr "Dieser Client wird nicht weiter entwickelt, so dass"
@@ -8125,6 +8197,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgid "We highly recommend you make the switch for more"
 #~ msgstr "Wir empfehlen dringend, den Umstieg auf"
 
+#, fuzzy
+#~ msgid "Your server only allows"
+#~ msgstr "Ihr Server erlaubt nur "
+
 #~ msgid "but"
 #~ msgstr "aber "
 
@@ -8141,6 +8217,9 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "security and faster client communication and management"
 #~ msgstr "mehr Sicherheit und schnellere Clientkommunikation und -management"
+
+#~ msgid "tasks in queue"
+#~ msgstr "Tasks in der Warteschlange"
 
 #~ msgid "that are not yet using the new client"
 #~ msgstr "die nicht die neuen Clients nutzen."
