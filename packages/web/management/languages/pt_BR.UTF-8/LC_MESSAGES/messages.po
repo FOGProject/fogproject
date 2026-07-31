@@ -5804,6 +5804,9 @@ msgstr "atualização da impressora falhou!"
 msgid "Schema Update Success"
 msgstr "Instalar / Atualizar sucesso!"
 
+msgid "Schema reconcile"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "Instalar / Atualizar sucesso!"
@@ -8515,6 +8518,9 @@ msgstr ""
 
 #, php-format
 msgid "stale sender reference cleared"
+msgstr ""
+
+msgid "structural repair(s) applied"
 msgstr ""
 
 #, fuzzy

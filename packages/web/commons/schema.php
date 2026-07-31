@@ -4772,3 +4772,36 @@ $this->schema[] = [
     . "LEFT JOIN `snapinJobs` `sj` ON `sj`.`sjID` = `st`.`stJobID` "
     . "WHERE `sj`.`sjID` IS NULL",
 ];
+// 319
+$this->schema[] = [
+    // Structural reconcile against commons/schema-expected.php.
+    //
+    // vValue is a COUNT of applied array elements, not a version: the
+    // updater runs array_slice($this->schema, $mySchema). A migration's
+    // only identity is its index. working-1.6 and dev-branch fill indexes
+    // 263-276 with entirely different migrations, so the count a 1.5
+    // install brings with it does not mean here what it meant there.
+    //
+    // A fully patched 1.5.10 arrives at vValue=277, so the updater starts
+    // at 277 and 1.6's 263-276 are skipped in silence -- taking with them
+    // groups.groupInit, the plugins pAnon1-4 and multicastSessions
+    // msAnon3/4 renames, and the entire userAuths table. That is the
+    // RECOMMENDED upgrade path ("fully update 1.5, then move to 1.6"),
+    // which is what makes it worth a step of its own.
+    //
+    // Deliberately NOT a hand-written replay of those fourteen steps.
+    // Encoding "what 1.5 skipped" would be correct only until either
+    // branch adds another index and shifts the offset again. Comparing the
+    // live database against the structure this release expects stays
+    // correct whatever the counts do, and doubles as the repair path for a
+    // half-failed update or an old restored backup.
+    //
+    // Additive only -- creates missing tables, adds missing columns,
+    // finishes declared renames. Never drops, never retypes, never touches
+    // row data, and is safe to run against an already-correct database.
+    //
+    // Runs last so it reconciles what 277-317 leave behind, not before.
+    function () {
+        return SchemaReconciler::reconcile();
+    },
+];

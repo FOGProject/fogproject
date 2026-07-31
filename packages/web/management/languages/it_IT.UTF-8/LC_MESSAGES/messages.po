@@ -5573,6 +5573,9 @@ msgstr "Aggiornamento della stampante non riuscito"
 msgid "Schema Update Success"
 msgstr "Aggiornamento host completato!"
 
+msgid "Schema reconcile"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "Impostazioni iPXE aggiornate correttamente!"
@@ -8147,6 +8150,9 @@ msgstr "pertanto se non si è in grado di abbiare un client tu puoi"
 
 #, php-format
 msgid "stale sender reference cleared"
+msgstr ""
+
+msgid "structural repair(s) applied"
 msgstr ""
 
 #, fuzzy

@@ -5932,6 +5932,9 @@ msgstr "actualización de la impresora ha fallado!"
 msgid "Schema Update Success"
 msgstr "actualización Valoración falló"
 
+msgid "Schema reconcile"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "actualización de servicio no pudo"
@@ -8664,6 +8667,9 @@ msgstr ""
 
 #, php-format
 msgid "stale sender reference cleared"
+msgstr ""
+
+msgid "structural repair(s) applied"
 msgstr ""
 
 #, fuzzy

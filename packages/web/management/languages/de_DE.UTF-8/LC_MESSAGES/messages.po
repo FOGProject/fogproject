@@ -5801,6 +5801,9 @@ msgstr "Drucker-Update fehlgeschlagen!"
 msgid "Schema Update Success"
 msgstr "Host Aktualisierung erfolgreich!"
 
+msgid "Schema reconcile"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "iPXE-Einstellungen erfolgreich aktualisiert!"
@@ -8523,6 +8526,9 @@ msgstr ""
 
 #, php-format
 msgid "stale sender reference cleared"
+msgstr ""
+
+msgid "structural repair(s) applied"
 msgstr ""
 
 #, fuzzy

@@ -4905,6 +4905,9 @@ msgstr ""
 msgid "Schema Update Success"
 msgstr ""
 
+msgid "Schema reconcile"
+msgstr ""
+
 msgid "Schema updated successfully!"
 msgstr ""
 
@@ -7199,6 +7202,9 @@ msgstr ""
 
 #, php-format
 msgid "stale sender reference cleared"
+msgstr ""
+
+msgid "structural repair(s) applied"
 msgstr ""
 
 msgid "success"

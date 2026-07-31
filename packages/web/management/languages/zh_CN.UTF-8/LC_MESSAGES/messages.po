@@ -5798,6 +5798,9 @@ msgstr "打印机更新失败！"
 msgid "Schema Update Success"
 msgstr "安装/升级成功！"
 
+msgid "Schema reconcile"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "安装/升级成功！"
@@ -8502,6 +8505,9 @@ msgstr ""
 
 #, php-format
 msgid "stale sender reference cleared"
+msgstr ""
+
+msgid "structural repair(s) applied"
 msgstr ""
 
 #, fuzzy

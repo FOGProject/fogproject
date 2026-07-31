@@ -5528,6 +5528,9 @@ msgstr "サイトの更新に失敗しました"
 msgid "Schema Update Success"
 msgstr "サイトを更新しました"
 
+msgid "Schema reconcile"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "iPXE 設定を更新しました！"
@@ -8073,6 +8076,9 @@ msgstr "クライアントを起動できない場合は、次の方法を試し
 
 #, php-format
 msgid "stale sender reference cleared"
+msgstr ""
+
+msgid "structural repair(s) applied"
 msgstr ""
 
 #, fuzzy
