@@ -620,33 +620,51 @@ class FOGURLRequests extends FOGBase
         if (empty($timeout) || !$timeout || $timeout < 1) {
             $timeout = 30;
         }
+        /**
+         * With no port passed this probe falls back to the ftp port, so it
+         * has to honour FOG_FTP_PORT the same way FOGFTP::connect() does.
+         * FOGFTP's own value is only ever the hardcoded 21 here, which
+         * reported every node offline on installs that moved ftp -- the same
+         * defect as forums 18210 on 1.6, where the probe is ssh instead.
+         * Only looked up when it can actually be needed.
+         */
+        $ftpPort = 0;
+        if ($port == -1 || empty($port) || !$port) {
+            $portOverride = self::getSetting('FOG_FTP_PORT');
+            $ftpPort = (int)$portOverride ?: self::$FOGFTP->get('port');
+        }
         foreach ((array) $urls as &$url) {
             $url = parse_url($url);
             if (!isset($url['host']) && isset($url['path'])) {
                 $url['host'] = $url['path'];
             }
-            if ($port == -1 || empty($port) || !$port) {
-                if (!isset($url['port']) && isset($url['scheme'])) {
+            /**
+             * Resolved per url. $port is the caller's value and must stay
+             * untouched, else the first url in the list dictates the port
+             * used for every url after it.
+             */
+            $testPort = $port;
+            if ($testPort == -1 || empty($testPort) || !$testPort) {
+                if (isset($url['port'])) {
+                    $testPort = $url['port'];
+                } elseif (isset($url['scheme'])) {
                     switch ($url['scheme']) {
                         case "http":
-                            $port = 80;
+                            $testPort = 80;
                             break;
                         case "https":
-                            $port = 443;
-                            break;
-                        case "ftp":
-                            $port = 21;
+                            $testPort = 443;
                             break;
                         default:
-                            $port = self::$FOGFTP->get('port');
+                            $testPort = $ftpPort;
                     }
                 } else {
-                    $port = self::$FOGFTP->get('port');
+                    $testPort = $ftpPort;
                 }
             }
             $socket = @fsockopen(
                 $url['host'],
-                $port,
+                $testPort,
                 $errno,
                 $errstr,
                 $timeout
