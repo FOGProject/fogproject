@@ -286,20 +286,34 @@ class SchemaReconciler extends FOGBase
             $errors[] = sprintf('%s: %s', self::$DB->error, $sql);
         }
         if (count($applied ?: [])) {
-            // Worth a log line: this is structure the normal indexed
-            // migrations did not deliver, so a support case needs to be
-            // able to see that it was repaired and what changed.
+            // Worth logging: this is structure the normal indexed migrations
+            // did not deliver, so a support case needs to see that it was
+            // repaired and what changed.
+            //
+            // Goes to the PHP error log rather than to
+            // BASEPATH/fog_schema_update_error.log, for two reasons. That
+            // file lives in the WEB ROOT, so anything readable written there
+            // is servable -- the updater keeps it safe only by chmod'ing it
+            // to 0200 afterwards, which also means an administrator cannot
+            // read back the record of what their upgrade restructured
+            // without root. And plain error_log() is what the rest of the
+            // codebase uses; the schema updater's write-only file is the
+            // outlier, not the pattern.
+            //
+            // One line per statement rather than one multi-line blob, so the
+            // repairs survive a log handler that splits on newlines and stay
+            // greppable.
             error_log(
                 sprintf(
-                    "%s: %d %s\n%s\n",
+                    '%s: %d %s',
                     _('Schema reconcile'),
                     count($applied),
-                    _('structural repair(s) applied'),
-                    implode("\n", $applied)
-                ),
-                3,
-                BASEPATH . 'fog_schema_update_error.log'
+                    _('structural repair(s) applied')
+                )
             );
+            foreach ($applied as $sql) {
+                error_log(sprintf('%s: %s', _('Schema reconcile'), $sql));
+            }
         }
         if (count($errors ?: [])) {
             return implode('; ', $errors);

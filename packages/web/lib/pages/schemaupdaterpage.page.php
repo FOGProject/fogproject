@@ -457,10 +457,18 @@ class SchemaUpdaterPage extends FOGPage
                     _('Schema reconcile'),
                     $reconcile
                 );
+                // Both destinations on purpose. The file keeps this next to
+                // the updater's other failures, but it sits in the web root
+                // and is chmod'd to 0200 when the run finishes, so nobody
+                // can read it back without root. Mirroring to the PHP error
+                // log is what makes the failure actually diagnosable.
                 error_log(
                     sprintf("%s: %s\n", _('Schema reconcile'), $reconcile),
                     3,
                     BASEPATH . 'fog_schema_update_error.log'
+                );
+                error_log(
+                    sprintf('%s: %s', _('Schema reconcile'), $reconcile)
                 );
             }
             if (!$newSchema->save()
