@@ -703,7 +703,10 @@ class DashboardPage extends FOGPage
             $testurls[] = parse_url($url, PHP_URL_HOST);
             unset($url);
         }
-        $tests = self::$FOGURLRequests->isAvailable($testurls, 1, 21, 'tcp');
+        // Same class of bug as forums 18210: this probes the node's ftp, so a
+        // moved ftp port made the node drop off the dashboard entirely.
+        list($ftpPort) = self::getSetting(['FOG_FTP_PORT']);
+        $tests = self::$FOGURLRequests->isAvailable($testurls, 1, (int)$ftpPort ?: 21);
         unset($testurls);
         foreach ($tests as $index => &$test) {
             if (!$test) {

@@ -627,36 +627,49 @@ class FOGURLRequests extends FOGBase
     ) {
         $this->_reset();
         $output = [];
+        // When no port is passed the probe falls back to the ssh port, so it
+        // has to honour FOG_SSH_PORT the same way FOGSSH::connect() does.
+        // Assuming 22 made every node look offline on installs that moved ssh
+        // (forums 18210). Only looked up when it can actually be needed.
+        $sshPort = 0;
+        if ($port == -1 || empty($port)) {
+            list($sshPort) = self::getSetting(['FOG_SSH_PORT']);
+            $sshPort = (int)$sshPort ?: self::$FOGSSH->port;
+        }
         foreach ((array) $urls as $url) {
             $url = parse_url($url);
             if (!isset($url['host']) && isset($url['path'])) {
                 $url['host'] = $url['path'];
             }
-            if ($port == -1 || empty($port) || !$port) {
-                if (!isset($url['port']) && isset($url['scheme'])) {
+            // Resolve into a per-url variable. $port is the caller's value and
+            // must stay untouched, otherwise the first url in the list dictates
+            // the port used for every url after it.
+            $testPort = $port;
+            if ($testPort == -1 || empty($testPort)) {
+                if (isset($url['port'])) {
+                    $testPort = $url['port'];
+                } elseif (isset($url['scheme'])) {
                     switch ($url['scheme']) {
                         case 'http':
-                            $port = 80;
+                            $testPort = 80;
                             break;
                         case 'https':
-                            $port = 443;
+                            $testPort = 443;
                             break;
                         case 'ftp':
-                            $port = 21;
-                            break;
-                        case 'ssh':
-                            $port = 22;
+                            $testPort = 21;
                             break;
                         default:
-                            $port = self::$FOGSSH->port;
+                            // Includes ssh:// -- the configured port wins.
+                            $testPort = $sshPort;
                     }
                 } else {
-                    $port = self::$FOGSSH->port;
+                    $testPort = $sshPort;
                 }
             }
             $socket = @fsockopen(
                 $url['host'],
-                $port,
+                $testPort,
                 $errno,
                 $errstr,
                 $timeout

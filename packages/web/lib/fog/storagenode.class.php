@@ -189,7 +189,11 @@ class StorageNode extends FOGController
      */
     public function loadOnline()
     {
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '0.1', 22, 'tcp');
+        // This probe is an ssh reachability test, so it must follow
+        // FOG_SSH_PORT. Hardcoding 22 reported every node offline -- and so
+        // "No nodes available" on tasking -- whenever ssh was moved
+        // (forums 18210). -1 lets isAvailable resolve the configured port.
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '0.1', -1);
         $this->set('online', array_shift($test));
     }
     /**
