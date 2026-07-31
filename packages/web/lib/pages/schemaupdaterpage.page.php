@@ -432,6 +432,37 @@ class SchemaUpdaterPage extends FOGPage
                 $newSchema->set('version', $version + 1);
                 unset($updates);
             }
+            // Structural reconcile, after every update run.
+            //
+            // Deliberately NOT an indexed step. vValue is a count of applied
+            // array elements, so a step only ever runs for installs sitting
+            // below it: index 318 will never fire again for anyone already at
+            // 319, and a divergence introduced after that would go unrepaired
+            // until someone remembered to append another reconciler step.
+            // Running it here ties the reconcile to "an update happened"
+            // rather than to a position in the array, so it keeps working for
+            // divergences that do not exist yet.
+            //
+            // 1.5.x was meant to be frozen but keeps taking security-driven
+            // schema changes, so the branches will go on filling the same
+            // indexes with different migrations. This is what makes that
+            // survivable without per-divergence maintenance.
+            //
+            // Costs one information_schema read and no DDL when there is
+            // nothing to repair, which is the normal case.
+            $reconcile = SchemaReconciler::reconcile();
+            if (is_string($reconcile)) {
+                $errors[] = sprintf(
+                    "%s: %s\n",
+                    _('Schema reconcile'),
+                    $reconcile
+                );
+                error_log(
+                    sprintf("%s: %s\n", _('Schema reconcile'), $reconcile),
+                    3,
+                    BASEPATH . 'fog_schema_update_error.log'
+                );
+            }
             if (!$newSchema->save()
                 || count($errors) > 0
             ) {

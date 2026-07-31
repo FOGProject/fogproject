@@ -4800,8 +4800,16 @@ $this->schema[] = [
     // finishes declared renames. Never drops, never retypes, never touches
     // row data, and is safe to run against an already-correct database.
     //
-    // Runs last so it reconciles what 277-317 leave behind, not before.
-    function () {
-        return SchemaReconciler::reconcile();
-    },
+    // The reconcile itself now runs at the END OF EVERY UPDATE, in
+    // SchemaUpdaterPage::update(), rather than from here. An indexed step
+    // only ever fires for installs sitting below it, so this one would
+    // never run again for anyone already at 319 and a future divergence
+    // would go unrepaired until someone appended another step. Tying it to
+    // "an update happened" instead removes that standing obligation.
+    //
+    // THIS INDEX MUST STAY. It is deliberately an empty no-op rather than
+    // deleted: index positions are identity in this file, 319 is already
+    // recorded in the wild as a completed update, and removing it would
+    // renumber nothing but would make count($this->schema) disagree with
+    // every database that has already reached 319.
 ];

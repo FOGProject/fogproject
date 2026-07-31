@@ -252,6 +252,24 @@ if ($cmd === 'diff') {
     };
     $A = $lower($a);
     $B = $lower($b);
+
+    // Map the OLD side's column names through the NEW side's declared
+    // renames before comparing. pAnon1 and pIcon are the same column with
+    // two names; without this every declared rename reports as both a
+    // missing column and an unexplained new one, and the check cries wolf
+    // on exactly the differences that are already accounted for.
+    foreach ((array)($b['renames'] ?? []) as $r) {
+        $t = strtolower($r['table'] ?? '');
+        $from = strtolower($r['from'] ?? '');
+        $to = strtolower($r['to'] ?? '');
+        if (!$t || !$from || !$to || !isset($A[$t])) {
+            continue;
+        }
+        $i = array_search($from, $A[$t]);
+        if (false !== $i) {
+            $A[$t][$i] = $to;
+        }
+    }
     $found = 0;
     foreach ($A as $table => $cols) {
         if (!isset($B[$table])) {
@@ -280,10 +298,186 @@ if ($cmd === 'diff') {
     exit($found ? 1 : 0);
 }
 
+if ($cmd === 'check') {
+    // Static staleness check: does the manifest still describe what
+    // commons/schema.php actually builds? Needs no database, so it can run
+    // in a pre-commit hook or CI.
+    //
+    // The failure it exists to catch: someone adds a CREATE TABLE or an
+    // ADD COLUMN to schema.php and does not regenerate the manifest, so
+    // SchemaReconciler silently stops knowing about the new structure and
+    // an upgrading 1.5 install never gets it.
+    $web = rtrim($argv[2] ?? '', '/');
+    $manFile = $argv[3] ?? ($web . '/commons/schema-expected.php');
+    if (!$web || !file_exists($web . '/commons/schema.php')) {
+        fwrite(STDERR, "usage: schema-manifest.php check <web-dir> [manifest]\n");
+        exit(1);
+    }
+    $manifest = file_exists($manFile) ? include $manFile : null;
+    if (!is_array($manifest) || empty($manifest['tables'])) {
+        fwrite(STDERR, "check: no usable manifest at $manFile\n");
+        exit(1);
+    }
+
+    // Extract the DDL with PHP's own lexer rather than by regex. schema.php
+    // is ~4800 lines of concatenated string literals containing quotes and
+    // backslashes; a regex that tries to find string boundaries in that will
+    // eventually match a span running from the middle of one literal into
+    // the next, and silently produce a statement that was never in the file.
+    // token_get_all is the actual parser, so the literals come out exact.
+    $tokens = token_get_all(file_get_contents($web . '/commons/schema.php'));
+    $unquote = function ($lit) {
+        $q = $lit[0];
+        $body = substr($lit, 1, -1);
+        return $q === "'"
+            ? str_replace(["\\'", '\\\\'], ["'", '\\'], $body)
+            : stripcslashes($body);
+    };
+    $ops = [];
+    $pendingDrop = false;
+    for ($i = 0, $n = count($tokens); $i < $n; $i++) {
+        $tk = $tokens[$i];
+        if (is_array($tk) && $tk[0] === T_STRING && $tk[1] === 'dropTable') {
+            $pendingDrop = true;
+            continue;
+        }
+        if (!is_array($tk) || $tk[0] !== T_CONSTANT_ENCAPSED_STRING) {
+            continue;
+        }
+        $val = $unquote($tk[1]);
+        if ($pendingDrop) {
+            $ops[] = ['drop' => $val];
+            $pendingDrop = false;
+            continue;
+        }
+        // Absorb `"a" . "b" . "c"` into one statement.
+        $j = $i + 1;
+        while ($j < $n) {
+            $next = $tokens[$j];
+            if (is_array($next) && in_array($next[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
+                $j++;
+                continue;
+            }
+            if ($next === '.'
+                && isset($tokens[$j + 1])
+            ) {
+                $k = $j + 1;
+                while ($k < $n
+                    && is_array($tokens[$k])
+                    && in_array($tokens[$k][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])
+                ) {
+                    $k++;
+                }
+                if (is_array($tokens[$k]) && $tokens[$k][0] === T_CONSTANT_ENCAPSED_STRING) {
+                    $val .= $unquote($tokens[$k][1]);
+                    $i = $k;
+                    $j = $k + 1;
+                    continue;
+                }
+            }
+            break;
+        }
+        $ops[] = ['sql' => $val];
+    }
+
+    // Walk the DDL in order and simulate it, so tables that are created and
+    // later dropped or renamed away (globalSettings_new, aloLog, ...) do not
+    // read as missing from the manifest.
+    $tables = [];
+    foreach ($ops as $op) {
+        if (isset($op['drop'])) {
+            unset($tables[strtolower($op['drop'])]);
+            continue;
+        }
+        $s = preg_replace('/\s+/', ' ', $op['sql']);
+        if ($s === '') {
+            continue;
+        }
+        if (preg_match('/^\s*CREATE TABLE\s*(?:IF NOT EXISTS\s*)?`(\w+)`/i', $s, $m)) {
+            $t = strtolower($m[1]);
+            $tables[$t] = $tables[$t] ?? [];
+        } elseif (preg_match('/^\s*RENAME TABLE\s*`(\w+)`\s*TO\s*`(\w+)`/i', $s, $m)) {
+            $from = strtolower($m[1]);
+            $tables[strtolower($m[2])] = $tables[$from] ?? [];
+            unset($tables[$from]);
+        } elseif (preg_match('/^\s*DROP TABLE\s*(?:IF EXISTS\s*)?(.+)$/i', $s, $m)) {
+            preg_match_all('/`(\w+)`/', $m[1], $dm);
+            foreach ($dm[1] as $d) {
+                unset($tables[strtolower($d)]);
+            }
+        } elseif (preg_match('/^\s*ALTER TABLE\s*`?(\w+)`?\s*(.*)$/i', $s, $m)) {
+            $t = strtolower($m[1]);
+            if (!isset($tables[$t])) {
+                continue;
+            }
+            $rest = $m[2];
+            // CHANGE first: it also matches nothing else, and its target is
+            // the surviving name.
+            if (preg_match_all(
+                '/\bCHANGE\s+(?:COLUMN\s+)?`?(\w+)`?\s+`?(\w+)`?/i',
+                $rest,
+                $cm,
+                PREG_SET_ORDER
+            )) {
+                foreach ($cm as $c) {
+                    $tables[$t] = array_values(
+                        array_diff($tables[$t], [strtolower($c[1])])
+                    );
+                    $tables[$t][] = strtolower($c[2]);
+                }
+            }
+            if (preg_match_all('/\bADD\s+(?:COLUMN\s+)?`(\w+)`/i', $rest, $am)) {
+                foreach ($am[1] as $c) {
+                    $tables[$t][] = strtolower($c);
+                }
+            }
+            if (preg_match_all('/\bDROP\s+(?:COLUMN\s+)?`?(\w+)`?/i', $rest, $dm)) {
+                foreach ($dm[1] as $c) {
+                    $tables[$t] = array_values(
+                        array_diff($tables[$t], [strtolower($c)])
+                    );
+                }
+            }
+        }
+    }
+
+    $have = [];
+    foreach ($manifest['tables'] as $t => $d) {
+        $have[strtolower($t)] = array_map(
+            'strtolower',
+            array_keys($d['columns'] ?? [])
+        );
+    }
+    $problems = 0;
+    foreach ($tables as $t => $cols) {
+        if (!isset($have[$t])) {
+            printf("STALE MANIFEST  table `%s` is built by schema.php but absent\n", $t);
+            $problems++;
+            continue;
+        }
+        foreach (array_unique($cols) as $c) {
+            if (!in_array($c, $have[$t])) {
+                printf("STALE MANIFEST  column `%s`.`%s` is added by schema.php but absent\n", $t, $c);
+                $problems++;
+            }
+        }
+    }
+    if ($problems) {
+        printf(
+            "\n%d problem(s). Regenerate:\n  php bin/schema-manifest.php generate <fog-web-root>\n",
+            $problems
+        );
+        exit(1);
+    }
+    printf("manifest covers all %d tables schema.php builds.\n", count($tables));
+    exit(0);
+}
+
 fwrite(
     STDERR,
     "usage:\n"
     . "  schema-manifest.php generate <fog-web-root> [output]\n"
-    . "  schema-manifest.php diff <old-manifest> <new-manifest>\n"
+    . "  schema-manifest.php diff   <old-manifest> <new-manifest>\n"
+    . "  schema-manifest.php check  <web-dir> [manifest]\n"
 );
 exit(1);

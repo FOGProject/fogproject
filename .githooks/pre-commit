@@ -55,6 +55,53 @@ updateLanguage() {
     git add "$project_dir/packages/web/management/languages/"
 }
 
+schemaCheck() {
+    command -v php >/dev/null 2>&1 || return 0
+
+    # Only when this commit actually touches the schema or its manifest.
+    # Nothing else can make either of these go stale, and a schema gate that
+    # fires on unrelated commits is a gate people learn to bypass.
+    touched=$(git diff --cached --name-only --diff-filter=ACMR -- \
+        'packages/web/commons/schema.php' \
+        'packages/web/commons/schema-expected.php' \
+        'bin/schema-reference-1.5.php')
+    [ -n "$touched" ] || return 0
+
+    # BLOCKING: the manifest no longer describes what schema.php builds.
+    # SchemaReconciler compares a live database against that manifest, so a
+    # stale one means it silently stops knowing about the new structure and
+    # an upgrading 1.5 install never receives it. That is a defect in THIS
+    # commit and the fix is one command, so refuse the commit.
+    if ! php "$project_dir/bin/schema-manifest.php" check \
+        "$project_dir/packages/web"; then
+        printf 'pre-commit: schema-expected.php is stale -- commit aborted\n' >&2
+        return 1
+    fi
+
+    # ADVISORY: structure 1.5 has that 1.6 does not.
+    #
+    # 1.5.x was supposed to be frozen but keeps taking security-driven
+    # schema changes, so this is the check for the inverse failure -- 1.6
+    # forgetting to carry one across. It cannot be detected at runtime,
+    # because a 1.6 tree has no way to know what 1.5 added.
+    #
+    # Deliberately NOT blocking: a port that has not happened yet is a real
+    # finding but is not necessarily this commit's fault, and blocking every
+    # subsequent schema commit until it is resolved would just get the hook
+    # disabled. Refresh the reference with:
+    #   php bin/schema-manifest.php generate <1.5-web-root> bin/schema-reference-1.5.php
+    ref="$project_dir/bin/schema-reference-1.5.php"
+    if [ -f "$ref" ]; then
+        if ! php "$project_dir/bin/schema-manifest.php" diff "$ref" \
+            "$project_dir/packages/web/commons/schema-expected.php"; then
+            printf 'pre-commit: WARNING -- 1.6 lacks structure present in 1.5 (see above)\n' >&2
+        fi
+    fi
+    return 0
+}
+
+schemaCheck || exit 1
+
 updateLanguage
 psrfix
 
