@@ -74,6 +74,10 @@ usage() {
     echo -e "\t            \t\t\t\t(E.G. http://127.0.0.1/fog,"
     echo -e "\t            \t\t\t\t      http://127.0.0.1/)"
     echo -e "\t            \t\t\t\tDefaults to /fog/"
+    echo -e "\t      --fogprogramdir\t\tSpecify the FOG base directory"
+    echo -e "\t               \t\t\t\tdefaults to /opt/fog"
+    echo -e "\t               \t\t\t\tremembered in /etc/fog/fog.conf, so it"
+    echo -e "\t               \t\t\t\tonly needs giving on a first install"
     echo -e "\t-B    --backuppath\t\tSpecify the backup path"
     echo -e "\t      --uninstall\t\tUninstall FOG"
     echo -e "\t-s    --startrange\t\tDHCP Start range"
@@ -88,7 +92,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:l"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -111,6 +115,19 @@ while :; do
                 ssslpath="/${ssslpath}/"
             else
                 echo "Error: Missing argument for --$1"
+                usage
+                exit 9
+            fi
+            shift 2
+            ;;
+        --fogprogramdir)
+            # GH-850: the FOG base directory. Needed on a FIRST install to a
+            # non-default path; afterwards /etc/fog/fog.conf remembers it, so
+            # upgrades do not have to repeat the flag.
+            if [[ -n "${2}" ]] && [[ "${2}" == /* ]]; then
+                sfogprogramdir="${2%/}"
+            else
+                echo "Error: --fogprogramdir requires an absolute path"
                 usage
                 exit 9
             fi
@@ -335,7 +352,27 @@ fi
 [[ -z $OSVersion ]] && OSVersion=$(lsb_release -rs| awk -F'.' '{print $1}')
 [[ -z $OSMinorVersion ]] && OSMinorVersion=$(lsb_release -rs| awk -F'.' '{print $2}')
 echo "Done"
+# GH-850: establish the FOG base directory BEFORE lib/common/config.sh, because
+# servicedst/servicelogs/snapindir and the .fogsettings location all derive from
+# it. Precedence, highest first:
+#
+#   1. --fogprogramdir           explicit, this run
+#   2. an exported $fogprogramdir  scripted installs
+#   3. /etc/fog/fog.conf         what the last install recorded
+#   4. /opt/fog                  the default, applied by config.sh
+#
+# .fogsettings is deliberately NOT in that list: it lives at
+# $fogprogramdir/.fogsettings, so it cannot be what tells us where to look.
+# That is why the pointer file exists.
+[[ -z $fogprogramdir && -r /etc/fog/fog.conf ]] && . /etc/fog/fog.conf
+[[ -n $sfogprogramdir ]] && fogprogramdir="$sfogprogramdir"
+fogprogramdir="${fogprogramdir%/}"
 . ../lib/common/config.sh
+# Captured after config.sh so the /opt/fog default is included, and re-asserted
+# once .fogsettings has been sourced below. A stale fogprogramdir line in that
+# file must not silently relocate the install half-way through a run, after
+# config.sh has already derived servicedst/servicelogs from it.
+resolvedfogprogramdir="$fogprogramdir"
 [[ -z $dnsaddress ]] && dnsaddress=""
 [[ -z $username ]] && username=""
 [[ -z $password ]] && password=""
@@ -375,6 +412,10 @@ case $doupdate in
             echo -e "\n * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings\n"
             echo -n " * Performing upgrade using these settings"
             . "$fogpriorconfig"
+            # GH-850: .fogsettings records fogprogramdir but does not control
+            # it (see writeFogSettings). Re-assert before doOSSpecificIncludes,
+            # which derives snapindir from it.
+            fogprogramdir="$resolvedfogprogramdir"
             doOSSpecificIncludes
             [[ -n $blexports ]] && blexports=$blexports
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild

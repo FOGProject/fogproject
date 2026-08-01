@@ -8,7 +8,12 @@ read -r os_name os_version <<< $(lsb_release -ir | cut -d':' -f2 | sed -e 's/^[[
 [[ -z $os_version ]] && os_version=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
 
 # Get the FOG Version.
-source /opt/fog/.fogsettings
+# GH-850: this runs from cron at $fogprogramdir/reporting/report.sh with no
+# installer context, so resolve the base path from the pointer the installer
+# wrote before reading .fogsettings out of it.
+[[ -z $fogprogramdir && -r /etc/fog/fog.conf ]] && source /etc/fog/fog.conf
+[[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
+source ${fogprogramdir%/}/.fogsettings
 system_class_php=${docroot}/${webroot}/lib/fog/system.class.php
 fog_version=$(cat ${system_class_php} | grep FOG_VERSION | cut -d',' -f2 | cut -d"'" -f2)
 

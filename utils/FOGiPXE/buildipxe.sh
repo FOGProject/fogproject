@@ -1,8 +1,13 @@
 #!/bin/bash
+# GH-850: runnable standalone, so resolve the base path from the pointer the
+# installer wrote rather than assuming /opt/fog. An explicit cert argument
+# still wins.
+[[ -z $fogprogramdir && -r /etc/fog/fog.conf ]] && . /etc/fog/fog.conf
+[[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
 if [[ -r $1 ]]; then
   cert=$1
-elif [[ -r /opt/fog/snapins/ssl/CA/.fogCA.pem ]]; then
-  cert="/opt/fog/snapins/ssl/CA/.fogCA.pem"
+elif [[ -r ${fogprogramdir%/}/snapins/ssl/CA/.fogCA.pem ]]; then
+  cert="${fogprogramdir%/}/snapins/ssl/CA/.fogCA.pem"
 fi
 
 BUILDOPTS="CERT=${cert} TRUST=${cert}"

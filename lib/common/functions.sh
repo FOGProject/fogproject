@@ -1540,8 +1540,28 @@ enableInitScript() {
 }
 installInitScript() {
     dots "Installing FOG System Scripts"
-    cp -f $initdsrc/* $initdpath/ && systemctl daemon-reload >>$error_log 2>&1
-    errorStat $?
+    cp -f $initdsrc/* $initdpath/ >>$error_log 2>&1
+    local cpstat=$? unitfile
+    # GH-850: the shipped unit and init scripts hard-code /opt/fog/service in
+    # their ExecStart/DAEMON/command lines and used to be copied verbatim, so a
+    # non-default $servicedst installed cleanly and then every daemon failed to
+    # start on a path that did not exist. This was already wrong before the base
+    # path became configurable -- $servicedst has always been settable on its own.
+    #
+    # Rewrite the installed copies, never the sources: cp -f above restores the
+    # /opt/fog original on every run, so the substitution stays idempotent and a
+    # later re-run with a different path cannot compound.
+    if [[ ${servicedst%/} != /opt/fog/service ]]; then
+        for unitfile in $initdsrc/*; do
+            sed -i "s|/opt/fog/service|${servicedst%/}|g" \
+                "$initdpath/$(basename $unitfile)" >>$error_log 2>&1
+        done
+    fi
+    # Guarded: on Alpine and other non-systemd hosts systemctl does not exist,
+    # and the old `cp && systemctl daemon-reload` chain made errorStat report
+    # this step as Failed purely because the reload could not run.
+    [[ $systemctl == yes ]] && systemctl daemon-reload >>$error_log 2>&1
+    errorStat $cpstat
     echo
     echo
     echo " * Configuring FOG System Services"
@@ -1987,16 +2007,49 @@ EOF
     unset ret
 }
 linkOptFogDir() {
-    if [[ ! -h /var/log/fog ]]; then
+    # GH-850: guard on `! -e` rather than the old `! -h`, and go through
+    # linkIfAbsent. `! -h` is false for a *dangling* symlink, so a stale
+    # /var/log/fog was never repaired; and where /var/log/fog already existed as
+    # a real directory the bare `ln -s` did not fail, it created
+    # /var/log/fog/log inside it. `! -e` is true for a dangling link (it follows
+    # the link) and false for a real directory, which is what we want in both.
+    if [[ ! -e /var/log/fog ]]; then
         dots "Linking FOG Logs to Linux Logs"
-        ln -s $servicelogs /var/log/fog >>$error_log 2>&1
+        linkIfAbsent "$servicelogs" /var/log/fog
         errorStat $?
     fi
-    if [[ ! -h /etc/fog ]]; then
-        dots "Linking FOG Service config /etc"
-        ln -s $servicedst/etc /etc/fog >>$error_log 2>&1
+    # GH-850: /etc/fog is a real directory now, so it can hold fog.conf -- the
+    # pointer that tells the next installer run where this install lives. It
+    # used to be a symlink to $servicedst/etc, which would have put that pointer
+    # inside the very tree it exists to locate.
+    #
+    # Converting it is functionally inert: nothing in FOG reads through
+    # /etc/fog. All eight daemons resolve the service config relative to their
+    # own location (`dirname(realpath(__FILE__)).'/../etc/config.php'`), never
+    # via /etc. The symlink was only ever an admin convenience, so config.php is
+    # re-linked inside the new directory to keep the path admins know working.
+    if [[ -L /etc/fog ]]; then
+        dots "Converting /etc/fog to a real directory"
+        rm -f /etc/fog >>$error_log 2>&1
+        mkdir -p /etc/fog >>$error_log 2>&1
         errorStat $?
     fi
+    [[ ! -d /etc/fog ]] && mkdir -p /etc/fog >>$error_log 2>&1
+    dots "Linking FOG Service config /etc"
+    linkIfAbsent "$servicedst/etc/config.php" /etc/fog/config.php
+    errorStat $?
+    dots "Recording FOG base path"
+    # Sourced by the installer before lib/common/config.sh on the next run, so a
+    # non-default base path survives an upgrade without having to be re-supplied
+    # on the command line. Deliberately holds fogprogramdir and nothing else --
+    # every other setting stays in $fogprogramdir/.fogsettings.
+    {
+        echo "## Written by the FOG installer -- DO NOT EDIT."
+        echo "## Records where this FOG install lives so the installer can find"
+        echo "## it again. To move it, re-run the installer with --fogprogramdir."
+        echo "fogprogramdir='${fogprogramdir%/}'"
+    } > /etc/fog/fog.conf 2>>$error_log
+    errorStat $?
     local element=$webserver
     chmod -R 755 /var/log/$element >>$error_log 2>&1
     for i in $(find /var/log/ -type d -name 'php*fpm*' 2>>$error_log); do
@@ -2053,6 +2106,12 @@ writeUpdateFile() {
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
         sslpath backupPath php_ver sslprivkey sslcakey sslcapem sslcachain
         externalca extcacert extcakey extcaroot sslcsr sslpubcert sendreports webserver
+        # GH-850: recorded so `grep fogprogramdir .fogsettings` answers "where
+        # does this install live" -- but it is a RECORD, not a control. The
+        # installer re-asserts the value it resolved from /etc/fog/fog.conf or
+        # --fogprogramdir after sourcing this file, because .fogsettings itself
+        # lives at $fogprogramdir/.fogsettings and so cannot be what locates it.
+        fogprogramdir
     )
     # Keys written by older installers that must be stripped on upgrade.
     local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )

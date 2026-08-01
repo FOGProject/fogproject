@@ -110,7 +110,8 @@ backupImages() {
     echo "Done"
 }
 backupSnapins() {
-    [[ -z $snapinLocation ]] && snapinLocation='/opt/fog/snapins'
+    # GH-850: $fogprogramdir is resolved by lib/common/utils.sh, sourced above.
+    [[ -z $snapinLocation ]] && snapinLocation="$fogprogramdir/snapins"
     [[ ! -d $snapinLocation ]] && handleError "Snapins location:$snapinLocation does not exist on this server. Please add snapinLocation='/path/to/snapins' to .fogsettings." 16
     dots "Backing up snapins"
     cp -auv $snapinLocation/ $backupDir/snapins/ 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1

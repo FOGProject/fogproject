@@ -4,8 +4,18 @@ handleError() {
     echo "$1"
     exit $2
 }
-[[ ! -f /opt/fog/.fogsettings ]] && handleError "    No fog settings found so nothing to work from" 1
-. /opt/fog/.fogsettings
+# GH-850: find the install before reading its settings. .fogsettings lives at
+# $fogprogramdir/.fogsettings, so the base path has to come from somewhere else
+# -- /etc/fog/fog.conf, written by the installer. /opt/fog when it is absent.
+[[ -z $fogprogramdir && -r /etc/fog/fog.conf ]] && . /etc/fog/fog.conf
+[[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
+fogprogramdir="${fogprogramdir%/}"
+[[ ! -f $fogprogramdir/.fogsettings ]] && handleError "    No fog settings found so nothing to work from" 1
+resolvedfogprogramdir="$fogprogramdir"
+. $fogprogramdir/.fogsettings
+# .fogsettings records fogprogramdir but does not control it -- a stale line in
+# there must not point us at a different tree than the one we just read.
+fogprogramdir="$resolvedfogprogramdir"
 [[ ! -d $docroot ]] && handleError "    No web folder found" 2
 case $osid in
     1|2)
