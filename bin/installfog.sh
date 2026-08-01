@@ -577,6 +577,30 @@ while [[ -z $blGo ]]; do
                     ;;
                 [Nn])
                     configureMySql
+                    # GH-632: persist the settings the moment the database
+                    # credentials exist, not fifteen fallible steps later.
+                    #
+                    # configureMySql generates snmysqlpass with generatePassword
+                    # when it is unset -- which is every fresh install -- and
+                    # applies it to the database user immediately. .fogsettings
+                    # was then written dead last, after the web tier, DHCP,
+                    # TFTP, FTP, snapins, udpcast, the services and NFS. Any one
+                    # of those failing left a database whose password existed
+                    # only in this shell's memory, and the reporter's exact
+                    # question: "not sure how to find out the sql password".
+                    #
+                    # Only fresh installs can lose it -- on an upgrade
+                    # snmysqlpass is read back from .fogsettings and never
+                    # regenerated -- but a fresh install is precisely when
+                    # there is nothing else to recover it from.
+                    #
+                    # The final writeUpdateFile below still runs and records
+                    # everything settled after this point; this one just makes
+                    # sure a half-finished install is recoverable. Leaving a
+                    # .fogsettings behind also means a re-run finds the prior
+                    # settings and reuses the SAME password, which is what has
+                    # to happen for it to connect at all.
+                    writeUpdateFile
                     backupReports
                     configureHttpd
                     checkWebTier
