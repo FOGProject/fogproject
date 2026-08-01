@@ -129,6 +129,15 @@ abstract class FOGController extends FOGBase
      */
     protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s WHERE `%s`=%s %s';
     /**
+     * The bulk sibling of loadQueryTemplate, used by loadMany().
+     *
+     * Identical apart from IN in place of =, so a bulk load sees exactly the
+     * columns, joins and join filters a single load() would. Refs GH-707.
+     *
+     * @var string
+     */
+    protected $loadManyQueryTemplate = 'SELECT %s FROM `%s` %s WHERE `%s` IN (%s) %s';
+    /**
      * The insert query template to use.
      *
      * @var string
@@ -732,6 +741,112 @@ abstract class FOGController extends FOGBase
         }
 
         return $this;
+    }
+    /**
+     * Loads many records of this class in a single query.
+     *
+     * The bulk counterpart of load(). It reuses the same buildQuery()/
+     * getcolumns() pair, so a record hydrated here is indistinguishable from
+     * one that load() produced -- same joins, same join filters, same
+     * relationship objects hung off it -- rather than a thinner
+     * SELECT * that would quietly differ once someone called a getter that
+     * relies on a joined table.
+     *
+     * Called on a prototype instance, e.g.
+     * `self::getClass('Image')->loadMany([1, 2, 3])`. Refs GH-707.
+     *
+     * @param array  $vals The values to load.
+     * @param string $key  The field those values are for.
+     *
+     * @return array The loaded objects, keyed by their $key value. Values
+     *               with no matching record are simply absent.
+     */
+    public function loadMany(array $vals, $key = 'id')
+    {
+        $objects = [];
+        try {
+            if (!is_string($key) || !$key) {
+                throw new Exception(_('Key field must be a string'));
+            }
+            $key = $this->key($key);
+            if (!$this->_testFields($key)) {
+                throw new Exception(_('Invalid key being requested'));
+            }
+            $vals = array_values(
+                array_unique(
+                    array_filter(
+                        $vals,
+                        function ($val) {
+                            return null !== $val && '' !== $val;
+                        }
+                    )
+                )
+            );
+            if (count($vals ?: []) < 1) {
+                return $objects;
+            }
+            $join = $whereArrayAnd = [];
+            $c = null;
+            $this->buildQuery($join, $whereArrayAnd, $c);
+            $join = implode((array) array_filter((array) $join));
+            $fields = [];
+            $this->getcolumns($fields);
+            $realKey = $this->databaseFields[$key];
+            $holders = [];
+            $queryArray = [];
+            foreach ($vals as $index => &$val) {
+                $holder = sprintf(':loadmany%d', $index);
+                $holders[] = $holder;
+                $queryArray[$holder] = $val;
+                unset($val);
+            }
+            $query = sprintf(
+                $this->loadManyQueryTemplate,
+                implode(',', $fields),
+                $this->databaseTable,
+                $join,
+                $realKey,
+                implode(',', $holders),
+                (
+                    count($whereArrayAnd ?: []) ?
+                    sprintf(
+                        ' AND %s',
+                        implode(' AND ', $whereArrayAnd)
+                    ) :
+                    ''
+                )
+            );
+            $rows = self::$DB
+                ->query($query, [], $queryArray)
+                ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+                ->get();
+            $classname = get_class($this);
+            foreach ((array) $rows as &$row) {
+                if (!isset($row[$realKey])) {
+                    unset($row);
+                    continue;
+                }
+                $id = $row[$realKey];
+                // A one-to-many join repeats the base row. load() keeps the
+                // first row it is handed and ignores the rest, so match it.
+                if (!isset($objects[$id])) {
+                    $objects[$id] = self::getClass($classname)->setQuery($row);
+                }
+                unset($row);
+            }
+        } catch (Exception $e) {
+            $str = sprintf(
+                '%s: %s: %s, %s: %s',
+                _('Bulk load failed'),
+                _('Key'),
+                $key,
+                _('Error'),
+                $e->getMessage()
+            );
+            self::debug($str);
+        }
+
+        return $objects;
     }
     /**
      * Gets the columns.

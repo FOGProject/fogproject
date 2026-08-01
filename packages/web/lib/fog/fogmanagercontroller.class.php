@@ -259,6 +259,59 @@ abstract class FOGManagerController extends FOGBase
         return $limit;
     }
     /**
+     * Finds a grid column by its output name.
+     *
+     * The column definitions are searched directly rather than by offsetting
+     * into a pluck()ed list: pluck() skips entries and reindexes, so its
+     * offsets do not correspond to $columns. Refs GH-956.
+     *
+     * @param array  $columns Column information array
+     * @param string $dt      The output ('dt') name to find
+     *
+     * @return array|null The column definition, or null if there is none
+     */
+    protected static function columnFor($columns, $dt)
+    {
+        foreach ((array)$columns as $column) {
+            if (isset($column['dt']) && $column['dt'] === $dt) {
+                return $column;
+            }
+        }
+        return null;
+    }
+    /**
+     * Resolves the real column to order a grid by.
+     *
+     * Matches on the column's output name ('dt') first and falls back to a
+     * 'do' column, mirroring the precedence order() has always used. A
+     * column that is computed by a formatter, or excluded from the query,
+     * has nothing the database could sort on, so it is skipped. Refs GH-956.
+     *
+     * @param array  $columns Column information array
+     * @param string $orderby The name to order by
+     *
+     * @return string|null The database column, or null if there is none
+     */
+    protected static function orderColumn($columns, $orderby)
+    {
+        $column = self::columnFor($columns, $orderby);
+        if (null !== $column
+            && isset($column['db'])
+            && !(isset($column['removeFromQuery']) && $column['removeFromQuery'])
+        ) {
+            return $column['db'];
+        }
+        foreach ((array)$columns as $column) {
+            if (isset($column['removeFromQuery']) && $column['removeFromQuery']) {
+                continue;
+            }
+            if (isset($column['do']) && $column['do'] === $orderby) {
+                return $column['do'];
+            }
+        }
+        return null;
+    }
+    /**
      * Ordering
      *
      * Construct the ORDER BY clause for server-side processing SQL query
@@ -273,20 +326,30 @@ abstract class FOGManagerController extends FOGBase
     {
         $order = '';
         $dtColumns = self::pluck($columns, 'dt');
-        $dbColumns = self::pluck($columns, 'db');
-        $doColumns = self::pluck($columns, 'do');
         if (!isset($request['order']) || count($request['order'] ?: []) <= 0) {
-            $columnIdx = array_search($orderby, $dtColumns);
-            $columnOdx = array_search($orderby, $doColumns);
-            if (false === $columnIdx && false === $columnOdx) {
-                $columnIdx = array_search('id', $dtColumns);
-                $order = 'ORDER BY `'
-                    . $dbColumns[$columnIdx]
-                    . '` ASC';
-            } elseif (false === $columnIdx) {
-                $order = 'ORDER BY `'
-                    . $doColumns[$columnOdx]
-                    . '` ASC';
+            // GH-956: the branch this replaced had no arm for the case that
+            // actually happens. It ordered by id when $orderby matched
+            // nothing, and by the 'do' column when it matched only that --
+            // but when $orderby named one of the grid's own 'dt' columns,
+            // which is the normal case, it fell through and returned an empty
+            // string. The one column a caller could never order by was the
+            // one it asked for, so every list came back in whatever order the
+            // storage engine happened to hand the rows over. The UI hid it
+            // (DataTables re-sorts client-side once it has the rows) but the
+            // API did not: LIMIT over an unordered result means paging can
+            // repeat or skip rows.
+            //
+            // The lookup also no longer indexes one pluck()ed list with an
+            // offset from another. pluck() drops entries that lack the
+            // property or are removeFromQuery and then reindexes, so the two
+            // lists do not line up -- the old id fallback only worked because
+            // 'id' happens to be the first column of both for most classes.
+            $orderCol = self::orderColumn($columns, $orderby);
+            if (null === $orderCol) {
+                $orderCol = self::orderColumn($columns, 'id');
+            }
+            if (null !== $orderCol) {
+                $order = 'ORDER BY `' . $orderCol . '` ASC';
             }
             return $order;
         }
@@ -295,8 +358,6 @@ abstract class FOGManagerController extends FOGBase
             // Convert the column index into the column data property
             $columnIdx = intval($request['order'][$i]['column']);
             $requestColumn = $request['columns'][$columnIdx];
-            $columnIdx = array_search($requestColumn['data'], $dtColumns);
-            $column = $columns[$columnIdx];
             if ($requestColumn['orderable'] != 'true'
                 || (
                     isset($requestColumn['removeFromQuery'])
@@ -305,14 +366,18 @@ abstract class FOGManagerController extends FOGBase
             ) {
                 continue;
             }
+            // Resolved against $columns itself rather than by using an offset
+            // into the pluck()ed 'dt' list: pluck() drops entries and
+            // reindexes, so the two lists only line up while no column ahead
+            // of this one is removeFromQuery. Sorting by a header could
+            // therefore sort by a different column. Refs GH-956.
+            $orderCol = self::orderColumn($columns, $requestColumn['data']);
+            if (null === $orderCol) {
+                continue;
+            }
             $dir = $request['order'][$i]['dir'] === 'asc' ?
                 'ASC' :
                 'DESC';
-            if (!isset($column['db']) && isset($column['do'])) {
-                $orderCol = $column['do'];
-            } else {
-                $orderCol = $column['db'];
-            }
             $orderBy[] = '`'.$orderCol.'` '.$dir;
         }
         if (count($orderBy ?: []) > 0) {
@@ -340,26 +405,26 @@ abstract class FOGManagerController extends FOGBase
     {
         $globalSearch = [];
         $columnSearch = [];
-        $dtColumns = self::pluck($columns, 'dt');
-        $doColumns = self::pluck($columns, 'do');
+        // Both loops used to locate the column by offsetting into the
+        // pluck()ed 'dt' list, which does not line up with $columns -- the
+        // same mismatch fixed in order(). Worse here: array_search() returns
+        // false when the column is not found, and $columns[false] is
+        // $columns[0], so an unmatched column silently searched the grid's
+        // FIRST column instead of being skipped. Resolve against $columns
+        // directly. Refs GH-956.
         if (isset($request['search']) && $request['search']['value'] != '') {
             $str = $request['search']['value'];
             for ($i=0, $ien = count($request['columns'] ?: []); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
-                $columnIdx = array_search($requestColumn['data'], $dtColumns);
-                $columnOdx = array_search($requestColumn['data'], $doColumns);
-                $column = $columns[$columnIdx];
-                if ($requestColumn['searchable'] != 'true'
-                    || (!isset($column['db']) && !isset($column['do']))
-                    || (isset($column ['removeFromQuery']) && $column['removeFromQuery'])
+                $column = self::columnFor($columns, $requestColumn['data']);
+                if (null === $column
+                    || $requestColumn['searchable'] != 'true'
+                    || !isset($column['db'])
+                    || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
                 ) {
                     continue;
                 }
-                if (!isset($column['db'])) {
-                    continue;
-                } else {
-                    $columnSrch = $column['db'];
-                }
+                $columnSrch = $column['db'];
                 $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
                 $globalSearch[] = "`".$columnSrch."` LIKE ".$binding;
             }
@@ -368,21 +433,17 @@ abstract class FOGManagerController extends FOGBase
         if (isset($request['columns'])) {
             for ($i = 0, $ien = count($request['columns'] ?: []); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
-                $columnIdx = array_search($requestColumn['data'], $dtColumns);
-                $column = $columns[$columnIdx];
+                $column = self::columnFor($columns, $requestColumn['data']);
                 $str = $requestColumn['search']['value'];
-                if ($requestColumn['searchable'] != 'true'
+                if (null === $column
+                    || $requestColumn['searchable'] != 'true'
                     || $str == ''
-                    || (!isset($column['db']) && !isset($column['do']))
-                    || $column['removeFromQuery']
+                    || !isset($column['db'])
+                    || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
                 ) {
                     continue;
                 }
-                if (!isset($column['db'])) {
-                    continue;
-                } else {
-                    $columnSrch = $column['db'];
-                }
+                $columnSrch = $column['db'];
                 $binding = self::bind(
                     $bindings,
                     '%' . $str . '%',

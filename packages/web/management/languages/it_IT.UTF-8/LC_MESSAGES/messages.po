@@ -879,6 +879,10 @@ msgstr "Sfoglia"
 msgid "Buildroot Version"
 msgstr "Versione client"
 
+#, fuzzy
+msgid "Bulk load failed"
+msgstr "Caricamento non riuscito"
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 

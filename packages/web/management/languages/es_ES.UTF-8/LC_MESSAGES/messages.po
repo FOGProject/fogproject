@@ -931,6 +931,10 @@ msgstr ""
 msgid "Buildroot Version"
 msgstr "Versión de la CPU"
 
+#, fuzzy
+msgid "Bulk load failed"
+msgstr "Carga ha fallado: %s"
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 

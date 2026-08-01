@@ -916,6 +916,10 @@ msgstr "browse"
 msgid "Buildroot Version"
 msgstr "Client-Version"
 
+#, fuzzy
+msgid "Bulk load failed"
+msgstr "Laden fehlgeschlagen: %s"
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 

@@ -763,6 +763,9 @@ msgstr ""
 msgid "Buildroot Version"
 msgstr ""
 
+msgid "Bulk load failed"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 

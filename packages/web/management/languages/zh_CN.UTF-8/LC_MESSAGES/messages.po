@@ -918,6 +918,10 @@ msgstr ""
 msgid "Buildroot Version"
 msgstr "CPU版本"
 
+#, fuzzy
+msgid "Bulk load failed"
+msgstr "加载失败： %s"
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 

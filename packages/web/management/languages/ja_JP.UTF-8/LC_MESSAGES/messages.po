@@ -865,6 +865,10 @@ msgstr "参照"
 msgid "Buildroot Version"
 msgstr "MB バージョン"
 
+#, fuzzy
+msgid "Bulk load failed"
+msgstr "読み込みに失敗しました"
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
