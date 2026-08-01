@@ -16,13 +16,28 @@
 [[ -z $username || "x$username" = "xfog" ]] && username="fogproject"
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
-[[ -z $buildipxesrc ]] && buildipxesrc="../utils/FOGiPXE"
+# iPXE now lives in its own repository and its binaries arrive as a release
+# asset, the same way the FOS kernels already do. packages/tftp is therefore a
+# staging directory the installer fills at runtime rather than 22 MB of build
+# output carried in git. See GH-959.
+[[ -z $ipxegit ]] && ipxegit="https://github.com/FOGProject/fog-ipxe"
+[[ -z $ipxeurl ]] && ipxeurl="${ipxegit}/releases/download"
+# Pinned in system.class.php alongside FOG_CLIENT_VERSION, for the same reason:
+# a given FOG release ships a known iPXE, and bumping it is a deliberate edit
+# rather than whatever happened to be tagged the day someone installed.
+[[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
+[[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.1"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20250223.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-20250223"
 [[ -z $servicesrc ]] && servicesrc="../packages/service"
 [[ -z $servicedst ]] && servicedst="/opt/fog/service"
 [[ -z $servicelogs ]] && servicelogs="/opt/fog/log"
 [[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
+# $buildipxesrc is where the source checkout lands when an HTTPS install has to
+# rebuild with its own CA baked in. Under $fogprogramdir so it is findable,
+# survives the extracted tarball being deleted, and gives an offline site one
+# path to pre-populate. Must follow fogprogramdir. See GH-959.
+[[ -z $buildipxesrc ]] && buildipxesrc="$fogprogramdir/ipxe"
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"
