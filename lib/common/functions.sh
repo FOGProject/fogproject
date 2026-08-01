@@ -92,12 +92,35 @@ backupDB() {
     fi
     # ---------------------------------------------------------
     dots "Backing up database"
+    # GH-314: the status checked below used to be whichever command ran last,
+    # which made this claim success in two ways it should not have. With no
+    # prior install there is no BACKUP directory, so the `if` was skipped and
+    # the status read was the failed directory test. And when the curl DID run
+    # and failed, the status read was jq's -- jq exits 0 on empty input, having
+    # written a zero-byte file. That is the worse half: an upgrade would print
+    # "Backing up database....Done" over an empty pre-upgrade dump.
+    #
+    # dbbackupstat is only set where a backup was actually attempted, so a fresh
+    # install skips the step instead of reporting a failure it did not have.
+    local dbbackupstat=0
+    local dbbackupfile=""
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$error_log 2>&1
         url="${httpproto}://$ipaddress$webroot/maintenance/backup_db.php"
-        curl -skf "$url" | jq -r '. | ._content' > $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql
+        dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql"
+        curl -skf "$url" | jq -r '. | ._content' > "$dbbackupfile"
+        # Both halves of the pipeline matter, and so does the result: a dump
+        # that is empty or the literal "null" is jq faithfully reporting that
+        # the response had no _content.
+        [[ ${PIPESTATUS[0]} -ne 0 || ${PIPESTATUS[1]} -ne 0 ]] && dbbackupstat=1
+        [[ ! -s $dbbackupfile ]] && dbbackupstat=1
+        [[ $(head -c 4 "$dbbackupfile" 2>/dev/null) == null ]] && dbbackupstat=1
     fi
-    if [[ $? -ne 0 ]]; then
+    if [[ -z $dbbackupfile ]]; then
+        # No prior install to back up. Saying "Done" over a step that never ran
+        # is the same misreport this function was just fixed for.
+        echo "Skipped"
+    elif [[ $dbbackupstat -ne 0 ]]; then
         echo "Failed"
         if [[ -z $autoaccept ]]; then
             echo

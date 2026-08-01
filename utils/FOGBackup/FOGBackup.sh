@@ -1,8 +1,9 @@
 #!/bin/bash
 usage() {
-    echo -e "Usage: $0 [-h?] [-R] [-S] [-I] [-B </backup/path/>]"
+    echo -e "Usage: $0 [-h?] [-D] [-R] [-S] [-I] [-B </backup/path/>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-B -b --backuppath\t\tSpecify the backup path.\n\t\tIf not set will use backupPath from fog settings plus fog_backup_DATE."
+    echo -e "\t-D -d --no-database\t\tOmit backup of the database."
     echo -e "\t-R -r --no-reports\t\tOmit backup of reports."
     echo -e "\t-S -s --no-snapins\t\tOmit backup of snapins."
     echo -e "\t-I -i --no-images\t\tOmit backup of images."
@@ -10,7 +11,7 @@ usage() {
 # GH-314: resolve against this script's own location rather than the caller's
 # cwd, so /opt/fog/utils/FOGBackup/FOGBackup.sh works from any directory.
 . "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../lib/common/utils.sh"
-optspec="Hh?IiRrSsB:b:-:"
+optspec="Hh?DdIiRrSsB:b:-:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -25,6 +26,9 @@ while getopts "$optspec" o; do
                         handleError "Path must be an existing directory" 8
                     fi
                     backupPath=$OPTARG
+                    ;;
+                no-database)
+                    noBackupDB=1
                     ;;
                 no-reports)
                     noBackupReports=1
@@ -53,6 +57,9 @@ while getopts "$optspec" o; do
                 handleError "Path must be an existing directory" 8
             fi
             backupPath=$OPTARG
+            ;;
+        [Dd])
+            noBackupDB=1
             ;;
         [Rr])
             noBackupReports=1
@@ -89,15 +96,49 @@ cd $backupPath
 countBackup=`ls | grep $backupDate | wc -l`
 backupDir="${backupDir}_$countBackup"
 [[ ! -d $backupDir ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
-[[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 backupDB() {
     dots "Backing up database"
-    wget --no-check-certificate --post-data="nojson=1" -O $backupDir/mysql/fog.sql "http://${ipaddress}${webroot}management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
-    stat=$?
-    if [[ ! $stat -eq 0 ]]; then
+    # GH-314: this used to fetch management/export.php, which does not exist in
+    # 1.6, so the script died here before touching reports, snapins or images.
+    #
+    # It cannot use maintenance/backup_db.php either -- that is the endpoint the
+    # installer dumps through, but installfog.sh deletes the whole maintenance
+    # directory at the end of every run. It is an unauthenticated same-machine
+    # DB dump, so it is install scaffolding on purpose, not a runtime service,
+    # and keeping it installed to suit this script would be a poor trade.
+    #
+    # FOGBackup runs on the server and .fogsettings already carries the database
+    # credentials, so dump directly. No web tier in the path also means a backup
+    # still works when the web tier is broken -- which is when you most want one.
+    if ! command -v mysqldump >/dev/null 2>&1; then
         echo "Failed"
-        handleError "Could not create/download sql backup file" 12
+        handleError "mysqldump is not installed, cannot back up the database" 19
     fi
+    # Credentials go in a 0600 defaults file rather than on the command line,
+    # where any local user could read them out of ps while the dump runs.
+    # Escaped the same way as the installer escapes it for PHP: a my.cnf value
+    # takes backslash escapes, and an unquoted '#' would start a comment.
+    local defaults escpass
+    defaults=$(mktemp) || handleError "Could not create a temporary file" 20
+    chmod 600 "$defaults"
+    escpass="${snmysqlpass//\\/\\\\}"
+    escpass="${escpass//\"/\\\"}"
+    printf '[client]\nhost=%s\nuser=%s\npassword="%s"\n' \
+        "${snmysqlhost:-localhost}" "$snmysqluser" "$escpass" > "$defaults"
+    # --single-transaction so a live server is not locked for the duration;
+    # --quick so a large tasks/imaging history is streamed rather than buffered.
+    mysqldump --defaults-extra-file="$defaults" --single-transaction --quick \
+        "${mysqldbname:-fog}" > "$backupDir/mysql/fog.sql" \
+        2>>$backupDir/logs/error.log
+    stat=$?
+    rm -f "$defaults"
+    # A failed dump can still leave a zero-byte file behind, and reporting
+    # success over an empty backup is worse than reporting the failure.
+    if [[ ! $stat -eq 0 || ! -s $backupDir/mysql/fog.sql ]]; then
+        echo "Failed"
+        handleError "Could not create sql backup file" 12
+    fi
+    echo "Done"
 }
 backupImages() {
     imageLocation=$storageLocation
@@ -125,6 +166,9 @@ backupSnapins() {
     echo "Done"
 }
 backupReports() {
+    # This step had no dots() line, so its "Done" printed on its own with
+    # nothing saying what had been done.
+    dots "Backing up reports"
     reportLocation="$webdirdest/lib/reports"
     [[ ! -d $reportLocation ]] && handleError "Reports location: $reportLocation does not exist on this server" 18
     cp -auv $reportLocation/ $backupDir/reports/ 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
@@ -137,7 +181,9 @@ backupReports() {
 }
 starttime=$(date +%D%t%r)
 echo " * Started backup at: $starttime"
-backupDB
+# GH-314: backupDB used to run unconditionally, so a storage node -- which has
+# no database of its own -- could never get past it to back up its images.
+[[ $noBackupDB -eq 1 ]] || backupDB
 [[ $noBackupReports -eq 1 ]] || backupReports
 [[ $noBackupSnapins -eq 1 ]] || backupSnapins
 [[ $noBackupImages -eq 1 ]] || backupImages
