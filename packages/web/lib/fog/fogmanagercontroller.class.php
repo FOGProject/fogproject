@@ -473,6 +473,8 @@ abstract class FOGManagerController extends FOGBase
      * @param string $whereResult WHERE condition to apply to the result set
      * @param string $whereAll    WHERE condition to apply to all queries
      * @param string $orderby     How to order the query
+     * @param bool   $countOnly   Only the record counts are wanted, so skip
+     *                            the row query and the formatters entirely.
      *
      * @return array          Server-side processing response array
      */
@@ -486,7 +488,8 @@ abstract class FOGManagerController extends FOGBase
         $ttlstr,
         $whereResult = null,
         $whereAll = null,
-        $orderby = 'name'
+        $orderby = 'name',
+        $countOnly = false
     ) {
         $bindings = [];
         $db = DatabaseManager::getLink();
@@ -527,8 +530,16 @@ abstract class FOGManagerController extends FOGBase
             $order,
             $limit
         );
-        // Main query to actually get the data
-        $data = self::sqlexec($db, $bindings, $sql_query);
+        // Main query to actually get the data.
+        //
+        // GH-707: Route::count() reaches this through listem() purely for
+        // recordsFiltered, which the filter query below answers on its own.
+        // Running the row query anyway meant a count of a 1000-host group
+        // fetched all 1000 rows and then ran every per-row formatter, each of
+        // which loads a related object -- roughly a thousand extra queries to
+        // produce a single integer. Group::loadHosts() calls getHostCount(),
+        // so that price was paid on merely touching a group.
+        $data = $countOnly ? [] : self::sqlexec($db, $bindings, $sql_query);
         // Data set length after filtering
         $filter_query = sprintf(
             $fltrstr,
@@ -558,7 +569,7 @@ abstract class FOGManagerController extends FOGBase
             ),
             'recordsTotal' => intval($recordsTotal),
             'recordsFiltered' => intval($recordsFiltered),
-            'data' => self::dataOutput($columns, $data),
+            'data' => $countOnly ? [] : self::dataOutput($columns, $data),
             //'sql_query' => $sql_query,
             //'filter_query' => $filter_query,
             //'total_query' => $total_query,

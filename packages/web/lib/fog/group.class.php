@@ -877,16 +877,28 @@ class Group extends FOGController
         $hostIDs = $find['hostID'];
         $snapins = [];
         $snapinJobs = [];
+        // GH-707: the "all snapins" case used to query snapinAssoc once per
+        // member host inside the loop below -- a thousand round trips for a
+        // thousand-host group. The association table answers every host in
+        // one pass, so read it once here and index it by host; the loop then
+        // just looks the host up.
+        $assocByHost = [];
+        if ($snapin == -1) {
+            $assocs = Route::getIds(
+                'snapinassociation',
+                $find,
+                ['hostID', 'snapinID'],
+                'AND',
+                'sequence'
+            );
+            foreach ($assocs as $assoc) {
+                $assocByHost[$assoc['hostID']][] = $assoc['snapinID'];
+            }
+            unset($assocs);
+        }
         foreach ($hostIDs as $hostID) {
             if ($snapin == -1) {
-                $find = ['hostID' => $hostID];
-                $assoc_snapins = Route::getIds(
-                    'snapinassociation',
-                    $find,
-                    'snapinID',
-                    'AND',
-                    'sequence'
-                );
+                $assoc_snapins = $assocByHost[$hostID] ?? [];
                 if (count($assoc_snapins ?: []) < 1) {
                     continue;
                 }

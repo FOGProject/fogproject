@@ -98,6 +98,25 @@ class Route extends FOGBase
      */
     protected static $getterDepth = 0;
     /**
+     * Set while count() is borrowing listem() to reach recordsFiltered. The
+     * row query and every per-row formatter are then skipped -- see the note
+     * in FOGManagerController::complex(). Refs GH-707.
+     *
+     * @var bool
+     */
+    protected static $countOnly = false;
+    /**
+     * Related objects already resolved while formatting the current grid.
+     *
+     * Keyed 'class:id'. Emptied at the top of every listem() call so it can
+     * never outlive one grid render: the services hold this class for their
+     * whole lifetime, and a cache that persisted between calls would keep
+     * serving an image or host by its old name until the daemon restarted.
+     *
+     * @var array
+     */
+    protected static $relCache = [];
+    /**
      * The class the current API route is serving, recorded so printer() can
      * strip secrets from a payload that does not name its own class.
      *
@@ -1074,6 +1093,8 @@ class Route extends FOGBase
             }
 
             self::$data = $columns = [];
+            // Fresh per grid -- see $relCache and rel().
+            self::$relCache = [];
             $classname = strtolower($class);
             $classman = self::getClass("{$classname}manager");
             $table = $classman->getTable();
@@ -1253,7 +1274,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . '(' . $d . ') - ' . self::getClass('group', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -1274,7 +1295,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . '(' . $d . ') - ' . self::getClass('host', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -1300,7 +1321,7 @@ class Route extends FOGBase
                                         $imageName = $d;
                                         break;
                                     default:
-                                        $image = self::getClass('Image', $d);
+                                        $image = self::rel('Image', $d);
                                         $imageName = $image->get('name');
                                 }
                                 if ($image->isValid()) {
@@ -1331,7 +1352,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . '(' . $d . ') - ' . self::getClass('Snapin', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -1364,7 +1385,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . '(' . $d . ') - ' . self::getClass('storagegroup', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -1385,7 +1406,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . '(' . $d . ') - ' . self::getClass('storagenode', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -1406,7 +1427,7 @@ class Route extends FOGBase
                                     . 'sub=edit&id='
                                     . $d
                                     . '">'
-                                    . '(' . $d . ') - ' . self::getClass('user', $d)->get('name')
+                                    . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
                                     . '</a>';
                             }
                         ];
@@ -1491,7 +1512,7 @@ class Route extends FOGBase
                         'formatter' => function ($d, $row) {
                             $linkName = $row['stIsGroup'] ? 'group' : 'host';
                             $capName = $row['stIsGroup'] ? 'Group' : 'Host';
-                            $itemName = self::getClass($capName, $d)->get('name');
+                            $itemName = self::rel($capName, $d)->get('name');
                             return sprintf(
                                 '<a href="../management/index.php?node=%s&sub=edit&id=%s">%s: (%s) - %s</a>',
                                 $linkName,
@@ -1544,7 +1565,7 @@ class Route extends FOGBase
                         'db' => 'stTaskTypeID',
                         'dt' => 'taskTypeName',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('TaskType', $d)->get('name');
+                            return self::rel('TaskType', $d)->get('name');
                         }
                     ];
                     $columns[] = [
@@ -1560,14 +1581,14 @@ class Route extends FOGBase
                         'db' => 'fdqState',
                         'dt' => 'taskstateicon',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('taskstate', $d)->get('icon');
+                            return self::rel('taskstate', $d)->get('icon');
                         }
                     ];
                     $columns[] = [
                         'db' => 'fdqState',
                         'dt' => 'taskstatename',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('taskstate', $d)->get('name');
+                            return self::rel('taskstate', $d)->get('name');
                         }
                     ];
                     break;
@@ -1587,7 +1608,7 @@ class Route extends FOGBase
                     //
                     // Refs https://github.com/FOGProject/fogproject/issues/895
                     $snapinTaskHost = function ($jobID) {
-                        $host = self::getClass('snapinjob', $jobID)
+                        $host = self::rel('snapinjob', $jobID)
                             ->get('host');
                         return is_object($host) && $host->isValid()
                             ? $host
@@ -1629,28 +1650,28 @@ class Route extends FOGBase
                         'db' => 'stState',
                         'dt' => 'taskstateicon',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('taskstate', $d)->get('icon');
+                            return self::rel('taskstate', $d)->get('icon');
                         }
                     ];
                     $columns[] = [
                         'db' => 'stState',
                         'dt' => 'taskstatename',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('taskstate', $d)->get('name');
+                            return self::rel('taskstate', $d)->get('name');
                         }
                     ];
                     $columns[] = [
                         'db' => 'stSnapinID',
                         'dt' => 'snapinID',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('Snapin', $d)->get('id');
+                            return self::rel('Snapin', $d)->get('id');
                         }
                     ];
                     $columns[] = [
                         'db' => 'stSnapinID',
                         'dt' => 'snapinname',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('Snapin', $d)->get('name');
+                            return self::rel('Snapin', $d)->get('name');
                         }
                     ];
                     $columns[] = [
@@ -1664,7 +1685,7 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . '(' . $d . ') - ' . self::getClass('Snapin', $d)->get('name')
+                                . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
                                 . '</a>';
                         }
                     ];
@@ -1727,14 +1748,14 @@ class Route extends FOGBase
                         'db' => 'ngmID',
                         'dt' => 'clientload',
                         'formatter' => function ($d, $row) {
-                            return self::getClass('StorageNode', $d)->getClientLoad();
+                            return self::rel('StorageNode', $d)->getClientLoad();
                         }
                     ];
                     $columns[] = [
                         'db' => 'ngmID',
                         'dt' => 'location_url',
                         'formatter' => function ($d, $row) {
-                            $node = new StorageNode($d);
+                            $node = self::rel('StorageNode', $d);
                             return sprintf(
                                 '%s://%s/%s',
                                 self::$httpproto,
@@ -1770,7 +1791,7 @@ class Route extends FOGBase
                         'db' => 'utHostID',
                         'dt' => 'hostname',
                         'formatter' => function ($d, $row) {
-                            return Initiator::e(self::getClass('Host', $d)->get('name'));
+                            return Initiator::e(self::rel('Host', $d)->get('name'));
                         }
                     ];
                     $columns[] = [
@@ -1815,7 +1836,8 @@ class Route extends FOGBase
                 $ttlstr,
                 $where,
                 null,
-                $orderby
+                $orderby,
+                self::$countOnly
             );
             self::$HookManager->processEvent(
                 'API_MASSDATA_MAPPING',
@@ -1973,7 +1995,14 @@ class Route extends FOGBase
         $orderby = 'name'
     ) {
         try {
-            self::listem($class, $whereItems, $inputoverride, $operator, $orderby);
+            // GH-707: only recordsFiltered is wanted, so tell listem() to
+            // answer with the count queries alone.
+            self::$countOnly = true;
+            try {
+                self::listem($class, $whereItems, $inputoverride, $operator, $orderby);
+            } finally {
+                self::$countOnly = false;
+            }
             self::$data = ['total' => self::$data['recordsFiltered']];
         } catch (Exception $e) {
             self::sendResponse(
@@ -3815,13 +3844,23 @@ class Route extends FOGBase
             // answering unconditionally would turn a bad field into a dead
             // daemon (cf. 2d199fa4b). Off-request, log and leave the
             // pre-existing rejected-query behaviour alone.
-            if (!isset($classVars['databaseFields'][$getField])) {
+            // $getField may be an array, in which case each row comes back as
+            // a map of friendly name => value instead of a bare scalar. Only
+            // ever passed internally -- a URL segment or JSON body can only
+            // name one field -- but it is what lets a caller that needs two
+            // columns together read them in one query rather than one query
+            // per row. Refs GH-707.
+            $getFields = (array)$getField;
+            foreach ($getFields as $field) {
+                if (isset($classVars['databaseFields'][$field])) {
+                    continue;
+                }
                 if ('cli' === PHP_SAPI) {
                     self::error(
                         sprintf(
                             'Route::ids: unknown field for %s: %s',
                             $classname,
-                            $getField
+                            $field
                         )
                     );
                 } else {
@@ -3832,7 +3871,7 @@ class Route extends FOGBase
                                 'error' => sprintf(
                                     _('Unknown field for %s: %s'),
                                     $classname,
-                                    $getField
+                                    $field
                                 ),
                                 'valid' => array_keys(
                                     (array)$classVars['databaseFields']
@@ -3843,8 +3882,12 @@ class Route extends FOGBase
                 }
             }
 
+            $realFields = [];
+            foreach ($getFields as $field) {
+                $realFields[$field] = $classVars['databaseFields'][$field];
+            }
             $sql = 'SELECT `'
-                . $classVars['databaseFields'][$getField]
+                . implode('`,`', array_unique(array_values($realFields)))
                 . '` FROM `'
                 . $classVars['databaseTable']
                 . '`';
@@ -3860,7 +3903,15 @@ class Route extends FOGBase
 
             $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
-                $data[] = $val[$classVars['databaseFields'][$getField]];
+                if (is_array($getField)) {
+                    $row = [];
+                    foreach ($realFields as $field => $real) {
+                        $row[$field] = $val[$real];
+                    }
+                    $data[] = $row;
+                } else {
+                    $data[] = $val[$realFields[$getField]];
+                }
                 unset($val);
             }
             self::$data = $data;
@@ -3872,6 +3923,31 @@ class Route extends FOGBase
         }
     }
     /**
+     * Resolves a related object for a grid cell, once per grid.
+     *
+     * GH-707: the per-row formatters in listem() each build a related object
+     * from an id -- the host's image, a task's host, a snapin task's snapin,
+     * a task state's icon. One object per row is one query per row, so a
+     * 1000-row grid ran a thousand extra queries on top of its own, which is
+     * what made a large task list hang the page. The same ids repeat over and
+     * over down a column, so resolve each distinct one once.
+     *
+     * The cache lives only for the current listem() call -- see $relCache.
+     *
+     * @param string $class The class to resolve.
+     * @param mixed  $id    The id to resolve it by.
+     *
+     * @return object
+     */
+    protected static function rel($class, $id)
+    {
+        $key = strtolower($class) . ':' . $id;
+        if (!array_key_exists($key, self::$relCache)) {
+            self::$relCache[$key] = self::getClass($class, $id);
+        }
+        return self::$relCache[$key];
+    }
+    /**
      * Returns the matching ids directly as a PHP array.
      *
      * Convenience wrapper around ids() that skips the
@@ -3880,7 +3956,9 @@ class Route extends FOGBase
      *
      * @param string $class      The class to get list of.
      * @param array  $whereItems The items to filter.
-     * @param string $getField   The field to get.
+     * @param mixed  $getField   The field to get, or an array of fields, in
+     *                           which case each element is a map of field
+     *                           name => value rather than a bare value.
      * @param string $operator   The operator for the SQL. AND is default.
      * @param string $orderby    How to order the returned values.
      *
