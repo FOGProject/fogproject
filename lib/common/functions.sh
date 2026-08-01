@@ -2170,6 +2170,22 @@ EOF
             echo "    KeepAlive Off" >> "$etcconf"
             echo "    ServerName $vhostname" >> "$etcconf"
             echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+            # maintenance/ holds installer-only endpoints (a full DB dump,
+            # storage-node create/update). Each gates itself on the request
+            # being same-machine, but the directory is only removed when an
+            # install RUNS TO COMPLETION -- one that dies partway leaves them
+            # on disk indefinitely. Deny them at the web server too, so a file
+            # added there later without its own check is not exposed by that
+            # omission alone.
+            #
+            # LocationMatch, not Directory: the tree is also published at
+            # ${docroot}/${webrootbare} via a symlink, and Directory does not
+            # follow symlinks. Require local matches loopback and the case
+            # where client and server address are the same, which is how the
+            # installer calls in.
+            echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
+            echo "        Require local" >> "$etcconf"
+            echo "    </LocationMatch>" >> "$etcconf"
             echo "    DocumentRoot $docroot" >> "$etcconf"
             if [[ $httpproto == https ]]; then
                 echo "    RewriteEngine On" >> "$etcconf"
@@ -2190,6 +2206,10 @@ EOF
                 echo "    </FilesMatch>" >> "$etcconf"
                 echo "    ServerName $vhostname" >> "$etcconf"
                 echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+                # See the :80 vhost -- installer-only, same-machine only.
+                echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
+                echo "        Require local" >> "$etcconf"
+                echo "    </LocationMatch>" >> "$etcconf"
                 echo "    DocumentRoot $docroot" >> "$etcconf"
                 echo "    SSLEngine On" >> "$etcconf"
                 echo "    SSLProtocol -all +TLSv1.2" >> "$etcconf"
