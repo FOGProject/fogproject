@@ -78,6 +78,8 @@ usage() {
     echo -e "\t               \t\t\t\tdefaults to /opt/fog"
     echo -e "\t               \t\t\t\tremembered in /etc/fog/fog.conf, so it"
     echo -e "\t               \t\t\t\tonly needs giving on a first install"
+    echo -e "\t-N    --mysqldbname\t\tSpecify the FOG database name"
+    echo -e "\t               \t\t\t\tdefaults to fog"
     echo -e "\t-B    --backuppath\t\tSpecify the backup path"
     echo -e "\t      --uninstall\t\tUninstall FOG"
     echo -e "\t-s    --startrange\t\tDHCP Start range"
@@ -92,7 +94,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:l"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
+longopts="help,uninstall,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -247,6 +249,20 @@ while :; do
             # value, so an empty value still counts.
             swebrootset=1
             [[ -z $swebroot ]] && swebroot="/" || swebroot="/${swebroot}/"
+            shift 2
+            ;;
+        -N | --mysqldbname)
+            # -N has been declared in $shortopts, and documented in the usage
+            # synopsis as [-N <databasename>], since 0c9064e52 -- but never had
+            # a handler, so it hung the option loop. The application half
+            # (smysqldbname -> mysqldbname) was already in place below.
+            if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
+                smysqldbname="${2}"
+            else
+                echo "Error: Missing argument for $1"
+                usage
+                exit 9
+            fi
             shift 2
             ;;
         -B | --backuppath)
