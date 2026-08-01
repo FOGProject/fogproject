@@ -45,6 +45,7 @@ error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
 . ../lib/common/functions.sh
+. ../lib/common/uninstall.sh
 usage() {
     echo -e "Usage: $0 [-h?dEUuHSCKYXTFA] [-f <filename>] [-N <databasename>]"
     echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
@@ -81,7 +82,23 @@ usage() {
     echo -e "\t-N    --mysqldbname\t\tSpecify the FOG database name"
     echo -e "\t               \t\t\t\tdefaults to fog"
     echo -e "\t-B    --backuppath\t\tSpecify the backup path"
-    echo -e "\t      --uninstall\t\tUninstall FOG"
+    echo -e "\t      --uninstall\t\tUninstall FOG. Removes FOG's own files,"
+    echo -e "\t               \t\t\t\tservices and config, and restores the"
+    echo -e "\t               \t\t\t\tfiles FOG replaced. Your database,"
+    echo -e "\t               \t\t\t\timages, snapins, SSL CA and the fog"
+    echo -e "\t               \t\t\t\taccount are KEPT unless purged below."
+    echo -e "\t               \t\t\t\tPackages are never removed."
+    echo -e "\t      --dry-run\t\t\tWith --uninstall, list what would be"
+    echo -e "\t               \t\t\t\tremoved and exit without changing anything"
+    echo -e "\t      --force\t\t\tWith --uninstall, skip the typed"
+    echo -e "\t               \t\t\t\tconfirmation (-Y does NOT skip it)"
+    echo -e "\t      --purge-db\t\tAlso drop the FOG database"
+    echo -e "\t      --purge-images\t\tAlso delete the image storage"
+    echo -e "\t      --purge-snapins\t\tAlso delete the snapins"
+    echo -e "\t      --purge-ssl\t\tAlso delete the SSL CA. This permanently"
+    echo -e "\t               \t\t\t\tbreaks every deployed fog-client"
+    echo -e "\t      --purge-user\t\tAlso delete the fog Linux account"
+    echo -e "\t      --purge-all\t\tAll of the --purge-* options above"
     echo -e "\t-s    --startrange\t\tDHCP Start range"
     echo -e "\t-e    --endrange\t\tDHCP End range"
     echo -e "\t-b    --bootfile\t\tDHCP Boot file"
@@ -94,7 +111,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:l"
-longopts="help,uninstall,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -107,7 +124,27 @@ while :; do
 			exit 0
 			;;
 		--uninstall)
-			exit 0
+			# Only flags the intent. The uninstall itself runs further down,
+			# once .fogsettings and the distro config have been read -- it
+			# cannot know what to remove before then.
+			douninstall=1
+			shift
+			;;
+		--purge-db|--purge-images|--purge-snapins|--purge-ssl|--purge-user)
+			printf -v "purge${1#--purge-}" 1
+			shift
+			;;
+		--purge-all)
+			purgedb=1; purgeimages=1; purgesnapins=1; purgessl=1; purgeuser=1
+			shift
+			;;
+		--dry-run)
+			uninstalldryrun=1
+			shift
+			;;
+		--force)
+			uninstallforce=1
+			shift
 			;;
         -c | --ssl-path)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
@@ -518,6 +555,20 @@ if [[ -z $backupPath ]]; then
     backupPath="/$backupPath/"
 fi
 [[ -n $smysqldbname ]] && mysqldbname=$smysqldbname
+# --uninstall runs here: late enough that .fogsettings and the distro config
+# have been read (both are needed to know what to remove -- docroot, storage
+# location, service list, config paths), but before input.sh, which would
+# otherwise start prompting about an install nobody asked for.
+if [[ $douninstall -eq 1 ]]; then
+    # Normally both are already loaded by the upgrade path above. They are not
+    # if -U/--no-upgrade was also given, so load them here rather than
+    # uninstalling with half the paths unset.
+    if [[ -z $osid ]]; then
+        [[ -f $fogprogramdir/.fogsettings ]] && . "$fogprogramdir/.fogsettings"
+        [[ -n $osid ]] && doOSSpecificIncludes >/dev/null
+    fi
+    uninstallFOG
+fi
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
 . ../lib/common/newinput.sh
