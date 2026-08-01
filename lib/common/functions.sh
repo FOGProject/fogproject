@@ -2014,6 +2014,30 @@ EOF
     unset cnt
     unset ret
 }
+installUtilities() {
+    dots "Installing FOG utilities"
+    # GH-314: the utility scripts only ever existed inside the git checkout you
+    # happened to install from, so there was no stable path to call them by --
+    # FOGBackup in particular. Delete that checkout, move it, or clone a second
+    # one and any cron or runbook referencing it breaks. reporting/report.sh
+    # already got copied to $fogprogramdir; this does the same for the rest.
+    #
+    # lib/ comes along because the utils source lib/common/utils.sh, which
+    # sources lib/common/functions.sh. Keeping both trees in their original
+    # relative positions is what makes that sourcing keep working -- see the
+    # BASH_SOURCE resolution at the top of those scripts.
+    #
+    # Removed first rather than copied over: these are installer-owned trees, so
+    # a file dropped from a later release should not survive as a stale copy.
+    local st=0
+    rm -rf "$fogprogramdir/utils" "$fogprogramdir/lib" >>$error_log 2>&1
+    mkdir -p "$fogprogramdir/utils" "$fogprogramdir/lib" >>$error_log 2>&1 || st=1
+    cp -a "$workingdir/../utils/." "$fogprogramdir/utils/" >>$error_log 2>&1 || st=1
+    cp -a "$workingdir/../lib/." "$fogprogramdir/lib/" >>$error_log 2>&1 || st=1
+    find "$fogprogramdir/utils" "$fogprogramdir/lib" -type f -name '*.sh' \
+        -exec chmod 755 {} \; >>$error_log 2>&1 || st=1
+    errorStat $st
+}
 linkOptFogDir() {
     # GH-850: guard on `! -e` rather than the old `! -h`, and go through
     # linkIfAbsent. `! -h` is false for a *dangling* symlink, so a stale

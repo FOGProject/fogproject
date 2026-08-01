@@ -7,7 +7,9 @@ usage() {
     echo -e "\t-S -s --no-snapins\t\tOmit backup of snapins."
     echo -e "\t-I -i --no-images\t\tOmit backup of images."
 }
-. ../../lib/common/utils.sh
+# GH-314: resolve against this script's own location rather than the caller's
+# cwd, so /opt/fog/utils/FOGBackup/FOGBackup.sh works from any directory.
+. "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../lib/common/utils.sh"
 optspec="Hh?IiRrSsB:b:-:"
 while getopts "$optspec" o; do
     case $o in
@@ -90,7 +92,7 @@ backupDir="${backupDir}_$countBackup"
 [[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 backupDB() {
     dots "Backing up database"
-    wget --no-check-certificate --post-data="nojson=1" -O $backupDir/mysql/fog.sql "http://$ipaddress/$webroot/management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    wget --no-check-certificate --post-data="nojson=1" -O $backupDir/mysql/fog.sql "http://${ipaddress}${webroot}management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
     stat=$?
     if [[ ! $stat -eq 0 ]]; then
         echo "Failed"

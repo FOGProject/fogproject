@@ -1,5 +1,6 @@
 #!/bin/bash
-. ../../lib/common/utils.sh
+# GH-314: resolve against this script's own location, not the caller's cwd.
+. "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../lib/common/utils.sh"
 [[ -z $downloaddir ]] && downloaddir="/opt/"
 echo " ***************************************************************"
 echo " *                         ** Notice **                        *"

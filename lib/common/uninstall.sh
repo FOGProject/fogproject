@@ -95,6 +95,8 @@ uninstallFOG() {
     _ifPresent "$servicelogs"
     _ifPresent "$fogprogramdir/cache"
     _ifPresent "$fogprogramdir/reporting"
+    _ifPresent "$fogprogramdir/utils"
+    _ifPresent "$fogprogramdir/lib"
     _ifPresent "$fogprogramdir/php.loc"
     _ifPresent "$fogprogramdir/.fogsettings"
     _ifPresent "$webdirdest"
@@ -204,8 +206,11 @@ uninstallFOG() {
     dots "Removing FOG program files"
     # Individually, never `rm -rf $fogprogramdir` -- see the note at the top of
     # this file about the CA living under snapins/.
+    # utils/ and lib/ are the utility scripts installUtilities() copies in
+    # (GH-314); they are installer-owned like everything else on this line.
     rm -rf "$servicedst" "$servicelogs" "$fogprogramdir/cache" \
-        "$fogprogramdir/reporting" >>$error_log 2>&1
+        "$fogprogramdir/reporting" "$fogprogramdir/utils" \
+        "$fogprogramdir/lib" >>$error_log 2>&1
     rm -f "$fogprogramdir/php.loc" "$fogprogramdir/.fogsettings" >>$error_log 2>&1
     errorStat $?
 

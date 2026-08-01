@@ -721,6 +721,7 @@ while [[ -z $blGo ]]; do
                     configureNFS
                     writeUpdateFile
                     linkOptFogDir
+                    installUtilities
                     if [[ $bluseralreadyexists == 1 ]]; then
                         echo
                         echo "\n * Upgrade complete\n"
@@ -767,6 +768,7 @@ while [[ -z $blGo ]]; do
                     configureNFS
                     writeUpdateFile
                     linkOptFogDir
+                    installUtilities
                     updateStorageNodeCredentials
                     setupFogReporting
                     echo
