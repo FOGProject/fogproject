@@ -66,7 +66,7 @@ _ifPresent() {
 }
 
 uninstallFOG() {
-    local reply plan_db plan_images plan_snapins plan_ssl plan_user
+    local reply st plan_db plan_images plan_snapins plan_ssl plan_user
 
     # Without .fogsettings we cannot know where anything was put -- which
     # docroot, which storage location, which database. Guessing here would mean
@@ -184,17 +184,22 @@ uninstallFOG() {
     fi
 
     dots "Stopping and disabling FOG services"
+    st=0
     for serviceItem in $serviceList; do
         if [[ $systemctl == yes ]]; then
             systemctl stop $serviceItem >>$error_log 2>&1
             systemctl disable $serviceItem >>$error_log 2>&1
-        else
-            [[ -x $initdpath/$serviceItem ]] && $initdpath/$serviceItem stop >>$error_log 2>&1
+        elif [[ -x $initdpath/$serviceItem ]]; then
+            $initdpath/$serviceItem stop >>$error_log 2>&1
         fi
-        rm -f "$initdpath/$serviceItem" >>$error_log 2>&1
+        rm -f "$initdpath/$serviceItem" >>$error_log 2>&1 || st=1
     done
-    [[ $systemctl == yes ]] && systemctl daemon-reload >>$error_log 2>&1
-    errorStat $?
+    # Same trap as below: a false `[[ $systemctl == yes ]] &&` would leave $? = 1
+    # and errorStat would abort the uninstall on every non-systemd host.
+    if [[ $systemctl == yes ]]; then
+        systemctl daemon-reload >>$error_log 2>&1
+    fi
+    errorStat $st
 
     dots "Removing FOG program files"
     # Individually, never `rm -rf $fogprogramdir` -- see the note at the top of
@@ -204,24 +209,38 @@ uninstallFOG() {
     rm -f "$fogprogramdir/php.loc" "$fogprogramdir/.fogsettings" >>$error_log 2>&1
     errorStat $?
 
+    # $st accumulates the status of the removals that actually matter. Do NOT
+    # end one of these blocks with `[[ test ]] && command; errorStat $?` -- when
+    # the test is false the && returns 1, errorStat reports the step as Failed,
+    # and the installer aborts mid-uninstall. That is not hypothetical: it
+    # stopped the uninstall three steps in during testing, because ${docroot}fog
+    # is a real directory rather than a symlink on a normal install.
     dots "Removing FOG web files"
-    rm -rf "$webdirdest" >>$error_log 2>&1
-    [[ -L ${docroot}fog ]] && rm -f "${docroot}fog" >>$error_log 2>&1
-    errorStat $?
+    st=0
+    rm -rf "$webdirdest" >>$error_log 2>&1 || st=1
+    if [[ -L ${docroot}fog ]]; then
+        rm -f "${docroot}fog" >>$error_log 2>&1 || st=1
+    fi
+    errorStat $st
 
     dots "Removing FOG system entries"
-    rm -rf /etc/fog >>$error_log 2>&1
-    [[ -L /var/log/fog ]] && rm -f /var/log/fog >>$error_log 2>&1
-    rm -f /etc/cron.d/fog_reporting >>$error_log 2>&1
+    st=0
+    rm -rf /etc/fog >>$error_log 2>&1 || st=1
+    if [[ -L /var/log/fog ]]; then
+        rm -f /var/log/fog >>$error_log 2>&1 || st=1
+    fi
+    rm -f /etc/cron.d/fog_reporting >>$error_log 2>&1 || st=1
     rm -f /etc/nfs.conf.d/fog-nfs.conf /usr/etc/nfs.conf.d/fog-nfs.conf >>$error_log 2>&1
     case $(basename "$etcconf" 2>/dev/null) in
         fog.conf|001-fog.conf)
-            rm -f "$etcconf" >>$error_log 2>&1
+            rm -f "$etcconf" >>$error_log 2>&1 || st=1
             [[ $osid -eq 2 ]] && a2dissite 001-fog >>$error_log 2>&1
             ;;
     esac
-    [[ -n $tftpdirdst && -d $tftpdirdst ]] && rm -rf "${tftpdirdst:?}"/* >>$error_log 2>&1
-    errorStat $?
+    if [[ -n $tftpdirdst && -d $tftpdirdst ]]; then
+        rm -rf "${tftpdirdst:?}"/* >>$error_log 2>&1
+    fi
+    errorStat $st
 
     echo " * Restoring pre-FOG configuration files"
     restorePreFogConfig "$nfsconfig"
