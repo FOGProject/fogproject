@@ -43,11 +43,22 @@ fi
 # So ask the real question. Put the standard sbin directories on PATH when they
 # exist and are not already listed, then check we can actually reach the tool.
 #
-# adduser is the only thing tested here, deliberately. It is what the old check
-# looked for, and widening the list would make this gate reject platforms it
-# used to allow: Alpine has no groupadd or usermod at all (busybox ships
-# addgroup/adduser, and the shadow package is not in Alpine's list).
-for sbindir in /usr/local/sbin /usr/sbin /sbin; do
+# Only account creation is tested here, deliberately. Widening the list would
+# make this gate reject platforms it used to allow: Alpine has no groupadd or
+# usermod at all (busybox ships addgroup/adduser, and shadow supplies them only
+# because FOG now asks for it).
+#
+# Either tool is accepted. configureUsers prefers adduser where it takes the
+# long options and falls back to useradd otherwise, because Arch ships no
+# adduser and Alpine's is the busybox applet.
+# The perl directories are here for the same reason. Arch keeps perl's own
+# scripts out of /usr/bin -- pod2man lives in /usr/bin/core_perl -- and adds
+# them to PATH from /etc/profile.d/perlbin.sh. Relying on the invoking shell
+# having sourced that is the same mistake as relying on it for sbin, and it
+# shows up late and confusingly: the UDPCast build dies at "pod2man: command
+# not found" long after everything else has succeeded. They do not exist
+# elsewhere, so adding them costs nothing.
+for sbindir in /usr/local/sbin /usr/sbin /sbin /usr/bin/core_perl /usr/bin/vendor_perl /usr/bin/site_perl; do
     [[ -d $sbindir ]] || continue
     case ":${PATH}:" in
         *:"${sbindir}":*) ;;
@@ -55,16 +66,16 @@ for sbindir in /usr/local/sbin /usr/sbin /sbin; do
     esac
 done
 export PATH
-if ! command -v adduser >/dev/null 2>&1; then
-    echo "The installer could not find 'adduser'."
+if ! command -v adduser >/dev/null 2>&1 && ! command -v useradd >/dev/null 2>&1; then
+    echo "The installer could not find 'adduser' or 'useradd'."
     echo
-    echo "It normally lives in an sbin directory. If you became root with a"
+    echo "They normally live in an sbin directory. If you became root with a"
     echo "plain 'su' or with 'sudo', switch using 'sudo -i' or 'su -' instead"
     echo "(skip the ' and note the hyphen at the end of the su command, as it"
     echo "is what loads root's own environment)."
     echo
-    echo "If the command genuinely is not installed, FOG cannot create its"
-    echo "system account and the install would fail later on regardless."
+    echo "If neither is genuinely installed, FOG cannot create its system"
+    echo "account and the install would fail later on regardless."
     exit 1
 fi
 
@@ -457,6 +468,11 @@ if [[ ! $exitcode -eq 0 ]]; then
             ;;
 
         *[Aa][Ll][Pp][Ii][Nn][Ee]*)
+            ;;
+        *arch*|*manjaro*)
+            # -Syu, not -Sy: Arch does not support partial upgrades, and this
+            # runs before lib/arch/config.sh has been sourced.
+            pacman -Syu --noconfirm lsb-release >>$error_log 2>&1
             ;;
     esac
 fi

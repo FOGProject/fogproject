@@ -667,8 +667,24 @@ listPackages() {
                 . ../lib/ubuntu/config.sh
                 ;;
             3)
-                osname="Alpine"
-                . ../lib/alpine/config.sh
+                # GH-447: osid 3 means Alpine here, but it meant Arch on the
+                # 1.5 line. An Arch box upgrading from 1.5 carries osid=3 in
+                # .fogsettings and would silently be configured as Alpine --
+                # wrong package manager, wrong init system, wrong web server.
+                # Catch it by what the machine actually is and move it to 4.
+                if [[ $linuxReleaseName_lower == *arch* || $linuxReleaseName_lower == *manjaro* ]]; then
+                    echo " * Recording this Arch install as osid 4 (it was 3 on FOG 1.5)"
+                    osid=4
+                    osname="Arch"
+                    . ../lib/arch/config.sh
+                else
+                    osname="Alpine"
+                    . ../lib/alpine/config.sh
+                fi
+                ;;
+            4)
+                osname="Arch"
+                . ../lib/arch/config.sh
                 ;;
         esac
     else
@@ -687,6 +703,11 @@ listPackages() {
                 osid=3
                 osname="Alpine"
                 . ../lib/alpine/config.sh
+                ;;
+            *arch*|*manjaro*)
+                osid=4
+                osname="Arch"
+                . ../lib/arch/config.sh
                 ;;
             *)
                 echo "Could not define OS"
@@ -1481,6 +1502,7 @@ displayOSChoices() {
                 # DHCP, TFTP, FTP, NFS and FOG's own daemons have no OpenRC arm,
                 # so an install gets a long way and then quietly starts nothing.
                 echo "          3) Alpine Linux (experimental, service setup incomplete)"
+                echo "          4) Arch Based Linux (Arch, Manjaro)"
                 echo
                 echo -n "  Choice: [$strSuggestedOS] "
                 read osid
@@ -1489,7 +1511,7 @@ displayOSChoices() {
                         osid=$strSuggestedOS
                         break
                         ;;
-                    1|2|3)
+                    1|2|3|4)
                         break
                         ;;
                     *)
@@ -1520,6 +1542,13 @@ doOSSpecificIncludes() {
             osname="Alpine"
             . ../lib/alpine/config.sh
             systemctl="no"
+            ;;
+        4)
+            # Arch is systemd, so unlike Alpine it rides the same service
+            # handling as Redhat and Debian and needs no override here.
+            echo -e "\n\n  Starting Arch based Installation\n\n"
+            osname="Arch"
+            . ../lib/arch/config.sh
             ;;
         *)
             echo -e "  Sorry, answer not recognized\n\n"
@@ -1728,6 +1757,24 @@ configureMySql() {
         sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$error_log 2>&1
     done
     if [[ $systemctl == yes ]]; then
+        # Arch leaves the data directory to the admin -- its mariadb package
+        # runs no equivalent of Debian's or RedHat's post-install setup. Start
+        # the service without doing this and it aborts with "Can't open and
+        # lock privilege tables: Table 'mysql.db' doesn't exist". The 1.5 line
+        # had this under osid 3, when 3 meant Arch; it was dropped rather than
+        # renumbered when 3 became Alpine. mariadb-install-db is the current
+        # name, mysql_install_db the compatibility alias for older releases.
+        if [[ $osid -eq 4 && ! -f /var/lib/mysql/mysql/db.MAD && ! -f /var/lib/mysql/mysql/db.frm ]]; then
+            dots "Initializing the MariaDB data directory"
+            mkdir -p /var/lib/mysql >>$error_log 2>&1
+            chown -R mysql:mysql /var/lib/mysql >>$error_log 2>&1
+            if command -v mariadb-install-db >/dev/null 2>&1; then
+                mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$error_log 2>&1
+            else
+                mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$error_log 2>&1
+            fi
+            errorStat $?
+        fi
         systemctl is-enabled --quiet "$dbservice" || systemctl enable "$dbservice" >>$error_log 2>&1
         systemctl is-active --quiet "$dbservice" && systemctl stop "$dbservice" >>$error_log 2>&1
         systemctl start "$dbservice" >>$error_log 2>&1
@@ -2047,7 +2094,19 @@ configureUsers() {
         fi
         echo "Skipped"
     else
-        adduser --system --shell /bin/bash --home /home/${username} ${username} >>$error_log 2>&1
+        # Debian's adduser and RedHat's (a symlink to useradd) both take these
+        # long options, so they keep the path they always had. Two platforms
+        # cannot: Arch ships no adduser whatsoever, and Alpine's is the busybox
+        # applet, which has no --system at all -- so this call failed outright
+        # on both. Fall through to useradd, which shadow provides everywhere
+        # (it is in Alpine's package list for exactly this reason). --home-dir
+        # does not create the directory the way adduser would, but the mkdir
+        # below already did that unconditionally.
+        if command -v adduser >/dev/null 2>&1 && adduser --help 2>&1 | grep -q -- '--system'; then
+            adduser --system --shell /bin/bash --home /home/${username} ${username} >>$error_log 2>&1
+        else
+            useradd --system --shell /bin/bash --home-dir /home/${username} ${username} >>$error_log 2>&1
+        fi
         retVal=$?
         [[ $retVal -eq 0 ]] && groupadd -f --system ${username} >>$error_log 2>&1 || errorStat $?
         retVal=$?
@@ -3082,6 +3141,13 @@ EOF
             phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
             ;;
         3)
+            # Alpine's pool lives beside its php.ini, under the versioned
+            # directory (/etc/php83, /etc/php84, ...). The Arch path that used
+            # to be here matched nothing on Alpine, so none of the tuning below
+            # was ever applied.
+            phpfpmconf="$(dirname $phpini)/php-fpm.d/www.conf"
+            ;;
+        4)
             phpfpmconf='/etc/php/php-fpm.d/www.conf'
             ;;
     esac
@@ -3157,6 +3223,9 @@ configureHttpd() {
                 2)
                     systemctl is-active --quiet $webserver php${php_ver}-fpm && systemctl stop $webserver php${php_ver}-fpm >>$error_log 2>&1 || true
                     ;;
+                4)
+                    systemctl is-active --quiet $webserver $phpfpm && systemctl stop $webserver $phpfpm >>$error_log 2>&1 || true
+                    ;;
             esac
             errorStat $?
             ;;
@@ -3192,7 +3261,32 @@ configureHttpd() {
         echo "   Could not find $phpini!"
         exit 1
     fi
-    if [[ $osid -eq 3 ]]; then
+    if [[ $osid -eq 4 ]]; then
+        # Arch ships httpd.conf with almost every module commented out and
+        # nothing enabled beyond a bare static server, so FOG has to turn on
+        # what it needs. PHP runs through php-fpm over mod_proxy_fcgi, which is
+        # why event stays and prefork/worker go: mod_php would force prefork and
+        # is the reason the recipe in GH-447 could not have worked as written.
+        if [[ ! -f $httpdconf ]]; then
+            echo "Failed"
+            echo "   Could not find $httpdconf!"
+            exit 1
+        fi
+        sed -i '/LoadModule mpm_event_module modules\/mod_mpm_event.so/s/^#//g' $httpdconf >>$error_log 2>&1
+        sed -i '/LoadModule mpm_prefork_module modules\/mod_mpm_prefork.so/s/^/#/g' $httpdconf >>$error_log 2>&1
+        sed -i '/LoadModule mpm_worker_module modules\/mod_mpm_worker.so/s/^/#/g' $httpdconf >>$error_log 2>&1
+        for archmod in proxy_html xml2enc proxy proxy_http proxy_fcgi socache_shmcb ssl rewrite; do
+            sed -i "/LoadModule ${archmod}_module modules\/mod_${archmod}.so/s/^#//g" $httpdconf >>$error_log 2>&1
+        done
+        unset archmod
+        grep -q "^Include conf/extra/fog\.conf" $httpdconf 2>/dev/null || \
+            echo -e "# FOG Virtual Host\nListen 443\nInclude conf/extra/fog.conf" >>$httpdconf
+    fi
+    # Uncommenting ";extension=" lines is Arch's php.ini convention -- it builds
+    # nearly everything into the php package and ships it all disabled. Alpine
+    # enables its modules with drop-ins under conf.d instead, so these are
+    # no-ops there; osid 3 keeps them only so its behaviour is unchanged.
+    if [[ $osid -eq 3 || $osid -eq 4 ]]; then
         sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=curl/extension=curl/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=ftp/extension=ftp/g' $phpini >>$error_log 2>&1
@@ -3486,7 +3580,9 @@ die();
     elif [[ $systemctl == yes ]]; then
         systemctl is-enabled --quiet $webserver php-fpm && true || systemctl enable $webserver php-fpm >>$error_log 2>&1
     elif [[ $osid -eq 3 ]]; then
-        rc-update add php-fpm >>$error_log 2>&1
+        # Alpine's unit is versioned (php-fpm83, php-fpm84), which is exactly
+        # what $phpfpm holds; a bare "php-fpm" matches nothing there.
+        rc-update add $phpfpm >>$error_log 2>&1
         rc-update add $webserver >>$error_log 2>&1
     else
         chkconfig php-fpm on >>$error_log 2>&1

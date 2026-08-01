@@ -24,6 +24,9 @@ if [[ $guessdefaults == 1 ]]; then
         *alpine*)
             strSuggestedOS=3
             ;;
+        *arch*|*manjaro*)
+            strSuggestedOS=4
+            ;;
         *)
             strSuggestedOS=1
             ;;
