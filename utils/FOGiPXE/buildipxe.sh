@@ -10,7 +10,13 @@ elif [[ -r ${fogprogramdir%/}/snapins/ssl/CA/.fogCA.pem ]]; then
   cert="${fogprogramdir%/}/snapins/ssl/CA/.fogCA.pem"
 fi
 
-BUILDOPTS="CERT=${cert} TRUST=${cert}"
+# NO_WERROR=1: iPXE builds with -Werror, and newer compilers keep finding new
+# things to warn about in drivers nobody has touched in a decade -- gcc 16
+# fails the whole build on an unused-but-set variable in w89c840.c. That is a
+# toolchain-vs-upstream problem, not a FOG one, and it stopped -S/--force-https
+# installs building iPXE at all. The knob is upstream's own; FOG simply never
+# passed it. Refs GH-955.
+BUILDOPTS="CERT=${cert} TRUST=${cert} NO_WERROR=1"
 IPXEGIT="https://github.com/ipxe/ipxe"
 
 # Change directory to base ipxe files
@@ -32,9 +38,16 @@ else
 fi
 
 
-# Get current header and script from fogproject repo
+# Get current header and script from fogproject repo.
+#
+# Makefile.housekeeping is deliberately NOT among these. FOG carried a copy
+# from 2024 and pasted it over every fresh clone, which meant a 2024 build
+# system driving 2026 sources. It never held a single FOG-specific line -- each
+# "fix" to it was just re-pinning a newer upstream snapshot after the mismatch
+# broke something -- and the last re-pin reverted upstream's newer Secure Boot
+# build mode, which excludes known-insecure drivers, back to the older scheme.
+# The clone already ships the right one. Refs GH-955.
 echo "Copy (overwrite) iPXE headers and scripts..."
-cp ${FOGDIR}/src/ipxe/src/Makefile.housekeeping .
 cp ${FOGDIR}/src/ipxe/src/ipxescript .
 cp ${FOGDIR}/src/ipxe/src/ipxescript10sec .
 cp ${FOGDIR}/src/ipxe/src/config/general.h config/
@@ -75,7 +88,6 @@ fi
 
 # Get current header and script from fogproject repo
 echo "Copy (overwrite) iPXE headers and scripts..."
-cp ${FOGDIR}/src/ipxe/src-efi/Makefile.housekeeping .
 cp ${FOGDIR}/src/ipxe/src-efi/ipxescript .
 cp ${FOGDIR}/src/ipxe/src-efi/ipxescript10sec .
 cp ${FOGDIR}/src/ipxe/src-efi/config/general.h config/
