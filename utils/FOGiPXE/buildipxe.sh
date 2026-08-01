@@ -18,6 +18,14 @@ fi
 # passed it. Refs GH-955.
 BUILDOPTS="CERT=${cert} TRUST=${cert} NO_WERROR=1"
 IPXEGIT="https://github.com/ipxe/ipxe"
+# Pinned to a release tag rather than tracking master. Building from whatever
+# upstream pushed that morning means two people running this script on the same
+# day can get different binaries, and it is what let the stale
+# Makefile.housekeeping overlay (removed above) go unnoticed for two years. New
+# hardware support now arrives when this line is bumped, which is the trade we
+# want: iPXE has tagged releases again as of v2.0.0 (March 2026). Export
+# IPXEVER to build something else for testing. Refs GH-957.
+IPXEVER="${IPXEVER:-v2.0.0}"
 
 # Change directory to base ipxe files
 SCRIPT=$(readlink -f "$BASH_SOURCE")
@@ -28,12 +36,15 @@ if [[ -d ${BASE}/ipxe ]]; then
   cd ${BASE}/ipxe
   git clean -fd
   git reset --hard
-  git pull
+  # fetch+checkout rather than pull: an existing clone from before the pin is
+  # sitting on master, and pull would just advance it.
+  git fetch --tags --force ${IPXEGIT}
+  git checkout -q ${IPXEVER} || exit 39
   cd src/
   # make sure this is being re-compiled in case the CA has changed!
   touch crypto/rootcert.c
 else
-  git clone ${IPXEGIT} ${BASE}/ipxe
+  git clone --branch ${IPXEVER} ${IPXEGIT} ${BASE}/ipxe
   cd ${BASE}/ipxe/src/
 fi
 
@@ -77,12 +88,14 @@ if [[ -d ${BASE}/ipxe-efi ]]; then
   cd ${BASE}/ipxe-efi/
   git clean -fd
   git reset --hard
-  git pull
+  # See the note on the BIOS tree above.
+  git fetch --tags --force ${IPXEGIT}
+  git checkout -q ${IPXEVER} || exit 79
   cd src/
   # make sure this is being re-compiled in case the CA has changed!
   touch crypto/rootcert.c
 else
-  git clone ${IPXEGIT} ${BASE}/ipxe-efi
+  git clone --branch ${IPXEVER} ${IPXEGIT} ${BASE}/ipxe-efi
   cd ${BASE}/ipxe-efi/src/
 fi
 
