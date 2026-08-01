@@ -52,7 +52,7 @@ fi
 [[ -z $iscservice ]] && iscservice="dhcpd4"
 [[ -z $keapackage ]] && keapackage="kea"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
-[[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
+[[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
 [[ -z $php_ver ]] && php_ver="7"
 [[ -z $phpfpm ]] && phpfpm="php-fpm${php_ver}"
 [[ -z $webserver ]] && webserver="nginx"

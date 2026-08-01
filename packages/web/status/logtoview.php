@@ -67,7 +67,7 @@ function vals($reverse, $HookManager, $lines, $file)
     );
     $folders = [
         '/var/log/fog/',
-        '/opt/fog/log/',
+        FOG_LOG_DIR . DS,
         '/var/log/httpd/',
         '/var/log/apache2/',
         '/var/log/nginx/',

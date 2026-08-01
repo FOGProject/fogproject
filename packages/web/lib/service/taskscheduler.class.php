@@ -55,7 +55,7 @@ class TaskScheduler extends FOGService
             '%s%s',
             self::$logpath ?
             self::$logpath :
-            '/opt/fog/log/',
+            FOG_LOG_DIR . DS,
             $log ?
             $log :
             'fogscheduler.log'

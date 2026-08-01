@@ -89,7 +89,7 @@ fi
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
 [[ -z $tftpconfigupstartdefaults ]] && tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
-[[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
+[[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
 [[ -z $dhcpd ]] && dhcpd="isc-dhcp-server"
 [[ -z $dhcpname ]] && dhcpname="isc-dhcp-server"
 [[ -z $iscservice ]] && iscservice="isc-dhcp-server"

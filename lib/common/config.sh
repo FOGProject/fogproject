@@ -21,9 +21,16 @@ fog_udpversion="20250223"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-${fog_udpversion}.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-${fog_udpversion}"
 [[ -z $servicesrc ]] && servicesrc="../packages/service"
-[[ -z $servicedst ]] && servicedst="/opt/fog/service"
-[[ -z $servicelogs ]] && servicelogs="/opt/fog/log"
+# fogprogramdir is the single source of truth for the FOG base path and must be
+# resolved BEFORE anything derived from it -- it used to be set two lines later,
+# which is why servicedst/servicelogs carried their own "/opt/fog" literals and
+# a non-default base dir silently split across two trees. See GH-850.
+# Note: this cannot yet be overridden from .fogsettings, because .fogsettings
+# itself lives at $fogprogramdir/.fogsettings; establishing it out-of-band is
+# tracked as the follow-up to GH-850.
 [[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
+[[ -z $servicedst ]] && servicedst="$fogprogramdir/service"
+[[ -z $servicelogs ]] && servicelogs="$fogprogramdir/log"
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"

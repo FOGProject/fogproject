@@ -56,7 +56,7 @@ class ImageReplicator extends FOGService
             (
                 self::$logpath ?
                 self::$logpath :
-                '/opt/fog/log/'
+                FOG_LOG_DIR . DS
             ),
             (
                 $log ?
@@ -99,7 +99,7 @@ class ImageReplicator extends FOGService
                         '* %s',
                         _('I am the group manager')
                     ),
-                    '/opt/fog/log/groupmanager.log'
+                    FOG_LOG_DIR . DS . 'groupmanager.log'
                 );
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
@@ -311,7 +311,7 @@ class ImageReplicator extends FOGService
                 ' * %s.',
                 _('Checking if I am the group manager')
             ),
-            '/opt/fog/log/groupmanager.log'
+            FOG_LOG_DIR . DS . 'groupmanager.log'
         );
         $this->_commonOutput();
         parent::serviceRun();

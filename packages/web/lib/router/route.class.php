@@ -4742,7 +4742,7 @@ class Route extends FOGBase
      */
     public static function whoami()
     {
-        $data = parse_ini_file('/opt/fog/.fogsettings', true);
+        $data = parse_ini_file(FOG_BASE_DIR . DS . '.fogsettings', true);
         extract($data);
         self::$data = [
             'ipaddress' => $ipaddress,

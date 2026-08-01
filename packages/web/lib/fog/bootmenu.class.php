@@ -1702,7 +1702,7 @@ class BootMenu extends FOGBase
                 $clamav = sprintf(
                     '%s:%s',
                     $ip,
-                    '/opt/fog/clamav'
+                    FOG_BASE_DIR . DS . 'clamav'
                 );
             }
             $chkdsk = !isset($chkdsk) || $chkdsk == 1 ? 0 : 1;

@@ -62,6 +62,8 @@ packages/web/service/ipxe/backup
 # Config file #
 ###############
 *config.class.php
+# Written by the installer from $fogprogramdir (GH-850), like config.class.php
+packages/web/commons/fogpaths.php
 *.well-known
 packages/web/fog
 packages/web/.vscode

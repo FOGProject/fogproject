@@ -97,4 +97,4 @@ fi
 [[ -z $iscservice ]] && iscservice="dhcpd"
 [[ -z $keapackage ]] && keapackage="kea"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
-[[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
+[[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"

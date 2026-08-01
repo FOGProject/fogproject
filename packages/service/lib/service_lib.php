@@ -63,7 +63,7 @@ $service_logpath = sprintf(
     FOGCore::getSetting('SERVICEMASTERLOGFILENAME')
 );
 if (!is_file($service_logpath)) {
-    $service_logpath = '/opt/fog/log/servicemaster.log';
+    $service_logpath = FOG_LOG_DIR . DS . 'servicemaster.log';
 }
 $service_sleep_time = (int)FOGCore::getSetting('SERVICESLEEPTIME');
 if (!$service_sleep_time) {

@@ -56,7 +56,7 @@ class ImageSize extends FOGService
             (
                 self::$logpath ?
                 self::$logpath :
-                '/opt/fog/log/'
+                FOG_LOG_DIR . DS
             ),
             (
                 $log ?
