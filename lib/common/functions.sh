@@ -51,12 +51,51 @@ backupReports() {
     echo "Done"
     return 0
 }
+# GH-685: the MariaDB client library turns TLS on by default from 10.10.1
+# onward and then refuses to connect at all when the server offers none --
+# "ERROR 2026 (HY000): TLS/SSL error: SSL is required, but the server does not
+# support it". Debian 12 and Ubuntu 24.04 both ship such a client, so a storage
+# node installed on either could not reach an older master and the install died
+# at "Checking connection to master database" with an empty error log.
+#
+# FOG's own web tier reaches the same database over PDO without TLS, so a
+# plaintext-only master is not a reason to refuse the install. The fallback is
+# only ever tried after the default attempt -- encrypted wherever the server
+# offers it -- has already failed, so an install that was getting TLS keeps it.
+#
+# The flag differs by client: MySQL 8.4 dropped --skip-ssl and takes only
+# --ssl-mode, while MariaDB before 11.4 has no --ssl-mode. Try both and keep
+# whichever the installed client accepts. Empty means none was ever needed.
+mysqlsslopt=""
+detectMysqlSslOption() {
+    local opt
+    [[ -n $mysqlsslopt ]] && return 0
+    for opt in "--ssl-mode=DISABLED" "--skip-ssl"; do
+        if mysql "$@" $opt --execute="quit" >/dev/null 2>&1; then
+            mysqlsslopt="$opt"
+            return 0
+        fi
+    done
+    return 1
+}
 checkDatabaseConnection() {
     dots "Checking connection to master database"
     [[ -n $snmysqlhost ]] && host="--host=$snmysqlhost"
     sqloptionsuser="${host} -s --user=${snmysqluser}"
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="quit" >/dev/null 2>&1
-    errorStat $?
+    local connected=$?
+    # Only the whole option string is reusable, so widen $host too -- the
+    # fogstorage checks later on build their own command line from it.
+    if [[ $connected -ne 0 ]] && detectMysqlSslOption $sqloptionsuser --password="${snmysqlpass}"; then
+        host="${host} ${mysqlsslopt}"
+        sqloptionsuser="${sqloptionsuser} ${mysqlsslopt}"
+        connected=0
+        errorStat 0
+        echo " * Note: the master database offers no TLS, so the installer will"
+        echo "   connect unencrypted, the same way the FOG web tier already does."
+        return 0
+    fi
+    errorStat $connected
 }
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
@@ -189,7 +228,7 @@ schemaVersionInDB() {
 fogUserCount() {
     if [[ "${snmysqlexternal}" == "1" ]]; then
         [[ -z $snmysqlhost || -z $snmysqluser ]] && return 0
-        mysql --host="${snmysqlhost}" --user="${snmysqluser}" --password="${snmysqlpass}" -N -B --execute="SELECT COUNT(*) FROM \`${mysqldbname}\`.\`users\`" 2>/dev/null | tail -1
+        mysql --host="${snmysqlhost}" --user="${snmysqluser}" --password="${snmysqlpass}" $mysqlsslopt -N -B --execute="SELECT COUNT(*) FROM \`${mysqldbname}\`.\`users\`" 2>/dev/null | tail -1
         return 0
     fi
     [[ -z $sqloptionsuser ]] && return 0
@@ -1631,8 +1670,15 @@ configureMySql() {
         # snmysqlexternal=1 install exit 1 here, and the error below named an
         # empty database.
         mysql -h "${snmysqlhost}" -u "${snmysqluser}" -p"${snmysqlpass}" -e "USE ${mysqldbname};" >/dev/null 2>&1
+        local externalok=$?
+        # GH-685: an external master without TLS is refused outright by a modern
+        # MariaDB client. See detectMysqlSslOption.
+        if [[ $externalok -ne 0 ]] && detectMysqlSslOption -h "${snmysqlhost}" -u "${snmysqluser}" -p"${snmysqlpass}"; then
+            mysql -h "${snmysqlhost}" -u "${snmysqluser}" -p"${snmysqlpass}" $mysqlsslopt -e "USE ${mysqldbname};" >/dev/null 2>&1
+            externalok=$?
+        fi
 
-        if [[ $? -ne 0 ]]; then
+        if [[ $externalok -ne 0 ]]; then
             echo "Failed!"
             echo " * Error: Cannot connect to the external database '${mysqldbname}' at '${snmysqlhost}'."
             echo " * Please verify your credentials in $fogprogramdir/.fogsettings and ensure the DB exists."
@@ -1705,6 +1751,17 @@ configureMySql() {
     [[ -n $snmysqlhost ]] && host="--host=$snmysqlhost"
     sqloptionsroot="${host} --user=root"
     sqloptionsuser="${host} -s --user=${snmysqluser}"
+    # GH-685: a TLS-insisting client breaks every statement below, not just the
+    # first, so settle the question once and bake the answer into the shared
+    # option strings. Only TCP connections negotiate TLS -- an empty
+    # $snmysqlhost means the local socket, where the question cannot arise.
+    if [[ -n $snmysqlhost ]] \
+        && ! mysql $sqloptionsuser --password="${snmysqlpass}" --execute="quit" >/dev/null 2>&1 \
+        && detectMysqlSslOption $sqloptionsuser --password="${snmysqlpass}"; then
+        host="${host} ${mysqlsslopt}"
+        sqloptionsroot="${sqloptionsroot} ${mysqlsslopt}"
+        sqloptionsuser="${sqloptionsuser} ${mysqlsslopt}"
+    fi
     mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1
     errorStat $?
 
