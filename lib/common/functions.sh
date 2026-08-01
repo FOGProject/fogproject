@@ -2320,8 +2320,13 @@ configureHttpd() {
         rm -rf "$webdirdest" >>$error_log 2>&1
     fi
     if [[ $osid -eq 2 ]]; then
+        # GH-953: this removed ${docroot} -- the whole document root, taking any
+        # other site sharing it with FOG. It only reaches the rm when the
+        # rm -rf "$webdirdest" above failed to remove the same directory, so it
+        # was a recovery path that deleted the parent of what it could not
+        # delete. Only the fog directory was ever meant to go.
         if [[ -d ${docroot}fog ]]; then
-            rm -rf ${docroot} >>$error_log 2>&1
+            rm -rf ${docroot}fog >>$error_log 2>&1
         fi
     fi
     mkdir -p "$webdirdest" >>$error_log 2>&1

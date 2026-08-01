@@ -44,10 +44,16 @@ if [[ -z $webdirdest ]]; then
     else
         webdirdest="${docroot}/"
     fi
-    if [[ $docroot == /var/www/html/ && ! -d $docroot ]]; then
-        docroot="/var/www/"
-        webdirdest="${docroot}fog/"
-    fi
+    # GH-953: there used to be a fallback to /var/www/ here when /var/www/html
+    # did not exist. This file is sourced long before installPackages, and
+    # installing apache2/nginx is what creates /var/www/html -- so the test
+    # answered differently on a fresh box than on one that already had a web
+    # server, and identical machines installed to two different trees.
+    # /var/www/html has been the Debian docroot since Debian 8; the directory
+    # merely not existing yet says nothing about the platform, and
+    # mkdir -p "$webdirdest" creates it later in configureHttpd anyway.
+    # Existing installs keep their own path -- docroot is a managed key in
+    # .fogsettings, so it never reaches this branch.
 fi
 [[ -z $webredirect ]] && webredirect="$docroot/index.php"
 [[ -z $apacheuser ]] && apacheuser="www-data"

@@ -17,12 +17,11 @@ case $osid in
         else
             webdirdest="${docroot}/"
         fi
-        if [[ $osid -eq 2 ]]; then
-            if [[ $docroot == /var/www/html/ && ! -d $docroot ]]; then
-                docroot="/var/www/"
-                webdirdest="${docroot}fog/"
-            fi
-        fi
+        # GH-953: the /var/www/ fallback for osid 2 that used to live here is
+        # gone -- see the note in lib/ubuntu/config.sh. It could only have
+        # disagreed with the running install anyway: docroot comes from the
+        # .fogsettings sourced above, and this script already refuses to run if
+        # that path does not exist.
         ;;
     3)
         if [[ -z $docroot ]]; then
