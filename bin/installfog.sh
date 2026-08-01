@@ -174,6 +174,22 @@ while :; do
             swebroot="${2}"
             swebroot="${swebroot#'/'}"
             swebroot="${swebroot%'/'}"
+            # GH-529: store the FINAL "/x/" form here rather than the bare "x".
+            # The normalisation further down only runs on the upgrade path (it
+            # is gated on grepping an existing .fogsettings), so two separate
+            # bugs came out of not doing so:
+            #
+            #   -W /      stripped to "", and the application tested `-n
+            #             $swebroot`, so the one case the help text exists to
+            #             document was discarded and fell back to /fog/.
+            #   -W /fog   on a FRESH install left webroot as "fog" with no
+            #             slashes, producing a vhost matching ^fog(.*)$ and
+            #             URLs like http://1.2.3.4fogmanagement.
+            #
+            # swebrootset records that the flag was given, separately from its
+            # value, so an empty value still counts.
+            swebrootset=1
+            [[ -z $swebroot ]] && swebroot="/" || swebroot="/${swebroot}/"
             shift 2
             ;;
         -B | --backuppath)
@@ -331,7 +347,7 @@ case $doupdate in
             [[ -n $blexports ]] && blexports=$blexports
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
-            [[ -n $swebroot ]] && webroot=$swebroot
+            [[ -n $swebrootset ]] && webroot=$swebroot
             [[ -n $sdocroot ]] && docroot=$sdocroot
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
             [[ -n $scopybackold ]] && copybackold=$scopybackold
@@ -349,7 +365,7 @@ esac
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
 [[ -n $sdocroot ]] && docroot=$sdocroot
-[[ -n $swebroot ]] && webroot=$swebroot
+[[ -n $swebrootset ]] && webroot=$swebroot
 [[ -n $sbackupPath ]] && backupPath=$sbackupPath
 [[ -n $sexitFail ]] && exitFail=$sexitFail
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
@@ -526,6 +542,7 @@ while [[ -z $blGo ]]; do
                     configureNFS
                     writeUpdateFile
                     linkOptFogDir
+                    installUtilities
                     if [[ $bluseralreadyexists == 1 ]]; then
                         echo
                         echo "\n * Upgrade complete\n"
@@ -572,6 +589,7 @@ while [[ -z $blGo ]]; do
                     configureNFS
                     writeUpdateFile
                     linkOptFogDir
+                    installUtilities
                     updateStorageNodeCredentials
                     setupFogReporting
                     echo

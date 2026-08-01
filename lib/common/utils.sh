@@ -1,5 +1,10 @@
 #!/bin/bash
-. ../../lib/common/functions.sh
+# GH-314: `.` resolves a relative path against the CALLER's cwd, not this
+# script's location, so this only ever worked if you cd'd into the util's own
+# directory first. Resolve against our own path so the utils can be invoked by
+# absolute path from anywhere -- which is the point of installing them to
+# $fogprogramdir.
+. "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/functions.sh"
 handleError() {
     echo "$1"
     exit $2

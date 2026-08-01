@@ -92,11 +92,29 @@ backupDB() {
     fi
     # ---------------------------------------------------------
     dots "Backing up database"
+    # GH-314: the status checked below used to be whichever command ran last.
+    # With no prior install there is no BACKUP directory, so the `if` was
+    # skipped entirely and the status read was the failed directory test --
+    # reporting a failure for a step that never ran. dbbackupstat is only set
+    # where a backup was actually attempted.
+    #
+    # The non-empty check is belt and braces: wget -O creates the output file
+    # before it knows whether the request succeeds, so a failure can leave a
+    # zero-byte dump behind, and reporting success over an empty pre-upgrade
+    # backup is the worst outcome available here.
+    local dbbackupstat=0
+    local dbbackupfile=""
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$error_log 2>&1
-        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://${ipaddress}${webroot}/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$error_log 2>&1
+        dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql"
+        wget --no-check-certificate -O "$dbbackupfile" "${httpproto}://${ipaddress}${webroot}/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$error_log 2>&1 || dbbackupstat=1
+        [[ ! -s $dbbackupfile ]] && dbbackupstat=1
     fi
-    if [[ $? -ne 0 ]]; then
+    if [[ -z $dbbackupfile ]]; then
+        # No prior install to back up. Saying "Done" over a step that never ran
+        # is the same misreport this function was just fixed for.
+        echo "Skipped"
+    elif [[ $dbbackupstat -ne 0 ]]; then
         echo "Failed"
         if [[ -z $autoaccept ]]; then
             echo
@@ -1830,6 +1848,30 @@ EOF
     errorStat $ret
     unset cnt
     unset ret
+}
+installUtilities() {
+    dots "Installing FOG utilities"
+    # GH-314: the utility scripts only ever existed inside the git checkout you
+    # happened to install from, so there was no stable path to call them by --
+    # FOGBackup in particular. Delete that checkout, move it, or clone a second
+    # one and any cron or runbook referencing it breaks. reporting/report.sh
+    # already got copied to $fogprogramdir; this does the same for the rest.
+    #
+    # lib/ comes along because the utils source lib/common/utils.sh, which
+    # sources lib/common/functions.sh. Keeping both trees in their original
+    # relative positions is what makes that sourcing keep working -- see the
+    # BASH_SOURCE resolution at the top of those scripts.
+    #
+    # Removed first rather than copied over: these are installer-owned trees, so
+    # a file dropped from a later release should not survive as a stale copy.
+    local st=0
+    rm -rf "$fogprogramdir/utils" "$fogprogramdir/lib" >>$error_log 2>&1
+    mkdir -p "$fogprogramdir/utils" "$fogprogramdir/lib" >>$error_log 2>&1 || st=1
+    cp -a "$workingdir/../utils/." "$fogprogramdir/utils/" >>$error_log 2>&1 || st=1
+    cp -a "$workingdir/../lib/." "$fogprogramdir/lib/" >>$error_log 2>&1 || st=1
+    find "$fogprogramdir/utils" "$fogprogramdir/lib" -type f -name '*.sh' \
+        -exec chmod 755 {} \; >>$error_log 2>&1 || st=1
+    errorStat $st
 }
 linkOptFogDir() {
     if [[ ! -h /var/log/fog ]]; then
