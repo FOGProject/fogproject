@@ -2361,6 +2361,27 @@ normalizeWebroot() {
     webrootbare="${webrootbare%/}"
     webrootre=$(printf '%s' "$webroot" | sed 's/[.[\*^$()+?{|]/\\&/g')
 }
+# Emits the fastcgi body shared by the generic `location ~ \.php$` include and
+# the maintenance/ location, which needs the same PHP handling but with an
+# allow/deny in front of it. Kept in one place so the two cannot drift -- if
+# they did, the maintenance location would stop passing PHP to fpm and nginx
+# would fall back to serving the source of those files as a static download.
+# $1 = target file to append to.
+emitNginxPhpBody() {
+    echo "    set \$phproot ${docroot};" >> "$1"
+    echo "    root $docroot;" >> "$1"
+    echo "    fastcgi_pass 127.0.0.1:9000;" >> "$1"
+    echo "    fastcgi_index index.php;" >> "$1"
+    echo "    include fastcgi.conf;" >> "$1"
+    echo "    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;" >> "$1"
+    # The API supports HTTP basic auth, but nginx forwards only the
+    # fastcgi_params whitelist and Authorization is not on it, so
+    # PHP_AUTH_USER/PHP_AUTH_PW were never populated and basic auth
+    # could not succeed.
+    echo "    fastcgi_param HTTP_AUTHORIZATION \$http_authorization;" >> "$1"
+    echo "    fastcgi_buffers 16 16k;" >> "$1"
+    echo "    fastcgi_buffer_size 32k;" >> "$1"
+}
 createSSLCA() {
     # This function also emits the web server vhost further down, and those
     # nginx location / apache LocationMatch blocks used to hardcode ^/fog/ --
@@ -2492,19 +2513,7 @@ EOF
                         fi
                     fi
                     echo 'location ~ \.php$ {' > "$phploc"
-                    echo "    set \$phproot ${docroot};" >> "$phploc"
-                    echo "    root $docroot;" >> "$phploc"
-                    echo "    fastcgi_pass 127.0.0.1:9000;" >> "$phploc"
-                    echo "    fastcgi_index index.php;" >> "$phploc"
-                    echo "    include fastcgi.conf;" >> "$phploc"
-                    echo "    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;" >> "$phploc"
-                    # The API supports HTTP basic auth, but nginx forwards
-                    # only the fastcgi_params whitelist and Authorization is
-                    # not on it, so PHP_AUTH_USER/PHP_AUTH_PW were never
-                    # populated and basic auth could not succeed.
-                    echo "    fastcgi_param HTTP_AUTHORIZATION \$http_authorization;" >> "$phploc"
-                    echo "    fastcgi_buffers 16 16k;" >> "$phploc"
-                    echo "    fastcgi_buffer_size 32k;" >> "$phploc"
+                    emitNginxPhpBody "$phploc"
                     echo "}" >> "$phploc"
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
@@ -2519,6 +2528,27 @@ EOF
                         echo "    gzip_comp_level 5;" >> "$etcconf"
                         echo "    gzip_vary on;" >> "$etcconf"
                         echo "    error_page 500 502 503 504 /50x.html;" >> "$etcconf"
+                        # maintenance/ holds installer-only endpoints (a full DB dump,
+                        # storage-node create/update). They gate themselves on the
+                        # request being same-machine, but the directory is only removed
+                        # when an install RUNS TO COMPLETION -- one that dies partway
+                        # leaves them on disk indefinitely. Deny them here too.
+                        #
+                        # This has to precede the generic php include: nginx tries regex
+                        # locations in order and the first match wins, so placed after,
+                        # `location ~ \.php$` would take these URLs and the allow/deny
+                        # would never run. It also has to repeat the fastcgi body (a
+                        # location cannot be nested inside another) or nginx, finding no
+                        # handler, would serve the PHP source as a static file.
+                        echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
+                        echo "        allow 127.0.0.1;" >> "$etcconf"
+                        echo "        allow ::1;" >> "$etcconf"
+                        for ip in $ipaddress; do
+                            echo "        allow ${ip};" >> "$etcconf"
+                        done
+                        echo "        deny all;" >> "$etcconf"
+                        emitNginxPhpBody "$etcconf"
+                        echo "    }" >> "$etcconf"
                         echo "    include ${phploc};" >> "$etcconf"
                         echo "    location = /50x.html {" >> "$etcconf"
                         echo "        root /var/lib/nginx/html;" >> "$etcconf"
@@ -2558,6 +2588,16 @@ EOF
                         echo "    gzip_comp_level 5;" >> "$etcconf"
                         echo "    gzip_vary on;" >> "$etcconf"
                         echo "    error_page 500 502 503 504 /50x.html;" >> "$etcconf"
+                        # See the first server block -- installer-only, same-machine only.
+                        echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
+                        echo "        allow 127.0.0.1;" >> "$etcconf"
+                        echo "        allow ::1;" >> "$etcconf"
+                        for ip in $ipaddress; do
+                            echo "        allow ${ip};" >> "$etcconf"
+                        done
+                        echo "        deny all;" >> "$etcconf"
+                        emitNginxPhpBody "$etcconf"
+                        echo "    }" >> "$etcconf"
                         echo "    include ${phploc};" >> "$etcconf"
                         echo "    location = /50x.html {" >> "$etcconf"
                         echo "        root /var/lib/nginx/html;" >> "$etcconf"
@@ -2615,6 +2655,16 @@ EOF
                         echo "    gzip_comp_level 5;" >> "$etcconf"
                         echo "    gzip_vary on;" >> "$etcconf"
                         echo "    error_page 500 502 503 504 /50x.html;" >> "$etcconf"
+                        # See the first server block -- installer-only, same-machine only.
+                        echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
+                        echo "        allow 127.0.0.1;" >> "$etcconf"
+                        echo "        allow ::1;" >> "$etcconf"
+                        for ip in $ipaddress; do
+                            echo "        allow ${ip};" >> "$etcconf"
+                        done
+                        echo "        deny all;" >> "$etcconf"
+                        emitNginxPhpBody "$etcconf"
+                        echo "    }" >> "$etcconf"
                         echo "    include ${phploc};" >> "$etcconf"
                         echo "    location = /50x.html {" >> "$etcconf"
                         echo "        root /var/lib/nginx/html;" >> "$etcconf"
@@ -2659,6 +2709,19 @@ EOF
                         a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
+                    # GH-650: $ipaddress is one address per line (see the
+                    # `ip -4 addr show` in lib/common/input.sh), so a NIC
+                    # carrying a second address emitted
+                    #     ServerName 10.0.0.1
+                    #     10.0.0.2
+                    # and apache refused to start with "Invalid command
+                    # '10.0.0.2'", failing the install at "Starting and
+                    # checking status of web services". ServerName takes
+                    # exactly one name; the extras go on ServerAlias, which is
+                    # variadic, so a multi-homed server still answers to every
+                    # address it has.
+                    vhostname=$(echo $ipaddress | awk '{print $1}')
+                    vhostaliases=$(echo $ipaddress | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
@@ -2677,8 +2740,25 @@ EOF
                     # works on every 2.4 and is a no-op under mod_php.
                     echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
-                    echo "    ServerName $ipaddress" >> "$etcconf"
-                    echo "    ServerAlias $hostname" >> "$etcconf"
+                    echo "    ServerName $vhostname" >> "$etcconf"
+                    echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+                    # maintenance/ holds installer-only endpoints (a full DB dump,
+                    # storage-node create/update). Each one gates itself on the
+                    # request being same-machine, but the directory is only removed
+                    # when an install RUNS TO COMPLETION -- an install that dies
+                    # partway leaves them on disk indefinitely. Deny them at the
+                    # web server too, so a file added there later without its own
+                    # check is not exposed by that omission alone.
+                    #
+                    # LocationMatch, not Directory: the tree is also published at
+                    # ${docroot}/${webrootbare} via a symlink, and Directory does
+                    # not follow symlinks, so a Directory rule would miss that
+                    # path entirely. Require local matches loopback and the case
+                    # where client and server address are the same -- which is how
+                    # the installer calls in.
+                    echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
+                    echo "        Require local" >> "$etcconf"
+                    echo "    </LocationMatch>" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     if [[ $httpproto == https ]]; then
                         echo "    RewriteEngine On" >> "$etcconf"
@@ -2699,8 +2779,12 @@ EOF
                         echo "    </FilesMatch>" >> "$etcconf"
                         # Keeps API basic auth working; see the :80 vhost.
                         echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
-                        echo "    ServerName $ipaddress" >> "$etcconf"
-                        echo "    ServerAlias $hostname" >> "$etcconf"
+                        echo "    ServerName $vhostname" >> "$etcconf"
+                        echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+                        # See the :80 vhost -- installer-only, same-machine only.
+                        echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
+                        echo "        Require local" >> "$etcconf"
+                        echo "    </LocationMatch>" >> "$etcconf"
                         echo "    DocumentRoot $docroot" >> "$etcconf"
                         echo "    SSLEngine On" >> "$etcconf"
                         echo "    SSLProtocol -all +TLSv1.2" >> "$etcconf"
@@ -2793,8 +2877,12 @@ EOF
                         echo "    </FilesMatch>" >> "$etcconf"
                         # Keeps API basic auth working; see the :80 vhost.
                         echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
-                        echo "    ServerName $ipaddress" >> "$etcconf"
-                        echo "    ServerAlias $hostname" >> "$etcconf"
+                        echo "    ServerName $vhostname" >> "$etcconf"
+                        echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+                        # See the :80 vhost -- installer-only, same-machine only.
+                        echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
+                        echo "        Require local" >> "$etcconf"
+                        echo "    </LocationMatch>" >> "$etcconf"
                         echo "    DocumentRoot $docroot" >> "$etcconf"
                         echo "    SSLEngine On" >> "$etcconf"
                         echo "    SSLProtocol -all +TLSv1.2" >> "$etcconf"
