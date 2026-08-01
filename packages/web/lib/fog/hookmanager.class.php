@@ -42,6 +42,24 @@ class HookManager extends EventManager
      */
     public $events = array();
     /**
+     * Names already present in hookEvents, as a lookup set.
+     *
+     * processEvent() used to ask the database whether the event name was
+     * already registered on EVERY fire. Hooks fire constantly -- even
+     * TaskState::getQueuedState() fires one, from inside batch loops -- so
+     * this was a round trip per hook, thousands of them on a large group
+     * tasking. The table is only a discovery aid for the hook debugger and
+     * the API's hookevent list, so the answer is safe to remember for the
+     * life of the process. Nothing here removes names, so the only staleness
+     * possible is a name another process added after we loaded -- which costs
+     * at worst one redundant save(), and save() is an upsert.
+     *
+     * Ported from working-1.6, where it was found while profiling GH-707.
+     *
+     * @var array|null
+     */
+    private static $knownEvents = null;
+    /**
      * Processes the system for customizable elements.
      *
      * @param string $event     the event to process
@@ -51,12 +69,17 @@ class HookManager extends EventManager
      */
     public function processEvent($event, $arguments = array())
     {
-        $exists = self::getClass('HookEventManager')->exists(
-            $event,
-            '',
-            'name'
-        );
-        if (!$exists) {
+        if (self::$knownEvents === null) {
+            self::$knownEvents = array_flip(
+                (array) self::getSubObjectIDs(
+                    'HookEvent',
+                    array(),
+                    'name'
+                )
+            );
+        }
+        if (!isset(self::$knownEvents[$event])) {
+            self::$knownEvents[$event] = true;
             self::getClass('HookEvent')
                 ->set('name', $event)
                 ->save();
