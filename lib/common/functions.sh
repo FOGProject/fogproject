@@ -1475,7 +1475,12 @@ displayOSChoices() {
                 echo
                 echo "          1) Redhat Based Linux (Redhat, Alma, Rocky, CentOS, Mageia)"
                 echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)"
-                echo "          3) Alpine Linux"
+                # Alpine is listed honestly as incomplete rather than as a peer
+                # of the two above. Its package list now resolves, but service
+                # management is only wired for MariaDB, nginx and php-fpm --
+                # DHCP, TFTP, FTP, NFS and FOG's own daemons have no OpenRC arm,
+                # so an install gets a long way and then quietly starts nothing.
+                echo "          3) Alpine Linux (experimental, service setup incomplete)"
                 echo
                 echo -n "  Choice: [$strSuggestedOS] "
                 read osid

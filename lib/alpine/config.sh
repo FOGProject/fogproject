@@ -14,14 +14,73 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-[[ -z $packages ]] && packages="bash bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb mariadb-client net-tools nfs-utils openrc openssh openssl perl perl-crypt-passwdmd5 php7 php7-session php7-fpm php7-mbstring php7-mcrypt php7-soap php7-openssl php7-gmp php7-pdo_odbc php7-json php7-dom php7-pdo php7-zip php7-mysqli php7-sqlite3 php7-apcu php7-pdo_pgsql php7-bcmath php7-gd php7-odbc php7-pdo_mysql php7-pdo_sqlite php7-gettext php7-xmlreader php7-xmlrpc php7-bz2 php7-iconv php7-pdo_dblib php7-curl php7-sockets php7-mysqli php7-ctype syslinux tar tftp-hpa vsftpd wget xmessage xz"
+# Alpine ships no unversioned "php" package, and the newest major moves with
+# the release: 3.20 tops out at php83, 3.21 and 3.22 add php84, edge carries
+# php85. This list used to name php7 packages, which Alpine has dropped
+# entirely -- all 32 of them failed to resolve, so no Alpine install could get
+# past package installation at all.
+#
+# Pinning a replacement would just reintroduce the same rot, so pick the newest
+# php8x the configured repositories actually offer and build the names from it.
+# $php_apk is deliberately NOT one of writeUpdateFile's managed keys: being
+# recomputed on every run is what lets an existing install follow Alpine
+# forward instead of freezing on whatever was current the day it was set up.
+if [[ -z $php_apk ]]; then
+    for _apkphp in 89 88 87 86 85 84 83 82 81 80; do
+        if apk search -x "php${_apkphp}" 2>/dev/null | grep -q .; then
+            php_apk="$_apkphp"
+            break
+        fi
+    done
+    unset _apkphp
+    # Nothing resolved -- most likely no package index yet. php83 is present on
+    # every currently supported Alpine, so it is the safest thing to guess.
+    [[ -z $php_apk ]] && php_apk="83"
+fi
+if [[ -z $packages ]]; then
+    packages="bash bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb mariadb-client net-tools nfs-utils openrc openssh openssl perl perl-crypt-passwdmd5 shadow syslinux tar tftp-hpa vsftpd wget xmessage xz"
+    # Only the extensions FOG actually uses. The old list also carried a pile
+    # that either never applied here (odbc, pdo_odbc, pdo_pgsql, sqlite3,
+    # pdo_sqlite, pdo_dblib, apcu, soap, gmp, bz2, zip) or cannot exist under
+    # PHP 8 at all: mcrypt was removed in 7.2, xmlrpc moved to PECL in 8.0, and
+    # json is now built into the core.
+    #
+    # shadow is in the base list above because busybox provides neither
+    # groupadd nor usermod, and configureUsers calls both unconditionally.
+    for _apkmod in fpm session openssl mbstring ctype iconv curl gd gettext \
+        bcmath sockets pcntl posix dom simplexml xmlreader ldap mysqli pdo \
+        pdo_mysql opcache phar fileinfo; do
+        packages="$packages php${php_apk}-${_apkmod}"
+    done
+    unset _apkmod
+    packages="php${php_apk} $packages"
+    # Alpine keeps the OpenRC init scripts in separate -openrc subpackages.
+    # Install the daemon alone and /etc/init.d/<name> simply does not exist, so
+    # every rc-service call later in the install fails with nothing to start.
+    # None of these were listed before. (php-fpm is the exception: php8x-fpm
+    # ships its own init script, there is no php8x-fpm-openrc.)
+    packages="$packages tftp-hpa-openrc vsftpd-openrc mariadb-openrc nfs-utils-openrc"
+    # Alpine dropped ISC dhcp-server after 3.20: on 3.21+ the `dhcp` package
+    # still resolves but ships no files at all, and dhcp-openrc is gone. Kea is
+    # the only DHCP server Alpine carries now and it is present as far back as
+    # 3.20, so Alpine goes Kea-only rather than carrying a split that would be
+    # dead on every current release. FOG already knows how to drive Kea (GH-730).
+    packages="$packages kea kea-dhcp4"
+fi
 [[ -z $packageinstaller ]] && packageinstaller="apk add"
 [[ -z $packagelist ]] && packagelist="apk info"
 [[ -z $packageupdater ]] && packageupdater="apk update && apk upgrade"
 [[ -z $packmanUpdate ]] && packmanUpdate="$packageinstaller"
 [[ -z $packageQuery ]] && packageQuery="apk info -e \$x "
 [[ -z $langPackages ]] && langPackages="iso-codes"
-[[ -z $dhcpname ]] && dhcpname="dhcpd"
+# $dhcpname names the DHCP *package*, and it is what the engine selection in
+# configureDhcpEngine keys on -- it bails out entirely unless $packages
+# contains it. Alpine has no ISC option left to choose between (see the
+# Kea-only note above), so the slot is filled by Kea and the selection settles
+# on Kea without a decision to make. Naming the dhcpd *service* here, as this
+# used to, meant the string never matched the package list and the engine
+# switch was skipped, leaving Alpine pointed at an ISC daemon it cannot install.
+[[ -z $dhcpname ]] && dhcpname="kea-dhcp4"
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then
         docroot="/var/www/"
@@ -39,21 +98,31 @@ fi
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access.log"
 [[ -z $httpdconf ]] && httpdconf="/etc/nginx/nginx.conf"
 [[ -z $etcconf ]] && etcconf="/etc/nginx/http.d/default.conf"
-[[ -z $phpini ]] && phpini="/etc/php7/php.ini"
+[[ -z $phpini ]] && phpini="/etc/php${php_apk}/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/var/tftpboot"
-[[ -z $tftpconfig ]] && tftpconfig="/etc/xinetd.d/tftpd"
-[[ -z $ftpxinetd ]] && ftpxinetd="/etc/xinetd.d/vsftpd"
+# Alpine drives tftp-hpa from OpenRC via /etc/conf.d/in.tftpd, not xinetd,
+# which it does not even package. These pointed at Arch's xinetd layout.
+[[ -z $tftpconfig ]] && tftpconfig="/etc/conf.d/in.tftpd"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
-[[ -z $dhcpd ]] && dhcpd="dhcpd4"
-[[ -z $iscservice ]] && iscservice="dhcpd4"
-[[ -z $keapackage ]] && keapackage="kea"
+# OpenRC service names, as installed by the -openrc subpackages above. dhcpd4
+# is Arch's name for the ISC daemon; Alpine calls it dhcpd.
+[[ -z $dhcpd ]] && dhcpd="dhcpd"
+[[ -z $iscservice ]] && iscservice="dhcpd"
+# kea-dhcp4 is the package that actually carries /etc/init.d/kea-dhcp4 and
+# /etc/kea/kea-dhcp4.conf; plain "kea" is the meta/library package and brings
+# neither. See the Kea-only note by the package list above.
+[[ -z $keapackage ]] && keapackage="kea-dhcp4"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
+[[ -z $dhcpengine ]] && dhcpengine="kea"
 [[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
-[[ -z $php_ver ]] && php_ver="7"
-[[ -z $phpfpm ]] && phpfpm="php-fpm${php_ver}"
+# Alpine's fpm service is php-fpm83, not php-fpm8.3: it takes the undotted
+# package suffix. $php_ver is left alone deliberately -- installPackages
+# overwrites it with the dotted version reported by the php binary, which is
+# what the Debian paths want, and the two must not be conflated.
+[[ -z $phpfpm ]] && phpfpm="php-fpm${php_apk}"
 [[ -z $webserver ]] && webserver="nginx"
 packages="${packages} ${webserver}"
