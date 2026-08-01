@@ -69,9 +69,10 @@ class ServerInfo extends FOGPage
             return;
         }
         $url = sprintf(
-            '%s://%s/fog/status/hw.php',
+            '%s://%s/%s/status/hw.php',
             self::$httpproto,
-            $this->obj->get('ip')
+            $this->obj->get('ip'),
+            self::webrootPath($this->obj->get('webroot'))
         );
         if (!$this->obj->get('online')) {
             echo '<div class="col-md-12">';

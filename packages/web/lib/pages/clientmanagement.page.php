@@ -60,9 +60,10 @@ class ClientManagement extends FOGPage
         ];
         $ip = self::getSetting('FOG_WEB_HOST');
         $url = sprintf(
-            '%s://%s/fog/client/download.php',
+            '%s://%s/%s/client/download.php',
             self::$httpproto,
-            $ip
+            $ip,
+            self::webrootPath()
         );
         $url = filter_var(
             $url,

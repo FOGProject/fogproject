@@ -99,7 +99,14 @@ class DashboardPage extends FOGPage
                 continue;
             }
             $ip = $StorageNode->ip;
-            $url = $ip . '/fog/';
+            /**
+             * GH-529: was a literal '/fog/', so a node served from any other
+             * webroot was graphed against a URL that does not exist. Each node
+             * carries its own webroot (ngmWebroot) and they need not agree with
+             * this server's, so use the node's. The collapse below tidies the
+             * slashes whichever way the value was stored.
+             */
+            $url = $ip . '/' . self::webrootPath($StorageNode->webroot ?? null) . '/';
             $url = preg_replace(
                 '#/+#',
                 '/',
@@ -755,7 +762,9 @@ class DashboardPage extends FOGPage
             $url = preg_replace(
                 '#/+#',
                 '/',
-                $StorageNode->ip . '/fog/service/getversion.php'
+                $StorageNode->ip
+                . '/' . self::webrootPath($StorageNode->webroot ?? null)
+                . '/service/getversion.php'
             );
             $ids[] = $StorageNode->id;
             $urls[] = self::$httpproto . '://' . $url;

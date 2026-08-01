@@ -1190,9 +1190,10 @@ class StorageNodeManagement extends FOGPage
         } else {
             $url = filter_var(
                 sprintf(
-                    '%s://%s/fog/status/kernelvers.php',
+                    '%s://%s/%s/status/kernelvers.php',
                     self::$httpproto,
-                    $this->obj->get('ip')
+                    $this->obj->get('ip'),
+                    self::webrootPath($this->obj->get('webroot'))
                 ),
                 FILTER_SANITIZE_URL
             );

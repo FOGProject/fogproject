@@ -32,6 +32,16 @@ class Route extends FOGBase
      */
     private static $_token = '';
     /**
+     * The configured webroot in '/x/' form, e.g. '/fog/'.
+     *
+     * GH-529: every API route is registered under this, and it used to be the
+     * literal '/fog', so at a custom webroot no route matched at all -- the
+     * API answered 501 for endpoints that exist.
+     *
+     * @var string
+     */
+    private static $_webrootbase = '/fog/';
+    /**
      * AltoRouter object container.
      *
      * @var AltoRouter
@@ -309,13 +319,29 @@ class Route extends FOGBase
         self::$apiRequest = true;
         list(
             self::$_enabled,
-            self::$_token
+            self::$_token,
+            $webrootsetting
         ) = self::getSetting(
             [
                 'FOG_API_ENABLED',
-                'FOG_API_TOKEN'
+                'FOG_API_TOKEN',
+                'FOG_WEB_ROOT'
             ]
         );
+        /**
+         * GH-529: the paths below were written as literal '/fog/...', so at a
+         * custom webroot none of them matched. Anchor them to the configured
+         * webroot instead, normalised the same way BootMenu does since the
+         * setting turns up with and without either slash.
+         *
+         * Every mismatch here fails closed -- a wrong or empty setting makes
+         * the prefixes stop matching, so an endpoint reverts to requiring
+         * auth. There is no value of FOG_WEB_ROOT that opens anything the
+         * literal '/fog/' did not already open.
+         */
+        $webrootbase = trim((string)$webrootsetting, '/');
+        $webrootbase = '/' . ($webrootbase === '' ? '' : $webrootbase . '/');
+        self::$_webrootbase = $webrootbase;
 
         /**
          * If API is not enabled redirect to home page.
@@ -323,9 +349,10 @@ class Route extends FOGBase
         if (!self::$ajax && !self::$_enabled) {
             header(
                 sprintf(
-                    'Location: %s://%s/fog/management/index.php',
+                    'Location: %s://%s%smanagement/index.php',
                     self::$httpproto,
-                    self::$httphost
+                    self::$httphost,
+                    $webrootbase
                 ),
                 true,
                 308
@@ -341,13 +368,13 @@ class Route extends FOGBase
          * in by a shared parent-path match.
          */
         $unauthprefixes = [
-            '/fog/bandwidth',
-            '/fog/storagegroupid',
-            '/fog/storagenodeid'
+            $webrootbase . 'bandwidth',
+            $webrootbase . 'storagegroupid',
+            $webrootbase . 'storagenodeid'
         ];
         $unauthexact = [
-            '/fog/system/status',
-            '/fog/system/info'
+            $webrootbase . 'system/status',
+            $webrootbase . 'system/info'
         ];
         $requripath = strtok((string)self::$requesturi, '?');
         $requribase = dirname($requripath);
@@ -412,9 +439,15 @@ class Route extends FOGBase
         if (self::$router) {
             return;
         }
+        /**
+         * GH-529: the base path was the literal '/fog', so every route was
+         * registered somewhere the request could never reach on a custom
+         * webroot. AltoRouter wants it without the trailing slash, and an
+         * install served from the document root itself wants it empty.
+         */
         self::$router = new AltoRouter(
             [],
-            '/fog'
+            rtrim(self::$_webrootbase, '/')
         );
         self::defineRoutes();
         self::setMatches();

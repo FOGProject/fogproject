@@ -146,9 +146,10 @@ class FOGConfigurationPage extends FOGPage
             $id = str_replace(' ', '_', $StorageNode->name);
             $url = filter_var(
                 sprintf(
-                    '%s://%s/fog/status/kernelvers.php',
+                    '%s://%s/%s/status/kernelvers.php',
                     self::$httpproto,
-                    $StorageNode->ip
+                    $StorageNode->ip,
+                    self::webrootPath($StorageNode->webroot ?? null)
                 ),
                 FILTER_SANITIZE_URL
             );

@@ -265,12 +265,29 @@ class BootMenu extends FOGBase
             $webserver,
             $curroot
         ) = self::getSetting(['FOG_WEB_HOST','FOG_WEB_ROOT']);
-        $curroot = '/fog/';
+        /**
+         * GH-529: FOG_WEB_ROOT was read and then immediately overwritten with a
+         * literal '/fog/', so every boot URL handed to iPXE ignored the setting
+         * -- this is why a custom webroot broke PXE booting (GH-502).
+         *
+         * Normalise instead of trusting the stored form: the value has been
+         * written by the installer, by hand in FOG Settings, and by older
+         * versions, so it turns up with and without either slash. $curroot is
+         * the path form ('/fog/') used to build absolute URLs; $bootroot is the
+         * bare form ('fog') because the iPXE template already supplies the
+         * separator in '${fog-ip}/${fog-webroot}'.
+         *
+         * basename() used to produce that bare form, which also meant a nested
+         * webroot such as '/apps/fog/' silently collapsed to 'fog'. trim keeps
+         * every segment.
+         */
+        $bootroot = trim((string)$curroot, '/');
+        $curroot = '/' . ($bootroot === '' ? '' : $bootroot . '/');
         $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
         $Send['booturl'] = [
             '#!ipxe',
             "set fog-ip $webserver",
-            sprintf('set fog-webroot %s', basename($curroot)),
+            sprintf('set fog-webroot %s', $bootroot),
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',

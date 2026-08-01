@@ -994,6 +994,33 @@ abstract class FOGPage extends FOGBase
         );
     }
     /**
+     * Normalises a webroot into the bare path used to build URLs.
+     *
+     * GH-529: pages used to build server and storage-node URLs with a literal
+     * '/fog/', so nothing reached a FOG installed anywhere else. The webroot
+     * reaches us in every shape -- '/fog/', 'fog', '/fog', '' -- because it is
+     * written by the installer, edited by hand in FOG Settings, and carried
+     * per-node in ngmWebroot, so normalise rather than trust the stored form.
+     *
+     * Returns the bare form ('fog', 'apps/fog') because every caller supplies
+     * its own surrounding slashes.
+     *
+     * Pass a storage node's own webroot when addressing that node -- a node
+     * need not share this server's -- and omit it when addressing this server.
+     *
+     * @param string|null $webroot the node's webroot, or null for this server
+     *
+     * @return string
+     */
+    public static function webrootPath($webroot = null)
+    {
+        $webroot = trim((string)$webroot, '/');
+        if ($webroot === '') {
+            $webroot = trim((string)self::getSetting('FOG_WEB_ROOT'), '/');
+        }
+        return $webroot === '' ? 'fog' : $webroot;
+    }
+    /**
      * Makes the action url update with the tab.
      *
      * @param string $tab What tab to associate this with.
