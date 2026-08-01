@@ -25,11 +25,46 @@ if [[ ! $EUID -eq 0 ]]; then
     exit 1 # Fail Sudo
 fi
 
-which adduser >/dev/null 2>&1
-if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
-    echo "Please switch to a proper root environment to run the installer!"
-    echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
-    echo "of the su command as it is important to load root's environment)."
+# The installer calls a number of tools that live in an sbin directory, so it
+# has to be sure they are reachable. This used to be inferred rather than
+# tested: `which adduser`, plus a demand that the string "sbin" appear at least
+# TWICE in $PATH -- a stand-in for "/sbin and /usr/sbin are both listed".
+#
+# That stand-in stopped being true once distributions merged /sbin and
+# /usr/sbin into /usr/bin. A correct root PATH may now name a single sbin
+# directory, and got rejected. Arch is the clearest case (GH-447): root's login
+# PATH is /usr/local/sbin:/usr/local/bin:/usr/bin, "sbin" occurs once, and the
+# installer refused to start while telling the user to load root's environment
+# -- which they had. The reporter's workaround proves the check was measuring
+# nothing: appending /usr/sbin got them past it, and on Arch /usr/sbin is a
+# symlink to /usr/bin, so it added no binaries at all. It only made the
+# substring appear a second time.
+#
+# So ask the real question. Put the standard sbin directories on PATH when they
+# exist and are not already listed, then check we can actually reach the tool.
+#
+# adduser is the only thing tested here, deliberately. It is what the old check
+# looked for, and widening the list would make this gate reject platforms it
+# used to allow: Alpine has no groupadd or usermod at all (busybox ships
+# addgroup/adduser, and the shadow package is not in Alpine's list).
+for sbindir in /usr/local/sbin /usr/sbin /sbin; do
+    [[ -d $sbindir ]] || continue
+    case ":${PATH}:" in
+        *:"${sbindir}":*) ;;
+        *) PATH="${PATH}:${sbindir}" ;;
+    esac
+done
+export PATH
+if ! command -v adduser >/dev/null 2>&1; then
+    echo "The installer could not find 'adduser'."
+    echo
+    echo "It normally lives in an sbin directory. If you became root with a"
+    echo "plain 'su' or with 'sudo', switch using 'sudo -i' or 'su -' instead"
+    echo "(skip the ' and note the hyphen at the end of the su command, as it"
+    echo "is what loads root's own environment)."
+    echo
+    echo "If the command genuinely is not installed, FOG cannot create its"
+    echo "system account and the install would fail later on regardless."
     exit 1
 fi
 
