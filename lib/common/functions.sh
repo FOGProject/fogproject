@@ -2146,6 +2146,18 @@ EOF
                 a2dissite 001-fog >>$error_log 2>&1
                 a2ensite 000-default >>$error_log 2>&1
             fi
+            # GH-650: $ipaddress is one line per address on the chosen
+            # interface (see the `ip -4 addr show` in lib/common/input.sh), so
+            # a NIC carrying a second address emitted
+            #     ServerName 10.0.0.1
+            #     10.0.0.2
+            # and apache refused to start with "Invalid command '10.0.0.2'",
+            # failing the install at "Starting and checking status of web
+            # services". ServerName takes exactly one name; the extras go on
+            # ServerAlias, which is variadic, so a multi-homed server still
+            # answers to every address it has.
+            vhostname=$(echo $ipaddress | awk '{print $1}')
+            vhostaliases=$(echo $ipaddress | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
             mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$error_log 2>&1
             echo "<VirtualHost *:80>" > "$etcconf"
             echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
@@ -2156,8 +2168,8 @@ EOF
             fi
             echo "    </FilesMatch>" >> "$etcconf"
             echo "    KeepAlive Off" >> "$etcconf"
-            echo "    ServerName $ipaddress" >> "$etcconf"
-            echo "    ServerAlias $hostname" >> "$etcconf"
+            echo "    ServerName $vhostname" >> "$etcconf"
+            echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
             echo "    DocumentRoot $docroot" >> "$etcconf"
             if [[ $httpproto == https ]]; then
                 echo "    RewriteEngine On" >> "$etcconf"
@@ -2176,8 +2188,8 @@ EOF
                     echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                 fi
                 echo "    </FilesMatch>" >> "$etcconf"
-                echo "    ServerName $ipaddress" >> "$etcconf"
-                echo "    ServerAlias $hostname" >> "$etcconf"
+                echo "    ServerName $vhostname" >> "$etcconf"
+                echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
                 echo "    DocumentRoot $docroot" >> "$etcconf"
                 echo "    SSLEngine On" >> "$etcconf"
                 echo "    SSLProtocol -all +TLSv1.2" >> "$etcconf"
