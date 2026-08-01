@@ -77,9 +77,10 @@ class MulticastManager extends FOGService
                 'multicast.log'
             )
         );
-        if (file_exists(static::$log)) {
-            unlink(static::$log);
-        }
+        // GH-497: the log used to be deleted here on every start, which threw
+        // away the run that led up to a restart -- exactly the one worth
+        // reading -- and made `tail -f` useless across a service restart. The
+        // file is now appended to, and wlog() rotates it on size instead.
         static::$dev = (
             $dev ?
             $dev :
