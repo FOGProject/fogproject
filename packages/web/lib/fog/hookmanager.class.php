@@ -75,10 +75,13 @@ class HookManager extends EventManager
             );
         }
         if (!isset(self::$knownEvents[$event])) {
+            // Marked known before the save, not after, so a hook fired from
+            // inside save() could never recurse into saving the same name
+            // again. Matches the dev-branch port (e827fd1bd).
+            self::$knownEvents[$event] = true;
             self::getClass('HookEvent')
                 ->set('name', $event)
                 ->save();
-            self::$knownEvents[$event] = true;
         }
         if (!isset($this->data[$event])) {
             return;
