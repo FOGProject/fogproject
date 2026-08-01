@@ -108,3 +108,6 @@ CONTEXT.md
 CONTEXT-MAP.md
 docs/adr/
 skills-lock.json
+# GH-959: iPXE binaries now come from FOGProject/fog-ipxe as a release asset.
+# packages/tftp is a staging directory the installer fills at runtime.
+/packages/tftp/

@@ -973,7 +973,99 @@ configureDefaultiPXEfile() {
     echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
+prepareiPXEsource() {
+    # Put the fog-ipxe checkout at $buildipxesrc ($fogprogramdir/ipxe) and pin
+    # it to the same tag the binaries were downloaded from, so a locally built
+    # binary and a downloaded one are the same build. Cloning an unpinned
+    # default branch here would put us straight back to "two people install on
+    # the same day and get different binaries", which is exactly what pinning
+    # IPXEVER fixed upstream-side. See GH-957, GH-959.
+    #
+    # An existing checkout is reused rather than replaced. That is what makes
+    # an offline install possible: pre-place this directory (and its build/
+    # subdirectory of upstream clones) and nothing here needs the network.
+    dots "Preparing iPXE build sources"
+    if [[ -d $buildipxesrc/.git ]]; then
+        git -C "$buildipxesrc" fetch --tags --force "$ipxegit" >>$error_log 2>&1
+        if ! git -C "$buildipxesrc" checkout -q "$ipxeVer" >>$error_log 2>&1; then
+            # Offline, or the tag does not exist yet. A usable checkout is
+            # still a usable checkout -- do not fail an entire install over a
+            # fetch that was only ever an update.
+            echo "Skipped (using existing checkout)"
+            return 0
+        fi
+        errorStat 0
+        return 0
+    fi
+    if [[ -x $buildipxesrc/buildipxe.sh ]]; then
+        # Pre-placed as a plain directory rather than a clone -- the documented
+        # offline path. Leave it entirely alone.
+        echo "Skipped (pre-placed sources)"
+        return 0
+    fi
+    if ! git clone -q --branch "$ipxeVer" "$ipxegit" "$buildipxesrc" >>$error_log 2>&1; then
+        # Guidance first: errorStat exits before returning unless $exitFail is
+        # set, so anything printed after it is never seen.
+        echo "Failed!"
+        echo " * Could not obtain iPXE sources ($ipxeVer) from $ipxegit"
+        echo " * For an offline install, place a fog-ipxe checkout at $buildipxesrc"
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
+    errorStat 0
+}
+downloadipxe() {
+    # iPXE binaries used to be 70 files committed to this repository. They are
+    # now a release asset, verified and unpacked into the same staging tree the
+    # copy loop in configureTFTPandPXE reads, so everything downstream is
+    # unchanged. One tarball rather than 85 loose assets: release assets cannot
+    # hold directories, and this tree has i386-efi/, arm64-efi/ and autoexec/
+    # subdirectories worth keeping. See GH-959.
+    local tarball="fog-ipxe-${ipxeVer}.tar.gz"
+    local url="${ipxeurl}/${ipxeVer}/${tarball}"
+    local dest=$(readlink -f $tftpdirsrc)
+    dots "Downloading iPXE binaries (${ipxeVer})"
+    # An HTTPS install is about to rebuild these from source anyway, and the
+    # rebuild writes to this same directory. Downloading first would be wasted
+    # bandwidth on every such install.
+    if [[ "x$httpproto" = "xhttps" ]]; then
+        echo "Skipped (built locally)"
+        return 0
+    fi
+    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >>$error_log 2>&1
+    local cwd=$(pwd)
+    cd ../tmp/
+    local checksum=1
+    local cnt=0
+    while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
+        [[ -f ${tarball}.sha256 ]] && sha256sum -c ${tarball}.sha256 >>$error_log 2>&1
+        checksum=$?
+        if [[ $checksum -ne 0 ]]; then
+            curl --silent -kOL "$url" >>$error_log 2>&1
+            curl --silent -kOL "${url}.sha256" >>$error_log 2>&1
+        fi
+        let cnt+=1
+    done
+    if [[ $checksum -ne 0 ]]; then
+        cd $cwd
+        # Guidance first: errorStat exits before returning unless $exitFail is
+        # set, so anything printed after it is never seen.
+        echo "Failed!"
+        echo " * Could not download $tarball from $url"
+        echo " * For an offline install, place the extracted binaries in $dest"
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
+    mkdir -p "$dest" >>$error_log 2>&1
+    tar -xzf "$tarball" -C "$dest" >>$error_log 2>&1
+    local stat=$?
+    cd $cwd
+    errorStat $stat
+}
 configureTFTPandPXE() {
+    # Fills $tftpdirsrc, which is now a staging directory rather than tracked
+    # build output, so this has to happen before anything reads from it.
+    downloadipxe || return 1
     [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$error_log 2>&1
     [[ ! -d ${tftpdirdst} ]] && mkdir -p $tftpdirdst >>$error_log 2>&1
     [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$error_log 2>&1
@@ -981,10 +1073,18 @@ configureTFTPandPXE() {
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$error_log 2>&1
     sslpath=${sslpath//\/$}
     if [[ "x$httpproto" = "xhttps" ]]; then
+        # The one case a release asset cannot serve: CERT=/TRUST= bake this
+        # server's CA into the binary so iPXE can fetch boot.php over TLS,
+        # which makes it a per-server artifact by definition. Everything else
+        # about the build is identical everywhere, which is why every other
+        # install just downloads. See GH-959.
+        prepareiPXEsource || return 1
         dots "Compiling iPXE binaries trusting your SSL certificate"
-        cd $buildipxesrc
         [[ -n $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
-        ./buildipxe.sh ${ipxetrust} >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
+        # Second argument is the output directory: build straight into the
+        # staging tree the copy loop below already reads, so a locally built
+        # binary lands exactly where a downloaded one would.
+        "${buildipxesrc}/buildipxe.sh" "${ipxetrust}" "$(readlink -f $tftpdirsrc)" >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         errorStat $?
         cd $workingdir
     fi

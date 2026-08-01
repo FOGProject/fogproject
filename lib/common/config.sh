@@ -16,7 +16,20 @@
 [[ -z $username || "x$username" == "xfog" ]] && username="fogproject"
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
-[[ -z $buildipxesrc  ]] && buildipxesrc="../utils/FOGiPXE"
+# iPXE now lives in its own repository and its binaries arrive as a release
+# asset, the same way the FOS kernels already do. packages/tftp is therefore a
+# staging directory the installer fills at runtime rather than 22 MB of build
+# output carried in git. $buildipxesrc is where the source checkout lands when
+# an HTTPS install has to rebuild with its own CA baked in -- under
+# $fogprogramdir so it is findable, survives the extracted tarball being
+# deleted, and gives an offline site one path to pre-populate. See GH-959.
+[[ -z $ipxegit ]] && ipxegit="https://github.com/FOGProject/fog-ipxe"
+[[ -z $ipxeurl ]] && ipxeurl="${ipxegit}/releases/download"
+# Pinned in system.class.php alongside FOG_CLIENT_VERSION, for the same reason:
+# a given FOG release ships a known iPXE, and bumping it is a deliberate edit
+# rather than whatever happened to be tagged the day someone installed.
+[[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
+[[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.1"
 fog_udpversion="20250223"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-${fog_udpversion}.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-${fog_udpversion}"
@@ -29,6 +42,8 @@ fog_udpversion="20250223"
 # itself lives at $fogprogramdir/.fogsettings; establishing it out-of-band is
 # tracked as the follow-up to GH-850.
 [[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
+# Must follow fogprogramdir, not precede it -- see the note above.
+[[ -z $buildipxesrc ]] && buildipxesrc="$fogprogramdir/ipxe"
 [[ -z $servicedst ]] && servicedst="$fogprogramdir/service"
 [[ -z $servicelogs ]] && servicelogs="$fogprogramdir/log"
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
