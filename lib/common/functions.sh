@@ -457,22 +457,44 @@ mask2network() {
     IFS=$OIFS
     printf "%d.%d.%d.%d\n"  "$((i1 & m1))" "$((i2 & m2))" "$((i3 & m3))" "$((i4 & m4))"
 }
+# GH-667: everything in here used to be printed on STDOUT, including the
+# failures. The sole consumers assign it through $( ), so an error message
+# became the value -- "endrange=Invalid IP Passed" -- and got written verbatim
+# into dhcpd.conf, which is precisely the "pasted into the dhcpd.conf file and
+# causes the dhcp service to fail" in that report. Diagnostics go to stderr so
+# they cannot be mistaken for data, and the callers now check what they got.
+mask2broadcast() {
+    # Broadcast is the network with every host bit set: net | ~mask, per octet.
+    # Used as the fallback when an interface carries no brd flag at all.
+    local OIFS=$IFS
+    IFS='.'
+    read -r n1 n2 n3 n4 <<< "$1"
+    read -r m1 m2 m3 m4 <<< "$2"
+    IFS=$OIFS
+    printf "%d.%d.%d.%d\n" \
+        "$((n1 | (255 - m1)))" "$((n2 | (255 - m2)))" \
+        "$((n3 | (255 - m3)))" "$((n4 | (255 - m4)))"
+}
 interface2broadcast() {
     local interface=$1
     if [[ -z $interface ]]; then
-        echo "No interface passed"
+        echo "No interface passed" >&2
         return 1
     fi
-    echo $(ip -4 addr show $interface | grep -oP 'brd \K\S+')
+    # One address per line means one brd per line, so an interface carrying a
+    # second address returned two. Take the first, matching the $ipaddress /
+    # $ipaddresses contract from GH-954. Empty is a legitimate answer -- a /32
+    # or a point-to-point link has no broadcast -- and the caller falls back.
+    ip -4 addr show $interface | grep -oP 'brd \K\S+' | head -1
 }
 subtract1fromAddress() {
     local ip=$1
     if [[ -z $ip ]]; then
-        echo "No IP Passed"
+        echo "No IP Passed" >&2
         return 1
     fi
     if [[ ! $(validip $ip) -eq 0 ]]; then
-        echo "Invalid IP Passed"
+        echo "Invalid IP Passed" >&2
         return 1
     fi
     local oIFS=$IFS
@@ -494,7 +516,7 @@ subtract1fromAddress() {
         ip3=255
         ip4=255
     else
-        echo "Invalid IP ranges were passed"
+        echo "Invalid IP ranges were passed" >&2
         echo ${ip1}.${ip2}.${ip3}.${ip4}
         return 2
     fi
@@ -3647,7 +3669,14 @@ writeKeaSample() {
     local network=$(mask2network $sampleip $submask)
     local cidr=$(mask2cidr $submask)
     local startrange=$(addToAddress $network 10)
-    local endrange=$(subtract1fromAddress $(interface2broadcast $interface))
+    # GH-667: an interface with no brd flag, or any failure inside these
+    # helpers, used to leave endrange holding an error string that went
+    # straight into the generated config. Fall back to the broadcast computed
+    # from the network and mask we already have.
+    local broadcast=$(interface2broadcast $interface)
+    [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network $submask)
+    local endrange=$(subtract1fromAddress $broadcast)
+    [[ $(validip $endrange) -ne 0 ]] && endrange=$(subtract1fromAddress $(mask2broadcast $network $submask))
     local optdata="                { \"name\": \"subnet-mask\", \"data\": \"$submask\" }"
     [[ $(validip $routeraddress) -eq 0 ]] && optdata="${optdata},
                 { \"name\": \"routers\", \"data\": \"$routeraddress\" }"
@@ -3685,12 +3714,21 @@ configureDHCP() {
     fi
     case $bldhcp in
         1)
-            serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
+            # GH-954: one line per address, so a second address on the NIC
+            # made this multi-line and every consumer below it wrong.
+            serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}' | head -1)
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
             [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
             network=$(mask2network $serverip $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
-            [[ -z $endrange ]] && endrange=$(subtract1fromAddress $(echo $(interface2broadcast $interface)))
+            # GH-667: same guard as writeKeaSample -- never let a helper's
+            # failure become the value that lands in dhcpd.conf.
+            if [[ -z $endrange ]]; then
+                broadcast=$(interface2broadcast $interface)
+                [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network $submask)
+                endrange=$(subtract1fromAddress $broadcast)
+                [[ $(validip $endrange) -ne 0 ]] && endrange=$(subtract1fromAddress $(mask2broadcast $network $submask))
+            fi
             [[ ! $(validip $routeraddress) -eq 0 ]] && routeraddress=$(echo $routeraddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
             [[ ! $(validip $dnsaddress) -eq 0 ]] && dnsaddress=$(echo $dnsaddress | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
             if [[ $dhcpengine == kea ]]; then
