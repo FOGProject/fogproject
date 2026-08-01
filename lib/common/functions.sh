@@ -1497,11 +1497,15 @@ displayOSChoices() {
                 echo "          1) Redhat Based Linux (Redhat, Alma, Rocky, CentOS, Mageia)"
                 echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)"
                 # Alpine is listed honestly as incomplete rather than as a peer
-                # of the two above. Its package list now resolves, but service
-                # management is only wired for MariaDB, nginx and php-fpm --
-                # DHCP, TFTP, FTP, NFS and FOG's own daemons have no OpenRC arm,
-                # so an install gets a long way and then quietly starts nothing.
-                echo "          3) Alpine Linux (experimental, service setup incomplete)"
+                # of the two above. Its package list now resolves, and MariaDB,
+                # nginx, php-fpm and TFTP all have OpenRC handling, as do FOG's
+                # own eight daemons -- packages/init.d/alpine ships them and
+                # they are installed, started and stopped by direct
+                # /etc/init.d invocation. What is missing is narrower but still
+                # real: nothing runs rc-update for those eight, so they do not
+                # survive a reboot, and vsftpd, DHCP and NFS fall through to
+                # chkconfig/service arms that do not exist on Alpine. See #863.
+                echo "          3) Alpine Linux (experimental, some services not wired for OpenRC)"
                 echo "          4) Arch Based Linux (Arch, Manjaro)"
                 echo
                 echo -n "  Choice: [$strSuggestedOS] "
