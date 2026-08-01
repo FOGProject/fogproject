@@ -571,6 +571,11 @@ fi
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
 . ../lib/common/newinput.sh
+# GH-954: after BOTH paths that can set $ipaddress -- fresh detection in
+# input.sh, and .fogsettings sourced earlier on an upgrade. An install written
+# by an older installer has the multi-line value persisted, so normalizing only
+# at detection would leave every upgrade carrying the broken form forward.
+normalizeIpAddress
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"

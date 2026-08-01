@@ -2154,7 +2154,7 @@ writeUpdateFile() {
     # list drives both the fresh write and the in-place upgrade merge, so the two
     # can never drift apart again.
     local -a managedKeys=(
-        ipaddress copybackold interface submask hostname routeraddress plainrouter
+        ipaddress ipaddresses copybackold interface submask hostname routeraddress plainrouter
         dnsaddress username password osid osname dodhcp bldhcp dhcpd dhcpengine
         blexports installtype snmysqlexternal snmysqluser snmysqlpass snmysqlhost
         mysqldbname installlang storageLocation fogupdateloaded docroot webroot
@@ -2367,6 +2367,32 @@ normalizeWebroot() {
 # they did, the maintenance location would stop passing PHP to fpm and nginx
 # would fall back to serving the source of those files as a static download.
 # $1 = target file to append to.
+# Reduces $ipaddress to a single address, keeping the full set in $ipaddresses.
+#
+# GH-954: $ipaddress is built by `ip -4 addr show $interface`, which prints one
+# line per address, so on a NIC carrying a second address it arrives multi-line.
+# Roughly forty consumers treat it as one value, and the failures are silent or
+# baffling: apache refused to start with "Invalid command '<second ip>'", the
+# post-install probe URL came out malformed, and DHCP next-server and the iPXE
+# chain target would have been handed to clients broken.
+#
+# Two earlier fixes -- certip for the certificate CN and confighostip for the
+# config.class.php host constants, both under GH-650 -- patched single
+# consumers. This settles the contract instead: $ipaddress is THE address,
+# $ipaddresses is every address, and the handful of places that want the whole
+# set ask for it by name.
+#
+# Called after .fogsettings is sourced as well as after fresh detection, because
+# an install written by an older installer has the multi-line value persisted in
+# .fogsettings and would otherwise reload it unrepaired.
+normalizeIpAddress() {
+    [[ -z $ipaddresses ]] && ipaddresses="$ipaddress"
+    # Unquoted on purpose: word splitting collapses the newline- or
+    # space-separated forms to one space-separated list, which is what both
+    # `for ip in $ipaddresses` and awk want.
+    ipaddresses=$(echo $ipaddresses)
+    ipaddress=$(echo $ipaddresses | awk '{print $1}')
+}
 emitNginxPhpBody() {
     echo "    set \$phproot ${docroot};" >> "$1"
     echo "    root $docroot;" >> "$1"
@@ -2422,10 +2448,10 @@ EOF
     # from .fogsettings. A certificate has a single subject, so the first IP
     # becomes the CN while every IP is added as a subjectAltName so the cert
     # validates on each address.
-    certip=$(echo $ipaddress | awk '{print $1}')
+    certip="$ipaddress"
     sanentries=""
     sancount=0
-    for ip in $ipaddress; do
+    for ip in $ipaddresses; do
         sancount=$((sancount + 1))
         [[ -n $sanentries ]] && sanentries="${sanentries}"$'\n'
         sanentries="${sanentries}IP.${sancount} = ${ip}"
@@ -2517,7 +2543,7 @@ EOF
                     echo "}" >> "$phploc"
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
-                    echo "    server_name $ipaddress $hostname;" >> "$etcconf"
+                    echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
                     if [[ $httpproto != https ]]; then
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
@@ -2543,7 +2569,7 @@ EOF
                         echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
                         echo "        allow 127.0.0.1;" >> "$etcconf"
                         echo "        allow ::1;" >> "$etcconf"
-                        for ip in $ipaddress; do
+                        for ip in $ipaddresses; do
                             echo "        allow ${ip};" >> "$etcconf"
                         done
                         echo "        deny all;" >> "$etcconf"
@@ -2568,7 +2594,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddress $hostname;" >> "$etcconf"
+                        echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -2592,7 +2618,7 @@ EOF
                         echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
                         echo "        allow 127.0.0.1;" >> "$etcconf"
                         echo "        allow ::1;" >> "$etcconf"
-                        for ip in $ipaddress; do
+                        for ip in $ipaddresses; do
                             echo "        allow ${ip};" >> "$etcconf"
                         done
                         echo "        deny all;" >> "$etcconf"
@@ -2635,7 +2661,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddress $hostname;" >> "$etcconf"
+                        echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -2659,7 +2685,7 @@ EOF
                         echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
                         echo "        allow 127.0.0.1;" >> "$etcconf"
                         echo "        allow ::1;" >> "$etcconf"
-                        for ip in $ipaddress; do
+                        for ip in $ipaddresses; do
                             echo "        allow ${ip};" >> "$etcconf"
                         done
                         echo "        deny all;" >> "$etcconf"
@@ -2720,8 +2746,8 @@ EOF
                     # exactly one name; the extras go on ServerAlias, which is
                     # variadic, so a multi-homed server still answers to every
                     # address it has.
-                    vhostname=$(echo $ipaddress | awk '{print $1}')
-                    vhostaliases=$(echo $ipaddress | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
+                    vhostname="$ipaddress"
+                    vhostaliases=$(echo $ipaddresses | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
@@ -3173,7 +3199,7 @@ configureHttpd() {
     # success and then every TFTP/FTP/storage/WOL connection targets a hostname
     # that cannot resolve. Use the same first address the certificate's CN uses,
     # so the host FOG advertises and the host its cert is issued for agree.
-    confighostip=$(echo $ipaddress | awk '{print $1}')
+    confighostip="$ipaddress"
     phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
     phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
     # Derive the master's network CIDR (e.g. 192.168.1.0/24) from the chosen
