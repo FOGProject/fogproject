@@ -119,7 +119,14 @@ while [[ -z $interface ]]; do
         interface=""
         continue
     fi
+    # GH-954: `ip -4 addr show` prints one line per address the interface
+    # carries, so what comes back here is a LIST, not a single value.
+    # $ipaddresses keeps the whole list for the few consumers that legitimately
+    # want every address -- the certificate SANs and the apache ServerAlias --
+    # and normalizeIpAddress() then reduces $ipaddress to the primary, which is
+    # what every other consumer has always assumed it was.
     ipaddress=$(ip -4 addr show $interface | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
+    ipaddresses="$ipaddress"
     if [[ $(validip $ipaddress) -ne 0 ]]; then
         echo
         echo "   * The interface $interface does not seem to have a valid IP configured to it."

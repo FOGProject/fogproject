@@ -1933,7 +1933,7 @@ writeUpdateFile() {
     # list drives both the fresh write and the in-place upgrade merge, so the two
     # can never drift apart again.
     local -a managedKeys=(
-        ipaddress copybackold interface submask hostname routeraddress plainrouter
+        ipaddress ipaddresses copybackold interface submask hostname routeraddress plainrouter
         dnsaddress username password osid osname dodhcp bldhcp dhcpd dhcpengine
         blexports installtype snmysqlexternal snmysqluser snmysqlpass snmysqlhost
         mysqldbname installlang storageLocation fogupdateloaded docroot webroot
@@ -2049,6 +2049,33 @@ normalizeWebroot() {
     webrootbare="${webrootbare%/}"
     webrootre=$(printf '%s' "$webroot" | sed 's/[.[\*^$()+?{|]/\\&/g')
 }
+# Reduces $ipaddress to a single address, keeping the full set in $ipaddresses.
+#
+# GH-954: $ipaddress is built by `ip -4 addr show $interface`, which prints one
+# line per address, so on a NIC carrying a second address it arrives multi-line.
+# Most consumers treat it as one value, and the failures are silent or
+# baffling: apache refused to start with "Invalid command '<second ip>'", and
+# DHCP next-server and the iPXE chain target would have been handed to clients
+# broken.
+#
+# Two earlier fixes -- certip for the certificate CN and confighostip for the
+# config.class.php host constants, both under GH-650 -- patched single
+# consumers. This settles the contract instead: $ipaddress is THE address,
+# $ipaddresses is every address, and the few places that want the whole set ask
+# for it by name.
+#
+# Called after .fogsettings is sourced as well as after fresh detection, because
+# an install written by an older installer has the multi-line value persisted in
+# .fogsettings and would otherwise reload it unrepaired. Idempotent for that
+# reason.
+normalizeIpAddress() {
+    [[ -z $ipaddresses ]] && ipaddresses="$ipaddress"
+    # Unquoted on purpose: word splitting collapses the newline- or
+    # space-separated forms to one space-separated list, which is what both
+    # `for ip in $ipaddresses` and awk want.
+    ipaddresses=$(echo $ipaddresses)
+    ipaddress=$(echo $ipaddresses | awk '{print $1}')
+}
 createSSLCA() {
     # GH-529: this function also emits the vhost further down.
     normalizeWebroot
@@ -2077,10 +2104,10 @@ EOF
     # from .fogsettings. A certificate has a single subject, so the first IP
     # becomes the CN while every IP is added as a subjectAltName so the cert
     # validates on each address. See GH-650.
-    certip=$(echo $ipaddress | awk '{print $1}')
+    certip="$ipaddress"
     sanentries=""
     sancount=0
-    for ip in $ipaddress; do
+    for ip in $ipaddresses; do
         sancount=$((sancount + 1))
         [[ -n $sanentries ]] && sanentries="${sanentries}"$'\n'
         sanentries="${sanentries}IP.${sancount} = ${ip}"
@@ -2156,8 +2183,8 @@ EOF
             # services". ServerName takes exactly one name; the extras go on
             # ServerAlias, which is variadic, so a multi-homed server still
             # answers to every address it has.
-            vhostname=$(echo $ipaddress | awk '{print $1}')
-            vhostaliases=$(echo $ipaddress | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
+            vhostname="$ipaddress"
+            vhostaliases=$(echo $ipaddresses | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
             mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$error_log 2>&1
             echo "<VirtualHost *:80>" > "$etcconf"
             echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
@@ -2508,7 +2535,7 @@ configureHttpd() {
     # success and then every TFTP/FTP/storage/WOL connection targets a hostname
     # that cannot resolve. Use the same first address the certificate's CN uses,
     # so the host FOG advertises and the host its cert is issued for agree.
-    confighostip=$(echo $ipaddress | awk '{print $1}')
+    confighostip="$ipaddress"
     phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
     phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
     echo "<?php
