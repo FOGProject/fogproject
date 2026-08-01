@@ -13,7 +13,7 @@ FILE_SECBOOT ( PERMITTED );
 #include <config/defaults.h>
 
 /* Settings sources supported on all platforms */
-//#define ACPI_SETTINGS		/* ACPI settings */
+#define ACPI_SETTINGS		/* ACPI settings */
 #define PCI_SETTINGS		/* PCI device settings */
 #define USB_SETTINGS		/* USB device settings */
 
@@ -46,5 +46,3 @@ FILE_SECBOOT ( PERMITTED );
 #include LOCAL_NAMED_CONFIG(settings.h)
 
 #endif /* CONFIG_SETTINGS_H */
-
-

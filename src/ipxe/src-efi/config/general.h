@@ -49,7 +49,7 @@ FILE_SECBOOT ( PERMITTED );
 
 /* Protocols supported only on platforms with filesystem abstractions */
 #if defined ( PLATFORM_efi )
-  //#define DOWNLOAD_PROTO_FILE	/* Local filesystem access */
+  #define DOWNLOAD_PROTO_FILE	/* Local filesystem access */
 #endif
 
 /* HTTP(S) protocol extensions */
@@ -101,7 +101,7 @@ FILE_SECBOOT ( PERMITTED );
 #define IMAGE_ARCHIVE_CMD	/* Archive image management commands */
 //#define IMAGE_CRYPT_CMD	/* Image encryption management commands */
 #define IMAGE_MEM_CMD		/* Read memory command */
-#define IMAGE_TRUST_CMD		/* Image trust management commands */
+#define IMAGE_TRUST_CMD	/* Image trust management commands */
 #define IPSTAT_CMD		/* IP statistics commands */
 //#define IWMGMT_CMD		/* Wireless interface management commands */
 #define LOGIN_CMD		/* Login command */
@@ -170,12 +170,12 @@ FILE_SECBOOT ( PERMITTED );
 
 /* Image types supported only on BIOS platforms */
 #if defined ( PLATFORM_pcbios )
-  //#define IMAGE_BZIMAGE		/* Linux bzImage image support */
+  #define IMAGE_BZIMAGE		/* Linux bzImage image support */
   //#define IMAGE_COMBOOT	/* SYSLINUX COMBOOT image support */
   //#define IMAGE_ELF		/* ELF image support */
   //#define IMAGE_MULTIBOOT	/* MultiBoot image support */
   //#define IMAGE_NBI		/* NBI image support */
-  //#define IMAGE_PXE		/* PXE image support */
+  #define IMAGE_PXE		/* PXE image support */
   //#define IMAGE_SDI		/* SDI image support */
 #endif
 
@@ -258,7 +258,7 @@ FILE_SECBOOT ( PERMITTED );
  */
 
 #if defined ( PLATFORM_efi )
-  #define CERTS_EFI		/* EFI certificate sourcesi TODO: Check this */
+  #define CERTS_EFI		/* EFI certificate sources */
 #endif
 
 /*****************************************************************************
@@ -312,5 +312,3 @@ FILE_SECBOOT ( PERMITTED );
 #include LOCAL_NAMED_CONFIG(general.h)
 
 #endif /* CONFIG_GENERAL_H */
-
-

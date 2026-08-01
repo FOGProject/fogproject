@@ -135,3 +135,37 @@ make -j$(nproc) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10se
 cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/arm64-efi/
 cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/i386-efi/
 cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/
+
+# Build the EMBED-less EFI variant.
+#
+# With no embedded script, first_image() finds nothing at INIT_LATE, so
+# efi_probe()'s efi_autoexec_load() gets to register autoexec.ipxe and ipxe()
+# executes that instead. The script is then a file on the TFTP server rather
+# than something compiled in, so a site can change its boot logic without a
+# toolchain. This is also the only build that can work under Secure Boot, since
+# efi_autoexec.c is FILE_SECBOOT ( PERMITTED ) while an embedded script is not.
+#
+# Shipped alongside the embedded binaries rather than replacing them: an
+# existing server has no autoexec.ipxe in its TFTP root, and a binary that
+# finds none falls through to plain netboot(), losing FOG's multi-NIC and
+# proxyDHCP handling. Opting in is a DHCP filename change. Refs GH-957.
+#
+# There is deliberately no 10secdelay counterpart -- with the script on disk,
+# the delay is a two-line edit to autoexec.ipxe.
+make -j$(nproc) bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi ${BUILDOPTS}
+[[ $? -eq 0 ]] || exit 95
+
+make -j$(nproc) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 bin-arm64-efi/{snp{,only},ipxe,intel,realtek}.efi ${BUILDOPTS}
+[[ $? -eq 0 ]] || exit 97
+
+mkdir -p ${FOGDIR}/packages/tftp/autoexec/{i386-efi,arm64-efi}
+cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/autoexec/arm64-efi/
+cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/autoexec/i386-efi/
+cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/autoexec/
+
+# One copy per directory: efi_autoexec_network() asks for autoexec.ipxe
+# relative to the binary's own URI first and only then retries at the TFTP
+# root, so a per-directory copy saves a failed request on every boot.
+for d in autoexec autoexec/i386-efi autoexec/arm64-efi; do
+  cp ${FOGDIR}/src/ipxe/autoexec.ipxe ${FOGDIR}/packages/tftp/$d/
+done

@@ -34,7 +34,7 @@ FILE_SECBOOT ( PERMITTED );
 /* Console types supported only on BIOS platforms */
 #if defined ( PLATFORM_pcbios )
   //#define CONSOLE_INT13	/* INT13 disk log console */
-  //#define CONSOLE_PCBIOS	/* Default BIOS console */
+  #define CONSOLE_PCBIOS	/* Default BIOS console */
 #endif
 
 /* Console types supported only on EFI platforms */
@@ -44,12 +44,12 @@ FILE_SECBOOT ( PERMITTED );
 
 /* Console types supported only on RISC-V SBI platforms */
 #if defined ( PLATFORM_sbi )
-  //#define CONSOLE_SBI		/* RISC-V SBI debug console */
+  #define CONSOLE_SBI		/* RISC-V SBI debug console */
 #endif
 
 /* Console types supported only on Linux platforms */
 #if defined ( PLATFORM_linux )
-  //#define CONSOLE_LINUX		/* Default Linux console */
+  #define CONSOLE_LINUX		/* Default Linux console */
 #endif
 
 /* Console types supported only on x86 CPUs */
@@ -62,7 +62,7 @@ FILE_SECBOOT ( PERMITTED );
 
 /* Enable serial console on platforms that are typically headless */
 #if defined ( CONSOLE_SBI )
-  //#define CONSOLE_SERIAL
+  #define CONSOLE_SERIAL
 #endif
 
 /* Disable console types not historically included in BIOS builds */
@@ -100,5 +100,3 @@ FILE_SECBOOT ( PERMITTED );
 #include LOCAL_NAMED_CONFIG(console.h)
 
 #endif /* CONFIG_CONSOLE_H */
-
-
