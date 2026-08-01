@@ -2379,6 +2379,13 @@ configureHttpd() {
     installToken=$(openssl rand -hex 32 2>/dev/null)
     [[ -z $installToken ]] && installToken=$(tr -dc 'a-f0-9' < /dev/urandom 2>/dev/null | head -c 64)
     dots "Creating config file"
+    # Same multi-IP input as GH-650: on a multi-homed interface $ipaddress is a
+    # list, and these four constants each want one host. Interpolating the list
+    # is valid PHP -- it just yields a two-line string -- so the install reports
+    # success and then every TFTP/FTP/storage/WOL connection targets a hostname
+    # that cannot resolve. Use the same first address the certificate's CN uses,
+    # so the host FOG advertises and the host its cert is issued for agree.
+    confighostip=$(echo $ipaddress | awk '{print $1}')
     phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
     phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
     echo "<?php
@@ -2462,7 +2469,7 @@ class Config
      */
     private static function _initSetting()
     {
-        define('TFTP_HOST', \"${ipaddress}\");
+        define('TFTP_HOST', \"${confighostip}\");
         define('TFTP_FTP_USERNAME', \"${username}\");
         define('TFTP_FTP_PASSWORD', '${password}');
         define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
@@ -2471,7 +2478,7 @@ class Config
         define('USE_SLOPPY_NAME_LOOKUPS', true);
         define('MEMTEST_KERNEL', 'memtest.bin');
         define('PXE_IMAGE', 'init.xz');
-        define('STORAGE_HOST', \"${ipaddress}\");
+        define('STORAGE_HOST', \"${confighostip}\");
         define('STORAGE_FTP_USERNAME', \"${username}\");
         define('STORAGE_FTP_PASSWORD', '${password}');
         define('STORAGE_DATADIR', '${storageLocation}/');
@@ -2479,8 +2486,8 @@ class Config
         define('STORAGE_BANDWIDTHPATH', '${webroot}status/bandwidth.php');
         define('STORAGE_INTERFACE', '${interface}');
         define('CAPTURERESIZEPCT', 7);
-        define('WEB_HOST', \"${ipaddress}\");
-        define('WOL_HOST', \"${ipaddress}\");
+        define('WEB_HOST', \"${confighostip}\");
+        define('WOL_HOST', \"${confighostip}\");
         define('WOL_PATH', '/${webroot}wol/wol.php');
         define('WOL_INTERFACE', \"${interface}\");
         define('SNAPINDIR', \"${snapindir}/\");
