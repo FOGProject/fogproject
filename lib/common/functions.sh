@@ -2150,6 +2150,14 @@ writeUpdateFile() {
     tmpDte=$(date +%c)
     [[ -z $copybackold || $copybackold -lt 1 ]] && copybackold=0
 
+    # GH-632: this assumed $fogprogramdir already existed. On a pristine system
+    # it does not -- nothing creates it until `mkdir -p $fogprogramdir/cache`
+    # much later -- so writing here before that point silently produced NOTHING:
+    # the redirection fails, the function returns 0 anyway, and the caller has
+    # no way to tell. That only ever mattered because the sole call site was at
+    # the very end of the install; it is a trap for any earlier one.
+    mkdir -p "$fogprogramdir" >>$error_log 2>&1
+
     # Managed keys, in the canonical order a freshly written file uses. This one
     # list drives both the fresh write and the in-place upgrade merge, so the two
     # can never drift apart again.
