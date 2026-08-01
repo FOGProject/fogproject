@@ -93,7 +93,7 @@ fi
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd/vsftpd.conf"
-[[ -z $dhcp ]] && dhcpd="dhcpd"
+[[ -z $dhcpd ]] && dhcpd="dhcpd"
 [[ -z $iscservice ]] && iscservice="dhcpd"
 [[ -z $keapackage ]] && keapackage="kea"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"

@@ -232,6 +232,21 @@ while :; do
             swebroot="${2}"
             swebroot="${swebroot#'/'}"
             swebroot="${swebroot%'/'}"
+            # Store the FINAL "/x/" form here rather than the bare "x". Two
+            # separate bugs came out of not doing so, both because the
+            # normalisation further down only runs on the upgrade path (it is
+            # gated on grepping an existing .fogsettings):
+            #
+            #   -W /      stripped to "", and the application tested `-n
+            #             $swebroot`, so the one case the help text exists to
+            #             document was discarded and fell back to /fog/.
+            #   -W /fog   on a FRESH install left webroot as "fog" with no
+            #             slashes, producing URLs like http://1.2.3.4fogmanagement.
+            #
+            # swebrootset records that the flag was given, separately from its
+            # value, so an empty value still counts.
+            swebrootset=1
+            [[ -z $swebroot ]] && swebroot="/" || swebroot="/${swebroot}/"
             shift 2
             ;;
         -B | --backuppath)
@@ -250,8 +265,8 @@ while :; do
                 exit 5
             fi
             sstartrange=$2
-            dodhcp="Y"
-            bldhcp=1
+            sdodhcp="Y"
+            sbldhcp=1
             shift 2
             ;;
         -e | --endrange)
@@ -261,12 +276,12 @@ while :; do
                 exit 6
             fi
             sendrange=$2
-            dodhcp="Y"
-            bldhcp=1
+            sdodhcp="Y"
+            sbldhcp=1
             shift 2
             ;;
         -E | --no-exportbuild)
-            blexports=0
+            sblexports=0
             shift
             ;;
         -X | --exitFail)
@@ -288,6 +303,15 @@ while :; do
         --)
             shift
             break
+            ;;
+        *)
+            # Nothing below shifts $1, so an option that getopt accepts but no
+            # branch above handles used to spin here forever at 100% CPU rather
+            # than failing. That was reachable for every letter left in
+            # $shortopts after its handler was removed. Fail loudly instead.
+            echo "Error: unhandled option '$1'. This is an installer bug --"
+            echo "please report it at https://github.com/FOGProject/fogproject/issues"
+            exit 10
             ;;
     esac
 done
@@ -417,10 +441,16 @@ case $doupdate in
             # which derives snapindir from it.
             fogprogramdir="$resolvedfogprogramdir"
             doOSSpecificIncludes
-            [[ -n $blexports ]] && blexports=$blexports
+            # This was `blexports=$blexports` -- a self-assignment that did
+            # nothing, so -E was silently discarded on upgrades: the handler
+            # wrote blexports directly and the .fogsettings sourced just above
+            # overwrote it (blexports is a managed key). -E/-s/-e now use the
+            # s-prefixed shadows every other flag uses, which is what
+            # 0d49b78e1 introduced the convention for.
+            [[ -n $sblexports ]] && blexports=$sblexports
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
-            [[ -n $swebroot ]] && webroot=$swebroot
+            [[ -n $swebrootset ]] && webroot=$swebroot
             [[ -n $sdocroot ]] && docroot=$sdocroot
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
             [[ -n $scopybackold ]] && copybackold=$scopybackold
@@ -434,6 +464,11 @@ esac
 [[ -n $shttpproto ]] && httpproto=$shttpproto
 [[ -n $sstartrange ]] && startrange=$sstartrange
 [[ -n $sendrange ]] && endrange=$sendrange
+# -s/-e imply "set DHCP up". These were written directly by the handlers, so on
+# an upgrade the .fogsettings sourced above overwrote them (both are managed
+# keys) and the ranges were accepted while DHCP configuration stayed off.
+[[ -n $sdodhcp ]] && dodhcp=$sdodhcp
+[[ -n $sbldhcp ]] && bldhcp=$sbldhcp
 [[ -n $ssslpath ]] && sslpath=$ssslpath
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
@@ -442,7 +477,7 @@ esac
 [[ -n $sextcakey ]] && extcakey=$sextcakey
 [[ -n $sextcaroot ]] && extcaroot=$sextcaroot
 [[ -n $sdocroot ]] && docroot=$sdocroot
-[[ -n $swebroot ]] && webroot=$swebroot
+[[ -n $swebrootset ]] && webroot=$swebroot
 [[ -n $sbackupPath ]] && backupPath=$sbackupPath
 [[ -n $sexitFail ]] && exitFail=$sexitFail
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild

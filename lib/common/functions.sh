@@ -1576,12 +1576,17 @@ configureMySql() {
     if [[ "${snmysqlexternal}" == "1" ]]; then
         dots "Verifying external database connection"
 
-        # Test connection and ensure the database exists and is accessible
-        mysql -h "${snmysqlhost}" -u "${snmysqluser}" -p"${snmysqlpass}" -e "USE ${snmysqldb};" >/dev/null 2>&1
+        # Test connection and ensure the database exists and is accessible.
+        # The database name is $mysqldbname; this read $snmysqldb, which is
+        # never assigned anywhere, so the statement was always `USE ;` -- a
+        # syntax error. The check could only ever fail, which made every
+        # snmysqlexternal=1 install exit 1 here, and the error below named an
+        # empty database.
+        mysql -h "${snmysqlhost}" -u "${snmysqluser}" -p"${snmysqlpass}" -e "USE ${mysqldbname};" >/dev/null 2>&1
 
         if [[ $? -ne 0 ]]; then
             echo "Failed!"
-            echo " * Error: Cannot connect to the external database '${snmysqldb}' at '${snmysqlhost}'."
+            echo " * Error: Cannot connect to the external database '${mysqldbname}' at '${snmysqlhost}'."
             echo " * Please verify your credentials in $fogprogramdir/.fogsettings and ensure the DB exists."
             exit 1
         fi
