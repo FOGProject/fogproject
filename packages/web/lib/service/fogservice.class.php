@@ -201,28 +201,21 @@ abstract class FOGService extends FOGBase
      */
     public function getBanner()
     {
-        ob_start();
-        echo "\n";
-        echo "==================================\n";
-        echo "===        ====    =====      ====\n";
-        echo "===  =========  ==  ===   ==   ===\n";
-        echo "===  ========  ====  ==  ====  ===\n";
-        echo "===  ========  ====  ==  =========\n";
-        echo "===      ====  ====  ==  =========\n";
-        echo "===  ========  ====  ==  ===   ===\n";
-        echo "===  ========  ====  ==  ====  ===\n";
-        echo "===  =========  ==  ===   ==   ===\n";
-        echo "===  ==========    =====      ====\n";
-        echo "==================================\n";
-        echo "===== Free Opensource Ghost ======\n";
-        echo "==================================\n";
-        echo "============ Credits =============\n";
-        echo "= https://fogproject.org/Credits =\n";
-        echo "==================================\n";
-        echo "== Released under GPL Version 3 ==\n";
-        echo "==================================\n";
-        echo "\n";
-        self::outall(ob_get_clean());
+        // GH-497: this was twenty lines of ASCII art per start. Now that the
+        // log survives a restart it is repeated noise rather than a one-off
+        // header, and it pushed real output out of view in a `tail`. One line
+        // keeps what the banner was actually useful for -- a visible marker of
+        // where a restart begins, and which build is running.
+        //
+        // Still emitted from the eight daemon entry points under
+        // packages/service/, so the signature stays as it is.
+        self::outall(
+            sprintf(
+                '===== FOG %s -- %s starting =====',
+                FOG_VERSION,
+                get_class($this)
+            )
+        );
     }
     /**
      * Outputs the string passed
@@ -246,6 +239,43 @@ abstract class FOGService extends FOGBase
         return self::niceDate()->format('m-d-y g:i:s a');
     }
     /**
+     * Rotates a service log that has reached its size limit.
+     *
+     * GH-497: this used to unlink the log outright, which threw away the
+     * run you most likely wanted to read -- the one that had just filled
+     * the file. Shift the numbered generations instead and drop only the
+     * oldest, so there is always history behind the live file.
+     *
+     * Kept at a fixed five generations rather than a new setting. Disk cost
+     * is SERVICE_LOG_SIZE * (KEEP + 1) and admins already control the first
+     * term, so a second knob buys nothing and would cost a schema step on
+     * both branches.
+     *
+     * Two writers can race here: the supervisor and its forked child share
+     * a log, and both could see an oversize file and rotate. The loss is a
+     * duplicated shift, not corruption, and wlog() holds its handle only
+     * for the length of one write -- not worth a lock file.
+     *
+     * @param string $path the log path to rotate
+     *
+     * @return void
+     */
+    protected static function rotateLog($path)
+    {
+        $keep = 5;
+        if (file_exists("{$path}.{$keep}")) {
+            unlink("{$path}.{$keep}");
+        }
+        // Descending. Going the other way would overwrite .2 with .1 before
+        // .2 itself had been moved up to .3.
+        for ($i = $keep - 1; $i >= 1; $i--) {
+            if (file_exists("{$path}.{$i}")) {
+                rename("{$path}.{$i}", sprintf('%s.%d', $path, $i + 1));
+            }
+        }
+        rename($path, "{$path}.1");
+    }
+    /**
      * Outputs the passed string to the log
      *
      * @param string $string the string to write to log
@@ -262,9 +292,7 @@ abstract class FOGService extends FOGBase
                 $max_size = 500000;
             }
             if ($filesize >= $max_size) {
-                if (file_exists($path)) {
-                    unlink($path);
-                }
+                self::rotateLog($path);
             }
         }
         $fh = fopen($path, 'ab');
