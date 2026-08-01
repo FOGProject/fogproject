@@ -47,10 +47,10 @@ backupconfig=""
 . ../lib/common/functions.sh
 . ../lib/common/uninstall.sh
 usage() {
-    echo -e "Usage: $0 [-h?dEUuHSCKYXTFA] [-f <filename>] [-N <databasename>]"
+    echo -e "Usage: $0 [-h?odEUHSCKYyXTFl] [-f <filename>] [-N <databasename>]"
     echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
-    echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
+    echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-o    --oldcopy\t\t\tCopy back old data"
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
@@ -101,7 +101,6 @@ usage() {
     echo -e "\t      --purge-all\t\tAll of the --purge-* options above"
     echo -e "\t-s    --startrange\t\tDHCP Start range"
     echo -e "\t-e    --endrange\t\tDHCP End range"
-    echo -e "\t-b    --bootfile\t\tDHCP Boot file"
     echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
@@ -110,8 +109,8 @@ usage() {
     exit 0
 }
 
-shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
+shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
