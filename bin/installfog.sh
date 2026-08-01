@@ -25,11 +25,42 @@ if [[ ! $EUID -eq 0 ]]; then
     exit 1 # Fail Sudo
 fi
 
-which useradd >/dev/null 2>&1
-if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
-    echo "Please switch to a proper root environment to run the installer!"
-    echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
-    echo "of the su command as it is important to load root's environment)."
+# The installer calls a number of tools that live in an sbin directory, so it
+# has to be sure they are reachable. This used to be inferred rather than
+# tested: `which useradd`, plus a demand that the string "sbin" appear at least
+# TWICE in $PATH -- a stand-in for "/sbin and /usr/sbin are both listed".
+#
+# That stand-in stopped being true once distributions merged /sbin and
+# /usr/sbin into /usr/bin. A correct root PATH may now name a single sbin
+# directory, or none at all, and got rejected. Arch is the original report
+# (GH-447): root's login PATH is /usr/local/sbin:/usr/local/bin:/usr/bin,
+# "sbin" occurs once, and the installer refused to start while telling the user
+# to load root's environment -- which they had. The reporter's workaround
+# proves the check was measuring nothing: appending /usr/sbin got them past it,
+# and on Arch /usr/sbin is a symlink to /usr/bin, so it added no binaries at
+# all. It only made the substring appear a second time. Fedora 43 and later
+# name no sbin directory in root's PATH whatsoever and were rejected too.
+#
+# So ask the real question. Put the standard sbin directories on PATH when they
+# exist and are not already listed, then check we can actually reach the tool.
+for sbindir in /usr/local/sbin /usr/sbin /sbin; do
+    [[ -d $sbindir ]] || continue
+    case ":${PATH}:" in
+        *:"${sbindir}":*) ;;
+        *) PATH="${PATH}:${sbindir}" ;;
+    esac
+done
+export PATH
+if ! command -v useradd >/dev/null 2>&1; then
+    echo "The installer could not find 'useradd'."
+    echo
+    echo "It normally lives in an sbin directory. If you became root with a"
+    echo "plain 'su' or with 'sudo', switch using 'sudo -i' or 'su -' instead"
+    echo "(skip the ' and note the hyphen at the end of the su command, as it"
+    echo "is what loads root's own environment)."
+    echo
+    echo "If the command genuinely is not installed, FOG cannot create its"
+    echo "system account and the install would fail later on regardless."
     exit 1
 fi
 
