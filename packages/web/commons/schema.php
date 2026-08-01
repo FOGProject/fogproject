@@ -19,6 +19,20 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+/**
+ * GH-529: FOG_WEB_ROOT used to be seeded with a literal '/fog/' regardless of
+ * where the installer was actually told to put the web files, so a custom
+ * -W/--webroot left the database pointing somewhere the app did not live --
+ * which is what broke PXE booting. WEB_ROOT is written into config.class.php
+ * by the installer alongside WEB_HOST.
+ *
+ * The guard is for config.class.php files generated before that constant
+ * existed: the installer rewrites the file on every run, but the schema page
+ * can be reached without re-running it.
+ */
+if (!defined('WEB_ROOT')) {
+    define('WEB_ROOT', '/fog/');
+}
 $tmpSchema = self::getClass('Schema');
 self::$DB->query(Schema::useDatabaseQuery());
 // 0
@@ -439,7 +453,7 @@ $this->schema[] = array(
     . "','Web Server'),"
     . "('FOG_WEB_ROOT','This setting defines the path to the "
     . "fog webserver\'s root directory.','"
-    . '/fog/'
+    . WEB_ROOT
     . "','Web Server'),"
     . "('FOG_WOL_HOST','This setting defines the ip address "
     . "of hostname for the server hosting the Wake-on-lan service.','"
@@ -2846,7 +2860,12 @@ $this->schema[] = array(
 // 188
 $this->schema[] = array(
     "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmWebroot` LONGTEXT NOT NULL",
-    "UPDATE `nfsGroupMembers` SET `ngmWebroot`='/fog/'",
+    // GH-529: backfilled every node with a literal '/fog/', which silently
+    // moved the nodes of a custom-webroot install to a path that does not
+    // exist. There is no per-node value to preserve here -- the column is
+    // being created in the line above -- so the server's own webroot is the
+    // best guess available.
+    "UPDATE `nfsGroupMembers` SET `ngmWebroot`='" . WEB_ROOT . "'",
 );
 // 189
 $this->schema[] = self::fastmerge(

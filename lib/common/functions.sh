@@ -59,7 +59,10 @@ checkDatabaseConnection() {
     errorStat $?
 }
 registerStorageNode() {
-    [[ -z $webroot ]] && webroot="/"
+    # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
+    # the two disagreed about where the app lives whenever webroot arrived
+    # unset. Every fallback in this file now matches the installer's.
+    [[ -z $webroot ]] && webroot="/fog/"
     dots "Checking if this node is registered"
     storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
@@ -73,7 +76,7 @@ registerStorageNode() {
     fi
 }
 updateStorageNodeCredentials() {
-    [[ -z $webroot ]] && webroot="/"
+    [[ -z $webroot ]] && webroot="/fog/"   # see registerStorageNode, GH-529
     dots "Ensuring node username and passwords match"
     curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}maintenance/create_update_node.php
     echo "Done"
@@ -730,7 +733,7 @@ configureFTP() {
 }
 configureDefaultiPXEfile() {
     dots 'Configuring default iPXE file'
-    [[ -z $webroot ]] && webroot='/'
+    [[ -z $webroot ]] && webroot='/fog/'   # see registerStorageNode, GH-529
     echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
@@ -1986,7 +1989,27 @@ displayBanner() {
     echo
     echo
 }
+# GH-529: the vhost templates and the docroot symlink both need $webroot in a
+# form other than the "/x/" one installfog.sh normalises to, so derive them in
+# one place rather than in each consumer. Idempotent -- callers invoke it
+# without caring whether an earlier one already has.
+#
+#   webroot     /myfog/    URL path, as stored in .fogsettings
+#   webrootbare myfog      filesystem/link name, no slashes
+#   webrootre   /myfog/    escaped for the apache regex contexts, where a dot
+#                          is a legitimate path character but a wildcard
+#
+# The default is repeated here because functions.sh is also sourced by the
+# utils scripts, which never run installfog.sh's normalisation.
+normalizeWebroot() {
+    [[ -z $webroot ]] && webroot="/fog/"
+    webrootbare="${webroot#/}"
+    webrootbare="${webrootbare%/}"
+    webrootre=$(printf '%s' "$webroot" | sed 's/[.[\*^$()+?{|]/\\&/g')
+}
 createSSLCA() {
+    # GH-529: this function also emits the vhost further down.
+    normalizeWebroot
     if [[ -z $sslpath ]]; then
         [[ -d /opt/fog/snapins/CA && -d /opt/fog/snapins/ssl ]] && mv /opt/fog/snapins/CA /opt/fog/snapins/ssl/
         sslpath='/opt/fog/snapins/ssl/'
@@ -2125,6 +2148,15 @@ EOF
                 echo "    <Directory $webdirdest>" >> "$etcconf"
                 echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                 echo "    </Directory>" >> "$etcconf"
+                # GH-529: apache does NOT resolve symlinks when matching
+                # <Directory>, so the block above covers the real tree but not
+                # the path a custom webroot is published at -- leaving a bare
+                # "/mywebroot/" with no DirectoryIndex and a 403.
+                if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
+                    echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "    </Directory>" >> "$etcconf"
+                fi
                 echo "    Timeout 600" >> "$etcconf"
                 echo "    ProxyTimeout 600" >> "$etcconf"
                 echo "    RewriteEngine On" >> "$etcconf"
@@ -2132,12 +2164,21 @@ EOF
                 echo "    RewriteRule .* - [F]" >> "$etcconf"
                 echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
                 echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                echo "    RewriteRule ^${webrootre}(.*)$ ${webroot}api/index.php [QSA,L]" >> "$etcconf"
                 echo "</VirtualHost>" >> "$etcconf"
             else
                 echo "    <Directory $webdirdest>" >> "$etcconf"
                 echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                 echo "    </Directory>" >> "$etcconf"
+                # GH-529: apache does NOT resolve symlinks when matching
+                # <Directory>, so the block above covers the real tree but not
+                # the path a custom webroot is published at -- leaving a bare
+                # "/mywebroot/" with no DirectoryIndex and a 403.
+                if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
+                    echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "    </Directory>" >> "$etcconf"
+                fi
                 echo "    Timeout 600" >> "$etcconf"
                 echo "    ProxyTimeout 600" >> "$etcconf"
                 echo "    RewriteEngine On" >> "$etcconf"
@@ -2145,7 +2186,7 @@ EOF
                 echo "    RewriteRule .* - [F]" >> "$etcconf"
                 echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
                 echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                echo "    RewriteRule ^${webrootre}(.*)$ ${webroot}api/index.php [QSA,L]" >> "$etcconf"
                 echo "</VirtualHost>" >> "$etcconf"
             fi
             diffconfig "${etcconf}"
@@ -2232,6 +2273,7 @@ EOF
     caCreated="yes"
 }
 configureHttpd() {
+    normalizeWebroot
     dots "Stopping web service"
     case $systemctl in
         yes)
@@ -2345,6 +2387,13 @@ configureHttpd() {
     mkdir -p "$webdirdest" >>$error_log 2>&1
     if [[ -d $docroot && ! -h ${docroot}fog ]] || [[ ! -d ${docroot}fog ]]; then
         ln -s $webdirdest  ${docroot}/fog >>$error_log 2>&1
+    fi
+    # GH-529: $webdirdest is a filesystem path and is always "<docroot>/fog";
+    # $webroot is the URL path the web server publishes. With the default
+    # "/fog/" the two coincide, which is why nothing ever linked them -- and why
+    # -W/--webroot produced a vhost pointing at a URL with nothing behind it.
+    if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
+        linkIfAbsent "${webdirdest%/}" "${docroot%/}/${webrootbare}"
     fi
     errorStat $?
     if [[ $copybackold -gt 0 ]]; then
@@ -2487,6 +2536,7 @@ class Config
         define('STORAGE_INTERFACE', '${interface}');
         define('CAPTURERESIZEPCT', 7);
         define('WEB_HOST', \"${confighostip}\");
+        define('WEB_ROOT', '${webroot}');
         define('WOL_HOST', \"${confighostip}\");
         define('WOL_PATH', '/${webroot}wol/wol.php');
         define('WOL_INTERFACE', \"${interface}\");
@@ -2509,7 +2559,7 @@ class Config
     dots "Creating redirection index file"
     if [[ ! -f ${docroot}/index.php ]]; then
         echo "<?php
-header('Location: /fog/index.php');
+header('Location: ${webroot}index.php');
 die();
 ?>" > ${docroot}/index.php && chown ${apacheuser}:${apacheuser} ${docroot}/index.php
         errorStat $?

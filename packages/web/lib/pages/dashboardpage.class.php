@@ -464,9 +464,10 @@ class DashboardPage extends FOGPage
     public function diskusage()
     {
         $url = sprintf(
-            '%s://%s/fog/status/freespace.php?path=%s',
+            '%s://%s/%s/status/freespace.php?path=%s',
             self::$httpproto,
             $this->obj->get('ip'),
+            self::webrootPath($this->obj->get('webroot')),
             base64_encode($this->obj->get('path'))
         );
         if (!$this->obj->get('online')) {

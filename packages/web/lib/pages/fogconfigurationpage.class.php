@@ -125,9 +125,12 @@ class FOGConfigurationPage extends FOGPage
         foreach ((array)$StorageNodes as &$StorageNode) {
             $url = $urls[] = filter_var(
                 sprintf(
-                    '%s://%s/fog/status/kernelvers.php',
+                    '%s://%s/%s/status/kernelvers.php',
                     self::$httpproto,
-                    $StorageNode->ip
+                    $StorageNode->ip,
+                    self::webrootPath(
+                        isset($StorageNode->webroot) ? $StorageNode->webroot : null
+                    )
                 ),
                 FILTER_SANITIZE_URL
             );

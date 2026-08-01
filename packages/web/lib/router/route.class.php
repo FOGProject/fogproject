@@ -34,6 +34,16 @@ class Route extends FOGBase
      */
     private static $_token = '';
     /**
+     * The configured webroot in '/x/' form, e.g. '/fog/'.
+     *
+     * GH-529: every API route is registered under this, and it used to be the
+     * literal '/fog', so at a custom webroot no route matched at all -- the
+     * API answered 501 for endpoints that exist.
+     *
+     * @var string
+     */
+    private static $_webrootbase = '/fog/';
+    /**
      * AltoRouter object container.
      *
      * @var AltoRouter
@@ -163,14 +173,23 @@ class Route extends FOGBase
             'value'
         );
         /**
+         * GH-529: normalise the configured webroot rather than trusting the
+         * stored form -- it is written by the installer, edited by hand in FOG
+         * Settings, and carried by older versions, so it turns up with and
+         * without either slash.
+         */
+        $webrootbase = trim((string)self::getSetting('FOG_WEB_ROOT'), '/');
+        self::$_webrootbase = '/' . ($webrootbase === '' ? '' : $webrootbase . '/');
+        /**
          * If API is not enabled redirect to home page.
          */
         if (!self::$_enabled) {
             header(
                 sprintf(
-                    'Location: %s://%s/fog/management/index.php',
+                    'Location: %s://%s%smanagement/index.php',
                     self::$httpproto,
-                    self::$httphost
+                    self::$httphost,
+                    self::$_webrootbase
                 )
             );
             exit;
@@ -222,9 +241,15 @@ class Route extends FOGBase
         if (self::$router) {
             return;
         }
+        /**
+         * GH-529: the base path was the literal '/fog', so every route was
+         * registered somewhere the request could never reach on a custom
+         * webroot. AltoRouter wants it without the trailing slash, and an
+         * install served from the document root itself wants it empty.
+         */
         self::$router = new AltoRouter(
             array(),
-            '/fog'
+            rtrim(self::$_webrootbase, '/')
         );
         self::defineRoutes();
         self::setMatches();
