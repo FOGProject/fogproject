@@ -152,11 +152,15 @@ usage() {
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
     echo -e "\t-l    --list-packages\t\tList of the basic packages FOG needs for install or is currently installed for FOG"
+    echo -e "\t      --secure-boot-key\t\tPrivate key used to re-sign the FOS"
+    echo -e "\t                       \t\t\tkernels for UEFI Secure Boot"
+    echo -e "\t      --secure-boot-cert\tCertificate matching --secure-boot-key"
+    echo -e "\t                        \t\t\t(both are required together)"
     exit 0
 }
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -398,6 +402,26 @@ while :; do
             listPackages=1
             shift
             ;;
+        --secure-boot-key)
+            if [[ -f $2 ]]; then
+                ssecureBootKey="$2"
+            else
+                echo "$1 requires a readable private key file after"
+                usage
+                exit 3
+            fi
+            shift 2
+            ;;
+        --secure-boot-cert)
+            if [[ -f $2 ]]; then
+                ssecureBootCert="$2"
+            else
+                echo "$1 requires a readable certificate file after"
+                usage
+                exit 3
+            fi
+            shift 2
+            ;;
         --)
             shift
             break
@@ -584,6 +608,26 @@ esac
 [[ -n $sbackupPath ]] && backupPath=$sbackupPath
 [[ -n $sexitFail ]] && exitFail=$sexitFail
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
+[[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
+[[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
+
+# Secure Boot signing is opt-in and only meaningful as a pair. Refuse half a
+# pair rather than silently leaving kernels unsigned on a server whose admin
+# believes they are signed -- that failure only shows up at a client, as a
+# Security Policy Violation with nothing on the server to explain it.
+if [[ -n $secureBootKey || -n $secureBootCert ]]; then
+    if [[ -z $secureBootKey || -z $secureBootCert ]]; then
+        echo " * --secure-boot-key and --secure-boot-cert must be set together"
+        exit 9
+    fi
+    for sbfile in "$secureBootKey" "$secureBootCert"; do
+        if [[ ! -r $sbfile ]]; then
+            echo " * Cannot read Secure Boot signing file: $sbfile"
+            exit 9
+        fi
+    done
+    unset sbfile
+fi
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
 case $? in

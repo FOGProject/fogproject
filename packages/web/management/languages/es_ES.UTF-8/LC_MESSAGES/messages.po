@@ -1120,6 +1120,9 @@ msgstr "sistema de serie"
 msgid "Case Version"
 msgstr "Versión del sistema"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 #, fuzzy
 msgid "Certificate Verification"
 msgstr "Crear nuevo grupo"
@@ -1157,6 +1160,11 @@ msgstr "Versión chasis"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -1283,6 +1291,11 @@ msgstr "Error: No se pudo descargar kernel"
 #, fuzzy
 msgid "Confirm you would like to download a new kernel"
 msgstr "Error: No se pudo descargar kernel"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 #, fuzzy
 msgid "Copy from existing"
@@ -1864,6 +1877,11 @@ msgstr "Caído"
 msgid "Duration"
 msgstr "Configuración"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "Editar"
 
@@ -1925,6 +1943,9 @@ msgstr ""
 msgid "Engineer"
 msgstr ""
 
+msgid "Enrolment kit"
+msgstr ""
+
 msgid "Equipment Loan"
 msgstr ""
 
@@ -1963,6 +1984,10 @@ msgstr "Error: No se pudo descargar kernel"
 
 msgid "Error: Failed to open temp file"
 msgstr "Error: No se pudo abrir el archivo temporal"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "Error: No se pudo descargar kernel"
 
 msgid "Errors"
 msgstr "errores"
@@ -2114,6 +2139,9 @@ msgid "FOG is unable to communicate with the database"
 msgstr ""
 
 msgid "FOG server defaulting under the folder"
+msgstr ""
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
 #, fuzzy
@@ -4734,6 +4762,9 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -5619,6 +5650,9 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
+msgid "Re-run the installer with"
+msgstr ""
+
 #, fuzzy
 msgid "Real Time"
 msgstr "Tiempo de actividad del sistema"
@@ -5988,6 +6022,13 @@ msgstr "Estado del servicio"
 
 msgid "Second paramater must be in [class,function]"
 msgstr ""
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "No hay grupos en este servidor."
 
 #, fuzzy
 msgid "See all results"
@@ -8109,6 +8150,10 @@ msgstr " hace"
 msgid "all current storage nodes"
 msgstr "nodo de almacenamiento no válido"
 
+#, fuzzy
+msgid "and"
+msgstr "habilitado"
+
 msgid "and below"
 msgstr ""
 
@@ -8747,6 +8792,9 @@ msgstr "Impresora actualiza!"
 msgid "to clear the field on every host in this group."
 msgstr ""
 
+msgid "to enable it"
+msgstr ""
+
 #, fuzzy
 msgid "to get the requested Kernel"
 msgstr "se requiere ninguna clave"
@@ -9298,10 +9346,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "Impresora ya existe"
-
-#, fuzzy
-#~ msgid "There are no images on this server"
-#~ msgstr "No hay grupos en este servidor."
 
 #, fuzzy
 #~ msgid "There are no locations on this server"
