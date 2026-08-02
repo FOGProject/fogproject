@@ -29,7 +29,7 @@ FOG Project is an open-source network imaging and endpoint management system. It
 ## How this differs from `working-1.6` (read this first)
 
 | Thing | dev-branch (1.5.x) | working-1.6 |
-|------|-----------------------|-------------|
+|------|--------------------|-------------|
 | Page file names | `imagemanagementpage.class.php` (one word, `.class.php`) | `ImageManagement.page.php` |
 | Page class names | `ImageManagementPage` (with `Page` suffix) | `ImageManagement` (no suffix) |
 | ORM array syntax | older `array(...)` in many files | `[...]` short syntax |
@@ -66,43 +66,43 @@ being designed around any of that from the start.
 
 ```
 fogproject/                     (dev-branch)
-��퀔─ bin/                        # installfog.sh installer
-��퀔─ lib/                        # Shell library scripts (per-distro functions)
-��퀔─ packages/
-��   ├── service/                # PHP CLI background daemons
-��   │  ├── FOGTaskScheduler/
-��   │  ├── FOGImageReplicator/
-��   │  ├── FOGSnapinReplicator/
-��   │  ├── FOGMulticastManager/
-��   │  ├── FOGPingHosts/
-��   │  ├── FOGImageSize/
-��   │  ├── FOGSnapinHash/
-��   │  └── lib/service_lib.php
-��   └── web/                    # The web application
-��       ├── api/                # REST API
-��       ├── client/              # fog-client related files
-��       ├── commons/            # Boot/init files (loaded by ALL entry points)
-��       │  ├── base.inc.php    # Security headers, starts output buffering
-��       │  ├── init.php        # Initiator class: autoloader, session, sanitization
-��       │  ├── schema.php      # DB schema (CREATE TABLE as PHP arrays)
-��       │  └── text.php        # $foglang[] translation strings
-��       ├── lib/
-��       │  ├── fog/             # ~128 core *.class.php files (models, managers, utilities)
-��       │  ├── pages/           # *page.class.php UI page classes (e.g. hostmanagementpage.class.php)
-��       │  ├── hooks/           # *.hook.php hook classes
-��       │  ├── events/          # *.event.php event classes
-��       │  ├── reports/         # *.report.php report classes
-��       │  ├── reg-task/       # registration/task helpers
-��       │  ├── client/         # client-side support
-��       │  ├── db/             # PDODB, DatabaseManager
-��       │  ├── router/         # API routing
-��       │  ├── service/        # service support classes
-��       │  └── plugins/         # plugin directories
-��       └── management/         # Apache/Nginx document root
-��          ├── index.php       # Main UI entry point ($nodes allowlist lives here)
-��          ├── js/fog/         # FOG-specific JS
-��          ├── css/            # Stylesheets + LESS source
-��          └── languages/       # gettext .po/.mo files
+├── bin/                        # installfog.sh installer
+├── lib/                        # Shell library scripts (per-distro functions)
+├── packages/
+│   ├── service/                # PHP CLI background daemons
+│   │   ├── FOGTaskScheduler/
+│   │   ├── FOGImageReplicator/
+│   │   ├── FOGSnapinReplicator/
+│   │   ├── FOGMulticastManager/
+│   │   ├── FOGPingHosts/
+│   │   ├── FOGImageSize/
+│   │   ├── FOGSnapinHash/
+│   │   └── lib/service_lib.php
+│   └── web/                    # The web application
+│       ├── api/                # REST API
+│       ├── client/             # fog-client related files
+│       ├── commons/            # Boot/init files (loaded by ALL entry points)
+│       │   ├── base.inc.php    # Security headers, starts output buffering
+│       │   ├── init.php        # Initiator class: autoloader, session, sanitization
+│       │   ├── schema.php      # DB schema (CREATE TABLE as PHP arrays)
+│       │   └── text.php        # $foglang[] translation strings
+│       ├── lib/
+│       │   ├── fog/            # ~128 core *.class.php files (models, managers, utilities)
+│       │   ├── pages/          # *page.class.php UI page classes (e.g. hostmanagementpage.class.php)
+│       │   ├── hooks/          # *.hook.php hook classes
+│       │   ├── events/         # *.event.php event classes
+│       │   ├── reports/        # *.report.php report classes
+│       │   ├── reg-task/       # registration/task helpers
+│       │   ├── client/         # client-side support
+│       │   ├── db/             # PDODB, DatabaseManager
+│       │   ├── router/         # API routing
+│       │   ├── service/        # service support classes
+│       │   └── plugins/        # plugin directories
+│       └── management/         # Apache/Nginx document root
+│           ├── index.php       # Main UI entry point ($nodes allowlist lives here)
+│           ├── js/fog/         # FOG-specific JS
+│           ├── css/            # Stylesheets + LESS source
+│           └── languages/      # gettext .po/.mo files
 └── src/                        # iPXE / binaries source
 ```
 
@@ -116,8 +116,8 @@ Every entry point (web UI, API, background services) starts the same way:
 
 ```
 commons/base.inc.php
- → commons/init.php (defines Initiator, runs autoloader registration)
-   → new LoadGlobals() (bootstraps $DB, $HookManager, $EventManager, $currentUser)
+  → commons/init.php (defines Initiator, runs autoloader registration)
+    → new LoadGlobals() (bootstraps $DB, $HookManager, $EventManager, $currentUser)
 ```
 
 ### Autoloader
@@ -136,13 +136,13 @@ spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php')
 FOGBase (abstract)
 ├── FOGCore              — static utility methods (getSetting, getClass, etc.)
 ├── FOGController        — single-entity ORM base
-��   └── Host, Image, Snapin, StorageNode, etc.
+│   └── Host, Image, Snapin, StorageNode, etc.
 ├── FOGManagerController — collection/query base
-��   └── HostManager, ImageManager, etc.
+│   └── HostManager, ImageManager, etc.
 ├── FOGPage              — UI page base
-��   └── HostManagementPage, ImageManagementPage, etc.
-├── Page                — HTML shell renderer
-├── Hook                — base for all hooks
+│   └── HostManagementPage, ImageManagementPage, etc.
+├── Page                 — HTML shell renderer
+├── Hook                 — base for all hooks
 └── LoadGlobals          — bootstraps globals on construction
 ```
 
@@ -208,7 +208,7 @@ self::$HookManager->processEvent('EVENT_NAME', array('data' => &$data));
 
 1. **`updateLanguage()`** — regenerates `management/languages/messages.pot` via `xgettext`, sorts with `msgcat`, then `msgmerge`-updates every `.po`. Adds the whole `languages/` dir. Skipped if those tools aren't installed.
 2. **`psrfix()`** — runs `php-cs-fixer fix packages/web --rules=@PSR2` and **`git add packages/web`** unconditionally. Two consequences: your code may be auto-reformatted to PSR-2, and **any other dirty file under `packages/web/` gets swept into your commit** regardless of what you staged. Commit files outside `packages/web/` (like this `CLAUDE.md`) separately if you need them isolated.
-3. **Version bump** — derives a version from the branch name + commit count and rewrites `FOG_VERSION`/`FOG_CHANNEL` in `packages/web/lib/fog/system.class.php`. On `dev`/`stable` branches the channel is `Patches`. This step also tends to leave a **dangling staged `system.class.php``* bump after the commit; discard it with `git checkout -- packages/web/lib/fog/system.class.php` if you don't want it in the next commit.
+3. **Version bump** — derives a version from the branch name + commit count and rewrites `FOG_VERSION`/`FOG_CHANNEL` in `packages/web/lib/fog/system.class.php`. On `dev`/`stable` branches the channel is `Patches`. This step also tends to leave a **dangling staged `system.class.php`** bump after the commit; discard it with `git checkout -- packages/web/lib/fog/system.class.php` if you don't want it in the next commit.
 
 ---
 
