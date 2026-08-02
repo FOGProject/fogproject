@@ -89,6 +89,17 @@ class AddLocationMenuItem extends Hook
     {
         $arguments['hook_main'][$this->node]
             = [_('Locations'), 'fa fa-globe'];
+        // Existence check goes through the cached settings reader, not a raw
+        // Setting->load(). This hook only ever needs to know whether the row
+        // has been seeded yet, but it fired on every main-menu build -- which
+        // is every request, including JSON/AJAX endpoints that render no menu
+        // -- and each fire was an uncached SELECT on globalSettings. getSetting()
+        // answers from the request-warmed cache for a key that exists, so the
+        // steady state (seeded long ago) now costs nothing. A genuinely absent
+        // key still falls through to the one-time create below.
+        if (self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') !== null) {
+            return;
+        }
         $Setting = self::getClass('Setting')
             ->set(
                 'name',
