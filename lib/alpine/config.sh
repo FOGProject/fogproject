@@ -69,9 +69,18 @@ if [[ -z $packages ]]; then
 fi
 [[ -z $packageinstaller ]] && packageinstaller="apk add"
 [[ -z $packagelist ]] && packagelist="apk info"
-[[ -z $packageupdater ]] && packageupdater="apk update && apk upgrade"
-[[ -z $packmanUpdate ]] && packmanUpdate="$packageinstaller"
+# This was "apk update && apk upgrade". These are run as $packageupdater with
+# arguments appended, and a && inside a variable is NOT re-parsed as a control
+# operator after expansion -- apk received it as a literal argument and the
+# whole step failed every time, silently, because the caller echoed "OK"
+# regardless. The index refresh belongs in packmanUpdate, which is the step
+# named for it and which previously ran a no-op "apk add" with no arguments.
+[[ -z $packageupdater ]] && packageupdater="apk upgrade"
+[[ -z $packmanUpdate ]] && packmanUpdate="apk update"
 [[ -z $packageQuery ]] && packageQuery="apk info -e \$x "
+# Bulk forms of packageQuery/packagelist -- see loadPackageSets.
+pkgQueryAll() { apk info 2>/dev/null; }
+pkgListAll() { apk search -q 2>/dev/null; }
 [[ -z $langPackages ]] && langPackages="iso-codes"
 # $dhcpname names the DHCP *package*, and it is what the engine selection in
 # configureDhcpEngine keys on -- it bails out entirely unless $packages
