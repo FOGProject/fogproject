@@ -1040,6 +1040,14 @@ configureTFTPandPXE() {
     find $webdirdest -type d -exec chmod 755 {} \; >>$error_log 2>&1
     find $tftpdirdst ! -type d -exec chmod 655 {} \; >>$error_log 2>&1
     configureDefaultiPXEfile
+    # GH-963: must come AFTER every file is in place, configureDefaultiPXEfile
+    # included. restorecon only fixes what already exists, so anything written
+    # after this call keeps whatever label it inherited.
+    #
+    # tftpd_t is permitted to read tftpdir_t, tftpdir_rw_t and var_t. The first
+    # two are what the distro packages use; var_t covers Arch's /srv/tftp and
+    # Alpine's /var/tftpboot, which resolve there and work as-is.
+    setSELinuxContext "$tftpdirdst" tftpdir_t tftpdir_rw_t var_t
     dots 'Setting up and starting TFTP Server'
     case $systemctl in
         yes)
@@ -1413,6 +1421,83 @@ confirmPackageInstallation() {
         echo "OK"
     fi
 }
+setSELinuxContext() {
+    # setSELinuxContext <directory> <type-to-register> <acceptable-type>...
+    #
+    # GH-963: the installer builds its directories with mkdir/cp, so they
+    # inherit the parent's SELinux label instead of the one policy intends.
+    # /tftpboot came out default_t, and the confined TFTP daemon has no rule
+    # permitting tftpd_t to read that type -- so on an enforcing host every PXE
+    # boot failed as a bare "file not found", with nothing in FOG's own logs and
+    # only an AVC denial in the audit log to explain it. FOG's answer until now
+    # was checkSELinux() offering to switch SELinux off machine-wide, which is a
+    # very large hammer for one mislabelled directory.
+    #
+    # Policy almost always already knows the correct label -- FOG simply never
+    # asked for it. So ask (restorecon), and only register a rule when policy
+    # has no usable answer, which happens when the admin has relocated the
+    # directory out of the packaged path.
+    local dir="$1" register="$2"
+    shift 2
+    # $register is by definition acceptable -- it is what we are aiming for.
+    local acceptable=" $register $* "
+    # No SELinux at all -- Debian/Ubuntu/Arch/Alpine as shipped, or explicitly
+    # disabled. Silent: this is the common case and not a problem.
+    command -v selinuxenabled >>$error_log 2>&1 || return 0
+    selinuxenabled || return 0
+    [[ -d $dir ]] || return 0
+    # No path in the label: dots() pads to a fixed 60 columns, and a relocated
+    # $tftpdirdst -- the very case this branch exists for -- can overflow it and
+    # collide with the OK/Failed. The failure output below names the path.
+    dots "Setting SELinux context"
+    if ! command -v restorecon >>$error_log 2>&1; then
+        echo "Skipped (no restorecon)"
+        return 0
+    fi
+    # matchpathcon reads the same file_contexts restorecon will, so this
+    # predicts exactly what restorecon is about to do rather than guessing.
+    local willbe=$(matchpathcon -n "$dir" 2>>$error_log | cut -d: -f3)
+    if [[ $acceptable != *" $willbe "* ]]; then
+        if command -v semanage >>$error_log 2>&1; then
+            # A rule, not a one-off label, so the context is a property of the
+            # path: it survives `restorecon /` and a full filesystem relabel,
+            # which would otherwise silently undo the fix months later. -a
+            # fails if a rule is already there, hence the -m fallback.
+            semanage fcontext -a -t "$register" "${dir}(/.*)?" >>$error_log 2>&1 ||
+                semanage fcontext -m -t "$register" "${dir}(/.*)?" >>$error_log 2>&1
+        else
+            # semanage lives in policycoreutils-python-utils, which is not
+            # always installed. chcon applies the label now but has no rule
+            # behind it, so a relabel reverts it. Better than leaving the daemon
+            # unable to read anything -- but say so rather than imply it is done.
+            chcon -R -t "$register" "$dir" >>$error_log 2>&1
+            echo "OK"
+            echo " * Labelled with chcon only -- a filesystem relabel will undo this."
+            echo " * Install policycoreutils-python-utils and re-run to make it permanent."
+            return 0
+        fi
+    fi
+    restorecon -RF "$dir" >>$error_log 2>&1
+    # Check the post-condition rather than the exit code. restorecon returns 0
+    # when it has no rule to apply, which is indistinguishable from success and
+    # would report a still-unreadable directory as done -- the exact silence
+    # that let GH-963 sit unnoticed. Ask what the label actually IS now.
+    local nowis=$(ls -Zd "$dir" 2>>$error_log | awk '{print $1}' | cut -d: -f3)
+    if [[ $acceptable == *" $nowis "* ]]; then
+        errorStat 0
+        return 0
+    fi
+    # Not fatal: on a permissive or disabled host this costs nothing, and an
+    # install that otherwise succeeded should not be aborted over a label. But
+    # it must be loud, because the symptom it causes has no other explanation.
+    echo "Failed!"
+    echo " * $dir is labelled '$nowis', which the daemon using it cannot read."
+    echo " * Under SELinux enforcing this presents as a bare file-not-found at"
+    echo " *   the client with nothing in FOG's logs -- check for AVC denials:"
+    echo " *   ausearch -m avc -ts recent"
+    echo " * Fix by hand with: restorecon -RFv $dir"
+    return 0
+}
 checkSELinux() {
     command -v sestatus >>$error_log 2>&1
     exitcode=$?
@@ -1420,8 +1505,19 @@ checkSELinux() {
     currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
     configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
     [[ "x$currentmode" != "xenforcing" && "x$configmode" != "xenforcing" ]] && return
-    echo " * SELinux is currently enabled on your system. This is often causing"
-    echo " * issues and we recommend setting to permissive on FOG Servers as of now."
+    # GH-963: the headline reason this prompt existed -- an unlabelled TFTP root
+    # that no confined tftpd could read -- is fixed; setSELinuxContext() now
+    # labels $tftpdirdst properly, so declining here leaves a server that PXE
+    # boots. The prompt and its default are deliberately UNCHANGED: FOG's NFS
+    # and FTP image storage has not been validated under enforcing mode, and
+    # flipping the default would silently change the security posture of every
+    # existing unattended (-y) install. Reworded only, so it no longer blames a
+    # cause that has been fixed.
+    echo " * SELinux is currently enabled on your system."
+    echo " * FOG now sets the correct SELinux context on its TFTP directory, so"
+    echo " * PXE booting works under enforcing mode. Image storage over NFS and"
+    echo " * FTP has not yet been validated enforcing, so permissive is still"
+    echo " * what we recommend and test against."
     echo -n " * Should the installer set this for you now? (Y/n) "
     sedisable=""
     while [[ -z $sedisable ]]; do
