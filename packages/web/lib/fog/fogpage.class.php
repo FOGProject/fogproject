@@ -789,6 +789,13 @@ abstract class FOGPage extends FOGBase
                     'license' => self::$foglang['License'],
                     'kernel' => self::$foglang['KernelUpdate'],
                     'initrd' => self::$foglang['InitrdUpdate'],
+                    // Sits beside the two things it acts on: Secure Boot
+                    // signing is a property of the kernel this server serves.
+                    // Added here rather than in SubMenuData::subMenu(), which
+                    // carries the same 'about' list but never runs -- that
+                    // hook sets $active = false, and HookManager only forces
+                    // active on files under plugins/.
+                    'secureBoot' => _('Secure Boot'),
                     'pxemenu' => self::$foglang['PXEBootMenu'],
                     'maclist' => self::$foglang['MACAddrList'],
                     'settings' => self::$foglang['FOGSettings'],

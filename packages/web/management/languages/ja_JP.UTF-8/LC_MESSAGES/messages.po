@@ -820,6 +820,12 @@ msgstr "ブートオプション"
 msgid "Boot files from"
 msgstr ""
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 msgid "Both"
 msgstr ""
 
@@ -1158,6 +1164,11 @@ msgstr ""
 msgid "Command"
 msgstr "コマンド"
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "完了"
 
@@ -1216,6 +1227,11 @@ msgstr ""
 
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
+msgstr ""
 
 msgid "Copyright"
 msgstr ""
@@ -1831,6 +1847,12 @@ msgid "Engineer"
 msgstr "担当者"
 
 msgid "Enrolment kit"
+msgstr ""
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
 msgstr ""
 
 msgid "Equipment Loan"
@@ -2964,6 +2986,11 @@ msgstr "アイコン"
 
 msgid "Icon File not found"
 msgstr "アイコンファイルが見つかりません"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 msgid "If credentials are correct"
 msgstr "認証情報が正しい場合"
@@ -4706,6 +4733,9 @@ msgstr "ダッシュボードに表示"
 msgid "On Server Size"
 msgstr "サーバーシェル"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr "再起動後、新しいノードの検出を試みます"
 
@@ -5101,6 +5131,9 @@ msgstr "プラグインをインストールしました！"
 msgid "Plugins updated!"
 msgstr "プリンターを更新しました！"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "ポート"
 
@@ -5278,6 +5311,11 @@ msgstr "再起動"
 
 msgid "Reboot after deploy"
 msgstr "展開後に再起動"
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 msgid "Receive"
 msgstr "受信"
@@ -5480,6 +5518,11 @@ msgstr "ルートは配列または Traversable のインスタンスである�
 msgid "Row"
 msgstr "行"
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Windows 実行中"
 
@@ -5613,6 +5656,12 @@ msgid "Second paramater must be in [class,function]"
 msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 msgid "Secure Boot kernel signing is not configured on this server"
@@ -5801,6 +5850,12 @@ msgstr ""
 
 #, php-format
 msgid "Signed in as %s."
+msgstr ""
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 msgid "Site"
@@ -6594,6 +6649,11 @@ msgstr "テキスト"
 msgid "That group is already defined for this server!"
 msgstr "このグループは既にサブネットグループで使用されています。"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "このホストは既に存在します"
@@ -6870,6 +6930,9 @@ msgid "Time Already Exists"
 msgstr "この時刻は既に存在します"
 
 msgid "Title"
+msgstr ""
+
+msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
 msgid "To get started please select an item from the menu."
@@ -7469,6 +7532,9 @@ msgstr "サーバー"
 
 msgid "Weekly"
 msgstr "週単位"
+
+msgid "What to do next"
+msgstr ""
 
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "プラグインを削除しても、割り当てられたキーは保持されます"

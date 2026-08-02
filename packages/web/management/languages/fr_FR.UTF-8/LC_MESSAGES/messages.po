@@ -867,6 +867,12 @@ msgstr "Options de démarrage:"
 msgid "Boot files from"
 msgstr ""
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 msgid "Both"
 msgstr ""
 
@@ -1225,6 +1231,11 @@ msgstr ""
 msgid "Command"
 msgstr "commande snapin"
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "Achevée"
 
@@ -1287,6 +1298,11 @@ msgstr ""
 #, fuzzy
 msgid "Copy from existing"
 msgstr "Impossible de créer l'imprimante"
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
+msgstr ""
 
 msgid "Copyright"
 msgstr ""
@@ -1916,6 +1932,12 @@ msgid "Engineer"
 msgstr "Ingénieur"
 
 msgid "Enrolment kit"
+msgstr ""
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
 msgstr ""
 
 msgid "Equipment Loan"
@@ -3104,6 +3126,11 @@ msgstr "Icône"
 
 msgid "Icon File not found"
 msgstr "Icône Fichier introuvable"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 msgid "If credentials are correct"
 msgstr ""
@@ -4945,6 +4972,9 @@ msgstr "Le tableau de bord"
 msgid "On Server Size"
 msgstr "serveur Shell"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
@@ -5347,6 +5377,9 @@ msgstr ""
 msgid "Plugins updated!"
 msgstr "Nom Plugin"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "Port"
 
@@ -5537,6 +5570,11 @@ msgid "Reboot"
 msgstr "Réinitialiser"
 
 msgid "Reboot after deploy"
+msgstr ""
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
 msgstr ""
 
 msgid "Receive"
@@ -5757,6 +5795,11 @@ msgstr ""
 msgid "Row"
 msgstr "Rangée"
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "Exécution Version"
@@ -5893,6 +5936,12 @@ msgid "Second paramater must be in [class,function]"
 msgstr ""
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -6088,6 +6137,12 @@ msgstr ""
 
 #, php-format
 msgid "Signed in as %s."
+msgstr ""
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 #, fuzzy
@@ -6948,6 +7003,11 @@ msgstr "Texte"
 msgid "That group is already defined for this server!"
 msgstr "Une image existe déjà avec ce nom!"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "Imprimante existe déjà"
@@ -7239,6 +7299,9 @@ msgid "Time Already Exists"
 msgstr "Temps existe déjà"
 
 msgid "Title"
+msgstr ""
+
+msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
 msgid "To get started please select an item from the menu."
@@ -7863,6 +7926,9 @@ msgstr "Serveur Web"
 
 msgid "Weekly"
 msgstr "Hebdomadaire"
+
+msgid "What to do next"
+msgstr ""
 
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""

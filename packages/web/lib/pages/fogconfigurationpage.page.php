@@ -312,15 +312,20 @@ class FOGConfigurationPage extends FOGPage
         $kiturl = rtrim(self::getSetting('FOG_WEB_ROOT'), '/')
             . '/service/secureboot';
         if (!file_exists($certfile)) {
+            // The installer generates a signing key by default, so reaching
+            // here means it was declined with --no-secure-boot or generation
+            // failed -- not that the admin simply never passed the flags.
+            // Pointing them at the installer log is what actually helps.
             echo $this->_box(
                 _('Secure Boot'),
                 '<p>' . sprintf(
-                    '%s. %s <code>--secure-boot-key</code> %s '
-                    . '<code>--secure-boot-cert</code> %s.',
+                    '%s. %s <code>--no-secure-boot</code>, %s.',
                     _('Secure Boot kernel signing is not configured on this server'),
-                    _('Re-run the installer with'),
-                    _('and'),
-                    _('to enable it')
+                    _('Unless it was declined with'),
+                    _(
+                        're-run the installer and check the installation log '
+                        . 'for a key generation or signing failure'
+                    )
                 ) . '</p>',
                 ['color' => 'info']
             );
@@ -371,6 +376,81 @@ class FOGConfigurationPage extends FOGPage
         }
         $body .= '</ul>';
         echo $this->_box(_('Secure Boot'), $body, ['color' => 'info']);
+
+        // Second card: the actual procedure. The card above answers "is this
+        // configured and what is the key", which is the reference half; on its
+        // own it left an admin holding three files and no idea what to do with
+        // them. The steps below track fog-enroll-mok.sh exactly -- if that
+        // script's prompts change, change these with it.
+        $steps = '<p>' . _(
+            'Signing is already done on this server. The remaining work is '
+            . 'per-client and has to be done by someone at the machine -- that '
+            . 'is what makes enrolment a deliberate act rather than something '
+            . 'a server can do to a client remotely.'
+        ) . '</p>';
+        $steps .= '<p><strong>' . _('On each client, once') . '</strong></p>';
+        $steps .= '<ol>';
+        $clientSteps = [
+            _(
+                'Copy the three files above onto a USB stick, keeping them in '
+                . 'the same folder -- the script expects MOK.der beside it.'
+            ),
+            _(
+                'Boot the client from a stock Ubuntu or Debian live image with '
+                . 'Secure Boot left ON. Those images boot under Secure Boot on '
+                . 'their own signed shim, so no firmware changes are needed.'
+            ),
+            _(
+                'Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh '
+                . 'directly). It re-runs itself with sudo.'
+            ),
+            _(
+                'Compare the SHA-256 it prints against the one shown above. If '
+                . 'they differ, stop -- that comparison is the whole security '
+                . 'of this step.'
+            ),
+            _(
+                'Enter a one-time password twice when asked. It only proves at '
+                . 'the next reboot that you are the same person; it is not '
+                . 'stored and does not need to be strong.'
+            ),
+            _(
+                'Reboot. The machine stops on the blue MOK Manager screen: '
+                . 'Enroll MOK, View key 0, Continue, Yes, then the password, '
+                . 'then Reboot.'
+            )
+        ];
+        foreach ($clientSteps as $step) {
+            $steps .= '<li>' . $step . '</li>';
+        }
+        $steps .= '</ol>';
+        $steps .= '<p>' . _(
+            'If MOK Manager does not appear, the machine did not boot through '
+            . 'a shim and nothing was enrolled.'
+        ) . '</p>';
+        $steps .= '<p><strong>' . _('To PXE boot with Secure Boot on')
+            . '</strong></p>';
+        $steps .= '<p>' . sprintf(
+            '%s <code>secureboot/snponly-shimx64.efi</code>. %s.',
+            _('Point your DHCP boot filename at'),
+            _(
+                'That is the signed chain staged by the installer; the default '
+                . 'boot file is unsigned and a Secure Boot client will refuse it'
+            )
+        ) . '</p>';
+        // Stated rather than detected: the web request's own scheme says
+        // nothing about the install's $httpproto, so guessing here would be
+        // worse than telling the admin what to check. See
+        // downloadipxesecureboot() -- an HTTPS install skips the staging
+        // entirely, because a signed binary cannot be rebuilt to carry this
+        // server's CA without invalidating the signature.
+        $steps .= '<p>' . _(
+            'Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS '
+            . 'install the installer skips these binaries, because rebuilding '
+            . 'them to trust this server\'s CA would invalidate the signature '
+            . 'that makes them bootable.'
+        ) . '</p>';
+        echo $this->_box(_('What to do next'), $steps);
     }
     /**
      * Render the kernel/initrd download view.
