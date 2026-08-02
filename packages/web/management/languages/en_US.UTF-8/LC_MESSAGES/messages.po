@@ -5521,9 +5521,6 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
-msgid "Re-run the installer with"
-msgstr ""
-
 #, fuzzy
 msgid "Real Time"
 msgstr "Host Update Failed"
@@ -7441,6 +7438,9 @@ msgstr "Unknown upload error occurred.  Return code: "
 msgid "Unknown upload error occurred"
 msgstr "Unknown upload error occurred.  Return code: "
 
+msgid "Unless it was declined with"
+msgstr ""
+
 #, fuzzy
 msgid "Unmark selected client ignore"
 msgstr "Approve selected Hosts"
@@ -7993,10 +7993,6 @@ msgstr " ago"
 msgid "all current storage nodes"
 msgstr "Invalid storage node"
 
-#, fuzzy
-msgid "and"
-msgstr "End"
-
 msgid "and below"
 msgstr ""
 
@@ -8502,6 +8498,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr ""
 
@@ -8636,9 +8637,6 @@ msgstr "Printer updated!"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr " | This is not the primary group"
-
-msgid "to enable it"
-msgstr ""
 
 #, fuzzy
 msgid "to get the requested Kernel"
@@ -9262,6 +9260,10 @@ msgstr ""
 #~ msgstr ""
 #~ "Your systems PHP version is not sufficient. You have version %s, version "
 #~ "%s is required."
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "End"
 
 #~ msgid "before me"
 #~ msgstr "before me"

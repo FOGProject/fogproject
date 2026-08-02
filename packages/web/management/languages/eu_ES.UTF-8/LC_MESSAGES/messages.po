@@ -5524,9 +5524,6 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
-msgid "Re-run the installer with"
-msgstr ""
-
 #, fuzzy
 msgid "Real Time"
 msgstr "Datum und Zeit"
@@ -7448,6 +7445,9 @@ msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
+msgid "Unless it was declined with"
+msgstr ""
+
 #, fuzzy
 msgid "Unmark selected client ignore"
 msgstr "Ausgewählten MAcs freigeben"
@@ -8002,10 +8002,6 @@ msgid "all current storage nodes"
 msgstr "momentanen Speicherknoten löschen."
 
 #, fuzzy
-msgid "and"
-msgstr "Ende"
-
-#, fuzzy
 msgid "and below"
 msgstr "Nur Teilstruktur"
 
@@ -8513,6 +8509,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr "Installation zurück zu kehren, falls erforderlich."
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "nur lesen"
 
@@ -8648,9 +8649,6 @@ msgstr "Drucker aktualisiert!"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Dies ist nicht die primäre Gruppe"
-
-msgid "to enable it"
-msgstr ""
 
 #, fuzzy
 msgid "to get the requested Kernel"
@@ -9289,6 +9287,10 @@ msgstr ""
 #~ msgstr ""
 #~ "Ihre PHP-Version ist nicht ausreichend. Sie haben Version %s, Version %s "
 #~ "ist erforderlich."
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "Ende"
 
 #~ msgid "before me"
 #~ msgstr "vor mir"

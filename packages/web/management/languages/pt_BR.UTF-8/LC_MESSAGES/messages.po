@@ -5526,9 +5526,6 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
-msgid "Re-run the installer with"
-msgstr ""
-
 #, fuzzy
 msgid "Real Time"
 msgstr "Anfitrião Update Failed"
@@ -7445,6 +7442,9 @@ msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 msgid "Unknown upload error occurred"
 msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
+msgid "Unless it was declined with"
+msgstr ""
+
 #, fuzzy
 msgid "Unmark selected client ignore"
 msgstr "Aprovar Hosts selecionados"
@@ -7997,10 +7997,6 @@ msgstr " atrás"
 msgid "all current storage nodes"
 msgstr "nó de armazenamento inválido"
 
-#, fuzzy
-msgid "and"
-msgstr "Fim"
-
 msgid "and below"
 msgstr ""
 
@@ -8506,6 +8502,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr ""
 
@@ -8641,9 +8642,6 @@ msgstr "Impressora atualizado!"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr " | Este não é o grupo primário"
-
-msgid "to enable it"
-msgstr ""
 
 #, fuzzy
 msgid "to get the requested Kernel"
@@ -9271,6 +9269,10 @@ msgstr ""
 #~ msgstr ""
 #~ "Sua versão sistemas PHP não é suficiente. Você tem a versão %s , versão "
 #~ "%s é necessária."
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "Fim"
 
 #~ msgid "before me"
 #~ msgstr "antes de mim"

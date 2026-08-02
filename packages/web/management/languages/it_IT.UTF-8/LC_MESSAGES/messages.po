@@ -5308,9 +5308,6 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
-msgid "Re-run the installer with"
-msgstr ""
-
 #, fuzzy
 msgid "Real Time"
 msgstr "Data e Ora"
@@ -7138,6 +7135,9 @@ msgstr "Si è verificato errore di caricamento sconosciuto"
 msgid "Unknown upload error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
+msgid "Unless it was declined with"
+msgstr ""
+
 #, fuzzy
 msgid "Unmark selected client ignore"
 msgstr "Approvare MAC selezionati"
@@ -7668,10 +7668,6 @@ msgid "all current storage nodes"
 msgstr "tutti i nodi di archiviazione attivi"
 
 #, fuzzy
-msgid "and"
-msgstr "Fine"
-
-#, fuzzy
 msgid "and below"
 msgstr "Sottoalbero e inferiore"
 
@@ -8143,6 +8139,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr "installazione precedente se necessario"
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "sola lettura"
 
@@ -8268,9 +8269,6 @@ msgstr "aggiornato stampante!"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Questo non è il gruppo primario"
-
-msgid "to enable it"
-msgstr ""
 
 msgid "to get the requested Kernel"
 msgstr "pr ottenere il Kernel richiesto"
@@ -8878,6 +8876,10 @@ msgstr ""
 
 #~ msgid "Your system PHP Version is not sufficient"
 #~ msgstr "La versione del sistema PHP non è sufficiente"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "Fine"
 
 #~ msgid "before me"
 #~ msgstr "prima di me"

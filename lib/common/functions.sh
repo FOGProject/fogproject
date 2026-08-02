@@ -1441,7 +1441,11 @@ installPackages() {
     packages="$packages unzip"
     packages="$packages attr"
     packages="${packages} ${webserver}"
-    str=$(grep -P "Subsystem\s+sftp\s+\/usr\/(?:lib|libexec)\/openssh\/sftp-server" /etc/ssh/sshd_config)
+    # -E, not -P: busybox grep has no -P at all, so on Alpine this printed a
+    # full usage screen to the console and the sftp adjustment never ran. \s
+    # and (?:...) are PCRE-only, hence [[:space:]] and a plain group. stderr is
+    # dropped because a host with no sshd_config is normal, not an error.
+    str=$(grep -E "Subsystem[[:space:]]+sftp[[:space:]]+/usr/(lib|libexec)/openssh/sftp-server" /etc/ssh/sshd_config 2>/dev/null)
     if [[ $? -eq 0 ]]; then
         dots "Adjusting sftp for ssh"
         sed -i -e "s#$str#Subsystem\tsftp\tinternal-sftp#g" /etc/ssh/sshd_config >>$error_log 2>&1
@@ -1556,7 +1560,12 @@ installPackages() {
             esac
             ;;
         3)
-            packages="${packages} php-ssh2"
+            # Alpine has no unversioned "php-ssh2" -- the extension is
+            # php<major><minor>-pecl-ssh2, matching the php${php_apk} module
+            # names lib/alpine/config.sh already builds. The old name resolved
+            # to "(Does not exist)" on every run, so Alpine silently shipped
+            # without the ssh2 extension FOG needs for storage node access.
+            packages="${packages} php${php_apk}-pecl-ssh2"
             sed -i '/\/v3\.15\/community$/s/^#[[:space:]]*//' /etc/apk/repositories
             ;;
     esac
@@ -1679,7 +1688,12 @@ installPackages() {
         # updater command could not run at all).
         echo "Failed! (non-fatal, see $error_log)"
     fi
-    export php_ver=$(php -i | grep "PHP Version" | head -1 | cut -d' ' -f 4 | cut -d'.' -f1-2)
+    # Alpine ships no unversioned `php` binary -- it is php83/php84/... tracking
+    # $php_apk -- so this printed "command not found" and left $php_ver empty,
+    # which then got persisted into .fogsettings as a managed key.
+    local phpbin="php"
+    [[ -n $php_apk ]] && command -v "php${php_apk}" >/dev/null 2>&1 && phpbin="php${php_apk}"
+    export php_ver=$($phpbin -i | grep "PHP Version" | head -1 | cut -d' ' -f 4 | cut -d'.' -f1-2)
     [[ -z ${phpfpm} ]] && export phpfpm="php${php_ver}-fpm"
     [[ -z ${phpini} ]] && export phpini="/etc/php/$php_ver/fpm/php.ini"
 }

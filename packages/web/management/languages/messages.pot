@@ -4672,9 +4672,6 @@ msgstr ""
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
-msgid "Re-run the installer with"
-msgstr ""
-
 msgid "Real Time"
 msgstr ""
 
@@ -6288,6 +6285,9 @@ msgstr ""
 msgid "Unknown upload error occurred"
 msgstr ""
 
+msgid "Unless it was declined with"
+msgstr ""
+
 msgid "Unmark selected client ignore"
 msgstr ""
 
@@ -6755,9 +6755,6 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr ""
 
-msgid "and"
-msgstr ""
-
 msgid "and below"
 msgstr ""
 
@@ -7194,6 +7191,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr ""
 
@@ -7310,9 +7312,6 @@ msgid "to apply the update."
 msgstr ""
 
 msgid "to clear the field on every host in this group."
-msgstr ""
-
-msgid "to enable it"
 msgstr ""
 
 msgid "to get the requested Kernel"

@@ -5269,9 +5269,6 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr "Hello 送信間隔"
 
-msgid "Re-run the installer with"
-msgstr ""
-
 #, fuzzy
 msgid "Real Time"
 msgstr "日時"
@@ -7070,6 +7067,9 @@ msgstr "不明なデータベースエラー"
 msgid "Unknown upload error occurred"
 msgstr "不明なアップロードエラーが発生しました"
 
+msgid "Unless it was declined with"
+msgstr ""
+
 msgid "Unmark selected client ignore"
 msgstr ""
 
@@ -7595,10 +7595,6 @@ msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
 
 #, fuzzy
-msgid "and"
-msgstr "終了"
-
-#, fuzzy
 msgid "and below"
 msgstr "サブツリー以下"
 
@@ -8066,6 +8062,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr "必要に応じて以前のインストール"
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "読み取り専用"
 
@@ -8194,9 +8195,6 @@ msgstr "更新に失敗しました"
 
 msgid "to clear the field on every host in this group."
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
-
-msgid "to enable it"
-msgstr ""
 
 msgid "to get the requested Kernel"
 msgstr "要求されたカーネルを取得するため"
@@ -10399,6 +10397,10 @@ msgstr ""
 
 #~ msgid "access to the hidden menu system"
 #~ msgstr "非表示メニューシステムへのアクセス"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "終了"
 
 #~ msgid "and Mac OS X"
 #~ msgstr "および Mac OS X"

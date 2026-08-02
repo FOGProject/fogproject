@@ -5520,9 +5520,6 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
-msgid "Re-run the installer with"
-msgstr ""
-
 #, fuzzy
 msgid "Real Time"
 msgstr "主机更新失败"
@@ -7434,6 +7431,9 @@ msgstr "发生未知上传错误。返回代码："
 msgid "Unknown upload error occurred"
 msgstr "发生未知上传错误。返回代码："
 
+msgid "Unless it was declined with"
+msgstr ""
+
 #, fuzzy
 msgid "Unmark selected client ignore"
 msgstr "批准选定主机"
@@ -7986,10 +7986,6 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "无效的存储节点"
 
-#, fuzzy
-msgid "and"
-msgstr "结束"
-
 msgid "and below"
 msgstr ""
 
@@ -8493,6 +8489,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr ""
 
@@ -8626,9 +8627,6 @@ msgstr "打印机更新！"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "|这不是主要组"
-
-msgid "to enable it"
-msgstr ""
 
 #, fuzzy
 msgid "to get the requested Kernel"
@@ -9254,6 +9252,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Your system PHP Version is not sufficient"
 #~ msgstr "您的系统PHP版本是不充分的。你有版本%s ，版本%s是必需的。"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "结束"
 
 #~ msgid "before me"
 #~ msgstr "我面前"
