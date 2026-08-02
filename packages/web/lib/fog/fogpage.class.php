@@ -2669,6 +2669,9 @@ abstract class FOGPage extends FOGBase
                         $_SESSION['tmp-kernel-file'],
                         $_SESSION['dl-kernel-file']
                     );
+                    // Sign before upload, not after: the TFTP target may be a
+                    // remote storage node, and the key never leaves this host.
+                    self::secureBootSign($tmpfile);
                     $orig = sprintf(
                         '/%s/%s',
                         trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'), '/'),
@@ -2728,6 +2731,59 @@ abstract class FOGPage extends FOGBase
             echo $e->getMessage();
         }
         self::$FOGFTP->close();
+    }
+    /**
+     * Returns the Secure Boot staging directory, or an empty string when
+     * kernel signing is not configured on this server.
+     *
+     * Signing runs as root through a sudo helper so the web server never needs
+     * read access to the private key. That helper only ever touches this one
+     * directory, which is why a kernel destined to be signed has to be
+     * downloaded here rather than into the system temp directory.
+     *
+     * @return string
+     */
+    protected static function secureBootStagingDir()
+    {
+        $helper = '/opt/fog/bin/fog-sign-kernel';
+        $stagedir = '/opt/fog/secureboot-staging';
+        if (!is_executable($helper) || !is_dir($stagedir)) {
+            return '';
+        }
+        return $stagedir;
+    }
+    /**
+     * Signs a staged kernel for Secure Boot via the root helper.
+     *
+     * Does nothing when signing is not configured. When it is, a failure is
+     * fatal: shipping an unsigned kernel to the TFTP server would stop every
+     * Secure Boot client from booting, and it would do so silently, long after
+     * whoever ran the update had walked away.
+     *
+     * @param string $tmpfile the staged kernel
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    protected static function secureBootSign($tmpfile)
+    {
+        $stagedir = self::secureBootStagingDir();
+        if (!$stagedir || dirname($tmpfile) !== $stagedir) {
+            return;
+        }
+        $output = array();
+        $retVal = 1;
+        exec('sudo -n /opt/fog/bin/fog-sign-kernel 2>&1', $output, $retVal);
+        if ($retVal !== 0) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    _('Error: Failed to sign the kernel for Secure Boot'),
+                    implode(' ', $output)
+                )
+            );
+        }
     }
     /**
      * Fetches the inits
