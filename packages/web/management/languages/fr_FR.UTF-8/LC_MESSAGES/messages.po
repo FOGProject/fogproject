@@ -670,6 +670,12 @@ msgstr "Séquence des touches de démarrage"
 msgid "Boot Options"
 msgstr "Options de démarrage"
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 msgid "Broadcast Create Fail"
 msgstr "Échec de la création du broadcast"
 
@@ -931,6 +937,11 @@ msgstr "Clients"
 msgid "Command"
 msgstr "Commande"
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "Achevé"
 
@@ -974,6 +985,11 @@ msgstr ""
 
 msgid "Copy from existing"
 msgstr "Copie de l'existant"
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
+msgstr ""
 
 msgid "Could not find a Storage Node in this group"
 msgstr "Impossible de trouver un nœud de stockage dans ce groupe"
@@ -1429,6 +1445,12 @@ msgstr "Entrez un nom de lieu à rechercher"
 
 msgid "Enter a model name to search for"
 msgstr "Entrez un nom de modèle à rechercher"
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
+msgstr ""
 
 msgid "Enter a site name to search for"
 msgstr "Entrez un nom de lieu à rechercher"
@@ -2476,6 +2498,11 @@ msgstr "Icône"
 
 msgid "Icon File not found"
 msgstr "Fichier icône introuvable"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 msgid "If a new module is published the client will"
 msgstr "Si un nouveau module est publié, le client"
@@ -3963,6 +3990,9 @@ msgstr "L'ancienne clé doit être une chaîne de caractères"
 msgid "On Dashboard"
 msgstr "Sur le tableau de bord"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr "Au redémarrage, nous allons essayer de trouver un nouveau nœud"
 
@@ -4303,6 +4333,9 @@ msgstr "Nom greffon"
 msgid "Plugins"
 msgstr "Greffons"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "Port"
 
@@ -4452,9 +4485,6 @@ msgstr "Rapide"
 msgid "RX"
 msgstr "RX"
 
-msgid "Re-run the installer with"
-msgstr ""
-
 msgid "Reboot"
 msgstr "Redémarrage"
 
@@ -4463,6 +4493,11 @@ msgstr "Reboot après déploiement"
 
 msgid "Reboot after install"
 msgstr "Redémarrez après l'installation"
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
 msgstr "L'élément sur l'image a été mis à jour avec succès !"
@@ -4719,6 +4754,11 @@ msgstr "Règle mise à jour !"
 msgid "Rule value"
 msgstr "Valeur de la règle"
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Exécution de Windows"
 
@@ -4819,6 +4859,12 @@ msgid "Second parameter must be in array(class,function)"
 msgstr "Deuxième paramètre doit être sous la forme array (class, function)"
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -4964,6 +5010,12 @@ msgstr "Arrêt après l'installation"
 
 msgid "Signed"
 msgstr "Signé"
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
+msgstr ""
 
 msgid "Site"
 msgstr "Site"
@@ -5618,6 +5670,11 @@ msgstr "Termes et conditions"
 msgid "Text"
 msgstr "Texte"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "Cette machine existe déjà"
@@ -5895,6 +5952,9 @@ msgstr "Délai d'attente"
 msgid "Title must be a string"
 msgstr "Le titre doit être une chaîne de caractères"
 
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
+
 msgid "To be released only by"
 msgstr "Pour être libéré que par"
 
@@ -5983,6 +6043,9 @@ msgstr "Une erreur de téléchargement inconnue s'est produite"
 
 msgid "Unknown upload error occurred"
 msgstr "Une erreur de téléchargement inconnue s'est produite"
+
+msgid "Unless it was declined with"
+msgstr ""
 
 msgid "Unsupported URL Scheme"
 msgstr ""
@@ -6292,6 +6355,9 @@ msgstr "Racine web"
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "Lorsque le greffon est enlevé, la clé assignée demeure"
 
@@ -6407,10 +6473,6 @@ msgstr "depuis"
 
 msgid "all current storage nodes"
 msgstr "tous les nœuds de stockage actuels"
-
-#, fuzzy
-msgid "and"
-msgstr "Fin"
 
 msgid "and Mac OS X"
 msgstr "and MacOS X"
@@ -6914,6 +6976,11 @@ msgstr "présenter et où / comment elles doivent être affichées"
 msgid "previous install if needed"
 msgstr "l'installation précédente si nécessaire"
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "lecture seule"
 
@@ -7049,9 +7116,6 @@ msgstr "pour être démarré si aucune touche n'est pressée lorsque le menu est
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Impossible de trouver un nœud de stockage dans ce groupe"
-
-msgid "to enable it"
-msgstr ""
 
 #, fuzzy
 msgid "to get the requested Initrd"
@@ -7285,6 +7349,10 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 
 #~ msgid "Your server only allows"
 #~ msgstr "Votre serveur ne permet que"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "Fin"
 
 #~ msgid "but"
 #~ msgstr "mais"

@@ -38,6 +38,12 @@
 # survives the extracted tarball being deleted, and gives an offline site one
 # path to pre-populate. Must follow fogprogramdir. See GH-959.
 [[ -z $buildipxesrc ]] && buildipxesrc="$fogprogramdir/ipxe"
+# Secure Boot signing is on by default: _ensureSecureBootKeys generates a
+# signing key when the admin has not supplied one, so a stock server always has
+# a fingerprint and an enrolment kit to hand out. --no-secure-boot sets this to
+# 0, and because .fogsettings is sourced before this file, that choice survives
+# an upgrade rather than being silently re-enabled.
+[[ -z $secureboot ]] && secureboot=1
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"

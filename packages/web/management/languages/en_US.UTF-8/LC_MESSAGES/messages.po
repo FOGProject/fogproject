@@ -771,6 +771,12 @@ msgstr "Boot Key Sequence"
 msgid "Boot Options"
 msgstr "Boot Options:"
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Create Fail"
 msgstr "Host create failed"
@@ -1061,6 +1067,11 @@ msgstr "Clients"
 msgid "Command"
 msgstr "Snapin Command"
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "Complete"
 
@@ -1110,6 +1121,11 @@ msgstr ""
 #, fuzzy
 msgid "Copy from existing"
 msgstr "Could not create printer"
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
+msgstr ""
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -1629,6 +1645,12 @@ msgstr "Enter a hostname to search for"
 #, fuzzy
 msgid "Enter a model name to search for"
 msgstr "Enter a username to search for"
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
+msgstr ""
 
 #, fuzzy
 msgid "Enter a site name to search for"
@@ -2792,6 +2814,11 @@ msgstr "Icon"
 
 msgid "Icon File not found"
 msgstr "Icon File not found"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 #, fuzzy
 msgid "If a new module is published the client will"
@@ -4463,6 +4490,9 @@ msgstr "Event must be a string"
 msgid "On Dashboard"
 msgstr "On Dashboard"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
@@ -4830,6 +4860,9 @@ msgstr "Plugin Name"
 msgid "Plugins"
 msgstr "Plugin"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "Port"
 
@@ -4993,9 +5026,6 @@ msgstr "Click"
 msgid "RX"
 msgstr "RX"
 
-msgid "Re-run the installer with"
-msgstr ""
-
 msgid "Reboot"
 msgstr "Reboot"
 
@@ -5004,6 +5034,11 @@ msgstr "Reboot after deploy"
 
 msgid "Reboot after install"
 msgstr "Reboot after install"
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 #, fuzzy
 msgid "Rebranding element has been successfully updated!"
@@ -5312,6 +5347,11 @@ msgstr "Client Updater"
 msgid "Rule value"
 msgstr ""
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "Running Version"
@@ -5429,6 +5469,12 @@ msgid "Second parameter must be in array(class,function)"
 msgstr "Second parameter must be in the form array(Hook class,Function to run)"
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -5591,6 +5637,12 @@ msgstr "Shutdown after install"
 
 msgid "Signed"
 msgstr "Signed"
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
+msgstr ""
 
 #, fuzzy
 msgid "Site"
@@ -6341,6 +6393,11 @@ msgstr "Terms and Conditions"
 msgid "Text"
 msgstr "Text"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "Printer already exists"
@@ -6646,6 +6703,9 @@ msgstr "Timeout"
 msgid "Title must be a string"
 msgstr "Event must be a string"
 
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
+
 msgid "To be released only by"
 msgstr "To be released only by"
 
@@ -6745,6 +6805,9 @@ msgstr "Unknown upload error occurred.  Return code: "
 #, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Unknown upload error occurred.  Return code: "
+
+msgid "Unless it was declined with"
+msgstr ""
 
 msgid "Unsupported URL Scheme"
 msgstr ""
@@ -7099,6 +7162,9 @@ msgstr "Web root"
 msgid "Weekly"
 msgstr "Weekly"
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
@@ -7238,10 +7304,6 @@ msgstr " ago"
 #, fuzzy
 msgid "all current storage nodes"
 msgstr "Invalid storage node"
-
-#, fuzzy
-msgid "and"
-msgstr "End"
 
 msgid "and Mac OS X"
 msgstr ""
@@ -7808,6 +7870,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr ""
 
@@ -7954,9 +8021,6 @@ msgstr ""
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Could not find a Storage Node, is there one enabled within this group?"
-
-msgid "to enable it"
-msgstr ""
 
 #, fuzzy
 msgid "to get the requested Initrd"
@@ -8213,6 +8277,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Your server only allows"
 #~ msgstr "You are only allowed to assign"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "End"
 
 #, fuzzy
 #~ msgid "file to"

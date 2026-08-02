@@ -112,11 +112,13 @@ usage() {
     echo -e "\t                       \t\t\tkernels for UEFI Secure Boot"
     echo -e "\t      --secure-boot-cert\tCertificate matching --secure-boot-key"
     echo -e "\t                        \t\t\t(both are required together)"
+    echo -e "\t      --no-secure-boot\t\tDo not generate a Secure Boot signing"
+    echo -e "\t                      \t\t\tkey, and leave the FOS kernels unsigned"
     exit 0
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -294,6 +296,10 @@ while :; do
             fi
             shift 2
             ;;
+        --no-secure-boot)
+            ssecureboot=0
+            shift
+            ;;
         --)
             shift 
             break 
@@ -425,6 +431,7 @@ esac
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
 [[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
+[[ -n $ssecureboot ]] && secureboot=$ssecureboot
 
 # Secure Boot signing is opt-in and only meaningful as a pair. Refuse half a
 # pair rather than silently leaving kernels unsigned on a server whose admin

@@ -768,6 +768,12 @@ msgstr "Boot-Tastensequenz"
 msgid "Boot Options"
 msgstr "Boot-Optionen:"
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Create Fail"
 msgstr "Erstellen eines Broadcasts fehlgeschlagen"
@@ -1065,6 +1071,11 @@ msgstr "Clients"
 msgid "Command"
 msgstr "Befehl"
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "Vollständig"
 
@@ -1114,6 +1125,11 @@ msgstr ""
 #, fuzzy
 msgid "Copy from existing"
 msgstr "Kopie von bereits existierenden"
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
+msgstr ""
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -1633,6 +1649,12 @@ msgstr "Geben Sie für die Suche einen Hostnamen ein"
 #, fuzzy
 msgid "Enter a model name to search for"
 msgstr "Geben Sie für die Suche einen Benutzernamen ein"
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
+msgstr ""
 
 #, fuzzy
 msgid "Enter a site name to search for"
@@ -2799,6 +2821,11 @@ msgstr "Symbol"
 
 msgid "Icon File not found"
 msgstr "Icon-Datei nicht gefunden"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 #, fuzzy
 msgid "If a new module is published the client will"
@@ -4472,6 +4499,9 @@ msgstr "Alter Schlüsselname muss eine Zeichenfolge sein."
 msgid "On Dashboard"
 msgstr "auf dem Dashboard"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr "Beim Neustart versuchen wir, automatisch"
 
@@ -4843,6 +4873,9 @@ msgstr "Plugin-Name"
 msgid "Plugins"
 msgstr "Plugins"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "Port"
 
@@ -5006,9 +5039,6 @@ msgstr "Schnell"
 msgid "RX"
 msgstr "RX"
 
-msgid "Re-run the installer with"
-msgstr ""
-
 msgid "Reboot"
 msgstr "Neustarten"
 
@@ -5017,6 +5047,11 @@ msgstr "Neustart nach der Verteilung"
 
 msgid "Reboot after install"
 msgstr "Nach der Installation neu starten"
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 #, fuzzy
 msgid "Rebranding element has been successfully updated!"
@@ -5326,6 +5361,11 @@ msgstr "Rolle aktualisiert"
 msgid "Rule value"
 msgstr "Regelwert"
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "Laufende Version"
@@ -5443,6 +5483,12 @@ msgid "Second parameter must be in array(class,function)"
 msgstr "Zweiter Parameter muss innerhalb des Arrays (Klasse, Funktion) sein"
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -5605,6 +5651,12 @@ msgstr "Nach der Installation herunterfahren"
 
 msgid "Signed"
 msgstr "Unterschrift"
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
+msgstr ""
 
 #, fuzzy
 msgid "Site"
@@ -6357,6 +6409,11 @@ msgstr "Allgemeine Geschäftsbedingungen"
 msgid "Text"
 msgstr "Text"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "Dieser Host ist bereits vorhanden."
@@ -6658,6 +6715,9 @@ msgstr "Timeout"
 msgid "Title must be a string"
 msgstr "Titelname muss eine Zeichenfolge sein."
 
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
+
 msgid "To be released only by"
 msgstr "Freigabe nur durch"
 
@@ -6757,6 +6817,9 @@ msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 #, fuzzy
 msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
+
+msgid "Unless it was declined with"
+msgstr ""
 
 msgid "Unsupported URL Scheme"
 msgstr ""
@@ -7111,6 +7174,9 @@ msgstr "Webroot"
 msgid "Weekly"
 msgstr "Wöchentlich"
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "Wenn das Plugin entfernt wird, verbleibt der zugewiesene"
 
@@ -7250,10 +7316,6 @@ msgstr "vor"
 #, fuzzy
 msgid "all current storage nodes"
 msgstr "momentanen Speicherknoten löschen."
-
-#, fuzzy
-msgid "and"
-msgstr "Ende"
 
 msgid "and Mac OS X"
 msgstr "und Mac OS X"
@@ -7823,6 +7885,11 @@ msgstr "und wo und wie sie zu zeigen sind."
 msgid "previous install if needed"
 msgstr "Installation zurück zu kehren, falls erforderlich."
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "nur lesen"
 
@@ -7971,9 +8038,6 @@ msgstr ""
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "In dieser Gruppe wurde kein Speicherknoten gefunden"
-
-msgid "to enable it"
-msgstr ""
 
 #, fuzzy
 msgid "to get the requested Initrd"
@@ -8248,6 +8312,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #, fuzzy
 #~ msgid "Your server only allows"
 #~ msgstr "Ihr Server erlaubt nur "
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "Ende"
 
 #~ msgid "but"
 #~ msgstr "aber "

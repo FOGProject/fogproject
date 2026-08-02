@@ -656,6 +656,12 @@ msgstr "ブートキーシーケンス"
 msgid "Boot Options"
 msgstr "ブートオプション"
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 msgid "Broadcast Create Fail"
 msgstr "ブロードキャストの作成に失敗しました"
 
@@ -914,6 +920,11 @@ msgstr "クライアント"
 msgid "Command"
 msgstr "コマンド"
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "完了"
 
@@ -957,6 +968,11 @@ msgstr ""
 
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
+msgstr ""
 
 msgid "Could not find a Storage Node in this group"
 msgstr "このグループ内にストレージノードが見つかりません"
@@ -1407,6 +1423,12 @@ msgstr "検索するロケーション名を入力してください"
 
 msgid "Enter a model name to search for"
 msgstr "検索するモデル名を入力してください"
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
+msgstr ""
 
 msgid "Enter a site name to search for"
 msgstr "検索するサイト名を入力してください"
@@ -2438,6 +2460,11 @@ msgstr "アイコン"
 
 msgid "Icon File not found"
 msgstr "アイコンファイルが見つかりません"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 msgid "If a new module is published the client will"
 msgstr "新しいモジュールが公開されると、クライアントは"
@@ -3907,6 +3934,9 @@ msgstr "古いキーは文字列である必要があります"
 msgid "On Dashboard"
 msgstr "ダッシュボードに表示"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr "再起動後、新しいノードの検出を試みます"
 
@@ -4238,6 +4268,9 @@ msgstr "プラグイン名"
 msgid "Plugins"
 msgstr "プラグイン"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "ポート"
 
@@ -4383,9 +4416,6 @@ msgstr "クイック"
 msgid "RX"
 msgstr "RX"
 
-msgid "Re-run the installer with"
-msgstr ""
-
 msgid "Reboot"
 msgstr "再起動"
 
@@ -4394,6 +4424,11 @@ msgstr "展開後に再起動"
 
 msgid "Reboot after install"
 msgstr "インストール後に再起動"
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
 msgstr "ブランド設定を更新しました！"
@@ -4650,6 +4685,11 @@ msgstr "ルールを更新しました！"
 msgid "Rule value"
 msgstr "ルール値"
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Windows 実行中"
 
@@ -4751,6 +4791,12 @@ msgid "Second parameter must be in array(class,function)"
 msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -4896,6 +4942,12 @@ msgstr "インストール後にシャットダウン"
 
 msgid "Signed"
 msgstr "署名済み"
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
+msgstr ""
 
 msgid "Site"
 msgstr "サイト"
@@ -5540,6 +5592,11 @@ msgstr "利用条件"
 msgid "Text"
 msgstr "テキスト"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "このホストは既に存在します"
@@ -5807,6 +5864,9 @@ msgstr "タイムアウト"
 msgid "Title must be a string"
 msgstr "タイトルは文字列で指定してください"
 
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
+
 msgid "To be released only by"
 msgstr "次の担当者のみ返却可能"
 
@@ -5893,6 +5953,9 @@ msgstr "不明なデータベースエラー"
 
 msgid "Unknown upload error occurred"
 msgstr "不明なアップロードエラーが発生しました"
+
+msgid "Unless it was declined with"
+msgstr ""
 
 msgid "Unsupported URL Scheme"
 msgstr "サポートされていない URL スキーム"
@@ -6199,6 +6262,9 @@ msgstr "Web ルート"
 msgid "Weekly"
 msgstr "週単位"
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
 
@@ -6312,10 +6378,6 @@ msgstr "前"
 
 msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
-
-#, fuzzy
-msgid "and"
-msgstr "終了"
 
 msgid "and Mac OS X"
 msgstr "および Mac OS X"
@@ -6809,6 +6871,11 @@ msgstr "表示する項目と、その表示位置や表示方法"
 msgid "previous install if needed"
 msgstr "必要に応じて以前のインストール"
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "読み取り専用"
 
@@ -6941,9 +7008,6 @@ msgstr "メニュー表示中にキーが押されなかった場合に起動す
 msgid "to clear the field on every host in this group."
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
-msgid "to enable it"
-msgstr ""
-
 msgid "to get the requested Initrd"
 msgstr "要求された Initrd を取得するため"
 
@@ -7042,6 +7106,10 @@ msgstr "そのノードの帯域幅を 1000 に設定した場合"
 
 #~ msgid "Your server only allows"
 #~ msgstr "サーバーで許可されているのは次のみです"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "終了"
 
 #~ msgid "tasks in queue"
 #~ msgstr "キュー内のタスク"

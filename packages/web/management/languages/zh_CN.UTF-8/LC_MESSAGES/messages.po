@@ -665,6 +665,12 @@ msgstr "启动按键顺序"
 msgid "Boot Options"
 msgstr "启动选项"
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 msgid "Broadcast Create Fail"
 msgstr "多播创建失败"
 
@@ -923,6 +929,11 @@ msgstr "客户端"
 msgid "Command"
 msgstr "命令"
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "完成"
 
@@ -966,6 +977,11 @@ msgstr ""
 
 msgid "Copy from existing"
 msgstr "从现有复制"
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
+msgstr ""
 
 msgid "Could not find a Storage Node in this group"
 msgstr "该组内找不到存储节点"
@@ -1416,6 +1432,12 @@ msgstr "输入地点名来搜索"
 
 msgid "Enter a model name to search for"
 msgstr "输入模型名搜索"
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
+msgstr ""
 
 msgid "Enter a site name to search for"
 msgstr "输入站点名搜索"
@@ -2452,6 +2474,11 @@ msgstr "图标"
 
 msgid "Icon File not found"
 msgstr "图标文件未找到"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 msgid "If a new module is published the client will"
 msgstr "当新模块发布时客户端将会"
@@ -3924,6 +3951,9 @@ msgstr "旧密钥必须是字符串"
 msgid "On Dashboard"
 msgstr "仪表板上"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr "重启时寻找一个新节点"
 
@@ -4254,6 +4284,9 @@ msgstr "插件名称"
 msgid "Plugins"
 msgstr "插件"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "端口"
 
@@ -4399,9 +4432,6 @@ msgstr "快速"
 msgid "RX"
 msgstr "RX"
 
-msgid "Re-run the installer with"
-msgstr ""
-
 msgid "Reboot"
 msgstr "重启"
 
@@ -4410,6 +4440,11 @@ msgstr "部署后重新启动"
 
 msgid "Reboot after install"
 msgstr "重启后安装"
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
 msgstr "重写元素已成功更新！"
@@ -4666,6 +4701,11 @@ msgstr "规则已更新"
 msgid "Rule value"
 msgstr "规则值"
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "运行Windows"
 
@@ -4765,6 +4805,12 @@ msgid "Second parameter must be in array(class,function)"
 msgstr "第二个参数的形式必须是数组（类，函数）"
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -4910,6 +4956,12 @@ msgstr "安装后关机"
 
 msgid "Signed"
 msgstr "标志"
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
+msgstr ""
 
 msgid "Site"
 msgstr "站点"
@@ -5553,6 +5605,11 @@ msgstr "条款和条件"
 msgid "Text"
 msgstr "文本"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "主机已经存在"
@@ -5817,6 +5874,9 @@ msgstr "时间到"
 msgid "Title must be a string"
 msgstr "时间必须是字符串"
 
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
+
 msgid "To be released only by"
 msgstr "仅发布自"
 
@@ -5903,6 +5963,9 @@ msgstr "未知数据库错误"
 
 msgid "Unknown upload error occurred"
 msgstr "未知上传错误"
+
+msgid "Unless it was declined with"
+msgstr ""
 
 msgid "Unsupported URL Scheme"
 msgstr "不支持的链接"
@@ -6210,6 +6273,9 @@ msgstr "Web根目录"
 msgid "Weekly"
 msgstr "每周"
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "当插件被移除时，分配的键值将保持不变"
 
@@ -6323,10 +6389,6 @@ msgstr "前"
 
 msgid "all current storage nodes"
 msgstr "所有目前的存储节点"
-
-#, fuzzy
-msgid "and"
-msgstr "结束"
 
 msgid "and Mac OS X"
 msgstr "和MAC OS X"
@@ -6820,6 +6882,11 @@ msgstr "展示以及他们需要在哪里/如何展示"
 msgid "previous install if needed"
 msgstr "如有需要，先前安装"
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "只读"
 
@@ -6950,9 +7017,6 @@ msgstr "将会启动，如果菜单显示时没有按下按键"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "该组内找不到存储节点"
-
-msgid "to enable it"
-msgstr ""
 
 msgid "to get the requested Initrd"
 msgstr "获取所请求的Initrd"
@@ -7181,6 +7245,10 @@ msgstr "你将该节点的带宽字段设置为1000"
 
 #~ msgid "Your server only allows"
 #~ msgstr "您的服务器只允许"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "结束"
 
 #, fuzzy
 #~ msgid "file to"

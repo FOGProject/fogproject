@@ -1267,6 +1267,13 @@ pkgFirstInstalled() {
 installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
     packages="$packages unzip"
+    # Secure Boot kernel signing is on by default, so sbsign/sbverify are a
+    # baseline requirement rather than something the admin installs first.
+    # The name splits by distro (sbsigntool on Debian, sbsigntools on
+    # RHEL/Arch), resolved in the alternatives case below. Where neither
+    # exists the package loop skips it with "(Does not exist)" and
+    # _resignKernels degrades to its existing warning.
+    packages="$packages sbsigntool"
     dots "Adjusting repository (can take a long time for cleanup)"
     case $osid in
         1)
@@ -1423,6 +1430,13 @@ installPackages() {
                 ;;
             php-json)
                 altpkg=$(pkgFirstAvailable php-json php-common)
+                [[ -n $altpkg ]] && x=$altpkg
+                ;;
+            sbsigntool)
+                # Debian/Ubuntu call it sbsigntool; Fedora/RHEL/Arch call it
+                # sbsigntools. Leaving x alone when neither resolves lets the
+                # pkgIsAvailable check below skip it cleanly.
+                altpkg=$(pkgFirstAvailable sbsigntool sbsigntools)
                 [[ -n $altpkg ]] && x=$altpkg
                 ;;
             php-mysql*)
@@ -2720,7 +2734,7 @@ writeUpdateFile() {
         mysqldbname installlang storageLocation fogupdateloaded docroot webroot
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
         sslpath backupPath php_ver sslprivkey sendreports
-        secureBootKey secureBootCert
+        secureBootKey secureBootCert secureboot
         # GH-964 sibling: what the admin chose for the local firewall
         # (configure/disable/skip). Persisted for the same reason the Secure
         # Boot keys are -- so an upgrade does not quietly undo a deliberate
@@ -3552,9 +3566,94 @@ downloadfiles() {
     cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$error_log 2>&1
     errorStat $?
     cd $cwd
+    _ensureSecureBootKeys
     _resignKernels
     _installSecureBootSigner
     _publishSecureBootKit
+}
+# Generate the Secure Boot signing key when the admin has not supplied one.
+#
+# Signing used to require --secure-boot-key/--secure-boot-cert, which meant it
+# was off unless someone already knew to ask for it -- so on a stock server the
+# Secure Boot page had no fingerprint to show and no enrolment kit to hand out,
+# and the feature was effectively invisible. Generating a key by default makes
+# it present everywhere; enrolling it on a client is still a deliberate act by
+# someone physically at the machine, so defaulting this on grants no trust by
+# itself.
+#
+# The key NEVER regenerates once it exists. A fresh key silently invalidates
+# enrolment on every machine that already trusted the old one, and nothing
+# surfaces that until a client fails to boot -- long after the install that
+# caused it. So an existing pair is always reused, and --recreate-keys
+# deliberately does not reach this.
+_ensureSecureBootKeys() {
+    local keydir="${fogprogramdir}/secureboot"
+    local key="${keydir}/MOK.key"
+    local cert="${keydir}/MOK.pem"
+
+    # Explicit opt-out. Left unset rather than half-set, so every downstream
+    # function's existing "no key configured" branch does the right thing.
+    # Defaulted and string-compared on purpose: an unset $secureboot under
+    # `-eq` is arithmetic, evaluates empty as 0, and would silently opt every
+    # caller that reaches here without config.sh straight out of the feature.
+    if [[ ${secureboot:-1} == 0 ]]; then
+        secureBootKey=""
+        secureBootCert=""
+        return 0
+    fi
+    # An admin-supplied pair always wins and is never touched or overwritten.
+    [[ -n $secureBootKey && -n $secureBootCert ]] && return 0
+    if [[ -f $key && -f $cert ]]; then
+        secureBootKey="$key"
+        secureBootCert="$cert"
+        return 0
+    fi
+
+    dots "Generating Secure Boot signing key"
+    mkdir -p "$keydir" >>$error_log 2>&1
+    # 0700 root:root. The web user signs through the fog-sign-kernel sudo
+    # helper and must never be able to read the key itself -- that separation
+    # is the whole reason the helper takes no arguments. $fogprogramdir is
+    # never inside $webdirdest, so nothing here is web-reachable either.
+    chown root:root "$keydir" >>$error_log 2>&1
+    chmod 0700 "$keydir" >>$error_log 2>&1
+    # Written as a config file rather than passed with -addext: -addext needs
+    # OpenSSL 1.1.1+, and the older RHEL variants this installer still supports
+    # ship 1.0.2, where it fails with an unhelpful usage error.
+    cat > "${keydir}/mok.cnf" << EOF
+[ req ]
+distinguished_name = req_dn
+prompt             = no
+x509_extensions    = v3_mok
+
+[ req_dn ]
+CN = FOG Project Secure Boot Signing
+
+[ v3_mok ]
+basicConstraints = critical,CA:FALSE
+extendedKeyUsage = codeSigning
+subjectKeyIdentifier = hash
+EOF
+    if ! openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 3650 \
+            -config "${keydir}/mok.cnf" -keyout "$key" -out "$cert" \
+            >>$error_log 2>&1; then
+        echo "Failed"
+        echo " * Could not generate a Secure Boot signing key. The FOS kernels"
+        echo "   will be left unsigned and Secure Boot clients will not boot."
+        echo "   See $error_log."
+        rm -f "$key" "$cert" >>$error_log 2>&1
+        secureBootKey=""
+        secureBootCert=""
+        return 0
+    fi
+    chown root:root "$key" "$cert" >>$error_log 2>&1
+    chmod 0600 "$key" >>$error_log 2>&1
+    # The certificate is public by design -- it is the thing published in the
+    # enrolment kit -- so only the key is restricted.
+    chmod 0644 "$cert" >>$error_log 2>&1
+    secureBootKey="$key"
+    secureBootCert="$cert"
+    echo "Done"
 }
 # Publish the MOK enrolment kit under the web root.
 #

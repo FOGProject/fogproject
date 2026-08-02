@@ -765,6 +765,12 @@ msgstr ""
 msgid "Boot Options"
 msgstr "Opciones de debug"
 
+msgid ""
+"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
+"left ON. Those images boot under Secure Boot on their own signed shim, so no "
+"firmware changes are needed."
+msgstr ""
+
 #, fuzzy
 msgid "Broadcast Create Fail"
 msgstr "Error al crear el rol"
@@ -1050,6 +1056,11 @@ msgstr "Nodo Almacenamiento Clientes Max"
 msgid "Command"
 msgstr ""
 
+msgid ""
+"Compare the SHA-256 it prints against the one shown above. If they differ, "
+"stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "Completada"
 
@@ -1097,6 +1108,11 @@ msgid ""
 msgstr ""
 
 msgid "Copy from existing"
+msgstr ""
+
+msgid ""
+"Copy the three files above onto a USB stick, keeping them in the same folder "
+"-- the script expects MOK.der beside it."
 msgstr ""
 
 msgid "Could not find a Storage Node in this group"
@@ -1601,6 +1617,12 @@ msgstr "Nueva Búsqueda"
 #, fuzzy
 msgid "Enter a model name to search for"
 msgstr "Búsqueda"
+
+msgid ""
+"Enter a one-time password twice when asked. It only proves at the next "
+"reboot that you are the same person; it is not stored and does not need to "
+"be strong."
+msgstr ""
 
 #, fuzzy
 msgid "Enter a site name to search for"
@@ -2809,6 +2831,11 @@ msgstr "Icono"
 
 msgid "Icon File not found"
 msgstr "Archivo de icono no encontrado"
+
+msgid ""
+"If MOK Manager does not appear, the machine did not boot through a shim and "
+"nothing was enrolled."
+msgstr ""
 
 msgid "If a new module is published the client will"
 msgstr ""
@@ -4477,6 +4504,9 @@ msgstr ""
 msgid "On Dashboard"
 msgstr "Panel de control"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
@@ -4830,6 +4860,9 @@ msgstr "Nombre"
 msgid "Plugins"
 msgstr "Plugins"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr ""
 
@@ -5003,9 +5036,6 @@ msgstr ""
 msgid "RX"
 msgstr ""
 
-msgid "Re-run the installer with"
-msgstr ""
-
 msgid "Reboot"
 msgstr ""
 
@@ -5016,6 +5046,11 @@ msgstr "Despliegue"
 #, fuzzy
 msgid "Reboot after install"
 msgstr "Instalar plugins"
+
+msgid ""
+"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
+"key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
 msgstr ""
@@ -5291,6 +5326,11 @@ msgstr "¡Regla actualizada!"
 msgid "Rule value"
 msgstr "Valor de la regla"
 
+msgid ""
+"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
+"re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr ""
 
@@ -5399,6 +5439,12 @@ msgid "Second parameter must be in array(class,function)"
 msgstr ""
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid ""
+"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
+"installer skips these binaries, because rebuilding them to trust this "
+"server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -5567,6 +5613,12 @@ msgid "Shutdown after install"
 msgstr "Instalar plugins"
 
 msgid "Signed"
+msgstr ""
+
+msgid ""
+"Signing is already done on this server. The remaining work is per-client and "
+"has to be done by someone at the machine -- that is what makes enrolment a "
+"deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 msgid "Site"
@@ -6335,6 +6387,11 @@ msgstr ""
 msgid "Text"
 msgstr "Texto"
 
+msgid ""
+"That is the signed chain staged by the installer; the default boot file is "
+"unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "Ya existe este equipo"
@@ -6605,6 +6662,9 @@ msgstr ""
 msgid "Title must be a string"
 msgstr ""
 
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
+
 msgid "To be released only by"
 msgstr ""
 
@@ -6693,6 +6753,9 @@ msgid "Unknown DB error"
 msgstr "Desconocida"
 
 msgid "Unknown upload error occurred"
+msgstr ""
+
+msgid "Unless it was declined with"
 msgstr ""
 
 msgid "Unsupported URL Scheme"
@@ -7048,6 +7111,9 @@ msgstr ""
 msgid "Weekly"
 msgstr ""
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
@@ -7174,9 +7240,6 @@ msgstr ""
 
 msgid "all current storage nodes"
 msgstr "todos los Nodos de Almacenamiento"
-
-msgid "and"
-msgstr ""
 
 msgid "and Mac OS X"
 msgstr ""
@@ -7738,6 +7801,11 @@ msgstr ""
 msgid "previous install if needed"
 msgstr "Instalar plugins"
 
+msgid ""
+"re-run the installer and check the installation log for a key generation or "
+"signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr ""
 
@@ -7879,9 +7947,6 @@ msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
 
 msgid "to clear the field on every host in this group."
-msgstr ""
-
-msgid "to enable it"
 msgstr ""
 
 msgid "to get the requested Initrd"
