@@ -3915,3 +3915,38 @@ $this->schema[] = count($columnhostSecTokenPrev ?: []) ? array() : array(
     "ALTER TABLE `hosts` "
     . "ADD COLUMN `hostSecTokenPrev` LONGTEXT NOT NULL",
 );
+// 278
+$this->schema[] = array(
+    // Put FOG_UDPCAST_STARTINGPORT back inside the firewalled window.
+    //
+    // Until now MulticastSession::allocatePort() overwrote this setting with
+    // mt_rand(24576, 32766) * 2 after EVERY multicast session. So whatever is
+    // stored on an existing install is a leftover from the last session that
+    // ran -- not a value any admin chose, because no admin-chosen value could
+    // survive to be used twice. Resetting it therefore discards nothing real.
+    //
+    // It matters because the port is no longer rotated: this setting is now
+    // the base of the window sessions are allocated from, and the installer
+    // firewalls exactly that window (63100 .. +2*64). An install carrying a
+    // random leftover would be stable but sitting outside the open range, so
+    // multicast would keep failing silently on a firewalled server.
+    //
+    // Scoped so it can only touch values the rotation could actually have
+    // produced. mt_rand(24576, 32766) * 2 yields EVEN ports in 49152..65532
+    // and nothing else, so a value outside that set -- 30000, say, or an odd
+    // number -- is provably an admin's own and is left alone. Values already
+    // inside the firewalled window are left alone too; they need no help.
+    //
+    // Values that are simply unusable (0, odd, out of range) need no step
+    // here either: defaultPortPool() rejects them and falls back to 63100 at
+    // runtime.
+    //
+    // settingValue is VARCHAR, so compare as a number explicitly rather than
+    // relying on MySQL's implicit coercion of a string column.
+    "UPDATE `globalSettings` "
+    . "SET `settingValue` = '63100' "
+    . "WHERE `settingKey` = 'FOG_UDPCAST_STARTINGPORT' "
+    . "AND CAST(`settingValue` AS UNSIGNED) BETWEEN 49152 AND 65532 "
+    . "AND CAST(`settingValue` AS UNSIGNED) % 2 = 0 "
+    . "AND CAST(`settingValue` AS UNSIGNED) NOT BETWEEN 63100 AND 63228",
+);
