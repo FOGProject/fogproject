@@ -1421,6 +1421,71 @@ confirmPackageInstallation() {
         echo "OK"
     fi
 }
+installSELinuxModule() {
+    # GH-964: FOG's web tier needs outbound HTTP, FTP and SSH. httpd_t gets
+    # none of them by default, and the boolean everyone reaches for --
+    # httpd_can_network_connect -- grants name_connect on the `port_type`
+    # ATTRIBUTE, i.e. every port type in the policy. Three ports wanted,
+    # several hundred granted, permanently, to the daemon serving the web UI.
+    #
+    # ssh_port_t has no narrow boolean at any width, so there is no
+    # combination of setsebool calls that covers FOG without the blanket one.
+    # A three-rule policy module does, and FOG owns it. See packages/selinux.
+    #
+    # Built from source rather than shipped as a .pp, because a compiled
+    # module is tied to the policy version of the machine that built it and
+    # refuses to load on an older one. Compiling against the target's own
+    # policy is what makes one source file work across Fedora, RHEL, Rocky
+    # and Alma.
+    #
+    # checkmodule and semodule_package come from checkpolicy and
+    # policycoreutils, so this needs nothing beyond what a host already has
+    # to have for semanage to exist. fog.te is deliberately written without
+    # refpolicy macros so that selinux-policy-devel -- which is not installed
+    # by default on any distro FOG supports -- is not required.
+    local src="../packages/selinux/fog.te"
+    local workdir
+    command -v selinuxenabled >>$error_log 2>&1 || return 0
+    selinuxenabled || return 0
+    [[ -f $src ]] || return 0
+    dots "Installing FOG SELinux policy module"
+    if ! command -v semodule >>$error_log 2>&1 \
+        || ! command -v checkmodule >>$error_log 2>&1 \
+        || ! command -v semodule_package >>$error_log 2>&1; then
+        echo "Skipped (no policy tooling)"
+        echo " * FOG's web tier needs outbound HTTP/FTP/SSH, which SELinux"
+        echo " *   denies by default. Under enforcing this presents as storage"
+        echo " *   node operations failing with nothing in FOG's own logs."
+        echo " * Install checkpolicy and policycoreutils, then re-run the"
+        echo " *   installer."
+        return 0
+    fi
+    # Deliberately rebuilt and reinstalled every run rather than skipped when
+    # `semodule -l` already lists fog. Skipping would mean a later version of
+    # fog.te never reaches a server that has the old one -- the same
+    # silently-not-upgraded failure the kernel re-signing exists to prevent.
+    # semodule -i is idempotent and this costs a couple of seconds on an
+    # operation nobody runs in a loop.
+    workdir=$(mktemp -d) || { echo "Failed"; return 0; }
+    # checkmodule writes its outputs beside its input, so build in the temp
+    # directory rather than dropping fog.mod/fog.pp into the source tree.
+    cp -f "$src" "$workdir/fog.te" >>$error_log 2>&1
+    if ! (cd "$workdir" && checkmodule -M -m -o fog.mod fog.te \
+        && semodule_package -o fog.pp -m fog.mod) >>$error_log 2>&1 \
+        || ! semodule -i "$workdir/fog.pp" >>$error_log 2>&1; then
+        rm -rf "$workdir"
+        # Not fatal, for the same reason downloadipxesecureboot is not: an
+        # otherwise good install should not abort over a policy module, and
+        # on a permissive host none of this matters anyway.
+        echo "Failed"
+        echo " * Could not build or load the FOG SELinux module. See $error_log."
+        echo " * Under SELinux enforcing, storage node operations over HTTP,"
+        echo " *   FTP and SSH will be denied until this is resolved."
+        return 0
+    fi
+    rm -rf "$workdir"
+    errorStat 0
+}
 setSELinuxContext() {
     # setSELinuxContext <directory> <type-to-register> <acceptable-type>...
     #
@@ -2137,6 +2202,11 @@ configureSnapins() {
         chown -R $username:$apacheuser $snapindir
     fi
     errorStat $?
+    # GH-964: this directory inherits usr_t, which httpd_t may READ but not
+    # write. That asymmetry is what hides it -- the snapin list renders fine
+    # and only an upload through the web UI, which is a write by httpd_t,
+    # actually fails.
+    setSELinuxContext "$snapindir" httpd_sys_rw_content_t
 }
 configureUsers() {
     userexists=0
@@ -2302,6 +2372,19 @@ configureStorage() {
     chmod -R 775 $storageLocation $storageLocationCapture >>$error_log 2>&1
     chown -R $username:$username $storageLocation $storageLocationCapture >>$error_log 2>&1
     errorStat $?
+    # GH-964: on the lab this directory was unlabeled_t, which is worse than
+    # merely wrong -- httpd_t gets getattr/open/search on it and nothing else,
+    # so the web UI could not list an image directory, and unlabeled_t masks
+    # whatever the real denial would have been.
+    #
+    # httpd_sys_rw_content_t rather than a read-only type: the web tier renames
+    # and removes files here (image uploads, replication bookkeeping).
+    #
+    # NFS is deliberately NOT a consideration. nfsd_t reads any label with
+    # nfs_export_all_ro/_rw, which are on by default, and the lab's audit log
+    # confirms it -- zero nfsd_t denials across months of imaging. So this is
+    # about the web tier only; the capture/deploy data path never needed it.
+    setSELinuxContext "$storageLocation" httpd_sys_rw_content_t
 }
 clearScreen() {
     clear
