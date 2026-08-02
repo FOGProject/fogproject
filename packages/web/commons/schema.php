@@ -3950,3 +3950,21 @@ $this->schema[] = array(
     . "AND CAST(`settingValue` AS UNSIGNED) % 2 = 0 "
     . "AND CAST(`settingValue` AS UNSIGNED) NOT BETWEEN 63100 AND 63228",
 );
+// 279
+$this->schema[] = array(
+    // Adds the "Enroll Secure Boot Key" PXE menu item, always visible
+    // (pxeRegOnly=2, same grouping as fog.local/fog.memtest) regardless of
+    // registration state -- a machine needing its MOK enrolled has usually
+    // never registered yet.
+    //
+    // pxeID 14 is the next free id: 1-13 are already taken. BootMenu::_menuOpt()
+    // keys its special-cased (non-kernel-chain) items on this id the same way
+    // it already does for 1 (fog.local), 2 (fog.memtest) and 11 (fog.advanced).
+    //
+    // No pxeArgs/pxeParams: this item never reaches BootMenu's default
+    // (login + kernel chain) branch, so neither is read.
+    "INSERT IGNORE INTO `pxeMenu` "
+    . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
+    . "VALUES "
+    . "(14, 'fog.enrollsecureboot', 'Enroll Secure Boot Key', '0', '2', NULL)",
+);

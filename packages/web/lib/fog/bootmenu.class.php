@@ -1948,6 +1948,9 @@ class BootMenu extends FOGBase
                     )
                 );
                 break;
+            case 14:
+                $Send = self::fastmerge($Send, $this->_enrollSecureBootChoice());
+                break;
             default:
                 if (!$params) {
                     $Send = self::fastmerge(
@@ -1961,6 +1964,66 @@ class BootMenu extends FOGBase
                 }
         }
         return $Send;
+    }
+    /**
+     * Builds the iPXE choice for pxeID 14, "Enroll Secure Boot Key".
+     *
+     * Always shown (pxeRegOnly=2), so a technician never has to repoint a
+     * client's boot file just to enroll its MOK -- the same signed
+     * snponly.efi/shim chain every other client reaches already gets them
+     * here. If this server never configured kernel signing there is
+     * nothing to enroll, so this returns a message rather than attempting
+     * a chain to a target that was never staged.
+     *
+     * MokManager (mmx64.efi) only shows its "Enroll key from disk" menu
+     * when it is the boot target itself -- shim only invokes it when a
+     * pending MOK request already exists, which nothing here stages -- so
+     * this chains to it directly rather than through the normal shim gate.
+     *
+     * @return array
+     */
+    private function _enrollSecureBootChoice()
+    {
+        if (!file_exists(BASEPATH . 'service/secureboot' . DS . 'MOK.der')) {
+            return array(
+                'echo Secure Boot signing is not configured on this FOG '
+                . 'server.',
+                'echo Nothing to enroll -- returning to the menu...',
+                'sleep 5',
+                'goto MENU'
+            );
+        }
+        if (($_REQUEST['arch'] ?? '') === 'i386') {
+            return array(
+                'echo No signed Secure Boot shim exists for 32-bit UEFI.',
+                'echo Returning to the menu...',
+                'sleep 5',
+                'goto MENU'
+            );
+        }
+        // arm64's MokManager is mmaa64.efi, NOT mmx64.efi -- the binary is
+        // named for the architecture it runs on, and fog-ipxe stages it under
+        // that name. Chaining to arm64-efi/mmx64.efi is a file that has never
+        // existed, so every arm64 client fell into the error branch below.
+        $mmTarget = (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm'))
+            ? "$this->_booturl/secureboot/arm64-efi/mmaa64.efi"
+            : "$this->_booturl/secureboot/mmx64.efi";
+        // MokManager can only read a certificate off a FAT filesystem it can
+        // see -- it has no network stack, so booting it over the network does
+        // NOT deliver MOK.der with it. Say so before chaining, or the tech
+        // arrives at "Enroll key from disk" with nothing to select and no
+        // indication of why.
+        return array(
+            'echo Have MOK.der on a FAT-formatted USB stick in this machine.',
+            'echo MokManager reads it from local media, not from the network.',
+            // No quotes in the text: iPXE's tokenizer treats them as quoting
+            // and strips them, so they would vanish from the output anyway.
+            'echo Choose Enroll key from disk, then find MOK.der on the stick.',
+            'sleep 5',
+            "chain -ar $mmTarget || "
+            . "echo Could not load the Secure Boot enrolment menu. && "
+            . "sleep 5 && goto MENU"
+        );
     }
     /**
      * Print the default information for all hosts
