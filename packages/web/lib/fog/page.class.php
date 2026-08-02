@@ -225,7 +225,8 @@ class Page extends FOGBase
         ];
         $this->isHomepage = in_array($node, $homepages)
             || !self::$FOGUser->isValid();
-        FOGPage::buildMainMenuItems($this->menu, $this->menuHook);
+        // Menu building deliberately does NOT happen here -- see render(),
+        // which builds it only when the page shell is actually emitted.
         $files = [];
         if (!self::_isContentOnly()) {
             $files = self::$FOGUser->isValid()
@@ -395,6 +396,23 @@ class Page extends FOGBase
         $contentOnly = (int)self::_isContentOnly();
         switch ($contentOnly) {
             case 0:
+                // Built here rather than in the constructor because this is
+                // the only consumer: $this->menu / $this->menuHook are read
+                // exclusively by other/index.php, the page shell, and nothing
+                // else reads them.
+                //
+                // The constructor runs on EVERY request, but management's
+                // index.php short-circuits AJAX with
+                // `if (FOGCore::$ajax) { $FOGPageManager->render(); exit; }`
+                // -- so a JSON/AJAX endpoint built the whole main menu,
+                // firing MAIN_MENU_DATA and DELETE_MENU_DATA across 15
+                // listeners, and then exited without ever emitting it. The
+                // contentOnly and !$showhtml paths above discard it equally.
+                //
+                // The AJAX sidebar refresh does not regress: it calls
+                // buildMainMenuItems() directly (PluginManagement::sidebarAjax)
+                // rather than relying on the constructor having run it.
+                FOGPage::buildMainMenuItems($this->menu, $this->menuHook);
                 include '../management/other/index.php';
                 break;
             case 1:
