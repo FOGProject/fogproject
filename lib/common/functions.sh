@@ -1778,33 +1778,52 @@ checkSELinux() {
     currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
     configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
     [[ "x$currentmode" != "xenforcing" && "x$configmode" != "xenforcing" ]] && return
-    # GH-963: the headline reason this prompt existed -- an unlabelled TFTP root
-    # that no confined tftpd could read -- is fixed; setSELinuxContext() now
-    # labels $tftpdirdst properly, so declining here leaves a server that PXE
-    # boots. The prompt and its default are deliberately UNCHANGED: FOG's NFS
-    # and FTP image storage has not been validated under enforcing mode, and
-    # flipping the default would silently change the security posture of every
-    # existing unattended (-y) install. Reworded only, so it no longer blames a
-    # cause that has been fixed.
-    echo " * SELinux is currently enabled on your system."
-    echo " * FOG now sets the correct SELinux context on its TFTP directory, so"
-    echo " * PXE booting works under enforcing mode. Image storage over NFS and"
-    echo " * FTP has not yet been validated enforcing, so permissive is still"
-    echo " * what we recommend and test against."
-    echo -n " * Should the installer set this for you now? (Y/n) "
+    # GH-964 step 5. This prompt used to recommend permissive and default to
+    # YES, which meant every unattended (-y) install switched SELinux off
+    # machine-wide without anyone deciding to. That was defensible only while
+    # FOG genuinely did not work enforcing. It now does:
+    #
+    #   GH-963       $tftpdirdst is labelled, so PXE boots
+    #   GH-966/967   $fogprogramdir/cache, $snapindir and $storageLocation are
+    #                labelled, so the web tier can write
+    #   GH-968/969   fog_share_t, so vsftpd can read and write image and
+    #                snapin storage as well as the web tier
+    #   GH-966/967   packages/selinux/fog.te, so httpd_t may reach its own
+    #                API, its nodes' FTP, and SSH
+    #
+    # and capture, deploy and replication have all been run on an enforcing
+    # host. NFS never needed anything: its data path is in-kernel as kernel_t,
+    # which has unconditional access to the file_type attribute.
+    #
+    # So the recommendation is inverted. Note this does NOT need to remember
+    # the answer the way configureFirewall() does -- if the admin chooses
+    # permissive, /etc/selinux/config says so, and the early return above
+    # means this function never asks again. The system state is the memory.
+    echo " * SELinux is enabled and enforcing on your system."
+    echo " * FOG supports this. The installer labels its directories, installs"
+    echo " * a small policy module for the ports the web tier needs, and has"
+    echo " * been tested capturing, deploying and replicating under enforcing."
+    echo " * Leaving it on is recommended and is now the default."
+    echo " * If you hit trouble later, SELinux denials never appear in FOG's"
+    echo " * own logs -- check for them with: ausearch -m avc -ts recent"
+    echo -n " * Set SELinux permissive anyway? (y/N) "
     sedisable=""
     while [[ -z $sedisable ]]; do
-        [[ -n $autoaccept ]] && sedisable="Y" || read -r sedisable
+        # Unattended installs keep enforcing. This is the half of GH-964 that
+        # mattered most: -y used to answer "Y" here, so an admin who never saw
+        # a prompt ended up with SELinux off across the whole machine.
+        [[ -n $autoaccept ]] && sedisable="N" || read -r sedisable
         case $sedisable in
-            [Yy]|[Yy][Ee][Ss]|"")
+            [Yy]|[Yy][Ee][Ss])
                 sedisable="Y"
                 setenforce 0
                 sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
                 echo -e " * SELinux set permissive -- proceeding with installation...\n"
                 ;;
-            [Nn]|[Nn][Oo])
+            [Nn]|[Nn][Oo]|"")
+                sedisable="N"
                 echo "N"
-                echo -e " * You sure know what you're doing, just keep in mind we told you! :-)\n"
+                echo -e " * Leaving SELinux enforcing.\n"
                 ;;
             *)
                 sedisable=""
