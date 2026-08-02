@@ -1502,6 +1502,11 @@ class Route extends FOGBase
                     $columns[] = [
                         'db' => 'hmMAC',
                         'dt' => 'primac_vendor',
+                        'prime' => function ($rows) {
+                            MACAddress::primeVendors(
+                                array_column((array) $rows, 'hmMAC')
+                            );
+                        },
                         'formatter' => function ($d, $row) {
                             return MACAddress::getVendor($d);
                         }
@@ -1512,6 +1517,11 @@ class Route extends FOGBase
                     $columns[] = [
                         'db' => 'hmMAC',
                         'dt' => 'mac_vendor',
+                        'prime' => function ($rows) {
+                            MACAddress::primeVendors(
+                                array_column((array) $rows, 'hmMAC')
+                            );
+                        },
                         'formatter' => function ($d, $row) {
                             return MACAddress::getVendor($d);
                         }

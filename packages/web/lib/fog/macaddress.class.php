@@ -255,22 +255,12 @@ class MACAddress extends FOGBase
      */
     public static function getVendor($mac)
     {
-        static $cache = [];
-        $hex = preg_replace('/[^0-9a-fA-F]/', '', (string) $mac);
-        if (strlen($hex) < 6) {
+        $prefix = self::_ouiPrefix($mac);
+        if ($prefix === '') {
             return '';
         }
-        $prefix = strtoupper(
-            implode(
-                '-',
-                str_split(
-                    substr($hex, 0, 6),
-                    2
-                )
-            )
-        );
-        if (array_key_exists($prefix, $cache)) {
-            return $cache[$prefix];
+        if (array_key_exists($prefix, self::$_vendorCache)) {
+            return self::$_vendorCache[$prefix];
         }
         $name = '';
         $oui = self::getClass('OUI')
@@ -279,7 +269,84 @@ class MACAddress extends FOGBase
         if ($oui instanceof OUI && $oui->isValid()) {
             $name = (string) $oui->get('name');
         }
-        return $cache[$prefix] = $name;
+        return self::$_vendorCache[$prefix] = $name;
+    }
+    /**
+     * Per-request memo of OUI prefix => vendor name.
+     *
+     * Shared by getVendor() and primeVendors() so a bulk prime and a
+     * single lookup can never disagree about what has already been resolved.
+     *
+     * @var array
+     */
+    private static $_vendorCache = [];
+    /**
+     * Derives the 24-bit OUI prefix (XX-XX-XX) from a raw MAC.
+     *
+     * @param string $mac the mac address to reduce
+     *
+     * @return string the prefix, or '' when the mac is too short to have one
+     */
+    private static function _ouiPrefix($mac)
+    {
+        $hex = preg_replace('/[^0-9a-fA-F]/', '', (string) $mac);
+        if (strlen($hex) < 6) {
+            return '';
+        }
+        return strtoupper(
+            implode(
+                '-',
+                str_split(
+                    substr($hex, 0, 6),
+                    2
+                )
+            )
+        );
+    }
+    /**
+     * Bulk-resolves the vendor for a whole set of MACs in one query.
+     *
+     * getVendor() memoises per prefix, but its miss path is a single
+     * OUI->load('prefix') -- so a grid column calling it per row cost one
+     * query per DISTINCT prefix in the result set (measured: ~49 queries for
+     * an 86-row host list, ~0.65 per row, and re-paid on every infinite-scroll
+     * chunk because the memo is per request). That is the GH-707/GH-956
+     * per-row-formatter query storm in its remaining corner. Priming the whole
+     * chunk collapses it to a single IN() lookup.
+     *
+     * Prefixes with no `oui` row are cached as '' so a second pass over the
+     * same chunk cannot fall back into the per-row path for them.
+     *
+     * @param array $macs the raw mac addresses about to be formatted
+     *
+     * @return void
+     */
+    public static function primeVendors($macs)
+    {
+        $prefixes = [];
+        foreach ((array) $macs as $mac) {
+            $prefix = self::_ouiPrefix($mac);
+            if ($prefix === ''
+                || array_key_exists($prefix, self::$_vendorCache)
+            ) {
+                continue;
+            }
+            $prefixes[$prefix] = $prefix;
+        }
+        if (count($prefixes) < 1) {
+            return;
+        }
+        // Keyed by the prefix column value, the same shape primeRel() relies
+        // on for its id-keyed relations.
+        $ouis = self::getClass('OUI')->loadMany(
+            array_values($prefixes),
+            'prefix'
+        );
+        foreach ($prefixes as $prefix) {
+            self::$_vendorCache[$prefix] = isset($ouis[$prefix])
+                ? (string) $ouis[$prefix]->get('name')
+                : '';
+        }
     }
     /**
      * How to present the mac as a string.
