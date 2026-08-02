@@ -98,6 +98,25 @@ class DatabaseManager extends FOGCore
             return new self;
         }
         /**
+         * Legacy MyISAM -> InnoDB conversion, on the schema install/upgrade
+         * path only.
+         *
+         * This used to run from _getVersion(), i.e. on EVERY request: a
+         * `SELECT @@GLOBAL.sql_mode` plus an INFORMATION_SCHEMA.TABLES scan
+         * filtered on ENGINE, whose result an up-to-date install then threw
+         * away at the check above. It is a migration concern -- the only way a
+         * MyISAM table realistically appears is a legacy install being brought
+         * forward, which is exactly this path -- so it belongs after the
+         * up-to-date early return, not before it.
+         *
+         * Tradeoff accepted: a MyISAM table introduced by hand (or by
+         * restoring an old dump) onto an already-current install is no longer
+         * converted by the next page load; it is converted at the next schema
+         * update. Two queries per request, on every entry point, was too high
+         * a standing price for that case.
+         */
+        self::_convertEngine();
+        /**
          * The sub get caller.
          */
         global $sub;
@@ -208,7 +227,6 @@ class DatabaseManager extends FOGCore
      */
     private static function _getVersion()
     {
-        self::_convertEngine();
         $query = sprintf(
             'SELECT `vValue` FROM `%s`.`schemaVersion`',
             self::$DB->dbName()
