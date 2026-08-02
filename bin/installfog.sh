@@ -391,7 +391,6 @@ fi
 displayBanner
 echo -e "   Version: $version Installer/Updater\n"
 checkSELinux
-checkFirewall
 case $doupdate in
     1)
         if [[ -f $fogpriorconfig ]]; then
@@ -624,6 +623,10 @@ while [[ -z $blGo ]]; do
                     installFOGServices
                     configureFOGService
                     configureNFS
+                    # GH-964 sibling: after every service is configured, so
+                    # the port set matches what was actually installed, and
+                    # before writeUpdateFile so the chosen action persists.
+                    configureFirewall
                     writeUpdateFile
                     linkOptFogDir
                     installUtilities
@@ -695,6 +698,10 @@ while [[ -z $blGo ]]; do
                     installFOGServices
                     configureFOGService
                     configureNFS
+                    # GH-964 sibling: after every service is configured, so
+                    # the port set matches what was actually installed, and
+                    # before writeUpdateFile so the chosen action persists.
+                    configureFirewall
                     writeUpdateFile
                     linkOptFogDir
                     installUtilities
