@@ -19,7 +19,15 @@
 #
 set -u
 
-CONF=/opt/fog/.fog-secureboot
+# GH-850: the FOG base path is installer-driven, so the installer rewrites this
+# line to match $fogprogramdir when it installs the helper. The default below is
+# correct for a stock install and keeps this script runnable straight from the
+# repository.
+#
+# Substituted rather than passed as an argument, because taking no arguments at
+# all is this script's whole security property -- see above. An environment
+# variable would be no better: it puts the path back under the caller's control.
+CONF="/opt/fog/.fog-secureboot"
 
 if [[ ! -r $CONF ]]; then
     echo "fog-sign-kernel: $CONF is missing or unreadable" >&2

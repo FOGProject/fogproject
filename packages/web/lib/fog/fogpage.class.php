@@ -2745,8 +2745,14 @@ abstract class FOGPage extends FOGBase
      */
     protected static function secureBootStagingDir()
     {
-        $helper = '/opt/fog/bin/fog-sign-kernel';
-        $stagedir = '/opt/fog/secureboot-staging';
+        // GH-850: the base path is installer-driven, so these must be derived
+        // from FOG_BASE_DIR rather than written as /opt/fog literals. The
+        // installer places both under $fogprogramdir; hardcoding the default
+        // meant that on a server installed anywhere else this returned '' and
+        // signing silently never happened -- leaving Secure Boot clients with
+        // an unsigned kernel and nothing on the server to say why.
+        $helper = FOG_BASE_DIR . DS . 'bin' . DS . 'fog-sign-kernel';
+        $stagedir = FOG_BASE_DIR . DS . 'secureboot-staging';
         if (!is_executable($helper) || !is_dir($stagedir)) {
             return '';
         }
@@ -2774,7 +2780,15 @@ abstract class FOGPage extends FOGBase
         }
         $output = array();
         $retVal = 1;
-        exec('sudo -n /opt/fog/bin/fog-sign-kernel 2>&1', $output, $retVal);
+        // escapeshellarg because this is no longer a literal: FOG_BASE_DIR is
+        // written by the installer from $fogprogramdir, which an admin may set
+        // to a path containing a space. exec() hands the string to a shell, so
+        // an unquoted path would split into two arguments and the sudoers rule
+        // -- which matches the exact command -- would refuse it.
+        $helper = escapeshellarg(
+            FOG_BASE_DIR . DS . 'bin' . DS . 'fog-sign-kernel'
+        );
+        exec("sudo -n {$helper} 2>&1", $output, $retVal);
         if ($retVal !== 0) {
             throw new Exception(
                 sprintf(

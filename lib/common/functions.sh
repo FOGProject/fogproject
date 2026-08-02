@@ -3274,6 +3274,18 @@ _installSecureBootSigner() {
         echo "Failed"
         return 0
     }
+    # Point the helper at this install's config. It takes no arguments on
+    # purpose -- that is what stops a compromised web server naming its own key
+    # -- so the path has to be baked in here rather than passed at call time.
+    # Quoted: $fogprogramdir may contain a space, and `CONF=/a/fog custom/x`
+    # assigns only "/a/fog" and then tries to RUN "custom/x". bash -n does not
+    # catch that -- it is valid syntax, just not what anyone meant.
+    sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1
+    if ! grep -qxF "CONF=\"${conf}\"" "$helper"; then
+        echo "Failed"
+        echo " * Could not set the config path in $helper."
+        return 0
+    fi
     # Root-owned, root-readable only: the web user learns nothing about where
     # the key lives, and cannot rewrite these paths to point somewhere else.
     # SECUREBOOT_CERT is the normalised PEM -- sbsign cannot read DER.
