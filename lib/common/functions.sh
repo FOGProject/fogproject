@@ -1160,14 +1160,11 @@ resolveDHCPEngine() {
     # Honor an explicit/persisted choice; an existing install is never switched.
     dhcpengine="${dhcpengine,,}"
     if [[ -z $dhcpengine ]]; then
-        x="$iscpkg"
-        eval $packageQuery >>$error_log 2>&1
-        if [[ $? -eq 0 ]]; then
+        if pkgIsInstalled "$iscpkg"; then
             # A prior ISC install is left on ISC unless the admin opts in.
             dhcpengine="isc"
-        elif [[ -n $keapackage ]]; then
-            eval $packagelist "$keapackage" >>$error_log 2>&1
-            [[ $? -eq 0 ]] && dhcpengine="kea" || dhcpengine="isc"
+        elif [[ -n $keapackage ]] && pkgIsAvailable "$keapackage"; then
+            dhcpengine="kea"
         else
             dhcpengine="isc"
         fi
@@ -1184,6 +1181,88 @@ resolveDHCPEngine() {
             dhcpconfigother=""
         fi
     fi
+}
+# Bulk package-state helpers.
+#
+# installPackages used to answer "is it installed?" and "does it exist?" with
+# one subprocess per package -- ~80 packages x ($packageQuery + $packagelist),
+# and on RHEL every `dnf list` reloads and reparses the full repo metadata, so
+# the probing alone cost minutes before a single package was installed. Ask
+# each question once for the whole system instead and answer the per-package
+# questions from memory.
+#
+# These are shell functions the per-distro configs define, not the eval'd
+# command strings the older $package* vars use, because they are pipelines: a
+# pipeline eval'd out of a variable is exactly what silently broke Alpine's
+# packageupdater ("apk update && apk upgrade" -- the && is not re-parsed as a
+# control operator after expansion, so apk got it as a literal argument).
+#
+# $packageQuery/$packagelist stay for the handful of callers that run BEFORE
+# the metadata refresh (the EPEL/Remi repo bootstrap in installPackages); a
+# cached set would answer those from a repo list that does not exist yet.
+declare -A pkgInstalledSet=()
+declare -A pkgAvailableSet=()
+pkgAvailableKnown=0
+# Defaults for a distro config that has not defined the bulk primitives. This
+# file is sourced before doOSSpecificIncludes, so a config that does define
+# them overrides these. Degrading rather than erroring is deliberate: an empty
+# installed set just means every package gets queued (package managers are
+# idempotent), and an empty available set routes pkgIsAvailable back to the
+# per-package probe.
+pkgQueryAll() { :; }
+pkgListAll() { :; }
+loadInstalledSet() {
+    local name
+    pkgInstalledSet=()
+    while read -r name; do
+        [[ -n $name ]] && pkgInstalledSet[$name]=1
+    done < <(pkgQueryAll 2>>$error_log)
+}
+loadAvailableSet() {
+    local name
+    pkgAvailableSet=()
+    pkgAvailableKnown=0
+    while read -r name; do
+        [[ -n $name ]] && pkgAvailableSet[$name]=1
+    done < <(pkgListAll 2>>$error_log)
+    # An empty set means the bulk primitive is unusable here -- an old yum with
+    # no repoquery, a repo that failed to sync. Leaving pkgAvailableKnown at 0
+    # sends pkgIsAvailable back to the per-package probe, rather than having it
+    # conclude that every package in the list is missing.
+    [[ ${#pkgAvailableSet[@]} -gt 0 ]] && pkgAvailableKnown=1
+    # An unusable bulk primitive is a fallback, not an installer failure.
+    return 0
+}
+loadPackageSets() {
+    loadInstalledSet
+    loadAvailableSet
+}
+pkgIsInstalled() {
+    [[ -n ${pkgInstalledSet[$1]} ]]
+}
+pkgIsAvailable() {
+    if [[ $pkgAvailableKnown -eq 1 ]]; then
+        [[ -n ${pkgAvailableSet[$1]} ]]
+        return $?
+    fi
+    local x="$1"
+    eval $packagelist "$x" >>$error_log 2>&1
+}
+# Echo the first name the repos actually carry / that is already on the box.
+# Nothing echoed and non-zero returned when none of them match.
+pkgFirstAvailable() {
+    local p
+    for p in "$@"; do
+        pkgIsAvailable "$p" && { echo "$p"; return 0; }
+    done
+    return 1
+}
+pkgFirstInstalled() {
+    local p
+    for p in "$@"; do
+        pkgIsInstalled "$p" && { echo "$p"; return 0; }
+    done
+    return 1
 }
 installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
@@ -1314,111 +1393,116 @@ installPackages() {
         fi
     fi
     errorStat $?
+    # Read the installed and available sets once, up front. Everything below --
+    # the mysql/php variant picking, the "already installed" and "does not
+    # exist" decisions, and resolveDHCPEngine's two probes -- is answered from
+    # these two arrays instead of spawning a package-manager query per name.
+    dots "Reading package state"
+    loadPackageSets
+    errorStat $?
     resolveDHCPEngine
     packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
     newPackList=""
     local toInstall=""
+    local altpkg=""
     for x in $packages; do
         case $x in
             mysql|mariadb|mariadb-client|MariaDB-client)
-                for sqlclient in $sqlclientlist; do
-                    eval $packagelist "$sqlclient" >>$error_log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        available_sqlclient=$sqlclient
-                        break
-                    fi
-                done
-                for sqlclient in $sqlclientlist; do
-                    x=$sqlclient
-                    eval $packageQuery >>$error_log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        installed_sqlclient=$sqlclient
-                        break
-                    fi
-                done
-                [[ -z $installed_sqlclient ]] && x=$available_sqlclient || x=$installed_sqlclient
+                # Prefer whatever is already on the box, so a MySQL host is not
+                # handed a MariaDB client (or the reverse) just because that is
+                # what the repos list first.
+                installed_sqlclient=$(pkgFirstInstalled $sqlclientlist)
+                available_sqlclient=$(pkgFirstAvailable $sqlclientlist)
+                [[ -n $installed_sqlclient ]] && x=$installed_sqlclient || x=$available_sqlclient
                 ;;
             mysql-server|mariadb-server|MariaDB-server)
-                for sqlserver in $sqlserverlist; do
-                    eval $packagelist "$sqlserver" >>$error_log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        available_sqlserver=$sqlserver
-                        break
-                    fi
-                done
-                for sqlserver in $sqlserverlist; do
-                    x=$sqlserver
-                    eval $packageQuery >>$error_log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        installed_sqlserver=$sqlserver
-                        break
-                    fi
-                done
-                [[ -z $installed_sqlserver ]] && x=$available_sqlserver || x=$installed_sqlserver
+                installed_sqlserver=$(pkgFirstInstalled $sqlserverlist)
+                available_sqlserver=$(pkgFirstAvailable $sqlserverlist)
+                [[ -n $installed_sqlserver ]] && x=$installed_sqlserver || x=$available_sqlserver
                 ;;
             php-json)
-                for json in php-json php-common; do
-                    eval $packagelist "$json" >>$error_log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        x=$json
-                        break
-                    fi
-                done
+                altpkg=$(pkgFirstAvailable php-json php-common)
+                [[ -n $altpkg ]] && x=$altpkg
                 ;;
             php-mysql*)
-                for phpmysql in $(echo php-mysqlnd php-mysql); do
-                    eval $packagelist "$phpmysql" >>$error_log 2>&1
-                    if [[ $? -eq 0 ]]; then
-                        x=$phpmysql
-                        break
-                    fi
-                done
+                altpkg=$(pkgFirstAvailable php-mysqlnd php-mysql)
+                [[ -n $altpkg ]] && x=$altpkg
                 ;;
         esac
+        # None of the alternatives resolved; there is nothing to install.
+        [[ -z $x ]] && continue
         [[ $osid == 2 && -z $dhcpd && $x == +(*'dhcp'*) ]] && dhcpd=$x
-        eval $packageQuery >>$error_log 2>&1
-        if [[ $? -eq 0 ]]; then
+        if pkgIsInstalled "$x"; then
             dots "Skipping package:   $x"
             echo "(Already Installed)"
             newPackList="$newPackList $x"
             continue
         fi
-        eval $packagelist "$x" >>$error_log 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            dots "Skipping package: $x"
+        if ! pkgIsAvailable "$x"; then
+            dots "Skipping package:   $x"
             echo "(Does not exist)"
             continue
         fi
         newPackList="$newPackList $x"
-        dots "Installing package: $x"
-        DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$error_log 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Failed! (Will try later)"
-            [[ -z $toInstall ]] && toInstall="$x" || toInstall="$toInstall $x"
-        else
-            echo "OK"
-        fi
+        dots "Pending package:    $x"
+        echo "(Queued)"
+        [[ -z $toInstall ]] && toInstall="$x" || toInstall="$toInstall $x"
     done
     packages=$newPackList
     packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
-    dots "Updating packages as needed"
-    DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$error_log 2>&1
-    echo "OK"
     if [[ -n $toInstall ]]; then
         toInstall=$(echo ${toInstall[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
-        dots "Installing now everything is updated"
+        # One transaction rather than one per package: the dependency solve, the
+        # rpm/dpkg run and the trigger pass all happen once instead of ~80
+        # times. On Arch it also stops us running an install once per package
+        # against a database we just -Sy'd, which is the partial-upgrade
+        # pattern Arch tells you never to do.
+        dots "Installing $(echo $toInstall | wc -w) packages"
         DEBIAN_FRONTEND=noninteractive $packageinstaller $toInstall >>$error_log 2>&1
-        errorStat $?
+        if [[ $? -eq 0 ]]; then
+            echo "OK"
+        else
+            # A batch is all-or-nothing and the log does not say which name
+            # poisoned it, so fall back to the old one-at-a-time pass. Slower,
+            # but it names the package that actually failed.
+            echo "Failed! (retrying individually)"
+            local failedPack=""
+            for x in $toInstall; do
+                dots "Installing package: $x"
+                DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$error_log 2>&1
+                if [[ $? -eq 0 ]]; then
+                    echo "OK"
+                else
+                    echo "Failed!"
+                    [[ -z $failedPack ]] && failedPack="$x" || failedPack="$failedPack $x"
+                fi
+            done
+            [[ -n $failedPack ]] && echo -e " * Packages that could not be installed:\n\n\t$failedPack\n"
+        fi
+    fi
+    dots "Updating packages as needed"
+    DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$error_log 2>&1
+    if [[ $? -eq 0 ]]; then
+        echo "OK"
+    else
+        # Non-fatal -- everything FOG needs is installed by this point, and the
+        # upgrade pass is best-effort. It used to echo "OK" unconditionally,
+        # which hid the failure completely.
+        echo "Failed! (non-fatal, see $error_log)"
     fi
     export php_ver=$(php -i | grep "PHP Version" | head -1 | cut -d' ' -f 4 | cut -d'.' -f1-2)
     [[ -z ${phpfpm} ]] && export phpfpm="php${php_ver}-fpm"
     [[ -z ${phpini} ]] && export phpini="/etc/php/$php_ver/fpm/php.ini"
 }
 confirmPackageInstallation() {
+    # Re-read the installed set -- installPackages changed it -- then check
+    # every name against that one snapshot instead of running a query per
+    # package all over again.
+    loadInstalledSet
     for x in $packages; do
         dots "Checking package: $x"
-        eval $packageQuery >>$error_log 2>&1
+        pkgIsInstalled "$x"
         errorStat $?
     done
     if [[ $packages == *"wget2"* ]]; then

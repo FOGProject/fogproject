@@ -56,6 +56,28 @@ case $linuxReleaseName_lower in
         [[ -z $packagelist ]] && packagelist="$pkginst list"
         [[ -z $packageupdater ]] && packageupdater="$pkginst -y update"
         [[ -z $packmanUpdate ]] && packmanUpdate="$pkginst -y check-update"
+        # Bulk forms of packageQuery/packagelist -- see loadPackageSets.
+        #
+        # `$pkginst list available` is deliberately not used for pkgListAll:
+        # its output is columnar and wraps long names onto a second line, so
+        # parsing it is guesswork. repoquery emits one bare name per line and
+        # loads the repo metadata once instead of once per package. dnf carries
+        # it as a subcommand; on yum it is the separate repoquery binary from
+        # yum-utils, which may not be installed -- if neither resolves, nothing
+        # is printed and pkgIsAvailable falls back to the per-package probe.
+        #
+        # -C reads the cache rather than refreshing it: $packmanUpdate has just
+        # run, so the metadata is already current, and a cache-only read cannot
+        # block on an unreachable mirror. A cold or empty cache yields nothing,
+        # which is the fallback signal, not a wrong answer.
+        pkgQueryAll() { rpm -qa --qf '%{NAME}\n' 2>/dev/null; }
+        pkgListAll() {
+            if [[ $pkginst == *dnf ]]; then
+                $pkginst repoquery -q -C --available --qf '%{name}\n' 2>/dev/null
+            elif command -v repoquery >/dev/null 2>&1; then
+                repoquery -C -a --qf '%{name}' 2>/dev/null
+            fi
+        }
         [[ -z $dhcpname ]] && dhcpname="dhcp"
         ;;
 esac

@@ -30,8 +30,24 @@ case $linuxReleaseName_lower in
         fi
         [[ -z $packageinstaller ]] && packageinstaller="apt-get -yq install -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packagelist ]] && packagelist="apt-cache pkgnames | grep"
-        [[ -z $packageupdater ]] && packageupdater="apt-get -yq upgrade -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
+        # `apt-get upgrade <names>` does NOT restrict itself to those names --
+        # it upgrades every upgradable package on the box, so installing FOG
+        # quietly dist-upgraded the admin's server. `install --only-upgrade`
+        # does what the step was named for: upgrade these packages, and skip
+        # any of them that are not installed.
+        [[ -z $packageupdater ]] && packageupdater="apt-get -yq install --only-upgrade -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packmanUpdate ]] && packmanUpdate="apt-get update"
+        # Bulk forms of packageQuery/packagelist -- see loadPackageSets.
+        #
+        # ${Status} expands to three words ("install ok installed"), so $4 is
+        # the current state. Keying on that rather than on the "ii" pair
+        # packageQuery greps for means a package the admin has put on hold
+        # ("hi ok installed") counts as installed, instead of being reinstalled
+        # on every run.
+        pkgQueryAll() {
+            dpkg-query -W -f='${Package} ${Status}\n' 2>/dev/null | awk '$4 == "installed" { print $1 }'
+        }
+        pkgListAll() { apt-cache pkgnames 2>/dev/null; }
         ;;
 esac
 [[ -z $langPackages ]] && langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans"
