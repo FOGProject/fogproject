@@ -948,7 +948,15 @@ configureFTP() {
         seccompsand="seccomp_sandbox=NO"
     fi
     mv -fv "${ftpconfig}" "${ftpconfig}.${timestamp}" >>$error_log 2>&1
-    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\nchmod_enable=YES\n$seccompsand" > "$ftpconfig"
+    # GH-964 sibling: pin the passive data range. Without this vsftpd draws
+    # from the ephemeral range, which cannot be opened in a firewall without
+    # the nf_conntrack_ftp helper -- and modern kernels stopped auto-assigning
+    # helpers, so relying on one is relying on something that is off by
+    # default. Pinning the range is what lets configureFirewall() open exactly
+    # the ports FTP will actually use. The bounds live in lib/common/config.sh
+    # next to the multicast window so the daemon config and the firewall rules
+    # cannot drift apart.
+    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\nchmod_enable=YES\npasv_min_port=${ftppasvmin}\npasv_max_port=${ftppasvmax}\n$seccompsand" > "$ftpconfig"
     diffconfig "${ftpconfig}"
     case $systemctl in
         yes)
@@ -1805,71 +1813,234 @@ checkSELinux() {
         esac
     done
 }
-checkFirewall() {
-    command -v iptables >>$error_log
-    iptcmd=$?
-    if [[ $iptcmd -eq 0 ]]; then
-        rulesnum=$(iptables -L -n | wc -l)
-        policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-        [[ $rulesnum -ne 8 || $policy -ne 0 ]] && fwrunning=1
+configureFirewall() {
+    # GH-964 sibling: FOG used to have exactly one answer to a running
+    # firewall -- offer to switch it off. Worse, that offer was skipped
+    # entirely under -y (fwdisable was hardcoded to "N"), so an unattended
+    # install left the firewall in whatever state the box happened to be in
+    # and every FOG service silently unreachable. Neither half was a
+    # decision anyone made on purpose; it is the same shape as the SELinux
+    # problem, where the fix was "configure it" rather than "turn it off".
+    #
+    # So: configure by default, in BOTH the attended and the unattended
+    # path, and keep disabling as an explicit choice rather than the only
+    # one.
+    #
+    # Runs late, unlike the checkFirewall() it replaces, for two reasons
+    # that both used to be broken:
+    #   - .fogsettings is not sourced until after the old call site, so a
+    #     remembered choice could not be honoured. An admin who said "leave
+    #     my firewall alone" got re-asked, or under -y re-ignored, on every
+    #     single upgrade.
+    #   - the port set depends on what was actually installed ($bldhcp,
+    #     $noTftpBuild, $httpproto, $installtype), none of which is settled
+    #     at the old call site.
+    local action="$fwconfigure"
+    local backend="" fwrunning=0
+
+    # Detect. firewalld and ufw are asked directly; bare iptables is inferred
+    # from a ruleset that is not the empty default (3 chains, 5 header lines,
+    # all policies ACCEPT == untouched).
+    if command -v firewall-cmd >>$error_log 2>&1 && [[ "x$(firewall-cmd --state 2>&1)" == "xrunning" ]]; then
+        backend="firewalld"
+        fwrunning=1
+    elif command -v ufw >>$error_log 2>&1 && ufw status 2>/dev/null | grep -qi "^Status: active"; then
+        backend="ufw"
+        fwrunning=1
+    elif command -v iptables >>$error_log 2>&1; then
+        local rulesnum=$(iptables -L -n 2>/dev/null | wc -l)
+        local policy=$(iptables -L -n 2>/dev/null | grep "^Chain" | grep -v "ACCEPT" -c)
+        if [[ $rulesnum -ne 8 || $policy -ne 0 ]]; then
+            backend="iptables"
+            fwrunning=1
+        fi
     fi
-    command -v firewall-cmd >>$error_log 2>&1
-    fwcmd=$?
-    if [[ $fwcmd -eq 0 ]]; then
-        fwstate=$(firewall-cmd --state 2>&1)
-        [[ "x$fwstate" == "xrunning" ]] && fwrunning=1
+    [[ $fwrunning -ne 1 ]] && return 0
+
+    # Decide. A remembered choice wins, then -y, then ask.
+    if [[ -z $action ]]; then
+        if [[ -n $autoaccept ]]; then
+            action="configure"
+        else
+            echo
+            echo " * A local firewall ($backend) is running. FOG needs a number of"
+            echo " * ports open to serve PXE clients, storage nodes and the web UI."
+            echo
+            echo " *   1) Open the ports FOG needs (recommended)"
+            echo " *   2) Disable the firewall entirely"
+            echo " *   3) Leave it alone -- I will configure it myself"
+            echo
+            while [[ -z $action ]]; do
+                echo -n " * Which would you like? (1/2/3) "
+                read -r fwanswer
+                case $fwanswer in
+                    1|"") action="configure" ;;
+                    2) action="disable" ;;
+                    3) action="skip" ;;
+                    *) echo " * Invalid input, please try again!" ;;
+                esac
+            done
+        fi
     fi
-    [[ $fwrunning -ne 1 ]] && return
-    echo " * The local firewall, currently, seems to be enabled on your system. This can cause"
-    echo " * issues on FOG Servers if you are not well experienced and know what you are doing."
-    echo -n " * Should the installer try to disable the local firewall for you now? (y/N) "
-    fwdisable=""
-    while [[ -z $fwdisable ]]; do
-        [[ -n $autoaccept ]] && fwdisable="N" || read -r fwdisable
-        case $fwdisable in
-            [Yy]|[Yy][Ee][Ss])
-                ufw stop >/dev/null 2>&1
-                ufw disable >/dev/null 2>&1
-                systemctl is-active --quiet ufw && systemctl stop ufw >/dev/null 2>&1 || true
-                systemctl is-enabled --quiet ufw 2>/dev/null && systemctl disable ufw >/dev/null 2>&1 || true
-                systemctl is-active --quiet firewalld && systemctl stop firewalld >/dev/null 2>&1 || true
-                systemctl is-enabled --quiet firewalld 2>/dev/null && systemctl disable firewalld >/dev/null 2>&1 || true
-                systemctl is-active --quiet iptables && systemctl stop iptables >/dev/null 2>&1 || true
-                systemctl is-enabled --quiet iptables 2>/dev/null && systemctl disable iptables >/dev/null 2>&1 || true
-                local cannotdisablefw=0
-                if [[ $iptcmd -eq 0 ]]; then
-                    rulesnum=$(iptables -L -n | wc -l)
-                    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-                    [[ $rulesnum -ne 8 || $policy -ne 0 ]] && cannotdisablefw=1
-                fi
-                if [[ $fwcmd -eq 0 ]]; then
-                    fwstate=$(firewall-cmd --state 2>&1)
-                    [[ "x$fwstate" == "xrunning" ]] && cannotdisablefw=1
-                fi
-                if [[ $cannotdisablefw -eq 0 ]]; then
-                    echo -e " * Firewall disabled - proceeding with installation...\n"
-                else
-                    echo " * We were unable to disable the firewall on your system. Read up on how"
-                    echo " * you can disable it manually. Proceeding with the installation anyway..."
-                    echo " * Hit [Enter] so we know you've read this message."
-                    read
-                fi
-                ;;
-            [Nn]|[Nn][Oo]|"")
-                fwdisable="N"
-                echo "N"
-                echo " * You sure know what you are doing, just keep in mind we told you! :-)"
-                if [[ -z $autoaccept ]]; then
-                    echo " * Hit ENTER so we know you've read this message."
-                    read
-                fi
-                ;;
-            *)
-                fwdisable=""
-                echo " * Invalid input, please try again!"
-                ;;
+    # Remembered so the next upgrade does not re-ask, and more importantly so
+    # an admin who said "leave it alone" is not overridden by a later -y run.
+    fwconfigure="$action"
+
+    case $action in
+        skip)
+            dots "Configuring firewall"
+            echo "Skipped (by request)"
+            echo " * FOG will not be reachable until these are open:"
+            _firewallPortList | while read -r p d; do echo " *   $p  $d"; done
+            return 0
+            ;;
+        disable)
+            dots "Disabling firewall"
+            ufw stop >/dev/null 2>&1
+            ufw disable >/dev/null 2>&1
+            local svc
+            for svc in ufw firewalld iptables; do
+                systemctl is-active --quiet $svc && systemctl stop $svc >/dev/null 2>&1 || true
+                systemctl is-enabled --quiet $svc 2>/dev/null && systemctl disable $svc >/dev/null 2>&1 || true
+            done
+            errorStat 0
+            return 0
+            ;;
+    esac
+
+    dots "Configuring firewall ($backend)"
+    case $backend in
+        firewalld) _configureFirewalld ;;
+        ufw)       _configureUfw ;;
+        iptables)  _reportIptables; return 0 ;;
+    esac
+}
+_firewallPortList() {
+    # Emits "<port>/<proto> <description>", one per line, for exactly the
+    # services this install actually stood up. Single source of truth: the
+    # firewalld path, the ufw path, the iptables instructions and the
+    # "here is what you still need to open" message all read this.
+    echo "80/tcp HTTP (web UI, client check-in, iPXE boot)"
+    [[ $httpproto == https ]] && echo "443/tcp HTTPS (web UI, client check-in)"
+    [[ $noTftpBuild != 1 ]] && echo "69/udp TFTP (PXE boot)"
+    echo "21/tcp FTP (image/snapin replication, node operations)"
+    # Passive data. vsftpd is pinned to this range by configureFTP() for
+    # exactly this reason -- see the comment there.
+    echo "${ftppasvmin}-${ftppasvmax}/tcp FTP passive data"
+    # Unconditional: configureNFS() runs on BOTH the full-server and the
+    # storage-node path, and a storage node exists precisely to serve images
+    # over NFS. $blexports only controls whether the installer overwrites an
+    # existing exports file -- it does not mean NFS is absent, so gating on it
+    # here would leave every "keep my exports" install unable to image.
+    echo "2049/tcp NFS (image capture/deploy)"
+    echo "111/tcp RPC portmapper (NFS)"
+    echo "111/udp RPC portmapper (NFS)"
+    # configureNFS() pins mountd here; without that pin this port would be
+    # random per boot and could not be firewalled at all.
+    echo "20048/tcp NFS mountd"
+    echo "20048/udp NFS mountd"
+    [[ $bldhcp -eq 1 ]] && echo "67/udp DHCP (FOG is your DHCP server)"
+    # udpcast multicast. UDPCAST_STARTINGPORT is the base and each concurrent
+    # session consumes two ports, so the window is base .. base + 2*sessions.
+    echo "${mcastportmin}-${mcastportmax}/udp Multicast (udpcast)"
+}
+_configureFirewalld() {
+    local failed=0 p d
+    # Named services rather than bare ports wherever one exists: a firewalld
+    # service definition carries its conntrack helper with it, which is what
+    # makes TFTP work at all. TFTP replies come from an ephemeral source port,
+    # so a bare "--add-port=69/udp" opens the request and drops every packet
+    # of the actual transfer. Modern kernels no longer auto-assign helpers,
+    # so this is not something the box does for us.
+    local svc
+    for svc in http tftp ftp nfs mountd rpc-bind dhcp; do
+        case $svc in
+            tftp)     [[ $noTftpBuild == 1 ]] && continue ;;
+            dhcp)     [[ $bldhcp -ne 1 ]] && continue ;;
         esac
+        firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
+    [[ $httpproto == https ]] && { firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1; }
+    # No named service for these two.
+    firewall-cmd --permanent --add-port=${ftppasvmin}-${ftppasvmax}/tcp >>$error_log 2>&1 || failed=1
+    firewall-cmd --permanent --add-port=${mcastportmin}-${mcastportmax}/udp >>$error_log 2>&1 || failed=1
+    firewall-cmd --reload >>$error_log 2>&1 || failed=1
+    if [[ $failed -ne 0 ]]; then
+        echo "Failed"
+        echo " * Could not apply all firewall rules. See $error_log."
+        _firewallAdvice
+        return 0
+    fi
+    errorStat 0
+    _firewallSummary "$(firewall-cmd --get-default-zone 2>/dev/null)"
+}
+_configureUfw() {
+    local failed=0 p d
+    # ufw has no service definitions and no helper handling, so everything is
+    # an explicit port. TFTP's data transfer relies on nf_conntrack_tftp being
+    # loaded -- ufw's stock before.rules already accepts RELATED,ESTABLISHED,
+    # so the helper is the only missing piece. Persisted, because a reboot
+    # without it breaks PXE and nothing says why.
+    if [[ $noTftpBuild != 1 ]]; then
+        echo "nf_conntrack_tftp" > /etc/modules-load.d/fog-conntrack.conf 2>>$error_log
+        modprobe nf_conntrack_tftp >>$error_log 2>&1 || true
+    fi
+    while read -r p d; do
+        ufw allow "$p" >>$error_log 2>&1 || failed=1
+    done < <(_firewallPortList)
+    if [[ $failed -ne 0 ]]; then
+        echo "Failed"
+        echo " * Could not apply all firewall rules. See $error_log."
+        _firewallAdvice
+        return 0
+    fi
+    errorStat 0
+    _firewallSummary "ufw"
+}
+_reportIptables() {
+    # Deliberately not applied. Persisting iptables rules is distro-specific
+    # (the iptables-save target differs per distro and per package), and
+    # inserting into a ruleset FOG did not create risks either landing after
+    # an existing REJECT -- doing nothing, silently -- or breaking rules that
+    # were working. Printing exactly what to run is more honest than a
+    # half-working attempt, and the docs carry the persistence step.
+    echo "Skipped (raw iptables)"
+    echo " * FOG will not configure a raw iptables ruleset automatically --"
+    echo " *   rule ordering and persistence are too distro-specific to do"
+    echo " *   safely against a ruleset FOG did not create."
+    echo " * Run these, then persist them the way your distro expects:"
+    local p d proto port
+    while read -r p d; do
+        proto="${p##*/}"
+        port="${p%/*}"
+        echo " *   iptables -I INPUT -p $proto --dport ${port/-/:} -j ACCEPT"
+    done < <(_firewallPortList)
+    if [[ $noTftpBuild != 1 ]]; then
+        echo " * TFTP also needs the conntrack helper, or PXE transfers stall:"
+        echo " *   modprobe nf_conntrack_tftp"
+    fi
+    echo " * Full walkthrough: https://docs.fogproject.org/en/latest/kb/how-tos/firewall/"
+}
+_firewallSummary() {
+    local where="$1"
+    echo " * Opened the following in '${where}':"
+    local p d
+    while read -r p d; do
+        echo " *   ${p}  ${d}"
+    done < <(_firewallPortList)
+    _firewallAdvice
+}
+_firewallAdvice() {
+    # Said every time, including on success. Opening these on the default zone
+    # is the only thing that works when PXE clients and storage nodes sit on
+    # networks the installer cannot know about -- but it IS wider than many
+    # sites want, and an admin who is never told cannot narrow it.
+    echo " * These are open on all interfaces the default zone covers. To"
+    echo " *   restrict them to your imaging subnet, see:"
+    echo " *   https://docs.fogproject.org/en/latest/kb/how-tos/firewall/"
+    echo " * FOG does NOT open the database port. If you run remote storage"
+    echo " *   nodes against this server's database, open 3306/tcp to those"
+    echo " *   nodes specifically -- not to everything."
 }
 displayOSChoices() {
     blFirst=1
@@ -2748,6 +2919,12 @@ writeUpdateFile() {
         # admin passing the flags again -- an upgrade that silently replaced
         # signed kernels with unsigned ones is the main way this setup breaks.
         secureBootKey secureBootCert
+        # GH-964 sibling: what the admin chose for the local firewall
+        # (configure/disable/skip). Persisted for the same reason the Secure
+        # Boot keys are -- so an upgrade does not quietly undo a deliberate
+        # decision. Without it, an admin who answered "leave it alone" would
+        # be re-asked every upgrade, and under -y would simply be overridden.
+        fwconfigure
     )
     # Keys written by older installers that must be stripped on upgrade.
     local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )

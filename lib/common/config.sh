@@ -115,3 +115,22 @@ else
     esac
 fi
 serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname $initdFDfullname"
+# GH-964 sibling: port windows the installer both configures a service to use
+# and opens in the firewall. They live here, together, because the two have to
+# agree -- a passive range pinned in vsftpd.conf but not opened, or opened but
+# not pinned, fails in a way that looks like a network fault rather than a
+# configuration one.
+#
+# FTP passive data. vsftpd otherwise picks from the ephemeral range, which
+# cannot be firewalled without the nf_conntrack_ftp helper -- and modern
+# kernels no longer auto-assign helpers. Pinning it is what makes FTP
+# firewallable at all. Chosen above the default ephemeral range (32768-60999)
+# so it cannot collide with an outbound socket. 101 ports is 101 concurrent
+# transfers, well past what replication does.
+[[ -z $ftppasvmin ]] && ftppasvmin=65000
+[[ -z $ftppasvmax ]] && ftppasvmax=65100
+# udpcast multicast. Mirrors UDPCAST_STARTINGPORT and FOG_MULTICAST_MAX_SESSIONS
+# as written into config.class.php: each concurrent session consumes two ports
+# from the base, so the window is base .. base + 2 * sessions.
+[[ -z $mcastportmin ]] && mcastportmin=63100
+[[ -z $mcastportmax ]] && mcastportmax=$((mcastportmin + 128))
