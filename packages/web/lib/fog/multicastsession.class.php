@@ -190,12 +190,63 @@ class MulticastSession extends FOGController
         }
     }
     /**
+     * The implicit pool used when FOG_MULTICAST_PORT_OVERRIDE is not set.
+     *
+     * FOG_UDPCAST_STARTINGPORT is the base and each concurrent session takes
+     * two ports (udp-sender uses base and base+1), so the window is
+     * base .. base + 2 * FOG_MULTICAST_MAX_SESSIONS. That is exactly the
+     * range the installer opens in the firewall, and the two are meant to be
+     * read together -- see _firewallPortList() in lib/common/functions.sh.
+     *
+     * @return array
+     */
+    public static function defaultPortPool()
+    {
+        $base = (int)self::getSetting('FOG_UDPCAST_STARTINGPORT');
+        // Falls back to the installer's UDPCAST_STARTINGPORT default rather
+        // than to something arbitrary, so an unusable setting still lands
+        // inside the firewalled window.
+        if ($base < 1024 || $base > 65534 || $base % 2 !== 0) {
+            $base = 63100;
+        }
+        $sessions = (int)self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
+        // 0 means "no cap" to assertCapacity(), but a pool has to be finite.
+        // 64 matches the installer default and the window it firewalls.
+        if ($sessions < 1) {
+            $sessions = 64;
+        }
+        $ports = [];
+        for ($p = $base; $p <= $base + (2 * $sessions) && $p <= 65534; $p += 2) {
+            $ports[] = $p;
+        }
+        return $ports;
+    }
+    /**
      * Picks a base port for a new session.
      *
-     * With a pool configured, the first port no active session is holding
-     * is taken -- which is what makes the pool a concurrency limit rather
-     * than one shared port every session collided on. Without a pool, the
-     * historical rotating start port is kept.
+     * The first port no active session is holding is taken, which is what
+     * makes the pool a concurrency limit rather than one shared port every
+     * session collided on. Without an explicit pool the same rule is applied
+     * to the implicit window above, so both paths behave identically.
+     *
+     * This used to rotate FOG_UDPCAST_STARTINGPORT through
+     * mt_rand(24576, 32766) * 2 after every allocation, which was wrong three
+     * times over:
+     *
+     *   - it spanned the whole upper port space, so only ~0.8% of sessions
+     *     landed in the range the installer firewalls. A firewalled server
+     *     multicast once and then failed silently -- the task starts and no
+     *     client ever receives data.
+     *   - 49152-60999 overlaps Linux's default ephemeral range, so udp-sender
+     *     could be handed a port the kernel had already issued to something.
+     *   - FOG_UDPCAST_STARTINGPORT is an admin-editable setting. Overwriting
+     *     it after every session meant a value set in the UI never survived
+     *     to be used twice.
+     *
+     * Nothing rotates now. The setting means what its own description says:
+     * the starting port. Deliberately kept as lowest-free rather than random
+     * -- a bounded window plus random selection collides constantly, which is
+     * the bug the rotation was papering over in the first place.
      *
      * @throws Exception
      * @return int
@@ -203,29 +254,18 @@ class MulticastSession extends FOGController
     public static function allocatePort()
     {
         $pool = self::portPool();
-        if (count($pool)) {
-            $inUse = self::activePorts();
-            foreach ($pool as $port) {
-                if (!in_array($port, $inUse, true)) {
-                    return $port;
-                }
+        if (!count($pool)) {
+            $pool = self::defaultPortPool();
+        }
+        $inUse = self::activePorts();
+        foreach ($pool as $port) {
+            if (!in_array($port, $inUse, true)) {
+                return $port;
             }
-            throw new Exception(
-                _('Every configured multicast port is already in use')
-            );
         }
-        $port = (int)self::getSetting('FOG_UDPCAST_STARTINGPORT');
-        $next = mt_rand(24576, 32766) * 2;
-        while ($next === $port) {
-            $next = mt_rand(24576, 32766) * 2;
-        }
-        // A setting that udp-sender would reject outright is replaced now
-        // rather than handed on to fail at spawn time.
-        if ($port < 1024 || $port > 65534 || $port % 2 !== 0) {
-            $port = $next;
-        }
-        self::setSetting('FOG_UDPCAST_STARTINGPORT', $next);
-        return $port;
+        throw new Exception(
+            _('Every configured multicast port is already in use')
+        );
     }
     /**
      * Returns the task ids associated with this session.

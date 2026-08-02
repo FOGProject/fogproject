@@ -1444,12 +1444,14 @@ class ImageManagement extends FOGPage
                         throw new Exception(_('Failed to create Session'));
                     }
 
-                    // Reset our port to a random number within the proper range.
-                    $randomnumber = mt_rand(24576, 32766)*2;
-                    while ($randomnumber == $MulticastSession->get('port')) {
-                        $randomnumber = mt_rand(24576, 32766)*2;
-                    }
-                    self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
+                    // The port was already chosen by
+                    // MulticastSession::allocatePort() above. This used to
+                    // then overwrite FOG_UDPCAST_STARTINGPORT with a fresh
+                    // random port -- a second, independent copy of a rotation
+                    // that allocatePort() was doing as well, clobbering an
+                    // admin-editable setting from two places at once. The
+                    // allocator now picks the lowest free port in a bounded
+                    // window and the setting is left alone as the base of it.
                     break;
                 case 'session-cancel':
                     $this->sessionCancel();

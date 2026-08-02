@@ -59,9 +59,9 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.3115');
+        define('FOG_VERSION', '1.6.0-beta.3128');
         define('FOG_CHANNEL', 'Beta');
-        define('FOG_SCHEMA', 319);
+        define('FOG_SCHEMA', 320);
         define('FOG_BCACHE_VER', 269);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
