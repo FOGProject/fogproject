@@ -857,24 +857,21 @@ prepareiPXEsource() {
     fi
     errorStat 0
 }
-downloadipxe() {
-    # iPXE binaries used to be 70 files committed to this repository. They are
-    # now a release asset, verified and unpacked into the same staging tree the
-    # copy loop in configureTFTPandPXE reads, so everything downstream is
-    # unchanged. One tarball rather than 85 loose assets: release assets cannot
-    # hold directories, and this tree has i386-efi/, arm64-efi/ and autoexec/
-    # subdirectories worth keeping. See GH-959.
-    local tarball="fog-ipxe-${ipxeVer}.tar.gz"
+fetchipxeasset() {
+    # Download one fog-ipxe release tarball, verify its checksum, and unpack it
+    # into the staging tree. Callers own the dots/messaging and decide whether a
+    # failure is fatal, because the two assets differ exactly there: without the
+    # binaries nothing PXE boots at all, while without the Secure Boot set every
+    # client that boots today still boots.
+    #
+    # Retries by re-running sha256sum -c rather than trusting curl's exit code,
+    # so a truncated or corrupted download is caught and refetched rather than
+    # unpacked. --fail makes an HTTP error a failed fetch instead of an error
+    # page written into the tarball, which the checksum then rejected ten times
+    # over before giving up.
+    local tarball="$1"
+    local dest="$2"
     local url="${ipxeurl}/${ipxeVer}/${tarball}"
-    local dest=$(readlink -f $tftpdirsrc)
-    dots "Downloading iPXE binaries (${ipxeVer})"
-    # An HTTPS install is about to rebuild these from source anyway, and the
-    # rebuild writes to this same directory. Downloading first would be wasted
-    # bandwidth on every such install.
-    if [[ "x$httpproto" = "xhttps" ]]; then
-        echo "Skipped (built locally)"
-        return 0
-    fi
     [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >>$error_log 2>&1
     local cwd=$(pwd)
     cd ../tmp/
@@ -884,31 +881,94 @@ downloadipxe() {
         [[ -f ${tarball}.sha256 ]] && sha256sum -c ${tarball}.sha256 >>$error_log 2>&1
         checksum=$?
         if [[ $checksum -ne 0 ]]; then
-            curl --silent -kOL "$url" >>$error_log 2>&1
-            curl --silent -kOL "${url}.sha256" >>$error_log 2>&1
+            curl --silent -fkOL "$url" >>$error_log 2>&1
+            curl --silent -fkOL "${url}.sha256" >>$error_log 2>&1
         fi
         let cnt+=1
     done
     if [[ $checksum -ne 0 ]]; then
         cd $cwd
-        # Guidance first: errorStat exits before returning unless $exitFail is
-        # set, so anything printed after it is never seen.
-        echo "Failed!"
-        echo " * Could not download $tarball from $url"
-        echo " * For an offline install, place the extracted binaries in $dest"
-        [[ -z $exitFail ]] && exit 1
         return 1
     fi
     mkdir -p "$dest" >>$error_log 2>&1
     tar -xzf "$tarball" -C "$dest" >>$error_log 2>&1
     local stat=$?
     cd $cwd
-    errorStat $stat
+    return $stat
+}
+downloadipxe() {
+    # iPXE binaries used to be 70 files committed to this repository. They are
+    # now a release asset, verified and unpacked into the same staging tree the
+    # copy loop in configureTFTPandPXE reads, so everything downstream is
+    # unchanged. One tarball rather than 85 loose assets: release assets cannot
+    # hold directories, and this tree has i386-efi/, arm64-efi/ and autoexec/
+    # subdirectories worth keeping. See GH-959.
+    local tarball="fog-ipxe-${ipxeVer}.tar.gz"
+    local dest=$(readlink -f $tftpdirsrc)
+    dots "Downloading iPXE binaries (${ipxeVer})"
+    # An HTTPS install is about to rebuild these from source anyway, and the
+    # rebuild writes to this same directory. Downloading first would be wasted
+    # bandwidth on every such install.
+    if [[ "x$httpproto" = "xhttps" ]]; then
+        echo "Skipped (built locally)"
+        return 0
+    fi
+    if ! fetchipxeasset "$tarball" "$dest"; then
+        # Guidance first: errorStat exits before returning unless $exitFail is
+        # set, so anything printed after it is never seen.
+        echo "Failed!"
+        echo " * Could not download $tarball from ${ipxeurl}/${ipxeVer}/"
+        echo " * For an offline install, place the extracted binaries in $dest"
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
+    errorStat 0
+}
+downloadipxesecureboot() {
+    # The Secure Boot chain needs binaries FOG cannot build, because they are
+    # signed by keys FOG does not hold: Microsoft's, for the shim, and iPXE's,
+    # for the loader it chains to. fog-ipxe republishes upstream's byte for
+    # byte, hash- and signer-verified at release time, as a second asset. This
+    # is what makes the chain available without every install reaching out to
+    # two third-party release URLs unsupervised.
+    #
+    # It unpacks into the same staging tree as everything else, so it lands at
+    # $tftpdirdst/secureboot/ through the copy loop already in
+    # configureTFTPandPXE. Staged unconditionally and served to nobody: a client
+    # only ever sees it if DHCP is pointed at secureboot/snponly-shimx64.efi,
+    # so the cost of having it present is a few MB and the cost of NOT having it
+    # is an admin hand-assembling a signed boot chain from two upstream projects.
+    # See GH-960.
+    local tarball="fog-ipxe-secureboot-${ipxeVer}.tar.gz"
+    local dest=$(readlink -f $tftpdirsrc)
+    dots "Downloading iPXE Secure Boot binaries (${ipxeVer})"
+    # These are upstream's generic signed binaries, so they cannot carry this
+    # server's CA -- which is the whole reason an HTTPS install rebuilds iPXE
+    # locally. A signed binary cannot be rebuilt without invalidating the
+    # signature, so Secure Boot and HTTPS are mutually exclusive here. Staging
+    # them anyway would leave an admin a directory that looks usable and fails
+    # at the client with a TLS error.
+    if [[ "x$httpproto" = "xhttps" ]]; then
+        echo "Skipped (not usable with HTTPS)"
+        return 0
+    fi
+    # Deliberately NOT fatal, unlike downloadipxe above. A missing Secure Boot
+    # set costs nothing to any client that boots today, so failing the whole
+    # install over it would be a regression for every site that does not use it.
+    if ! fetchipxeasset "$tarball" "$dest"; then
+        echo "Skipped (unavailable)"
+        echo " * Could not download $tarball from ${ipxeurl}/${ipxeVer}/"
+        echo " * Secure Boot clients will not have a signed chain to boot; every"
+        echo " *   other client is unaffected. Re-run the installer to retry."
+        return 0
+    fi
+    errorStat 0
 }
 configureTFTPandPXE() {
     # Fills $tftpdirsrc, which is now a staging directory rather than tracked
     # build output, so this has to happen before anything reads from it.
     downloadipxe || return 1
+    downloadipxesecureboot
     [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$error_log 2>&1
     [[ ! -d ${tftpdirdst} ]] && mkdir -p $tftpdirdst >>$error_log 2>&1
     [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$error_log 2>&1
@@ -937,16 +997,21 @@ configureTFTPandPXE() {
     # URI -- the TFTP directory the running .efi was itself fetched from -- not
     # against a fixed path. So a binary booted from the root of $tftpdirdst
     # looks for the script beside itself in the root, while our EMBED-less
-    # binaries under autoexec/ look inside autoexec/. Publish both paths.
+    # binaries under autoexec/ look inside autoexec/. Publish every such path.
     #
-    # This is what the Secure Boot chain needs: upstream's signed ipxe.efi has
-    # no script compiled in and sits at the root, so without this it asks for a
-    # file that was never created. See GH-960.
+    # This is what the Secure Boot chain needs: upstream's signed snponly.efi
+    # has no script compiled in, so without this it asks for a file that was
+    # never created. See GH-960.
     #
-    # Hard link, not a copy: the two paths are meant to be the same script, and
-    # a link keeps them from drifting when someone edits one. Not a symlink --
-    # some TFTP daemons refuse to follow those, and a hard link is
-    # indistinguishable from a regular file to every daemon.
+    # Every directory an EMBED-less binary can be booted from therefore needs
+    # its own copy, and there are six. Hard link, not copies: they are meant to
+    # be one script, and a link keeps them from drifting -- an admin who edits
+    # the boot logic should not have to know how many copies exist. Only the
+    # root one was linked before, so the four under autoexec/<arch>/ and
+    # secureboot/ silently kept the shipped script after such an edit.
+    #
+    # Not a symlink -- some TFTP daemons refuse to follow those, and a hard link
+    # is indistinguishable from a regular file to every daemon.
     #
     # Relinked unconditionally on every run. In practice the copy loop above
     # truncates the existing file in place and the link survives, but that is
@@ -955,7 +1020,19 @@ configureTFTPandPXE() {
     # ln -f is idempotent, so re-running costs nothing and restores the
     # invariant either way.
     if [[ -f $tftpdirdst/autoexec/autoexec.ipxe ]]; then
-        ln -f $tftpdirdst/autoexec/autoexec.ipxe $tftpdirdst/autoexec.ipxe >>$error_log 2>&1
+        local autoexecpath
+        for autoexecpath in \
+            $tftpdirdst/autoexec.ipxe \
+            $tftpdirdst/autoexec/i386-efi/autoexec.ipxe \
+            $tftpdirdst/autoexec/arm64-efi/autoexec.ipxe \
+            $tftpdirdst/secureboot/autoexec.ipxe \
+            $tftpdirdst/secureboot/arm64-efi/autoexec.ipxe; do
+            # Skip rather than create: the secureboot directories only exist if
+            # that asset was staged, and an autoexec.ipxe with no binary beside
+            # it serves no one.
+            [[ -d $(dirname $autoexecpath) ]] || continue
+            ln -f $tftpdirdst/autoexec/autoexec.ipxe $autoexecpath >>$error_log 2>&1
+        done
     fi
     chown -R $username $tftpdirdst >>$error_log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$error_log 2>&1
