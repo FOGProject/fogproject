@@ -1481,6 +1481,8 @@ installSELinuxModule() {
         echo " * Could not build or load the FOG SELinux module. See $error_log."
         echo " * Under SELinux enforcing, storage node operations over HTTP,"
         echo " *   FTP and SSH will be denied until this is resolved."
+        echo " * The fog_share_t label steps below will also fail, because"
+        echo " *   semanage cannot register a type the policy does not know."
         return 0
     fi
     rm -rf "$workdir"
@@ -1535,10 +1537,24 @@ setSELinuxContext() {
             # always installed. chcon applies the label now but has no rule
             # behind it, so a relabel reverts it. Better than leaving the daemon
             # unable to read anything -- but say so rather than imply it is done.
+            # GH-964: check the post-condition rather than assuming, for the
+            # same reason the restorecon path does. This branch used to echo
+            # OK unconditionally, which was survivable when $register was
+            # always a stock type; now that FOG registers fog_share_t, a
+            # module that failed to load makes chcon fail outright and
+            # reporting OK would hide it.
             chcon -R -t "$register" "$dir" >>$error_log 2>&1
-            echo "OK"
-            echo " * Labelled with chcon only -- a filesystem relabel will undo this."
-            echo " * Install policycoreutils-python-utils and re-run to make it permanent."
+            local chconis=$(ls -Zd "$dir" 2>>$error_log | awk '{print $1}' | cut -d: -f3)
+            if [[ $acceptable == *" $chconis "* ]]; then
+                echo "OK"
+                echo " * Labelled with chcon only -- a filesystem relabel will undo this."
+                echo " * Install policycoreutils-python-utils and re-run to make it permanent."
+                return 0
+            fi
+            echo "Failed!"
+            echo " * Could not label $dir as '$register' (it is '$chconis')."
+            echo " * If '$register' is a FOG type, the policy module did not load."
+            echo " * Install policycoreutils-python-utils and re-run the installer."
             return 0
         fi
     fi
@@ -2206,7 +2222,14 @@ configureSnapins() {
     # write. That asymmetry is what hides it -- the snapin list renders fine
     # and only an upload through the web UI, which is a write by httpd_t,
     # actually fails.
-    setSELinuxContext "$snapindir" httpd_sys_rw_content_t
+    #
+    # fog_share_t rather than httpd_sys_rw_content_t because snapins replicate
+    # between storage nodes over FTP (FOGService::replicateItems runs lftp), so
+    # the RECEIVING node's vsftpd -- ftpd_t -- writes here too. ftpd_t gets
+    # nothing at all on httpd_sys_rw_content_t unless ftpd_full_access is on,
+    # and that boolean grants ftpd_t every file type on the box. See
+    # packages/selinux/fog.te.
+    setSELinuxContext "$snapindir" fog_share_t
 }
 configureUsers() {
     userexists=0
@@ -2377,14 +2400,24 @@ configureStorage() {
     # so the web UI could not list an image directory, and unlabeled_t masks
     # whatever the real denial would have been.
     #
-    # httpd_sys_rw_content_t rather than a read-only type: the web tier renames
-    # and removes files here (image uploads, replication bookkeeping).
+    # fog_share_t, FOG's own type, rather than a stock one. Two confined
+    # daemons need this directory read-write: the web tier (httpd_t) and
+    # vsftpd (ftpd_t), the latter as the receiving side of a replication run.
+    # No stock type gives both without a blanket grant --
+    # httpd_sys_rw_content_t needs ftpd_full_access (every file type on the
+    # box) and public_content_rw_t needs the global *_anon_write booleans.
+    # See packages/selinux/fog.te for the full reasoning.
     #
-    # NFS is deliberately NOT a consideration. nfsd_t reads any label with
-    # nfs_export_all_ro/_rw, which are on by default, and the lab's audit log
-    # confirms it -- zero nfsd_t denials across months of imaging. So this is
-    # about the web tier only; the capture/deploy data path never needed it.
-    setSELinuxContext "$storageLocation" httpd_sys_rw_content_t
+    # NFS is deliberately NOT a consideration, and needs no rule: the data
+    # path is in-kernel as kernel_t, which has unconditional read+write on the
+    # `file_type` attribute that fog_share_t carries. The lab's audit log
+    # agrees -- zero nfsd_t denials across months of imaging.
+    #
+    # $storageLocationCapture is labelled separately because .fogsettings can
+    # relocate it out from under $storageLocation, in which case the recursive
+    # fcontext registered for $storageLocation would not cover it.
+    setSELinuxContext "$storageLocation" fog_share_t
+    setSELinuxContext "$storageLocationCapture" fog_share_t
 }
 clearScreen() {
     clear
