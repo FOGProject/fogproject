@@ -1064,6 +1064,9 @@ msgstr "Sistema seriale"
 msgid "Case Version"
 msgstr "Ultima versione"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 #, fuzzy
 msgid "Certificate Verification"
 msgstr "Crea nuova posizione"
@@ -1102,6 +1105,11 @@ msgstr "Telaio Version"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -1215,6 +1223,11 @@ msgstr "Errore: Impossibile scaricare il kernel"
 #, fuzzy
 msgid "Confirm you would like to download a new kernel"
 msgstr "Errore: Impossibile scaricare il kernel"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 msgid "Copy from existing"
 msgstr "Copia da esistenti"
@@ -1768,6 +1781,11 @@ msgstr "Dropped"
 msgid "Duration"
 msgstr "Durata"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "Modifica"
 
@@ -1827,6 +1845,9 @@ msgstr ""
 msgid "Engineer"
 msgstr "Ingegnere"
 
+msgid "Enrolment kit"
+msgstr ""
+
 msgid "Equipment Loan"
 msgstr "attrezzature di prestito"
 
@@ -1863,6 +1884,10 @@ msgstr "Errore: Impossibile scaricare il kernel"
 
 msgid "Error: Failed to open temp file"
 msgstr "Errore: Impossibile aprire il file temporaneo"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "Errore: Impossibile scaricare il kernel"
 
 msgid "Errors"
 msgstr "Errori"
@@ -2004,6 +2029,9 @@ msgstr "FOG non è in grado di comunicare con il database"
 
 msgid "FOG server defaulting under the folder"
 msgstr "server FOG per default nella cartella"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 #, fuzzy
 msgid "FTP Connection Failed"
@@ -4444,6 +4472,9 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -5280,6 +5311,9 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
+msgid "Re-run the installer with"
+msgstr ""
+
 #, fuzzy
 msgid "Real Time"
 msgstr "Data e Ora"
@@ -5625,6 +5659,13 @@ msgstr "Stato servizio"
 
 msgid "Second paramater must be in [class,function]"
 msgstr ""
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "Non ci sono immagini su questo server"
 
 #, fuzzy
 msgid "See all results"
@@ -7630,6 +7671,10 @@ msgid "all current storage nodes"
 msgstr "tutti i nodi di archiviazione attivi"
 
 #, fuzzy
+msgid "and"
+msgstr "Fine"
+
+#, fuzzy
 msgid "and below"
 msgstr "Sottoalbero e inferiore"
 
@@ -8227,6 +8272,9 @@ msgstr "aggiornato stampante!"
 msgid "to clear the field on every host in this group."
 msgstr "Questo non è il gruppo primario"
 
+msgid "to enable it"
+msgstr ""
+
 msgid "to get the requested Kernel"
 msgstr "pr ottenere il Kernel richiesto"
 
@@ -8777,9 +8825,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "Questo host esiste già"
-
-#~ msgid "There are no images on this server"
-#~ msgstr "Non ci sono immagini su questo server"
 
 #~ msgid "There are no locations on this server"
 #~ msgstr "Non ci sono posizioni su questo server"

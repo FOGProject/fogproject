@@ -922,6 +922,9 @@ msgstr ""
 msgid "Case Version"
 msgstr ""
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Certificate Verification"
 msgstr ""
 
@@ -956,6 +959,11 @@ msgstr ""
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -1061,6 +1069,11 @@ msgid "Confirm you would like to download a new initrd"
 msgstr ""
 
 msgid "Confirm you would like to download a new kernel"
+msgstr ""
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
 msgstr ""
 
 msgid "Copy from existing"
@@ -1534,6 +1547,11 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr ""
 
@@ -1588,6 +1606,9 @@ msgstr ""
 msgid "Engineer"
 msgstr ""
 
+msgid "Enrolment kit"
+msgstr ""
+
 msgid "Equipment Loan"
 msgstr ""
 
@@ -1622,6 +1643,9 @@ msgid "Error: Failed to download kernel"
 msgstr ""
 
 msgid "Error: Failed to open temp file"
+msgstr ""
+
+msgid "Error: Failed to sign the kernel for Secure Boot"
 msgstr ""
 
 msgid "Errors"
@@ -1751,6 +1775,9 @@ msgid "FOG is unable to communicate with the database"
 msgstr ""
 
 msgid "FOG server defaulting under the folder"
+msgstr ""
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
 msgid "FTP Connection Failed"
@@ -3897,6 +3924,9 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4645,6 +4675,9 @@ msgstr ""
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Real Time"
 msgstr ""
 
@@ -4951,6 +4984,12 @@ msgid "Search settings"
 msgstr ""
 
 msgid "Second paramater must be in [class,function]"
+msgstr ""
+
+msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot kernel signing is not configured on this server"
 msgstr ""
 
 msgid "See all results"
@@ -6719,6 +6758,9 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr ""
 
+msgid "and"
+msgstr ""
+
 msgid "and below"
 msgstr ""
 
@@ -7271,6 +7313,9 @@ msgid "to apply the update."
 msgstr ""
 
 msgid "to clear the field on every host in this group."
+msgstr ""
+
+msgid "to enable it"
 msgstr ""
 
 msgid "to get the requested Kernel"

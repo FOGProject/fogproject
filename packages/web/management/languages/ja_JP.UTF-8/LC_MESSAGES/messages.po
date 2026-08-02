@@ -1049,6 +1049,9 @@ msgstr "シャーシシリアル"
 msgid "Case Version"
 msgstr "シャーシバージョン"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 #, fuzzy
 msgid "Certificate Verification"
 msgstr "新しいロケーションを作成"
@@ -1087,6 +1090,11 @@ msgstr "シャーシバージョン"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -1200,6 +1208,11 @@ msgstr "エラー: initrd のダウンロードに失敗しました"
 #, fuzzy
 msgid "Confirm you would like to download a new kernel"
 msgstr "エラー: カーネルのダウンロードに失敗しました"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
@@ -1752,6 +1765,11 @@ msgstr "切断済み"
 msgid "Duration"
 msgstr "期間"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "編集"
 
@@ -1812,6 +1830,9 @@ msgstr ""
 msgid "Engineer"
 msgstr "担当者"
 
+msgid "Enrolment kit"
+msgstr ""
+
 msgid "Equipment Loan"
 msgstr "機器貸出"
 
@@ -1847,6 +1868,10 @@ msgstr "エラー: カーネルのダウンロードに失敗しました"
 
 msgid "Error: Failed to open temp file"
 msgstr "エラー: 一時ファイルを開けませんでした"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "エラー: カーネルのダウンロードに失敗しました"
 
 msgid "Errors"
 msgstr "エラー"
@@ -1985,6 +2010,9 @@ msgstr "FOG はデータベースと通信できません"
 
 msgid "FOG server defaulting under the folder"
 msgstr "FOG サーバーは次のフォルダーを既定で使用します"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 #, fuzzy
 msgid "FTP Connection Failed"
@@ -4404,6 +4432,9 @@ msgstr ""
 "\"snapinfiles[]\" マルチパートフィールドを使用して、1 つ以上のファイルをアッ"
 "プロードする必要があります"
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 #, fuzzy
 msgid "No groups are being created or selected"
 msgstr "削除するグループが選択されていません"
@@ -5241,6 +5272,9 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr "Hello 送信間隔"
 
+msgid "Re-run the installer with"
+msgstr ""
+
 #, fuzzy
 msgid "Real Time"
 msgstr "日時"
@@ -5583,6 +5617,12 @@ msgstr "設定"
 #, fuzzy
 msgid "Second paramater must be in [class,function]"
 msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
+
+msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr ""
 
 #, fuzzy
 msgid "See all results"
@@ -7558,6 +7598,10 @@ msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
 
 #, fuzzy
+msgid "and"
+msgstr "終了"
+
+#, fuzzy
 msgid "and below"
 msgstr "サブツリー以下"
 
@@ -8153,6 +8197,9 @@ msgstr "更新に失敗しました"
 
 msgid "to clear the field on every host in this group."
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
+
+msgid "to enable it"
+msgstr ""
 
 msgid "to get the requested Kernel"
 msgstr "要求されたカーネルを取得するため"

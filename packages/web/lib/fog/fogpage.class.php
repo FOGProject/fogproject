@@ -2100,6 +2100,9 @@ abstract class FOGPage extends FOGBase
                         $_SESSION['tmp-kernel-file'],
                         $_SESSION['dl-kernel-file']
                     );
+                    // Sign before upload, not after: the TFTP target may be a
+                    // remote storage node, and the key never leaves this host.
+                    self::secureBootSign($tmpfile);
                     $orig = sprintf(
                         '/%s/%s',
                         trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'), '/'),
@@ -2184,6 +2187,73 @@ abstract class FOGPage extends FOGBase
                     'title' => _('Kernel Update Fail')
                 ]
             ));
+        }
+    }
+    /**
+     * Returns the Secure Boot staging directory, or an empty string when
+     * kernel signing is not configured on this server.
+     *
+     * Signing runs as root through a sudo helper so the web server never needs
+     * read access to the private key. That helper only ever touches this one
+     * directory, which is why a kernel destined to be signed has to be
+     * downloaded here rather than into the system temp directory.
+     *
+     * @return string
+     */
+    protected static function secureBootStagingDir()
+    {
+        // GH-850: the base path is installer-driven, so these must be derived
+        // from FOG_BASE_DIR rather than written as /opt/fog literals. The
+        // installer places both under $fogprogramdir; hardcoding the default
+        // meant that on a server installed anywhere else this returned '' and
+        // signing silently never happened -- leaving Secure Boot clients with
+        // an unsigned kernel and nothing on the server to say why.
+        $helper = FOG_BASE_DIR . DS . 'bin' . DS . 'fog-sign-kernel';
+        $stagedir = FOG_BASE_DIR . DS . 'secureboot-staging';
+        if (!is_executable($helper) || !is_dir($stagedir)) {
+            return '';
+        }
+        return $stagedir;
+    }
+    /**
+     * Signs a staged kernel for Secure Boot via the root helper.
+     *
+     * Does nothing when signing is not configured. When it is, a failure is
+     * fatal: shipping an unsigned kernel to the TFTP server would stop every
+     * Secure Boot client from booting, and it would do so silently, long after
+     * whoever ran the update had walked away.
+     *
+     * @param string $tmpfile the staged kernel
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    protected static function secureBootSign($tmpfile)
+    {
+        $stagedir = self::secureBootStagingDir();
+        if (!$stagedir || dirname($tmpfile) !== $stagedir) {
+            return;
+        }
+        $output = array();
+        $retVal = 1;
+        // escapeshellarg because this is no longer a literal: FOG_BASE_DIR is
+        // written by the installer from $fogprogramdir, which an admin may set
+        // to a path containing a space. exec() hands the string to a shell, so
+        // an unquoted path would split into two arguments and the sudoers rule
+        // -- which matches the exact command -- would refuse it.
+        $helper = escapeshellarg(
+            FOG_BASE_DIR . DS . 'bin' . DS . 'fog-sign-kernel'
+        );
+        exec("sudo -n {$helper} 2>&1", $output, $retVal);
+        if ($retVal !== 0) {
+            throw new Exception(
+                sprintf(
+                    '%s: %s',
+                    _('Error: Failed to sign the kernel for Secure Boot'),
+                    implode(' ', $output)
+                )
+            );
         }
     }
     /**

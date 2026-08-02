@@ -296,6 +296,83 @@ class FOGConfigurationPage extends FOGPage
         $this->_downloadPost('initrd');
     }
     /**
+     * Show the Secure Boot enrolment page.
+     *
+     * Displays the certificate fingerprint and links to the enrolment kit, so
+     * a technician has something to check the key against before trusting it
+     * on a machine. Nothing here is secret: the kit contains the public
+     * certificate only, which is the thing you are meant to distribute.
+     *
+     * @return void
+     */
+    public function secureBoot()
+    {
+        $kitdir = BASEPATH . 'service/secureboot';
+        $certfile = $kitdir . DS . 'MOK.der';
+        $kiturl = rtrim(self::getSetting('FOG_WEB_ROOT'), '/')
+            . '/service/secureboot';
+        if (!file_exists($certfile)) {
+            echo $this->_box(
+                _('Secure Boot'),
+                '<p>' . sprintf(
+                    '%s. %s <code>--secure-boot-key</code> %s '
+                    . '<code>--secure-boot-cert</code> %s.',
+                    _('Secure Boot kernel signing is not configured on this server'),
+                    _('Re-run the installer with'),
+                    _('and'),
+                    _('to enable it')
+                ) . '</p>',
+                ['color' => 'info']
+            );
+            return;
+        }
+        // The SHA-256 of the DER bytes IS the certificate fingerprint, so no
+        // openssl round trip is needed to show the value a technician will
+        // compare against.
+        $fingerprint = strtoupper(
+            implode(':', str_split(hash_file('sha256', $certfile), 2))
+        );
+        $body = '<p>' . sprintf(
+            '%s. %s.',
+            _('FOS kernels on this server are signed for UEFI Secure Boot'),
+            _(
+                'Each client needs this certificate enrolled once, by someone '
+                . 'physically at the machine'
+            )
+        ) . '</p>';
+        $body .= '<p><strong>' . _('Certificate SHA-256') . '</strong></p>';
+        $body .= '<pre>' . Initiator::e($fingerprint) . '</pre>';
+        $body .= '<p>' . _(
+            'Check this value matches what the enrolment script prints before '
+            . 'confirming. That comparison is what stops the wrong key being '
+            . 'trusted.'
+        ) . '</p>';
+        $body .= '<p><strong>' . _('Enrolment kit') . '</strong></p>';
+        $body .= '<p>' . sprintf(
+            '%s. %s.',
+            _(
+                'Copy all three files onto a USB stick, boot the client from a '
+                . 'stock Ubuntu or Debian live image with Secure Boot left ON, '
+                . 'and run the launcher'
+            ),
+            _('No firmware changes are needed')
+        ) . '</p>';
+        $body .= '<ul>';
+        $kitfiles = ['MOK.der', 'fog-enroll-mok.sh', 'fog-enroll-mok.desktop'];
+        foreach ($kitfiles as $file) {
+            if (!file_exists($kitdir . DS . $file)) {
+                continue;
+            }
+            $body .= sprintf(
+                '<li><a href="%1$s/%2$s">%2$s</a></li>',
+                Initiator::e($kiturl),
+                Initiator::e($file)
+            );
+        }
+        $body .= '</ul>';
+        echo $this->_box(_('Secure Boot'), $body, ['color' => 'info']);
+    }
+    /**
      * Render the kernel/initrd download view.
      *
      * kernel() and initrd() were byte-for-byte identical except for the words
@@ -431,13 +508,29 @@ class FOGConfigurationPage extends FOGPage
         self::checkAuthAndCSRF();
         $dstName = filter_input(INPUT_POST, 'dstName');
         $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
-        $tmpFile = sprintf(
-            '%s%s%s%s',
-            DS,
-            str_replace(["\\", '/'], '', sys_get_temp_dir()),
-            DS,
-            basename(trim($dstName))
-        );
+        // With Secure Boot signing configured, a KERNEL download has to land in
+        // the staging directory the root signing helper works on, under the
+        // fixed name it expects -- the helper takes no arguments, so the path
+        // is how it is told what to sign.
+        //
+        // Kernels only. dev-branch had separate kernelPost()/initrdPost() so
+        // this distinction was implicit there; here the two share one method,
+        // and routing an initrd into the staging directory would hand the
+        // signer a file that must never be signed. Nothing verifies the
+        // initramfs under Secure Boot -- on any distribution -- so there is
+        // nothing to gain and a wrong-file signature to lose.
+        $stagedir = ($type === 'kernel') ? self::secureBootStagingDir() : '';
+        if ($stagedir) {
+            $tmpFile = $stagedir . DS . 'kernel';
+        } else {
+            $tmpFile = sprintf(
+                '%s%s%s%s',
+                DS,
+                str_replace(["\\", '/'], '', sys_get_temp_dir()),
+                DS,
+                basename(trim($dstName))
+            );
+        }
         if (file_exists($tmpFile)) {
             unlink($tmpFile);
         }
