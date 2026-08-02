@@ -4374,9 +4374,6 @@ msgstr "データなし"
 msgid "No Data Available"
 msgstr "利用可能なデータがありません"
 
-msgid "No FOGPage Class found for this node"
-msgstr "このノードの FOGPage クラスが見つかりません"
-
 msgid "No Host found for MAC Address"
 msgstr "MAC アドレスに一致するホストが見つかりません"
 
@@ -9496,6 +9493,9 @@ msgstr ""
 
 #~ msgid "New User"
 #~ msgstr "新しいユーザー"
+
+#~ msgid "No FOGPage Class found for this node"
+#~ msgstr "このノードの FOGPage クラスが見つかりません"
 
 #~ msgid "No Menu"
 #~ msgstr "メニューなし"

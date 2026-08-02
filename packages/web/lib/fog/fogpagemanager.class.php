@@ -133,7 +133,23 @@ class FOGPageManager extends FOGBase
         $method = $this->methodValue;
         try {
             if (!array_key_exists($this->classValue, $this->_nodes)) {
-                throw new Exception(_('No FOGPage Class found for this node'));
+                // Dispatch owns the unknown-node case.
+                //
+                // It used to be caught upstream: buildMainMenuItems() compared
+                // $node against the known node list and redirected to the
+                // dashboard, and that ran from Page::__construct() -- before
+                // this dispatch. The menu build now happens at page-render
+                // time so AJAX requests stop building a menu they discard,
+                // which puts it AFTER dispatch, so the guard can no longer be
+                // relied on to get here first.
+                //
+                // Redirect rather than throw. Throwing landed in the catch
+                // below, which called get_class($class) with $class still
+                // unassigned -- on PHP 8 a TypeError, uncaught, so an unknown
+                // node returned a bare HTTP 500 with an empty body. Matching
+                // the old 308-to-dashboard keeps the behaviour users and any
+                // stale bookmarks already expect.
+                self::redirect('../management/index.php');
             }
             $class = $this->getFOGPageClass();
             if ($this->classValue == 'schema'
@@ -193,10 +209,22 @@ class FOGPageManager extends FOGBase
             $this->debug(
                 _('Failed to Render Page: Node: %s, Error: %s'),
                 [
-                    get_class($class),
+                    // The node name, not get_class($class): $class is assigned
+                    // inside the try, so anything thrown before that left it
+                    // undefined and get_class(null) fatally errored *inside the
+                    // error handler*, replacing the real diagnostic with an
+                    // uncaught TypeError. classValue is always set and is what
+                    // "Node: %s" actually wants.
+                    $this->classValue,
                     $e->getMessage()
                 ]
             );
+        }
+        // Nothing to dispatch to if the try never got as far as assigning
+        // $class. Calling a method on null here would be a second fatal, in
+        // the path that is supposed to be recovering from the first.
+        if (!isset($class) || !is_object($class)) {
+            return;
         }
         $class->{$method}();
         self::resetRequest();

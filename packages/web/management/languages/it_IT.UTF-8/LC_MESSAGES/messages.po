@@ -4417,9 +4417,6 @@ msgstr "Nessun dato"
 msgid "No Data Available"
 msgstr "Non disponibile"
 
-msgid "No FOGPage Class found for this node"
-msgstr "Nessun FOGPage Classe trovato per questo nodo"
-
 msgid "No Host found for MAC Address"
 msgstr "Nessun Host trovato per MAC Address"
 
@@ -8710,6 +8707,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "Host associato"
+
+#~ msgid "No FOGPage Class found for this node"
+#~ msgstr "Nessun FOGPage Classe trovato per questo nodo"
 
 #, fuzzy
 #~ msgid "No directory group feeds this user group."

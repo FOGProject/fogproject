@@ -4593,9 +4593,6 @@ msgstr "没有数据"
 msgid "No Data Available"
 msgstr "不可用"
 
-msgid "No FOGPage Class found for this node"
-msgstr "没有FOGPage类中找到此节点"
-
 msgid "No Host found for MAC Address"
 msgstr "找不到主机MAC地址"
 
@@ -9077,6 +9074,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "无关联的节点"
+
+#~ msgid "No FOGPage Class found for this node"
+#~ msgstr "没有FOGPage类中找到此节点"
 
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
