@@ -788,6 +788,9 @@ msgstr "抓取"
 msgid "Captured"
 msgstr "已抓取"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr "更改密码"
 
@@ -835,6 +838,11 @@ msgstr "检查数据库运行状态"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -950,6 +958,11 @@ msgstr "确认任务"
 
 msgid "Conflicting path/file"
 msgstr "确认环境变量/文件"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 msgid "Copy from existing"
 msgstr "从现有复制"
@@ -1336,6 +1349,11 @@ msgstr "期限"
 msgid "ESC is defaulted"
 msgstr "默认为ESC"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "编辑"
 
@@ -1383,6 +1401,9 @@ msgstr "结束时间"
 
 msgid "Engineer"
 msgstr "工程师"
+
+msgid "Enrolment kit"
+msgstr ""
 
 msgid "Enter a group name to search for"
 msgstr "输入组名搜索"
@@ -1443,6 +1464,10 @@ msgstr "错误：无法下载内核"
 
 msgid "Error: Failed to open temp file"
 msgstr "错误：无法打开临时文件"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "错误：无法下载内核"
 
 msgid "Errors"
 msgstr "错误"
@@ -1683,6 +1708,9 @@ msgstr "FOG无法与数据库通信"
 
 msgid "FOG server defaulting under the folder"
 msgstr "FOG服务器默认在此文件夹"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 msgid "FTP Connection has failed"
 msgstr "FTP连接失败"
@@ -3707,6 +3735,9 @@ msgstr "没有文件被上传"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr "未定义友好名称"
 
@@ -4368,6 +4399,9 @@ msgstr "快速"
 msgid "RX"
 msgstr "RX"
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Reboot"
 msgstr "重启"
 
@@ -4729,6 +4763,13 @@ msgstr "搜索结果返回为假"
 
 msgid "Second parameter must be in array(class,function)"
 msgstr "第二个参数的形式必须是数组（类，函数）"
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "此服务器上没有镜像"
 
 msgid "Select Image"
 msgstr "选择镜像"
@@ -6283,6 +6324,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "所有目前的存储节点"
 
+#, fuzzy
+msgid "and"
+msgstr "结束"
+
 msgid "and Mac OS X"
 msgstr "和MAC OS X"
 
@@ -6905,6 +6950,9 @@ msgstr "将会启动，如果菜单显示时没有按下按键"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "该组内找不到存储节点"
+
+msgid "to enable it"
+msgstr ""
 
 msgid "to get the requested Initrd"
 msgstr "获取所请求的Initrd"

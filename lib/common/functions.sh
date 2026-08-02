@@ -3194,6 +3194,39 @@ _publishSecureBootKit() {
     chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
     echo "Done"
 }
+# Normalise --secure-boot-cert to PEM and echo the path.
+#
+# sbsign and sbverify read certificates with PEM_read_bio_X509 and reject DER
+# outright:
+#
+#   $ sbsign --key MOK.priv --cert MOK.der --output out.efi in.efi
+#   Can't load certificate from file 'MOK.der'
+#   error:0480006C:PEM routines:get_name:no start line ... Expecting: CERTIFICATE
+#
+# mokutil and MokManager want the opposite -- DER. So an admin following any
+# Secure Boot guide ends up holding one of each, with nothing telling them which
+# tool takes which, and handing the wrong one to --secure-boot-cert fails at
+# signing time with an OpenSSL error that says nothing about the format.
+#
+# Convert once here rather than pushing the distinction onto the user: the flag
+# accepts either, _resignKernels and the signing helper get PEM, and
+# _publishSecureBootKit still converts to DER for enrolment.
+_secureBootCertPem() {
+    local pem="${fogprogramdir}/.fog-secureboot.pem"
+    [[ -z $secureBootCert ]] && return 1
+    mkdir -p "$fogprogramdir" >>$error_log 2>&1
+    if openssl x509 -in "$secureBootCert" -inform pem -noout >/dev/null 2>&1; then
+        cp -f "$secureBootCert" "$pem" >>$error_log 2>&1 || return 1
+    elif ! openssl x509 -in "$secureBootCert" -inform der -outform pem \
+            -out "$pem" >>$error_log 2>&1; then
+        return 1
+    fi
+    # World-readable on purpose: a certificate is public, and it is the private
+    # key next to it that the 0600 config protects.
+    chown root:root "$pem" >>$error_log 2>&1
+    chmod 0644 "$pem" >>$error_log 2>&1
+    echo "$pem"
+}
 # Re-sign the FOS kernels for UEFI Secure Boot.
 #
 # The kernels above are downloaded unsigned on every install AND every upgrade,
@@ -3214,11 +3247,16 @@ _publishSecureBootKit() {
 # Removes the helper, its config and the sudoers rule again when signing is
 # turned off, so disabling the feature actually disables the privilege.
 _installSecureBootSigner() {
-    local bindir="/opt/fog/bin"
+    # $fogprogramdir, not a "/opt/fog" literal: GH-850 made the base path
+    # installer-driven, and hardcoding it here would scatter the helper, its
+    # config and the staging directory back into /opt/fog on a server installed
+    # anywhere else.
+    local bindir="${fogprogramdir}/bin"
     local helper="${bindir}/fog-sign-kernel"
-    local conf="/opt/fog/.fog-secureboot"
-    local stagedir="/opt/fog/secureboot-staging"
+    local conf="${fogprogramdir}/.fog-secureboot"
+    local stagedir="${fogprogramdir}/secureboot-staging"
     local sudoersfile="/etc/sudoers.d/fog-secureboot"
+    local certpem
 
     if [[ -z $secureBootKey || -z $secureBootCert ]]; then
         rm -f "$helper" "$conf" "$sudoersfile" >>$error_log 2>&1
@@ -3226,6 +3264,11 @@ _installSecureBootSigner() {
     fi
 
     dots "Installing Secure Boot signing helper"
+    certpem=$(_secureBootCertPem) || {
+        echo "Failed"
+        echo " * Could not read $secureBootCert as a certificate (PEM or DER)."
+        return 0
+    }
     mkdir -p "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/secureboot/fog-sign-kernel "$helper" >>$error_log 2>&1 || {
         echo "Failed"
@@ -3233,9 +3276,10 @@ _installSecureBootSigner() {
     }
     # Root-owned, root-readable only: the web user learns nothing about where
     # the key lives, and cannot rewrite these paths to point somewhere else.
+    # SECUREBOOT_CERT is the normalised PEM -- sbsign cannot read DER.
     {
         echo "SECUREBOOT_KEY=${secureBootKey}"
-        echo "SECUREBOOT_CERT=${secureBootCert}"
+        echo "SECUREBOOT_CERT=${certpem}"
         echo "SECUREBOOT_STAGING=${stagedir}"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1
@@ -3271,21 +3315,29 @@ _resignKernels() {
         return 0
     fi
     dots "Signing FOS kernels for Secure Boot"
-    local kernel kpath failed=0
+    local kernel kpath failed=0 certpem
+    # sbsign/sbverify take PEM only; the admin may well have handed us the DER
+    # copy that mokutil wanted. See _secureBootCertPem().
+    certpem=$(_secureBootCertPem) || {
+        echo "Failed"
+        echo " * Could not read $secureBootCert as a certificate (PEM or DER)."
+        echo "   Secure Boot clients will not boot until this is fixed."
+        return 0
+    }
     for kernel in bzImage bzImage32 arm_Image; do
         kpath="${webdirdest}/service/ipxe/${kernel}"
         [[ -f $kpath ]] || continue
         # Already carrying our signature means nothing was re-downloaded since
         # the last run, so there is nothing to do. Skipping here is what keeps a
         # second invocation from stacking a second signature on the same image.
-        sbverify --cert "$secureBootCert" "$kpath" >/dev/null 2>&1 && continue
+        sbverify --cert "$certpem" "$kpath" >/dev/null 2>&1 && continue
         # Otherwise this is a freshly downloaded, unsigned kernel. Snapshot it,
         # because sbsign will not cleanly re-sign an already-signed image and the
         # next run needs an unsigned original to work from. The snapshot has to
         # be refreshed every time rather than kept forever, or an upgrade would
         # re-sign the *previous* version over the new one.
         cp -af "$kpath" "${kpath}.unsigned" >>$error_log 2>&1
-        if sbsign --key "$secureBootKey" --cert "$secureBootCert" \
+        if sbsign --key "$secureBootKey" --cert "$certpem" \
                 --output "$kpath" "${kpath}.unsigned" >>$error_log 2>&1; then
             chown "${username}" "$kpath" >>$error_log 2>&1
         else

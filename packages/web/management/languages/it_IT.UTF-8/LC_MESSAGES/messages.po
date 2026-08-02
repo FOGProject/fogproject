@@ -813,6 +813,9 @@ msgstr "Catturare"
 msgid "Captured"
 msgstr "Catturato"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr "Cambia password"
 
@@ -868,6 +871,11 @@ msgstr "Controllare che database è in esecuzione"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -983,6 +991,11 @@ msgstr "Conferma il task"
 
 msgid "Conflicting path/file"
 msgstr "Percorso / file in conflitto"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 msgid "Copy from existing"
 msgstr "Copia da esistenti"
@@ -1376,6 +1389,11 @@ msgstr "Durata"
 msgid "ESC is defaulted"
 msgstr "ESC è predefinito"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "Modifica"
 
@@ -1424,6 +1442,9 @@ msgstr "Fine del tempo"
 
 msgid "Engineer"
 msgstr "Ingegnere"
+
+msgid "Enrolment kit"
+msgstr ""
 
 #, fuzzy
 msgid "Enter a group name to search for"
@@ -1493,6 +1514,10 @@ msgstr "Errore: Impossibile scaricare il kernel"
 
 msgid "Error: Failed to open temp file"
 msgstr "Errore: Impossibile aprire il file temporaneo"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "Errore: Impossibile scaricare il kernel"
 
 msgid "Errors"
 msgstr "Errori"
@@ -1740,6 +1765,9 @@ msgstr "FOG non è in grado di comunicare con il database"
 
 msgid "FOG server defaulting under the folder"
 msgstr "server FOG per default nella cartella"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 msgid "FTP Connection has failed"
 msgstr "Connessione FTP non è riuscita"
@@ -3803,6 +3831,9 @@ msgstr "Nessun file è stato caricato"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr "Nessun nome amichevole definito"
 
@@ -4482,6 +4513,9 @@ msgstr "Veloce"
 msgid "RX"
 msgstr "RX"
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Reboot"
 msgstr "Riavvio"
 
@@ -4866,6 +4900,13 @@ msgstr "Risultati di ricerca che restituiscono false"
 #, fuzzy
 msgid "Second parameter must be in array(class,function)"
 msgstr "Il secondo parametro deve essere un array (classe, funzione)"
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "Non ci sono immagini su questo server"
 
 msgid "Select Image"
 msgstr "Seleziona Immagine"
@@ -6482,6 +6523,10 @@ msgstr "fa"
 msgid "all current storage nodes"
 msgstr "tutti i nodi di archiviazione attivi"
 
+#, fuzzy
+msgid "and"
+msgstr "Fine"
+
 msgid "and Mac OS X"
 msgstr "e Mac OS X"
 
@@ -7122,6 +7167,9 @@ msgstr "per essere avviato se non è premuto nessun tasto quando il menu è"
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Impossibile trovare un nodo di archiviazione in questo gruppo"
+
+msgid "to enable it"
+msgstr ""
 
 #, fuzzy
 msgid "to get the requested Initrd"

@@ -795,6 +795,9 @@ msgstr "Capture"
 msgid "Captured"
 msgstr "Capturée"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
@@ -843,6 +846,11 @@ msgstr "Vérifiez que la base de données est en cours d'exécution"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -958,6 +966,11 @@ msgstr "Confirmer l'affectation des tâches"
 
 msgid "Conflicting path/file"
 msgstr "Conflit de chemin / fichier"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 msgid "Copy from existing"
 msgstr "Copie de l'existant"
@@ -1348,6 +1361,11 @@ msgstr "Durée"
 msgid "ESC is defaulted"
 msgstr "ESC est par défaut"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1396,6 +1414,9 @@ msgstr "Heure de fin"
 
 msgid "Engineer"
 msgstr "Ingénieur"
+
+msgid "Enrolment kit"
+msgstr ""
 
 msgid "Enter a group name to search for"
 msgstr "Entrez un nom de groupe à rechercher"
@@ -1457,6 +1478,10 @@ msgstr "Erreur : Impossible de télécharger le noyau"
 
 msgid "Error: Failed to open temp file"
 msgstr "Erreur : Impossible d'ouvrir le fichier temporaire"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "Erreur : Impossible de télécharger le noyau"
 
 msgid "Errors"
 msgstr "Erreurs"
@@ -1697,6 +1722,9 @@ msgstr "Le FOG ne parvient pas à communiquer avec la base de données"
 
 msgid "FOG server defaulting under the folder"
 msgstr "serveur FOG se trouvant par défaut dans le dossier"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 msgid "FTP Connection has failed"
 msgstr "Connexion FTP a échoué"
@@ -3745,6 +3773,9 @@ msgstr "Aucun fichier n'a été téléchargé"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr "Aucun nom usuel défini"
 
@@ -4421,6 +4452,9 @@ msgstr "Rapide"
 msgid "RX"
 msgstr "RX"
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Reboot"
 msgstr "Redémarrage"
 
@@ -4783,6 +4817,13 @@ msgstr "Les résultats de la recherche sont faux"
 #, fuzzy
 msgid "Second parameter must be in array(class,function)"
 msgstr "Deuxième paramètre doit être sous la forme array (class, function)"
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "Il n'y a pas d'images sur ce serveur"
 
 msgid "Select Image"
 msgstr "Sélectionner l'image"
@@ -6367,6 +6408,10 @@ msgstr "depuis"
 msgid "all current storage nodes"
 msgstr "tous les nœuds de stockage actuels"
 
+#, fuzzy
+msgid "and"
+msgstr "Fin"
+
 msgid "and Mac OS X"
 msgstr "and MacOS X"
 
@@ -7004,6 +7049,9 @@ msgstr "pour être démarré si aucune touche n'est pressée lorsque le menu est
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Impossible de trouver un nœud de stockage dans ce groupe"
+
+msgid "to enable it"
+msgstr ""
 
 #, fuzzy
 msgid "to get the requested Initrd"
