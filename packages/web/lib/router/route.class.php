@@ -2761,6 +2761,22 @@ class Route extends FOGBase
                             isset($vars->macs) ? (array)$vars->macs : []
                         );
                     }
+                    // edit() honours 'primac' but create() did not, and 'primac'
+                    // is an additionalFields entry derived from the
+                    // MACAddressAssociation join rather than a real column, so
+                    // the databaseFields loop above skips it too. The result was
+                    // a create that named its primary MAC returning 200 with a
+                    // host that had no MAC at all -- which then never matches a
+                    // PXE request, so the host silently reads as unregistered.
+                    // Prepended rather than appended: 'primac' says explicitly
+                    // which MAC is primary, so it must win the array_shift below
+                    // over the positional 'mac'/'macs' forms.
+                    if (isset($vars->primac)) {
+                        $vars->macs = array_merge(
+                            (array)$vars->primac,
+                            isset($vars->macs) ? (array)$vars->macs : []
+                        );
+                    }
                     if (isset($vars->macs)) {
                         // Set the primary MAC now (deferred via the 'mac' key
                         // and persisted by save() once the host id exists).
