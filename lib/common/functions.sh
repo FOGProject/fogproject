@@ -4533,9 +4533,31 @@ _publishSecureBootKit() {
     fi
     cp -f ../packages/secureboot/fog-enroll-mok.sh "${kitdir}/" >>$error_log 2>&1
     cp -f ../packages/secureboot/fog-enroll-mok.desktop "${kitdir}/" >>$error_log 2>&1
+    # MokManager, for the "Enroll Secure Boot Key" PXE menu item. BootMenu
+    # chains to it over $_booturl, which is the WEB root
+    # (http://<server>/fog/service) -- but downloadipxesecureboot stages these
+    # binaries under $tftpdirdst/secureboot, which the web server does not
+    # serve. Without this copy the menu item resolves to a 403/404 on every
+    # architecture and falls straight into its own error branch.
+    #
+    # Copied rather than linked: the TFTP tree may be on a different
+    # filesystem, and it is two small binaries.
+    local mmsrc="${tftpdirdst%/}/secureboot"
+    if [[ -f ${mmsrc}/mmx64.efi ]]; then
+        cp -f "${mmsrc}/mmx64.efi" "${kitdir}/" >>$error_log 2>&1
+    fi
+    if [[ -f ${mmsrc}/arm64-efi/mmaa64.efi ]]; then
+        mkdir -p "${kitdir}/arm64-efi" >>$error_log 2>&1
+        cp -f "${mmsrc}/arm64-efi/mmaa64.efi" "${kitdir}/arm64-efi/" >>$error_log 2>&1
+    fi
     # Keep the directory from being browsable, matching service/ipxe.
     echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
     chmod 0644 "${kitdir}"/MOK.der "${kitdir}"/*.desktop "${kitdir}"/index.php >>$error_log 2>&1
+    # Guarded rather than globbed blind: an HTTPS install stages no Secure Boot
+    # binaries at all (downloadipxesecureboot skips it), so an unguarded
+    # chmod would log a "No such file" for every run on those servers.
+    [[ -f ${kitdir}/mmx64.efi ]] && chmod 0644 "${kitdir}/mmx64.efi" >>$error_log 2>&1
+    [[ -f ${kitdir}/arm64-efi/mmaa64.efi ]] && chmod 0644 "${kitdir}/arm64-efi/mmaa64.efi" >>$error_log 2>&1
     chmod 0755 "${kitdir}/fog-enroll-mok.sh" >>$error_log 2>&1
     chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
     echo "Done"

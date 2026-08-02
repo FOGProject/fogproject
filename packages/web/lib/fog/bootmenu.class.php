@@ -2024,10 +2024,25 @@ class BootMenu extends FOGBase
                 'goto MENU'
             ];
         }
+        // arm64's MokManager is mmaa64.efi, NOT mmx64.efi -- the binary is
+        // named for the architecture it runs on, and fog-ipxe stages it under
+        // that name. Chaining to arm64-efi/mmx64.efi is a file that has never
+        // existed, so every arm64 client fell into the error branch below.
         $mmTarget = (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm'))
-            ? "$this->_booturl/secureboot/arm64-efi/mmx64.efi"
+            ? "$this->_booturl/secureboot/arm64-efi/mmaa64.efi"
             : "$this->_booturl/secureboot/mmx64.efi";
+        // MokManager can only read a certificate off a FAT filesystem it can
+        // see -- it has no network stack, so booting it over the network does
+        // NOT deliver MOK.der with it. Say so before chaining, or the tech
+        // arrives at "Enroll key from disk" with nothing to select and no
+        // indication of why.
         return [
+            'echo Have MOK.der on a FAT-formatted USB stick in this machine.',
+            'echo MokManager reads it from local media, not from the network.',
+            // No quotes in the text: iPXE's tokenizer treats them as quoting
+            // and strips them, so they would vanish from the output anyway.
+            'echo Choose Enroll key from disk, then find MOK.der on the stick.',
+            'sleep 5',
             "chain -ar $mmTarget || "
             . "echo Could not load the Secure Boot enrolment menu. && "
             . "sleep 5 && goto MENU"
