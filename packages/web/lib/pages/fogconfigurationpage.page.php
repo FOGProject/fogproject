@@ -817,6 +817,10 @@ class FOGConfigurationPage extends FOGPage
                     $serverFault = true;
                     throw new Exception(_('Settings update failed!'));
                 }
+                // Writes globalSettings directly rather than through
+                // setSetting(), so nothing invalidated the shared settings
+                // cache. See the matching flush in settingsPost().
+                FOGBase::clearSettingsCache();
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
@@ -1855,6 +1859,19 @@ class FOGConfigurationPage extends FOGPage
                     $serverFault = true;
                     throw new Exception(_('Settings update failed!'));
                 }
+                // This saver writes globalSettings directly (insertBatch /
+                // Setting->save()) rather than through setSetting(), so
+                // nothing invalidated the shared settings cache -- the value
+                // landed in the database but every other request kept serving
+                // the pre-save file cache for up to $settingsCacheTTL (300s),
+                // and sibling php-fpm workers kept their in-memory copy. The
+                // settings page reads globalSettings with its own SQL, so it
+                // showed the NEW value while the rest of the UI acted on the
+                // OLD one -- e.g. FOG_TABLE_SCROLL_MODE switched to "paged"
+                // but every list still rendered infinite scroll, through a
+                // hard refresh, until the TTL lapsed. Flushing here also
+                // raises the cross-process signal so other workers re-read.
+                FOGBase::clearSettingsCache();
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
