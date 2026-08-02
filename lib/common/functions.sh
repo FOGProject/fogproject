@@ -2328,6 +2328,7 @@ writeUpdateFile() {
         mysqldbname installlang storageLocation fogupdateloaded docroot webroot
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
         sslpath backupPath php_ver sslprivkey sendreports
+        secureBootKey secureBootCert
     )
     # Keys written by older installers that must be stripped on upgrade.
     local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )
@@ -3153,6 +3154,215 @@ downloadfiles() {
     cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$error_log 2>&1
     errorStat $?
     cd $cwd
+    _resignKernels
+    _installSecureBootSigner
+    _publishSecureBootKit
+}
+# Publish the MOK enrolment kit under the web root.
+#
+# Only the *certificate* is published -- it is public by design, and is the
+# thing you are meant to distribute. The private key stays where the admin put
+# it and is never copied anywhere near the web root; that separation is the one
+# thing in this feature that must not be got wrong.
+_publishSecureBootKit() {
+    local kitdir="${webdirdest}/service/secureboot"
+
+    if [[ -z $secureBootCert ]]; then
+        rm -rf "$kitdir" >>$error_log 2>&1
+        return 0
+    fi
+
+    dots "Publishing Secure Boot enrolment kit"
+    mkdir -p "$kitdir" >>$error_log 2>&1
+    # A DER copy of the certificate is what mokutil wants. Accept a PEM cert
+    # too, since openssl is happy to produce either and admins mix them up.
+    if openssl x509 -in "$secureBootCert" -inform der -noout >/dev/null 2>&1; then
+        cp -f "$secureBootCert" "${kitdir}/MOK.der" >>$error_log 2>&1
+    elif openssl x509 -in "$secureBootCert" -outform der -out "${kitdir}/MOK.der" >>$error_log 2>&1; then
+        :
+    else
+        echo "Failed"
+        echo " * Could not read $secureBootCert as a certificate."
+        return 0
+    fi
+    cp -f ../packages/secureboot/fog-enroll-mok.sh "${kitdir}/" >>$error_log 2>&1
+    cp -f ../packages/secureboot/fog-enroll-mok.desktop "${kitdir}/" >>$error_log 2>&1
+    # Keep the directory from being browsable, matching service/ipxe.
+    echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
+    chmod 0644 "${kitdir}"/MOK.der "${kitdir}"/*.desktop "${kitdir}"/index.php >>$error_log 2>&1
+    chmod 0755 "${kitdir}/fog-enroll-mok.sh" >>$error_log 2>&1
+    chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
+    echo "Done"
+}
+# Normalise --secure-boot-cert to PEM and echo the path.
+#
+# sbsign and sbverify read certificates with PEM_read_bio_X509 and reject DER
+# outright:
+#
+#   $ sbsign --key MOK.priv --cert MOK.der --output out.efi in.efi
+#   Can't load certificate from file 'MOK.der'
+#   error:0480006C:PEM routines:get_name:no start line ... Expecting: CERTIFICATE
+#
+# mokutil and MokManager want the opposite -- DER. So an admin following any
+# Secure Boot guide ends up holding one of each, with nothing telling them which
+# tool takes which, and handing the wrong one to --secure-boot-cert fails at
+# signing time with an OpenSSL error that says nothing about the format.
+#
+# Convert once here rather than pushing the distinction onto the user: the flag
+# accepts either, _resignKernels and the signing helper get PEM, and
+# _publishSecureBootKit still converts to DER for enrolment.
+_secureBootCertPem() {
+    local pem="${fogprogramdir}/.fog-secureboot.pem"
+    [[ -z $secureBootCert ]] && return 1
+    mkdir -p "$fogprogramdir" >>$error_log 2>&1
+    if openssl x509 -in "$secureBootCert" -inform pem -noout >/dev/null 2>&1; then
+        cp -f "$secureBootCert" "$pem" >>$error_log 2>&1 || return 1
+    elif ! openssl x509 -in "$secureBootCert" -inform der -outform pem \
+            -out "$pem" >>$error_log 2>&1; then
+        return 1
+    fi
+    # World-readable on purpose: a certificate is public, and it is the private
+    # key next to it that the 0600 config protects.
+    chown root:root "$pem" >>$error_log 2>&1
+    chmod 0644 "$pem" >>$error_log 2>&1
+    echo "$pem"
+}
+# Re-sign the FOS kernels for UEFI Secure Boot.
+#
+# The kernels above are downloaded unsigned on every install AND every upgrade,
+# so without this a working Secure Boot setup silently stops booting the moment
+# someone updates FOG. That is the single most common way the setup breaks.
+#
+# No-op unless both secureBootKey and secureBootCert are configured. Missing
+# sbsign is a warning rather than a failure: the rest of the install is fine and
+# aborting it would be a worse outcome than an unsigned kernel the admin is told
+# about.
+# Install the root-only signing helper the web UI calls through sudo.
+#
+# The Kernel Update page runs as the web user, which must never be able to read
+# the signing key -- a web compromise would otherwise walk off with it. So the
+# key stays root-only and the web user gets a single, argument-less command it
+# may run as root.
+#
+# Removes the helper, its config and the sudoers rule again when signing is
+# turned off, so disabling the feature actually disables the privilege.
+_installSecureBootSigner() {
+    # $fogprogramdir, not a "/opt/fog" literal: GH-850 made the base path
+    # installer-driven, and hardcoding it here would scatter the helper, its
+    # config and the staging directory back into /opt/fog on a server installed
+    # anywhere else.
+    local bindir="${fogprogramdir}/bin"
+    local helper="${bindir}/fog-sign-kernel"
+    local conf="${fogprogramdir}/.fog-secureboot"
+    local stagedir="${fogprogramdir}/secureboot-staging"
+    local sudoersfile="/etc/sudoers.d/fog-secureboot"
+    local certpem
+
+    if [[ -z $secureBootKey || -z $secureBootCert ]]; then
+        rm -f "$helper" "$conf" "$sudoersfile" >>$error_log 2>&1
+        return 0
+    fi
+
+    dots "Installing Secure Boot signing helper"
+    certpem=$(_secureBootCertPem) || {
+        echo "Failed"
+        echo " * Could not read $secureBootCert as a certificate (PEM or DER)."
+        return 0
+    }
+    mkdir -p "$bindir" >>$error_log 2>&1
+    install -o root -g root -m 0755 ../packages/secureboot/fog-sign-kernel "$helper" >>$error_log 2>&1 || {
+        echo "Failed"
+        return 0
+    }
+    # Point the helper at this install's config. It takes no arguments on
+    # purpose -- that is what stops a compromised web server naming its own key
+    # -- so the path has to be baked in here rather than passed at call time.
+    # Quoted: $fogprogramdir may contain a space, and `CONF=/a/fog custom/x`
+    # assigns only "/a/fog" and then tries to RUN "custom/x". bash -n does not
+    # catch that -- it is valid syntax, just not what anyone meant.
+    sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1
+    if ! grep -qxF "CONF=\"${conf}\"" "$helper"; then
+        echo "Failed"
+        echo " * Could not set the config path in $helper."
+        return 0
+    fi
+    # Root-owned, root-readable only: the web user learns nothing about where
+    # the key lives, and cannot rewrite these paths to point somewhere else.
+    # SECUREBOOT_CERT is the normalised PEM -- sbsign cannot read DER.
+    {
+        echo "SECUREBOOT_KEY=${secureBootKey}"
+        echo "SECUREBOOT_CERT=${certpem}"
+        echo "SECUREBOOT_STAGING=${stagedir}"
+    } > "$conf"
+    chown root:root "$conf" >>$error_log 2>&1
+    chmod 0600 "$conf" >>$error_log 2>&1
+
+    # The web user owns only the staging directory -- it has to write the
+    # downloaded kernel there and read the signed result back.
+    mkdir -p "$stagedir" >>$error_log 2>&1
+    chown "${apacheuser}":"${apacheuser}" "$stagedir" >>$error_log 2>&1
+    chmod 0750 "$stagedir" >>$error_log 2>&1
+
+    # Validate before installing: a malformed sudoers drop-in breaks sudo for
+    # the whole machine, which is a far worse outcome than no signing.
+    echo "${apacheuser} ALL=(root) NOPASSWD: ${helper}" > "${sudoersfile}.tmp"
+    chmod 0440 "${sudoersfile}.tmp" >>$error_log 2>&1
+    if visudo -cqf "${sudoersfile}.tmp" >>$error_log 2>&1; then
+        mv -f "${sudoersfile}.tmp" "$sudoersfile" >>$error_log 2>&1
+        chown root:root "$sudoersfile" >>$error_log 2>&1
+        echo "Done"
+    else
+        rm -f "${sudoersfile}.tmp" >>$error_log 2>&1
+        echo "Failed"
+        echo " * Refusing to install an invalid sudoers rule; the web Kernel"
+        echo "   Update page will download unsigned kernels. See $error_log."
+    fi
+}
+_resignKernels() {
+    [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+    if ! command -v sbsign >/dev/null 2>&1 || ! command -v sbverify >/dev/null 2>&1; then
+        echo " * WARNING: Secure Boot signing configured but sbsign/sbverify are not installed."
+        echo "   Install sbsigntool (Debian/Ubuntu) or sbsigntools (RHEL/Fedora)"
+        echo "   and re-run the installer, or Secure Boot clients will not boot."
+        return 0
+    fi
+    dots "Signing FOS kernels for Secure Boot"
+    local kernel kpath failed=0 certpem
+    # sbsign/sbverify take PEM only; the admin may well have handed us the DER
+    # copy that mokutil wanted. See _secureBootCertPem().
+    certpem=$(_secureBootCertPem) || {
+        echo "Failed"
+        echo " * Could not read $secureBootCert as a certificate (PEM or DER)."
+        echo "   Secure Boot clients will not boot until this is fixed."
+        return 0
+    }
+    for kernel in bzImage bzImage32 arm_Image; do
+        kpath="${webdirdest}/service/ipxe/${kernel}"
+        [[ -f $kpath ]] || continue
+        # Already carrying our signature means nothing was re-downloaded since
+        # the last run, so there is nothing to do. Skipping here is what keeps a
+        # second invocation from stacking a second signature on the same image.
+        sbverify --cert "$certpem" "$kpath" >/dev/null 2>&1 && continue
+        # Otherwise this is a freshly downloaded, unsigned kernel. Snapshot it,
+        # because sbsign will not cleanly re-sign an already-signed image and the
+        # next run needs an unsigned original to work from. The snapshot has to
+        # be refreshed every time rather than kept forever, or an upgrade would
+        # re-sign the *previous* version over the new one.
+        cp -af "$kpath" "${kpath}.unsigned" >>$error_log 2>&1
+        if sbsign --key "$secureBootKey" --cert "$certpem" \
+                --output "$kpath" "${kpath}.unsigned" >>$error_log 2>&1; then
+            chown "${username}" "$kpath" >>$error_log 2>&1
+        else
+            failed=1
+        fi
+    done
+    if [[ $failed -ne 0 ]]; then
+        echo "Failed"
+        echo " * At least one kernel could not be signed. See $error_log."
+        echo "   Secure Boot clients will not boot until this is fixed."
+        return 0
+    fi
+    echo "Done"
 }
 # The architecture -> boot-file mapping below intentionally mirrors the ISC
 # "class" blocks in the ISC branch of configureDHCP(). Keep the two in sync.
@@ -3201,6 +3411,31 @@ _keaBaseClasses() {
             "boot-file-name": "snponly.efi"
         }
 EOFCLS
+}
+# A Secure Boot class, emitted commented out.
+#
+# Left commented for two reasons. DHCP option 93 carries the client
+# architecture and nothing else, so there is no way to tell from a request
+# whether Secure Boot is on -- a site has to opt specific machines in. And this
+# must not simply replace the arch 7/8/9 classes: upstream ships exactly one
+# signed x86-64 iPXE binary, an all-drivers build that takes the NIC over from
+# the firmware and hangs on some hardware. FOG defaults to snponly.efi to avoid
+# exactly that, and there is no signed snponly equivalent (ipxe/ipxe#1776), so
+# pointing every UEFI client here would break machines that work today.
+#
+# The binaries are staged at $tftpdir/secureboot by downloadipxesecureboot()
+# on every install, so the path below always exists.
+_keaSecureBootClassCommented() {
+    cat <<'EOFSBC'
+#        Secure Boot clients. Uncomment, add a leading comma to the entry
+#        above, and narrow the test to the machines whose firmware has your
+#        MOK enrolled -- by subnet, MAC or a client class of your own.
+#        {
+#            "name": "FOG-UEFI-64-SecureBoot",
+#            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+#            "boot-file-name": "secureboot/ipxe-shimx64.efi"
+#        }
+EOFSBC
 }
 _keaAppleClass() {
     cat <<'EOFAPL'
@@ -3317,9 +3552,11 @@ writeKeaSample() {
                 { \"name\": \"routers\", \"data\": \"$routeraddress\" }"
     [[ $(validip $dnsaddress) -eq 0 ]] && optdata="${optdata},
                 { \"name\": \"domain-name-servers\", \"data\": \"$dnsaddress\" }"
-    # Full reference: base classes + Apple BSDP. The admin can trim as needed.
+    # Full reference: base classes + Apple BSDP, plus a commented-out Secure
+    # Boot class. The admin can trim as needed.
     _writeKeaConfig "$target" "$(_keaBaseClasses),
-$(_keaAppleClass)"
+$(_keaAppleClass)
+$(_keaSecureBootClassCommented)"
     if [[ -s $target ]]; then
         echo
         echo " * A sample Kea DHCP config for a dedicated/external DHCP server was"
@@ -3461,6 +3698,17 @@ configureDHCP() {
             echo "        }" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
+            # Secure Boot clients, commented out on purpose -- see the note on
+            # _keaSecureBootClassCommented(). Option 93 cannot tell us whether
+            # Secure Boot is on, and the only signed iPXE build is an
+            # all-drivers one that hangs on some NICs, so this has to be opted
+            # into per machine rather than applied to every UEFI client.
+            echo "# Secure Boot clients. Uncomment and narrow the match to the machines" >> "$dhcptouse"
+            echo "# whose firmware has your MOK enrolled." >> "$dhcptouse"
+            echo "#class \"FOG-UEFI-64-SecureBoot\" {" >> "$dhcptouse"
+            echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+            echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
+            echo "#}" >> "$dhcptouse"
             diffconfig "${dhcptouse}"
             # Non-fatal syntax check; ISC has historically started without one.
             if command -v dhcpd >/dev/null 2>&1; then

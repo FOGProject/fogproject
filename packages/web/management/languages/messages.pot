@@ -765,6 +765,9 @@ msgstr ""
 msgid "Captured"
 msgstr ""
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr ""
 
@@ -812,6 +815,11 @@ msgstr ""
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -926,6 +934,11 @@ msgid "Confirm tasking"
 msgstr ""
 
 msgid "Conflicting path/file"
+msgstr ""
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
 msgstr ""
 
 msgid "Copy from existing"
@@ -1313,6 +1326,11 @@ msgstr ""
 msgid "ESC is defaulted"
 msgstr ""
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr ""
 
@@ -1359,6 +1377,9 @@ msgid "End Time"
 msgstr ""
 
 msgid "Engineer"
+msgstr ""
+
+msgid "Enrolment kit"
 msgstr ""
 
 msgid "Enter a group name to search for"
@@ -1419,6 +1440,9 @@ msgid "Error: Failed to download kernel"
 msgstr ""
 
 msgid "Error: Failed to open temp file"
+msgstr ""
+
+msgid "Error: Failed to sign the kernel for Secure Boot"
 msgstr ""
 
 msgid "Errors"
@@ -1659,6 +1683,9 @@ msgid "FOG is unable to communicate with the database"
 msgstr ""
 
 msgid "FOG server defaulting under the folder"
+msgstr ""
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
 msgid "FTP Connection has failed"
@@ -3668,6 +3695,9 @@ msgstr ""
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr ""
 
@@ -4326,6 +4356,9 @@ msgstr ""
 msgid "RX"
 msgstr ""
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Reboot"
 msgstr ""
 
@@ -4686,6 +4719,12 @@ msgid "Search results returned false"
 msgstr ""
 
 msgid "Second parameter must be in array(class,function)"
+msgstr ""
+
+msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot kernel signing is not configured on this server"
 msgstr ""
 
 msgid "Select Image"
@@ -6231,6 +6270,9 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr ""
 
+msgid "and"
+msgstr ""
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -6851,6 +6893,9 @@ msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
 
 msgid "to clear the field on every host in this group."
+msgstr ""
+
+msgid "to enable it"
 msgstr ""
 
 msgid "to get the requested Initrd"

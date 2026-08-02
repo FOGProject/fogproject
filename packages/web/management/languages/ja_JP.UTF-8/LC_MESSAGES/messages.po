@@ -779,6 +779,9 @@ msgstr "キャプチャ"
 msgid "Captured"
 msgstr "キャプチャ済み"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr "パスワードを変更"
 
@@ -826,6 +829,11 @@ msgstr "データベースが稼働していることを確認してください
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -941,6 +949,11 @@ msgstr "タスクを確認"
 
 msgid "Conflicting path/file"
 msgstr "競合するパス/ファイル"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
@@ -1327,6 +1340,11 @@ msgstr "期間"
 msgid "ESC is defaulted"
 msgstr "ESC が既定です"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "編集"
 
@@ -1374,6 +1392,9 @@ msgstr "終了時刻"
 
 msgid "Engineer"
 msgstr "担当者"
+
+msgid "Enrolment kit"
+msgstr ""
 
 msgid "Enter a group name to search for"
 msgstr "検索するグループ名を入力してください"
@@ -1434,6 +1455,10 @@ msgstr "エラー: カーネルのダウンロードに失敗しました"
 
 msgid "Error: Failed to open temp file"
 msgstr "エラー: 一時ファイルを開けませんでした"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "エラー: カーネルのダウンロードに失敗しました"
 
 msgid "Errors"
 msgstr "エラー"
@@ -1674,6 +1699,9 @@ msgstr "FOG はデータベースと通信できません"
 
 msgid "FOG server defaulting under the folder"
 msgstr "FOG サーバーは次のフォルダーを既定で使用します"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 msgid "FTP Connection has failed"
 msgstr "FTP 接続に失敗しました"
@@ -3689,6 +3717,9 @@ msgstr "ファイルはアップロードされませんでした"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr "表示名が定義されていません"
 
@@ -4352,6 +4383,9 @@ msgstr "クイック"
 msgid "RX"
 msgstr "RX"
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Reboot"
 msgstr "再起動"
 
@@ -4715,6 +4749,13 @@ msgstr "検索結果が false を返しました"
 
 msgid "Second parameter must be in array(class,function)"
 msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "このサーバーにはイメージがありません"
 
 msgid "Select Image"
 msgstr "イメージを選択"
@@ -6272,6 +6313,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
 
+#, fuzzy
+msgid "and"
+msgstr "終了"
+
 msgid "and Mac OS X"
 msgstr "および Mac OS X"
 
@@ -6895,6 +6940,9 @@ msgstr "メニュー表示中にキーが押されなかった場合に起動す
 
 msgid "to clear the field on every host in this group."
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
+
+msgid "to enable it"
+msgstr ""
 
 msgid "to get the requested Initrd"
 msgstr "要求された Initrd を取得するため"

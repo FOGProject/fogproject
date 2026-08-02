@@ -43,6 +43,7 @@ class FOGConfigurationPage extends FOGPage
             'license' => self::$foglang['License'],
             'kernelUpdate' => self::$foglang['KernelUpdate'],
             'initrdUpdate' => self::$foglang['InitrdUpdate'],
+            'secureBoot' => _('Secure Boot'),
             'pxemenu' => self::$foglang['PXEBootMenu'],
             'customizepxe' => self::$foglang['PXEConfiguration'],
             'newMenu' => self::$foglang['NewMenu'],
@@ -330,6 +331,93 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
     }
     /**
+     * Show the Secure Boot enrolment page.
+     *
+     * Displays the certificate fingerprint and links to the enrolment kit, so
+     * a technician has something to check the key against before trusting it
+     * on a machine. Nothing here is secret: the kit contains the public
+     * certificate only.
+     *
+     * @return void
+     */
+    public function secureBoot()
+    {
+        $kitdir = BASEPATH . 'service/secureboot';
+        $certfile = $kitdir . '/MOK.der';
+        $kiturl = rtrim(self::getSetting('FOG_WEB_ROOT'), '/') . '/service/secureboot';
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Secure Boot');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if (!file_exists($certfile)) {
+            printf(
+                '%s. %s <code>--secure-boot-key</code> %s <code>--secure-boot-cert</code> %s.',
+                _('Secure Boot kernel signing is not configured on this server'),
+                _('Re-run the installer with'),
+                _('and'),
+                _('to enable it')
+            );
+            echo '</div></div></div>';
+            return;
+        }
+        // The SHA-256 of the DER bytes IS the certificate fingerprint, so no
+        // openssl round trip is needed to show the value a technician will
+        // compare against.
+        $fingerprint = strtoupper(
+            implode(':', str_split(hash_file('sha256', $certfile), 2))
+        );
+        printf(
+            '%s. %s.',
+            _('FOS kernels on this server are signed for UEFI Secure Boot'),
+            _(
+                'Each client needs this certificate enrolled once, by someone '
+                . 'physically at the machine'
+            )
+        );
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<p><strong>' . _('Certificate SHA-256') . '</strong></p>';
+        echo '<pre>' . Initiator::e($fingerprint) . '</pre>';
+        echo '<p>';
+        echo _(
+            'Check this value matches what the enrolment script prints before '
+            . 'confirming. That comparison is what stops the wrong key being '
+            . 'trusted.'
+        );
+        echo '</p>';
+        echo '<p><strong>' . _('Enrolment kit') . '</strong></p>';
+        echo '<p>';
+        printf(
+            '%s. %s.',
+            _(
+                'Copy all three files onto a USB stick, boot the client from a '
+                . 'stock Ubuntu or Debian live image with Secure Boot left ON, '
+                . 'and run the launcher'
+            ),
+            _('No firmware changes are needed')
+        );
+        echo '</p>';
+        echo '<ul>';
+        foreach (array('MOK.der', 'fog-enroll-mok.sh', 'fog-enroll-mok.desktop') as $file) {
+            if (!file_exists($kitdir . '/' . $file)) {
+                continue;
+            }
+            printf(
+                '<li><a href="%1$s/%2$s">%2$s</a></li>',
+                Initiator::e($kiturl),
+                Initiator::e($file)
+            );
+        }
+        echo '</ul>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
      * Download the form.
      *
      * @return void
@@ -350,16 +438,25 @@ class FOGConfigurationPage extends FOGPage
                     $dstName
                 )
             );
-            $_SESSION['tmp-kernel-file'] = sprintf(
-                '%s%s%s%s',
-                DS,
-                trim(
-                    sys_get_temp_dir(),
-                    DS
-                ),
-                DS,
-                basename($_SESSION['dest-kernel-file'])
-            );
+            // With Secure Boot signing configured the download has to land in
+            // the staging directory the root signing helper works on, under
+            // the fixed name it expects. Everywhere else, the system temp
+            // directory as before.
+            $stagedir = self::secureBootStagingDir();
+            if ($stagedir) {
+                $_SESSION['tmp-kernel-file'] = $stagedir . DS . 'kernel';
+            } else {
+                $_SESSION['tmp-kernel-file'] = sprintf(
+                    '%s%s%s%s',
+                    DS,
+                    trim(
+                        sys_get_temp_dir(),
+                        DS
+                    ),
+                    DS,
+                    basename($_SESSION['dest-kernel-file'])
+                );
+            }
             $file = filter_input(INPUT_GET, 'file');
             $_SESSION['dl-kernel-file'] = base64_decode(
                 $file

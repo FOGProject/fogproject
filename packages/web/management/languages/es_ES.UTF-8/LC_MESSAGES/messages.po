@@ -905,6 +905,9 @@ msgstr "Capturar"
 msgid "Captured"
 msgstr "Última captura"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr ""
 
@@ -954,6 +957,11 @@ msgstr "Campo obligatorio está vacio"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 #, fuzzy
@@ -1082,6 +1090,11 @@ msgstr ""
 #, fuzzy
 msgid "Conflicting path/file"
 msgstr "Archivo"
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
 
 msgid "Copy from existing"
 msgstr ""
@@ -1509,6 +1522,11 @@ msgstr ""
 msgid "ESC is defaulted"
 msgstr ""
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "Editar"
 
@@ -1563,6 +1581,9 @@ msgid "End Time"
 msgstr "Fecha ya existe"
 
 msgid "Engineer"
+msgstr ""
+
+msgid "Enrolment kit"
 msgstr ""
 
 #, fuzzy
@@ -1635,6 +1656,9 @@ msgid "Error: Failed to download kernel"
 msgstr ""
 
 msgid "Error: Failed to open temp file"
+msgstr ""
+
+msgid "Error: Failed to sign the kernel for Secure Boot"
 msgstr ""
 
 msgid "Errors"
@@ -1912,6 +1936,9 @@ msgid "FOG is unable to communicate with the database"
 msgstr ""
 
 msgid "FOG server defaulting under the folder"
+msgstr ""
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
 msgid "FTP Connection has failed"
@@ -4242,6 +4269,9 @@ msgstr "Archivo no fue subido"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 #, fuzzy
 msgid "No friendly name defined"
 msgstr "Alias"
@@ -4973,6 +5003,9 @@ msgstr ""
 msgid "RX"
 msgstr ""
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Reboot"
 msgstr ""
 
@@ -5364,6 +5397,13 @@ msgstr ""
 
 msgid "Second parameter must be in array(class,function)"
 msgstr ""
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "No hay imágenes en este servidor"
 
 #, fuzzy
 msgid "Select Image"
@@ -7135,6 +7175,9 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr "todos los Nodos de Almacenamiento"
 
+msgid "and"
+msgstr ""
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -7836,6 +7879,9 @@ msgid "to be booted if no keys are pressed when the menu is"
 msgstr ""
 
 msgid "to clear the field on every host in this group."
+msgstr ""
+
+msgid "to enable it"
 msgstr ""
 
 msgid "to get the requested Initrd"

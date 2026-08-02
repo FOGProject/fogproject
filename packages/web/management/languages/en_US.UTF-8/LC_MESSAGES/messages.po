@@ -911,6 +911,9 @@ msgstr "Create"
 msgid "Captured"
 msgstr "Created"
 
+msgid "Certificate SHA-256"
+msgstr ""
+
 #, fuzzy
 msgid "Change password"
 msgstr "Management Password"
@@ -964,6 +967,11 @@ msgstr "Check that database is running"
 
 msgid ""
 "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid ""
+"Check this value matches what the enrolment script prints before confirming. "
+"That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 #, fuzzy
@@ -1092,6 +1100,11 @@ msgid "Confirm tasking"
 msgstr "Invalid task"
 
 msgid "Conflicting path/file"
+msgstr ""
+
+msgid ""
+"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
+"or Debian live image with Secure Boot left ON, and run the launcher"
 msgstr ""
 
 #, fuzzy
@@ -1545,6 +1558,11 @@ msgstr "Duration"
 msgid "ESC is defaulted"
 msgstr "Enabled as default"
 
+msgid ""
+"Each client needs this certificate enrolled once, by someone physically at "
+"the machine"
+msgstr ""
+
 msgid "Edit"
 msgstr "Edit"
 
@@ -1593,6 +1611,9 @@ msgstr "End Time"
 
 msgid "Engineer"
 msgstr "Engineer"
+
+msgid "Enrolment kit"
+msgstr ""
 
 #, fuzzy
 msgid "Enter a group name to search for"
@@ -1662,6 +1683,10 @@ msgstr "Error: Failed to download kernel"
 
 msgid "Error: Failed to open temp file"
 msgstr "Error: Failed to open temp file"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "Error: Failed to download kernel"
 
 msgid "Errors"
 msgstr "Errors"
@@ -1928,6 +1953,9 @@ msgid "FOG is unable to communicate with the database"
 msgstr ""
 
 msgid "FOG server defaulting under the folder"
+msgstr ""
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
 msgid "FTP Connection has failed"
@@ -4219,6 +4247,9 @@ msgstr "No file was uploaded"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr ""
 
@@ -4962,6 +4993,9 @@ msgstr "Click"
 msgid "RX"
 msgstr "RX"
 
+msgid "Re-run the installer with"
+msgstr ""
+
 msgid "Reboot"
 msgstr "Reboot"
 
@@ -5393,6 +5427,13 @@ msgstr ""
 #, fuzzy
 msgid "Second parameter must be in array(class,function)"
 msgstr "Second parameter must be in the form array(Hook class,Function to run)"
+
+msgid "Secure Boot"
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "There are no images on this server."
 
 msgid "Select Image"
 msgstr "Select Image"
@@ -7198,6 +7239,10 @@ msgstr " ago"
 msgid "all current storage nodes"
 msgstr "Invalid storage node"
 
+#, fuzzy
+msgid "and"
+msgstr "End"
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -7909,6 +7954,9 @@ msgstr ""
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Could not find a Storage Node, is there one enabled within this group?"
+
+msgid "to enable it"
+msgstr ""
 
 #, fuzzy
 msgid "to get the requested Initrd"
