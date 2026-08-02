@@ -1092,6 +1092,30 @@ configureTFTPandPXE() {
     find -type d -exec mkdir -p $tftpdirdst/{} \; >>$error_log 2>&1
     find -type f -exec cp -Rfv {} $tftpdirdst/{} \; >>$error_log 2>&1
     cd $workingdir
+    # iPXE resolves the bare name "autoexec.ipxe" against its current working
+    # URI -- the TFTP directory the running .efi was itself fetched from -- not
+    # against a fixed path. So a binary booted from the root of $tftpdirdst
+    # looks for the script beside itself in the root, while our EMBED-less
+    # binaries under autoexec/ look inside autoexec/. Publish both paths.
+    #
+    # This is what the Secure Boot chain needs: upstream's signed ipxe.efi has
+    # no script compiled in and sits at the root, so without this it asks for a
+    # file that was never created. See GH-960.
+    #
+    # Hard link, not a copy: the two paths are meant to be the same script, and
+    # a link keeps them from drifting when someone edits one. Not a symlink --
+    # some TFTP daemons refuse to follow those, and a hard link is
+    # indistinguishable from a regular file to every daemon.
+    #
+    # Relinked unconditionally on every run. In practice the copy loop above
+    # truncates the existing file in place and the link survives, but that is
+    # cp's behaviour rather than a guarantee, and an admin who replaced the
+    # file with an editor that writes-and-renames will have broken the link.
+    # ln -f is idempotent, so re-running costs nothing and restores the
+    # invariant either way.
+    if [[ -f $tftpdirdst/autoexec/autoexec.ipxe ]]; then
+        ln -f $tftpdirdst/autoexec/autoexec.ipxe $tftpdirdst/autoexec.ipxe >>$error_log 2>&1
+    fi
     chown -R $username $tftpdirdst >>$error_log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$error_log 2>&1
     find $tftpdirdst -type d -exec chmod 755 {} \; >>$error_log 2>&1
