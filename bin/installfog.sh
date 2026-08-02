@@ -804,6 +804,10 @@ while [[ -z $blGo ]]; do
                 esac
             fi
             configureUsers
+            # GH-964: before either branch configures a web tier. Storage nodes
+            # get this too -- configureMinHttpd still runs as httpd_t and still
+            # has to reach the master over HTTP.
+            installSELinuxModule
             case $installtype in
                 [Ss])
                     checkDatabaseConnection

@@ -1,0 +1,102 @@
+module fog 1.0.0;
+
+########################################################################
+#
+# FOG's SELinux policy module.
+#
+# WHY THIS EXISTS
+# ---------------
+# FOG's web tier makes three kinds of outbound connection: HTTP to itself
+# and to storage nodes, FTP to storage nodes for image replication, and
+# SSH (via php-pecl-ssh2) for node management. Under SELinux, httpd_t is
+# not permitted any of them by default.
+#
+# The usual answer is `setsebool -P httpd_can_network_connect on`. That
+# boolean grants name_connect on the `port_type` ATTRIBUTE -- which is to
+# say, every port type in the policy. Turning it on to reach three ports
+# grants several hundred, permanently, to a network-facing daemon that
+# serves user-supplied PHP. For a product whose whole job is imaging
+# machines on a trusted network, that is a poor trade.
+#
+# The narrower booleans do not cover it either:
+#
+#   httpd_graceful_shutdown   http_port_t only -- but it is named for, and
+#                             documented as, something else entirely
+#   httpd_can_connect_ftp     ftp_port_t + ephemeral (passive data channel)
+#   httpd_can_network_relay   7 port types, http and ftp among them
+#   ssh_port_t                NO boolean exists. Only the blanket one.
+#
+# So SSH alone forces the choice between a module and granting everything.
+# Given that, the module carries all three rather than leaving FOG half
+# configured by booleans it has to document and half by policy.
+#
+# WHAT IT DELIBERATELY DOES NOT DO
+# --------------------------------
+# No file contexts. Those are handled by setSELinuxContext() in the
+# installer via semanage fcontext, which works on a stock system with no
+# policy-development tooling installed. Keeping this module to the rules
+# that genuinely have no other expression keeps the thing FOG has to
+# maintain across distro policy versions as small as possible.
+#
+# BUILDING
+# --------
+# Built from source at install time, never shipped precompiled: a .pp is
+# tied to the policy version of the machine that built it and will refuse
+# to load on an older one. Compiling against the target's own policy is
+# what makes one source file work on RHEL, Rocky, Alma and Fedora alike.
+#
+#   checkmodule -M -m -o fog.mod fog.te
+#   semodule_package -o fog.pp -m fog.mod
+#   semodule -i fog.pp
+#
+# Note the plain `module` declaration above rather than refpolicy's
+# `policy_module()`. That macro would pull in refpolicy's headers and so
+# require selinux-policy-devel, which is not installed by default on any
+# distro FOG supports. Nothing here needs a refpolicy macro -- these are
+# three flat allow rules -- so the module is written to build with
+# checkmodule and semodule_package alone, both of which come from
+# checkpolicy and policycoreutils and are already present anywhere
+# semanage is.
+#
+# checkmodule does NOT resolve the require{} block against the running
+# policy; that happens when semodule links it. A type renamed by a future
+# distro policy would therefore compile cleanly here and fail at load,
+# which is why the installer reports a load failure rather than assuming
+# a successful build means a successful install.
+#
+# The installer does this only when SELinux is actually enabled, and never
+# fails an install over it.
+#
+########################################################################
+
+require {
+    type httpd_t;
+    type http_port_t;
+    type ftp_port_t;
+    type ssh_port_t;
+    class tcp_socket name_connect;
+}
+
+#
+# HTTP: the web tier calls its own API and its storage nodes' APIs.
+#
+allow httpd_t http_port_t:tcp_socket name_connect;
+
+#
+# FTP: image and snapin replication between storage nodes.
+#
+# Only the control channel is granted here. Passive-mode data connections
+# land on ephemeral ports, which would need a much wider grant -- FOG's
+# replicators use lftp from a CLI daemon, not from httpd_t, so the web
+# tier does not need the data channel and is not given it.
+#
+allow httpd_t ftp_port_t:tcp_socket name_connect;
+
+#
+# SSH: php-pecl-ssh2, used for storage node management.
+#
+# This is the rule with no boolean equivalent at any width, and therefore
+# the reason this module exists rather than a setsebool line in the
+# installer.
+#
+allow httpd_t ssh_port_t:tcp_socket name_connect;
