@@ -53,7 +53,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.5.10.2174');
+        define('FOG_VERSION', '1.5.10.2175');
         define('FOG_SCHEMA', 277);
         define('FOG_BCACHE_VER', 141);
         define('FOG_CLIENT_VERSION', '0.13.0');
@@ -62,6 +62,6 @@ class System
         // given FOG release ships a known iPXE -- the installer uses this both
         // to pick the download and to check out the matching source when an
         // HTTPS install has to rebuild with its own CA.
-        define('FOG_IPXE_VERSION', 'v2.0.0-fog.1');
+        define('FOG_IPXE_VERSION', 'v2.0.0-fog.2');
     }
 }
