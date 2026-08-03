@@ -3135,6 +3135,11 @@ msgid ""
 "If disabled, the client will not make changes until all users are logged off"
 msgstr ""
 
+msgid ""
+"If that chain loads but the network never comes up, the firmware's own UEFI "
+"network stack is at fault. Point the boot filename at"
+msgstr ""
+
 msgid "If this is an upgrade"
 msgstr ""
 
@@ -8387,6 +8392,11 @@ msgid "in seconds"
 msgstr ""
 
 msgid "initrd (Initial Ramdisk) Update"
+msgstr ""
+
+msgid ""
+"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
+"Arm64 clients use the files under secureboot/arm64-efi/"
 msgstr ""
 
 #, fuzzy
