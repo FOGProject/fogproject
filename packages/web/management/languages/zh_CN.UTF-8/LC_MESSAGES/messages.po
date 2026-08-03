@@ -866,12 +866,6 @@ msgstr "启动选项："
 msgid "Boot files from"
 msgstr ""
 
-msgid ""
-"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
-"left ON. Those images boot under Secure Boot on their own signed shim, so no "
-"firmware changes are needed."
-msgstr ""
-
 msgid "Both"
 msgstr ""
 
@@ -1158,8 +1152,9 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Check this value matches what the enrolment script prints before confirming. "
-"That comparison is what stops the wrong key being trusted."
+"Check this value against what the enrolment tool shows before confirming, "
+"whether the certificate reached the client on a USB stick or over the "
+"network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -1229,11 +1224,6 @@ msgstr ""
 msgid "Command"
 msgstr "管理单元命令"
 
-msgid ""
-"Compare the SHA-256 it prints against the one shown above. If they differ, "
-"stop -- that comparison is the whole security of this step."
-msgstr ""
-
 msgid "Complete"
 msgstr "完成"
 
@@ -1288,19 +1278,9 @@ msgstr "错误：无法下载内核"
 msgid "Confirm you would like to download a new kernel"
 msgstr "错误：无法下载内核"
 
-msgid ""
-"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
-"or Debian live image with Secure Boot left ON, and run the launcher"
-msgstr ""
-
 #, fuzzy
 msgid "Copy from existing"
 msgstr "无法创建打印机"
-
-msgid ""
-"Copy the three files above onto a USB stick, keeping them in the same folder "
-"-- the script expects MOK.der beside it."
-msgstr ""
 
 msgid "Copyright"
 msgstr ""
@@ -1928,13 +1908,12 @@ msgstr ""
 msgid "Engineer"
 msgstr "工程师"
 
-msgid "Enrolment kit"
+msgid ""
+"Enroll Secure Boot Key is also a task type: schedule it against a host or a "
+"group from Task Scheduling to skip hunting for the menu item on each machine."
 msgstr ""
 
-msgid ""
-"Enter a one-time password twice when asked. It only proves at the next "
-"reboot that you are the same person; it is not stored and does not need to "
-"be strong."
+msgid "Enrolment kit"
 msgstr ""
 
 msgid "Equipment Loan"
@@ -2354,6 +2333,10 @@ msgid "File upload stopped by an extension"
 msgstr "上传文件通过一个扩展停止"
 
 #, fuzzy
+msgid "File uploaded to storage node and re-signed for Secure Boot!"
+msgstr "未能摧毁存储节点"
+
+#, fuzzy
 msgid "File uploaded to storage node!"
 msgstr "未能摧毁存储节点"
 
@@ -2382,6 +2365,12 @@ msgstr ""
 #, fuzzy
 msgid "Flush Settings Cache"
 msgstr "FOG设置"
+
+msgid ""
+"For a live-USB enrolment, copy all three files onto a USB stick, boot the "
+"client from a stock Ubuntu or Debian live image with Secure Boot left ON, "
+"and run the launcher. No firmware changes are needed."
+msgstr ""
 
 msgid "For a network/SMB share use its path, e.g."
 msgstr ""
@@ -2446,6 +2435,11 @@ msgstr "内核名称"
 #, fuzzy
 msgid "Full History"
 msgstr "登录历史记录"
+
+msgid ""
+"Full step-by-step instructions for this and for enrolling straight from the "
+"PXE boot menu, with no USB stick, are in the Secure Boot guide:"
+msgstr ""
 
 #, fuzzy
 msgid "Function"
@@ -3123,11 +3117,6 @@ msgstr "图标"
 
 msgid "Icon File not found"
 msgstr "图标文件未找到"
-
-msgid ""
-"If MOK Manager does not appear, the machine did not boot through a shim and "
-"nothing was enrolled."
-msgstr ""
 
 msgid "If credentials are correct"
 msgstr ""
@@ -4675,9 +4664,6 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
-msgid "No firmware changes are needed"
-msgstr ""
-
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4966,9 +4952,6 @@ msgstr "仪表板上"
 #, fuzzy
 msgid "On Server Size"
 msgstr "服务器外壳"
-
-msgid "On each client, once"
-msgstr ""
 
 msgid "On reboot we will try to find a new node"
 msgstr ""
@@ -5565,11 +5548,6 @@ msgstr "重启"
 msgid "Reboot after deploy"
 msgstr ""
 
-msgid ""
-"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
-"key 0, Continue, Yes, then the password, then Reboot."
-msgstr ""
-
 msgid "Receive"
 msgstr "接收"
 
@@ -5788,11 +5766,6 @@ msgstr ""
 msgid "Row"
 msgstr "行"
 
-msgid ""
-"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
-"re-runs itself with sudo."
-msgstr ""
-
 #, fuzzy
 msgid "Running Windows"
 msgstr "运行版本"
@@ -5937,8 +5910,18 @@ msgid ""
 "server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
+msgid ""
+"Secure Boot does not need to be enabled on a client to enrol its key -- "
+"either route works the same way with it off, which lets you stage enrolment "
+"fleet-wide before ever turning it on."
+msgstr ""
+
 #, fuzzy
 msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "有此服务器上没有图像。"
+
+#, fuzzy
+msgid "Secure Boot: signing FOS with your own key"
 msgstr "有此服务器上没有图像。"
 
 #, fuzzy
@@ -7352,6 +7335,12 @@ msgstr "管理单元路径"
 msgid "Trying image size for"
 msgstr "管理单元路径"
 
+msgid ""
+"Two routes are covered in the guide linked above: a live USB with the kit "
+"above, or PXE-booting the client and choosing Enroll Secure Boot Key, which "
+"now fetches MOK.der over the network on its own, with no USB stick needed."
+msgstr ""
+
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "事件必须是字符串"
@@ -7921,6 +7910,13 @@ msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
 msgid "Where to get help and guides"
+msgstr ""
+
+msgid ""
+"Whichever route is used, MokManager -- the blue enrolment screen -- has its "
+"own timeouts FOG cannot change: it gives up and boots normally if nothing is "
+"pressed within about 10 seconds of appearing, and reboots if left idle "
+"partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
 msgid "Width must be 650 pixels."

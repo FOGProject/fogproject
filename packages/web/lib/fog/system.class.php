@@ -62,7 +62,7 @@ class System
         define('FOG_VERSION', '1.6.0-beta.3157');
         define('FOG_CHANNEL', 'Beta');
         define('FOG_SCHEMA', 322);
-        define('FOG_BCACHE_VER', 269);
+        define('FOG_BCACHE_VER', 270);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
         // a release asset. Pinned here rather than tracked as "latest" so a

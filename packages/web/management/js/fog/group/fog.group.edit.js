@@ -635,7 +635,14 @@
             action = $(this).attr('action'),
             opts = {
                 confirmenforcesend: 1,
-                enforce: $('#enforce')[0].checked ? 1 : 0
+                // #enforce is a tri-state <select> here ('' = no change,
+                // '1'/'0' = force on every host), matching #adEnabled above.
+                // This read was left over from when it was a checkbox: .checked
+                // is undefined on a <select>, so the ternary posted 0 for every
+                // choice -- "Enable on all hosts" disabled them instead, and
+                // "No change" clobbered the whole group. Send the raw value and
+                // let groupModulePost() decide; it already ignores ''.
+                enforce: $('#enforce').val()
             };
         $.apiCall(method,action,opts,function(err) {
             disableModuleEnforceButtons(false);
