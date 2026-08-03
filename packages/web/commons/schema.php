@@ -4896,24 +4896,39 @@ $this->schema[] = [
     // ttID 25, not 24: 24 was deleted by name in an earlier step and its id is
     // not reused, matching how pxeMenu ids are handled above.
     //
-    // ttIsAccess 'both' is the point of the feature -- enrolling one machine at
-    // a time is what the existing USB kit and PXE menu item 14 already do, and
-    // neither scales past a handful. Group tasking is what makes this useful.
+    // ttIsAdvanced '0': it changes nothing on disk and stages a request the
+    // technician must still confirm at MokManager, so hiding it behind Advanced
+    // would cost discoverability and buy no safety.
     //
-    // ttIsAdvanced '0': this is an ordinary fleet operation, not a debug tool.
-    // It changes nothing on disk and stages a request the technician must still
-    // confirm at the MokManager screen, so hiding it behind Advanced would cost
-    // discoverability and buy no safety.
+    // The description carries TWO limits, and omitting either costs someone a
+    // wasted trip to a machine:
+    //
+    //   1. The MokManager confirmation cannot be automated. shim's MokList is a
+    //      boot-services-only variable, so nothing FOG does can enrol a key
+    //      unattended.
+    //   2. The task cannot run at all when Secure Boot is already enforcing.
+    //      iPXE verifies the kernel AND the initrd through shim, so on a client
+    //      that does not yet trust this server's key both are refused with
+    //      "Verification failed: Security Policy Violation" and FOS never
+    //      starts. Measured on real firmware 2026-08-03; see fos ADR-0009.
+    //
+    // So this is for machines with Secure Boot currently OFF that are going to
+    // have it switched on -- NOT for enrolling a fleet that is already
+    // enforcing. An admin who schedules it against 200 enforcing machines and
+    // watches every one fail to boot has been misled by us, and the place to
+    // prevent that is the text they read before scheduling.
     "INSERT IGNORE INTO `taskTypes` "
     . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,`ttKernel`,"
     . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
     . "VALUES "
-    . "(25,'Enroll Secure Boot','This task stages this FOG server''s Secure "
-    . "Boot signing certificate for enrolment on the client, so the client "
-    . "can boot FOS with Secure Boot switched on. The client must still be "
-    . "confirmed once at the MOK Manager screen on its next boot, by someone "
-    . "at the keyboard -- shim requires that and it cannot be automated. The "
-    . "one-time password is shown on the client screen, or set fleet-wide with "
-    . "the sbmokpw kernel argument.','shield','','mode=enrollsb','fog','0',"
-    . "'both')",
+    . "(25,'Enroll Secure Boot','Stages this FOG server''s Secure Boot signing "
+    . "certificate on the client, so the client can boot FOS with Secure Boot "
+    . "switched on. USE ON CLIENTS THAT CURRENTLY HAVE SECURE BOOT OFF: a "
+    . "client already enforcing Secure Boot does not trust this server''s "
+    . "kernel yet, so it cannot boot FOS at all and this task will not run. "
+    . "The client must also be confirmed once at the MOK Manager screen on its "
+    . "next boot, by someone at the keyboard -- shim requires that and it "
+    . "cannot be automated. The one-time password is shown on the client "
+    . "screen, or set fleet-wide with the sbmokpw kernel argument.','shield',"
+    . "'','mode=enrollsb','fog','0','both')",
 ];

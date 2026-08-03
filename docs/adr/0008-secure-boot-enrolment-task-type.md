@@ -1,84 +1,91 @@
-# Secure Boot enrolment is a task type, and the server never claims it enrolled anything
+# The Secure Boot enrolment task type, and the narrow case it is actually for
 
-The client-side mechanics and the reasoning behind them live in
+The client-side mechanics and the full reasoning live in
 [fos ADR-0009](https://github.com/FOGProject/fos/blob/master/docs/adr/0009-secure-boot-enrolment-paths.md).
-This ADR records the decisions that belong to the **server**: why enrolment
-became a task type at all, what the task is allowed to say it did, and what the
-server will and will not ship.
+This ADR records the server-side decisions: what the task type is for, what it is
+**not** for, and what the server will ship for the automated path.
 
-## Why a task type
+## The correction that shapes this
 
-The server already generates a signing key by default, signs the FOS kernels on
-every install and upgrade (`_resignKernels`), and publishes an enrolment kit
-(`_publishSecureBootKit`). Two delivery routes existed and neither scales:
+An earlier revision of this ADR presented the task type as the answer to
+enrolling FOG's Secure Boot certificate across a fleet. **It is not, and cannot
+be.**
 
-- the USB kit — make a stick, boot a stock Ubuntu/Debian live image, run
-  `fog-enroll-mok.sh`, compare a fingerprint by eye, reboot, answer MokManager
-- PXE menu item 14 (`BootMenu::_enrollSecureBootChoice`) — chains MokManager
-  directly, and still needs `MOK.der` on local FAT media because MokManager has
-  no network stack
+Measured on real firmware (2026-08-03): iPXE verifies both the kernel and the
+initrd through shim. On a machine with Secure Boot enforcing and FOG's key not
+yet trusted, `bzImage` and `init.xz` are both refused with
+`Verification failed: Security Policy Violation`. FOS never starts, so a FOG task
+running inside FOS cannot possibly be what establishes trust in FOG's key.
 
-Both are per-machine, manual, and require materials the technician has to
-prepare in advance. Neither is usable on a fleet, which is the only scale at
-which Secure Boot support is worth having.
+The task that would enrol the key cannot run on the machine that needs it.
 
-A task type is the right shape because **group tasking is the entire point**.
-`ttIsAccess` is `'both'` so a whole group can be scheduled at once; that is the
-capability the existing routes lack, not the enrolment itself.
+## What the task type IS for
 
-`ttIsAdvanced` is `'0'`. This is an ordinary fleet operation, not a debug tool.
-It changes nothing on disk, and the request it stages must still be confirmed by
-a human at the MokManager screen, so hiding it behind Advanced would cost
-discoverability and buy no safety.
+**Machines that currently have Secure Boot off and are going to have it turned
+on.** That is a real and common case — many sites disable Secure Boot precisely
+so they can use FOG, and want it back on afterwards.
 
-`ttID` is 25, not 24: 24 was deleted by name in an earlier schema step and its
-id is not reused, matching how `pxeMenu` ids are handled.
+For those, the task stages the certificate with no USB stick, no Ubuntu live
+image and no fingerprint transcription; the technician confirms once at
+MokManager. That is a genuine improvement on the existing USB kit, for that case,
+and nothing more.
 
-## The task description must not overclaim
+`ttIsAccess` is `'both'` so a group can still be scheduled at once — useful when
+a whole batch is in the same "Secure Boot currently off" state. `ttIsAdvanced` is
+`'0'`: it changes nothing on disk and the request must still be confirmed by a
+human, so hiding it would cost discoverability and buy no safety. `ttID` is 25,
+not 24, because 24 was deleted by name in an earlier schema step and its id is
+not reused, matching how `pxeMenu` ids are handled.
 
-shim's `MokList` is a boot-services-only variable, so the running OS cannot write
-it — only MokManager can, and it demands a one-time password as proof of physical
-presence. FOG stages a request; it does not enrol a key.
+## The description must state both limits
 
-The `ttDescription` therefore says so explicitly, including that the confirmation
-step *cannot* be automated. An admin who schedules this against 200 machines and
-then discovers each one needs a keyboard visit has been misled by us, and the
-place to prevent that is the description they read before scheduling.
+Two things will mislead an admin if the task description omits them, and both
+cost a wasted trip to a machine:
 
-The same constraint governs status reporting: the task reports **pending**, not
-**enrolled**. Server-side surfacing of that state, and of the one-time password,
-lands with Phase 2 alongside the automatic `db` path.
+1. The MokManager confirmation **cannot** be automated. shim's `MokList` is
+   boot-services-only; nothing FOG does can enrol a key unattended.
+2. The task **cannot run at all** if Secure Boot is already enforcing.
 
-## What the server will ship: Microsoft's certificates
+An admin who schedules this against 200 enforcing machines and watches every one
+fail to boot has been misled by us. The place to prevent that is the text they
+read before scheduling, so `ttDescription` says both outright.
+
+## What the server will ship for the automated path
 
 *(Decided here, implemented in Phase 2.)*
 
-The automatic path enrols into `db`, which means replacing the platform PK,
-which means the server has to decide what else goes into `db` alongside FOG's
-certificate. It will be Microsoft's published certificates — KEK CA 2011,
-Windows Production PCA 2011, UEFI CA 2011, plus the 2023 generation.
+The automated path is writing `db` while the platform is in **Setup Mode**, where
+nothing is enforcing, FOS loads normally, and `db` is writable without a
+signature. The baseline keyset will be Microsoft's published certificates — KEK
+CA 2011, Windows Production PCA 2011, UEFI CA 2011, plus the 2023 generation.
 
 The decisive reason is FOG's own boot chain, not Windows.
-`downloadipxesecureboot()` already records that the Secure Boot iPXE binaries
-are *"signed by keys FOG does not hold: Microsoft's, for the shim, and iPXE's."*
-The chain is `secureboot/snponly-shimx64.efi` → signed iPXE → FOG-signed kernel,
-and that shim is signed by **Microsoft Corporation UEFI CA 2011**. Ship a `db`
-without it and FOG's own Secure Boot PXE boot stops working — we would enrol the
-key and break the thing we enrolled it for.
+`downloadipxesecureboot()` already records that the Secure Boot iPXE binaries are
+*"signed by keys FOG does not hold: Microsoft's, for the shim, and iPXE's."* The
+chain observed in testing was `secureboot/snponly-shimx64.efi` →
+`secureboot/snponly.efi` → FOG-signed kernel, and that shim is signed by
+**Microsoft Corporation UEFI CA 2011**. Ship a `db` without it and FOG's own
+Secure Boot PXE boot stops working.
 
-These are public certificates that Microsoft publishes so that people can enrol
-them; Debian, Fedora, `sbctl` and `efitools` all redistribute them. There is no
-licensing barrier, and an earlier concern that there might be was mistaken.
+These are public certificates Microsoft publishes so people can enrol them;
+Debian, Fedora, `sbctl` and `efitools` all redistribute them. An earlier concern
+about a licensing barrier was mistaken.
 
-The alternative — capturing each machine's factory keyset and restoring it — was
-rejected as the baseline and kept as optional enrichment. See fos ADR-0009 for
-the full reasoning; briefly, it has no answer for the first machine of a model,
-it depends on an ordering the admin cannot recover from getting wrong, and
-restoring a captured `dbx` from an older BIOS re-trusts bootloaders revoked
-since.
+Capturing each machine's factory keyset was rejected as the baseline and kept as
+optional enrichment — see fos ADR-0009 for why (no answer for the first machine
+of a model; an unrecoverable ordering trap; `dbx` rollback re-trusting revoked
+bootloaders). `dbx` will not be baked into the shipped bundle.
 
-`dbx` will not be baked into the shipped bundle. A stale revocation list shipped
-by FOG is worse than none and would make FOG responsible for keeping it current.
+## Out-of-band is the real zero-touch tier
+
+Redfish (`/redfish/v1/Systems/{id}/SecureBoot` and its `SecureBootDatabases`
+collection) writes `db` with the client powered off — no boot, no OS, no physical
+presence. Dell `cctk` is the desktop equivalent where a trusted OS is already
+running.
+
+This should be documented as a first-class tier rather than a "follow-on",
+because it is the only path that is automated end to end with no per-machine
+visit at all.
 
 ## Key handling is unchanged
 
@@ -87,18 +94,16 @@ The private key stays root-owned at `${fogprogramdir}/secureboot/MOK.key`, mode
 The Phase 2 `.auth` builder will follow the existing `fog-sign-kernel` pattern
 exactly: a root-only helper taking no arguments, invoked through a validated
 `sudoers` drop-in, with its configuration baked in at install time so a
-compromised web server cannot name its own key.
-
-That separation is the one thing in this feature that must not be got wrong, and
-Phase 2 adds no new way to reach the key.
+compromised web server cannot name its own key. Phase 2 adds no new way to reach
+the key.
 
 ## Consequences
 
 - New `taskTypes` row 25, `mode=enrollsb`, appended as schema step 322.
-- The FOS side needs `mokutil` in the init and a fixed efivarfs mount; see fos
-  ADR-0009.
-- Phase 2 adds `packages/secureboot/fog-build-sb-authvars`, the MS baseline
-  keyset, and Secure Boot page UI for enrolment state.
-- The existing USB kit and PXE menu item 14 stay. They are the answer for a
-  machine that cannot PXE boot FOS at all, which is exactly the machine that
-  cannot run this task.
+- Verified end to end on 2026-08-03: `boot.php` emits `mode=enrollsb` on the
+  kernel line, FOS dispatches it, `MokNew`/`MokAuth` land in NVRAM carrying FOG's
+  exact certificate, the task reports Complete, and shim shows MokManager on the
+  next boot — on a machine whose Secure Boot was off, per the scope above.
+- The existing USB kit and PXE menu item 14 stay, and become *more* important,
+  not less: they are the only routes that work on a machine already enforcing
+  Secure Boot that cannot be put into Setup Mode.
