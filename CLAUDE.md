@@ -42,6 +42,26 @@ When porting a fix from 1.6, expect the target file to have a **different name a
 
 ---
 
+## Feature development order: working-1.6 first, then port here
+
+**Until `working-1.6` is promoted to become the new stable/patches line**,
+any *new feature* (as opposed to a bug fix scoped to one branch) should be
+developed on `working-1.6` first — branch from it, open a PR against it —
+and only afterward ported to `dev-branch` as a **separate** PR. This is the
+reverse of what feels natural given `dev-branch` is the actively-patched line
+today, but `working-1.6` is where the project's future lives, and landing
+new capability there first keeps it from falling further behind.
+
+See the Secure Boot signing work (`fogproject#961`, later ported to
+`working-1.6` in `8226cd9`) for what happens when it is done backwards: the
+port had to reconcile real divergence after the fact — different page-file
+conventions, a page-class shape (`_downloadPost($type)`) that would have
+silently signed the initrd instead of just the kernel without an added gate,
+hardcoded paths that broke on non-default install locations — rather than
+being designed around any of that from the start.
+
+---
+
 ## Directory Structure
 
 ```
