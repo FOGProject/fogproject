@@ -2498,6 +2498,11 @@ msgstr "如果关机"
 msgid "If on"
 msgstr "如果开机"
 
+msgid ""
+"If that chain loads but the network never comes up, the firmware's own UEFI "
+"network stack is at fault. Point the boot filename at"
+msgstr ""
+
 msgid "If there is not a task set"
 msgstr "如果没有设置任务"
 
@@ -6706,6 +6711,11 @@ msgstr "几秒钟内"
 
 msgid "install or update the FOG database"
 msgstr "安装或更新FOG数据库"
+
+msgid ""
+"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
+"Arm64 clients use the files under secureboot/arm64-efi/"
+msgstr ""
 
 msgid "is already running with pid: "
 msgstr "已在运行，PID："

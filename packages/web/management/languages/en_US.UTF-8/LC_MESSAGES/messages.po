@@ -2842,6 +2842,11 @@ msgstr ""
 msgid "If on"
 msgstr "Icon"
 
+msgid ""
+"If that chain loads but the network never comes up, the firmware's own UEFI "
+"network stack is at fault. Point the boot filename at"
+msgstr ""
+
 #, fuzzy
 msgid "If there is not a task set"
 msgstr "There is a host in a tasking"
@@ -7670,6 +7675,11 @@ msgstr ""
 #, fuzzy
 msgid "install or update the FOG database"
 msgstr "Are you sure you wish to install or update the FOG database?"
+
+msgid ""
+"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
+"Arm64 clients use the files under secureboot/arm64-efi/"
+msgstr ""
 
 #, fuzzy
 msgid "is already running with pid: "
