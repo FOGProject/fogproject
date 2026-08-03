@@ -40,6 +40,7 @@ class TaskType extends FOGController
     const FAST_WIPE = 18;
     const NORMAL_WIPE = 19;
     const FULL_WIPE = 20;
+    const ENROLL_SECUREBOOT = 25;
     const DEBUGTASKS = [
         self::DEBUG,
         self::MULTICAST,
@@ -241,12 +242,13 @@ class TaskType extends FOGController
         if ($nums) {
             return array_values(
                 array_diff(
-                    range(1, 24),
+                    range(1, 25),
                     [
                         self::MEMTEST,
                         self::ALL_SNAPINS,
                         self::SINGLE_SNAPIN,
-                        self::WAKE_UP
+                        self::WAKE_UP,
+                        self::ENROLL_SECUREBOOT
                     ]
                 )
             );
@@ -259,7 +261,8 @@ class TaskType extends FOGController
                     self::MEMTEST,
                     self::ALL_SNAPINS,
                     self::SINGLE_SNAPIN,
-                    self::WAKE_UP
+                    self::WAKE_UP,
+                    self::ENROLL_SECUREBOOT
                 ]
             );
     }

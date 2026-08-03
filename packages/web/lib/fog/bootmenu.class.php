@@ -1877,6 +1877,14 @@ class BootMenu extends FOGBase
                     "boot",
                 ];
                 $this->_parseMe($Send);
+            } elseif ($Task->get('typeID') == TaskType::ENROLL_SECUREBOOT) {
+                // Same non-kernel-chain special case as Memtest above --
+                // reuse the exact iPXE lines the manual "Enroll Secure Boot
+                // Key" menu item (pxeID 14) already chains to, so a
+                // scheduled task and a manually-picked menu item can never
+                // drift apart.
+                $Send['secureboot-enroll'] = $this->_enrollSecureBootChoice();
+                $this->_parseMe($Send);
             } else {
                 $this->_printTasking($kernelArgsArray);
             }
@@ -2031,18 +2039,28 @@ class BootMenu extends FOGBase
         $mmTarget = (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm'))
             ? "$this->_booturl/secureboot/arm64-efi/mmaa64.efi"
             : "$this->_booturl/secureboot/mmx64.efi";
-        // MokManager can only read a certificate off a FAT filesystem it can
-        // see -- it has no network stack, so booting it over the network does
-        // NOT deliver MOK.der with it. Say so before chaining, or the tech
-        // arrives at "Enroll key from disk" with nothing to select and no
-        // indication of why.
+        // iPXE's EFI filesystem driver exposes every image it has downloaded
+        // -- kernel, initrd, or a plain imgfetch like this one -- to any EFI
+        // app that enumerates SimpleFileSystemProtocol handles. MokManager's
+        // own "Enroll key from disk" browser does exactly that, and a normal
+        // netboot already puts bzImage/init.xz in front of it this way, so
+        // fetching MOK.der here makes it selectable too, without a USB stick
+        // -- confirmed on physical hardware. Keep the USB fallback text below
+        // regardless, in case a given machine's MokManager only walks handles
+        // backed by a real block device.
         return [
-            'echo Have MOK.der on a FAT-formatted USB stick in this machine.',
-            'echo MokManager reads it from local media, not from the network.',
+            "imgfetch $this->_booturl/secureboot/MOK.der MOK.der || "
+            . "echo Could not fetch MOK.der over the network.",
             // No quotes in the text: iPXE's tokenizer treats them as quoting
             // and strips them, so they would vanish from the output anyway.
-            'echo Choose Enroll key from disk, then find MOK.der on the stick.',
-            'sleep 5',
+            'echo MOK.der has been downloaded into memory as MOK.der --',
+            'echo look for it under Enroll key from disk.',
+            'echo MokManager gives up after about 10 seconds with no',
+            'echo keypress, and reboots if left idle for a few minutes --',
+            'echo be ready before it appears.',
+            'echo If it is not listed there, have MOK.der on a',
+            'echo FAT-formatted USB stick in this machine instead.',
+            'sleep 8',
             "chain -ar $mmTarget || "
             . "echo Could not load the Secure Boot enrolment menu. && "
             . "sleep 5 && goto MENU"

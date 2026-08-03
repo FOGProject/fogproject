@@ -4888,3 +4888,32 @@ $this->schema[] = [
     . "VALUES "
     . "(14, 'fog.enrollsecureboot', 'Enroll Secure Boot Key', '0', '2', NULL)",
 ];
+// 322
+$this->schema[] = [
+    // Lets "Enroll Secure Boot Key" be scheduled like any other task
+    // (against a host or a group) instead of only being reachable by
+    // manually picking pxeID 14 from the boot menu every time. 25 is the
+    // next free ttID -- 23 and 24 were used and later fully removed (see
+    // the two DELETE FROM `taskTypes` steps above), so their ids are not
+    // reused.
+    //
+    // Empty ttKernel/ttKernelArgs: this task type never reaches the
+    // generic kernel-chain path in BootMenu::getTasking() -- it is
+    // special-cased there, the same way ttID 4 (Memtest) already is, to
+    // reuse BootMenu::_enrollSecureBootChoice() instead. Leaving
+    // ttKernelArgs empty also avoids accidentally matching the
+    // type=/mode= regex fallbacks TaskType::isDeploy()/isCapture()/etc.
+    // use for tasks created before those columns existed.
+    "INSERT IGNORE INTO `taskTypes` "
+    . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,`ttKernel`,"
+    . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
+    . "VALUES "
+    . "(25, 'Enroll Secure Boot Key', 'Enroll Secure Boot Key will "
+    . "chain the client straight to the Secure Boot enrolment menu "
+    . "so a technician can enrol this FOG server\'s MOK without "
+    . "hunting for it in the PXE boot menu. A technician still has "
+    . "to be at the console: MokManager gives up after about 10 "
+    . "seconds with no keypress and boots normally, and reboots if "
+    . "left idle partway through for a few minutes.', 'lock', '', "
+    . "'', 'fog', '1', 'both')",
+];
