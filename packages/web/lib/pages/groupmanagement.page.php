@@ -1371,7 +1371,17 @@ class GroupManagement extends FOGPage
             . '<option value="1">' . _('Enable on all hosts') . '</option>'
             . '<option value="0">' . _('Disable on all hosts') . '</option>'
             . '</select>'
-            . '<p class="form-text help-block-tight">'
+            // The hint is server-rendered from the members' current values, so
+            // it goes stale the moment the tri-state is applied over AJAX (the
+            // tab is never re-rendered). Applying '1'/'0' forces every member to
+            // that value, so the resulting state is known without a round trip
+            // -- carry both translated readouts as data-* for the JS to swap in,
+            // the same way makeReloadToggle() hands its labels over. Translation
+            // stays here; the JS only picks.
+            . '<p class="form-text help-block-tight" id="enforce-shared-hint"'
+            . ' data-hosts-label="' . Initiator::e(_('Hosts:')) . '"'
+            . ' data-enabled-label="' . Initiator::e(_('enabled (all)')) . '"'
+            . ' data-disabled-label="' . Initiator::e(_('disabled (all)')) . '">'
             . _('Hosts:') . ' ' . $enfText
             . '</p>';
         $fields = [
