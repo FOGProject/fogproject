@@ -2109,7 +2109,7 @@ abstract class FOGPage extends FOGBase
                     );
                     // Sign before upload, not after: the TFTP target may be a
                     // remote storage node, and the key never leaves this host.
-                    self::secureBootSign($tmpfile);
+                    $resigned = self::secureBootSign($tmpfile);
                     $orig = sprintf(
                         '/%s/%s',
                         trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'), '/'),
@@ -2181,7 +2181,10 @@ abstract class FOGPage extends FOGBase
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
                     $this->jsonSend($code, json_encode(
                         [
-                            'msg' => _('File uploaded to storage node!'),
+                            'msg' => $resigned
+                                ? _('File uploaded to storage node and '
+                                    . 're-signed for Secure Boot!')
+                                : _('File uploaded to storage node!'),
                             'title' => _('Update Kernel Success')
                         ]
                     ));
@@ -2234,13 +2237,16 @@ abstract class FOGPage extends FOGBase
      *
      * @throws Exception
      *
-     * @return void
+     * @return bool true if the kernel was actually signed, false if signing
+     *              is not configured on this server -- lets the caller tell
+     *              the admin which one happened rather than a message that
+     *              is true either way.
      */
     protected static function secureBootSign($tmpfile)
     {
         $stagedir = self::secureBootStagingDir();
         if (!$stagedir || dirname($tmpfile) !== $stagedir) {
-            return;
+            return false;
         }
         $output = array();
         $retVal = 1;
@@ -2262,6 +2268,7 @@ abstract class FOGPage extends FOGBase
                 )
             );
         }
+        return true;
     }
     /**
      * Fetches the initrds
