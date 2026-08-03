@@ -2044,10 +2044,9 @@ class BootMenu extends FOGBase
         // app that enumerates SimpleFileSystemProtocol handles. MokManager's
         // own "Enroll key from disk" browser does exactly that, and a normal
         // netboot already puts bzImage/init.xz in front of it this way, so
-        // fetching MOK.der here should make it selectable too, without a USB
-        // stick. Unconfirmed across firmware/iPXE builds for a bare
-        // certificate rather than a kernel/initrd -- keep the USB fallback
-        // text below in case a given machine's MokManager only walks handles
+        // fetching MOK.der here makes it selectable too, without a USB stick
+        // -- confirmed on physical hardware. Keep the USB fallback text below
+        // regardless, in case a given machine's MokManager only walks handles
         // backed by a real block device.
         return [
             "imgfetch $this->_booturl/secureboot/MOK.der MOK.der || "
@@ -2056,9 +2055,12 @@ class BootMenu extends FOGBase
             // and strips them, so they would vanish from the output anyway.
             'echo MOK.der has been downloaded into memory as MOK.der --',
             'echo look for it under Enroll key from disk.',
+            'echo MokManager gives up after about 10 seconds with no',
+            'echo keypress, and reboots if left idle for a few minutes --',
+            'echo be ready before it appears.',
             'echo If it is not listed there, have MOK.der on a',
             'echo FAT-formatted USB stick in this machine instead.',
-            'sleep 5',
+            'sleep 8',
             "chain -ar $mmTarget || "
             . "echo Could not load the Secure Boot enrolment menu. && "
             . "sleep 5 && goto MENU"

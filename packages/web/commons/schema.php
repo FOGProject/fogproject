@@ -4911,6 +4911,9 @@ $this->schema[] = [
     . "(25, 'Enroll Secure Boot Key', 'Enroll Secure Boot Key will "
     . "chain the client straight to the Secure Boot enrolment menu "
     . "so a technician can enrol this FOG server\'s MOK without "
-    . "hunting for it in the PXE boot menu.', 'lock', '', '', 'fog', "
-    . "'1', 'both')",
+    . "hunting for it in the PXE boot menu. A technician still has "
+    . "to be at the console: MokManager gives up after about 10 "
+    . "seconds with no keypress and boots normally, and reboots if "
+    . "left idle partway through for a few minutes.', 'lock', '', "
+    . "'', 'fog', '1', 'both')",
 ];
