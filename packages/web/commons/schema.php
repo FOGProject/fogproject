@@ -4890,45 +4890,56 @@ $this->schema[] = [
 ];
 // 322
 $this->schema[] = [
-    // Adds the "Enroll Secure Boot" task type, which stages this server's
-    // Secure Boot certificate for enrolment on the client (FOS mode=enrollsb).
+    // Adds the "Enroll Secure Boot" task type, which gets this server's Secure
+    // Boot certificate trusted by the client (FOS mode=enrollsb).
     //
     // ttID 25, not 24: 24 was deleted by name in an earlier step and its id is
     // not reused, matching how pxeMenu ids are handled above.
     //
-    // ttIsAdvanced '0': it changes nothing on disk and stages a request the
-    // technician must still confirm at MokManager, so hiding it behind Advanced
-    // would cost discoverability and buy no safety.
+    // ttIsAdvanced '0': it changes nothing on disk, and in the case where it
+    // does change firmware state the machine had to be put in Setup Mode by
+    // hand first. Hiding it behind Advanced would cost discoverability and buy
+    // no safety.
     //
-    // The description carries TWO limits, and omitting either costs someone a
-    // wasted trip to a machine:
+    // The task takes ONE of two paths depending on what it finds, and the
+    // description has to convey both because they demand different things of
+    // the admin:
     //
-    //   1. The MokManager confirmation cannot be automated. shim's MokList is a
-    //      boot-services-only variable, so nothing FOG does can enrol a key
-    //      unattended.
-    //   2. The task cannot run at all when Secure Boot is already enforcing.
-    //      iPXE verifies the kernel AND the initrd through shim, so on a client
-    //      that does not yet trust this server's key both are refused with
-    //      "Verification failed: Security Policy Violation" and FOS never
-    //      starts. Measured on real firmware 2026-08-03; see fos ADR-0009.
+    //   Setup Mode  -> writes db/KEK/PK directly and finishes. Nobody at the
+    //                  keyboard, nothing to confirm. This is the path that
+    //                  scales, and it is why "clear the Secure Boot keys" is
+    //                  worth naming explicitly -- an admin who has not heard
+    //                  the term will never find it in their firmware menu.
+    //   otherwise   -> stages a MOK request that a human confirms once at the
+    //                  MokManager screen. shim's MokList is boot-services-only,
+    //                  so nothing FOG does can enrol a key unattended.
     //
-    // So this is for machines with Secure Boot currently OFF that are going to
-    // have it switched on -- NOT for enrolling a fleet that is already
-    // enforcing. An admin who schedules it against 200 enforcing machines and
-    // watches every one fail to boot has been misled by us, and the place to
-    // prevent that is the text they read before scheduling.
+    // And ONE hard limit, which costs a wasted trip to every machine if omitted:
+    // the task cannot run at all when Secure Boot is already enforcing. iPXE
+    // verifies the kernel AND the initrd through shim, so on a client that does
+    // not yet trust this server's key both are refused with "Verification
+    // failed: Security Policy Violation" and FOS never starts. Measured on real
+    // firmware 2026-08-03; see fos ADR-0009.
+    //
+    // An admin who schedules this against 200 enforcing machines and watches
+    // every one fail to boot has been misled by us, and the place to prevent
+    // that is the text they read before scheduling.
     "INSERT IGNORE INTO `taskTypes` "
     . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,`ttKernel`,"
     . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
     . "VALUES "
-    . "(25,'Enroll Secure Boot','Stages this FOG server''s Secure Boot signing "
-    . "certificate on the client, so the client can boot FOS with Secure Boot "
-    . "switched on. USE ON CLIENTS THAT CURRENTLY HAVE SECURE BOOT OFF: a "
-    . "client already enforcing Secure Boot does not trust this server''s "
-    . "kernel yet, so it cannot boot FOS at all and this task will not run. "
-    . "The client must also be confirmed once at the MOK Manager screen on its "
-    . "next boot, by someone at the keyboard -- shim requires that and it "
-    . "cannot be automated. The one-time password is shown on the client "
-    . "screen, or set fleet-wide with the sbmokpw kernel argument.','shield',"
-    . "'','mode=enrollsb','fog','0','both')",
+    . "(25,'Enroll Secure Boot','Gets this FOG server''s Secure Boot signing "
+    . "certificate trusted by the client, so the client can boot FOS with "
+    . "Secure Boot switched on. If the client is in SETUP MODE (its Secure Boot "
+    . "keys have been cleared in firmware) the task enrolls the certificate "
+    . "automatically and finishes -- no password and nobody at the keyboard; "
+    . "Microsoft''s certificates are enrolled alongside it so Windows and "
+    . "FOG''s own signed PXE boot keep working. Otherwise it stages a request "
+    . "that must be confirmed once at the MOK Manager screen on the next boot, "
+    . "by someone at the machine -- shim requires that and it cannot be "
+    . "automated; the one-time password is shown on the client screen, or set "
+    . "fleet-wide with the sbmokpw kernel argument. EITHER WAY THE CLIENT MUST "
+    . "NOT ALREADY BE ENFORCING SECURE BOOT: it does not trust this server''s "
+    . "kernel yet, so it cannot boot FOS at all and this task will not "
+    . "run.','shield','','mode=enrollsb','fog','0','both')",
 ];

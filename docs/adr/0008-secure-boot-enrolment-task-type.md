@@ -50,14 +50,14 @@ An admin who schedules this against 200 enforcing machines and watches every one
 fail to boot has been misled by us. The place to prevent that is the text they
 read before scheduling, so `ttDescription` says both outright.
 
-## What the server will ship for the automated path
-
-*(Decided here, implemented in Phase 2.)*
+## What the server ships for the automated path
 
 The automated path is writing `db` while the platform is in **Setup Mode**, where
 nothing is enforcing, FOS loads normally, and `db` is writable without a
-signature. The baseline keyset will be Microsoft's published certificates — KEK
-CA 2011, Windows Production PCA 2011, UEFI CA 2011, plus the 2023 generation.
+signature. The baseline keyset is Microsoft's published certificates — KEK
+CA 2011, Windows Production PCA 2011, UEFI CA 2011, plus the 2023 generation —
+vendored at `packages/secureboot/mscerts/` with a MANIFEST recording each source
+URL and sha256.
 
 The decisive reason is FOG's own boot chain, not Windows.
 `downloadipxesecureboot()` already records that the Secure Boot iPXE binaries are
@@ -87,19 +87,81 @@ This should be documented as a first-class tier rather than a "follow-on",
 because it is the only path that is automated end to end with no per-machine
 visit at all.
 
-## Key handling is unchanged
+## The server holds a PK and a KEK of its own
 
-The private key stays root-owned at `${fogprogramdir}/secureboot/MOK.key`, mode
-0600, and is never copied near the web root. Only the certificate is published.
-The Phase 2 `.auth` builder will follow the existing `fog-sign-kernel` pattern
-exactly: a root-only helper taking no arguments, invoked through a validated
-`sudoers` drop-in, with its configuration baked in at install time so a
-compromised web server cannot name its own key. Phase 2 adds no new way to reach
-the key.
+`_ensureSecureBootPlatformKeys()` generates a second and third keypair alongside
+the MOK signing key. They sign nothing that ever executes; they exist only to
+authorise updates to a client's Secure Boot databases.
+
+The reason to generate them properly rather than reuse the MOK key or throw one
+away after enrolment: once a client leaves Setup Mode it is in **User Mode with
+our PK**, and the UEFI spec then requires a KEK-signed update to touch `db` and a
+PK-signed update to touch `KEK`. Holding those keys is what lets this same server
+push a `db` change to an already-enrolled fleet later without another firmware
+trip. A server that enrolled a throwaway PK would strand every client it
+enrolled. So `db.auth` is signed by KEK, `KEK.auth` by PK, and `PK.auth` by
+itself, and `tests/secureboot-authvars.test.sh` asserts that chain.
+
+Like the MOK key, they never regenerate once they exist — a new PK is not
+accepted by any client carrying the old one, and the failure surfaces as an
+unbootable machine long after the install that caused it.
+
+## The builder gets no sudoers rule
+
+`fog-sign-kernel` needs one because the *web user* invokes it from the Kernel
+Update page. `fog-build-sb-authvars` is only ever run by root at install time, so
+it is installed 0700 with no `sudoers` drop-in at all — the web user cannot even
+execute it. That is a real reduction in what a web compromise reaches, and worth
+being explicit about rather than copying the sudo pattern by reflex.
+
+It still takes no arguments and reads every path from the root-owned config, for
+the same reason `fog-sign-kernel` does: if some future change ever does expose it
+to the web user, that property is already in place rather than needing to be
+added under pressure.
+
+The private keys stay root-owned at `${fogprogramdir}/secureboot/`, mode 0600,
+and are never copied near the web root. Only certificates and the signed `.auth`
+blobs are published, and neither contains key material.
+
+## An exit status is not evidence
+
+`cert-to-efi-sig-list` reads PEM only. Hand it the DER that Microsoft publishes
+and it **exits 0** after writing a 44-byte signature list containing no
+certificate. That is what happened on the first run of the builder: it reported
+success, produced three well-formed `.auth` blobs, and every Microsoft CA was
+silently absent from `db`.
+
+A client that enrolled that `db` would have lost Windows *and* FOG's own shim,
+and would need a per-machine firmware trip to recover — with nothing in any log
+to say why.
+
+Two guards, because the first one alone is what already failed:
+
+1. Every certificate is normalised to PEM before the tool sees it, whatever
+   format it arrived in.
+2. The result is size-checked. An ESL is exactly a 28-byte header plus a 16-byte
+   owner GUID plus the DER certificate, so its size must be `DER + 44`; anything
+   else aborts the build. `tests/secureboot-authvars.test.sh` parses the finished
+   `db.auth` back apart and compares each embedded certificate by sha256, so the
+   check cannot be satisfied by a plausible-looking empty list.
+
+This is the same class of silent success that fos ADR-0003 removed from the
+partition path — here it just wears a zero exit status instead of a warning.
 
 ## Consequences
 
-- New `taskTypes` row 25, `mode=enrollsb`, appended as schema step 322.
+- New `taskTypes` row 25, `mode=enrollsb`, appended as schema step 322. Its
+  description states both paths and the one hard limit, because that text is the
+  last thing an admin reads before scheduling against a fleet.
+- `efitools` becomes an install dependency, on the same reasoning as
+  `sbsigntool`: the feature is on by default, so the tooling it needs is not
+  something an admin should have to know to install first. Where it is genuinely
+  absent the installer skips the build with a warning and the MOK paths keep
+  working — it does not fail the install.
+- The Secure Boot configuration page gains a card that says whether automatic
+  enrolment is available, and spells out that Setup Mode is *not* the same as
+  "Secure Boot turned off". An admin who has never heard the term will not find
+  "clear the Secure Boot keys" in their firmware menu on their own.
 - Verified end to end on 2026-08-03: `boot.php` emits `mode=enrollsb` on the
   kernel line, FOS dispatches it, `MokNew`/`MokAuth` land in NVRAM carrying FOG's
   exact certificate, the task reports Complete, and shim shows MokManager on the

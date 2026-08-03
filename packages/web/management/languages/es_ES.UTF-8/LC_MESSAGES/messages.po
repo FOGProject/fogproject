@@ -836,6 +836,13 @@ msgstr "Configuración Tecla"
 msgid "Auto Logout Time"
 msgstr "Por defecto cerrar sesión en el tiempo (en minutos)"
 
+#, fuzzy
+msgid "Automatic Secure Boot enrolment is not available on this server"
+msgstr "No hay grupos en este servidor."
+
+msgid "Automatic enrolment (Setup Mode)"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "Fecha del BIOS"
 
@@ -1235,6 +1242,17 @@ msgstr "Configuración Tecla"
 #, fuzzy
 msgid "Client Version"
 msgstr "Versión de la CPU"
+
+msgid ""
+"Clients already enforcing Secure Boot cannot run this task -- they will not "
+"boot FOS in the first place. Use the manual steps below for those."
+msgstr ""
+
+msgid ""
+"Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure "
+"Boot\" task -- no USB stick, no live image, no MOK Manager screen and no "
+"password"
+msgstr ""
 
 msgid "Close"
 msgstr ""
@@ -3609,6 +3627,10 @@ msgstr "Actualizar"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Install"
+msgstr "Instalador inteligente (recomendado)"
 
 msgid "Install Plugins"
 msgstr ""
@@ -6236,6 +6258,15 @@ msgstr "se ha actualizado correctamente"
 msgid "Settings update failed!"
 msgstr "Servicio de Actualización!"
 
+msgid ""
+"Setup Mode is the state a machine is in when its platform key has been "
+"cleared, and it is the only state in which these databases can be written. "
+"Turning Secure Boot OFF is not the same thing and does not help: a machine "
+"with Secure Boot disabled still has a platform key, and still refuses the "
+"write. Look for \"Erase all Secure Boot settings\", \"Clear Secure Boot "
+"keys\" or \"Custom mode\" in the firmware."
+msgstr ""
+
 #, fuzzy
 msgid "Short Name"
 msgstr "Nombre de host"
@@ -7169,6 +7200,11 @@ msgid "That group is already defined for this server!"
 msgstr "Una imagen ya existe con este nombre!"
 
 msgid ""
+"That is one visit to the firmware screen per machine, once, and it can be "
+"the same visit that turns Secure Boot on afterwards."
+msgstr ""
+
+msgid ""
 "That is the signed chain staged by the installer; the default boot file is "
 "unsigned and a Secure Boot client will refuse it"
 msgstr ""
@@ -7222,6 +7258,9 @@ msgstr "Este ajuste define el nombre de usuario utilizado para el cliente ssh."
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+msgid "The manual enrolment steps below are unaffected."
+msgstr ""
+
 msgid "The node trying to be used is currently"
 msgstr ""
 
@@ -7236,6 +7275,9 @@ msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
 msgid "The storage groups associated storage node is not valid"
+msgstr ""
+
+msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
 #, fuzzy
@@ -7356,6 +7398,14 @@ msgstr ""
 msgid ""
 "This section allows you to upload user defined reports that may not be a "
 "part of the base FOG install."
+msgstr ""
+
+msgid ""
+"This server becomes the platform owner, so Microsoft's published CA "
+"certificates are enrolled alongside FOG's own. That is not optional: "
+"Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database "
+"without it would stop this server from booting the very clients it enrolled, "
+"as well as breaking Windows."
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -8078,6 +8128,13 @@ msgstr "Servidor web"
 msgid "Weekly"
 msgstr "Semanal"
 
+msgid "What Setup Mode means"
+msgstr ""
+
+#, fuzzy
+msgid "What gets enrolled"
+msgstr "se ha actualizado correctamente"
+
 msgid "What to do next"
 msgstr ""
 
@@ -8226,6 +8283,9 @@ msgid "and if the Database service is running"
 msgstr "Compruebe que la base de datos se está ejecutando"
 
 msgid "and node A only has a 5Mbps and you want the speed"
+msgstr ""
+
+msgid "and re-run the installer to enable it"
 msgstr ""
 
 msgid "and set it to master"

@@ -1,0 +1,206 @@
+#!/bin/bash
+#
+# fog-build-sb-authvars - build the signed UEFI variable updates (PK/KEK/db)
+# that a client writes to enrol this FOG server's Secure Boot certificate.
+#
+# Run as root by the installer (_publishSecureBootAuthVars). An admin can also
+# re-run it by hand after changing keys, without a full reinstall.
+#
+# SECURITY: unlike fog-sign-kernel, this has NO sudoers rule and the web user
+# cannot invoke it. It is only ever run by root at install time, so there is no
+# privilege boundary to defend here and no reason to create one. It still takes
+# no arguments and reads every path from the root-owned config, for the same
+# reason fog-sign-kernel does -- if a future change ever does expose it to the
+# web user, that property is already in place rather than needing to be added
+# under pressure.
+#
+# WHAT IT PRODUCES, AND WHY IT IS SAFE TO PUBLISH
+#
+# Three authenticated variable updates. They contain public certificates and
+# signatures over them; no private key is in the output, so they are published
+# under the web root for clients to fetch, exactly like MOK.der already is.
+#
+#   PK.auth   this server's platform key, self-signed
+#   KEK.auth  Microsoft's KEK CAs + this server's KEK, signed by PK
+#   db.auth   Microsoft's db CAs + this server's FOS signing cert, signed by KEK
+#
+# The chain matters even though a client in Setup Mode verifies none of it. The
+# UEFI spec requires a KEK-signed update to change db and a PK-signed update to
+# change KEK once the platform leaves Setup Mode, so building them properly is
+# what lets this same server update a client's db later without another firmware
+# trip. Building them self-signed would work once and then strand every client.
+#
+# WHY MICROSOFT'S CERTIFICATES ARE IN HERE
+#
+# Enrolling a PK replaces the platform's trust anchor, so whatever is NOT in the
+# db we write stops being bootable. "Microsoft Corporation UEFI CA 2011" signs
+# the shim in FOG's own chain (snponly-shimx64.efi), so omitting it would break
+# FOG's Secure Boot PXE boot -- we would enrol our key and destroy the thing we
+# enrolled it for. The Windows PCAs keep the client's installed OS bootable.
+# See packages/secureboot/mscerts/MANIFEST.
+#
+set -u
+
+# GH-850: installer-driven base path, rewritten at install time. Same reasoning
+# as fog-sign-kernel.
+CONF="/opt/fog/.fog-secureboot"
+
+if [[ ! -r $CONF ]]; then
+    echo "fog-build-sb-authvars: $CONF is missing or unreadable" >&2
+    exit 1
+fi
+
+# Deliberately NOT "source": the config is root-owned data, and parsing it as
+# shell would turn any future write access to it into root code execution.
+readconf() {
+    sed -n "s/^$1=//p" "$CONF" | head -1
+}
+
+pkKey=$(readconf SECUREBOOT_PK_KEY)
+pkCert=$(readconf SECUREBOOT_PK_CERT)
+kekKey=$(readconf SECUREBOOT_KEK_KEY)
+kekCert=$(readconf SECUREBOOT_KEK_CERT)
+fosCert=$(readconf SECUREBOOT_CERT)
+msDir=$(readconf SECUREBOOT_MSCERTS)
+outDir=$(readconf SECUREBOOT_AUTHVARS)
+
+for v in pkKey pkCert kekKey kekCert fosCert msDir outDir; do
+    if [[ -z ${!v} ]]; then
+        echo "fog-build-sb-authvars: $CONF is incomplete (missing $v)" >&2
+        exit 1
+    fi
+done
+
+for t in cert-to-efi-sig-list sign-efi-sig-list; do
+    if ! command -v "$t" >/dev/null 2>&1; then
+        echo "fog-build-sb-authvars: $t not installed (need the efitools package)" >&2
+        exit 1
+    fi
+done
+
+# Identifies FOG as the owner of the signature entries it adds. Fixed rather
+# than generated per install: the owner GUID is how an admin looking at a
+# client's db later can tell which entries this project put there, and a value
+# that changed per server would make that impossible.
+FOG_OWNER_GUID="f062e444-51c9-41e8-8ea3-d4407ae38e04"
+
+# Microsoft's own owner GUID, so their entries are attributed to them rather
+# than to FOG. This is the value Microsoft's published tooling uses.
+MS_OWNER_GUID="77fa9abd-0359-4d32-bd60-28f4e78f784b"
+
+work=$(mktemp -d) || exit 1
+trap 'rm -rf "$work"' EXIT
+
+# cert-to-efi-sig-list emits one EFI_SIGNATURE_LIST per certificate. A UEFI
+# signature *database* is simply a sequence of those, so concatenation is the
+# supported way to build a multi-certificate db -- not a trick.
+#
+# TWO TRAPS, both of which produced a silently wrong db during development:
+#
+# 1. cert-to-efi-sig-list reads PEM ONLY, but hand it DER and it **exits 0**
+#    after writing a 44-byte header with no certificate inside. Microsoft
+#    publishes DER, so every MS certificate vanished from the db and the build
+#    reported success. Hence the unconditional normalise-to-PEM below -- do not
+#    "simplify" it away by assuming the input format.
+#
+# 2. Because of (1), an exit status is not evidence. An ESL is exactly a 28-byte
+#    EFI_SIGNATURE_LIST header + a 16-byte owner GUID + the DER certificate, so
+#    its size MUST be the DER size + 44. That is checked rather than trusted:
+#    a db that is missing Microsoft's UEFI CA breaks FOG's own shim, and the
+#    only place to catch it is here -- the next opportunity is a client that
+#    will not boot.
+esl() {
+    local out="$1" guid="$2"; shift 2
+    local c n=0 dersize eslsize
+    : > "$out"
+    for c in "$@"; do
+        [[ -r $c ]] || { echo "fog-build-sb-authvars: cannot read $c" >&2; return 1; }
+        # Accept PEM or DER on input, hand PEM to the tool, and keep the DER
+        # form purely to size-check the result.
+        if openssl x509 -in "$c" -inform pem -noout >/dev/null 2>&1; then
+            cp -f "$c" "${work}/one.pem" 2>/dev/null || return 1
+        elif ! openssl x509 -in "$c" -inform der -outform pem -out "${work}/one.pem" 2>/dev/null; then
+            echo "fog-build-sb-authvars: $c is not a certificate (PEM or DER)" >&2
+            return 1
+        fi
+        if ! openssl x509 -in "${work}/one.pem" -outform der -out "${work}/one.der" 2>/dev/null; then
+            echo "fog-build-sb-authvars: could not re-encode $c as DER" >&2
+            return 1
+        fi
+        rm -f "${work}/one.esl"
+        if ! cert-to-efi-sig-list -g "$guid" "${work}/one.pem" "${work}/one.esl" >/dev/null 2>&1; then
+            echo "fog-build-sb-authvars: cert-to-efi-sig-list failed on $c" >&2
+            return 1
+        fi
+        dersize=$(stat -c %s "${work}/one.der" 2>/dev/null)
+        eslsize=$(stat -c %s "${work}/one.esl" 2>/dev/null)
+        if [[ -z $dersize || -z $eslsize || $eslsize -ne $((dersize + 44)) ]]; then
+            echo "fog-build-sb-authvars: $c produced a ${eslsize:-0}-byte signature list," >&2
+            echo "fog-build-sb-authvars: expected $((${dersize:-0} + 44)) -- the certificate was not embedded" >&2
+            return 1
+        fi
+        cat "${work}/one.esl" >> "$out"
+        n=$((n + 1))
+    done
+    [[ $n -gt 0 ]] || { echo "fog-build-sb-authvars: no certificates for $out" >&2; return 1; }
+    return 0
+}
+
+# --- db: Microsoft's db CAs, then this server's FOS signing certificate ---
+msdb=()
+for f in MicWinProPCA2011 MicCorUEFCA2011 WindowsUEFICA2023 MicrosoftUEFICA2023 MicCorOptionROMCA2023; do
+    [[ -r "${msDir}/${f}.crt" ]] && msdb+=("${msDir}/${f}.crt")
+done
+if [[ ${#msdb[@]} -eq 0 ]]; then
+    # Refuse rather than ship a FOG-only db. A client that enrolled it would
+    # lose its Windows bootloader AND FOG's own shim, and would need a firmware
+    # trip to recover -- exactly the outcome this whole design exists to avoid.
+    echo "fog-build-sb-authvars: no Microsoft db certificates found in $msDir" >&2
+    echo "fog-build-sb-authvars: refusing to build a db that would break FOG's own shim" >&2
+    exit 1
+fi
+esl "${work}/ms-db.esl" "$MS_OWNER_GUID" "${msdb[@]}" || exit 1
+esl "${work}/fog-db.esl" "$FOG_OWNER_GUID" "$fosCert" || exit 1
+cat "${work}/ms-db.esl" "${work}/fog-db.esl" > "${work}/db.esl"
+
+# --- KEK: Microsoft's KEK CAs, then this server's KEK ---
+mskek=()
+for f in MicCorKEKCA2011 MicCorKEK2KCA2023; do
+    [[ -r "${msDir}/${f}.crt" ]] && mskek+=("${msDir}/${f}.crt")
+done
+if [[ ${#mskek[@]} -eq 0 ]]; then
+    echo "fog-build-sb-authvars: no Microsoft KEK certificates found in $msDir" >&2
+    exit 1
+fi
+esl "${work}/ms-kek.esl" "$MS_OWNER_GUID" "${mskek[@]}" || exit 1
+esl "${work}/fog-kek.esl" "$FOG_OWNER_GUID" "$kekCert" || exit 1
+cat "${work}/ms-kek.esl" "${work}/fog-kek.esl" > "${work}/KEK.esl"
+
+# --- PK: this server only. A platform has exactly one platform key. ---
+esl "${work}/PK.esl" "$FOG_OWNER_GUID" "$pkCert" || exit 1
+
+# Sign each update with the key the UEFI spec requires for that variable:
+# db is authorised by KEK, KEK by PK, and PK by itself.
+sign() {
+    local var="$1" eslfile="$2" key="$3" cert="$4"
+    if ! sign-efi-sig-list -k "$key" -c "$cert" "$var" "$eslfile" "${work}/${var}.auth" 2>/dev/null; then
+        echo "fog-build-sb-authvars: sign-efi-sig-list failed for $var" >&2
+        return 1
+    fi
+    [[ -s ${work}/${var}.auth ]] || { echo "fog-build-sb-authvars: empty $var.auth" >&2; return 1; }
+    return 0
+}
+
+sign db  "${work}/db.esl"  "$kekKey" "$kekCert" || exit 1
+sign KEK "${work}/KEK.esl" "$pkKey"  "$pkCert"  || exit 1
+sign PK  "${work}/PK.esl"  "$pkKey"  "$pkCert"  || exit 1
+
+# Publish only once all three built. A half-written set is worse than none: a
+# client that wrote db and KEK but found no PK would sit in Setup Mode with our
+# keys and no enforcement, looking enrolled while trusting everything.
+mkdir -p "$outDir" || exit 1
+for v in db KEK PK; do
+    install -m 0644 "${work}/${v}.auth" "${outDir}/${v}.auth" || exit 1
+done
+
+exit 0

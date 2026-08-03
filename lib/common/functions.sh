@@ -1447,6 +1447,14 @@ installPackages() {
     # exists the package loop skips it with "(Does not exist)" and
     # _resignKernels degrades to its existing warning.
     packages="$packages sbsigntool"
+    # efitools builds the signed PK/KEK/db variable updates that the automatic
+    # Secure Boot enrolment path writes on the client (_publishSecureBootAuthVars).
+    # Same baseline reasoning as sbsigntool: the feature is on by default, so the
+    # tooling it needs is not something the admin should have to know to install
+    # first. Named "efitools" on every distro this installer supports, so unlike
+    # sbsigntool it needs no alternatives entry; where it is genuinely absent the
+    # package loop skips it and the builder degrades to its own warning.
+    packages="$packages efitools"
     packages="${packages} ${webserver}"
     # -E, not -P: busybox grep has no -P at all, so on Alpine this printed a
     # full usage screen to the console and the sftp adjustment never ran. \s
@@ -4424,9 +4432,11 @@ downloadfiles() {
     errorStat $?
     cd $cwd
     _ensureSecureBootKeys
+    _ensureSecureBootPlatformKeys
     _resignKernels
     _installSecureBootSigner
     _publishSecureBootKit
+    _publishSecureBootAuthVars
 }
 # Generate the Secure Boot signing key when the admin has not supplied one.
 #
@@ -4513,6 +4523,86 @@ EOF
     secureBootCert="$cert"
     echo "Done"
 }
+# Generate this server's Secure Boot PLATFORM keys (PK and KEK).
+#
+# Separate from _ensureSecureBootKeys because these are a different kind of key
+# doing a different job. MOK.key signs FOS kernels. PK/KEK sign nothing that ever
+# executes -- they exist only to authorise updates to a client's own Secure Boot
+# databases, which is what makes the automatic (Setup Mode) enrolment path in
+# fos ADR-0009 possible at all.
+#
+# Why the server needs its own PK when a client in Setup Mode enforces nothing:
+# once the client leaves Setup Mode it is in User Mode with OUR PK, and from that
+# point the UEFI spec requires a KEK-signed update to touch db and a PK-signed
+# update to touch KEK. Holding those keys is what lets this same server push a db
+# change to an already-enrolled fleet later without another firmware trip. A
+# server that enrolled a throwaway PK would strand every client it enrolled.
+#
+# Like the MOK key, these NEVER regenerate once they exist -- a new PK is not
+# accepted by any client already carrying the old one, and the failure surfaces
+# as an unbootable machine long after the install that caused it.
+_ensureSecureBootPlatformKeys() {
+    local keydir="${fogprogramdir}/secureboot"
+    local pkKey="${keydir}/PK.key"
+    local pkCert="${keydir}/PK.pem"
+    local kekKey="${keydir}/KEK.key"
+    local kekCert="${keydir}/KEK.pem"
+    local subject
+
+    secureBootPKKey=""
+    secureBootPKCert=""
+    secureBootKEKKey=""
+    secureBootKEKCert=""
+
+    # No signing key means the whole feature is opted out; there is nothing for
+    # a platform key to authorise.
+    [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+
+    if [[ -f $pkKey && -f $pkCert && -f $kekKey && -f $kekCert ]]; then
+        secureBootPKKey="$pkKey"
+        secureBootPKCert="$pkCert"
+        secureBootKEKKey="$kekKey"
+        secureBootKEKCert="$kekCert"
+        return 0
+    fi
+
+    dots "Generating Secure Boot platform keys"
+    mkdir -p "$keydir" >>$error_log 2>&1
+    chown root:root "$keydir" >>$error_log 2>&1
+    chmod 0700 "$keydir" >>$error_log 2>&1
+
+    # Named after the server so an admin standing at a client's firmware screen
+    # can tell WHICH FOG server owns the platform key it is now carrying. With a
+    # generic CN, a site running two FOG servers has no way to tell them apart
+    # from the machine that got enrolled.
+    subject="FOG Project (${hostname:-$(hostname)})"
+    # 4096-bit and no extendedKeyUsage: these are trust anchors in a firmware
+    # database, not code-signing certificates, and some firmware rejects a PK
+    # carrying a codeSigning EKU. 3650 days matches the MOK key -- an expired PK
+    # does not stop a client booting (UEFI does not check validity dates on db
+    # entries) but it does confuse tooling.
+    if ! openssl req -x509 -new -nodes -newkey rsa:4096 -sha256 -days 3650 \
+            -subj "/CN=${subject} Platform Key/" \
+            -keyout "$pkKey" -out "$pkCert" >>$error_log 2>&1 ||
+       ! openssl req -x509 -new -nodes -newkey rsa:4096 -sha256 -days 3650 \
+            -subj "/CN=${subject} Key Exchange Key/" \
+            -keyout "$kekKey" -out "$kekCert" >>$error_log 2>&1; then
+        echo "Failed"
+        echo " * Could not generate the Secure Boot platform keys. Automatic"
+        echo "   enrolment will be unavailable; the MOK paths are unaffected."
+        echo "   See $error_log."
+        rm -f "$pkKey" "$pkCert" "$kekKey" "$kekCert" >>$error_log 2>&1
+        return 0
+    fi
+    chown root:root "$pkKey" "$pkCert" "$kekKey" "$kekCert" >>$error_log 2>&1
+    chmod 0600 "$pkKey" "$kekKey" >>$error_log 2>&1
+    chmod 0644 "$pkCert" "$kekCert" >>$error_log 2>&1
+    secureBootPKKey="$pkKey"
+    secureBootPKCert="$pkCert"
+    secureBootKEKKey="$kekKey"
+    secureBootKEKCert="$kekCert"
+    echo "Done"
+}
 # Publish the MOK enrolment kit under the web root.
 #
 # Only the *certificate* is published -- it is public by design, and is the
@@ -4569,6 +4659,83 @@ _publishSecureBootKit() {
     [[ -f ${kitdir}/arm64-efi/mmaa64.efi ]] && chmod 0644 "${kitdir}/arm64-efi/mmaa64.efi" >>$error_log 2>&1
     chmod 0755 "${kitdir}/fog-enroll-mok.sh" >>$error_log 2>&1
     chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
+    echo "Done"
+}
+# Build and publish the signed PK/KEK/db variable updates.
+#
+# These are what a client in Setup Mode writes to enrol this server's
+# certificate automatically -- no MokManager, no password, no USB stick. See fos
+# ADR-0009 for why Setup Mode is the only path that scales.
+#
+# Runs AFTER _publishSecureBootKit deliberately: the kit's `chown -R` would
+# otherwise be the last thing to touch the directory, and the ordering of who
+# owns what would depend on which function happened to run last. This function
+# owns the permissions on the files it writes.
+#
+# Nothing published here is secret -- .auth blobs are public certificates plus
+# signatures over them. The private keys stay in $fogprogramdir/secureboot.
+_publishSecureBootAuthVars() {
+    local kitdir="${webdirdest}/service/secureboot"
+    local msdst="${fogprogramdir}/secureboot/mscerts"
+    local helper="${fogprogramdir}/bin/fog-build-sb-authvars"
+    local conf="${fogprogramdir}/.fog-secureboot"
+
+    # No platform keys means no automatic path. Clear any blobs from a previous
+    # install rather than leaving stale ones a client would happily enrol: an
+    # .auth signed by a key this server no longer holds enrols a platform the
+    # server can never update again.
+    if [[ -z $secureBootPKKey || -z $secureBootKEKKey ]]; then
+        rm -f "$helper" "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
+        return 0
+    fi
+
+    dots "Publishing Secure Boot variable updates"
+    if ! command -v cert-to-efi-sig-list >/dev/null 2>&1 ||
+       ! command -v sign-efi-sig-list >/dev/null 2>&1; then
+        echo "Skipped"
+        echo " * efitools is not installed, so the automatic Secure Boot"
+        echo "   enrolment blobs were not built. Install efitools and re-run the"
+        echo "   installer. The MOK enrolment paths are unaffected."
+        rm -f "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
+        return 0
+    fi
+
+    # Microsoft's published CA certificates, staged root-owned next to the keys
+    # rather than under the web root. They are public, but the builder reads
+    # them to decide what a client will trust forever after, so a web-writable
+    # copy would be a way to influence that decision from the web tier.
+    mkdir -p "$msdst" >>$error_log 2>&1
+    cp -f ../packages/secureboot/mscerts/* "$msdst"/ >>$error_log 2>&1
+    chown -R root:root "$msdst" >>$error_log 2>&1
+    chmod 0755 "$msdst" >>$error_log 2>&1
+    chmod 0644 "$msdst"/* >>$error_log 2>&1
+
+    # 0700 and no sudoers rule, unlike fog-sign-kernel: nothing but root ever
+    # runs this, so the web user should not even be able to execute it.
+    mkdir -p "${fogprogramdir}/bin" >>$error_log 2>&1
+    install -o root -g root -m 0700 ../packages/secureboot/fog-build-sb-authvars \
+        "$helper" >>$error_log 2>&1 || {
+        echo "Failed"
+        return 0
+    }
+    sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1
+    if ! grep -qxF "CONF=\"${conf}\"" "$helper"; then
+        echo "Failed"
+        echo " * Could not set the config path in $helper."
+        return 0
+    fi
+
+    mkdir -p "$kitdir" >>$error_log 2>&1
+    if ! "$helper" >>$error_log 2>&1; then
+        echo "Failed"
+        echo " * Could not build the Secure Boot variable updates, so automatic"
+        echo "   enrolment will be unavailable. The MOK enrolment paths are"
+        echo "   unaffected. See $error_log."
+        rm -f "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
+        return 0
+    fi
+    chown "${apacheuser}":"${apacheuser}" "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
+    chmod 0644 "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
     echo "Done"
 }
 # Normalise --secure-boot-cert to PEM and echo the path.
@@ -4666,10 +4833,25 @@ _installSecureBootSigner() {
     # Root-owned, root-readable only: the web user learns nothing about where
     # the key lives, and cannot rewrite these paths to point somewhere else.
     # SECUREBOOT_CERT is the normalised PEM -- sbsign cannot read DER.
+    #
+    # The PK/KEK/mscerts/authvars lines are for fog-build-sb-authvars, not for
+    # fog-sign-kernel, which ignores them. They live in the same file because
+    # this function is the only writer of it -- a second config would have to be
+    # kept in step with this one, and the failure mode of them drifting apart is
+    # a signing helper and a variable builder disagreeing about which key is the
+    # server's. Written unconditionally-or-not-at-all: an empty value here makes
+    # the builder refuse with "config is incomplete", which is the right answer
+    # when the platform keys could not be generated.
     {
         echo "SECUREBOOT_KEY=${secureBootKey}"
         echo "SECUREBOOT_CERT=${certpem}"
         echo "SECUREBOOT_STAGING=${stagedir}"
+        echo "SECUREBOOT_PK_KEY=${secureBootPKKey}"
+        echo "SECUREBOOT_PK_CERT=${secureBootPKCert}"
+        echo "SECUREBOOT_KEK_KEY=${secureBootKEKKey}"
+        echo "SECUREBOOT_KEK_CERT=${secureBootKEKCert}"
+        echo "SECUREBOOT_MSCERTS=${fogprogramdir}/secureboot/mscerts"
+        echo "SECUREBOOT_AUTHVARS=${webdirdest}/service/secureboot"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1
     chmod 0600 "$conf" >>$error_log 2>&1

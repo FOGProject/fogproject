@@ -377,6 +377,82 @@ class FOGConfigurationPage extends FOGPage
         $body .= '</ul>';
         echo $this->_box(_('Secure Boot'), $body, ['color' => 'info']);
 
+        // Automatic enrolment card, placed above the manual steps because it is
+        // the path that scales: it finishes on the client with nobody at the
+        // keyboard. Its one precondition -- Setup Mode -- is a firmware setting
+        // an admin has to know to look for, and stating it here is the only
+        // place they will see it before scheduling the task against a fleet.
+        $authvars = ['PK.auth', 'KEK.auth', 'db.auth'];
+        $haveAuth = true;
+        foreach ($authvars as $file) {
+            if (!file_exists($kitdir . DS . $file)) {
+                $haveAuth = false;
+                break;
+            }
+        }
+        if (!$haveAuth) {
+            // The installer builds these whenever efitools is present, so a
+            // missing set almost always means that package is not installed.
+            $auto = '<p>' . sprintf(
+                '%s. %s <code>efitools</code> %s.',
+                _('Automatic Secure Boot enrolment is not available on this server'),
+                _('Install'),
+                _('and re-run the installer to enable it')
+            ) . '</p>';
+            $auto .= '<p>' . _(
+                'The manual enrolment steps below are unaffected.'
+            ) . '</p>';
+            echo $this->_box(
+                _('Automatic enrolment (Setup Mode)'),
+                $auto,
+                ['color' => 'warning']
+            );
+        } else {
+            $auto = '<p>' . sprintf(
+                '%s. %s.',
+                _(
+                    'Clients in Setup Mode can be enrolled by scheduling the '
+                    . '"Enroll Secure Boot" task -- no USB stick, no live image, '
+                    . 'no MOK Manager screen and no password'
+                ),
+                _('The task finishes on the client with nobody at the keyboard')
+            ) . '</p>';
+            $auto .= '<p><strong>' . _('What Setup Mode means') . '</strong></p>';
+            $auto .= '<p>' . _(
+                'Setup Mode is the state a machine is in when its platform key '
+                . 'has been cleared, and it is the only state in which these '
+                . 'databases can be written. Turning Secure Boot OFF is not the '
+                . 'same thing and does not help: a machine with Secure Boot '
+                . 'disabled still has a platform key, and still refuses the '
+                . 'write. Look for "Erase all Secure Boot settings", "Clear '
+                . 'Secure Boot keys" or "Custom mode" in the firmware.'
+            ) . '</p>';
+            $auto .= '<p>' . _(
+                'That is one visit to the firmware screen per machine, once, '
+                . 'and it can be the same visit that turns Secure Boot on '
+                . 'afterwards.'
+            ) . '</p>';
+            $auto .= '<p><strong>' . _('What gets enrolled') . '</strong></p>';
+            $auto .= '<p>' . _(
+                'This server becomes the platform owner, so Microsoft\'s '
+                . 'published CA certificates are enrolled alongside FOG\'s own. '
+                . 'That is not optional: Microsoft signs the shim in FOG\'s own '
+                . 'Secure Boot PXE chain, so a database without it would stop '
+                . 'this server from booting the very clients it enrolled, as '
+                . 'well as breaking Windows.'
+            ) . '</p>';
+            $auto .= '<p>' . _(
+                'Clients already enforcing Secure Boot cannot run this task -- '
+                . 'they will not boot FOS in the first place. Use the manual '
+                . 'steps below for those.'
+            ) . '</p>';
+            echo $this->_box(
+                _('Automatic enrolment (Setup Mode)'),
+                $auto,
+                ['color' => 'success']
+            );
+        }
+
         // Second card: the actual procedure. The card above answers "is this
         // configured and what is the key", which is the reference half; on its
         // own it left an admin holding three files and no idea what to do with

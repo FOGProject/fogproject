@@ -781,6 +781,12 @@ msgstr "整合性設定"
 msgid "Auto Logout Time"
 msgstr "ホスト自動ログアウト"
 
+msgid "Automatic Secure Boot enrolment is not available on this server"
+msgstr ""
+
+msgid "Automatic enrolment (Setup Mode)"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "BIOS 日付"
 
@@ -1157,6 +1163,17 @@ msgstr "クライアント設定"
 
 msgid "Client Version"
 msgstr "クライアントバージョン"
+
+msgid ""
+"Clients already enforcing Secure Boot cannot run this task -- they will not "
+"boot FOS in the first place. Use the manual steps below for those."
+msgstr ""
+
+msgid ""
+"Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure "
+"Boot\" task -- no USB stick, no live image, no MOK Manager screen and no "
+"password"
+msgstr ""
 
 msgid "Close"
 msgstr ""
@@ -3370,6 +3387,10 @@ msgstr "Initrd 更新"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "Initrd 更新"
+
+#, fuzzy
+msgid "Install"
+msgstr "インストール"
 
 msgid "Install Plugins"
 msgstr "プラグインをインストール"
@@ -5821,6 +5842,15 @@ msgstr "設定を正常に保存しました！"
 msgid "Settings update failed!"
 msgstr "設定の更新に失敗しました"
 
+msgid ""
+"Setup Mode is the state a machine is in when its platform key has been "
+"cleared, and it is the only state in which these databases can be written. "
+"Turning Secure Boot OFF is not the same thing and does not help: a machine "
+"with Secure Boot disabled still has a platform key, and still refuses the "
+"write. Look for \"Erase all Secure Boot settings\", \"Clear Secure Boot "
+"keys\" or \"Custom mode\" in the firmware."
+msgstr ""
+
 #, fuzzy
 msgid "Short Name"
 msgstr "ホスト名"
@@ -6655,6 +6685,11 @@ msgid "That group is already defined for this server!"
 msgstr "このグループは既にサブネットグループで使用されています。"
 
 msgid ""
+"That is one visit to the firmware screen per machine, once, and it can be "
+"the same visit that turns Secure Boot on afterwards."
+msgstr ""
+
+msgid ""
 "That is the signed chain staged by the installer; the default boot file is "
 "unsigned and a Secure Boot client will refuse it"
 msgstr ""
@@ -6705,6 +6740,9 @@ msgstr "FOG クライアント用インストーラー"
 msgid "The key will be assigned to registered hosts when a"
 msgstr "キーは、登録済みホストに次の場合割り当てられます"
 
+msgid "The manual enrolment steps below are unaffected."
+msgstr ""
+
 msgid "The node trying to be used is currently"
 msgstr "使用しようとしているノードは現在"
 
@@ -6720,6 +6758,9 @@ msgstr "これらの設定は通常グローバル設定であり、すべての
 
 msgid "The storage groups associated storage node is not valid"
 msgstr "ストレージグループに関連付けられたストレージノードが無効です"
+
+msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
 
 msgid "The uploaded file exceeds the max_file_size"
 msgstr "アップロードしたファイルが max_file_size を超えています"
@@ -6832,6 +6873,14 @@ msgstr "このセクションでは更新を行えます"
 msgid ""
 "This section allows you to upload user defined reports that may not be a "
 "part of the base FOG install."
+msgstr ""
+
+msgid ""
+"This server becomes the platform owner, so Microsoft's published CA "
+"certificates are enrolled alongside FOG's own. That is not optional: "
+"Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database "
+"without it would stop this server from booting the very clients it enrolled, "
+"as well as breaking Windows."
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -7538,6 +7587,13 @@ msgstr "サーバー"
 msgid "Weekly"
 msgstr "週単位"
 
+msgid "What Setup Mode means"
+msgstr ""
+
+#, fuzzy
+msgid "What gets enrolled"
+msgstr "強制終了されました"
+
 msgid "What to do next"
 msgstr ""
 
@@ -7674,6 +7730,9 @@ msgstr "また、データベースサービスが実行中かどうか"
 
 msgid "and node A only has a 5Mbps and you want the speed"
 msgstr "ノード A の帯域が 5 Mbps のみで、その速度に制限したい場合"
+
+msgid "and re-run the installer to enable it"
+msgstr ""
 
 msgid "and set it to master"
 msgstr "そしてマスターに設定します"
