@@ -4888,3 +4888,32 @@ $this->schema[] = [
     . "VALUES "
     . "(14, 'fog.enrollsecureboot', 'Enroll Secure Boot Key', '0', '2', NULL)",
 ];
+// 322
+$this->schema[] = [
+    // Adds the "Enroll Secure Boot" task type, which stages this server's
+    // Secure Boot certificate for enrolment on the client (FOS mode=enrollsb).
+    //
+    // ttID 25, not 24: 24 was deleted by name in an earlier step and its id is
+    // not reused, matching how pxeMenu ids are handled above.
+    //
+    // ttIsAccess 'both' is the point of the feature -- enrolling one machine at
+    // a time is what the existing USB kit and PXE menu item 14 already do, and
+    // neither scales past a handful. Group tasking is what makes this useful.
+    //
+    // ttIsAdvanced '0': this is an ordinary fleet operation, not a debug tool.
+    // It changes nothing on disk and stages a request the technician must still
+    // confirm at the MokManager screen, so hiding it behind Advanced would cost
+    // discoverability and buy no safety.
+    "INSERT IGNORE INTO `taskTypes` "
+    . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,`ttKernel`,"
+    . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
+    . "VALUES "
+    . "(25,'Enroll Secure Boot','This task stages this FOG server''s Secure "
+    . "Boot signing certificate for enrolment on the client, so the client "
+    . "can boot FOS with Secure Boot switched on. The client must still be "
+    . "confirmed once at the MOK Manager screen on its next boot, by someone "
+    . "at the keyboard -- shim requires that and it cannot be automated. The "
+    . "one-time password is shown on the client screen, or set fleet-wide with "
+    . "the sbmokpw kernel argument.','shield','','mode=enrollsb','fog','0',"
+    . "'both')",
+];
