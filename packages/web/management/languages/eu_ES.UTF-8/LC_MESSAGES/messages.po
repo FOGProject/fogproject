@@ -823,6 +823,13 @@ msgstr "Integritätseinstellungen"
 msgid "Auto Logout Time"
 msgstr "Standard Logout-Zeit (in Minuten)"
 
+#, fuzzy
+msgid "Automatic Secure Boot enrolment is not available on this server"
+msgstr "Es gibt keine Images auf diesem Server."
+
+msgid "Automatic enrolment (Setup Mode)"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "BIOS-Datum"
 
@@ -1214,6 +1221,17 @@ msgstr "Client Einstellungen"
 #, fuzzy
 msgid "Client Version"
 msgstr "Client-Version"
+
+msgid ""
+"Clients already enforcing Secure Boot cannot run this task -- they will not "
+"boot FOS in the first place. Use the manual steps below for those."
+msgstr ""
+
+msgid ""
+"Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure "
+"Boot\" task -- no USB stick, no live image, no MOK Manager screen and no "
+"password"
+msgstr ""
 
 msgid "Close"
 msgstr ""
@@ -1906,11 +1924,6 @@ msgstr ""
 
 msgid "Engineer"
 msgstr "Ingenieur"
-
-msgid ""
-"Enroll Secure Boot Key is also a task type: schedule it against a host or a "
-"group from Task Scheduling to skip hunting for the menu item on each machine."
-msgstr ""
 
 msgid "Enrolment kit"
 msgstr ""
@@ -3525,6 +3538,10 @@ msgstr "Update"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Install"
+msgstr "Installierte Plugins"
 
 msgid "Install Plugins"
 msgstr "Plugins installieren"
@@ -6083,6 +6100,15 @@ msgstr "Einstellungen erfolgreich gespeichert!"
 msgid "Settings update failed!"
 msgstr "Update der Einstellungen fehlgeschlagen"
 
+msgid ""
+"Setup Mode is the state a machine is in when its platform key has been "
+"cleared, and it is the only state in which these databases can be written. "
+"Turning Secure Boot OFF is not the same thing and does not help: a machine "
+"with Secure Boot disabled still has a platform key, and still refuses the "
+"write. Look for \"Erase all Secure Boot settings\", \"Clear Secure Boot "
+"keys\" or \"Custom mode\" in the firmware."
+msgstr ""
+
 #, fuzzy
 msgid "Short Name"
 msgstr "Host-Name"
@@ -6985,6 +7011,11 @@ msgid "That group is already defined for this server!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 msgid ""
+"That is one visit to the firmware screen per machine, once, and it can be "
+"the same visit that turns Secure Boot on afterwards."
+msgstr ""
+
+msgid ""
 "That is the signed chain staged by the installer; the default boot file is "
 "unsigned and a Secure Boot client will refuse it"
 msgstr ""
@@ -7007,6 +7038,15 @@ msgid "The CA certificate path is too long (255 characters max)"
 msgstr ""
 
 msgid "The CA certificate path must be absolute"
+msgstr ""
+
+msgid ""
+"The Enroll Secure Boot task type does all of this for you: schedule it "
+"against a host or a group from Task Scheduling and the client boots FOS, "
+"which stages the request itself -- or enrols outright with nothing to "
+"confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu "
+"item stays for answering a pending request by hand, or for enrolling from "
+"local media on a machine FOS cannot boot."
 msgstr ""
 
 msgid ""
@@ -7039,6 +7079,9 @@ msgstr "Die Installer für den FOG Client"
 msgid "The key will be assigned to registered hosts when a"
 msgstr "Der Schlüssel wird registrierten Hosts zugewiesen, wenn"
 
+msgid "The manual enrolment steps below are unaffected."
+msgstr ""
+
 msgid "The node trying to be used is currently"
 msgstr "Der zu verwendende Knoten ist derzeit"
 
@@ -7054,6 +7097,9 @@ msgstr "Die Einstellungen wirken sich in der Regel auf alle Hosts aus."
 msgid "The storage groups associated storage node is not valid"
 msgstr ""
 "Der einer/mehrere Speichergruppen zugeordnete Speicherknoten ist ungültig"
+
+msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
 
 #, fuzzy
 msgid "The uploaded file exceeds the max_file_size"
@@ -7173,6 +7219,14 @@ msgstr "In diesem Abschnitt können Sie den Linux-Kernel"
 msgid ""
 "This section allows you to upload user defined reports that may not be a "
 "part of the base FOG install."
+msgstr ""
+
+msgid ""
+"This server becomes the platform owner, so Microsoft's published CA "
+"certificates are enrolled alongside FOG's own. That is not optional: "
+"Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database "
+"without it would stop this server from booting the very clients it enrolled, "
+"as well as breaking Windows."
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -7917,6 +7971,13 @@ msgstr "Web-Server"
 msgid "Weekly"
 msgstr "Wöchentlich"
 
+msgid "What Setup Mode means"
+msgstr ""
+
+#, fuzzy
+msgid "What gets enrolled"
+msgstr "wurde abgebrochen"
+
 msgid "What to do next"
 msgstr ""
 
@@ -8075,6 +8136,9 @@ msgstr "und die Datenbank läuft,"
 
 msgid "and node A only has a 5Mbps and you want the speed"
 msgstr "und Knoten A hat nur 5MBit/s, und Sie wollen die Geschwindigkeit"
+
+msgid "and re-run the installer to enable it"
+msgstr ""
 
 msgid "and set it to master"
 msgstr "und diesen als Master einstellen,"

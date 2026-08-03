@@ -1877,15 +1877,19 @@ class BootMenu extends FOGBase
                     "boot",
                 ];
                 $this->_parseMe($Send);
-            } elseif ($Task->get('typeID') == TaskType::ENROLL_SECUREBOOT) {
-                // Same non-kernel-chain special case as Memtest above --
-                // reuse the exact iPXE lines the manual "Enroll Secure Boot
-                // Key" menu item (pxeID 14) already chains to, so a
-                // scheduled task and a manually-picked menu item can never
-                // drift apart.
-                $Send['secureboot-enroll'] = $this->_enrollSecureBootChoice();
-                $this->_parseMe($Send);
             } else {
+                // ENROLL_SECUREBOOT used to be special-cased here alongside
+                // Memtest, chaining straight to _enrollSecureBootChoice() so a
+                // scheduled task landed on the same MokManager screen as PXE
+                // menu item 14. It now boots FOS instead (mode=enrollsb, schema
+                // step 323), which is what lets it enrol automatically in Setup
+                // Mode and stage a request non-interactively otherwise -- so it
+                // takes the ordinary kernel-chain path like any other task.
+                //
+                // _enrollSecureBootChoice() and pxeID 14 both stay: chaining
+                // directly to MokManager is still how a technician answers a
+                // pending request, or enrols from local FAT media on a machine
+                // FOS cannot boot.
                 $this->_printTasking($kernelArgsArray);
             }
         }
