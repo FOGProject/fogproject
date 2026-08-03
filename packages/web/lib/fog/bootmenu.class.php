@@ -1877,6 +1877,14 @@ class BootMenu extends FOGBase
                     "boot",
                 ];
                 $this->_parseMe($Send);
+            } elseif ($Task->get('typeID') == TaskType::ENROLL_SECUREBOOT) {
+                // Same non-kernel-chain special case as Memtest above --
+                // reuse the exact iPXE lines the manual "Enroll Secure Boot
+                // Key" menu item (pxeID 14) already chains to, so a
+                // scheduled task and a manually-picked menu item can never
+                // drift apart.
+                $Send['secureboot-enroll'] = $this->_enrollSecureBootChoice();
+                $this->_parseMe($Send);
             } else {
                 $this->_printTasking($kernelArgsArray);
             }
