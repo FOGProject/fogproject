@@ -69,7 +69,7 @@ class System
         // given FOG release ships a known iPXE -- the installer uses this both
         // to pick the download and to check out the matching source when an
         // HTTPS install has to rebuild with its own CA.
-        define('FOG_IPXE_VERSION', 'v2.0.0-fog.2');
+        define('FOG_IPXE_VERSION', 'v2.0.0-fog.3');
         // GH-850: FOG_BASE_DIR is now installer-driven. Initiator loads
         // commons/fogpaths.php (written from the installer's $fogprogramdir)
         // before the autoloader runs, so in a normal boot these are already
