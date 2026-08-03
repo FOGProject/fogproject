@@ -3681,7 +3681,16 @@ EOF
                         echo "    RewriteRule .* - [F]" >> "$etcconf"
                         echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
                         echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
-                        echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+                        # GH-978: ^/?(.*)$ rather than (.*). In vhost context a
+                        # RewriteRule pattern is matched against the URL-path
+                        # WITH its leading slash, so (.*) captured "/fog/..."
+                        # and the substitution emitted a Location of
+                        # https://host//fog/... -- a doubled slash. The bare
+                        # (.*) form is .htaccess idiom, where the leading slash
+                        # is stripped for you; it has been wrong here since
+                        # 2017. Apache's MergeSlashes normally hides it, which
+                        # is why it went unreported for so long.
+                        echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
                         echo "<VirtualHost *:443>" >> "$etcconf"
                         echo "    KeepAlive Off" >> "$etcconf"
