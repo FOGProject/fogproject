@@ -2522,6 +2522,11 @@ msgstr "Si c'est désactivé"
 msgid "If on"
 msgstr "Sinon"
 
+msgid ""
+"If that chain loads but the network never comes up, the firmware's own UEFI "
+"network stack is at fault. Point the boot filename at"
+msgstr ""
+
 msgid "If there is not a task set"
 msgstr "S'il n'y a pas de tâche définie"
 
@@ -6797,6 +6802,11 @@ msgstr "en secondes"
 
 msgid "install or update the FOG database"
 msgstr "installer ou mettre à jour la base de données du FOG"
+
+msgid ""
+"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
+"Arm64 clients use the files under secureboot/arm64-efi/"
+msgstr ""
 
 msgid "is already running with pid: "
 msgstr "est déjà en cours d'exécution avec le pid : "
