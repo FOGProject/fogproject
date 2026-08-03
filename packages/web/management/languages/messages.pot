@@ -3687,9 +3687,6 @@ msgstr ""
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
-msgid "Minimum time limmit for Auto Logout to become active is 5 minutes."
-msgstr ""
-
 msgid "Minute value is not valid"
 msgstr ""
 

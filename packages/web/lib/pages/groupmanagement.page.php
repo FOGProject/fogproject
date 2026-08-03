@@ -1329,7 +1329,7 @@ class GroupManagement extends FOGPage
             echo _('Auto Logout Settings');
             echo '</h4>';
             echo '<p class="form-text">';
-            echo _('Minimum time limmit for Auto Logout to become active is 5 minutes.');
+            echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
             echo '</p>';
             echo '</div>';
             echo '<div class="card-body">';
