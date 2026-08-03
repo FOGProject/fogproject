@@ -61,17 +61,23 @@ class System
         self::_versionCompare();
         define('FOG_VERSION', '1.6.0-beta.3157');
         define('FOG_CHANNEL', 'Beta');
-        // Every added element of $this->schema in commons/schema.php must bump
-        // this by one. It is what DatabaseManager and schemaNeedsDeploy() test
-        // (`mySchema < FOG_SCHEMA`) to decide an update is outstanding; the
-        // updater page's own `count($this->schema) <= mySchema` check only ever
-        // runs once something has sent the admin (or the installer's token)
-        // there. Leaving it behind therefore does not half-apply a step -- it
-        // silently applies nothing at all, on every already-installed server,
-        // while a fresh install still gets the step and looks fine. That is
-        // what happened to schema step 323 (task type 25 -> mode=enrollsb):
-        // added without this bump, so no existing 1.6 server would have picked
-        // it up.
+        // Bumped by one for every element added to $this->schema in
+        // commons/schema.php. It is NOT the element count -- it has drifted
+        // well above it (289 elements at the time of writing) -- and nothing
+        // requires the two to agree. What it must never do is fall BELOW the
+        // element count: DatabaseManager::init() and schemaNeedsDeploy() test
+        // `mySchema < FOG_SCHEMA` to decide whether to send the admin (or the
+        // installer's token bootstrap) to the schema updater, and the updater
+        // then does the real work with `count($this->schema) <= mySchema`. So
+        // this is the coarse gate and the count is the precise one; keeping the
+        // gate comfortably above the count is what makes a genuinely behind
+        // server get there at all.
+        //
+        // Corollary worth knowing before chasing a step that "did not run": a
+        // database storing a vValue ABOVE the element count -- which is what a
+        // 1.5.x carried count does, see SchemaReconciler's docstring -- is
+        // permanently "up to date" from the updater's point of view and will
+        // never run another indexed step, whatever this constant says.
         define('FOG_SCHEMA', 323);
         define('FOG_BCACHE_VER', 272);
         define('FOG_CLIENT_VERSION', '0.13.0');
