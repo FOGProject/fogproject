@@ -32,6 +32,18 @@ class GroupManagement extends FOGPage
      */
     public $node = 'group';
     /**
+     * Fewest minutes an auto-logout value can be and still take effect;
+     * anything below this saves as 0 (disabled). Named here because
+     * groupModulePost() enforces it, groupModules() hands it to the JS so the
+     * "Hosts:" readout can predict the result without a round trip, and the two
+     * must agree. The card's own "...is 5 minutes." sentence is deliberately
+     * left as a literal -- folding it in would change the gettext msgid and
+     * strand every existing translation of it.
+     *
+     * @var int
+     */
+    const ALO_MIN_MINUTES = 5;
+    /**
      * Initializes the group page
      *
      * @param string $name the name to construct with
@@ -388,7 +400,18 @@ class GroupManagement extends FOGPage
         } else {
             $text = Initiator::e($info['value']) . ' ' . _('min (all)');
         }
-        return '<p class="form-text help-block-tight">'
+        // Server-rendered from the members' current values, so it goes stale as
+        // soon as the card is applied over AJAX (the tab is never re-rendered).
+        // groupModulePost() forces every member to one value, so the outcome is
+        // predictable client-side -- hand over the translated readouts and the
+        // threshold as data-*, the same way the enforce hint and
+        // makeReloadToggle() do, so translation stays here and the JS only
+        // picks. data-alo-min is what keeps the JS from hardcoding the rule.
+        return '<p class="form-text help-block-tight" id="alo-shared-hint"'
+            . ' data-alo-min="' . self::ALO_MIN_MINUTES . '"'
+            . ' data-hosts-label="' . Initiator::e(_('Hosts:')) . '"'
+            . ' data-default-label="' . Initiator::e(_('(default on all)')) . '"'
+            . ' data-min-label="' . Initiator::e(_('min (all)')) . '">'
             . _('Hosts:') . ' ' . $text
             . '</p>';
     }
@@ -1463,11 +1486,11 @@ class GroupManagement extends FOGPage
         }
         if (isset($_POST['confirmalosend'])) {
             // No-clobber: blank = leave each host's auto-logout alone. A number
-            // pushes to all (under 5 minutes disables it, as before).
+            // pushes to all (below ALO_MIN_MINUTES disables it, as before).
             $raw = filter_input(INPUT_POST, 'tme');
             if ($raw !== null && trim((string)$raw) !== '') {
                 $tme = (int)$raw;
-                if (!($tme > 4)) {
+                if ($tme < self::ALO_MIN_MINUTES) {
                     $tme = 0;
                 }
                 $this->obj->setAlo($tme);

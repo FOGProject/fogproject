@@ -613,6 +613,33 @@
             };
         $.apiCall(method,action,opts,function(err) {
             disableModuleAloButtons(false);
+            // Blank is a no-op server-side (no-clobber), and a failure left the
+            // members alone -- in neither case did anything move.
+            var raw = $.trim(String(opts.tme));
+            if (err || raw === '') {
+                return;
+            }
+            // Mirror groupModulePost(): (int) the value, and anything below the
+            // minimum saves as 0 (disabled). The threshold rides in on
+            // data-alo-min from GroupManagement::ALO_MIN_MINUTES rather than
+            // being repeated here, so the two cannot disagree.
+            var hint = $('#alo-shared-hint'),
+                mins = parseInt(raw, 10);
+            if (isNaN(mins) || mins < parseInt(hint.data('alo-min'), 10)) {
+                mins = 0;
+            }
+            hint.text(
+                hint.data('hosts-label') + ' ' + (
+                    mins === 0 ?
+                    hint.data('default-label') :
+                    mins + ' ' + hint.data('min-label')
+                )
+            );
+            // Same reasoning as the enforce select: the field is a pending
+            // action (blank = leave alone), not a display of the current value,
+            // which the hint above now carries. Leaving the number in it reads
+            // as a change still queued.
+            $('#tme').val('');
         });
     });
 
