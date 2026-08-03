@@ -438,6 +438,25 @@ class FOGConfigurationPage extends FOGPage
                 . 'boot file is unsigned and a Secure Boot client will refuse it'
             )
         ) . '</p>';
+        // Two signed chains are staged, mirroring the snponly/ipxe choice
+        // every non-Secure-Boot install already has. shim resolves its second
+        // stage from its OWN filename, so switching chains is purely a DHCP
+        // change -- there is nothing to rename server-side. Documented here
+        // because a site whose firmware SNP is broken otherwise has no way to
+        // know a fallback exists.
+        $steps .= '<p>' . sprintf(
+            '%s <code>secureboot/ipxe-shimx64.efi</code> %s.',
+            _(
+                'If that chain loads but the network never comes up, the '
+                . 'firmware\'s own UEFI network stack is at fault. Point the '
+                . 'boot filename at'
+            ),
+            _(
+                'instead, which uses iPXE\'s built-in NIC drivers rather than '
+                . 'the firmware\'s. Arm64 clients use the files under '
+                . 'secureboot/arm64-efi/'
+            )
+        ) . '</p>';
         // Stated rather than detected: the web request's own scheme says
         // nothing about the install's $httpproto, so guessing here would be
         // worse than telling the admin what to check. See
