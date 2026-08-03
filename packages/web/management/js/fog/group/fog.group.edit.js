@@ -646,6 +646,26 @@
             };
         $.apiCall(method,action,opts,function(err) {
             disableModuleEnforceButtons(false);
+            // '' was a no-op server-side, so nothing moved; a failure leaves the
+            // members as they were. Only a successful '1'/'0' changes state.
+            if (err || (opts.enforce !== '1' && opts.enforce !== '0')) {
+                return;
+            }
+            // Every member was just forced to the same value, so the readout is
+            // known -- no round trip needed. Translated text comes from the
+            // server via data-*; this only chooses between them.
+            var hint = $('#enforce-shared-hint');
+            hint.text(
+                hint.data('hosts-label') + ' ' + (
+                    opts.enforce === '1' ?
+                    hint.data('enabled-label') :
+                    hint.data('disabled-label')
+                )
+            );
+            // The select is a pending action, not a value display. Leaving it
+            // armed makes the card claim a change is still queued when it has
+            // already been applied, so put it back to the no-clobber default.
+            $('#enforce').val('');
         });
     });
 
