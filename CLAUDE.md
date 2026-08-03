@@ -21,6 +21,19 @@ FOG Project is an open-source network imaging and endpoint management system. It
 
 ---
 
+## Feature development order
+
+**New features land here first.** Until this branch is promoted to become
+the project's stable/patches line (superseding `dev-branch`), develop new
+capability against `working-1.6` and open the PR here before porting it to
+`dev-branch`. `dev-branch` is the actively-patched 1.5.x line today, but this
+branch is where the project's future lives — landing new features here
+first, then porting backward, keeps it from falling further behind and
+avoids reconciling divergence after the fact instead of designing around it
+from the start.
+
+---
+
 ## Development Workflow
 
 ### Sync Scripts
