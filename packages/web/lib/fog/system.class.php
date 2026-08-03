@@ -61,7 +61,18 @@ class System
         self::_versionCompare();
         define('FOG_VERSION', '1.6.0-beta.3157');
         define('FOG_CHANNEL', 'Beta');
-        define('FOG_SCHEMA', 322);
+        // Every added element of $this->schema in commons/schema.php must bump
+        // this by one. It is what DatabaseManager and schemaNeedsDeploy() test
+        // (`mySchema < FOG_SCHEMA`) to decide an update is outstanding; the
+        // updater page's own `count($this->schema) <= mySchema` check only ever
+        // runs once something has sent the admin (or the installer's token)
+        // there. Leaving it behind therefore does not half-apply a step -- it
+        // silently applies nothing at all, on every already-installed server,
+        // while a fresh install still gets the step and looks fine. That is
+        // what happened to schema step 323 (task type 25 -> mode=enrollsb):
+        // added without this bump, so no existing 1.6 server would have picked
+        // it up.
+        define('FOG_SCHEMA', 323);
         define('FOG_BCACHE_VER', 272);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
