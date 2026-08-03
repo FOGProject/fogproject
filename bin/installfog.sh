@@ -87,6 +87,8 @@ usage() {
     echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
     echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
     echo -e "\t-S    --force-https\t\tForce HTTPS for all communication"
+    echo -e "\t      --no-force-https\t\tUndo --force-https: serve both HTTP and"
+    echo -e "\t                     \t\t\tHTTPS without redirecting"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
@@ -118,7 +120,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -164,6 +166,17 @@ while :; do
             ;;
         -S | --force-https)
             shttpproto="https"
+            shift
+            ;;
+        --no-force-https)
+            # GH-978: the counterpart to -S, and the only way back out of it.
+            # httpproto is persisted to .fogsettings, so once -S writes https
+            # there the `[[ -z $httpproto ]] && httpproto="http"` default can
+            # never fire again -- .fogsettings is sourced before it. Re-running
+            # without -S therefore kept forcing HTTPS, and hand-editing
+            # .fogsettings was the only escape. Setting shttpproto routes this
+            # through the same override that -S uses, so the two are symmetric.
+            shttpproto="http"
             shift
             ;;
         -K | --recreate-keys)
