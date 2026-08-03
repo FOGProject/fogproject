@@ -4890,45 +4890,71 @@ $this->schema[] = [
 ];
 // 322
 $this->schema[] = [
-    // Adds the "Enroll Secure Boot" task type, which gets this server's Secure
-    // Boot certificate trusted by the client (FOS mode=enrollsb).
+    // Lets "Enroll Secure Boot Key" be scheduled like any other task
+    // (against a host or a group) instead of only being reachable by
+    // manually picking pxeID 14 from the boot menu every time. 25 is the
+    // next free ttID -- 23 and 24 were used and later fully removed (see
+    // the two DELETE FROM `taskTypes` steps above), so their ids are not
+    // reused.
     //
-    // ttID 25, not 24: 24 was deleted by name in an earlier step and its id is
-    // not reused, matching how pxeMenu ids are handled above.
-    //
-    // ttIsAdvanced '0': it changes nothing on disk, and in the case where it
-    // does change firmware state the machine had to be put in Setup Mode by
-    // hand first. Hiding it behind Advanced would cost discoverability and buy
-    // no safety.
-    //
-    // The task takes ONE of two paths depending on what it finds, and the
-    // description has to convey both because they demand different things of
-    // the admin:
-    //
-    //   Setup Mode  -> writes db/KEK/PK directly and finishes. Nobody at the
-    //                  keyboard, nothing to confirm. This is the path that
-    //                  scales, and it is why "clear the Secure Boot keys" is
-    //                  worth naming explicitly -- an admin who has not heard
-    //                  the term will never find it in their firmware menu.
-    //   otherwise   -> stages a MOK request that a human confirms once at the
-    //                  MokManager screen. shim's MokList is boot-services-only,
-    //                  so nothing FOG does can enrol a key unattended.
-    //
-    // And ONE hard limit, which costs a wasted trip to every machine if omitted:
-    // the task cannot run at all when Secure Boot is already enforcing. iPXE
-    // verifies the kernel AND the initrd through shim, so on a client that does
-    // not yet trust this server's key both are refused with "Verification
-    // failed: Security Policy Violation" and FOS never starts. Measured on real
-    // firmware 2026-08-03; see fos ADR-0009.
-    //
-    // An admin who schedules this against 200 enforcing machines and watches
-    // every one fail to boot has been misled by us, and the place to prevent
-    // that is the text they read before scheduling.
+    // Empty ttKernel/ttKernelArgs: this task type never reaches the
+    // generic kernel-chain path in BootMenu::getTasking() -- it is
+    // special-cased there, the same way ttID 4 (Memtest) already is, to
+    // reuse BootMenu::_enrollSecureBootChoice() instead. Leaving
+    // ttKernelArgs empty also avoids accidentally matching the
+    // type=/mode= regex fallbacks TaskType::isDeploy()/isCapture()/etc.
+    // use for tasks created before those columns existed.
     "INSERT IGNORE INTO `taskTypes` "
     . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,`ttKernel`,"
     . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
     . "VALUES "
-    . "(25,'Enroll Secure Boot','Gets this FOG server''s Secure Boot signing "
+    . "(25, 'Enroll Secure Boot Key', 'Enroll Secure Boot Key will "
+    . "chain the client straight to the Secure Boot enrolment menu "
+    . "so a technician can enrol this FOG server\'s MOK without "
+    . "hunting for it in the PXE boot menu. A technician still has "
+    . "to be at the console: MokManager gives up after about 10 "
+    . "seconds with no keypress and boots normally, and reboots if "
+    . "left idle partway through for a few minutes.', 'lock', '', "
+    . "'', 'fog', '1', 'both')",
+];
+// 323
+$this->schema[] = [
+    // Redefines task type 25 so it BOOTS FOS and performs the enrolment, rather
+    // than chaining the client to MokManager and leaving it there.
+    //
+    // Step 322 above shipped it as "Enroll Secure Boot Key": a schedulable
+    // wrapper around PXE menu item 14, which drops the client at the MokManager
+    // screen for a technician to drive by hand. That was the best available
+    // answer before FOS could touch EFI variables at all. It can now, and the
+    // two are for the same job, so this supersedes it rather than sitting
+    // alongside it -- two near-identically named task types with different
+    // behaviour is a support burden nobody needs.
+    //
+    // Updated in a NEW step rather than by editing 322 in place: 322 has already
+    // run on every 1.6 beta server, and a server does not re-run a step it has
+    // passed. Editing it would silently change nothing for exactly the installs
+    // that have the old row.
+    //
+    // ttID 25 is deliberately REUSED here, which the "removed ids are not
+    // reused" convention above does not cover: this is the same conceptual task
+    // type getting a better implementation, not a new one taking a dead id. Any
+    // task already scheduled against 25 keeps working and simply does the more
+    // capable thing.
+    //
+    // ttKernelArgs goes from '' to 'mode=enrollsb' -- that is what routes it
+    // down the generic kernel-chain path in BootMenu::getTasking() now that the
+    // _enrollSecureBootChoice() special case for this type is gone. PXE menu
+    // item 14 and _enrollSecureBootChoice() itself both stay: chaining straight
+    // to MokManager is still how a technician answers a pending request, or
+    // enrols from local FAT media on a machine FOS cannot boot.
+    //
+    // ttIsAdvanced drops from '1' to '0': the old row hid behind Advanced
+    // because it stranded the client at a firmware screen. This one completes on
+    // its own in Setup Mode, so hiding it would cost discoverability and buy no
+    // safety.
+    "UPDATE `taskTypes` SET "
+    . "`ttName`='Enroll Secure Boot',"
+    . "`ttDescription`='Gets this FOG server''s Secure Boot signing "
     . "certificate trusted by the client, so the client can boot FOS with "
     . "Secure Boot switched on. If the client is in SETUP MODE (its Secure Boot "
     . "keys have been cleared in firmware) the task enrolls the certificate "
@@ -4940,6 +4966,9 @@ $this->schema[] = [
     . "automated; the one-time password is shown on the client screen, or set "
     . "fleet-wide with the sbmokpw kernel argument. EITHER WAY THE CLIENT MUST "
     . "NOT ALREADY BE ENFORCING SECURE BOOT: it does not trust this server''s "
-    . "kernel yet, so it cannot boot FOS at all and this task will not "
-    . "run.','shield','','mode=enrollsb','fog','0','both')",
+    . "kernel yet, so it cannot boot FOS at all and this task will not run.',"
+    . "`ttIcon`='shield',"
+    . "`ttKernelArgs`='mode=enrollsb',"
+    . "`ttIsAdvanced`='0' "
+    . "WHERE `ttID`=25",
 ];

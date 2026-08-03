@@ -613,6 +613,33 @@
             };
         $.apiCall(method,action,opts,function(err) {
             disableModuleAloButtons(false);
+            // Blank is a no-op server-side (no-clobber), and a failure left the
+            // members alone -- in neither case did anything move.
+            var raw = $.trim(String(opts.tme));
+            if (err || raw === '') {
+                return;
+            }
+            // Mirror groupModulePost(): (int) the value, and anything below the
+            // minimum saves as 0 (disabled). The threshold rides in on
+            // data-alo-min from GroupManagement::ALO_MIN_MINUTES rather than
+            // being repeated here, so the two cannot disagree.
+            var hint = $('#alo-shared-hint'),
+                mins = parseInt(raw, 10);
+            if (isNaN(mins) || mins < parseInt(hint.data('alo-min'), 10)) {
+                mins = 0;
+            }
+            hint.text(
+                hint.data('hosts-label') + ' ' + (
+                    mins === 0 ?
+                    hint.data('default-label') :
+                    mins + ' ' + hint.data('min-label')
+                )
+            );
+            // Same reasoning as the enforce select: the field is a pending
+            // action (blank = leave alone), not a display of the current value,
+            // which the hint above now carries. Leaving the number in it reads
+            // as a change still queued.
+            $('#tme').val('');
         });
     });
 
@@ -635,10 +662,37 @@
             action = $(this).attr('action'),
             opts = {
                 confirmenforcesend: 1,
-                enforce: $('#enforce')[0].checked ? 1 : 0
+                // #enforce is a tri-state <select> here ('' = no change,
+                // '1'/'0' = force on every host), matching #adEnabled above.
+                // This read was left over from when it was a checkbox: .checked
+                // is undefined on a <select>, so the ternary posted 0 for every
+                // choice -- "Enable on all hosts" disabled them instead, and
+                // "No change" clobbered the whole group. Send the raw value and
+                // let groupModulePost() decide; it already ignores ''.
+                enforce: $('#enforce').val()
             };
         $.apiCall(method,action,opts,function(err) {
             disableModuleEnforceButtons(false);
+            // '' was a no-op server-side, so nothing moved; a failure leaves the
+            // members as they were. Only a successful '1'/'0' changes state.
+            if (err || (opts.enforce !== '1' && opts.enforce !== '0')) {
+                return;
+            }
+            // Every member was just forced to the same value, so the readout is
+            // known -- no round trip needed. Translated text comes from the
+            // server via data-*; this only chooses between them.
+            var hint = $('#enforce-shared-hint');
+            hint.text(
+                hint.data('hosts-label') + ' ' + (
+                    opts.enforce === '1' ?
+                    hint.data('enabled-label') :
+                    hint.data('disabled-label')
+                )
+            );
+            // The select is a pending action, not a value display. Leaving it
+            // armed makes the card claim a change is still queued when it has
+            // already been applied, so put it back to the no-clobber default.
+            $('#enforce').val('');
         });
     });
 

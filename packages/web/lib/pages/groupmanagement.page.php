@@ -32,6 +32,18 @@ class GroupManagement extends FOGPage
      */
     public $node = 'group';
     /**
+     * Fewest minutes an auto-logout value can be and still take effect;
+     * anything below this saves as 0 (disabled). Named here because
+     * groupModulePost() enforces it, groupModules() hands it to the JS so the
+     * "Hosts:" readout can predict the result without a round trip, and the two
+     * must agree. The card's own "...is 5 minutes." sentence is deliberately
+     * left as a literal -- folding it in would change the gettext msgid and
+     * strand every existing translation of it.
+     *
+     * @var int
+     */
+    const ALO_MIN_MINUTES = 5;
+    /**
      * Initializes the group page
      *
      * @param string $name the name to construct with
@@ -388,7 +400,18 @@ class GroupManagement extends FOGPage
         } else {
             $text = Initiator::e($info['value']) . ' ' . _('min (all)');
         }
-        return '<p class="form-text help-block-tight">'
+        // Server-rendered from the members' current values, so it goes stale as
+        // soon as the card is applied over AJAX (the tab is never re-rendered).
+        // groupModulePost() forces every member to one value, so the outcome is
+        // predictable client-side -- hand over the translated readouts and the
+        // threshold as data-*, the same way the enforce hint and
+        // makeReloadToggle() do, so translation stays here and the JS only
+        // picks. data-alo-min is what keeps the JS from hardcoding the rule.
+        return '<p class="form-text help-block-tight" id="alo-shared-hint"'
+            . ' data-alo-min="' . self::ALO_MIN_MINUTES . '"'
+            . ' data-hosts-label="' . Initiator::e(_('Hosts:')) . '"'
+            . ' data-default-label="' . Initiator::e(_('(default on all)')) . '"'
+            . ' data-min-label="' . Initiator::e(_('min (all)')) . '">'
             . _('Hosts:') . ' ' . $text
             . '</p>';
     }
@@ -1329,7 +1352,7 @@ class GroupManagement extends FOGPage
             echo _('Auto Logout Settings');
             echo '</h4>';
             echo '<p class="form-text">';
-            echo _('Minimum time limmit for Auto Logout to become active is 5 minutes.');
+            echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
             echo '</p>';
             echo '</div>';
             echo '<div class="card-body">';
@@ -1371,7 +1394,17 @@ class GroupManagement extends FOGPage
             . '<option value="1">' . _('Enable on all hosts') . '</option>'
             . '<option value="0">' . _('Disable on all hosts') . '</option>'
             . '</select>'
-            . '<p class="form-text help-block-tight">'
+            // The hint is server-rendered from the members' current values, so
+            // it goes stale the moment the tri-state is applied over AJAX (the
+            // tab is never re-rendered). Applying '1'/'0' forces every member to
+            // that value, so the resulting state is known without a round trip
+            // -- carry both translated readouts as data-* for the JS to swap in,
+            // the same way makeReloadToggle() hands its labels over. Translation
+            // stays here; the JS only picks.
+            . '<p class="form-text help-block-tight" id="enforce-shared-hint"'
+            . ' data-hosts-label="' . Initiator::e(_('Hosts:')) . '"'
+            . ' data-enabled-label="' . Initiator::e(_('enabled (all)')) . '"'
+            . ' data-disabled-label="' . Initiator::e(_('disabled (all)')) . '">'
             . _('Hosts:') . ' ' . $enfText
             . '</p>';
         $fields = [
@@ -1453,11 +1486,11 @@ class GroupManagement extends FOGPage
         }
         if (isset($_POST['confirmalosend'])) {
             // No-clobber: blank = leave each host's auto-logout alone. A number
-            // pushes to all (under 5 minutes disables it, as before).
+            // pushes to all (below ALO_MIN_MINUTES disables it, as before).
             $raw = filter_input(INPUT_POST, 'tme');
             if ($raw !== null && trim((string)$raw) !== '') {
                 $tme = (int)$raw;
-                if (!($tme > 4)) {
+                if ($tme < self::ALO_MIN_MINUTES) {
                     $tme = 0;
                 }
                 $this->obj->setAlo($tme);

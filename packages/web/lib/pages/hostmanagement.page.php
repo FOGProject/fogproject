@@ -469,6 +469,51 @@ class HostManagement extends FOGPage
         $this->jsonSend($code, $msg);
     }
     /**
+     * Builds the enforce checkbox together with its explanatory help text.
+     *
+     * The group page states what this setting actually does in the header of
+     * its own "Enforce Hostname | AD Join Reboots" card (groupModules()). The
+     * host used to carry the same card on its Service Settings tab, but when
+     * the control moved onto the General/Add field lists (9f0e1a3, to line Add
+     * and Edit up) the card went with it -- and the description was the only
+     * place either page explained the setting. A flat field row has no header
+     * to hang that on, so the text rides under the checkbox instead. Keep the
+     * wording byte-identical to groupModules() so the two pages say the same
+     * thing and share one gettext msgid.
+     *
+     * @param mixed $enforce Truthy if the box should render checked.
+     *
+     * @return string
+     */
+    private function _enforceControl($enforce)
+    {
+        return self::makeInput(
+            '',
+            'enforce',
+            '',
+            'checkbox',
+            'enforce',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            ($enforce ? 'checked' : '')
+        )
+        . '<p class="form-text help-block-tight">'
+        . _(
+            'This tells the client to force reboots for host name '
+            . 'changing and AD Joining.'
+        )
+        . '</p>'
+        . '<p class="form-text help-block-tight">'
+        . _(
+            'If disabled, the client will not make changes until all users '
+            . 'are logged off'
+        )
+        . '</p>';
+    }
+    /**
      * Creates a new host.
      *
      * @return void
@@ -618,19 +663,7 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'enforce',
                 _('Enforce Hostname | AD Join Reboots')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($enforce ? 'checked' : '')
-            ),
+            ) => $this->_enforceControl($enforce),
             self::makeLabel(
                 $labelClass,
                 'bootTypeExit',
@@ -880,19 +913,7 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'enforce',
                 _('Enforce Hostname | AD Join Reboots')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($enforce ? 'checked' : '')
-            ),
+            ) => $this->_enforceControl($enforce),
             self::makeLabel(
                 $labelClass,
                 'bootTypeExit',
@@ -1185,19 +1206,7 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'enforce',
                 _('Enforce Hostname | AD Join Reboots')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($enforce ? 'checked' : '')
-            ),
+            ) => $this->_enforceControl($enforce),
             self::makeLabel(
                 $labelClass,
                 'bootTypeExit',

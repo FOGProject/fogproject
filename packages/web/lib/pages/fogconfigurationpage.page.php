@@ -348,19 +348,17 @@ class FOGConfigurationPage extends FOGPage
         $body .= '<p><strong>' . _('Certificate SHA-256') . '</strong></p>';
         $body .= '<pre>' . Initiator::e($fingerprint) . '</pre>';
         $body .= '<p>' . _(
-            'Check this value matches what the enrolment script prints before '
-            . 'confirming. That comparison is what stops the wrong key being '
-            . 'trusted.'
+            'Check this value against what the enrolment tool shows before '
+            . 'confirming, whether the certificate reached the client on a '
+            . 'USB stick or over the network. That comparison is what stops '
+            . 'the wrong key being trusted.'
         ) . '</p>';
         $body .= '<p><strong>' . _('Enrolment kit') . '</strong></p>';
-        $body .= '<p>' . sprintf(
-            '%s. %s.',
-            _(
-                'Copy all three files onto a USB stick, boot the client from a '
-                . 'stock Ubuntu or Debian live image with Secure Boot left ON, '
-                . 'and run the launcher'
-            ),
-            _('No firmware changes are needed')
+        $body .= '<p>' . _(
+            'For a live-USB enrolment, copy all three files onto a USB '
+            . 'stick, boot the client from a stock Ubuntu or Debian live '
+            . 'image with Secure Boot left ON, and run the launcher. No '
+            . 'firmware changes are needed.'
         ) . '</p>';
         $body .= '<ul>';
         $kitfiles = ['MOK.der', 'fog-enroll-mok.sh', 'fog-enroll-mok.desktop'];
@@ -375,6 +373,16 @@ class FOGConfigurationPage extends FOGPage
             );
         }
         $body .= '</ul>';
+        $body .= '<p>' . sprintf(
+            '%s <a href="%s" target="_blank">%s</a>.',
+            _(
+                'Full step-by-step instructions for this and for enrolling '
+                . 'straight from the PXE boot menu, with no USB stick, are '
+                . 'in the Secure Boot guide:'
+            ),
+            Initiator::e('https://docs.fogproject.org/en/latest/secure-boot-signing'),
+            _('Secure Boot: signing FOS with your own key')
+        ) . '</p>';
         echo $this->_box(_('Secure Boot'), $body, ['color' => 'info']);
 
         // Automatic enrolment card, placed above the manual steps because it is
@@ -454,55 +462,44 @@ class FOGConfigurationPage extends FOGPage
         }
 
         // Second card: the actual procedure. The card above answers "is this
-        // configured and what is the key", which is the reference half; on its
-        // own it left an admin holding three files and no idea what to do with
-        // them. The steps below track fog-enroll-mok.sh exactly -- if that
-        // script's prompts change, change these with it.
+        // configured and what is the key", which is the reference half. Full
+        // per-client steps for both enrolment routes live in the linked guide
+        // now rather than being duplicated here -- this card is the summary
+        // and the gotchas that matter regardless of which route is used.
         $steps = '<p>' . _(
             'Signing is already done on this server. The remaining work is '
             . 'per-client and has to be done by someone at the machine -- that '
             . 'is what makes enrolment a deliberate act rather than something '
             . 'a server can do to a client remotely.'
         ) . '</p>';
-        $steps .= '<p><strong>' . _('On each client, once') . '</strong></p>';
-        $steps .= '<ol>';
-        $clientSteps = [
-            _(
-                'Copy the three files above onto a USB stick, keeping them in '
-                . 'the same folder -- the script expects MOK.der beside it.'
-            ),
-            _(
-                'Boot the client from a stock Ubuntu or Debian live image with '
-                . 'Secure Boot left ON. Those images boot under Secure Boot on '
-                . 'their own signed shim, so no firmware changes are needed.'
-            ),
-            _(
-                'Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh '
-                . 'directly). It re-runs itself with sudo.'
-            ),
-            _(
-                'Compare the SHA-256 it prints against the one shown above. If '
-                . 'they differ, stop -- that comparison is the whole security '
-                . 'of this step.'
-            ),
-            _(
-                'Enter a one-time password twice when asked. It only proves at '
-                . 'the next reboot that you are the same person; it is not '
-                . 'stored and does not need to be strong.'
-            ),
-            _(
-                'Reboot. The machine stops on the blue MOK Manager screen: '
-                . 'Enroll MOK, View key 0, Continue, Yes, then the password, '
-                . 'then Reboot.'
-            )
-        ];
-        foreach ($clientSteps as $step) {
-            $steps .= '<li>' . $step . '</li>';
-        }
-        $steps .= '</ol>';
         $steps .= '<p>' . _(
-            'If MOK Manager does not appear, the machine did not boot through '
-            . 'a shim and nothing was enrolled.'
+            'Two routes are covered in the guide linked above: a live USB '
+            . 'with the kit above, or PXE-booting the client and choosing '
+            . 'Enroll Secure Boot Key, which now fetches MOK.der over the '
+            . 'network on its own, with no USB stick needed.'
+        ) . '</p>';
+        $steps .= '<p>' . _(
+            'Secure Boot does not need to be enabled on a client to enrol '
+            . 'its key -- either route works the same way with it off, '
+            . 'which lets you stage enrolment fleet-wide before ever '
+            . 'turning it on.'
+        ) . '</p>';
+        $steps .= '<p>' . _(
+            'The Enroll Secure Boot task type does all of this for you: '
+            . 'schedule it against a host or a group from Task Scheduling '
+            . 'and the client boots FOS, which stages the request itself -- '
+            . 'or enrols outright with nothing to confirm, if the machine is '
+            . 'in Setup Mode. The Enroll Secure Boot Key menu item stays for '
+            . 'answering a pending request by hand, or for enrolling from '
+            . 'local media on a machine FOS cannot boot.'
+        ) . '</p>';
+        $steps .= '<p>' . _(
+            'Whichever route is used, MokManager -- the blue enrolment '
+            . 'screen -- has its own timeouts FOG cannot change: it gives '
+            . 'up and boots normally if nothing is pressed within about 10 '
+            . 'seconds of appearing, and reboots if left idle partway '
+            . 'through for a few minutes. Be at the console before '
+            . 'starting.'
         ) . '</p>';
         $steps .= '<p><strong>' . _('To PXE boot with Secure Boot on')
             . '</strong></p>';

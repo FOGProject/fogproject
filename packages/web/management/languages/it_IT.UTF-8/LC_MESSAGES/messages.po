@@ -841,12 +841,6 @@ msgstr "Opzioni di avvio:"
 msgid "Boot files from"
 msgstr ""
 
-msgid ""
-"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
-"left ON. Those images boot under Secure Boot on their own signed shim, so no "
-"firmware changes are needed."
-msgstr ""
-
 msgid "Both"
 msgstr ""
 
@@ -1121,8 +1115,9 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Check this value matches what the enrolment script prints before confirming. "
-"That comparison is what stops the wrong key being trusted."
+"Check this value against what the enrolment tool shows before confirming, "
+"whether the certificate reached the client on a USB stick or over the "
+"network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -1197,11 +1192,6 @@ msgstr ""
 msgid "Command"
 msgstr "Comando"
 
-msgid ""
-"Compare the SHA-256 it prints against the one shown above. If they differ, "
-"stop -- that comparison is the whole security of this step."
-msgstr ""
-
 msgid "Complete"
 msgstr "Completare"
 
@@ -1253,18 +1243,8 @@ msgstr "Errore: Impossibile scaricare il kernel"
 msgid "Confirm you would like to download a new kernel"
 msgstr "Errore: Impossibile scaricare il kernel"
 
-msgid ""
-"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
-"or Debian live image with Secure Boot left ON, and run the launcher"
-msgstr ""
-
 msgid "Copy from existing"
 msgstr "Copia da esistenti"
-
-msgid ""
-"Copy the three files above onto a USB stick, keeping them in the same folder "
-"-- the script expects MOK.der beside it."
-msgstr ""
 
 msgid "Copyright"
 msgstr ""
@@ -1882,12 +1862,6 @@ msgstr "Ingegnere"
 msgid "Enrolment kit"
 msgstr ""
 
-msgid ""
-"Enter a one-time password twice when asked. It only proves at the next "
-"reboot that you are the same person; it is not stored and does not need to "
-"be strong."
-msgstr ""
-
 msgid "Equipment Loan"
 msgstr "attrezzature di prestito"
 
@@ -2290,6 +2264,10 @@ msgid "File upload stopped by an extension"
 msgstr "File di caricamento fermato da una estensione"
 
 #, fuzzy
+msgid "File uploaded to storage node and re-signed for Secure Boot!"
+msgstr "Impossibile per distruggere il nodo di archiviazione"
+
+#, fuzzy
 msgid "File uploaded to storage node!"
 msgstr "Impossibile per distruggere il nodo di archiviazione"
 
@@ -2315,6 +2293,12 @@ msgstr ""
 #, fuzzy
 msgid "Flush Settings Cache"
 msgstr "Impostazioni FOG"
+
+msgid ""
+"For a live-USB enrolment, copy all three files onto a USB stick, boot the "
+"client from a stock Ubuntu or Debian live image with Secure Boot left ON, "
+"and run the launcher. No firmware changes are needed."
+msgstr ""
 
 msgid "For a network/SMB share use its path, e.g."
 msgstr ""
@@ -2377,6 +2361,11 @@ msgstr "Nome amichevole"
 #, fuzzy
 msgid "Full History"
 msgstr "Accesso Storia"
+
+msgid ""
+"Full step-by-step instructions for this and for enrolling straight from the "
+"PXE boot menu, with no USB stick, are in the Secure Boot guide:"
+msgstr ""
 
 msgid "Function"
 msgstr "Funzione"
@@ -3033,11 +3022,6 @@ msgstr "Icona"
 
 msgid "Icon File not found"
 msgstr "File Icona non trovato"
-
-msgid ""
-"If MOK Manager does not appear, the machine did not boot through a shim and "
-"nothing was enrolled."
-msgstr ""
 
 msgid "If credentials are correct"
 msgstr "Se le credenziali sono corrette"
@@ -4227,9 +4211,6 @@ msgstr "Mezzanotte"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
-msgid "Minimum time limmit for Auto Logout to become active is 5 minutes."
-msgstr ""
-
 msgid "Minute value is not valid"
 msgstr "valore dei minuti non è valido"
 
@@ -4523,9 +4504,6 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
-msgid "No firmware changes are needed"
-msgstr ""
-
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -4800,9 +4778,6 @@ msgstr "sul cruscotto"
 #, fuzzy
 msgid "On Server Size"
 msgstr "Server Shell"
-
-msgid "On each client, once"
-msgstr ""
 
 msgid "On reboot we will try to find a new node"
 msgstr "Al riavvio cercheremo di trovare un nuovo nodo"
@@ -5378,11 +5353,6 @@ msgstr "Riavvio"
 msgid "Reboot after deploy"
 msgstr ""
 
-msgid ""
-"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
-"key 0, Continue, Yes, then the password, then Reboot."
-msgstr ""
-
 msgid "Receive"
 msgstr "Ricevere"
 
@@ -5592,11 +5562,6 @@ msgstr "I percorsi devono essere un array o un'istanza di Traversable"
 msgid "Row"
 msgstr "Riga"
 
-msgid ""
-"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
-"re-runs itself with sudo."
-msgstr ""
-
 msgid "Running Windows"
 msgstr "Running Windows"
 
@@ -5733,8 +5698,18 @@ msgid ""
 "server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
+msgid ""
+"Secure Boot does not need to be enabled on a client to enrol its key -- "
+"either route works the same way with it off, which lets you stage enrolment "
+"fleet-wide before ever turning it on."
+msgstr ""
+
 #, fuzzy
 msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "Non ci sono immagini su questo server"
+
+#, fuzzy
+msgid "Secure Boot: signing FOS with your own key"
 msgstr "Non ci sono immagini su questo server"
 
 #, fuzzy
@@ -6774,6 +6749,15 @@ msgid "The CA certificate path must be absolute"
 msgstr ""
 
 msgid ""
+"The Enroll Secure Boot task type does all of this for you: schedule it "
+"against a host or a group from Task Scheduling and the client boots FOS, "
+"which stages the request itself -- or enrols outright with nothing to "
+"confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu "
+"item stays for answering a pending request by hand, or for enrolling from "
+"local media on a machine FOS cannot boot."
+msgstr ""
+
+msgid ""
 "The FOG schema update must be run before this plugin can be updated: "
 "users.uAuthSource does not exist yet."
 msgstr ""
@@ -7113,6 +7097,12 @@ msgstr "Cercando hash di Snapin per"
 
 msgid "Trying image size for"
 msgstr "Prova della dimensione dell'immagine per"
+
+msgid ""
+"Two routes are covered in the guide linked above: a live USB with the kit "
+"above, or PXE-booting the client and choosing Enroll Secure Boot Key, which "
+"now fetches MOK.der over the network on its own, with no USB stick needed."
+msgstr ""
 
 msgid "Txt must be a string"
 msgstr "Txt deve essere una stringa"
@@ -7670,6 +7660,13 @@ msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "Dove ottenere aiuto"
+
+msgid ""
+"Whichever route is used, MokManager -- the blue enrolment screen -- has its "
+"own timeouts FOG cannot change: it gives up and boots normally if nothing is "
+"pressed within about 10 seconds of appearing, and reboots if left idle "
+"partway through for a few minutes. Be at the console before starting."
+msgstr ""
 
 msgid "Width must be 650 pixels."
 msgstr "Larghezza deve essere di 650 pixel."
