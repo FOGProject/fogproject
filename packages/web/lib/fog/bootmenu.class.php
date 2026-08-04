@@ -2148,6 +2148,33 @@ class BootMenu extends FOGBase
             '',
             'id'
         );
+        // pxeID 14 ("Enroll Secure Boot Key") is meaningless on a legacy BIOS
+        // boot: there is no UEFI variable store to enrol into, so both routes
+        // out of it -- the FOS task (mode=enrollsb) and the direct MokManager
+        // chain -- can only fail. It carries pxeRegOnly=2 so a technician never
+        // has to repoint a client's boot file to reach it, and that "always
+        // shown" is what put it in front of BIOS clients too.
+        //
+        // Gate on platform, not arch: ia32 UEFI is still UEFI (it gets a
+        // different refusal, with its own reason), and a 64-bit CPU booted in
+        // CSM mode is not UEFI at all.
+        //
+        // Only hide when the platform is positively known not to be EFI --
+        // an absent value means unknown, and hiding a working option from a
+        // UEFI client is a worse failure than showing a dead one to a BIOS
+        // client.
+        if (isset($_REQUEST['platform'])
+            && $_REQUEST['platform'] != 'efi'
+        ) {
+            $Menus = array_values(
+                array_filter(
+                    (array)$Menus,
+                    function ($Menu) {
+                        return (int)$Menu->get('id') !== 14;
+                    }
+                )
+            );
+        }
         array_map(
             function ($Menu) use (&$Send) {
                 $Send["item-". $Menu->get('name')] = $this->_menuItem(
