@@ -3941,26 +3941,41 @@ EOFCLS
 }
 # A Secure Boot class, emitted commented out.
 #
-# Left commented for two reasons. DHCP option 93 carries the client
-# architecture and nothing else, so there is no way to tell from a request
-# whether Secure Boot is on -- a site has to opt specific machines in. And this
-# must not simply replace the arch 7/8/9 classes: upstream ships exactly one
-# signed x86-64 iPXE binary, an all-drivers build that takes the NIC over from
-# the firmware and hangs on some hardware. FOG defaults to snponly.efi to avoid
-# exactly that, and there is no signed snponly equivalent (ipxe/ipxe#1776), so
-# pointing every UEFI client here would break machines that work today.
+# Still commented out, but for one reason now rather than two: DHCP option 93
+# carries the client architecture and nothing else, so a request cannot tell us
+# whether Secure Boot is on. A site has to opt specific machines in.
+#
+# The second reason is gone. This used to point at ipxe-shimx64.efi because
+# upstream published only an all-drivers signed iPXE -- the build that takes the
+# NIC over from the firmware and hangs on some hardware -- and there was no
+# signed snponly equivalent. ipxe/ipxe#1776 closed 2026-08-02 and iPXE 2.0.0
+# ships a signed x86_64-sb/snponly.efi, staged by fog-ipxe since v2.0.0-fog.3.
+# So this now matches what FOG serves every other UEFI client: snponly.
+#
+# Why the boot file names the shim and not the loader: ipxe/shim carries a
+# fork-only patch (automatic_next_path(), ipxe/shim 1b02ba2c) that strips a
+# "-shim[arch]" infix from the path it was ITSELF fetched from and loads that,
+# out of the same directory. So snponly-shimx64.efi fetches snponly.efi and
+# ipxe-shimx64.efi fetches ipxe.efi -- from one signed binary staged under both
+# names. Do not conclude from `strings` that the loader is hardcoded to
+# ipxe.efi; that is only the DEFAULT_LOADER the patch hooks.
+#
+# If this chain loads but the network never comes up, the firmware's own UEFI
+# SNP is at fault -- switch the name to secureboot/ipxe-shimx64.efi for iPXE's
+# built-in drivers. That is the fallback the Secure Boot config page documents,
+# and it is purely a DHCP change with nothing to rename server-side.
 #
 # The binaries are staged at $tftpdir/secureboot by downloadipxesecureboot()
 # on every install, so the path below always exists.
 _keaSecureBootClassCommented() {
     cat <<'EOFSBC'
 #        Secure Boot clients. Uncomment, add a leading comma to the entry
-#        above, and narrow the test to the machines whose firmware has your
-#        MOK enrolled -- by subnet, MAC or a client class of your own.
+#        above, and narrow the test to the machines whose firmware trusts this
+#        server's certificate -- by subnet, MAC or a client class of your own.
 #        {
 #            "name": "FOG-UEFI-64-SecureBoot",
 #            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
-#            "boot-file-name": "secureboot/ipxe-shimx64.efi"
+#            "boot-file-name": "secureboot/snponly-shimx64.efi"
 #        }
 EOFSBC
 }
@@ -4226,15 +4241,16 @@ configureDHCP() {
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             # Secure Boot clients, commented out on purpose -- see the note on
-            # _keaSecureBootClassCommented(). Option 93 cannot tell us whether
-            # Secure Boot is on, and the only signed iPXE build is an
-            # all-drivers one that hangs on some NICs, so this has to be opted
+            # _keaSecureBootClassCommented() for the full reasoning, including
+            # why the boot file names the shim rather than the loader. Option 93
+            # cannot tell us whether Secure Boot is on, so this has to be opted
             # into per machine rather than applied to every UEFI client.
             echo "# Secure Boot clients. Uncomment and narrow the match to the machines" >> "$dhcptouse"
-            echo "# whose firmware has your MOK enrolled." >> "$dhcptouse"
+            echo "# whose firmware trusts this server's certificate. Swap snponly- for" >> "$dhcptouse"
+            echo "# ipxe- if the chain loads but the network never comes up." >> "$dhcptouse"
             echo "#class \"FOG-UEFI-64-SecureBoot\" {" >> "$dhcptouse"
             echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
+            echo "#    filename \"secureboot/snponly-shimx64.efi\";" >> "$dhcptouse"
             echo "#}" >> "$dhcptouse"
             diffconfig "${dhcptouse}"
             # Non-fatal syntax check; ISC has historically started without one.
