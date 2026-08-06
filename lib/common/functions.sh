@@ -1171,20 +1171,21 @@ configureTFTPandPXE() {
     cd $workingdir
     # iPXE resolves the bare name "autoexec.ipxe" against its current working
     # URI -- the TFTP directory the running .efi was itself fetched from -- not
-    # against a fixed path. So a binary booted from the root of $tftpdirdst
-    # looks for the script beside itself in the root, while our EMBED-less
-    # binaries under autoexec/ look inside autoexec/. Publish every such path.
+    # against a fixed path. So our EMBED-less binaries under autoexec/ look
+    # inside autoexec/, and the Secure Boot chain's under secureboot/ look
+    # inside secureboot/. Publish every such path.
     #
     # This is what the Secure Boot chain needs: upstream's signed snponly.efi
     # has no script compiled in, so without this it asks for a file that was
     # never created. See GH-960.
     #
     # Every directory an EMBED-less binary can be booted from therefore needs
-    # its own copy, and there are six. Hard link, not copies: they are meant to
-    # be one script, and a link keeps them from drifting -- an admin who edits
-    # the boot logic should not have to know how many copies exist. Only the
-    # root one was linked before, so the four under autoexec/<arch>/ and
-    # secureboot/ silently kept the shipped script after such an edit.
+    # its own copy. Hard link, not copies: they are meant to be one script, and
+    # a link keeps them from drifting -- an admin who edits the boot logic
+    # should not have to know how many copies exist.
+    #
+    # The root of $tftpdirdst is deliberately NOT in this list, and any root
+    # copy left by an earlier release is removed below.
     #
     # Not a symlink -- some TFTP daemons refuse to follow those, and a hard link
     # is indistinguishable from a regular file to every daemon.
@@ -1198,7 +1199,6 @@ configureTFTPandPXE() {
     if [[ -f $tftpdirdst/autoexec/autoexec.ipxe ]]; then
         local autoexecpath
         for autoexecpath in \
-            $tftpdirdst/autoexec.ipxe \
             $tftpdirdst/autoexec/i386-efi/autoexec.ipxe \
             $tftpdirdst/autoexec/arm64-efi/autoexec.ipxe \
             $tftpdirdst/secureboot/autoexec.ipxe \
@@ -1210,6 +1210,34 @@ configureTFTPandPXE() {
             ln -f $tftpdirdst/autoexec/autoexec.ipxe $autoexecpath >>$error_log 2>&1
         done
     fi
+    # Remove any autoexec.ipxe at the root of $tftpdirdst. Earlier releases
+    # linked one there. Dropping it from the list above is not enough on its
+    # own -- an upgrade would leave the existing file in place and the install
+    # would stay broken -- so it is deleted here.
+    #
+    # Nothing we ship at the root reads it. The root holds the EMBED-marked
+    # binaries, which run their compiled-in script; only the EMBED-less ones
+    # under autoexec/ and secureboot/ ever execute a downloaded autoexec.ipxe.
+    #
+    # Every EFI binary nonetheless *downloads* it. efi_probe() calls
+    # efi_autoexec_load() unconditionally, which registers the script before any
+    # driver is connected. An EMBED-marked binary then never executes it --
+    # first_image() returns the embedded script, which sorts ahead of it -- so
+    # nothing ever unregisters it. iPXE has no notion of an image that was
+    # loaded but not wanted, and only fdt/shim images are ever hidden.
+    #
+    # At "boot", initrd_load_all() concatenates every registered non-hidden
+    # image into the ramdisk in registration order. autoexec.ipxe registered
+    # first, so the kernel is handed 2 KB of iPXE script where it expects the
+    # head of init.xz, does not find the compression magic, falls back to
+    # treating the blob as a legacy initrd, and panics with
+    #
+    #     VFS: Unable to mount root fs on "/dev/ram0" or unknown-block(1,0)
+    #
+    # See forums #18213. This costs nothing: the file is a hard link to
+    # autoexec/autoexec.ipxe, so its content -- including any local edit, which
+    # the link shares -- survives in every other published path.
+    rm -f $tftpdirdst/autoexec.ipxe >>$error_log 2>&1
     chown -R $username $tftpdirdst >>$error_log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$error_log 2>&1
     find $tftpdirdst -type d -exec chmod 755 {} \; >>$error_log 2>&1
