@@ -49,7 +49,9 @@ usage() {
     echo -e "\t               \t\tnot change the tracked channel for future runs"
     echo -e "\t      --git-path\tOverride the git checkout path this server records"
     echo -e "\t      --hostname\tOverride the vhost/cert hostname for this update"
+    echo -e "\t               \t\t(implies --overwrite-vhost)"
     echo -e "\t      --extra-server-name\tAdd an extra vhost/cert name for this update (repeatable)"
+    echo -e "\t                         \t(implies --overwrite-vhost)"
     echo -e "\t      --no-revert\tOn failure, leave the system as-is instead of"
     echo -e "\t                 \t\tautomatically reverting to the previous commit"
     echo -e "\t      --overwrite-vhost\tLet installfog.sh regenerate the web server"
@@ -138,6 +140,15 @@ while :; do
             ;;
     esac
 done
+
+# --hostname/--extra-server-name are requests for a vhost-VISIBLE change, so
+# they imply --overwrite-vhost. With the "-F" default above, createSSLCA()
+# prints "Skipped" instead of writing the vhost at all: .fogsettings and the
+# cert SAN would change (cert generation happens before the novhost check) but
+# server_name/ServerAlias would silently keep the old names.
+if [[ -n $supdatehostname || ${#supdateExtraServerNames[@]} -gt 0 ]]; then
+    updateVhostFlag=""
+fi
 
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 error_log="${workingdir}/error_logs/fog_update_error.log"

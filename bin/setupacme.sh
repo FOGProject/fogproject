@@ -33,7 +33,7 @@ if [[ ! $EUID -eq 0 ]]; then
 fi
 
 usage() {
-    echo -e "Usage: $0 [-h?] --directory-url <url> (--http01 | --dns <acme.sh-plugin>) -d <domain>"
+    echo -e "Usage: $0 [-h?] --directory-url <url> (--http01 | --dns <acme.sh-plugin>) [-d <domain>]"
     echo -e "\t-h -? --help\t\tDisplay this info"
     echo -e "\t      --directory-url\tACME server directory URL (public Let's Encrypt or"
     echo -e "\t                     \tan internal ACME CA such as step-ca)"
@@ -42,14 +42,18 @@ usage() {
     echo -e "\t      --dns\t\tUse DNS-01 validation via the named acme.sh DNS plugin --"
     echo -e "\t           \t\tthe plugin's own provider credentials must already be set"
     echo -e "\t           \t\tup in this shell's environment; setupacme.sh never stores them"
-    echo -e "\t-d\t\t\tDomain to issue the certificate for (repeatable)"
+    echo -e "\t-d\t\t\tDomain to issue the certificate for (repeatable). Defaults to"
+    echo -e "\t  \t\t\tthe hostname plus any --extra-server-name from .fogsettings,"
+    echo -e "\t  \t\t\tso the leaf covers exactly what the vhost answers to"
     exit 0
 }
 
 shortopts="h?d:"
 longopts="help,directory-url:,http01,dns:"
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
-[[ $? -ne 0 ]] && usage
+# Not `usage` -- usage() exits 0, which would report a malformed flag as
+# success. getopt -n "$0" already printed its own error to stderr.
+[[ $? -ne 0 ]] && exit 9
 eval set -- "$optargs"
 
 domains=()
@@ -98,10 +102,6 @@ if [[ -z $validationMethod ]]; then
     echo " * Pass either --http01 or --dns <plugin>."
     exit 9
 fi
-if [[ ${#domains[@]} -eq 0 ]]; then
-    echo " * At least one -d <domain> is required."
-    exit 9
-fi
 
 . ../lib/common/functions.sh
 
@@ -119,20 +119,49 @@ linuxReleaseName_lower="${osname,,}"
 . ../lib/common/config.sh
 [[ -n $osid ]] && doOSSpecificIncludes >/dev/null
 
-# Precondition: --external-ca must already have imported a CA. These are
-# exactly the files validateExternalCA() (lib/common/functions.sh) writes.
-if [[ ! -e "$sslpath/CA/.fogCA.pem" || ! -e "$sslpath/CA/.fogCA.key" ]]; then
-    echo " * No external CA found at $sslpath/CA/ -- run installfog.sh --external-ca first."
+# Default the domain set to exactly the names the vhost/cert already advertise,
+# so an admin who used --hostname/--extra-server-name at install time cannot
+# accidentally get an ACME leaf covering fewer names than the vhost answers to.
+# Deliberately checked here rather than right after argument parsing: both
+# values come from .fogsettings, which is only sourced above.
+if [[ ${#domains[@]} -eq 0 ]]; then
+    for extraname in $hostname $extraServerNames; do
+        domains+=("$extraname")
+    done
+fi
+if [[ ${#domains[@]} -eq 0 ]]; then
+    echo " * No -d <domain> given, and no hostname/extra server name found in .fogsettings."
+    echo " * Pass at least one -d <domain>."
+    exit 9
+fi
+
+# Precondition: --external-ca must already have imported a CA. $externalca is
+# the only reliable sentinel -- the CA/.fogCA.pem and CA/.fogCA.key paths below
+# are written by FOG's OWN self-signed CA path too (same filenames, different
+# origin), so testing them alone passes on every install and enforces nothing.
+if [[ $externalca != yes ]]; then
+    echo " * No external CA configured -- run installfog.sh --external-ca first."
     echo " * setupacme.sh only ever renews a LEAF against a CA you already imported;"
     echo " * it does not create or manage a CA itself."
+    exit 1
+fi
+if [[ ! -e "$sslpath/CA/.fogCA.pem" || ! -e "$sslpath/CA/.fogCA.key" ]]; then
+    echo " * --external-ca is configured but its files are missing at $sslpath/CA/ -- re-run installfog.sh --external-ca."
     exit 1
 fi
 
 dots "Checking for acme.sh"
 if [[ ! -x "$HOME/.acme.sh/acme.sh" ]]; then
     dots "Installing acme.sh"
-    curl -s https://get.acme.sh | sh -s email=root@localhost >>$error_log 2>&1
-    errorStat $?
+    # $? here would be sh's exit code, not curl's -- with no network, curl
+    # writes nothing, sh reads an empty script and exits 0. The executable
+    # check below is the only honest signal that the install actually happened.
+    curl -fsSL https://get.acme.sh | sh -s email=root@localhost >>$error_log 2>&1
+    if [[ ! -x "$HOME/.acme.sh/acme.sh" ]]; then
+        echo " * acme.sh installation failed. See $error_log."
+        exit 1
+    fi
+    echo "Done"
 else
     echo "Found"
 fi
@@ -183,11 +212,24 @@ fi
 echo "Done"
 
 dots "Installing certificate"
+# --fullchain-file, not --cert-file: $sslpubcert is what the vhost's
+# ssl_certificate/SSLCertificateFile points at, so it must carry the
+# intermediate as well or clients see an incomplete chain.
 "$acmesh" --install-cert "${domainArgs[@]}" \
-    --cert-file "$sslpubcert" \
+    --fullchain-file "$sslpubcert" \
     --key-file "$sslprivkey" \
     --reloadcmd "$reloadcmd" >>$error_log 2>&1
 errorStat $?
+
+# Tell every later installfog.sh/updatefog.sh run that this leaf is ACME-managed
+# so createSSLCA() stops regenerating it from the original (now stale) CSR.
+# writeUpdateFile() merges just this key into the existing .fogsettings, but it
+# also refreshes the "## Version:" header from $version -- which nothing has set
+# in this script, so derive it the same way installfog.sh/updatefog.sh do or the
+# header gets blanked as a side effect.
+[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+acmeLeaf="yes"
+writeUpdateFile
 
 echo " * setupacme.sh complete. acme.sh's own installer already scheduled its"
 echo "   own renewal cron job -- no further action is needed for renewals."

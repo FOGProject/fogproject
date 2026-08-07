@@ -3162,6 +3162,12 @@ writeUpdateFile() {
         # name(s) must carry forward on every upgrade, not just the run they
         # were set on.
         extraServerNames
+        # Set by bin/setupacme.sh once it installs an ACME-issued leaf. Tells
+        # createSSLCA() below to leave that leaf alone on every later run --
+        # without this, the leaf gets silently regenerated from the ORIGINAL
+        # CSR (stale public key) while the private key on disk is the ACME
+        # key, producing a cert/key mismatch that stops the web server.
+        acmeLeaf
     )
     # Keys written by older installers that must be stripped on upgrade.
     local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )
@@ -3501,7 +3507,10 @@ $sanentries
 DNS.1 = $hostname$dnsSanEntries
 EOF
     [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
-    if [[ ! -x $sslpubcert ]]; then
+    if [[ $acmeLeaf == yes ]]; then
+        echo " * Leaf certificate is ACME-managed (see bin/setupacme.sh) -- leaving it in place."
+        echo "   Re-run bin/setupacme.sh if you changed --hostname/--extra-server-name."
+    elif [[ ! -x $sslpubcert ]]; then
         dots "Creating SSL Certificate"
         openssl x509 -req -in $sslcsr -CA $sslcapem -CAkey $sslcakey -CAcreateserial -out $sslpubcert -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$error_log 2>&1
         errorStat $?
