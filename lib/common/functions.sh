@@ -3616,61 +3616,107 @@ isCACert() {
 # directory. On success sets sslcakey, sslcapem and sslcachain. Hard-fails the
 # install on any validation error.
 validateExternalCA() {
+    # Zone-parameterised. No argument means the historic flat behavior, so
+    # every existing caller and every existing .fogsettings keeps working
+    # untouched -- the flat zone reads $extcacert/$extcakey/$extcaroot (the
+    # names --ca-cert/--ca-key/--ca-root have always set) and imports to
+    # $sslpath/CA, exactly as before.
+    local zone="${1:-flat}"
+    local certsrc keysrc rootsrc destdir destcert destkey destchain
+    case $zone in
+        web)
+            certsrc="${webExtCACert:-$extcacert}"; keysrc="${webExtCAKey:-$extcakey}"; rootsrc="${webExtCARoot:-$extcaroot}"
+            destdir="$(_pkiZoneDir web)"; destcert=".fogWebCA.pem"; destkey=".fogWebCA.key"; destchain=".fogWebCAchain.pem"
+            ;;
+        client)
+            certsrc="$clientExtCACert"; keysrc="$clientExtCAKey"; rootsrc="$clientExtCARoot"
+            destdir="$(_pkiZoneDir client)"; destcert=".fogClientCA.pem"; destkey=".fogClientCA.key"; destchain=".fogClientCAchain.pem"
+            ;;
+        *)
+            certsrc="$extcacert"; keysrc="$extcakey"; rootsrc="$extcaroot"
+            destdir="$sslpath/CA"; destcert=".fogCA.pem"; destkey=".fogCA.key"; destchain=".fogCAchain.pem"
+            ;;
+    esac
+    mkdir -p "$destdir" >>$error_log 2>&1
+
     local f haveSource=1
-    for f in "$extcacert" "$extcakey" "$extcaroot"; do
+    for f in "$certsrc" "$keysrc" "$rootsrc"; do
         [[ -z $f || ! -r $f ]] && haveSource=0
     done
     if [[ $haveSource -eq 0 ]]; then
         # No readable source files this run; reuse a previously imported CA if present
-        if [[ -e $sslpath/CA/.fogCA.pem && -e $sslpath/CA/.fogCA.key && -e $sslpath/CA/.fogCAchain.pem ]]; then
-            sslcakey="$sslpath/CA/.fogCA.key"
-            sslcapem="$sslpath/CA/.fogCA.pem"
-            sslcachain="$sslpath/CA/.fogCAchain.pem"
+        if [[ -e $destdir/$destcert && -e $destdir/$destkey && -e $destdir/$destchain ]]; then
+            sslcakey="$destdir/$destkey"
+            sslcapem="$destdir/$destcert"
+            sslcachain="$destdir/$destchain"
             return 0
         fi
         echo "  External CA is enabled but a required file is missing or unreadable"
-        echo "  and no previously imported CA was found:"
-        echo "    intermediate cert: ${extcacert:-<unset>}"
-        echo "    intermediate key:  ${extcakey:-<unset>}"
-        echo "    root cert:         ${extcaroot:-<unset>}"
+        echo "  and no previously imported CA was found (zone: $zone):"
+        echo "    intermediate cert: ${certsrc:-<unset>}"
+        echo "    intermediate key:  ${keysrc:-<unset>}"
+        echo "    root cert:         ${rootsrc:-<unset>}"
         echo "  Provide them via the installer prompts or the"
         echo "  --ca-cert/--ca-key/--ca-root options, then re-run the installer."
         exit 1
     fi
-    dots "Validating external CA files"
+    dots "Validating external CA files (${zone})"
     # The supplied private key must match the supplied intermediate certificate
     local certmod keymod
-    certmod=$(openssl x509 -noout -modulus -in "$extcacert" 2>>$error_log | openssl md5 2>>$error_log)
-    keymod=$(openssl rsa -noout -modulus -in "$extcakey" 2>>$error_log | openssl md5 2>>$error_log)
+    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log | openssl md5 2>>$error_log)
+    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log | openssl md5 2>>$error_log)
     if [[ -z $certmod || $certmod != $keymod ]]; then
         echo "Failed"
-        echo "  The supplied CA private key ($extcakey) does not match the"
-        echo "  supplied CA certificate ($extcacert)."
+        echo "  The supplied CA private key ($keysrc) does not match the"
+        echo "  supplied CA certificate ($certsrc)."
         exit 1
     fi
     # The supplied intermediate must actually be a CA certificate
-    if ! isCACert "$extcacert"; then
+    if ! isCACert "$certsrc"; then
         echo "Failed"
-        echo "  The supplied certificate ($extcacert) is not a CA certificate"
+        echo "  The supplied certificate ($certsrc) is not a CA certificate"
         echo "  (basicConstraints CA:TRUE is required)."
         exit 1
     fi
     # The intermediate must chain up to the supplied root
-    if ! openssl verify -CAfile "$extcaroot" "$extcacert" >>$error_log 2>&1; then
+    if ! openssl verify -CAfile "$rootsrc" "$certsrc" >>$error_log 2>&1; then
         echo "Failed"
-        echo "  The intermediate CA ($extcacert) does not verify against the"
-        echo "  supplied root CA ($extcaroot)."
+        echo "  The intermediate CA ($certsrc) does not verify against the"
+        echo "  supplied root CA ($rootsrc)."
         exit 1
     fi
-    # Import into FOG's CA directory so signing and serial files stay writable and
-    # the layout matches the self-signed case (.fogCA.pem is what fog-client pins)
-    cp "$extcacert" "$sslpath/CA/.fogCA.pem" >>$error_log 2>&1
-    cp "$extcakey" "$sslpath/CA/.fogCA.key" >>$error_log 2>&1
-    cat "$extcaroot" "$extcacert" > "$sslpath/CA/.fogCAchain.pem" 2>>$error_log
-    chmod 600 "$sslpath/CA/.fogCA.key" >>$error_log 2>&1
-    sslcakey="$sslpath/CA/.fogCA.key"
-    sslcapem="$sslpath/CA/.fogCA.pem"
-    sslcachain="$sslpath/CA/.fogCAchain.pem"
+    # The Client Communication zone additionally cares about the subject: the
+    # certificate published as ca.cert.der is what fog-client pins, and the
+    # client is understood to expect a specific CN on it. Warn rather than
+    # refuse -- that expectation is unverified against the zazzles source, and
+    # an admin deliberately testing whether it matters should be able to.
+    if [[ $zone == client ]]; then
+        local actualCN
+        actualCN=$(openssl x509 -in "$certsrc" -noout -subject -nameopt multiline 2>/dev/null | awk -F' = ' '/commonName/{print $2}')
+        if [[ -n $actualCN && $actualCN != "$fogClientCACN" ]]; then
+            echo "Failed"
+            echo "  WARNING: this CA's CN is '$actualCN', not '$fogClientCACN'."
+            echo "  fog-client is understood to require that exact name on the"
+            echo "  certificate it pins. Proceeding anyway -- if clients stop"
+            echo "  authenticating after this, re-issue the CA with the expected CN."
+            dots "Validating external CA files (${zone})"
+        fi
+    fi
+    # Import into the zone's directory so signing and serial files stay writable
+    # and the layout matches the generated case.
+    cp "$certsrc" "$destdir/$destcert" >>$error_log 2>&1
+    cp "$keysrc" "$destdir/$destkey" >>$error_log 2>&1
+    cat "$rootsrc" "$certsrc" > "$destdir/$destchain" 2>>$error_log
+    chmod 600 "$destdir/$destkey" >>$error_log 2>&1
+    # Only the web/flat zones own $sslcakey/$sslcapem/$sslcachain -- those name
+    # the CA that signs the vhost leaf. The client zone must NOT touch them, or
+    # importing a client CA would silently repoint web certificate signing at
+    # it.
+    if [[ $zone != client ]]; then
+        sslcakey="$destdir/$destkey"
+        sslcapem="$destdir/$destcert"
+        sslcachain="$destdir/$destchain"
+    fi
     errorStat $?
     # If we are replacing the CA on a server that already issued a server cert, warn
     if [[ $caCreated == yes && -n $sslpubcert && -e $sslpubcert ]] && \
@@ -3926,13 +3972,6 @@ createWebIntermediateCA() {
     # already produces, because a client validating the leaf needs both.
     cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
     chmod 0644 "$sslcachain" >>$error_log 2>&1
-    # The vhost's certificate moves OUT of the web-served directory in split
-    # mode. In flat mode $sslpubcert is
-    # $webdirdest/management/other/ssl/srvpublic.crt -- simultaneously what
-    # Apache/nginx serves AND a file fog-client can download. That overlap is
-    # what makes the web certificate and the client-communication certificate
-    # the same object today. Separating them starts here.
-    [[ -z $sslpubcert ]] && sslpubcert="${webdir}/srvpublic.crt"
 }
 # The Client Communication zone.
 #
@@ -4099,19 +4138,20 @@ createSSLCA() {
         # three variables, so everything below -- the CSR, the SAN loop, the
         # leaf signing, the vhost writer -- is shared, unmodified code.
         createRootCA
+        # Each zone is independently replaceable: bring your own Web CA and
+        # keep FOG's client CA, or the reverse, or neither. --external-ca (and
+        # the --ca-* trio) targets the Web zone, which is what it has always
+        # effectively meant -- it is the CA that signs the vhost's leaf.
         if [[ $externalca == yes ]]; then
-            # validateExternalCA() is not zone-aware yet (plan Task 1.5): it
-            # writes to the flat $sslpath/CA paths, which in split mode would
-            # put an imported CA somewhere no zone reads. Refuse rather than
-            # import to the wrong place and leave the admin to discover it
-            # when clients stop connecting.
-            echo "Failed"
-            echo " * --external-ca is not yet supported together with the split"
-            echo "   PKI. Either drop --external-ca, or set pkiMode=flat in"
-            echo "   $fogprogramdir/.fogsettings to keep the current CA layout."
-            exit 1
+            validateExternalCA web
+        else
+            createWebIntermediateCA
         fi
-        createWebIntermediateCA
+        # Set for BOTH web paths, generated and imported: the vhost's leaf
+        # leaves the web-served directory in split mode regardless of who
+        # signed it, because srvpublic.crt there is now the client comm
+        # certificate.
+        [[ -z $sslpubcert ]] && sslpubcert="$(_pkiZoneDir web)/srvpublic.crt"
         createClientIntermediateCA
     elif [[ $externalca == yes ]]; then
         validateExternalCA
