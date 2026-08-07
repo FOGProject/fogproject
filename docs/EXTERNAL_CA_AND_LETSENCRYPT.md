@@ -196,25 +196,58 @@ High-level setup:
 4. After each renewal, install the renewed leaf where Apache/Nginx serves it
    (a renewal hook — see [Renewal and rotation](#renewal-and-rotation)).
 
-`bin/setupacme.sh` automates steps 3 and 4 above: it installs `acme.sh` if
-needed, issues the leaf against the ACME directory URL you give it, installs
-it where the vhost reads it, and wires up `acme.sh`'s `--reloadcmd` to reload
-FOG's web server. It never touches the CA `--external-ca` already imported --
-only the leaf -- so a renewal never breaks fog-client's pinning.
+**FOG does not automate any of this, by design.** An earlier revision shipped
+a `bin/setupacme.sh` wrapper around `acme.sh`; it has been removed. Running an
+ACME client is a solved problem with several good implementations, and FOG
+wrapping one meant owning its failure modes, its renewal scheduling and its
+credential handling without adding anything those tools do not already do
+better.
+
+Use `acme.sh`, `certbot`, or whatever your site already runs, on your own
+schedule. Point its install/renew hook at the two paths FOG's vhost reads —
+`$sslpubcert` and `$sslprivkey` from `/opt/fog/.fogsettings` — and reload the
+web server afterwards. For example, with `acme.sh`:
 
 ```bash
-./setupacme.sh --directory-url https://step-ca.internal/acme/acme/directory \
-    --http01 -d fog.example.com
+acme.sh --issue --server https://step-ca.internal/acme/acme/directory \
+    -d fog.example.com --webroot /var/www/html
+acme.sh --install-cert -d fog.example.com \
+    --fullchain-file /var/www/html/fog/management/other/ssl/srvpublic.crt \
+    --key-file      /opt/fog/snapins/ssl/.srvprivate.key \
+    --reloadcmd     "systemctl reload httpd"
 ```
 
-Use `--dns <acme.sh-plugin-name>` instead of `--http01` for DNS-01 validation
-(needed for public Let's Encrypt without exposing this server on port 80) --
-`setupacme.sh` never stores DNS provider credentials itself; whatever
-`acme.sh` DNS plugin you name must already have its own credentials configured
-in this shell's environment.
+Use a DNS-01 plugin instead of `--webroot` if you do not want to expose port
+80 — which is the usual case for an internal imaging server, and the only
+practical option for public Let's Encrypt on a server that is not publicly
+reachable.
 
-`acme.sh`'s own installer sets up its own daily renewal cron job the first
-time it's installed -- `setupacme.sh` does not add a second one.
+Because the leaf is signed by the **same** intermediate the clients already
+pinned, renewing it does not break client authentication, and FOG never needs
+to know a renewal happened.
+
+**Tell the installer to stop managing the leaf.** Add this to
+`/opt/fog/.fogsettings`:
+
+```
+acmeLeaf="yes"
+```
+
+Without it, the next `installfog.sh` run regenerates the leaf from FOG's
+*original* CSR — a stale public key — while the private key on disk is the
+one your ACME client installed. The result is a certificate and key that do
+not match, and a web server that refuses to start. `--recreate-keys` and
+`--recreate-CA` deliberately override this marker, since both regenerate the
+keypair anyway and a self-signed pair is the correct fallback at that point.
+
+> **Careful — this is a real trap today.** `$sslprivkey` (`.srvprivate.key`)
+> is currently *both* the web vhost's private key and the key
+> `FOGBase::certDecrypt()` uses to decrypt every fog-client authorization
+> handshake. Overwriting it with an ACME-issued key therefore breaks client
+> authentication, even though the certificate itself is perfectly valid. Until
+> the split PKI lands (see `docs/superpowers/specs/2026-08-07-three-zone-pki-separation-design.md`),
+> prefer issuing a certificate for the *same* keypair — `acme.sh --install-cert`
+> without `--key-file`, keeping FOG's existing key — over replacing the key.
 
 Why this is better than public LE: **the intermediate you pin is stable and under
 your control**, so leaf renewals are transparent to clients, and nothing needs to

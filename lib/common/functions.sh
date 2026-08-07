@@ -3491,7 +3491,8 @@ writeUpdateFile() {
         # name(s) must carry forward on every upgrade, not just the run they
         # were set on.
         extraServerNames
-        # Set by bin/setupacme.sh once it installs an ACME-issued leaf. Tells
+        # Set BY HAND in .fogsettings (acmeLeaf="yes") when the leaf is managed
+        # outside FOG -- certbot, acme.sh, a corporate issuance process. Tells
         # createSSLCA() below to leave that leaf alone on every later run --
         # without this, the leaf gets silently regenerated from the ORIGINAL
         # CSR (stale public key) while the private key on disk is the ACME
@@ -4180,8 +4181,9 @@ DNS.1 = $hostname$dnsSanEntries
 EOF
     [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
     if [[ $acmeLeaf == yes && $recreateKeys != yes && $recreateCA != yes ]]; then
-        echo " * Leaf certificate is ACME-managed (see bin/setupacme.sh) -- leaving it in place."
-        echo "   Re-run bin/setupacme.sh if you changed --hostname/--extra-server-name."
+        echo " * Leaf certificate is externally managed (acmeLeaf=yes) -- leaving it in place."
+        echo "   Re-issue it yourself if you changed --hostname/--extra-server-name,"
+        echo "   or the certificate will not cover the new name."
     elif [[ ! -x $sslpubcert ]]; then
         dots "Creating SSL Certificate"
         openssl x509 -req -in $sslcsr -CA $sslcapem -CAkey $sslcakey -CAcreateserial -out $sslpubcert -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$error_log 2>&1
