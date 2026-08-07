@@ -1884,6 +1884,9 @@ msgstr "Descarga fracasó"
 msgid "Download Starting"
 msgstr "Descarga fracasó"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 msgid "Dropped"
 msgstr "Caído"
 
@@ -1988,6 +1991,13 @@ msgstr ""
 
 msgid "Error performing query"
 msgstr "consulta la realización de error"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "Error: No se pudo descargar kernel"
 
 #, fuzzy
 msgid "Error: Failed to download initrd"

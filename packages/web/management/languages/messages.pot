@@ -1554,6 +1554,9 @@ msgstr ""
 msgid "Download Starting"
 msgstr ""
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 msgid "Dropped"
 msgstr ""
 
@@ -1647,6 +1650,12 @@ msgid "Error on ssh command setting version"
 msgstr ""
 
 msgid "Error performing query"
+msgstr ""
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+msgid "Error: Could not stage the kernel for signing"
 msgstr ""
 
 msgid "Error: Failed to download initrd"

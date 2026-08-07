@@ -1860,6 +1860,9 @@ msgstr "Échec du téléchargement"
 msgid "Download Starting"
 msgstr "Échec du téléchargement"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 msgid "Dropped"
 msgstr "Chuté"
 
@@ -1958,6 +1961,13 @@ msgstr ""
 
 msgid "Error performing query"
 msgstr "Erreur requête effectuant"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "Erreur: Impossible de télécharger le noyau"
 
 #, fuzzy
 msgid "Error: Failed to download initrd"

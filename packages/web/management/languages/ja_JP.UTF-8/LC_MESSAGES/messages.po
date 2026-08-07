@@ -1772,6 +1772,9 @@ msgstr "ダウンロードに失敗しました"
 msgid "Download Starting"
 msgstr "ダウンロードに失敗しました"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 msgid "Dropped"
 msgstr "切断済み"
 
@@ -1872,6 +1875,13 @@ msgstr ""
 
 msgid "Error performing query"
 msgstr "クエリの実行中にエラーが発生しました"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "エラー: カーネルのダウンロードに失敗しました"
 
 msgid "Error: Failed to download initrd"
 msgstr "エラー: initrd のダウンロードに失敗しました"
