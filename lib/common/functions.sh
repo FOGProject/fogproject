@@ -3981,6 +3981,47 @@ EOF
             ;;
     esac
     if [[ -n $phpfpmconf ]]; then
+        # The pool runs the PHP that IS FOG -- nginx only ever serves static
+        # files and proxies everything else here -- so it has to run as the user
+        # FOG owns its files with. The packaged default disagrees on every nginx
+        # install: RedHat/Fedora ship user=apache, Arch user=http, Debian/Ubuntu
+        # user=www-data, while $apacheuser is "nginx" on all of them.
+        #
+        # That mismatch is why an $apacheuser-owned directory is not reliably
+        # writable by the process that needs it. It is the reason
+        # $fogprogramdir/cache is 1777 rather than $apacheuser-owned, and it is
+        # what made the Secure Boot staging directory (0750 nginx:nginx)
+        # unreachable to a pool running as apache -- kernel updates failed there
+        # with nothing but "Failed to open temp file", which names neither
+        # php-fpm nor the directory.
+        #
+        # Set unconditionally rather than only under nginx: where the packaged
+        # user already equals $apacheuser this is a no-op, and pinning it makes
+        # the pool's identity explicit instead of silently inherited from the
+        # distro packaging, which is free to change it.
+        #
+        # The patterns cannot catch listen.owner/listen.group -- those start
+        # "listen.", so the anchored "user"/"group" match skips them -- and the
+        # listen socket is TCP (below) anyway, so their values do not matter.
+        sed -i "s/^[;[:space:]]*user[[:space:]]*=.*/user = ${apacheuser}/" $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i "s/^[;[:space:]]*group[[:space:]]*=.*/group = ${apacheuser}/" $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        # Changing the pool user orphans whatever the previous worker owned, and
+        # the session directory is the one that bites immediately: PHP writes
+        # sessions there AS the pool user, so a pool that can no longer read its
+        # own session files logs every admin out and refuses new logins, with
+        # nothing in the browser pointing at php-fpm. Re-own it to match.
+        #
+        # Derived from the pool's own php_value override first, then php.ini,
+        # rather than from a hardcoded list of distro paths that would rot.
+        phpsessdir=$(sed -n "s/^[;[:space:]]*php_value\[session\.save_path\][[:space:]]*=[[:space:]]*//p" $phpfpmconf | tail -1 | tr -d '"')
+        [[ -z $phpsessdir ]] && phpsessdir=$(sed -n "s/^[;[:space:]]*session\.save_path[[:space:]]*=[[:space:]]*//p" $phpini 2>/dev/null | tail -1 | tr -d '"')
+        # Guarded hard because this is a recursive chown running as root: it must
+        # be an absolute path, must exist, must not be /, and must actually look
+        # like a session directory. A parse that goes wrong resolves to nothing
+        # rather than to a recursive chown of somewhere that matters.
+        if [[ -n $phpsessdir && $phpsessdir == /* && $phpsessdir != "/" && -d $phpsessdir && $phpsessdir == *session* ]]; then
+            chown -R ${apacheuser}:${apacheuser} "$phpsessdir" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
         sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
