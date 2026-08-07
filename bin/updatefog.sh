@@ -99,7 +99,7 @@ while :; do
                 supdatehostname="${2}"
             else
                 echo "Error: --hostname requires a value"
-                usage
+                exit 9
             fi
             shift 2
             ;;

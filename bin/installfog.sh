@@ -232,7 +232,6 @@ while :; do
                 shostname="${2}"
             else
                 echo "Error: --hostname requires a valid hostname"
-                usage
                 exit 9
             fi
             shift 2
