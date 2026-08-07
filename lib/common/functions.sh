@@ -1349,6 +1349,12 @@ configureFTP() {
 configureDefaultiPXEfile() {
     dots 'Configuring default iPXE file'
     [[ -z $webroot ]] && webroot='/fog/'   # see registerStorageNode, GH-529
+    # Netboot gets its own protocol -- see _resolveNetbootProto. Everything
+    # downstream follows from this one URL: boot.php derives the menu's kernel
+    # and init URLs from the protocol the request arrived on
+    # (FOGBase::$httpproto reads $_SERVER['HTTPS']), so chaining over HTTP here
+    # makes the whole boot sequence HTTP with no PHP change.
+    _resolveNetbootProto
     # The `chain custom.ipxe || goto fog_default` first line is the supported
     # hook point for site-specific pre-boot behavior -- a boot delay, a prompt,
     # a local menu -- so an admin never has to hand-edit this file, which is
@@ -1366,7 +1372,7 @@ configureDefaultiPXEfile() {
     # from the source tree. So the hook file survives updates structurally,
     # the same way the Secure Boot keys do by living outside $webdirdest, and
     # needs no backup/restore machinery of its own.
-    echo -e "#!ipxe\nchain custom.ipxe || goto fog_default\n:fog_default\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    echo -e "#!ipxe\nchain custom.ipxe || goto fog_default\n:fog_default\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
@@ -3509,6 +3515,9 @@ writeUpdateFile() {
         # intermediates). Persisted so a server never silently changes layout
         # underneath its already-enrolled clients -- see _resolvePkiMode.
         pkiMode
+        # Protocol iPXE uses for boot.php. Persisted so an admin who forced it
+        # one way does not silently get the computed default back next upgrade.
+        netbootproto
         # The CN fog-client expects on the certificate it pins. Persisted so an
         # admin who had to change it does not have to re-pass it every run.
         fogClientCACN
@@ -3863,6 +3872,41 @@ _resolvePkiMode() {
         pkiMode="flat"
     else
         pkiMode="flat"   # <-- PHASE 0 GATE: change to "split" once verified
+    fi
+}
+# Which protocol iPXE uses to reach boot.php, decided separately from the
+# protocol everything else uses.
+#
+# iPXE can only validate a chain that terminates in a PUBLIC root, via its
+# ca.ipxe.org cross-signing fallback. A FOG-PKI or internal-CA certificate is
+# perfectly good for browsers, the API and fog-client -- all of which can be
+# told to trust the root -- but iPXE has no way to be told anything, so an
+# HTTPS netboot against a private CA simply fails.
+#
+# The historic answer was to rebuild iPXE with the CA baked in (TRUST=), which
+# works and costs the signed Secure Boot shim, because a locally rebuilt binary
+# is not the signed one. Splitting the protocols avoids that trade entirely:
+# the web UI gets real HTTPS while netboot fetches stay on HTTP, which is the
+# same exposure a default HTTP install already has, on a pre-boot network.
+#
+# Public CA is the exception -- there the crosscert path works, so netboot
+# follows $httpproto like everything else. There is no reliable way to detect
+# "this certificate chains to a public root" from the file alone, so this
+# defaults conservatively and --netboot-proto overrides it in either direction.
+# Deliberately keyed on split mode ALONE, not on "is this CA private".
+#
+# A flat install with --external-ca is also using a private CA and would also
+# benefit, but it has been getting HTTPS netboot with a TRUST=-rebuilt iPXE for
+# as long as that flag has existed. Silently dropping it to HTTP on the next
+# update would break a working setup to fix a problem its admin does not have.
+# Split mode is opt-in, so nobody arrives there by accident. --netboot-proto
+# lets a flat/external-CA install choose the new behavior deliberately.
+_resolveNetbootProto() {
+    [[ -n $netbootproto ]] && return 0
+    if [[ $httpproto == https && $pkiMode == split ]]; then
+        netbootproto="http"
+    else
+        netbootproto="$httpproto"
     fi
 }
 # Issue an intermediate CA from the root. Shared by all three zones so their
@@ -4426,6 +4470,19 @@ EOF
                         echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
                     else
+                        # Netboot stays on HTTP when the web certificate is not
+                        # publicly chainable, so the redirect must NOT catch
+                        # iPXE's own fetches -- otherwise it lands right back
+                        # on the HTTPS it cannot validate and boot fails.
+                        # Emitted before the catch-all so it wins.
+                        if [[ $netbootproto != "$httpproto" ]]; then
+                            echo "    location ^~ ${webroot}service/ipxe/ {" >> "$etcconf"
+                            echo "        root ${docroot};" >> "$etcconf"
+                            echo "        index index.php;" >> "$etcconf"
+                            echo "        try_files \$uri \$uri/ =404;" >> "$etcconf"
+                            echo "        include ${phploc};" >> "$etcconf"
+                            echo "    }" >> "$etcconf"
+                        fi
                         echo "    return 308 https://\$host\$request_uri;" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         echo "Continued (See Below)"
@@ -4596,6 +4653,13 @@ EOF
                         # is stripped for you; it has been wrong here since
                         # 2017. Apache's MergeSlashes normally hides it, which
                         # is why it went unreported for so long.
+                        # See the nginx branch: iPXE's own fetches must not be
+                        # redirected to an HTTPS it cannot validate. The
+                        # condition goes immediately before the rule it guards,
+                        # since RewriteCond applies only to the next RewriteRule.
+                        if [[ $netbootproto != "$httpproto" ]]; then
+                            echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/ipxe/" >> "$etcconf"
+                        fi
                         echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
                         echo "<VirtualHost *:443>" >> "$etcconf"

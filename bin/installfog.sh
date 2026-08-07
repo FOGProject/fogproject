@@ -194,7 +194,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,split-pki,legacy-pki,client-ca-cn:,web-ca-cert:,web-ca-key:,web-ca-root:,client-ca-cert:,client-ca-key:,client-ca-root:,root-ca-cert:,root-ca-key:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,split-pki,legacy-pki,netboot-proto:,client-ca-cn:,web-ca-cert:,web-ca-key:,web-ca-root:,client-ca-cert:,client-ca-key:,client-ca-root:,root-ca-cert:,root-ca-key:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -489,6 +489,13 @@ while :; do
             ssecureboot=0
             shift
             ;;
+        --netboot-proto)
+            case $2 in
+                http|https) snetbootproto="$2" ;;
+                *) echo "$1 must be http or https"; usage; exit 3 ;;
+            esac
+            shift 2
+            ;;
         --split-pki)
             spkiMode="split"
             shift
@@ -742,6 +749,7 @@ esac
 # Applied here, after .fogsettings is sourced, so an explicit flag beats a
 # persisted value and a persisted value beats the caCreated-based default in
 # _resolvePkiMode.
+[[ -n $snetbootproto ]] && netbootproto=$snetbootproto
 [[ -n $spkiMode ]] && pkiMode=$spkiMode
 [[ -n $sfogClientCACN ]] && fogClientCACN=$sfogClientCACN
 [[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
