@@ -399,9 +399,15 @@ class FOGConfigurationPage extends FOGPage
             _('so if it seems like the process is hanging please be patient')
         );
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        // Inside the panel, not after it: process() emits its own
+        // "table-holder col-xs-12" wrapper, so closing the panel and the
+        // surrounding col-xs-9 first dropped the table out of the card and
+        // down to full width at the foot of the page.
+        echo '<div class="panel-body">';
         $this->_renderReleaseTable($jsonData, 'kernel');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Show the Secure Boot enrolment page.
@@ -766,9 +772,12 @@ class FOGConfigurationPage extends FOGPage
             _('so if it seems like the process is hanging please be patient')
         );
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        // Inside the panel -- see the note in kernelUpdate().
+        echo '<div class="panel-body">';
         $this->_renderReleaseTable($jsonData, 'initrd');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Download the initrd form.
