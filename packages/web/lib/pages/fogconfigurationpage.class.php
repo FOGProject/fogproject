@@ -555,31 +555,38 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
             // With Secure Boot signing configured the download has to land in
-            // the staging directory the root signing helper works on, under
-            // the fixed name it expects. Everywhere else, the system temp
-            // directory as before.
+            // the staging directory the root signing helper works on.
+            // Everywhere else, the system temp directory as before.
             $stagedir = self::secureBootStagingDir();
+            // Unique per download. This path is carried in the session across
+            // the three requests the update takes (post -> fetch dl -> fetch
+            // tftp), so a name shared by every run let two concurrent updates
+            // -- two admins, or two tabs -- write the same file: the second
+            // download would land under the first one's destination name, and
+            // with signing on, whatever happened to be there at sign time is
+            // what got signed and shipped. A lock cannot cover a window that
+            // spans three requests, so the file itself has to be private to
+            // each one; secureBootSign() borrows the helper's fixed name for
+            // the instant it is actually signing.
+            //
+            // Unpredictable, not merely unique: the old system-temp name was
+            // basename($dstName), so a local user could pre-plant a symlink at
+            // /tmp/bzImage and redirect the web server's write.
+            $unique = bin2hex(random_bytes(8));
             if ($stagedir) {
-                $_SESSION['tmp-kernel-file'] = $stagedir . DS . 'kernel';
+                // 'kernel-' prefix, and the helper's shared name is a bare
+                // 'kernel' -- the sweep must never match a file mid-signing.
+                $_SESSION['tmp-kernel-file'] = $stagedir . DS . 'kernel-' . $unique;
+                self::purgeStaleDownloads($stagedir, 'kernel-');
             } else {
-                $_SESSION['tmp-kernel-file'] = sprintf(
-                    '%s%s%s%s',
-                    DS,
-                    trim(
-                        sys_get_temp_dir(),
-                        DS
-                    ),
-                    DS,
-                    basename($_SESSION['dest-kernel-file'])
-                );
+                $_SESSION['tmp-kernel-file'] = sys_get_temp_dir()
+                    . DS . 'fog-kernel-' . $unique;
+                self::purgeStaleDownloads(sys_get_temp_dir(), 'fog-kernel-');
             }
             $file = filter_input(INPUT_GET, 'file');
             $_SESSION['dl-kernel-file'] = base64_decode(
                 $file
             );
-            if (file_exists($_SESSION['tmp-kernel-file'])) {
-                unlink($_SESSION['tmp-kernel-file']);
-            }
             echo '<div class="col-xs-9">';
             echo '<div class="kerninfo">';
             echo '<div class="panel panel-info">';
@@ -713,23 +720,19 @@ class FOGConfigurationPage extends FOGPage
                     $dstName
                 )
             );
-            $_SESSION['tmp-initrd-file'] = sprintf(
-                '%s%s%s%s',
-                DS,
-                trim(
-                    sys_get_temp_dir(),
-                    DS
-                ),
-                DS,
-                basename($_SESSION['dest-initrd-file'])
-            );
+            // Unique per download, for the same reason as the kernel above:
+            // the path spans three requests, and the old name was just the
+            // admin-chosen destination filename -- so two people updating
+            // init.xz at once shared one temp file, and a local user could
+            // pre-plant a symlink at the entirely predictable /tmp/init.xz.
+            // Initrds are never signed, so there is no staging directory here.
+            $_SESSION['tmp-initrd-file'] = sys_get_temp_dir()
+                . DS . 'fog-initrd-' . bin2hex(random_bytes(8));
+            self::purgeStaleDownloads(sys_get_temp_dir(), 'fog-initrd-');
             $file = filter_input(INPUT_GET, 'file');
             $_SESSION['dl-initrd-file'] = base64_decode(
                 $file
             );
-            if (file_exists($_SESSION['tmp-initrd-file'])) {
-                unlink($_SESSION['tmp-initrd-file']);
-            }
             echo '<div class="col-xs-9">';
             echo '<div class="initrdinfo">';
             echo '<div class="panel panel-info">';

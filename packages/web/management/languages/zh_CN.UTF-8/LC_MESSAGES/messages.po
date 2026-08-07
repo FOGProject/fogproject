@@ -1350,6 +1350,9 @@ msgstr "文件名中不允许出现点"
 msgid "Download Failed"
 msgstr "下载失败"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 msgid "Downloading Initrd"
 msgstr "下载初始内存盘中"
 
@@ -1477,6 +1480,13 @@ msgstr "MAC列表中的错误多播主机返回"
 
 msgid "Error performing query"
 msgstr "错误执行查询"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "错误：无法下载内核"
 
 msgid "Error: Failed to download initrd"
 msgstr "错误：无法下载启动盘"

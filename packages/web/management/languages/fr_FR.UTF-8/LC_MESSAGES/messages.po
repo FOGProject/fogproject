@@ -1361,6 +1361,9 @@ msgstr "Nom de fichier non autorisé !"
 msgid "Download Failed"
 msgstr "Échec du téléchargement"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 #, fuzzy
 msgid "Downloading Initrd"
 msgstr "Téléchargement du noyau"
@@ -1490,6 +1493,13 @@ msgstr "Erreur : plusieurs machines retournées pour la liste des adresses MAC"
 
 msgid "Error performing query"
 msgstr "Erreur requête effectuant"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "Erreur : Impossible de télécharger le noyau"
 
 #, fuzzy
 msgid "Error: Failed to download initrd"

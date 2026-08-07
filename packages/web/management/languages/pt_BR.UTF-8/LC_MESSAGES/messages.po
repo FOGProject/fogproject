@@ -1353,6 +1353,9 @@ msgstr "Ponto no nome do arquivo não é permitido!"
 msgid "Download Failed"
 msgstr "Falha no Download"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 msgid "Downloading Initrd"
 msgstr "Baixando Initrd"
 
@@ -1480,6 +1483,13 @@ msgstr "Erro: múltiplos hosts retornados para lista de endereços MAC"
 
 msgid "Error performing query"
 msgstr "Erro ao realizar a consulta"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "Erro: Falha ao baixar kernel"
 
 msgid "Error: Failed to download initrd"
 msgstr "Erro: Falha ao baixar initrd"

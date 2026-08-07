@@ -1560,6 +1560,9 @@ msgstr ""
 msgid "Download Failed"
 msgstr "Download fehlgeschlagen"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 #, fuzzy
 msgid "Downloading Initrd"
 msgstr "Download des Kernels"
@@ -1699,6 +1702,13 @@ msgstr "Fehler: Es gibt mehrere Hosts mit der gleichen MAC-Adresse"
 
 msgid "Error performing query"
 msgstr "Fehler beim Ausführen der Anfrage"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "Fehler: Herunterladen des Kernels fehlgeschlagen"
 
 #, fuzzy
 msgid "Error: Failed to download initrd"
