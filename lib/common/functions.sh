@@ -3507,7 +3507,7 @@ $sanentries
 DNS.1 = $hostname$dnsSanEntries
 EOF
     [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
-    if [[ $acmeLeaf == yes ]]; then
+    if [[ $acmeLeaf == yes && $recreateKeys != yes && $recreateCA != yes ]]; then
         echo " * Leaf certificate is ACME-managed (see bin/setupacme.sh) -- leaving it in place."
         echo "   Re-run bin/setupacme.sh if you changed --hostname/--extra-server-name."
     elif [[ ! -x $sslpubcert ]]; then
