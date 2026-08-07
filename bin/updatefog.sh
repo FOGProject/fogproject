@@ -49,6 +49,7 @@ usage() {
     echo -e "\t               \t\tnot change the tracked channel for future runs"
     echo -e "\t      --git-path\tOverride the git checkout path this server records"
     echo -e "\t      --hostname\tOverride the vhost/cert hostname for this update"
+    echo -e "\t      --extra-server-name\tAdd an extra vhost/cert name for this update (repeatable)"
     echo -e "\t      --no-revert\tOn failure, leave the system as-is instead of"
     echo -e "\t                 \t\tautomatically reverting to the previous commit"
     echo -e "\t      --overwrite-vhost\tLet installfog.sh regenerate the web server"
@@ -58,8 +59,10 @@ usage() {
     exit 0
 }
 
+supdateExtraServerNames=()
+
 shortopts="h?y"
-longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,yes,hostname:"
+longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,yes,hostname:,extra-server-name:"
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
 eval set -- "$optargs"
@@ -100,6 +103,15 @@ while :; do
             else
                 echo "Error: --hostname requires a value"
                 exit 9
+            fi
+            shift 2
+            ;;
+        --extra-server-name)
+            if [[ -n "${2}" ]]; then
+                supdateExtraServerNames+=("${2}")
+            else
+                echo "Error: --extra-server-name requires a value"
+                usage
             fi
             shift 2
             ;;
@@ -229,7 +241,11 @@ if ! gitUpdateToBranch "$branch"; then
     exit 1
 fi
 
-(cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag ${supdatehostname:+--hostname "$supdatehostname"} >>$error_log 2>&1)
+extraServerNameArgs=()
+for extraname in "${supdateExtraServerNames[@]}"; do
+    extraServerNameArgs+=(--extra-server-name "$extraname")
+done
+(cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag ${supdatehostname:+--hostname "$supdatehostname"} "${extraServerNameArgs[@]}" >>$error_log 2>&1)
 installStatus=$?
 cd "$workingdir"
 

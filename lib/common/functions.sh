@@ -3155,6 +3155,11 @@ writeUpdateFile() {
         # fogprogramdir: an admin's choice of stable/staging/dev must carry forward
         # on every upgrade, not just on the run it was made.
         fog_git_path fog_update_channel
+        # A genuine persisted preference like fog_update_channel above, not a
+        # RECORD like fogprogramdir/fog_git_path -- an admin's extra vhost/cert
+        # name(s) must carry forward on every upgrade, not just the run they
+        # were set on.
+        extraServerNames
     )
     # Keys written by older installers that must be stripped on upgrade.
     local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )
@@ -3444,6 +3449,12 @@ EOF
         [[ -n $sanentries ]] && sanentries="${sanentries}"$'\n'
         sanentries="${sanentries}IP.${sancount} = ${ip}"
     done
+    dnscount=1
+    dnsSanEntries=""
+    for extraname in $extraServerNames; do
+        dnscount=$((dnscount + 1))
+        dnsSanEntries="${dnsSanEntries}"$'\n'"DNS.${dnscount} = ${extraname}"
+    done
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
         dots "Creating SSL Private Key"
         if [[ $(validip $certip) -ne 0 ]]; then
@@ -3468,7 +3479,7 @@ CN = $certip
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = $hostname
+DNS.1 = $hostname$dnsSanEntries
 EOF
         openssl req -new -sha512 -key $sslprivkey -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
 $certip
@@ -3485,7 +3496,7 @@ EOF
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = $hostname
+DNS.1 = $hostname$dnsSanEntries
 EOF
     [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
     if [[ ! -x $sslpubcert ]]; then
@@ -3502,6 +3513,14 @@ EOF
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$error_log 2>&1
     errorStat $?
     [[ $httpproto == https ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
+    # $extraServerNames is a space-joined string (see --extra-server-name).
+    # Computed once here and reused by both the nginx server_name lines below
+    # and Apache's vhostaliases, so an admin's extra name(s) reach every vhost
+    # block this function writes, not just one.
+    extraServerNamesSuffix=""
+    for extraname in $extraServerNames; do
+        extraServerNamesSuffix="${extraServerNamesSuffix} ${extraname}"
+    done
     case $webserver in
         nginx)
             case $novhost in
@@ -3537,7 +3556,7 @@ EOF
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
-                    echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
+                    echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
                     if [[ $httpproto != https ]]; then
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
@@ -3588,7 +3607,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
+                        echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -3655,7 +3674,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
+                        echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -3742,6 +3761,7 @@ EOF
                     # address it has.
                     vhostname="$ipaddress"
                     vhostaliases=$(echo $ipaddresses | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
+                    vhostaliases="${vhostaliases}${extraServerNamesSuffix}"
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
