@@ -266,7 +266,10 @@ if [[ -z $autoYes ]]; then
     esac
 fi
 
-backupCustomizations
+# No backup call here any more. installfog.sh backs up and restores within its
+# own run (backupPreservedCustomizations / restorePreservedCustomizations), so
+# the protection covers a bare ./installfog.sh too -- which is how most people
+# upgrade, and which this wrapper could never have protected.
 if ! gitUpdateToBranch "$branch"; then
     echo " * Git update failed -- nothing was installed. See $error_log."
     exit 1
@@ -281,7 +284,8 @@ installStatus=$?
 cd "$workingdir"
 
 if [[ $installStatus -eq 0 ]]; then
-    restoreCustomizations
+    # Likewise no restore call: the install run that just succeeded already
+    # put the customizations back itself.
     echo " * Update completed successfully."
     exit 0
 fi

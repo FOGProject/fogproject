@@ -150,7 +150,31 @@ backupPreservedCustomizations() {
         echo "   space under ${customizationsDir} and re-run. See $error_log."
         exit 1
     fi
-    [[ $warn -ne 0 ]] && echo -n "(some optional refind files could not be backed up) "
+
+    # Snapshot the whole directory into a rotated generation, rather than a
+    # fixed list of filenames. Two things fall out of that: a per-host custom
+    # kernel/init (bootmenu.class.php's Host->get('kernel')/get('init')) is
+    # captured without FOG ever having to learn its name, and a generation is
+    # a complete, coherent set rather than an assortment.
+    #
+    # Bounded at $kernelBackupGenerations because this is otherwise unlimited
+    # growth on disk the admin provisioned for images, not for history.
+    [[ -z $kernelBackupGenerations || ! $kernelBackupGenerations =~ ^[0-9]+$ || $kernelBackupGenerations -lt 1 ]] && kernelBackupGenerations=3
+    local kbdir="${customizationsDir}/kernel-backups" k
+    if [[ -d $ipxedir ]]; then
+        mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
+        rm -rf "${kbdir}/gen-${kernelBackupGenerations}" >>$error_log 2>&1
+        for ((k = kernelBackupGenerations - 1; k >= 1; k--)); do
+            [[ -d "${kbdir}/gen-${k}" ]] && mv "${kbdir}/gen-${k}" "${kbdir}/gen-$((k + 1))" >>$error_log 2>&1
+        done
+        mkdir -p "${kbdir}/gen-1" >>$error_log 2>&1 || warn=1
+        # cp -a preserves the version/tag_name xattrs downloadfiles() stamps on
+        # each kernel, so every generation says which FOS release it came from
+        # without a separate manifest to keep in sync.
+        cp -a "${ipxedir}/." "${kbdir}/gen-1/" >>$error_log 2>&1 || warn=1
+    fi
+
+    [[ $warn -ne 0 ]] && echo -n "(some optional files could not be backed up) "
     errorStat 0
 }
 # Restores what backupPreservedCustomizations() saved, AFTER
@@ -172,6 +196,33 @@ restorePreservedCustomizations() {
     for f in refind.conf refind.efi refind_x64.efi refind_ia32.efi refind_aa64.efi; do
         [[ -f "${customizationsDir}/ipxe-legacy/${f}" ]] && { cp -f "${customizationsDir}/ipxe-legacy/${f}" "${ipxedir}/${f}" >>$error_log 2>&1 || st=1; }
     done
+
+    # Anything in the newest generation that is NOT one of the six names
+    # downloadfiles() re-downloads is, by definition, a file FOG did not put
+    # there and will never put back -- a per-host custom kernel or init. Those
+    # are restored unconditionally.
+    #
+    # The six default names are deliberately NOT restored: the point of an
+    # update is to pick up the new kernel. bin/restorekernel.sh is the
+    # explicit, admin-invoked way back to an older one.
+    #
+    # $restoreKernelBackup is the single exception, set only by
+    # --restore-kernel-backup, which revertUpdate() passes when it re-runs the
+    # installer against the previous commit. An older commit wants the older
+    # kernels too, and that is the behavior the retired _restorePreviousKernel()
+    # used to provide on that path.
+    local kbdir="${customizationsDir}/kernel-backups"
+    local defaultnames=" bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz "
+    local bn
+    if [[ -d "${kbdir}/gen-1" ]]; then
+        for f in "${kbdir}/gen-1"/*; do
+            [[ -f $f ]] || continue
+            bn=$(basename "$f")
+            if [[ $defaultnames != *" $bn "* || ${restoreKernelBackup:-0} -eq 1 ]]; then
+                cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
+            fi
+        done
+    fi
     [[ -d $ipxedir ]] && chown -R ${username}:${apacheuser} "$ipxedir" >>$error_log 2>&1
     # Never fatal, unlike the backup side. By this point configureHttpd() has
     # already rebuilt the web tree, so aborting would strand a nearly-complete
@@ -3296,6 +3347,12 @@ writeUpdateFile() {
         # CSR (stale public key) while the private key on disk is the ACME
         # key, producing a cert/key mismatch that stops the web server.
         acmeLeaf
+        # How many prior kernel/init generations backupPreservedCustomizations()
+        # keeps under customizations/kernel-backups. A genuine persisted
+        # preference like fog_update_channel, not a record: an admin who chose
+        # deeper history must keep it across every future upgrade, or the
+        # generations they were relying on get evicted by the next run.
+        kernelBackupGenerations
     )
     # Keys written by older installers that must be stripped on upgrade.
     local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )
