@@ -70,17 +70,15 @@ _restorePreviousKernel() {
     errorStat $st
 }
 
-# Fetches, checks out, and hard-resets $fog_git_path to the branch mapped
-# from $fog_update_channel. Sets $updatePrevCommit (module-global, read by
-# revertUpdate below) to the commit HEAD was at before touching anything.
-gitUpdateToChannel() {
-    local branch st
-    branch=$(channelToBranch "$fog_update_channel") || {
-        echo " * Unknown update channel: $fog_update_channel (expected stable, dev, or beta)"
-        return 1
-    }
+# Fetches, checks out, and hard-resets $fog_git_path to $1 (a branch name --
+# the caller has already resolved this from either $fog_update_channel via
+# channelToBranch, or a one-off --branch override). Sets $updatePrevCommit
+# (module-global, read by revertUpdate below) to the commit HEAD was at
+# before touching anything.
+gitUpdateToBranch() {
+    local branch="$1" st
     updatePrevCommit=$(git -C "$fog_git_path" rev-parse HEAD 2>>$error_log)
-    dots "Fetching FOG (${fog_update_channel} / ${branch})"
+    dots "Fetching FOG (${branch})"
     git -C "$fog_git_path" fetch --all >>$error_log 2>&1
     st=$?
     errorStat $st
@@ -115,7 +113,7 @@ revertUpdate() {
     git -C "$fog_git_path" reset --hard "$updatePrevCommit" >>$error_log 2>&1
     errorStat $?
     dots "Re-running installfog.sh against the reverted commit"
-    (cd "$fog_git_path/bin" && bash installfog.sh -Y >>$error_log 2>&1)
+    (cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag >>$error_log 2>&1)
     errorStat $?
     _restorePreviousKernel
     restoreCustomizations

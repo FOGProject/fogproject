@@ -44,15 +44,16 @@ linkIfAbsent() {
     [[ -e $link || -L $link ]] && return 0
     ln -s "$target" "$link" >>$error_log 2>&1
 }
-# Maps a FOG update channel name to the git branch it tracks. Mirrors
-# fog-docs/docs/installation/server/install-fog-server.md's "Choosing a FOG
-# version" section -- codified here so bin/updatefog.sh and lib/common/config.sh
-# share one mapping instead of each guessing at it.
+# Maps a FOG update channel name to the git branch it tracks. Channel names
+# match README.md's "Channel" table (Stable/Staging/Dev), not the informal
+# "dev"/"beta" prose fog-docs used before that table existed -- see
+# FOGProject/fogproject#1012. Codified here so bin/updatefog.sh and
+# lib/common/config.sh share one mapping instead of each guessing at it.
 channelToBranch() {
     case "$1" in
         stable) echo "stable" ;;
-        dev) echo "dev-branch" ;;
-        beta) echo "working-1.6" ;;
+        staging) echo "dev-branch" ;;
+        dev) echo "working-1.6" ;;
         *) return 1 ;;
     esac
 }
@@ -63,8 +64,8 @@ channelToBranch() {
 branchToChannel() {
     case "$1" in
         stable) echo "stable" ;;
-        dev-branch) echo "dev" ;;
-        working-1.6) echo "beta" ;;
+        dev-branch) echo "staging" ;;
+        working-1.6) echo "dev" ;;
         *) return 1 ;;
     esac
 }
@@ -152,7 +153,7 @@ updateStorageNodeCredentials() {
 recordGitUpdateSettings() {
     dots "Recording fog_git_path/update channel"
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"$fog_git_path\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_git_path\"" $mysqldbname >>$error_log 2>&1
-    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, dev, or beta.', \"$fog_update_channel\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_update_channel\"" $mysqldbname >>$error_log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, staging, or dev.', \"$fog_update_channel\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_update_channel\"" $mysqldbname >>$error_log 2>&1
     errorStat $?
 }
 backupDB() {
@@ -1297,7 +1298,9 @@ configureTFTPandPXE() {
                 rm -f /etc/xinetd.d/tftp
             fi
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
+                mv -fv "$tftpconfigupstartdefaults" "${tftpconfigupstartdefaults}.${timestamp}" >>$error_log 2>&1
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"${tftpAdvOpts:+$tftpAdvOpts }-s\"" > "$tftpconfigupstartdefaults"
+                diffconfig "$tftpconfigupstartdefaults"
                 systemctl is-enabled --quiet tftpd-hpa && true || systemctl enable tftpd-hpa >>$error_log 2>&1
                 systemctl is-active --quiet tftpd-hpa && systemctl stop tftpd-hpa >>$error_log 2>&1 || true
                 systemctl is-active --quiet tftpd-hpa && true || systemctl start tftpd-hpa >>$error_log 2>&1
@@ -1318,7 +1321,9 @@ configureTFTPandPXE() {
             ;;
         *)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
+                mv -fv "$tftpconfigupstartdefaults" "${tftpconfigupstartdefaults}.${timestamp}" >>$error_log 2>&1
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"${tftpAdvOpts:+$tftpAdvOpts }-s\"" > "$tftpconfigupstartdefaults"
+                diffconfig "$tftpconfigupstartdefaults"
                 sysv-rc-conf xinetd off >>$error_log 2>&1
                 service xinetd stop >>$error_log 2>&1
                 sysv-rc-conf tftpd-hpa on >>$error_log 2>&1
@@ -3135,7 +3140,7 @@ writeUpdateFile() {
         #
         # fog_update_channel IS a genuine persisted preference -- which channel
         # to track -- closer to secureboot/fwconfigure above than to
-        # fogprogramdir: an admin's choice of stable/dev/beta must carry forward
+        # fogprogramdir: an admin's choice of stable/staging/dev must carry forward
         # on every upgrade, not just on the run it was made.
         fog_git_path fog_update_channel
     )
@@ -3512,6 +3517,12 @@ EOF
                     echo 'location ~ \.php$ {' > "$phploc"
                     emitNginxPhpBody "$phploc"
                     echo "}" >> "$phploc"
+                    # Apache's branch below backs up $etcconf the same way before
+                    # rewriting it, which is what lets its own diffconfig call
+                    # further down actually detect a change; nginx was calling
+                    # diffconfig without ever taking this backup first, so it was
+                    # comparing the new file to nothing and never fired.
+                    mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
                     echo "    server_name $ipaddresses $hostname;" >> "$etcconf"

@@ -39,25 +39,38 @@ done
 export PATH
 
 usage() {
-    echo -e "Usage: $0 [-h?y] [--channel stable|dev|beta] [--git-path </path>] [--no-revert]"
+    echo -e "Usage: $0 [-h?y] [--channel stable|staging|dev] [--branch <name>] [--git-path </path>]"
+    echo -e "\t                 \t\t[--no-revert] [--overwrite-vhost]"
     echo -e "\t-h -? --help\t\tDisplay this info"
-    echo -e "\t      --channel\tUpdate channel to track: stable, dev, or beta"
+    echo -e "\t      --channel\tUpdate channel to track: stable, staging, or dev"
     echo -e "\t               \t\tdefaults to whatever this server already tracks"
+    echo -e "\t      --branch\tCheck out an arbitrary branch instead of a channel"
+    echo -e "\t               \t\t(e.g. to test a PR/feature branch). One-off: does"
+    echo -e "\t               \t\tnot change the tracked channel for future runs"
     echo -e "\t      --git-path\tOverride the git checkout path this server records"
     echo -e "\t      --no-revert\tOn failure, leave the system as-is instead of"
     echo -e "\t                 \t\tautomatically reverting to the previous commit"
+    echo -e "\t      --overwrite-vhost\tLet installfog.sh regenerate the web server"
+    echo -e "\t                 \t\tvhost from scratch instead of leaving the"
+    echo -e "\t                 \t\texisting one (with any customizations) alone"
     echo -e "\t-y    --yes\t\tSkip the confirmation prompt (for cron/GUI use)"
     exit 0
 }
 
 shortopts="h?y"
-longopts="help,channel:,git-path:,no-revert,yes"
+longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,yes"
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
 eval set -- "$optargs"
 
 autoRevert=1
 autoYes=""
+# Every update already has a pre-existing, possibly hand-customized vhost --
+# unlike a fresh install, there is nothing to gain by regenerating it, and
+# createSSLCA() has no way to tell "default" apart from "admin edited this".
+# -F/--no-vhost is the escape hatch installfog.sh already has for exactly
+# this; --overwrite-vhost below opts back into the fresh-install behavior.
+updateVhostFlag="-F"
 while :; do
     case $1 in
         -h | -\? | --help)
@@ -65,6 +78,10 @@ while :; do
             ;;
         --channel)
             schannel="$2"
+            shift 2
+            ;;
+        --branch)
+            sbranch="$2"
             shift 2
             ;;
         --git-path)
@@ -78,6 +95,10 @@ while :; do
             ;;
         --no-revert)
             autoRevert=0
+            shift
+            ;;
+        --overwrite-vhost)
+            updateVhostFlag=""
             shift
             ;;
         -y | --yes)
@@ -103,7 +124,7 @@ error_log="${workingdir}/error_logs/fog_update_error.log"
 # errorStat (lib/common/functions.sh) exits the process on any non-zero
 # status unless $exitFail is set -- installfog.sh's default, since a failed
 # install step should stop it. updatefog.sh needs the opposite: a failed git
-# fetch/checkout/reset must return control to gitUpdateToChannel() so
+# fetch/checkout/reset must return control to gitUpdateToBranch() so
 # revertUpdate() can run, not kill the script out from under it. Deliberately
 # NOT exported: the nested `bash installfog.sh` call below is a separate
 # process and should keep errorStat's normal exit-on-failure behavior there.
@@ -136,24 +157,49 @@ linuxReleaseName_lower="${osname,,}"
 [[ -n $osid ]] && doOSSpecificIncludes >/dev/null
 . ../lib/common/update.sh
 
+# writeUpdateFile() (functions.sh) refreshes the "## Version:" comment line in
+# .fogsettings as a side effect; installfog.sh derives this the same way at
+# its own top, but updatefog.sh never sources that far into it.
+[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+
 [[ -n $sgitpath ]] && fog_git_path="$sgitpath"
-[[ -n $schannel ]] && fog_update_channel="$schannel"
 
-if [[ -z $fog_update_channel ]]; then
-    echo " * No update channel configured for this server, and none given via --channel."
-    echo " * Pass --channel stable|dev|beta."
-    exit 1
+if [[ -n $sbranch ]]; then
+    # --branch is a one-off deviation for testing, not a channel switch -- it
+    # deliberately leaves fog_update_channel untouched, so a later run without
+    # --branch goes right back to tracking whatever channel was configured.
+    branch="$sbranch"
+    echo " * FOG Update"
+    echo "   Git path: $fog_git_path"
+    echo "   Branch:   $branch (custom -- not a tracked channel)"
+    echo
+else
+    [[ -n $schannel ]] && fog_update_channel="$schannel"
+
+    if [[ -z $fog_update_channel ]]; then
+        echo " * No update channel configured for this server, and none given via --channel."
+        echo " * Pass --channel stable|staging|dev, or --branch for a one-off checkout."
+        exit 1
+    fi
+
+    branch=$(channelToBranch "$fog_update_channel") || {
+        echo " * Unknown update channel: $fog_update_channel (expected stable, staging, or dev)"
+        exit 1
+    }
+
+    # Persist the resolved channel now, before touching git -- writeUpdateFile
+    # merges just the managed keys (fog_git_path/fog_update_channel among them)
+    # into the existing .fogsettings, leaving every other line as-is. Without
+    # this, --channel only ever changed the channel for THIS run: the child
+    # `installfog.sh` below re-sources the OLD value from .fogsettings and
+    # writes that back, so the override never stuck for future unattended runs.
+    writeUpdateFile
+
+    echo " * FOG Update"
+    echo "   Git path: $fog_git_path"
+    echo "   Channel:  $fog_update_channel ($branch)"
+    echo
 fi
-
-branch=$(channelToBranch "$fog_update_channel") || {
-    echo " * Unknown update channel: $fog_update_channel (expected stable, dev, or beta)"
-    exit 1
-}
-
-echo " * FOG Update"
-echo "   Git path: $fog_git_path"
-echo "   Channel:  $fog_update_channel ($branch)"
-echo
 
 if [[ -z $autoYes ]]; then
     echo -n " * Continue with this update? (Y/N) "
@@ -168,12 +214,12 @@ if [[ -z $autoYes ]]; then
 fi
 
 backupCustomizations
-if ! gitUpdateToChannel; then
+if ! gitUpdateToBranch "$branch"; then
     echo " * Git update failed -- nothing was installed. See $error_log."
     exit 1
 fi
 
-(cd "$fog_git_path/bin" && bash installfog.sh -Y >>$error_log 2>&1)
+(cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag >>$error_log 2>&1)
 installStatus=$?
 cd "$workingdir"
 
