@@ -44,6 +44,30 @@ linkIfAbsent() {
     [[ -e $link || -L $link ]] && return 0
     ln -s "$target" "$link" >>$error_log 2>&1
 }
+# Maps a FOG update channel name to the git branch it tracks. Mirrors
+# fog-docs/docs/installation/server/install-fog-server.md's "Choosing a FOG
+# version" section -- codified here so bin/updatefog.sh and lib/common/config.sh
+# share one mapping instead of each guessing at it.
+channelToBranch() {
+    case "$1" in
+        stable) echo "stable" ;;
+        dev) echo "dev-branch" ;;
+        beta) echo "working-1.6" ;;
+        *) return 1 ;;
+    esac
+}
+# The inverse of channelToBranch(), used to derive a sensible fog_update_channel
+# default from whatever branch happens to be checked out. Echoes nothing for a
+# branch that is not one of the three channels -- a feature/PR branch has no
+# channel, and guessing one would be worse than leaving it for the admin to set.
+branchToChannel() {
+    case "$1" in
+        stable) echo "stable" ;;
+        dev-branch) echo "dev" ;;
+        working-1.6) echo "beta" ;;
+        *) return 1 ;;
+    esac
+}
 backupReports() {
     dots "Backing up user reports"
     [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$error_log
@@ -119,6 +143,17 @@ updateStorageNodeCredentials() {
     dots "Ensuring node username and passwords match"
     curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}/maintenance/create_update_node.php
     echo "Done"
+}
+# Mirrors fog_git_path/fog_update_channel into globalSettings so the GUI can
+# show them without SSH. Like fogprogramdir's mirror into /etc/fog/fog.conf
+# (GH-850), these are RECORDS, not controls: .fogsettings stays the source of
+# truth, and the next installfog.sh/updatefog.sh run overwrites whatever an
+# admin may have hand-edited here through the generic Settings tab.
+recordGitUpdateSettings() {
+    dots "Recording fog_git_path/update channel"
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"$fog_git_path\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_git_path\"" $mysqldbname >>$error_log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, dev, or beta.', \"$fog_update_channel\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_update_channel\"" $mysqldbname >>$error_log 2>&1
+    errorStat $?
 }
 backupDB() {
     # ---------------------------------------------------------
@@ -3092,6 +3127,17 @@ writeUpdateFile() {
         # decision. Without it, an admin who answered "leave it alone" would
         # be re-asked every upgrade, and under -y would simply be overridden.
         fwconfigure
+        # fog_git_path is a RECORD like fogprogramdir (GH-850), not a control --
+        # installfog.sh re-asserts the value it actually resolved after sourcing
+        # this file (see resolvedfoggitpath), so a stale path left over from a
+        # moved/re-cloned checkout does not silently point bin/updatefog.sh at a
+        # directory that may no longer exist.
+        #
+        # fog_update_channel IS a genuine persisted preference -- which channel
+        # to track -- closer to secureboot/fwconfigure above than to
+        # fogprogramdir: an admin's choice of stable/dev/beta must carry forward
+        # on every upgrade, not just on the run it was made.
+        fog_git_path fog_update_channel
     )
     # Keys written by older installers that must be stripped on upgrade.
     local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )

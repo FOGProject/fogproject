@@ -140,3 +140,18 @@ serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname
 # from the base, so the window is base .. base + 2 * sessions.
 [[ -z $mcastportmin ]] && mcastportmin=63100
 [[ -z $mcastportmax ]] && mcastportmax=$((mcastportmin + 128))
+# fog_git_path is where THIS running copy of the installer/updater actually
+# lives -- not a memory of a prior location. $workingdir is already this
+# checkout's bin/ directory by the time config.sh is sourced (both
+# installfog.sh and updatefog.sh cd there and set it before sourcing this
+# file), so the checkout root is always workingdir's parent. Recomputed
+# unconditionally (no `[[ -z ]]` guard) because, like fogprogramdir, it is a
+# RECORD once persisted to .fogsettings, not a control -- see writeUpdateFile.
+[[ -n $workingdir ]] && fog_git_path="$(cd "$workingdir/.." && pwd)"
+# fog_update_channel IS a genuine persisted preference (see writeUpdateFile),
+# so this default only matters on a first install -- .fogsettings carries an
+# admin's actual choice forward on every upgrade after that. Derived from
+# whatever branch is already checked out; left unset if that is not one of
+# the three known channel branches (e.g. a feature/PR branch, or no git repo
+# at all for a tarball install) rather than guessing.
+[[ -z $fog_update_channel ]] && fog_update_channel="$(branchToChannel "$(git -C "$fog_git_path" rev-parse --abbrev-ref HEAD 2>/dev/null)" 2>/dev/null)"

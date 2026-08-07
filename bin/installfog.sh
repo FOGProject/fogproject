@@ -543,6 +543,12 @@ fogprogramdir="${fogprogramdir%/}"
 # file must not silently relocate the install half-way through a run, after
 # config.sh has already derived servicedst/servicelogs from it.
 resolvedfogprogramdir="$fogprogramdir"
+# Same reasoning as resolvedfogprogramdir immediately above: fog_git_path is
+# where THIS run of installfog.sh actually lives, computed by config.sh from
+# $workingdir. Captured here so it can be re-asserted after .fogsettings is
+# sourced below, the same way resolvedfogprogramdir is -- otherwise a stale
+# path recorded from a moved/re-cloned checkout would silently win.
+resolvedfoggitpath="$fog_git_path"
 [[ -z $dnsaddress ]] && dnsaddress=""
 [[ -z $username ]] && username=""
 [[ -z $password ]] && password=""
@@ -585,6 +591,7 @@ case $doupdate in
             # it (see writeFogSettings). Re-assert before doOSSpecificIncludes,
             # which derives snapindir from it.
             fogprogramdir="$resolvedfogprogramdir"
+            fog_git_path="$resolvedfoggitpath"
             doOSSpecificIncludes
             # This was `blexports=$blexports` -- a self-assignment that did
             # nothing, so -E was silently discarded on upgrades: the handler
@@ -926,6 +933,7 @@ while [[ -z $blGo ]]; do
                     linkOptFogDir
                     installUtilities
                     updateStorageNodeCredentials
+                    recordGitUpdateSettings
                     setupFogReporting
                     echo
                     echo " * Setup complete"
