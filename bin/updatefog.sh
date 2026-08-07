@@ -48,6 +48,7 @@ usage() {
     echo -e "\t               \t\t(e.g. to test a PR/feature branch). One-off: does"
     echo -e "\t               \t\tnot change the tracked channel for future runs"
     echo -e "\t      --git-path\tOverride the git checkout path this server records"
+    echo -e "\t      --hostname\tOverride the vhost/cert hostname for this update"
     echo -e "\t      --no-revert\tOn failure, leave the system as-is instead of"
     echo -e "\t                 \t\tautomatically reverting to the previous commit"
     echo -e "\t      --overwrite-vhost\tLet installfog.sh regenerate the web server"
@@ -58,7 +59,7 @@ usage() {
 }
 
 shortopts="h?y"
-longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,yes"
+longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,yes,hostname:"
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
 eval set -- "$optargs"
@@ -89,6 +90,15 @@ while :; do
                 sgitpath="${2%/}"
             else
                 echo "Error: --git-path requires an absolute path"
+                usage
+            fi
+            shift 2
+            ;;
+        --hostname)
+            if [[ -n "${2}" ]]; then
+                supdatehostname="${2}"
+            else
+                echo "Error: --hostname requires a value"
                 usage
             fi
             shift 2
@@ -219,7 +229,7 @@ if ! gitUpdateToBranch "$branch"; then
     exit 1
 fi
 
-(cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag >>$error_log 2>&1)
+(cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag ${supdatehostname:+--hostname "$supdatehostname"} >>$error_log 2>&1)
 installStatus=$?
 cd "$workingdir"
 

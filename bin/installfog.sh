@@ -127,6 +127,8 @@ usage() {
     echo -e "\t               \t\t\t\tdefaults to /opt/fog"
     echo -e "\t               \t\t\t\tremembered in /etc/fog/fog.conf, so it"
     echo -e "\t               \t\t\t\tonly needs giving on a first install"
+    echo -e "\t      --hostname\t\tOverride the vhost/cert hostname"
+    echo -e "\t                \t\tdefaults to \`hostname -f\`, remembered in .fogsettings"
     echo -e "\t-N    --mysqldbname\t\tSpecify the FOG database name"
     echo -e "\t               \t\t\t\tdefaults to fog"
     echo -e "\t-B    --backuppath\t\tSpecify the backup path"
@@ -164,7 +166,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -220,6 +222,16 @@ while :; do
                 sfogprogramdir="${2%/}"
             else
                 echo "Error: --fogprogramdir requires an absolute path"
+                usage
+                exit 9
+            fi
+            shift 2
+            ;;
+        --hostname)
+            if [[ -n "${2}" ]] && [[ $(validhostname "${2}") -eq 0 ]]; then
+                shostname="${2}"
+            else
+                echo "Error: --hostname requires a valid hostname"
                 usage
                 exit 9
             fi
@@ -614,6 +626,7 @@ case $doupdate in
 esac
 # evaluation of command line options
 [[ -n $shttpproto ]] && httpproto=$shttpproto
+[[ -n $shostname ]] && hostname=$shostname
 [[ -n $sstartrange ]] && startrange=$sstartrange
 [[ -n $sendrange ]] && endrange=$sendrange
 # -s/-e imply "set DHCP up". These were written directly by the handlers, so on

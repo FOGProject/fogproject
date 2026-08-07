@@ -453,6 +453,18 @@ validip() {
     fi
     echo $stat
 }
+# Same calling convention as validip(): echo 0/1, checked via
+# [[ $(validhostname "$x") -ne 0 ]]. RFC-1123-ish: dot-separated labels of
+# alphanumerics/hyphens, no leading/trailing hyphen per label. Needed because
+# --hostname/--extra-server-name are the first NON-interactive entry point for
+# this value -- the interactive prompt in lib/common/newinput.sh has never
+# validated what an admin types, but a CLI flag's value reaches a vhost config
+# and an OpenSSL CSR config file unchecked, so it must be checked before either.
+validhostname() {
+    local h=$1
+    [[ $h =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$ ]]
+    echo $?
+}
 getCidr() {
     local cidr
     cidr=$(ip -f inet -o addr | grep $1 | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1)
