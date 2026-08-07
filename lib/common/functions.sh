@@ -3766,6 +3766,25 @@ emitNginxPhpBody() {
 # against the zazzles source -- if it turns out to be a different string, or a
 # different field, or irrelevant, this is the single place that changes.
 [[ -z $fogClientCACN ]] && fogClientCACN="FOG Server CA"
+# Make $2 resolve to $1, so FOG can keep referencing a fixed path while the
+# real file lives wherever the admin keeps it.
+#
+# Silent no-op when they are already the same file, which is the default
+# install: linking a path to itself is what GNU ln refuses as "the same file",
+# and the old inline version hit that on every run.
+#
+# Two caveats worth knowing when pointing these at a relocated file: SELinux
+# labels follow the symlink TARGET, so a certificate outside the distro's
+# expected directories may need restorecon/semanage fcontext on the real path;
+# and a private key relocated somewhere world-readable silently defeats the
+# 0600 root:root separation the fog-sign-kernel sudo helper depends on.
+_linkCanonical() {
+    local real="$1" canon="$2"
+    [[ -z $real || -z $canon ]] && return 0
+    [[ ! -e $real ]] && return 0
+    [[ "$(readlink -f "$real" 2>/dev/null)" == "$(readlink -f "$canon" 2>/dev/null)" ]] && return 0
+    ln -sf "$real" "$canon" >>$error_log 2>&1
+}
 # Single source of truth for the split-PKI layout under $sslpath. Callers ask
 # for a zone rather than concatenating paths themselves, so the shape can move
 # in one place.
@@ -4167,10 +4186,20 @@ $certip
 EOF
         errorStat $?
     fi
-    [[ ! -e $sslpath/.fogCA.key ]] && ln -sf $sslcakey $sslpath/CA/.fogCA.key >>$error_log 2>&1
-    [[ ! -e $sslpath/.fogCA.pem ]] && ln -sf $sslcapem $sslpath/CA/.fogCA.pem >>$error_log 2>&1
-    [[ ! -e $sslpath/fog.csr ]] && ln -sf $sslcsr $sslpath/fog.csr >>$error_log 2>&1
-    [[ ! -e $sslpath/.srvprivate.key ]] && ln -sf $sslprivkey $sslpath/.srvprivate.key >>$error_log 2>&1
+    # Canonical paths. FOG's own consumers -- the vhost, sbsign, certDecrypt --
+    # only ever reference the canonical location, so the real file may live
+    # anywhere: /etc/pki, /etc/letsencrypt/live, a mounted secret. Relocating a
+    # certificate then never means editing the vhost.
+    #
+    # These four lines used to be guarded inconsistently: the first two tested
+    # $sslpath/.fogCA.key while linking $sslpath/CA/.fogCA.key, so on a default
+    # install they reduced to `ln -sf X X`, which GNU ln refuses as "the same
+    # file" and logs an error on every single run. The intended canonical link
+    # was never created either.
+    _linkCanonical "$sslcakey"   "$sslpath/CA/.fogCA.key"
+    _linkCanonical "$sslcapem"   "$sslpath/CA/.fogCA.pem"
+    _linkCanonical "$sslcsr"     "$sslpath/fog.csr"
+    _linkCanonical "$sslprivkey" "$sslpath/.srvprivate.key"
     mkdir -p $webdirdest/management/other/ssl >>$error_log 2>&1
     cat > $sslpath/ca.cnf << EOF
 [v3_ca]
