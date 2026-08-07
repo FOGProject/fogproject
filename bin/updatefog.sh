@@ -62,6 +62,8 @@ usage() {
     echo -e "\t                 \t\tto the parts it owns"
     echo -e "\t      --overwrite-vhost\tDeprecated no-op: this is now the default"
     echo -e "\t-y    --yes\t\tSkip the confirmation prompt (for cron/GUI use)"
+    echo -e "\n\tWhat survives an update, and where to put customizations so"
+    echo -e "\tthey do: docs/SUPPORTED_CUSTOMIZATIONS.md"
     exit 0
 }
 
