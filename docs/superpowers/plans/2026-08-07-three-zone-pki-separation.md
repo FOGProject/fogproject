@@ -164,6 +164,14 @@ must be answered before Task 1.8 is written, not after.
   not: mark the Secure Boot zone as staying flat, and note which shim
   version/firmware was tested — do not silently downgrade the plan without
   recording what was actually observed.
+- [ ] **Step 4a: Repeat the whole test via the Setup Mode / db path**, not
+  just MokManager — they are verified by different code (shim's own logic vs.
+  the UEFI firmware's). Put a machine in Setup Mode, enroll FOG's
+  PK/KEK/db.auth with the **intermediate** in `db`, and confirm a
+  leaf-signed kernel boots. Then rotate the leaf and confirm it still boots
+  with no db update pushed. A pass here is what proves the rotation promise
+  holds on both enrollment routes; a failure means `db` still needs the leaf
+  and Setup-Mode clients keep today's re-enrollment cost.
 - [ ] **Step 5:** If possible, repeat on arm64. Record if untested rather
   than assuming parity with x86_64.
 - [ ] **Step 6: Commit** (docs-only)
@@ -762,6 +770,32 @@ record why.
   (`functions.sh:4784`, `4793`, `4795`) to `$secureBootMokCert`. Nothing else
   in that function changes; in `flat` mode the two variables are the same
   path, so its output is identical to today.
+- [ ] **Step 4a: The Setup Mode / db path — do not skip this.** MokManager is
+  only one of two enrollment routes. `_publishSecureBootAuthVars()` builds a
+  `db` containing Microsoft's CAs plus **FOG's signing certificate**
+  (`packages/secureboot/fog-build-sb-authvars:163`). If `MOK.der` becomes the
+  intermediate while `db` keeps the leaf, rotating a leaf silently strands
+  every Setup-Mode-enrolled client while appearing to work for
+  MokManager-enrolled ones. Changes:
+  - `functions.sh:5271-5272` (the `.fog-secureboot` writer): add
+    `SECUREBOOT_MOK_CERT=${secureBootMokCert}` alongside the existing
+    `SECUREBOOT_KEY`/`SECUREBOOT_CERT`.
+  - `packages/secureboot/fog-build-sb-authvars`: read `SECUREBOOT_MOK_CERT`
+    and use it for `fosCert` (line 63/163) so the **intermediate** lands in
+    `db`. Fall back to `SECUREBOOT_CERT` when unset, so an existing
+    `.fog-secureboot` from a `flat` install keeps working unchanged.
+  - `packages/secureboot/fog-sign-kernel`: this is the sudo helper behind the
+    web UI's Kernel Update page — a signing path entirely separate from
+    `_resignKernels()`, and easy to miss. It must pass
+    `--addcert "$SECUREBOOT_MOK_CERT"` when that differs from
+    `SECUREBOOT_CERT` (line 85), or a kernel downloaded through the GUI is
+    signed with no chain attached and fails to boot on exactly the clients
+    this design serves.
+  - Putting a CA in `db` is the standard UEFI model, not a workaround —
+    Microsoft's own `db` entries are CAs and Windows validates by chaining to
+    them. Verify as part of Task 0.2 on the same hardware: enroll via Setup
+    Mode rather than MokManager, then confirm a leaf-signed kernel boots and
+    still boots after the leaf is rotated.
 - [ ] **Step 5:** `bash -n lib/common/functions.sh && bash -n bin/installfog.sh`.
 - [ ] **Step 6:** Manual verify, split mode (test VM + a real UEFI client):
   fresh `./installfog.sh -Y` → confirm

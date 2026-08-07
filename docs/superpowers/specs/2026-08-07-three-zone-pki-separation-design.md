@@ -790,6 +790,64 @@ Secure Boot Key" menu item) needs **no change at all**: it fetches and
 enrolls whatever is at `MOK.der`. It simply enrolls a CA now rather than a
 leaf.
 
+### The second enrollment path: Setup Mode, PK/KEK/db
+
+MokManager is not FOG's only enrollment route. `_publishSecureBootAuthVars()`
+(`functions.sh:4845` ff.) drives `packages/secureboot/fog-build-sb-authvars`
+to produce signed `PK.auth`/`KEK.auth`/`db.auth` blobs for the unattended
+path: a client in Setup Mode enrolls FOG's PK and KEK, and a **db** that is
+Microsoft's db CAs concatenated with FOG's own signing certificate
+(`fog-build-sb-authvars:163`, `esl "${work}/fog-db.esl" "$FOG_OWNER_GUID"
+"$fosCert"`).
+
+**This path must move to the intermediate too, or the whole design's benefit
+evaporates on exactly the clients that used it.** Two verification chains
+exist and they are enforced by different code:
+
+| Path | Who verifies | Trust anchor today | Must become |
+|---|---|---|---|
+| shim → MokList | shim's own code | `MOK.der` = signing leaf | the intermediate |
+| firmware → db | the UEFI firmware | `db` entry = signing leaf | the intermediate |
+
+If `MOK.der` becomes the intermediate but `db` keeps the leaf, then rotating
+a signing leaf silently re-breaks every Setup-Mode-enrolled client: the newly
+signed kernel no longer chains to anything in their `db`, and recovering
+needs a fresh KEK-signed db update pushed to each machine. The rotation
+promise would hold for MokManager-enrolled clients and quietly fail for the
+others — the worst possible split, because it looks like it works.
+
+Putting a CA in `db` is the standard UEFI model, not a workaround: the
+Microsoft entries already alongside it (`MicWinProPCA2011`,
+`MicCorUEFCA2011`) are themselves CAs, and every Windows bootloader validates
+by chaining to them rather than by exact-certificate match. The same
+`sbsign --addcert` that lets shim build the chain lets the firmware build it.
+
+**`SECUREBOOT_CERT` is dual-purpose, and that is the root of this** — the
+third instance of the same pattern this design keeps finding. In
+`$fogprogramdir/.fog-secureboot` it is read by both:
+
+- `fog-sign-kernel:45` → `sbsign --cert` — the **signing** certificate.
+- `fog-build-sb-authvars:63` → `fosCert` → `db` — a **trust anchor**.
+
+So the conf gains a distinct `SECUREBOOT_MOK_CERT` naming the enrolled
+anchor. `fog-build-sb-authvars` reads that for `db`; `fog-sign-kernel` keeps
+reading `SECUREBOOT_CERT` to sign and additionally passes
+`--addcert "$SECUREBOOT_MOK_CERT"` when the two differ. In `flat` mode both
+point at the same file, every command line is byte-identical to today, and
+nothing about the existing behavior changes.
+
+`fog-sign-kernel` needing `--addcert` is itself easy to miss: it is the sudo
+helper behind the web UI's Kernel Update page, a completely separate signing
+path from `_resignKernels()`. A kernel downloaded through the GUI would
+otherwise be signed with no chain attached and fail to boot on precisely the
+clients this design is meant to serve.
+
+PK and KEK are unaffected — they authorize *variable updates*, not boot, and
+sign nothing that executes. Holding KEK does gain FOG something here though:
+because a KEK-signed `dbx` update is possible, a compromised signing leaf can
+be revoked fleet-wide without a firmware trip, which is not achievable at all
+under today's flat model.
+
 ## Data flow
 
 **Fresh install, the new default (no flag needed) or the interactive
