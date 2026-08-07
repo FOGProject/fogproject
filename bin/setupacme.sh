@@ -103,7 +103,6 @@ if [[ ${#domains[@]} -eq 0 ]]; then
     exit 9
 fi
 
-exitFail=1
 . ../lib/common/functions.sh
 
 [[ -z $fogprogramdir && -r /etc/fog/fog.conf ]] && . /etc/fog/fog.conf
@@ -138,10 +137,18 @@ acmesh="$HOME/.acme.sh/acme.sh"
 
 case $webserver in
     nginx)
-        reloadcmd="systemctl reload nginx"
+        if [[ $systemctl == yes ]]; then
+            reloadcmd="systemctl reload nginx"
+        else
+            reloadcmd="$initdpath/nginx reload"
+        fi
         ;;
     httpd|apache*)
-        reloadcmd="systemctl reload $webserver"
+        if [[ $systemctl == yes ]]; then
+            reloadcmd="systemctl reload $webserver"
+        else
+            reloadcmd="$initdpath/$webserver reload"
+        fi
         ;;
     *)
         echo " * Unrecognized \$webserver ($webserver) -- cannot pick a reload command."
