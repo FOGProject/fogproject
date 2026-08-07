@@ -920,9 +920,6 @@ msgstr ""
 msgid "Change password"
 msgstr ""
 
-msgid "Channel"
-msgstr ""
-
 msgid "Channel call is invalid"
 msgstr ""
 
@@ -5098,9 +5095,6 @@ msgstr ""
 msgid "Registered Hosts"
 msgstr "Equipos"
 
-msgid "Release Date"
-msgstr ""
-
 msgid "Releasing Staff Initials"
 msgstr ""
 
@@ -6259,6 +6253,10 @@ msgstr ""
 
 msgid "Table not defined for this class"
 msgstr ""
+
+#, fuzzy
+msgid "Tag Name"
+msgstr "Nombre"
 
 msgid "Task"
 msgstr "Tarea"

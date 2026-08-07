@@ -810,9 +810,6 @@ msgstr ""
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
-msgid "Channel"
-msgstr ""
-
 msgid "Channel call is invalid"
 msgstr "Appel de canal est invalide"
 
@@ -4545,9 +4542,6 @@ msgstr "Inscrit"
 msgid "Registered Hosts"
 msgstr "Machines enregistrées"
 
-msgid "Release Date"
-msgstr ""
-
 msgid "Releasing Staff Initials"
 msgstr "Initiales du personnel ayant libéré"
 
@@ -5559,6 +5553,10 @@ msgstr "TX"
 
 msgid "Table not defined for this class"
 msgstr "Tableau non défini pour cette classe"
+
+#, fuzzy
+msgid "Tag Name"
+msgstr "Nom de la tâche"
 
 msgid "Task"
 msgstr "Tâche"

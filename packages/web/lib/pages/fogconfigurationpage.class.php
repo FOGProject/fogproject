@@ -301,22 +301,25 @@ class FOGConfigurationPage extends FOGPage
                     // tablesorter reads data-* attributes ahead of cell text.
                     $sort_date = strtotime($asset->created_at);
                     // ' (devel)' / ' (experimental)' / ' (FOG x.y.z)' -- built
-                    // above with a leading space for the old inline label, of
-                    // no use now that it is a column of its own.
-                    $channel = trim($k_hint, ' ()');
-                    if ($channel === '') {
+                    // above with a leading space and parentheses for the old
+                    // inline label, neither of which belongs in a column of
+                    // its own. 1.6 shows the raw hint, parentheses and all.
+                    $rel_type = trim($k_hint, ' ()');
+                    if ($rel_type === '') {
                         // Deliberately NOT labelled "stable": the default arm
                         // is whatever did not match above, which is an unknown,
                         // not a promise. The release's own name is the only
                         // thing actually known about it, and it filters well.
-                        $channel = $release->name;
+                        // 1.6 leaves this blank.
+                        $rel_type = $release->name;
                     }
                     $rows[] = array(
                         'sortdate' => $sort_date,
                         'date' => $release_date,
+                        'tag' => $release->tag_name,
                         'version' => $k_i_ver,
                         'arch' => $arch,
-                        'channel' => $channel,
+                        'type' => $rel_type,
                         // The warning used to be a full-width alert inside the
                         // expanded panel. As a row it has to be compact, and it
                         // has to stay next to the thing it is warning about.
@@ -353,25 +356,35 @@ class FOGConfigurationPage extends FOGPage
      */
     private function _renderReleaseTable($jsonData, $type)
     {
+        // Same columns, same order and the same names as 1.6's table
+        // (Route::kernelOrInitJson feeds Tag Name / Version / Architecture /
+        // Type / Date), so the two pages read alike and neither has to be
+        // relearned. Download is the one addition: 1.6 selects a row and uses
+        // a single Download button, whereas this branch's flow has always been
+        // a per-row link, and rewriting that would mean rewriting the download
+        // JS for no gain.
         $this->headerData = array(
-            _('Release Date'),
+            _('Tag Name'),
             _('Version'),
             _('Architecture'),
-            _('Channel'),
+            _('Type'),
+            _('Date'),
             _('Download'),
         );
         $this->templates = array(
-            '<span data-sort="${sortdate}">${date}</span>',
+            '${tag}',
             '${version}',
             '${arch}',
-            '${channel}${warn}',
+            '${type}${warn}',
+            '<span data-sort="${sortdate}">${date}</span>',
             '<a href="${url}" title="' . _('Download') . '">'
             . '<i class="fa fa-download fa-fw"></i> ' . _('Download') . '</a>',
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
             array('class' => 'col-xs-2'),
-            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-2'),
+            array('class' => 'col-xs-2'),
+            array('class' => 'col-xs-2'),
             array('class' => 'col-xs-2'),
             array('class' => 'col-xs-2'),
         );

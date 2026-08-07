@@ -794,9 +794,6 @@ msgstr ""
 msgid "Change password"
 msgstr "パスワードを変更"
 
-msgid "Channel"
-msgstr ""
-
 msgid "Channel call is invalid"
 msgstr "チャネル呼び出しが無効です"
 
@@ -4476,9 +4473,6 @@ msgstr "登録済み"
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
 
-msgid "Release Date"
-msgstr ""
-
 msgid "Releasing Staff Initials"
 msgstr "返却担当者のイニシャル"
 
@@ -5482,6 +5476,10 @@ msgstr "TX"
 
 msgid "Table not defined for this class"
 msgstr "このクラスにテーブルが定義されていません"
+
+#, fuzzy
+msgid "Tag Name"
+msgstr "タスク名"
 
 msgid "Task"
 msgstr "タスク"

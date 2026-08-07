@@ -780,9 +780,6 @@ msgstr ""
 msgid "Change password"
 msgstr ""
 
-msgid "Channel"
-msgstr ""
-
 msgid "Channel call is invalid"
 msgstr ""
 
@@ -4447,9 +4444,6 @@ msgstr ""
 msgid "Registered Hosts"
 msgstr ""
 
-msgid "Release Date"
-msgstr ""
-
 msgid "Releasing Staff Initials"
 msgstr ""
 
@@ -5447,6 +5441,9 @@ msgid "TX"
 msgstr ""
 
 msgid "Table not defined for this class"
+msgstr ""
+
+msgid "Tag Name"
 msgstr ""
 
 msgid "Task"

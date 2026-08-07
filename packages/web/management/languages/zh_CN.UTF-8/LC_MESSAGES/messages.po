@@ -803,9 +803,6 @@ msgstr ""
 msgid "Change password"
 msgstr "更改密码"
 
-msgid "Channel"
-msgstr ""
-
 msgid "Channel call is invalid"
 msgstr "通道调用无效"
 
@@ -4492,9 +4489,6 @@ msgstr "注册"
 msgid "Registered Hosts"
 msgstr "注册主机"
 
-msgid "Release Date"
-msgstr ""
-
 msgid "Releasing Staff Initials"
 msgstr "释放员工缩写"
 
@@ -5497,6 +5491,10 @@ msgstr "TX"
 
 msgid "Table not defined for this class"
 msgstr "该类定义没有数据库表"
+
+#, fuzzy
+msgid "Tag Name"
+msgstr "任务名称"
 
 msgid "Task"
 msgstr "任务"

@@ -930,9 +930,6 @@ msgstr ""
 msgid "Change password"
 msgstr "Passwort ändern"
 
-msgid "Channel"
-msgstr ""
-
 msgid "Channel call is invalid"
 msgstr "Kanalaufruf ist ungültig"
 
@@ -5101,9 +5098,6 @@ msgstr "Registriert"
 msgid "Registered Hosts"
 msgstr "Registrierte Hosts"
 
-msgid "Release Date"
-msgstr ""
-
 msgid "Releasing Staff Initials"
 msgstr "Freigabe durch Personal (Kürzel)"
 
@@ -6275,6 +6269,10 @@ msgstr "TX"
 #, fuzzy
 msgid "Table not defined for this class"
 msgstr "Keine Datenbank-Tabelle für diese Klasse definiert"
+
+#, fuzzy
+msgid "Tag Name"
+msgstr "Task-Name"
 
 msgid "Task"
 msgstr "Task"
