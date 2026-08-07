@@ -4970,15 +4970,21 @@ class Route extends FOGBase
                 }
                 if ($arch_short) {
                     $download_url = base64_encode($asset->browser_download_url);
-                    switch (substr($release->name, 0, 3)) {
-                        case 'FOG':
+                    // Lowercased before matching. The feed carries a release
+                    // named "EXPERIMENTAL test kernels for issue #108 (do not
+                    // use in production)", and a case-sensitive 'Exp' test
+                    // drops it into default -- so the one build that says in
+                    // its own title not to use it is the one whose Type column
+                    // comes out blank.
+                    switch (strtolower(substr($release->name, 0, 3))) {
+                        case 'fog':
                             $_fogParts = explode(' ', $release->name);
                             $k_hint = ' (FOG ' . ($_fogParts[1] ?? '?') . ')';
                             break;
-                        case 'Lat':
+                        case 'lat':
                             $k_hint = ' (devel)';
                             break;
-                        case 'Exp':
+                        case 'exp':
                             $k_hint = ' (experimental)';
                             break;
                         default:
