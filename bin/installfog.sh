@@ -131,6 +131,18 @@ usage() {
     echo -e "\t                \t\tdefaults to \`hostname -f\`, remembered in .fogsettings"
     echo -e "\t      --extra-server-name\tAdd an extra vhost/cert name (repeatable)"
     echo -e "\t                       \t\talongside the primary hostname and detected IPs"
+    echo -e "\t      --split-pki\t\tUse the three-zone PKI: a Root CA issuing"
+    echo -e "\t                 \t\t\tseparate Web and Client Communication"
+    echo -e "\t                 \t\t\tintermediates, so the web certificate can be"
+    echo -e "\t                 \t\t\treplaced without breaking fog-client"
+    echo -e "\t      --legacy-pki\t\tKeep the single self-signed CA (current"
+    echo -e "\t                 \t\t\tdefault). A supported choice, not deprecated"
+    echo -e "\t      --web-ca-cert/-key/-root\tBring your own CA for the WEB zone only"
+    echo -e "\t                 \t\t\t(equivalent to --external-ca --ca-*)"
+    echo -e "\t      --client-ca-cert/-key/-root\tBring your own CA for the CLIENT zone only"
+    echo -e "\t      --client-ca-cn\t\tCN fog-client expects on the pinned cert"
+    echo -e "\t                 \t\t\tdefaults to 'FOG Server CA'"
+    echo -e "\t      --root-ca-cert/-key\tSupply the Root CA instead of generating one"
     echo -e "\t      --kernel-backup-count\tHow many prior kernel/init generations to"
     echo -e "\t                       \t\tkeep (default 3). Restore one with"
     echo -e "\t                       \t\tbin/restorekernel.sh. See"
@@ -182,7 +194,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,split-pki,legacy-pki,client-ca-cn:,web-ca-cert:,web-ca-key:,web-ca-root:,client-ca-cert:,client-ca-key:,client-ca-root:,root-ca-cert:,root-ca-key:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -477,6 +489,44 @@ while :; do
             ssecureboot=0
             shift
             ;;
+        --split-pki)
+            spkiMode="split"
+            shift
+            ;;
+        --legacy-pki)
+            spkiMode="flat"
+            shift
+            ;;
+        --client-ca-cn)
+            if [[ -n "${2}" ]]; then
+                sfogClientCACN="${2}"
+            else
+                echo "$1 requires a common name after"
+                usage
+                exit 3
+            fi
+            shift 2
+            ;;
+        --web-ca-cert | --web-ca-key | --web-ca-root | \
+        --client-ca-cert | --client-ca-key | --client-ca-root | \
+        --root-ca-cert | --root-ca-key)
+            if [[ ! -f $2 ]]; then
+                echo "$1 requires a readable file after"
+                usage
+                exit 3
+            fi
+            case $1 in
+                --web-ca-cert)    swebExtCACert="$2" ;;
+                --web-ca-key)     swebExtCAKey="$2" ;;
+                --web-ca-root)    swebExtCARoot="$2" ;;
+                --client-ca-cert) sclientExtCACert="$2" ;;
+                --client-ca-key)  sclientExtCAKey="$2" ;;
+                --client-ca-root) sclientExtCARoot="$2" ;;
+                --root-ca-cert)   srootExtCACert="$2" ;;
+                --root-ca-key)    srootExtCAKey="$2" ;;
+            esac
+            shift 2
+            ;;
         --kernel-backup-count)
             if [[ -n "${2}" && "${2}" =~ ^[0-9]+$ && "${2}" -ge 1 ]]; then
                 skernelBackupCount="${2}"
@@ -689,6 +739,24 @@ esac
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
 [[ -n $skernelBackupCount ]] && kernelBackupGenerations=$skernelBackupCount
+# Applied here, after .fogsettings is sourced, so an explicit flag beats a
+# persisted value and a persisted value beats the caCreated-based default in
+# _resolvePkiMode.
+[[ -n $spkiMode ]] && pkiMode=$spkiMode
+[[ -n $sfogClientCACN ]] && fogClientCACN=$sfogClientCACN
+[[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
+[[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
+[[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
+[[ -n $sclientExtCACert ]] && clientExtCACert=$sclientExtCACert
+[[ -n $sclientExtCAKey ]] && clientExtCAKey=$sclientExtCAKey
+[[ -n $sclientExtCARoot ]] && clientExtCARoot=$sclientExtCARoot
+[[ -n $srootExtCACert ]] && rootExtCACert=$srootExtCACert
+[[ -n $srootExtCAKey ]] && rootExtCAKey=$srootExtCAKey
+# Supplying any web-zone CA file implies --external-ca, the same way supplying
+# --ca-cert always has. Saves an admin from the "I gave you the files and
+# nothing happened" failure, which produces a working install with the wrong
+# CA and no error to explain it.
+[[ -n $webExtCACert || -n $webExtCAKey || -n $webExtCARoot ]] && externalca="yes"
 # Deliberately NOT persisted to .fogsettings: this is a one-shot instruction
 # for a single run (revertUpdate passes it), not a preference. Persisting it
 # would make every later update silently roll the kernels back.
