@@ -220,7 +220,27 @@ class FOGConfigurationPage extends FOGPage
 
         $rows = array();
         foreach ($kernelOrInitData as $release) {
-            $found_match = preg_match('/(.*)([4-9]\.[0-9]+(?:\.[0-9]+)?)([^0-9]*)(20[0-9]{2}\.[0-9]{2}(?:\.[0-9]+)?)(.*)/', $release->body, $release_version, PREG_OFFSET_CAPTURE);
+            // Anchored on the label the release body actually uses, matching
+            // 1.6 (Route::kernelOrInitJson), rather than hunting for something
+            // version-shaped.
+            //
+            // The pattern this replaces was
+            //   (.*)([4-9]\.[0-9]+(?:\.[0-9]+)?)([^0-9]*)(20\d\d\.\d\d...)(.*)
+            // with the kernel taken from group 2. It required a major of 4-9,
+            // so once kernels reached 6.x the leading greedy (.*) simply
+            // consumed "6.1" and the group latched onto "8.38" inside
+            // "6.18.38" -- every kernel on this page has been reporting a
+            // version that does not exist. It also demanded a kernel version
+            // AND a buildroot date out of one body, so a release carrying only
+            // "Linux kernel x.y.z" matched nothing and was dropped from the
+            // kernel list entirely, while 1.6 listed it.
+            $patt = ($type == 'kernel') ?
+                '/Linux kernel (.*)?/' :
+                '/Buildroot (.*)?/';
+            $found_match = preg_match($patt, $release->body, $release_version, PREG_OFFSET_CAPTURE);
+            if (!$found_match) {
+                continue;
+            }
             foreach ($release->assets as $asset) {
                 if ($type == 'kernel' && !in_array($asset->name, ['arm_Image', 'bzImage', 'bzImage32'])) {
                     continue;
@@ -248,12 +268,12 @@ class FOGConfigurationPage extends FOGPage
                         $arch = "AMD/Intel 32 Bit";
                         break;
                 }
-                if (isset($found_match) && $found_match && $arch_short) {
-                    if ($type == 'kernel') {
-                        $k_i_ver = $release_version[2][0];
-                    } elseif ($type == 'initrd') {
-                        $k_i_ver = $release_version[4][0];
-                    }
+                if ($arch_short) {
+                    // One capture group now, whichever type this is. Trimmed
+                    // because the bodies are CRLF and (.*) stops at the \n,
+                    // leaving a \r on the end -- invisible in the cell but not
+                    // in sorting or the column filter.
+                    $k_i_ver = trim($release_version[1][0]);
                     $download_url = base64_encode($asset->browser_download_url);
                     // Lowercased before matching. The feed currently carries a
                     // release named "EXPERIMENTAL test kernels for issue #108
