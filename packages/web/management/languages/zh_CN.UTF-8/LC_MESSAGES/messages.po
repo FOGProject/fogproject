@@ -6571,9 +6571,6 @@ msgstr "已经选中或上传"
 msgid "either because you have updated"
 msgstr "要么是因为你已经更新了"
 
-msgid "experimental"
-msgstr ""
-
 msgid "failed to execute, image file: "
 msgstr "执行失败，镜像文件："
 

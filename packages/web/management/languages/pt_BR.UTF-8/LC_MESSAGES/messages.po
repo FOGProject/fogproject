@@ -6593,9 +6593,6 @@ msgstr "já selecionado ou enviado"
 msgid "either because you have updated"
 msgstr "seja porque você atualizou"
 
-msgid "experimental"
-msgstr ""
-
 msgid "failed to execute, image file: "
 msgstr "falha ao executar, arquivo de imagem: "
 

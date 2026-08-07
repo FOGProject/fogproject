@@ -7516,9 +7516,6 @@ msgstr "ob bereits ausgewählt oder hochgeladen"
 msgid "either because you have updated"
 msgstr "entweder weil Sie aktualisiert haben"
 
-msgid "experimental"
-msgstr ""
-
 #, fuzzy
 msgid "failed to execute, image file: "
 msgstr "Löschen der Imagedateien fehlgeschlagen"

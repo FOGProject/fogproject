@@ -7502,9 +7502,6 @@ msgstr ""
 msgid "either because you have updated"
 msgstr ""
 
-msgid "experimental"
-msgstr ""
-
 #, fuzzy
 msgid "failed to execute, image file: "
 msgstr "Failed to delete image files"

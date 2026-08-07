@@ -7439,9 +7439,6 @@ msgstr ""
 msgid "either because you have updated"
 msgstr ""
 
-msgid "experimental"
-msgstr ""
-
 #, fuzzy
 msgid "failed to execute, image file: "
 msgstr "Error al borrar los ficheros de imagen"

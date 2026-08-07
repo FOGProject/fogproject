@@ -6514,9 +6514,6 @@ msgstr ""
 msgid "either because you have updated"
 msgstr ""
 
-msgid "experimental"
-msgstr ""
-
 msgid "failed to execute, image file: "
 msgstr ""
 

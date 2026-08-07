@@ -6661,9 +6661,6 @@ msgstr "soit déjà sélectionné ou téléchargé"
 msgid "either because you have updated"
 msgstr "soit parce que vous avez mis à jour"
 
-msgid "experimental"
-msgstr ""
-
 msgid "failed to execute, image file: "
 msgstr "n'a pas réussi à s'exécuter, fichier image : "
 

@@ -302,15 +302,29 @@ class FOGConfigurationPage extends FOGPage
                     // ' (devel)' / ' (experimental)' / ' (FOG x.y.z)' -- built
                     // above with a leading space and parentheses for the old
                     // inline label, neither of which belongs in a column of
-                    // its own. 1.6 shows the raw hint, parentheses and all.
+                    // its own.
                     $rel_type = trim($k_hint, ' ()');
                     if ($rel_type === '') {
                         // Deliberately NOT labelled "stable": the default arm
                         // is whatever did not match above, which is an unknown,
                         // not a promise. The release's own name is the only
                         // thing actually known about it, and it filters well.
-                        // 1.6 leaves this blank.
                         $rel_type = $release->name;
+                    }
+                    // Escaped because this is text straight out of the GitHub
+                    // feed going into a table cell through a template that does
+                    // plain string substitution and no escaping of its own.
+                    $rel_type = Initiator::e($rel_type);
+                    if ($k_hint == ' (experimental)') {
+                        // The badge replaces the plain text rather than sitting
+                        // beside it -- appending one left the cell reading
+                        // "experimental experimental". The warning used to be a
+                        // full-width alert inside the expanded panel; as a row
+                        // it has to be compact and stay next to what it warns
+                        // about. label-warning, not badge: this is Bootstrap 3.
+                        $rel_type = '<span class="label label-warning" title="'
+                            . _('This build is experimental and may not work as expected')
+                            . '">' . $rel_type . '</span>';
                     }
                     $rows[] = array(
                         'date' => $release_date,
@@ -318,16 +332,6 @@ class FOGConfigurationPage extends FOGPage
                         'version' => $k_i_ver,
                         'arch' => $arch,
                         'type' => $rel_type,
-                        // The warning used to be a full-width alert inside the
-                        // expanded panel. As a row it has to be compact, and it
-                        // has to stay next to the thing it is warning about.
-                        'warn' => (
-                            $k_hint == ' (experimental)' ?
-                            ' <span class="label label-warning" title="'
-                            . _('This build is experimental and may not work as expected')
-                            . '">' . _('experimental') . '</span>' :
-                            ''
-                        ),
                         'url' => '?node=about&sub=' . $type
                             . '&file=' . $download_url . '=&arch=' . $arch_short,
                     );
@@ -373,7 +377,7 @@ class FOGConfigurationPage extends FOGPage
             '${tag}',
             '${version}',
             '${arch}',
-            '${type}${warn}',
+            '${type}',
             // Plain text, no sort-key attribute: tablesorter's textAttribute
             // is "data-text", not "data-sort", so an earlier data-sort here was
             // silently ignored. None is needed -- the usLongDate parser is

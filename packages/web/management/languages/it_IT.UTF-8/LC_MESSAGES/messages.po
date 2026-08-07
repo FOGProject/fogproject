@@ -6778,9 +6778,6 @@ msgstr "già selezionati o caricati"
 msgid "either because you have updated"
 msgstr "Sia perché hai aggiornato"
 
-msgid "experimental"
-msgstr ""
-
 #, fuzzy
 msgid "failed to execute, image file: "
 msgstr "Impossibile eliminare i file di immagine"
