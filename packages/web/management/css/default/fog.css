@@ -245,13 +245,32 @@ tr.group-header td {
   border-top: 2px solid #ddd;
   font-weight: bold;
   cursor: pointer;
+  /* One line, whatever the locale's date format costs in width. */
+  white-space: nowrap;
 }
 tr.group-header td:hover {
   background-color: #ececec;
 }
 /* Caret drawn with borders rather than a font glyph, so it cannot be thrown
-   off by Font Awesome's version or by the icon set the active theme uses. */
+   off by Font Awesome's version or by the icon set the active theme uses.
+ *
+ * The widget emits "<i/>" for the collapse arrow. HTML has no self-closing
+ * <i>, so a browser parses that as an OPENING tag and the group-name and
+ * group-count spans that follow become its children, closed only by </td>.
+ * The arrow therefore cannot be drawn on the <i> itself: sizing it to 0x0 for
+ * a CSS triangle collapses the box the label is sitting in, and the date wraps
+ * a word per line and spills over the rows beneath it. It also inherits the
+ * italics, which is the visible tell.
+ *
+ * So the <i> is left as an ordinary inline box with the italics undone, and
+ * the triangle is drawn in its ::before, which is a real empty box and safe to
+ * collapse.
+ */
 tr.group-header i {
+  font-style: normal;
+}
+tr.group-header i:before {
+  content: '';
   display: inline-block;
   width: 0;
   height: 0;
@@ -261,7 +280,7 @@ tr.group-header i {
   border-right: 5px solid transparent;
   border-left: 5px solid transparent;
 }
-tr.group-header.collapsed i {
+tr.group-header.collapsed i:before {
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-left: 6px solid #555;
