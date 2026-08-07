@@ -199,6 +199,18 @@ git commit -m "Move iPXE background backup/restore into installfog.sh, keyed to 
 - Produces: possibly-reassigned `$secureBootKey`/`$secureBootCert`, now always
   pointing under `${fogprogramdir}/secureboot/`.
 
+> **Correction applied during implementation — do not revert.** An earlier
+> draft of this task copied the admin's pair to
+> `${fogprogramdir}/secureboot/MOK.key`/`MOK.pem`. That is the exact path
+> `_ensureSecureBootKeys()` uses for **FOG's own generated pair**, which it
+> never regenerates precisely because every client that already enrolled it
+> would be stranded. Copying over it would destroy an enrolled key with no
+> backup and no way back. The implementation therefore writes
+> `admin-MOK.key`/`admin-MOK.pem` instead, and skips entirely when the
+> configured path already resolves to somewhere under
+> `${fogprogramdir}/secureboot/`. Continuity across later runs comes from
+> `.fogsettings` recording the new path, not from reusing the filename.
+
 - [ ] **Step 1: Add `preserveSecureBootAdminFiles()`**
 
 Insert into `lib/common/functions.sh`, directly before `_ensureSecureBootKeys()`

@@ -4718,6 +4718,63 @@ downloadfiles() {
     _publishSecureBootKit
     _publishSecureBootAuthVars
 }
+# Copy an admin-supplied Secure Boot pair somewhere the installer cannot
+# destroy, and point $secureBootKey/$secureBootCert at the copy.
+#
+# The gap this closes: --secure-boot-key/--secure-boot-cert are persisted to
+# .fogsettings verbatim and _ensureSecureBootKeys() then trusts that path
+# forever, but nothing ever copies the file anywhere. An admin who parks the
+# pair under $webdirdest -- not unreasonable, it is where the enrolment kit is
+# published -- loses it to configureHttpd()'s rm -rf $webdirdest, in the SAME
+# run that first accepted the flags, before _resignKernels() ever reads it.
+#
+# Copied to admin-MOK.* rather than MOK.*, deliberately. MOK.key/MOK.pem are
+# where _ensureSecureBootKeys() keeps FOG's OWN generated pair, and that pair
+# is never regenerated precisely because every client that already enrolled it
+# would be stranded. Writing an admin's key over that path would destroy it
+# with no backup and no way back. Continuity across later runs comes from
+# .fogsettings holding the new path, not from reusing the filename.
+#
+# The original file the admin pointed at is never modified -- this only
+# decides which copy gets used from here on. Idempotent: once .fogsettings
+# records the copy, every later run sees a path already under
+# $fogprogramdir/secureboot and does nothing.
+preserveSecureBootAdminFiles() {
+    [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+    local keydir="${fogprogramdir}/secureboot"
+    local destkey="${keydir}/admin-MOK.key"
+    local destcert="${keydir}/admin-MOK.pem"
+    local st=0
+
+    # Already somewhere this installer never deletes -- including FOG's own
+    # generated pair, which must be left exactly where it is.
+    case "$(readlink -f "$secureBootKey" 2>/dev/null)" in
+        "$(readlink -f "$keydir" 2>/dev/null)"/*) return 0 ;;
+    esac
+
+    dots "Preserving admin-supplied Secure Boot key"
+    mkdir -p "$keydir" >>$error_log 2>&1 || st=1
+    chown root:root "$keydir" >>$error_log 2>&1
+    chmod 0700 "$keydir" >>$error_log 2>&1
+    cp -f "$secureBootKey" "$destkey" >>$error_log 2>&1 || st=1
+    cp -f "$secureBootCert" "$destcert" >>$error_log 2>&1 || st=1
+    if [[ $st -ne 0 ]]; then
+        echo "Failed"
+        echo " * Could not copy the Secure Boot signing pair into ${keydir}."
+        echo " * Leaving --secure-boot-key/--secure-boot-cert pointed at the"
+        echo "   originals. If either lives under ${webdirdest}, MOVE IT NOW --"
+        echo "   the web tree is rebuilt later in this run. See $error_log."
+        return 0
+    fi
+    chown root:root "$destkey" "$destcert" >>$error_log 2>&1
+    # Key restricted, certificate public by design -- it is the thing handed
+    # out for enrolment. Mirrors _ensureSecureBootKeys()'s own permissions.
+    chmod 0600 "$destkey" >>$error_log 2>&1
+    chmod 0644 "$destcert" >>$error_log 2>&1
+    secureBootKey="$destkey"
+    secureBootCert="$destcert"
+    errorStat 0
+}
 # Generate the Secure Boot signing key when the admin has not supplied one.
 #
 # Signing used to require --secure-boot-key/--secure-boot-cert, which meant it

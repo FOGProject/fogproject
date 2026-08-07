@@ -681,6 +681,12 @@ if [[ -n $secureBootKey || -n $secureBootCert ]]; then
     done
     unset sbfile
 fi
+# Immediately after validation and long before configureHttpd() rebuilds the
+# web tree, so a pair the admin parked somewhere that gets deleted is copied
+# to safety first. Handles a path from .fogsettings as well as one from this
+# run's flags, and no-ops once the recorded path is already protected.
+# $fogprogramdir is settled by config.sh above, so the destination is real.
+preserveSecureBootAdminFiles
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
 case $? in
