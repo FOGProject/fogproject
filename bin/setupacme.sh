@@ -115,6 +115,9 @@ if [[ ! -r "$fogprogramdir/.fogsettings" ]]; then
     exit 1
 fi
 . "$fogprogramdir/.fogsettings"
+linuxReleaseName_lower="${osname,,}"
+. ../lib/common/config.sh
+[[ -n $osid ]] && doOSSpecificIncludes >/dev/null
 
 # Precondition: --external-ca must already have imported a CA. These are
 # exactly the files validateExternalCA() (lib/common/functions.sh) writes.
