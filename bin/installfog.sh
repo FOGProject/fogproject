@@ -937,6 +937,11 @@ while [[ -z $blGo ]]; do
                     # to happen for it to connect at all.
                     writeUpdateFile
                     backupReports
+                    # Before configureHttpd(), which rm -rf's $webdirdest --
+                    # this is the last point anything under it can be saved.
+                    # configureMySql has already run, so the FOG_IPXE_BG_FILE
+                    # lookup inside has a database to ask.
+                    backupPreservedCustomizations
                     configureHttpd
                     checkWebTier
                     backupDB
@@ -944,6 +949,11 @@ while [[ -z $blGo ]]; do
                     configureStorage
                     configureDHCP
                     configureTFTPandPXE
+                    # After configureTFTPandPXE -> downloadfiles() has re-laid
+                    # the default-named kernel/init set, so restoring here puts
+                    # the admin's own files back on top of fresh defaults
+                    # rather than being overwritten by them.
+                    restorePreservedCustomizations
                     configureFTP
                     configureSnapins
                     configureUDPCast

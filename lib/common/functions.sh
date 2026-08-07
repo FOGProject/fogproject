@@ -76,6 +76,117 @@ backupReports() {
     echo "Done"
     return 0
 }
+# Where backupPreservedCustomizations() stashes anything that has to outlive
+# configureHttpd()'s rm -rf $webdirdest. Deliberately under $fogprogramdir,
+# never inside $webdirdest -- that is the same "survives the wipe by
+# construction" property $fogprogramdir/secureboot already relies on, rather
+# than a copy that has to be re-made correctly every time.
+[[ -z $customizationsDir ]] && customizationsDir="${fogprogramdir}/customizations"
+# Backs up whatever is actually customized under $webdirdest/service/ipxe/
+# BEFORE configureHttpd() destroys that tree.
+#
+# This used to live only in bin/updatefog.sh (backupCustomizations, since
+# removed), which meant a bare `./installfog.sh` upgrade -- the way most
+# people upgrade -- silently got none of it. Running it from installfog.sh's
+# own sequence is the point: the protection now applies to every run.
+#
+# $bgfile is intentionally NOT local: restorePreservedCustomizations() runs
+# later in the same shell and needs the name that was actually backed up, not
+# a re-read of the setting (which an admin could have changed mid-install).
+backupPreservedCustomizations() {
+    dots "Backing up customizations"
+    local ipxedir="${webdirdest}service/ipxe"
+    local f st=0
+    # Severity is split deliberately, because errorStat() EXITS the installer
+    # when $exitFail is unset -- which is every normal installfog.sh run:
+    #
+    #   $st   -> fatal. Only set when a customization we positively identified
+    #            could not be copied to safety. Aborting here is the safe
+    #            outcome: configureHttpd() has not wiped anything yet, so the
+    #            admin's file is still sitting untouched where it always was.
+    #   warn  -> non-fatal. An optional file we merely tried for. Killing an
+    #            install over an unreadable legacy refind blob would be absurd.
+    # A failed mkdir is not itself fatal -- if there is nothing to preserve,
+    # nothing is lost. If there IS a background to preserve, the copy below
+    # fails too and that is what stops the run.
+    mkdir -p "$customizationsDir/ipxe-bg" "$customizationsDir/ipxe-legacy" >>$error_log 2>&1 || true
+
+    # FOG_IPXE_BG_FILE is a real, GUI-editable globalSettings row (see
+    # packages/web/commons/schema.php) whose whole purpose is letting an admin
+    # rename the background file. Read the ACTUAL value rather than assuming
+    # "bg.png", which is what the old hardcoded list got wrong.
+    #
+    # On a first-ever install globalSettings does not exist yet -- updateDB()
+    # runs after configureHttpd() -- so this errors into $error_log and leaves
+    # $bgfile empty, which is treated exactly like "nothing customized". No
+    # special-casing needed for a fresh install.
+    bgfile=$(mysql $sqloptionsuser --password="${snmysqlpass}" -N -B \
+        --execute="SELECT settingValue FROM globalSettings WHERE settingKey='FOG_IPXE_BG_FILE'" \
+        $mysqldbname 2>>$error_log)
+    # Strip surrounding whitespace, and treat mysql's literal NULL output as
+    # empty -- an unset settingValue comes back as the four characters "NULL"
+    # under -N, which would otherwise be looked for as a filename.
+    bgfile="${bgfile#"${bgfile%%[![:space:]]*}"}"
+    bgfile="${bgfile%"${bgfile##*[![:space:]]}"}"
+    [[ $bgfile == NULL ]] && bgfile=""
+    # basename guards against a settingValue containing a path: this string
+    # reaches a cp destination, and "../../something" would write outside the
+    # backup directory entirely.
+    [[ -n $bgfile ]] && bgfile=$(basename "$bgfile")
+    if [[ -n $bgfile && -f "${ipxedir}/${bgfile}" ]]; then
+        cp -f "${ipxedir}/${bgfile}" "${customizationsDir}/ipxe-bg/${bgfile}" >>$error_log 2>&1 || st=1
+    fi
+
+    local warn=0
+    for f in refind.conf refind.efi refind_x64.efi refind_ia32.efi refind_aa64.efi; do
+        [[ -f "${ipxedir}/${f}" ]] && { cp -f "${ipxedir}/${f}" "${customizationsDir}/ipxe-legacy/${f}" >>$error_log 2>&1 || warn=1; }
+    done
+    if [[ $st -ne 0 ]]; then
+        echo "Failed"
+        echo " * Could not copy the customized iPXE background (${bgfile}) to"
+        echo "   ${customizationsDir}/ipxe-bg/."
+        echo " * Stopping BEFORE the web tree is rebuilt, so your file is still"
+        echo "   intact at ${ipxedir}/${bgfile}. Fix the permissions or free"
+        echo "   space under ${customizationsDir} and re-run. See $error_log."
+        exit 1
+    fi
+    [[ $warn -ne 0 ]] && echo -n "(some optional refind files could not be backed up) "
+    errorStat 0
+}
+# Restores what backupPreservedCustomizations() saved, AFTER
+# configureTFTPandPXE()'s downloadfiles() has re-laid the default-named
+# kernel/init set.
+#
+# Deliberately does NOT restore the six default kernel/init names here -- the
+# point of an update is to pick up the latest kernel. That is what the
+# versioned backup provides an explicit, admin-invoked restore path for
+# instead.
+restorePreservedCustomizations() {
+    dots "Restoring customizations"
+    local ipxedir="${webdirdest}service/ipxe"
+    local f st=0
+
+    if [[ -n $bgfile && -f "${customizationsDir}/ipxe-bg/${bgfile}" ]]; then
+        cp -f "${customizationsDir}/ipxe-bg/${bgfile}" "${ipxedir}/${bgfile}" >>$error_log 2>&1 || st=1
+    fi
+    for f in refind.conf refind.efi refind_x64.efi refind_ia32.efi refind_aa64.efi; do
+        [[ -f "${customizationsDir}/ipxe-legacy/${f}" ]] && { cp -f "${customizationsDir}/ipxe-legacy/${f}" "${ipxedir}/${f}" >>$error_log 2>&1 || st=1; }
+    done
+    [[ -d $ipxedir ]] && chown -R ${username}:${apacheuser} "$ipxedir" >>$error_log 2>&1
+    # Never fatal, unlike the backup side. By this point configureHttpd() has
+    # already rebuilt the web tree, so aborting would strand a nearly-complete
+    # install and fix nothing -- and unlike the backup case, the files are NOT
+    # lost: they are still sitting in $customizationsDir for the admin to put
+    # back by hand. Say exactly that instead of dying.
+    if [[ $st -ne 0 ]]; then
+        echo "Failed"
+        echo " * One or more customizations could not be restored to ${ipxedir}."
+        echo " * Nothing was lost -- your files are still in ${customizationsDir}."
+        echo "   Copy them back by hand once the install finishes. See $error_log."
+        return 0
+    fi
+    errorStat 0
+}
 # GH-685: the MariaDB client library turns TLS on by default from 10.10.1
 # onward and then refuses to connect at all when the server offers none --
 # "ERROR 2026 (HY000): TLS/SSL error: SSL is required, but the server does not
