@@ -196,6 +196,26 @@ High-level setup:
 4. After each renewal, install the renewed leaf where Apache/Nginx serves it
    (a renewal hook — see [Renewal and rotation](#renewal-and-rotation)).
 
+`bin/setupacme.sh` automates steps 3 and 4 above: it installs `acme.sh` if
+needed, issues the leaf against the ACME directory URL you give it, installs
+it where the vhost reads it, and wires up `acme.sh`'s `--reloadcmd` to reload
+FOG's web server. It never touches the CA `--external-ca` already imported --
+only the leaf -- so a renewal never breaks fog-client's pinning.
+
+```bash
+./setupacme.sh --directory-url https://step-ca.internal/acme/acme/directory \
+    --http01 -d fog.example.com
+```
+
+Use `--dns <acme.sh-plugin-name>` instead of `--http01` for DNS-01 validation
+(needed for public Let's Encrypt without exposing this server on port 80) --
+`setupacme.sh` never stores DNS provider credentials itself; whatever
+`acme.sh` DNS plugin you name must already have its own credentials configured
+in this shell's environment.
+
+`acme.sh`'s own installer sets up its own daily renewal cron job the first
+time it's installed -- `setupacme.sh` does not add a second one.
+
 Why this is better than public LE: **the intermediate you pin is stable and under
 your control**, so leaf renewals are transparent to clients, and nothing needs to
 be publicly resolvable.
