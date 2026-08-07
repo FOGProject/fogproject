@@ -145,15 +145,17 @@ updateStorageNodeCredentials() {
     curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}/maintenance/create_update_node.php
     echo "Done"
 }
-# Mirrors fog_git_path/fog_update_channel into globalSettings so the GUI can
-# show them without SSH. Like fogprogramdir's mirror into /etc/fog/fog.conf
-# (GH-850), these are RECORDS, not controls: .fogsettings stays the source of
-# truth, and the next installfog.sh/updatefog.sh run overwrites whatever an
-# admin may have hand-edited here through the generic Settings tab.
+# Mirrors fog_git_path/fog_update_channel/extraServerNames into globalSettings
+# so the GUI can show them without SSH. Like fogprogramdir's mirror into
+# /etc/fog/fog.conf (GH-850), these are RECORDS, not controls: .fogsettings
+# stays the source of truth, and the next installfog.sh/updatefog.sh run
+# overwrites whatever an admin may have hand-edited here through the generic
+# Settings tab.
 recordGitUpdateSettings() {
-    dots "Recording fog_git_path/update channel"
+    dots "Recording fog_git_path/update channel/extra server names"
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"$fog_git_path\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_git_path\"" $mysqldbname >>$error_log 2>&1
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, staging, or dev.', \"$fog_update_channel\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_update_channel\"" $mysqldbname >>$error_log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_EXTRA_SERVER_NAMES', 'Extra vhost/certificate name(s) this server answers to, beyond the primary hostname and detected IPs. Set via --extra-server-name -- editing it here has no effect on the next update.', \"$extraServerNames\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$extraServerNames\"" $mysqldbname >>$error_log 2>&1
     errorStat $?
 }
 backupDB() {
