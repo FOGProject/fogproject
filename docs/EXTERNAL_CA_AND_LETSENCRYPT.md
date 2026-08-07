@@ -250,6 +250,51 @@ up for before you do.
    re-pins. This is the core reason public LE is fragile for FOG and an internal
    ACME CA is preferred.
 
+**Confirmed by ad-hoc testing:** a real Let's Encrypt certificate on the
+vhost does validate for iPXE netboot with no FOG-side change, as this doc
+claims. Getting there in practice took two settings beyond just dropping the
+cert in place:
+
+- `httpproto` in `.fogsettings` had to be set to `https`.
+- `FOG_WEB_HOST` (in the FOG web UI's Settings page) had to be the server's
+  FQDN, not its IP address.
+
+**On FOG_WEB_HOST and the background services — checked, not a problem.**
+There is a long-standing suspicion that pointing `FOG_WEB_HOST` at an FQDN
+(rather than an IP) upsets the PHP CLI daemons — `FOGFileDeleter`,
+`FOGImageReplicator`, `FOGTaskScheduler` and the rest. Every one of them
+calls `waitInterfaceReady()` (`packages/web/lib/service/fogservice.class.php:152`)
+before starting, which refuses to proceed while:
+
+```php
+!in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)
+```
+
+That looks like it would loop forever on an FQDN, since `self::$ips` reads
+as a list of IP addresses. It does not, because `getIPAddress()`
+(`packages/web/lib/fog/fogbase.class.php:3140-3144`) builds that list as the
+detected IPs **plus** their reverse-DNS names **plus** `FOG_WEB_HOST`
+itself:
+
+```php
+$output = self::fastmerge(
+    $IPs, $Names,
+    ['127.0.0.1', '127.0.1.1', self::getSetting('FOG_WEB_HOST')]
+);
+```
+
+So the value is compared against a list it was just inserted into — that
+clause can never fail, whatever `FOG_WEB_HOST` is set to. An FQDN is safe
+here. (It is also, for the same reason, effectively dead code — worth
+tidying someday, but it is not what would break a service.)
+
+What *can* still stall `waitInterfaceReady()` is the other two clauses: no
+detectable IPs at all, or no overlap between the detected addresses and the
+storage-node addresses recorded in the database
+(`array_intersect(self::$knownips, self::$ips)`). If a daemon does hang at
+"Interface not ready", check the storage node's configured IP, not
+`FOG_WEB_HOST`.
+
 > **Bottom line:** if you want ACME automation, run an **internal** ACME CA. Use
 > public LE only if you genuinely need publicly trusted certs (e.g. a
 > public-facing portal) and you have a plan for re-pinning clients when LE rotates
