@@ -558,6 +558,9 @@ msgstr ""
 msgid "Approved"
 msgstr ""
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr ""
 
@@ -775,6 +778,9 @@ msgid "Certificate SHA-256"
 msgstr ""
 
 msgid "Change password"
+msgstr ""
+
+msgid "Channel"
 msgstr ""
 
 msgid "Channel call is invalid"
@@ -1322,6 +1328,9 @@ msgid "Done, without imaging! No image assigned!"
 msgstr ""
 
 msgid "Dot in Filename not allowed!"
+msgstr ""
+
+msgid "Download"
 msgstr ""
 
 msgid "Download Failed"
@@ -4438,6 +4447,9 @@ msgstr ""
 msgid "Registered Hosts"
 msgstr ""
 
+msgid "Release Date"
+msgstr ""
+
 msgid "Releasing Staff Initials"
 msgstr ""
 
@@ -5688,6 +5700,9 @@ msgstr ""
 msgid "This area will allow the host checking in to tell"
 msgstr ""
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr ""
 
@@ -6500,6 +6515,9 @@ msgid "either already selected or uploaded"
 msgstr ""
 
 msgid "either because you have updated"
+msgstr ""
+
+msgid "experimental"
 msgstr ""
 
 msgid "failed to execute, image file: "

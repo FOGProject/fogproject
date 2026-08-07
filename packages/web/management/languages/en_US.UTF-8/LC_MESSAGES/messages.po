@@ -678,6 +678,9 @@ msgstr "Approve this host?"
 msgid "Approved"
 msgstr "Host approved"
 
+msgid "Architecture"
+msgstr ""
+
 #, fuzzy
 msgid "Are you sure you wish to"
 msgstr "Are you sure you wish to remove these items"
@@ -923,6 +926,9 @@ msgstr ""
 #, fuzzy
 msgid "Change password"
 msgstr "Management Password"
+
+msgid "Channel"
+msgstr ""
 
 msgid "Channel call is invalid"
 msgstr "Channel call is invalid"
@@ -1552,6 +1558,10 @@ msgstr "Done, No image assigned!"
 
 msgid "Dot in Filename not allowed!"
 msgstr ""
+
+#, fuzzy
+msgid "Download"
+msgstr "Download Failed"
 
 msgid "Download Failed"
 msgstr "Download Failed"
@@ -5078,6 +5088,9 @@ msgstr "Registered"
 msgid "Registered Hosts"
 msgstr "Registered Hosts"
 
+msgid "Release Date"
+msgstr ""
+
 msgid "Releasing Staff Initials"
 msgstr "Releasing Staff Initials"
 
@@ -6538,6 +6551,9 @@ msgstr "This MAC Belongs to another host"
 msgid "This area will allow the host checking in to tell"
 msgstr ""
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr ""
 
@@ -7486,6 +7502,9 @@ msgid "either already selected or uploaded"
 msgstr ""
 
 msgid "either because you have updated"
+msgstr ""
+
+msgid "experimental"
 msgstr ""
 
 #, fuzzy

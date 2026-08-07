@@ -572,6 +572,9 @@ msgstr "このホストを承認しますか？"
 msgid "Approved"
 msgstr "承認済み"
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr "次の操作を実行しますか:"
 
@@ -790,6 +793,9 @@ msgstr ""
 
 msgid "Change password"
 msgstr "パスワードを変更"
+
+msgid "Channel"
+msgstr ""
 
 msgid "Channel call is invalid"
 msgstr "チャネル呼び出しが無効です"
@@ -1337,6 +1343,10 @@ msgstr "完了しました（イメージ処理なし）！イメージが割り
 
 msgid "Dot in Filename not allowed!"
 msgstr "ファイル名にドットは使用できません！"
+
+#, fuzzy
+msgid "Download"
+msgstr "ダウンロードに失敗しました"
 
 msgid "Download Failed"
 msgstr "ダウンロードに失敗しました"
@@ -4466,6 +4476,9 @@ msgstr "登録済み"
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
 
+msgid "Release Date"
+msgstr ""
+
 msgid "Releasing Staff Initials"
 msgstr "返却担当者のイニシャル"
 
@@ -5724,6 +5737,9 @@ msgstr "この MAC アドレスは別のホストに属しています"
 msgid "This area will allow the host checking in to tell"
 msgstr "この項目では、チェックインしてきたホストから"
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr "このファイルは Windows でのみ使用できます"
 
@@ -6545,6 +6561,9 @@ msgstr "既に選択済み、またはアップロード済み"
 
 msgid "either because you have updated"
 msgstr "更新したため、または"
+
+msgid "experimental"
+msgstr ""
 
 msgid "failed to execute, image file: "
 msgstr "実行に失敗しました。イメージファイル: "

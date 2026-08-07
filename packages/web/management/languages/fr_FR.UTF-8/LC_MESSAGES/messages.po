@@ -586,6 +586,9 @@ msgstr "Approuver cette machine ?"
 msgid "Approved"
 msgstr "Approuvée"
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr "Êtes-vous sûr de vouloir"
 
@@ -806,6 +809,9 @@ msgstr ""
 
 msgid "Change password"
 msgstr "Changer le mot de passe"
+
+msgid "Channel"
+msgstr ""
 
 msgid "Channel call is invalid"
 msgstr "Appel de canal est invalide"
@@ -1357,6 +1363,10 @@ msgstr "Fait, Pas d'image attribué!"
 #, fuzzy
 msgid "Dot in Filename not allowed!"
 msgstr "Nom de fichier non autorisé !"
+
+#, fuzzy
+msgid "Download"
+msgstr "Échec du téléchargement"
 
 msgid "Download Failed"
 msgstr "Échec du téléchargement"
@@ -4535,6 +4545,9 @@ msgstr "Inscrit"
 msgid "Registered Hosts"
 msgstr "Machines enregistrées"
 
+msgid "Release Date"
+msgstr ""
+
 msgid "Releasing Staff Initials"
 msgstr "Initiales du personnel ayant libéré"
 
@@ -5805,6 +5818,9 @@ msgstr "Cette MAC appartient à une autre machine"
 msgid "This area will allow the host checking in to tell"
 msgstr "Cette zone permettra à l'hôte qui s'enregistre de dire"
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr "Ce fichier ne fonctionnera que sous Windows"
 
@@ -6646,6 +6662,9 @@ msgstr "soit déjà sélectionné ou téléchargé"
 
 msgid "either because you have updated"
 msgstr "soit parce que vous avez mis à jour"
+
+msgid "experimental"
+msgstr ""
 
 msgid "failed to execute, image file: "
 msgstr "n'a pas réussi à s'exécuter, fichier image : "

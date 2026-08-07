@@ -675,6 +675,9 @@ msgstr "Diesen Host freigeben?"
 msgid "Approved"
 msgstr "freigegeben"
 
+msgid "Architecture"
+msgstr ""
+
 #, fuzzy
 msgid "Are you sure you wish to"
 msgstr "Sind Sie sicher, dass Sie die Datenbank"
@@ -926,6 +929,9 @@ msgstr ""
 #, fuzzy
 msgid "Change password"
 msgstr "Passwort ändern"
+
+msgid "Channel"
+msgstr ""
 
 msgid "Channel call is invalid"
 msgstr "Kanalaufruf ist ungültig"
@@ -1556,6 +1562,10 @@ msgstr "Erledigt, kein Image zugeordnet!"
 
 msgid "Dot in Filename not allowed!"
 msgstr ""
+
+#, fuzzy
+msgid "Download"
+msgstr "Download fehlgeschlagen"
 
 msgid "Download Failed"
 msgstr "Download fehlgeschlagen"
@@ -5091,6 +5101,9 @@ msgstr "Registriert"
 msgid "Registered Hosts"
 msgstr "Registrierte Hosts"
 
+msgid "Release Date"
+msgstr ""
+
 msgid "Releasing Staff Initials"
 msgstr "Freigabe durch Personal (Kürzel)"
 
@@ -6555,6 +6568,9 @@ msgstr "Diese MAC gehört zu einem anderen Host"
 msgid "This area will allow the host checking in to tell"
 msgstr "In diesem Bereich kann der Host einchecken, um zu"
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr "Diese Datei funktioniert nur auf Windows"
 
@@ -7501,6 +7517,9 @@ msgstr "ob bereits ausgewählt oder hochgeladen"
 
 msgid "either because you have updated"
 msgstr "entweder weil Sie aktualisiert haben"
+
+msgid "experimental"
+msgstr ""
 
 #, fuzzy
 msgid "failed to execute, image file: "

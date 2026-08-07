@@ -581,6 +581,9 @@ msgstr "批准该主机？"
 msgid "Approved"
 msgstr "已批准"
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr "您确定要"
 
@@ -799,6 +802,9 @@ msgstr ""
 
 msgid "Change password"
 msgstr "更改密码"
+
+msgid "Channel"
+msgstr ""
 
 msgid "Channel call is invalid"
 msgstr "通道调用无效"
@@ -1346,6 +1352,10 @@ msgstr "已完成，未能镜像!未分配镜像!"
 
 msgid "Dot in Filename not allowed!"
 msgstr "文件名中不允许出现点"
+
+#, fuzzy
+msgid "Download"
+msgstr "下载失败"
 
 msgid "Download Failed"
 msgstr "下载失败"
@@ -4482,6 +4492,9 @@ msgstr "注册"
 msgid "Registered Hosts"
 msgstr "注册主机"
 
+msgid "Release Date"
+msgstr ""
+
 msgid "Releasing Staff Initials"
 msgstr "释放员工缩写"
 
@@ -5737,6 +5750,9 @@ msgstr "该MAC属于另一台主机"
 msgid "This area will allow the host checking in to tell"
 msgstr "该区域将允许登记的主机通知"
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr "这个文件只能在Windows上使用"
 
@@ -6556,6 +6572,9 @@ msgstr "已经选中或上传"
 
 msgid "either because you have updated"
 msgstr "要么是因为你已经更新了"
+
+msgid "experimental"
+msgstr ""
 
 msgid "failed to execute, image file: "
 msgstr "执行失败，镜像文件："

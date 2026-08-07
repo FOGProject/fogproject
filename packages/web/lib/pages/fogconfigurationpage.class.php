@@ -212,13 +212,13 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return string
      */
-    public function generateHtmlList($kernelOrInitData, $type)
+    public function generateReleaseRows($kernelOrInitData, $type)
     {
         if ($type != 'kernel' && $type != 'initrd') {
             throw new InvalidArgumentException('Type must be either "kernel" or "initrd"');
         }
 
-        $html = '<div class="col-xs-12"><a href="#" class="btn btn-info btn-block trigger_expand"><h4 class="title">Expand All</h4></a></div>';
+        $rows = array();
         foreach ($kernelOrInitData as $release) {
             $found_match = preg_match('/(.*)([4-9]\.[0-9]+(?:\.[0-9]+)?)([^0-9]*)(20[0-9]{2}\.[0-9]{2}(?:\.[0-9]+)?)(.*)/', $release->body, $release_version, PREG_OFFSET_CAPTURE);
             foreach ($release->assets as $asset) {
@@ -255,33 +255,108 @@ class FOGConfigurationPage extends FOGPage
                         $k_i_ver = $release_version[4][0];
                     }
                     $download_url = base64_encode($asset->browser_download_url);
-                    switch (substr($release->name, 0, 3)) {
-                        case "FOG":
+                    // Lowercased before matching. The feed currently carries a
+                    // release named "EXPERIMENTAL test kernels for issue #108
+                    // (do not use in production)", and a case-sensitive "Exp"
+                    // test drops it into default -- so the one build that says
+                    // in its own title not to use it was the one shown without
+                    // an experimental marker.
+                    switch (strtolower(substr($release->name, 0, 3))) {
+                        case "fog":
                             $k_hint = ' (FOG '.explode(' ', $release->name)[1].')';
                             break;
-                        case "Lat":
+                        case "lat":
                             $k_hint = ' (devel)';
                             break;
-                        case "Exp":
+                        case "exp":
                             $k_hint = ' (experimental)';
                             break;
                         default:
                             $k_hint = '';
                             break;
                     }
-                    $id = ucfirst($type).'_'.str_replace(".", "_", $k_i_ver).'_'.$arch_short;
-                    $label = ucfirst($type).' '.$k_i_ver.' '.$arch.$k_hint;
                     $release_date = date('F j, Y', strtotime($asset->created_at));
-                    $html .= '<div class="col-xs-12"><a class="expand_trigger btn btn-info btn-block" id="'.$id.'" href="#'.$id.'"><h4 class="title">'.$label.'</h4></a></div><div class="hidefirst" id="'.$id.'">';
-                    if ($k_hint == ' (experimental)') {
-                        $html .= '<div class="col-xs-12"><div class="alert alert-warning"><strong>Warning!</strong> This '.$type.' is experimental and may not work as expected.</div></div>';
+                    // Sorts as a date, not as the string "August 7, 2026",
+                    // which would order alphabetically and put April first.
+                    // tablesorter reads data-* attributes ahead of cell text.
+                    $sort_date = strtotime($asset->created_at);
+                    // ' (devel)' / ' (experimental)' / ' (FOG x.y.z)' -- built
+                    // above with a leading space for the old inline label, of
+                    // no use now that it is a column of its own.
+                    $channel = trim($k_hint, ' ()');
+                    if ($channel === '') {
+                        // Deliberately NOT labelled "stable": the default arm
+                        // is whatever did not match above, which is an unknown,
+                        // not a promise. The release's own name is the only
+                        // thing actually known about it, and it filters well.
+                        $channel = $release->name;
                     }
-                    $html .= '<div class="col-xs-4">Date:<br/>Version:<br/>Architecture:<br/>Download:</div>';
-                    $html .= '<div class="col-xs-8 text-right">'.$release_date.'<br/>'.$k_i_ver.'<br/>'.$arch.'<br/><a href="?node=about&sub='.$type.'&file='.$download_url.'=&arch='.$arch_short.'">Download <i class="fa fa-download fa-2x fa-fw"></i></a></div></div>';
+                    $rows[] = array(
+                        'sortdate' => $sort_date,
+                        'date' => $release_date,
+                        'version' => $k_i_ver,
+                        'arch' => $arch,
+                        'channel' => $channel,
+                        // The warning used to be a full-width alert inside the
+                        // expanded panel. As a row it has to be compact, and it
+                        // has to stay next to the thing it is warning about.
+                        'warn' => (
+                            $k_hint == ' (experimental)' ?
+                            ' <span class="label label-warning" title="'
+                            . _('This build is experimental and may not work as expected')
+                            . '">' . _('experimental') . '</span>' :
+                            ''
+                        ),
+                        'url' => '?node=about&sub=' . $type
+                            . '&file=' . $download_url . '=&arch=' . $arch_short,
+                    );
                 }
             }
         }
-        return $html;
+        return $rows;
+    }
+    /**
+     * Renders a kernel/initrd release table.
+     *
+     * Both update pages were an accordion: a stack of full-width buttons that
+     * each expanded to a four-line label/value block, so comparing two builds
+     * meant opening both and scrolling. Feeding the standard table pipeline
+     * instead gives sorting and live per-column search for free -- fog.js binds
+     * tablesorter (with the filter and zebra widgets) to any table inside
+     * ".table-holder .table-responsive", which is exactly what process() emits.
+     * No new frontend dependency: DataTables does not exist on this branch.
+     *
+     * @param object $jsonData the decoded FOS releases feed
+     * @param string $type     'kernel' or 'initrd'
+     *
+     * @return void
+     */
+    private function _renderReleaseTable($jsonData, $type)
+    {
+        $this->headerData = array(
+            _('Release Date'),
+            _('Version'),
+            _('Architecture'),
+            _('Channel'),
+            _('Download'),
+        );
+        $this->templates = array(
+            '<span data-sort="${sortdate}">${date}</span>',
+            '${version}',
+            '${arch}',
+            '${channel}${warn}',
+            '<a href="${url}" title="' . _('Download') . '">'
+            . '<i class="fa fa-download fa-fw"></i> ' . _('Download') . '</a>',
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-2'),
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-2'),
+            array('class' => 'col-xs-2'),
+        );
+        $this->data = $this->generateReleaseRows($jsonData, $type);
+        $this->render(12);
     }
     /**
      * Post our kernel download.
@@ -324,11 +399,9 @@ class FOGConfigurationPage extends FOGPage
             _('so if it seems like the process is hanging please be patient')
         );
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo $this->generateHtmlList($jsonData, 'kernel');
         echo '</div>';
         echo '</div>';
-        echo '</div>';
+        $this->_renderReleaseTable($jsonData, 'kernel');
     }
     /**
      * Show the Secure Boot enrolment page.
@@ -545,7 +618,7 @@ class FOGConfigurationPage extends FOGPage
         if (!isset($_POST['install']) && $sub == 'kernelUpdate') {
             $url = 'https://api.github.com/repos/FOGProject/fos/releases';
             $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
-            echo $this->generateHtmlList($jsonData, 'kernel');
+            $this->_renderReleaseTable($jsonData, 'kernel');
         } elseif (isset($_POST['install'])) {
             $_SESSION['allow_ajax_kdl'] = true;
             $dstName = filter_input(INPUT_POST, 'dstName');
@@ -693,11 +766,9 @@ class FOGConfigurationPage extends FOGPage
             _('so if it seems like the process is hanging please be patient')
         );
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo $this->generateHtmlList($jsonData, 'initrd');
         echo '</div>';
         echo '</div>';
-        echo '</div>';
+        $this->_renderReleaseTable($jsonData, 'initrd');
     }
     /**
      * Download the initrd form.
@@ -711,7 +782,7 @@ class FOGConfigurationPage extends FOGPage
         if (!isset($_POST['install']) && $sub == 'initrdUpdate') {
             $url = 'https://api.github.com/repos/FOGProject/fos/releases';
             $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
-            echo $this->generateHtmlList($jsonData, 'initrd');
+            $this->_renderReleaseTable($jsonData, 'initrd');
         } elseif (isset($_POST['install'])) {
             $_SESSION['allow_ajax_idl'] = true;
             $dstName = filter_input(INPUT_POST, 'dstName');
