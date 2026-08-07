@@ -3520,6 +3520,67 @@ emitNginxPhpBody() {
     echo "    fastcgi_buffers 16 16k;" >> "$1"
     echo "    fastcgi_buffer_size 32k;" >> "$1"
 }
+FOG_MANAGED_BEGIN='# === FOG MANAGED BLOCK -- DO NOT EDIT BETWEEN THESE LINES (see docs/SUPPORTED_CUSTOMIZATIONS.md) ==='
+FOG_MANAGED_END='# === END FOG MANAGED BLOCK ==='
+# Replaces only the FOG-owned region of $1 with the contents of $2, leaving
+# anything the admin added outside that region byte-for-byte intact.
+#
+# Why a marked block instead of a template file: every vhost write site in
+# createSSLCA() is inline bash echo/heredoc, branching on webserver family, OS
+# family, SSL on/off and IPv4/IPv6. Extracting all of that into substitutable
+# template assets would mean maintaining two representations of the same
+# config forever. Wrapping the existing, unchanged generation in two marker
+# lines gets the property that actually matters -- FOG can keep improving what
+# it owns without discarding what the admin owns.
+#
+# '#' is a comment in both nginx and Apache syntax, so the markers are inert
+# in either file.
+#
+# Three cases, deliberately no fourth: no file -> write one; both markers
+# present -> replace between them; anything else (no markers, or only one
+# because a previous run died mid-write or someone hand-edited) -> append a
+# fresh block and touch nothing that was already there. Never guess at a
+# partial patch.
+spliceManagedBlock() {
+    local conffile="$1" contentfile="$2"
+    if [[ ! -f "$conffile" ]]; then
+        { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } > "$conffile"
+        return $?
+    fi
+    if grep -qF "$FOG_MANAGED_BEGIN" "$conffile" && grep -qF "$FOG_MANAGED_END" "$conffile"; then
+        local tmp="${conffile}.fogsplice.$$"
+        awk -v b="$FOG_MANAGED_BEGIN" -v e="$FOG_MANAGED_END" -v cf="$contentfile" '
+            $0 == b { print; while ((getline line < cf) > 0) print line; close(cf); skip=1; next }
+            $0 == e { print; skip=0; next }
+            !skip   { print }
+        ' "$conffile" > "$tmp" && mv -f "$tmp" "$conffile"
+        return $?
+    fi
+    { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } >> "$conffile"
+}
+# Redirects the vhost generation that follows into a scratch file, so the ~260
+# existing `>> "$etcconf"` lines below need no edit at all: they keep writing
+# to $etcconf, which now names the scratch file. endManagedVhost() splices
+# that content into the real file and restores the variable.
+#
+# Rewriting every one of those write sites individually would have been the
+# obvious way and the wrong one -- 260-odd near-identical mechanical edits is
+# exactly where a missed line hides, and a missed line writes half a vhost to
+# the wrong path.
+beginManagedVhost() {
+    vhostfinal="$etcconf"
+    etcconf="${etcconf}.fogblock.$$"
+    : > "$etcconf"
+}
+endManagedVhost() {
+    local generated="$etcconf"
+    etcconf="$vhostfinal"
+    spliceManagedBlock "$etcconf" "$generated"
+    local st=$?
+    rm -f "$generated" >>$error_log 2>&1
+    unset vhostfinal
+    return $st
+}
 createSSLCA() {
     # This function also emits the web server vhost further down, and those
     # nginx location / apache LocationMatch blocks used to hardcode ^/fog/ --
@@ -3676,6 +3737,9 @@ EOF
                     # diffconfig without ever taking this backup first, so it was
                     # comparing the new file to nothing and never fired.
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    # Everything below writes to the scratch file; endManagedVhost
+                    # splices it into the real one before nginx -t sees it.
+                    beginManagedVhost
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
                     echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
@@ -3848,6 +3912,9 @@ EOF
                             done
                         fi
                     fi
+                    # Splice BEFORE nginx -t: that tests the real file on disk,
+                    # so it has to be the spliced result, not the scratch copy.
+                    endManagedVhost
                     echo "Done"
                     dots "Testing nginx configuration"
                     nginx -t >> $workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -3885,6 +3952,9 @@ EOF
                     vhostaliases=$(echo $ipaddresses | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
                     vhostaliases="${vhostaliases}${extraServerNamesSuffix}"
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    # See the nginx branch above -- same scratch-file swap, so
+                    # none of the write sites below change.
+                    beginManagedVhost
                     echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
                     if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
@@ -4101,6 +4171,7 @@ EOF
                         echo "    RewriteRule ^${webrootre}(.*)$ ${webroot}api/index.php [QSA,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
                     fi
+                    endManagedVhost
                     diffconfig "${etcconf}"
                     errorStat $?
                     # Self-referential link so /fog/fog/... resolves. $webdirdest

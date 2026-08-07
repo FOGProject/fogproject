@@ -375,6 +375,28 @@ spliceManagedBlock() {
 
 Run: `bash -n lib/common/functions.sh`. Expected: no output, exit 0.
 
+> **Approach changed during implementation — Steps 3 and 4 below are
+> superseded.** They call for rewriting every `>> "$etcconf"` line in both
+> branches to `>> "$fogvhosttmp"`. There turned out to be **261** such lines
+> (259 append + 2 truncate). That many near-identical mechanical edits is
+> precisely where a missed or mistyped line hides, and a missed line writes
+> half a vhost to the wrong path — a failure that would surface as a broken
+> web server, not a test failure.
+>
+> Implemented instead as a variable swap, which is provably equivalent and
+> touches 4 lines instead of 261: `beginManagedVhost` points `$etcconf` at a
+> scratch file and `endManagedVhost` splices it into the real one and
+> restores the variable. Every existing write site is left byte-for-byte
+> untouched. Verified that only 8 sites read `$etcconf` for anything other
+> than appending (the two `mv -fv` backups, two truncating first-writes,
+> three `emitNginxPhpBody` calls, two `diffconfig` calls) and that each ends
+> up with the path it needs, and that no `errorStat`/`exit`/`return` sits
+> between begin and end where it could strand `$etcconf` on the scratch path.
+>
+> Placement detail worth keeping: the splice must happen **before**
+> `nginx -t` (`functions.sh`, nginx branch), because that command tests the
+> real file on disk.
+
 - [ ] **Step 3: Redirect the nginx branch's generation into a temp file**
 
 In `createSSLCA()`'s nginx branch, change the first write (currently, per

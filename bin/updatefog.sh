@@ -40,7 +40,7 @@ export PATH
 
 usage() {
     echo -e "Usage: $0 [-h?y] [--channel stable|staging|dev] [--branch <name>] [--git-path </path>]"
-    echo -e "\t                 \t\t[--no-revert] [--overwrite-vhost]"
+    echo -e "\t                 \t\t[--no-revert] [--no-vhost]"
     echo -e "\t-h -? --help\t\tDisplay this info"
     echo -e "\t      --channel\tUpdate channel to track: stable, staging, or dev"
     echo -e "\t               \t\tdefaults to whatever this server already tracks"
@@ -54,9 +54,13 @@ usage() {
     echo -e "\t                         \t(implies --overwrite-vhost)"
     echo -e "\t      --no-revert\tOn failure, leave the system as-is instead of"
     echo -e "\t                 \t\tautomatically reverting to the previous commit"
-    echo -e "\t      --overwrite-vhost\tLet installfog.sh regenerate the web server"
-    echo -e "\t                 \t\tvhost from scratch instead of leaving the"
-    echo -e "\t                 \t\texisting one (with any customizations) alone"
+    echo -e "\t      --no-vhost\tDo not touch the web server vhost at all."
+    echo -e "\t                 \t\tBy default FOG refreshes only the region between"
+    echo -e "\t                 \t\tits MANAGED BLOCK markers and leaves anything you"
+    echo -e "\t                 \t\tadded outside them alone, so skipping is rarely"
+    echo -e "\t                 \t\twanted -- it also skips FOG's own security fixes"
+    echo -e "\t                 \t\tto the parts it owns"
+    echo -e "\t      --overwrite-vhost\tDeprecated no-op: this is now the default"
     echo -e "\t-y    --yes\t\tSkip the confirmation prompt (for cron/GUI use)"
     exit 0
 }
@@ -64,19 +68,25 @@ usage() {
 supdateExtraServerNames=()
 
 shortopts="h?y"
-longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,yes,hostname:,extra-server-name:"
+longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,no-vhost,yes,hostname:,extra-server-name:"
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
 eval set -- "$optargs"
 
 autoRevert=1
 autoYes=""
-# Every update already has a pre-existing, possibly hand-customized vhost --
-# unlike a fresh install, there is nothing to gain by regenerating it, and
-# createSSLCA() has no way to tell "default" apart from "admin edited this".
-# -F/--no-vhost is the escape hatch installfog.sh already has for exactly
-# this; --overwrite-vhost below opts back into the fresh-install behavior.
-updateVhostFlag="-F"
+# Was -F by default, because regenerating the vhost meant destroying any hand
+# customization -- createSSLCA() rewrote the whole file and could not tell
+# "default" from "admin edited this". That is no longer true: it now writes
+# only between the FOG MANAGED BLOCK markers (see spliceManagedBlock in
+# lib/common/functions.sh) and leaves everything outside them alone.
+#
+# So the default flips. Skipping the vhost now costs an admin every future
+# security fix FOG makes to the parts it owns -- ciphers, headers, the
+# LocationMatch rules -- to protect content that is no longer at risk. -F
+# remains available for "do not touch this file at all", which is a real
+# preference, just no longer the one that should be automatic.
+updateVhostFlag=""
 while :; do
     case $1 in
         -h | -\? | --help)
@@ -122,7 +132,13 @@ while :; do
             shift
             ;;
         --overwrite-vhost)
+            # Now the default. Kept so an existing cron job or script that
+            # passes it keeps working rather than dying in getopt.
             updateVhostFlag=""
+            shift
+            ;;
+        --no-vhost)
+            updateVhostFlag="-F"
             shift
             ;;
         -y | --yes)
@@ -142,10 +158,14 @@ while :; do
 done
 
 # --hostname/--extra-server-name are requests for a vhost-VISIBLE change, so
-# they imply --overwrite-vhost. With the "-F" default above, createSSLCA()
-# prints "Skipped" instead of writing the vhost at all: .fogsettings and the
-# cert SAN would change (cert generation happens before the novhost check) but
-# server_name/ServerAlias would silently keep the old names.
+# they override an explicit --no-vhost. Without this, createSSLCA() prints
+# "Skipped" instead of writing the vhost: .fogsettings and the cert SAN would
+# change (cert generation happens before the novhost check) while
+# server_name/ServerAlias silently kept the old names -- a cert and a vhost
+# that disagree about what this server is called.
+#
+# No longer needed for the common case now that regenerating is the default,
+# but still required for the explicit --no-vhost + --hostname combination.
 if [[ -n $supdatehostname || ${#supdateExtraServerNames[@]} -gt 0 ]]; then
     updateVhostFlag=""
 fi
