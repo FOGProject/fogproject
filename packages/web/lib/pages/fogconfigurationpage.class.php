@@ -295,11 +295,10 @@ class FOGConfigurationPage extends FOGPage
                             $k_hint = '';
                             break;
                     }
+                    // Day granularity is deliberate: it is what the Date column
+                    // groups on, so two assets published hours apart on the same
+                    // day belong to the same group.
                     $release_date = date('F j, Y', strtotime($asset->created_at));
-                    // Sorts as a date, not as the string "August 7, 2026",
-                    // which would order alphabetically and put April first.
-                    // tablesorter reads data-* attributes ahead of cell text.
-                    $sort_date = strtotime($asset->created_at);
                     // ' (devel)' / ' (experimental)' / ' (FOG x.y.z)' -- built
                     // above with a leading space and parentheses for the old
                     // inline label, neither of which belongs in a column of
@@ -314,7 +313,6 @@ class FOGConfigurationPage extends FOGPage
                         $rel_type = $release->name;
                     }
                     $rows[] = array(
-                        'sortdate' => $sort_date,
                         'date' => $release_date,
                         'tag' => $release->tag_name,
                         'version' => $k_i_ver,
@@ -376,7 +374,11 @@ class FOGConfigurationPage extends FOGPage
             '${version}',
             '${arch}',
             '${type}${warn}',
-            '<span data-sort="${sortdate}">${date}</span>',
+            // Plain text, no sort-key attribute: tablesorter's textAttribute
+            // is "data-text", not "data-sort", so an earlier data-sort here was
+            // silently ignored. None is needed -- the usLongDate parser is
+            // auto-detected for this format and sorts the column by timestamp.
+            '${date}',
             '<a href="${url}" title="' . _('Download') . '">'
             . '<i class="fa fa-download fa-fw"></i> ' . _('Download') . '</a>',
         );
@@ -385,9 +387,28 @@ class FOGConfigurationPage extends FOGPage
             array('class' => 'col-xs-2'),
             array('class' => 'col-xs-2'),
             array('class' => 'col-xs-2'),
-            array('class' => 'col-xs-2'),
+            // group-date, because tablesorter auto-detects its usLongDate
+            // parser for "August 6, 2026" and caches the column as a millisecond
+            // timestamp -- the grouping widget reads that cached value, not the
+            // cell text, so a text-based group would be keyed and labelled with
+            // a raw number. group-date feeds it back through new Date() and
+            // labels the header via group_dateString (set in fog.js).
+            //
+            // Not the widget's default either: that is group-letter-1, which
+            // keys on the first character and would file every August and April
+            // date together under "A".
+            //
+            // Assets published at different times on the same day still share
+            // one group: the parser only ever sees the day-granularity string
+            // this column renders.
+            array('class' => 'col-xs-2 group-date'),
             array('class' => 'col-xs-2'),
         );
+        // Group by Date (zero-based column 4), which is what 1.6 does with
+        // rowGroup dataSrc. A release publishes all three architectures at
+        // once, so ungrouped the list is triplets of near-identical rows;
+        // grouped, each date is one collapsible block.
+        $this->groupColumn = 4;
         $this->data = $this->generateReleaseRows($jsonData, $type);
         $this->render(12);
     }

@@ -53,9 +53,9 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.5.10.2228');
+        define('FOG_VERSION', '1.5.10.2229');
         define('FOG_SCHEMA', 279);
-        define('FOG_BCACHE_VER', 141);
+        define('FOG_BCACHE_VER', 142);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
         // a release asset. Pinned here rather than tracked as "latest" so a

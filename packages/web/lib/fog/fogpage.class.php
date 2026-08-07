@@ -93,6 +93,18 @@ abstract class FOGPage extends FOGBase
      */
     public $notes = array();
     /**
+     * Zero-based column index to group the table's rows by, or null for no
+     * grouping.
+     *
+     * Setting it makes process() tag the table for tablesorter's grouping
+     * widget and tell fog.js which column to pin the grouping to, so the
+     * grouping stays on that column no matter what the user sorts by -- the
+     * same behaviour as 1.6's DataTables rowGroup dataSrc.
+     *
+     * @var int|null
+     */
+    public $groupColumn = null;
+    /**
      * Table header data
      *
      * @var array
@@ -828,13 +840,43 @@ abstract class FOGPage extends FOGBase
                     . $colsize
                     . '">';
             }
+            // $groupColumn opts this one table into tablesorter's grouping
+            // widget. Deliberately a single purpose-built property rather than
+            // a general "extra table classes" hook: fog.js initialises
+            // tablesorter for every table on the branch, so anything that can
+            // switch widgets on needs to say exactly what it is switching on
+            // and for which column. Null everywhere else, which emits nothing
+            // and leaves every other page byte-identical.
             echo '<table class="table table-responsive'
                 . (
                     isset($this->data) && is_array($this->data) && count($this->data) < 1 ?
                     ' noresults' :
                     ''
                 )
-                . '">';
+                . (
+                    $this->groupColumn !== null ?
+                    ' widget-group' :
+                    ''
+                )
+                . '"'
+                . (
+                    $this->groupColumn !== null ?
+                    ' data-groupcolumn="' . (int)$this->groupColumn . '"'
+                    // Grouping only makes sense on a table sorted by the column
+                    // being grouped -- otherwise the same value recurs further
+                    // down and the widget opens a second group for it. Source
+                    // order is not enough: the FOS feed interleaves its release
+                    // channels, so its rows run Aug 6, Aug 3, Aug 4, Aug 5,
+                    // Aug 3 and one date lands in two groups. Descending
+                    // because every grouped column here is a date and newest
+                    // first is the useful end, matching 1.6's order: [[0,
+                    // 'desc']]. tablesorter reads this at init
+                    // ($table.data().sortlist); the saveSort widget may then
+                    // restore whatever the user last chose, which is their call.
+                    . ' data-sortlist="[[' . (int)$this->groupColumn . ',1]]"' :
+                    ''
+                )
+                . '>';
             if (isset($this->data) && is_array($this->data) && count($this->data) < 1) {
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';

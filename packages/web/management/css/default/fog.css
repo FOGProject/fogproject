@@ -230,3 +230,47 @@ input[type=checkbox].delvid:checked + label:before {
         }
     }
 }
+
+/*
+ * tablesorter grouping widget (kernel/initrd update tables).
+ *
+ * The widget only emits markup; the look is entirely the theme's job, and
+ * neither theme.bootstrap_3.css nor theme.blue.css carries any of these
+ * classes -- without the rules below a group header renders as an ordinary
+ * row, and ".group-hidden" does nothing at all, so collapsing a group would
+ * appear to do nothing.
+ */
+tr.group-header td {
+  background-color: #f5f5f5;
+  border-top: 2px solid #ddd;
+  font-weight: bold;
+  cursor: pointer;
+}
+tr.group-header td:hover {
+  background-color: #ececec;
+}
+/* Caret drawn with borders rather than a font glyph, so it cannot be thrown
+   off by Font Awesome's version or by the icon set the active theme uses. */
+tr.group-header i {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-top: 6px solid #555;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+tr.group-header.collapsed i {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid #555;
+  border-right: 0;
+}
+.group-count {
+  color: #999;
+  font-weight: normal;
+}
+tr.group-hidden {
+  display: none;
+}
