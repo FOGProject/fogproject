@@ -111,7 +111,7 @@ while :; do
                 supdateExtraServerNames+=("${2}")
             else
                 echo "Error: --extra-server-name requires a value"
-                usage
+                exit 9
             fi
             shift 2
             ;;
