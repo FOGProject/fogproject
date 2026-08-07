@@ -68,6 +68,19 @@ This is why "just point Apache at a Let's Encrypt cert" does not work **for
 fog-client**: the client never pinned LE's intermediate, so validation fails.
 The same swap does not have this problem for iPXE — see next section.
 
+> **Not the same key as Secure Boot signing.** FOG generates a second,
+> completely independent keypair for Secure Boot — `MOK.key`/`MOK.pem`
+> (`_ensureSecureBootKeys()` in `lib/common/functions.sh`), a self-signed,
+> `codeSigning`-only cert used to Authenticode-sign the FOS kernel/initrd so
+> Secure Boot firmware trusts them. It shares nothing with `.fogCA.key`/
+> `.fogCA.pem` above — different key, different cert, generated separately,
+> stored separately (`$fogprogramdir/secureboot/` vs. `$sslpath/CA/`). Nothing
+> here (`--external-ca`, a Let's Encrypt cert, or anything else in this doc)
+> touches Secure Boot signing, and nothing about Secure Boot touches the CA
+> this document is about. This split is recent — Secure Boot support was added
+> to FOG well after the SSL CA already existed, so older FOG installs (or
+> memories of them) may reasonably recall a single CA doing everything.
+
 ---
 
 ## How iPXE validates HTTPS
