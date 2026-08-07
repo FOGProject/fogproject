@@ -1857,6 +1857,9 @@ msgstr "下载失败"
 msgid "Download Starting"
 msgstr "下载失败"
 
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
 msgid "Dropped"
 msgstr "下降"
 
@@ -1955,6 +1958,13 @@ msgstr ""
 
 msgid "Error performing query"
 msgstr "错误执行查询"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "错误：无法下载内核"
 
 #, fuzzy
 msgid "Error: Failed to download initrd"

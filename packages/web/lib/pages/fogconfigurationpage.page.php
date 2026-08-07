@@ -681,9 +681,8 @@ class FOGConfigurationPage extends FOGPage
         $dstName = filter_input(INPUT_POST, 'dstName');
         $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
         // With Secure Boot signing configured, a KERNEL download has to land in
-        // the staging directory the root signing helper works on, under the
-        // fixed name it expects -- the helper takes no arguments, so the path
-        // is how it is told what to sign.
+        // the staging directory the root signing helper works on -- the helper
+        // takes no arguments, so the path is how it is told what to sign.
         //
         // Kernels only. dev-branch had separate kernelPost()/initrdPost() so
         // this distinction was implicit there; here the two share one method,
@@ -692,19 +691,28 @@ class FOGConfigurationPage extends FOGPage
         // initramfs under Secure Boot -- on any distribution -- so there is
         // nothing to gain and a wrong-file signature to lose.
         $stagedir = ($type === 'kernel') ? self::secureBootStagingDir() : '';
+        // Unique per download. This path is carried in the session across the
+        // three requests the update takes (post -> fetch dl -> fetch tftp), so
+        // a name shared by every run let two concurrent updates -- two admins,
+        // or two tabs -- write the same file: the second download would land
+        // under the first one's destination name, and with signing on, whatever
+        // happened to be there at sign time is what got signed and shipped. A
+        // lock cannot cover a window that spans three requests, so the file
+        // itself has to be private to each one; secureBootSign() borrows the
+        // helper's fixed name for the instant it is actually signing.
+        //
+        // Unpredictable, not merely unique: the old system-temp name was
+        // basename($dstName), so a local user could pre-plant a symlink at
+        // /tmp/bzImage and redirect the web server's write.
+        $unique = bin2hex(random_bytes(8));
         if ($stagedir) {
-            $tmpFile = $stagedir . DS . 'kernel';
+            // 'kernel-' prefix, and the helper's shared name is a bare
+            // 'kernel' -- the sweep below must never match a file mid-signing.
+            $tmpFile = $stagedir . DS . 'kernel-' . $unique;
+            self::purgeStaleDownloads($stagedir, 'kernel-');
         } else {
-            $tmpFile = sprintf(
-                '%s%s%s%s',
-                DS,
-                str_replace(["\\", '/'], '', sys_get_temp_dir()),
-                DS,
-                basename(trim($dstName))
-            );
-        }
-        if (file_exists($tmpFile)) {
-            unlink($tmpFile);
+            $tmpFile = sys_get_temp_dir() . DS . 'fog-' . $type . '-' . $unique;
+            self::purgeStaleDownloads(sys_get_temp_dir(), 'fog-' . $type . '-');
         }
         $abbr = ($type === 'kernel') ? 'kdl' : 'idl';
         $_SESSION['allow_ajax_' . $abbr] = true;

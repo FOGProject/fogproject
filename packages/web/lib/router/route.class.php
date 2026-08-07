@@ -4970,15 +4970,21 @@ class Route extends FOGBase
                 }
                 if ($arch_short) {
                     $download_url = base64_encode($asset->browser_download_url);
-                    switch (substr($release->name, 0, 3)) {
-                        case 'FOG':
+                    // Lowercased before matching. The feed carries a release
+                    // named "EXPERIMENTAL test kernels for issue #108 (do not
+                    // use in production)", and a case-sensitive 'Exp' test
+                    // drops it into default -- so the one build that says in
+                    // its own title not to use it is the one whose Type column
+                    // comes out blank.
+                    switch (strtolower(substr($release->name, 0, 3))) {
+                        case 'fog':
                             $_fogParts = explode(' ', $release->name);
                             $k_hint = ' (FOG ' . ($_fogParts[1] ?? '?') . ')';
                             break;
-                        case 'Lat':
+                        case 'lat':
                             $k_hint = ' (devel)';
                             break;
-                        case 'Exp':
+                        case 'exp':
                             $k_hint = ' (experimental)';
                             break;
                         default:
@@ -4997,7 +5003,30 @@ class Route extends FOGBase
                         . $arch_short;
                     $date = date('F j, Y', strtotime($asset->created_at));
                     $version = $k_i_ver;
-                    $k_i_type = $k_hint;
+                    // $k_hint carries a leading space and parentheses from its
+                    // old use as an inline label appended to a title; in a
+                    // column of its own that is just noise.
+                    $k_i_type = trim($k_hint, ' ()');
+                    if ($k_i_type === '') {
+                        // The default arm of the switch above means "prefix not
+                        // recognised", which is an unknown, not a promise of
+                        // stability -- so show the release's own name rather
+                        // than an empty cell. It filters and sorts usefully too.
+                        $k_i_type = $release->name;
+                    }
+                    // Escaped because this is text straight out of the GitHub
+                    // feed and DataTables renders cell data as HTML.
+                    $k_i_type = Initiator::e($k_i_type);
+                    if ($k_hint === ' (experimental)') {
+                        // The badge replaces the plain text rather than sitting
+                        // next to it -- appending one leaves the cell reading
+                        // "experimental experimental". Plain type text is easy
+                        // to skim past on a page whose whole purpose is picking
+                        // the build every client will boot from.
+                        $k_i_type = '<span class="badge bg-warning">'
+                            . $k_i_type
+                            . '</span>';
+                    }
                     $download = "../management/index.php?node=about&sub=$type"
                         . "&file=$download_url&arch=$arch_short";
                     $jsonData[] = [
