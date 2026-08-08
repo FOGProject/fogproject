@@ -864,6 +864,26 @@ class FOGConfigurationPage extends FOGPage
                                 $row['settingKey']
                             );
                             break;
+                        /**
+                         * The default kernels are filenames in the FOS boot
+                         * directory, so offer what is actually there --
+                         * including the per-release siblings the installer
+                         * leaves behind on every update, which is what makes
+                         * "put the default back on the previous kernel" a
+                         * selection rather than a typed guess.
+                         */
+                        case 'FOG_TFTP_PXE_KERNEL':
+                        case 'FOG_TFTP_PXE_KERNEL_32':
+                        case 'FOG_TFTP_PXE_KERNEL_ARM':
+                        case 'FOG_MEMTEST_KERNEL':
+                            $input = self::kernelFileSelect(
+                                $row['settingID'],
+                                $row['settingValue'],
+                                'kernel',
+                                'form-control',
+                                $row['settingKey']
+                            );
+                            break;
                         case (isset($needstobecheckbox[$row['settingKey']])):
                             $input = self::makeInput(
                                 '',

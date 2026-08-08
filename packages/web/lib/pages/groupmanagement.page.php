@@ -109,13 +109,11 @@ class GroupManagement extends FOGPage
                 $labelClass,
                 'kernel',
                 _('Group Kernel')
-            ) => self::makeInput(
-                'form-control groupkernel-input',
+            ) => self::kernelFileSelect(
                 'kernel',
-                'customBzimage',
-                'text',
+                $kernel,
                 'kernel',
-                $kernel
+                'form-control groupkernel-input'
             ),
             self::makeLabel(
                 $labelClass,
@@ -133,13 +131,11 @@ class GroupManagement extends FOGPage
                 $labelClass,
                 'init',
                 _('Group Init')
-            ) => self::makeInput(
-                'form-control groupinit-input',
+            ) => self::kernelFileSelect(
                 'init',
-                'customInit.xz',
-                'text',
+                $init,
                 'init',
-                $init
+                'form-control groupinit-input'
             ),
             self::makeLabel(
                 $labelClass,
