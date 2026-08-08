@@ -105,6 +105,45 @@ already has certificate material stays on whatever layout it has, whatever a
 fresh install would choose, because changing it would strand every client
 that pinned the old CA.
 
+## Taking the Root CA offline
+
+The root's private key is generated on the server and left there, `0600
+root:root`. That is a deliberate starting point, not the recommended end
+state: requiring a vault on day one would make a first install harder for
+everyone, including people who will never run a real offline root.
+
+**Moving it off is a manual step today** — there is no helper script yet.
+
+```bash
+# copy it somewhere durable and offline, then remove it from the server
+install -m 0600 /opt/fog/snapins/ssl/CA/root/.fogRootCA.key /mnt/vault/
+shred -u /opt/fog/snapins/ssl/CA/root/.fogRootCA.key
+```
+
+Leave `.fogRootCA.pem` in place. The **certificate** is what everything
+chains to and what the installer uses to recognise that a root already
+exists; only the key needs protecting.
+
+Day to day nothing needs it. The intermediates are already issued, and each
+one short-circuits on every later run without the root key being touched. It
+is required only to issue a **new** intermediate — which in practice means a
+first install, or adding a zone you previously skipped. The installer detects
+its absence and tells you exactly what to restore rather than failing
+somewhere inside openssl:
+
+```
+ * Cannot issue 'FOG Web CA': the Root CA private key is not on this server
+ * That is the correct state for an offline root, but issuing a new
+   intermediate needs it. Restore it to:
+     /opt/fog/snapins/ssl/CA/root/.fogRootCA.key
+   re-run the installer, then move it back to your vault.
+```
+
+> Removing the key does **not** cause the root to be regenerated. That is
+> worth stating because the obvious implementation gets it wrong — testing
+> for "key and cert both present" would mint a fresh root the first time
+> anyone followed this advice, orphaning every intermediate beneath it.
+
 ## Bringing your own CA
 
 Each zone is independently replaceable. Replace one, two, or none.

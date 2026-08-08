@@ -3942,6 +3942,23 @@ _issueIntermediateCA() {
     mkdir -p "$outdir" >>$error_log 2>&1 || st=1
     chmod 0700 "$outdir" >>$error_log 2>&1
     [[ -f "${outdir}/${keyfile}" && -f "${outdir}/${certfile}" ]] && return 0
+    # Issuing needs the root's private key. An existing intermediate returns
+    # above without ever touching it, which is what makes an offline root
+    # workable day to day -- but a NEW one cannot be signed without it.
+    #
+    # Say so instead of failing inside openssl with an unreadable-file error,
+    # because the fix is a specific and slightly unusual action: bring the key
+    # back, run the installer, take it away again.
+    if [[ ${rootCAKeyOffline:-0} -eq 1 ]]; then
+        echo "Failed"
+        echo " * Cannot issue '${cn}': the Root CA private key is not on this"
+        echo "   server (only ${rootCAPem} is present)."
+        echo " * That is the correct state for an offline root, but issuing a new"
+        echo "   intermediate needs it. Restore it to:"
+        echo "     ${rootCAKey}"
+        echo "   re-run the installer, then move it back to your vault."
+        return 1
+    fi
     openssl genrsa -out "${outdir}/${keyfile}" 4096 >>$error_log 2>&1 || st=1
     # Written as a config file rather than passed with -addext: -addext needs
     # OpenSSL 1.1.1+, and the older RHEL variants this installer still supports
@@ -3994,7 +4011,18 @@ createRootCA() {
         errorStat $?
         return 0
     fi
-    [[ -f $rootCAKey && -f $rootCAPem ]] && return 0
+    # The CERTIFICATE is what defines "this root exists". The key may be
+    # legitimately absent -- that is what an offline root IS, and moving it to
+    # a vault is the end state this design recommends.
+    #
+    # Testing for both would regenerate the root the first time an admin
+    # actually took that advice, orphaning every intermediate already issued
+    # and every client that pinned anything beneath it. Silently, on an
+    # ordinary update.
+    if [[ -f $rootCAPem ]]; then
+        [[ -f $rootCAKey ]] || rootCAKeyOffline=1
+        return 0
+    fi
 
     dots "Creating FOG Server ROOT CA"
     mkdir -p "$rootdir" >>$error_log 2>&1
