@@ -5541,6 +5541,77 @@ preserveSecureBootAdminFiles() {
 # surfaces that until a client fails to boot -- long after the install that
 # caused it. So an existing pair is always reused, and --recreate-keys
 # deliberately does not reach this.
+# The Secure Boot zone: an intermediate CA whose certificate is what gets
+# enrolled in firmware, issuing a short-lived leaf that actually signs kernels.
+#
+# The flat model enrolls the SIGNING certificate itself -- a self-signed leaf
+# that can issue nothing. That makes the thing you must never change and the
+# thing you want to rotate the same object: replacing the signing key means a
+# physical MokManager trip to every machine, and a storage node cannot sign at
+# all without being handed the one key the whole fleet trusts.
+#
+# Enrolling the intermediate instead means the leaf can be rotated, revoked, or
+# issued per node and the fleet keeps booting, because firmware trusts the
+# issuer rather than the specific signer. sbsign --addcert ships the
+# intermediate inside the signature so shim can build the chain.
+#
+# Sets TWO variables where flat sets one:
+#   secureBootKey/secureBootCert -> the LEAF. What sbsign signs with.
+#   secureBootMokCert            -> the INTERMEDIATE. What firmware enrolls,
+#                                   what MOK.der publishes, what goes in db.
+# In flat mode secureBootMokCert is simply the same file as secureBootCert, so
+# nothing downstream has to branch.
+createSecureBootIntermediateCA() {
+    local keydir="${fogprogramdir}/secureboot"
+    local cadir="${keydir}/ca"
+    local leafdir="${keydir}/leaf"
+    local st=0
+
+    createRootCA
+    if [[ ! -f "${cadir}/.fogSBCA.key" || ! -f "${cadir}/.fogSBCA.pem" ]]; then
+        dots "Creating FOG Secure Boot CA"
+        _issueIntermediateCA "FOG Secure Boot CA" "$cadir" ".fogSBCA.key" ".fogSBCA.pem"
+        errorStat $?
+    fi
+    if [[ ! -f "${leafdir}/sign.key" || ! -f "${leafdir}/sign.pem" ]]; then
+        dots "Creating Secure Boot code signing certificate"
+        mkdir -p "$leafdir" >>$error_log 2>&1 || st=1
+        chmod 0700 "$leafdir" >>$error_log 2>&1
+        # Same extension profile the flat MOK already uses -- CA:FALSE plus the
+        # codeSigning EKU -- written as a config file rather than -addext for
+        # the same reason: -addext needs OpenSSL 1.1.1+ and the older RHEL
+        # variants this installer supports ship 1.0.2.
+        cat > "${leafdir}/sign.cnf" << EOF
+[ req ]
+distinguished_name = req_dn
+prompt             = no
+
+[ req_dn ]
+CN = FOG Project Secure Boot Signing
+
+[ v3_sign ]
+basicConstraints = critical,CA:FALSE
+extendedKeyUsage = codeSigning
+subjectKeyIdentifier = hash
+EOF
+        openssl req -new -sha256 -nodes -newkey rsa:2048 \
+            -config "${leafdir}/sign.cnf" -keyout "${leafdir}/sign.key" \
+            -out "${leafdir}/sign.csr" >>$error_log 2>&1 || st=1
+        # Deliberately short next to the intermediate's ten years: rotating it
+        # is now free, so there is no reason to mint a decade-long signer.
+        openssl x509 -req -in "${leafdir}/sign.csr" \
+            -CA "${cadir}/.fogSBCA.pem" -CAkey "${cadir}/.fogSBCA.key" \
+            -CAcreateserial -sha256 -days 730 -extensions v3_sign \
+            -extfile "${leafdir}/sign.cnf" -out "${leafdir}/sign.pem" >>$error_log 2>&1 || st=1
+        chown root:root "${leafdir}/sign.key" "${leafdir}/sign.pem" >>$error_log 2>&1
+        chmod 0600 "${leafdir}/sign.key" >>$error_log 2>&1
+        chmod 0644 "${leafdir}/sign.pem" >>$error_log 2>&1
+        errorStat $st
+    fi
+    secureBootKey="${leafdir}/sign.key"
+    secureBootCert="${leafdir}/sign.pem"
+    secureBootMokCert="${cadir}/.fogSBCA.pem"
+}
 _ensureSecureBootKeys() {
     local keydir="${fogprogramdir}/secureboot"
     local key="${keydir}/MOK.key"
@@ -5554,13 +5625,30 @@ _ensureSecureBootKeys() {
     if [[ ${secureboot:-1} == 0 ]]; then
         secureBootKey=""
         secureBootCert=""
+        secureBootMokCert=""
         return 0
     fi
     # An admin-supplied pair always wins and is never touched or overwritten.
-    [[ -n $secureBootKey && -n $secureBootCert ]] && return 0
+    # Their certificate is also what gets enrolled, exactly as before -- an
+    # admin bringing their own Secure Boot intermediate points
+    # --secure-boot-cert at it and --secure-boot-key at the leaf's key.
+    if [[ -n $secureBootKey && -n $secureBootCert ]]; then
+        [[ -z $secureBootMokCert ]] && secureBootMokCert="$secureBootCert"
+        return 0
+    fi
+    # split: intermediate enrolled, leaf signs. See
+    # createSecureBootIntermediateCA. Guarded on the flat pair NOT already
+    # existing, so a server that has ever generated a MOK keeps using it --
+    # a machine may already have enrolled it, and nothing here is worth
+    # stranding a client that has.
+    if [[ $pkiMode == split && ! -f $key && ! -f $cert ]]; then
+        createSecureBootIntermediateCA
+        return 0
+    fi
     if [[ -f $key && -f $cert ]]; then
         secureBootKey="$key"
         secureBootCert="$cert"
+        secureBootMokCert="$cert"
         return 0
     fi
 
@@ -5609,6 +5697,8 @@ EOF
     chmod 0644 "$cert" >>$error_log 2>&1
     secureBootKey="$key"
     secureBootCert="$cert"
+    # Flat: the signing certificate IS what firmware enrols.
+    secureBootMokCert="$cert"
     echo "Done"
 }
 # Generate this server's Secure Boot PLATFORM keys (PK and KEK).
@@ -5700,7 +5790,12 @@ _ensureSecureBootPlatformKeys() {
 _publishSecureBootKit() {
     local kitdir="${webdirdest}/service/secureboot"
 
-    if [[ -z $secureBootCert ]]; then
+    # MOK.der publishes the certificate to be ENROLLED, which is not always the
+    # one that signs. In split mode that is the Secure Boot intermediate, so a
+    # rotated signing leaf never invalidates an enrolment; in flat mode
+    # $secureBootMokCert is the same file as $secureBootCert and this is
+    # byte-identical to before.
+    if [[ -z $secureBootMokCert ]]; then
         rm -rf "$kitdir" >>$error_log 2>&1
         return 0
     fi
@@ -5709,13 +5804,13 @@ _publishSecureBootKit() {
     mkdir -p "$kitdir" >>$error_log 2>&1
     # A DER copy of the certificate is what mokutil wants. Accept a PEM cert
     # too, since openssl is happy to produce either and admins mix them up.
-    if openssl x509 -in "$secureBootCert" -inform der -noout >/dev/null 2>&1; then
-        cp -f "$secureBootCert" "${kitdir}/MOK.der" >>$error_log 2>&1
-    elif openssl x509 -in "$secureBootCert" -outform der -out "${kitdir}/MOK.der" >>$error_log 2>&1; then
+    if openssl x509 -in "$secureBootMokCert" -inform der -noout >/dev/null 2>&1; then
+        cp -f "$secureBootMokCert" "${kitdir}/MOK.der" >>$error_log 2>&1
+    elif openssl x509 -in "$secureBootMokCert" -outform der -out "${kitdir}/MOK.der" >>$error_log 2>&1; then
         :
     else
         echo "Failed"
-        echo " * Could not read $secureBootCert as a certificate."
+        echo " * Could not read $secureBootMokCert as a certificate."
         return 0
     fi
     cp -f ../packages/secureboot/fog-enroll-mok.sh "${kitdir}/" >>$error_log 2>&1
@@ -5933,6 +6028,11 @@ _installSecureBootSigner() {
     {
         echo "SECUREBOOT_KEY=${secureBootKey}"
         echo "SECUREBOOT_CERT=${certpem}"
+        # The certificate ENDPOINTS trust, which is not always the one that
+        # signs. fog-build-sb-authvars puts this in db and fog-sign-kernel
+        # --addcert's it; in flat mode it equals SECUREBOOT_CERT and both
+        # behave exactly as before.
+        echo "SECUREBOOT_MOK_CERT=${secureBootMokCert:-$certpem}"
         echo "SECUREBOOT_STAGING=${stagedir}"
         echo "SECUREBOOT_PK_KEY=${secureBootPKKey}"
         echo "SECUREBOOT_PK_CERT=${secureBootPKCert}"
@@ -5996,7 +6096,19 @@ _resignKernels() {
         # be refreshed every time rather than kept forever, or an upgrade would
         # re-sign the *previous* version over the new one.
         cp -af "$kpath" "${kpath}.unsigned" >>$error_log 2>&1
-        if sbsign --key "$secureBootKey" --cert "$certpem" \
+        # --addcert ships the issuing intermediate inside the signature, which
+        # is what lets shim (and the firmware, via db) chain a leaf-signed
+        # kernel back to the certificate that was actually enrolled. Without
+        # it a split-mode kernel is signed by a certificate no endpoint has
+        # ever seen and simply will not boot.
+        #
+        # Built as an array so flat mode passes no extra argument at all and
+        # its command line stays byte-identical to before.
+        local addcert=()
+        [[ -n $secureBootMokCert ]] \
+            && [[ "$(readlink -f "$secureBootMokCert" 2>/dev/null)" != "$(readlink -f "$certpem" 2>/dev/null)" ]] \
+            && addcert=(--addcert "$secureBootMokCert")
+        if sbsign --key "$secureBootKey" --cert "$certpem" "${addcert[@]}" \
                 --output "$kpath" "${kpath}.unsigned" >>$error_log 2>&1; then
             chown "${username}" "$kpath" >>$error_log 2>&1
         else

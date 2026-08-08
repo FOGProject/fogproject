@@ -60,7 +60,17 @@ pkKey=$(readconf SECUREBOOT_PK_KEY)
 pkCert=$(readconf SECUREBOOT_PK_CERT)
 kekKey=$(readconf SECUREBOOT_KEK_KEY)
 kekCert=$(readconf SECUREBOOT_KEK_CERT)
-fosCert=$(readconf SECUREBOOT_CERT)
+# What goes into db is a TRUST ANCHOR, not the signer. In a split PKI that is
+# the Secure Boot intermediate, so rotating a signing leaf does not require a
+# fresh db update pushed to every machine -- the same reason MOK.der publishes
+# the intermediate. Putting a CA in db is the standard UEFI model: the
+# Microsoft entries alongside it are themselves CAs and Windows validates by
+# chaining to them.
+#
+# Falls back to SECUREBOOT_CERT so an existing flat .fog-secureboot, which has
+# no SECUREBOOT_MOK_CERT line, keeps producing exactly what it did before.
+fosCert=$(readconf SECUREBOOT_MOK_CERT)
+[[ -z $fosCert ]] && fosCert=$(readconf SECUREBOOT_CERT)
 msDir=$(readconf SECUREBOOT_MSCERTS)
 outDir=$(readconf SECUREBOOT_AUTHVARS)
 
