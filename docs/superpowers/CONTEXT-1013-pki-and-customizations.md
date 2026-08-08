@@ -80,8 +80,11 @@ fresh install out. Both are fully supported.
    variable — and behaviour reverts to today's.
 3. **The `db`/Setup-Mode path is untested.** `efitools` was unavailable on the
    CentOS Stream 9 test box even with EPEL and CRB enabled, so
-   `fog-build-sb-authvars` never ran with the new `SECUREBOOT_MOK_CERT`. It
-   installs normally on Rocky 9 and Debian/Ubuntu — verify there.
+   `fog-build-sb-authvars` never ran with the new `SECUREBOOT_MOK_CERT`.
+   Availability on EL9 is inconsistent — the upstream RPM tracker lists Fedora
+   branches only, yet it is present on at least one Rocky 9 FOG server (source
+   unestablished). Verify on Debian/Ubuntu, or on an EL9 box where it is
+   already installed.
 4. **nginx is untested.** All vhost work was verified on Apache only. The
    managed-block splice and the `netbootproto` redirect exclusion both have
    nginx branches that have never executed.

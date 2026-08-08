@@ -235,12 +235,24 @@ Both need real UEFI hardware. The mechanism is correct by construction, which
 is not the same as observed booting. If it fails, the fix is one variable —
 point `secureBootMokCert` at the leaf and the behaviour reverts to today's.
 
-**`efitools` availability varies across RHEL rebuilds.** It is a declared
-dependency and installs normally on Debian/Ubuntu and on Rocky 9. On the
-**CentOS Stream 9** box used for testing it is unavailable even with EPEL and
-CRB enabled, and nothing else provides
-`sign-efi-sig-list`/`cert-to-efi-sig-list` — so the installer reports it
-missing and skips building the signed PK/KEK/db blobs.
+**`efitools` is unreliable on EL9 and should not be assumed present.** It is a
+declared dependency and installs normally on Debian/Ubuntu. On EL9 the picture
+is inconsistent:
+
+- On the **CentOS Stream 9** test box it is unavailable with EPEL *and* CRB
+  enabled, and nothing else provides
+  `sign-efi-sig-list`/`cert-to-efi-sig-list`.
+- The upstream RPM tracker
+  ([rpms.remirepo.net](https://rpms.remirepo.net/rpmphp/zoom.php?rpm=efitools))
+  lists **Fedora branches only** — no EL9/EPEL rows at all.
+- It is nonetheless present and working on at least one **Rocky 9** FOG
+  server, source not established — plausibly an EPEL build that has since been
+  retired, or installed from elsewhere.
+
+So on EL9 the installer will often report it missing and skip building the
+signed PK/KEK/db blobs. If you have it working on an EL9 box, check where it
+came from (`rpm -q --queryformat '%{VENDOR} %{URL}\n' efitools`) before
+assuming a fresh install will get it.
 
 MOK enrolment via MokManager is unaffected either way; only the unattended
 Setup Mode path needs those tools. Where the package is genuinely absent it
