@@ -3875,6 +3875,14 @@ _pkiZoneDir() {
 # against a split server yet), and whether shim accepts a CA in MokList --
 # which only matters for the Secure Boot intermediate, and that is not
 # implemented.
+# $sslpath is normally settled inside createSSLCA(), but the Secure Boot zone
+# is reached from downloadfiles() before that runs, so both places have to be
+# able to ask. Idempotent, and matches createSSLCA()'s own default exactly.
+_resolveSslPath() {
+    [[ -n $sslpath ]] && { sslpath=${sslpath%/}; return 0; }
+    sslpath="${snapindir:-${fogprogramdir:-/opt/fog}/snapins}/ssl"
+    sslpath=${sslpath%/}
+}
 _resolvePkiMode() {
     [[ -n $pkiMode ]] && return 0
     if [[ $caCreated == yes ]]; then
@@ -5567,6 +5575,11 @@ createSecureBootIntermediateCA() {
     local leafdir="${keydir}/leaf"
     local st=0
 
+    # Secure Boot runs from downloadfiles(), which reaches this BEFORE
+    # createSSLCA() has run -- so neither $sslpath nor the root CA exists yet.
+    # Resolving the path here rather than assuming createSSLCA got there first
+    # is what keeps the root out of "/CA/root" at the filesystem root.
+    _resolveSslPath
     createRootCA
     if [[ ! -f "${cadir}/.fogSBCA.key" || ! -f "${cadir}/.fogSBCA.pem" ]]; then
         dots "Creating FOG Secure Boot CA"
@@ -5616,6 +5629,12 @@ _ensureSecureBootKeys() {
     local keydir="${fogprogramdir}/secureboot"
     local key="${keydir}/MOK.key"
     local cert="${keydir}/MOK.pem"
+
+    # Resolved here as well as in createSSLCA(), because downloadfiles() gets
+    # to Secure Boot first: without this, $pkiMode was still empty, the split
+    # branch below never matched, and a fresh split install silently produced
+    # the old self-signed MOK instead of the intermediate.
+    _resolvePkiMode
 
     # Explicit opt-out. Left unset rather than half-set, so every downstream
     # function's existing "no key configured" branch does the right thing.
