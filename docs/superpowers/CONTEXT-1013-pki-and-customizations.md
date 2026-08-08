@@ -74,10 +74,13 @@ fresh install out. Both are fully supported.
    fetched, so no client change is expected. Expected is not observed. One
    host checking in settles it. If the client instead derives its key from
    `ca.cert.der`, the fix is to let the Client CA double as the comm keypair.
-2. **Shim has never been asked to boot a leaf-signed kernel.** The chain is
-   built correctly and both certs are embedded, but no UEFI hardware has
-   validated it. If it fails, point `secureBootMokCert` at the leaf — one
-   variable — and behaviour reverts to today's.
+2. ~~Shim has never been asked to boot a leaf-signed kernel.~~ **Confirmed on
+   real UEFI hardware, both enrolment routes.** Machines boot FOG's
+   leaf-signed kernels while trusting only the **intermediate** — enrolled as
+   `MOK.der` through MokManager, or written into `db` through the Setup Mode
+   PK/KEK/db path. Firmware and shim both accept a chain terminating at the
+   enrolled CA rather than demanding the exact signer, so the rotation premise
+   holds in practice and not merely by construction.
 3. ~~The `db`/Setup-Mode path is untested.~~ **Now verified.** `efitools` was
    built from source on the test box (see `docs/PKI_ZONES.md` for the recipe —
    three userspace tools, needs `gnu-efi-devel` for `efi.h`). With it present
@@ -89,7 +92,9 @@ fresh install out. Both are fully supported.
 4. **nginx is untested.** All vhost work was verified on Apache only. The
    managed-block splice and the `netbootproto` redirect exclusion both have
    nginx branches that have never executed.
-5. **PXE boot untested**, and not testable from a shell.
+5. **PXE boot** was not testable from this shell, but the Secure Boot
+   hardware verification in (2) necessarily exercised it — those machines
+   netbooted and ran FOG's signed kernels.
 
 ## Timing note
 

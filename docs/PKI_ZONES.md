@@ -240,7 +240,7 @@ that FQDN or the generated boot URLs will not match the certificate.
 | Per-zone bring-your-own-CA flags | Implemented |
 | `netbootproto` separation | Implemented |
 | Split as the **default** for fresh installs | Implemented |
-| Secure Boot intermediate | Implemented — **not verified on hardware** |
+| Secure Boot intermediate | Implemented — verified on real UEFI hardware |
 
 ### Secure Boot
 
@@ -268,11 +268,15 @@ $ sbverify --list bzImage
    issuer:  /CN=FOG Server ROOT CA
 ```
 
-**Not verified:** that shim actually accepts a CA in MokList and chains a
-leaf-signed kernel to it, and the same question for firmware validating `db`.
-Both need real UEFI hardware. The mechanism is correct by construction, which
-is not the same as observed booting. If it fails, the fix is one variable —
-point `secureBootMokCert` at the leaf and the behaviour reverts to today's.
+**Confirmed on real UEFI hardware, both enrolment routes:** machines boot
+FOG's leaf-signed kernels while trusting only the **intermediate** — whether
+that intermediate is enrolled as `MOK.der` through MokManager, or written into
+`db` through the Setup Mode PK/KEK/db path.
+
+That is the whole design validated in the place it matters. Firmware and shim
+both accept a certificate chain terminating at the enrolled CA rather than
+demanding the exact signer, so a signing leaf can be rotated, revoked, or
+issued per storage node and the fleet keeps booting with no firmware trip.
 
 **`efitools` is unreliable on EL9 and should not be assumed present.** It is a
 declared dependency and installs normally on Debian/Ubuntu. On EL9 the picture
