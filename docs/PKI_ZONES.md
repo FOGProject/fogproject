@@ -235,14 +235,20 @@ Both need real UEFI hardware. The mechanism is correct by construction, which
 is not the same as observed booting. If it fails, the fix is one variable —
 point `secureBootMokCert` at the leaf and the behaviour reverts to today's.
 
-**RHEL/CentOS 9 caveat:** `efitools` is not packaged for RHEL 9, not even in
-EPEL, and nothing else provides `sign-efi-sig-list`/`cert-to-efi-sig-list`. It
-is a declared dependency and installs fine on Debian/Ubuntu, but on
-RHEL-family the installer reports it missing and skips building the signed
-PK/KEK/db blobs. MOK enrolment via MokManager is unaffected; only the
-unattended Setup Mode path needs those tools, and it needs efitools built from
-source there. The `db` change described above is therefore **untested** —
-nothing on a RHEL box has exercised it.
+**`efitools` availability varies across RHEL rebuilds.** It is a declared
+dependency and installs normally on Debian/Ubuntu and on Rocky 9. On the
+**CentOS Stream 9** box used for testing it is unavailable even with EPEL and
+CRB enabled, and nothing else provides
+`sign-efi-sig-list`/`cert-to-efi-sig-list` — so the installer reports it
+missing and skips building the signed PK/KEK/db blobs.
+
+MOK enrolment via MokManager is unaffected either way; only the unattended
+Setup Mode path needs those tools. Where the package is genuinely absent it
+has to be built from source.
+
+Practical consequence for this work: the `db` change described above is
+**untested**, because the one machine available for testing could not install
+the tooling that exercises it. Verify on Rocky 9 or Debian/Ubuntu.
 
 An existing server that has ever generated a MOK keeps using it, even under
 `--split-pki`, since a machine may already have enrolled it.

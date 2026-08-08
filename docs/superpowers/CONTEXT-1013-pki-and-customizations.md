@@ -78,9 +78,10 @@ fresh install out. Both are fully supported.
    built correctly and both certs are embedded, but no UEFI hardware has
    validated it. If it fails, point `secureBootMokCert` at the leaf — one
    variable — and behaviour reverts to today's.
-3. **The `db`/Setup-Mode path is untested.** `efitools` is not packaged for
-   RHEL 9 (not even EPEL), so `fog-build-sb-authvars` never ran with the new
-   `SECUREBOOT_MOK_CERT`. Test on Debian/Ubuntu, where efitools installs.
+3. **The `db`/Setup-Mode path is untested.** `efitools` was unavailable on the
+   CentOS Stream 9 test box even with EPEL and CRB enabled, so
+   `fog-build-sb-authvars` never ran with the new `SECUREBOOT_MOK_CERT`. It
+   installs normally on Rocky 9 and Debian/Ubuntu — verify there.
 4. **nginx is untested.** All vhost work was verified on Apache only. The
    managed-block splice and the `netbootproto` redirect exclusion both have
    nginx branches that have never executed.
