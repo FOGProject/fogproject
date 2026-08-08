@@ -5077,10 +5077,17 @@ abstract class FOGPage extends FOGBase
             /**
              * Split by shape rather than by a fixed list of names, so a
              * custom kernel and the per-release siblings both appear.
-             * .unsigned copies are deliberately excluded -- they are
-             * _resignKernels() working files, not something to boot.
+             *
+             * .unsigned copies are excluded -- they are _resignKernels()
+             * working files, not something to boot.
+             *
+             * The web assets and config that share this directory
+             * (boot.php/advanced.php/index.php, the bg images, refind.conf)
+             * are excluded too. "Anything that is not an init" swept all of
+             * them into the kernel list, which is not a menu anybody wants to
+             * pick a kernel out of.
              */
-            if (preg_match('/\.unsigned$/', $file)) {
+            if (preg_match('/\.(unsigned|php|png|jpe?g|gif|svg|conf|efi)$/i', $file)) {
                 continue;
             }
             $isInit = (bool)preg_match('/(^|\/)(init|arm_init)|\.(xz|cpio\.gz)/i', $file);
