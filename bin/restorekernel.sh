@@ -137,15 +137,17 @@ listGenerations() {
             [[ -f $f ]] || continue
             echo "    $(basename "$f") ($(tagof "$f"))"
         done
-        # Anything that is not one of the six names FOG re-downloads is a file
-        # the admin put there -- a per-host custom kernel/init. Worth showing,
-        # because it is the part no update would ever put back.
+        # A file counts as the admin's only if the live tree does NOT have one
+        # of that name -- service/ipxe is full of FOG's own boot.php,
+        # advanced.php, bgdark.png and kernel siblings, and calling those
+        # "custom" is both misleading here and, in restorePreservedCustomizations,
+        # was actively harmful.
+        local shown=0
         for f in "$gendir"/*; do
             [[ -f $f ]] || continue
-            case " bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz " in
-                *" $(basename "$f") "*) continue ;;
-            esac
-            echo "    $(basename "$f") (custom)"
+            [[ -e "${ipxedir}/$(basename "$f")" ]] && continue
+            [[ $shown -eq 0 ]] && { echo "    not present in the live tree (restored automatically):"; shown=1; }
+            echo "      $(basename "$f")"
         done
     done
     [[ $found -eq 0 ]] && echo "  (none yet)"

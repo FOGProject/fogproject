@@ -210,20 +210,26 @@ restorePreservedCustomizations() {
         [[ -f "${customizationsDir}/ipxe-legacy/${f}" ]] && { cp -f "${customizationsDir}/ipxe-legacy/${f}" "${ipxedir}/${f}" >>$error_log 2>&1 || st=1; }
     done
 
-    # Anything in the newest generation that is NOT one of the six names
-    # downloadfiles() re-downloads is, by definition, a file FOG did not put
-    # there and will never put back -- a per-host custom kernel or init. Those
-    # are restored unconditionally.
+    # Restore a file from the snapshot ONLY if the fresh install did not put a
+    # file of that name back.
     #
-    # The six default names are deliberately NOT restored: the point of an
-    # update is to pick up the new kernel. bin/restorekernel.sh is the
-    # explicit, admin-invoked way back to an older one.
+    # The obvious rule -- "anything that is not one of the six kernel/init
+    # names is a custom file" -- is wrong, and a real install proves it:
+    # service/ipxe also holds boot.php, advanced.php, bgdark.png, the
+    # .unsigned/.old kernel siblings and more, all shipped by FOG. Under that
+    # rule every update copied the PREVIOUS version's boot.php back over the
+    # newly installed one, silently reverting FOG's own code on every run.
     #
-    # $restoreKernelBackup is the single exception, set only by
-    # --restore-kernel-backup, which revertUpdate() passes when it re-runs the
-    # installer against the previous commit. An older commit wants the older
-    # kernels too, and that is the behavior the retired _restorePreviousKernel()
-    # used to provide on that path.
+    # Absence is the honest test. If the just-completed install wrote a file of
+    # that name, it is FOG's and the new copy wins. If nothing wrote it, the
+    # admin put it there -- a per-host kernel/init override -- and nothing else
+    # will ever put it back.
+    #
+    # $restoreKernelBackup is the one exception: --restore-kernel-backup, which
+    # revertUpdate() passes when re-running the installer against the previous
+    # commit. An older commit wants its older kernels, so the six default names
+    # are forced back over the fresh ones -- the behavior the retired
+    # _restorePreviousKernel() used to provide on that path.
     local kbdir="${customizationsDir}/kernel-backups"
     local defaultnames=" bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz "
     local bn
@@ -231,7 +237,9 @@ restorePreservedCustomizations() {
         for f in "${kbdir}/gen-1"/*; do
             [[ -f $f ]] || continue
             bn=$(basename "$f")
-            if [[ $defaultnames != *" $bn "* || ${restoreKernelBackup:-0} -eq 1 ]]; then
+            if [[ ! -e "${ipxedir}/${bn}" ]]; then
+                cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
+            elif [[ ${restoreKernelBackup:-0} -eq 1 && $defaultnames == *" $bn "* ]]; then
                 cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
             fi
         done
