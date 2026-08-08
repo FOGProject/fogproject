@@ -88,6 +88,41 @@ backupReports() {
 # "/customizations" and wrote the backups to the filesystem root. That is what
 # the first real-server run actually did -- the sandbox never caught it because
 # it always set $fogprogramdir before sourcing.
+# Record the checksum of a file FOG just downloaded, so a later run can tell
+# whether it is still the file FOG put there.
+#
+# The version/tag_name xattrs alone cannot answer that. Overwriting a file IN
+# PLACE -- `> bzImage`, dd, cp onto an existing path, which is exactly how a
+# custom kernel gets installed -- leaves the existing xattrs untouched, so the
+# admin's kernel keeps FOG's old tag and looks original. Confirmed on a real
+# server: a hand-written bzImage still reported 2 xattrs.
+#
+# A checksum recorded at download time is not defeated by that: the content
+# changed, so the comparison fails, however the write was done.
+_stampFogSum() {
+    local f="$1" sum
+    [[ -f $f ]] || return 0
+    command -v sha256sum >/dev/null 2>&1 || return 0
+    command -v attr >/dev/null 2>&1 || return 0
+    sum=$(sha256sum "$f" 2>/dev/null | cut -d' ' -f1)
+    [[ -n $sum ]] && attr -s fogsum -V "$sum" "$f" >>$error_log 2>&1
+    return 0
+}
+# Echoes 0 when $1 still matches the checksum FOG stamped, 1 when it differs
+# (admin-modified), 2 when there is nothing to compare against -- an older
+# install whose kernels predate the stamp. 2 is NOT "modified": reporting a
+# custom kernel on every existing server at first upgrade would be noise, and
+# the file is safely backed up regardless.
+_fogSumStatus() {
+    local f="$1" want have
+    [[ -f $f ]] || { echo 2; return; }
+    command -v sha256sum >/dev/null 2>&1 || { echo 2; return; }
+    command -v attr >/dev/null 2>&1 || { echo 2; return; }
+    want=$(attr -q -g fogsum "$f" 2>/dev/null)
+    [[ -z $want ]] && { echo 2; return; }
+    have=$(sha256sum "$f" 2>/dev/null | cut -d' ' -f1)
+    [[ $want == "$have" ]] && echo 0 || echo 1
+}
 _resolveCustomizationsDir() {
     [[ -n $customizationsDir ]] && return 0
     local base="${fogprogramdir:-/opt/fog}"
@@ -219,24 +254,22 @@ backupPreservedCustomizations() {
         # own kernel over it, and the restore deliberately leaves a
         # freshly-installed default name alone.
         #
-        # downloadfiles() stamps version/tag_name xattrs on everything it
-        # fetches. A default-named kernel WITHOUT them was put there by hand,
-        # which is the whole signal needed -- no reference copy, no hashing.
-        # (An admin who copied with `cp -a` could carry a stale tag across and
-        # defeat this; plain cp/scp/mv, the normal way, does not.)
+        # Compared by CHECKSUM, not by whether the version xattrs are present.
+        # Overwriting in place -- `> bzImage`, dd, cp onto the existing path,
+        # which is how a custom kernel actually gets installed -- preserves the
+        # existing xattrs, so FOG's old tag survives on the admin's file and an
+        # absence test sees nothing. _stampFogSum records the checksum at
+        # download time precisely so the content can be compared instead.
         #
         # Detected here, reported after the restore. Silently keeping the
         # custom kernel means never getting kernel updates again; silently
-        # replacing it means losing it. Both are bad in the same way -- the
-        # admin does not find out. So do neither, and say so.
+        # replacing it means losing it. Both fail the same way -- the admin
+        # does not find out. So do neither, and say so.
         customDefaultKernels=""
-        if command -v attr >/dev/null 2>&1; then
-            for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
-                [[ -f "${ipxedir}/${bn}" ]] || continue
-                attr -q -g tag_name "${ipxedir}/${bn}" >/dev/null 2>&1 && continue
-                customDefaultKernels="${customDefaultKernels}${bn} "
-            done
-        fi
+        for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+            [[ -f "${ipxedir}/${bn}" ]] || continue
+            [[ $(_fogSumStatus "${ipxedir}/${bn}") -eq 1 ]] && customDefaultKernels="${customDefaultKernels}${bn} "
+        done
     fi
 
     [[ $warn -ne 0 ]] && echo -n "(some optional files could not be backed up) "
@@ -4939,21 +4972,27 @@ downloadfiles() {
     cp -vf ${copypath}bzImage ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $kern_version ${webdirdest}/service/ipxe/bzImage >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/bzImage >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/bzImage
     cp -vf ${copypath}bzImage32 ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $kern_version ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/bzImage32
     cp -vf ${copypath}arm_Image ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $kern_version ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/arm_Image
     cp -vf ${copypath}init.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/init.xz
     cp -vf ${copypath}init_32.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/init_32.xz
     cp -vf ${copypath}arm_init.cpio.gz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/arm_init.cpio.gz
     cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$error_log 2>&1
     errorStat $?
     cd $cwd
