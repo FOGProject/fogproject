@@ -352,9 +352,12 @@ wrong anchor, and it costs two things:
   would let the Client CA be rotated freely.
 - **HTTPS by default.** The client trusts only the Client zone's intermediate,
   which does not sign the web certificate — the **Web CA** does. So the web
-  certificate is not trusted and HTTPS cannot be enabled by default. If the
-  client trusted the **root**, every zone beneath it would validate, and an
-  all-FOG-PKI install could turn HTTPS on out of the box.
+  certificate is not trusted and HTTPS cannot be enabled by default.
+
+  **Confirmed:** adding `FOG Server ROOT CA` to the Windows trust store by
+  hand makes HTTPS work. So this is not a theory — the mechanics are proven,
+  and all that stands between here and HTTPS-on-by-default for an
+  all-FOG-PKI install is which certificate fog-client installs at setup.
 
 That change lives in the `zazzles`/fog-client repository, not here. Nothing in
 this repo needs to change to accommodate it: the root certificate is already

@@ -82,9 +82,11 @@ fresh install out. Both are fully supported.
    the Client zone, which does not sign the web certificate (the Web CA does),
    so the web certificate is untrusted. Trusting the **root** would validate
    every zone beneath it and let an all-FOG-PKI install enable HTTPS out of
-   the box. Nothing in this repo needs to change for it — the root is already
-   in the chain and `ca.cert.der` keeps carrying the intermediate for existing
-   pinning.
+   the box — **confirmed by adding the root to the Windows trust store by
+   hand, after which HTTPS works.** The mechanics are proven; only which
+   certificate fog-client installs at setup stands in the way. Nothing in this
+   repo needs to change for it — the root is already in the chain and
+   `ca.cert.der` keeps carrying the intermediate for existing pinning.
 2. ~~Shim has never been asked to boot a leaf-signed kernel.~~ **Confirmed on
    real UEFI hardware, both enrolment routes.** Machines boot FOG's
    leaf-signed kernels while trusting only the **intermediate** — enrolled as
