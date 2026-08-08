@@ -246,6 +246,13 @@ backupPreservedCustomizations() {
             # tree cannot be found, $shippeddir does not exist, every file
             # fails this test and everything is kept -- the safe direction.
             [[ -e "${shippeddir}/${bn}" ]] && continue
+            # Skip the per-version siblings this function itself leaves behind
+            # (bzImage.20260806-111046). They are already a copy of a kernel;
+            # snapshotting them into every generation would multiply the same
+            # bytes by the generation count for no added recoverability.
+            case $bn in
+                bzImage.*|bzImage32.*|arm_Image.*|init.xz.*|init_32.xz.*|arm_init.cpio.gz.*) continue ;;
+            esac
             cp -a "$kf" "${kbdir}/gen-1/${bn}" >>$error_log 2>&1 || warn=1
         done
         # A custom kernel installed under a DEFAULT name is the case none of
@@ -269,6 +276,19 @@ backupPreservedCustomizations() {
         for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
             [[ -f "${ipxedir}/${bn}" ]] || continue
             [[ $(_fogSumStatus "${ipxedir}/${bn}") -eq 1 ]] && customDefaultKernels="${customDefaultKernels}${bn} "
+            # Keep the outgoing kernel in place, named for the release it came
+            # from: bzImage.20260806-111046 sits right next to bzImage.
+            #
+            # The generation directories are the complete, rotated history; this
+            # is the version you can actually SEE while looking at the boot
+            # directory, and point a single host at by name without restoring
+            # anything. Named per version rather than a single .prev so several
+            # updates' worth accumulate, which is cheap next to the images this
+            # server already stores.
+            local tag
+            tag=$(attr -q -g tag_name "${ipxedir}/${bn}" 2>/dev/null | tr -d "\"" | tr -c "A-Za-z0-9.-" "_")
+            [[ -z $tag ]] && tag="prev"
+            [[ -e "${ipxedir}/${bn}.${tag}" ]] || cp -a "${ipxedir}/${bn}" "${ipxedir}/${bn}.${tag}" >>$error_log 2>&1
         done
     fi
 
@@ -4999,6 +5019,15 @@ downloadfiles() {
     _ensureSecureBootKeys
     _ensureSecureBootPlatformKeys
     _resignKernels
+    # Re-stamp AFTER signing. _resignKernels rewrites each kernel in place, so
+    # a checksum taken at download time no longer matches the file on disk --
+    # which made the next run report bzImage32/arm_Image as hand-installed on a
+    # server where nobody had touched them. Stamp what is actually there once
+    # everything that modifies it has run.
+    local _k
+    for _k in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+        _stampFogSum "${webdirdest}/service/ipxe/${_k}"
+    done
     _installSecureBootSigner
     _publishSecureBootKit
     _publishSecureBootAuthVars
