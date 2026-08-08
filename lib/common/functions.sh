@@ -81,7 +81,18 @@ backupReports() {
 # never inside $webdirdest -- that is the same "survives the wipe by
 # construction" property $fogprogramdir/secureboot already relies on, rather
 # than a copy that has to be re-made correctly every time.
-[[ -z $customizationsDir ]] && customizationsDir="${fogprogramdir}/customizations"
+#
+# Resolved on CALL, not when this file is sourced. installfog.sh sources
+# functions.sh at line ~93 but does not settle $fogprogramdir until config.sh
+# runs several hundred lines later, so a top-level assignment here evaluated to
+# "/customizations" and wrote the backups to the filesystem root. That is what
+# the first real-server run actually did -- the sandbox never caught it because
+# it always set $fogprogramdir before sourcing.
+_resolveCustomizationsDir() {
+    [[ -n $customizationsDir ]] && return 0
+    local base="${fogprogramdir:-/opt/fog}"
+    customizationsDir="${base%/}/customizations"
+}
 # Backs up whatever is actually customized under $webdirdest/service/ipxe/
 # BEFORE configureHttpd() destroys that tree.
 #
@@ -95,6 +106,7 @@ backupReports() {
 # a re-read of the setting (which an admin could have changed mid-install).
 backupPreservedCustomizations() {
     dots "Backing up customizations"
+    _resolveCustomizationsDir
     local ipxedir="${webdirdest}service/ipxe"
     local f st=0
     # Severity is split deliberately, because errorStat() EXITS the installer
@@ -187,6 +199,7 @@ backupPreservedCustomizations() {
 # instead.
 restorePreservedCustomizations() {
     dots "Restoring customizations"
+    _resolveCustomizationsDir
     local ipxedir="${webdirdest}service/ipxe"
     local f st=0
 
