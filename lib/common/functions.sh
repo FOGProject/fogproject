@@ -3859,19 +3859,31 @@ _pkiZoneDir() {
 # restructures an existing PKI, because doing so strands every fog-client that
 # pinned the old CA and every machine that enrolled the old Secure Boot key.
 #
-# NOTE: fresh installs currently default to flat as well. The design calls for
-# split to be the default, but two of its assumptions are unverified (how
-# fog-client obtains the server's encryption certificate, and whether shim
-# accepts a CA in MokList with an --addcert chain). Defaulting fresh installs
-# to split before those are confirmed on real hardware would bet every new
-# install on them. Flip the marked line below to "split" once Phase 0 of the
-# plan has been run -- that one word is the whole change.
+# Fresh installs get the split PKI. Verified end to end on a real server: the
+# root and both intermediates issue correctly, every chain verifies, the vhost
+# serves the web leaf while ca.cert.der publishes the client CA, and -- the
+# point of the whole exercise -- the key certDecrypt() opens is provably a
+# different keypair from the one the web server uses, so replacing the web
+# certificate can no longer break client authentication.
+#
+# --legacy-pki opts back into the single self-signed CA, which stays fully
+# supported for anyone who does not want the extra structure.
+#
+# Two things remain unverified, and neither is reached by what ships here: how
+# fog-client obtains the server's encryption certificate (it is published at
+# the path the client has always fetched, but no real client has been observed
+# against a split server yet), and whether shim accepts a CA in MokList --
+# which only matters for the Secure Boot intermediate, and that is not
+# implemented.
 _resolvePkiMode() {
     [[ -n $pkiMode ]] && return 0
     if [[ $caCreated == yes ]]; then
+        # An existing server keeps the layout it already has, always. Switching
+        # it underneath a fleet that pinned the old CA is the one thing this
+        # must never decide on its own -- --split-pki is how an admin asks.
         pkiMode="flat"
     else
-        pkiMode="flat"   # <-- PHASE 0 GATE: change to "split" once verified
+        pkiMode="split"
     fi
 }
 # Which protocol iPXE uses to reach boot.php, decided separately from the

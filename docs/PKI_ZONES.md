@@ -4,9 +4,10 @@ FOG uses certificates for three unrelated jobs. This describes how they are
 separated, how to replace any of them with your own, and what changes on the
 endpoints when you do.
 
-> **Status:** the split layout is implemented but **off by default**. A fresh
-> install still gets the historic single-CA layout unless you pass
-> `--split-pki`. See [Current status](#current-status) for why.
+> **Status:** the split layout is the **default for fresh installs**. An
+> existing server keeps the layout it already has and is never switched
+> automatically. `--legacy-pki` opts a fresh install back to the single
+> self-signed CA.
 
 ## The three zones
 
@@ -92,8 +93,8 @@ client/comm/.commLeaf.{key,pem}    what certDecrypt() actually opens
 ## Choosing a layout
 
 ```bash
-./installfog.sh --split-pki     # three zones
-./installfog.sh --legacy-pki    # single self-signed CA (current default)
+./installfog.sh                 # three zones -- the default on a fresh install
+./installfog.sh --legacy-pki    # single self-signed CA instead
 ```
 
 Both are supported. Legacy is not deprecated — it is a smaller thing to
@@ -199,22 +200,27 @@ that FQDN or the generated boot URLs will not match the certificate.
 | `certDecrypt()` reading the comm key | Implemented |
 | Per-zone bring-your-own-CA flags | Implemented |
 | `netbootproto` separation | Implemented |
-| Split as the **default** | **Not yet** — see below |
-| Secure Boot intermediate | **Not yet** — see below |
+| Split as the **default** for fresh installs | Implemented |
+| Secure Boot intermediate | **Not implemented** — see below |
 
-Two assumptions are unverified, and both are about software outside this
-repository:
+Verified on a real server by uninstalling, purging the CA and installing
+fresh: the root and both intermediates issue correctly, all four chains
+verify, `ca.cert.der` publishes the Client CA while the vhost serves the web
+leaf, and the key `certDecrypt()` opens is provably a different keypair from
+the web server's — which is the entire point.
 
-1. **How fog-client obtains the server's encryption certificate.** The
-   layout assumes it fetches `srvpublic.crt`, which is where FOG publishes
-   the comm certificate. If it derives a key from `ca.cert.der` instead, the
-   Client CA doubles as the comm keypair and the published files change.
+Two things remain unverified. Neither is reached by what ships today:
+
+1. **How fog-client obtains the server's encryption certificate.** FOG
+   publishes the comm certificate at `srvpublic.crt`, the path the client has
+   always fetched, so no client change should be needed — but no real client
+   has been observed authenticating against a split-mode server. If it turns
+   out to derive a key from `ca.cert.der` instead, the Client CA doubles as
+   the comm keypair and the published files change.
 2. **Whether shim accepts a CA in MokList** with the signing chain attached
-   via `sbsign --addcert`. The whole "rotate signing leaves without touching
-   firmware" premise depends on it, and it needs testing on real UEFI
-   hardware.
+   via `sbsign --addcert`. This only matters for the Secure Boot intermediate,
+   which is **not implemented** — Secure Boot still uses its existing
+   self-signed key, unchanged. Needs real UEFI hardware to answer.
 
-Defaulting fresh installs to split before those are answered would bet every
-new install on them, so the default stays legacy until they are. Neither
-affects an existing server, and the zones are independent — a negative answer
-on (2) costs the Secure Boot zone only.
+An existing server is never switched automatically, so neither question can
+affect a server that is already running.
