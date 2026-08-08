@@ -27,11 +27,24 @@ self-signed leaf did the third. That produced two problems that look
 unrelated but have the same shape:
 
 **`.srvprivate.key` was the web server's TLS key *and* the key that decrypts
-every fog-client handshake.** `FOGBase::certDecrypt()` opens it on every
-`authorize()` call. So replacing the web certificate — an ACME renewal,
-`--recreate-keys`, dropping in a purchased cert — silently breaks client
-authentication, with a perfectly valid certificate installed and nothing in
-the logs connecting the two.
+every fog-client handshake.** `FOGBase::certDecrypt()` opens that exact path
+on every `authorize()` call.
+
+The distinction that matters, because it decides which workarounds are safe:
+the coupling is to **the file**, not to the concept of "the web certificate".
+
+| What you do | Client auth |
+|---|---|
+| Point `SSLCertificateFile`/`SSLCertificateKeyFile` at your own cert elsewhere | **Fine.** FOG's key is untouched; `certDecrypt()` still reads it. |
+| Overwrite `.srvprivate.key` in place — `acme.sh --install-cert --key-file`, `certbot` writing over it, `--recreate-keys` | **Breaks.** Valid certificate installed, clients stop authenticating, nothing in the logs connects the two. |
+
+So on a legacy install the safe way to use your own certificate is to leave
+FOG's files alone and point the vhost somewhere else — which is what the
+managed vhost block exists to let you keep across upgrades (see
+[SUPPORTED_CUSTOMIZATIONS.md](SUPPORTED_CUSTOMIZATIONS.md)).
+
+Confirmed on a real server: `openssl` moduli show `.srvprivate.key` pairs
+with `srvpublic.crt` (the web leaf), not with `ca.cert.pem` (the CA).
 
 **The enrolled Secure Boot MOK was the signing certificate itself.** Because
 the thing in the firmware was a leaf that can issue nothing, rotating or
