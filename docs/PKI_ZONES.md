@@ -201,7 +201,51 @@ that FQDN or the generated boot URLs will not match the certificate.
 | Per-zone bring-your-own-CA flags | Implemented |
 | `netbootproto` separation | Implemented |
 | Split as the **default** for fresh installs | Implemented |
-| Secure Boot intermediate | **Not implemented** — see below |
+| Secure Boot intermediate | Implemented — **not verified on hardware** |
+
+### Secure Boot
+
+The Secure Boot zone follows the same shape as the other two: the Root issues
+a **FOG Secure Boot CA**, that intermediate is what gets enrolled in firmware
+(`MOK.der`), and it issues a short-lived **code-signing leaf** that actually
+signs the FOS kernels. `sbsign --addcert` embeds the intermediate in the
+signature so shim can chain the leaf back to what was enrolled.
+
+The point is rotation. Under the flat model the enrolled certificate *is* the
+signer, so replacing a signing key means a physical MokManager trip to every
+machine, and a storage node cannot sign at all without holding the fleet's one
+trusted key. Enrolling the issuer instead means leaves can be rotated, revoked
+or issued per node while the fleet keeps booting.
+
+Verified on a real server: the chain verifies, the leaf carries the
+`codeSigning` EKU, `MOK.der` publishes the **intermediate**, and a signed
+kernel contains **both** certificates:
+
+```
+$ sbverify --list bzImage
+ - subject: /CN=FOG Project Secure Boot Signing
+   issuer:  /CN=FOG Secure Boot CA
+ - subject: /CN=FOG Secure Boot CA
+   issuer:  /CN=FOG Server ROOT CA
+```
+
+**Not verified:** that shim actually accepts a CA in MokList and chains a
+leaf-signed kernel to it, and the same question for firmware validating `db`.
+Both need real UEFI hardware. The mechanism is correct by construction, which
+is not the same as observed booting. If it fails, the fix is one variable —
+point `secureBootMokCert` at the leaf and the behaviour reverts to today's.
+
+**RHEL/CentOS 9 caveat:** `efitools` is not packaged for RHEL 9, not even in
+EPEL, and nothing else provides `sign-efi-sig-list`/`cert-to-efi-sig-list`. It
+is a declared dependency and installs fine on Debian/Ubuntu, but on
+RHEL-family the installer reports it missing and skips building the signed
+PK/KEK/db blobs. MOK enrolment via MokManager is unaffected; only the
+unattended Setup Mode path needs those tools, and it needs efitools built from
+source there. The `db` change described above is therefore **untested** —
+nothing on a RHEL box has exercised it.
+
+An existing server that has ever generated a MOK keeps using it, even under
+`--split-pki`, since a machine may already have enrolled it.
 
 Verified on a real server by uninstalling, purging the CA and installing
 fresh: the root and both intermediates issue correctly, all four chains
