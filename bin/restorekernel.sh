@@ -105,9 +105,26 @@ if [[ ! -r "$fogprogramdir/.fogsettings" ]]; then
     exit 1
 fi
 . "$fogprogramdir/.fogsettings"
+# .fogsettings records docroot and webroot but NOT webdirdest -- config.sh
+# derives that ("${docroot}fog/"). Sourcing .fogsettings alone therefore left
+# $webdirdest empty and $ipxedir as the relative string "service/ipxe", so
+# --list mislabelled everything and --generation would have copied the restore
+# into a stray directory under bin/ instead of the live tree.
+#
+# Same ordering as bin/updatefog.sh, and for the same reason: .fogsettings
+# first so the recorded values win, then config.sh to derive what it does not
+# record. This is the bug commit ca02e0b9e fixed in setupacme.sh.
+linuxReleaseName_lower="${osname,,}"
+. ../lib/common/config.sh
+[[ -n $osid ]] && doOSSpecificIncludes >/dev/null
 
 kbdir="${fogprogramdir}/customizations/kernel-backups"
 ipxedir="${webdirdest}service/ipxe"
+if [[ ! -d $ipxedir ]]; then
+    echo " * Could not locate the live iPXE directory (looked in '${ipxedir}')."
+    echo " * Check docroot/webroot in $fogprogramdir/.fogsettings."
+    exit 1
+fi
 
 if [[ ! -d $kbdir ]]; then
     echo " * No kernel backups yet at $kbdir."

@@ -163,16 +163,26 @@ backupPreservedCustomizations() {
         exit 1
     fi
 
-    # Snapshot the whole directory into a rotated generation, rather than a
-    # fixed list of filenames. Two things fall out of that: a per-host custom
-    # kernel/init (bootmenu.class.php's Host->get('kernel')/get('init')) is
-    # captured without FOG ever having to learn its name, and a generation is
-    # a complete, coherent set rather than an assortment.
+    # Snapshot the KERNEL/INIT set into a rotated generation -- not the whole
+    # directory.
     #
-    # Bounded at $kernelBackupGenerations because this is otherwise unlimited
-    # growth on disk the admin provisioned for images, not for history.
+    # service/ipxe is a mixed bag: FOG's own boot.php/advanced.php/index.php,
+    # bg images, grub.exe/memdisk/memtest.bin, the refind set, AND the kernels.
+    # An earlier version copied all of it, which made a "kernel backup" full of
+    # PHP and led directly to restoring a previous release's boot.php over a
+    # freshly installed one. Everything in here that FOG ships is already
+    # versioned in git; only the kernel/init material is worth generations.
+    #
+    # Custom names come from the database rather than from guessing at the
+    # directory: hostKernel/hostInit are where a per-host override is actually
+    # recorded, so ask.
     [[ -z $kernelBackupGenerations || ! $kernelBackupGenerations =~ ^[0-9]+$ || $kernelBackupGenerations -lt 1 ]] && kernelBackupGenerations=3
-    local kbdir="${customizationsDir}/kernel-backups" k
+    local kbdir="${customizationsDir}/kernel-backups" k kf
+    local kernelnames="bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz"
+    local customkernels
+    customkernels=$(mysql $sqloptionsuser --password="${snmysqlpass}" -N -B \
+        --execute="SELECT DISTINCT hostKernel FROM hosts WHERE hostKernel<>'' UNION SELECT DISTINCT hostInit FROM hosts WHERE hostInit<>''" \
+        $mysqldbname 2>>$error_log)
     if [[ -d $ipxedir ]]; then
         mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
         rm -rf "${kbdir}/gen-${kernelBackupGenerations}" >>$error_log 2>&1
@@ -183,7 +193,11 @@ backupPreservedCustomizations() {
         # cp -a preserves the version/tag_name xattrs downloadfiles() stamps on
         # each kernel, so every generation says which FOS release it came from
         # without a separate manifest to keep in sync.
-        cp -a "${ipxedir}/." "${kbdir}/gen-1/" >>$error_log 2>&1 || warn=1
+        for kf in $kernelnames $customkernels; do
+            kf=$(basename "$kf")
+            [[ -f "${ipxedir}/${kf}" ]] || continue
+            cp -a "${ipxedir}/${kf}" "${kbdir}/gen-1/${kf}" >>$error_log 2>&1 || warn=1
+        done
     fi
 
     [[ $warn -ne 0 ]] && echo -n "(some optional files could not be backed up) "
@@ -210,26 +224,22 @@ restorePreservedCustomizations() {
         [[ -f "${customizationsDir}/ipxe-legacy/${f}" ]] && { cp -f "${customizationsDir}/ipxe-legacy/${f}" "${ipxedir}/${f}" >>$error_log 2>&1 || st=1; }
     done
 
-    # Restore a file from the snapshot ONLY if the fresh install did not put a
-    # file of that name back.
+    # The snapshot now holds only kernel/init material (see the backup side),
+    # so the restore rule is simple and safe:
     #
-    # The obvious rule -- "anything that is not one of the six kernel/init
-    # names is a custom file" -- is wrong, and a real install proves it:
-    # service/ipxe also holds boot.php, advanced.php, bgdark.png, the
-    # .unsigned/.old kernel siblings and more, all shipped by FOG. Under that
-    # rule every update copied the PREVIOUS version's boot.php back over the
-    # newly installed one, silently reverting FOG's own code on every run.
-    #
-    # Absence is the honest test. If the just-completed install wrote a file of
-    # that name, it is FOG's and the new copy wins. If nothing wrote it, the
-    # admin put it there -- a per-host kernel/init override -- and nothing else
-    # will ever put it back.
+    #   absent from the live tree  -> put it back. Only a per-host custom
+    #                                 kernel/init reaches this: FOG re-downloads
+    #                                 its own six every run, so they are never
+    #                                 absent, and nothing else was captured.
+    #   present                    -> leave the freshly installed file alone.
+    #                                 Picking up the new kernel is the point of
+    #                                 an update.
     #
     # $restoreKernelBackup is the one exception: --restore-kernel-backup, which
     # revertUpdate() passes when re-running the installer against the previous
-    # commit. An older commit wants its older kernels, so the six default names
-    # are forced back over the fresh ones -- the behavior the retired
-    # _restorePreviousKernel() used to provide on that path.
+    # commit. An older commit wants its older kernels, so the defaults are
+    # forced back over the fresh ones -- what the retired
+    # _restorePreviousKernel() used to do on that path.
     local kbdir="${customizationsDir}/kernel-backups"
     local defaultnames=" bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz "
     local bn
