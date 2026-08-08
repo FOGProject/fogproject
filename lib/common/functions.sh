@@ -3475,6 +3475,11 @@ writeUpdateFile() {
         # opt-out that reverted on the next upgrade would hand the admin back a
         # root-only key and a sudoers rule they had deliberately declined.
         secureBootKey secureBootCert secureboot
+        # The certificate endpoints ENROL, which is not always the one that
+        # signs. Persisted so an admin who supplied their own Secure Boot
+        # intermediate does not have to re-pass it on every later run -- and
+        # so a rotated signing leaf keeps pointing at the same enrolled CA.
+        secureBootMokCert
         # GH-964 sibling: what the admin chose for the local firewall
         # (configure/disable/skip). Persisted for the same reason the Secure
         # Boot keys are -- so an upgrade does not quietly undo a deliberate

@@ -143,6 +143,11 @@ usage() {
     echo -e "\t      --client-ca-cn\t\tCN fog-client expects on the pinned cert"
     echo -e "\t                 \t\t\tdefaults to 'FOG Server CA'"
     echo -e "\t      --root-ca-cert/-key\tSupply the Root CA instead of generating one"
+    echo -e "\t      --secureboot-ca-cert\tYour own SECURE BOOT intermediate: the"
+    echo -e "\t                 \t\t\tcertificate enrolled in firmware. Pair it with"
+    echo -e "\t                 \t\t\t--secure-boot-key/--secure-boot-cert, which name"
+    echo -e "\t                 \t\t\tthe code-signing leaf issued from it. Rotate the"
+    echo -e "\t                 \t\t\tleaf freely; the enrolled CA never changes"
     echo -e "\t      --kernel-backup-count\tHow many prior kernel/init generations to"
     echo -e "\t                       \t\tkeep (default 3). Restore one with"
     echo -e "\t                       \t\tbin/restorekernel.sh. See"
@@ -194,7 +199,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,split-pki,legacy-pki,netboot-proto:,client-ca-cn:,web-ca-cert:,web-ca-key:,web-ca-root:,client-ca-cert:,client-ca-key:,client-ca-root:,root-ca-cert:,root-ca-key:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,split-pki,legacy-pki,netboot-proto:,client-ca-cn:,web-ca-cert:,web-ca-key:,web-ca-root:,client-ca-cert:,client-ca-key:,client-ca-root:,root-ca-cert:,root-ca-key:,secureboot-ca-cert:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -516,7 +521,7 @@ while :; do
             ;;
         --web-ca-cert | --web-ca-key | --web-ca-root | \
         --client-ca-cert | --client-ca-key | --client-ca-root | \
-        --root-ca-cert | --root-ca-key)
+        --root-ca-cert | --root-ca-key | --secureboot-ca-cert)
             if [[ ! -f $2 ]]; then
                 echo "$1 requires a readable file after"
                 usage
@@ -531,6 +536,12 @@ while :; do
                 --client-ca-root) sclientExtCARoot="$2" ;;
                 --root-ca-cert)   srootExtCACert="$2" ;;
                 --root-ca-key)    srootExtCAKey="$2" ;;
+                # The Secure Boot zone's anchor: what gets ENROLLED in
+                # firmware. Pairs with --secure-boot-key/--secure-boot-cert,
+                # which name the leaf that actually signs. Supplying only the
+                # leaf pair (the historic form) still works and enrols that
+                # certificate, exactly as before.
+                --secureboot-ca-cert) ssecureBootMokCert="$2" ;;
             esac
             shift 2
             ;;
@@ -760,6 +771,7 @@ esac
 [[ -n $sclientExtCARoot ]] && clientExtCARoot=$sclientExtCARoot
 [[ -n $srootExtCACert ]] && rootExtCACert=$srootExtCACert
 [[ -n $srootExtCAKey ]] && rootExtCAKey=$srootExtCAKey
+[[ -n $ssecureBootMokCert ]] && secureBootMokCert=$ssecureBootMokCert
 # Supplying any web-zone CA file implies --external-ca, the same way supplying
 # --ca-cert always has. Saves an admin from the "I gave you the files and
 # nothing happened" failure, which produces a working install with the wrong
