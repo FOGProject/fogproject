@@ -173,16 +173,27 @@ backupPreservedCustomizations() {
     # freshly installed one. Everything in here that FOG ships is already
     # versioned in git; only the kernel/init material is worth generations.
     #
-    # Custom names come from the database rather than from guessing at the
-    # directory: hostKernel/hostInit are where a per-host override is actually
-    # recorded, so ask.
+    # Do not try to ENUMERATE custom kernel names -- subtract what FOG ships
+    # instead.
+    #
+    # Enumerating cannot be made complete. A custom kernel name can come from
+    # hostKernel/hostInit, from groupKernel/groupInit, from the
+    # FOG_TFTP_PXE_KERNEL/_32/_ARM settings, or from nothing FOG records at all
+    # -- an admin's own custom.ipxe can chain a kernel this server has never
+    # heard of. Any list of places to look is a list that will be short one
+    # place.
+    #
+    # What IS knowable exactly is the set FOG ships: the contents of
+    # packages/web/service/ipxe in the source tree (13 files -- the PHP, the
+    # bg images, grub.exe/memdisk/memtest.bin, refind). Everything else living
+    # in the live directory is either a kernel/init downloadfiles() fetched or
+    # something the admin put there, and both are worth keeping.
+    #
+    # So: back up (live directory) minus (what the source tree ships). No
+    # guessing, and a fully custom name is covered however it got there.
     [[ -z $kernelBackupGenerations || ! $kernelBackupGenerations =~ ^[0-9]+$ || $kernelBackupGenerations -lt 1 ]] && kernelBackupGenerations=3
-    local kbdir="${customizationsDir}/kernel-backups" k kf
-    local kernelnames="bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz"
-    local customkernels
-    customkernels=$(mysql $sqloptionsuser --password="${snmysqlpass}" -N -B \
-        --execute="SELECT DISTINCT hostKernel FROM hosts WHERE hostKernel<>'' UNION SELECT DISTINCT hostInit FROM hosts WHERE hostInit<>''" \
-        $mysqldbname 2>>$error_log)
+    local kbdir="${customizationsDir}/kernel-backups" k kf bn
+    local shippeddir="${webdirsrc%/}/service/ipxe"
     if [[ -d $ipxedir ]]; then
         mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
         rm -rf "${kbdir}/gen-${kernelBackupGenerations}" >>$error_log 2>&1
@@ -193,10 +204,14 @@ backupPreservedCustomizations() {
         # cp -a preserves the version/tag_name xattrs downloadfiles() stamps on
         # each kernel, so every generation says which FOS release it came from
         # without a separate manifest to keep in sync.
-        for kf in $kernelnames $customkernels; do
-            kf=$(basename "$kf")
-            [[ -f "${ipxedir}/${kf}" ]] || continue
-            cp -a "${ipxedir}/${kf}" "${kbdir}/gen-1/${kf}" >>$error_log 2>&1 || warn=1
+        for kf in "${ipxedir}"/*; do
+            [[ -f $kf ]] || continue
+            bn=$(basename "$kf")
+            # Shipped by FOG -> already versioned in git, skip. If the source
+            # tree cannot be found, $shippeddir does not exist, every file
+            # fails this test and everything is kept -- the safe direction.
+            [[ -e "${shippeddir}/${bn}" ]] && continue
+            cp -a "$kf" "${kbdir}/gen-1/${bn}" >>$error_log 2>&1 || warn=1
         done
     fi
 
