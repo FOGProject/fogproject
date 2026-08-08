@@ -619,7 +619,9 @@ class HostManagement extends FOGPage
                 'kernel',
                 $kernel,
                 'kernel',
-                'form-control hostkernel-input'
+                'form-control hostkernel-input',
+                '',
+                _('Use the default kernel')
             ),
             self::makeLabel(
                 $labelClass,
@@ -641,7 +643,9 @@ class HostManagement extends FOGPage
                 'init',
                 $init,
                 'init',
-                'form-control hostinit-input'
+                'form-control hostinit-input',
+                '',
+                _('Use the default init')
             ),
             self::makeLabel(
                 $labelClass,
@@ -865,7 +869,9 @@ class HostManagement extends FOGPage
                 'kernel',
                 $kernel,
                 'kernel',
-                'form-control hostkernel-input'
+                'form-control hostkernel-input',
+                '',
+                _('Use the default kernel')
             ),
             self::makeLabel(
                 $labelClass,
@@ -887,7 +893,9 @@ class HostManagement extends FOGPage
                 'init',
                 $init,
                 'init',
-                'form-control hostinit-input'
+                'form-control hostinit-input',
+                '',
+                _('Use the default init')
             ),
             self::makeLabel(
                 $labelClass,
@@ -1154,7 +1162,9 @@ class HostManagement extends FOGPage
                 'kernel',
                 $kernel,
                 'kernel',
-                'form-control hostkernel-input'
+                'form-control hostkernel-input',
+                '',
+                _('Use the default kernel')
             ),
             self::makeLabel(
                 $labelClass,
@@ -1176,7 +1186,9 @@ class HostManagement extends FOGPage
                 'init',
                 $init,
                 'init',
-                'form-control hostinit-input'
+                'form-control hostinit-input',
+                '',
+                _('Use the default init')
             ),
             self::makeLabel(
                 $labelClass,

@@ -113,7 +113,9 @@ class GroupManagement extends FOGPage
                 'kernel',
                 $kernel,
                 'kernel',
-                'form-control groupkernel-input'
+                'form-control groupkernel-input',
+                '',
+                _('Use the default kernel')
             ),
             self::makeLabel(
                 $labelClass,
@@ -135,7 +137,9 @@ class GroupManagement extends FOGPage
                 'init',
                 $init,
                 'init',
-                'form-control groupinit-input'
+                'form-control groupinit-input',
+                '',
+                _('Use the default init')
             ),
             self::makeLabel(
                 $labelClass,

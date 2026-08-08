@@ -5133,7 +5133,8 @@ abstract class FOGPage extends FOGBase
         $current = '',
         $type = 'kernel',
         $class = 'form-control',
-        $id = ''
+        $id = '',
+        $blankLabel = ''
     ) {
         $current = trim((string)$current);
         if ($id === '') {
@@ -5159,8 +5160,20 @@ abstract class FOGPage extends FOGBase
         if ($missing) {
             array_unshift($files, $current);
         }
+        /**
+         * The blank option is load-bearing, not filler. On a host or group an
+         * empty kernel/init means "inherit the global default", so it must be
+         * present, must be first, and must never be pre-selected -- otherwise
+         * simply opening the form and saving would pin every inheriting host
+         * to a specific kernel. Callers pass a label saying so, because
+         * "Please select an option" reads as though a choice is required.
+         */
         $opts = '<option value="">- '
-            . self::$foglang['PleaseSelect']
+            . (
+                $blankLabel !== '' ?
+                Initiator::e($blankLabel) :
+                self::$foglang['PleaseSelect']
+            )
             . ' -</option>';
         foreach ($files as $file) {
             $opts .= '<option value="'
