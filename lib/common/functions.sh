@@ -276,19 +276,6 @@ backupPreservedCustomizations() {
         for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
             [[ -f "${ipxedir}/${bn}" ]] || continue
             [[ $(_fogSumStatus "${ipxedir}/${bn}") -eq 1 ]] && customDefaultKernels="${customDefaultKernels}${bn} "
-            # Keep the outgoing kernel in place, named for the release it came
-            # from: bzImage.20260806-111046 sits right next to bzImage.
-            #
-            # The generation directories are the complete, rotated history; this
-            # is the version you can actually SEE while looking at the boot
-            # directory, and point a single host at by name without restoring
-            # anything. Named per version rather than a single .prev so several
-            # updates' worth accumulate, which is cheap next to the images this
-            # server already stores.
-            local tag
-            tag=$(attr -q -g tag_name "${ipxedir}/${bn}" 2>/dev/null | tr -d "\"" | tr -c "A-Za-z0-9.-" "_")
-            [[ -z $tag ]] && tag="prev"
-            [[ -e "${ipxedir}/${bn}.${tag}" ]] || cp -a "${ipxedir}/${bn}" "${ipxedir}/${bn}.${tag}" >>$error_log 2>&1
         done
     fi
 
@@ -344,6 +331,31 @@ restorePreservedCustomizations() {
             elif [[ ${restoreKernelBackup:-0} -eq 1 && $defaultnames == *" $bn "* ]]; then
                 cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
             fi
+        done
+    fi
+    # Leave the OUTGOING kernel next to the new one, named for the release it
+    # came from: bzImage.20260806-111046 beside bzImage.
+    #
+    # Done here, not at backup time, because configureHttpd() rm -rf's the whole
+    # web tree between the two -- a sibling written before that is deleted
+    # minutes later, which is exactly what the first attempt did. The generation
+    # snapshot is the surviving copy, so build the sibling from it.
+    #
+    # The generation directories remain the complete rotated history; this is
+    # the copy visible while looking at the boot directory, and the one a single
+    # host can be pointed at by name without restoring anything. Per version
+    # rather than a single .prev so several updates accumulate -- cheap next to
+    # the images this server already holds.
+    if [[ -d "${kbdir}/gen-1" ]]; then
+        local tag
+        for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+            [[ -f "${kbdir}/gen-1/${bn}" ]] || continue
+            tag=$(attr -q -g tag_name "${kbdir}/gen-1/${bn}" 2>/dev/null | tr -d '"' | tr -c 'A-Za-z0-9.-' '_')
+            [[ -z $tag ]] && tag="prev"
+            # Same content under the same name means the update did not change
+            # this kernel; a sibling would just be a duplicate.
+            cmp -s "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}" && continue
+            [[ -e "${ipxedir}/${bn}.${tag}" ]] || cp -a "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}.${tag}" >>$error_log 2>&1
         done
     fi
     [[ -d $ipxedir ]] && chown -R ${username}:${apacheuser} "$ipxedir" >>$error_log 2>&1
