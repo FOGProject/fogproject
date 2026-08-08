@@ -3616,7 +3616,19 @@ FOG_MANAGED_END='# === END FOG MANAGED BLOCK ==='
 # fresh block and touch nothing that was already there. Never guess at a
 # partial patch.
 spliceManagedBlock() {
-    local conffile="$1" contentfile="$2"
+    local conffile="$1" contentfile="$2" priorfile="$3"
+    # $3 names where the file's PREVIOUS content lives, when the caller has
+    # already moved it aside. createSSLCA() does exactly that -- it runs
+    # `mv -fv $etcconf $etcconf.$timestamp` before generating, so diffconfig()
+    # has something to compare against -- which means by the time we are called
+    # $conffile does not exist and the admin's content is in the backup.
+    #
+    # Missing this is what made the first real-server test wipe a hand-added
+    # vhost block: every sandbox test had called this against a file that was
+    # still in place, so the "no file" branch never ran when it mattered.
+    if [[ ! -f "$conffile" && -n $priorfile && -f "$priorfile" ]]; then
+        cp -f "$priorfile" "$conffile" 2>/dev/null
+    fi
     if [[ ! -f "$conffile" ]]; then
         { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } > "$conffile"
         return $?
@@ -3643,16 +3655,20 @@ spliceManagedBlock() {
 # the wrong path.
 beginManagedVhost() {
     vhostfinal="$etcconf"
+    # Callers mv the original to $etcconf.$timestamp just above this, so that
+    # is where the admin's previous content is. Remember it -- it is the base
+    # the new block gets spliced into.
+    vhostprior="${etcconf}.${timestamp}"
     etcconf="${etcconf}.fogblock.$$"
     : > "$etcconf"
 }
 endManagedVhost() {
     local generated="$etcconf"
     etcconf="$vhostfinal"
-    spliceManagedBlock "$etcconf" "$generated"
+    spliceManagedBlock "$etcconf" "$generated" "$vhostprior"
     local st=$?
     rm -f "$generated" >>$error_log 2>&1
-    unset vhostfinal
+    unset vhostfinal vhostprior
     return $st
 }
 createSSLCA() {
