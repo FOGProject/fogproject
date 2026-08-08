@@ -69,11 +69,22 @@ fresh install out. Both are fully supported.
 
 ## NOT verified — read this before shipping
 
-1. **No real fog-client has authenticated against a split server.** The comm
-   certificate is published at `srvpublic.crt`, the path the client has always
-   fetched, so no client change is expected. Expected is not observed. One
-   host checking in settles it. If the client instead derives its key from
-   `ca.cert.der`, the fix is to let the Client CA double as the comm keypair.
+1. ~~No real fog-client has authenticated against a split server.~~
+   **Confirmed working.** It fetches the comm certificate from the path it
+   always has, so the split needed no client change.
+
+   **Follow-up, in `zazzles` not here:** the client installs `FOG Server CA`
+   — the Client Communication *intermediate* — into the Windows Root store,
+   rather than `FOG Server ROOT CA`. It works, but it is the wrong anchor and
+   costs two things. Rotation: trusting an intermediate as an anchor means
+   replacing it requires re-pushing trust to every client, the exact cost the
+   Secure Boot zone just removed. And HTTPS-by-default: the client trusts only
+   the Client zone, which does not sign the web certificate (the Web CA does),
+   so the web certificate is untrusted. Trusting the **root** would validate
+   every zone beneath it and let an all-FOG-PKI install enable HTTPS out of
+   the box. Nothing in this repo needs to change for it — the root is already
+   in the chain and `ca.cert.der` keeps carrying the intermediate for existing
+   pinning.
 2. ~~Shim has never been asked to boot a leaf-signed kernel.~~ **Confirmed on
    real UEFI hardware, both enrolment routes.** Machines boot FOG's
    leaf-signed kernels while trusting only the **intermediate** — enrolled as

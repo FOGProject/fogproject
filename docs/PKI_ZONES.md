@@ -335,18 +335,35 @@ verify, `ca.cert.der` publishes the Client CA while the vhost serves the web
 leaf, and the key `certDecrypt()` opens is provably a different keypair from
 the web server's — which is the entire point.
 
-Two things remain unverified. Neither is reached by what ships today:
+**fog-client is confirmed working against a split server.** It fetches the
+comm certificate from the path it always has, so the split needed no client
+change.
 
-1. **How fog-client obtains the server's encryption certificate.** FOG
-   publishes the comm certificate at `srvpublic.crt`, the path the client has
-   always fetched, so no client change should be needed — but no real client
-   has been observed authenticating against a split-mode server. If it turns
-   out to derive a key from `ca.cert.der` instead, the Client CA doubles as
-   the comm keypair and the published files change.
-2. **Whether shim accepts a CA in MokList** with the signing chain attached
-   via `sbsign --addcert`. This only matters for the Secure Boot intermediate,
-   which is **not implemented** — Secure Boot still uses its existing
-   self-signed key, unchanged. Needs real UEFI hardware to answer.
+### Known follow-up: the client trusts the intermediate, not the root
 
-An existing server is never switched automatically, so neither question can
+During installation fog-client adds **`FOG Server CA` — the Client
+Communication intermediate — to the Windows Root store**, rather than the
+actual `FOG Server ROOT CA`. It works, and nothing is broken. But it is the
+wrong anchor, and it costs two things:
+
+- **Rotation.** Trusting the intermediate as an anchor means replacing that
+  intermediate requires re-pushing trust to every client — the exact cost the
+  Secure Boot zone just eliminated by enrolling the issuer. Trusting the root
+  would let the Client CA be rotated freely.
+- **HTTPS by default.** The client trusts only the Client zone's intermediate,
+  which does not sign the web certificate — the **Web CA** does. So the web
+  certificate is not trusted and HTTPS cannot be enabled by default. If the
+  client trusted the **root**, every zone beneath it would validate, and an
+  all-FOG-PKI install could turn HTTPS on out of the box.
+
+That change lives in the `zazzles`/fog-client repository, not here. Nothing in
+this repo needs to change to accommodate it: the root certificate is already
+published in the chain, and `ca.cert.der` continues to carry the intermediate
+for the existing pinning behaviour.
+
+One thing remains unverified here: **nginx**. Every vhost change was exercised
+on Apache only, and both the managed-block splice and the `netbootproto`
+redirect exclusion have nginx branches that have never executed.
+
+An existing server is never switched automatically, so nothing above can
 affect a server that is already running.
