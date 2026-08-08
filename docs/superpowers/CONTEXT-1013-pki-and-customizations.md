@@ -78,13 +78,14 @@ fresh install out. Both are fully supported.
    built correctly and both certs are embedded, but no UEFI hardware has
    validated it. If it fails, point `secureBootMokCert` at the leaf — one
    variable — and behaviour reverts to today's.
-3. **The `db`/Setup-Mode path is untested.** `efitools` was unavailable on the
-   CentOS Stream 9 test box even with EPEL and CRB enabled, so
-   `fog-build-sb-authvars` never ran with the new `SECUREBOOT_MOK_CERT`.
-   Availability on EL9 is inconsistent — the upstream RPM tracker lists Fedora
-   branches only, yet it is present on at least one Rocky 9 FOG server (source
-   unestablished). Verify on Debian/Ubuntu, or on an EL9 box where it is
-   already installed.
+3. ~~The `db`/Setup-Mode path is untested.~~ **Now verified.** `efitools` was
+   built from source on the test box (see `docs/PKI_ZONES.md` for the recipe —
+   three userspace tools, needs `gnu-efi-devel` for `efi.h`). With it present
+   the installer builds `PK.auth`/`KEK.auth`/`db.auth`, and `db.auth` embeds
+   `CN=FOG Secure Boot CA` — the intermediate — with the signing leaf absent.
+   Note the package itself is unavailable on EL9 via EPEL/CRB and the upstream
+   RPM tracker lists Fedora branches only, so a fresh EL9 install will skip
+   this path unless efitools is supplied.
 4. **nginx is untested.** All vhost work was verified on Apache only. The
    managed-block splice and the `netbootproto` redirect exclusion both have
    nginx branches that have never executed.

@@ -254,6 +254,27 @@ signed PK/KEK/db blobs. If you have it working on an EL9 box, check where it
 came from (`rpm -q --queryformat '%{VENDOR} %{URL}\n' efitools`) before
 assuming a fresh install will get it.
 
+Only the three userspace tools are needed, and they build in about a minute:
+
+```bash
+dnf -y install gcc make openssl-devel git gnu-efi-devel
+git clone --depth 1 \
+    https://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git
+cd efitools
+make cert-to-efi-sig-list sign-efi-sig-list efi-updatevar
+install -m 0755 cert-to-efi-sig-list sign-efi-sig-list efi-updatevar /usr/bin/
+```
+
+`gnu-efi-devel` is required even for the userspace tools — they include
+`efi.h`. The EFI binaries (`KeyTool.efi` et al.) are not needed and are not
+built here.
+
+**Verified with those tools present:** the installer builds `PK.auth`,
+`KEK.auth` and `db.auth`, and `db.auth` embeds `CN=FOG Secure Boot CA` — the
+**intermediate** — beside Microsoft's CAs, with the signing leaf's CN absent.
+That is what makes leaf rotation safe for Setup-Mode-enrolled clients too, not
+just MokManager-enrolled ones.
+
 MOK enrolment via MokManager is unaffected either way; only the unattended
 Setup Mode path needs those tools. Where the package is genuinely absent it
 has to be built from source.
