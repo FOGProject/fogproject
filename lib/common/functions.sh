@@ -213,6 +213,30 @@ backupPreservedCustomizations() {
             [[ -e "${shippeddir}/${bn}" ]] && continue
             cp -a "$kf" "${kbdir}/gen-1/${bn}" >>$error_log 2>&1 || warn=1
         done
+        # A custom kernel installed under a DEFAULT name is the case none of
+        # the rules above can catch on their own: it is backed up like any
+        # other non-shipped file, but downloadfiles() will re-download FOG's
+        # own kernel over it, and the restore deliberately leaves a
+        # freshly-installed default name alone.
+        #
+        # downloadfiles() stamps version/tag_name xattrs on everything it
+        # fetches. A default-named kernel WITHOUT them was put there by hand,
+        # which is the whole signal needed -- no reference copy, no hashing.
+        # (An admin who copied with `cp -a` could carry a stale tag across and
+        # defeat this; plain cp/scp/mv, the normal way, does not.)
+        #
+        # Detected here, reported after the restore. Silently keeping the
+        # custom kernel means never getting kernel updates again; silently
+        # replacing it means losing it. Both are bad in the same way -- the
+        # admin does not find out. So do neither, and say so.
+        customDefaultKernels=""
+        if command -v attr >/dev/null 2>&1; then
+            for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+                [[ -f "${ipxedir}/${bn}" ]] || continue
+                attr -q -g tag_name "${ipxedir}/${bn}" >/dev/null 2>&1 && continue
+                customDefaultKernels="${customDefaultKernels}${bn} "
+            done
+        fi
     fi
 
     [[ $warn -ne 0 ]] && echo -n "(some optional files could not be backed up) "
@@ -283,6 +307,21 @@ restorePreservedCustomizations() {
         return 0
     fi
     errorStat 0
+    # Say it plainly rather than picking for them -- see the detection comment
+    # in backupPreservedCustomizations.
+    if [[ -n $customDefaultKernels ]]; then
+        echo
+        echo " * NOTE: these looked like hand-installed kernels under FOG's own"
+        echo "   names, and this update has replaced them with the versions it"
+        echo "   downloaded:"
+        for f in $customDefaultKernels; do
+            echo "     ${f}"
+        done
+        echo "   Your copies were saved first and are still available:"
+        echo "     ${bindirsrc:-.}/restorekernel.sh --list"
+        echo "     ${bindirsrc:-.}/restorekernel.sh --generation 1"
+        echo "   Restoring puts them back over the downloaded ones."
+    fi
 }
 # GH-685: the MariaDB client library turns TLS on by default from 10.10.1
 # onward and then refuses to connect at all when the server offers none --
