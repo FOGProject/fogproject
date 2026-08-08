@@ -154,6 +154,38 @@ sbverify --list /var/www/html/fog/service/ipxe/bzImage
 
 Everything under `$sslpath` is a **dotfile** — `ls -a` or it looks empty.
 
+## Known bugs / unfinished, reported but NOT yet acted on
+
+**Kernel/init dropdown still lists non-kernels.** `FOGPage::kernelFileList()`
+(`packages/web/lib/fog/fogpage.class.php`) filters by excluding `.php`, image
+extensions, `.conf`, `.efi` and `.unsigned`, then treats everything remaining
+that is not init-shaped as a kernel. That still leaves `memdisk`, `grub.exe`
+and `memtest.bin` in the Host/Group Kernel dropdown, where they are not
+bootable choices.
+
+The exclusion-by-extension approach is the wrong shape — it was a quick
+narrowing of an even broader bug (the list originally included `boot.php` and
+`bg.png`). Better: subtract what FOG ships, the same rule
+`backupPreservedCustomizations()` already uses successfully — read
+`packages/web/service/ipxe` from the source tree and treat anything present
+there as not-a-kernel. `memdisk`/`memtest.bin`/`grub.exe` are all shipped, so
+they would fall out automatically, while a custom kernel of any name survives.
+
+Caveat: `FOG_MEMTEST_KERNEL` legitimately wants `memtest.bin`, so that one
+setting needs its own list rather than the general kernel list.
+
+**Dropdown wanted for the default kernel/init too.** It was applied to
+`FOG_TFTP_PXE_KERNEL`/`_32`/`_ARM`/`FOG_MEMTEST_KERNEL` on the FOG
+Configuration page, but the reported experience is that a dropdown is still
+missing where the default is selected — verify which field was meant (the
+Configuration page settings, or somewhere else such as a per-image or global
+default surfaced elsewhere in the UI) before changing anything. There is no
+global default *init* setting today; inits are per-host/group only, which may
+be part of the gap.
+
+Both were reported after the branch was pushed. Nothing has been changed for
+either.
+
 ## Still open from the plan
 
 - Phase 1 Task 1.7: interactive PKI prompt in `lib/common/newinput.sh`.
