@@ -301,10 +301,7 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "A user group with this name already exists!"
 msgstr "Un nom d'hôte avec ce nom existe déjà."
 
-msgid ""
-"A user signing in through this server receives every role and user group "
-"granted by a directory group they belong to. Select a group to change what "
-"it grants."
+msgid "A user signing in through this server receives every role and user group granted by a directory group they belong to. Select a group to change what it grants."
 msgstr ""
 
 #, fuzzy
@@ -690,10 +687,7 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "An image with this name already exists!"
 msgstr "Un nom d'hôte avec ce nom existe déjà."
 
-msgid ""
-"An optional last column may list associations to create, using the format "
-"\"label:value|value;label:value\". Values may be ids or names; unknown "
-"references are skipped with a warning rather than failing the row."
+msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
 #, fuzzy
@@ -703,30 +697,20 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "Annually"
 msgstr "Annuellement"
 
-msgid ""
-"Anyone signing in through one of these directory groups is placed in this "
-"user group. Membership granted this way is recomputed on every sign in."
+msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
-msgid ""
-"Anyone signing in through one of these directory groups receives this role. "
-"Roles granted this way are recomputed on every sign in."
+msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
 msgstr ""
 
 #, fuzzy
 msgid "Applications"
 msgstr "actes"
 
-msgid ""
-"Applies to LDAP servers that have group matching disabled. On those servers "
-"FOG cannot tell an administrator from any other account, so every user who "
-"can authenticate against the directory receives this role."
+msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
 msgstr ""
 
-msgid ""
-"Applies to LDAP servers using the \"expand\" strategy, which walks one query "
-"per level of nesting on every sign-in. A server can override this on its own "
-"settings. Directories rarely nest more than three or four deep."
+msgid "Applies to LDAP servers using the \"expand\" strategy, which walks one query per level of nesting on every sign-in. A server can override this on its own settings. Directories rarely nest more than three or four deep."
 msgstr ""
 
 msgid "Applying a database schema update requires an administrator account."
@@ -1051,8 +1035,7 @@ msgstr ""
 
 #, fuzzy
 msgid "Cannot task pending hosts"
-msgstr ""
-"Impossible de définir les affectations en cours ou éléments non valides"
+msgstr "Impossible de définir les affectations en cours ou éléments non valides"
 
 #, fuzzy
 msgid "Capone"
@@ -1127,9 +1110,7 @@ msgstr "Créer un nouveau %s"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
-msgid ""
-"Changing this setting takes effect after you reload the page. A hard refresh "
-"(Ctrl+F5, or Cmd+Shift+R) may be required."
+msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
 msgid "Channel"
@@ -1156,14 +1137,10 @@ msgstr "Numéro de série"
 msgid "Chassis Version"
 msgstr "Châssis Version"
 
-msgid ""
-"Check the capture folder is owned by and writable to the storage node user"
+msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
-msgid ""
-"Check this value against what the enrolment tool shows before confirming, "
-"whether the certificate reached the client on a USB stick or over the "
-"network. That comparison is what stops the wrong key being trusted."
+msgid "Check this value against what the enrolment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -1226,15 +1203,10 @@ msgstr "Paramètres"
 msgid "Client Version"
 msgstr "CPU Version"
 
-msgid ""
-"Clients already enforcing Secure Boot cannot run this task -- they will not "
-"boot FOS in the first place. Use the manual steps below for those."
+msgid "Clients already enforcing Secure Boot cannot run this task -- they will not boot FOS in the first place. Use the manual steps below for those."
 msgstr ""
 
-msgid ""
-"Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure "
-"Boot\" task -- no USB stick, no live image, no MOK Manager screen and no "
-"password"
+msgid "Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure Boot\" task -- no USB stick, no live image, no MOK Manager screen and no password"
 msgstr ""
 
 msgid "Close"
@@ -1311,8 +1283,7 @@ msgstr "Impossible de mettre à jour"
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
-msgstr ""
-"Impossible de trouver un nœud de stockage, est-il un permis dans ce groupe?"
+msgstr "Impossible de trouver un nœud de stockage, est-il un permis dans ce groupe?"
 
 #, fuzzy
 msgid "Could not find a Storage Node is"
@@ -1345,9 +1316,7 @@ msgstr "Impossible de lire le fichier tmp."
 msgid "Could not read snapin file"
 msgstr "Impossible de lire le fichier tmp."
 
-msgid ""
-"Could not read the directory to confirm it supports nested group chaining, "
-"saving the chain strategy unverified"
+msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
 msgstr ""
 
 #, fuzzy
@@ -1556,9 +1525,7 @@ msgstr ""
 msgid "Cron Schedule"
 msgstr "Cron Schedule"
 
-msgid ""
-"Cross platform, more secure, faster, and much easier on the server. "
-"Espeically when your organization has many hosts"
+msgid "Cross platform, more secure, faster, and much easier on the server. Espeically when your organization has many hosts"
 msgstr ""
 
 msgid "Current Records"
@@ -1869,9 +1836,7 @@ msgstr "Chuté"
 msgid "Duration"
 msgstr "Durée"
 
-msgid ""
-"Each client needs this certificate enrolled once, by someone physically at "
-"the machine"
+msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
 msgid "Edit"
@@ -2392,10 +2357,7 @@ msgstr ""
 msgid "Flush Settings Cache"
 msgstr "Paramètres BROUILLARD"
 
-msgid ""
-"For a live-USB enrolment, copy all three files onto a USB stick, boot the "
-"client from a stock Ubuntu or Debian live image with Secure Boot left ON, "
-"and run the launcher. No firmware changes are needed."
+msgid "For a live-USB enrolment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
 msgstr ""
 
 msgid "For a network/SMB share use its path, e.g."
@@ -2462,9 +2424,7 @@ msgstr "Nom Kernel"
 msgid "Full History"
 msgstr "Historique de connexion"
 
-msgid ""
-"Full step-by-step instructions for this and for enrolling straight from the "
-"PXE boot menu, with no USB stick, are in the Secure Boot guide:"
+msgid "Full step-by-step instructions for this and for enrolling straight from the PXE boot menu, with no USB stick, are in the Secure Boot guide:"
 msgstr ""
 
 #, fuzzy
@@ -2639,10 +2599,7 @@ msgstr "Gestion du Groupe"
 msgid "Group Matching"
 msgstr "hôte Lieu"
 
-msgid ""
-"Group Matching is off for this server, so directory groups cannot be read "
-"and these mappings are not used. Users who can bind receive the fallback "
-"role from the global LDAP settings instead."
+msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
 msgstr ""
 
 msgid "Group Member Attribute"
@@ -3147,13 +3104,10 @@ msgstr "Icône Fichier introuvable"
 msgid "If credentials are correct"
 msgstr ""
 
-msgid ""
-"If disabled, the client will not make changes until all users are logged off"
+msgid "If disabled, the client will not make changes until all users are logged off"
 msgstr ""
 
-msgid ""
-"If that chain loads but the network never comes up, the firmware's own UEFI "
-"network stack is at fault. Point the boot filename at"
+msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
 msgstr ""
 
 msgid "If this is an upgrade"
@@ -3299,10 +3253,7 @@ msgid "Image Type"
 msgstr "Type d'image"
 
 #, php-format
-msgid ""
-"Image Type is a very important setting and can have a major impact on how "
-"your imaging works or fails. Please read more about the different image "
-"types and how to use them %1$sin our wiki%2$s before you choose!"
+msgid "Image Type is a very important setting and can have a major impact on how your imaging works or fails. Please read more about the different image types and how to use them %1$sin our wiki%2$s before you choose!"
 msgstr ""
 
 #, fuzzy
@@ -3346,9 +3297,7 @@ msgstr "L'image est pas activé"
 
 #, fuzzy
 msgid "Image is not replicated to this storage group"
-msgstr ""
-"Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de "
-"stockage"
+msgstr "Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de stockage"
 
 msgid "Image is not valid"
 msgstr "L'image est pas valide"
@@ -4328,10 +4277,7 @@ msgstr "Max Taille"
 msgid "Members"
 msgstr "Membres"
 
-msgid ""
-"Members of this directory group receive these roles on sign in. Roles are "
-"recomputed from the directory each time, so removing someone from the group "
-"downgrades them at their next login."
+msgid "Members of this directory group receive these roles on sign in. Roles are recomputed from the directory each time, so removing someone from the group downgrades them at their next login."
 msgstr ""
 
 msgid "Membership"
@@ -4557,9 +4503,7 @@ msgstr "NE PAS"
 msgid "NOTE"
 msgstr "NE PAS"
 
-msgid ""
-"NOTE: Forums are the most command fastest method of getting help with any "
-"aspect of FOG."
+msgid "NOTE: Forums are the most command fastest method of getting help with any aspect of FOG."
 msgstr ""
 
 msgid "Name"
@@ -4805,9 +4749,7 @@ msgstr "Il n'y a pas snapins associés à cet hôte"
 
 #, fuzzy
 msgid "No storage nodes assigned to this storage group"
-msgstr ""
-"Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de "
-"stockage"
+msgstr "Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de stockage"
 
 #, fuzzy
 msgid "No storagegroups assigned to this image"
@@ -4861,9 +4803,7 @@ msgstr "Nœud"
 msgid "Normal Snapin"
 msgstr "Invalid Snapin"
 
-msgid ""
-"Normal runs a single uploaded file. A Snapin Pack unzips an uploaded archive "
-"on the client, then runs a file from inside it."
+msgid "Normal runs a single uploaded file. A Snapin Pack unzips an uploaded archive on the client, then runs a file from inside it."
 msgstr ""
 
 msgid "Not Available"
@@ -4952,8 +4892,7 @@ msgstr "Installation / Mise à jour réussie!"
 msgid "OU added!"
 msgstr "Nom de l'imprimante"
 
-msgid ""
-"OU is a plugin that allows you to predefine OU's and associate with hosts."
+msgid "OU is a plugin that allows you to predefine OU's and associate with hosts."
 msgstr ""
 
 #, fuzzy
@@ -4993,8 +4932,7 @@ msgstr ""
 msgid "One IP or CIDR range per line (or comma separated)"
 msgstr ""
 
-msgid ""
-"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 #, fuzzy
@@ -5004,9 +4942,7 @@ msgstr "Erreur, est une image associée à cet hôte"
 msgid "Online"
 msgstr ""
 
-msgid ""
-"Only administrators may use it until the plugin registers a matching "
-"permission node."
+msgid "Only administrators may use it until the plugin registers a matching permission node."
 msgstr ""
 
 #, fuzzy
@@ -5017,11 +4953,7 @@ msgstr "Vous êtes seulement autorisé à attribuer"
 msgid "Only an administrator may grant full access."
 msgstr "Modifier Groupe"
 
-msgid ""
-"Only snapins shared by every host in the group can be ordered here. Saving "
-"sets this order on each host (shared snapins run first, in this order; any "
-"host-specific snapins run after). Order only changes execution when \"Abort "
-"snapin sequence on failure\" is enabled for the task."
+msgid "Only snapins shared by every host in the group can be ordered here. Saving sets this order on each host (shared snapins run first, in this order; any host-specific snapins run after). Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr ""
 
 msgid "Open Source Computer Cloning Solution"
@@ -5037,9 +4969,7 @@ msgstr ""
 msgid "Operation field not set"
 msgstr "Opération pas définie: %s"
 
-msgid ""
-"Optional. Pick a type to pre-fill the command fields below; you can still "
-"edit them afterward."
+msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward."
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
@@ -5221,23 +5151,16 @@ msgstr "S'il vous plaît choisir une image"
 msgid "Please confirm you want to delete"
 msgstr "S'il vous plaît confirmer que vous souhaitez supprimer"
 
-msgid ""
-"Please confirm you would like to dissociate the selected directory groups"
+msgid "Please confirm you would like to dissociate the selected directory groups"
 msgstr ""
 
-msgid ""
-"Please confirm you would like to unset the default printer from  the "
-"selected hosts"
+msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
-msgid ""
-"Please confirm you would like to unset the primary group from the selected "
-"images"
+msgid "Please confirm you would like to unset the primary group from the selected images"
 msgstr ""
 
-msgid ""
-"Please confirm you would like to unset the primary group from the selected "
-"snapins"
+msgid "Please confirm you would like to unset the primary group from the selected snapins"
 msgstr ""
 
 #, fuzzy
@@ -5401,9 +5324,7 @@ msgstr "Port est pas ldap valide / LDAPS ports"
 
 #, fuzzy
 msgid "Postfix requires an action of login"
-msgstr ""
-"Postfix exige une action de connexion, déconnexion, ou commencer à "
-"fonctionner"
+msgstr "Postfix exige une action de connexion, déconnexion, ou commencer à fonctionner"
 
 #, fuzzy
 msgid "Power Management"
@@ -5419,10 +5340,7 @@ msgstr ""
 msgid "PowerShell x64 Script"
 msgstr ""
 
-msgid ""
-"Preferred over mapping straight to a role: the user group holds the roles, "
-"so policy stays in one place and the directory only decides who is in which "
-"bucket."
+msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
 #, fuzzy
@@ -5699,9 +5617,7 @@ msgstr "utilisateur créé"
 msgid "Reset Token"
 msgstr "Jeton d'accès"
 
-msgid ""
-"Resetting encryption data should only be done if you re-installed the FOG "
-"Client or are using Debugger"
+msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
 #, fuzzy
@@ -5824,9 +5740,7 @@ msgstr "SSL Chemin"
 msgid "Save Changes"
 msgstr "Sauvegarder les modifications"
 
-msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
-"key update or missing auto-increment."
+msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
 msgid "Save order"
@@ -5940,16 +5854,10 @@ msgstr ""
 msgid "Secure Boot"
 msgstr ""
 
-msgid ""
-"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
-"installer skips these binaries, because rebuilding them to trust this "
-"server's CA would invalidate the signature that makes them bootable."
+msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
-msgid ""
-"Secure Boot does not need to be enabled on a client to enrol its key -- "
-"either route works the same way with it off, which lets you stage enrolment "
-"fleet-wide before ever turning it on."
+msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
 msgstr ""
 
 #, fuzzy
@@ -6115,13 +6023,7 @@ msgstr "a été mis à jour avec succès"
 msgid "Settings update failed!"
 msgstr "Paramètres mis à jour"
 
-msgid ""
-"Setup Mode is the state a machine is in when its platform key has been "
-"cleared, and it is the only state in which these databases can be written. "
-"Turning Secure Boot OFF is not the same thing and does not help: a machine "
-"with Secure Boot disabled still has a platform key, and still refuses the "
-"write. Look for \"Erase all Secure Boot settings\", \"Clear Secure Boot "
-"keys\" or \"Custom mode\" in the firmware."
+msgid "Setup Mode is the state a machine is in when its platform key has been cleared, and it is the only state in which these databases can be written. Turning Secure Boot OFF is not the same thing and does not help: a machine with Secure Boot disabled still has a platform key, and still refuses the write. Look for \"Erase all Secure Boot settings\", \"Clear Secure Boot keys\" or \"Custom mode\" in the firmware."
 msgstr ""
 
 #, fuzzy
@@ -6160,10 +6062,7 @@ msgstr ""
 msgid "Signed in as %s."
 msgstr ""
 
-msgid ""
-"Signing is already done on this server. The remaining work is per-client and "
-"has to be done by someone at the machine -- that is what makes enrolment a "
-"deliberate act rather than something a server can do to a client remotely."
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 #, fuzzy
@@ -6433,10 +6332,7 @@ msgstr "SnapIns"
 msgid "Snapins Are already deployed to this host"
 msgstr "SnapIns sont déjà déployés à cet hôte"
 
-msgid ""
-"Snapins run in this order. The order only changes execution when \"Abort "
-"snapin sequence on failure\" is enabled for the task; otherwise it sets the "
-"order snapins are sent."
+msgid "Snapins run in this order. The order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task; otherwise it sets the order snapins are sent."
 msgstr ""
 
 msgid "So if you are trying to transmit to remote node A"
@@ -7024,24 +6920,17 @@ msgstr "Texte"
 msgid "That group is already defined for this server!"
 msgstr "Une image existe déjà avec ce nom!"
 
-msgid ""
-"That is one visit to the firmware screen per machine, once, and it can be "
-"the same visit that turns Secure Boot on afterwards."
+msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
 
-msgid ""
-"That is the signed chain staged by the installer; the default boot file is "
-"unsigned and a Secure Boot client will refuse it"
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
 msgstr ""
 
 #, fuzzy
 msgid "That session has already started"
 msgstr "Imprimante existe déjà"
 
-msgid ""
-"The \"CSV (All)\" button exports every item that matches the current search "
-"to a CSV file (the whole list, not just what is on screen). The Copy, Excel "
-"and Print buttons act only on the rows currently loaded in the table."
+msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
 #, fuzzy
@@ -7054,24 +6943,13 @@ msgstr ""
 msgid "The CA certificate path must be absolute"
 msgstr ""
 
-msgid ""
-"The Enroll Secure Boot task type does all of this for you: schedule it "
-"against a host or a group from Task Scheduling and the client boots FOS, "
-"which stages the request itself -- or enrols outright with nothing to "
-"confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu "
-"item stays for answering a pending request by hand, or for enrolling from "
-"local media on a machine FOS cannot boot."
+msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
-msgid ""
-"The FOG schema update must be run before this plugin can be updated: "
-"users.uAuthSource does not exist yet."
+msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
 msgstr ""
 
-msgid ""
-"The configured LDAPS CA path cannot be read by the web server, so it is "
-"being ignored and the system trust store used instead; verification against "
-"a private CA will fail until the path is readable"
+msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
 #, fuzzy
@@ -7115,13 +6993,11 @@ msgstr ""
 
 #, fuzzy
 msgid "The uploaded file exceeds the max_file_size"
-msgstr ""
-"Le fichier téléchargé excède la directive upload_max_filesize dans php.ini"
+msgstr "Le fichier téléchargé excède la directive upload_max_filesize dans php.ini"
 
 #, fuzzy
 msgid "The uploaded file exceeds the upload_max_filesize"
-msgstr ""
-"Le fichier téléchargé excède la directive upload_max_filesize dans php.ini"
+msgstr "Le fichier téléchargé excède la directive upload_max_filesize dans php.ini"
 
 msgid "The uploaded file was only partially uploaded"
 msgstr "Le fichier n'a été que partiellement téléchargé"
@@ -7175,9 +7051,7 @@ msgstr ""
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
-msgid ""
-"This directory does not advertise support for nested group chaining, so the "
-"chain strategy would match nothing. Use the expand strategy instead."
+msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
 msgstr ""
 
 #, fuzzy
@@ -7230,17 +7104,10 @@ msgstr "Ce paramètre définit le nom d'utilisateur proxy à utiliser."
 msgid "This section allows you to update"
 msgstr ""
 
-msgid ""
-"This section allows you to upload user defined reports that may not be a "
-"part of the base FOG install."
+msgid "This section allows you to upload user defined reports that may not be a part of the base FOG install."
 msgstr ""
 
-msgid ""
-"This server becomes the platform owner, so Microsoft's published CA "
-"certificates are enrolled alongside FOG's own. That is not optional: "
-"Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database "
-"without it would stop this server from booting the very clients it enrolled, "
-"as well as breaking Windows."
+msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -7254,60 +7121,33 @@ msgstr "Ce paramètre définit "
 msgid "This setting defines sending the"
 msgstr "Ce paramètre définit "
 
-msgid ""
-"This setting defines the number of items to display when listing/searching "
-"elements. The default value is 10."
+msgid "This setting defines the number of items to display when listing/searching elements. The default value is 10."
 msgstr ""
 
 msgid "This setting limits the bandwidth for replication between nodes"
 msgstr ""
 
 #, fuzzy
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-"Ce réglage n'ajoute et supprime les imprimantes qui sont gérés par FOG. Si "
-"l'imprimante existe dans la gestion de l'imprimante, mais n'a pas affecté à "
-"un hôte, il va supprimer l'imprimante si elle existe sur l'hôte unassigned. "
-"Il va ajouter des imprimantes à l'hôte qui sont affectés."
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
+msgstr "Ce réglage n'ajoute et supprime les imprimantes qui sont gérés par FOG. Si l'imprimante existe dans la gestion de l'imprimante, mais n'a pas affecté à un hôte, il va supprimer l'imprimante si elle existe sur l'hôte unassigned. Il va ajouter des imprimantes à l'hôte qui sont affectés."
 
-msgid ""
-"This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this is just another level if needed."
+msgid "This setting turns off all FOG Printer Management. Although there are multiple levels already, this is just another level if needed."
 msgstr ""
 
 #, fuzzy
-msgid ""
-"This setting will only allow FO GAssigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à "
-"l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les "
-"imprimantes gérées non-FOG."
+msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les imprimantes gérées non-FOG."
 
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à "
-"l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les "
-"imprimantes gérées non-FOG."
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les imprimantes gérées non-FOG."
 
 msgid "This should ease migration or mass import new items."
 msgstr ""
 
-msgid ""
-"This tells the client to force reboots for host name changing and AD Joining."
+msgid "This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
-msgid ""
-"This will add and set (as needed) the default printer for all hosts in this "
-"group"
+msgid "This will add and set (as needed) the default printer for all hosts in this group"
 msgstr ""
 
 msgid "This will allow you to configure how services"
@@ -7321,9 +7161,7 @@ msgid "This will perform the action on all hosts in this group"
 msgstr " | Cela ne veut pas le groupe principal"
 
 #, fuzzy
-msgid ""
-"This will perform the action on all hosts in this group. A snapin is checked "
-"when every host in the group has it."
+msgid "This will perform the action on all hosts in this group. A snapin is checked when every host in the group has it."
 msgstr " | Cela ne veut pas le groupe principal"
 
 msgid "This will set the configuration level to all hosts in this group"
@@ -7335,10 +7173,7 @@ msgstr ""
 msgid "Those images should be activated with the associated"
 msgstr ""
 
-msgid ""
-"Tick if the file's first row names the columns. Header rows are auto-"
-"detected even when unticked; leave the file header-less to import by column "
-"order."
+msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
 msgid "Time"
@@ -7414,10 +7249,7 @@ msgstr "snapin Chemin"
 msgid "Trying image size for"
 msgstr "snapin Chemin"
 
-msgid ""
-"Two routes are covered in the guide linked above: a live USB with the kit "
-"above, or PXE-booting the client and choosing Enroll Secure Boot Key, which "
-"now fetches MOK.der over the network on its own, with no USB stick needed."
+msgid "Two routes are covered in the guide linked above: a live USB with the kit above, or PXE-booting the client and choosing Enroll Secure Boot Key, which now fetches MOK.der over the network on its own, with no USB stick needed."
 msgstr ""
 
 #, fuzzy
@@ -7660,17 +7492,13 @@ msgstr "hôte Lieu"
 msgid "Use LDAP SSL"
 msgstr ""
 
-msgid ""
-"Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the pack "
-"is unzipped on the client."
+msgid "Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the pack is unzipped on the client."
 msgstr ""
 
 msgid "Use extreme caution with this setting"
 msgstr ""
 
-msgid ""
-"Use the buttons below to create a new power management task to all hosts in "
-"this group."
+msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
 msgid "Use the following link to go to the client page."
@@ -7998,11 +7826,7 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr ""
 
-msgid ""
-"Whichever route is used, MokManager -- the blue enrolment screen -- has its "
-"own timeouts FOG cannot change: it gives up and boots normally if nothing is "
-"pressed within about 10 seconds of appearing, and reboots if left idle "
-"partway through for a few minutes. Be at the console before starting."
+msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -8165,9 +7989,7 @@ msgstr "Mise à jour de groupe principal"
 msgid "automatically"
 msgstr ""
 
-msgid ""
-"bandwidth graph, and multicast when the interface cannot be derived from the "
-"routing table"
+msgid "bandwidth graph, and multicast when the interface cannot be derived from the routing table"
 msgstr ""
 
 msgid "based task."
@@ -8241,9 +8063,7 @@ msgstr ""
 
 #, fuzzy
 msgid "directive specified in the HTML form"
-msgstr ""
-"Le fichier téléchargé excède la directive max_file_size spécifiée dans le "
-"formulaire HTML"
+msgstr "Le fichier téléchargé excède la directive max_file_size spécifiée dans le formulaire HTML"
 
 #, fuzzy
 msgid "directory"
@@ -8469,9 +8289,7 @@ msgstr ""
 msgid "initrd (Initial Ramdisk) Update"
 msgstr ""
 
-msgid ""
-"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
-"Arm64 clients use the files under secureboot/arm64-efi/"
+msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
 msgstr ""
 
 #, fuzzy
@@ -8649,9 +8467,7 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
-msgid ""
-"re-run the installer and check the installation log for a key generation or "
-"signing failure"
+msgid "re-run the installer and check the installation log for a key generation or signing failure"
 msgstr ""
 
 msgid "read-only"
@@ -8745,16 +8561,12 @@ msgstr ""
 
 #, fuzzy
 msgid "there one enabled within this Storage Group"
-msgstr ""
-"Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de "
-"stockage"
+msgstr "Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de stockage"
 
 msgid "there will be a database backup stored on your"
 msgstr ""
 
-msgid ""
-"this account has no role, so it has no access to any management page. Ask an "
-"administrator to assign it a role."
+msgid "this account has no role, so it has no access to any management page. Ask an administrator to assign it a role."
 msgstr ""
 
 msgid "this backup will enable you to return to the"
@@ -9413,9 +9225,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Your system PHP Version is not sufficient"
-#~ msgstr ""
-#~ "Votre version des systèmes de PHP ne suffit pas. Vous avez la version %s "
-#~ "version %s est nécessaire."
+#~ msgstr "Votre version des systèmes de PHP ne suffit pas. Vous avez la version %s version %s est nécessaire."
 
 #, fuzzy
 #~ msgid "and"
