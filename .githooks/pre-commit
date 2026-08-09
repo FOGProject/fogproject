@@ -5,8 +5,12 @@
 
 project_dir=$(git rev-parse --show-toplevel)
 
+# Turns a missing tool from a silent no-op into a visible one. See the header of
+# that file for why announcing beats both skipping quietly and refusing outright.
+. "$project_dir/.githooks/lib/require-tools.sh"
+
 psrfix() {
-    command -v php-cs-fixer >/dev/null 2>&1 || return
+    require_tools "PSR2 formatting" php-cs-fixer || return
     fixer=$(command -v php-cs-fixer)
 
     # Only the PHP files staged for THIS commit.
@@ -43,21 +47,13 @@ psrfix() {
 }
 
 updateLanguage() {
-    command -v xgettext >/dev/null 2>&1 || return
-    command -v msgcat   >/dev/null 2>&1 || return
-    command -v msgmerge >/dev/null 2>&1 || return
-    xgettext --language=PHP --from-code=UTF-8 --output="$project_dir/packages/web/management/languages/messages.pot" --omit-header --no-location $(find "$project_dir/packages/web/" -name "*.php")
-    msgcat --sort-output -o "$project_dir/packages/web/management/languages/messages.pot" "$project_dir/packages/web/management/languages/messages.pot"
-    for PO_FILE in $(find "$project_dir/packages/web/management/languages/" -type f -name "*.po"); do
-        msgmerge --update --backup=none "$PO_FILE" "$project_dir/packages/web/management/languages/messages.pot" 2>/dev/null >/dev/null
-        msgcat --sort-output -o "$PO_FILE" "$PO_FILE"
-    done
+    require_tools "translation template regeneration" xgettext msgcat msgmerge || return
+    # The regeneration itself lives in lib/ so CI runs the identical commands.
+    sh "$project_dir/.githooks/lib/update-language.sh" "$project_dir"
     git add "$project_dir/packages/web/management/languages/"
 }
 
 schemaCheck() {
-    command -v php >/dev/null 2>&1 || return 0
-
     # Only when this commit actually touches the schema or its manifest.
     # Nothing else can make either of these go stale, and a schema gate that
     # fires on unrelated commits is a gate people learn to bypass.
@@ -66,6 +62,30 @@ schemaCheck() {
         'packages/web/commons/schema-expected.php' \
         'bin/schema-reference-1.5.php')
     [ -n "$touched" ] || return 0
+
+    # FAILS CLOSED, unlike every other check in this hook.
+    #
+    # This used to be `command -v php || return 0` at the top of the function,
+    # which silently disabled the only blocking gate here on any machine without
+    # the PHP CLI -- and disabled it for every commit, not just schema ones.
+    #
+    # The other checks fail open because a missed PSR2 pass or a stale .pot is
+    # recoverable by the next person who has the tools. A stale
+    # schema-expected.php is not: SchemaReconciler compares live databases
+    # against that manifest, so an upgrading 1.5 install never receives the new
+    # structure, and nothing surfaces it until someone's upgrade quietly does
+    # nothing. That is a correctness defect reaching users, so a commit that
+    # cannot be checked is refused rather than waved through.
+    #
+    # Ordered after the "touched" test on purpose: a contributor without php can
+    # still commit anything that does not touch the schema.
+    if ! command -v php >/dev/null 2>&1; then
+        printf 'pre-commit: this commit changes the schema but php is not installed,\n' >&2
+        printf 'pre-commit: so schema-expected.php cannot be verified -- commit aborted.\n' >&2
+        printf 'pre-commit: install the PHP CLI package, or re-run with --no-verify only\n' >&2
+        printf 'pre-commit: if you are certain the manifest is already current.\n' >&2
+        return 1
+    fi
 
     # BLOCKING: the manifest no longer describes what schema.php builds.
     # SchemaReconciler compares a live database against that manifest, so a
