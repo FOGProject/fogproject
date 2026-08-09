@@ -37,9 +37,21 @@ xgettext --language=PHP --from-code=UTF-8 --output="$pot" \
 
 # Sorting makes the file order-independent, so two machines that walked the
 # source tree in a different order still produce the same POT.
-msgcat --sort-output -o "$pot" "$pot"
+#
+# --no-wrap is what makes the output the same across gettext versions. Without
+# it every entry is wrapped to ~80 columns, and different gettext releases choose
+# different break points for the same string: 0.26 avoids breaking inside
+# "php.ini" where the version on ubuntu-24.04 splits it after the dot. That is a
+# pure formatting difference with no change in content, but it means a local
+# commit and the CI sweep rewrite each other's wrapping forever. Observed on
+# dev-branch in fog-workflows run 31320696246.
+#
+# Pinning gettext cannot fix this -- CI can only be pinned to one machine's
+# version, and every other contributor's would still disagree. Emitting one
+# msgstr per line removes the disagreement instead of arbitrating it.
+msgcat --no-wrap --sort-output -o "$pot" "$pot"
 
 for PO_FILE in $(find "$langdir/" -type f -name "*.po"); do
-    msgmerge --update --backup=none "$PO_FILE" "$pot" 2>/dev/null >/dev/null
-    msgcat --sort-output -o "$PO_FILE" "$PO_FILE"
+    msgmerge --no-wrap --update --backup=none "$PO_FILE" "$pot" 2>/dev/null >/dev/null
+    msgcat --no-wrap --sort-output -o "$PO_FILE" "$PO_FILE"
 done

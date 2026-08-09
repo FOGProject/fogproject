@@ -774,10 +774,7 @@ msgstr "Boot Key Sequence"
 msgid "Boot Options"
 msgstr "Boot Options:"
 
-msgid ""
-"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
-"left ON. Those images boot under Secure Boot on their own signed shim, so no "
-"firmware changes are needed."
+msgid "Boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON. Those images boot under Secure Boot on their own signed shim, so no firmware changes are needed."
 msgstr ""
 
 #, fuzzy
@@ -974,13 +971,10 @@ msgstr "Check here to see what printers can be added"
 msgid "Check that database is running"
 msgstr "Check that database is running"
 
-msgid ""
-"Check the capture folder is owned by and writable to the storage node user"
+msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
-msgid ""
-"Check this value matches what the enrolment script prints before confirming. "
-"That comparison is what stops the wrong key being trusted."
+msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 #, fuzzy
@@ -1070,9 +1064,7 @@ msgstr "Clients"
 msgid "Command"
 msgstr "Snapin Command"
 
-msgid ""
-"Compare the SHA-256 it prints against the one shown above. If they differ, "
-"stop -- that comparison is the whole security of this step."
+msgid "Compare the SHA-256 it prints against the one shown above. If they differ, stop -- that comparison is the whole security of this step."
 msgstr ""
 
 msgid "Complete"
@@ -1116,18 +1108,14 @@ msgstr "Invalid task"
 msgid "Conflicting path/file"
 msgstr ""
 
-msgid ""
-"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
-"or Debian live image with Secure Boot left ON, and run the launcher"
+msgid "Copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher"
 msgstr ""
 
 #, fuzzy
 msgid "Copy from existing"
 msgstr "Could not create printer"
 
-msgid ""
-"Copy the three files above onto a USB stick, keeping them in the same folder "
-"-- the script expects MOK.der beside it."
+msgid "Copy the three files above onto a USB stick, keeping them in the same folder -- the script expects MOK.der beside it."
 msgstr ""
 
 #, fuzzy
@@ -1584,9 +1572,7 @@ msgstr "Duration"
 msgid "ESC is defaulted"
 msgstr "Enabled as default"
 
-msgid ""
-"Each client needs this certificate enrolled once, by someone physically at "
-"the machine"
+msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
 msgid "Edit"
@@ -1656,10 +1642,7 @@ msgstr "Enter a hostname to search for"
 msgid "Enter a model name to search for"
 msgstr "Enter a username to search for"
 
-msgid ""
-"Enter a one-time password twice when asked. It only proves at the next "
-"reboot that you are the same person; it is not stored and does not need to "
-"be strong."
+msgid "Enter a one-time password twice when asked. It only proves at the next reboot that you are the same person; it is not stored and does not need to be strong."
 msgstr ""
 
 #, fuzzy
@@ -2832,9 +2815,7 @@ msgstr "Icon"
 msgid "Icon File not found"
 msgstr "Icon File not found"
 
-msgid ""
-"If MOK Manager does not appear, the machine did not boot through a shim and "
-"nothing was enrolled."
+msgid "If MOK Manager does not appear, the machine did not boot through a shim and nothing was enrolled."
 msgstr ""
 
 #, fuzzy
@@ -2859,9 +2840,7 @@ msgstr ""
 msgid "If on"
 msgstr "Icon"
 
-msgid ""
-"If that chain loads but the network never comes up, the firmware's own UEFI "
-"network stack is at fault. Point the boot filename at"
+msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
 msgstr ""
 
 #, fuzzy
@@ -3489,9 +3468,7 @@ msgstr ""
 
 #, fuzzy
 msgid "It is primarily geared for the smart installer methodology now"
-msgstr ""
-"Detailed documentation. It is primarily geared for the smart installer "
-"methodology now."
+msgstr "Detailed documentation. It is primarily geared for the smart installer methodology now."
 
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr ""
@@ -4518,8 +4495,7 @@ msgstr ""
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
-msgid ""
-"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 #, fuzzy
@@ -5057,9 +5033,7 @@ msgstr "Reboot after deploy"
 msgid "Reboot after install"
 msgstr "Reboot after install"
 
-msgid ""
-"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
-"key 0, Continue, Yes, then the password, then Reboot."
+msgid "Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View key 0, Continue, Yes, then the password, then Reboot."
 msgstr ""
 
 #, fuzzy
@@ -5369,9 +5343,7 @@ msgstr "Client Updater"
 msgid "Rule value"
 msgstr ""
 
-msgid ""
-"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
-"re-runs itself with sudo."
+msgid "Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It re-runs itself with sudo."
 msgstr ""
 
 #, fuzzy
@@ -5395,9 +5367,7 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Kernel"
 
-msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
-"key update or missing auto-increment."
+msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
 #, fuzzy
@@ -5493,10 +5463,7 @@ msgstr "Second parameter must be in the form array(Hook class,Function to run)"
 msgid "Secure Boot"
 msgstr ""
 
-msgid ""
-"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
-"installer skips these binaries, because rebuilding them to trust this "
-"server's CA would invalidate the signature that makes them bootable."
+msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -5660,10 +5627,7 @@ msgstr "Shutdown after install"
 msgid "Signed"
 msgstr "Signed"
 
-msgid ""
-"Signing is already done on this server. The remaining work is per-client and "
-"has to be done by someone at the machine -- that is what makes enrolment a "
-"deliberate act rather than something a server can do to a client remotely."
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 #, fuzzy
@@ -6419,9 +6383,7 @@ msgstr "Terms and Conditions"
 msgid "Text"
 msgstr "Text"
 
-msgid ""
-"That is the signed chain staged by the installer; the default boot file is "
-"unsigned and a Secure Boot client will refuse it"
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
 msgstr ""
 
 #, fuzzy
@@ -6596,9 +6558,7 @@ msgstr ""
 
 #, fuzzy
 msgid "This is the recommended installer to use now"
-msgstr ""
-"This is the recommended installer to use now. It can be used on Windows, "
-"Linux, and Mac OS X."
+msgstr "This is the recommended installer to use now. It can be used on Windows, Linux, and Mac OS X."
 
 msgid "This is useful in the case of slow links between"
 msgstr ""
@@ -6643,37 +6603,26 @@ msgstr ""
 
 #, fuzzy
 msgid "This plugin is not installed"
-msgstr ""
-"This plugin is currently not installed, would you like to install it now?"
+msgstr "This plugin is currently not installed, would you like to install it now?"
 
 #, fuzzy
 msgid "This section allows you to customize or alter"
-msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
+msgstr "This section allows you to import known mac address makers into the FOG Database for easier identification."
 
 #, fuzzy
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
-msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
+msgid "This section allows you to import known mac address makers into the FOG database for easier identification"
+msgstr "This section allows you to import known mac address makers into the FOG Database for easier identification."
 
 msgid "This section allows you to update"
 msgstr ""
 
 #, fuzzy
 msgid "This section allows you to update the modules and"
-msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
+msgstr "This section allows you to import known mac address makers into the FOG Database for easier identification."
 
 #, fuzzy
 msgid "This section allows you to upload user"
-msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
+msgstr "This section allows you to import known mac address makers into the FOG Database for easier identification."
 
 msgid "This servers ip(s)"
 msgstr ""
@@ -6690,28 +6639,14 @@ msgid "This setting limits the bandwidth for replication between nodes"
 msgstr ""
 
 #, fuzzy
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
+msgstr "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
 
 msgid "This setting turns off all FOG Printer Management"
 msgstr ""
 
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
 
 msgid "This will allow you to configure how services"
 msgstr ""
@@ -7307,9 +7242,7 @@ msgstr "Your form is ready."
 
 #, fuzzy
 msgid "Your system PHP Version is not sufficient"
-msgstr ""
-"Your systems PHP version is not sufficient. You have version %s, version %s "
-"is required."
+msgstr "Your systems PHP version is not sufficient. You have version %s, version %s is required."
 
 #, fuzzy
 msgid "ZSTD Compressed"
@@ -7381,9 +7314,7 @@ msgstr ""
 msgid "automatically"
 msgstr ""
 
-msgid ""
-"bandwidth graph, and multicast when the interface cannot be derived from the "
-"routing table"
+msgid "bandwidth graph, and multicast when the interface cannot be derived from the routing table"
 msgstr ""
 
 #, fuzzy
@@ -7479,9 +7410,7 @@ msgstr ""
 
 #, fuzzy
 msgid "directive specified in the HTML form"
-msgstr ""
-"The uploaded file exceeds the max_file_size directive specified in the HTML "
-"form"
+msgstr "The uploaded file exceeds the max_file_size directive specified in the HTML form"
 
 #, fuzzy
 msgid "directory"
@@ -7700,9 +7629,7 @@ msgstr ""
 msgid "install or update the FOG database"
 msgstr "Are you sure you wish to install or update the FOG database?"
 
-msgid ""
-"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
-"Arm64 clients use the files under secureboot/arm64-efi/"
+msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
 msgstr ""
 
 #, fuzzy
@@ -7904,9 +7831,7 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
-msgid ""
-"re-run the installer and check the installation log for a key generation or "
-"signing failure"
+msgid "re-run the installer and check the installation log for a key generation or signing failure"
 msgstr ""
 
 msgid "read-only"
@@ -7981,9 +7906,7 @@ msgstr "task found"
 msgid "terminating so it can be restarted"
 msgstr ""
 
-msgid ""
-"that detects the status on the fly, poweron or poweroff and the OS, of the "
-"client"
+msgid "that detects the status on the fly, poweron or poweroff and the OS, of the client"
 msgstr ""
 
 msgid "the Initrd (initial ramdisk) which is used alongside the"
@@ -8014,8 +7937,7 @@ msgstr ""
 
 #, fuzzy
 msgid "there one enabled within this Storage Group"
-msgstr ""
-"Could not find a Storage Node Is there one enabled within this Storage Group"
+msgstr "Could not find a Storage Node Is there one enabled within this Storage Group"
 
 msgid "there will be a database backup stored on your"
 msgstr ""
@@ -8075,9 +7997,7 @@ msgstr "to review."
 
 #, fuzzy
 msgid "to signify if this is a user or channel to send to"
-msgstr ""
-"Must use an @ or # to signify if this is a user or channel to send message "
-"to!"
+msgstr "Must use an @ or # to signify if this is a user or channel to send message to!"
 
 msgid "to the client systems"
 msgstr ""
@@ -8157,8 +8077,7 @@ msgstr "not within this"
 
 #, fuzzy
 msgid "would you like to install it now"
-msgstr ""
-"This plugin is currently not installed, would you like to install it now?"
+msgstr "This plugin is currently not installed, would you like to install it now?"
 
 msgid "you set the bandwidth field on that node to 1000"
 msgstr ""
@@ -8298,9 +8217,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
-#~ msgstr ""
-#~ "This file is used to encrypt the AD Password.  DO NOT USE THIS IF USING "
-#~ "THE NEW CLIENT."
+#~ msgstr "This file is used to encrypt the AD Password.  DO NOT USE THIS IF USING THE NEW CLIENT."
 
 #~ msgid "Unable to determine plugin details"
 #~ msgstr "Unable to determine plugin details"
