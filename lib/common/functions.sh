@@ -4665,6 +4665,19 @@ createSecureBootIntermediateCA() {
 $(_sbNameConstraints)" "FOG Secure Boot"
         errorStat $?
     fi
+    # A DER sibling of the intermediate, right next to .fogSBCA.pem in the PKI
+    # zone dir -- not only inside the web-servable kit _publishSecureBootKit
+    # stages. Without this, confirming what got enrolled (openssl, sha1sum, a
+    # comparison against what MokManager shows) means reaching into
+    # $webdirdest instead of the canonical PKI tree. Outside the "only if
+    # missing" block above so an install upgrading onto this code backfills
+    # it without touching the CA's own key/cert.
+    if [[ -f "${cadir}/.fogSBCA.pem" && ! -f "${cadir}/.fogSBCA.der" ]]; then
+        openssl x509 -in "${cadir}/.fogSBCA.pem" -outform der \
+            -out "${cadir}/.fogSBCA.der" >>$error_log 2>&1
+        chown root:root "${cadir}/.fogSBCA.der" >>$error_log 2>&1
+        chmod 0644 "${cadir}/.fogSBCA.der" >>$error_log 2>&1
+    fi
     if [[ ! -f "${leafdir}/sign.key" || ! -f "${leafdir}/sign.pem" ]]; then
         dots "Creating Secure Boot code signing certificate"
         mkdir -p "$leafdir" >>$error_log 2>&1 || st=1
@@ -4862,6 +4875,7 @@ EOF
 # thing in this feature that must not be got wrong.
 _publishSecureBootKit() {
     local kitdir="${webdirdest}/service/secureboot"
+    local cadir="$(_pkiZoneDir secureboot)/ca"
 
     # MOK.der publishes the certificate to be ENROLLED, which is not always
     # the one that signs. Where the Secure Boot CA exists that is the
@@ -4876,9 +4890,16 @@ _publishSecureBootKit() {
 
     dots "Publishing Secure Boot enrolment kit"
     mkdir -p "$kitdir" >>$error_log 2>&1
+    # The intermediate case already has a canonical DER sibling next to
+    # .fogSBCA.pem in the PKI zone dir (see createSecureBootIntermediateCA) --
+    # reuse it rather than re-deriving, so this kit's MOK.der is
+    # byte-identical to what an admin can already verify straight from the
+    # PKI tree, without reaching into $webdirdest.
+    if [[ $secureBootMokCert == "${cadir}/.fogSBCA.pem" && -f "${cadir}/.fogSBCA.der" ]]; then
+        cp -f "${cadir}/.fogSBCA.der" "${kitdir}/MOK.der" >>$error_log 2>&1
     # A DER copy of the certificate is what mokutil wants. Accept a PEM cert
     # too, since openssl is happy to produce either and admins mix them up.
-    if openssl x509 -in "$secureBootMokCert" -inform der -noout >/dev/null 2>&1; then
+    elif openssl x509 -in "$secureBootMokCert" -inform der -noout >/dev/null 2>&1; then
         cp -f "$secureBootMokCert" "${kitdir}/MOK.der" >>$error_log 2>&1
     elif openssl x509 -in "$secureBootMokCert" -outform der -out "${kitdir}/MOK.der" >>$error_log 2>&1; then
         :

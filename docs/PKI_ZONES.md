@@ -66,7 +66,10 @@ root/leaf/.srvpublic.crt          symlink -> $sslpath/.srvpublic.crt
 web/ca/.fogWebCA.{key,pem}        signs the vhost's certificate
 web/ca/.fogWebCAchain.pem         CA + web intermediate
 web/leaf/.webLeaf.{key,pem}       what the web server actually serves
-secureboot/ca/.fogSBCA.{key,pem}  signs the code-signing leaf
+secureboot/ca/.fogSBCA.{key,pem,der}  signs the code-signing leaf; .der is
+                                  the same certificate MOK.der publishes, kept
+                                  here so it can be verified without reaching
+                                  into the web root
 secureboot/leaf/sign.{key,pem}    what sbsign actually signs with
 ```
 
