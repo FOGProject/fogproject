@@ -793,8 +793,27 @@ if [[ -n $secureBootKey || -n $secureBootCert ]]; then
     fi
     for sbfile in "$secureBootKey" "$secureBootCert"; do
         if [[ ! -r $sbfile ]]; then
-            echo " * Cannot read Secure Boot signing file: $sbfile"
-            exit 9
+            # $secureBootKey/$secureBootCert may be this run's
+            # --secure-boot-key/--secure-boot-cert (staged in
+            # $ssecureBootKey/$ssecureBootCert below), or they may only be
+            # non-empty because .fogsettings recorded a previous run's pair
+            # (see writeUpdateFile) -- the two are otherwise indistinguishable
+            # once sourced. Only the first is a mistake worth refusing the
+            # install over; the second just means an admin removed the file
+            # to force a fresh key, and should fall through to
+            # _ensureSecureBootKeys() regenerating one, not exit 9 before that
+            # function ever runs.
+            if [[ -n $ssecureBootKey || -n $ssecureBootCert ]]; then
+                echo " * Cannot read Secure Boot signing file: $sbfile"
+                exit 9
+            fi
+            echo " * The Secure Boot key/certificate recorded in .fogsettings is"
+            echo "   missing on disk: $sbfile"
+            echo "   Treating it as unset and generating a new one."
+            secureBootKey=""
+            secureBootCert=""
+            secureBootMokCert=""
+            break
         fi
     done
     unset sbfile
