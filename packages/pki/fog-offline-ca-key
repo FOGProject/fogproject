@@ -93,8 +93,8 @@ case "$zone" in
         label="FOG Server CA"
         ;;
     secureboot)
-        key="${fogprogramdir}/secureboot/ca/.fogSBCA.key"
-        cert="${fogprogramdir}/secureboot/ca/.fogSBCA.pem"
+        key="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.key"
+        cert="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.pem"
         label="FOG Secure Boot CA"
         ;;
     *)

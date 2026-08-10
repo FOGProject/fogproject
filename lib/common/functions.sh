@@ -2940,12 +2940,25 @@ normalizeIpAddress() {
 # is what lets an existing server adopt this on an ordinary update: ca.cert.der
 # does not change, so nothing re-pins.
 
-# Single source of truth for the split-PKI layout under $sslpath. Callers ask
-# for a zone rather than concatenating paths themselves, so the shape can move
-# in one place.
+# Single source of truth for the split-PKI layout under $fogprogramdir/pki.
+# Callers ask for a zone rather than concatenating paths themselves, so the
+# shape can move in one place. Every zone gets its own subfolder -- nothing
+# lives directly under pki/ itself -- for the same reason $fogprogramdir
+# already has one subfolder per concern (snapins, service, log, ...), all
+# lowercase like the rest of them.
+#
+# Deliberately NOT under $sslpath: that tree is shared with admin-uploaded
+# snapin SSL material and the client-communication leaf. The web and
+# secureboot zones are new to this install (nothing historic points at
+# them, so both can be reminted from scratch on an install that already has
+# the old $sslpath/CA/web or $fogprogramdir/secureboot/{ca,leaf} layout);
+# the root zone is the one exception -- see _resolveRootCA, which moves the
+# EXISTING root key here without touching where its certificate already is.
 _pkiZoneDir() {
     case "$1" in
-        web) echo "$sslpath/CA/web" ;;
+        root) echo "${fogprogramdir}/pki/root" ;;
+        web) echo "${fogprogramdir}/pki/web" ;;
+        secureboot) echo "${fogprogramdir}/pki/secureboot" ;;
     esac
 }
 # $sslpath is normally settled inside createSSLCA(), but the Secure Boot zone
@@ -3184,12 +3197,32 @@ _resolveRootCAPath() {
 _resolveRootCA() {
     _resolveRootCAPath
 
+    # The private key moves out of $sslpath -- that tree is shared with
+    # admin-uploaded snapin SSL material and the client-communication leaf,
+    # which have no reason to sit next to the one key that can mint a new CA.
+    # $rootCAPem is left exactly where _resolveRootCAPath found it: an
+    # existing install already has things pointing at it (fog-client's
+    # pinned root), and moving a PUBLIC certificate buys nothing a symlink
+    # doesn't already give. One-time and idempotent: once the key exists at
+    # the new path, every later call (this run or the next) just re-points
+    # $rootCAKey at it without touching the filesystem again.
+    local rootDir="$(_pkiZoneDir root)"
+    mkdir -p "$rootDir" >>$error_log 2>&1
+    chmod 0700 "$rootDir" >>$error_log 2>&1
+    local canonicalRootKey="${rootDir}/.fogCA.key"
+    if [[ $rootCAKey != "$canonicalRootKey" ]]; then
+        [[ ! -f $canonicalRootKey && -f $rootCAKey ]] && \
+            mv "$rootCAKey" "$canonicalRootKey" >>$error_log 2>&1
+        rootCAKey="$canonicalRootKey"
+    fi
+    ln -sf "$rootCAPem" "${rootDir}/.fogCA.pem" >>$error_log 2>&1
+
     if [[ $recreateCA == yes ]]; then
         # Explicit and destructive. Everything beneath the old root is orphaned
         # by definition, so the intermediates go too and get re-issued below --
         # leaving them would produce chains that verify against nothing.
         rm -f "$rootCAPem" "$rootCAKey" >>$error_log 2>&1
-        rm -rf "$(_pkiZoneDir web)" "${fogprogramdir}/secureboot/ca" >>$error_log 2>&1
+        rm -rf "$(_pkiZoneDir web)" "$(_pkiZoneDir secureboot)" >>$error_log 2>&1
     fi
 
     if [[ -f $rootCAPem ]]; then
@@ -3250,7 +3283,7 @@ _collectPkiNames() {
     local needRoot=0 needWeb=0 needSB=0
     [[ ! -f $rootCAPem ]] && needRoot=1
     [[ ! -f "$(_pkiZoneDir web)/.fogWebCA.pem" ]] && needWeb=1
-    [[ ${secureboot:-1} != 0 && ! -f "${fogprogramdir}/secureboot/ca/.fogSBCA.pem" ]] && needSB=1
+    [[ ${secureboot:-1} != 0 && ! -f "$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem" ]] && needSB=1
     [[ $needRoot -eq 0 && $needWeb -eq 0 && $needSB -eq 0 ]] && return 0
     [[ -n $extraServerNames || -n $internalDomains ]] && return 0
 
@@ -3262,11 +3295,11 @@ _collectPkiNames() {
     if [[ -n $autoaccept ]]; then
         echo "  Extra hostnames for this server, space-separated (3 min, blank = none):"
         read -t 180 -r -p "  > " ans
-        echo "  Internal domain, e.g. example.local (3 min, blank = none):"
+        echo "  Internal domains, space-separated, e.g. example.local (3 min, blank = none):"
         read -t 180 -r -p "  > " domainAns
     else
         read -r -p "  Extra hostnames for this server, space-separated (blank = none): " ans
-        read -r -p "  Internal domain, e.g. example.local (blank = none): " domainAns
+        read -r -p "  Internal domains, space-separated, e.g. example.local (blank = none): " domainAns
     fi
     [[ -n $ans ]] && extraServerNames="${extraServerNames} ${ans}"
     [[ -n $domainAns ]] && internalDomains="${internalDomains} ${domainAns}"
@@ -3556,7 +3589,7 @@ _createWebLeaf() {
 # for it.
 _hardenPkiPermissions() {
     dots "Restricting private key access"
-    local sbca="${fogprogramdir}/secureboot/ca/.fogSBCA.key"
+    local sbca="$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
     local f
 
     _resolveSslPath
@@ -4499,9 +4532,9 @@ downloadfiles() {
 # In flat mode secureBootMokCert is simply the same file as secureBootCert, so
 # nothing downstream has to branch.
 createSecureBootIntermediateCA() {
-    local keydir="${fogprogramdir}/secureboot"
-    local cadir="${keydir}/ca"
-    local leafdir="${keydir}/leaf"
+    local sbdir="$(_pkiZoneDir secureboot)"
+    local cadir="${sbdir}/ca"
+    local leafdir="${sbdir}/leaf"
     local st=0
 
     # Secure Boot runs from downloadfiles(), which reaches this BEFORE
