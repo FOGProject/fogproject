@@ -7123,6 +7123,14 @@ msgstr "この設定は十分注意して使用してください"
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "既定で有効"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "既定で有効"
+
 msgid "Use the following link to go to the client page."
 msgstr "クライアントページへ移動するには、以下のリンクを使用してください。"
 
@@ -7970,6 +7978,10 @@ msgstr "このイメージを含むノード"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "このノード上に見つかりません"
 
 msgid "not found on this node"
 msgstr "このノード上に見つかりません"

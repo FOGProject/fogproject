@@ -1,0 +1,181 @@
+#!/bin/bash
+#
+#  FOG is a computer imaging solution.
+#  Copyright (C) 2007  Chuck Syperski & Jian Zhang
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#    any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Issue a certificate to a storage node, from a CA the web user cannot read.
+#
+# Invoked through sudo by service/nodecert.php after that endpoint has
+# authenticated the requesting node. The split matters: the endpoint decides
+# WHO may have a certificate and for WHICH names; this decides nothing and
+# holds the keys. A compromise of the web application can therefore ask for
+# certificates but can never read a CA key, and every name it can ask for is
+# still bounded by the CA's own name constraints.
+#
+# Modelled on fog-sign-kernel deliberately, including the parts that look
+# paranoid:
+#
+#  - No path ever comes from the caller. The CA locations live in a root-only
+#    config file written at install time, so the web user cannot name its own
+#    key, its own output, or its own openssl config.
+#  - The two arguments it does take are matched against fixed patterns before
+#    anything touches the filesystem, so neither can escape the staging
+#    directory or turn into an openssl option.
+#  - The SAN list is re-validated here even though the endpoint built it.
+#    This script is the security boundary; the thing on the other side of it
+#    is the thing that might be compromised.
+
+set -u
+
+CONF="/opt/fog/.fog-pki"
+
+die() { echo "$*" >&2; exit 1; }
+
+[[ $EUID -eq 0 ]] || die "fog-sign-node-cert must run as root"
+[[ $# -eq 2 ]] || die "usage: fog-sign-node-cert <web|signing> <request-id>"
+
+type="$1"
+reqid="$2"
+
+# Validated before use, not after. A request id reaching the filesystem
+# unchecked is a path traversal into whatever the web user can write.
+[[ $type =~ ^(web|signing)$ ]] || die "unknown certificate type"
+[[ $reqid =~ ^[a-f0-9]{32}$ ]] || die "malformed request id"
+
+[[ -r $CONF ]] || die "missing $CONF -- re-run the FOG installer"
+# shellcheck disable=SC1090
+. "$CONF"
+
+: "${PKI_STAGING:=}"
+[[ -d $PKI_STAGING ]] || die "staging directory is not configured"
+
+csr="${PKI_STAGING}/${reqid}.csr"
+san="${PKI_STAGING}/${reqid}.san"
+out="${PKI_STAGING}/${reqid}.pem"
+chainout="${PKI_STAGING}/${reqid}.chain"
+
+[[ -f $csr ]] || die "no request at ${csr}"
+[[ -f $san ]] || die "no name list at ${san}"
+
+case "$type" in
+    web)
+        cacert="${PKI_WEB_CA_CERT:-}"
+        cakey="${PKI_WEB_CA_KEY:-}"
+        eku="serverAuth"
+        days=825
+        ;;
+    signing)
+        cacert="${PKI_SB_CA_CERT:-}"
+        cakey="${PKI_SB_CA_KEY:-}"
+        eku="codeSigning"
+        days=730
+        ;;
+esac
+
+if [[ -z $cacert || ! -f $cacert ]]; then
+    die "the ${type} CA is not present on this server"
+fi
+if [[ -z $cakey || ! -f $cakey ]]; then
+    # The expected state for the Secure Boot CA once its key has been vaulted.
+    # Say which key and where, because the fix is to bring it back for one run.
+    die "the ${type} CA private key is not on this server (expected at ${cakey:-<unset>}); restore it, issue the node certificates, then move it back"
+fi
+
+# Re-validate the names. Only two forms are ever legitimate here, and anything
+# else is either a mistake or an attempt to smuggle openssl config syntax
+# through a value -- a line containing '[' or '=' would open a new section in
+# the extension file built below.
+sanlist=""
+n_ip=0
+n_dns=0
+while IFS= read -r line; do
+    line="${line%$'\r'}"
+    [[ -z $line ]] && continue
+    case "$line" in
+        IP:*)
+            [[ ${line#IP:} =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || die "invalid IP entry: ${line}"
+            n_ip=$((n_ip + 1))
+            sanlist="${sanlist}${sanlist:+,}IP.${n_ip}:${line#IP:}"
+            ;;
+        DNS:*)
+            [[ ${line#DNS:} =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]] \
+                || die "invalid DNS entry: ${line}"
+            n_dns=$((n_dns + 1))
+            sanlist="${sanlist}${sanlist:+,}DNS.${n_dns}:${line#DNS:}"
+            ;;
+        *)
+            die "unrecognised name entry: ${line}"
+            ;;
+    esac
+done < "$san"
+[[ -n $sanlist ]] || die "no names to issue for"
+
+# A DNS name is always required, for the same reason the Secure Boot signing
+# leaf carries one: with DNS name constraints on the issuing CA and no dNSName
+# SAN on the certificate, OpenSSL falls back to checking the subject CN against
+# those constraints, and a node's CN is whatever the endpoint put there.
+[[ $n_dns -gt 0 ]] || die "at least one DNS name is required"
+
+tmpext=$(mktemp) || die "could not create a temporary file"
+trap 'rm -f "$tmpext"' EXIT
+{
+    echo "[ v3_node ]"
+    echo "basicConstraints = critical,CA:FALSE"
+    echo "extendedKeyUsage = ${eku}"
+    echo "subjectKeyIdentifier = hash"
+    echo "subjectAltName = @alt"
+    echo "[ alt ]"
+    # Re-emitted from the validated pieces rather than passed through, so the
+    # bytes openssl reads are ones this script constructed.
+    IFS=',' read -ra entries <<< "$sanlist"
+    for e in "${entries[@]}"; do
+        echo "${e%%:*} = ${e#*:}"
+    done
+} > "$tmpext"
+
+# The subject is the master's own validated record of this node, not the
+# CSR's -- openssl x509 -req otherwise keeps whatever subject the node put
+# on its own CSR, which is a formality the node fills in without the master
+# ever checking it (see the comment on the node side, in _requestNodeCert).
+firstdns=""
+for e in "${entries[@]}"; do
+    [[ $e == DNS.* ]] && { firstdns="${e#*:}"; break; }
+done
+
+rm -f "$out" "$chainout"
+if ! openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
+        -CAcreateserial -sha256 -days "$days" \
+        -extensions v3_node -extfile "$tmpext" \
+        -subj "/CN=${firstdns}/O=FOG Project/OU=FOG Web UI" \
+        -out "$out" 2>/dev/null; then
+    die "signing failed"
+fi
+
+# The node needs the issuer to serve a usable chain, and the anchor to know
+# what it is trusting. Both are public.
+cat "$cacert" > "$chainout"
+[[ -n ${PKI_ROOT_CERT:-} && -f ${PKI_ROOT_CERT} ]] && cat "$PKI_ROOT_CERT" >> "$chainout"
+
+# Verify before handing it back. A certificate that does not chain is the
+# failure mode name constraints produce, and catching it here means the node
+# is told rather than silently installing something no client accepts.
+if ! openssl verify -CAfile "${PKI_ROOT_CERT:-$cacert}" -untrusted "$cacert" "$out" >/dev/null 2>&1; then
+    rm -f "$out" "$chainout"
+    die "the issued certificate does not verify -- a requested name is probably outside the CA's name constraints"
+fi
+
+chmod 0644 "$out" "$chainout"
+echo "OK"

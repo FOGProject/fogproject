@@ -7499,6 +7499,14 @@ msgstr ""
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "Update Printer"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "Update Printer"
+
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -8407,6 +8415,10 @@ msgstr "Could not find any nodes containing this image"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "Image not found on node"
 
 #, fuzzy
 msgid "not found on this node"

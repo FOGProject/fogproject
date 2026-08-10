@@ -615,13 +615,13 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'kernel',
                 _('Host Kernel')
-            ) => self::makeInput(
+            ) => self::kernelFileSelect(
+                'kernel',
+                $kernel,
+                'kernel',
                 'form-control hostkernel-input',
-                'kernel',
-                'bzImage_Custom',
-                'text',
-                'kernel',
-                $kernel
+                '',
+                _('Use the default kernel')
             ),
             self::makeLabel(
                 $labelClass,
@@ -639,13 +639,13 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'init',
                 _('Host Init')
-            ) => self::makeInput(
+            ) => self::kernelFileSelect(
+                'init',
+                $init,
+                'init',
                 'form-control hostinit-input',
-                'init',
-                'customInit.xz',
-                'text',
-                'init',
-                $init
+                '',
+                _('Use the default init')
             ),
             self::makeLabel(
                 $labelClass,
@@ -865,13 +865,13 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'kernel',
                 _('Host Kernel')
-            ) => self::makeInput(
+            ) => self::kernelFileSelect(
+                'kernel',
+                $kernel,
+                'kernel',
                 'form-control hostkernel-input',
-                'kernel',
-                'bzImage_Custom',
-                'text',
-                'kernel',
-                $kernel
+                '',
+                _('Use the default kernel')
             ),
             self::makeLabel(
                 $labelClass,
@@ -889,13 +889,13 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'init',
                 _('Host Init')
-            ) => self::makeInput(
+            ) => self::kernelFileSelect(
+                'init',
+                $init,
+                'init',
                 'form-control hostinit-input',
-                'init',
-                'customInit.xz',
-                'text',
-                'init',
-                $init
+                '',
+                _('Use the default init')
             ),
             self::makeLabel(
                 $labelClass,
@@ -1158,13 +1158,13 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'kernel',
                 _('Host Kernel')
-            ) => self::makeInput(
+            ) => self::kernelFileSelect(
+                'kernel',
+                $kernel,
+                'kernel',
                 'form-control hostkernel-input',
-                'kernel',
-                'bzImage_Custom',
-                'text',
-                'kernel',
-                $kernel
+                '',
+                _('Use the default kernel')
             ),
             self::makeLabel(
                 $labelClass,
@@ -1182,13 +1182,13 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'init',
                 _('Host Init')
-            ) => self::makeInput(
+            ) => self::kernelFileSelect(
+                'init',
+                $init,
+                'init',
                 'form-control hostinit-input',
-                'init',
-                'customInit.xz',
-                'text',
-                'init',
-                $init
+                '',
+                _('Use the default init')
             ),
             self::makeLabel(
                 $labelClass,

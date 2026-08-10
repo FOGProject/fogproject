@@ -2031,16 +2031,28 @@ abstract class FOGBase
         if (count($tmpssl ?: []) < 1) {
             throw new Exception(_('Private key path not found'));
         }
-        $sslfile = sprintf(
-            '%s%s.srvprivate.key',
-            str_replace(
-                ['\\', '/'],
-                [DS, DS],
-                $tmpssl[0]
-            ),
-            DS
+        $sslbase = str_replace(
+            ['\\', '/'],
+            [DS, DS],
+            $tmpssl[0]
         );
         unset($tmpssl);
+        /**
+         * .srvprivate.key, always.
+         *
+         * Historically this file was the client communication key AND the web
+         * vhost's TLS private key, which is why replacing the web certificate
+         * -- an ACME renewal, --recreate-keys, a purchased cert dropped in
+         * place -- silently broke client authentication while installing a
+         * perfectly valid certificate.
+         *
+         * The installer now issues the web certificate from a separate Web CA
+         * with its own keypair and leaves this file to do the one job it is
+         * named for. So there is no layout to detect and nothing here changes:
+         * the fix was to stop pointing the web server at this key, not to move
+         * the key.
+         */
+        $sslfile = sprintf('%s%s.srvprivate.key', $sslbase, DS);
         if (!file_exists($sslfile)) {
             throw new Exception(_('Private key not found'));
         }

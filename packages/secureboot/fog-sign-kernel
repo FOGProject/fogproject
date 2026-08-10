@@ -43,6 +43,12 @@ readconf() {
 
 signKey=$(readconf SECUREBOOT_KEY)
 signCert=$(readconf SECUREBOOT_CERT)
+# The enrolled certificate, which in a split PKI is the issuing intermediate
+# rather than the signer. It has to travel inside the signature (--addcert) or
+# a kernel signed here chains to nothing any endpoint trusts. Falls back to the
+# signing cert, which is what a flat install has always used.
+mokCert=$(readconf SECUREBOOT_MOK_CERT)
+[[ -z $mokCert ]] && mokCert="$signCert"
 stageDir=$(readconf SECUREBOOT_STAGING)
 
 if [[ -z $signKey || -z $signCert || -z $stageDir ]]; then
@@ -82,7 +88,11 @@ if ! command -v sbsign >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! sbsign --key "$signKey" --cert "$signCert" \
+addcert=()
+if [[ -n $mokCert && "$(readlink -f "$mokCert" 2>/dev/null)" != "$(readlink -f "$signCert" 2>/dev/null)" ]]; then
+    addcert=(--addcert "$mokCert")
+fi
+if ! sbsign --key "$signKey" --cert "$signCert" "${addcert[@]}" \
         --output "${resolved}.signed" "$resolved"; then
     rm -f "${resolved}.signed"
     echo "fog-sign-kernel: sbsign failed" >&2

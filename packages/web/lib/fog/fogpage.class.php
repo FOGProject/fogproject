@@ -796,6 +796,10 @@ abstract class FOGPage extends FOGBase
                     // hook sets $active = false, and HookManager only forces
                     // active on files under plugins/.
                     'secureBoot' => _('Secure Boot'),
+                    // Beside Secure Boot because they answer the same kind of
+                    // question -- what does this server trust, and can anything
+                    // it should not read reach the keys.
+                    'certificates' => _('Certificates'),
                     'pxemenu' => self::$foglang['PXEBootMenu'],
                     'maclist' => self::$foglang['MACAddrList'],
                     'settings' => self::$foglang['FOGSettings'],
@@ -5040,6 +5044,165 @@ abstract class FOGPage extends FOGBase
             . '>'
             . $str
             . '</label>';
+    }
+    /**
+     * Lists the kernel or init files actually present in the FOS boot
+     * directory, newest first.
+     *
+     * Kernels and inits are files on disk, not database records, so there is
+     * nothing for buildSelectBox() to enumerate. Reading the directory is the
+     * only way to know what an admin can legitimately choose -- and since the
+     * installer now leaves the outgoing kernel behind as bzImage.<release>
+     * on every update, that directory is exactly the list of "current, or any
+     * version still on this server, or anything I put here myself".
+     *
+     * @param string $type 'kernel' or 'init'
+     *
+     * @return array filenames
+     */
+    public static function kernelFileList($type = 'kernel')
+    {
+        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        if (empty($dir) || !is_dir($dir) || !is_readable($dir)) {
+            return [];
+        }
+        $files = @scandir($dir);
+        if ($files === false) {
+            return [];
+        }
+        $out = [];
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+            if (!is_file($dir . DIRECTORY_SEPARATOR . $file)) {
+                continue;
+            }
+            /**
+             * Split by shape rather than by a fixed list of names, so a
+             * custom kernel and the per-release siblings both appear.
+             *
+             * .unsigned copies are excluded -- they are _resignKernels()
+             * working files, not something to boot.
+             *
+             * The web assets and config that share this directory
+             * (boot.php/advanced.php/index.php, the bg images, refind.conf)
+             * are excluded too. "Anything that is not an init" swept all of
+             * them into the kernel list, which is not a menu anybody wants to
+             * pick a kernel out of.
+             */
+            if (preg_match('/\.(unsigned|php|png|jpe?g|gif|svg|conf|efi)$/i', $file)) {
+                continue;
+            }
+            $isInit = (bool)preg_match('/(^|\/)(init|arm_init)|\.(xz|cpio\.gz)/i', $file);
+            if ($type === 'init' ? $isInit : !$isInit) {
+                $out[] = $file;
+            }
+        }
+        /**
+         * Plain names first, then their versioned siblings, so bzImage sits
+         * above bzImage.20260806-111046 instead of being sorted into the
+         * middle of them.
+         */
+        usort(
+            $out,
+            function ($a, $b) {
+                $adot = substr_count($a, '.');
+                $bdot = substr_count($b, '.');
+                if ($adot !== $bdot) {
+                    return $adot - $bdot;
+                }
+                return strnatcasecmp($b, $a);
+            }
+        );
+
+        return $out;
+    }
+    /**
+     * Builds a select of the kernel/init files present on disk.
+     *
+     * Falls back to a plain text input when the directory cannot be read, so
+     * a server whose kernel directory has moved is still editable rather than
+     * presenting an empty, unusable dropdown.
+     *
+     * @param string $name    field name/id
+     * @param string $current the currently stored value
+     * @param string $type    'kernel' or 'init'
+     * @param string $class   css classes for the element
+     *
+     * @return string
+     */
+    public static function kernelFileSelect(
+        $name,
+        $current = '',
+        $type = 'kernel',
+        $class = 'form-control',
+        $id = '',
+        $blankLabel = ''
+    ) {
+        $current = trim((string)$current);
+        if ($id === '') {
+            $id = $name;
+        }
+        $files = self::kernelFileList($type);
+        if (count($files) < 1) {
+            return self::makeInput(
+                $class,
+                $name,
+                $type === 'init' ? 'customInit.xz' : 'bzImage_Custom',
+                'text',
+                $id,
+                $current
+            );
+        }
+        /**
+         * A stored value naming a file that is no longer on disk must still
+         * appear, and still be selected. Dropping it would silently rewrite
+         * the host's kernel to the default the moment anyone opened the form.
+         */
+        $missing = ($current !== '' && !in_array($current, $files, true));
+        if ($missing) {
+            array_unshift($files, $current);
+        }
+        /**
+         * The blank option is load-bearing, not filler. On a host or group an
+         * empty kernel/init means "inherit the global default", so it must be
+         * present, must be first, and must never be pre-selected -- otherwise
+         * simply opening the form and saving would pin every inheriting host
+         * to a specific kernel. Callers pass a label saying so, because
+         * "Please select an option" reads as though a choice is required.
+         */
+        $opts = '<option value="">- '
+            . (
+                $blankLabel !== '' ?
+                Initiator::e($blankLabel) :
+                self::$foglang['PleaseSelect']
+            )
+            . ' -</option>';
+        foreach ($files as $file) {
+            $opts .= '<option value="'
+                . Initiator::e($file)
+                . '"'
+                . ($file === $current ? ' selected' : '')
+                . '>'
+                . Initiator::e($file)
+                . (
+                    $missing && $file === $current ?
+                    ' (' . _('not found on disk') . ')' :
+                    ''
+                )
+                . '</option>';
+        }
+
+        return '<select class="'
+            . $class
+            . ' fog-select2" name="'
+            . $name
+            . '" id="'
+            . $id
+            . '" autocomplete="off">'
+            . $opts
+            . '</select>';
     }
     /**
      * Makes an input element.

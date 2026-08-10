@@ -7501,6 +7501,14 @@ msgstr "Seien Sie seeehr vorsichtig mit diesen Einstellungen"
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "Standarddrucker aktualisieren"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "Standarddrucker aktualisieren"
+
 msgid "Use the following link to go to the client page."
 msgstr "Der folgende Link führt zur Clientseite"
 
@@ -8413,6 +8421,10 @@ msgstr "Knoten enthalten dieses Image"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "auf diesem Knoten nicht gefunden"
 
 #, fuzzy
 msgid "not found on this node"

@@ -127,6 +127,32 @@ usage() {
     echo -e "\t               \t\t\t\tdefaults to /opt/fog"
     echo -e "\t               \t\t\t\tremembered in /etc/fog/fog.conf, so it"
     echo -e "\t               \t\t\t\tonly needs giving on a first install"
+    echo -e "\t      --hostname\t\tOverride the vhost/cert hostname"
+    echo -e "\t                \t\tdefaults to \`hostname -f\`, remembered in .fogsettings"
+    echo -e "\t      --extra-server-name\tAdd an extra vhost/cert name (repeatable)"
+    echo -e "\t                       \t\talongside the primary hostname and detected IPs"
+    echo -e "\t      --internal-domain\t\tPermit this domain in the Web and Secure Boot"
+    echo -e "\t                 \t\t\tCAs' name constraints (repeatable). The server's"
+    echo -e "\t                 \t\t\town domain is always permitted"
+    echo -e "\t      --internal-subnet\t\tRestrict those CAs to this subnet, e.g."
+    echo -e "\t                 \t\t\t10.20.30.0/24 (repeatable). REPLACES the default"
+    echo -e "\t                 \t\t\tof all RFC1918 ranges"
+    echo -e "\t      --no-sb-name-constraints\tIssue the Secure Boot CA without name"
+    echo -e "\t                 \t\t\tconstraints. Use if firmware rejects the chain"
+    echo -e "\t      --web-ca-cert/-key/-root\tBring your own CA for the WEB zone only"
+    echo -e "\t                 \t\t\t(equivalent to --external-ca --ca-*)"
+    echo -e "\t      --secureboot-ca-cert\tYour own SECURE BOOT intermediate: the"
+    echo -e "\t                 \t\t\tcertificate enrolled in firmware. Pair it with"
+    echo -e "\t                 \t\t\t--secure-boot-key/--secure-boot-cert, which name"
+    echo -e "\t                 \t\t\tthe code-signing leaf issued from it. Rotate the"
+    echo -e "\t                 \t\t\tleaf freely; the enrolled CA never changes"
+    echo -e "\t      --kernel-backup-count\tHow many prior kernel/init generations to"
+    echo -e "\t                       \t\tkeep (default 3). Restore one with"
+    echo -e "\t                       \t\tbin/restorekernel.sh. See"
+    echo -e "\t                       \t\tdocs/SUPPORTED_CUSTOMIZATIONS.md"
+    echo -e "\t      --restore-kernel-backup\tAlso restore the previous kernel/init set"
+    echo -e "\t                       \t\tthis run. Used by updatefog.sh when reverting;"
+    echo -e "\t                       \t\tnot normally passed by hand"
     echo -e "\t-N    --mysqldbname\t\tSpecify the FOG database name"
     echo -e "\t               \t\t\t\tdefaults to fog"
     echo -e "\t-B    --backuppath\t\tSpecify the backup path"
@@ -152,7 +178,12 @@ usage() {
     echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
-    echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
+    echo -e "\t-F    --no-vhost\t\tDo not touch the vhost file at all. FOG"
+    echo -e "\t                \t\t\tnormally rewrites only the region between its"
+    echo -e "\t                \t\t\tMANAGED BLOCK markers and leaves your own"
+    echo -e "\t                \t\t\tadditions alone, so skipping also skips its"
+    echo -e "\t                \t\t\tsecurity fixes to the parts it owns."
+    echo -e "\t                \t\t\tSee docs/SUPPORTED_CUSTOMIZATIONS.md"
     echo -e "\t-l    --list-packages\t\tList of the basic packages FOG needs for install or is currently installed for FOG"
     echo -e "\t      --secure-boot-key\t\tPrivate key used to re-sign the FOS"
     echo -e "\t                       \t\t\tkernels for UEFI Secure Boot"
@@ -163,8 +194,10 @@ usage() {
     exit 0
 }
 
+sextraServerNames=()
+
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -221,6 +254,24 @@ while :; do
             else
                 echo "Error: --fogprogramdir requires an absolute path"
                 usage
+                exit 9
+            fi
+            shift 2
+            ;;
+        --hostname)
+            if [[ -n "${2}" ]] && [[ $(validhostname "${2}") -eq 0 ]]; then
+                shostname="${2}"
+            else
+                echo "Error: --hostname requires a valid hostname"
+                exit 9
+            fi
+            shift 2
+            ;;
+        --extra-server-name)
+            if [[ -n "${2}" ]] && [[ $(validhostname "${2}") -eq 0 ]]; then
+                sextraServerNames+=("${2}")
+            else
+                echo "Error: --extra-server-name requires a valid hostname"
                 exit 9
             fi
             shift 2
@@ -441,6 +492,73 @@ while :; do
             ssecureboot=0
             shift
             ;;
+        --netboot-proto)
+            case $2 in
+                http|https) snetbootproto="$2" ;;
+                *) echo "$1 must be http or https"; usage; exit 3 ;;
+            esac
+            shift 2
+            ;;
+        --no-sb-name-constraints)
+            ssbNameConstraints="no"
+            shift
+            ;;
+        --internal-domain)
+            if [[ $(validhostname "${2}") -ne 0 ]]; then
+                echo "$1 requires a valid domain name after"
+                usage
+                exit 3
+            fi
+            sinternalDomains="${sinternalDomains:+$sinternalDomains }${2}"
+            shift 2
+            ;;
+        --internal-subnet)
+            # address, or address/prefixlen, or address/netmask. Validated here
+            # rather than at use: an unchecked value reaches an OpenSSL
+            # extension config, and a malformed one there fails to build the
+            # certificate with an error that names neither the flag nor the
+            # value.
+            if [[ $(validip "${2%%/*}") -ne 0 ]]; then
+                echo "$1 requires a subnet like 10.20.30.0/24 after"
+                usage
+                exit 3
+            fi
+            sinternalSubnets="${sinternalSubnets:+$sinternalSubnets }${2}"
+            shift 2
+            ;;
+        --web-ca-cert | --web-ca-key | --web-ca-root | --secureboot-ca-cert)
+            if [[ ! -f $2 ]]; then
+                echo "$1 requires a readable file after"
+                usage
+                exit 3
+            fi
+            case $1 in
+                --web-ca-cert)    swebExtCACert="$2" ;;
+                --web-ca-key)     swebExtCAKey="$2" ;;
+                --web-ca-root)    swebExtCARoot="$2" ;;
+                # The Secure Boot zone's anchor: what gets ENROLLED in
+                # firmware. Pairs with --secure-boot-key/--secure-boot-cert,
+                # which name the leaf that actually signs. Supplying only the
+                # leaf pair (the historic form) still works and enrols that
+                # certificate, exactly as before.
+                --secureboot-ca-cert) ssecureBootMokCert="$2" ;;
+            esac
+            shift 2
+            ;;
+        --kernel-backup-count)
+            if [[ -n "${2}" && "${2}" =~ ^[0-9]+$ && "${2}" -ge 1 ]]; then
+                skernelBackupCount="${2}"
+            else
+                echo "$1 requires a positive integer after"
+                usage
+                exit 3
+            fi
+            shift 2
+            ;;
+        --restore-kernel-backup)
+            srestoreKernelBackup=1
+            shift
+            ;;
         --)
             shift
             break
@@ -614,6 +732,8 @@ case $doupdate in
 esac
 # evaluation of command line options
 [[ -n $shttpproto ]] && httpproto=$shttpproto
+[[ -n $shostname ]] && hostname=$shostname
+[[ ${#sextraServerNames[@]} -gt 0 ]] && extraServerNames="${sextraServerNames[*]}"
 [[ -n $sstartrange ]] && startrange=$sstartrange
 [[ -n $sendrange ]] && endrange=$sendrange
 # -s/-e imply "set DHCP up". These were written directly by the handlers, so on
@@ -636,6 +756,30 @@ esac
 [[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
+[[ -n $skernelBackupCount ]] && kernelBackupGenerations=$skernelBackupCount
+# Applied here, after .fogsettings is sourced, so an explicit flag beats a
+# persisted value and a persisted value beats the computed default.
+[[ -n $snetbootproto ]] && netbootproto=$snetbootproto
+[[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
+[[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
+[[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
+[[ -n $ssecureBootMokCert ]] && secureBootMokCert=$ssecureBootMokCert
+[[ -n $ssbNameConstraints ]] && sbNameConstraints=$ssbNameConstraints
+# Repeatable flags REPLACE the persisted list rather than appending to it, the
+# same way --extra-server-name does: an admin re-running with a narrower set
+# means that set, and appending would make a value impossible to remove
+# without hand-editing .fogsettings.
+[[ -n $sinternalDomains ]] && internalDomains=$sinternalDomains
+[[ -n $sinternalSubnets ]] && internalSubnets=$sinternalSubnets
+# Supplying any web-zone CA file implies --external-ca, the same way supplying
+# --ca-cert always has. Saves an admin from the "I gave you the files and
+# nothing happened" failure, which produces a working install with the wrong
+# CA and no error to explain it.
+[[ -n $webExtCACert || -n $webExtCAKey || -n $webExtCARoot ]] && externalca="yes"
+# Deliberately NOT persisted to .fogsettings: this is a one-shot instruction
+# for a single run (revertUpdate passes it), not a preference. Persisting it
+# would make every later update silently roll the kernels back.
+restoreKernelBackup=${srestoreKernelBackup:-0}
 
 # Secure Boot signing is generated by default now (see _ensureSecureBootKeys),
 # but an explicitly supplied key is still only meaningful as a pair. Refuse half
@@ -649,12 +793,37 @@ if [[ -n $secureBootKey || -n $secureBootCert ]]; then
     fi
     for sbfile in "$secureBootKey" "$secureBootCert"; do
         if [[ ! -r $sbfile ]]; then
-            echo " * Cannot read Secure Boot signing file: $sbfile"
-            exit 9
+            # $secureBootKey/$secureBootCert may be this run's
+            # --secure-boot-key/--secure-boot-cert (staged in
+            # $ssecureBootKey/$ssecureBootCert below), or they may only be
+            # non-empty because .fogsettings recorded a previous run's pair
+            # (see writeUpdateFile) -- the two are otherwise indistinguishable
+            # once sourced. Only the first is a mistake worth refusing the
+            # install over; the second just means an admin removed the file
+            # to force a fresh key, and should fall through to
+            # _ensureSecureBootKeys() regenerating one, not exit 9 before that
+            # function ever runs.
+            if [[ -n $ssecureBootKey || -n $ssecureBootCert ]]; then
+                echo " * Cannot read Secure Boot signing file: $sbfile"
+                exit 9
+            fi
+            echo " * The Secure Boot key/certificate recorded in .fogsettings is"
+            echo "   missing on disk: $sbfile"
+            echo "   Treating it as unset and generating a new one."
+            secureBootKey=""
+            secureBootCert=""
+            secureBootMokCert=""
+            break
         fi
     done
     unset sbfile
 fi
+# Immediately after validation and long before configureHttpd() rebuilds the
+# web tree, so a pair the admin parked somewhere that gets deleted is copied
+# to safety first. Handles a path from .fogsettings as well as one from this
+# run's flags, and no-ops once the recorded path is already protected.
+# $fogprogramdir is settled by config.sh above, so the destination is real.
+preserveSecureBootAdminFiles
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
 case $? in
@@ -845,6 +1014,10 @@ while [[ -z $blGo ]]; do
                     configureTFTPandPXE
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
                     configureUDPCast
                     installInitScript
                     installFOGServices
@@ -858,12 +1031,18 @@ while [[ -z $blGo ]]; do
                     linkOptFogDir
                     installUtilities
                     if [[ $bluseralreadyexists == 1 ]]; then
+                        # Already registered, so the master will answer.
+                        _installNodeWebCert
                         echo
                         echo "\n * Upgrade complete\n"
                         echo
                     else
                         registerStorageNode
                         updateStorageNodeCredentials
+                        # AFTER registration: the master only issues to a node
+                        # it already knows, and this is the first point in a
+                        # fresh node install where that is true.
+                        _installNodeWebCert
                         [[ -n $snmysqlhost ]] && fogserver=$snmysqlhost || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
@@ -911,6 +1090,11 @@ while [[ -z $blGo ]]; do
                     # to happen for it to connect at all.
                     writeUpdateFile
                     backupReports
+                    # Before configureHttpd(), which rm -rf's $webdirdest --
+                    # this is the last point anything under it can be saved.
+                    # configureMySql has already run, so the FOG_IPXE_BG_FILE
+                    # lookup inside has a database to ask.
+                    backupPreservedCustomizations
                     configureHttpd
                     checkWebTier
                     backupDB
@@ -918,8 +1102,21 @@ while [[ -z $blGo ]]; do
                     configureStorage
                     configureDHCP
                     configureTFTPandPXE
+                    # After configureTFTPandPXE -> downloadfiles() has re-laid
+                    # the default-named kernel/init set, so restoring here puts
+                    # the admin's own files back on top of fresh defaults
+                    # rather than being overwritten by them.
+                    restorePreservedCustomizations
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
+                    # Master only, and after the permissions above so the
+                    # sudoers rule is the only route the web tier has to the
+                    # CA keys rather than one of two.
+                    _installNodeCertSigner
                     configureUDPCast
                     installInitScript
                     installFOGServices

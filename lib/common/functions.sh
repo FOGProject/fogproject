@@ -44,15 +44,16 @@ linkIfAbsent() {
     [[ -e $link || -L $link ]] && return 0
     ln -s "$target" "$link" >>$error_log 2>&1
 }
-# Maps a FOG update channel name to the git branch it tracks. Mirrors
-# fog-docs/docs/installation/server/install-fog-server.md's "Choosing a FOG
-# version" section -- codified here so bin/updatefog.sh and lib/common/config.sh
-# share one mapping instead of each guessing at it.
+# Maps a FOG update channel name to the git branch it tracks. Channel names
+# match README.md's "Channel" table (Stable/Staging/Dev), not the informal
+# "dev"/"beta" prose fog-docs used before that table existed -- see
+# FOGProject/fogproject#1012. Codified here so bin/updatefog.sh and
+# lib/common/config.sh share one mapping instead of each guessing at it.
 channelToBranch() {
     case "$1" in
         stable) echo "stable" ;;
-        dev) echo "dev-branch" ;;
-        beta) echo "working-1.6" ;;
+        staging) echo "dev-branch" ;;
+        dev) echo "working-1.6" ;;
         *) return 1 ;;
     esac
 }
@@ -63,8 +64,8 @@ channelToBranch() {
 branchToChannel() {
     case "$1" in
         stable) echo "stable" ;;
-        dev-branch) echo "dev" ;;
-        working-1.6) echo "beta" ;;
+        dev-branch) echo "staging" ;;
+        working-1.6) echo "dev" ;;
         *) return 1 ;;
     esac
 }
@@ -74,6 +75,318 @@ backupReports() {
     [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/* ../rpttmp/ >>$error_log
     echo "Done"
     return 0
+}
+# Where backupPreservedCustomizations() stashes anything that has to outlive
+# configureHttpd()'s rm -rf $webdirdest. Deliberately under $fogprogramdir,
+# never inside $webdirdest -- that is the same "survives the wipe by
+# construction" property $fogprogramdir/secureboot already relies on, rather
+# than a copy that has to be re-made correctly every time.
+#
+# Resolved on CALL, not when this file is sourced. installfog.sh sources
+# functions.sh at line ~93 but does not settle $fogprogramdir until config.sh
+# runs several hundred lines later, so a top-level assignment here evaluated to
+# "/customizations" and wrote the backups to the filesystem root. That is what
+# the first real-server run actually did -- the sandbox never caught it because
+# it always set $fogprogramdir before sourcing.
+# Record the checksum of a file FOG just downloaded, so a later run can tell
+# whether it is still the file FOG put there.
+#
+# The version/tag_name xattrs alone cannot answer that. Overwriting a file IN
+# PLACE -- `> bzImage`, dd, cp onto an existing path, which is exactly how a
+# custom kernel gets installed -- leaves the existing xattrs untouched, so the
+# admin's kernel keeps FOG's old tag and looks original. Confirmed on a real
+# server: a hand-written bzImage still reported 2 xattrs.
+#
+# A checksum recorded at download time is not defeated by that: the content
+# changed, so the comparison fails, however the write was done.
+_stampFogSum() {
+    local f="$1" sum
+    [[ -f $f ]] || return 0
+    command -v sha256sum >/dev/null 2>&1 || return 0
+    command -v attr >/dev/null 2>&1 || return 0
+    sum=$(sha256sum "$f" 2>/dev/null | cut -d' ' -f1)
+    [[ -n $sum ]] && attr -s fogsum -V "$sum" "$f" >>$error_log 2>&1
+    return 0
+}
+# Echoes 0 when $1 still matches the checksum FOG stamped, 1 when it differs
+# (admin-modified), 2 when there is nothing to compare against -- an older
+# install whose kernels predate the stamp. 2 is NOT "modified": reporting a
+# custom kernel on every existing server at first upgrade would be noise, and
+# the file is safely backed up regardless.
+_fogSumStatus() {
+    local f="$1" want have
+    [[ -f $f ]] || { echo 2; return; }
+    command -v sha256sum >/dev/null 2>&1 || { echo 2; return; }
+    command -v attr >/dev/null 2>&1 || { echo 2; return; }
+    want=$(attr -q -g fogsum "$f" 2>/dev/null)
+    [[ -z $want ]] && { echo 2; return; }
+    have=$(sha256sum "$f" 2>/dev/null | cut -d' ' -f1)
+    [[ $want == "$have" ]] && echo 0 || echo 1
+}
+_resolveCustomizationsDir() {
+    [[ -n $customizationsDir ]] && return 0
+    local base="${fogprogramdir:-/opt/fog}"
+    customizationsDir="${base%/}/customizations"
+}
+# Backs up whatever is actually customized under $webdirdest/service/ipxe/
+# BEFORE configureHttpd() destroys that tree.
+#
+# This used to live only in bin/updatefog.sh (backupCustomizations, since
+# removed), which meant a bare `./installfog.sh` upgrade -- the way most
+# people upgrade -- silently got none of it. Running it from installfog.sh's
+# own sequence is the point: the protection now applies to every run.
+#
+# $bgfile is intentionally NOT local: restorePreservedCustomizations() runs
+# later in the same shell and needs the name that was actually backed up, not
+# a re-read of the setting (which an admin could have changed mid-install).
+backupPreservedCustomizations() {
+    dots "Backing up customizations"
+    _resolveCustomizationsDir
+    local ipxedir="${webdirdest}service/ipxe"
+    local f st=0
+    # Severity is split deliberately, because errorStat() EXITS the installer
+    # when $exitFail is unset -- which is every normal installfog.sh run:
+    #
+    #   $st   -> fatal. Only set when a customization we positively identified
+    #            could not be copied to safety. Aborting here is the safe
+    #            outcome: configureHttpd() has not wiped anything yet, so the
+    #            admin's file is still sitting untouched where it always was.
+    #   warn  -> non-fatal. An optional file we merely tried for. Killing an
+    #            install over an unreadable legacy refind blob would be absurd.
+    # A failed mkdir is not itself fatal -- if there is nothing to preserve,
+    # nothing is lost. If there IS a background to preserve, the copy below
+    # fails too and that is what stops the run.
+    mkdir -p "$customizationsDir/ipxe-bg" "$customizationsDir/ipxe-legacy" >>$error_log 2>&1 || true
+
+    # FOG_IPXE_BG_FILE is a real, GUI-editable globalSettings row (see
+    # packages/web/commons/schema.php) whose whole purpose is letting an admin
+    # rename the background file. Read the ACTUAL value rather than assuming
+    # "bg.png", which is what the old hardcoded list got wrong.
+    #
+    # On a first-ever install globalSettings does not exist yet -- updateDB()
+    # runs after configureHttpd() -- so this errors into $error_log and leaves
+    # $bgfile empty, which is treated exactly like "nothing customized". No
+    # special-casing needed for a fresh install.
+    bgfile=$(mysql $sqloptionsuser --password="${snmysqlpass}" -N -B \
+        --execute="SELECT settingValue FROM globalSettings WHERE settingKey='FOG_IPXE_BG_FILE'" \
+        $mysqldbname 2>>$error_log)
+    # Strip surrounding whitespace, and treat mysql's literal NULL output as
+    # empty -- an unset settingValue comes back as the four characters "NULL"
+    # under -N, which would otherwise be looked for as a filename.
+    bgfile="${bgfile#"${bgfile%%[![:space:]]*}"}"
+    bgfile="${bgfile%"${bgfile##*[![:space:]]}"}"
+    [[ $bgfile == NULL ]] && bgfile=""
+    # basename guards against a settingValue containing a path: this string
+    # reaches a cp destination, and "../../something" would write outside the
+    # backup directory entirely.
+    [[ -n $bgfile ]] && bgfile=$(basename "$bgfile")
+    if [[ -n $bgfile && -f "${ipxedir}/${bgfile}" ]]; then
+        cp -f "${ipxedir}/${bgfile}" "${customizationsDir}/ipxe-bg/${bgfile}" >>$error_log 2>&1 || st=1
+    fi
+
+    local warn=0
+    for f in refind.conf refind.efi refind_x64.efi refind_ia32.efi refind_aa64.efi; do
+        [[ -f "${ipxedir}/${f}" ]] && { cp -f "${ipxedir}/${f}" "${customizationsDir}/ipxe-legacy/${f}" >>$error_log 2>&1 || warn=1; }
+    done
+    if [[ $st -ne 0 ]]; then
+        echo "Failed"
+        echo " * Could not copy the customized iPXE background (${bgfile}) to"
+        echo "   ${customizationsDir}/ipxe-bg/."
+        echo " * Stopping BEFORE the web tree is rebuilt, so your file is still"
+        echo "   intact at ${ipxedir}/${bgfile}. Fix the permissions or free"
+        echo "   space under ${customizationsDir} and re-run. See $error_log."
+        exit 1
+    fi
+
+    # Snapshot the KERNEL/INIT set into a rotated generation -- not the whole
+    # directory.
+    #
+    # service/ipxe is a mixed bag: FOG's own boot.php/advanced.php/index.php,
+    # bg images, grub.exe/memdisk/memtest.bin, the refind set, AND the kernels.
+    # An earlier version copied all of it, which made a "kernel backup" full of
+    # PHP and led directly to restoring a previous release's boot.php over a
+    # freshly installed one. Everything in here that FOG ships is already
+    # versioned in git; only the kernel/init material is worth generations.
+    #
+    # Do not try to ENUMERATE custom kernel names -- subtract what FOG ships
+    # instead.
+    #
+    # Enumerating cannot be made complete. A custom kernel name can come from
+    # hostKernel/hostInit, from groupKernel/groupInit, from the
+    # FOG_TFTP_PXE_KERNEL/_32/_ARM settings, or from nothing FOG records at all
+    # -- an admin's own pre-boot customization can chain a kernel this server
+    # has never heard of. Any list of places to look is a list that will be
+    # short one place.
+    #
+    # What IS knowable exactly is the set FOG ships: the contents of
+    # packages/web/service/ipxe in the source tree (13 files -- the PHP, the
+    # bg images, grub.exe/memdisk/memtest.bin, refind). Everything else living
+    # in the live directory is either a kernel/init downloadfiles() fetched or
+    # something the admin put there, and both are worth keeping.
+    #
+    # So: back up (live directory) minus (what the source tree ships). No
+    # guessing, and a fully custom name is covered however it got there.
+    [[ -z $kernelBackupGenerations || ! $kernelBackupGenerations =~ ^[0-9]+$ || $kernelBackupGenerations -lt 1 ]] && kernelBackupGenerations=3
+    local kbdir="${customizationsDir}/kernel-backups" k kf bn
+    local shippeddir="${webdirsrc%/}/service/ipxe"
+    if [[ -d $ipxedir ]]; then
+        mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
+        rm -rf "${kbdir}/gen-${kernelBackupGenerations}" >>$error_log 2>&1
+        for ((k = kernelBackupGenerations - 1; k >= 1; k--)); do
+            [[ -d "${kbdir}/gen-${k}" ]] && mv "${kbdir}/gen-${k}" "${kbdir}/gen-$((k + 1))" >>$error_log 2>&1
+        done
+        mkdir -p "${kbdir}/gen-1" >>$error_log 2>&1 || warn=1
+        # cp -a preserves the version/tag_name xattrs downloadfiles() stamps on
+        # each kernel, so every generation says which FOS release it came from
+        # without a separate manifest to keep in sync.
+        for kf in "${ipxedir}"/*; do
+            [[ -f $kf ]] || continue
+            bn=$(basename "$kf")
+            # Shipped by FOG -> already versioned in git, skip. If the source
+            # tree cannot be found, $shippeddir does not exist, every file
+            # fails this test and everything is kept -- the safe direction.
+            [[ -e "${shippeddir}/${bn}" ]] && continue
+            # Skip the per-version siblings this function itself leaves behind
+            # (bzImage.20260806-111046). They are already a copy of a kernel;
+            # snapshotting them into every generation would multiply the same
+            # bytes by the generation count for no added recoverability.
+            case $bn in
+                bzImage.*|bzImage32.*|arm_Image.*|init.xz.*|init_32.xz.*|arm_init.cpio.gz.*) continue ;;
+            esac
+            cp -a "$kf" "${kbdir}/gen-1/${bn}" >>$error_log 2>&1 || warn=1
+        done
+        # A custom kernel installed under a DEFAULT name is the case none of
+        # the rules above can catch on their own: it is backed up like any
+        # other non-shipped file, but downloadfiles() will re-download FOG's
+        # own kernel over it, and the restore deliberately leaves a
+        # freshly-installed default name alone.
+        #
+        # Compared by CHECKSUM, not by whether the version xattrs are present.
+        # Overwriting in place -- `> bzImage`, dd, cp onto the existing path,
+        # which is how a custom kernel actually gets installed -- preserves the
+        # existing xattrs, so FOG's old tag survives on the admin's file and an
+        # absence test sees nothing. _stampFogSum records the checksum at
+        # download time precisely so the content can be compared instead.
+        #
+        # Detected here, reported after the restore. Silently keeping the
+        # custom kernel means never getting kernel updates again; silently
+        # replacing it means losing it. Both fail the same way -- the admin
+        # does not find out. So do neither, and say so.
+        customDefaultKernels=""
+        for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+            [[ -f "${ipxedir}/${bn}" ]] || continue
+            [[ $(_fogSumStatus "${ipxedir}/${bn}") -eq 1 ]] && customDefaultKernels="${customDefaultKernels}${bn} "
+        done
+    fi
+
+    [[ $warn -ne 0 ]] && echo -n "(some optional files could not be backed up) "
+    errorStat 0
+}
+# Restores what backupPreservedCustomizations() saved, AFTER
+# configureTFTPandPXE()'s downloadfiles() has re-laid the default-named
+# kernel/init set.
+#
+# Deliberately does NOT restore the six default kernel/init names here -- the
+# point of an update is to pick up the latest kernel. That is what the
+# versioned backup provides an explicit, admin-invoked restore path for
+# instead.
+restorePreservedCustomizations() {
+    dots "Restoring customizations"
+    _resolveCustomizationsDir
+    local ipxedir="${webdirdest}service/ipxe"
+    local f st=0
+
+    if [[ -n $bgfile && -f "${customizationsDir}/ipxe-bg/${bgfile}" ]]; then
+        cp -f "${customizationsDir}/ipxe-bg/${bgfile}" "${ipxedir}/${bgfile}" >>$error_log 2>&1 || st=1
+    fi
+    for f in refind.conf refind.efi refind_x64.efi refind_ia32.efi refind_aa64.efi; do
+        [[ -f "${customizationsDir}/ipxe-legacy/${f}" ]] && { cp -f "${customizationsDir}/ipxe-legacy/${f}" "${ipxedir}/${f}" >>$error_log 2>&1 || st=1; }
+    done
+
+    # The snapshot now holds only kernel/init material (see the backup side),
+    # so the restore rule is simple and safe:
+    #
+    #   absent from the live tree  -> put it back. Only a per-host custom
+    #                                 kernel/init reaches this: FOG re-downloads
+    #                                 its own six every run, so they are never
+    #                                 absent, and nothing else was captured.
+    #   present                    -> leave the freshly installed file alone.
+    #                                 Picking up the new kernel is the point of
+    #                                 an update.
+    #
+    # $restoreKernelBackup is the one exception: --restore-kernel-backup, which
+    # revertUpdate() passes when re-running the installer against the previous
+    # commit. An older commit wants its older kernels, so the defaults are
+    # forced back over the fresh ones -- what the retired
+    # _restorePreviousKernel() used to do on that path.
+    local kbdir="${customizationsDir}/kernel-backups"
+    local defaultnames=" bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz "
+    local bn
+    if [[ -d "${kbdir}/gen-1" ]]; then
+        for f in "${kbdir}/gen-1"/*; do
+            [[ -f $f ]] || continue
+            bn=$(basename "$f")
+            if [[ ! -e "${ipxedir}/${bn}" ]]; then
+                cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
+            elif [[ ${restoreKernelBackup:-0} -eq 1 && $defaultnames == *" $bn "* ]]; then
+                cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
+            fi
+        done
+    fi
+    # Leave the OUTGOING kernel next to the new one, named for the release it
+    # came from: bzImage.20260806-111046 beside bzImage.
+    #
+    # Done here, not at backup time, because configureHttpd() rm -rf's the whole
+    # web tree between the two -- a sibling written before that is deleted
+    # minutes later, which is exactly what the first attempt did. The generation
+    # snapshot is the surviving copy, so build the sibling from it.
+    #
+    # The generation directories remain the complete rotated history; this is
+    # the copy visible while looking at the boot directory, and the one a single
+    # host can be pointed at by name without restoring anything. Per version
+    # rather than a single .prev so several updates accumulate -- cheap next to
+    # the images this server already holds.
+    if [[ -d "${kbdir}/gen-1" ]]; then
+        local tag
+        for bn in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+            [[ -f "${kbdir}/gen-1/${bn}" ]] || continue
+            tag=$(attr -q -g tag_name "${kbdir}/gen-1/${bn}" 2>/dev/null | tr -d '"' | tr -c 'A-Za-z0-9.-' '_')
+            [[ -z $tag ]] && tag="prev"
+            # Same content under the same name means the update did not change
+            # this kernel; a sibling would just be a duplicate.
+            cmp -s "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}" && continue
+            [[ -e "${ipxedir}/${bn}.${tag}" ]] || cp -a "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}.${tag}" >>$error_log 2>&1
+        done
+    fi
+    [[ -d $ipxedir ]] && chown -R ${username}:${apacheuser} "$ipxedir" >>$error_log 2>&1
+    # Never fatal, unlike the backup side. By this point configureHttpd() has
+    # already rebuilt the web tree, so aborting would strand a nearly-complete
+    # install and fix nothing -- and unlike the backup case, the files are NOT
+    # lost: they are still sitting in $customizationsDir for the admin to put
+    # back by hand. Say exactly that instead of dying.
+    if [[ $st -ne 0 ]]; then
+        echo "Failed"
+        echo " * One or more customizations could not be restored to ${ipxedir}."
+        echo " * Nothing was lost -- your files are still in ${customizationsDir}."
+        echo "   Copy them back by hand once the install finishes. See $error_log."
+        return 0
+    fi
+    errorStat 0
+    # Say it plainly rather than picking for them -- see the detection comment
+    # in backupPreservedCustomizations.
+    if [[ -n $customDefaultKernels ]]; then
+        echo
+        echo " * NOTE: these looked like hand-installed kernels under FOG's own"
+        echo "   names, and this update has replaced them with the versions it"
+        echo "   downloaded:"
+        for f in $customDefaultKernels; do
+            echo "     ${f}"
+        done
+        echo "   Your copies were saved first and are still available:"
+        echo "     ${bindirsrc:-.}/restorekernel.sh --list"
+        echo "     ${bindirsrc:-.}/restorekernel.sh --generation 1"
+        echo "   Restoring puts them back over the downloaded ones."
+    fi
 }
 # GH-685: the MariaDB client library turns TLS on by default from 10.10.1
 # onward and then refuses to connect at all when the server offers none --
@@ -144,15 +457,17 @@ updateStorageNodeCredentials() {
     curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}/maintenance/create_update_node.php
     echo "Done"
 }
-# Mirrors fog_git_path/fog_update_channel into globalSettings so the GUI can
-# show them without SSH. Like fogprogramdir's mirror into /etc/fog/fog.conf
-# (GH-850), these are RECORDS, not controls: .fogsettings stays the source of
-# truth, and the next installfog.sh/updatefog.sh run overwrites whatever an
-# admin may have hand-edited here through the generic Settings tab.
+# Mirrors fog_git_path/fog_update_channel/extraServerNames into globalSettings
+# so the GUI can show them without SSH. Like fogprogramdir's mirror into
+# /etc/fog/fog.conf (GH-850), these are RECORDS, not controls: .fogsettings
+# stays the source of truth, and the next installfog.sh/updatefog.sh run
+# overwrites whatever an admin may have hand-edited here through the generic
+# Settings tab.
 recordGitUpdateSettings() {
-    dots "Recording fog_git_path/update channel"
+    dots "Recording fog_git_path/update channel/extra server names"
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"$fog_git_path\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_git_path\"" $mysqldbname >>$error_log 2>&1
-    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, dev, or beta.', \"$fog_update_channel\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_update_channel\"" $mysqldbname >>$error_log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, staging, or dev.', \"$fog_update_channel\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_update_channel\"" $mysqldbname >>$error_log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_EXTRA_SERVER_NAMES', 'Extra vhost/certificate name(s) this server answers to, beyond the primary hostname and detected IPs. Set via --extra-server-name -- editing it here has no effect on the next update.', \"$extraServerNames\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$extraServerNames\"" $mysqldbname >>$error_log 2>&1
     errorStat $?
 }
 backupDB() {
@@ -451,6 +766,18 @@ validip() {
         stat=$?
     fi
     echo $stat
+}
+# Same calling convention as validip(): echo 0/1, checked via
+# [[ $(validhostname "$x") -ne 0 ]]. RFC-1123-ish: dot-separated labels of
+# alphanumerics/hyphens, no leading/trailing hyphen per label. Needed because
+# --hostname/--extra-server-name are the first NON-interactive entry point for
+# this value -- the interactive prompt in lib/common/newinput.sh has never
+# validated what an admin types, but a CLI flag's value reaches a vhost config
+# and an OpenSSL CSR config file unchecked, so it must be checked before either.
+validhostname() {
+    local h=$1
+    [[ $h =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$ ]]
+    echo $?
 }
 getCidr() {
     local cidr
@@ -1022,7 +1349,13 @@ configureFTP() {
 configureDefaultiPXEfile() {
     dots 'Configuring default iPXE file'
     [[ -z $webroot ]] && webroot='/fog/'   # see registerStorageNode, GH-529
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    # Netboot gets its own protocol -- see _resolveNetbootProto. Everything
+    # downstream follows from this one URL: boot.php derives the menu's kernel
+    # and init URLs from the protocol the request arrived on
+    # (FOGBase::$httpproto reads $_SERVER['HTTPS']), so chaining over HTTP here
+    # makes the whole boot sequence HTTP with no PHP change.
+    _resolveNetbootProto
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
@@ -1297,7 +1630,9 @@ configureTFTPandPXE() {
                 rm -f /etc/xinetd.d/tftp
             fi
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
+                mv -fv "$tftpconfigupstartdefaults" "${tftpconfigupstartdefaults}.${timestamp}" >>$error_log 2>&1
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"${tftpAdvOpts:+$tftpAdvOpts }-s\"" > "$tftpconfigupstartdefaults"
+                diffconfig "$tftpconfigupstartdefaults"
                 systemctl is-enabled --quiet tftpd-hpa && true || systemctl enable tftpd-hpa >>$error_log 2>&1
                 systemctl is-active --quiet tftpd-hpa && systemctl stop tftpd-hpa >>$error_log 2>&1 || true
                 systemctl is-active --quiet tftpd-hpa && true || systemctl start tftpd-hpa >>$error_log 2>&1
@@ -1318,7 +1653,9 @@ configureTFTPandPXE() {
             ;;
         *)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
+                mv -fv "$tftpconfigupstartdefaults" "${tftpconfigupstartdefaults}.${timestamp}" >>$error_log 2>&1
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"${tftpAdvOpts:+$tftpAdvOpts }-s\"" > "$tftpconfigupstartdefaults"
+                diffconfig "$tftpconfigupstartdefaults"
                 sysv-rc-conf xinetd off >>$error_log 2>&1
                 service xinetd stop >>$error_log 2>&1
                 sysv-rc-conf tftpd-hpa on >>$error_log 2>&1
@@ -1514,9 +1851,12 @@ installPackages() {
     # Secure Boot enrolment path writes on the client (_publishSecureBootAuthVars).
     # Same baseline reasoning as sbsigntool: the feature is on by default, so the
     # tooling it needs is not something the admin should have to know to install
-    # first. Named "efitools" on every distro this installer supports, so unlike
-    # sbsigntool it needs no alternatives entry; where it is genuinely absent the
-    # package loop skips it and the builder degrades to its own warning.
+    # first. Named "efitools" on every distro that packages it, so it needs no
+    # alternatives entry -- but RHEL/Rocky/Alma/CentOS Stream 9 package NONE:
+    # confirmed absent from EPEL9, only present in those distros' build-only
+    # "devel" repos. There the package loop skips it cleanly ("Does not
+    # exist") and _ensureEfitools() builds it from source as a last resort,
+    # right before _publishSecureBootAuthVars needs it.
     packages="$packages efitools"
     packages="${packages} ${webserver}"
     # -E, not -P: busybox grep has no -P at all, so on Alpine this printed a
@@ -2829,8 +3169,17 @@ configureSnapins() {
     dots "Setting up FOG Snapins"
     mkdir -p $snapindir >>$error_log 2>&1
     if [[ -d $snapindir ]]; then
-        chmod -R 775 $snapindir
-        chown -R $username:$apacheuser $snapindir
+        # $sslpath lives under $snapindir, so these two lines used to hand the
+        # CA private key to the web user at mode 775 -- and, running AFTER
+        # createSSLCA in the install sequence, they undid whatever permissions
+        # certificate creation had just set. Pruning that subtree is what makes
+        # the key isolation in _hardenPkiPermissions actually survive a run.
+        #
+        # -path, not -name: $sslpath is an absolute path, and prune has to
+        # match the directory itself for its contents to be skipped.
+        _resolveSslPath
+        find "$snapindir" -path "$sslpath" -prune -o -exec chmod 775 {} + >>$error_log 2>&1
+        find "$snapindir" -path "$sslpath" -prune -o -exec chown $username:$apacheuser {} + >>$error_log 2>&1
     fi
     errorStat $?
     # GH-964: same usr_t problem as the cache directory, and here the write is
@@ -2845,6 +3194,307 @@ configureSnapins() {
     # and that boolean grants ftpd_t every file type on the box. See
     # packages/selinux/fog.te.
     setSELinuxContext "$snapindir" fog_share_t
+}
+# Install the node-certificate signing helper and the sudoers rule that lets
+# the web tier reach it.
+#
+# Master only. A storage node has no CA to sign with, and installing the rule
+# there would grant its web user a sudo entry for a script that can only fail.
+#
+# Deliberately the same shape as _installSecureBootSigner: a root-only config
+# holding the paths, a staging directory the web user owns, and a validated
+# sudoers drop-in. The web user learns nothing about where the keys live and
+# cannot rewrite these paths to point somewhere else.
+_installNodeCertSigner() {
+    local bindir="${fogprogramdir}/bin"
+    local helper="${bindir}/fog-sign-node-cert"
+    local conf="${fogprogramdir}/.fog-pki"
+    local stagedir="${fogprogramdir}/nodecert-staging"
+    local sudoersfile="/etc/sudoers.d/fog-pki"
+
+    # Guarded here as well as at the call site. A storage node reaching this
+    # would install a sudo rule for a helper with no CA behind it, and the call
+    # site is exactly the kind of thing a later refactor moves.
+    #
+    # No Web CA means nothing to issue from either -- a server whose root could
+    # not anchor an intermediate, or an install that has not got that far.
+    # Remove any rule a previous run installed rather than leaving a sudo entry
+    # for a helper that cannot work.
+    if [[ $installtype == [Ss] ]] || \
+       [[ -z $sslcapem || ! -f $sslcapem || $sslcapem == "$rootCAPem" ]]; then
+        rm -f "$helper" "$conf" "$sudoersfile" >>$error_log 2>&1
+        return 0
+    fi
+
+    dots "Installing node certificate signing helper"
+    mkdir -p "$bindir" >>$error_log 2>&1
+    install -o root -g root -m 0755 ../packages/pki/fog-sign-node-cert "$helper" >>$error_log 2>&1 || {
+        echo "Failed"
+        return 0
+    }
+    # Point the helper at this install's config. It takes no path arguments on
+    # purpose -- that is what stops a compromised web server naming its own CA
+    # key -- so the location has to be baked in here. Quoted: $fogprogramdir
+    # may contain a space, and CONF=/a/fog custom/x assigns "/a/fog" and then
+    # tries to RUN "custom/x", which bash -n does not catch.
+    sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1
+    if ! grep -qxF "CONF=\"${conf}\"" "$helper"; then
+        echo "Failed"
+        echo " * Could not set the config path in $helper."
+        return 0
+    fi
+    {
+        echo "PKI_WEB_CA_CERT=${sslcapem}"
+        echo "PKI_WEB_CA_KEY=${sslcakey}"
+        echo "PKI_ROOT_CERT=${rootCAPem}"
+        echo "PKI_SB_CA_CERT=$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem"
+        echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
+        echo "PKI_STAGING=${stagedir}"
+    } > "$conf"
+    chown root:root "$conf" >>$error_log 2>&1
+    chmod 0600 "$conf" >>$error_log 2>&1
+
+    # The web user owns only the staging directory: it writes the request there
+    # and reads the signed result back, and can reach nothing else.
+    mkdir -p "$stagedir" >>$error_log 2>&1
+    chown "${apacheuser}":"${apacheuser}" "$stagedir" >>$error_log 2>&1
+    chmod 0750 "$stagedir" >>$error_log 2>&1
+    setSELinuxContext "$stagedir" fog_share_t
+
+    # Validate before installing: a malformed sudoers drop-in breaks sudo for
+    # the whole machine, which is far worse than no node certificate issuance.
+    echo "${apacheuser} ALL=(root) NOPASSWD: ${helper}" > "${sudoersfile}.tmp"
+    chmod 0440 "${sudoersfile}.tmp" >>$error_log 2>&1
+    if visudo -cqf "${sudoersfile}.tmp" >>$error_log 2>&1; then
+        mv -f "${sudoersfile}.tmp" "$sudoersfile" >>$error_log 2>&1
+        chown root:root "$sudoersfile" >>$error_log 2>&1
+        echo "Done"
+    else
+        rm -f "${sudoersfile}.tmp" >>$error_log 2>&1
+        echo "Failed"
+        echo " * Refusing to install an invalid sudoers rule; storage nodes will"
+        echo "   keep generating their own self-signed certificates."
+    fi
+}
+# Ask the master for a certificate, as a storage node.
+#
+# Returns non-zero on any failure, and every caller treats that as "carry on
+# with what this node did before". That fallback is not politeness: a node
+# install must not break against a master that has not been updated yet, and
+# during a staged rollout that is the normal case rather than the exception.
+#
+# Authentication is an HMAC over the request keyed with the fogstorage
+# password, which this node already holds because it is how it reaches the
+# master's database. The secret never crosses the wire. TLS verification is off
+# for the same reason it has to be: this runs before the node has a certificate
+# anything would trust, which is what it is here to fix.
+_requestNodeCert() {
+    local type="$1" keyout="$2" pemout="$3" chainout="$4"
+    local csr b64 mac resp tmpdir st=0
+
+    [[ -z $snmysqlhost || -z $snmysqlpass ]] && return 1
+    [[ $snmysqlhost == localhost || $snmysqlhost == 127.0.0.1 ]] && return 1
+    command -v curl >/dev/null 2>&1 || return 1
+    command -v jq >/dev/null 2>&1 || return 1
+
+    tmpdir=$(mktemp -d) || return 1
+    csr="${tmpdir}/node.csr"
+    # A fresh keypair each time. The node has no certificate to preserve
+    # compatibility with -- unlike the communication key, nothing has pinned
+    # this one.
+    openssl genrsa -out "${tmpdir}/node.key" 4096 >>$error_log 2>&1 || st=1
+    # The subject is a formality: the master ignores the names in this request
+    # entirely and issues for what its own record of this node says. Sending
+    # them anyway keeps the CSR well-formed and readable in a log.
+    openssl req -new -sha256 -key "${tmpdir}/node.key" -out "$csr" \
+        -subj "/CN=${hostname:-$ipaddress}" >>$error_log 2>&1 || st=1
+    if [[ $st -ne 0 ]]; then
+        rm -rf "$tmpdir" >>$error_log 2>&1
+        return 1
+    fi
+    # openssl base64 -A rather than base64 -w0: busybox base64 has no -w.
+    b64=$(openssl base64 -A -in "$csr" 2>>$error_log)
+    # Exactly the bytes the endpoint hashes: type, LF, the base64 body, and
+    # nothing after it. printf, not echo, because echo appends a newline and
+    # the two sides would then disagree by one byte and every request would be
+    # rejected as a bad signature.
+    mac=$(printf '%s\n%s' "$type" "$b64" \
+        | openssl dgst -sha256 -hmac "$snmysqlpass" -hex 2>>$error_log \
+        | awk '{print $NF}')
+    resp=$(curl -sS -k -X POST \
+        -d "type=${type}" \
+        -d "hmac=${mac}" \
+        --data-urlencode "csr=${b64}" \
+        "${httpproto:-http}://${snmysqlhost}${webroot}service/nodecert.php" 2>>$error_log)
+
+    if [[ -z $resp ]] || ! echo "$resp" | jq -e '.leaf' >/dev/null 2>&1; then
+        # Surface the master's own explanation when it gave one -- "no storage
+        # node is registered at this address" is a different problem from "the
+        # master is too old", and they need different fixes.
+        local why
+        why=$(echo "$resp" | jq -r '.error // empty' 2>/dev/null)
+        [[ -n $why ]] && echo " * The master declined to issue a ${type} certificate: ${why}"
+        rm -rf "$tmpdir" >>$error_log 2>&1
+        return 1
+    fi
+    echo "$resp" | jq -r '.leaf'  > "$pemout" 2>>$error_log || st=1
+    echo "$resp" | jq -r '.chain' > "$chainout" 2>>$error_log || st=1
+    cp -f "${tmpdir}/node.key" "$keyout" >>$error_log 2>&1 || st=1
+    rm -rf "$tmpdir" >>$error_log 2>&1
+    [[ $st -ne 0 ]] && return 1
+    # A truncated or empty body passes the jq check above but produces a file
+    # openssl cannot read, so confirm the certificate before the vhost is
+    # pointed at it.
+    openssl x509 -in "$pemout" -noout >/dev/null 2>&1 || return 1
+    chmod 0600 "$keyout" >>$error_log 2>&1
+    chmod 0644 "$pemout" "$chainout" >>$error_log 2>&1
+    return 0
+}
+# Replace this node's self-signed web certificate with one the master issued.
+#
+# Runs LATE, after registerStorageNode, and that ordering is the whole reason
+# this is a separate step rather than part of createSSLCA. The master will only
+# issue to a node it already knows about, and a node registers itself at the
+# very end of its own install -- so asking from inside createSSLCA meant every
+# first install was refused, fell back to self-signed, and only picked up a
+# real certificate on some later run.
+#
+# It writes to the paths the vhost was already given, so nothing has to be
+# rewritten and the certificate takes effect on a reload rather than a
+# reinstall.
+_installNodeWebCert() {
+    [[ $installtype == [Ss] ]] || return 0
+    [[ -n $sslprivkey && -n $sslpubcert ]] || return 0
+
+    local chain="$(_pkiZoneDir web)/ca/.nodeChain.pem"
+    # Already issued and still good: nothing to do. Without this, every upgrade
+    # would mint a new keypair and a new certificate for no reason.
+    if [[ -f $chain && -f $sslpubcert ]] && \
+        openssl verify -CAfile "$chain" "$sslpubcert" >>$error_log 2>&1; then
+        return 0
+    fi
+    dots "Requesting a web certificate from the master"
+    if _requestNodeCert web "$sslprivkey" "$sslpubcert" "$chain"; then
+        sslcachain="$chain"
+        echo "Done"
+        # The vhost already points at these paths, so a reload is all that is
+        # needed -- and is needed, or the node keeps serving the old
+        # certificate from memory until something else restarts it.
+        systemctl reload "$webserver" >>$error_log 2>&1 || \
+            systemctl restart "$webserver" >>$error_log 2>&1
+    else
+        echo "Skipped"
+        echo " * This node keeps its own self-signed certificate, which is what"
+        echo "   storage nodes have always used and works exactly as before. It"
+        echo "   just means the certificate is trusted only where it has been"
+        echo "   installed by hand."
+        echo " * Update the master to this version and re-run the installer here"
+        echo "   to have it issued from the FOG Web CA instead."
+    fi
+}
+# Put the PKI private keys back under root's control, and keep them there.
+#
+# Called AFTER configureSnapins, which is the whole point. The historic layout
+# left every one of these files at 775 $username:$apacheuser, because $sslpath
+# sits under $snapindir and configureSnapins chowned that tree wholesale --
+# meaning a PHP remote code execution read the CA private key. Setting the
+# permissions inside createSSLCA instead does nothing: it runs earlier in the
+# same install and configureSnapins simply overwrites the result.
+#
+# "Pseudo-offline", not offline. Nothing here stops root, or anyone who can
+# become root, from reading these keys. It stops the web tier, which is the
+# part of this server exposed to the network. Moving a key to a vault is a
+# separate and better step, and $fogprogramdir/bin/fog-offline-ca-key exists
+# for it.
+_hardenPkiPermissions() {
+    dots "Restricting private key access"
+    local sbca="$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
+    local f
+
+    _resolveSslPath
+    # 0400 root:root: the offline-able keys. Nothing on a running server needs
+    # to read either -- the intermediates beneath them are already issued, and
+    # both are touched again only to issue a NEW one.
+    for f in "$rootCAKey" "$sbca"; do
+        [[ -z $f || ! -f $f ]] && continue
+        chown root:root "$f" >>$error_log 2>&1
+        chmod 0400 "$f" >>$error_log 2>&1
+    done
+    # 0600 root:root: online, but only ever used by root-run code -- the
+    # installer, and the node-signing helper invoked through sudo.
+    if [[ -n $sslcakey && -f $sslcakey ]]; then
+        chown root:root "$sslcakey" >>$error_log 2>&1
+        chmod 0600 "$sslcakey" >>$error_log 2>&1
+    fi
+    # The web leaf's key, unless the admin manages it themselves. An ACME
+    # renewal writes $sslprivkey as whatever user its hook runs as, so locking
+    # it to root would break the next renewal rather than this run.
+    #
+    # Deliberately narrower than it looks: acmeLeaf exempts THIS key only. The
+    # Web CA key above is FOG's whatever the leaf's provenance, and an earlier
+    # version of this loop skipped both, leaving a CA key at 775 on exactly the
+    # servers whose admins had thought hardest about certificates.
+    if [[ $acmeLeaf != yes && -n $sslprivkey && -f $sslprivkey ]]; then
+        chown root:root "$sslprivkey" >>$error_log 2>&1
+        chmod 0600 "$sslprivkey" >>$error_log 2>&1
+    fi
+    # 0640 root:$apacheuser: the ONE key the web tier must read.
+    # FOGBase::certDecrypt() opens it on every fog-client authorize(), so a
+    # stricter mode here does not harden anything -- it stops every client on
+    # the server from authenticating, with "Private key not readable" as the
+    # only clue.
+    if [[ -f $sslpath/.srvprivate.key ]]; then
+        chown root:${apacheuser} "$sslpath/.srvprivate.key" >>$error_log 2>&1
+        chmod 0640 "$sslpath/.srvprivate.key" >>$error_log 2>&1
+    fi
+    # configureSnapins now prunes $sslpath, so its recursive relabel no longer
+    # reaches here either. Re-assert it, or SELinux denies the web tier the
+    # read the mode above just granted.
+    setSELinuxContext "$sslpath" fog_share_t
+    errorStat $?
+    mkdir -p "${fogprogramdir}/bin" >>$error_log 2>&1
+    install -o root -g root -m 0755 ../packages/pki/fog-offline-ca-key \
+        "${fogprogramdir}/bin/fog-offline-ca-key" >>$error_log 2>&1
+    mkdir -p "${fogprogramdir}/pki" >>$error_log 2>&1
+    install -o root -g root -m 0755 ../packages/pki/renewal-helper \
+        "${fogprogramdir}/pki/renewal-helper" >>$error_log 2>&1
+    # A storage node does not hold the fleet's root CA -- whatever CA it
+    # minted (or was issued) is local to itself, so "restore it to issue a
+    # certificate for a new storage node" is nonsense advice on the node
+    # itself.
+    case $installtype in
+        [Ss]) ;;
+        *)
+            if [[ -f $rootCAKey || -f $sbca ]]; then
+                echo
+                echo "  ###################################################################"
+                if [[ -f $rootCAKey ]]; then
+                    echo "  # The CA private key for this server is on this server, readable  #"
+                    echo "  # only by root:                                                   #"
+                    echo "  #   ${rootCAKey}"
+                    echo "  #                                                                 #"
+                    echo "  # That protects it from a compromise of the web application, but  #"
+                    echo "  # not from a compromise of the machine. To move it to a vault:    #"
+                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault"
+                    echo "  #                                                                 #"
+                    echo "  # Day to day nothing needs it. Restore it only to issue a new     #"
+                    echo "  # intermediate, or a certificate for a new storage node.          #"
+                fi
+                if [[ -f $sbca ]]; then
+                    [[ -f $rootCAKey ]] && echo "  #                                                                 #"
+                    echo "  # The Secure Boot CA private key is also on this server,          #"
+                    echo "  # readable only by root:                                          #"
+                    echo "  #   ${sbca}"
+                    echo "  #                                                                 #"
+                    echo "  # Restore it to issue a new Secure Boot intermediate, or a        #"
+                    echo "  # new signing leaf. To move it to a vault:                        #"
+                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault --zone secureboot"
+                fi
+                echo "  ###################################################################"
+                echo
+            fi
+            ;;
+    esac
 }
 configureUsers() {
     userexists=0
@@ -3121,6 +3771,11 @@ writeUpdateFile() {
         # opt-out that reverted on the next upgrade would hand the admin back a
         # root-only key and a sudoers rule they had deliberately declined.
         secureBootKey secureBootCert secureboot
+        # The certificate endpoints ENROL, which is not always the one that
+        # signs. Persisted so an admin who supplied their own Secure Boot
+        # intermediate does not have to re-pass it on every later run -- and
+        # so a rotated signing leaf keeps pointing at the same enrolled CA.
+        secureBootMokCert
         # GH-964 sibling: what the admin chose for the local firewall
         # (configure/disable/skip). Persisted for the same reason the Secure
         # Boot keys are -- so an upgrade does not quietly undo a deliberate
@@ -3135,12 +3790,53 @@ writeUpdateFile() {
         #
         # fog_update_channel IS a genuine persisted preference -- which channel
         # to track -- closer to secureboot/fwconfigure above than to
-        # fogprogramdir: an admin's choice of stable/dev/beta must carry forward
+        # fogprogramdir: an admin's choice of stable/staging/dev must carry forward
         # on every upgrade, not just on the run it was made.
         fog_git_path fog_update_channel
+        # A genuine persisted preference like fog_update_channel above, not a
+        # RECORD like fogprogramdir/fog_git_path -- an admin's extra vhost/cert
+        # name(s) must carry forward on every upgrade, not just the run they
+        # were set on.
+        extraServerNames
+        # Set BY HAND in .fogsettings (acmeLeaf="yes") when the leaf is managed
+        # outside FOG -- certbot, acme.sh, a corporate issuance process. Tells
+        # createSSLCA() below to leave that leaf alone on every later run --
+        # without this, the leaf gets silently regenerated from the ORIGINAL
+        # CSR (stale public key) while the private key on disk is the ACME
+        # key, producing a cert/key mismatch that stops the web server.
+        acmeLeaf
+        # How many prior kernel/init generations backupPreservedCustomizations()
+        # keeps under customizations/kernel-backups. A genuine persisted
+        # preference like fog_update_channel, not a record: an admin who chose
+        # deeper history must keep it across every future upgrade, or the
+        # generations they were relying on get evicted by the next run.
+        kernelBackupGenerations
+        # Protocol iPXE uses for boot.php. Persisted so an admin who forced it
+        # one way does not silently get the computed default back next upgrade.
+        netbootproto
+        # The trust anchor: what ca.cert.der publishes and what fog-client pins.
+        # Recorded explicitly rather than inferred from $sslcapem, because that
+        # variable names the CA that signs the VHOST leaf -- after this change
+        # the Web intermediate -- and deriving the root from it would, on the
+        # next run, mistake the intermediate for the root.
+        rootCAPem rootCAKey
+        # Name constraints on the Web and Secure Boot intermediates. Genuine
+        # persisted preferences: an admin who narrowed their CA to specific
+        # subnets must keep that narrowing on every later run, or the next
+        # upgrade would quietly re-issue with the broad default.
+        #
+        # They only take effect when an intermediate is FIRST issued -- an
+        # existing CA is never re-minted -- so changing them means removing the
+        # intermediate as well.
+        internalDomains internalSubnets sbNameConstraints
     )
     # Keys written by older installers that must be stripped on upgrade.
-    local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds )
+    #
+    # pkiMode and fogClientCACN belong to the four-tier layout that this
+    # replaced: a root above a client intermediate, selected by --split-pki.
+    # There is one hierarchy now, so a stale pkiMode='flat' left in the file
+    # would describe a layout the installer no longer has code for.
+    local -a deprecatedKeys=( storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds pkiMode fogClientCACN )
 
     # Emit one "key='value'" line, single-quote-safe for any value (embedded
     # single quotes become '\''). fogupdateloaded stays unquoted+numeric to
@@ -3242,61 +3938,83 @@ isCACert() {
 # directory. On success sets sslcakey, sslcapem and sslcachain. Hard-fails the
 # install on any validation error.
 validateExternalCA() {
+    # Zone-parameterised. No argument means the historic flat behavior, so
+    # every existing caller and every existing .fogsettings keeps working
+    # untouched -- the flat zone reads $extcacert/$extcakey/$extcaroot (the
+    # names --ca-cert/--ca-key/--ca-root have always set) and imports to
+    # $sslpath/CA, exactly as before.
+    local zone="${1:-flat}"
+    local certsrc keysrc rootsrc destdir destcert destkey destchain
+    case $zone in
+        web)
+            certsrc="${webExtCACert:-$extcacert}"; keysrc="${webExtCAKey:-$extcakey}"; rootsrc="${webExtCARoot:-$extcaroot}"
+            destdir="$(_pkiZoneDir web)/ca"; destcert=".fogWebCA.pem"; destkey=".fogWebCA.key"; destchain=".fogWebCAchain.pem"
+            ;;
+        *)
+            certsrc="$extcacert"; keysrc="$extcakey"; rootsrc="$extcaroot"
+            destdir="$(_pkiZoneDir root)/ca"; destcert=".fogCA.pem"; destkey=".fogCA.key"; destchain=".fogCAchain.pem"
+            ;;
+    esac
+    mkdir -p "$destdir" >>$error_log 2>&1
+
     local f haveSource=1
-    for f in "$extcacert" "$extcakey" "$extcaroot"; do
+    for f in "$certsrc" "$keysrc" "$rootsrc"; do
         [[ -z $f || ! -r $f ]] && haveSource=0
     done
     if [[ $haveSource -eq 0 ]]; then
         # No readable source files this run; reuse a previously imported CA if present
-        if [[ -e $sslpath/CA/.fogCA.pem && -e $sslpath/CA/.fogCA.key && -e $sslpath/CA/.fogCAchain.pem ]]; then
-            sslcakey="$sslpath/CA/.fogCA.key"
-            sslcapem="$sslpath/CA/.fogCA.pem"
-            sslcachain="$sslpath/CA/.fogCAchain.pem"
+        if [[ -e $destdir/$destcert && -e $destdir/$destkey && -e $destdir/$destchain ]]; then
+            sslcakey="$destdir/$destkey"
+            sslcapem="$destdir/$destcert"
+            sslcachain="$destdir/$destchain"
             return 0
         fi
         echo "  External CA is enabled but a required file is missing or unreadable"
-        echo "  and no previously imported CA was found:"
-        echo "    intermediate cert: ${extcacert:-<unset>}"
-        echo "    intermediate key:  ${extcakey:-<unset>}"
-        echo "    root cert:         ${extcaroot:-<unset>}"
+        echo "  and no previously imported CA was found (zone: $zone):"
+        echo "    intermediate cert: ${certsrc:-<unset>}"
+        echo "    intermediate key:  ${keysrc:-<unset>}"
+        echo "    root cert:         ${rootsrc:-<unset>}"
         echo "  Provide them via the installer prompts or the"
         echo "  --ca-cert/--ca-key/--ca-root options, then re-run the installer."
         exit 1
     fi
-    dots "Validating external CA files"
+    dots "Validating external CA files (${zone})"
     # The supplied private key must match the supplied intermediate certificate
     local certmod keymod
-    certmod=$(openssl x509 -noout -modulus -in "$extcacert" 2>>$error_log | openssl md5 2>>$error_log)
-    keymod=$(openssl rsa -noout -modulus -in "$extcakey" 2>>$error_log | openssl md5 2>>$error_log)
+    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log | openssl md5 2>>$error_log)
+    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log | openssl md5 2>>$error_log)
     if [[ -z $certmod || $certmod != $keymod ]]; then
         echo "Failed"
-        echo "  The supplied CA private key ($extcakey) does not match the"
-        echo "  supplied CA certificate ($extcacert)."
+        echo "  The supplied CA private key ($keysrc) does not match the"
+        echo "  supplied CA certificate ($certsrc)."
         exit 1
     fi
     # The supplied intermediate must actually be a CA certificate
-    if ! isCACert "$extcacert"; then
+    if ! isCACert "$certsrc"; then
         echo "Failed"
-        echo "  The supplied certificate ($extcacert) is not a CA certificate"
+        echo "  The supplied certificate ($certsrc) is not a CA certificate"
         echo "  (basicConstraints CA:TRUE is required)."
         exit 1
     fi
     # The intermediate must chain up to the supplied root
-    if ! openssl verify -CAfile "$extcaroot" "$extcacert" >>$error_log 2>&1; then
+    if ! openssl verify -CAfile "$rootsrc" "$certsrc" >>$error_log 2>&1; then
         echo "Failed"
-        echo "  The intermediate CA ($extcacert) does not verify against the"
-        echo "  supplied root CA ($extcaroot)."
+        echo "  The intermediate CA ($certsrc) does not verify against the"
+        echo "  supplied root CA ($rootsrc)."
         exit 1
     fi
-    # Import into FOG's CA directory so signing and serial files stay writable and
-    # the layout matches the self-signed case (.fogCA.pem is what fog-client pins)
-    cp "$extcacert" "$sslpath/CA/.fogCA.pem" >>$error_log 2>&1
-    cp "$extcakey" "$sslpath/CA/.fogCA.key" >>$error_log 2>&1
-    cat "$extcaroot" "$extcacert" > "$sslpath/CA/.fogCAchain.pem" 2>>$error_log
-    chmod 600 "$sslpath/CA/.fogCA.key" >>$error_log 2>&1
-    sslcakey="$sslpath/CA/.fogCA.key"
-    sslcapem="$sslpath/CA/.fogCA.pem"
-    sslcachain="$sslpath/CA/.fogCAchain.pem"
+    # Import into the zone's directory so signing and serial files stay writable
+    # and the layout matches the generated case.
+    cp "$certsrc" "$destdir/$destcert" >>$error_log 2>&1
+    cp "$keysrc" "$destdir/$destkey" >>$error_log 2>&1
+    cat "$rootsrc" "$certsrc" > "$destdir/$destchain" 2>>$error_log
+    chmod 600 "$destdir/$destkey" >>$error_log 2>&1
+    # $sslcakey/$sslcapem/$sslcachain name the CA that signs the vhost leaf --
+    # which is what an external CA replaces, and all it replaces. The root that
+    # fog-client pins is $rootCAPem and is not touched here.
+    sslcakey="$destdir/$destkey"
+    sslcapem="$destdir/$destcert"
+    sslcachain="$destdir/$destchain"
     errorStat $?
     # If we are replacing the CA on a server that already issued a server cert, warn
     if [[ $caCreated == yes && -n $sslpubcert && -e $sslpubcert ]] && \
@@ -3379,6 +4097,870 @@ emitNginxPhpBody() {
     echo "    fastcgi_buffers 16 16k;" >> "$1"
     echo "    fastcgi_buffer_size 32k;" >> "$1"
 }
+# --- Additive PKI: two intermediates under the existing FOG Server CA -------
+#
+# See docs/PKI_ZONES.md.
+#
+#   FOG Server CA                    the EXISTING self-signed root. Byte
+#   |                                identical across an upgrade, still
+#   |                                published as ca.cert.der.
+#   +-- FOG Web CA                   issues the vhost's leaf, and leaves for
+#   |                                storage nodes. Online.
+#   +-- FOG Secure Boot CA           enrolled as MOK.der / written to db;
+#   |                                issues the code-signing leaves.
+#   \-- .srvprivate.key + srvpublic.crt
+#                                    the client communication keypair, left
+#                                    exactly where it has always been.
+#
+# Why the intermediates hang off the EXISTING root rather than a new one above
+# it: an existing server then gets the separation on an ordinary update. A new
+# root would have to reach every fog-client before anything beneath it could be
+# trusted, which is precisely the cost this structure exists to avoid.
+#
+# It also means ca.cert.der -- the certificate fog-client pins -- IS the root,
+# so the Web CA chains under something every client already trusts.
+# Make $2 resolve to $1, so FOG can keep referencing a fixed path while the
+# real file lives wherever the admin keeps it.
+#
+# Silent no-op when they are already the same file, which is the default
+# install: linking a path to itself is what GNU ln refuses as "the same file",
+# and the old inline version hit that on every run.
+#
+# Two caveats worth knowing when pointing these at a relocated file: SELinux
+# labels follow the symlink TARGET, so a certificate outside the distro's
+# expected directories may need restorecon/semanage fcontext on the real path;
+# and a private key relocated somewhere world-readable silently defeats the
+# 0600 root:root separation the fog-sign-kernel sudo helper depends on.
+_linkCanonical() {
+    local real="$1" canon="$2"
+    [[ -z $real || -z $canon ]] && return 0
+    [[ ! -e $real ]] && return 0
+    [[ "$(readlink -f "$real" 2>/dev/null)" == "$(readlink -f "$canon" 2>/dev/null)" ]] && return 0
+    ln -sf "$real" "$canon" >>$error_log 2>&1
+}
+# Single source of truth for the PKI layout, one directory per zone under
+# $fogprogramdir/pki, each split by its callers into ca/ (the zone's own CA)
+# and leaf/ (what that CA issues for this server to serve/sign with).
+# Independent of $sslpath -- unlike $sslpath, which also holds admin-uploaded
+# snapin SSL material and the client-communication leaf, this tree holds only
+# FOG's own PKI, so it can move without dragging that other content along.
+_pkiZoneDir() {
+    case "$1" in
+        root) echo "${fogprogramdir}/pki/root" ;;
+        web) echo "${fogprogramdir}/pki/web" ;;
+        secureboot) echo "${fogprogramdir}/pki/secureboot" ;;
+    esac
+}
+# $sslpath is normally settled inside createSSLCA(), but the Secure Boot zone
+# is reached from downloadfiles() before that runs, so both places have to be
+# able to ask. Idempotent, and matches createSSLCA()'s own default exactly.
+_resolveSslPath() {
+    [[ -n $sslpath ]] && { sslpath=${sslpath%/}; return 0; }
+    sslpath="${snapindir:-${fogprogramdir:-/opt/fog}/snapins}/ssl"
+    sslpath=${sslpath%/}
+}
+# The permitted subtrees written into both intermediates' nameConstraints.
+#
+# Emitted as one comma-separated value rather than an @section: the single-line
+# form is what the x509v3_config man page documents for nameConstraints, and
+# this has to be right on firmware, not merely plausible.
+#
+# Three rules decide whether the result verifies at all, and each of them fails
+# by rejecting a chain rather than by refusing to build:
+#
+#  1. OpenSSL wants an IP subtree as address/NETMASK, never address/prefixlen.
+#     "10.0.0.0/8" is read as a malformed address and the extension does not
+#     build.
+#  2. RFC 5280 constrains only the name TYPES named in permittedSubtrees. A
+#     certificate carrying an IP SAN under a DNS-only constraint is a
+#     violation, so both types are always emitted or neither is.
+#  3. IPv4 and IPv6 subtrees never match each other -- OpenSSL's nc_ip compares
+#     lengths before addresses -- so a leaf with an IPv6 SAN needs an IPv6
+#     subtree. Emitted only when this server actually has IPv6, so an admin
+#     narrowing the CA to specific v4 subnets does not silently get the whole
+#     unique-local range back.
+#
+# The names every web leaf carries, and the floor every Web/SB intermediate's
+# nameConstraints must permit. Single source of truth: SAN generation
+# (createSSLCA) and permitted-set generation (_nameConstraints, below) used to
+# derive $hostname/$extraServerNames separately, a few hundred lines apart,
+# and a new default added to only one of them would issue a leaf whose SAN
+# carries a name its own CA doesn't permit -- signs cleanly, then fails every
+# openssl verify, silently, until a client rejects it.
+#
+# fogserver/fog-server are DEFAULT names, not detected ones: they are the
+# fog-client installer's default value for "FOG Server Address", so any
+# admin who points that literal name at this box needs a leaf that covers
+# it, whether or not they ever pass --extra-server-name.
+#
+# A bare (undotted) name paired with every configured --internal-domain gets
+# an automatic FQDN form too, so an admin who types "fogdev" plus
+# --internal-domain domain.com gets fogdev.domain.com without listing it
+# twice. Already-dotted names (a detected FQDN hostname, or an admin-supplied
+# FQDN) are left alone -- they're not paired again.
+_defaultServerNames() {
+    local -a names=() bases=()
+    local seen="" n short dom fqdn
+
+    for n in $hostname fogserver fog-server $extraServerNames; do
+        [[ -z $n ]] && continue
+        [[ " $seen " == *" $n "* ]] && continue
+        seen="$seen $n"
+        names+=("$n")
+        bases+=("$n")
+    done
+    short="${hostname%%.*}"
+    if [[ -n $short && " $seen " != *" $short "* ]]; then
+        seen="$seen $short"
+        names+=("$short")
+        bases+=("$short")
+    fi
+
+    for n in "${bases[@]}"; do
+        [[ $n == *.* ]] && continue
+        for dom in $internalDomains; do
+            [[ -z $dom ]] && continue
+            fqdn="${n}.${dom}"
+            [[ " $seen " == *" $fqdn "* ]] && continue
+            seen="$seen $fqdn"
+            names+=("$fqdn")
+        done
+    done
+    printf '%s\n' "${names[@]}"
+}
+# A DNS base matches itself and anything to its left ("example.com" permits
+# "fog.example.com"), so bare domains are emitted rather than dotted ones.
+_nameConstraints() {
+    local -a dnsnames=() ipnets=()
+    local n d ip cidr mask entry seen out=""
+
+    # This server's own names, so a certificate this CA issues for another
+    # host in the same domain -- a storage node -- verifies. Derived from
+    # _defaultServerNames() so the permitted set can never drift from the
+    # leaf's own SAN (see that function's comment). $internalDomains is
+    # added separately below, as a bare domain grant rather than a name.
+    for n in $(_defaultServerNames); do
+        dnsnames+=("$n")
+        d="${n#*.}"
+        [[ $d != "$n" && -n $d ]] && dnsnames+=("$d")
+    done
+    for n in $internalDomains; do
+        [[ -z $n ]] && continue
+        dnsnames+=("$n")
+    done
+    # No DNS name to permit means no usable constraint: every leaf here carries
+    # a DNS SAN, and an IP-only permitted set would reject all of them. Better
+    # to issue an unconstrained CA than one that cannot sign anything.
+    if [[ ${#dnsnames[@]} -eq 0 ]]; then
+        echo ""
+        return 0
+    fi
+
+    if [[ -n $internalSubnets ]]; then
+        # An explicit list REPLACES the RFC1918 default rather than adding to
+        # it -- an admin naming their own subnets means those instead of the
+        # broad grant, or the flag would not narrow anything.
+        for entry in $internalSubnets; do
+            ip="${entry%%/*}"
+            cidr="${entry#*/}"
+            if [[ $cidr == "$entry" ]]; then
+                mask="255.255.255.255"
+            elif [[ $cidr =~ ^[0-9]+$ ]]; then
+                mask=$(cidr2mask "$cidr" 2>/dev/null)
+            else
+                mask="$cidr"
+            fi
+            [[ -z $mask ]] && continue
+            ipnets+=("${ip}/${mask}")
+        done
+    else
+        ipnets+=("10.0.0.0/255.0.0.0")
+        ipnets+=("172.16.0.0/255.240.0.0")
+        ipnets+=("192.168.0.0/255.255.0.0")
+    fi
+    # This server's own addresses, always, whatever the admin listed. The web
+    # leaf carries every one of them as a SAN, so omitting any would make the
+    # CA unable to sign the certificate it exists to sign -- and an admin who
+    # mistypes --internal-subnet would find that out from a dead web server.
+    ipnets+=("127.0.0.0/255.0.0.0")
+    for ip in $ipaddresses; do
+        [[ $ip == *:* ]] && continue
+        ipnets+=("${ip}/255.255.255.255")
+    done
+    if [[ $ipaddresses == *:* ]]; then
+        ipnets+=("::1/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
+        ipnets+=("fc00::/fe00::")
+        ipnets+=("fe80::/ffc0::")
+    fi
+
+    seen=""
+    for n in "${dnsnames[@]}"; do
+        [[ " $seen " == *" DNS:$n "* ]] && continue
+        seen="$seen DNS:$n"
+        out="${out},permitted;DNS:${n}"
+    done
+    for n in "${ipnets[@]}"; do
+        [[ " $seen " == *" IP:$n "* ]] && continue
+        seen="$seen IP:$n"
+        out="${out},permitted;IP:${n}"
+    done
+    echo "nameConstraints = critical${out}"
+}
+# Name constraints for the Secure Boot intermediate, which are opt-out.
+#
+# They constrain nothing that matters for code signing -- a code-signing leaf
+# carries no names anyone resolves -- and this is the one certificate UEFI and
+# shim actually parse, where a critical extension they mishandle costs a
+# firmware trip to every machine. They are here because they were asked for.
+#
+# --no-sb-name-constraints turns them off, so if a fleet turns out to reject
+# the chain the fix is a flag and a re-issue of one intermediate rather than a
+# re-enrolment.
+_sbNameConstraints() {
+    [[ ${sbNameConstraints:-yes} == no ]] && { echo ""; return 0; }
+    _nameConstraints
+}
+# Can the root at $rootCAPem actually anchor an intermediate?
+#
+# Reachable in practice: a server built with --external-ca against a sub-CA
+# their enterprise issued with pathlen:0, which is a perfectly ordinary thing
+# for an enterprise PKI to hand out. Signing beneath it would succeed and then
+# fail verification on every client, which is the worst of both outcomes -- so
+# detect it and leave the server exactly as it is instead.
+_rootCACanIssue() {
+    rootCAIssuer=1
+    rootCAIssuerWhy=""
+    local bc
+    bc=$(openssl x509 -in "$rootCAPem" -noout -ext basicConstraints 2>/dev/null)
+    # Older OpenSSL has no -ext (some Alpine builds); isCACert() hits the same
+    # wall and falls back the same way.
+    [[ -z $bc ]] && bc=$(openssl x509 -in "$rootCAPem" -noout -text 2>/dev/null | grep -A1 -i "Basic Constraints")
+    # No basicConstraints at all is not a failure: a v1 or extension-less
+    # self-signed root is still treated as a CA when it is the trust anchor,
+    # and FOG generated exactly that for years.
+    [[ -z $bc ]] && return 0
+    if [[ $bc == *"CA:FALSE"* || $bc == *"CA:false"* ]]; then
+        rootCAIssuer=0
+        rootCAIssuerWhy="it is not a CA certificate (basicConstraints CA:FALSE)"
+    elif [[ $bc == *"pathlen:0"* ]]; then
+        rootCAIssuer=0
+        rootCAIssuerWhy="it carries pathlen:0, which forbids any CA beneath it"
+    fi
+    return 0
+}
+# Settle which certificate is this server's trust anchor.
+#
+# Deliberately NOT derived from $sslcapem. That variable names "the CA that
+# signs the vhost leaf", which after this change is the Web intermediate --
+# reading the root from it would, on the second run, mistake the intermediate
+# for the root and issue a second generation of intermediates beneath it.
+#
+# The canonical path is where every existing install already keeps its root,
+# generated or imported, so an upgrade finds it without being told.
+#
+# The CERTIFICATE is what defines "this root exists". The key may be
+# legitimately absent -- that is what an offline root IS. Testing for both
+# would mint a fresh root the first time an admin took that advice, orphaning
+# every intermediate already issued and every client that pinned it, silently,
+# on an ordinary update.
+#
+# Path resolution only -- no creation. Split out of _resolveRootCA() so
+# something (_collectPkiNames) can ask "does a root exist yet" without
+# triggering the mint that _resolveRootCA() does the moment it finds one
+# missing.
+_resolveRootCAPath() {
+    _resolveSslPath
+    [[ ! -d $sslpath/CA ]] && mkdir -p "$sslpath/CA" >>$error_log 2>&1
+
+    if [[ -z $rootCAPem ]]; then
+        if [[ -f $sslpath/CA/.fogCA.pem ]]; then
+            rootCAPem="$sslpath/CA/.fogCA.pem"
+            rootCAKey="$sslpath/CA/.fogCA.key"
+        elif [[ $caCreated == yes && -n $sslcapem && -f $sslcapem ]]; then
+            # A pre-existing install whose admin relocated the CA before the
+            # canonical symlink existed to follow.
+            rootCAPem="$sslcapem"
+            rootCAKey="$sslcakey"
+        else
+            rootCAPem="$sslpath/CA/.fogCA.pem"
+            rootCAKey="$sslpath/CA/.fogCA.key"
+        fi
+    fi
+    [[ -z $rootCAKey ]] && rootCAKey="${rootCAPem%.pem}.key"
+}
+_resolveRootCA() {
+    _resolveRootCAPath
+
+    # The private key moves out of $sslpath -- that tree is shared with
+    # admin-uploaded snapin SSL material and the client-communication leaf,
+    # which have no reason to sit next to the one key that can mint a new CA.
+    # $rootCAPem is left exactly where _resolveRootCAPath found it: an
+    # existing install already has things pointing at it (fog-client's
+    # pinned root), and moving a PUBLIC certificate buys nothing a symlink
+    # doesn't already give. One-time and idempotent: once the key exists at
+    # the new path, every later call just re-points $rootCAKey at it without
+    # touching the filesystem again.
+    local cadir="$(_pkiZoneDir root)/ca"
+    mkdir -p "$cadir" >>$error_log 2>&1
+    chmod 0700 "$cadir" >>$error_log 2>&1
+    local canonicalRootKey="${cadir}/.fogCA.key"
+    if [[ $rootCAKey != "$canonicalRootKey" ]]; then
+        [[ ! -f $canonicalRootKey && -f $rootCAKey ]] && \
+            mv "$rootCAKey" "$canonicalRootKey" >>$error_log 2>&1
+        rootCAKey="$canonicalRootKey"
+    fi
+    _linkCanonical "$rootCAPem" "${cadir}/.fogCA.pem"
+
+    if [[ $recreateCA == yes ]]; then
+        # Explicit and destructive. Everything beneath the old root is orphaned
+        # by definition, so the intermediates go too and get re-issued below --
+        # leaving them would produce chains that verify against nothing.
+        rm -f "$rootCAPem" "$rootCAKey" >>$error_log 2>&1
+        rm -rf "$(_pkiZoneDir web)" "$(_pkiZoneDir secureboot)" >>$error_log 2>&1
+    fi
+
+    if [[ -f $rootCAPem ]]; then
+        [[ -f $rootCAKey ]] || rootCAKeyOffline=1
+        _rootCACanIssue
+        return 0
+    fi
+
+    dots "Creating FOG Server CA"
+    cat > "$sslpath/CA/root.cnf" << EOF
+[ req ]
+distinguished_name = req_dn
+prompt             = no
+x509_extensions    = v3_root
+
+[ req_dn ]
+CN = FOG Server CA
+O  = FOG Project
+OU = FOG Root CA
+
+[ v3_root ]
+basicConstraints = critical,CA:TRUE
+keyUsage         = critical,keyCertSign,cRLSign
+subjectKeyIdentifier = hash
+EOF
+    # Written explicitly rather than relying on the distro openssl.cnf's v3_ca
+    # section, which is where the historic `req -x509` with no -config took its
+    # extensions from. That worked, but it made whether this root can carry
+    # intermediates a property of the distro rather than of FOG.
+    #
+    # No pathlen: the Web and Secure Boot intermediates sit directly beneath
+    # this, and a node's leaf sits beneath those.
+    #
+    # 30 years: a CA isn't something an out-of-the-box install should ever
+    # need to think about renewing. Renewing it means re-issuing every
+    # intermediate beneath it and re-pinning every client -- nothing like the
+    # cheap, routine rotation a leaf gets.
+    openssl req -x509 -new -sha512 -nodes -newkey rsa:4096 -days 10950 \
+        -config "$sslpath/CA/root.cnf" -keyout "$rootCAKey" -out "$rootCAPem" \
+        >>$error_log 2>&1
+    local st=$?
+    chmod 0600 "$rootCAKey" >>$error_log 2>&1
+    chmod 0644 "$rootCAPem" >>$error_log 2>&1
+    errorStat $st
+    _rootCACanIssue
+}
+# Asked once, whichever entry point reaches it first -- Secure Boot's or the
+# web zone's -- because a CA's name constraints are fixed at the moment it is
+# minted and widening them later means the admin has to notice and ask for it
+# explicitly (rm -rf the CA directory, re-run). Skipped entirely once every
+# CA this run could mint already exists, and skipped if the admin already
+# answered on the command line: --extra-server-name/--internal-domain ARE
+# the answer to this question, just given up front instead of interactively.
+#
+# Bounded to 3 minutes under -Y/--autoaccept: that flag exists for unattended
+# runs, and a prompt nobody is there to answer must not hang the install
+# forever. A normal interactive run waits like every other prompt in this
+# installer.
+_collectPkiNames() {
+    [[ -n $_pkiNamesCollected ]] && return 0
+    _pkiNamesCollected=1
+    _resolveRootCAPath
+    local needRoot=0 needWeb=0 needSB=0
+    [[ ! -f $rootCAPem ]] && needRoot=1
+    [[ ! -f "$(_pkiZoneDir web)/ca/.fogWebCA.pem" ]] && needWeb=1
+    [[ ${secureboot:-1} != 0 && ! -f "$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem" ]] && needSB=1
+    [[ $needRoot -eq 0 && $needWeb -eq 0 && $needSB -eq 0 ]] && return 0
+    [[ -n $extraServerNames || -n $internalDomains ]] && return 0
+
+    echo
+    echo "  This run will mint a new FOG PKI CA. A CA's name constraints are"
+    echo "  fixed at the moment it's issued -- widening them later means"
+    echo "  re-issuing it (rm -rf the CA directory, then re-run)."
+    local ans domainAns
+    if [[ -n $autoaccept ]]; then
+        echo "  Extra hostnames for this server, space-separated (3 min, blank = none):"
+        read -t 180 -r -p "  > " ans
+        echo "  Internal domain, e.g. example.local (3 min, blank = none):"
+        read -t 180 -r -p "  > " domainAns
+    else
+        read -r -p "  Extra hostnames for this server, space-separated (blank = none): " ans
+        read -r -p "  Internal domain, e.g. example.local (blank = none): " domainAns
+    fi
+    [[ -n $ans ]] && extraServerNames="${extraServerNames} ${ans}"
+    [[ -n $domainAns ]] && internalDomains="${internalDomains} ${domainAns}"
+    extraServerNames="${extraServerNames# }"
+    internalDomains="${internalDomains# }"
+}
+# Which protocol iPXE uses to reach boot.php, decided separately from the
+# protocol everything else uses.
+#
+# iPXE can only validate a chain that terminates in a PUBLIC root, via its
+# ca.ipxe.org cross-signing fallback. A FOG-PKI or internal-CA certificate is
+# perfectly good for browsers, the API and fog-client -- all of which can be
+# told to trust the root -- but iPXE has no way to be told anything, so an
+# HTTPS netboot against a private CA simply fails.
+#
+# The historic answer was to rebuild iPXE with the CA baked in (TRUST=), which
+# works and costs the signed Secure Boot shim, because a locally rebuilt binary
+# is not the signed one. Splitting the protocols avoids that trade entirely:
+# the web UI gets real HTTPS while netboot fetches stay on HTTP, which is the
+# same exposure a default HTTP install already has, on a pre-boot network.
+#
+# Public CA is the exception -- there the crosscert path works, so netboot
+# follows $httpproto like everything else. There is no reliable way to detect
+# "this certificate chains to a public root" from the file alone, so this
+# defaults conservatively and --netboot-proto overrides it in either direction.
+#
+# Keyed on a FRESH install using FOG's own PKI, not on "is this CA private".
+# An existing server keeps whatever it has been doing: one running HTTPS
+# netboot against a private CA has a TRUST=-rebuilt iPXE to make it work, and
+# silently dropping it to HTTP on the next update would break a working setup
+# to fix a problem its admin does not have. --netboot-proto lets such a server
+# adopt the new behavior deliberately.
+#
+# On a fresh HTTPS install with FOG's own CA there is nothing to preserve --
+# HTTPS netboot simply fails there -- so HTTP is a strict improvement.
+_resolveNetbootProto() {
+    [[ -n $netbootproto ]] && return 0
+    if [[ $httpproto == https && $externalca != yes && $caCreated != yes ]]; then
+        netbootproto="http"
+    else
+        netbootproto="$httpproto"
+    fi
+}
+# Issue an intermediate CA from the root. Shared by both zones so their
+# certificates differ only in subject, location and constraints, never in
+# shape. $5 carries the zone's own extension lines -- its extendedKeyUsage and,
+# where it applies, its nameConstraints.
+_issueIntermediateCA() {
+    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6"
+    local st=0
+    mkdir -p "$outdir" >>$error_log 2>&1 || st=1
+    chmod 0700 "$outdir" >>$error_log 2>&1
+    [[ -f "${outdir}/${keyfile}" && -f "${outdir}/${certfile}" ]] && return 0
+    # Issuing needs the root's private key. An existing intermediate returns
+    # above without ever touching it, which is what makes an offline root
+    # workable day to day -- but a NEW one cannot be signed without it.
+    #
+    # Say so instead of failing inside openssl with an unreadable-file error,
+    # because the fix is a specific and slightly unusual action: bring the key
+    # back, run the installer, take it away again.
+    if [[ ${rootCAKeyOffline:-0} -eq 1 ]]; then
+        echo "Failed"
+        echo " * Cannot issue '${cn}': the Root CA private key is not on this"
+        echo "   server (only ${rootCAPem} is present)."
+        echo " * That is the correct state for an offline root, but issuing a new"
+        echo "   intermediate needs it. Restore it to:"
+        echo "     ${rootCAKey}"
+        echo "   re-run the installer, then move it back to your vault."
+        return 1
+    fi
+    openssl genrsa -out "${outdir}/${keyfile}" 4096 >>$error_log 2>&1 || st=1
+    # Written as a config file rather than passed with -addext: -addext needs
+    # OpenSSL 1.1.1+, and the older RHEL variants this installer still supports
+    # ship 1.0.2 where it fails with an unhelpful usage error. Same reason
+    # createSSLCA() writes req.cnf/ca.cnf and _ensureSecureBootKeys writes
+    # mok.cnf instead of using -addext.
+    cat > "${outdir}/int.cnf" << EOF
+[ req ]
+distinguished_name = req_dn
+prompt             = no
+
+[ req_dn ]
+CN = ${cn}
+O  = FOG Project
+OU = ${ou}
+
+[ v3_int ]
+basicConstraints = critical,CA:TRUE,pathlen:0
+keyUsage         = critical,keyCertSign,cRLSign
+subjectKeyIdentifier = hash
+${extralines}
+EOF
+    openssl req -new -sha512 -key "${outdir}/${keyfile}" -out "${outdir}/int.csr" \
+        -config "${outdir}/int.cnf" >>$error_log 2>&1 || st=1
+    # 30 years, same reasoning as the root: an intermediate is a CA too, and
+    # renewing it means re-issuing its own leaf and re-verifying every chain
+    # beneath it, not a routine rotation.
+    openssl x509 -req -in "${outdir}/int.csr" -CA "$rootCAPem" -CAkey "$rootCAKey" \
+        -CAcreateserial -sha512 -days 10950 -extensions v3_int \
+        -extfile "${outdir}/int.cnf" -out "${outdir}/${certfile}" >>$error_log 2>&1 || st=1
+    chmod 0600 "${outdir}/${keyfile}" >>$error_log 2>&1
+    chmod 0644 "${outdir}/${certfile}" >>$error_log 2>&1
+    return $st
+}
+# The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
+# this zone has zero endpoint impact -- browsers just need the root trusted,
+# and fog-client already trusts it, because the root is what it pins.
+#
+# $sslcakey/$sslcapem mean "the CA that signs the vhost leaf" -- which is what
+# they have always meant, and what validateExternalCA sets. They are repointed
+# at the intermediate here; the root stays in $rootCAPem/$rootCAKey.
+createWebIntermediateCA() {
+    local webdir cadir f
+    webdir="$(_pkiZoneDir web)"
+    cadir="${webdir}/ca"
+    mkdir -p "$cadir" >>$error_log 2>&1
+    chmod 0700 "$cadir" >>$error_log 2>&1
+    # An install that already ran the flat pki/web layout (one level up from
+    # here) migrates its CA material in place -- same key/cert, one more hop
+    # -- rather than minting a fresh intermediate it doesn't need.
+    for f in .fogWebCA.key .fogWebCA.pem .fogWebCAchain.pem int.cnf int.csr; do
+        [[ -f "${webdir}/${f}" && ! -f "${cadir}/${f}" ]] && \
+            mv "${webdir}/${f}" "${cadir}/${f}" >>$error_log 2>&1
+    done
+    sslcakey="${cadir}/.fogWebCA.key"
+    sslcapem="${cadir}/.fogWebCA.pem"
+    if [[ ! -f $sslcakey || ! -f $sslcapem ]]; then
+        dots "Creating FOG Web CA"
+        # serverAuth alone. An EKU on a CA constrains what it may issue, which
+        # is the whole reason this zone is separable: a web certificate from
+        # here can never be a code-signing certificate, whatever its leaf says.
+        _issueIntermediateCA "FOG Web CA" "$cadir" ".fogWebCA.key" ".fogWebCA.pem" \
+            "extendedKeyUsage = serverAuth
+$(_nameConstraints)" "FOG Web UI"
+        errorStat $?
+    fi
+    # Chain file is root+intermediate, the same concat shape validateExternalCA
+    # already produces, because a client validating the leaf needs both. Only
+    # (re)written when $sslcachain is empty or still one of the FOG-managed
+    # defaults -- this one, the flat pki/web/.fogWebCAchain.pem path one
+    # restructuring ago (just moved above, so a value still pointing there is
+    # stale rather than an override), or $rootCAPem from the pathlen:0
+    # fallback in createSSLCA, in case an install switched between the two
+    # across runs -- an admin who pointed it at their own chain (an ACME
+    # client's --ca-file, say) has that choice honored on every later run,
+    # the same guarantee _resolveWebLeafPaths already gives
+    # sslprivkey/sslpubcert.
+    if [[ -z $sslcachain || $sslcachain == "${cadir}/.fogWebCAchain.pem" \
+        || $sslcachain == "${webdir}/.fogWebCAchain.pem" || $sslcachain == "$rootCAPem" ]]; then
+        sslcachain="${cadir}/.fogWebCAchain.pem"
+        cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
+        chmod 0644 "$sslcachain" >>$error_log 2>&1
+    fi
+}
+# The client communication certificate: the public half of the keypair
+# fog-client encrypts to, and whose private half FOGBase::certDecrypt() opens.
+#
+# Nothing about the keypair changes here. .srvprivate.key stays exactly where
+# it has always been and keeps exactly the contents it has always had -- that
+# is the point of hanging the new zones off the existing root instead of
+# restructuring beneath it. What changes is only that the vhost stops pointing
+# at this certificate and serves a Web CA leaf instead.
+#
+# Two properties this has to hold that the historic code did not:
+#
+#  - The certificate lives OUTSIDE $webdirdest. configureHttpd rm -rf's that
+#    tree on every run, and the historic copy under management/other/ssl was
+#    therefore re-signed by the root every single time.
+#  - It is minted ONCE. Re-signing needs the root's private key, so a server
+#    whose admin has taken the root offline -- the end state this design
+#    recommends -- would fail on its next update. Names do not matter here
+#    (the client encrypts to the public key and never validates a hostname),
+#    so there is nothing a re-issue would fix.
+_createCommLeaf() {
+    commLeafKey="$sslpath/.srvprivate.key"
+    commLeafPem="$sslpath/.srvpublic.crt"
+
+    if [[ -f $commLeafPem ]]; then
+        return 0
+    fi
+    # An existing server already has this certificate, under the web root where
+    # the historic code left it. Adopt it rather than re-signing: it is the
+    # exact certificate clients have already been handed, and the root key may
+    # be offline.
+    #
+    # The live copy is normally gone by the time this runs -- configureHttpd
+    # rm -rf's $webdirdest before calling createSSLCA -- but it copies the tree
+    # to $backupPath/fog_web_<ver>.BACKUP first, so look there too. Both are
+    # checked because createSSLCA is also reachable without that wipe.
+    local oldcert
+    for oldcert in \
+        "$webdirdest/management/other/ssl/srvpublic.crt" \
+        "${backupPath}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"; do
+        [[ -f $oldcert && -f $commLeafKey ]] || continue
+        local certmod keymod
+        certmod=$(openssl x509 -noout -modulus -in "$oldcert" 2>/dev/null | openssl md5 2>/dev/null)
+        keymod=$(openssl rsa -noout -modulus -in "$commLeafKey" 2>/dev/null | openssl md5 2>/dev/null)
+        # The modulus test is what makes this safe. A certificate that does NOT
+        # pair with this key is the web certificate of a server whose zones
+        # were already separated some other way; copying it here would publish
+        # a public key nothing on this server can decrypt against.
+        if [[ -n $certmod && $certmod == $keymod ]]; then
+            dots "Adopting existing client communication certificate"
+            cp -f "$oldcert" "$commLeafPem" >>$error_log 2>&1
+            errorStat $?
+            return 0
+        fi
+    done
+    if [[ ${rootCAKeyOffline:-0} -eq 1 ]]; then
+        echo " * Cannot issue the client communication certificate: the CA"
+        echo "   private key is not on this server. Restore it to:"
+        echo "     ${rootCAKey}"
+        echo "   and re-run the installer."
+        return 1
+    fi
+    dots "Creating client communication certificate"
+    local st=0
+    # Signed by the ROOT, not by an intermediate. fog-client pins the root and
+    # fetches this certificate directly; giving it its own intermediate would
+    # add a chain the client has no reason to walk.
+    openssl x509 -req -in "$sslcsr" -CA "$rootCAPem" -CAkey "$rootCAKey" \
+        -CAcreateserial -sha512 -days 3650 -extensions v3_ca \
+        -extfile "$sslpath/ca.cnf" -out "$commLeafPem" >>$error_log 2>&1 || st=1
+    chmod 0644 "$commLeafPem" >>$error_log 2>&1
+    errorStat $st
+}
+# Make .srvprivate.key a file FOG owns outright.
+#
+# An admin who relocated $sslprivkey has $sslpath/.srvprivate.key as a symlink
+# to their own key -- which under the historic layout was the web key AND the
+# comm key. Separating the zones means the comm key has to stop following that
+# link, or an ACME renewal writing their file would still change what
+# certDecrypt() reads, which is the exact trap this work exists to remove.
+#
+# The key MATERIAL is copied, never regenerated: every registered client is
+# already encrypting to its public half, and a new key would lock all of them
+# out at once.
+_separateCommKey() {
+    local canon="$sslpath/.srvprivate.key" target
+    [[ ! -L $canon ]] && return 0
+    target=$(readlink -f "$canon" 2>/dev/null)
+    [[ -z $target || ! -f $target ]] && return 0
+    dots "Separating the client communication key from the web key"
+    rm -f "$canon" >>$error_log 2>&1
+    cp -f "$target" "$canon" >>$error_log 2>&1
+    errorStat $?
+}
+# Point $sslprivkey/$sslpubcert at the Web zone, unless the admin has already
+# pointed them somewhere of their own.
+#
+# On an upgrade both still hold their historic values -- the comm key and the
+# certificate under the web tree -- and leaving them there would mean the vhost
+# kept serving the client communication keypair, which is the whole problem.
+# Anything else is an admin's deliberate choice (ACME, /etc/pki, a mounted
+# secret) and is left exactly as it is.
+_resolveWebLeafPaths() {
+    local webdir leafdir f
+    webdir="$(_pkiZoneDir web)"
+    leafdir="${webdir}/leaf"
+    mkdir -p "$leafdir" >>$error_log 2>&1
+    chmod 0700 "$leafdir" >>$error_log 2>&1
+    # An install that already ran the flat pki/web layout migrates its leaf
+    # material in place -- same key/cert, one more hop.
+    for f in .webLeaf.key .webLeaf.pem .webLeaf.csr .webLeaf.sans; do
+        [[ -f "${webdir}/${f}" && ! -f "${leafdir}/${f}" ]] && \
+            mv "${webdir}/${f}" "${leafdir}/${f}" >>$error_log 2>&1
+    done
+    # The third comparison catches an install whose .fogsettings already
+    # points at the old flat pki/web/.webLeaf.* path (from before this zone
+    # had a leaf/ subfolder) and repoints it at the new location, same as the
+    # other two catch the pre-separation comm-key/web-tree paths.
+    if [[ -z $sslprivkey \
+        || "$(readlink -f "$sslprivkey" 2>/dev/null)" == "$(readlink -f "$sslpath/.srvprivate.key" 2>/dev/null)" \
+        || $sslprivkey == "${webdir}/.webLeaf.key" ]]; then
+        sslprivkey="${leafdir}/.webLeaf.key"
+    fi
+    if [[ -z $sslpubcert \
+        || "$(readlink -f "$sslpubcert" 2>/dev/null)" == "$(readlink -f "$webdirdest/management/other/ssl/srvpublic.crt" 2>/dev/null)" \
+        || $sslpubcert == "${webdir}/.webLeaf.pem" ]]; then
+        sslpubcert="${leafdir}/.webLeaf.pem"
+    fi
+}
+# The certificate the web server actually serves.
+#
+# Re-issued when the name set changes, which is free: the Web CA is online and
+# stays online. The historic test here was `[[ ! -x $sslpubcert ]]`, true of
+# every certificate ever written, so the leaf was re-signed on every single run
+# -- harmless while one key did every job, fatal once the signer can be offline.
+_createWebLeaf() {
+    local webdir leafdir stamp want st=0
+    webdir="$(_pkiZoneDir web)"
+    leafdir="${webdir}/leaf"
+    stamp="${leafdir}/.webLeaf.sans"
+
+    if [[ $acmeLeaf == yes && $recreateKeys != yes && $recreateCA != yes ]]; then
+        echo " * Web certificate is externally managed (acmeLeaf=yes) -- leaving it in place."
+        echo "   Re-issue it yourself if you changed --hostname/--extra-server-name,"
+        echo "   or the certificate will not cover the new name."
+        return 0
+    fi
+    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e $sslprivkey ]]; then
+        dots "Creating web server private key"
+        openssl genrsa -out "$sslprivkey" 4096 >>$error_log 2>&1
+        errorStat $?
+        rm -f "$stamp" >>$error_log 2>&1
+    fi
+    # The name set, hashed. ca.cnf is rewritten from $ipaddresses/$hostname/
+    # $extraServerNames on every run, so a changed hostname or a new
+    # --extra-server-name changes this and nothing else has to notice.
+    want=$(openssl md5 < "$sslpath/ca.cnf" 2>/dev/null)
+    if [[ -e $sslpubcert && -e $stamp && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
+        return 0
+    fi
+    dots "Creating SSL Certificate"
+    # CN is $hostname, never $certip -- a browser or client validates against
+    # the SAN, never the CN, once a SAN is present (it always is here, see the
+    # DNS.1 note above), so this is about giving admins and logs a real name
+    # instead of an IP, not about validation. -subj overrides only THIS
+    # command's subject; -config still supplies req_extensions (the SAN) from
+    # the same file req.cnf's comm-leaf CSR (below) also reads, so the two
+    # never diverge on names, only on subject.
+    openssl req -new -sha512 -key "$sslprivkey" -out "${leafdir}/.webLeaf.csr" \
+        -config "$sslpath/req.cnf" \
+        -subj "/CN=${hostname}/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
+    # 5 years: short enough that a compromised leaf key ages out on its own,
+    # long enough not to need automatic renewal. renewal-helper (packages/pki)
+    # exists for an admin who wants to rotate it sooner.
+    openssl x509 -req -in "${leafdir}/.webLeaf.csr" -CA "$sslcapem" -CAkey "$sslcakey" \
+        -CAcreateserial -out "$sslpubcert" -days 1825 -extensions v3_ca \
+        -extfile "$sslpath/ca.cnf" >>$error_log 2>&1 || st=1
+    [[ $st -eq 0 ]] && echo "$want" > "$stamp"
+    chmod 0600 "$sslprivkey" >>$error_log 2>&1
+    chmod 0644 "$sslpubcert" >>$error_log 2>&1
+    errorStat $st
+    [[ $st -ne 0 ]] && return $st
+    # Prove the certificate we just signed actually verifies under the CA that
+    # signed it. The failure this catches is specific and otherwise silent: the
+    # Web CA's name constraints are fixed at the moment it is issued and the CA
+    # is never re-minted, so renaming this server, or adding an
+    # --extra-server-name outside the permitted domains, produces a perfectly
+    # well-formed certificate that no client will accept. Left undetected it
+    # surfaces as a browser error days later with nothing connecting it to the
+    # rename.
+    if [[ -n $sslcachain && -e $sslcachain ]] && \
+        ! openssl verify -CAfile "$rootCAPem" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
+        echo
+        echo "  ###################################################################"
+        echo "  # WARNING: the web certificate does not verify against the CA     #"
+        echo "  # that issued it. The usual cause is a name outside that CA's     #"
+        echo "  # name constraints -- this server was renamed, or gained an       #"
+        echo "  # --extra-server-name, after the CA was created.                  #"
+        echo "  #                                                                 #"
+        echo "  # Re-run with the name permitted:                                 #"
+        echo "  #   --internal-domain <domain>                                    #"
+        echo "  # A CA is never re-issued once it exists, so also remove it so    #"
+        echo "  # the new constraints take effect:                                #"
+        echo "  #   rm -rf $(_pkiZoneDir web)"
+        echo "  ###################################################################"
+        echo
+    fi
+    return 0
+}
+FOG_MANAGED_BEGIN='# === FOG MANAGED BLOCK -- DO NOT EDIT BETWEEN THESE LINES (see docs/SUPPORTED_CUSTOMIZATIONS.md) ==='
+FOG_MANAGED_END='# === END FOG MANAGED BLOCK ==='
+# Replaces only the FOG-owned region of $1 with the contents of $2, leaving
+# anything the admin added outside that region byte-for-byte intact.
+#
+# Why a marked block instead of a template file: every vhost write site in
+# createSSLCA() is inline bash echo/heredoc, branching on webserver family, OS
+# family, SSL on/off and IPv4/IPv6. Extracting all of that into substitutable
+# template assets would mean maintaining two representations of the same
+# config forever. Wrapping the existing, unchanged generation in two marker
+# lines gets the property that actually matters -- FOG can keep improving what
+# it owns without discarding what the admin owns.
+#
+# '#' is a comment in both nginx and Apache syntax, so the markers are inert
+# in either file.
+#
+# Three cases, deliberately no fourth: no file -> write one; both markers
+# present -> replace between them; anything else (no markers, or only one
+# because a previous run died mid-write or someone hand-edited) -> append a
+# fresh block and touch nothing that was already there. Never guess at a
+# partial patch.
+spliceManagedBlock() {
+    local conffile="$1" contentfile="$2" priorfile="$3"
+    # $3 names where the file's PREVIOUS content lives, when the caller has
+    # already moved it aside. createSSLCA() does exactly that -- it runs
+    # `mv -fv $etcconf $etcconf.$timestamp` before generating, so diffconfig()
+    # has something to compare against -- which means by the time we are called
+    # $conffile does not exist and the admin's content is in the backup.
+    #
+    # Missing this is what made the first real-server test wipe a hand-added
+    # vhost block: every sandbox test had called this against a file that was
+    # still in place, so the "no file" branch never ran when it mattered.
+    if [[ ! -f "$conffile" && -n $priorfile && -f "$priorfile" ]]; then
+        cp -f "$priorfile" "$conffile" 2>/dev/null
+    fi
+    if [[ ! -f "$conffile" ]]; then
+        { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } > "$conffile"
+        return $?
+    fi
+    if grep -qF "$FOG_MANAGED_BEGIN" "$conffile" && grep -qF "$FOG_MANAGED_END" "$conffile"; then
+        local tmp="${conffile}.fogsplice.$$"
+        # The marker test above is grep -F (substring, so a trailing CR or a
+        # stray space still matches) but the awk below compared whole lines --
+        # two matchers with different ideas of "this line is the marker". A
+        # vhost saved with CRLF endings, or with whitespace after a marker,
+        # therefore passed the grep, matched nothing in awk, and fell straight
+        # through: file copied byte-for-byte, the freshly generated vhost
+        # silently discarded, return 0, installer reports success. Admins are
+        # invited into this file by SUPPORTED_CUSTOMIZATIONS.md, so one edit
+        # from a Windows box was enough to make every later install or update
+        # quietly stop updating the vhost -- stranding whatever the managed
+        # block carries, including the maintenance/ deny rules.
+        #
+        # $0 is still what gets PRINTED, so the admin's own line endings
+        # elsewhere in the file are preserved untouched; only the comparison
+        # is normalized.
+        #
+        # The !skip guard on the begin rule matters for the partial-marker
+        # state this function is documented to tolerate: without it, a second
+        # BEGIN encountered while already skipping fired the rule again and
+        # emitted a duplicate copy of the whole generated block, which then
+        # persisted in the vhost forever. With it, that state collapses back
+        # to a single clean block on the next run.
+        awk -v b="$FOG_MANAGED_BEGIN" -v e="$FOG_MANAGED_END" -v cf="$contentfile" '
+            { k = $0; sub(/[ \t\r]+$/, "", k) }
+            k == b && !skip { print; while ((getline line < cf) > 0) print line; close(cf); skip=1; next }
+            k == e          { print; skip=0; next }
+            !skip           { print }
+        ' "$conffile" > "$tmp" && mv -f "$tmp" "$conffile"
+        return $?
+    fi
+    { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } >> "$conffile"
+}
+# Redirects the vhost generation that follows into a scratch file, so the ~260
+# existing `>> "$etcconf"` lines below need no edit at all: they keep writing
+# to $etcconf, which now names the scratch file. endManagedVhost() splices
+# that content into the real file and restores the variable.
+#
+# Rewriting every one of those write sites individually would have been the
+# obvious way and the wrong one -- 260-odd near-identical mechanical edits is
+# exactly where a missed line hides, and a missed line writes half a vhost to
+# the wrong path.
+beginManagedVhost() {
+    vhostfinal="$etcconf"
+    # Callers mv the original to $etcconf.$timestamp just above this, so that
+    # is where the admin's previous content is. Remember it -- it is the base
+    # the new block gets spliced into.
+    vhostprior="${etcconf}.${timestamp}"
+    etcconf="${etcconf}.fogblock.$$"
+    : > "$etcconf"
+}
+endManagedVhost() {
+    local generated="$etcconf"
+    etcconf="$vhostfinal"
+    spliceManagedBlock "$etcconf" "$generated" "$vhostprior"
+    local st=$?
+    rm -f "$generated" >>$error_log 2>&1
+    unset vhostfinal vhostprior
+    return $st
+}
 createSSLCA() {
     # This function also emits the web server vhost further down, and those
     # nginx location / apache LocationMatch blocks used to hardcode ^/fog/ --
@@ -3391,29 +4973,8 @@ createSSLCA() {
     sslpath=${sslpath//\/$}
     [[ ! -d $sslpath ]] && mkdir -p $sslpath >>$error_log 2>&1
     [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$error_log 2>&1
-    if [[ $externalca == yes ]]; then
-        validateExternalCA
-    else
-        [[ -z $sslcakey ]] && sslcakey="$sslpath/CA/.fogCA.key"
-        [[ -z $sslcapem ]] && sslcapem="$sslpath/CA/.fogCA.pem"
-        if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslcakey ]]; then
-            dots "Creating SSL CA"
-            openssl genrsa -out $sslcakey 4096 >>$error_log 2>&1
-            openssl req -x509 -new -sha512 -nodes -key $sslcakey -days 3650 -out $sslcapem >>$error_log 2>&1 << EOF
-.
-.
-.
-.
-.
-FOG Server CA
-.
-EOF
-            errorStat $?
-        fi
-        sslcachain="$sslcapem"
-    fi
-    [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
-    [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
+    _collectPkiNames
+    _resolveRootCA
     # An interface can carry several IPs, so $ipaddress may arrive as a list:
     # newline-separated from fresh detection, or space-separated when read back
     # from .fogsettings. A certificate has a single subject, so the first IP
@@ -3427,7 +4988,52 @@ EOF
         [[ -n $sanentries ]] && sanentries="${sanentries}"$'\n'
         sanentries="${sanentries}IP.${sancount} = ${ip}"
     done
-    if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
+    dnscount=1
+    dnsSanEntries=""
+    while IFS= read -r extraname; do
+        [[ -z $extraname || $extraname == "$hostname" ]] && continue
+        dnscount=$((dnscount + 1))
+        dnsSanEntries="${dnsSanEntries}"$'\n'"DNS.${dnscount} = ${extraname}"
+    done < <(_defaultServerNames)
+    # DNS.1 is not optional. Both intermediates carry DNS name constraints, and
+    # where a certificate has no DNS SAN at all OpenSSL falls back to matching
+    # the subject CN against them -- and this CN is an IP literal. A leaf with
+    # only IP SANs would be rejected by its own CA.
+    cat > $sslpath/ca.cnf << EOF
+[v3_ca]
+subjectAltName = @alt_names
+[alt_names]
+$sanentries
+DNS.1 = $hostname$dnsSanEntries
+EOF
+    # Written unconditionally, unlike historically: the web leaf's CSR is built
+    # from it on any run where the name set changed, not only on the run that
+    # first created a key.
+    cat > $sslpath/req.cnf << EOF
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = yes
+[req_distinguished_name]
+CN = $certip
+O = FOG Project
+OU = FOG Client Communication
+[v3_req]
+subjectAltName = @alt_names
+[alt_names]
+$sanentries
+DNS.1 = $hostname$dnsSanEntries
+EOF
+
+    # --- Client communication keypair -------------------------------------
+    #
+    # .srvprivate.key and the CSR built from it are exactly what they have
+    # always been, and deliberately so: this is the key FOGBase::certDecrypt()
+    # opens on every fog-client handshake, and every registered client is
+    # already encrypting to its public half.
+    [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
+    _separateCommKey
+    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e $sslpath/.srvprivate.key || ! -e $sslcsr ]]; then
         dots "Creating SSL Private Key"
         if [[ $(validip $certip) -ne 0 ]]; then
             echo -e "\n"
@@ -3439,52 +5045,109 @@ EOF
             exit 1
         fi
         mkdir -p $sslpath >>$error_log 2>&1
-        openssl genrsa -out $sslprivkey 4096 >>$error_log 2>&1
-        cat > $sslpath/req.cnf << EOF
-[req]
-distinguished_name = req_distinguished_name
-req_extensions = v3_req
-prompt = yes
-[req_distinguished_name]
-CN = $certip
-[v3_req]
-subjectAltName = @alt_names
-[alt_names]
-$sanentries
-DNS.1 = $hostname
-EOF
-        openssl req -new -sha512 -key $sslprivkey -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
+        # 4096 to match what certDecrypt() expects: it chunks the ciphertext by
+        # modulus size (openssl_pkey_get_details -> bits/8), so the key size is
+        # part of the wire framing, not a tunable.
+        [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]] && \
+            openssl genrsa -out $sslpath/.srvprivate.key 4096 >>$error_log 2>&1
+        openssl req -new -sha512 -key $sslpath/.srvprivate.key -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
 $certip
 EOF
         errorStat $?
     fi
-    [[ ! -e $sslpath/.fogCA.key ]] && ln -sf $sslcakey $sslpath/CA/.fogCA.key >>$error_log 2>&1
-    [[ ! -e $sslpath/.fogCA.pem ]] && ln -sf $sslcapem $sslpath/CA/.fogCA.pem >>$error_log 2>&1
-    [[ ! -e $sslpath/fog.csr ]] && ln -sf $sslcsr $sslpath/fog.csr >>$error_log 2>&1
-    [[ ! -e $sslpath/.srvprivate.key ]] && ln -sf $sslprivkey $sslpath/.srvprivate.key >>$error_log 2>&1
-    mkdir -p $webdirdest/management/other/ssl >>$error_log 2>&1
-    cat > $sslpath/ca.cnf << EOF
-[v3_ca]
-subjectAltName = @alt_names
-[alt_names]
-$sanentries
-DNS.1 = $hostname
-EOF
-    [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
-    if [[ ! -x $sslpubcert ]]; then
-        dots "Creating SSL Certificate"
-        openssl x509 -req -in $sslcsr -CA $sslcapem -CAkey $sslcakey -CAcreateserial -out $sslpubcert -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$error_log 2>&1
-        errorStat $?
+    _createCommLeaf
+
+    # Discoverability symlinks only -- the comm leaf's real files stay at
+    # $sslpath (see _createCommLeaf's own comment for why). This just gives
+    # the root zone the same ca/+leaf/ shape as the other two zones, so
+    # nothing under pki/ is flat. $commLeafKey/$commLeafPem are set
+    # unconditionally at the top of _createCommLeaf, so they're valid here
+    # even if that call returned early without issuing anything yet.
+    local rootLeafDir="$(_pkiZoneDir root)/leaf"
+    mkdir -p "$rootLeafDir" >>$error_log 2>&1
+    chmod 0700 "$rootLeafDir" >>$error_log 2>&1
+    [[ -f $commLeafKey ]] && ln -sf "$commLeafKey" "${rootLeafDir}/.srvprivate.key" >>$error_log 2>&1
+    [[ -f $commLeafPem ]] && ln -sf "$commLeafPem" "${rootLeafDir}/.srvpublic.crt" >>$error_log 2>&1
+
+    # --- Web zone ----------------------------------------------------------
+    #
+    # --external-ca (and the --ca-* trio) targets this zone, which is what they
+    # have always effectively meant: they name the CA that signs the vhost's
+    # leaf. The root, and therefore what fog-client pins, is untouched by them.
+    if [[ $externalca == yes ]]; then
+        validateExternalCA web
+    elif [[ ${rootCAIssuer:-1} -eq 1 ]]; then
+        createWebIntermediateCA
+    else
+        # The root cannot anchor an intermediate. Sign the web leaf directly
+        # from it -- exactly the historic behavior -- rather than issuing a
+        # chain that would verify nowhere.
+        echo " * Not creating a Web CA: the CA at ${rootCAPem}"
+        echo "   cannot issue one, because ${rootCAIssuerWhy}."
+        echo "   The web certificate will be signed by it directly, as before."
+        sslcakey="$rootCAKey"
+        sslcapem="$rootCAPem"
+        # Same override guard as createWebIntermediateCA's chain assignment,
+        # mirrored here so a switch between the two branches across runs
+        # still recognizes either FOG-managed default as "not an override".
+        if [[ -z $sslcachain || $sslcachain == "$rootCAPem" \
+            || $sslcachain == "$(_pkiZoneDir web)/ca/.fogWebCAchain.pem" \
+            || $sslcachain == "$(_pkiZoneDir web)/.fogWebCAchain.pem" ]]; then
+            sslcachain="$rootCAPem"
+        fi
     fi
-    [[ ! -e $webdirdest/management/other/ssl/srvpublic.crt ]] && ln -sf $sslpubcert $webdirdest/management/other/ssl/srvpublic.crt >>$error_log 2>&1
+    _resolveWebLeafPaths
+    _createWebLeaf
+
+    # Canonical paths. FOG's own consumers -- the vhost, sbsign, certDecrypt --
+    # only ever reference the canonical location, so the real file may live
+    # anywhere: /etc/pki, /etc/letsencrypt/live, a mounted secret. Relocating a
+    # certificate then never means editing the vhost.
+    #
+    # .srvprivate.key is deliberately absent from this list now: it is no
+    # longer a relocatable pointer to the web key but the comm key itself, and
+    # linking it at a relocated web key is what used to make an ACME renewal
+    # break client authentication.
+    _linkCanonical "$sslcakey"   "$sslpath/CA/.fogWebCA.key"
+    _linkCanonical "$sslcapem"   "$sslpath/CA/.fogWebCA.pem"
+    # An install that already ran the CA/web layout (the canonical location
+    # one restructuring ago) keeps that path resolving too. Guarded on the
+    # directory already existing -- nothing creates it fresh any more, so a
+    # new install has no reason to grow it just for this symlink.
+    if [[ -d $sslpath/CA/web ]]; then
+        _linkCanonical "$sslcakey" "$sslpath/CA/web/.fogWebCA.key"
+        _linkCanonical "$sslcapem" "$sslpath/CA/web/.fogWebCA.pem"
+    fi
+    _linkCanonical "$sslcsr"     "$sslpath/fog.csr"
+    mkdir -p $webdirdest/management/other/ssl >>$error_log 2>&1
+    # srvpublic.crt is what fog-client fetches as the server's encryption
+    # certificate, so it is the COMM leaf. The vhost serves $sslpubcert, which
+    # now lives in the Web zone outside the web tree. That separation is the
+    # whole point: renewing the web certificate touches nothing fog-client
+    # depends on.
+    dots "Publishing client communication certificate"
+    cp -f "$commLeafPem" $webdirdest/management/other/ssl/srvpublic.crt >>$error_log 2>&1
+    errorStat $?
     dots "Creating auth pub key and cert"
-    cp $sslcapem $webdirdest/management/other/ca.cert.pem >>$error_log 2>&1
+    # The pinned anchor is the ROOT. On an upgrade this file is byte-identical
+    # to what it was before, so no fog-client re-pins -- and because the Web CA
+    # sits beneath it, a client that trusts this now also trusts the web
+    # certificate.
+    cp -f "$rootCAPem" $webdirdest/management/other/ca.cert.pem >>$error_log 2>&1
     openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >>$error_log 2>&1
     errorStat $?
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$error_log 2>&1
     errorStat $?
     [[ $httpproto == https ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
+    # $extraServerNames is a space-joined string (see --extra-server-name).
+    # Computed once here and reused by both the nginx server_name lines below
+    # and Apache's vhostaliases, so an admin's extra name(s) reach every vhost
+    # block this function writes, not just one.
+    extraServerNamesSuffix=""
+    for extraname in $extraServerNames; do
+        extraServerNamesSuffix="${extraServerNamesSuffix} ${extraname}"
+    done
     case $webserver in
         nginx)
             case $novhost in
@@ -3512,9 +5175,18 @@ EOF
                     echo 'location ~ \.php$ {' > "$phploc"
                     emitNginxPhpBody "$phploc"
                     echo "}" >> "$phploc"
+                    # Apache's branch below backs up $etcconf the same way before
+                    # rewriting it, which is what lets its own diffconfig call
+                    # further down actually detect a change; nginx was calling
+                    # diffconfig without ever taking this backup first, so it was
+                    # comparing the new file to nothing and never fired.
+                    mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    # Everything below writes to the scratch file; endManagedVhost
+                    # splices it into the real one before nginx -t sees it.
+                    beginManagedVhost
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
-                    echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
+                    echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
                     if [[ $httpproto != https ]]; then
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
@@ -3565,7 +5237,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
+                        echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -3609,7 +5281,34 @@ EOF
                         echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
                     else
-                        echo "    return 308 https://\$host\$request_uri;" >> "$etcconf"
+                        # Netboot stays on HTTP when the web certificate is not
+                        # publicly chainable, so the redirect must NOT catch
+                        # iPXE's own fetches -- otherwise it lands right back
+                        # on the HTTPS it cannot validate and boot fails.
+                        if [[ $netbootproto != "$httpproto" ]]; then
+                            echo "    location ^~ ${webroot}service/ipxe/ {" >> "$etcconf"
+                            echo "        root ${docroot};" >> "$etcconf"
+                            echo "        index index.php;" >> "$etcconf"
+                            echo "        try_files \$uri \$uri/ =404;" >> "$etcconf"
+                            echo "        include ${phploc};" >> "$etcconf"
+                            echo "    }" >> "$etcconf"
+                        fi
+                        # The redirect is a `location`, NOT a server-level
+                        # `return`. nginx runs a server-level return in the
+                        # server rewrite phase, which is BEFORE location
+                        # selection -- so emitting the ipxe location first buys
+                        # nothing, the return fires for every request and the
+                        # exclusion above is dead code. Measured against real
+                        # nginx: server-level return 308'd
+                        # /fog/service/ipxe/boot.php; as `location /` the same
+                        # request serves 200 and everything else still 308s.
+                        # `^~` on the ipxe prefix beats `/`, which is what makes
+                        # the exclusion win. Apache's branch below has no such
+                        # problem -- RewriteCond really does guard the next
+                        # RewriteRule.
+                        echo "    location / {" >> "$etcconf"
+                        echo "        return 308 https://\$host\$request_uri;" >> "$etcconf"
+                        echo "    }" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         echo "Continued (See Below)"
                         # Creates the diffie helman param file.
@@ -3632,7 +5331,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddresses $hostname;" >> "$etcconf"
+                        echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -3684,6 +5383,9 @@ EOF
                             done
                         fi
                     fi
+                    # Splice BEFORE nginx -t: that tests the real file on disk,
+                    # so it has to be the spliced result, not the scratch copy.
+                    endManagedVhost
                     echo "Done"
                     dots "Testing nginx configuration"
                     nginx -t >> $workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -3719,7 +5421,11 @@ EOF
                     # address it has.
                     vhostname="$ipaddress"
                     vhostaliases=$(echo $ipaddresses | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
+                    vhostaliases="${vhostaliases}${extraServerNamesSuffix}"
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    # See the nginx branch above -- same scratch-file swap, so
+                    # none of the write sites below change.
+                    beginManagedVhost
                     echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
                     if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
@@ -3772,6 +5478,13 @@ EOF
                         # is stripped for you; it has been wrong here since
                         # 2017. Apache's MergeSlashes normally hides it, which
                         # is why it went unreported for so long.
+                        # See the nginx branch: iPXE's own fetches must not be
+                        # redirected to an HTTPS it cannot validate. The
+                        # condition goes immediately before the rule it guards,
+                        # since RewriteCond applies only to the next RewriteRule.
+                        if [[ $netbootproto != "$httpproto" ]]; then
+                            echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/ipxe/" >> "$etcconf"
+                        fi
                         echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
                         echo "<VirtualHost *:443>" >> "$etcconf"
@@ -3936,6 +5649,7 @@ EOF
                         echo "    RewriteRule ^${webrootre}(.*)$ ${webroot}api/index.php [QSA,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
                     fi
+                    endManagedVhost
                     diffconfig "${etcconf}"
                     errorStat $?
                     # Self-referential link so /fog/fog/... resolves. $webdirdest
@@ -4528,30 +6242,102 @@ downloadfiles() {
     cp -vf ${copypath}bzImage ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $kern_version ${webdirdest}/service/ipxe/bzImage >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/bzImage >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/bzImage
     cp -vf ${copypath}bzImage32 ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $kern_version ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/bzImage32
     cp -vf ${copypath}arm_Image ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $kern_version ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/arm_Image
     cp -vf ${copypath}init.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/init.xz
     cp -vf ${copypath}init_32.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/init_32.xz
     cp -vf ${copypath}arm_init.cpio.gz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
+    _stampFogSum ${webdirdest}/service/ipxe/arm_init.cpio.gz
     cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$error_log 2>&1
     errorStat $?
     cd $cwd
     _ensureSecureBootKeys
     _ensureSecureBootPlatformKeys
     _resignKernels
+    # Re-stamp AFTER signing. _resignKernels rewrites each kernel in place, so
+    # a checksum taken at download time no longer matches the file on disk --
+    # which made the next run report bzImage32/arm_Image as hand-installed on a
+    # server where nobody had touched them. Stamp what is actually there once
+    # everything that modifies it has run.
+    local _k
+    for _k in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+        _stampFogSum "${webdirdest}/service/ipxe/${_k}"
+    done
     _installSecureBootSigner
     _publishSecureBootKit
     _publishSecureBootAuthVars
+}
+# Copy an admin-supplied Secure Boot pair somewhere the installer cannot
+# destroy, and point $secureBootKey/$secureBootCert at the copy.
+#
+# The gap this closes: --secure-boot-key/--secure-boot-cert are persisted to
+# .fogsettings verbatim and _ensureSecureBootKeys() then trusts that path
+# forever, but nothing ever copies the file anywhere. An admin who parks the
+# pair under $webdirdest -- not unreasonable, it is where the enrolment kit is
+# published -- loses it to configureHttpd()'s rm -rf $webdirdest, in the SAME
+# run that first accepted the flags, before _resignKernels() ever reads it.
+#
+# Copied to admin-MOK.* rather than MOK.*, deliberately. MOK.key/MOK.pem are
+# where _ensureSecureBootKeys() keeps FOG's OWN generated pair, and that pair
+# is never regenerated precisely because every client that already enrolled it
+# would be stranded. Writing an admin's key over that path would destroy it
+# with no backup and no way back. Continuity across later runs comes from
+# .fogsettings holding the new path, not from reusing the filename.
+#
+# The original file the admin pointed at is never modified -- this only
+# decides which copy gets used from here on. Idempotent: once .fogsettings
+# records the copy, every later run sees a path already under the Secure
+# Boot PKI zone dir and does nothing.
+preserveSecureBootAdminFiles() {
+    [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+    local keydir="$(_pkiZoneDir secureboot)"
+    local destkey="${keydir}/admin-MOK.key"
+    local destcert="${keydir}/admin-MOK.pem"
+    local st=0
+
+    # Already somewhere this installer never deletes -- including FOG's own
+    # generated pair, which must be left exactly where it is.
+    case "$(readlink -f "$secureBootKey" 2>/dev/null)" in
+        "$(readlink -f "$keydir" 2>/dev/null)"/*) return 0 ;;
+    esac
+
+    dots "Preserving admin-supplied Secure Boot key"
+    mkdir -p "$keydir" >>$error_log 2>&1 || st=1
+    chown root:root "$keydir" >>$error_log 2>&1
+    chmod 0700 "$keydir" >>$error_log 2>&1
+    cp -f "$secureBootKey" "$destkey" >>$error_log 2>&1 || st=1
+    cp -f "$secureBootCert" "$destcert" >>$error_log 2>&1 || st=1
+    if [[ $st -ne 0 ]]; then
+        echo "Failed"
+        echo " * Could not copy the Secure Boot signing pair into ${keydir}."
+        echo " * Leaving --secure-boot-key/--secure-boot-cert pointed at the"
+        echo "   originals. If either lives under ${webdirdest}, MOVE IT NOW --"
+        echo "   the web tree is rebuilt later in this run. See $error_log."
+        return 0
+    fi
+    chown root:root "$destkey" "$destcert" >>$error_log 2>&1
+    # Key restricted, certificate public by design -- it is the thing handed
+    # out for enrolment. Mirrors _ensureSecureBootKeys()'s own permissions.
+    chmod 0600 "$destkey" >>$error_log 2>&1
+    chmod 0644 "$destcert" >>$error_log 2>&1
+    secureBootKey="$destkey"
+    secureBootCert="$destcert"
+    errorStat 0
 }
 # Generate the Secure Boot signing key when the admin has not supplied one.
 #
@@ -4568,10 +6354,174 @@ downloadfiles() {
 # surfaces that until a client fails to boot -- long after the install that
 # caused it. So an existing pair is always reused, and --recreate-keys
 # deliberately does not reach this.
-_ensureSecureBootKeys() {
+# The Secure Boot zone: an intermediate CA whose certificate is what gets
+# enrolled in firmware, issuing a short-lived leaf that actually signs kernels.
+#
+# The flat model enrolls the SIGNING certificate itself -- a self-signed leaf
+# that can issue nothing. That makes the thing you must never change and the
+# thing you want to rotate the same object: replacing the signing key means a
+# physical MokManager trip to every machine, and a storage node cannot sign at
+# all without being handed the one key the whole fleet trusts.
+#
+# Enrolling the intermediate instead means the leaf can be rotated, revoked, or
+# issued per node and the fleet keeps booting, because firmware trusts the
+# issuer rather than the specific signer. sbsign --addcert ships the
+# intermediate inside the signature so shim can build the chain.
+#
+# Sets TWO variables where flat sets one:
+#   secureBootKey/secureBootCert -> the LEAF. What sbsign signs with.
+#   secureBootMokCert            -> the INTERMEDIATE. What firmware enrolls,
+#                                   what MOK.der publishes, what goes in db.
+# In flat mode secureBootMokCert is simply the same file as secureBootCert, so
+# nothing downstream has to branch.
+createSecureBootIntermediateCA() {
+    local sbdir="$(_pkiZoneDir secureboot)"
+    local cadir="${sbdir}/ca"
+    local leafdir="${sbdir}/leaf"
     local keydir="${fogprogramdir}/secureboot"
+    local f st=0
+
+    # Secure Boot runs from downloadfiles(), which reaches this BEFORE
+    # createSSLCA() has run -- so neither $sslpath nor the root CA exists yet.
+    # Resolving the path here rather than assuming createSSLCA got there first
+    # is what keeps the root out of "/CA/root" at the filesystem root.
+    #
+    # _collectPkiNames also has to be reachable from here, not only from
+    # createSSLCA(): this CA's name constraints are fixed at mint time, and if
+    # this is the first run on this server, this function mints them before
+    # createSSLCA() ever gets a turn.
+    _resolveSslPath
+    _collectPkiNames
+    _resolveRootCA
+    # An install that already ran the flat ${fogprogramdir}/secureboot/{ca,leaf}
+    # layout migrates its CA and leaf material in place -- same key/cert, one
+    # more hop -- rather than minting fresh ones it doesn't need. $keydir is
+    # the flat MOK's own directory (_ensureSecureBootKeys), untouched by this.
+    #
+    # Skipped under --recreate-CA: _resolveRootCA just wiped the new zone dir
+    # deliberately, and resurrecting the old material here would silently
+    # undo that. The old directories are removed outright instead, so a
+    # recreate does not leave stale material an admin might mistake for live.
+    if [[ $recreateCA == yes ]]; then
+        rm -rf "${keydir}/ca" "${keydir}/leaf" >>$error_log 2>&1
+    else
+        mkdir -p "$cadir" "$leafdir" >>$error_log 2>&1
+        for f in .fogSBCA.key .fogSBCA.pem .fogSBCA.der int.cnf int.csr; do
+            [[ -f "${keydir}/ca/${f}" && ! -f "${cadir}/${f}" ]] && \
+                mv "${keydir}/ca/${f}" "${cadir}/${f}" >>$error_log 2>&1
+        done
+        for f in sign.key sign.pem sign.csr sign.cnf; do
+            [[ -f "${keydir}/leaf/${f}" && ! -f "${leafdir}/${f}" ]] && \
+                mv "${keydir}/leaf/${f}" "${leafdir}/${f}" >>$error_log 2>&1
+        done
+    fi
+    # A root that cannot anchor an intermediate leaves Secure Boot exactly as it
+    # was: a self-signed MOK. Signing beneath it would produce a chain that
+    # verifies nowhere, and the failure would surface as a machine that will not
+    # boot rather than as an installer error.
+    if [[ ${rootCAIssuer:-1} -ne 1 ]]; then
+        return 1
+    fi
+    if [[ ! -f "${cadir}/.fogSBCA.key" || ! -f "${cadir}/.fogSBCA.pem" ]]; then
+        dots "Creating FOG Secure Boot CA"
+        # codeSigning alone: an EKU on a CA constrains what it may issue, so
+        # this intermediate can never mint a server certificate however its
+        # leaf is written.
+        _issueIntermediateCA "FOG Secure Boot CA" "$cadir" ".fogSBCA.key" ".fogSBCA.pem" \
+            "extendedKeyUsage = codeSigning
+$(_sbNameConstraints)" "FOG Secure Boot"
+        errorStat $?
+    fi
+    # A DER sibling of the intermediate, right next to .fogSBCA.pem in the PKI
+    # zone dir -- not only inside the web-servable kit _publishSecureBootKit
+    # stages. Without this, confirming what got enrolled (openssl, sha1sum, a
+    # comparison against what MokManager shows) means reaching into
+    # $webdirdest instead of the canonical PKI tree. Outside the "only if
+    # missing" block above so an install upgrading onto this code backfills
+    # it without touching the CA's own key/cert.
+    if [[ -f "${cadir}/.fogSBCA.pem" && ! -f "${cadir}/.fogSBCA.der" ]]; then
+        openssl x509 -in "${cadir}/.fogSBCA.pem" -outform der \
+            -out "${cadir}/.fogSBCA.der" >>$error_log 2>&1
+        chown root:root "${cadir}/.fogSBCA.der" >>$error_log 2>&1
+        chmod 0644 "${cadir}/.fogSBCA.der" >>$error_log 2>&1
+    fi
+    if [[ ! -f "${leafdir}/sign.key" || ! -f "${leafdir}/sign.pem" ]]; then
+        dots "Creating Secure Boot code signing certificate"
+        mkdir -p "$leafdir" >>$error_log 2>&1 || st=1
+        chmod 0700 "$leafdir" >>$error_log 2>&1
+        # Same extension profile the flat MOK already uses -- CA:FALSE plus the
+        # codeSigning EKU -- written as a config file rather than -addext for
+        # the same reason: -addext needs OpenSSL 1.1.1+ and the older RHEL
+        # variants this installer supports ship 1.0.2.
+        #
+        # The subjectAltName is a guard, not decoration. When the issuing CA
+        # carries DNS name constraints and the certificate beneath it has no
+        # dNSName SAN, OpenSSL falls back to matching the subject CN against
+        # those constraints. Measured against OpenSSL 3.5: a CN of
+        # "evil.example.com" under a corp.local constraint is REJECTED, while
+        # this CN passes only because "FOG Project Secure Boot Signing" is not
+        # hostname-shaped and so is never treated as a DNS name.
+        #
+        # That exemption is a parsing quirk to depend on. Rename this CN to
+        # anything hostname-shaped and every machine in the fleet stops
+        # booting, discovered at the machines -- shim links OpenSSL and
+        # verifies the chain itself. A permitted DNS name here both satisfies
+        # the constraint and stops the CN fallback from ever running.
+        cat > "${leafdir}/sign.cnf" << EOF
+[ req ]
+distinguished_name = req_dn
+prompt             = no
+
+[ req_dn ]
+CN = FOG Project Secure Boot Signing
+O  = FOG Project
+OU = FOG Secure Boot
+
+[ v3_sign ]
+basicConstraints = critical,CA:FALSE
+extendedKeyUsage = codeSigning
+subjectKeyIdentifier = hash
+subjectAltName   = DNS:${hostname:-$(hostname)}
+EOF
+        openssl req -new -sha256 -nodes -newkey rsa:2048 \
+            -config "${leafdir}/sign.cnf" -keyout "${leafdir}/sign.key" \
+            -out "${leafdir}/sign.csr" >>$error_log 2>&1 || st=1
+        # Shorter than the intermediate's 30 years, not because it has to be,
+        # but because rotating it is cheap -- renewal-helper (packages/pki)
+        # re-signs it on request with no firmware re-enrollment needed, since
+        # what's enrolled is the intermediate above it, not this leaf.
+        openssl x509 -req -in "${leafdir}/sign.csr" \
+            -CA "${cadir}/.fogSBCA.pem" -CAkey "${cadir}/.fogSBCA.key" \
+            -CAcreateserial -sha256 -days 1825 -extensions v3_sign \
+            -extfile "${leafdir}/sign.cnf" -out "${leafdir}/sign.pem" >>$error_log 2>&1 || st=1
+        chown root:root "${leafdir}/sign.key" "${leafdir}/sign.pem" >>$error_log 2>&1
+        chmod 0600 "${leafdir}/sign.key" >>$error_log 2>&1
+        chmod 0644 "${leafdir}/sign.pem" >>$error_log 2>&1
+        errorStat $st
+    fi
+    # Report failure rather than naming files that were never written. The
+    # caller's fallback is the self-signed MOK, which is a working server; a
+    # $secureBootKey pointing at nothing is a server that silently ships
+    # unsigned kernels.
+    if [[ ! -f "${cadir}/.fogSBCA.pem" || ! -f "${leafdir}/sign.pem" ]]; then
+        if [[ ${rootCAKeyOffline:-0} -eq 1 ]]; then
+            echo " * Cannot issue the Secure Boot CA: the CA private key is not"
+            echo "   on this server. Restore it to:"
+            echo "     ${rootCAKey}"
+            echo "   re-run the installer, then move it back to your vault."
+        fi
+        return 1
+    fi
+    secureBootKey="${leafdir}/sign.key"
+    secureBootCert="${leafdir}/sign.pem"
+    secureBootMokCert="${cadir}/.fogSBCA.pem"
+}
+_ensureSecureBootKeys() {
+    local keydir="$(_pkiZoneDir secureboot)"
+    local oldkeydir="${fogprogramdir}/secureboot"
     local key="${keydir}/MOK.key"
     local cert="${keydir}/MOK.pem"
+    local f
 
     # Explicit opt-out. Left unset rather than half-set, so every downstream
     # function's existing "no key configured" branch does the right thing.
@@ -4581,13 +6531,90 @@ _ensureSecureBootKeys() {
     if [[ ${secureboot:-1} == 0 ]]; then
         secureBootKey=""
         secureBootCert=""
+        secureBootMokCert=""
         return 0
     fi
     # An admin-supplied pair always wins and is never touched or overwritten.
-    [[ -n $secureBootKey && -n $secureBootCert ]] && return 0
+    # Their certificate is also what gets enrolled, exactly as before -- an
+    # admin bringing their own Secure Boot intermediate points
+    # --secure-boot-cert at it and --secure-boot-key at the leaf's key.
+    #
+    # $secureBootKey/$secureBootCert are persisted to .fogsettings on every
+    # run (see writeUpdateFile) precisely so an admin's choice, or FOG's own
+    # previously-resolved leaf, carries forward without being re-supplied --
+    # but that means a value read back from .fogsettings is indistinguishable
+    # from one just passed on the command line. Require the files to still
+    # exist before trusting either: without this, deleting the Secure Boot
+    # directory to force a fresh key just left the stale path in
+    # .fogsettings, which got trusted here and failed downstream instead,
+    # with a "cannot find MOK.key" nowhere near the actual cause.
+    if [[ -n $secureBootKey && -n $secureBootCert ]]; then
+        if [[ -f $secureBootKey && -f $secureBootCert ]]; then
+            [[ -z $secureBootMokCert ]] && secureBootMokCert="$secureBootCert"
+            return 0
+        fi
+        echo " * The configured Secure Boot key/certificate is missing on disk:"
+        echo "     ${secureBootKey}"
+        echo "   Treating it as unset and generating a new one."
+        secureBootKey=""
+        secureBootCert=""
+        secureBootMokCert=""
+    fi
+    # An install that already ran the flat ${fogprogramdir}/secureboot layout
+    # migrates the flat MOK material in place -- same key/cert, one more hop
+    # -- before the existence checks below run against the new location. Not
+    # doing this first would make the "no MOK yet" branch fire on a server
+    # that has one, minting a fresh key and stranding every machine that
+    # already enrolled the old one.
+    mkdir -p "$keydir" >>$error_log 2>&1
+    for f in MOK.key MOK.pem mok.cnf; do
+        [[ -f "${oldkeydir}/${f}" && ! -f "${keydir}/${f}" ]] && \
+            mv "${oldkeydir}/${f}" "${keydir}/${f}" >>$error_log 2>&1
+    done
+    # The intermediate is enrolled and a leaf signs. See
+    # createSecureBootIntermediateCA.
+    #
+    # Deliberately NOT guarded on the flat MOK's absence. A server that already
+    # generated a self-signed MOK is moved onto the intermediate too, and any
+    # machine that enrolled the old key has to enrol once more -- which is the
+    # whole reason this lands before Secure Boot reaches a stable release. The
+    # flat MOK is a signing certificate that can issue nothing, so leaving a
+    # server on it means it can never rotate a signing key, and never let a
+    # storage node sign at all, without a firmware trip to every machine. That
+    # cost only grows.
+    #
+    # The old MOK.key/MOK.pem are left on disk untouched, so an admin who needs
+    # to re-sign something with the previously enrolled key still can.
+    if createSecureBootIntermediateCA; then
+        if [[ -f $key && -f $cert ]]; then
+            echo
+            echo "  ###################################################################"
+            echo "  # NOTICE: this server's Secure Boot trust has moved from a self-  #"
+            echo "  # signed key to an issuing CA, so that signing keys can be        #"
+            echo "  # rotated and storage nodes can sign without holding the fleet's  #"
+            echo "  # one trusted key.                                                #"
+            echo "  #                                                                 #"
+            echo "  # Any machine that already enrolled the previous MOK must enrol    #"
+            echo "  # once more. After that, no future signing-key change needs a     #"
+            echo "  # firmware trip.                                                  #"
+            echo "  #                                                                 #"
+            echo "  #   ${httpproto}://${ipaddress}${webroot}service/secureboot/MOK.der"
+            echo "  #                                                                 #"
+            echo "  # or boot the 'Enroll Secure Boot Key' PXE menu item.             #"
+            echo "  # The previous key is still on disk at:                           #"
+            echo "  #   ${keydir}/MOK.pem                                             #"
+            echo "  ###################################################################"
+            echo
+        fi
+        return 0
+    fi
+    # Falls through only when the CA cannot anchor an intermediate, which
+    # createSecureBootIntermediateCA has already explained. Behave exactly as
+    # before in that case.
     if [[ -f $key && -f $cert ]]; then
         secureBootKey="$key"
         secureBootCert="$cert"
+        secureBootMokCert="$cert"
         return 0
     fi
 
@@ -4611,13 +6638,18 @@ x509_extensions    = v3_mok
 
 [ req_dn ]
 CN = FOG Project Secure Boot Signing
+O  = FOG Project
+OU = FOG Secure Boot
 
 [ v3_mok ]
 basicConstraints = critical,CA:FALSE
 extendedKeyUsage = codeSigning
 subjectKeyIdentifier = hash
 EOF
-    if ! openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 3650 \
+    # 30 years, same as the real CAs: whatever CA:FALSE says, this is the
+    # enrolled firmware trust anchor in this fallback path, and rotating it
+    # costs the same fleet-wide re-enrollment a real CA's renewal would.
+    if ! openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 10950 \
             -config "${keydir}/mok.cnf" -keyout "$key" -out "$cert" \
             >>$error_log 2>&1; then
         echo "Failed"
@@ -4636,6 +6668,8 @@ EOF
     chmod 0644 "$cert" >>$error_log 2>&1
     secureBootKey="$key"
     secureBootCert="$cert"
+    # Flat: the signing certificate IS what firmware enrols.
+    secureBootMokCert="$cert"
     echo "Done"
 }
 # Generate this server's Secure Boot PLATFORM keys (PK and KEK).
@@ -4657,12 +6691,13 @@ EOF
 # accepted by any client already carrying the old one, and the failure surfaces
 # as an unbootable machine long after the install that caused it.
 _ensureSecureBootPlatformKeys() {
-    local keydir="${fogprogramdir}/secureboot"
+    local keydir="$(_pkiZoneDir secureboot)"
+    local oldkeydir="${fogprogramdir}/secureboot"
     local pkKey="${keydir}/PK.key"
     local pkCert="${keydir}/PK.pem"
     local kekKey="${keydir}/KEK.key"
     local kekCert="${keydir}/KEK.pem"
-    local subject
+    local subject f
 
     secureBootPKKey=""
     secureBootPKCert=""
@@ -4672,6 +6707,17 @@ _ensureSecureBootPlatformKeys() {
     # No signing key means the whole feature is opted out; there is nothing for
     # a platform key to authorise.
     [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+
+    # An install that already ran the flat ${fogprogramdir}/secureboot layout
+    # migrates the platform keys in place -- same key/cert, one more hop --
+    # before the existence check below runs against the new location. These
+    # never regenerate once they exist (see the note above this function), so
+    # missing this would strand every client that already trusts them.
+    mkdir -p "$keydir" >>$error_log 2>&1
+    for f in PK.key PK.pem KEK.key KEK.pem; do
+        [[ -f "${oldkeydir}/${f}" && ! -f "${keydir}/${f}" ]] && \
+            mv "${oldkeydir}/${f}" "${keydir}/${f}" >>$error_log 2>&1
+    done
 
     if [[ -f $pkKey && -f $pkCert && -f $kekKey && -f $kekCert ]]; then
         secureBootPKKey="$pkKey"
@@ -4697,10 +6743,10 @@ _ensureSecureBootPlatformKeys() {
     # does not stop a client booting (UEFI does not check validity dates on db
     # entries) but it does confuse tooling.
     if ! openssl req -x509 -new -nodes -newkey rsa:4096 -sha256 -days 3650 \
-            -subj "/CN=${subject} Platform Key/" \
+            -subj "/CN=${subject} Platform Key/O=FOG Project/OU=FOG Secure Boot" \
             -keyout "$pkKey" -out "$pkCert" >>$error_log 2>&1 ||
        ! openssl req -x509 -new -nodes -newkey rsa:4096 -sha256 -days 3650 \
-            -subj "/CN=${subject} Key Exchange Key/" \
+            -subj "/CN=${subject} Key Exchange Key/O=FOG Project/OU=FOG Secure Boot" \
             -keyout "$kekKey" -out "$kekCert" >>$error_log 2>&1; then
         echo "Failed"
         echo " * Could not generate the Secure Boot platform keys. Automatic"
@@ -4726,23 +6772,36 @@ _ensureSecureBootPlatformKeys() {
 # thing in this feature that must not be got wrong.
 _publishSecureBootKit() {
     local kitdir="${webdirdest}/service/secureboot"
+    local cadir="$(_pkiZoneDir secureboot)/ca"
 
-    if [[ -z $secureBootCert ]]; then
+    # MOK.der publishes the certificate to be ENROLLED, which is not always the
+    # one that signs. In split mode that is the Secure Boot intermediate, so a
+    # rotated signing leaf never invalidates an enrolment; in flat mode
+    # $secureBootMokCert is the same file as $secureBootCert and this is
+    # byte-identical to before.
+    if [[ -z $secureBootMokCert ]]; then
         rm -rf "$kitdir" >>$error_log 2>&1
         return 0
     fi
 
     dots "Publishing Secure Boot enrolment kit"
     mkdir -p "$kitdir" >>$error_log 2>&1
+    # The intermediate case already has a canonical DER sibling next to
+    # .fogSBCA.pem in the PKI zone dir (see createSecureBootIntermediateCA) --
+    # reuse it rather than re-deriving, so this kit's MOK.der is
+    # byte-identical to what an admin can already verify straight from the
+    # PKI tree, without reaching into $webdirdest.
+    if [[ $secureBootMokCert == "${cadir}/.fogSBCA.pem" && -f "${cadir}/.fogSBCA.der" ]]; then
+        cp -f "${cadir}/.fogSBCA.der" "${kitdir}/MOK.der" >>$error_log 2>&1
     # A DER copy of the certificate is what mokutil wants. Accept a PEM cert
     # too, since openssl is happy to produce either and admins mix them up.
-    if openssl x509 -in "$secureBootCert" -inform der -noout >/dev/null 2>&1; then
-        cp -f "$secureBootCert" "${kitdir}/MOK.der" >>$error_log 2>&1
-    elif openssl x509 -in "$secureBootCert" -outform der -out "${kitdir}/MOK.der" >>$error_log 2>&1; then
+    elif openssl x509 -in "$secureBootMokCert" -inform der -noout >/dev/null 2>&1; then
+        cp -f "$secureBootMokCert" "${kitdir}/MOK.der" >>$error_log 2>&1
+    elif openssl x509 -in "$secureBootMokCert" -outform der -out "${kitdir}/MOK.der" >>$error_log 2>&1; then
         :
     else
         echo "Failed"
-        echo " * Could not read $secureBootCert as a certificate."
+        echo " * Could not read $secureBootMokCert as a certificate."
         return 0
     fi
     cp -f ../packages/secureboot/fog-enroll-mok.sh "${kitdir}/" >>$error_log 2>&1
@@ -4776,6 +6835,61 @@ _publishSecureBootKit() {
     chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
     echo "Done"
 }
+# efitools has no package on RHEL/Rocky/Alma/CentOS Stream 9: confirmed
+# absent from EPEL9, and the only RPMs that exist for it live in those
+# distros' "devel" repos -- build infrastructure, not something an admin is
+# expected to enable. (gnu-efi-utils is NOT a substitute: that package is the
+# gnu-efi project's own debugging utilities, unrelated to the cert-to-efi-*/
+# sign-efi-* tools this needs.) Built from source as a last resort.
+#
+# Only the two binaries fog-build-sb-authvars actually calls are built --
+# sbvarsign, the other tool this suite ships, is unused here and comes from
+# sbsigntools anyway, already a baseline dependency (see installPackages).
+# `make <binary>` is a real per-binary target upstream (each is
+# `name: name.o lib/lib.a`), so this skips the default `all` target entirely,
+# which additionally wants sample PK/KEK/db certs this install has no reason
+# to generate.
+#
+# Pinned to 1.9.2 from the canonical upstream, git.kernel.org's jejb tree --
+# not a GitHub mirror -- the same source Fedora/AlmaLinux package.
+_ensureEfitools() {
+    command -v cert-to-efi-sig-list >/dev/null 2>&1 && \
+        command -v sign-efi-sig-list >/dev/null 2>&1 && return 0
+    command -v curl >/dev/null 2>&1 || return 1
+
+    local ver="1.9.2"
+    local url="https://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git/snapshot/efitools-${ver}.tar.gz"
+    local work
+    work=$(mktemp -d) || return 1
+
+    dots "Building efitools (no package for this distro)"
+    # The only build-time packages this needs beyond the C toolchain and
+    # sbsigntools this install already has -- named the same across every
+    # distro this installer supports, unlike gnu-efi's runtime package, so no
+    # alternatives list is needed here.
+    $packageinstaller gcc make gnu-efi-devel help2man >>$error_log 2>&1
+    if ! curl -fsSL "$url" -o "${work}/efitools.tar.gz" >>$error_log 2>&1; then
+        echo "Failed"
+        echo " * Could not download efitools ${ver} from ${url}."
+        rm -rf "$work" >>$error_log 2>&1
+        return 1
+    fi
+    tar -xzf "${work}/efitools.tar.gz" -C "$work" >>$error_log 2>&1
+    (cd "${work}/efitools-${ver}" && make cert-to-efi-sig-list sign-efi-sig-list) >>$error_log 2>&1
+    if [[ ! -x "${work}/efitools-${ver}/cert-to-efi-sig-list" || \
+          ! -x "${work}/efitools-${ver}/sign-efi-sig-list" ]]; then
+        echo "Failed"
+        echo " * efitools ${ver} did not build; see ${error_log}."
+        rm -rf "$work" >>$error_log 2>&1
+        return 1
+    fi
+    install -o root -g root -m 0755 \
+        "${work}/efitools-${ver}/cert-to-efi-sig-list" \
+        "${work}/efitools-${ver}/sign-efi-sig-list" \
+        /usr/local/bin/ >>$error_log 2>&1
+    rm -rf "$work" >>$error_log 2>&1
+    echo "Done"
+}
 # Build and publish the signed PK/KEK/db variable updates.
 #
 # These are what a client in Setup Mode writes to enrol this server's
@@ -4788,12 +6902,21 @@ _publishSecureBootKit() {
 # owns the permissions on the files it writes.
 #
 # Nothing published here is secret -- .auth blobs are public certificates plus
-# signatures over them. The private keys stay in $fogprogramdir/secureboot.
+# signatures over them. The private keys stay in the Secure Boot PKI zone dir.
 _publishSecureBootAuthVars() {
     local kitdir="${webdirdest}/service/secureboot"
-    local msdst="${fogprogramdir}/secureboot/mscerts"
+    local msdst="$(_pkiZoneDir secureboot)/mscerts"
     local helper="${fogprogramdir}/bin/fog-build-sb-authvars"
     local conf="${fogprogramdir}/.fog-secureboot"
+
+    # An install that already ran the flat ${fogprogramdir}/secureboot layout
+    # moves its cached copy in place -- it's fully reproducible from the
+    # packaged source below regardless, so this is only to avoid leaving a
+    # stale duplicate behind.
+    if [[ -d "${fogprogramdir}/secureboot/mscerts" && ! -d $msdst ]]; then
+        mkdir -p "$(dirname "$msdst")" >>$error_log 2>&1
+        mv "${fogprogramdir}/secureboot/mscerts" "$msdst" >>$error_log 2>&1
+    fi
 
     # No platform keys means no automatic path. Clear any blobs from a previous
     # install rather than leaving stale ones a client would happily enrol: an
@@ -4804,13 +6927,14 @@ _publishSecureBootAuthVars() {
         return 0
     fi
 
+    _ensureEfitools
     dots "Publishing Secure Boot variable updates"
     if ! command -v cert-to-efi-sig-list >/dev/null 2>&1 ||
        ! command -v sign-efi-sig-list >/dev/null 2>&1; then
         echo "Skipped"
-        echo " * efitools is not installed, so the automatic Secure Boot"
-        echo "   enrolment blobs were not built. Install efitools and re-run the"
-        echo "   installer. The MOK enrolment paths are unaffected."
+        echo " * efitools is not installed and could not be built from source,"
+        echo "   so the automatic Secure Boot enrolment blobs were not built."
+        echo "   See ${error_log}. The MOK enrolment paths are unaffected."
         rm -f "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
         return 0
     fi
@@ -4960,12 +7084,17 @@ _installSecureBootSigner() {
     {
         echo "SECUREBOOT_KEY=${secureBootKey}"
         echo "SECUREBOOT_CERT=${certpem}"
+        # The certificate ENDPOINTS trust, which is not always the one that
+        # signs. fog-build-sb-authvars puts this in db and fog-sign-kernel
+        # --addcert's it; in flat mode it equals SECUREBOOT_CERT and both
+        # behave exactly as before.
+        echo "SECUREBOOT_MOK_CERT=${secureBootMokCert:-$certpem}"
         echo "SECUREBOOT_STAGING=${stagedir}"
         echo "SECUREBOOT_PK_KEY=${secureBootPKKey}"
         echo "SECUREBOOT_PK_CERT=${secureBootPKCert}"
         echo "SECUREBOOT_KEK_KEY=${secureBootKEKKey}"
         echo "SECUREBOOT_KEK_CERT=${secureBootKEKCert}"
-        echo "SECUREBOOT_MSCERTS=${fogprogramdir}/secureboot/mscerts"
+        echo "SECUREBOOT_MSCERTS=$(_pkiZoneDir secureboot)/mscerts"
         echo "SECUREBOOT_AUTHVARS=${webdirdest}/service/secureboot"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1
@@ -5023,7 +7152,19 @@ _resignKernels() {
         # be refreshed every time rather than kept forever, or an upgrade would
         # re-sign the *previous* version over the new one.
         cp -af "$kpath" "${kpath}.unsigned" >>$error_log 2>&1
-        if sbsign --key "$secureBootKey" --cert "$certpem" \
+        # --addcert ships the issuing intermediate inside the signature, which
+        # is what lets shim (and the firmware, via db) chain a leaf-signed
+        # kernel back to the certificate that was actually enrolled. Without
+        # it a split-mode kernel is signed by a certificate no endpoint has
+        # ever seen and simply will not boot.
+        #
+        # Built as an array so flat mode passes no extra argument at all and
+        # its command line stays byte-identical to before.
+        local addcert=()
+        [[ -n $secureBootMokCert ]] \
+            && [[ "$(readlink -f "$secureBootMokCert" 2>/dev/null)" != "$(readlink -f "$certpem" 2>/dev/null)" ]] \
+            && addcert=(--addcert "$secureBootMokCert")
+        if sbsign --key "$secureBootKey" --cert "$certpem" "${addcert[@]}" \
                 --output "$kpath" "${kpath}.unsigned" >>$error_log 2>&1; then
             chown "${username}" "$kpath" >>$error_log 2>&1
         else

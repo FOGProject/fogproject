@@ -39,25 +39,56 @@ done
 export PATH
 
 usage() {
-    echo -e "Usage: $0 [-h?y] [--channel stable|dev|beta] [--git-path </path>] [--no-revert]"
+    echo -e "Usage: $0 [-h?y] [--channel stable|staging|dev] [--branch <name>] [--git-path </path>]"
+    echo -e "\t                 \t\t[--no-revert] [--no-vhost]"
     echo -e "\t-h -? --help\t\tDisplay this info"
-    echo -e "\t      --channel\tUpdate channel to track: stable, dev, or beta"
+    echo -e "\t      --channel\tUpdate channel to track: stable, staging, or dev"
     echo -e "\t               \t\tdefaults to whatever this server already tracks"
+    echo -e "\t      --branch\tCheck out an arbitrary branch instead of a channel"
+    echo -e "\t               \t\t(e.g. to test a PR/feature branch). One-off: does"
+    echo -e "\t               \t\tnot change the tracked channel for future runs"
     echo -e "\t      --git-path\tOverride the git checkout path this server records"
+    echo -e "\t      --hostname\tOverride the vhost/cert hostname for this update"
+    echo -e "\t               \t\t(implies --overwrite-vhost)"
+    echo -e "\t      --extra-server-name\tAdd an extra vhost/cert name for this update (repeatable)"
+    echo -e "\t                         \t(implies --overwrite-vhost)"
     echo -e "\t      --no-revert\tOn failure, leave the system as-is instead of"
     echo -e "\t                 \t\tautomatically reverting to the previous commit"
+    echo -e "\t      --no-vhost\tDo not touch the web server vhost at all."
+    echo -e "\t                 \t\tBy default FOG refreshes only the region between"
+    echo -e "\t                 \t\tits MANAGED BLOCK markers and leaves anything you"
+    echo -e "\t                 \t\tadded outside them alone, so skipping is rarely"
+    echo -e "\t                 \t\twanted -- it also skips FOG's own security fixes"
+    echo -e "\t                 \t\tto the parts it owns"
+    echo -e "\t      --overwrite-vhost\tDeprecated no-op: this is now the default"
     echo -e "\t-y    --yes\t\tSkip the confirmation prompt (for cron/GUI use)"
+    echo -e "\n\tWhat survives an update, and where to put customizations so"
+    echo -e "\tthey do: docs/SUPPORTED_CUSTOMIZATIONS.md"
     exit 0
 }
 
+supdateExtraServerNames=()
+
 shortopts="h?y"
-longopts="help,channel:,git-path:,no-revert,yes"
+longopts="help,channel:,branch:,git-path:,no-revert,overwrite-vhost,no-vhost,yes,hostname:,extra-server-name:"
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
 eval set -- "$optargs"
 
 autoRevert=1
 autoYes=""
+# Was -F by default, because regenerating the vhost meant destroying any hand
+# customization -- createSSLCA() rewrote the whole file and could not tell
+# "default" from "admin edited this". That is no longer true: it now writes
+# only between the FOG MANAGED BLOCK markers (see spliceManagedBlock in
+# lib/common/functions.sh) and leaves everything outside them alone.
+#
+# So the default flips. Skipping the vhost now costs an admin every future
+# security fix FOG makes to the parts it owns -- ciphers, headers, the
+# LocationMatch rules -- to protect content that is no longer at risk. -F
+# remains available for "do not touch this file at all", which is a real
+# preference, just no longer the one that should be automatic.
+updateVhostFlag=""
 while :; do
     case $1 in
         -h | -\? | --help)
@@ -65,6 +96,10 @@ while :; do
             ;;
         --channel)
             schannel="$2"
+            shift 2
+            ;;
+        --branch)
+            sbranch="$2"
             shift 2
             ;;
         --git-path)
@@ -76,8 +111,36 @@ while :; do
             fi
             shift 2
             ;;
+        --hostname)
+            if [[ -n "${2}" ]]; then
+                supdatehostname="${2}"
+            else
+                echo "Error: --hostname requires a value"
+                exit 9
+            fi
+            shift 2
+            ;;
+        --extra-server-name)
+            if [[ -n "${2}" ]]; then
+                supdateExtraServerNames+=("${2}")
+            else
+                echo "Error: --extra-server-name requires a value"
+                exit 9
+            fi
+            shift 2
+            ;;
         --no-revert)
             autoRevert=0
+            shift
+            ;;
+        --overwrite-vhost)
+            # Now the default. Kept so an existing cron job or script that
+            # passes it keeps working rather than dying in getopt.
+            updateVhostFlag=""
+            shift
+            ;;
+        --no-vhost)
+            updateVhostFlag="-F"
             shift
             ;;
         -y | --yes)
@@ -96,6 +159,19 @@ while :; do
     esac
 done
 
+# --hostname/--extra-server-name are requests for a vhost-VISIBLE change, so
+# they override an explicit --no-vhost. Without this, createSSLCA() prints
+# "Skipped" instead of writing the vhost: .fogsettings and the cert SAN would
+# change (cert generation happens before the novhost check) while
+# server_name/ServerAlias silently kept the old names -- a cert and a vhost
+# that disagree about what this server is called.
+#
+# No longer needed for the common case now that regenerating is the default,
+# but still required for the explicit --no-vhost + --hostname combination.
+if [[ -n $supdatehostname || ${#supdateExtraServerNames[@]} -gt 0 ]]; then
+    updateVhostFlag=""
+fi
+
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 error_log="${workingdir}/error_logs/fog_update_error.log"
 : > "$error_log"
@@ -103,7 +179,7 @@ error_log="${workingdir}/error_logs/fog_update_error.log"
 # errorStat (lib/common/functions.sh) exits the process on any non-zero
 # status unless $exitFail is set -- installfog.sh's default, since a failed
 # install step should stop it. updatefog.sh needs the opposite: a failed git
-# fetch/checkout/reset must return control to gitUpdateToChannel() so
+# fetch/checkout/reset must return control to gitUpdateToBranch() so
 # revertUpdate() can run, not kill the script out from under it. Deliberately
 # NOT exported: the nested `bash installfog.sh` call below is a separate
 # process and should keep errorStat's normal exit-on-failure behavior there.
@@ -136,24 +212,49 @@ linuxReleaseName_lower="${osname,,}"
 [[ -n $osid ]] && doOSSpecificIncludes >/dev/null
 . ../lib/common/update.sh
 
+# writeUpdateFile() (functions.sh) refreshes the "## Version:" comment line in
+# .fogsettings as a side effect; installfog.sh derives this the same way at
+# its own top, but updatefog.sh never sources that far into it.
+[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+
 [[ -n $sgitpath ]] && fog_git_path="$sgitpath"
-[[ -n $schannel ]] && fog_update_channel="$schannel"
 
-if [[ -z $fog_update_channel ]]; then
-    echo " * No update channel configured for this server, and none given via --channel."
-    echo " * Pass --channel stable|dev|beta."
-    exit 1
+if [[ -n $sbranch ]]; then
+    # --branch is a one-off deviation for testing, not a channel switch -- it
+    # deliberately leaves fog_update_channel untouched, so a later run without
+    # --branch goes right back to tracking whatever channel was configured.
+    branch="$sbranch"
+    echo " * FOG Update"
+    echo "   Git path: $fog_git_path"
+    echo "   Branch:   $branch (custom -- not a tracked channel)"
+    echo
+else
+    [[ -n $schannel ]] && fog_update_channel="$schannel"
+
+    if [[ -z $fog_update_channel ]]; then
+        echo " * No update channel configured for this server, and none given via --channel."
+        echo " * Pass --channel stable|staging|dev, or --branch for a one-off checkout."
+        exit 1
+    fi
+
+    branch=$(channelToBranch "$fog_update_channel") || {
+        echo " * Unknown update channel: $fog_update_channel (expected stable, staging, or dev)"
+        exit 1
+    }
+
+    # Persist the resolved channel now, before touching git -- writeUpdateFile
+    # merges just the managed keys (fog_git_path/fog_update_channel among them)
+    # into the existing .fogsettings, leaving every other line as-is. Without
+    # this, --channel only ever changed the channel for THIS run: the child
+    # `installfog.sh` below re-sources the OLD value from .fogsettings and
+    # writes that back, so the override never stuck for future unattended runs.
+    writeUpdateFile
+
+    echo " * FOG Update"
+    echo "   Git path: $fog_git_path"
+    echo "   Channel:  $fog_update_channel ($branch)"
+    echo
 fi
-
-branch=$(channelToBranch "$fog_update_channel") || {
-    echo " * Unknown update channel: $fog_update_channel (expected stable, dev, or beta)"
-    exit 1
-}
-
-echo " * FOG Update"
-echo "   Git path: $fog_git_path"
-echo "   Channel:  $fog_update_channel ($branch)"
-echo
 
 if [[ -z $autoYes ]]; then
     echo -n " * Continue with this update? (Y/N) "
@@ -167,18 +268,26 @@ if [[ -z $autoYes ]]; then
     esac
 fi
 
-backupCustomizations
-if ! gitUpdateToChannel; then
+# No backup call here any more. installfog.sh backs up and restores within its
+# own run (backupPreservedCustomizations / restorePreservedCustomizations), so
+# the protection covers a bare ./installfog.sh too -- which is how most people
+# upgrade, and which this wrapper could never have protected.
+if ! gitUpdateToBranch "$branch"; then
     echo " * Git update failed -- nothing was installed. See $error_log."
     exit 1
 fi
 
-(cd "$fog_git_path/bin" && bash installfog.sh -Y >>$error_log 2>&1)
+extraServerNameArgs=()
+for extraname in "${supdateExtraServerNames[@]}"; do
+    extraServerNameArgs+=(--extra-server-name "$extraname")
+done
+(cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag ${supdatehostname:+--hostname "$supdatehostname"} "${extraServerNameArgs[@]}" >>$error_log 2>&1)
 installStatus=$?
 cd "$workingdir"
 
 if [[ $installStatus -eq 0 ]]; then
-    restoreCustomizations
+    # Likewise no restore call: the install run that just succeeded already
+    # put the customizations back itself.
     echo " * Update completed successfully."
     exit 0
 fi

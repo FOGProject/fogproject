@@ -88,6 +88,7 @@ class SubMenuData extends Hook
                     // Sits beside the two things it acts on: Secure Boot
                     // signing is a property of the kernel this server serves.
                     'secureBoot' => _('Secure Boot'),
+                    'certificates' => _('Certificates'),
                     'pxemenu' => self::$foglang['PXEBootMenu'],
                     'customizepxe' => self::$foglang['PXEConfiguration'],
                     'newMenu' => self::$foglang['NewMenu'],

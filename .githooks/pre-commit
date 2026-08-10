@@ -1,5 +1,11 @@
 #!/usr/bin/env sh
 #
+# Runs on "git commit" once enabled. Exits non-zero to block the commit if
+# schemaCheck() below fails; every other check here fails open.
+#
+# To enable this hook:
+#   git config core.hooksPath .githooks
+#
 # Exit on error
 # set -e
 
