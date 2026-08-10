@@ -3209,6 +3209,203 @@ configureSnapins() {
     # packages/selinux/fog.te.
     setSELinuxContext "$snapindir" fog_share_t
 }
+# Install the node-certificate signing helper and the sudoers rule that lets
+# the web tier reach it.
+#
+# Master only. A storage node has no CA to sign with, and installing the rule
+# there would grant its web user a sudo entry for a script that can only fail.
+#
+# Deliberately the same shape as _installSecureBootSigner: a root-only config
+# holding the paths, a staging directory the web user owns, and a validated
+# sudoers drop-in. The web user learns nothing about where the keys live and
+# cannot rewrite these paths to point somewhere else.
+_installNodeCertSigner() {
+    local bindir="${fogprogramdir}/bin"
+    local helper="${bindir}/fog-sign-node-cert"
+    local conf="${fogprogramdir}/.fog-pki"
+    local stagedir="${fogprogramdir}/nodecert-staging"
+    local sudoersfile="/etc/sudoers.d/fog-pki"
+
+    # Guarded here as well as at the call site. A storage node reaching this
+    # would install a sudo rule for a helper with no CA behind it, and the call
+    # site is exactly the kind of thing a later refactor moves.
+    #
+    # No Web CA means nothing to issue from either -- a server whose root could
+    # not anchor an intermediate, or an install that has not got that far.
+    # Remove any rule a previous run installed rather than leaving a sudo entry
+    # for a helper that cannot work.
+    if [[ $installtype == [Ss] ]] || \
+       [[ -z $sslcapem || ! -f $sslcapem || $sslcapem == "$rootCAPem" ]]; then
+        rm -f "$helper" "$conf" "$sudoersfile" >>$error_log 2>&1
+        return 0
+    fi
+
+    dots "Installing node certificate signing helper"
+    mkdir -p "$bindir" >>$error_log 2>&1
+    install -o root -g root -m 0755 ../packages/pki/fog-sign-node-cert "$helper" >>$error_log 2>&1 || {
+        echo "Failed"
+        return 0
+    }
+    # Point the helper at this install's config. It takes no path arguments on
+    # purpose -- that is what stops a compromised web server naming its own CA
+    # key -- so the location has to be baked in here. Quoted: $fogprogramdir
+    # may contain a space, and CONF=/a/fog custom/x assigns "/a/fog" and then
+    # tries to RUN "custom/x", which bash -n does not catch.
+    sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1
+    if ! grep -qxF "CONF=\"${conf}\"" "$helper"; then
+        echo "Failed"
+        echo " * Could not set the config path in $helper."
+        return 0
+    fi
+    {
+        echo "PKI_WEB_CA_CERT=${sslcapem}"
+        echo "PKI_WEB_CA_KEY=${sslcakey}"
+        echo "PKI_ROOT_CERT=${rootCAPem}"
+        echo "PKI_SB_CA_CERT=${fogprogramdir}/secureboot/ca/.fogSBCA.pem"
+        echo "PKI_SB_CA_KEY=${fogprogramdir}/secureboot/ca/.fogSBCA.key"
+        echo "PKI_STAGING=${stagedir}"
+    } > "$conf"
+    chown root:root "$conf" >>$error_log 2>&1
+    chmod 0600 "$conf" >>$error_log 2>&1
+
+    # The web user owns only the staging directory: it writes the request there
+    # and reads the signed result back, and can reach nothing else.
+    mkdir -p "$stagedir" >>$error_log 2>&1
+    chown "${apacheuser}":"${apacheuser}" "$stagedir" >>$error_log 2>&1
+    chmod 0750 "$stagedir" >>$error_log 2>&1
+    setSELinuxContext "$stagedir" fog_share_t
+
+    # Validate before installing: a malformed sudoers drop-in breaks sudo for
+    # the whole machine, which is far worse than no node certificate issuance.
+    echo "${apacheuser} ALL=(root) NOPASSWD: ${helper}" > "${sudoersfile}.tmp"
+    chmod 0440 "${sudoersfile}.tmp" >>$error_log 2>&1
+    if visudo -cqf "${sudoersfile}.tmp" >>$error_log 2>&1; then
+        mv -f "${sudoersfile}.tmp" "$sudoersfile" >>$error_log 2>&1
+        chown root:root "$sudoersfile" >>$error_log 2>&1
+        echo "Done"
+    else
+        rm -f "${sudoersfile}.tmp" >>$error_log 2>&1
+        echo "Failed"
+        echo " * Refusing to install an invalid sudoers rule; storage nodes will"
+        echo "   keep generating their own self-signed certificates."
+    fi
+}
+# Ask the master for a certificate, as a storage node.
+#
+# Returns non-zero on any failure, and every caller treats that as "carry on
+# with what this node did before". That fallback is not politeness: a node
+# install must not break against a master that has not been updated yet, and
+# during a staged rollout that is the normal case rather than the exception.
+#
+# Authentication is an HMAC over the request keyed with the fogstorage
+# password, which this node already holds because it is how it reaches the
+# master's database. The secret never crosses the wire. TLS verification is off
+# for the same reason it has to be: this runs before the node has a certificate
+# anything would trust, which is what it is here to fix.
+_requestNodeCert() {
+    local type="$1" keyout="$2" pemout="$3" chainout="$4"
+    local csr b64 mac resp tmpdir st=0
+
+    [[ -z $snmysqlhost || -z $snmysqlpass ]] && return 1
+    [[ $snmysqlhost == localhost || $snmysqlhost == 127.0.0.1 ]] && return 1
+    command -v curl >/dev/null 2>&1 || return 1
+    command -v jq >/dev/null 2>&1 || return 1
+
+    tmpdir=$(mktemp -d) || return 1
+    csr="${tmpdir}/node.csr"
+    # A fresh keypair each time. The node has no certificate to preserve
+    # compatibility with -- unlike the communication key, nothing has pinned
+    # this one.
+    openssl genrsa -out "${tmpdir}/node.key" 4096 >>$error_log 2>&1 || st=1
+    # The subject is a formality: the master ignores the names in this request
+    # entirely and issues for what its own record of this node says. Sending
+    # them anyway keeps the CSR well-formed and readable in a log.
+    openssl req -new -sha256 -key "${tmpdir}/node.key" -out "$csr" \
+        -subj "/CN=${hostname:-$ipaddress}" >>$error_log 2>&1 || st=1
+    if [[ $st -ne 0 ]]; then
+        rm -rf "$tmpdir" >>$error_log 2>&1
+        return 1
+    fi
+    # openssl base64 -A rather than base64 -w0: busybox base64 has no -w.
+    b64=$(openssl base64 -A -in "$csr" 2>>$error_log)
+    # Exactly the bytes the endpoint hashes: type, LF, the base64 body, and
+    # nothing after it. printf, not echo, because echo appends a newline and
+    # the two sides would then disagree by one byte and every request would be
+    # rejected as a bad signature.
+    mac=$(printf '%s\n%s' "$type" "$b64" \
+        | openssl dgst -sha256 -hmac "$snmysqlpass" -hex 2>>$error_log \
+        | awk '{print $NF}')
+    resp=$(curl -sS -k -X POST \
+        -d "type=${type}" \
+        -d "hmac=${mac}" \
+        --data-urlencode "csr=${b64}" \
+        "${httpproto:-http}://${snmysqlhost}${webroot}service/nodecert.php" 2>>$error_log)
+
+    if [[ -z $resp ]] || ! echo "$resp" | jq -e '.leaf' >/dev/null 2>&1; then
+        # Surface the master's own explanation when it gave one -- "no storage
+        # node is registered at this address" is a different problem from "the
+        # master is too old", and they need different fixes.
+        local why
+        why=$(echo "$resp" | jq -r '.error // empty' 2>/dev/null)
+        [[ -n $why ]] && echo " * The master declined to issue a ${type} certificate: ${why}"
+        rm -rf "$tmpdir" >>$error_log 2>&1
+        return 1
+    fi
+    echo "$resp" | jq -r '.leaf'  > "$pemout" 2>>$error_log || st=1
+    echo "$resp" | jq -r '.chain' > "$chainout" 2>>$error_log || st=1
+    cp -f "${tmpdir}/node.key" "$keyout" >>$error_log 2>&1 || st=1
+    rm -rf "$tmpdir" >>$error_log 2>&1
+    [[ $st -ne 0 ]] && return 1
+    # A truncated or empty body passes the jq check above but produces a file
+    # openssl cannot read, so confirm the certificate before the vhost is
+    # pointed at it.
+    openssl x509 -in "$pemout" -noout >/dev/null 2>&1 || return 1
+    chmod 0600 "$keyout" >>$error_log 2>&1
+    chmod 0644 "$pemout" "$chainout" >>$error_log 2>&1
+    return 0
+}
+# Replace this node's self-signed web certificate with one the master issued.
+#
+# Runs LATE, after registerStorageNode, and that ordering is the whole reason
+# this is a separate step rather than part of createSSLCA. The master will only
+# issue to a node it already knows about, and a node registers itself at the
+# very end of its own install -- so asking from inside createSSLCA meant every
+# first install was refused, fell back to self-signed, and only picked up a
+# real certificate on some later run.
+#
+# It writes to the paths the vhost was already given, so nothing has to be
+# rewritten and the certificate takes effect on a reload rather than a
+# reinstall.
+_installNodeWebCert() {
+    [[ $installtype == [Ss] ]] || return 0
+    [[ -n $sslprivkey && -n $sslpubcert ]] || return 0
+
+    local chain="$(_pkiZoneDir web)/.nodeChain.pem"
+    # Already issued and still good: nothing to do. Without this, every upgrade
+    # would mint a new keypair and a new certificate for no reason.
+    if [[ -f $chain && -f $sslpubcert ]] && \
+        openssl verify -CAfile "$chain" "$sslpubcert" >>$error_log 2>&1; then
+        return 0
+    fi
+    dots "Requesting a web certificate from the master"
+    if _requestNodeCert web "$sslprivkey" "$sslpubcert" "$chain"; then
+        sslcachain="$chain"
+        echo "Done"
+        # The vhost already points at these paths, so a reload is all that is
+        # needed -- and is needed, or the node keeps serving the old
+        # certificate from memory until something else restarts it.
+        systemctl reload "$webserver" >>$error_log 2>&1 || \
+            systemctl restart "$webserver" >>$error_log 2>&1
+    else
+        echo "Skipped"
+        echo " * This node keeps its own self-signed certificate, which is what"
+        echo "   storage nodes have always used and works exactly as before. It"
+        echo "   just means the certificate is trusted only where it has been"
+        echo "   installed by hand."
+        echo " * Update the master to this version and re-run the installer here"
+        echo "   to have it issued from the FOG Web CA instead."
+    fi
+}
 # Put the PKI private keys back under root's control, and keep them there.
 #
 # Called AFTER configureSnapins, which is the whole point. The historic layout

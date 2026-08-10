@@ -1012,12 +1012,18 @@ while [[ -z $blGo ]]; do
                     linkOptFogDir
                     installUtilities
                     if [[ $bluseralreadyexists == 1 ]]; then
+                        # Already registered, so the master will answer.
+                        _installNodeWebCert
                         echo
                         echo "\n * Upgrade complete\n"
                         echo
                     else
                         registerStorageNode
                         updateStorageNodeCredentials
+                        # AFTER registration: the master only issues to a node
+                        # it already knows, and this is the first point in a
+                        # fresh node install where that is true.
+                        _installNodeWebCert
                         [[ -n $snmysqlhost ]] && fogserver=$snmysqlhost || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
@@ -1088,6 +1094,10 @@ while [[ -z $blGo ]]; do
                     # is what used to leave the CA private key readable by the
                     # web user. Running it earlier has no effect at all.
                     _hardenPkiPermissions
+                    # Master only, and after the permissions above so the
+                    # sudoers rule is the only route the web tier has to the
+                    # CA keys rather than one of two.
+                    _installNodeCertSigner
                     configureUDPCast
                     installInitScript
                     installFOGServices
