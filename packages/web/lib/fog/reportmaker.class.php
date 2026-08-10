@@ -184,148 +184,148 @@ class ReportMaker extends FOGBase
         );
         if (isset($_POST['nojson']) || true === $nojson) {
             switch ($intType) {
-            case 0:
-                echo implode("\n", (array)$this->_strHTML);
-                break;
-            case 1:
-                $filename = $this->_filename;
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=$filename.csv");
-                echo implode((array) $this->_strLine);
-                unset($filename, $this->_strLine);
-                break;
-            case 2:
-                $filename = $this->_filename;
-                $htmlfile = sprintf(
-                    '%s.html',
-                    $filename
-                );
-                $html = sprintf(
-                    '<html><body>%s</body></html>',
-                    implode((array)$this->_strHTML)
-                );
-                $logoimage = trim(
-                    self::getSetting('FOG_CLIENT_BANNER_IMAGE')
-                );
-                if ($logoimage) {
-                    $logoimage = sprintf(
-                        '--logoimage %s',
-                        escapeshellarg(
-                            sprintf(
-                                'http%s://%s/fog/management/other/%s',
-                                (
-                                    filter_input(INPUT_SERVER, 'HTTPS') ?
-                                    's' :
-                                    ''
-                                ),
-                                filter_input(INPUT_SERVER, 'HTTP_HOST'),
-                                $logoimage
-                            )
-                        )
-                    );
-                }
-                $cmd = array(
-                    'htmldoc',
-                    '--webpage',
-                    '--quiet',
-                    '--gray',
-                    $logoimage,
-                    '--header l',
-                    '--footer D1/1',
-                    '--size letter',
-                    '-t pdf14',
-                    '--no-compression',
-                    $htmlfile
-                );
-                $cmd = implode(' ', (array)$cmd);
-                if (!$handle = fopen($htmlfile, 'w')) {
+                case 0:
+                    echo implode("\n", (array)$this->_strHTML);
                     break;
-                }
-                if (!fwrite($handle, $html)) {
-                    fclose($handle);
-                    unlink($htmlfile);
-                }
-                fclose($handle);
-                ob_start();
-                passthru($cmd);
-                $pdf = ob_get_clean();
-                unlink($htmlfile);
-                header('Content-type: application/pdf');
-                header("Content-Disposition: attachment; filename=$filename.pdf");
-                echo $pdf;
-                unset(
-                    $pdf,
-                    $html,
-                    $htmlfile,
-                    $this->_strHTML
-                );
-                break;
-            case 3:
-                $SchemaSave = self::getClass('Schema');
-                $backup_name = sprintf(
-                    'fog_backup_%s.sql',
-                    self::formatTime('', 'Ymd_His')
-                );
-                $SchemaSave->exportdb($backup_name);
-                unset($SchemaSave);
-                break;
-            case 4:
-                header('Content-Type: application/octet-stream');
-                header(
-                    'Content-Disposition: attachment; '
-                    ."filename={$type}_export.csv"
-                );
-                echo implode((array) $this->_strLine);
-                unset($this->_strLine);
-                break;
-            case 5:
-                while (ob_get_level()) {
-                    ob_end_clean();
-                }
-                $filename = 'fog_backup.sql';
-                $path = sprintf(
-                    '%s%smanagement%sother%s',
-                    BASEPATH,
-                    DS,
-                    DS,
-                    DS
-                );
-                $filepath = "{$path}{$filename}";
-                $ip = str_replace('p:', '', DATABASE_HOST);
-                if (false === filter_var($ip, FILTER_VALIDATE_IP)) {
-                    $ip = gethostbyname($ip);
-                }
-                if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-                    return;
-                }
-                $cmd = sprintf(
-                    "mysqldump --opt -u%s -h'$ip' %s > $filepath",
-                    escapeshellarg(DATABASE_USERNAME),
-                    escapeshellarg(DATABASE_NAME)
-                );
-                if (DATABASE_PASSWORD) {
-                    $cmd = sprintf(
-                        "mysqldump --opt -u%s -p%s -h'$ip' %s > %s",
-                        escapeshellarg(DATABASE_USERNAME),
-                        escapeshellarg(DATABASE_PASSWORD),
-                        escapeshellarg(DATABASE_NAME),
-                        escapeshellarg($filepath)
+                case 1:
+                    $filename = $this->_filename;
+                    header('Content-Type: application/octet-stream');
+                    header("Content-Disposition: attachment; filename=$filename.csv");
+                    echo implode((array) $this->_strLine);
+                    unset($filename, $this->_strLine);
+                    break;
+                case 2:
+                    $filename = $this->_filename;
+                    $htmlfile = sprintf(
+                        '%s.html',
+                        $filename
                     );
-                }
-                exec($cmd);
-                if (($fh = fopen($filepath, 'rb')) === false) {
-                    return;
-                }
-                header("X-Sendfile: $filepath");
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=$filename");
-                while (feof($fh) === false) {
-                    echo fgets($fh);
-                    flush();
-                }
-                fclose($fh);
-                $cmd = sprintf('rm -rf %s', escapeshellarg($filepath));
-                exec($cmd);
+                    $html = sprintf(
+                        '<html><body>%s</body></html>',
+                        implode((array)$this->_strHTML)
+                    );
+                    $logoimage = trim(
+                        self::getSetting('FOG_CLIENT_BANNER_IMAGE')
+                    );
+                    if ($logoimage) {
+                        $logoimage = sprintf(
+                            '--logoimage %s',
+                            escapeshellarg(
+                                sprintf(
+                                    'http%s://%s/fog/management/other/%s',
+                                    (
+                                        filter_input(INPUT_SERVER, 'HTTPS') ?
+                                        's' :
+                                        ''
+                                    ),
+                                    filter_input(INPUT_SERVER, 'HTTP_HOST'),
+                                    $logoimage
+                                )
+                            )
+                        );
+                    }
+                    $cmd = array(
+                        'htmldoc',
+                        '--webpage',
+                        '--quiet',
+                        '--gray',
+                        $logoimage,
+                        '--header l',
+                        '--footer D1/1',
+                        '--size letter',
+                        '-t pdf14',
+                        '--no-compression',
+                        $htmlfile
+                    );
+                    $cmd = implode(' ', (array)$cmd);
+                    if (!$handle = fopen($htmlfile, 'w')) {
+                        break;
+                    }
+                    if (!fwrite($handle, $html)) {
+                        fclose($handle);
+                        unlink($htmlfile);
+                    }
+                    fclose($handle);
+                    ob_start();
+                    passthru($cmd);
+                    $pdf = ob_get_clean();
+                    unlink($htmlfile);
+                    header('Content-type: application/pdf');
+                    header("Content-Disposition: attachment; filename=$filename.pdf");
+                    echo $pdf;
+                    unset(
+                        $pdf,
+                        $html,
+                        $htmlfile,
+                        $this->_strHTML
+                    );
+                    break;
+                case 3:
+                    $SchemaSave = self::getClass('Schema');
+                    $backup_name = sprintf(
+                        'fog_backup_%s.sql',
+                        self::formatTime('', 'Ymd_His')
+                    );
+                    $SchemaSave->exportdb($backup_name);
+                    unset($SchemaSave);
+                    break;
+                case 4:
+                    header('Content-Type: application/octet-stream');
+                    header(
+                        'Content-Disposition: attachment; '
+                        ."filename={$type}_export.csv"
+                    );
+                    echo implode((array) $this->_strLine);
+                    unset($this->_strLine);
+                    break;
+                case 5:
+                    while (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    $filename = 'fog_backup.sql';
+                    $path = sprintf(
+                        '%s%smanagement%sother%s',
+                        BASEPATH,
+                        DS,
+                        DS,
+                        DS
+                    );
+                    $filepath = "{$path}{$filename}";
+                    $ip = str_replace('p:', '', DATABASE_HOST);
+                    if (false === filter_var($ip, FILTER_VALIDATE_IP)) {
+                        $ip = gethostbyname($ip);
+                    }
+                    if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+                        return;
+                    }
+                    $cmd = sprintf(
+                        "mysqldump --opt -u%s -h'$ip' %s > $filepath",
+                        escapeshellarg(DATABASE_USERNAME),
+                        escapeshellarg(DATABASE_NAME)
+                    );
+                    if (DATABASE_PASSWORD) {
+                        $cmd = sprintf(
+                            "mysqldump --opt -u%s -p%s -h'$ip' %s > %s",
+                            escapeshellarg(DATABASE_USERNAME),
+                            escapeshellarg(DATABASE_PASSWORD),
+                            escapeshellarg(DATABASE_NAME),
+                            escapeshellarg($filepath)
+                        );
+                    }
+                    exec($cmd);
+                    if (($fh = fopen($filepath, 'rb')) === false) {
+                        return;
+                    }
+                    header("X-Sendfile: $filepath");
+                    header('Content-Type: application/octet-stream');
+                    header("Content-Disposition: attachment; filename=$filename");
+                    while (feof($fh) === false) {
+                        echo fgets($fh);
+                        flush();
+                    }
+                    fclose($fh);
+                    $cmd = sprintf('rm -rf %s', escapeshellarg($filepath));
+                    exec($cmd);
             }
         } else {
             echo json_encode(

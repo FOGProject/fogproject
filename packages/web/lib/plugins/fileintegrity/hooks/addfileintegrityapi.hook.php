@@ -142,14 +142,14 @@ class AddFileintegrityAPI extends Hook
             return;
         }
         switch ($arguments['classname']) {
-        case 'location':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'storagenode' => $arguments['class']->get('storagenode')->get()
-                )
-            );
-            break;
+            case 'location':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    array(
+                        'storagenode' => $arguments['class']->get('storagenode')->get()
+                    )
+                );
+                break;
         }
     }
 }

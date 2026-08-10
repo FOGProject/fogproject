@@ -714,15 +714,15 @@ class UserManagementPage extends FOGPage
         global $tab;
         try {
             switch ($tab) {
-            case 'user-general':
-                $this->userGeneralPost();
-                break;
-            case 'user-changepw':
-                $this->userChangePWPost();
-                break;
-            case 'user-api':
-                $this->userAPIPost();
-                break;
+                case 'user-general':
+                    $this->userGeneralPost();
+                    break;
+                case 'user-changepw':
+                    $this->userChangePWPost();
+                    break;
+                case 'user-api':
+                    $this->userAPIPost();
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('User update failed!'));

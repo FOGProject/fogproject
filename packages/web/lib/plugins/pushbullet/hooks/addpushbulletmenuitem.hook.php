@@ -119,7 +119,7 @@ class AddPushbulletMenuItem extends Hook
         $arguments['menu'] = array(
             'list' => sprintf(
                 self::$foglang['ListAll'],
-                 _('Pushbullet Accounts')
+                _('Pushbullet Accounts')
             ),
             'add' => _('Link Pushbullet Account'),
 

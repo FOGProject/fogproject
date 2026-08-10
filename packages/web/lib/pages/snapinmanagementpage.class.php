@@ -764,7 +764,8 @@ class SnapinManagementPage extends FOGPage
             $dest = sprintf(
                 '/%s/%s',
                 trim(
-                    $StorageNode->get('snapinpath'), '/'
+                    $StorageNode->get('snapinpath'),
+                    '/'
                 ),
                 $snapinfile
             );
@@ -1506,7 +1507,8 @@ class SnapinManagementPage extends FOGPage
         $dest = sprintf(
             '/%s/%s',
             trim(
-                $StorageNode->get('snapinpath'), '/'
+                $StorageNode->get('snapinpath'),
+                '/'
             ),
             $snapinfile
         );
@@ -1624,12 +1626,12 @@ class SnapinManagementPage extends FOGPage
         global $tab;
         try {
             switch ($tab) {
-            case 'snap-gen':
-                $this->snapinGeneralPost();
-                break;
-            case 'snap-storage':
-                $this->snapinStoragegroupsPost();
-                break;
+                case 'snap-gen':
+                    $this->snapinGeneralPost();
+                    break;
+                case 'snap-storage':
+                    $this->snapinStoragegroupsPost();
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Snapin update failed!'));

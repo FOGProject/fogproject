@@ -436,8 +436,8 @@ class FOGSubMenu extends FOGBase
         if (count($this->mainitems[$node]) < 1) {
             return;
         }
-	if ($this->mainitems[$node]) {
-	    echo '<ul class="treeview-menu">';
+        if ($this->mainitems[$node]) {
+            echo '<ul class="treeview-menu">';
             foreach ((array)$this->mainitems[$node] as $title => &$data) {
                 foreach ((array) $data as $label => &$link) {
                     $hash = '';
@@ -528,7 +528,7 @@ class FOGSubMenu extends FOGBase
                 }
                 unset($data, $title);
             }
-	    echo '</ul>';
+            echo '</ul>';
         }
         return ob_get_clean();
     }

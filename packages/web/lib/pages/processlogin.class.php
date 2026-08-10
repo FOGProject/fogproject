@@ -105,22 +105,22 @@ class ProcessLogin extends FOGPage
     private function _transLang()
     {
         switch ($this->_lang) {
-        case 'de_DE':
-            return self::$foglang['Language']['de'];
-        case 'en_US':
-            return self::$foglang['Language']['en'];
-        case 'es_ES':
-            return self::$foglang['Language']['es'];
-        case 'fr_FR':
-            return self::$foglang['Language']['fr'];
-        case 'it_IT':
-            return self::$foglang['Language']['it'];
-        case 'pt_BR':
-            return self::$foglang['Language']['pt'];
-        case 'zh_CN':
-            return self::$foglang['Language']['zh'];
-        default:
-            return self::$foglang['Language'][$this->_defaultLang()];
+            case 'de_DE':
+                return self::$foglang['Language']['de'];
+            case 'en_US':
+                return self::$foglang['Language']['en'];
+            case 'es_ES':
+                return self::$foglang['Language']['es'];
+            case 'fr_FR':
+                return self::$foglang['Language']['fr'];
+            case 'it_IT':
+                return self::$foglang['Language']['it'];
+            case 'pt_BR':
+                return self::$foglang['Language']['pt'];
+            case 'zh_CN':
+                return self::$foglang['Language']['zh'];
+            default:
+                return self::$foglang['Language'][$this->_defaultLang()];
         }
     }
     /**
@@ -137,29 +137,29 @@ class ProcessLogin extends FOGPage
             $this->_lang = self::$locale = $this->_transLang();
         }
         switch ($this->_lang) {
-        case self::$foglang['Language']['de']:
-            $this->_lang = self::$locale = 'de_DE';
-            break;
-        case self::$foglang['Language']['en']:
-            $this->_lang = self::$locale = 'en_US';
-            break;
-        case self::$foglang['Language']['es']:
-            $this->_lang = self::$locale = 'es_ES';
-            break;
-        case self::$foglang['Language']['fr']:
-            $this->_lang = self::$locale = 'fr_FR';
-            break;
-        case self::$foglang['Language']['it']:
-            $this->_lang = self::$locale = 'it_IT';
-            break;
-        case self::$foglang['Language']['pt']:
-            $this->_lang = self::$locale = 'pt_BR';
-            break;
-        case self::$foglang['Language']['zh']:
-            $this->_lang = self::$locale = 'zh_CN';
-            break;
-        default:
-            $this->_lang = self::$locale = $this->_transLang();
+            case self::$foglang['Language']['de']:
+                $this->_lang = self::$locale = 'de_DE';
+                break;
+            case self::$foglang['Language']['en']:
+                $this->_lang = self::$locale = 'en_US';
+                break;
+            case self::$foglang['Language']['es']:
+                $this->_lang = self::$locale = 'es_ES';
+                break;
+            case self::$foglang['Language']['fr']:
+                $this->_lang = self::$locale = 'fr_FR';
+                break;
+            case self::$foglang['Language']['it']:
+                $this->_lang = self::$locale = 'it_IT';
+                break;
+            case self::$foglang['Language']['pt']:
+                $this->_lang = self::$locale = 'pt_BR';
+                break;
+            case self::$foglang['Language']['zh']:
+                $this->_lang = self::$locale = 'zh_CN';
+                break;
+            default:
+                $this->_lang = self::$locale = $this->_transLang();
         }
     }
     /**
@@ -297,8 +297,8 @@ class ProcessLogin extends FOGPage
         echo '  <div class="login-box-body">';
         echo '      <p class="login-box-msg">Sign in to start your session</p>';
         
-        echo '      <form method="post" action="'; 
-        echo $this->formAction; 
+        echo '      <form method="post" action="';
+        echo $this->formAction;
         echo '">';
 
         echo '          <div class="form-group has-feedback">';

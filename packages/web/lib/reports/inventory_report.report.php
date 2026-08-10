@@ -72,24 +72,24 @@ class Inventory_Report extends ReportManagementPage
             );
             foreach (self::$inventoryCsvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Host ID'):
-                    $this->ReportMaker->addCSVCell($Host->id);
-                    break;
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell($Host->name);
-                    break;
-                case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell($Host->primac);
-                    break;
-                case _('Host Desc'):
-                    $this->ReportMaker->addCSVCell($Host->description);
-                    break;
-                case _('Memory'):
-                    $this->ReportMaker->addCSVCell($Inventory->memory);
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Inventory->$classGet);
-                    break;
+                    case _('Host ID'):
+                        $this->ReportMaker->addCSVCell($Host->id);
+                        break;
+                    case _('Host name'):
+                        $this->ReportMaker->addCSVCell($Host->name);
+                        break;
+                    case _('Host MAC'):
+                        $this->ReportMaker->addCSVCell($Host->primac);
+                        break;
+                    case _('Host Desc'):
+                        $this->ReportMaker->addCSVCell($Host->description);
+                        break;
+                    case _('Memory'):
+                        $this->ReportMaker->addCSVCell($Inventory->memory);
+                        break;
+                    default:
+                        $this->ReportMaker->addCSVCell($Inventory->$classGet);
+                        break;
                 }
                 unset($classGet, $head);
             }

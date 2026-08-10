@@ -48,88 +48,88 @@ class StorageManagementPage extends FOGPage
         global $sub;
         global $id;
         switch ($sub) {
-        case 'edit':
-        case 'delete':
-        case 'deleteStorageNode':
-            if ($id) {
-                if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
-                    unset($this->obj);
-                    self::setMessage(
+            case 'edit':
+            case 'delete':
+            case 'deleteStorageNode':
+                if ($id) {
+                    if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
+                        unset($this->obj);
+                        self::setMessage(
+                            sprintf(
+                                _('%s ID %s is not valid'),
+                                _('Storage Node'),
+                                $id
+                            )
+                        );
+                        self::redirect(sprintf('?node=%s', $this->node));
+                    }
+                    $this->subMenu = array(
                         sprintf(
-                            _('%s ID %s is not valid'),
-                            _('Storage Node'),
+                            '?node=%s&sub=%s&id=%s#node-general',
+                            $this->node,
+                            $sub,
                             $id
-                        )
-                    );
-                    self::redirect(sprintf('?node=%s', $this->node));
-                }
-                $this->subMenu = array(
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s#node-general',
-                        $this->node,
-                        $sub,
-                        $id
-                    ) => self::$foglang['General'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'deleteStorageNode',
-                        $id
-                    ) => self::$foglang['Delete']
-                );
-                $this->notes = array(
-                    sprintf(
-                        '%s %s',
-                        self::$foglang['Storage'],
-                        self::$foglang['Node']
-                    ) => $this->obj->get('name'),
-                    self::$foglang['ImagePath'] => $this->obj->get('path'),
-                    self::$foglang['FTPPath'] => $this->obj->get('ftppath'),
-                );
-            }
-            break;
-        case 'editStorageGroup':
-        case 'deleteStorageGroup':
-            if ($id) {
-                if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
-                    unset($this->obj);
-                    self::setMessage(
+                        ) => self::$foglang['General'],
                         sprintf(
-                            _('%s ID %s is not valid'),
-                            $this->childClass,
+                            '?node=%s&sub=%s&id=%s',
+                            $this->node,
+                            'deleteStorageNode',
                             $id
-                        )
+                        ) => self::$foglang['Delete']
                     );
-                    self::redirect(
+                    $this->notes = array(
                         sprintf(
-                            '?node=%s',
-                            $this->node
-                        )
+                            '%s %s',
+                            self::$foglang['Storage'],
+                            self::$foglang['Node']
+                        ) => $this->obj->get('name'),
+                        self::$foglang['ImagePath'] => $this->obj->get('path'),
+                        self::$foglang['FTPPath'] => $this->obj->get('ftppath'),
                     );
                 }
-                $this->subMenu = array(
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s#group-general',
-                        $this->node,
-                        $sub,
-                        $id
-                    ) => self::$foglang['General'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'deleteStorageGroup',
-                        $id
-                    ) => self::$foglang['Delete']
-                );
-                $this->notes = array(
-                    sprintf(
-                        '%s %s',
-                        self::$foglang['Storage'],
-                        self::$foglang['Group']
-                    ) => $this->obj->get('name')
-                );
-            }
-            break;
+                break;
+            case 'editStorageGroup':
+            case 'deleteStorageGroup':
+                if ($id) {
+                    if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
+                        unset($this->obj);
+                        self::setMessage(
+                            sprintf(
+                                _('%s ID %s is not valid'),
+                                $this->childClass,
+                                $id
+                            )
+                        );
+                        self::redirect(
+                            sprintf(
+                                '?node=%s',
+                                $this->node
+                            )
+                        );
+                    }
+                    $this->subMenu = array(
+                        sprintf(
+                            '?node=%s&sub=%s&id=%s#group-general',
+                            $this->node,
+                            $sub,
+                            $id
+                        ) => self::$foglang['General'],
+                        sprintf(
+                            '?node=%s&sub=%s&id=%s',
+                            $this->node,
+                            'deleteStorageGroup',
+                            $id
+                        ) => self::$foglang['Delete']
+                    );
+                    $this->notes = array(
+                        sprintf(
+                            '%s %s',
+                            self::$foglang['Storage'],
+                            self::$foglang['Group']
+                        ) => $this->obj->get('name')
+                    );
+                }
+                break;
         }
     }
     /**

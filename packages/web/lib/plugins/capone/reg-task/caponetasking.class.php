@@ -50,77 +50,77 @@ class CaponeTasking extends FOGBase
     {
         parent::__construct();
         switch (strtolower($_REQUEST['action'])) {
-        case 'dmi':
-            echo self::getSetting('FOG_PLUGIN_CAPONE_DMI');
-            break;
-        case 'imagelookup':
-            if (!isset($_REQUEST['key'])
-                || empty($_REQUEST['key'])
-            ) {
+            case 'dmi':
+                echo self::getSetting('FOG_PLUGIN_CAPONE_DMI');
                 break;
-            }
-            try {
-                $strSetup = "%s|%s|%s|%s|%s|%s|%s";
-                ob_start();
-                foreach ((array)self::getClass('CaponeManager')
-                    ->find(
-                        array(
-                            'key' => trim(base64_decode($_REQUEST['key']))
-                        )
-                    ) as &$Capone
+            case 'imagelookup':
+                if (!isset($_REQUEST['key'])
+                    || empty($_REQUEST['key'])
                 ) {
-                    $Image = $Capone->getImage();
-                    if (!$Image->isValid()) {
-                        continue;
-                    }
-                    $OS = $Image->getOS();
-                    if (!$OS->isValid()) {
-                        continue;
-                    }
-                    $StorageNode = $Image
-                        ->getStorageGroup()
-                        ->getOptimalStorageNode();
-                    if (!$StorageNode->isValid()) {
-                        continue;
-                    }
-                    $Image = $Capone->getImage();
-                    $path = $Image->get('path');
-                    $osid = $Image->get('osID');
-                    $itid = $Image->get('imageTypeID');
-                    $ptid = $Image->getPartitionType();
-                    $format = $Image->get('format');
-                    printf(
-                        "%s\n",
-                        base64_encode(
-                            sprintf(
-                                $strSetup,
-                                $path,
-                                $osid,
-                                $this->imgTypes[$itid],
-                                $ptid,
-                                (int)$format,
-                                sprintf(
-                                    '%s:%s',
-                                    $StorageNode->get('ip'),
-                                    $StorageNode->get('path')
-                                ),
-                                $StorageNode->get('ip')
+                    break;
+                }
+                try {
+                    $strSetup = "%s|%s|%s|%s|%s|%s|%s";
+                    ob_start();
+                    foreach ((array)self::getClass('CaponeManager')
+                        ->find(
+                            array(
+                                'key' => trim(base64_decode($_REQUEST['key']))
                             )
+                        ) as &$Capone
+                    ) {
+                        $Image = $Capone->getImage();
+                        if (!$Image->isValid()) {
+                            continue;
+                        }
+                        $OS = $Image->getOS();
+                        if (!$OS->isValid()) {
+                            continue;
+                        }
+                        $StorageNode = $Image
+                            ->getStorageGroup()
+                            ->getOptimalStorageNode();
+                        if (!$StorageNode->isValid()) {
+                            continue;
+                        }
+                        $Image = $Capone->getImage();
+                        $path = $Image->get('path');
+                        $osid = $Image->get('osID');
+                        $itid = $Image->get('imageTypeID');
+                        $ptid = $Image->getPartitionType();
+                        $format = $Image->get('format');
+                        printf(
+                            "%s\n",
+                            base64_encode(
+                                sprintf(
+                                    $strSetup,
+                                    $path,
+                                    $osid,
+                                    $this->imgTypes[$itid],
+                                    $ptid,
+                                    (int)$format,
+                                    sprintf(
+                                        '%s:%s',
+                                        $StorageNode->get('ip'),
+                                        $StorageNode->get('path')
+                                    ),
+                                    $StorageNode->get('ip')
+                                )
+                            )
+                        );
+                        unset($Capone);
+                    }
+                    throw new Exception(
+                        (
+                            ob_get_contents() ?
+                            ob_get_clean() :
+                            base64_encode(null)
                         )
                     );
-                    unset($Capone);
+                } catch (Exception $e) {
+                    echo $e->getMessage();
                 }
-                throw new Exception(
-                    (
-                        ob_get_contents() ?
-                        ob_get_clean() :
-                        base64_encode(null)
-                    )
-                );
-            } catch (Exception $e) {
-                echo $e->getMessage();
-            }
-            break;
+                break;
         }
     }
 }

@@ -114,7 +114,7 @@ class Page extends FOGBase
             ->addCSS('bower_components/select2/dist/css/select2.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
             ->addCSS('dist/css/skins/_all-skins.min.css')
-            ->addCSS('dist/css/font.css');            
+            ->addCSS('dist/css/font.css');
         if (!isset($node)
             || !$node
         ) {
@@ -242,19 +242,19 @@ class Page extends FOGBase
                     );
                     //$node = $oldNode;
                     echo '<li class="';
-                    echo (
+                    echo(
                         count($subItems) > 0 ?
                         'treeview ' :
                         ''
                     );
-                    echo (
+                    echo(
                         $activelink ?
                         'active' :
                         ''
                     );
                     echo '">';
                     echo '  <a href="';
-                    echo (
+                    echo(
                         count($subItems) > 0 ?
                         '#' :
                         '?node=' . $link
@@ -330,8 +330,8 @@ class Page extends FOGBase
                 }
                 unset($jsFilepath);
             },
-                (array)$filepaths
-            );
+            (array)$filepaths
+        );
         $pluginfilepaths = array(
             "../lib/plugins/{$node}/js/fog.{$node}.js",
             "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
@@ -343,8 +343,8 @@ class Page extends FOGBase
                 }
                 unset($pluginfilepath);
             },
-                (array)$pluginfilepaths
-            );
+            (array)$pluginfilepaths
+        );
         if ($this->isHomepage
             && ($node == 'home'
             || !$node)
@@ -372,8 +372,8 @@ class Page extends FOGBase
                 }
                 unset($path);
             },
-                (array)$files
-            );
+            (array)$files
+        );
     }
     /**
      * Sets the title

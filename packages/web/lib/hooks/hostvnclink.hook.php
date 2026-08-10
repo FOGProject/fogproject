@@ -85,7 +85,8 @@ class HostVNCLink extends Hook
         $arguments['templates'][]
             = sprintf(
                 '<a href="vnc://%s:%d" target="_blank" title='
-                . '"%s: ${host_name}">VNC</a>', '${host_name}',
+                . '"%s: ${host_name}">VNC</a>',
+                '${host_name}',
                 $this->port,
                 _('Open VNC connection to')
             );

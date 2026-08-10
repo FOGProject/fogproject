@@ -54,10 +54,11 @@ echo '<![endif]-->';
 unset($this->stylesheets);
 echo '</head>';
 echo '<body class="';
-if (!self::$FOGUser->isValid())
+if (!self::$FOGUser->isValid()) {
     echo 'hold-transition login-page';
-else
-echo 'hold-transition skin-blue sidebar-mini';
+} else {
+    echo 'hold-transition skin-blue sidebar-mini';
+}
 echo '">';
 
 if (self::$FOGUser->isValid()) {
@@ -103,7 +104,7 @@ if (self::$FOGUser->isValid()) {
     echo '              <li class="header">MAIN NAVIGATION</li>';
     echo $this->menu;
     echo '              <li class="header">RESOURCES</li>';
-    echo '              <li><a href="https://sourceforge.net/donate/index.php?group_id=201099"><i class="fa fa-money"></i> <span>Donate</span></a></li>';    
+    echo '              <li><a href="https://sourceforge.net/donate/index.php?group_id=201099"><i class="fa fa-money"></i> <span>Donate</span></a></li>';
     echo '              <li><a href="https://news.fogproject.org"><i class="fa fa-bullhorn"></i> <span>News</span></a></li>';
     echo '              <li><a href="https://forums.fogproject.org"><i class="fa fa-users"></i> <span>Forums</span></a></li>';
     echo '              <li><a href="https://wiki.fogproject.org"><i class="fa fa-book"></i> <span>Wiki</span></a></li>';
@@ -133,7 +134,7 @@ if (self::$FOGUser->isValid()) {
     echo '      <strong>Copyright &copy; 2012-2017 <a href="https://fogproject.org">FOG Project</a>.</strong> All rights reserved.';
     echo '  </footer>';
     echo '</div>';
-    
+
 } else {
     echo $this->body;
 }

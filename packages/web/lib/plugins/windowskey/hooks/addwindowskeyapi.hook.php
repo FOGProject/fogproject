@@ -131,28 +131,28 @@ class AddWindowskeyAPI extends Hook
         }
         $find = Route::getsearchbody($arguments['classname']);
         switch ($arguments['classname']) {
-        case 'windowskey':
-            $arguments['data'][$arguments['classname'].'s'] = array();
-            $arguments['data']['count'] = 0;
-            foreach ((array)$arguments['classman']->find($find) as &$windowskey) {
-                $arguments['data'][$arguments['classname'].'s'][]
-                    = $windowskey->get();
-                $arguments['data']['count']++;
-                unset($windowskey);
-            }
-            break;
-        case 'windowskeyassociation':
-            $arguments['data'][$arguments['classname'].'s'] = array();
-            $arguments['data']['count'] = 0;
-            foreach ((array)$arguments['classman']
-                ->find($find) as &$windowskeyassoc
-            ) {
-                $arguments['data'][$arguments['classname'].'s'][]
-                    = $windowskeyassoc->get();
-                $arguments['data']['count']++;
-                unset($windowskeyassoc);
-            }
-            break;
+            case 'windowskey':
+                $arguments['data'][$arguments['classname'].'s'] = array();
+                $arguments['data']['count'] = 0;
+                foreach ((array)$arguments['classman']->find($find) as &$windowskey) {
+                    $arguments['data'][$arguments['classname'].'s'][]
+                        = $windowskey->get();
+                    $arguments['data']['count']++;
+                    unset($windowskey);
+                }
+                break;
+            case 'windowskeyassociation':
+                $arguments['data'][$arguments['classname'].'s'] = array();
+                $arguments['data']['count'] = 0;
+                foreach ((array)$arguments['classman']
+                    ->find($find) as &$windowskeyassoc
+                ) {
+                    $arguments['data'][$arguments['classname'].'s'][]
+                        = $windowskeyassoc->get();
+                    $arguments['data']['count']++;
+                    unset($windowskeyassoc);
+                }
+                break;
         }
     }
     /**
@@ -168,15 +168,15 @@ class AddWindowskeyAPI extends Hook
             return;
         }
         switch ($arguments['classname']) {
-        case 'windowskeyassoc':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'key' => $arguments['class']->get('key')->get(),
-                    'image' => $arguments['class']->get('image')->get()
-                )
-            );
-            break;
+            case 'windowskeyassoc':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    array(
+                        'key' => $arguments['class']->get('key')->get(),
+                        'image' => $arguments['class']->get('image')->get()
+                    )
+                );
+                break;
         }
     }
 }

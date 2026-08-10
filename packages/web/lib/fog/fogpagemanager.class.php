@@ -92,9 +92,9 @@ class FOGPageManager extends FOGBase
      */
     public function getFOGPageClass($override = '')
     {
-	if (empty($override)) {
-		$override = $this->classValue;
-	}
+        if (empty($override)) {
+            $override = $this->classValue;
+        }
         return $this->_nodes[$override];
     }
     /**

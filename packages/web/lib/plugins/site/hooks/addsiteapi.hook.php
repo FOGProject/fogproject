@@ -123,15 +123,15 @@ class AddSiteAPI extends Hook
             return;
         }
         switch ($arguments['classname']) {
-        case 'sitehostassociation':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'site' => $arguments['class']->get('site')->get(),
-                    'host' => $arguments['class']->get('host')->get()
-                )
-            );
-            break;
+            case 'sitehostassociation':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    array(
+                        'site' => $arguments['class']->get('site')->get(),
+                        'host' => $arguments['class']->get('host')->get()
+                    )
+                );
+                break;
         }
     }
 }

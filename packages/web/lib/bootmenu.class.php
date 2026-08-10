@@ -1786,42 +1786,42 @@ class BootMenu extends FOGBase
             $Send = self::fastmerge($Send, array($params));
         }
         switch ($option->get('id')) {
-        case 1:
-            $Send = self::fastmerge(
-                $Send,
-                array("$this->_bootexittype || goto MENU")
-            );
-            break;
-        case 2:
-            $Send = self::fastmerge(
-                $Send,
-                array(
-                    "$this->_memdisk iso raw",
-                    $this->_memtest,
-                    'boot || goto MENU'
-                )
-            );
-            break;
-        case 11:
-            $Send = self::fastmerge(
-                $Send,
-                array(
-                    "chain -ar $this->_booturl/ipxe/advanced.php || "
-                    . "goto MENU"
-                )
-            );
-            break;
-        default:
-            if (!$params) {
+            case 1:
+                $Send = self::fastmerge(
+                    $Send,
+                    array("$this->_bootexittype || goto MENU")
+                );
+                break;
+            case 2:
                 $Send = self::fastmerge(
                     $Send,
                     array(
-                        "$this->_kernel $this->_loglevel $type",
-                        $this->_initrd,
+                        "$this->_memdisk iso raw",
+                        $this->_memtest,
                         'boot || goto MENU'
                     )
                 );
-            }
+                break;
+            case 11:
+                $Send = self::fastmerge(
+                    $Send,
+                    array(
+                        "chain -ar $this->_booturl/ipxe/advanced.php || "
+                        . "goto MENU"
+                    )
+                );
+                break;
+            default:
+                if (!$params) {
+                    $Send = self::fastmerge(
+                        $Send,
+                        array(
+                            "$this->_kernel $this->_loglevel $type",
+                            $this->_initrd,
+                            'boot || goto MENU'
+                        )
+                    );
+                }
         }
         return $Send;
     }

@@ -370,11 +370,11 @@ class WOLBroadcastManagementPage extends FOGPage
                 array('Broadcast'=> &$this->obj)
             );
         global $tab;
-        try{
+        try {
             switch ($tab) {
-            case 'wol-general':
-                $this->wolGeneralPost();
-                break;
+                case 'wol-general':
+                    $this->wolGeneralPost();
+                    break;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Broadcast update failed!'));

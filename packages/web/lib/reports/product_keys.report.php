@@ -83,30 +83,30 @@ class Product_Keys extends ReportManagementPage
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
-                case _('Image ID'):
-                    $this->ReportMaker->addCSVCell($imgID);
-                    break;
-                case _('Image Name'):
-                    $this->ReportMaker->addCSVCell($imgName);
-                    break;
-                case _('Image Desc'):
-                    $this->ReportMaker->addCSVCell($imgDesc);
-                    break;
-                case _('Host AD Join'):
-                    $this->ReportMaker->addCSVCell(
-                        (
-                            $Host->useAD == 1 ?
-                            _('Yes') :
-                            _('No')
-                        )
-                    );
-                    break;
-                case _('Host Product Key'):
-                    $this->ReportMaker->addCSVCell($productKey);
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Host->$classGet);
-                    break;
+                    case _('Image ID'):
+                        $this->ReportMaker->addCSVCell($imgID);
+                        break;
+                    case _('Image Name'):
+                        $this->ReportMaker->addCSVCell($imgName);
+                        break;
+                    case _('Image Desc'):
+                        $this->ReportMaker->addCSVCell($imgDesc);
+                        break;
+                    case _('Host AD Join'):
+                        $this->ReportMaker->addCSVCell(
+                            (
+                                $Host->useAD == 1 ?
+                                _('Yes') :
+                                _('No')
+                            )
+                        );
+                        break;
+                    case _('Host Product Key'):
+                        $this->ReportMaker->addCSVCell($productKey);
+                        break;
+                    default:
+                        $this->ReportMaker->addCSVCell($Host->$classGet);
+                        break;
                 }
                 unset($classGet);
             }

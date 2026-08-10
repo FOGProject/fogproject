@@ -79,14 +79,14 @@ class DashboardPage extends FOGPage
         global $id;
         $objName = 'StorageNode';
         switch ($sub) {
-        case 'clientcount':
-            $this->obj = new StorageGroup($id);
-            break;
-        case 'diskusage':
-            $this->obj = new StorageNode($id);
-            break;
-        default:
-            $this->obj = new StorageNode();
+            case 'clientcount':
+                $this->obj = new StorageGroup($id);
+                break;
+            case 'diskusage':
+                $this->obj = new StorageNode($id);
+                break;
+            default:
+                $this->obj = new StorageNode();
         }
         if (self::$ajax) {
             return;

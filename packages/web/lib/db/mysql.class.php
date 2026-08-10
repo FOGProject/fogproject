@@ -134,6 +134,7 @@ class MySQL extends DatabaseManager
                         if (!is_numeric($type)) {
                             throw new Exception(_('Row number not set properly'));
                         }
+                        // no break
                     default:
                         self::$result = self::$queryResult->$fetchType($type);
                         break;

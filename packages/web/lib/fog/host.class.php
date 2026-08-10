@@ -157,32 +157,32 @@ class Host extends FOGController
     {
         $key = $this->key($key);
         switch ($key) {
-        case 'mac':
-            if (!($value instanceof MACAddress)) {
-                $value = new MACAddress($value);
-                $value = $value->__toString();
-            }
-            break;
-        case 'additionalMACs':
-        case 'pendingMACs':
-            $newValue = array_map(
-                function (&$mac) {
-                    return new MACAddress($mac);
-                },
-                (array)$value
-            );
-            $value = (array)$newValue;
-            break;
-        case 'snapinjob':
-            if (!($value instanceof SnapinJob)) {
-                $value = new SnapinJob($value);
-            }
-            break;
-        case 'task':
-            if (!($value instanceof Task)) {
-                $value = new Task($value);
-            }
-            break;
+            case 'mac':
+                if (!($value instanceof MACAddress)) {
+                    $value = new MACAddress($value);
+                    $value = $value->__toString();
+                }
+                break;
+            case 'additionalMACs':
+            case 'pendingMACs':
+                $newValue = array_map(
+                    function (&$mac) {
+                        return new MACAddress($mac);
+                    },
+                    (array)$value
+                );
+                $value = (array)$newValue;
+                break;
+            case 'snapinjob':
+                if (!($value instanceof SnapinJob)) {
+                    $value = new SnapinJob($value);
+                }
+                break;
+            case 'task':
+                if (!($value instanceof Task)) {
+                    $value = new Task($value);
+                }
+                break;
         }
         return parent::set($key, $value);
     }
@@ -199,12 +199,12 @@ class Host extends FOGController
     {
         $key = $this->key($key);
         switch ($key) {
-        case 'additionalMACs':
-        case 'pendingMACs':
-            if (!($value instanceof MACAddress)) {
-                $value = new MACAddress($value);
-            }
-            break;
+            case 'additionalMACs':
+            case 'pendingMACs':
+                if (!($value instanceof MACAddress)) {
+                    $value = new MACAddress($value);
+                }
+                break;
         }
         return parent::add($key, $value);
     }
