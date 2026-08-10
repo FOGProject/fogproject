@@ -6318,11 +6318,11 @@ downloadfiles() {
 #
 # The original file the admin pointed at is never modified -- this only
 # decides which copy gets used from here on. Idempotent: once .fogsettings
-# records the copy, every later run sees a path already under
-# $fogprogramdir/secureboot and does nothing.
+# records the copy, every later run sees a path already under the Secure
+# Boot PKI zone dir and does nothing.
 preserveSecureBootAdminFiles() {
     [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
-    local keydir="${fogprogramdir}/secureboot"
+    local keydir="$(_pkiZoneDir secureboot)"
     local destkey="${keydir}/admin-MOK.key"
     local destcert="${keydir}/admin-MOK.pem"
     local st=0
@@ -6534,9 +6534,11 @@ EOF
     secureBootMokCert="${cadir}/.fogSBCA.pem"
 }
 _ensureSecureBootKeys() {
-    local keydir="${fogprogramdir}/secureboot"
+    local keydir="$(_pkiZoneDir secureboot)"
+    local oldkeydir="${fogprogramdir}/secureboot"
     local key="${keydir}/MOK.key"
     local cert="${keydir}/MOK.pem"
+    local f
 
     # Explicit opt-out. Left unset rather than half-set, so every downstream
     # function's existing "no key configured" branch does the right thing.
@@ -6557,6 +6559,17 @@ _ensureSecureBootKeys() {
         [[ -z $secureBootMokCert ]] && secureBootMokCert="$secureBootCert"
         return 0
     fi
+    # An install that already ran the flat ${fogprogramdir}/secureboot layout
+    # migrates the flat MOK material in place -- same key/cert, one more hop
+    # -- before the existence checks below run against the new location. Not
+    # doing this first would make the "no MOK yet" branch fire on a server
+    # that has one, minting a fresh key and stranding every machine that
+    # already enrolled the old one.
+    mkdir -p "$keydir" >>$error_log 2>&1
+    for f in MOK.key MOK.pem mok.cnf; do
+        [[ -f "${oldkeydir}/${f}" && ! -f "${keydir}/${f}" ]] && \
+            mv "${oldkeydir}/${f}" "${keydir}/${f}" >>$error_log 2>&1
+    done
     # The intermediate is enrolled and a leaf signs. See
     # createSecureBootIntermediateCA.
     #
@@ -6677,12 +6690,13 @@ EOF
 # accepted by any client already carrying the old one, and the failure surfaces
 # as an unbootable machine long after the install that caused it.
 _ensureSecureBootPlatformKeys() {
-    local keydir="${fogprogramdir}/secureboot"
+    local keydir="$(_pkiZoneDir secureboot)"
+    local oldkeydir="${fogprogramdir}/secureboot"
     local pkKey="${keydir}/PK.key"
     local pkCert="${keydir}/PK.pem"
     local kekKey="${keydir}/KEK.key"
     local kekCert="${keydir}/KEK.pem"
-    local subject
+    local subject f
 
     secureBootPKKey=""
     secureBootPKCert=""
@@ -6692,6 +6706,17 @@ _ensureSecureBootPlatformKeys() {
     # No signing key means the whole feature is opted out; there is nothing for
     # a platform key to authorise.
     [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+
+    # An install that already ran the flat ${fogprogramdir}/secureboot layout
+    # migrates the platform keys in place -- same key/cert, one more hop --
+    # before the existence check below runs against the new location. These
+    # never regenerate once they exist (see the note above this function), so
+    # missing this would strand every client that already trusts them.
+    mkdir -p "$keydir" >>$error_log 2>&1
+    for f in PK.key PK.pem KEK.key KEK.pem; do
+        [[ -f "${oldkeydir}/${f}" && ! -f "${keydir}/${f}" ]] && \
+            mv "${oldkeydir}/${f}" "${keydir}/${f}" >>$error_log 2>&1
+    done
 
     if [[ -f $pkKey && -f $pkCert && -f $kekKey && -f $kekCert ]]; then
         secureBootPKKey="$pkKey"
@@ -6876,12 +6901,21 @@ _ensureEfitools() {
 # owns the permissions on the files it writes.
 #
 # Nothing published here is secret -- .auth blobs are public certificates plus
-# signatures over them. The private keys stay in $fogprogramdir/secureboot.
+# signatures over them. The private keys stay in the Secure Boot PKI zone dir.
 _publishSecureBootAuthVars() {
     local kitdir="${webdirdest}/service/secureboot"
-    local msdst="${fogprogramdir}/secureboot/mscerts"
+    local msdst="$(_pkiZoneDir secureboot)/mscerts"
     local helper="${fogprogramdir}/bin/fog-build-sb-authvars"
     local conf="${fogprogramdir}/.fog-secureboot"
+
+    # An install that already ran the flat ${fogprogramdir}/secureboot layout
+    # moves its cached copy in place -- it's fully reproducible from the
+    # packaged source below regardless, so this is only to avoid leaving a
+    # stale duplicate behind.
+    if [[ -d "${fogprogramdir}/secureboot/mscerts" && ! -d $msdst ]]; then
+        mkdir -p "$(dirname "$msdst")" >>$error_log 2>&1
+        mv "${fogprogramdir}/secureboot/mscerts" "$msdst" >>$error_log 2>&1
+    fi
 
     # No platform keys means no automatic path. Clear any blobs from a previous
     # install rather than leaving stale ones a client would happily enrol: an
@@ -7059,7 +7093,7 @@ _installSecureBootSigner() {
         echo "SECUREBOOT_PK_CERT=${secureBootPKCert}"
         echo "SECUREBOOT_KEK_KEY=${secureBootKEKKey}"
         echo "SECUREBOOT_KEK_CERT=${secureBootKEKCert}"
-        echo "SECUREBOOT_MSCERTS=${fogprogramdir}/secureboot/mscerts"
+        echo "SECUREBOOT_MSCERTS=$(_pkiZoneDir secureboot)/mscerts"
         echo "SECUREBOOT_AUTHVARS=${webdirdest}/service/secureboot"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1

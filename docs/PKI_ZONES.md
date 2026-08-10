@@ -88,7 +88,26 @@ secureboot/ca/.fogSBCA.{key,pem,der}  signs the code-signing leaf; .der is
                                   here so it can be verified without reaching
                                   into the web root
 secureboot/leaf/sign.{key,pem}    what sbsign actually signs with
+secureboot/MOK.{key,pem}          the flat, no-intermediate fallback signing
+                                  key -- present only on a root that can't
+                                  anchor an intermediate, or before one has
+                                  been minted
+secureboot/PK.{key,pem}           the platform key, if automatic PK/KEK/db
+secureboot/KEK.{key,pem}          enrolment is configured. Never regenerated.
+secureboot/admin-MOK.{key,pem}    an admin-supplied --secure-boot-key/-cert
+                                  pair, copied in so it survives independent
+                                  of wherever the admin originally put it
+secureboot/mscerts/               Microsoft's published CA certs, staged here
+                                  for the PK/KEK/db builder; fully reproducible
+                                  from packages/secureboot/mscerts
 ```
+
+Nothing PKI-related is left directly under `$fogprogramdir/secureboot` any more
+-- an install that already had one migrates every one of the files above into
+`pki/secureboot/` in place, and the old directory is left empty once that's
+done (safe to remove by hand). `$fogprogramdir/secureboot-staging` is a
+separate, web-user-writable directory for in-flight kernel-signing requests --
+unrelated key material, and deliberately not part of this tree.
 
 `.srvprivate.key`/`.srvpublic.crt` themselves stay exactly where they have
 always been, at `$sslpath` — `root/leaf/` only adds discoverability symlinks
