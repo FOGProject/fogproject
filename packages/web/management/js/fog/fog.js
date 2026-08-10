@@ -1549,7 +1549,41 @@ function setupFogTableInformation() {
                 search: 'Search...'
             },
             filter_childRows: false,
-            filter_saveFilters: true // This is the magic that keeps it in place.
+            filter_saveFilters: true, // This is the magic that keeps it in place.
+            // Grouping is opt-in per table: the widget itself only loads for a
+            // table carrying the "widget-group" class (see FOGPage::process and
+            // $groupColumn), and group_forceColumn pins it to that table's
+            // chosen column. Without the pin the widget groups by whatever
+            // column was last sorted, which is not what 1.6 does -- there
+            // rowGroup is fixed to the date. An empty array means "not pinned",
+            // which is the right answer for every table that never opts in.
+            group_forceColumn: (function () {
+                var col = Container.data('groupcolumn');
+                return (typeof col === 'undefined' || col === null) ?
+                    [] :
+                    [parseInt(col, 10)];
+            })(),
+            group_collapsible: true,
+            group_saveGroups: true,
+            // A group-date column is cached as a millisecond timestamp by the
+            // date parser, so the widget hands us a Date and asks for a label.
+            // The stock default is toLocaleString(), which appends a midnight
+            // time to every header; this matches what the cell itself shows.
+            group_dateString: function (date) {
+                return date.toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            },
+            // The widget defaults this to true, meaning group_forceColumn is
+            // honoured ONLY once a sort has been applied -- with no sort the
+            // column resolves to -1 and nothing groups at all. A grouped table
+            // ships with data-sortlist so it is sorted from the first paint
+            // anyway, but this stays false so that a table left unsorted (or
+            // restored to some other sort by the saveSort widget) still shows
+            // its groups rather than silently losing them.
+            group_enforceSort: false
         }
     }).trigger('filterResetSaved'); // This is what resets it for page to page.
     setTimeout(setupParserInfo, 1000);

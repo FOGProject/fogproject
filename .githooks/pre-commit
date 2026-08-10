@@ -5,8 +5,12 @@
 
 project_dir=$(git rev-parse --show-toplevel)
 
+# Turns a missing tool from a silent no-op into a visible one. See the header of
+# that file for why announcing beats both skipping quietly and refusing outright.
+. "$project_dir/.githooks/lib/require-tools.sh"
+
 psrfix() {
-    command -v php-cs-fixer >/dev/null 2>&1 || return
+    require_tools "PSR2 formatting" php-cs-fixer || return
     fixer=$(command -v php-cs-fixer)
 
     # Only the PHP files staged for THIS commit.
@@ -43,7 +47,9 @@ psrfix() {
 }
 
 updateLanguage() {
-    sh "$project_dir/.githooks/lib/update-language.sh"
+    require_tools "translation template regeneration" xgettext msgcat msgmerge || return
+    # The regeneration itself lives in lib/ so CI runs the identical commands.
+    sh "$project_dir/.githooks/lib/update-language.sh" "$project_dir"
     git add "$project_dir/packages/web/management/languages/"
 }
 

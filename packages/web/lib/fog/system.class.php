@@ -53,16 +53,16 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.5.10.2222');
+        define('FOG_VERSION', '1.5.10.2237');
         define('FOG_SCHEMA', 279);
-        define('FOG_BCACHE_VER', 141);
+        define('FOG_BCACHE_VER', 143);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
         // a release asset. Pinned here rather than tracked as "latest" so a
         // given FOG release ships a known iPXE -- the installer uses this both
         // to pick the download and to check out the matching source when an
         // HTTPS install has to rebuild with its own CA.
-        define('FOG_IPXE_VERSION', 'v2.0.0-fog.5');
+        define('FOG_IPXE_VERSION', 'v2.0.0-fog.6');
         // GH-850: the base path is installer-driven. Initiator loads the
         // generated commons/fogpaths.php (written from the installer's
         // $fogprogramdir) before the autoloader runs, so in a normal boot this

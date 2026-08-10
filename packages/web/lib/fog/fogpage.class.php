@@ -93,6 +93,18 @@ abstract class FOGPage extends FOGBase
      */
     public $notes = array();
     /**
+     * Zero-based column index to group the table's rows by, or null for no
+     * grouping.
+     *
+     * Setting it makes process() tag the table for tablesorter's grouping
+     * widget and tell fog.js which column to pin the grouping to, so the
+     * grouping stays on that column no matter what the user sorts by -- the
+     * same behaviour as 1.6's DataTables rowGroup dataSrc.
+     *
+     * @var int|null
+     */
+    public $groupColumn = null;
+    /**
      * Table header data
      *
      * @var array
@@ -828,13 +840,43 @@ abstract class FOGPage extends FOGBase
                     . $colsize
                     . '">';
             }
+            // $groupColumn opts this one table into tablesorter's grouping
+            // widget. Deliberately a single purpose-built property rather than
+            // a general "extra table classes" hook: fog.js initialises
+            // tablesorter for every table on the branch, so anything that can
+            // switch widgets on needs to say exactly what it is switching on
+            // and for which column. Null everywhere else, which emits nothing
+            // and leaves every other page byte-identical.
             echo '<table class="table table-responsive'
                 . (
                     isset($this->data) && is_array($this->data) && count($this->data) < 1 ?
                     ' noresults' :
                     ''
                 )
-                . '">';
+                . (
+                    $this->groupColumn !== null ?
+                    ' widget-group' :
+                    ''
+                )
+                . '"'
+                . (
+                    $this->groupColumn !== null ?
+                    ' data-groupcolumn="' . (int)$this->groupColumn . '"'
+                    // Grouping only makes sense on a table sorted by the column
+                    // being grouped -- otherwise the same value recurs further
+                    // down and the widget opens a second group for it. Source
+                    // order is not enough: the FOS feed interleaves its release
+                    // channels, so its rows run Aug 6, Aug 3, Aug 4, Aug 5,
+                    // Aug 3 and one date lands in two groups. Descending
+                    // because every grouped column here is a date and newest
+                    // first is the useful end, matching 1.6's order: [[0,
+                    // 'desc']]. tablesorter reads this at init
+                    // ($table.data().sortlist); the saveSort widget may then
+                    // restore whatever the user last chose, which is their call.
+                    . ' data-sortlist="[[' . (int)$this->groupColumn . ',1]]"' :
+                    ''
+                )
+                . '>';
             if (isset($this->data) && is_array($this->data) && count($this->data) < 1) {
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
@@ -2631,15 +2673,37 @@ abstract class FOGPage extends FOGBase
                             _('Error: Failed to open temp file')
                         );
                     }
+                    // The transfer's HTTP status was previously discarded, so a
+                    // 404, a rate-limit reply or a proxy's error page was
+                    // written to disk and treated as the kernel -- and an HTML
+                    // error page can easily clear the size floor below. The
+                    // status is only reachable through the callback argument;
+                    // process() hands it (output, http_code, request).
+                    // Redirects are followed (CURLOPT_FOLLOWLOCATION in
+                    // _getOptions), so this is the final code, not the 302 that
+                    // GitHub answers asset URLs with.
+                    $httpCode = 0;
                     self::$FOGURLRequests->process(
                         $_SESSION['dl-kernel-file'],
                         'GET',
                         false,
                         false,
                         false,
-                        false,
+                        function ($output, $info) use (&$httpCode) {
+                            $httpCode = (int)$info;
+                        },
                         $fh
                     );
+                    if ($httpCode < 200 || $httpCode > 299) {
+                        throw new Exception(
+                            sprintf(
+                                '%s: %s (HTTP %d)',
+                                _('Error'),
+                                _('Download Failed'),
+                                $httpCode
+                            )
+                        );
+                    }
                     if (!file_exists($_SESSION['tmp-kernel-file'])) {
                         throw new Exception(
                             _('Error: Failed to download kernel')
@@ -2654,9 +2718,27 @@ abstract class FOGPage extends FOGBase
                                 '%s: %s: %s - %s',
                                 _('Error'),
                                 _('Download Failed'),
-                                _('Failed'),
                                 _('filesize'),
                                 $filesize
+                            )
+                        );
+                    }
+                    // Shape, not just size. Every FOS kernel asset -- bzImage,
+                    // bzImage32 and arm_Image alike -- is built with
+                    // CONFIG_EFI_STUB and is therefore a PE/COFF image starting
+                    // "MZ"; on arm64 the boot header's first instruction is
+                    // deliberately encoded so that it reads as MZ, for exactly
+                    // this purpose. One check covers all three, and it is also
+                    // the precondition sbsign imposes, so it doubles as "can
+                    // this be signed at all" -- better to name the problem here
+                    // than to fail inside the signing helper, or to hand Secure
+                    // Boot clients something that was never a kernel.
+                    if (self::readMagic($_SESSION['tmp-kernel-file'], 2) !== 'MZ') {
+                        throw new Exception(
+                            sprintf(
+                                '%s: %s',
+                                _('Error'),
+                                _('Downloaded file is not a bootable kernel image')
                             )
                         );
                     }
@@ -2733,6 +2815,49 @@ abstract class FOGPage extends FOGBase
         self::$FOGFTP->close();
     }
     /**
+     * Reads the first $len bytes of a file, for magic-number checks.
+     *
+     * Returns '' rather than false on any failure so callers can compare
+     * against an expected signature without separately handling unreadable or
+     * short files -- '' matches nothing, which is the answer they want anyway.
+     *
+     * @param string $path file to read
+     * @param int    $len  number of leading bytes wanted
+     *
+     * @return string
+     */
+    protected static function readMagic($path, $len)
+    {
+        $magic = @file_get_contents($path, false, null, 0, $len);
+        return ($magic === false) ? '' : $magic;
+    }
+    /**
+     * Removes abandoned kernel/initrd download temporaries from $dir.
+     *
+     * Every download now gets its own file, so nothing overwrites the previous
+     * run's leftovers the way the old shared name did. An update abandoned
+     * after the download step -- browser closed, session lost -- would
+     * otherwise leave a full-size kernel behind permanently, and the Secure
+     * Boot staging directory sits on the FOG install's own filesystem, not a
+     * distro-swept /tmp. An hour is far past any legitimate download, and a
+     * download still in flight keeps its mtime current, so this cannot reap a
+     * file that is being written.
+     *
+     * @param string $dir    directory to sweep
+     * @param string $prefix filename prefix identifying our temporaries
+     *
+     * @return void
+     */
+    protected static function purgeStaleDownloads($dir, $prefix)
+    {
+        $cutoff = time() - 3600;
+        foreach ((array)glob($dir . DS . $prefix . '*') as $stale) {
+            if (is_file($stale) && filemtime($stale) < $cutoff) {
+                unlink($stale);
+            }
+        }
+    }
+    /**
      * Returns the Secure Boot staging directory, or an empty string when
      * kernel signing is not configured on this server.
      *
@@ -2778,25 +2903,69 @@ abstract class FOGPage extends FOGBase
         if (!$stagedir || dirname($tmpfile) !== $stagedir) {
             return;
         }
-        $output = array();
-        $retVal = 1;
-        // escapeshellarg because this is no longer a literal: FOG_BASE_DIR is
-        // written by the installer from $fogprogramdir, which an admin may set
-        // to a path containing a space. exec() hands the string to a shell, so
-        // an unquoted path would split into two arguments and the sudoers rule
-        // -- which matches the exact command -- would refuse it.
-        $helper = escapeshellarg(
-            FOG_BASE_DIR . DS . 'bin' . DS . 'fog-sign-kernel'
-        );
-        exec("sudo -n {$helper} 2>&1", $output, $retVal);
-        if ($retVal !== 0) {
+        // The helper's fixed target is <stagedir>/kernel and it takes no
+        // arguments -- that is precisely the property that stops a compromised
+        // web server naming its own key or its own file, so the shared name
+        // cannot be made per-request. Instead each download keeps its own
+        // private file (see kernelUpdatePost) and borrows the shared name only
+        // for the moment it is being signed, serialised here. That window is a
+        // single sbsign inside a single request, which is short enough for a
+        // lock to cover -- unlike the whole download, which spans three.
+        //
+        // Renames, not copies: same directory, so they are atomic and free, and
+        // the helper still sees a real file it can readlink -f into place.
+        $shared = $stagedir . DS . 'kernel';
+        $lock = fopen($stagedir . DS . '.sign.lock', 'c');
+        if ($lock === false || !flock($lock, LOCK_EX)) {
+            if ($lock !== false) {
+                fclose($lock);
+            }
             throw new Exception(
-                sprintf(
-                    '%s: %s',
-                    _('Error: Failed to sign the kernel for Secure Boot'),
-                    implode(' ', $output)
-                )
+                _('Error: Could not lock the Secure Boot staging directory')
             );
+        }
+        $staged = false;
+        try {
+            // Overwrites any leftover from a run that died mid-sign, which is
+            // what we want: ours is the only kernel anyone is waiting on.
+            if (!rename($tmpfile, $shared)) {
+                throw new Exception(
+                    _('Error: Could not stage the kernel for signing')
+                );
+            }
+            $staged = true;
+            $output = array();
+            $retVal = 1;
+            // escapeshellarg because this is no longer a literal: FOG_BASE_DIR
+            // is written by the installer from $fogprogramdir, which an admin
+            // may set to a path containing a space. exec() hands the string to
+            // a shell, so an unquoted path would split into two arguments and
+            // the sudoers rule -- which matches the exact command -- would
+            // refuse it.
+            $helper = escapeshellarg(
+                FOG_BASE_DIR . DS . 'bin' . DS . 'fog-sign-kernel'
+            );
+            exec("sudo -n {$helper} 2>&1", $output, $retVal);
+            if ($retVal !== 0) {
+                throw new Exception(
+                    sprintf(
+                        '%s: %s',
+                        _('Error: Failed to sign the kernel for Secure Boot'),
+                        implode(' ', $output)
+                    )
+                );
+            }
+        } finally {
+            // Hand the file back under the caller's own name whether signing
+            // succeeded or not: the caller still owns it, and the shared name
+            // has to be free for the next update either way. Guarded on
+            // $staged so a failed rename cannot walk off with a leftover file
+            // that was never ours.
+            if ($staged && file_exists($shared)) {
+                rename($shared, $tmpfile);
+            }
+            flock($lock, LOCK_UN);
+            fclose($lock);
         }
     }
     /**
@@ -2835,15 +3004,33 @@ abstract class FOGPage extends FOGBase
                             _('Error: Failed to open temp file')
                         );
                     }
+                    // Same discarded-status problem as kernelfetch(); see the
+                    // note there. No magic-number check follows this one: an
+                    // initrd is a compressed cpio, not a PE image, and it is
+                    // never signed, so there is no equivalent single test that
+                    // would not just be guessing at compression formats.
+                    $httpCode = 0;
                     self::$FOGURLRequests->process(
                         $_SESSION['dl-initrd-file'],
                         'GET',
                         false,
                         false,
                         false,
-                        false,
+                        function ($output, $info) use (&$httpCode) {
+                            $httpCode = (int)$info;
+                        },
                         $fh
                     );
+                    if ($httpCode < 200 || $httpCode > 299) {
+                        throw new Exception(
+                            sprintf(
+                                '%s: %s (HTTP %d)',
+                                _('Error'),
+                                _('Download Failed'),
+                                $httpCode
+                            )
+                        );
+                    }
                     if (!file_exists($_SESSION['tmp-initrd-file'])) {
                         throw new Exception(
                             _('Error: Failed to download initrd')
@@ -2858,7 +3045,6 @@ abstract class FOGPage extends FOGBase
                                 '%s: %s: %s - %s',
                                 _('Error'),
                                 _('Download Failed'),
-                                _('Failed'),
                                 _('filesize'),
                                 $filesize
                             )

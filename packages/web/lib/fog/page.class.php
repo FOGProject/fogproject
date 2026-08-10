@@ -270,6 +270,12 @@ class Page extends FOGBase
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',
             'js/jquery.tablesorter.combined.js',
+            // Not in the combined build, which carries only zebra, uitheme,
+            // columns, filter, stickyHeaders, resizable and saveSort. Loaded
+            // after it because the widget registers itself against the core.
+            // Inert unless a table opts in with the "widget-group" class, so
+            // this costs every other page a script tag and nothing else.
+            'js/jquery.tablesorter.widget-grouping.js',
             'js/select2.min.js',
             'js/jquery-migrate-latest.min.js',
             'js/jquery.progressbar.js',

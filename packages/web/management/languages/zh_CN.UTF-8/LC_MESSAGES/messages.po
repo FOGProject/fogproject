@@ -581,6 +581,9 @@ msgstr "批准该主机？"
 msgid "Approved"
 msgstr "已批准"
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr "您确定要"
 
@@ -665,10 +668,7 @@ msgstr "启动按键顺序"
 msgid "Boot Options"
 msgstr "启动选项"
 
-msgid ""
-"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
-"left ON. Those images boot under Secure Boot on their own signed shim, so no "
-"firmware changes are needed."
+msgid "Boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON. Those images boot under Secure Boot on their own signed shim, so no firmware changes are needed."
 msgstr ""
 
 msgid "Broadcast Create Fail"
@@ -842,13 +842,10 @@ msgstr "点击以查看可添加用户"
 msgid "Check that database is running"
 msgstr "检查数据库运行状态"
 
-msgid ""
-"Check the capture folder is owned by and writable to the storage node user"
+msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
-msgid ""
-"Check this value matches what the enrolment script prints before confirming. "
-"That comparison is what stops the wrong key being trusted."
+msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -929,9 +926,7 @@ msgstr "客户端"
 msgid "Command"
 msgstr "命令"
 
-msgid ""
-"Compare the SHA-256 it prints against the one shown above. If they differ, "
-"stop -- that comparison is the whole security of this step."
+msgid "Compare the SHA-256 it prints against the one shown above. If they differ, stop -- that comparison is the whole security of this step."
 msgstr ""
 
 msgid "Complete"
@@ -970,17 +965,13 @@ msgstr "确认任务"
 msgid "Conflicting path/file"
 msgstr "确认环境变量/文件"
 
-msgid ""
-"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
-"or Debian live image with Secure Boot left ON, and run the launcher"
+msgid "Copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher"
 msgstr ""
 
 msgid "Copy from existing"
 msgstr "从现有复制"
 
-msgid ""
-"Copy the three files above onto a USB stick, keeping them in the same folder "
-"-- the script expects MOK.der beside it."
+msgid "Copy the three files above onto a USB stick, keeping them in the same folder -- the script expects MOK.der beside it."
 msgstr ""
 
 msgid "Could not find a Storage Node in this group"
@@ -1347,8 +1338,15 @@ msgstr "已完成，未能镜像!未分配镜像!"
 msgid "Dot in Filename not allowed!"
 msgstr "文件名中不允许出现点"
 
+#, fuzzy
+msgid "Download"
+msgstr "下载失败"
+
 msgid "Download Failed"
 msgstr "下载失败"
+
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
 
 msgid "Downloading Initrd"
 msgstr "下载初始内存盘中"
@@ -1365,9 +1363,7 @@ msgstr "期限"
 msgid "ESC is defaulted"
 msgstr "默认为ESC"
 
-msgid ""
-"Each client needs this certificate enrolled once, by someone physically at "
-"the machine"
+msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
 msgid "Edit"
@@ -1433,10 +1429,7 @@ msgstr "输入地点名来搜索"
 msgid "Enter a model name to search for"
 msgstr "输入模型名搜索"
 
-msgid ""
-"Enter a one-time password twice when asked. It only proves at the next "
-"reboot that you are the same person; it is not stored and does not need to "
-"be strong."
+msgid "Enter a one-time password twice when asked. It only proves at the next reboot that you are the same person; it is not stored and does not need to be strong."
 msgstr ""
 
 msgid "Enter a site name to search for"
@@ -1477,6 +1470,13 @@ msgstr "MAC列表中的错误多播主机返回"
 
 msgid "Error performing query"
 msgstr "错误执行查询"
+
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "错误：无法下载内核"
 
 msgid "Error: Failed to download initrd"
 msgstr "错误：无法下载启动盘"
@@ -2475,9 +2475,7 @@ msgstr "图标"
 msgid "Icon File not found"
 msgstr "图标文件未找到"
 
-msgid ""
-"If MOK Manager does not appear, the machine did not boot through a shim and "
-"nothing was enrolled."
+msgid "If MOK Manager does not appear, the machine did not boot through a shim and nothing was enrolled."
 msgstr ""
 
 msgid "If a new module is published the client will"
@@ -2498,9 +2496,7 @@ msgstr "如果关机"
 msgid "If on"
 msgstr "如果开机"
 
-msgid ""
-"If that chain loads but the network never comes up, the firmware's own UEFI "
-"network stack is at fault. Point the boot filename at"
+msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
 msgstr ""
 
 msgid "If there is not a task set"
@@ -3962,8 +3958,7 @@ msgstr ""
 msgid "On reboot we will try to find a new node"
 msgstr "重启时寻找一个新节点"
 
-msgid ""
-"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "One or more macs are associated with a host"
@@ -4446,9 +4441,7 @@ msgstr "部署后重新启动"
 msgid "Reboot after install"
 msgstr "重启后安装"
 
-msgid ""
-"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
-"key 0, Continue, Yes, then the password, then Reboot."
+msgid "Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View key 0, Continue, Yes, then the password, then Reboot."
 msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
@@ -4706,9 +4699,7 @@ msgstr "规则已更新"
 msgid "Rule value"
 msgstr "规则值"
 
-msgid ""
-"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
-"re-runs itself with sudo."
+msgid "Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It re-runs itself with sudo."
 msgstr ""
 
 msgid "Running Windows"
@@ -4729,9 +4720,7 @@ msgstr "保存 Initrd"
 msgid "Save Kernel"
 msgstr "保存核心"
 
-msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
-"key update or missing auto-increment."
+msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr "保存完成，但未分配有效 ID（insertId=0）。可能是重复键更新或缺少自增"
 
 msgid "Saving data for"
@@ -4812,10 +4801,7 @@ msgstr "第二个参数的形式必须是数组（类，函数）"
 msgid "Secure Boot"
 msgstr ""
 
-msgid ""
-"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
-"installer skips these binaries, because rebuilding them to trust this "
-"server's CA would invalidate the signature that makes them bootable."
+msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -4962,10 +4948,7 @@ msgstr "安装后关机"
 msgid "Signed"
 msgstr "标志"
 
-msgid ""
-"Signing is already done on this server. The remaining work is per-client and "
-"has to be done by someone at the machine -- that is what makes enrolment a "
-"deliberate act rather than something a server can do to a client remotely."
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 msgid "Site"
@@ -5475,6 +5458,10 @@ msgstr "TX"
 msgid "Table not defined for this class"
 msgstr "该类定义没有数据库表"
 
+#, fuzzy
+msgid "Tag Name"
+msgstr "任务名称"
+
 msgid "Task"
 msgstr "任务"
 
@@ -5610,9 +5597,7 @@ msgstr "条款和条件"
 msgid "Text"
 msgstr "文本"
 
-msgid ""
-"That is the signed chain staged by the installer; the default boot file is "
-"unsigned and a Secure Boot client will refuse it"
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
 msgstr ""
 
 #, fuzzy
@@ -5727,6 +5712,9 @@ msgstr "该MAC属于另一台主机"
 msgid "This area will allow the host checking in to tell"
 msgstr "该区域将允许登记的主机通知"
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr "这个文件只能在Windows上使用"
 
@@ -5814,9 +5802,7 @@ msgstr "这个插件是当前未安装"
 msgid "This section allows you to customize or alter"
 msgstr "本节允许您自定义或更改"
 
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
+msgid "This section allows you to import known mac address makers into the FOG database for easier identification"
 msgstr "本部分允许您将已知的 MAC 地址制造商导入 FOG 数据库，以便更容易识别"
 
 msgid "This section allows you to update"
@@ -5840,26 +5826,14 @@ msgstr "此设置定义发送的"
 msgid "This setting limits the bandwidth for replication between nodes"
 msgstr "此设置限制节点间复制的带宽"
 
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-"此设置仅添加和删除由 FOG 管理的打印机。如果打印机存在于打印机管理中但未分配给"
-"主机，它将在未分配的主机上删除该打印机（如果存在）。它会将打印机添加到已分配"
-"的主机上"
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
+msgstr "此设置仅添加和删除由 FOG 管理的打印机。如果打印机存在于打印机管理中但未分配给主机，它将在未分配的主机上删除该打印机（如果存在）。它会将打印机添加到已分配的主机上"
 
 msgid "This setting turns off all FOG Printer Management"
 msgstr "此设置关闭所有 FOG 打印机管理"
 
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"此设置仅允许FOG分配的打印机被添加到主机；任何未授权的打印机，包括不由FOG管理"
-"的打印机都将被移除"
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "此设置仅允许FOG分配的打印机被添加到主机；任何未授权的打印机，包括不由FOG管理的打印机都将被移除"
 
 msgid "This will allow you to configure how services"
 msgstr "此处配置服务如何"
@@ -6440,9 +6414,7 @@ msgstr "因为它们可能导致难以排查的问题"
 msgid "automatically"
 msgstr "自动执行"
 
-msgid ""
-"bandwidth graph, and multicast when the interface cannot be derived from the "
-"routing table"
+msgid "bandwidth graph, and multicast when the interface cannot be derived from the routing table"
 msgstr ""
 
 msgid "based task."
@@ -6712,9 +6684,7 @@ msgstr "几秒钟内"
 msgid "install or update the FOG database"
 msgstr "安装或更新FOG数据库"
 
-msgid ""
-"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
-"Arm64 clients use the files under secureboot/arm64-efi/"
+msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
 msgstr ""
 
 msgid "is already running with pid: "
@@ -6892,9 +6862,7 @@ msgstr "展示以及他们需要在哪里/如何展示"
 msgid "previous install if needed"
 msgstr "如有需要，先前安装"
 
-msgid ""
-"re-run the installer and check the installation log for a key generation or "
-"signing failure"
+msgid "re-run the installer and check the installation log for a key generation or signing failure"
 msgstr ""
 
 msgid "read-only"
@@ -6959,9 +6927,7 @@ msgstr "发现任务"
 msgid "terminating so it can be restarted"
 msgstr ""
 
-msgid ""
-"that detects the status on the fly, poweron or poweroff and the OS, of the "
-"client"
+msgid "that detects the status on the fly, poweron or poweroff and the OS, of the client"
 msgstr "能够实时检测客户端的状态，开机或关机以及操作系统"
 
 msgid "the Initrd (initial ramdisk) which is used alongside the"

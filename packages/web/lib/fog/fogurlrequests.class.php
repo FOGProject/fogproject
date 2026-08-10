@@ -334,8 +334,14 @@ class FOGURLRequests extends FOGBase
         $output = curl_exec($ch);
         $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        // call_user_func, not $this->_callback(...): the latter is parsed as a
+        // call to a METHOD named _callback, which does not exist, so it is a
+        // fatal the moment a caller actually supplies one. The guard above kept
+        // the property empty for years, so nothing ever reached this line and
+        // the bug stayed latent until the kernel download began passing a
+        // closure to read the HTTP status. 1.6 has always had it this way.
         if ($this->_callback && is_callable($this->_callback)) {
-            $this->_callback($output, $info, $request);
+            call_user_func($this->_callback, $output, $info, $request);
         }
 
         return (array)$output;
@@ -392,9 +398,10 @@ class FOGURLRequests extends FOGBase
                 }
                 $output = curl_multi_getcontent($done['handle']);
                 $this->_response[$this->_requestMap[$key]] = $output;
+                // Same method-vs-property call bug as in _singleCurl above.
                 if ($this->_callback && is_callable($this->_callback)) {
                     $request = $this->_requests[$this->_requestMap[$key]];
-                    $this->_callback($output, $info, $request);
+                    call_user_func($this->_callback, $output, $info, $request);
                 }
                 $sizeof = sizeof($this->_requests);
                 if ($i < $sizeof
