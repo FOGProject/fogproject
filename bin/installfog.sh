@@ -120,7 +120,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,internal-domain:,internal-subnet:,no-sb-name-constraints"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,internal-domain:,internal-subnet:,no-sb-name-constraints,extra-server-name:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -182,6 +182,15 @@ while :; do
         --no-sb-name-constraints)
             ssbNameConstraints="no"
             shift
+            ;;
+        --extra-server-name)
+            if [[ -z "${2}" ]]; then
+                echo "$1 requires a hostname after"
+                usage
+                exit 3
+            fi
+            sextraServerNames="${sextraServerNames:+$sextraServerNames }${2}"
+            shift 2
             ;;
         --internal-domain)
             if [[ -z "${2}" ]]; then
@@ -475,6 +484,7 @@ esac
 # would make a value impossible to remove without hand-editing .fogsettings.
 [[ -n $sinternalDomains ]] && internalDomains=$sinternalDomains
 [[ -n $sinternalSubnets ]] && internalSubnets=$sinternalSubnets
+[[ -n $sextraServerNames ]] && extraServerNames=$sextraServerNames
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
 
