@@ -7669,6 +7669,14 @@ msgid ""
 "this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "Atualizar impressora"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "Atualizar impressora"
+
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -8587,6 +8595,10 @@ msgstr "Não foi possível encontrar todos os nós que contêm esta imagem"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "Imagem não encontrada no nó"
 
 #, fuzzy
 msgid "not found on this node"

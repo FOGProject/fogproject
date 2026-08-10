@@ -5041,7 +5041,6 @@ EOF
                         # publicly chainable, so the redirect must NOT catch
                         # iPXE's own fetches -- otherwise it lands right back
                         # on the HTTPS it cannot validate and boot fails.
-                        # Emitted before the catch-all so it wins.
                         if [[ $netbootproto != "$httpproto" ]]; then
                             echo "    location ^~ ${webroot}service/ipxe/ {" >> "$etcconf"
                             echo "        root ${docroot};" >> "$etcconf"
@@ -5050,7 +5049,22 @@ EOF
                             echo "        include ${phploc};" >> "$etcconf"
                             echo "    }" >> "$etcconf"
                         fi
-                        echo "    return 308 https://\$host\$request_uri;" >> "$etcconf"
+                        # The redirect is a `location`, NOT a server-level
+                        # `return`. nginx runs a server-level return in the
+                        # server rewrite phase, which is BEFORE location
+                        # selection -- so emitting the ipxe location first buys
+                        # nothing, the return fires for every request and the
+                        # exclusion above is dead code. Measured against real
+                        # nginx: server-level return 308'd
+                        # /fog/service/ipxe/boot.php; as `location /` the same
+                        # request serves 200 and everything else still 308s.
+                        # `^~` on the ipxe prefix beats `/`, which is what makes
+                        # the exclusion win. Apache's branch below has no such
+                        # problem -- RewriteCond really does guard the next
+                        # RewriteRule.
+                        echo "    location / {" >> "$etcconf"
+                        echo "        return 308 https://\$host\$request_uri;" >> "$etcconf"
+                        echo "    }" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         echo "Continued (See Below)"
                         # Creates the diffie helman param file.

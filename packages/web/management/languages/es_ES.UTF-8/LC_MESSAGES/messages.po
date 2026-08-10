@@ -7817,6 +7817,14 @@ msgid ""
 "this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "Actualizar impresora"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "Actualizar impresora"
+
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -8738,6 +8746,10 @@ msgstr "No se pudo encontrar ningún nodos que contienen esta imagen"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "No se encontró Clase FOGPage para este nodo"
 
 #, fuzzy
 msgid "not found on this node"

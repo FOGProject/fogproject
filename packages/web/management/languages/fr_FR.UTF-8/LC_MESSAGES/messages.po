@@ -7673,6 +7673,14 @@ msgid ""
 "this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "Mise à jour de l'imprimante"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "Mise à jour de l'imprimante"
+
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -8591,6 +8599,10 @@ msgstr "Impossible de trouver des noeuds contenant cette image"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "Image not found sur le noeud"
 
 #, fuzzy
 msgid "not found on this node"
