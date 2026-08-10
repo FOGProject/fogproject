@@ -43,15 +43,7 @@ psrfix() {
 }
 
 updateLanguage() {
-    command -v xgettext >/dev/null 2>&1 || return
-    command -v msgcat   >/dev/null 2>&1 || return
-    command -v msgmerge >/dev/null 2>&1 || return
-    xgettext --language=PHP --from-code=UTF-8 --output="$project_dir/packages/web/management/languages/messages.pot" --omit-header --no-location $(find "$project_dir/packages/web/" -name "*.php")
-    msgcat --sort-output -o "$project_dir/packages/web/management/languages/messages.pot" "$project_dir/packages/web/management/languages/messages.pot"
-    for PO_FILE in $(find "$project_dir/packages/web/management/languages/" -type f -name "*.po"); do
-        msgmerge --update --backup=none "$PO_FILE" "$project_dir/packages/web/management/languages/messages.pot" 2>/dev/null >/dev/null
-        msgcat --sort-output -o "$PO_FILE" "$PO_FILE"
-    done
+    sh "$project_dir/.githooks/lib/update-language.sh"
     git add "$project_dir/packages/web/management/languages/"
 }
 
