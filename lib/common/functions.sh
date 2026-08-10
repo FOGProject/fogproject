@@ -3403,7 +3403,6 @@ createWebIntermediateCA() {
     done
     sslcakey="${cadir}/.fogWebCA.key"
     sslcapem="${cadir}/.fogWebCA.pem"
-    sslcachain="${cadir}/.fogWebCAchain.pem"
     if [[ ! -f $sslcakey || ! -f $sslcapem ]]; then
         dots "Creating FOG Web CA"
         # serverAuth alone. An EKU on a CA constrains what it may issue, which
@@ -3415,9 +3414,18 @@ $(_nameConstraints)" "FOG Web UI"
         errorStat $?
     fi
     # Chain file is CA+intermediate, because a client validating the leaf
-    # needs both.
-    cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
-    chmod 0644 "$sslcachain" >>$error_log 2>&1
+    # needs both. Only (re)written when $sslcachain is empty or still one of
+    # the two FOG-managed defaults (this one, or $rootCAPem from the
+    # pathlen:0 fallback below, in case an install switched between the two
+    # across runs) -- an admin who pointed it at their own chain (an ACME
+    # client's --ca-file, say) has that choice honored on every later run,
+    # the same guarantee _resolveWebLeafPaths already gives
+    # sslprivkey/sslpubcert.
+    if [[ -z $sslcachain || $sslcachain == "${cadir}/.fogWebCAchain.pem" || $sslcachain == "$rootCAPem" ]]; then
+        sslcachain="${cadir}/.fogWebCAchain.pem"
+        cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
+        chmod 0644 "$sslcachain" >>$error_log 2>&1
+    fi
 }
 # The client communication certificate: the public half of the keypair
 # fog-client encrypts to, and whose private half FOGBase::certDecrypt() opens.
@@ -3825,7 +3833,12 @@ EOF
         echo "   The web certificate will be signed by it directly, as before."
         sslcakey="$rootCAKey"
         sslcapem="$rootCAPem"
-        sslcachain="$rootCAPem"
+        # Same override guard as createWebIntermediateCA's chain assignment,
+        # mirrored here so a switch between the two branches across runs
+        # still recognizes either FOG-managed default as "not an override".
+        if [[ -z $sslcachain || $sslcachain == "$rootCAPem" || $sslcachain == "$(_pkiZoneDir web)/ca/.fogWebCAchain.pem" ]]; then
+            sslcachain="$rootCAPem"
+        fi
     fi
     _resolveWebLeafPaths
     _createWebLeaf

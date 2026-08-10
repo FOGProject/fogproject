@@ -214,3 +214,80 @@ $ sbverify --list bzImage
 The historic warning about not letting an ACME client replace
 `.srvprivate.key` no longer applies: the web server does not use that file.
 That is the concrete payoff of the separation.
+
+### Recipe: using acme.sh for the web leaf instead
+
+This is one option among several, not a default -- nothing here is installed
+or configured automatically. If you'd rather have a publicly-trusted
+certificate on the web leaf than FOG's own Web CA, `acmeLeaf=yes` already
+exists as the escape hatch (`_createWebLeaf()` leaves the leaf alone instead
+of re-signing over it, and `_hardenPkiPermissions()` stops locking its key to
+`root:root` so a renewal hook can write it). [acme.sh](https://github.com/acmesh-official/acme.sh)
+is a reasonable lightweight client for that -- no daemon, no separate CA to
+run.
+
+**Pick a challenge type first.** Two options, and which one fits depends on
+your DNS, not on how you'd like the certificate issued:
+
+- **DNS-01** (usually the better fit for a LAN-only server): the ACME CA
+  looks up a `_acme-challenge.<hostname>` TXT record on your domain's
+  *public* authoritative nameservers. It never contacts the FOG server or
+  your internal resolver at all, so this needs zero inbound connectivity to
+  the box. It only works if the hostname is under a domain you manage in
+  public DNS -- even if the actual A record is never published, or only
+  resolves internally on your LAN. acme.sh has around 140 built-in DNS
+  provider plugins (`--dns dns_cf` for Cloudflare, and similar for
+  Route53/Azure/etc.) that fully automate creating and removing that record.
+  If the hostname is under a purely internal/split-horizon zone with **no**
+  public delegation at all, DNS-01 against a public CA can't work regardless
+  of what your internal DNS resolves -- acme.sh's `dns_alias` mode (CNAME the
+  `_acme-challenge` record from your internal zone to one in a public zone
+  you do control) is the fallback, short of running your own private ACME
+  server.
+- **HTTP-01**: needs port 80 reachable from whatever ACME server you point
+  acme.sh at. The installer's `:80` vhost always exists now regardless of
+  `httpproto`, so the webroot challenge has somewhere to answer from on every
+  install -- but this only helps if that port is actually reachable from the
+  CA, which rules it out for most LAN-only boxes.
+
+Neither path requires or assumes an internal CA like step-ca -- point
+acme.sh's `--server` at one if you already run one, but it's not needed for
+either recipe above.
+
+**Issue:**
+```bash
+acme.sh --issue -d fog.example.com --dns dns_cf        # DNS-01
+acme.sh --issue -d fog.example.com -w /var/www/html    # HTTP-01, docroot
+```
+
+**Install into the paths FOG already serves from**, rather than acme.sh's own
+default cert store, so nothing else needs to change:
+```bash
+acme.sh --install-cert -d fog.example.com \
+    --key-file       /opt/fog/pki/web/leaf/.webLeaf.key \
+    --cert-file      /opt/fog/pki/web/leaf/.webLeaf.pem \
+    --ca-file        /opt/fog/pki/web/ca/.fogWebCAchain.pem \
+    --reloadcmd      "systemctl reload httpd"     # apache2 on Ubuntu
+```
+`--cert-file` (leaf only) maps to `sslpubcert`; `--ca-file` (intermediate
+only) maps to `sslcachain` -- matching Apache's
+`SSLCertificateFile`/`SSLCertificateChainFile` split. Don't use
+`--fullchain-file` for `sslpubcert`, or the vhost ends up listing the
+intermediate twice.
+
+**Tell FOG about it**, once, in `.fogsettings`:
+```
+acmeLeaf=yes
+sslprivkey=/opt/fog/pki/web/leaf/.webLeaf.key
+sslpubcert=/opt/fog/pki/web/leaf/.webLeaf.pem
+sslcachain=/opt/fog/pki/web/ca/.fogWebCAchain.pem
+```
+Reusing the exact default paths above is what makes `_resolveWebLeafPaths()`
+recognize them as already-yours and leave them alone on every later
+`installfog.sh` run; `sslcachain` gets the same treatment from
+`createWebIntermediateCA()`.
+
+**Renewal** is acme.sh's own cron entry -- the `--reloadcmd` above is what
+picks up each renewed certificate. `renewal-helper --zone web` already
+refuses on an ACME-managed leaf; use `acme.sh --renew -d fog.example.com
+--force` instead if you ever need to force one.
