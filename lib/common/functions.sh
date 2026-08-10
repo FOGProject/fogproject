@@ -6555,9 +6555,27 @@ _ensureSecureBootKeys() {
     # Their certificate is also what gets enrolled, exactly as before -- an
     # admin bringing their own Secure Boot intermediate points
     # --secure-boot-cert at it and --secure-boot-key at the leaf's key.
+    #
+    # $secureBootKey/$secureBootCert are persisted to .fogsettings on every
+    # run (see writeUpdateFile) precisely so an admin's choice, or FOG's own
+    # previously-resolved leaf, carries forward without being re-supplied --
+    # but that means a value read back from .fogsettings is indistinguishable
+    # from one just passed on the command line. Require the files to still
+    # exist before trusting either: without this, deleting the Secure Boot
+    # directory to force a fresh key just left the stale path in
+    # .fogsettings, which got trusted here and failed downstream instead,
+    # with a "cannot find MOK.key" nowhere near the actual cause.
     if [[ -n $secureBootKey && -n $secureBootCert ]]; then
-        [[ -z $secureBootMokCert ]] && secureBootMokCert="$secureBootCert"
-        return 0
+        if [[ -f $secureBootKey && -f $secureBootCert ]]; then
+            [[ -z $secureBootMokCert ]] && secureBootMokCert="$secureBootCert"
+            return 0
+        fi
+        echo " * The configured Secure Boot key/certificate is missing on disk:"
+        echo "     ${secureBootKey}"
+        echo "   Treating it as unset and generating a new one."
+        secureBootKey=""
+        secureBootCert=""
+        secureBootMokCert=""
     fi
     # An install that already ran the flat ${fogprogramdir}/secureboot layout
     # migrates the flat MOK material in place -- same key/cert, one more hop
