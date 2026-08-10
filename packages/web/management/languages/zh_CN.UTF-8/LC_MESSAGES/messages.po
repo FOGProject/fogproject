@@ -7658,6 +7658,14 @@ msgid ""
 "this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "更新打印机"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "更新打印机"
+
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -8574,6 +8582,10 @@ msgstr "找不到包含该图像的任何节点"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "图片没有节点发现"
 
 #, fuzzy
 msgid "not found on this node"

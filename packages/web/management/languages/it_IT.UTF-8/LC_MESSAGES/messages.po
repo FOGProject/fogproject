@@ -7362,6 +7362,14 @@ msgid ""
 "this group."
 msgstr ""
 
+#, fuzzy
+msgid "Use the default init"
+msgstr "Aggiorna la stampante predefinita"
+
+#, fuzzy
+msgid "Use the default kernel"
+msgstr "Aggiorna la stampante predefinita"
+
 msgid "Use the following link to go to the client page."
 msgstr "Utilizzare il seguente collegamento per accedere alla pagina client."
 
@@ -8227,6 +8235,10 @@ msgstr "nodi che contengono questa immagine"
 
 msgid "not built yet"
 msgstr ""
+
+#, fuzzy
+msgid "not found on disk"
+msgstr "Non trovato su questo nodo"
 
 msgid "not found on this node"
 msgstr "Non trovato su questo nodo"

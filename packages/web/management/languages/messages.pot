@@ -6492,6 +6492,12 @@ msgid ""
 "this group."
 msgstr ""
 
+msgid "Use the default init"
+msgstr ""
+
+msgid "Use the default kernel"
+msgstr ""
+
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -7274,6 +7280,9 @@ msgid "nodes containing this image"
 msgstr ""
 
 msgid "not built yet"
+msgstr ""
+
+msgid "not found on disk"
 msgstr ""
 
 msgid "not found on this node"
