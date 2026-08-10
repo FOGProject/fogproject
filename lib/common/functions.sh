@@ -4712,10 +4712,33 @@ spliceManagedBlock() {
     fi
     if grep -qF "$FOG_MANAGED_BEGIN" "$conffile" && grep -qF "$FOG_MANAGED_END" "$conffile"; then
         local tmp="${conffile}.fogsplice.$$"
+        # The marker test above is grep -F (substring, so a trailing CR or a
+        # stray space still matches) but the awk below compared whole lines --
+        # two matchers with different ideas of "this line is the marker". A
+        # vhost saved with CRLF endings, or with whitespace after a marker,
+        # therefore passed the grep, matched nothing in awk, and fell straight
+        # through: file copied byte-for-byte, the freshly generated vhost
+        # silently discarded, return 0, installer reports success. Admins are
+        # invited into this file by SUPPORTED_CUSTOMIZATIONS.md, so one edit
+        # from a Windows box was enough to make every later install or update
+        # quietly stop updating the vhost -- stranding whatever the managed
+        # block carries, including the maintenance/ deny rules.
+        #
+        # $0 is still what gets PRINTED, so the admin's own line endings
+        # elsewhere in the file are preserved untouched; only the comparison
+        # is normalized.
+        #
+        # The !skip guard on the begin rule matters for the partial-marker
+        # state this function is documented to tolerate: without it, a second
+        # BEGIN encountered while already skipping fired the rule again and
+        # emitted a duplicate copy of the whole generated block, which then
+        # persisted in the vhost forever. With it, that state collapses back
+        # to a single clean block on the next run.
         awk -v b="$FOG_MANAGED_BEGIN" -v e="$FOG_MANAGED_END" -v cf="$contentfile" '
-            $0 == b { print; while ((getline line < cf) > 0) print line; close(cf); skip=1; next }
-            $0 == e { print; skip=0; next }
-            !skip   { print }
+            { k = $0; sub(/[ \t\r]+$/, "", k) }
+            k == b && !skip { print; while ((getline line < cf) > 0) print line; close(cf); skip=1; next }
+            k == e          { print; skip=0; next }
+            !skip           { print }
         ' "$conffile" > "$tmp" && mv -f "$tmp" "$conffile"
         return $?
     fi
