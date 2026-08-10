@@ -3694,22 +3694,44 @@ _hardenPkiPermissions() {
     mkdir -p "${fogprogramdir}/pki" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/renewal-helper \
         "${fogprogramdir}/pki/renewal-helper" >>$error_log 2>&1
-    if [[ -f $rootCAKey ]]; then
-        echo
-        echo "  ###################################################################"
-        echo "  # The CA private key for this server is on this server, readable  #"
-        echo "  # only by root:                                                   #"
-        echo "  #   ${rootCAKey}"
-        echo "  #                                                                 #"
-        echo "  # That protects it from a compromise of the web application, but  #"
-        echo "  # not from a compromise of the machine. To move it to a vault:    #"
-        echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault"
-        echo "  #                                                                 #"
-        echo "  # Day to day nothing needs it. Restore it only to issue a new     #"
-        echo "  # intermediate, or a certificate for a new storage node.          #"
-        echo "  ###################################################################"
-        echo
-    fi
+    # A storage node does not hold the fleet's root CA -- storage-node
+    # certificate issuance does not exist yet on this line (see
+    # docs/PKI_ZONES.md), so whatever CA a storage node minted here is local
+    # to itself, and "restore it to issue a certificate for a new storage
+    # node" would be nonsense advice on the storage node itself.
+    case $installtype in
+        [Ss]) ;;
+        *)
+            if [[ -f $rootCAKey || -f $sbca ]]; then
+                echo
+                echo "  ###################################################################"
+                if [[ -f $rootCAKey ]]; then
+                    echo "  # The CA private key for this server is on this server, readable  #"
+                    echo "  # only by root:                                                   #"
+                    echo "  #   ${rootCAKey}"
+                    echo "  #                                                                 #"
+                    echo "  # That protects it from a compromise of the web application, but  #"
+                    echo "  # not from a compromise of the machine. To move it to a vault:    #"
+                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault"
+                    echo "  #                                                                 #"
+                    echo "  # Day to day nothing needs it. Restore it only to issue a new     #"
+                    echo "  # intermediate, or a certificate for a new storage node.          #"
+                fi
+                if [[ -f $sbca ]]; then
+                    [[ -f $rootCAKey ]] && echo "  #                                                                 #"
+                    echo "  # The Secure Boot CA private key is also on this server,          #"
+                    echo "  # readable only by root:                                          #"
+                    echo "  #   ${sbca}"
+                    echo "  #                                                                 #"
+                    echo "  # Restore it to issue a new Secure Boot intermediate, or a        #"
+                    echo "  # new signing leaf. To move it to a vault:                        #"
+                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault --zone secureboot"
+                fi
+                echo "  ###################################################################"
+                echo
+            fi
+            ;;
+    esac
 }
 createSSLCA() {
     # GH-529: this function also emits the vhost further down.
