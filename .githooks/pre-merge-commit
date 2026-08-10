@@ -1,14 +1,19 @@
-#!/usr/bin/sh
+#!/usr/bin/env sh
 #
-# An example hook script to verify what is about to be committed.
-# Called by "git merge" with no arguments.  The hook should
-# exit with non-zero status after issuing an appropriate message to
-# stderr if it wants to stop the merge commit.
+# Invoked by "git merge" when a merge commit is about to be created, and
+# runs the same pre-commit hook an ordinary commit gets - the FOG_VERSION
+# bump, the translation regeneration and the PSR2 fixer.
 #
-# To enable this hook, rename this file to "pre-merge-commit".
-# this was taken from the example hook and adapted to run the custom hook
+# This is git's own documented sample behaviour ("the default pre-merge-commit
+# hook, when enabled, runs the pre-commit hook"), and this file started life as
+# that sample. The sample resolves the hook through $GIT_WORK_TREE, which
+# nothing sets for a hook - git chdir's to the top of the work tree instead,
+# and `git-sh-setup` does not export it either - so it tested
+# /.githooks/pre-commit, found nothing and quietly did nothing on every merge
+# since it was added. Resolve the path the way .githooks/pre-commit itself
+# does, which is also correct inside a worktree.
+project_dir=$(git rev-parse --show-toplevel)
 
-. git-sh-setup
-test -x "$GIT_WORK_TREE/.githooks/pre-commit" &&
-        exec "$GIT_WORK_TREE/.githooks/pre-commit"
+hook="$project_dir/.githooks/pre-commit"
+test -x "$hook" && exec "$hook"
 :

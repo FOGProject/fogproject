@@ -601,12 +601,10 @@ msgid "All snapins"
 msgstr "Alle Snapins"
 
 msgid "Allows editing/creating of Task States fog currently has."
-msgstr ""
-"Ermöglicht das Bearbeiten / Erstellen von Taskstatus, die FOG zurzeit hat."
+msgstr "Ermöglicht das Bearbeiten / Erstellen von Taskstatus, die FOG zurzeit hat."
 
 msgid "Allows editing/creating of Task Types fog currently has."
-msgstr ""
-"Erlaubt das Bearbeiten/Erstellen von Task-Typen, die der FOG derzeit hat"
+msgstr "Erlaubt das Bearbeiten/Erstellen von Task-Typen, die der FOG derzeit hat"
 
 #, fuzzy
 msgid "Already created"
@@ -771,10 +769,7 @@ msgstr "Boot-Tastensequenz"
 msgid "Boot Options"
 msgstr "Boot-Optionen:"
 
-msgid ""
-"Boot the client from a stock Ubuntu or Debian live image with Secure Boot "
-"left ON. Those images boot under Secure Boot on their own signed shim, so no "
-"firmware changes are needed."
+msgid "Boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON. Those images boot under Secure Boot on their own signed shim, so no firmware changes are needed."
 msgstr ""
 
 #, fuzzy
@@ -865,9 +860,7 @@ msgstr "Primäre MAC kann nicht als zusätzliche MAC hinzugefügt werden."
 
 #, fuzzy
 msgid "Cannot add a pre-existing primary mac"
-msgstr ""
-"Eine bereits bestehende primäre MAC kann nicht als eine ausstehende MAC "
-"hinzugefügt werden."
+msgstr "Eine bereits bestehende primäre MAC kann nicht als eine ausstehende MAC hinzugefügt werden."
 
 #, fuzzy
 msgid "Cannot bind to the LDAP server"
@@ -892,14 +885,10 @@ msgstr "Verbindung zum FTP-Server nicht möglich"
 
 #, fuzzy
 msgid "Cannot create tasking as image is not enabled"
-msgstr ""
-"Es können keine Tasks erstellt werden, solange das Image nicht freigegeben "
-"ist"
+msgstr "Es können keine Tasks erstellt werden, solange das Image nicht freigegeben ist"
 
 msgid "Cannot set tasking as image is not enabled"
-msgstr ""
-"Es können keine Tasks ausgeführt werden, solange das Image nicht freigegeben "
-"ist"
+msgstr "Es können keine Tasks ausgeführt werden, solange das Image nicht freigegeben ist"
 
 #, fuzzy
 msgid "Cannot set tasking to invalid hosts"
@@ -977,13 +966,10 @@ msgstr "Überprüfen Sie hier, welche Drucker hinzugefügt werden können"
 msgid "Check that database is running"
 msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 
-msgid ""
-"Check the capture folder is owned by and writable to the storage node user"
+msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
-msgid ""
-"Check this value matches what the enrolment script prints before confirming. "
-"That comparison is what stops the wrong key being trusted."
+msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 #, fuzzy
@@ -1074,9 +1060,7 @@ msgstr "Clients"
 msgid "Command"
 msgstr "Befehl"
 
-msgid ""
-"Compare the SHA-256 it prints against the one shown above. If they differ, "
-"stop -- that comparison is the whole security of this step."
+msgid "Compare the SHA-256 it prints against the one shown above. If they differ, stop -- that comparison is the whole security of this step."
 msgstr ""
 
 msgid "Complete"
@@ -1120,18 +1104,14 @@ msgstr "Bestätige Task"
 msgid "Conflicting path/file"
 msgstr "widersprüchliche(r) Pfad/Datei"
 
-msgid ""
-"Copy all three files onto a USB stick, boot the client from a stock Ubuntu "
-"or Debian live image with Secure Boot left ON, and run the launcher"
+msgid "Copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher"
 msgstr ""
 
 #, fuzzy
 msgid "Copy from existing"
 msgstr "Kopie von bereits existierenden"
 
-msgid ""
-"Copy the three files above onto a USB stick, keeping them in the same folder "
-"-- the script expects MOK.der beside it."
+msgid "Copy the three files above onto a USB stick, keeping them in the same folder -- the script expects MOK.der beside it."
 msgstr ""
 
 #, fuzzy
@@ -1588,9 +1568,7 @@ msgstr "Dauer"
 msgid "ESC is defaulted"
 msgstr "ESC ist standardmäßig eingestellt"
 
-msgid ""
-"Each client needs this certificate enrolled once, by someone physically at "
-"the machine"
+msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
 msgid "Edit"
@@ -1660,10 +1638,7 @@ msgstr "Geben Sie für die Suche einen Hostnamen ein"
 msgid "Enter a model name to search for"
 msgstr "Geben Sie für die Suche einen Benutzernamen ein"
 
-msgid ""
-"Enter a one-time password twice when asked. It only proves at the next "
-"reboot that you are the same person; it is not stored and does not need to "
-"be strong."
+msgid "Enter a one-time password twice when asked. It only proves at the next reboot that you are the same person; it is not stored and does not need to be strong."
 msgstr ""
 
 #, fuzzy
@@ -2839,9 +2814,7 @@ msgstr "Symbol"
 msgid "Icon File not found"
 msgstr "Icon-Datei nicht gefunden"
 
-msgid ""
-"If MOK Manager does not appear, the machine did not boot through a shim and "
-"nothing was enrolled."
+msgid "If MOK Manager does not appear, the machine did not boot through a shim and nothing was enrolled."
 msgstr ""
 
 #, fuzzy
@@ -2866,9 +2839,7 @@ msgstr "falls deaktiviert, "
 msgid "If on"
 msgstr "Falls aktiviert,"
 
-msgid ""
-"If that chain loads but the network never comes up, the firmware's own UEFI "
-"network stack is at fault. Point the boot filename at"
+msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
 msgstr ""
 
 #, fuzzy
@@ -2885,8 +2856,7 @@ msgid "If you are looking to configure settings for a specific host"
 msgstr "Falls Sie einen einzelnen Host konfigurieren möchten, "
 
 msgid "If you need help understanding what items are needed please"
-msgstr ""
-"Wenn Sie Hilfe benötigen, um zu verstehen, welche Elemente benötigt werden, "
+msgstr "Wenn Sie Hilfe benötigen, um zu verstehen, welche Elemente benötigt werden, "
 
 msgid "If you would like to backup your"
 msgstr "Wenn Sie die FOG Datenbank"
@@ -3506,8 +3476,7 @@ msgid "It tells the client to download snapins from"
 msgstr "Es weist den Client an, Snapins vom hostdefinierten "
 
 msgid "It will operate based on the fields the area typically requires"
-msgstr ""
-"Es funktioniert mittels der Einträge, die der Bereich normalerweise benötigt"
+msgstr "Es funktioniert mittels der Einträge, die der Bereich normalerweise benötigt"
 
 #, fuzzy
 msgid "Item removed successfully!"
@@ -3568,8 +3537,7 @@ msgid "Key must be a string or index"
 msgstr "Schlüsselname muss eine Zeichenfolge sein."
 
 msgid "Key must be an array of keys or a string."
-msgstr ""
-"Schlüsselname muss ein Array von Schlüsseln sein oder eine Zeichenfolge haben"
+msgstr "Schlüsselname muss ein Array von Schlüsseln sein oder eine Zeichenfolge haben"
 
 msgid "Kill"
 msgstr "sofort abbrechen"
@@ -4527,8 +4495,7 @@ msgstr ""
 msgid "On reboot we will try to find a new node"
 msgstr "Beim Neustart versuchen wir, automatisch"
 
-msgid ""
-"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 #, fuzzy
@@ -4760,16 +4727,13 @@ msgstr "Hosts anpingen"
 
 #, fuzzy
 msgid "Please Enter an admin or mobile lookup name"
-msgstr ""
-"Bitte geben Sie einen Namen für einen Admin oder einen mobilen Lookup ein."
+msgstr "Bitte geben Sie einen Namen für einen Admin oder einen mobilen Lookup ein."
 
 msgid "Please Select an option"
 msgstr "Bitte wählen Sie eine Option"
 
 msgid "Please be very careful changing any of the following settings"
-msgstr ""
-"Seien Sie bitte sehr vorsichtig bei der Änderung der folgenden "
-"Einstellungen, "
+msgstr "Seien Sie bitte sehr vorsichtig bei der Änderung der folgenden Einstellungen, "
 
 msgid "Please check your credentials in"
 msgstr "Bitte überprüfen Sie die Zugangsdaten."
@@ -4859,8 +4823,7 @@ msgid "Please select the snapin you want to install"
 msgstr "Bitte wählen Sie das Snapin, das Sie installieren wollen"
 
 msgid "Please select the storage group this location relates to."
-msgstr ""
-"Bitte wählen Sie die Speichergruppe aus, die sich auf diesen Standort bezieht"
+msgstr "Bitte wählen Sie die Speichergruppe aus, die sich auf diesen Standort bezieht"
 
 msgid "Please update your FOG Client, this is old and insecure"
 msgstr ""
@@ -5070,9 +5033,7 @@ msgstr "Neustart nach der Verteilung"
 msgid "Reboot after install"
 msgstr "Nach der Installation neu starten"
 
-msgid ""
-"Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View "
-"key 0, Continue, Yes, then the password, then Reboot."
+msgid "Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View key 0, Continue, Yes, then the password, then Reboot."
 msgstr ""
 
 #, fuzzy
@@ -5383,9 +5344,7 @@ msgstr "Rolle aktualisiert"
 msgid "Rule value"
 msgstr "Regelwert"
 
-msgid ""
-"Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It "
-"re-runs itself with sudo."
+msgid "Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It re-runs itself with sudo."
 msgstr ""
 
 #, fuzzy
@@ -5409,9 +5368,7 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Kernel speichern"
 
-msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
-"key update or missing auto-increment."
+msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
 #, fuzzy
@@ -5507,10 +5464,7 @@ msgstr "Zweiter Parameter muss innerhalb des Arrays (Klasse, Funktion) sein"
 msgid "Secure Boot"
 msgstr ""
 
-msgid ""
-"Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the "
-"installer skips these binaries, because rebuilding them to trust this "
-"server's CA would invalidate the signature that makes them bootable."
+msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
 msgstr ""
 
 #, fuzzy
@@ -5674,10 +5628,7 @@ msgstr "Nach der Installation herunterfahren"
 msgid "Signed"
 msgstr "Unterschrift"
 
-msgid ""
-"Signing is already done on this server. The remaining work is per-client and "
-"has to be done by someone at the machine -- that is what makes enrolment a "
-"deliberate act rather than something a server can do to a client remotely."
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 #, fuzzy
@@ -6409,8 +6360,7 @@ msgid "Tasked Successfully"
 msgstr "erfolgreich beauftragt"
 
 msgid "Tasked successfully, click active tasks to view in line."
-msgstr ""
-"Erfogreiche Ausführung, ein Klick auf aktive Tasks zeigt sie in einer Zeile"
+msgstr "Erfogreiche Ausführung, ein Klick auf aktive Tasks zeigt sie in einer Zeile"
 
 msgid "Tasking"
 msgstr "Tasking"
@@ -6435,9 +6385,7 @@ msgstr "Allgemeine Geschäftsbedingungen"
 msgid "Text"
 msgstr "Text"
 
-msgid ""
-"That is the signed chain staged by the installer; the default boot file is "
-"unsigned and a Secure Boot client will refuse it"
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
 msgstr ""
 
 #, fuzzy
@@ -6497,8 +6445,7 @@ msgid "The settings tend to be global which affects all hosts."
 msgstr "Die Einstellungen wirken sich in der Regel auf alle Hosts aus."
 
 msgid "The storage groups associated storage node is not valid"
-msgstr ""
-"Der einer/mehrere Speichergruppen zugeordnete Speicherknoten ist ungültig"
+msgstr "Der einer/mehrere Speichergruppen zugeordnete Speicherknoten ist ungültig"
 
 #, fuzzy
 msgid "The uploaded file exceeds the max_file_size"
@@ -6666,12 +6613,8 @@ msgid "This section allows you to customize or alter"
 msgstr "Dieser Bereich erlaubt die Anpassung oder Änderung"
 
 #, fuzzy
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
-msgstr ""
-"In diesem Abschnitt können Sie bekannte MAC-Adressenhersteller in die FOG-"
-"Datenbank zur leichteren Identifizierung importieren."
+msgid "This section allows you to import known mac address makers into the FOG database for easier identification"
+msgstr "In diesem Abschnitt können Sie bekannte MAC-Adressenhersteller in die FOG-Datenbank zur leichteren Identifizierung importieren."
 
 msgid "This section allows you to update"
 msgstr "In diesem Abschnitt können Sie den Linux-Kernel"
@@ -6696,34 +6639,17 @@ msgid "This setting defines sending the"
 msgstr "Diese Einstellung definiert das Senden"
 
 msgid "This setting limits the bandwidth for replication between nodes"
-msgstr ""
-"Diese Einstellung begrenzt die Bandbreite für die Replikation zwischen den "
-"Knoten,"
+msgstr "Diese Einstellung begrenzt die Bandbreite für die Replikation zwischen den Knoten,"
 
 #, fuzzy
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-"Diese Einstellung löscht oder fügt nur Drucker hinzu, die von FOGverwaltet "
-"werden. Wenn der Drucker in der Druckerverwaltung existiert, aber keinem "
-"Host zugewiesen ist, wird sie den Drucker entfernen, wenn er auf dem nicht "
-"zugeordneten Host vorhanden ist. Außerdem werden dem Host, der zugewiesen "
-"ist, Drucker hinzugefügt."
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
+msgstr "Diese Einstellung löscht oder fügt nur Drucker hinzu, die von FOGverwaltet werden. Wenn der Drucker in der Druckerverwaltung existiert, aber keinem Host zugewiesen ist, wird sie den Drucker entfernen, wenn er auf dem nicht zugeordneten Host vorhanden ist. Außerdem werden dem Host, der zugewiesen ist, Drucker hinzugefügt."
 
 msgid "This setting turns off all FOG Printer Management"
 msgstr "Diese Einstellung schaltet FOG Druckerverwaltung aus"
 
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"Diese Einstellung erlaubt, nur von FOG zugewiesene Drucker an den Host "
-"hinzuzufügen. Jeder Drucker, der nicht zugeordnet ist, wird entfernt, "
-"einschließlich nicht FOG-verwaltete Drucker."
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "Diese Einstellung erlaubt, nur von FOG zugewiesene Drucker an den Host hinzuzufügen. Jeder Drucker, der nicht zugeordnet ist, wird entfernt, einschließlich nicht FOG-verwaltete Drucker."
 
 msgid "This will allow you to configure how services"
 msgstr "Hiermit können Sie konfigurieren, "
@@ -7319,9 +7245,7 @@ msgstr "Ihr Formular ist fertig."
 
 #, fuzzy
 msgid "Your system PHP Version is not sufficient"
-msgstr ""
-"Ihre PHP-Version ist nicht ausreichend. Sie haben Version %s, Version %s ist "
-"erforderlich."
+msgstr "Ihre PHP-Version ist nicht ausreichend. Sie haben Version %s, Version %s ist erforderlich."
 
 #, fuzzy
 msgid "ZSTD Compressed"
@@ -7393,9 +7317,7 @@ msgstr "da sie Probleme verursachen kann, die sehr schwierig zu lösen sind."
 msgid "automatically"
 msgstr "einen neuen Knoten zu finden"
 
-msgid ""
-"bandwidth graph, and multicast when the interface cannot be derived from the "
-"routing table"
+msgid "bandwidth graph, and multicast when the interface cannot be derived from the routing table"
 msgstr ""
 
 #, fuzzy
@@ -7454,9 +7376,7 @@ msgid "completed snapin tasking."
 msgstr "Abgeschlossen"
 
 msgid "config files that run on the client computers."
-msgstr ""
-"Konfigurationsdateien aktualisieren, die auf den Clientcomputern ausgeführt "
-"werden."
+msgstr "Konfigurationsdateien aktualisieren, die auf den Clientcomputern ausgeführt werden."
 
 #, fuzzy
 msgid "could not be cancelled"
@@ -7493,9 +7413,7 @@ msgstr "Richtlinie in der php.ini"
 
 #, fuzzy
 msgid "directive specified in the HTML form"
-msgstr ""
-"Die hochgeladene Datei überschreitet die Max_file_size-Richtlinie im HTML-"
-"Formular"
+msgstr "Die hochgeladene Datei überschreitet die Max_file_size-Richtlinie im HTML-Formular"
 
 #, fuzzy
 msgid "directory"
@@ -7714,9 +7632,7 @@ msgstr "in Sekunden"
 msgid "install or update the FOG database"
 msgstr "installieren oder aktualisieren möchten?"
 
-msgid ""
-"instead, which uses iPXE's built-in NIC drivers rather than the firmware's. "
-"Arm64 clients use the files under secureboot/arm64-efi/"
+msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
 msgstr ""
 
 #, fuzzy
@@ -7919,9 +7835,7 @@ msgstr "und wo und wie sie zu zeigen sind."
 msgid "previous install if needed"
 msgstr "Installation zurück zu kehren, falls erforderlich."
 
-msgid ""
-"re-run the installer and check the installation log for a key generation or "
-"signing failure"
+msgid "re-run the installer and check the installation log for a key generation or signing failure"
 msgstr ""
 
 msgid "read-only"
@@ -7950,9 +7864,7 @@ msgid "see fit"
 msgstr "nach Belieben bearbeiten"
 
 msgid "see the forums or lookup the commands and scripts available"
-msgstr ""
-"lesen Sie bitte die Foren oder suchen Sie nach den verfügbaren Befehlen und "
-"Skripts."
+msgstr "lesen Sie bitte die Foren oder suchen Sie nach den verfügbaren Befehlen und Skripts."
 
 #, fuzzy
 msgid "sending on base port "
@@ -7981,8 +7893,7 @@ msgid "so if it seems like the process is hanging please be patient"
 msgstr "Wenn es den Anschein hat, der Prozess hängt, haben Sie bitte Geduld."
 
 msgid "so if you are unable to boot a client you may wish to"
-msgstr ""
-"Wenn Sie also nicht in der Lage sind, einen Client zu booten, können Sie"
+msgstr "Wenn Sie also nicht in der Lage sind, einen Client zu booten, können Sie"
 
 #, php-format
 msgid "stale sender reference cleared"
@@ -7999,9 +7910,7 @@ msgstr "Task gefunden"
 msgid "terminating so it can be restarted"
 msgstr ""
 
-msgid ""
-"that detects the status on the fly, poweron or poweroff and the OS, of the "
-"client"
+msgid "that detects the status on the fly, poweron or poweroff and the OS, of the client"
 msgstr ""
 
 msgid "the Initrd (initial ramdisk) which is used alongside the"
@@ -8092,9 +8001,7 @@ msgstr "um zu überprüfen."
 
 #, fuzzy
 msgid "to signify if this is a user or channel to send to"
-msgstr ""
-"um anzuzeigen, ob dies ein Benutzer oder Kanal ist, an den gesendet werden "
-"soll"
+msgstr "um anzuzeigen, ob dies ein Benutzer oder Kanal ist, an den gesendet werden soll"
 
 msgid "to the client systems"
 msgstr "enthält oder nicht"

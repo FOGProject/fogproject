@@ -26,7 +26,7 @@
 # a given FOG release ships a known iPXE, and bumping it is a deliberate edit
 # rather than whatever happened to be tagged the day someone installed.
 [[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
-[[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.5"
+[[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.6"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20250223.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-20250223"
 [[ -z $servicesrc ]] && servicesrc="../packages/service"
