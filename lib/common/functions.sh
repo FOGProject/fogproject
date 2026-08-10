@@ -1882,7 +1882,10 @@ _firewallPortList() {
     # firewalld path, the ufw path, the iptables instructions and the
     # "here is what you still need to open" message all read this.
     echo "80/tcp HTTP (web UI, client check-in, iPXE boot)"
-    [[ $httpproto == https ]] && echo "443/tcp HTTPS (web UI, client check-in)"
+    # The :443 vhost always exists now (see createSSLCA), regardless of
+    # httpproto, so it's always reachable rather than only on an
+    # https-primary install.
+    echo "443/tcp HTTPS (web UI, client check-in)"
     [[ $noTftpBuild != 1 ]] && echo "69/udp TFTP (PXE boot)"
     echo "21/tcp FTP (image/snapin replication, node operations)"
     # Passive data. vsftpd is pinned to this range by configureFTP() for
@@ -1921,7 +1924,8 @@ _configureFirewalld() {
         esac
         firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
-    [[ $httpproto == https ]] && { firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1; }
+    # Always -- the :443 vhost always exists now, regardless of httpproto.
+    firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1
     # No named service for these two.
     firewall-cmd --permanent --add-port=${ftppasvmin}-${ftppasvmax}/tcp >>$error_log 2>&1 || failed=1
     firewall-cmd --permanent --add-port=${mcastportmin}-${mcastportmax}/udp >>$error_log 2>&1 || failed=1
@@ -3207,15 +3211,21 @@ _resolveRootCA() {
     # the new path, every later call (this run or the next) just re-points
     # $rootCAKey at it without touching the filesystem again.
     local rootDir="$(_pkiZoneDir root)"
-    mkdir -p "$rootDir" >>$error_log 2>&1
-    chmod 0700 "$rootDir" >>$error_log 2>&1
-    local canonicalRootKey="${rootDir}/.fogCA.key"
+    local cadir="${rootDir}/ca"
+    mkdir -p "$cadir" >>$error_log 2>&1
+    chmod 0700 "$cadir" >>$error_log 2>&1
+    local canonicalRootKey="${cadir}/.fogCA.key"
     if [[ $rootCAKey != "$canonicalRootKey" ]]; then
+        # An install that already ran the flat pki/root/.fogCA.key layout (one
+        # level up from here) migrates in place -- same key material, one more
+        # hop -- before falling back to whatever $rootCAKey resolved to.
+        [[ ! -f $canonicalRootKey && -f "${rootDir}/.fogCA.key" ]] && \
+            mv "${rootDir}/.fogCA.key" "$canonicalRootKey" >>$error_log 2>&1
         [[ ! -f $canonicalRootKey && -f $rootCAKey ]] && \
             mv "$rootCAKey" "$canonicalRootKey" >>$error_log 2>&1
         rootCAKey="$canonicalRootKey"
     fi
-    ln -sf "$rootCAPem" "${rootDir}/.fogCA.pem" >>$error_log 2>&1
+    ln -sf "$rootCAPem" "${cadir}/.fogCA.pem" >>$error_log 2>&1
 
     if [[ $recreateCA == yes ]]; then
         # Explicit and destructive. Everything beneath the old root is orphaned
@@ -3255,7 +3265,12 @@ EOF
     #
     # No pathlen: the Web and Secure Boot intermediates sit directly beneath
     # this, and a node's leaf sits beneath those.
-    openssl req -x509 -new -sha512 -nodes -newkey rsa:4096 -days 3650 \
+    #
+    # 30 years: a CA isn't something an out-of-the-box install should ever
+    # need to think about renewing. Renewing it means re-issuing every
+    # intermediate beneath it and re-pinning every client -- nothing like the
+    # cheap, routine rotation a leaf gets.
+    openssl req -x509 -new -sha512 -nodes -newkey rsa:4096 -days 10950 \
         -config "$sslpath/CA/root.cnf" -keyout "$rootCAKey" -out "$rootCAPem" \
         >>$error_log 2>&1
     local st=$?
@@ -3282,7 +3297,7 @@ _collectPkiNames() {
     _resolveRootCAPath
     local needRoot=0 needWeb=0 needSB=0
     [[ ! -f $rootCAPem ]] && needRoot=1
-    [[ ! -f "$(_pkiZoneDir web)/.fogWebCA.pem" ]] && needWeb=1
+    [[ ! -f "$(_pkiZoneDir web)/ca/.fogWebCA.pem" ]] && needWeb=1
     [[ ${secureboot:-1} != 0 && ! -f "$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem" ]] && needSB=1
     [[ $needRoot -eq 0 && $needWeb -eq 0 && $needSB -eq 0 ]] && return 0
     [[ -n $extraServerNames || -n $internalDomains ]] && return 0
@@ -3357,8 +3372,11 @@ ${extralines}
 EOF
     openssl req -new -sha512 -key "${outdir}/${keyfile}" -out "${outdir}/int.csr" \
         -config "${outdir}/int.cnf" >>$error_log 2>&1 || st=1
+    # 30 years, same reasoning as the root: an intermediate is a CA too, and
+    # renewing it means re-issuing its own leaf and re-verifying every chain
+    # beneath it, not a routine rotation.
     openssl x509 -req -in "${outdir}/int.csr" -CA "$rootCAPem" -CAkey "$rootCAKey" \
-        -CAcreateserial -sha512 -days 3650 -extensions v3_int \
+        -CAcreateserial -sha512 -days 10950 -extensions v3_int \
         -extfile "${outdir}/int.cnf" -out "${outdir}/${certfile}" >>$error_log 2>&1 || st=1
     chmod 0600 "${outdir}/${keyfile}" >>$error_log 2>&1
     chmod 0644 "${outdir}/${certfile}" >>$error_log 2>&1
@@ -3371,17 +3389,27 @@ EOF
 # $sslcakey/$sslcapem name the CA that signs the vhost leaf. They are set to
 # the intermediate here; the anchor stays in $rootCAPem/$rootCAKey.
 createWebIntermediateCA() {
-    local webdir
+    local webdir cadir f
     webdir="$(_pkiZoneDir web)"
-    sslcakey="${webdir}/.fogWebCA.key"
-    sslcapem="${webdir}/.fogWebCA.pem"
-    sslcachain="${webdir}/.fogWebCAchain.pem"
+    cadir="${webdir}/ca"
+    mkdir -p "$cadir" >>$error_log 2>&1
+    chmod 0700 "$cadir" >>$error_log 2>&1
+    # An install that already ran the flat pki/web layout migrates its CA
+    # material in place -- same key/cert, one more hop -- rather than minting
+    # a fresh intermediate it doesn't need.
+    for f in .fogWebCA.key .fogWebCA.pem .fogWebCAchain.pem int.cnf int.csr; do
+        [[ -f "${webdir}/${f}" && ! -f "${cadir}/${f}" ]] && \
+            mv "${webdir}/${f}" "${cadir}/${f}" >>$error_log 2>&1
+    done
+    sslcakey="${cadir}/.fogWebCA.key"
+    sslcapem="${cadir}/.fogWebCA.pem"
+    sslcachain="${cadir}/.fogWebCAchain.pem"
     if [[ ! -f $sslcakey || ! -f $sslcapem ]]; then
         dots "Creating FOG Web CA"
         # serverAuth alone. An EKU on a CA constrains what it may issue, which
         # is the whole reason this zone is separable: a web certificate from
         # here can never be a code-signing certificate, whatever its leaf says.
-        _issueIntermediateCA "FOG Web CA" "$webdir" ".fogWebCA.key" ".fogWebCA.pem" \
+        _issueIntermediateCA "FOG Web CA" "$cadir" ".fogWebCA.key" ".fogWebCA.pem" \
             "extendedKeyUsage = serverAuth
 $(_nameConstraints)" "FOG Web UI"
         errorStat $?
@@ -3493,15 +3521,30 @@ _separateCommKey() {
 # Anything else is an admin's deliberate choice (ACME, /etc/pki, a mounted
 # secret) and is left exactly as it is.
 _resolveWebLeafPaths() {
-    local webdir
+    local webdir leafdir f
     webdir="$(_pkiZoneDir web)"
-    mkdir -p "$webdir" >>$error_log 2>&1
-    chmod 0700 "$webdir" >>$error_log 2>&1
-    if [[ -z $sslprivkey || "$(readlink -f "$sslprivkey" 2>/dev/null)" == "$(readlink -f "$sslpath/.srvprivate.key" 2>/dev/null)" ]]; then
-        sslprivkey="${webdir}/.webLeaf.key"
+    leafdir="${webdir}/leaf"
+    mkdir -p "$leafdir" >>$error_log 2>&1
+    chmod 0700 "$leafdir" >>$error_log 2>&1
+    # An install that already ran the flat pki/web layout migrates its leaf
+    # material in place -- same key/cert, one more hop.
+    for f in .webLeaf.key .webLeaf.pem .webLeaf.csr .webLeaf.sans; do
+        [[ -f "${webdir}/${f}" && ! -f "${leafdir}/${f}" ]] && \
+            mv "${webdir}/${f}" "${leafdir}/${f}" >>$error_log 2>&1
+    done
+    # The third comparison catches an install whose .fogsettings already
+    # points at the old flat pki/web/.webLeaf.* path (from before this zone
+    # had a leaf/ subfolder) and repoints it at the new location, same as the
+    # other two catch the pre-separation comm-key/web-tree paths.
+    if [[ -z $sslprivkey \
+        || "$(readlink -f "$sslprivkey" 2>/dev/null)" == "$(readlink -f "$sslpath/.srvprivate.key" 2>/dev/null)" \
+        || $sslprivkey == "${webdir}/.webLeaf.key" ]]; then
+        sslprivkey="${leafdir}/.webLeaf.key"
     fi
-    if [[ -z $sslpubcert || "$(readlink -f "$sslpubcert" 2>/dev/null)" == "$(readlink -f "$webdirdest/management/other/ssl/srvpublic.crt" 2>/dev/null)" ]]; then
-        sslpubcert="${webdir}/.webLeaf.pem"
+    if [[ -z $sslpubcert \
+        || "$(readlink -f "$sslpubcert" 2>/dev/null)" == "$(readlink -f "$webdirdest/management/other/ssl/srvpublic.crt" 2>/dev/null)" \
+        || $sslpubcert == "${webdir}/.webLeaf.pem" ]]; then
+        sslpubcert="${leafdir}/.webLeaf.pem"
     fi
 }
 # The certificate the web server actually serves.
@@ -3511,9 +3554,10 @@ _resolveWebLeafPaths() {
 # every certificate ever written, so the leaf was re-signed on every single run
 # -- harmless while one key did every job, fatal once the signer can be offline.
 _createWebLeaf() {
-    local webdir stamp want st=0
+    local webdir leafdir stamp want st=0
     webdir="$(_pkiZoneDir web)"
-    stamp="${webdir}/.webLeaf.sans"
+    leafdir="${webdir}/leaf"
+    stamp="${leafdir}/.webLeaf.sans"
 
     if [[ $acmeLeaf == yes && $recreateKeys != yes && $recreateCA != yes ]]; then
         echo " * Web certificate is externally managed (acmeLeaf=yes) -- leaving it in place."
@@ -3535,11 +3579,14 @@ _createWebLeaf() {
         return 0
     fi
     dots "Creating SSL Certificate"
-    openssl req -new -sha512 -key "$sslprivkey" -out "${webdir}/.webLeaf.csr" \
+    openssl req -new -sha512 -key "$sslprivkey" -out "${leafdir}/.webLeaf.csr" \
         -config "$sslpath/req.cnf" \
         -subj "/CN=${hostname}/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
-    openssl x509 -req -in "${webdir}/.webLeaf.csr" -CA "$sslcapem" -CAkey "$sslcakey" \
-        -CAcreateserial -out "$sslpubcert" -days 3650 -extensions v3_ca \
+    # 5 years: short enough that a compromised leaf key ages out on its own,
+    # long enough not to need automatic renewal. renewal-helper (packages/pki)
+    # exists for an admin who wants to rotate it sooner.
+    openssl x509 -req -in "${leafdir}/.webLeaf.csr" -CA "$sslcapem" -CAkey "$sslcakey" \
+        -CAcreateserial -out "$sslpubcert" -days 1825 -extensions v3_ca \
         -extfile "$sslpath/ca.cnf" >>$error_log 2>&1 || st=1
     [[ $st -eq 0 ]] && echo "$want" > "$stamp"
     chmod 0600 "$sslprivkey" >>$error_log 2>&1
@@ -3636,6 +3683,9 @@ _hardenPkiPermissions() {
     mkdir -p "${fogprogramdir}/bin" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-offline-ca-key \
         "${fogprogramdir}/bin/fog-offline-ca-key" >>$error_log 2>&1
+    mkdir -p "${fogprogramdir}/pki" >>$error_log 2>&1
+    install -o root -g root -m 0755 ../packages/pki/renewal-helper \
+        "${fogprogramdir}/pki/renewal-helper" >>$error_log 2>&1
     if [[ -f $rootCAKey ]]; then
         echo
         echo "  ###################################################################"
@@ -3751,6 +3801,18 @@ EOF
     fi
     _createCommLeaf
 
+    # Discoverability symlinks only -- the comm leaf's real files stay at
+    # $sslpath (see _createCommLeaf's own comment for why). This just gives
+    # the root zone the same ca/+leaf/ shape as the other two zones, so
+    # nothing under pki/ is flat. $commLeafKey/$commLeafPem are set
+    # unconditionally at the top of _createCommLeaf, so they're valid here
+    # even if that call returned early without issuing anything yet.
+    local rootLeafDir="$(_pkiZoneDir root)/leaf"
+    mkdir -p "$rootLeafDir" >>$error_log 2>&1
+    chmod 0700 "$rootLeafDir" >>$error_log 2>&1
+    [[ -f $commLeafKey ]] && ln -sf "$commLeafKey" "${rootLeafDir}/.srvprivate.key" >>$error_log 2>&1
+    [[ -f $commLeafPem ]] && ln -sf "$commLeafPem" "${rootLeafDir}/.srvpublic.crt" >>$error_log 2>&1
+
     # --- Web zone ---------------------------------------------------------
     if [[ ${rootCAIssuer:-1} -eq 1 ]]; then
         createWebIntermediateCA
@@ -3784,7 +3846,7 @@ EOF
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$error_log 2>&1
     errorStat $?
-    [[ $httpproto == https ]] && sslenabled=" (SSL)" || sslenabled=" (no SSL)"
+    [[ $httpproto == https ]] && sslenabled=" (SSL, redirecting)" || sslenabled=" (SSL available, no redirect)"
     dots "Setting up Apache virtual host${sslenabled}"
     case $novhost in
         [Yy]|[Yy][Ee][Ss])
@@ -3852,56 +3914,6 @@ EOF
                 # why it went unreported for so long.
                 echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                 echo "</VirtualHost>" >> "$etcconf"
-                echo "<VirtualHost *:443>" >> "$etcconf"
-                echo "    KeepAlive Off" >> "$etcconf"
-                echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
-                    echo "        SetHandler application/x-httpd-php" >> "$etcconf"
-                else
-                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
-                fi
-                echo "    </FilesMatch>" >> "$etcconf"
-                echo "    ServerName $vhostname" >> "$etcconf"
-                echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
-                # See the :80 vhost -- installer-only, same-machine only.
-                echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
-                echo "        Require local" >> "$etcconf"
-                echo "    </LocationMatch>" >> "$etcconf"
-                echo "    DocumentRoot $docroot" >> "$etcconf"
-                echo "    SSLEngine On" >> "$etcconf"
-                echo "    SSLProtocol -all +TLSv1.2" >> "$etcconf"
-                echo "    SSLCipherSuite HIGH:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:!MEDIUM:!LOW" >> "$etcconf"
-                echo "    SSLHonorCipherOrder On" >> "$etcconf"
-                echo "    SSLSessionTickets Off" >> "$etcconf"
-                echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
-                # The Web CA is an intermediate now, so a client needs it to
-                # build a chain to the CA it trusts. Without this the
-                # certificate is valid and browsers still reject it.
-                [[ -n $sslcachain && $sslcachain != "$sslpubcert" ]] && \
-                    echo "    SSLCertificateChainFile $sslcachain" >> "$etcconf"
-                echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
-                echo "    <Directory $webdirdest>" >> "$etcconf"
-                echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                echo "    </Directory>" >> "$etcconf"
-                # GH-529: apache does NOT resolve symlinks when matching
-                # <Directory>, so the block above covers the real tree but not
-                # the path a custom webroot is published at -- leaving a bare
-                # "/mywebroot/" with no DirectoryIndex and a 403.
-                if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
-                    echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
-                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                    echo "    </Directory>" >> "$etcconf"
-                fi
-                echo "    Timeout 600" >> "$etcconf"
-                echo "    ProxyTimeout 600" >> "$etcconf"
-                echo "    RewriteEngine On" >> "$etcconf"
-                echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
-                echo "    RewriteRule .* - [F]" >> "$etcconf"
-                echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                echo "    RewriteRule ^${webrootre}(.*)$ ${webroot}api/index.php [QSA,L]" >> "$etcconf"
-                echo "</VirtualHost>" >> "$etcconf"
             else
                 echo "    <Directory $webdirdest>" >> "$etcconf"
                 echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
@@ -3925,6 +3937,63 @@ EOF
                 echo "    RewriteRule ^${webrootre}(.*)$ ${webroot}api/index.php [QSA,L]" >> "$etcconf"
                 echo "</VirtualHost>" >> "$etcconf"
             fi
+            # The :443 vhost now always exists, independent of httpproto: the
+            # web certificate is minted every install regardless (see
+            # createWebIntermediateCA/_createWebLeaf above), so an
+            # http-primary install still has a working https listener
+            # available. Only the :80 -> :443 redirect above stays tied to
+            # httpproto -- switching protocols automatically is still an
+            # explicit choice.
+            echo "<VirtualHost *:443>" >> "$etcconf"
+            echo "    KeepAlive Off" >> "$etcconf"
+            echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+            if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
+                echo "        SetHandler application/x-httpd-php" >> "$etcconf"
+            else
+                echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+            fi
+            echo "    </FilesMatch>" >> "$etcconf"
+            echo "    ServerName $vhostname" >> "$etcconf"
+            echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+            # See the :80 vhost -- installer-only, same-machine only.
+            echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
+            echo "        Require local" >> "$etcconf"
+            echo "    </LocationMatch>" >> "$etcconf"
+            echo "    DocumentRoot $docroot" >> "$etcconf"
+            echo "    SSLEngine On" >> "$etcconf"
+            echo "    SSLProtocol -all +TLSv1.2" >> "$etcconf"
+            echo "    SSLCipherSuite HIGH:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:!MEDIUM:!LOW" >> "$etcconf"
+            echo "    SSLHonorCipherOrder On" >> "$etcconf"
+            echo "    SSLSessionTickets Off" >> "$etcconf"
+            echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
+            # The Web CA is an intermediate now, so a client needs it to
+            # build a chain to the CA it trusts. Without this the
+            # certificate is valid and browsers still reject it.
+            [[ -n $sslcachain && $sslcachain != "$sslpubcert" ]] && \
+                echo "    SSLCertificateChainFile $sslcachain" >> "$etcconf"
+            echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+            echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
+            echo "    <Directory $webdirdest>" >> "$etcconf"
+            echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+            echo "    </Directory>" >> "$etcconf"
+            # GH-529: apache does NOT resolve symlinks when matching
+            # <Directory>, so the block above covers the real tree but not
+            # the path a custom webroot is published at -- leaving a bare
+            # "/mywebroot/" with no DirectoryIndex and a 403.
+            if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
+                echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                echo "    </Directory>" >> "$etcconf"
+            fi
+            echo "    Timeout 600" >> "$etcconf"
+            echo "    ProxyTimeout 600" >> "$etcconf"
+            echo "    RewriteEngine On" >> "$etcconf"
+            echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+            echo "    RewriteRule .* - [F]" >> "$etcconf"
+            echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+            echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+            echo "    RewriteRule ^${webrootre}(.*)$ ${webroot}api/index.php [QSA,L]" >> "$etcconf"
+            echo "</VirtualHost>" >> "$etcconf"
             diffconfig "${etcconf}"
             errorStat $?
             # Self-referential link so /fog/fog/... resolves. $webdirdest carries
@@ -4602,11 +4671,13 @@ EOF
         openssl req -new -sha256 -nodes -newkey rsa:2048 \
             -config "${leafdir}/sign.cnf" -keyout "${leafdir}/sign.key" \
             -out "${leafdir}/sign.csr" >>$error_log 2>&1 || st=1
-        # Deliberately short next to the intermediate's ten years: rotating it
-        # is now free, so there is no reason to mint a decade-long signer.
+        # Shorter than the intermediate's 30 years, not because it has to be,
+        # but because rotating it is cheap -- renewal-helper (packages/pki)
+        # re-signs it on request with no firmware re-enrollment needed, since
+        # what's enrolled is the intermediate above it, not this leaf.
         openssl x509 -req -in "${leafdir}/sign.csr" \
             -CA "${cadir}/.fogSBCA.pem" -CAkey "${cadir}/.fogSBCA.key" \
-            -CAcreateserial -sha256 -days 730 -extensions v3_sign \
+            -CAcreateserial -sha256 -days 1825 -extensions v3_sign \
             -extfile "${leafdir}/sign.cnf" -out "${leafdir}/sign.pem" >>$error_log 2>&1 || st=1
         chown root:root "${leafdir}/sign.key" "${leafdir}/sign.pem" >>$error_log 2>&1
         chmod 0600 "${leafdir}/sign.key" >>$error_log 2>&1
@@ -4722,7 +4793,10 @@ basicConstraints = critical,CA:FALSE
 extendedKeyUsage = codeSigning
 subjectKeyIdentifier = hash
 EOF
-    if ! openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 3650 \
+    # 30 years, same as the real CAs: whatever CA:FALSE says, this is the
+    # enrolled firmware trust anchor in this fallback path, and rotating it
+    # costs the same fleet-wide re-enrollment a real CA's renewal would.
+    if ! openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 10950 \
             -config "${keydir}/mok.cnf" -keyout "$key" -out "$cert" \
             >>$error_log 2>&1; then
         echo "Failed"

@@ -11,7 +11,7 @@ separated and what changes on the endpoints.
 
 | Zone | What it protects | Lifetime | Cost of changing it |
 |---|---|---|---|
-| **Web TLS** | The browser/API connection to the FOG web UI | 90 days – 1 yr | None. Browsers just need the issuer trusted. |
+| **Web TLS** | The browser/API connection to the FOG web UI | 5 yrs default (see "Leaf renewal") | None. Browsers just need the issuer trusted. |
 | **Client Communication** | fog-client's encrypted check-in with the server | 3 – 5 yrs | Medium. Every registered client must re-pin. |
 | **Secure Boot** | The signature on the FOS kernels | 10 – 20 yrs | High. Firmware re-enrollment on every machine. |
 
@@ -51,16 +51,28 @@ FOG Server CA                     the existing CA, unchanged, published as ca.ce
 The anchor is the CA your server already has. Nothing above it is created, so
 `ca.cert.der` does not change and no fog-client re-pins.
 
-On disk, under `/opt/fog/snapins/ssl/` (everything is a dotfile — `ls -a`):
+Under `$fogprogramdir/pki/` (default `/opt/fog/pki/`), one subfolder per
+zone, each split into `ca/` (the zone's own CA material) and `leaf/` (what
+that CA issues day to day) — everything is a dotfile (`ls -a`):
 
 ```
-CA/.fogCA.{key,pem}              the anchor. Never regenerated. Key 0400 root:root
-CA/web/.fogWebCA.{key,pem}       signs the vhost's certificate
-CA/web/.fogWebCAchain.pem        CA + web intermediate
-CA/web/.webLeaf.{key,pem}        what the web server actually serves
-.srvprivate.key                  what certDecrypt() opens. 0640 root:<apache>
-.srvpublic.crt                   its certificate, published as srvpublic.crt
+root/ca/.fogCA.{key,pem}          the anchor. Key never regenerated, 0400 root:root.
+                                   .fogCA.pem is a symlink to wherever the
+                                   certificate already lived before this split.
+root/leaf/.srvprivate.key         symlink -> $sslpath/.srvprivate.key
+root/leaf/.srvpublic.crt          symlink -> $sslpath/.srvpublic.crt
+                                   (the comm leaf's real files stay at
+                                   $sslpath -- see "Why they were separated")
+web/ca/.fogWebCA.{key,pem}        signs the vhost's certificate
+web/ca/.fogWebCAchain.pem         CA + web intermediate
+web/leaf/.webLeaf.{key,pem}       what the web server actually serves
+secureboot/ca/.fogSBCA.{key,pem}  signs the code-signing leaf
+secureboot/leaf/sign.{key,pem}    what sbsign actually signs with
 ```
+
+`root/leaf/` and the two intermediates' `leaf/` subfolders are the only place
+this hierarchy issues something meant to be rotated routinely; see "Leaf
+renewal" below.
 
 ## What an upgrade does and does not change
 
@@ -87,9 +99,9 @@ afterwards, from `_hardenPkiPermissions`:
 
 | File | Mode |
 |---|---|
-| `CA/.fogCA.key` | `0400 root:root` |
-| `secureboot/ca/.fogSBCA.key` | `0400 root:root` |
-| `CA/web/.fogWebCA.key` | `0600 root:root` |
+| `pki/root/ca/.fogCA.key` | `0400 root:root` |
+| `pki/secureboot/ca/.fogSBCA.key` | `0400 root:root` |
+| `pki/web/ca/.fogWebCA.key` | `0600 root:root` |
 | `.srvprivate.key` | `0640 root:<apache>` — `certDecrypt()` must read this one |
 
 This is *pseudo-offline*. It protects the keys from a compromise of the web
@@ -111,6 +123,33 @@ certificate is what makes the next run mint a fresh one, orphaning every
 intermediate beneath it.
 
 Day to day nothing needs the key — only issuing a **new** intermediate does.
+
+## Leaf renewal
+
+The web leaf and the Secure Boot signing leaf default to 5 years — short
+enough that a compromised leaf key ages out on its own, long enough that
+nothing renews them automatically. To rotate either one sooner:
+
+```bash
+/opt/fog/pki/renewal-helper --zone web
+/opt/fog/pki/renewal-helper --zone secureboot
+```
+
+The web leaf re-issues from the online Web CA (or the root directly, on a
+server whose root can't anchor an intermediate) and reloads Apache so it
+picks up the new certificate. The Secure Boot leaf re-issues from the Secure
+Boot CA and needs no reload — `fog-sign-kernel` reads it fresh from disk on
+every signing operation, and nothing has to be re-enrolled in firmware
+(that's what the intermediate, not the leaf, being enrolled buys you).
+
+Either invocation refuses and tells you the exact path to restore if the
+signing CA's private key isn't on this server (`fog-offline-ca-key` moved
+it out, or the Web CA key is simply missing). The web leaf invocation also
+refuses if it's ACME-managed (`acmeLeaf=yes`) — renew that one through your
+ACME client instead.
+
+Nothing here runs on a timer. Wire it into your own cron if you want
+unattended renewal; `installfog.sh` does not install one for you.
 
 ## Name constraints
 
