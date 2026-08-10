@@ -3474,15 +3474,22 @@ _hardenPkiPermissions() {
     done
     # 0600 root:root: online, but only ever used by root-run code -- the
     # installer, and the node-signing helper invoked through sudo.
-    for f in "$sslcakey" "$sslprivkey"; do
-        [[ -z $f || ! -f $f ]] && continue
-        # Never touch a key the admin manages themselves. An ACME renewal
-        # writes $sslprivkey as whatever user certbot runs its hook as, and
-        # locking it to root would break the next renewal rather than this run.
-        [[ $acmeLeaf == yes ]] && continue
-        chown root:root "$f" >>$error_log 2>&1
-        chmod 0600 "$f" >>$error_log 2>&1
-    done
+    if [[ -n $sslcakey && -f $sslcakey ]]; then
+        chown root:root "$sslcakey" >>$error_log 2>&1
+        chmod 0600 "$sslcakey" >>$error_log 2>&1
+    fi
+    # The web leaf's key, unless the admin manages it themselves. An ACME
+    # renewal writes $sslprivkey as whatever user its hook runs as, so locking
+    # it to root would break the next renewal rather than this run.
+    #
+    # Deliberately narrower than it looks: acmeLeaf exempts THIS key only. The
+    # Web CA key above is FOG's whatever the leaf's provenance, and an earlier
+    # version of this loop skipped both, leaving a CA key at 775 on exactly the
+    # servers whose admins had thought hardest about certificates.
+    if [[ $acmeLeaf != yes && -n $sslprivkey && -f $sslprivkey ]]; then
+        chown root:root "$sslprivkey" >>$error_log 2>&1
+        chmod 0600 "$sslprivkey" >>$error_log 2>&1
+    fi
     # 0640 root:$apacheuser: the ONE key the web tier must read.
     # FOGBase::certDecrypt() opens it on every fog-client authorize(), so a
     # stricter mode here does not harden anything -- it stops every client on
