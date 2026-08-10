@@ -479,6 +479,13 @@ class FOGConfigurationPage extends FOGPage
         $fingerprint = strtoupper(
             implode(':', str_split(hash_file('sha256', $certfile), 2))
         );
+        // MokManager's own "View key" screen -- the only thing shown when
+        // enrolling from the PXE menu, which never runs fog-enroll-mok.sh --
+        // prints a SHA-1 fingerprint, not SHA-256. Show both so either
+        // enrolment route has a value on this page to check against.
+        $fingerprintSha1 = strtoupper(
+            implode(':', str_split(hash_file('sha1', $certfile), 2))
+        );
         $body = '<p>' . sprintf(
             '%s. %s.',
             _('FOS kernels on this server are signed for UEFI Secure Boot'),
@@ -494,6 +501,13 @@ class FOGConfigurationPage extends FOGPage
             . 'confirming, whether the certificate reached the client on a '
             . 'USB stick or over the network. That comparison is what stops '
             . 'the wrong key being trusted.'
+        ) . '</p>';
+        $body .= '<p><strong>' . _('Certificate SHA-1') . '</strong></p>';
+        $body .= '<pre>' . Initiator::e($fingerprintSha1) . '</pre>';
+        $body .= '<p>' . _(
+            'This is what MokManager\'s own View key screen shows after '
+            . 'enrolling from the PXE menu -- that route never runs the '
+            . 'script above, so check it against this value instead.'
         ) . '</p>';
         $body .= '<p><strong>' . _('Enrolment kit') . '</strong></p>';
         $body .= '<p>' . _(

@@ -88,13 +88,17 @@ fi
 
 case "$zone" in
     root)
-        key="${rootCAKey:-${sslpath}/CA/.fogCA.key}"
+        # $rootCAKey is never persisted to .fogsettings -- installfog.sh
+        # re-derives it fresh every run -- so this standalone script always
+        # falls to the default. The certificate is deliberately not moved by
+        # the pki/ split (see createSSLCA's _resolveRootCA), only the key.
+        key="${rootCAKey:-${fogprogramdir}/pki/root/ca/.fogCA.key}"
         cert="${rootCAPem:-${sslpath}/CA/.fogCA.pem}"
         label="FOG Server CA"
         ;;
     secureboot)
-        key="${fogprogramdir}/secureboot/ca/.fogSBCA.key"
-        cert="${fogprogramdir}/secureboot/ca/.fogSBCA.pem"
+        key="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.key"
+        cert="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.pem"
         label="FOG Secure Boot CA"
         ;;
     *)

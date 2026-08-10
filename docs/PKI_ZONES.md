@@ -49,7 +49,7 @@ to change routinely are the same object.
 
 ```mermaid
 graph TD
-    Root["FOG Server CA<br/>self-signed · the existing CA · ~10y<br/>published as ca.cert.der"]
+    Root["FOG Server CA<br/>self-signed · the existing CA · 30y<br/>published as ca.cert.der"]
     Root --> WebCA["FOG Web CA<br/>serverAuth · name-constrained"]
     Root --> SBCA["FOG Secure Boot CA<br/>codeSigning · name-constrained"]
     Root --> Comm["srvpublic.crt + .srvprivate.key<br/>encrypts client check-ins"]
@@ -68,29 +68,44 @@ That also has a useful consequence: because the certificate fog-client pins
 **is** the root, the Web CA sits beneath something every client already
 trusts. Trusting `ca.cert.der` now validates the web certificate too.
 
-On disk, under `/opt/fog/snapins/ssl/` (everything is a dotfile — use `ls -a`):
+Under `$fogprogramdir/pki/` (default `/opt/fog/pki/`), one subfolder per zone,
+each split into `ca/` (the zone's own CA material) and `leaf/` (what that CA
+issues day to day) — everything is a dotfile (`ls -a`):
 
 ```
-CA/.fogCA.{key,pem}              the anchor. Never regenerated. Key 0400 root:root
-CA/web/.fogWebCA.{key,pem}       signs the vhost's certificate and node certificates
-CA/web/.fogWebCAchain.pem        CA + web intermediate
-CA/web/.webLeaf.{key,pem}        what the web server actually serves
-.srvprivate.key                  what certDecrypt() opens. 0640 root:<apache>
-.srvpublic.crt                   its certificate, published as srvpublic.crt
+root/ca/.fogCA.{key,pem}          the anchor. Key never regenerated, 0400 root:root.
+                                   .fogCA.pem is a symlink to wherever the
+                                   certificate already lived before this split.
+root/leaf/.srvprivate.key         symlink -> $sslpath/.srvprivate.key
+root/leaf/.srvpublic.crt          symlink -> $sslpath/.srvpublic.crt
+                                   (the comm leaf's real files stay at
+                                   $sslpath -- see "Why they were separated")
+web/ca/.fogWebCA.{key,pem}        signs the vhost's certificate and node certificates
+web/ca/.fogWebCAchain.pem         CA + web intermediate
+web/leaf/.webLeaf.{key,pem}       what the web server actually serves
+secureboot/ca/.fogSBCA.{key,pem,der}  signs the code-signing leaf; .der is
+                                  the same certificate MOK.der publishes, kept
+                                  here so it can be verified without reaching
+                                  into the web root
+secureboot/leaf/sign.{key,pem}    what sbsign actually signs with
 ```
 
-and under `/opt/fog/secureboot/`:
+`.srvprivate.key`/`.srvpublic.crt` themselves stay exactly where they have
+always been, at `$sslpath` — `root/leaf/` only adds discoverability symlinks
+to them, so nothing under `pki/` is flat while the comm keypair's real files
+never move.
 
-```
-ca/.fogSBCA.{key,pem}            enrolled as MOK.der. Key 0400 root:root
-leaf/sign.{key,pem}              signs the kernels
-```
+An install that already ran an earlier layout (flat `CA/.fogCA.*` directly
+under `$sslpath`, or the intermediate one-level-down `CA/web/.fogWebCA.*`
+split) migrates its key/cert material into the new tree in place on the next
+run — no re-issuing, and the old paths keep resolving via symlink where
+anything might still reference them directly.
 
 ## What an upgrade does and does not change
 
 | | |
 |---|---|
-| `CA/.fogCA.pem` | **unchanged**, byte for byte |
+| `pki/root/ca/.fogCA.pem` | **unchanged**, byte for byte |
 | `ca.cert.der` | **unchanged** — no client re-pins |
 | `.srvprivate.key` | **unchanged** — client authentication is unaffected |
 | `srvpublic.crt` | the same certificate, adopted rather than re-issued |
@@ -114,9 +129,9 @@ afterwards, from `_hardenPkiPermissions`:
 
 | File | Mode | Why |
 |---|---|---|
-| `CA/.fogCA.key` | `0400 root:root` | nothing on a running server needs it |
-| `secureboot/ca/.fogSBCA.key` | `0400 root:root` | same |
-| `CA/web/.fogWebCA.key` | `0600 root:root` | used only by root, through the sudo helper |
+| `pki/root/ca/.fogCA.key` | `0400 root:root` | nothing on a running server needs it |
+| `pki/secureboot/ca/.fogSBCA.key` | `0400 root:root` | same |
+| `pki/web/ca/.fogWebCA.key` | `0600 root:root` | used only by root, through the sudo helper |
 | `.srvprivate.key` | `0640 root:<apache>` | `certDecrypt()` must read this one |
 
 The **Certificates** page under FOG Configuration re-runs that check from
@@ -151,7 +166,7 @@ inside openssl:
  * Cannot issue 'FOG Web CA': the Root CA private key is not on this server
  * That is the correct state for an offline root, but issuing a new
    intermediate needs it. Restore it to:
-     /opt/fog/snapins/ssl/CA/.fogCA.key
+     /opt/fog/pki/root/ca/.fogCA.key
    re-run the installer, then move it back to your vault.
 ```
 
@@ -163,6 +178,33 @@ inside openssl:
 Before offlining the Secure Boot key, issue signing certificates to every
 storage node that needs one. Restoring it later for a new node is supported,
 but it is a trip to the vault.
+
+## Leaf renewal
+
+The web leaf and the Secure Boot signing leaf default to 5 years — short
+enough that a compromised leaf key ages out on its own, long enough that
+nothing renews them automatically. To rotate either one sooner:
+
+```bash
+/opt/fog/pki/renewal-helper --zone web
+/opt/fog/pki/renewal-helper --zone secureboot
+```
+
+The web leaf re-issues from the online Web CA (or the root directly, on a
+server whose root can't anchor an intermediate) and reloads Apache so it
+picks up the new certificate. The Secure Boot leaf re-issues from the Secure
+Boot CA and needs no reload — `fog-sign-kernel` reads it fresh from disk on
+every signing operation, and nothing has to be re-enrolled in firmware
+(that's what the intermediate, not the leaf, being enrolled buys you).
+
+Either invocation refuses and tells you the exact path to restore if the
+signing CA's private key isn't on this server (`fog-offline-ca-key` moved it
+out, or the Web CA key is simply missing). The web leaf invocation also
+refuses if it's ACME-managed (`acmeLeaf=yes`) — renew that one through your
+ACME client instead.
+
+Nothing here runs on a timer. Wire it into your own cron if you want
+unattended renewal; `installfog.sh` does not install one for you.
 
 ## Name constraints
 
@@ -309,6 +351,72 @@ regenerating the leaf, and so it leaves the permissions on your key alone.
 > The historic warning about not letting an ACME client replace
 > `.srvprivate.key` no longer applies: the web server does not use that file.
 > This is the concrete payoff of the separation.
+
+### Recipe: using acme.sh for the web leaf instead
+
+This is one option among several, not a default — nothing here is installed
+or configured automatically. If you'd rather have a publicly-trusted
+certificate on the web leaf than FOG's own Web CA, `acmeLeaf=yes` above is the
+escape hatch. [acme.sh](https://github.com/acmesh-official/acme.sh) is a
+reasonable lightweight client for that — no daemon, no separate CA to run.
+
+**Pick a challenge type first.** Two options, and which one fits depends on
+your DNS, not on how you'd like the certificate issued:
+
+- **DNS-01** (usually the better fit for a LAN-only server): the ACME CA looks
+  up a `_acme-challenge.<hostname>` TXT record on your domain's *public*
+  authoritative nameservers. It never contacts the FOG server or your internal
+  resolver at all, so this needs zero inbound connectivity to the box. It only
+  works if the hostname is under a domain you manage in public DNS — even if
+  the actual A record is never published, or only resolves internally on your
+  LAN. acme.sh has around 140 built-in DNS provider plugins (`--dns dns_cf`
+  for Cloudflare, and similar for Route53/Azure/etc.) that fully automate
+  creating and removing that record.
+- **HTTP-01**: needs port 80 reachable from whatever ACME server you point
+  acme.sh at. Only helps if that port is actually reachable from the CA,
+  which rules it out for most LAN-only boxes.
+
+Neither path requires or assumes an internal CA like step-ca — point acme.sh's
+`--server` at one if you already run one, but it's not needed for either
+recipe above.
+
+**Issue:**
+```bash
+acme.sh --issue -d fog.example.com --dns dns_cf        # DNS-01
+acme.sh --issue -d fog.example.com -w /var/www/html    # HTTP-01, docroot
+```
+
+**Install into the paths FOG already serves from**, rather than acme.sh's own
+default cert store, so nothing else needs to change:
+```bash
+acme.sh --install-cert -d fog.example.com \
+    --key-file       /opt/fog/pki/web/leaf/.webLeaf.key \
+    --cert-file      /opt/fog/pki/web/leaf/.webLeaf.pem \
+    --ca-file        /opt/fog/pki/web/ca/.fogWebCAchain.pem \
+    --reloadcmd      "systemctl reload httpd"     # apache2 on Ubuntu
+```
+`--cert-file` (leaf only) maps to `sslpubcert`; `--ca-file` (intermediate
+only) maps to `sslcachain` — matching Apache's
+`SSLCertificateFile`/`SSLCertificateChainFile` split. Don't use
+`--fullchain-file` for `sslpubcert`, or the vhost ends up listing the
+intermediate twice.
+
+**Tell FOG about it**, once, in `.fogsettings`:
+```
+acmeLeaf=yes
+sslprivkey=/opt/fog/pki/web/leaf/.webLeaf.key
+sslpubcert=/opt/fog/pki/web/leaf/.webLeaf.pem
+sslcachain=/opt/fog/pki/web/ca/.fogWebCAchain.pem
+```
+Reusing the exact default paths above is what makes `_resolveWebLeafPaths()`
+recognize them as already-yours and leave them alone on every later
+`installfog.sh` run; `sslcachain` gets the same treatment from
+`createWebIntermediateCA()`.
+
+**Renewal** is acme.sh's own cron entry — the `--reloadcmd` above is what
+picks up each renewed certificate. `renewal-helper --zone web` already
+refuses on an ACME-managed leaf; use `acme.sh --renew -d fog.example.com
+--force` instead if you ever need to force one.
 
 ## HTTPS and netboot
 

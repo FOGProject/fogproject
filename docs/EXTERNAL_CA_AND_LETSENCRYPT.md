@@ -164,7 +164,7 @@ What the installer does with them (see `validateExternalCA()` in
 
 1. Verifies the key matches the cert, that the cert is a CA, and that the
    intermediate chains to the root. Any failure **aborts** the install.
-2. Imports the files into FOG's CA directory (`/opt/fog/snapins/ssl/CA/`) as
+2. Imports the files into FOG's CA directory (`/opt/fog/pki/root/ca/`) as
    `.fogCA.pem` (intermediate), `.fogCA.key`, and `.fogCAchain.pem` (root +
    intermediate concatenated).
 3. Signs `srvpublic.crt` with your intermediate.
@@ -177,7 +177,7 @@ What the installer does with them (see `validateExternalCA()` in
 The relevant values are persisted to `.fogsettings` (`externalca`, `extcacert`,
 `extcakey`, `extcaroot`, `sslcachain`) so re-running the installer reuses them.
 If the source files are no longer readable on a later run, the installer reuses
-the already-imported CA in `/opt/fog/snapins/ssl/CA/`.
+the already-imported CA in `/opt/fog/pki/root/ca/`.
 
 ---
 
