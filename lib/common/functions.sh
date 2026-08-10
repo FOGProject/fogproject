@@ -1868,9 +1868,12 @@ installPackages() {
     # Secure Boot enrolment path writes on the client (_publishSecureBootAuthVars).
     # Same baseline reasoning as sbsigntool: the feature is on by default, so the
     # tooling it needs is not something the admin should have to know to install
-    # first. Named "efitools" on every distro this installer supports, so unlike
-    # sbsigntool it needs no alternatives entry; where it is genuinely absent the
-    # package loop skips it and the builder degrades to its own warning.
+    # first. Named "efitools" on every distro that packages it, so it needs no
+    # alternatives entry -- but RHEL/Rocky/Alma/CentOS Stream 9 package NONE:
+    # confirmed absent from EPEL9, only present in those distros' build-only
+    # "devel" repos. There the package loop skips it cleanly ("Does not
+    # exist") and _ensureEfitools() builds it from source as a last resort,
+    # right before _publishSecureBootAuthVars needs it.
     packages="$packages efitools"
     packages="${packages} ${webserver}"
     # -E, not -P: busybox grep has no -P at all, so on Alpine this printed a
@@ -4165,25 +4168,71 @@ _resolveSslPath() {
 #     narrowing the CA to specific v4 subnets does not silently get the whole
 #     unique-local range back.
 #
+# The names every web leaf carries, and the floor every Web/SB intermediate's
+# nameConstraints must permit. Single source of truth: SAN generation
+# (createSSLCA) and permitted-set generation (_nameConstraints, below) used to
+# derive $hostname/$extraServerNames separately, a few hundred lines apart,
+# and a new default added to only one of them would issue a leaf whose SAN
+# carries a name its own CA doesn't permit -- signs cleanly, then fails every
+# openssl verify, silently, until a client rejects it.
+#
+# fogserver/fog-server are DEFAULT names, not detected ones: they are the
+# fog-client installer's default value for "FOG Server Address", so any
+# admin who points that literal name at this box needs a leaf that covers
+# it, whether or not they ever pass --extra-server-name.
+#
+# A bare (undotted) name paired with every configured --internal-domain gets
+# an automatic FQDN form too, so an admin who types "fogdev" plus
+# --internal-domain domain.com gets fogdev.domain.com without listing it
+# twice. Already-dotted names (a detected FQDN hostname, or an admin-supplied
+# FQDN) are left alone -- they're not paired again.
+_defaultServerNames() {
+    local -a names=() bases=()
+    local seen="" n short dom fqdn
+
+    for n in $hostname fogserver fog-server $extraServerNames; do
+        [[ -z $n ]] && continue
+        [[ " $seen " == *" $n "* ]] && continue
+        seen="$seen $n"
+        names+=("$n")
+        bases+=("$n")
+    done
+    short="${hostname%%.*}"
+    if [[ -n $short && " $seen " != *" $short "* ]]; then
+        seen="$seen $short"
+        names+=("$short")
+        bases+=("$short")
+    fi
+
+    for n in "${bases[@]}"; do
+        [[ $n == *.* ]] && continue
+        for dom in $internalDomains; do
+            [[ -z $dom ]] && continue
+            fqdn="${n}.${dom}"
+            [[ " $seen " == *" $fqdn "* ]] && continue
+            seen="$seen $fqdn"
+            names+=("$fqdn")
+        done
+    done
+    printf '%s\n' "${names[@]}"
+}
 # A DNS base matches itself and anything to its left ("example.com" permits
 # "fog.example.com"), so bare domains are emitted rather than dotted ones.
 _nameConstraints() {
     local -a dnsnames=() ipnets=()
     local n d ip cidr mask entry seen out=""
 
-    # This server's own domain, so a certificate this CA issues for another
-    # host in it -- a storage node -- verifies. Derived ONLY from $hostname:
-    # deriving it from an admin-supplied name too would turn
-    # --internal-domain site.example.net into a grant over the whole of
-    # example.net, which is broader than what was asked for. A DNS base already
-    # matches everything to its left, so an exact value covers its subdomains.
-    for n in $hostname; do
-        [[ -z $n ]] && continue
+    # This server's own names, so a certificate this CA issues for another
+    # host in the same domain -- a storage node -- verifies. Derived from
+    # _defaultServerNames() so the permitted set can never drift from the
+    # leaf's own SAN (see that function's comment). $internalDomains is
+    # added separately below, as a bare domain grant rather than a name.
+    for n in $(_defaultServerNames); do
         dnsnames+=("$n")
         d="${n#*.}"
         [[ $d != "$n" && -n $d ]] && dnsnames+=("$d")
     done
-    for n in $extraServerNames $internalDomains; do
+    for n in $internalDomains; do
         [[ -z $n ]] && continue
         dnsnames+=("$n")
     done
@@ -4302,7 +4351,12 @@ _rootCACanIssue() {
 # would mint a fresh root the first time an admin took that advice, orphaning
 # every intermediate already issued and every client that pinned it, silently,
 # on an ordinary update.
-_resolveRootCA() {
+#
+# Path resolution only -- no creation. Split out of _resolveRootCA() so
+# something (_collectPkiNames) can ask "does a root exist yet" without
+# triggering the mint that _resolveRootCA() does the moment it finds one
+# missing.
+_resolveRootCAPath() {
     _resolveSslPath
     [[ ! -d $sslpath/CA ]] && mkdir -p "$sslpath/CA" >>$error_log 2>&1
 
@@ -4321,6 +4375,9 @@ _resolveRootCA() {
         fi
     fi
     [[ -z $rootCAKey ]] && rootCAKey="${rootCAPem%.pem}.key"
+}
+_resolveRootCA() {
+    _resolveRootCAPath
 
     if [[ $recreateCA == yes ]]; then
         # Explicit and destructive. Everything beneath the old root is orphaned
@@ -4345,6 +4402,8 @@ x509_extensions    = v3_root
 
 [ req_dn ]
 CN = FOG Server CA
+O  = FOG Project
+OU = FOG Root CA
 
 [ v3_root ]
 basicConstraints = critical,CA:TRUE
@@ -4366,6 +4425,48 @@ EOF
     chmod 0644 "$rootCAPem" >>$error_log 2>&1
     errorStat $st
     _rootCACanIssue
+}
+# Asked once, whichever entry point reaches it first -- Secure Boot's or the
+# web zone's -- because a CA's name constraints are fixed at the moment it is
+# minted and widening them later means the admin has to notice and ask for it
+# explicitly (rm -rf the CA directory, re-run). Skipped entirely once every
+# CA this run could mint already exists, and skipped if the admin already
+# answered on the command line: --extra-server-name/--internal-domain ARE
+# the answer to this question, just given up front instead of interactively.
+#
+# Bounded to 3 minutes under -Y/--autoaccept: that flag exists for unattended
+# runs, and a prompt nobody is there to answer must not hang the install
+# forever. A normal interactive run waits like every other prompt in this
+# installer.
+_collectPkiNames() {
+    [[ -n $_pkiNamesCollected ]] && return 0
+    _pkiNamesCollected=1
+    _resolveRootCAPath
+    local needRoot=0 needWeb=0 needSB=0
+    [[ ! -f $rootCAPem ]] && needRoot=1
+    [[ ! -f "$(_pkiZoneDir web)/.fogWebCA.pem" ]] && needWeb=1
+    [[ ${secureboot:-1} != 0 && ! -f "${fogprogramdir}/secureboot/ca/.fogSBCA.pem" ]] && needSB=1
+    [[ $needRoot -eq 0 && $needWeb -eq 0 && $needSB -eq 0 ]] && return 0
+    [[ -n $extraServerNames || -n $internalDomains ]] && return 0
+
+    echo
+    echo "  This run will mint a new FOG PKI CA. A CA's name constraints are"
+    echo "  fixed at the moment it's issued -- widening them later means"
+    echo "  re-issuing it (rm -rf the CA directory, then re-run)."
+    local ans domainAns
+    if [[ -n $autoaccept ]]; then
+        echo "  Extra hostnames for this server, space-separated (3 min, blank = none):"
+        read -t 180 -r -p "  > " ans
+        echo "  Internal domain, e.g. example.local (3 min, blank = none):"
+        read -t 180 -r -p "  > " domainAns
+    else
+        read -r -p "  Extra hostnames for this server, space-separated (blank = none): " ans
+        read -r -p "  Internal domain, e.g. example.local (blank = none): " domainAns
+    fi
+    [[ -n $ans ]] && extraServerNames="${extraServerNames} ${ans}"
+    [[ -n $domainAns ]] && internalDomains="${internalDomains} ${domainAns}"
+    extraServerNames="${extraServerNames# }"
+    internalDomains="${internalDomains# }"
 }
 # Which protocol iPXE uses to reach boot.php, decided separately from the
 # protocol everything else uses.
@@ -4409,7 +4510,7 @@ _resolveNetbootProto() {
 # shape. $5 carries the zone's own extension lines -- its extendedKeyUsage and,
 # where it applies, its nameConstraints.
 _issueIntermediateCA() {
-    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5"
+    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6"
     local st=0
     mkdir -p "$outdir" >>$error_log 2>&1 || st=1
     chmod 0700 "$outdir" >>$error_log 2>&1
@@ -4444,6 +4545,8 @@ prompt             = no
 
 [ req_dn ]
 CN = ${cn}
+O  = FOG Project
+OU = ${ou}
 
 [ v3_int ]
 basicConstraints = critical,CA:TRUE,pathlen:0
@@ -4480,7 +4583,7 @@ createWebIntermediateCA() {
         # here can never be a code-signing certificate, whatever its leaf says.
         _issueIntermediateCA "FOG Web CA" "$webdir" ".fogWebCA.key" ".fogWebCA.pem" \
             "extendedKeyUsage = serverAuth
-$(_nameConstraints)"
+$(_nameConstraints)" "FOG Web UI"
         errorStat $?
     fi
     # Chain file is root+intermediate, the same concat shape validateExternalCA
@@ -4632,10 +4735,16 @@ _createWebLeaf() {
         return 0
     fi
     dots "Creating SSL Certificate"
+    # CN is $hostname, never $certip -- a browser or client validates against
+    # the SAN, never the CN, once a SAN is present (it always is here, see the
+    # DNS.1 note above), so this is about giving admins and logs a real name
+    # instead of an IP, not about validation. -subj overrides only THIS
+    # command's subject; -config still supplies req_extensions (the SAN) from
+    # the same file req.cnf's comm-leaf CSR (below) also reads, so the two
+    # never diverge on names, only on subject.
     openssl req -new -sha512 -key "$sslprivkey" -out "${webdir}/.webLeaf.csr" \
-        -config "$sslpath/req.cnf" >>$error_log 2>&1 << EOF || st=1
-$certip
-EOF
+        -config "$sslpath/req.cnf" \
+        -subj "/CN=${hostname}/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
     openssl x509 -req -in "${webdir}/.webLeaf.csr" -CA "$sslcapem" -CAkey "$sslcakey" \
         -CAcreateserial -out "$sslpubcert" -days 3650 -extensions v3_ca \
         -extfile "$sslpath/ca.cnf" >>$error_log 2>&1 || st=1
@@ -4783,6 +4892,7 @@ createSSLCA() {
     sslpath=${sslpath//\/$}
     [[ ! -d $sslpath ]] && mkdir -p $sslpath >>$error_log 2>&1
     [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$error_log 2>&1
+    _collectPkiNames
     _resolveRootCA
     # An interface can carry several IPs, so $ipaddress may arrive as a list:
     # newline-separated from fresh detection, or space-separated when read back
@@ -4799,10 +4909,11 @@ createSSLCA() {
     done
     dnscount=1
     dnsSanEntries=""
-    for extraname in $extraServerNames; do
+    while IFS= read -r extraname; do
+        [[ -z $extraname || $extraname == "$hostname" ]] && continue
         dnscount=$((dnscount + 1))
         dnsSanEntries="${dnsSanEntries}"$'\n'"DNS.${dnscount} = ${extraname}"
-    done
+    done < <(_defaultServerNames)
     # DNS.1 is not optional. Both intermediates carry DNS name constraints, and
     # where a certificate has no DNS SAN at all OpenSSL falls back to matching
     # the subject CN against them -- and this CN is an IP literal. A leaf with
@@ -4824,6 +4935,8 @@ req_extensions = v3_req
 prompt = yes
 [req_distinguished_name]
 CN = $certip
+O = FOG Project
+OU = FOG Client Communication
 [v3_req]
 subjectAltName = @alt_names
 [alt_names]
@@ -6163,7 +6276,13 @@ createSecureBootIntermediateCA() {
     # createSSLCA() has run -- so neither $sslpath nor the root CA exists yet.
     # Resolving the path here rather than assuming createSSLCA got there first
     # is what keeps the root out of "/CA/root" at the filesystem root.
+    #
+    # _collectPkiNames also has to be reachable from here, not only from
+    # createSSLCA(): this CA's name constraints are fixed at mint time, and if
+    # this is the first run on this server, this function mints them before
+    # createSSLCA() ever gets a turn.
     _resolveSslPath
+    _collectPkiNames
     _resolveRootCA
     # A root that cannot anchor an intermediate leaves Secure Boot exactly as it
     # was: a self-signed MOK. Signing beneath it would produce a chain that
@@ -6179,7 +6298,7 @@ createSecureBootIntermediateCA() {
         # leaf is written.
         _issueIntermediateCA "FOG Secure Boot CA" "$cadir" ".fogSBCA.key" ".fogSBCA.pem" \
             "extendedKeyUsage = codeSigning
-$(_sbNameConstraints)"
+$(_sbNameConstraints)" "FOG Secure Boot"
         errorStat $?
     fi
     if [[ ! -f "${leafdir}/sign.key" || ! -f "${leafdir}/sign.pem" ]]; then
@@ -6211,6 +6330,8 @@ prompt             = no
 
 [ req_dn ]
 CN = FOG Project Secure Boot Signing
+O  = FOG Project
+OU = FOG Secure Boot
 
 [ v3_sign ]
 basicConstraints = critical,CA:FALSE
@@ -6340,6 +6461,8 @@ x509_extensions    = v3_mok
 
 [ req_dn ]
 CN = FOG Project Secure Boot Signing
+O  = FOG Project
+OU = FOG Secure Boot
 
 [ v3_mok ]
 basicConstraints = critical,CA:FALSE
@@ -6428,10 +6551,10 @@ _ensureSecureBootPlatformKeys() {
     # does not stop a client booting (UEFI does not check validity dates on db
     # entries) but it does confuse tooling.
     if ! openssl req -x509 -new -nodes -newkey rsa:4096 -sha256 -days 3650 \
-            -subj "/CN=${subject} Platform Key/" \
+            -subj "/CN=${subject} Platform Key/O=FOG Project/OU=FOG Secure Boot" \
             -keyout "$pkKey" -out "$pkCert" >>$error_log 2>&1 ||
        ! openssl req -x509 -new -nodes -newkey rsa:4096 -sha256 -days 3650 \
-            -subj "/CN=${subject} Key Exchange Key/" \
+            -subj "/CN=${subject} Key Exchange Key/O=FOG Project/OU=FOG Secure Boot" \
             -keyout "$kekKey" -out "$kekCert" >>$error_log 2>&1; then
         echo "Failed"
         echo " * Could not generate the Secure Boot platform keys. Automatic"
@@ -6512,6 +6635,61 @@ _publishSecureBootKit() {
     chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
     echo "Done"
 }
+# efitools has no package on RHEL/Rocky/Alma/CentOS Stream 9: confirmed
+# absent from EPEL9, and the only RPMs that exist for it live in those
+# distros' "devel" repos -- build infrastructure, not something an admin is
+# expected to enable. (gnu-efi-utils is NOT a substitute: that package is the
+# gnu-efi project's own debugging utilities, unrelated to the cert-to-efi-*/
+# sign-efi-* tools this needs.) Built from source as a last resort.
+#
+# Only the two binaries fog-build-sb-authvars actually calls are built --
+# sbvarsign, the other tool this suite ships, is unused here and comes from
+# sbsigntools anyway, already a baseline dependency (see installPackages).
+# `make <binary>` is a real per-binary target upstream (each is
+# `name: name.o lib/lib.a`), so this skips the default `all` target entirely,
+# which additionally wants sample PK/KEK/db certs this install has no reason
+# to generate.
+#
+# Pinned to 1.9.2 from the canonical upstream, git.kernel.org's jejb tree --
+# not a GitHub mirror -- the same source Fedora/AlmaLinux package.
+_ensureEfitools() {
+    command -v cert-to-efi-sig-list >/dev/null 2>&1 && \
+        command -v sign-efi-sig-list >/dev/null 2>&1 && return 0
+    command -v curl >/dev/null 2>&1 || return 1
+
+    local ver="1.9.2"
+    local url="https://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git/snapshot/efitools-${ver}.tar.gz"
+    local work
+    work=$(mktemp -d) || return 1
+
+    dots "Building efitools (no package for this distro)"
+    # The only build-time packages this needs beyond the C toolchain and
+    # sbsigntools this install already has -- named the same across every
+    # distro this installer supports, unlike gnu-efi's runtime package, so no
+    # alternatives list is needed here.
+    $packageinstaller gcc make gnu-efi-devel help2man >>$error_log 2>&1
+    if ! curl -fsSL "$url" -o "${work}/efitools.tar.gz" >>$error_log 2>&1; then
+        echo "Failed"
+        echo " * Could not download efitools ${ver} from ${url}."
+        rm -rf "$work" >>$error_log 2>&1
+        return 1
+    fi
+    tar -xzf "${work}/efitools.tar.gz" -C "$work" >>$error_log 2>&1
+    (cd "${work}/efitools-${ver}" && make cert-to-efi-sig-list sign-efi-sig-list) >>$error_log 2>&1
+    if [[ ! -x "${work}/efitools-${ver}/cert-to-efi-sig-list" || \
+          ! -x "${work}/efitools-${ver}/sign-efi-sig-list" ]]; then
+        echo "Failed"
+        echo " * efitools ${ver} did not build; see ${error_log}."
+        rm -rf "$work" >>$error_log 2>&1
+        return 1
+    fi
+    install -o root -g root -m 0755 \
+        "${work}/efitools-${ver}/cert-to-efi-sig-list" \
+        "${work}/efitools-${ver}/sign-efi-sig-list" \
+        /usr/local/bin/ >>$error_log 2>&1
+    rm -rf "$work" >>$error_log 2>&1
+    echo "Done"
+}
 # Build and publish the signed PK/KEK/db variable updates.
 #
 # These are what a client in Setup Mode writes to enrol this server's
@@ -6540,13 +6718,14 @@ _publishSecureBootAuthVars() {
         return 0
     fi
 
+    _ensureEfitools
     dots "Publishing Secure Boot variable updates"
     if ! command -v cert-to-efi-sig-list >/dev/null 2>&1 ||
        ! command -v sign-efi-sig-list >/dev/null 2>&1; then
         echo "Skipped"
-        echo " * efitools is not installed, so the automatic Secure Boot"
-        echo "   enrolment blobs were not built. Install efitools and re-run the"
-        echo "   installer. The MOK enrolment paths are unaffected."
+        echo " * efitools is not installed and could not be built from source,"
+        echo "   so the automatic Secure Boot enrolment blobs were not built."
+        echo "   See ${error_log}. The MOK enrolment paths are unaffected."
         rm -f "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
         return 0
     fi

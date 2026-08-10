@@ -146,10 +146,21 @@ trap 'rm -f "$tmpext"' EXIT
     done
 } > "$tmpext"
 
+# The subject is the master's own validated record of this node, not the
+# CSR's -- openssl x509 -req otherwise keeps whatever subject the node put
+# on its own CSR, which is a formality the node fills in without the master
+# ever checking it (see the comment on the node side, in _requestNodeCert).
+firstdns=""
+for e in "${entries[@]}"; do
+    [[ $e == DNS.* ]] && { firstdns="${e#*:}"; break; }
+done
+
 rm -f "$out" "$chainout"
 if ! openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
         -CAcreateserial -sha256 -days "$days" \
-        -extensions v3_node -extfile "$tmpext" -out "$out" 2>/dev/null; then
+        -extensions v3_node -extfile "$tmpext" \
+        -subj "/CN=${firstdns}/O=FOG Project/OU=FOG Web UI" \
+        -out "$out" 2>/dev/null; then
     die "signing failed"
 fi
 
