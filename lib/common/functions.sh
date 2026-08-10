@@ -214,9 +214,9 @@ backupPreservedCustomizations() {
     # Enumerating cannot be made complete. A custom kernel name can come from
     # hostKernel/hostInit, from groupKernel/groupInit, from the
     # FOG_TFTP_PXE_KERNEL/_32/_ARM settings, or from nothing FOG records at all
-    # -- an admin's own custom.ipxe can chain a kernel this server has never
-    # heard of. Any list of places to look is a list that will be short one
-    # place.
+    # -- an admin's own pre-boot customization can chain a kernel this server
+    # has never heard of. Any list of places to look is a list that will be
+    # short one place.
     #
     # What IS knowable exactly is the set FOG ships: the contents of
     # packages/web/service/ipxe in the source tree (13 files -- the PHP, the
@@ -1355,24 +1355,7 @@ configureDefaultiPXEfile() {
     # (FOGBase::$httpproto reads $_SERVER['HTTPS']), so chaining over HTTP here
     # makes the whole boot sequence HTTP with no PHP change.
     _resolveNetbootProto
-    # The `chain custom.ipxe || goto fog_default` first line is the supported
-    # hook point for site-specific pre-boot behavior -- a boot delay, a prompt,
-    # a local menu -- so an admin never has to hand-edit this file, which is
-    # regenerated in full on every run and would lose those edits anyway.
-    #
-    # Safe when unused: per ipxe.org/cmd/chain a chain to a file that is not
-    # there simply fails, the || fires, and boot proceeds exactly as before.
-    # Safe when used: chain WITHOUT --replace returns control to the next line
-    # once the chained script finishes normally, and the next line is
-    # :fog_default, so execution falls straight through into FOG's own logic.
-    # No "resume" convention to get wrong, and no way to loop back here.
-    #
-    # custom.ipxe lives at the TFTP root, which configureTFTPandPXE() only ever
-    # snapshots and copies INTO -- it never deletes destination files absent
-    # from the source tree. So the hook file survives updates structurally,
-    # the same way the Secure Boot keys do by living outside $webdirdest, and
-    # needs no backup/restore machinery of its own.
-    echo -e "#!ipxe\nchain custom.ipxe || goto fog_default\n:fog_default\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {

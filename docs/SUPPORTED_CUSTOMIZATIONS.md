@@ -110,44 +110,20 @@ kernel carries its old signature and the signing key may have rotated.
 
 ---
 
-## Custom PXE scripts (`custom.ipxe`)
-
-**Supported, but yours to place.** FOG will never create, edit or delete it.
-
-`default.ipxe` is regenerated in full on every run, so editing it directly
-does not survive. Instead, drop a script at the TFTP root:
-
-```
-/tftpboot/custom.ipxe
-```
-
-FOG chains to it before its own boot logic. When your script finishes
-normally, control returns and FOG boots as usual — you do not need to chain
-back. If the file is absent, boot proceeds exactly as it always has.
-
-```
-#!ipxe
-echo Booting in 10 seconds...
-sleep 10
-```
-
-This is the supported replacement for maintaining a modified boot file by
-hand — for boot delays, prompts, or a site-specific menu ahead of FOG's.
-
----
-
 ## Secure Boot certificates
 
 **Automatic**, for both FOG-generated and admin-supplied keys.
 
-FOG's own signing key is generated once at `/opt/fog/secureboot/MOK.{key,pem}`
-and **never regenerated**, because a new key silently invalidates enrollment
-on every machine that already trusted the old one.
+FOG's own signing key is generated once at
+`/opt/fog/pki/secureboot/MOK.{key,pem}` (or, once a Secure Boot intermediate
+CA exists, `/opt/fog/pki/secureboot/leaf/sign.{key,pem}`) and **never
+regenerated**, because a new key silently invalidates enrollment on every
+machine that already trusted the old one.
 
 | Customization | How it is preserved |
 |---|---|
 | FOG's generated signing key | Lives outside the web root; nothing in the installer deletes it |
-| Your own key via `--secure-boot-key` / `--secure-boot-cert` | Copied to `/opt/fog/secureboot/admin-MOK.{key,pem}` and used from there |
+| Your own key via `--secure-boot-key` / `--secure-boot-cert` | Copied to `/opt/fog/pki/secureboot/admin-MOK.{key,pem}` and used from there |
 | Platform keys (PK/KEK) | Same; generated once, never regenerated |
 
 Supplying your own pair does **not** overwrite FOG's generated one — they sit
@@ -164,8 +140,8 @@ Listed plainly so none of it is a surprise.
 
 - **Edits inside the FOG-managed vhost block.** They are overwritten on the
   next run. Move them outside the markers.
-- **Direct edits to `default.ipxe`.** Regenerated every run — use
-  `custom.ipxe` instead.
+- **Direct edits to `default.ipxe`.** Regenerated every run; there is no
+  supported hook point for pre-boot customization yet.
 - **A kernel-signing key rotated after a generation was captured.** Restoring
   that generation re-signs with the *current* key, which is correct, but any
   client enrolled against the old key still needs re-enrollment.
