@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+#
+# Invoked by "git merge" when a merge commit is about to be created, and
+# runs the same pre-commit hook an ordinary commit gets.
+#
+# WHY: without this, a merge into this branch skips everything pre-commit
+# does - the FOG_VERSION bump, the translation regeneration, the PSR2 fixer
+# and (since the gate was made blocking) the schema check. The version drift
+# is repaired within a day by fog-workflows' sweep, but the schema gate is
+# simply bypassed, which is the one that matters.
+#
+# This is git's own documented sample behaviour ("the default pre-merge-commit
+# hook, when enabled, runs the pre-commit hook"), but the sample resolves the
+# hook through $GIT_WORK_TREE. Nothing sets that variable for a hook - git
+# chdir's to the top of the work tree instead, and `git-sh-setup` does not
+# export it either - so the sample's `test -x` looks at /.githooks/pre-commit,
+# finds nothing and quietly does nothing. Resolve the path the way
+# .githooks/pre-commit itself does, which is also correct inside a worktree.
+project_dir=$(git rev-parse --show-toplevel)
+
+hook="$project_dir/.githooks/pre-commit"
+test -x "$hook" && exec "$hook"
+:

@@ -59,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.3197');
+        define('FOG_VERSION', '1.6.0-beta.3202');
         define('FOG_CHANNEL', 'Beta');
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php. It is NOT the element count -- it has drifted
@@ -86,7 +86,7 @@ class System
         // given FOG release ships a known iPXE -- the installer uses this both
         // to pick the download and to check out the matching source when an
         // HTTPS install has to rebuild with its own CA.
-        define('FOG_IPXE_VERSION', 'v2.0.0-fog.5');
+        define('FOG_IPXE_VERSION', 'v2.0.0-fog.6');
         // GH-850: FOG_BASE_DIR is now installer-driven. Initiator loads
         // commons/fogpaths.php (written from the installer's $fogprogramdir)
         // before the autoloader runs, so in a normal boot these are already
