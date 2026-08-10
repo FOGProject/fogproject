@@ -131,18 +131,16 @@ usage() {
     echo -e "\t                \t\tdefaults to \`hostname -f\`, remembered in .fogsettings"
     echo -e "\t      --extra-server-name\tAdd an extra vhost/cert name (repeatable)"
     echo -e "\t                       \t\talongside the primary hostname and detected IPs"
-    echo -e "\t      --split-pki		The DEFAULT on a fresh install: a Root CA issuing"
-    echo -e "\t                 \t\t\tseparate Web and Client Communication"
-    echo -e "\t                 \t\t\tintermediates, so the web certificate can be"
-    echo -e "\t                 \t\t\treplaced without breaking fog-client"
-    echo -e "\t      --legacy-pki		Keep the single self-signed CA instead of"
-    echo -e "\t                 \t\t\tthe split PKI. Fully supported, not deprecated"
+    echo -e "\t      --internal-domain\t\tPermit this domain in the Web and Secure Boot"
+    echo -e "\t                 \t\t\tCAs' name constraints (repeatable). The server's"
+    echo -e "\t                 \t\t\town domain is always permitted"
+    echo -e "\t      --internal-subnet\t\tRestrict those CAs to this subnet, e.g."
+    echo -e "\t                 \t\t\t10.20.30.0/24 (repeatable). REPLACES the default"
+    echo -e "\t                 \t\t\tof all RFC1918 ranges"
+    echo -e "\t      --no-sb-name-constraints\tIssue the Secure Boot CA without name"
+    echo -e "\t                 \t\t\tconstraints. Use if firmware rejects the chain"
     echo -e "\t      --web-ca-cert/-key/-root\tBring your own CA for the WEB zone only"
     echo -e "\t                 \t\t\t(equivalent to --external-ca --ca-*)"
-    echo -e "\t      --client-ca-cert/-key/-root\tBring your own CA for the CLIENT zone only"
-    echo -e "\t      --client-ca-cn\t\tCN fog-client expects on the pinned cert"
-    echo -e "\t                 \t\t\tdefaults to 'FOG Server CA'"
-    echo -e "\t      --root-ca-cert/-key\tSupply the Root CA instead of generating one"
     echo -e "\t      --secureboot-ca-cert\tYour own SECURE BOOT intermediate: the"
     echo -e "\t                 \t\t\tcertificate enrolled in firmware. Pair it with"
     echo -e "\t                 \t\t\t--secure-boot-key/--secure-boot-cert, which name"
@@ -199,7 +197,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,split-pki,legacy-pki,netboot-proto:,client-ca-cn:,web-ca-cert:,web-ca-key:,web-ca-root:,client-ca-cert:,client-ca-key:,client-ca-root:,root-ca-cert:,root-ca-key:,secureboot-ca-cert:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -501,27 +499,34 @@ while :; do
             esac
             shift 2
             ;;
-        --split-pki)
-            spkiMode="split"
+        --no-sb-name-constraints)
+            ssbNameConstraints="no"
             shift
             ;;
-        --legacy-pki)
-            spkiMode="flat"
-            shift
-            ;;
-        --client-ca-cn)
-            if [[ -n "${2}" ]]; then
-                sfogClientCACN="${2}"
-            else
-                echo "$1 requires a common name after"
+        --internal-domain)
+            if [[ $(validhostname "${2}") -ne 0 ]]; then
+                echo "$1 requires a valid domain name after"
                 usage
                 exit 3
             fi
+            sinternalDomains="${sinternalDomains:+$sinternalDomains }${2}"
             shift 2
             ;;
-        --web-ca-cert | --web-ca-key | --web-ca-root | \
-        --client-ca-cert | --client-ca-key | --client-ca-root | \
-        --root-ca-cert | --root-ca-key | --secureboot-ca-cert)
+        --internal-subnet)
+            # address, or address/prefixlen, or address/netmask. Validated here
+            # rather than at use: an unchecked value reaches an OpenSSL
+            # extension config, and a malformed one there fails to build the
+            # certificate with an error that names neither the flag nor the
+            # value.
+            if [[ $(validip "${2%%/*}") -ne 0 ]]; then
+                echo "$1 requires a subnet like 10.20.30.0/24 after"
+                usage
+                exit 3
+            fi
+            sinternalSubnets="${sinternalSubnets:+$sinternalSubnets }${2}"
+            shift 2
+            ;;
+        --web-ca-cert | --web-ca-key | --web-ca-root | --secureboot-ca-cert)
             if [[ ! -f $2 ]]; then
                 echo "$1 requires a readable file after"
                 usage
@@ -531,11 +536,6 @@ while :; do
                 --web-ca-cert)    swebExtCACert="$2" ;;
                 --web-ca-key)     swebExtCAKey="$2" ;;
                 --web-ca-root)    swebExtCARoot="$2" ;;
-                --client-ca-cert) sclientExtCACert="$2" ;;
-                --client-ca-key)  sclientExtCAKey="$2" ;;
-                --client-ca-root) sclientExtCARoot="$2" ;;
-                --root-ca-cert)   srootExtCACert="$2" ;;
-                --root-ca-key)    srootExtCAKey="$2" ;;
                 # The Secure Boot zone's anchor: what gets ENROLLED in
                 # firmware. Pairs with --secure-boot-key/--secure-boot-cert,
                 # which name the leaf that actually signs. Supplying only the
@@ -758,20 +758,19 @@ esac
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
 [[ -n $skernelBackupCount ]] && kernelBackupGenerations=$skernelBackupCount
 # Applied here, after .fogsettings is sourced, so an explicit flag beats a
-# persisted value and a persisted value beats the caCreated-based default in
-# _resolvePkiMode.
+# persisted value and a persisted value beats the computed default.
 [[ -n $snetbootproto ]] && netbootproto=$snetbootproto
-[[ -n $spkiMode ]] && pkiMode=$spkiMode
-[[ -n $sfogClientCACN ]] && fogClientCACN=$sfogClientCACN
 [[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
 [[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
 [[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
-[[ -n $sclientExtCACert ]] && clientExtCACert=$sclientExtCACert
-[[ -n $sclientExtCAKey ]] && clientExtCAKey=$sclientExtCAKey
-[[ -n $sclientExtCARoot ]] && clientExtCARoot=$sclientExtCARoot
-[[ -n $srootExtCACert ]] && rootExtCACert=$srootExtCACert
-[[ -n $srootExtCAKey ]] && rootExtCAKey=$srootExtCAKey
 [[ -n $ssecureBootMokCert ]] && secureBootMokCert=$ssecureBootMokCert
+[[ -n $ssbNameConstraints ]] && sbNameConstraints=$ssbNameConstraints
+# Repeatable flags REPLACE the persisted list rather than appending to it, the
+# same way --extra-server-name does: an admin re-running with a narrower set
+# means that set, and appending would make a value impossible to remove
+# without hand-editing .fogsettings.
+[[ -n $sinternalDomains ]] && internalDomains=$sinternalDomains
+[[ -n $sinternalSubnets ]] && internalSubnets=$sinternalSubnets
 # Supplying any web-zone CA file implies --external-ca, the same way supplying
 # --ca-cert always has. Saves an admin from the "I gave you the files and
 # nothing happened" failure, which produces a working install with the wrong
@@ -996,6 +995,10 @@ while [[ -z $blGo ]]; do
                     configureTFTPandPXE
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
                     configureUDPCast
                     installInitScript
                     installFOGServices
@@ -1081,6 +1084,10 @@ while [[ -z $blGo ]]; do
                     restorePreservedCustomizations
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
                     configureUDPCast
                     installInitScript
                     installFOGServices

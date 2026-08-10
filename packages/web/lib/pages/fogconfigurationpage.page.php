@@ -296,6 +296,148 @@ class FOGConfigurationPage extends FOGPage
         $this->_downloadPost('initrd');
     }
     /**
+     * Where this server keeps its certificate material.
+     *
+     * Read from the storage node record rather than from .fogsettings, which
+     * is root-only and deliberately unreadable here. This is the same lookup
+     * FOGBase::certDecrypt() uses to find the communication key, so the two
+     * can never disagree about where the PKI lives.
+     *
+     * @return string Path with no trailing separator, or '' if unknown.
+     */
+    private static function _sslPath()
+    {
+        $paths = Route::getIds('storagenode', [], 'sslpath');
+        foreach ((array) $paths as $path) {
+            if (!$path) {
+                continue;
+            }
+            return rtrim(str_replace(['\\', '/'], [DS, DS], $path), DS);
+        }
+        return '';
+    }
+    /**
+     * Show this server's certificate hierarchy and the state of its keys.
+     *
+     * The reason this page runs the private key check in PHP rather than
+     * simply reporting what the installer did: PHP *is* the threat model. The
+     * whole point of the key isolation is that a compromise of this web
+     * application cannot read the CA private key, and the only test that
+     * actually answers that question is one made from inside the application
+     * with the web server's own credentials. An installer that claims to have
+     * set 0400 and a web tier that can nonetheless open the file is precisely
+     * the failure worth surfacing, and it is invisible from anywhere else.
+     *
+     * That failure is not hypothetical. $sslpath lives under $snapindir, and
+     * configureSnapins() used to chown the whole tree to the web user at 775
+     * -- after the certificates were created, so it silently undid them.
+     *
+     * @return void
+     */
+    public function certificates()
+    {
+        $sslpath = self::_sslPath();
+        $capem = BASEPATH . 'management' . DS . 'other' . DS . 'ca.cert.pem';
+
+        // What every fog-client pins, and now also the anchor the web
+        // certificate chains to. Its fingerprint is the one value worth
+        // showing: it is what an admin compares against a client's trust store
+        // when working out why a client stopped authenticating.
+        $body = '<p>' . _(
+            'FOG uses certificates for three unrelated jobs: the web server, '
+            . 'the encrypted fog-client check-in, and the signature on the FOS '
+            . 'kernels. They are issued by separate CAs beneath one anchor, so '
+            . 'replacing any one of them leaves the other two alone.'
+        ) . '</p>';
+        if (file_exists($capem)) {
+            $der = openssl_x509_read(file_get_contents($capem));
+            $subject = '';
+            if ($der !== false) {
+                $parsed = openssl_x509_parse($der);
+                $subject = isset($parsed['subject']['CN'])
+                    ? $parsed['subject']['CN']
+                    : '';
+            }
+            $body .= '<p><strong>' . _('Trust anchor') . '</strong> &mdash; '
+                . _('published as ca.cert.der and pinned by every fog-client')
+                . '</p>';
+            if ($subject) {
+                $body .= '<pre>' . Initiator::e($subject) . '</pre>';
+            }
+            $body .= '<p><strong>' . _('SHA-256') . '</strong></p>';
+            $body .= '<pre>' . Initiator::e(
+                strtoupper(
+                    implode(':', str_split(hash_file('sha256', $capem), 2))
+                )
+            ) . '</pre>';
+        }
+
+        // The check that matters. Every path here is one a compromised web
+        // application would go looking for first.
+        $keys = [];
+        if ($sslpath) {
+            $keys[_('CA private key')] = $sslpath . DS . 'CA' . DS . '.fogCA.key';
+            $keys[_('Web CA private key')] = $sslpath . DS . 'CA' . DS . 'web'
+                . DS . '.fogWebCA.key';
+            $keys[_('Web server private key')] = $sslpath . DS . 'CA' . DS . 'web'
+                . DS . '.webLeaf.key';
+        }
+        $keys[_('Secure Boot CA private key')] = FOG_BASE_DIR . DS . 'secureboot'
+            . DS . 'ca' . DS . '.fogSBCA.key';
+        $exposed = [];
+        foreach ($keys as $label => $path) {
+            if (file_exists($path) && is_readable($path)) {
+                $exposed[$label] = $path;
+            }
+        }
+        if (count($exposed) > 0) {
+            $warn = '<p>' . _(
+                'The web application can read the following private keys. It '
+                . 'should not be able to read any of them, and anything able to '
+                . 'run code in this web application can copy them.'
+            ) . '</p><ul>';
+            foreach ($exposed as $label => $path) {
+                $warn .= '<li><strong>' . Initiator::e($label) . '</strong> &mdash; <code>'
+                    . Initiator::e($path) . '</code></li>';
+            }
+            $warn .= '</ul><p>' . _(
+                'Re-run the installer, which restricts them to root. If this '
+                . 'persists, check that nothing else is widening permissions on '
+                . 'the snapins directory afterwards.'
+            ) . '</p>';
+            echo $this->_box(_('Private keys are readable by the web server'), $warn, ['color' => 'danger']);
+        }
+
+        // Pseudo-offline is the shipped default and a deliberate starting
+        // point, not the recommended end state. Saying so here is the only
+        // place an admin who never reads the install output will see it.
+        $rootkey = $sslpath ? $sslpath . DS . 'CA' . DS . '.fogCA.key' : '';
+        if ($rootkey && file_exists($rootkey)) {
+            $body .= '<p><strong>' . _('The CA private key is on this server')
+                . '</strong></p>';
+            $body .= '<p>' . _(
+                'It is restricted to root, which protects it from a compromise '
+                . 'of this web application but not from a compromise of the '
+                . 'machine. Moving it to a vault is a separate step:'
+            ) . '</p>';
+            $body .= '<pre>' . Initiator::e(FOG_BASE_DIR . '/bin/fog-offline-ca-key /mnt/vault')
+                . '</pre>';
+            $body .= '<p>' . _(
+                'Nothing needs it day to day. Restore it only to issue a new '
+                . 'intermediate, or a certificate for a new storage node.'
+            ) . '</p>';
+        } elseif ($rootkey) {
+            $body .= '<p><strong>' . _('The CA private key is not on this server')
+                . '</strong></p>';
+            $body .= '<p>' . _(
+                'That is the recommended state. Restore it only to issue a new '
+                . 'intermediate or a certificate for a new storage node, then '
+                . 'move it back.'
+            ) . '</p>';
+        }
+        echo $this->_box(_('Certificates'), $body, ['color' => 'info']);
+    }
+    /**
      * Show the Secure Boot enrolment page.
      *
      * Displays the certificate fingerprint and links to the enrolment kit, so

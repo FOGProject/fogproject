@@ -2038,36 +2038,21 @@ abstract class FOGBase
         );
         unset($tmpssl);
         /**
-         * Which private key decrypts a client handshake depends on the PKI
-         * layout, and the layout is detected from disk rather than from a
-         * setting -- the comm leaf only exists when the installer built a
-         * split PKI, so its presence IS the answer and there is nothing to
-         * keep in sync.
+         * .srvprivate.key, always.
          *
-         * flat (historic): .srvprivate.key. That file is ALSO the web vhost's
-         * TLS private key, which is why replacing the web certificate -- an
-         * ACME renewal, --recreate-keys, dropping in a purchased cert --
-         * silently breaks client authentication on a flat server.
+         * Historically this file was the client communication key AND the web
+         * vhost's TLS private key, which is why replacing the web certificate
+         * -- an ACME renewal, --recreate-keys, a purchased cert dropped in
+         * place -- silently broke client authentication while installing a
+         * perfectly valid certificate.
          *
-         * split: a dedicated communication keypair issued by the Client
-         * Communication CA, whose public half is what the client fetches as
-         * srvpublic.crt. The web certificate can then be replaced freely
-         * without touching anything a client depends on, which is the entire
-         * point of separating the zones.
+         * The installer now issues the web certificate from a separate Web CA
+         * with its own keypair and leaves this file to do the one job it is
+         * named for. So there is no layout to detect and nothing here changes:
+         * the fix was to stop pointing the web server at this key, not to move
+         * the key.
          */
-        $commkey = sprintf(
-            '%s%sCA%sclient%scomm%s.commLeaf.key',
-            $sslbase,
-            DS,
-            DS,
-            DS,
-            DS
-        );
-        if (file_exists($commkey) && is_readable($commkey)) {
-            $sslfile = $commkey;
-        } else {
-            $sslfile = sprintf('%s%s.srvprivate.key', $sslbase, DS);
-        }
+        $sslfile = sprintf('%s%s.srvprivate.key', $sslbase, DS);
         if (!file_exists($sslfile)) {
             throw new Exception(_('Private key not found'));
         }

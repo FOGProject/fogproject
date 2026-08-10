@@ -796,6 +796,10 @@ abstract class FOGPage extends FOGBase
                     // hook sets $active = false, and HookManager only forces
                     // active on files under plugins/.
                     'secureBoot' => _('Secure Boot'),
+                    // Beside Secure Boot because they answer the same kind of
+                    // question -- what does this server trust, and can anything
+                    // it should not read reach the keys.
+                    'certificates' => _('Certificates'),
                     'pxemenu' => self::$foglang['PXEBootMenu'],
                     'maclist' => self::$foglang['MACAddrList'],
                     'settings' => self::$foglang['FOGSettings'],
