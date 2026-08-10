@@ -39,6 +39,54 @@ while [[ -z $hostname ]]; do
             ;;
     esac
 done
+# Name constraints for the Web and Secure Boot CAs.
+#
+# Asked only where it can still be acted on. These are baked into a CA at the
+# moment it is issued and a CA is never re-issued, so on a server that already
+# has one the answer would be recorded and silently ignored -- $caCreated is
+# the test for that. Skipped under -Y as well: the defaults (this server's own
+# domain, all RFC1918 ranges) are what an unattended install should get.
+if [[ -z $autoaccept && $caCreated != yes && -z $internalDomains && -z $internalSubnets ]]; then
+    echo
+    echo "  FOG issues its own certificates from two CAs -- one for web servers,"
+    echo "  one for signing FOS kernels. Both are constrained so they can only"
+    echo "  ever issue for names inside your own network."
+    echo
+    echo "  By default that means ${hostname#*.} and every private IP range"
+    echo "  (10.x, 172.16-31.x, 192.168.x)."
+    echo -n "  Would you like to narrow or extend that? [y/N] "
+    read blConstrain
+    case $blConstrain in
+        [Yy]|[Yy][Ee][Ss])
+            echo
+            echo "  Additional internal domains these CAs may issue for,"
+            echo "  space separated. Leave blank for none."
+            echo -n "  Domains: "
+            read answer
+            for entry in $answer; do
+                if [[ $(validhostname "$entry") -ne 0 ]]; then
+                    echo "  Ignoring '${entry}': not a valid domain name."
+                    continue
+                fi
+                internalDomains="${internalDomains:+$internalDomains }${entry}"
+            done
+            echo
+            echo "  Subnets these CAs may issue for, space separated, e.g."
+            echo "  10.20.30.0/24. Anything you list here REPLACES the private"
+            echo "  ranges above rather than adding to them."
+            echo "  Leave blank to keep all private ranges."
+            echo -n "  Subnets: "
+            read answer
+            for entry in $answer; do
+                if [[ $(validip "${entry%%/*}") -ne 0 ]]; then
+                    echo "  Ignoring '${entry}': not a valid subnet."
+                    continue
+                fi
+                internalSubnets="${internalSubnets:+$internalSubnets }${entry}"
+            done
+            ;;
+    esac
+fi
 while [[ -z $sendreports ]]; do
     blReports="Y"
     if [[ -z $autoaccept ]]; then

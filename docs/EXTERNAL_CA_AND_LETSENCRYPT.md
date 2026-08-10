@@ -51,8 +51,8 @@ without any FOG-side change — see below.
 
 ## How FOG uses certificates
 
-> This section describes the historic single-CA layout, which is still the
-> default. FOG can now optionally separate these into independent zones, so
+> This section describes the historic single-CA layout. FOG now separates
+> these into independent zones on every server, including existing ones, so
 > the web certificate can be replaced without disturbing fog-client — see
 > [PKI_ZONES.md](PKI_ZONES.md).
 
@@ -249,29 +249,26 @@ not match, and a web server that refuses to start. `--recreate-keys` and
 `--recreate-CA` deliberately override this marker, since both regenerate the
 keypair anyway and a self-signed pair is the correct fallback at that point.
 
-> **Careful — this is a real trap today, and the details decide the fix.**
-> `$sslprivkey` (`.srvprivate.key`) is currently *both* the web vhost's
-> private key and the key `FOGBase::certDecrypt()` opens to decrypt every
-> fog-client authorization handshake. Verified on a live server: its modulus
-> matches `srvpublic.crt`, not `ca.cert.pem`.
+> **This used to be a trap, and it is worth knowing what it was.**
+> `$sslprivkey` (`.srvprivate.key`) was *both* the web vhost's private key
+> and the key `FOGBase::certDecrypt()` opens to decrypt every fog-client
+> authorization handshake. Verified on a live server: its modulus matched
+> `srvpublic.crt`, not `ca.cert.pem`. So
+> `acme.sh --install-cert --key-file /opt/fog/snapins/ssl/.srvprivate.key`
+> installed a perfectly valid certificate and silently stopped every client
+> authenticating, with nothing in the logs connecting the two.
 >
-> The coupling is to **that file**, not to "the web certificate" in general:
+> **That coupling is gone.** The web server now has its own keypair, issued
+> by the FOG Web CA, and `.srvprivate.key` does only the job it is named for.
+> Writing an ACME key over it no longer affects the web server, and replacing
+> the web certificate no longer affects clients — see
+> [PKI_ZONES.md](PKI_ZONES.md).
 >
-> - **Pointing the vhost at your own certificate elsewhere is safe.** FOG's
->   key is untouched, so clients keep authenticating. This is the recommended
->   approach, and the managed vhost block is what keeps those directives
->   across upgrades.
-> - **Overwriting `.srvprivate.key` in place breaks client authentication** —
->   `acme.sh --install-cert --key-file /opt/fog/snapins/ssl/.srvprivate.key`,
->   certbot pointed at it, or `--recreate-keys`. The certificate is perfectly
->   valid; clients simply stop authenticating, with nothing in the logs
->   connecting the two.
->
-> So write your ACME output to its own location and point the vhost there.
-> The example above deliberately does the opposite to show the shape of the
-> hook — adjust `--key-file` away from FOG's path before using it. The split
-> PKI removes the trap entirely by giving client communication its own
-> keypair (see [PKI_ZONES.md](PKI_ZONES.md)).
+> Pointing the vhost at your own certificate elsewhere remains the cleanest
+> approach either way, and the managed vhost block is what keeps those
+> directives across upgrades. The example above writes to FOG's own paths;
+> adjust `--key-file` if you would rather keep your certificate somewhere of
+> your own.
 
 Why this is better than public LE: **the intermediate you pin is stable and under
 your control**, so leaf renewals are transparent to clients, and nothing needs to
