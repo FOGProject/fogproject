@@ -120,7 +120,7 @@ usage() {
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,internal-domain:,internal-subnet:,no-sb-name-constraints,extra-server-name:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -178,6 +178,41 @@ while :; do
             # through the same override that -S uses, so the two are symmetric.
             shttpproto="http"
             shift
+            ;;
+        --no-sb-name-constraints)
+            ssbNameConstraints="no"
+            shift
+            ;;
+        --extra-server-name)
+            if [[ -z "${2}" ]]; then
+                echo "$1 requires a hostname after"
+                usage
+                exit 3
+            fi
+            sextraServerNames="${sextraServerNames:+$sextraServerNames }${2}"
+            shift 2
+            ;;
+        --internal-domain)
+            if [[ -z "${2}" ]]; then
+                echo "$1 requires a domain name after"
+                usage
+                exit 3
+            fi
+            sinternalDomains="${sinternalDomains:+$sinternalDomains }${2}"
+            shift 2
+            ;;
+        --internal-subnet)
+            # Validated here rather than at use: an unchecked value reaches an
+            # OpenSSL extension config, and a malformed one there fails to build
+            # the certificate with an error naming neither the flag nor the
+            # value.
+            if [[ $(validip "${2%%/*}") -ne 0 ]]; then
+                echo "$1 requires a subnet like 10.20.30.0/24 after"
+                usage
+                exit 3
+            fi
+            sinternalSubnets="${sinternalSubnets:+$sinternalSubnets }${2}"
+            shift 2
             ;;
         -K | --recreate-keys)
             srecreateKeys="yes"
@@ -443,6 +478,13 @@ esac
 [[ -n $sexitFail ]] && exitFail=$sexitFail
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
 [[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
+[[ -n $ssbNameConstraints ]] && sbNameConstraints=$ssbNameConstraints
+# Repeatable flags REPLACE the persisted list rather than appending to it:
+# an admin re-running with a narrower set means that set, and appending
+# would make a value impossible to remove without hand-editing .fogsettings.
+[[ -n $sinternalDomains ]] && internalDomains=$sinternalDomains
+[[ -n $sinternalSubnets ]] && internalSubnets=$sinternalSubnets
+[[ -n $sextraServerNames ]] && extraServerNames=$sextraServerNames
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
 
@@ -638,6 +680,10 @@ while [[ -z $blGo ]]; do
                     configureTFTPandPXE
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
                     configureUDPCast
                     installInitScript
                     installFOGServices
@@ -713,6 +759,10 @@ while [[ -z $blGo ]]; do
                     configureTFTPandPXE
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
                     configureUDPCast
                     installInitScript
                     installFOGServices

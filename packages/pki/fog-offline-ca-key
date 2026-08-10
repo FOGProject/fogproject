@@ -1,0 +1,165 @@
+#!/bin/bash
+#
+#  FOG is a computer imaging solution.
+#  Copyright (C) 2007  Chuck Syperski & Jian Zhang
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#    any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Move a FOG CA private key off this server to a destination you control.
+#
+# Why this exists as a script rather than a documented cp+shred: the CERTIFICATE
+# must stay behind while the KEY leaves. Everything on the server chains to the
+# certificate, and the installer uses its presence to recognise that a CA
+# already exists -- remove it and the next run mints a fresh CA, orphaning every
+# intermediate beneath it and every client that pinned it. The obvious manual
+# version ("move the CA out of the way") gets that wrong, silently, and the
+# damage is only visible days later.
+#
+# It also verifies the copy before destroying the original, which is the other
+# thing a hand-run cp does not do.
+
+set -u
+
+CONF="/opt/fog/.fogsettings"
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <destination-directory> [--zone root|secureboot]
+
+Copies the CA private key to <destination-directory>, verifies the copy is
+readable and matches the certificate that stays here, then shreds the original.
+
+  --zone root         the CA that signs the web intermediate and the client
+                      communication certificate, and that fog-client pins.
+                      This is the default.
+  --zone secureboot   the CA enrolled in firmware, which issues kernel signing
+                      certificates.
+
+Restore the key to its original path and re-run installfog.sh when you need to
+issue a new intermediate, or a certificate for a new storage node. Nothing else
+needs it.
+EOF
+}
+
+dest=""
+zone="root"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help) usage; exit 0 ;;
+        --zone)
+            zone="${2:-}"
+            shift 2 || { usage; exit 1; }
+            ;;
+        -*) echo "Unknown option: $1" >&2; usage; exit 1 ;;
+        *)
+            [[ -n $dest ]] && { echo "Only one destination may be given" >&2; exit 1; }
+            dest="$1"
+            shift
+            ;;
+    esac
+done
+
+[[ -z $dest ]] && { usage; exit 1; }
+[[ $EUID -eq 0 ]] || { echo "This must be run as root -- the keys are root-only by design." >&2; exit 1; }
+
+# .fogsettings is the source of truth for where this install keeps things, the
+# same as it is for the installer. Sourcing it rather than hardcoding /opt/fog
+# is what makes this work on a server installed with --fogprogramdir.
+if [[ -r $CONF ]]; then
+    # shellcheck disable=SC1090
+    . "$CONF"
+elif [[ -r /etc/fog/fog.conf ]]; then
+    . /etc/fog/fog.conf
+    [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
+fi
+: "${fogprogramdir:=/opt/fog}"
+: "${sslpath:=${fogprogramdir}/snapins/ssl}"
+
+case "$zone" in
+    root)
+        key="${rootCAKey:-${sslpath}/CA/.fogCA.key}"
+        cert="${rootCAPem:-${sslpath}/CA/.fogCA.pem}"
+        label="FOG Server CA"
+        ;;
+    secureboot)
+        key="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.key"
+        cert="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.pem"
+        label="FOG Secure Boot CA"
+        ;;
+    *)
+        echo "Unknown zone '$zone' -- expected 'root' or 'secureboot'." >&2
+        exit 1
+        ;;
+esac
+
+if [[ ! -f $key ]]; then
+    echo "Nothing to do: ${label}'s private key is not on this server."
+    echo "  expected at: ${key}"
+    [[ -f $cert ]] && echo "  the certificate is present, which is the correct offline state."
+    exit 0
+fi
+[[ -f $cert ]] || { echo "Refusing to continue: ${cert} is missing." >&2; exit 1; }
+
+mkdir -p "$dest" || exit 1
+target="${dest%/}/$(basename "$key")"
+if [[ -e $target ]]; then
+    echo "Refusing to overwrite ${target}." >&2
+    exit 1
+fi
+
+echo "Moving ${label}'s private key off this server."
+echo "  from: ${key}"
+echo "  to:   ${target}"
+
+install -m 0400 -o root -g root "$key" "$target" || exit 1
+
+# Verify the copy before destroying the original. Both halves: that the copy is
+# a readable private key at all, and that it is still the key belonging to the
+# certificate staying behind -- a truncated copy passes the first test and fails
+# the second, and there is no second chance after the shred.
+keymod=$(openssl rsa -noout -modulus -in "$target" 2>/dev/null | openssl md5)
+certmod=$(openssl x509 -noout -modulus -in "$cert" 2>/dev/null | openssl md5)
+if [[ -z $keymod || $keymod != "$certmod" ]]; then
+    echo "The copy at ${target} does not match ${cert}." >&2
+    echo "The original has NOT been removed." >&2
+    rm -f "$target"
+    exit 1
+fi
+
+if command -v shred >/dev/null 2>&1; then
+    shred -u "$key"
+else
+    # No shred on a busybox userland. Overwrite once and unlink -- weaker, but
+    # better than an unlink alone, and worth saying out loud rather than
+    # pretending the key was securely erased.
+    dd if=/dev/urandom of="$key" bs=1 count="$(stat -c %s "$key")" conv=notrunc 2>/dev/null
+    rm -f "$key"
+    echo "Note: 'shred' is not installed, so the original was overwritten once"
+    echo "      and unlinked rather than securely erased."
+fi
+
+cat <<EOF
+
+Done. ${label}'s private key is now only at:
+  ${target}
+
+The certificate stays here and must not be moved -- everything on this server
+chains to it, and the installer uses its presence to know the CA already
+exists:
+  ${cert}
+
+Restore the key to its original path before issuing a new intermediate or a
+certificate for a new storage node, then move it back. Ordinary updates do not
+need it.
+EOF
