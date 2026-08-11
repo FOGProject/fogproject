@@ -9,10 +9,16 @@ imports, five things to redo when one is rebuilt.
 This document covers the ways to collapse that to one, what each costs, and how
 to tell which one you are actually in.
 
-> **If your other machines are storage nodes, stop here — this is already
-> solved.** A node asks its master for a certificate automatically. See
-> [Storage nodes](PKI_ZONES.md#storage-nodes). This document is for servers
-> that have no master/node relationship.
+> **If your other machines are storage nodes, this is mostly solved already.**
+> A node asks its master for a certificate automatically on this line — see
+> [Storage nodes](PKI_ZONES.md#storage-nodes) — but issuance is conditional
+> on two things the master cannot fix for you: the node must resolve to a
+> hostname (no PTR and the request is refused outright), and that hostname
+> must fall inside the master's Web CA name constraints, which are fixed at
+> mint time. A node named `debian` under a CA permitting `DNS:lan` is
+> rejected; `debian.lan` succeeds. Where either does not hold, treat the node
+> as a separate server and use Option B. This document is otherwise for
+> servers with no master/node relationship.
 
 ---
 
@@ -63,7 +69,7 @@ means case 2, and the rest of this document applies.
 | | Effort | Servers must trust each other | Best when |
 |---|---|---|---|
 | **A. Import each root** | One import per server, forever | no | 2–3 stable servers |
-| **B. Hub FOG server issues** | One-time per server | yes — a hub key is copied out | several FOG servers, no existing PKI |
+| **B. Hub FOG server issues** | One-time per server | yes — each satellite holds a CA the hub issued it (never the hub's own key) | several FOG servers, no existing PKI |
 | **C. Your own PKI / ACME** | Depends on your PKI | no | you already run a CA |
 
 There is no option where the servers keep their independence *and* share an
@@ -102,9 +108,28 @@ root, so one anchor covers the fleet.
          └── FOG Web CA - fog3.lan   → fog3's web certificate
 ```
 
-**Requires** a FOG version with `--web-ca-cert/--web-ca-key/--web-ca-root`. Both
-the 1.6 line and the 1.5 line have them; update the installer on every server
-first (`git pull`) or the flags will not parse.
+### 0. Check that your version can do this
+
+Option B needs the PKI zone layout on **every** server involved: the
+`--web-ca-cert/--web-ca-key/--web-ca-root` flags on each satellite's installer,
+and `packages/pki/fog-mint-web-ca` plus a root key at
+`/opt/fog/pki/root/ca/.fogCA.key` on the hub. The 1.6 line and `dev-branch`
+(the actively-patched 1.5 line) both have all of it. A **released 1.5.x
+`stable` has none of it** — no `packages/pki` at all, no zone split, and the
+root key still sitting beside its certificate in `snapins/ssl/CA`. `git pull`
+on a `stable` checkout will not produce these flags; you have to be on a line
+that carries them.
+
+From each checkout:
+
+```bash
+test -x packages/pki/fog-mint-web-ca && grep -q web-ca-cert bin/installfog.sh \
+    && echo "Option B available" \
+    || echo "pre-PKI layout — Option A or C only"
+```
+
+A pre-PKI server cannot participate as a hub or as a satellite. Update it to a
+line that carries the zone split first, or use Option A or C for that server.
 
 ### 1. Issue a CA per server, on the hub
 
@@ -213,7 +238,7 @@ questions.
 |---|---|---|
 | Web (HTTPS vhost) | **yes** | what `--web-ca-*` targets |
 | Client communication | **no** | each server keeps its own root; fog-client pins per server |
-| Secure Boot | **no** | see `--secureboot-ca-cert` in [PKI_ZONES.md](PKI_ZONES.md#bringing-your-own-ca) |
+| Secure Boot | **no** | see `--secureboot-ca-cert` in [PKI_ZONES.md](PKI_ZONES.md#bringing-your-own-ca) — 1.6 only, `dev-branch` has no such flag |
 
 **fog-client is deliberately untouched.** It pins the root of the server it
 registered against, and that root is not replaced by `--web-ca-*` — which is
@@ -257,7 +282,8 @@ with the fix, the next run reissues once by itself.
 Check for two FOG vhosts in one file:
 
 ```bash
-grep -c '^<VirtualHost \*:443>' /etc/apache2/sites-available/001-fog.conf
+grep -c '^<VirtualHost \*:443>' /etc/apache2/sites-available/001-fog.conf   # Apache
+grep -c '^server {' /etc/nginx/conf.d/fog.conf                              # nginx
 ```
 
 A `2` means the install upgraded across the introduction of the FOG-managed
