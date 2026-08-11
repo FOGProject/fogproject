@@ -244,6 +244,51 @@ abstract class FOGPage extends FOGBase
     protected $templates;
 
     /**
+     * Answers a request naming an object that could not be loaded.
+     *
+     * A browser gets exactly what it always got: a redirect to the node's list
+     * page. An XHR gets a 404 and a JSON body naming the problem.
+     *
+     * The distinction matters because jQuery follows a redirect transparently,
+     * so an AJAX caller never sees the 308 -- it sees the list page's HTML (or,
+     * for the sub-endpoints that emit nothing before redirecting, an empty
+     * body) arriving where it asked for JSON. A DataTable can then report only
+     * "DataTables warning: table id=... - Ajax error", which says nothing about
+     * what went wrong, and $.apiCall's error handler has no responseJSON to
+     * raise a message from at all. The 'error' key is the shape
+     * $.notifyFromAPI already reads, so every existing caller surfaces this as
+     * an error toast without being changed.
+     *
+     * Deliberately keyed on self::$ajax (the X-Requested-With header jQuery
+     * sets) rather than on a list of known JSON subs: a sub added later gets
+     * the right behaviour without anyone remembering to register it.
+     *
+     * @param string $node the node whose list page a browser is sent to
+     * @param mixed  $id   the id that could not be resolved
+     *
+     * @return void
+     */
+    protected static function objectNotFound($node, $id)
+    {
+        if (self::$ajax) {
+            header('Content-type: application/json');
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_NOT_FOUND,
+                json_encode(
+                    [
+                        'title' => _('Not Found'),
+                        'error' => sprintf(
+                            _('No %1$s exists with ID %2$s'),
+                            $node,
+                            (string)$id
+                        )
+                    ]
+                )
+            );
+        }
+        self::redirect("../management/index.php?node={$node}");
+    }
+    /**
      * Initializes the page class
      *
      * @param mixed $name name of the page to initialize
@@ -290,9 +335,7 @@ abstract class FOGPage extends FOGBase
             || !is_numeric($id)
             || $id < 1)
         ) {
-            self::redirect(
-                "../management/index.php?node=$node"
-            );
+            self::objectNotFound($node, isset($id) ? $id : '');
             exit;
         }
         $subs = [
@@ -335,7 +378,7 @@ abstract class FOGPage extends FOGBase
             if (isset($id)) {
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
-                    self::redirect("../management/index.php?node={$this->node}");
+                    self::objectNotFound($this->node, $id);
                 }
             }
         }

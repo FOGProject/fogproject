@@ -4363,6 +4363,10 @@ msgstr ""
 msgid "No"
 msgstr "いいえ"
 
+#, php-format
+msgid "No %1$s exists with ID %2$s"
+msgstr ""
+
 #, fuzzy
 msgid "No Action"
 msgstr "操作"
@@ -4587,6 +4591,10 @@ msgstr ""
 
 msgid "Not Available"
 msgstr "利用不可"
+
+#, fuzzy
+msgid "Not Found"
+msgstr "見つかりません"
 
 #, fuzzy
 msgid "Not Installed"
@@ -9601,9 +9609,6 @@ msgstr ""
 
 #~ msgid "Not all elements in filter or ports setting are integer"
 #~ msgstr "フィルターまたはポート設定のすべての要素が整数ではありません"
-
-#~ msgid "Not found"
-#~ msgstr "見つかりません"
 
 #~ msgid "Not protected"
 #~ msgstr "保護されていません"

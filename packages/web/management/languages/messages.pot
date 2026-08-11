@@ -3859,6 +3859,10 @@ msgstr ""
 msgid "No"
 msgstr ""
 
+#, php-format
+msgid "No %1$s exists with ID %2$s"
+msgstr ""
+
 msgid "No Action"
 msgstr ""
 
@@ -4064,6 +4068,9 @@ msgid "Normal runs a single uploaded file. A Snapin Pack unzips an uploaded arch
 msgstr ""
 
 msgid "Not Available"
+msgstr ""
+
+msgid "Not Found"
 msgstr ""
 
 msgid "Not Installed"

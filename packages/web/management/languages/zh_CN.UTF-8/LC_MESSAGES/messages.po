@@ -4586,6 +4586,10 @@ msgstr ""
 msgid "No"
 msgstr "节点"
 
+#, php-format
+msgid "No %1$s exists with ID %2$s"
+msgstr ""
+
 #, fuzzy
 msgid "No Action"
 msgstr "行动"
@@ -4824,6 +4828,10 @@ msgstr ""
 
 msgid "Not Available"
 msgstr "不可用"
+
+#, fuzzy
+msgid "Not Found"
+msgstr "图标文件未找到"
 
 #, fuzzy
 msgid "Not Installed"

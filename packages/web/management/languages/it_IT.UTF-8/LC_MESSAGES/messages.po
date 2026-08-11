@@ -4409,6 +4409,10 @@ msgstr ""
 msgid "No"
 msgstr "Nodo"
 
+#, php-format
+msgid "No %1$s exists with ID %2$s"
+msgstr ""
+
 #, fuzzy
 msgid "No Action"
 msgstr "Azione"
@@ -4634,6 +4638,10 @@ msgstr ""
 
 msgid "Not Available"
 msgstr "Non disponibile"
+
+#, fuzzy
+msgid "Not Found"
+msgstr "File Icona non trovato"
 
 #, fuzzy
 msgid "Not Installed"

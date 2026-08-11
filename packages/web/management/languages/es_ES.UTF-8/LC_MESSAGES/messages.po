@@ -4696,6 +4696,10 @@ msgstr ""
 msgid "No"
 msgstr "Modelo"
 
+#, php-format
+msgid "No %1$s exists with ID %2$s"
+msgstr ""
+
 #, fuzzy
 msgid "No Action"
 msgstr "Acción"
@@ -4940,6 +4944,10 @@ msgstr ""
 #, fuzzy
 msgid "Not Available"
 msgstr "No disponible"
+
+#, fuzzy
+msgid "Not Found"
+msgstr "Icono de archivo no encontrado"
 
 #, fuzzy
 msgid "Not Installed"
