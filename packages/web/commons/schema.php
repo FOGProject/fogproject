@@ -4972,3 +4972,43 @@ $this->schema[] = [
     . "`ttIsAdvanced`='0' "
     . "WHERE `ttID`=25",
 ];
+// 324
+$this->schema[] = [
+    // Distinguishes pxeID 14 from the unattended item added in step 325
+    // below. It has always chained straight to MokManager for a technician
+    // to drive by hand; the plain "Enroll Secure Boot Key" name stopped
+    // being enough once there is a second, unattended way to enrol from
+    // the same menu.
+    //
+    // A new step, not an edit to step 321: that INSERT has already run on
+    // every existing 1.6 beta server, and a server does not re-run a step
+    // it has passed.
+    "UPDATE `pxeMenu` SET "
+    . "`pxeDesc`='Enroll Secure Boot Key (MOK attended setup)' "
+    . "WHERE `pxeID`=14",
+];
+// 325
+$this->schema[] = [
+    // Exposes task type 25's mode=enrollsb (schema step 323) directly on
+    // the PXE menu, so a technician standing at a machine already in Setup
+    // Mode does not have to leave the console to schedule a task. Falls
+    // through BootMenu::_menuOpt()'s default kernel-chain branch exactly
+    // like the existing mode=autoreg/mode=onlydebug/mode=sysinfo items --
+    // no special case needed there.
+    //
+    // pxeID 15 is the next free id (8 and 13 were removed by name in
+    // earlier steps but their ids are not reused; 1-14 are otherwise
+    // taken). pxeRegOnly=2: same "always shown" grouping as item 14, since
+    // a machine needing its Secure Boot key enrolled has usually never
+    // registered yet.
+    //
+    // BootMenu::printDefault() additionally hides this item unless
+    // PK.auth/KEK.auth/db.auth all exist in service/secureboot/ -- without
+    // them mode=enrollsb's auto-enrol path has nothing valid to write.
+    "INSERT IGNORE INTO `pxeMenu` "
+    . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
+    . "VALUES "
+    . "(15, 'fog.enrollsecurebootunattended', 'Enroll Secure Boot Key "
+    . "(Unattended - secure boot in setup mode required)', '0', '2', "
+    . "'mode=enrollsb')",
+];
