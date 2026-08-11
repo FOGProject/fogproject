@@ -6,6 +6,41 @@
 > Rocky 9.8 node (`fognode1`, 10.255.30.11) installed by `installfog.sh` against
 > the 1.6 master, not simulated.
 
+## Five-node matrix
+
+One purpose-built Rocky 9.8 storage node per master, each a genuine
+`installtype=S` install driven by `installfog.sh -y`.
+
+| node | master | master ver | `Creating SSL Private Key` | registered | `web` | `signing` |
+|---|---|---|---|---|---|---|
+| fognode1 | 10.255.20.1 | 1.6 (patched `nodecert.php`) | fixed mid-run | after manual SELinux boolean | 500 name constraints | 500 no SB CA |
+| fognode2 | 10.255.25.2 | 1.6 | OK | automatic | 409 no hostname | 409 no hostname |
+| fognode3 | 10.255.22.2 | 1.6 | OK | automatic | 409 no hostname | 409 no hostname |
+| fognode4 | 10.254.25.2 | 1.5.10.2258 | OK | **correctly reported failed** (HTTP 401) | Skipped | Skipped |
+| fognode5 | 10.253.25.2 | 1.5.10.2258 | — | — | — | — |
+
+fognode5 did not run: `10.253.25.2` has firewalld active with 3306 closed to
+every host, so `Checking connection to master database` fails before FOG reaches
+anything under test. That box is itself a storage node of `10.254.25.2` and has
+never needed to accept inbound MySQL; using it as a master needs the port opened.
+
+What the matrix establishes:
+
+- **The `prompt = no` CSR fix holds.** `Creating SSL Private Key....OK` on three
+  independent fresh installs. It hard-failed on fognode1 before the fix, which is
+  what exposed it.
+- **The `fog.te` `mysqld_port_t` rule holds.** fognode1 needed
+  `httpd_can_network_connect_db` flipped by hand to register at all; fognode2,
+  3 and 4 shipped with the rule and registered — or failed honestly — unaided.
+- **The `registerStorageNode` status check earns its keep.** fognode4's master
+  answered HTTP 401 and the installer said `Failed` with the code and the URL.
+  Before the change that line read `Done`, and the missing node would only have
+  surfaced later and elsewhere, as a refused certificate.
+- **No node obtained a certificate.** Every 1.6 master refused, for the same
+  root cause in two different disguises: with the patch a node's IP-derived name
+  fails the CA's name constraints (500), without it the endpoint refuses before
+  building a name at all (409).
+
 ## Blockers found on a real node install
 
 | # | Defect | Effect |
