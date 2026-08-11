@@ -2325,34 +2325,36 @@ function fogBindScrollerAutosize() {
 // diagnosis. Only the Ajax half is changed: a DataTables error with no request
 // behind it (a column-count mismatch, say -- see registerExportTable) still
 // reports its original message.
-$.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
-  var xhr = settings ? settings.jqXHR : null,
-    tableId = (settings && settings.sTableId) ? settings.sTableId : 'table',
-    detail = '';
+if ($.fn.dataTable) {
+  $.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
+    var xhr = settings ? settings.jqXHR : null,
+      tableId = (settings && settings.sTableId) ? settings.sTableId : 'table',
+      detail = '';
 
-  if (xhr) {
-    if (xhr.responseJSON && xhr.responseJSON.error) {
-      detail = xhr.responseJSON.error;
-    } else if (xhr.responseText) {
-      // Truncated for the toast only; the console below keeps all of it. An
-      // HTML error page is worth showing the first line of -- it is usually
-      // the one that names the failure.
-      detail = $.trim(xhr.responseText).substring(0, 300);
+    if (xhr) {
+      if (xhr.responseJSON && xhr.responseJSON.error) {
+        detail = xhr.responseJSON.error;
+      } else if (xhr.responseText) {
+        // Truncated for the toast only; the console below keeps all of it. An
+        // HTML error page is worth showing the first line of -- it is usually
+        // the one that names the failure.
+        detail = $.trim(xhr.responseText).substring(0, 300);
+      }
+      detail = 'HTTP ' + xhr.status
+        + (detail ? ' - ' + detail : ' (empty response body)');
     }
-    detail = 'HTTP ' + xhr.status
-      + (detail ? ' - ' + detail : ' (empty response body)');
-  }
 
-  if (window.console && console.error) {
-    console.error('FOG: table "' + tableId + '" failed to load', {
-      dataTablesMessage: message,
-      status: xhr ? xhr.status : null,
-      response: xhr ? (xhr.responseJSON || xhr.responseText) : null
-    });
-  }
+    if (window.console && console.error) {
+      console.error('FOG: table "' + tableId + '" failed to load', {
+        dataTablesMessage: message,
+        status: xhr ? xhr.status : null,
+        response: xhr ? (xhr.responseJSON || xhr.responseText) : null
+      });
+    }
 
-  $.notify(tableId, detail || message, 'error');
-};
+    $.notify(tableId, detail || message, 'error');
+  };
+}
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
 
