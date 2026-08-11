@@ -64,7 +64,7 @@ means case 2, and the rest of this document applies.
 | | Effort | Servers must trust each other | Best when |
 |---|---|---|---|
 | **A. Import each root** | One import per server, forever | no | 2–3 stable servers |
-| **B. Hub FOG server issues** | One-time per server | yes — a hub key is copied out | several FOG servers, no existing PKI |
+| **B. Hub FOG server issues** | One-time per server | yes — each satellite holds a CA the hub issued it (never the hub's own key) | several FOG servers, no existing PKI |
 | **C. Your own PKI / ACME** | Depends on your PKI | no | you already run a CA |
 
 There is no option where the servers keep their independence *and* share an
@@ -103,9 +103,24 @@ root, so one anchor covers the fleet.
          └── FOG Web CA - fog3.lan   → fog3's web certificate
 ```
 
-**Requires** a FOG version with `--web-ca-cert/--web-ca-key/--web-ca-root`. Both
-the 1.6 line and the 1.5 line have them; update the installer on every server
-first (`git pull`) or the flags will not parse.
+### 0. Check that your version can do this
+
+Option B needs `--web-ca-cert/--web-ca-key/--web-ca-root` on every satellite's
+installer, and `packages/pki/fog-mint-web-ca` on the hub. `dev-branch` carries
+both, and so does the 1.6 line. A **released 1.5.x `stable` carries neither** —
+there is no `packages/pki` on it at all — so `git pull` on a `stable` checkout
+will not produce these flags however many times you run it; you have to be on a
+line that ships them.
+
+From each checkout:
+
+```bash
+test -x packages/pki/fog-mint-web-ca && grep -q web-ca-cert bin/installfog.sh \
+    && echo "Option B available" \
+    || echo "not on this line — Option A or C only"
+```
+
+A server without them can be neither hub nor satellite.
 
 ### 1. Issue a CA per server, on the hub
 
@@ -124,23 +139,46 @@ rather than on the far server.
 Each run writes `/root/fog-web-cas/<short>-webca.tar.gz` containing
 `webca.pem`, `webca.key`, `fog-root.pem`.
 
-### 2. Install on each server
+### 2. Copy the bundle to each server
+
+The bundle sits under `/root` because it carries a CA private key. Push it from
+the hub rather than pulling it — `sshd` ships `PermitRootLogin
+prohibit-password` on most distributions, and an unprivileged account cannot
+write to `/root` on the far end either, so the obvious
+`scp root@<hub>:/root/... /root/` fails at both ends with nothing more
+informative than `Permission denied`:
 
 ```bash
-scp root@<hub>:/root/fog-web-cas/<short>-webca.tar.gz /root/
-cd /root && tar -xzf <short>-webca.tar.gz
-
-cd ~/fogproject/bin
-sudo ./installfog.sh --web-ca-cert /root/webca.pem \
-                     --web-ca-key  /root/webca.key \
-                     --web-ca-root /root/fog-root.pem
+# on the hub
+sudo cp /root/fog-web-cas/<short>-webca.tar.gz ~/
+sudo chown $USER: ~/<short>-webca.tar.gz
+scp ~/<short>-webca.tar.gz <you>@<far-server>:~/
+rm -f ~/<short>-webca.tar.gz
 ```
 
-`--external-ca` is not needed; any one of the three implies it. You pass these
-**once** — the files are imported into the web zone and later upgrades reuse the
-import without the flags.
+### 3. Install on each server
 
-### 3. Anchor the hub root wherever you need it
+```bash
+# on the far server
+sudo mkdir -p /root/webca
+sudo tar -xzf ~/<short>-webca.tar.gz -C /root/webca
+
+cd ~/fogproject/bin
+sudo ./installfog.sh --web-ca-cert /root/webca/webca.pem \
+                     --web-ca-key  /root/webca/webca.key \
+                     --web-ca-root /root/webca/fog-root.pem
+```
+
+Unpacking as root keeps `webca.key` unreadable to other accounts; it stays on
+this server permanently, so where it lands matters. Remove the tarball from your
+home directory afterwards.
+
+Passing any one of the three is what marks the install as using an external CA;
+there is no separate flag to set. You pass them **once** — the files are
+imported into the web zone and later upgrades reuse the import without the
+flags.
+
+### 4. Anchor the hub root wherever you need it
 
 One certificate now covers every server. On a Linux client:
 
@@ -192,7 +230,7 @@ questions.
 |---|---|---|
 | Web (HTTPS vhost) | **yes** | what `--web-ca-*` targets |
 | Client communication | **no** | each server keeps its own root; fog-client pins per server |
-| Secure Boot | **no** | see `--secureboot-ca-cert` and [PKI_ZONES.md](PKI_ZONES.md) |
+| Secure Boot | **no** | its own zone. On this line you supply a key with `--secure-boot-key`/`--secure-boot-cert`; there is no `--secureboot-ca-cert` here, that is 1.6 only. See [PKI_ZONES.md](PKI_ZONES.md) |
 
 **fog-client is deliberately untouched.** It pins the root of the server it
 registered against, and that root is not replaced by `--web-ca-*` — which is
