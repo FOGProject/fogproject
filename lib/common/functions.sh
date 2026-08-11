@@ -5124,11 +5124,21 @@ FOG_MANAGED_END='# === END FOG MANAGED BLOCK ==='
 # '#' is a comment in both nginx and Apache syntax, so the markers are inert
 # in either file.
 #
-# Three cases, deliberately no fourth: no file -> write one; both markers
-# present -> replace between them; anything else (no markers, or only one
-# because a previous run died mid-write or someone hand-edited) -> append a
-# fresh block and touch nothing that was already there. Never guess at a
-# partial patch.
+# Four cases, deliberately no fifth: no file -> write one; both markers
+# present -> replace between them; NEITHER marker present -> the file predates
+# this mechanism, so replace it whole; exactly one marker (a previous run died
+# mid-write, or someone hand-edited) -> append a fresh block and touch nothing
+# that was already there. Never guess at a partial patch.
+#
+# The zero-marker case used to append too, and that was wrong. Before markers
+# existed FOG rewrote this file in full on every run -- the file was entirely
+# FOG's own output and nothing else could survive there. Appending to it on the
+# first post-upgrade run therefore left FOG's *previous* vhost in place above
+# the new block, and Apache serves the first matching <VirtualHost *:443>, so
+# the stale one won: a server re-installed onto a new web CA kept serving the
+# certificate paths from before the upgrade. Replacing whole restores exactly
+# what the pre-marker contract always did; the caller's `mv $etcconf
+# $etcconf.$timestamp` backup still holds the old content either way.
 spliceManagedBlock() {
     local conffile="$1" contentfile="$2" priorfile="$3"
     # $3 names where the file's PREVIOUS content lives, when the caller has
@@ -5179,6 +5189,12 @@ spliceManagedBlock() {
         ' "$conffile" > "$tmp" && mv -f "$tmp" "$conffile"
         return $?
     fi
+    # Neither marker -> pre-marker file, FOG owned all of it, replace it whole.
+    if ! grep -qF "$FOG_MANAGED_BEGIN" "$conffile" && ! grep -qF "$FOG_MANAGED_END" "$conffile"; then
+        { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } > "$conffile"
+        return $?
+    fi
+    # Exactly one marker: damaged or hand-edited. Append, change nothing else.
     { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } >> "$conffile"
 }
 # Redirects the vhost generation that follows into a scratch file, so the ~260
