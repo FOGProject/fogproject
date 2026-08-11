@@ -4976,7 +4976,16 @@ _createWebLeaf() {
     # The name set, hashed. ca.cnf is rewritten from $ipaddresses/$hostname/
     # $extraServerNames on every run, so a changed hostname or a new
     # --extra-server-name changes this and nothing else has to notice.
-    want=$(openssl md5 < "$sslpath/ca.cnf" 2>/dev/null)
+    # The signing CA is part of the stamp, not just the name set. It used to be
+    # ca.cnf alone, which meant switching the Web CA -- --web-ca-cert/-key/-root
+    # pointing this server at a CA another FOG server issued -- imported the new
+    # CA and then returned right here without re-signing anything, because the
+    # NAMES had not changed. The install reported success and the vhost went on
+    # serving a certificate signed by the CA that had just been replaced, with
+    # nothing anywhere saying so.
+    want=$( { cat "$sslpath/ca.cnf" 2>/dev/null
+              openssl x509 -in "$sslcapem" -noout -fingerprint -sha256 2>/dev/null
+            } | openssl md5 2>/dev/null)
     if [[ -e $sslpubcert && -e $stamp && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
         return 0
     fi
