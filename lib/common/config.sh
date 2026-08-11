@@ -16,13 +16,41 @@
 [[ -z $username || "x$username" = "xfog" ]] && username="fogproject"
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
-[[ -z $buildipxesrc ]] && buildipxesrc="../utils/FOGiPXE"
+# iPXE now lives in its own repository and its binaries arrive as a release
+# asset, the same way the FOS kernels already do. packages/tftp is therefore a
+# staging directory the installer fills at runtime rather than 22 MB of build
+# output carried in git. See GH-959.
+[[ -z $ipxegit ]] && ipxegit="https://github.com/FOGProject/fog-ipxe"
+[[ -z $ipxeurl ]] && ipxeurl="${ipxegit}/releases/download"
+# Pinned in system.class.php alongside FOG_CLIENT_VERSION, for the same reason:
+# a given FOG release ships a known iPXE, and bumping it is a deliberate edit
+# rather than whatever happened to be tagged the day someone installed.
+[[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
+[[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.6"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20250223.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-20250223"
 [[ -z $servicesrc ]] && servicesrc="../packages/service"
 [[ -z $servicedst ]] && servicedst="/opt/fog/service"
 [[ -z $servicelogs ]] && servicelogs="/opt/fog/log"
 [[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
+# $buildipxesrc is where the source checkout lands when an HTTPS install has to
+# rebuild with its own CA baked in. Under $fogprogramdir so it is findable,
+# survives the extracted tarball being deleted, and gives an offline site one
+# path to pre-populate. Must follow fogprogramdir. See GH-959.
+[[ -z $buildipxesrc ]] && buildipxesrc="$fogprogramdir/ipxe"
+# Secure Boot signing is on by default: _ensureSecureBootKeys generates a
+# signing key when the admin has not supplied one, so a stock server always has
+# a fingerprint and an enrolment kit to hand out. --no-secure-boot sets this to
+# 0, and because .fogsettings is sourced before this file, that choice survives
+# an upgrade rather than being silently re-enabled.
+[[ -z $secureboot ]] && secureboot=1
+# Anchoring this server's own CA in this server's own trust store is on by
+# default: without it every HTTPS call made ON the FOG server TO the FOG server
+# fails to verify, including the ones inside FOG that have no way to be handed
+# a CA file. --no-ca-trust sets this to 0, and because .fogsettings is sourced
+# before this file, that choice survives an upgrade rather than being silently
+# re-enabled -- the same reasoning as $secureboot above.
+[[ -z $catrust ]] && catrust=1
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"
@@ -87,3 +115,22 @@ else
     esac
 fi
 serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname"
+# GH-964 sibling: port windows the installer both configures a service to use
+# and opens in the firewall. They live here, together, because the two have to
+# agree -- a passive range pinned in vsftpd.conf but not opened, or opened but
+# not pinned, fails in a way that looks like a network fault rather than a
+# configuration one.
+#
+# FTP passive data. vsftpd otherwise picks from the ephemeral range, which
+# cannot be firewalled without the nf_conntrack_ftp helper -- and modern
+# kernels no longer auto-assign helpers. Pinning it is what makes FTP
+# firewallable at all. Chosen above the default ephemeral range (32768-60999)
+# so it cannot collide with an outbound socket. 101 ports is 101 concurrent
+# transfers, well past what replication does.
+[[ -z $ftppasvmin ]] && ftppasvmin=65000
+[[ -z $ftppasvmax ]] && ftppasvmax=65100
+# udpcast multicast. Mirrors UDPCAST_STARTINGPORT and FOG_MULTICAST_MAX_SESSIONS
+# as written into config.class.php: each concurrent session consumes two ports
+# from the base, so the window is base .. base + 2 * sessions.
+[[ -z $mcastportmin ]] && mcastportmin=63100
+[[ -z $mcastportmax ]] && mcastportmax=$((mcastportmin + 128))

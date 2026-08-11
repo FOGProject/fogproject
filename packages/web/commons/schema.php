@@ -19,6 +19,20 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+/**
+ * GH-529: FOG_WEB_ROOT used to be seeded with a literal '/fog/' regardless of
+ * where the installer was actually told to put the web files, so a custom
+ * -W/--webroot left the database pointing somewhere the app did not live --
+ * which is what broke PXE booting. WEB_ROOT is written into config.class.php
+ * by the installer alongside WEB_HOST.
+ *
+ * The guard is for config.class.php files generated before that constant
+ * existed: the installer rewrites the file on every run, but the schema page
+ * can be reached without re-running it.
+ */
+if (!defined('WEB_ROOT')) {
+    define('WEB_ROOT', '/fog/');
+}
 $tmpSchema = self::getClass('Schema');
 self::$DB->query(Schema::useDatabaseQuery());
 // 0
@@ -439,7 +453,7 @@ $this->schema[] = array(
     . "','Web Server'),"
     . "('FOG_WEB_ROOT','This setting defines the path to the "
     . "fog webserver\'s root directory.','"
-    . '/fog/'
+    . WEB_ROOT
     . "','Web Server'),"
     . "('FOG_WOL_HOST','This setting defines the ip address "
     . "of hostname for the server hosting the Wake-on-lan service.','"
@@ -2846,7 +2860,12 @@ $this->schema[] = array(
 // 188
 $this->schema[] = array(
     "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmWebroot` LONGTEXT NOT NULL",
-    "UPDATE `nfsGroupMembers` SET `ngmWebroot`='/fog/'",
+    // GH-529: backfilled every node with a literal '/fog/', which silently
+    // moved the nodes of a custom-webroot install to a path that does not
+    // exist. There is no per-node value to preserve here -- the column is
+    // being created in the line above -- so the server's own webroot is the
+    // best guess available.
+    "UPDATE `nfsGroupMembers` SET `ngmWebroot`='" . WEB_ROOT . "'",
 );
 // 189
 $this->schema[] = self::fastmerge(
@@ -3895,4 +3914,57 @@ $this->schema[] = count($columnhostSecTokenPrev ?: []) ? array() : array(
     // indefinitely.
     "ALTER TABLE `hosts` "
     . "ADD COLUMN `hostSecTokenPrev` LONGTEXT NOT NULL",
+);
+// 278
+$this->schema[] = array(
+    // Put FOG_UDPCAST_STARTINGPORT back inside the firewalled window.
+    //
+    // Until now MulticastSession::allocatePort() overwrote this setting with
+    // mt_rand(24576, 32766) * 2 after EVERY multicast session. So whatever is
+    // stored on an existing install is a leftover from the last session that
+    // ran -- not a value any admin chose, because no admin-chosen value could
+    // survive to be used twice. Resetting it therefore discards nothing real.
+    //
+    // It matters because the port is no longer rotated: this setting is now
+    // the base of the window sessions are allocated from, and the installer
+    // firewalls exactly that window (63100 .. +2*64). An install carrying a
+    // random leftover would be stable but sitting outside the open range, so
+    // multicast would keep failing silently on a firewalled server.
+    //
+    // Scoped so it can only touch values the rotation could actually have
+    // produced. mt_rand(24576, 32766) * 2 yields EVEN ports in 49152..65532
+    // and nothing else, so a value outside that set -- 30000, say, or an odd
+    // number -- is provably an admin's own and is left alone. Values already
+    // inside the firewalled window are left alone too; they need no help.
+    //
+    // Values that are simply unusable (0, odd, out of range) need no step
+    // here either: defaultPortPool() rejects them and falls back to 63100 at
+    // runtime.
+    //
+    // settingValue is VARCHAR, so compare as a number explicitly rather than
+    // relying on MySQL's implicit coercion of a string column.
+    "UPDATE `globalSettings` "
+    . "SET `settingValue` = '63100' "
+    . "WHERE `settingKey` = 'FOG_UDPCAST_STARTINGPORT' "
+    . "AND CAST(`settingValue` AS UNSIGNED) BETWEEN 49152 AND 65532 "
+    . "AND CAST(`settingValue` AS UNSIGNED) % 2 = 0 "
+    . "AND CAST(`settingValue` AS UNSIGNED) NOT BETWEEN 63100 AND 63228",
+);
+// 279
+$this->schema[] = array(
+    // Adds the "Enroll Secure Boot Key" PXE menu item, always visible
+    // (pxeRegOnly=2, same grouping as fog.local/fog.memtest) regardless of
+    // registration state -- a machine needing its MOK enrolled has usually
+    // never registered yet.
+    //
+    // pxeID 14 is the next free id: 1-13 are already taken. BootMenu::_menuOpt()
+    // keys its special-cased (non-kernel-chain) items on this id the same way
+    // it already does for 1 (fog.local), 2 (fog.memtest) and 11 (fog.advanced).
+    //
+    // No pxeArgs/pxeParams: this item never reaches BootMenu's default
+    // (login + kernel chain) branch, so neither is read.
+    "INSERT IGNORE INTO `pxeMenu` "
+    . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
+    . "VALUES "
+    . "(14, 'fog.enrollsecureboot', 'Enroll Secure Boot Key', '0', '2', NULL)",
 );

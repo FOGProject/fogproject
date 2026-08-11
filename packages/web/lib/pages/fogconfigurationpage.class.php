@@ -43,6 +43,7 @@ class FOGConfigurationPage extends FOGPage
             'license' => self::$foglang['License'],
             'kernelUpdate' => self::$foglang['KernelUpdate'],
             'initrdUpdate' => self::$foglang['InitrdUpdate'],
+            'secureBoot' => _('Secure Boot'),
             'pxemenu' => self::$foglang['PXEBootMenu'],
             'customizepxe' => self::$foglang['PXEConfiguration'],
             'newMenu' => self::$foglang['NewMenu'],
@@ -125,9 +126,12 @@ class FOGConfigurationPage extends FOGPage
         foreach ((array)$StorageNodes as &$StorageNode) {
             $url = $urls[] = filter_var(
                 sprintf(
-                    '%s://%s/fog/status/kernelvers.php',
+                    '%s://%s/%s/status/kernelvers.php',
                     self::$httpproto,
-                    $StorageNode->ip
+                    $StorageNode->ip,
+                    self::webrootPath(
+                        isset($StorageNode->webroot) ? $StorageNode->webroot : null
+                    )
                 ),
                 FILTER_SANITIZE_URL
             );
@@ -208,15 +212,35 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return string
      */
-    public function generateHtmlList($kernelOrInitData, $type)
+    public function generateReleaseRows($kernelOrInitData, $type)
     {
         if ($type != 'kernel' && $type != 'initrd') {
             throw new InvalidArgumentException('Type must be either "kernel" or "initrd"');
         }
 
-        $html = '<div class="col-xs-12"><a href="#" class="btn btn-info btn-block trigger_expand"><h4 class="title">Expand All</h4></a></div>';
+        $rows = array();
         foreach ($kernelOrInitData as $release) {
-            $found_match = preg_match('/(.*)([4-9]\.[0-9]+(?:\.[0-9]+)?)([^0-9]*)(20[0-9]{2}\.[0-9]{2}(?:\.[0-9]+)?)(.*)/', $release->body, $release_version, PREG_OFFSET_CAPTURE);
+            // Anchored on the label the release body actually uses, matching
+            // 1.6 (Route::kernelOrInitJson), rather than hunting for something
+            // version-shaped.
+            //
+            // The pattern this replaces was
+            //   (.*)([4-9]\.[0-9]+(?:\.[0-9]+)?)([^0-9]*)(20\d\d\.\d\d...)(.*)
+            // with the kernel taken from group 2. It required a major of 4-9,
+            // so once kernels reached 6.x the leading greedy (.*) simply
+            // consumed "6.1" and the group latched onto "8.38" inside
+            // "6.18.38" -- every kernel on this page has been reporting a
+            // version that does not exist. It also demanded a kernel version
+            // AND a buildroot date out of one body, so a release carrying only
+            // "Linux kernel x.y.z" matched nothing and was dropped from the
+            // kernel list entirely, while 1.6 listed it.
+            $patt = ($type == 'kernel') ?
+                '/Linux kernel (.*)?/' :
+                '/Buildroot (.*)?/';
+            $found_match = preg_match($patt, $release->body, $release_version, PREG_OFFSET_CAPTURE);
+            if (!$found_match) {
+                continue;
+            }
             foreach ($release->assets as $asset) {
                 if ($type == 'kernel' && !in_array($asset->name, ['arm_Image', 'bzImage', 'bzImage32'])) {
                     continue;
@@ -244,40 +268,153 @@ class FOGConfigurationPage extends FOGPage
                         $arch = "AMD/Intel 32 Bit";
                         break;
                 }
-                if (isset($found_match) && $found_match && $arch_short) {
-                    if ($type == 'kernel') {
-                        $k_i_ver = $release_version[2][0];
-                    } elseif ($type == 'initrd') {
-                        $k_i_ver = $release_version[4][0];
-                    }
+                if ($arch_short) {
+                    // One capture group now, whichever type this is. Trimmed
+                    // because the bodies are CRLF and (.*) stops at the \n,
+                    // leaving a \r on the end -- invisible in the cell but not
+                    // in sorting or the column filter.
+                    $k_i_ver = trim($release_version[1][0]);
                     $download_url = base64_encode($asset->browser_download_url);
-                    switch (substr($release->name, 0, 3)) {
-                        case "FOG":
+                    // Lowercased before matching. The feed currently carries a
+                    // release named "EXPERIMENTAL test kernels for issue #108
+                    // (do not use in production)", and a case-sensitive "Exp"
+                    // test drops it into default -- so the one build that says
+                    // in its own title not to use it was the one shown without
+                    // an experimental marker.
+                    switch (strtolower(substr($release->name, 0, 3))) {
+                        case "fog":
                             $k_hint = ' (FOG '.explode(' ', $release->name)[1].')';
                             break;
-                        case "Lat":
+                        case "lat":
                             $k_hint = ' (devel)';
                             break;
-                        case "Exp":
+                        case "exp":
                             $k_hint = ' (experimental)';
                             break;
                         default:
                             $k_hint = '';
                             break;
                     }
-                    $id = ucfirst($type).'_'.str_replace(".", "_", $k_i_ver).'_'.$arch_short;
-                    $label = ucfirst($type).' '.$k_i_ver.' '.$arch.$k_hint;
+                    // Day granularity is deliberate: it is what the Date column
+                    // groups on, so two assets published hours apart on the same
+                    // day belong to the same group.
                     $release_date = date('F j, Y', strtotime($asset->created_at));
-                    $html .= '<div class="col-xs-12"><a class="expand_trigger btn btn-info btn-block" id="'.$id.'" href="#'.$id.'"><h4 class="title">'.$label.'</h4></a></div><div class="hidefirst" id="'.$id.'">';
-                    if ($k_hint == ' (experimental)') {
-                        $html .= '<div class="col-xs-12"><div class="alert alert-warning"><strong>Warning!</strong> This '.$type.' is experimental and may not work as expected.</div></div>';
+                    // ' (devel)' / ' (experimental)' / ' (FOG x.y.z)' -- built
+                    // above with a leading space and parentheses for the old
+                    // inline label, neither of which belongs in a column of
+                    // its own.
+                    $rel_type = trim($k_hint, ' ()');
+                    if ($rel_type === '') {
+                        // Deliberately NOT labelled "stable": the default arm
+                        // is whatever did not match above, which is an unknown,
+                        // not a promise. The release's own name is the only
+                        // thing actually known about it, and it filters well.
+                        $rel_type = $release->name;
                     }
-                    $html .= '<div class="col-xs-4">Date:<br/>Version:<br/>Architecture:<br/>Download:</div>';
-                    $html .= '<div class="col-xs-8 text-right">'.$release_date.'<br/>'.$k_i_ver.'<br/>'.$arch.'<br/><a href="?node=about&sub='.$type.'&file='.$download_url.'=&arch='.$arch_short.'">Download <i class="fa fa-download fa-2x fa-fw"></i></a></div></div>';
+                    // Escaped because this is text straight out of the GitHub
+                    // feed going into a table cell through a template that does
+                    // plain string substitution and no escaping of its own.
+                    $rel_type = Initiator::e($rel_type);
+                    if ($k_hint == ' (experimental)') {
+                        // The badge replaces the plain text rather than sitting
+                        // beside it -- appending one left the cell reading
+                        // "experimental experimental". The warning used to be a
+                        // full-width alert inside the expanded panel; as a row
+                        // it has to be compact and stay next to what it warns
+                        // about. label-warning, not badge: this is Bootstrap 3.
+                        $rel_type = '<span class="label label-warning" title="'
+                            . _('This build is experimental and may not work as expected')
+                            . '">' . $rel_type . '</span>';
+                    }
+                    $rows[] = array(
+                        'date' => $release_date,
+                        'tag' => $release->tag_name,
+                        'version' => $k_i_ver,
+                        'arch' => $arch,
+                        'type' => $rel_type,
+                        'url' => '?node=about&sub=' . $type
+                            . '&file=' . $download_url . '=&arch=' . $arch_short,
+                    );
                 }
             }
         }
-        return $html;
+        return $rows;
+    }
+    /**
+     * Renders a kernel/initrd release table.
+     *
+     * Both update pages were an accordion: a stack of full-width buttons that
+     * each expanded to a four-line label/value block, so comparing two builds
+     * meant opening both and scrolling. Feeding the standard table pipeline
+     * instead gives sorting and live per-column search for free -- fog.js binds
+     * tablesorter (with the filter and zebra widgets) to any table inside
+     * ".table-holder .table-responsive", which is exactly what process() emits.
+     * No new frontend dependency: DataTables does not exist on this branch.
+     *
+     * @param object $jsonData the decoded FOS releases feed
+     * @param string $type     'kernel' or 'initrd'
+     *
+     * @return void
+     */
+    private function _renderReleaseTable($jsonData, $type)
+    {
+        // Same columns, same order and the same names as 1.6's table
+        // (Route::kernelOrInitJson feeds Tag Name / Version / Architecture /
+        // Type / Date), so the two pages read alike and neither has to be
+        // relearned. Download is the one addition: 1.6 selects a row and uses
+        // a single Download button, whereas this branch's flow has always been
+        // a per-row link, and rewriting that would mean rewriting the download
+        // JS for no gain.
+        $this->headerData = array(
+            _('Tag Name'),
+            _('Version'),
+            _('Architecture'),
+            _('Type'),
+            _('Date'),
+            _('Download'),
+        );
+        $this->templates = array(
+            '${tag}',
+            '${version}',
+            '${arch}',
+            '${type}',
+            // Plain text, no sort-key attribute: tablesorter's textAttribute
+            // is "data-text", not "data-sort", so an earlier data-sort here was
+            // silently ignored. None is needed -- the usLongDate parser is
+            // auto-detected for this format and sorts the column by timestamp.
+            '${date}',
+            '<a href="${url}" title="' . _('Download') . '">'
+            . '<i class="fa fa-download fa-fw"></i> ' . _('Download') . '</a>',
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-2'),
+            array('class' => 'col-xs-2'),
+            array('class' => 'col-xs-2'),
+            array('class' => 'col-xs-2'),
+            // group-date, because tablesorter auto-detects its usLongDate
+            // parser for "August 6, 2026" and caches the column as a millisecond
+            // timestamp -- the grouping widget reads that cached value, not the
+            // cell text, so a text-based group would be keyed and labelled with
+            // a raw number. group-date feeds it back through new Date() and
+            // labels the header via group_dateString (set in fog.js).
+            //
+            // Not the widget's default either: that is group-letter-1, which
+            // keys on the first character and would file every August and April
+            // date together under "A".
+            //
+            // Assets published at different times on the same day still share
+            // one group: the parser only ever sees the day-granularity string
+            // this column renders.
+            array('class' => 'col-xs-2 group-date'),
+            array('class' => 'col-xs-2'),
+        );
+        // Group by Date (zero-based column 4), which is what 1.6 does with
+        // rowGroup dataSrc. A release publishes all three architectures at
+        // once, so ungrouped the list is triplets of near-identical rows;
+        // grouped, each date is one collapsible block.
+        $this->groupColumn = 4;
+        $this->data = $this->generateReleaseRows($jsonData, $type);
+        $this->render(12);
     }
     /**
      * Post our kernel download.
@@ -320,8 +457,231 @@ class FOGConfigurationPage extends FOGPage
             _('so if it seems like the process is hanging please be patient')
         );
         echo '</div>';
+        // Inside the panel, not after it: process() emits its own
+        // "table-holder col-xs-12" wrapper, so closing the panel and the
+        // surrounding col-xs-9 first dropped the table out of the card and
+        // down to full width at the foot of the page.
         echo '<div class="panel-body">';
-        echo $this->generateHtmlList($jsonData, 'kernel');
+        $this->_renderReleaseTable($jsonData, 'kernel');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Show the Secure Boot enrolment page.
+     *
+     * Displays the certificate fingerprint and links to the enrolment kit, so
+     * a technician has something to check the key against before trusting it
+     * on a machine. Nothing here is secret: the kit contains the public
+     * certificate only.
+     *
+     * @return void
+     */
+    public function secureBoot()
+    {
+        $kitdir = BASEPATH . 'service/secureboot';
+        $certfile = $kitdir . '/MOK.der';
+        $kiturl = rtrim(self::getSetting('FOG_WEB_ROOT'), '/') . '/service/secureboot';
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Secure Boot');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if (!file_exists($certfile)) {
+            // The installer generates a signing key by default, so reaching
+            // here means it was declined with --no-secure-boot or generation
+            // failed -- not that the admin simply never passed the flags.
+            // Pointing them at the installer log is what actually helps.
+            printf(
+                '%s. %s <code>--no-secure-boot</code>, %s.',
+                _('Secure Boot kernel signing is not configured on this server'),
+                _('Unless it was declined with'),
+                _(
+                    're-run the installer and check the installation log '
+                    . 'for a key generation or signing failure'
+                )
+            );
+            echo '</div></div></div>';
+            return;
+        }
+        // The SHA-256 of the DER bytes IS the certificate fingerprint, so no
+        // openssl round trip is needed to show the value a technician will
+        // compare against.
+        $fingerprint = strtoupper(
+            implode(':', str_split(hash_file('sha256', $certfile), 2))
+        );
+        // MokManager's own "View key" screen -- the only thing shown when
+        // enrolling from the PXE menu, which never runs fog-enroll-mok.sh --
+        // prints a SHA-1 fingerprint, not SHA-256. Show both so either
+        // enrolment route has a value on this page to check against.
+        $fingerprintSha1 = strtoupper(
+            implode(':', str_split(hash_file('sha1', $certfile), 2))
+        );
+        printf(
+            '%s. %s.',
+            _('FOS kernels on this server are signed for UEFI Secure Boot'),
+            _(
+                'Each client needs this certificate enrolled once, by someone '
+                . 'physically at the machine'
+            )
+        );
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<p><strong>' . _('Certificate SHA-256') . '</strong></p>';
+        echo '<pre>' . Initiator::e($fingerprint) . '</pre>';
+        echo '<p>';
+        echo _(
+            'Check this value matches what the enrolment script prints before '
+            . 'confirming. That comparison is what stops the wrong key being '
+            . 'trusted.'
+        );
+        echo '</p>';
+        echo '<p><strong>' . _('Certificate SHA-1') . '</strong></p>';
+        echo '<pre>' . Initiator::e($fingerprintSha1) . '</pre>';
+        echo '<p>';
+        echo _(
+            'This is what MokManager\'s own View key screen shows after '
+            . 'enrolling from the PXE menu -- that route never runs the '
+            . 'script above, so check it against this value instead.'
+        );
+        echo '</p>';
+        echo '<p><strong>' . _('Enrolment kit') . '</strong></p>';
+        echo '<p>';
+        printf(
+            '%s. %s.',
+            _(
+                'Copy all three files onto a USB stick, boot the client from a '
+                . 'stock Ubuntu or Debian live image with Secure Boot left ON, '
+                . 'and run the launcher'
+            ),
+            _('No firmware changes are needed')
+        );
+        echo '</p>';
+        echo '<ul>';
+        foreach (array('MOK.der', 'fog-enroll-mok.sh', 'fog-enroll-mok.desktop') as $file) {
+            if (!file_exists($kitdir . '/' . $file)) {
+                continue;
+            }
+            printf(
+                '<li><a href="%1$s/%2$s">%2$s</a></li>',
+                Initiator::e($kiturl),
+                Initiator::e($file)
+            );
+        }
+        echo '</ul>';
+        echo '</div>';
+        echo '</div>';
+
+        // Second panel: the actual procedure. The panel above answers "is this
+        // configured and what is the key", which is the reference half; on its
+        // own it left an admin holding three files and no idea what to do with
+        // them. The steps below track fog-enroll-mok.sh exactly -- if that
+        // script's prompts change, change these with it.
+        echo '<div class="panel panel-default">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('What to do next');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<p>';
+        echo _(
+            'Signing is already done on this server. The remaining work is '
+            . 'per-client and has to be done by someone at the machine -- that '
+            . 'is what makes enrolment a deliberate act rather than something '
+            . 'a server can do to a client remotely.'
+        );
+        echo '</p>';
+        echo '<p><strong>' . _('On each client, once') . '</strong></p>';
+        echo '<ol>';
+        $clientSteps = array(
+            _(
+                'Copy the three files above onto a USB stick, keeping them in '
+                . 'the same folder -- the script expects MOK.der beside it.'
+            ),
+            _(
+                'Boot the client from a stock Ubuntu or Debian live image with '
+                . 'Secure Boot left ON. Those images boot under Secure Boot on '
+                . 'their own signed shim, so no firmware changes are needed.'
+            ),
+            _(
+                'Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh '
+                . 'directly). It re-runs itself with sudo.'
+            ),
+            _(
+                'Compare the SHA-256 it prints against the one shown above. If '
+                . 'they differ, stop -- that comparison is the whole security '
+                . 'of this step.'
+            ),
+            _(
+                'Enter a one-time password twice when asked. It only proves at '
+                . 'the next reboot that you are the same person; it is not '
+                . 'stored and does not need to be strong.'
+            ),
+            _(
+                'Reboot. The machine stops on the blue MOK Manager screen: '
+                . 'Enroll MOK, View key 0, Continue, Yes, then the password, '
+                . 'then Reboot.'
+            )
+        );
+        foreach ($clientSteps as $step) {
+            echo '<li>' . $step . '</li>';
+        }
+        echo '</ol>';
+        echo '<p>';
+        echo _(
+            'If MOK Manager does not appear, the machine did not boot through '
+            . 'a shim and nothing was enrolled.'
+        );
+        echo '</p>';
+        echo '<p><strong>' . _('To PXE boot with Secure Boot on') . '</strong></p>';
+        echo '<p>';
+        printf(
+            '%s <code>secureboot/snponly-shimx64.efi</code>. %s.',
+            _('Point your DHCP boot filename at'),
+            _(
+                'That is the signed chain staged by the installer; the default '
+                . 'boot file is unsigned and a Secure Boot client will refuse it'
+            )
+        );
+        echo '</p>';
+        // Two signed chains are staged, mirroring the snponly/ipxe choice
+        // every non-Secure-Boot install already has. shim resolves its second
+        // stage from its OWN filename, so switching chains is purely a DHCP
+        // change -- there is nothing to rename server-side. Documented here
+        // because a site whose firmware SNP is broken otherwise has no way to
+        // know a fallback exists.
+        echo '<p>';
+        printf(
+            '%s <code>secureboot/ipxe-shimx64.efi</code> %s.',
+            _(
+                'If that chain loads but the network never comes up, the '
+                . 'firmware\'s own UEFI network stack is at fault. Point the '
+                . 'boot filename at'
+            ),
+            _(
+                'instead, which uses iPXE\'s built-in NIC drivers rather than '
+                . 'the firmware\'s. Arm64 clients use the files under '
+                . 'secureboot/arm64-efi/'
+            )
+        );
+        echo '</p>';
+        // Stated rather than detected: the web request's own scheme says
+        // nothing about the install's $httpproto, so guessing here would be
+        // worse than telling the admin what to check. An HTTPS install skips
+        // the staging entirely, because a signed binary cannot be rebuilt to
+        // carry this server's CA without invalidating the signature.
+        echo '<p>';
+        echo _(
+            'Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS '
+            . 'install the installer skips these binaries, because rebuilding '
+            . 'them to trust this server\'s CA would invalidate the signature '
+            . 'that makes them bootable.'
+        );
+        echo '</p>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -338,7 +698,7 @@ class FOGConfigurationPage extends FOGPage
         if (!isset($_POST['install']) && $sub == 'kernelUpdate') {
             $url = 'https://api.github.com/repos/FOGProject/fos/releases';
             $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
-            echo $this->generateHtmlList($jsonData, 'kernel');
+            $this->_renderReleaseTable($jsonData, 'kernel');
         } elseif (isset($_POST['install'])) {
             $_SESSION['allow_ajax_kdl'] = true;
             $dstName = filter_input(INPUT_POST, 'dstName');
@@ -347,23 +707,39 @@ class FOGConfigurationPage extends FOGPage
                     $dstName
                 )
             );
-            $_SESSION['tmp-kernel-file'] = sprintf(
-                '%s%s%s%s',
-                DS,
-                trim(
-                    sys_get_temp_dir(),
-                    DS
-                ),
-                DS,
-                basename($_SESSION['dest-kernel-file'])
-            );
+            // With Secure Boot signing configured the download has to land in
+            // the staging directory the root signing helper works on.
+            // Everywhere else, the system temp directory as before.
+            $stagedir = self::secureBootStagingDir();
+            // Unique per download. This path is carried in the session across
+            // the three requests the update takes (post -> fetch dl -> fetch
+            // tftp), so a name shared by every run let two concurrent updates
+            // -- two admins, or two tabs -- write the same file: the second
+            // download would land under the first one's destination name, and
+            // with signing on, whatever happened to be there at sign time is
+            // what got signed and shipped. A lock cannot cover a window that
+            // spans three requests, so the file itself has to be private to
+            // each one; secureBootSign() borrows the helper's fixed name for
+            // the instant it is actually signing.
+            //
+            // Unpredictable, not merely unique: the old system-temp name was
+            // basename($dstName), so a local user could pre-plant a symlink at
+            // /tmp/bzImage and redirect the web server's write.
+            $unique = bin2hex(random_bytes(8));
+            if ($stagedir) {
+                // 'kernel-' prefix, and the helper's shared name is a bare
+                // 'kernel' -- the sweep must never match a file mid-signing.
+                $_SESSION['tmp-kernel-file'] = $stagedir . DS . 'kernel-' . $unique;
+                self::purgeStaleDownloads($stagedir, 'kernel-');
+            } else {
+                $_SESSION['tmp-kernel-file'] = sys_get_temp_dir()
+                    . DS . 'fog-kernel-' . $unique;
+                self::purgeStaleDownloads(sys_get_temp_dir(), 'fog-kernel-');
+            }
             $file = filter_input(INPUT_GET, 'file');
             $_SESSION['dl-kernel-file'] = base64_decode(
                 $file
             );
-            if (file_exists($_SESSION['tmp-kernel-file'])) {
-                unlink($_SESSION['tmp-kernel-file']);
-            }
             echo '<div class="col-xs-9">';
             echo '<div class="kerninfo">';
             echo '<div class="panel panel-info">';
@@ -470,8 +846,9 @@ class FOGConfigurationPage extends FOGPage
             _('so if it seems like the process is hanging please be patient')
         );
         echo '</div>';
+        // Inside the panel -- see the note in kernelUpdate().
         echo '<div class="panel-body">';
-        echo $this->generateHtmlList($jsonData, 'initrd');
+        $this->_renderReleaseTable($jsonData, 'initrd');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -488,7 +865,7 @@ class FOGConfigurationPage extends FOGPage
         if (!isset($_POST['install']) && $sub == 'initrdUpdate') {
             $url = 'https://api.github.com/repos/FOGProject/fos/releases';
             $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
-            echo $this->generateHtmlList($jsonData, 'initrd');
+            $this->_renderReleaseTable($jsonData, 'initrd');
         } elseif (isset($_POST['install'])) {
             $_SESSION['allow_ajax_idl'] = true;
             $dstName = filter_input(INPUT_POST, 'dstName');
@@ -497,23 +874,19 @@ class FOGConfigurationPage extends FOGPage
                     $dstName
                 )
             );
-            $_SESSION['tmp-initrd-file'] = sprintf(
-                '%s%s%s%s',
-                DS,
-                trim(
-                    sys_get_temp_dir(),
-                    DS
-                ),
-                DS,
-                basename($_SESSION['dest-initrd-file'])
-            );
+            // Unique per download, for the same reason as the kernel above:
+            // the path spans three requests, and the old name was just the
+            // admin-chosen destination filename -- so two people updating
+            // init.xz at once shared one temp file, and a local user could
+            // pre-plant a symlink at the entirely predictable /tmp/init.xz.
+            // Initrds are never signed, so there is no staging directory here.
+            $_SESSION['tmp-initrd-file'] = sys_get_temp_dir()
+                . DS . 'fog-initrd-' . bin2hex(random_bytes(8));
+            self::purgeStaleDownloads(sys_get_temp_dir(), 'fog-initrd-');
             $file = filter_input(INPUT_GET, 'file');
             $_SESSION['dl-initrd-file'] = base64_decode(
                 $file
             );
-            if (file_exists($_SESSION['tmp-initrd-file'])) {
-                unlink($_SESSION['tmp-initrd-file']);
-            }
             echo '<div class="col-xs-9">';
             echo '<div class="initrdinfo">';
             echo '<div class="panel panel-info">';

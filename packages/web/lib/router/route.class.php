@@ -34,6 +34,16 @@ class Route extends FOGBase
      */
     private static $_token = '';
     /**
+     * The configured webroot in '/x/' form, e.g. '/fog/'.
+     *
+     * GH-529: every API route is registered under this, and it used to be the
+     * literal '/fog', so at a custom webroot no route matched at all -- the
+     * API answered 501 for endpoints that exist.
+     *
+     * @var string
+     */
+    private static $_webrootbase = '/fog/';
+    /**
      * AltoRouter object container.
      *
      * @var AltoRouter
@@ -143,6 +153,61 @@ class Route extends FOGBase
         'task'
     );
     /**
+     * Classes a non-administrator (uType != 0) may reach.
+     *
+     * The uType 1 "mobile" account exists to look at hosts and images and
+     * task them; that is the whole of what this list covers, plus the
+     * association and lookup tables needed to render those objects.
+     *
+     * Everything absent is administrator-only, and absence is the default --
+     * notably storagenode and storagegroup (their ftpUser/ftpPass reach the
+     * root-running replicator and are returned in cleartext by the read
+     * routes), service (the globalSettings table), plugin, ipxe and
+     * pxemenuoptions (boot configuration), and anything a plugin injects via
+     * API_VALID_CLASSES. See _requireAuthorized(); GHSA-2hqx-5ffg-w4c3.
+     *
+     * @var array
+     */
+    public static $nonAdminClasses = array(
+        'group',
+        'groupassociation',
+        'host',
+        'image',
+        'imageassociation',
+        'imagepartitiontype',
+        'imagetype',
+        'macaddressassociation',
+        'multicastsession',
+        'os',
+        'scheduledtask',
+        'snapin',
+        'snapinassociation',
+        'snapingroupassociation',
+        'snapinjob',
+        'snapintask',
+        'task',
+        'taskstate',
+        'tasktype'
+    );
+    /**
+     * Route names a non-administrator (uType != 0) may reach, subject to the
+     * class allowlist above. Read-only: every route that creates, edits or
+     * deletes a record requires an administrator, as does /system/export.
+     * Tasking ('task', 'cancel') is added separately in _requireAuthorized()
+     * because it writes but is the mobile account's entire purpose.
+     *
+     * @var array
+     */
+    public static $nonAdminRoutes = array(
+        'active',
+        'ids',
+        'indiv',
+        'list',
+        'listdetails',
+        'names',
+        'search'
+    );
+    /**
      * Initialize element.
      *
      * @return void
@@ -163,14 +228,23 @@ class Route extends FOGBase
             'value'
         );
         /**
+         * GH-529: normalise the configured webroot rather than trusting the
+         * stored form -- it is written by the installer, edited by hand in FOG
+         * Settings, and carried by older versions, so it turns up with and
+         * without either slash.
+         */
+        $webrootbase = trim((string)self::getSetting('FOG_WEB_ROOT'), '/');
+        self::$_webrootbase = '/' . ($webrootbase === '' ? '' : $webrootbase . '/');
+        /**
          * If API is not enabled redirect to home page.
          */
         if (!self::$_enabled) {
             header(
                 sprintf(
-                    'Location: %s://%s/fog/management/index.php',
+                    'Location: %s://%s%smanagement/index.php',
                     self::$httpproto,
-                    self::$httphost
+                    self::$httphost,
+                    self::$_webrootbase
                 )
             );
             exit;
@@ -222,9 +296,15 @@ class Route extends FOGBase
         if (self::$router) {
             return;
         }
+        /**
+         * GH-529: the base path was the literal '/fog', so every route was
+         * registered somewhere the request could never reach on a custom
+         * webroot. AltoRouter wants it without the trailing slash, and an
+         * install served from the document root itself wants it empty.
+         */
         self::$router = new AltoRouter(
             array(),
-            '/fog'
+            rtrim(self::$_webrootbase, '/')
         );
         self::defineRoutes();
         self::setMatches();
@@ -361,6 +441,12 @@ class Route extends FOGBase
         if (self::$matches
             && is_callable(self::$matches['target'])
         ) {
+            self::_requireAuthorized(
+                isset(self::$matches['name']) ? self::$matches['name'] : '',
+                isset(self::$matches['params']['class'])
+                ? self::$matches['params']['class']
+                : ''
+            );
             call_user_func_array(
                 self::$matches['target'],
                 array_values(self::$matches['params'])
@@ -369,6 +455,61 @@ class Route extends FOGBase
         }
         self::sendResponse(
             HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+        );
+    }
+    /**
+     * Gates the matched route on the acting user's uType.
+     *
+     * GHSA-2hqx-5ffg-w4c3: authentication was the only test the API ever
+     * made. Any account with a valid token and uAllowAPI set reached every
+     * route on every class -- including PUT /storagenode/<id>/edit, whose
+     * ftpUser/ftpPass/ip land in the root-running replicator's lftp
+     * invocation, and GET /storagenode/<id>, which returns that password in
+     * cleartext. `service` is the globalSettings table, so the same account
+     * could rewrite every FOG setting.
+     *
+     * 1.5 has no RBAC, so uType 0 is the only boundary there is. Rather than
+     * make the API admin-only outright, this keeps the one thing a uType 1
+     * "mobile" account was ever meant to do -- look at hosts and images and
+     * task them -- and requires an administrator for everything else.
+     *
+     * The policy is deliberately deny-by-default: a class absent from
+     * $nonAdminClasses (anything a plugin injects through API_VALID_CLASSES
+     * included) is administrator-only for non-admins. Widening it is a
+     * deliberate edit here, never something a plugin can do by accident.
+     *
+     * Enforced at dispatch rather than per-handler so there is exactly one
+     * place to audit, matching where 1.6 puts its RBAC check.
+     *
+     * @param string $name  The matched route's name.
+     * @param string $class The class the route is acting on, if any.
+     *
+     * @return void
+     */
+    private static function _requireAuthorized($name, $class)
+    {
+        if (self::isAdminUser()) {
+            return;
+        }
+        /**
+         * Dashboard polling. Note this covers /system/status and
+         * /system/info only -- /system/export is a full database dump and
+         * is a separate route, so it falls through to the denial below.
+         */
+        if ($name === 'status') {
+            return;
+        }
+        $allowed = self::fastmerge(
+            self::$nonAdminRoutes,
+            array('task', 'cancel')
+        );
+        if (in_array($name, $allowed, true)
+            && in_array(strtolower((string)$class), self::$nonAdminClasses, true)
+        ) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_FORBIDDEN
         );
     }
     /**
@@ -401,6 +542,12 @@ class Route extends FOGBase
             ->set('token', $usertoken)
             ->load('token');
         if ($pwtoken->isValid() && $pwtoken->get('api')) {
+            /**
+             * Bind the token's owner as the acting user. Without this the
+             * request runs with no identity at all, so _requireAuthorized()
+             * below has nothing to test uType against. GHSA-2hqx-5ffg-w4c3.
+             */
+            self::$FOGUser = $pwtoken;
             return;
         }
         $auth = self::$FOGUser->passwordValidate(

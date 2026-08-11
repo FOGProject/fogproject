@@ -1,5 +1,10 @@
 #!/bin/bash
-. ../../lib/common/functions.sh
+# GH-314: `.` resolves a relative path against the CALLER's cwd, not this
+# script's location, so this only ever worked if you cd'd into the util's own
+# directory first. Resolve against our own path so the utils can be invoked by
+# absolute path from anywhere -- which is the point of installing them to
+# $fogprogramdir.
+. "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/functions.sh"
 handleError() {
     echo "$1"
     exit $2
@@ -17,12 +22,11 @@ case $osid in
         else
             webdirdest="${docroot}/"
         fi
-        if [[ $osid -eq 2 ]]; then
-            if [[ $docroot == /var/www/html/ && ! -d $docroot ]]; then
-                docroot="/var/www/"
-                webdirdest="${docroot}fog/"
-            fi
-        fi
+        # GH-953: the /var/www/ fallback for osid 2 that used to live here is
+        # gone -- see the note in lib/ubuntu/config.sh. It could only have
+        # disagreed with the running install anyway: docroot comes from the
+        # .fogsettings sourced above, and this script already refuses to run if
+        # that path does not exist.
         ;;
     3)
         if [[ -z $docroot ]]; then

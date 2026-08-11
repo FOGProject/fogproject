@@ -1,0 +1,211 @@
+#!/bin/bash
+#
+#  FOG is a computer imaging solution.
+#  Copyright (C) 2007  Chuck Syperski & Jian Zhang
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#    any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Manually rotate the web leaf or the Secure Boot signing leaf before their
+# 5-year default validity runs out.
+#
+# Why this exists as a script rather than "just re-run installfog.sh": a
+# leaf's re-issuance is already automatic on every installfog.sh run (it
+# checks a name-set stamp, not a date), so nothing here needed to exist for
+# correctness -- it exists so an admin who wants to rotate a leaf on their
+# own schedule, without touching anything else installfog.sh might change,
+# has a one-command way to do it. Nothing here runs on a timer; wire it into
+# your own cron if you want that.
+
+set -u
+
+CONF="/opt/fog/.fogsettings"
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") --zone web|secureboot
+
+Re-issues the certificate for the given zone's leaf, using its zone's own CA
+(falling back to the root, exactly as installfog.sh does, if this server's
+root can't anchor a Web intermediate), and puts the new cert/key where the
+running install already expects them.
+
+  --zone web          the certificate the web server (Apache) serves.
+                      Reloads Apache afterward so it picks up the new cert.
+                      Refuses if the leaf is ACME-managed (acmeLeaf=yes) --
+                      renew that one through your ACME client instead.
+
+  --zone secureboot   the code-signing leaf fog-sign-kernel signs with.
+                      No reload needed and no firmware re-enrollment --
+                      what's enrolled is the intermediate above this leaf,
+                      not the leaf itself.
+
+Both refuse with the exact path to restore if the signing CA's private key
+isn't on this server.
+EOF
+}
+
+zone=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help) usage; exit 0 ;;
+        --zone)
+            zone="${2:-}"
+            shift 2 || { usage; exit 1; }
+            ;;
+        -*) echo "Unknown option: $1" >&2; usage; exit 1 ;;
+        *) echo "Unexpected argument: $1" >&2; usage; exit 1 ;;
+    esac
+done
+
+[[ -z $zone ]] && { usage; exit 1; }
+[[ $EUID -eq 0 ]] || { echo "This must be run as root -- it signs with keys only root can read." >&2; exit 1; }
+
+# .fogsettings is the source of truth for where this install keeps things and
+# what it's already using for each zone's leaf -- the same file installfog.sh
+# itself reads and writes. Sourcing it (rather than re-deriving paths) is what
+# keeps this in sync with a server that customized sslprivkey/sslpubcert, and
+# with whichever CA installfog.sh already resolved for the web leaf (its own
+# Web intermediate, or the root directly, on a server whose root can't anchor
+# one).
+if [[ -r $CONF ]]; then
+    # shellcheck disable=SC1090
+    . "$CONF"
+elif [[ -r /etc/fog/fog.conf ]]; then
+    . /etc/fog/fog.conf
+    [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
+fi
+: "${fogprogramdir:=/opt/fog}"
+: "${sslpath:=${fogprogramdir}/snapins/ssl}"
+
+_reissueWeb() {
+    if [[ ${acmeLeaf:-} == yes ]]; then
+        echo "Refusing: this web certificate is externally managed (acmeLeaf=yes)." >&2
+        echo "Renew it through your ACME client instead." >&2
+        return 1
+    fi
+    local key="${sslprivkey:-${fogprogramdir}/pki/web/leaf/.webLeaf.key}"
+    local cert="${sslpubcert:-${fogprogramdir}/pki/web/leaf/.webLeaf.pem}"
+    local cakey="${sslcakey:-}" capem="${sslcapem:-}"
+    if [[ -z $cakey || -z $capem ]]; then
+        echo "Cannot renew: this install hasn't resolved a web signing CA yet." >&2
+        echo "Run installfog.sh at least once before using this script." >&2
+        return 1
+    fi
+    if [[ ! -f $cakey ]]; then
+        echo "Cannot renew: the certificate signing key is not on this server." >&2
+        echo "  expected at: ${cakey}" >&2
+        echo "Restore it there, then re-run this script." >&2
+        return 1
+    fi
+    if [[ ! -f "$sslpath/req.cnf" || ! -f "$sslpath/ca.cnf" ]]; then
+        echo "Cannot renew: ${sslpath}/req.cnf or ca.cnf is missing." >&2
+        echo "Run installfog.sh once to generate them, then re-run this script." >&2
+        return 1
+    fi
+    local leafdir st=0
+    leafdir="$(dirname "$key")"
+    mkdir -p "$leafdir" >/dev/null 2>&1
+    chmod 0700 "$leafdir" >/dev/null 2>&1
+    echo "Issuing a new web server private key..."
+    openssl genrsa -out "$key" 4096 >/dev/null 2>&1 || st=1
+    echo "Issuing a new web certificate, signed by ${capem}..."
+    openssl req -new -sha512 -key "$key" -out "${leafdir}/.webLeaf.csr" \
+        -config "$sslpath/req.cnf" \
+        -subj "/CN=${hostname:-}/O=FOG Project/OU=FOG Web UI" >/dev/null 2>&1 || st=1
+    openssl x509 -req -in "${leafdir}/.webLeaf.csr" -CA "$capem" -CAkey "$cakey" \
+        -CAcreateserial -out "$cert" -days 1825 -extensions v3_ca \
+        -extfile "$sslpath/ca.cnf" >/dev/null 2>&1 || st=1
+    if [[ $st -ne 0 ]]; then
+        echo "Failed -- see openssl's output above." >&2
+        return 1
+    fi
+    chown root:root "$key" >/dev/null 2>&1
+    chmod 0600 "$key" >/dev/null 2>&1
+    chmod 0644 "$cert" >/dev/null 2>&1
+    # Same stamp _createWebLeaf writes, so the next installfog.sh run doesn't
+    # mistake this fresh cert for one that needs re-issuing over a name-set
+    # mismatch that was never there.
+    openssl md5 < "$sslpath/ca.cnf" 2>/dev/null > "${leafdir}/.webLeaf.sans"
+    if [[ -n ${sslcachain:-} && -f $sslcachain ]] && \
+        ! openssl verify -CAfile "${rootCAPem:-}" -untrusted "$sslcachain" "$cert" >/dev/null 2>&1; then
+        echo "WARNING: the new certificate does not verify against its chain." >&2
+        echo "Its name set may no longer be permitted by the Web CA's nameConstraints" >&2
+        echo "-- re-run installfog.sh with the current --hostname/--extra-server-name" >&2
+        echo "before relying on this certificate." >&2
+    fi
+    echo "New web certificate issued, valid 5 years: ${cert}"
+    if command -v systemctl >/dev/null 2>&1; then
+        local svc="httpd"
+        [[ ${osid:-} -eq 2 ]] && svc="apache2"
+        echo "Reloading ${svc} so it picks up the new certificate..."
+        systemctl reload "$svc" >/dev/null 2>&1 || systemctl restart "$svc" >/dev/null 2>&1 || \
+            echo "WARNING: could not reload/restart ${svc} -- reload it yourself." >&2
+    else
+        echo "WARNING: no systemctl found -- reload your web server yourself." >&2
+    fi
+}
+
+_reissueSecureBoot() {
+    local cadir="${fogprogramdir}/pki/secureboot/ca"
+    local leafdir="${fogprogramdir}/pki/secureboot/leaf"
+    if [[ ! -f "${cadir}/.fogSBCA.pem" ]]; then
+        echo "No Secure Boot intermediate CA on this server (expected:" >&2
+        echo "  ${cadir}/.fogSBCA.pem )." >&2
+        echo "This server is either on the flat self-signed MOK fallback or hasn't" >&2
+        echo "run installfog.sh with Secure Boot enabled -- nothing to renew here." >&2
+        return 1
+    fi
+    if [[ ! -f "${cadir}/.fogSBCA.key" ]]; then
+        echo "Cannot renew: the Secure Boot CA private key is not on this server." >&2
+        echo "  expected at: ${cadir}/.fogSBCA.key" >&2
+        echo "If you moved it offline, restore it with:" >&2
+        echo "    mv /path/to/your/backup/.fogSBCA.key ${cadir}/.fogSBCA.key" >&2
+        echo "then re-run this script, and move it back afterward with:" >&2
+        echo "    ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault --zone secureboot" >&2
+        return 1
+    fi
+    if [[ ! -f "${leafdir}/sign.cnf" ]]; then
+        echo "Cannot renew: ${leafdir}/sign.cnf is missing." >&2
+        echo "Run installfog.sh once with Secure Boot enabled first." >&2
+        return 1
+    fi
+    local st=0
+    echo "Issuing a new Secure Boot signing key..."
+    openssl req -new -sha256 -nodes -newkey rsa:2048 \
+        -config "${leafdir}/sign.cnf" -keyout "${leafdir}/sign.key" \
+        -out "${leafdir}/sign.csr" >/dev/null 2>&1 || st=1
+    echo "Issuing a new Secure Boot signing certificate, signed by ${cadir}/.fogSBCA.pem..."
+    openssl x509 -req -in "${leafdir}/sign.csr" \
+        -CA "${cadir}/.fogSBCA.pem" -CAkey "${cadir}/.fogSBCA.key" \
+        -CAcreateserial -sha256 -days 1825 -extensions v3_sign \
+        -extfile "${leafdir}/sign.cnf" -out "${leafdir}/sign.pem" >/dev/null 2>&1 || st=1
+    if [[ $st -ne 0 ]]; then
+        echo "Failed -- see openssl's output above." >&2
+        return 1
+    fi
+    chown root:root "${leafdir}/sign.key" "${leafdir}/sign.pem" >/dev/null 2>&1
+    chmod 0600 "${leafdir}/sign.key" >/dev/null 2>&1
+    chmod 0644 "${leafdir}/sign.pem" >/dev/null 2>&1
+    echo "New Secure Boot signing certificate issued, valid 5 years:"
+    echo "  ${leafdir}/sign.pem"
+    echo "No firmware re-enrollment needed -- what's enrolled is the intermediate"
+    echo "at ${cadir}/.fogSBCA.pem, not this leaf. fog-sign-kernel picks up the new"
+    echo "leaf automatically on its next run."
+}
+
+case "$zone" in
+    web) _reissueWeb ;;
+    secureboot) _reissueSecureBoot ;;
+    *) echo "Unknown zone '$zone' -- expected 'web' or 'secureboot'." >&2; usage; exit 1 ;;
+esac

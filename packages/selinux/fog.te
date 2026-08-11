@@ -1,0 +1,198 @@
+module fog 1.1.0;
+
+########################################################################
+#
+# FOG's SELinux policy module.
+#
+# WHY THIS EXISTS
+# ---------------
+# Two problems, both of which the stock policy can only solve by granting
+# far more than FOG needs.
+#
+# 1. OUTBOUND CONNECTIONS
+#
+# FOG's web tier makes three kinds of outbound connection: HTTP to itself
+# and to storage nodes, FTP to storage nodes for image and snapin
+# replication, and SSH (via php-pecl-ssh2) for node management. Under
+# SELinux, httpd_t is not permitted any of them by default.
+#
+# The usual answer is `setsebool -P httpd_can_network_connect on`. That
+# boolean grants name_connect on the `port_type` ATTRIBUTE -- which is to
+# say, every port type in the policy. Turning it on to reach three ports
+# grants several hundred, permanently, to a network-facing daemon that
+# serves user-supplied PHP.
+#
+# The narrower booleans do not cover it:
+#
+#   httpd_graceful_shutdown   http_port_t only -- but it is named for, and
+#                             documented as, something else entirely
+#   httpd_can_connect_ftp     ftp_port_t + ephemeral (passive data channel)
+#   httpd_can_network_relay   7 port types, http and ftp among them
+#   ssh_port_t                NO boolean exists. Only the blanket one.
+#
+# So SSH alone forces the choice between a module and granting everything.
+#
+# 2. SHARED CONTENT DIRECTORIES
+#
+# /images and the snapin directory are read AND written by two different
+# confined daemons: the web tier (httpd_t) and vsftpd (ftpd_t), the latter
+# because replication is lftp from one node to another -- see
+# FOGService::replicateItems(). Both images and snapins use that same FTP
+# path.
+#
+# No stock type serves both without a blanket grant:
+#
+#   httpd_sys_rw_content_t    httpd_t rw. ftpd_t gets NOTHING unless
+#                             ftpd_full_access is on -- and that boolean
+#                             grants ftpd_t every file type on the box.
+#   public_content_rw_t       ftpd_t/httpd_t/nfsd_t read. Writing needs
+#                             ftpd_anon_write + httpd_anon_write, each of
+#                             which is global: it grants write on ALL
+#                             public_content_rw_t on the machine, not just
+#                             FOG's. Today FOG may be the only user of that
+#                             type on a given box; that is a snapshot, not
+#                             a guarantee, and a package installed later
+#                             sharing the type would silently inherit it.
+#
+# So FOG declares its own type. fog_share_t is read and written by exactly
+# the two domains named below and nothing else, no global boolean is
+# touched, and no other package's access to a shared type changes.
+#
+# WHAT DOES *NOT* NEED A RULE HERE
+# --------------------------------
+# Worked out against the running targeted policy rather than assumed:
+#
+#   NFS       The capture/deploy data path is in-kernel and runs as
+#             kernel_t, which has UNCONDITIONAL read+write on the
+#             `file_type` attribute. The userspace nfsd_t additionally gets
+#             read via nfs_export_all_ro, which is on by default. Giving
+#             fog_share_t the file_type attribute is therefore all NFS
+#             needs -- no allow rule, no boolean. This matches the
+#             evidence: months of imaging on the lab produced zero nfsd_t
+#             denials.
+#
+#   SSH       sshd_t only accepts the connection and spawns a shell; it
+#             never touches image content itself, and the spawned shell
+#             runs unconfined. Only the OUTBOUND side needed anything, and
+#             that is the ssh_port_t rule below.
+#
+#   The FOG   FOGImageReplicator, FOGSnapinReplicator and friends are
+#   daemons   systemd services with no policy of their own, so they run as
+#             unconfined_service_t and are not restricted. It is the
+#             RECEIVING node's vsftpd that needs the rules below, not the
+#             sending daemon.
+#
+#   $fogprogramdir/cache
+#             Web tier and the CLI daemons only, never FTP, so it stays on
+#             the stock httpd_sys_rw_content_t. See installFOGServices().
+#
+# BUILDING
+# --------
+# Built from source at install time, never shipped precompiled: a .pp is
+# tied to the policy version of the machine that built it and will refuse
+# to load on an older one. Compiling against the target's own policy is
+# what makes one source file work on RHEL, Rocky, Alma and Fedora alike.
+#
+#   checkmodule -M -m -o fog.mod fog.te
+#   semodule_package -o fog.pp -m fog.mod
+#   semodule -i fog.pp
+#
+# Note the plain `module` declaration above rather than refpolicy's
+# `policy_module()`. That macro would pull in refpolicy's headers and so
+# require selinux-policy-devel, which is not installed by default on any
+# distro FOG supports. Nothing here needs a refpolicy macro, so the module
+# builds with checkmodule and semodule_package alone -- both from
+# checkpolicy and policycoreutils, already present anywhere semanage is.
+#
+# checkmodule does NOT resolve the require{} block against the running
+# policy; that happens when semodule links it. A type renamed by a future
+# distro policy would therefore compile cleanly here and fail at load,
+# which is why the installer reports a load failure separately from a
+# build failure.
+#
+# ORDERING NOTE: `semanage fcontext -t fog_share_t` cannot succeed until
+# this module is loaded, because semanage validates that the type exists.
+# installSELinuxModule() therefore runs before configureStorage() and
+# configureSnapins() in bin/installfog.sh. Do not reorder them.
+#
+########################################################################
+
+require {
+    type httpd_t;
+    type ftpd_t;
+    type http_port_t;
+    type ftp_port_t;
+    type ssh_port_t;
+    attribute file_type;
+    attribute non_security_file_type;
+    attribute non_auth_file_type;
+    attribute mountpoint;
+    class tcp_socket name_connect;
+    class dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink write };
+    class file { append create getattr ioctl link lock map open read rename setattr unlink write };
+    class lnk_file { getattr read };
+}
+
+########################################################################
+# Outbound connections from the web tier.
+########################################################################
+
+#
+# HTTP: the web tier calls its own API and its storage nodes' APIs.
+#
+allow httpd_t http_port_t:tcp_socket name_connect;
+
+#
+# FTP: image and snapin replication between storage nodes.
+#
+# Only the control channel is granted here. Passive-mode data connections
+# land on ephemeral ports, which would need a much wider grant -- FOG's
+# replicators run lftp from a CLI daemon, not from httpd_t, so the web
+# tier does not need the data channel and is not given it.
+#
+allow httpd_t ftp_port_t:tcp_socket name_connect;
+
+#
+# SSH: php-pecl-ssh2, used for storage node management.
+#
+# This is the rule with no boolean equivalent at any width, and therefore
+# the reason this module exists rather than a setsebool line in the
+# installer.
+#
+allow httpd_t ssh_port_t:tcp_socket name_connect;
+
+########################################################################
+# FOG's shared content type: /images, the capture directory, and snapins.
+########################################################################
+
+type fog_share_t;
+
+#
+# file_type                 makes it a recognised file type at all, and
+#                           carries `allow file_type fs_t:filesystem
+#                           associate` so the label can actually be applied
+#                           on a normal filesystem. Also what gives the
+#                           in-kernel NFS path (kernel_t) its access.
+# non_security_file_type    excludes it from the security-file set, and is
+#                           what nfs_export_all_ro keys on for files.
+# non_auth_file_type        excludes it from the authentication-file set.
+# mountpoint                /images is very commonly a separate disk, so
+#                           the type has to be legal as a mount target.
+#
+typeattribute fog_share_t file_type, non_security_file_type, non_auth_file_type, mountpoint;
+
+#
+# The web tier: uploads, deletes, renames and reads image and snapin files
+# through the UI and the API.
+#
+allow httpd_t fog_share_t:dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink write };
+allow httpd_t fog_share_t:file { append create getattr ioctl link lock map open read rename setattr unlink write };
+allow httpd_t fog_share_t:lnk_file { getattr read };
+
+#
+# vsftpd on the RECEIVING side of a replication run. lftp mirrors into
+# these directories, so this has to be read-write, not read-only.
+#
+allow ftpd_t fog_share_t:dir { add_name create getattr ioctl link lock open read remove_name rename reparent rmdir search setattr unlink write };
+allow ftpd_t fog_share_t:file { append create getattr ioctl link lock map open read rename setattr unlink write };
+allow ftpd_t fog_share_t:lnk_file { getattr read };

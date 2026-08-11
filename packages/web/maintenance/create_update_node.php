@@ -22,6 +22,22 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+
+// Restrict to same-machine requests only. This creates and updates storage
+// nodes -- including their credentials -- and the fogverified check below is
+// a sentinel the installer sends, not a secret, so on its own it stops
+// nothing. The installer always posts from the server's own IP.
+$_remoteIp = $_SERVER['REMOTE_ADDR'] ?? '';
+$_serverIp = $_SERVER['SERVER_ADDR'] ?? '';
+if ($_remoteIp !== '127.0.0.1'
+    && $_remoteIp !== '::1'
+    && $_remoteIp !== $_serverIp
+) {
+    http_response_code(403);
+    exit;
+}
+unset($_remoteIp, $_serverIp);
+
 foreach ((array)$_POST as $key => &$val) {
     if (!isset($val)) {
         continue;

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Enrol FOG Secure Boot key
+Comment=Trust the FOG imaging server's signing key on this machine
+Exec=bash -c 'cd "$(dirname "%k")" && ./fog-enroll-mok.sh'
+Icon=security-high
+Terminal=true
+Categories=System;Security;

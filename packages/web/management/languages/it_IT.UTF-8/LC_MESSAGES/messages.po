@@ -604,6 +604,9 @@ msgstr "Approvare questo host?"
 msgid "Approved"
 msgstr "Approvato"
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr "Sei sicuro di voler"
 
@@ -688,6 +691,9 @@ msgstr "Boot Sequence chiave"
 
 msgid "Boot Options"
 msgstr "Opzioni di avvio:"
+
+msgid "Boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON. Those images boot under Secure Boot on their own signed shim, so no firmware changes are needed."
+msgstr ""
 
 msgid "Broadcast Create Fail"
 msgstr "Creazione Broadcast fallita"
@@ -813,6 +819,12 @@ msgstr "Catturare"
 msgid "Captured"
 msgstr "Catturato"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr "Cambia password"
 
@@ -832,9 +844,7 @@ msgid "Chassis Version"
 msgstr "Telaio Version"
 
 msgid "Chat is also available on the forums for more realtime help"
-msgstr ""
-"La chat è anche disponibile all'interno del forum per una maggiore "
-"assistenza in tempo reale"
+msgstr "La chat è anche disponibile all'interno del forum per una maggiore assistenza in tempo reale"
 
 #, fuzzy
 msgid "Check here to see what hosts can be added"
@@ -855,9 +865,7 @@ msgid "Check here to see what snapins can be added"
 msgstr "Controlla qui per vedere quali snapins possono essere aggiunti"
 
 msgid "Check here to see what storage groups can be added"
-msgstr ""
-"Controlla qui per vedere quali gruppi di archiviazione possono essere "
-"aggiunti"
+msgstr "Controlla qui per vedere quali gruppi di archiviazione possono essere aggiunti"
 
 #, fuzzy
 msgid "Check here to see what users can be added"
@@ -866,8 +874,10 @@ msgstr "Controllare qui per vedere cosa è possibile aggiungere stampanti"
 msgid "Check that database is running"
 msgstr "Controllare che database è in esecuzione"
 
-msgid ""
-"Check the capture folder is owned by and writable to the storage node user"
+msgid "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -948,6 +958,9 @@ msgstr "clienti"
 msgid "Command"
 msgstr "Comando"
 
+msgid "Compare the SHA-256 it prints against the one shown above. If they differ, stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "Completare"
 
@@ -984,8 +997,14 @@ msgstr "Conferma il task"
 msgid "Conflicting path/file"
 msgstr "Percorso / file in conflitto"
 
+msgid "Copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
+
 msgid "Copy from existing"
 msgstr "Copia da esistenti"
+
+msgid "Copy the three files above onto a USB stick, keeping them in the same folder -- the script expects MOK.der beside it."
+msgstr ""
 
 msgid "Could not find a Storage Node in this group"
 msgstr "Impossibile trovare un nodo di archiviazione in questo gruppo"
@@ -1357,8 +1376,15 @@ msgstr "Fatto, nessuna immagine assegnato!"
 msgid "Dot in Filename not allowed!"
 msgstr ""
 
+#, fuzzy
+msgid "Download"
+msgstr "Scaricamento fallito"
+
 msgid "Download Failed"
 msgstr "Scaricamento fallito"
+
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
 
 #, fuzzy
 msgid "Downloading Initrd"
@@ -1375,6 +1401,9 @@ msgstr "Durata"
 
 msgid "ESC is defaulted"
 msgstr "ESC è predefinito"
+
+msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
+msgstr ""
 
 msgid "Edit"
 msgstr "Modifica"
@@ -1425,6 +1454,9 @@ msgstr "Fine del tempo"
 msgid "Engineer"
 msgstr "Ingegnere"
 
+msgid "Enrolment kit"
+msgstr ""
+
 #, fuzzy
 msgid "Enter a group name to search for"
 msgstr "Inserisci un nome utente da cercare"
@@ -1439,6 +1471,9 @@ msgstr "Inserisci un hostname da cercare"
 #, fuzzy
 msgid "Enter a model name to search for"
 msgstr "Inserisci un nome utente da cercare"
+
+msgid "Enter a one-time password twice when asked. It only proves at the next reboot that you are the same person; it is not stored and does not need to be strong."
+msgstr ""
 
 #, fuzzy
 msgid "Enter a site name to search for"
@@ -1484,6 +1519,13 @@ msgstr "Errore più host restituiti per elenco di indirizzi MAC"
 msgid "Error performing query"
 msgstr "Errore l'esecuzione di query"
 
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "Errore: Impossibile scaricare il kernel"
+
 #, fuzzy
 msgid "Error: Failed to download initrd"
 msgstr "Errore: Impossibile scaricare il kernel"
@@ -1493,6 +1535,10 @@ msgstr "Errore: Impossibile scaricare il kernel"
 
 msgid "Error: Failed to open temp file"
 msgstr "Errore: Impossibile aprire il file temporaneo"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "Errore: Impossibile scaricare il kernel"
 
 msgid "Errors"
 msgstr "Errori"
@@ -1740,6 +1786,9 @@ msgstr "FOG non è in grado di comunicare con il database"
 
 msgid "FOG server defaulting under the folder"
 msgstr "server FOG per default nella cartella"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 msgid "FTP Connection has failed"
 msgstr "Connessione FTP non è riuscita"
@@ -2144,8 +2193,7 @@ msgid "Groups"
 msgstr "gruppi"
 
 msgid "Groups are not allowed to schedule upload tasks"
-msgstr ""
-"I gruppi non sono autorizzati alla programmazione di attività di upload"
+msgstr "I gruppi non sono autorizzati alla programmazione di attività di upload"
 
 msgid "HD Device"
 msgstr "dispositivo HD"
@@ -2503,6 +2551,9 @@ msgstr "Icona"
 msgid "Icon File not found"
 msgstr "File Icona non trovato"
 
+msgid "If MOK Manager does not appear, the machine did not boot through a shim and nothing was enrolled."
+msgstr ""
+
 msgid "If a new module is published the client will"
 msgstr "Se viene pubblicato un nuovo modulo, il client farà"
 
@@ -2521,6 +2572,9 @@ msgstr "Se disabilitato"
 msgid "If on"
 msgstr "Se abilitato"
 
+msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
+msgstr ""
+
 msgid "If there is not a task set"
 msgstr "Non c'è alcuna attività impostata"
 
@@ -2534,8 +2588,7 @@ msgid "If you are looking to configure settings for a specific host"
 msgstr "Se si desidera configurare le impostazioni di un host specifico"
 
 msgid "If you need help understanding what items are needed please"
-msgstr ""
-"Se hai bisogno di aiuto per capire quali elementi sono necessari, per favore"
+msgstr "Se hai bisogno di aiuto per capire quali elementi sono necessari, per favore"
 
 msgid "If you would like to backup your"
 msgstr "Se vuoi eseguire il backup del tuo"
@@ -3079,8 +3132,7 @@ msgid "It is primarily geared for the smart installer methodology now"
 msgstr "È destinato principalmente alla metodologia Smart Installer ora"
 
 msgid "It operates by getting the max bandwidth setting of the node"
-msgstr ""
-"funziona ottenendo l'impostazione massima della larghezza di banda del nodo"
+msgstr "funziona ottenendo l'impostazione massima della larghezza di banda del nodo"
 
 msgid "It tells the client to download snapins from"
 msgstr "indica al client di scaricare gli snapins da"
@@ -3803,6 +3855,9 @@ msgstr "Nessun file è stato caricato"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr "Nessun nome amichevole definito"
 
@@ -3993,11 +4048,13 @@ msgstr "Vecchia chiave deve essere una stringa"
 msgid "On Dashboard"
 msgstr "sul cruscotto"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr "Al riavvio cercheremo di trovare un nuovo nodo"
 
-msgid ""
-"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "One or more macs are associated with a host"
@@ -4040,16 +4097,13 @@ msgid "Option specifies the background file to use"
 msgstr "L'opzione specifica il file di sfondo da utilizzare"
 
 msgid "Option specifies the color settings of the main menu items"
-msgstr ""
-"Opzione consente di specificare le impostazioni di colore degli elementi "
-"principali"
+msgstr "Opzione consente di specificare le impostazioni di colore degli elementi principali"
 
 msgid "Option specifies the color text on the menu if the host"
 msgstr "Opzione specifica il colore del testo se l'host"
 
 msgid "Option specifies the efi boot exit method ipxe will use"
-msgstr ""
-"L'opzione specifica il metodo di uscite di boot di efi che utilizzerà ipxe"
+msgstr "L'opzione specifica il metodo di uscite di boot di efi che utilizzerà ipxe"
 
 msgid "Option specifies the legacy boot exit method ipxe will use"
 msgstr "L'opzione specifica il metodo di uscita boot legacy che utilizza ipxe"
@@ -4142,8 +4196,7 @@ msgid "Password"
 msgstr "parola d'ordine"
 
 msgid "Password reset requires a user account to reset"
-msgstr ""
-"reimpostazione della password richiede un account utente per ripristinare"
+msgstr "reimpostazione della password richiede un account utente per ripristinare"
 
 msgid "Path"
 msgstr "Percorso"
@@ -4217,8 +4270,7 @@ msgid "Please Select an option"
 msgstr "Per favore selezionate un'opzione"
 
 msgid "Please be very careful changing any of the following settings"
-msgstr ""
-"Si prega di essere molto attenti a modificare una delle seguenti impostazioni"
+msgstr "Si prega di essere molto attenti a modificare una delle seguenti impostazioni"
 
 msgid "Please check your credentials in"
 msgstr "Controlla le tue credenziali"
@@ -4298,9 +4350,7 @@ msgid "Please select the snapin you want to install"
 msgstr "Si prega di selezionare lo snap-in che si desidera installare"
 
 msgid "Please select the storage group this location relates to."
-msgstr ""
-"Si prega di selezionare il gruppo di archiviazione questa posizione si "
-"riferisce a."
+msgstr "Si prega di selezionare il gruppo di archiviazione questa posizione si riferisce a."
 
 msgid "Please update your FOG Client, this is old and insecure"
 msgstr ""
@@ -4332,6 +4382,9 @@ msgstr "Nome Plugin"
 
 msgid "Plugins"
 msgstr "Plugins"
+
+msgid "Point your DHCP boot filename at"
+msgstr ""
 
 msgid "Port"
 msgstr "Porta"
@@ -4490,6 +4543,9 @@ msgstr "Riavvio dopo Deploy"
 
 msgid "Reboot after install"
 msgstr "Riavvio dopo l'installazione"
+
+msgid "Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
 msgstr "L'elemento Rebranding è stato aggiornato con successo!"
@@ -4766,6 +4822,9 @@ msgstr "Ruolo aggiornato!"
 msgid "Rule value"
 msgstr "Valore regola"
 
+msgid "Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Running Windows"
 
@@ -4784,9 +4843,7 @@ msgstr ""
 msgid "Save Kernel"
 msgstr "Save Kernel"
 
-msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
-"key update or missing auto-increment."
+msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
 msgid "Saving data for"
@@ -4866,6 +4923,16 @@ msgstr "Risultati di ricerca che restituiscono false"
 #, fuzzy
 msgid "Second parameter must be in array(class,function)"
 msgstr "Il secondo parametro deve essere un array (classe, funzione)"
+
+msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "Non ci sono immagini su questo server"
 
 msgid "Select Image"
 msgstr "Seleziona Immagine"
@@ -5006,6 +5073,9 @@ msgstr "Shutdown dopo l'installazione"
 
 msgid "Signed"
 msgstr "firmato"
+
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
+msgstr ""
 
 msgid "Site"
 msgstr "Sito"
@@ -5538,6 +5608,10 @@ msgstr "TX"
 msgid "Table not defined for this class"
 msgstr "Tabella del database non definita per questa classe"
 
+#, fuzzy
+msgid "Tag Name"
+msgstr "Nome attività"
+
 msgid "Task"
 msgstr "Compito"
 
@@ -5654,9 +5728,7 @@ msgid "Tasked Successfully"
 msgstr "Attività Completata"
 
 msgid "Tasked successfully, click active tasks to view in line."
-msgstr ""
-"Assegnato con successo, fare clic su attività attive per visualizzare in "
-"linea."
+msgstr "Assegnato con successo, fare clic su attività attive per visualizzare in linea."
 
 msgid "Tasking"
 msgstr "Attività"
@@ -5679,6 +5751,9 @@ msgstr "Termini e condizioni"
 msgid "Text"
 msgstr "Testo"
 
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 #, fuzzy
 msgid "That session has already started"
 msgstr "Questo host esiste già"
@@ -5690,8 +5765,7 @@ msgid "The assigned image is protected"
 msgstr "L'immagine assegnata è protetta"
 
 msgid "The below items are only used for the old client."
-msgstr ""
-"Gli elementi riportati di seguito sono utilizzati solo per il vecchio client."
+msgstr "Gli elementi riportati di seguito sono utilizzati solo per il vecchio client."
 
 msgid "The clients will checkin with the server from time"
 msgstr "I clienti effettueranno il check-in con il server di tanto"
@@ -5718,9 +5792,7 @@ msgid "The old client is what was distributed with"
 msgstr "Il vecchio cliente è quello che è stato distribuito con"
 
 msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
-msgstr ""
-"Il vecchio cliente è quello che è stato distribuito con FOG 1.2.0 e "
-"precedenti"
+msgstr "Il vecchio cliente è quello che è stato distribuito con FOG 1.2.0 e precedenti"
 
 msgid "The old client iswhat was distributed with"
 msgstr "Il vecchio cliente è stato distribuito con"
@@ -5732,13 +5804,10 @@ msgid "The primary mac associated is"
 msgstr "Il MAC primario associato è"
 
 msgid "The settings tend to be global which affects all hosts."
-msgstr ""
-"Le impostazioni tendono ad essere le impostazioni globali che influenzano "
-"tutti gli host"
+msgstr "Le impostazioni tendono ad essere le impostazioni globali che influenzano tutti gli host"
 
 msgid "The storage groups associated storage node is not valid"
-msgstr ""
-"Il nodo di archiviazione gruppi di archiviazione associato non è valido"
+msgstr "Il nodo di archiviazione gruppi di archiviazione associato non è valido"
 
 msgid "The uploaded file exceeds the max_file_size"
 msgstr "Il file caricato supera  max_file_size"
@@ -5797,6 +5866,9 @@ msgstr "Questo MAC appartiene a un altro host"
 msgid "This area will allow the host checking in to tell"
 msgstr "Questa area consentirà all'host di controllare di indicare"
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr "Questo file funziona solo in Windows"
 
@@ -5843,6 +5915,9 @@ msgstr "Questo è il programma di installazione consigliato da utilizzare ora"
 msgid "This is useful in the case of slow links between"
 msgstr "Questo è utile nel caso di legami lenti tra"
 
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
+
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr "Questa voce consente di modificare tutte le voci di menu iPXE"
 
@@ -5856,8 +5931,7 @@ msgid "This module did not work past Windows XP due to"
 msgstr "Questo modulo non ha funzionato oltre Windows XP a causa di"
 
 msgid "This module did not work past Windows XP due to UAC."
-msgstr ""
-"Questo modulo non funziona successivamente a Windows XP a causa di UAC."
+msgstr "Questo modulo non funziona successivamente a Windows XP a causa di UAC."
 
 msgid "This module has been replaced in the new client"
 msgstr "Questo modulo è stato sostituito nel nuovo client"
@@ -5878,8 +5952,7 @@ msgid "This node does not appear to be online"
 msgstr ""
 
 msgid "This page allows you to upload a CSV file into FOG to ease"
-msgstr ""
-"Questa pagina ti consente di caricare un file CSV in FOG per facilitare"
+msgstr "Questa pagina ti consente di caricare un file CSV in FOG per facilitare"
 
 msgid "This plugin is not installed"
 msgstr "Questo plugin non è attualmente installato"
@@ -5887,12 +5960,8 @@ msgstr "Questo plugin non è attualmente installato"
 msgid "This section allows you to customize or alter"
 msgstr "Questa sezione consente di personalizzare o modificare "
 
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
-msgstr ""
-"Questa sezione ti consente di importare produttori di indirizzi MAC "
-"conosciuti nel database FOG per facilitare l'identificazione"
+msgid "This section allows you to import known mac address makers into the FOG database for easier identification"
+msgstr "Questa sezione ti consente di importare produttori di indirizzi MAC conosciuti nel database FOG per facilitare l'identificazione"
 
 msgid "This section allows you to update"
 msgstr "Questa sezione ti consente di aggiornare"
@@ -5914,31 +5983,16 @@ msgid "This setting defines sending the"
 msgstr "Questa impostazione definisce l'invio"
 
 msgid "This setting limits the bandwidth for replication between nodes"
-msgstr ""
-"Questa impostazione limita la larghezza di banda per la replica tra i nodi"
+msgstr "Questa impostazione limita la larghezza di banda per la replica tra i nodi"
 
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-"Questa impostazione aggiunge e rimuove solo le stampanti gestite da FOG. Se "
-"la stampante esiste nella gestione della stampante, ma non viene assegnata "
-"ad un host, rimuoverà la stampante se esiste nell'host non firmato. "
-"Aggiungerà le stampanti all'host assegnato."
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
+msgstr "Questa impostazione aggiunge e rimuove solo le stampanti gestite da FOG. Se la stampante esiste nella gestione della stampante, ma non viene assegnata ad un host, rimuoverà la stampante se esiste nell'host non firmato. Aggiungerà le stampanti all'host assegnato."
 
 msgid "This setting turns off all FOG Printer Management"
 msgstr "Questa impostazione disattiva tutta la gestione della stampante FOG"
 
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"Questa impostazione consentirà solo che le stampanti FOG assegnate siano "
-"aggiunte all'host. Qualsiasi stampante non assegnata verrà rimossa, incluse "
-"le stampanti non gestite da FOG."
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "Questa impostazione consentirà solo che le stampanti FOG assegnate siano aggiunte all'host. Qualsiasi stampante non assegnata verrà rimossa, incluse le stampanti non gestite da FOG."
 
 msgid "This will allow you to configure how services"
 msgstr "Ciò consentirà di configurare come servizi"
@@ -5957,6 +6011,9 @@ msgstr "Tempo scaduto"
 
 msgid "Title must be a string"
 msgstr "Titolo deve essere una stringa"
+
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
 
 msgid "To be released only by"
 msgstr "Per essere rilasciato solo da"
@@ -6048,6 +6105,9 @@ msgstr "Si è verificato errore di caricamento sconosciuto"
 
 msgid "Unknown upload error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
+
+msgid "Unless it was declined with"
+msgstr ""
 
 msgid "Unsupported URL Scheme"
 msgstr ""
@@ -6359,6 +6419,9 @@ msgstr "radice Web"
 msgid "Weekly"
 msgstr "settimanalmente"
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
 
@@ -6527,9 +6590,7 @@ msgstr "poiché possono causare problemi difficili da risolvere"
 msgid "automatically"
 msgstr "automaticamente"
 
-msgid ""
-"bandwidth graph, and multicast when the interface cannot be derived from the "
-"routing table"
+msgid "bandwidth graph, and multicast when the interface cannot be derived from the routing table"
 msgstr ""
 
 #, fuzzy
@@ -6810,6 +6871,9 @@ msgstr "in secondi"
 msgid "install or update the FOG database"
 msgstr "Installare o aggiornare il database FOG"
 
+msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
+msgstr ""
+
 #, fuzzy
 msgid "is already running with pid: "
 msgstr "è già in esecuzione con pid"
@@ -6990,6 +7054,9 @@ msgstr "presente e dove/come devono essere visualizzati"
 msgid "previous install if needed"
 msgstr "installazione precedente se necessario"
 
+msgid "re-run the installer and check the installation log for a key generation or signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "sola lettura"
 
@@ -7054,9 +7121,7 @@ msgstr "compito trovato"
 msgid "terminating so it can be restarted"
 msgstr ""
 
-msgid ""
-"that detects the status on the fly, poweron or poweroff and the OS, of the "
-"client"
+msgid "that detects the status on the fly, poweron or poweroff and the OS, of the client"
 msgstr ""
 
 msgid "the Initrd (initial ramdisk) which is used alongside the"
@@ -7376,6 +7441,10 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
 #~ msgid "Your server only allows"
 #~ msgstr "Il tuo server consente solo"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "Fine"
 
 #~ msgid "but"
 #~ msgstr "ma"

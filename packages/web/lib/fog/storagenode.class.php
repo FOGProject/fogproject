@@ -148,6 +148,11 @@ class StorageNode extends FOGController
      */
     public function loadOnline()
     {
+        /**
+         * No port on purpose (#801): isAvailable resolves FOG_FTP_PORT for
+         * us. Hardcoding one here reports every node offline the moment ftp
+         * is moved, which surfaces as "No nodes available" on tasking.
+         */
         $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '1');
         $this->set('online', array_shift($test));
     }

@@ -558,6 +558,9 @@ msgstr ""
 msgid "Approved"
 msgstr ""
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr ""
 
@@ -640,6 +643,9 @@ msgid "Boot Key Sequence"
 msgstr ""
 
 msgid "Boot Options"
+msgstr ""
+
+msgid "Boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON. Those images boot under Secure Boot on their own signed shim, so no firmware changes are needed."
 msgstr ""
 
 msgid "Broadcast Create Fail"
@@ -765,6 +771,12 @@ msgstr ""
 msgid "Captured"
 msgstr ""
 
+msgid "Certificate SHA-1"
+msgstr ""
+
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr ""
 
@@ -810,8 +822,10 @@ msgstr ""
 msgid "Check that database is running"
 msgstr ""
 
-msgid ""
-"Check the capture folder is owned by and writable to the storage node user"
+msgid "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -892,6 +906,9 @@ msgstr ""
 msgid "Command"
 msgstr ""
 
+msgid "Compare the SHA-256 it prints against the one shown above. If they differ, stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr ""
 
@@ -928,7 +945,13 @@ msgstr ""
 msgid "Conflicting path/file"
 msgstr ""
 
+msgid "Copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
+
 msgid "Copy from existing"
+msgstr ""
+
+msgid "Copy the three files above onto a USB stick, keeping them in the same folder -- the script expects MOK.der beside it."
 msgstr ""
 
 msgid "Could not find a Storage Node in this group"
@@ -1295,7 +1318,13 @@ msgstr ""
 msgid "Dot in Filename not allowed!"
 msgstr ""
 
+msgid "Download"
+msgstr ""
+
 msgid "Download Failed"
+msgstr ""
+
+msgid "Downloaded file is not a bootable kernel image"
 msgstr ""
 
 msgid "Downloading Initrd"
@@ -1311,6 +1340,9 @@ msgid "Duration"
 msgstr ""
 
 msgid "ESC is defaulted"
+msgstr ""
+
+msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
 msgid "Edit"
@@ -1361,6 +1393,9 @@ msgstr ""
 msgid "Engineer"
 msgstr ""
 
+msgid "Enrolment kit"
+msgstr ""
+
 msgid "Enter a group name to search for"
 msgstr ""
 
@@ -1371,6 +1406,9 @@ msgid "Enter a location name to search for"
 msgstr ""
 
 msgid "Enter a model name to search for"
+msgstr ""
+
+msgid "Enter a one-time password twice when asked. It only proves at the next reboot that you are the same person; it is not stored and does not need to be strong."
 msgstr ""
 
 msgid "Enter a site name to search for"
@@ -1412,6 +1450,12 @@ msgstr ""
 msgid "Error performing query"
 msgstr ""
 
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+msgid "Error: Could not stage the kernel for signing"
+msgstr ""
+
 msgid "Error: Failed to download initrd"
 msgstr ""
 
@@ -1419,6 +1463,9 @@ msgid "Error: Failed to download kernel"
 msgstr ""
 
 msgid "Error: Failed to open temp file"
+msgstr ""
+
+msgid "Error: Failed to sign the kernel for Secure Boot"
 msgstr ""
 
 msgid "Errors"
@@ -1659,6 +1706,9 @@ msgid "FOG is unable to communicate with the database"
 msgstr ""
 
 msgid "FOG server defaulting under the folder"
+msgstr ""
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
 msgid "FTP Connection has failed"
@@ -2396,6 +2446,9 @@ msgstr ""
 msgid "Icon File not found"
 msgstr ""
 
+msgid "If MOK Manager does not appear, the machine did not boot through a shim and nothing was enrolled."
+msgstr ""
+
 msgid "If a new module is published the client will"
 msgstr ""
 
@@ -2412,6 +2465,9 @@ msgid "If off"
 msgstr ""
 
 msgid "If on"
+msgstr ""
+
+msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
 msgstr ""
 
 msgid "If there is not a task set"
@@ -3668,6 +3724,9 @@ msgstr ""
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr ""
 
@@ -3854,11 +3913,13 @@ msgstr ""
 msgid "On Dashboard"
 msgstr ""
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
-msgid ""
-"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "One or more macs are associated with a host"
@@ -4182,6 +4243,9 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr ""
 
@@ -4333,6 +4397,9 @@ msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Reboot after install"
+msgstr ""
+
+msgid "Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View key 0, Continue, Yes, then the password, then Reboot."
 msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
@@ -4590,6 +4657,9 @@ msgstr ""
 msgid "Rule value"
 msgstr ""
 
+msgid "Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr ""
 
@@ -4608,9 +4678,7 @@ msgstr ""
 msgid "Save Kernel"
 msgstr ""
 
-msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
-"key update or missing auto-increment."
+msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
 msgid "Saving data for"
@@ -4686,6 +4754,15 @@ msgid "Search results returned false"
 msgstr ""
 
 msgid "Second parameter must be in array(class,function)"
+msgstr ""
+
+msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
+msgstr ""
+
+msgid "Secure Boot kernel signing is not configured on this server"
 msgstr ""
 
 msgid "Select Image"
@@ -4826,6 +4903,9 @@ msgid "Shutdown after install"
 msgstr ""
 
 msgid "Signed"
+msgstr ""
+
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 msgid "Site"
@@ -5332,6 +5412,9 @@ msgstr ""
 msgid "Table not defined for this class"
 msgstr ""
 
+msgid "Tag Name"
+msgstr ""
+
 msgid "Task"
 msgstr ""
 
@@ -5467,6 +5550,9 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
 msgid "That session has already started"
 msgstr ""
 
@@ -5578,6 +5664,9 @@ msgstr ""
 msgid "This area will allow the host checking in to tell"
 msgstr ""
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr ""
 
@@ -5623,6 +5712,9 @@ msgstr ""
 msgid "This is useful in the case of slow links between"
 msgstr ""
 
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
+
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr ""
 
@@ -5665,9 +5757,7 @@ msgstr ""
 msgid "This section allows you to customize or alter"
 msgstr ""
 
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
+msgid "This section allows you to import known mac address makers into the FOG database for easier identification"
 msgstr ""
 
 msgid "This section allows you to update"
@@ -5691,20 +5781,13 @@ msgstr ""
 msgid "This setting limits the bandwidth for replication between nodes"
 msgstr ""
 
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
 msgstr ""
 
 msgid "This setting turns off all FOG Printer Management"
 msgstr ""
 
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
 msgstr ""
 
 msgid "This will allow you to configure how services"
@@ -5723,6 +5806,9 @@ msgid "Timeout"
 msgstr ""
 
 msgid "Title must be a string"
+msgstr ""
+
+msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
 msgid "To be released only by"
@@ -5810,6 +5896,9 @@ msgid "Unknown DB error"
 msgstr ""
 
 msgid "Unknown upload error occurred"
+msgstr ""
+
+msgid "Unless it was declined with"
 msgstr ""
 
 msgid "Unsupported URL Scheme"
@@ -6117,6 +6206,9 @@ msgstr ""
 msgid "Weekly"
 msgstr ""
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
@@ -6276,9 +6368,7 @@ msgstr ""
 msgid "automatically"
 msgstr ""
 
-msgid ""
-"bandwidth graph, and multicast when the interface cannot be derived from the "
-"routing table"
+msgid "bandwidth graph, and multicast when the interface cannot be derived from the routing table"
 msgstr ""
 
 msgid "based task."
@@ -6548,6 +6638,9 @@ msgstr ""
 msgid "install or update the FOG database"
 msgstr ""
 
+msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
+msgstr ""
+
 msgid "is already running with pid: "
 msgstr ""
 
@@ -6723,6 +6816,9 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
+msgid "re-run the installer and check the installation log for a key generation or signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr ""
 
@@ -6785,9 +6881,7 @@ msgstr ""
 msgid "terminating so it can be restarted"
 msgstr ""
 
-msgid ""
-"that detects the status on the fly, poweron or poweroff and the OS, of the "
-"client"
+msgid "that detects the status on the fly, poweron or poweroff and the OS, of the client"
 msgstr ""
 
 msgid "the Initrd (initial ramdisk) which is used alongside the"

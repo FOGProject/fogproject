@@ -2939,16 +2939,21 @@ abstract class FOGBase
             || (self::schemaNeedsDeploy() && self::installTokenParam());
     }
     /**
-     * Is the current session a FOG administrator?
+     * Is the acting user a FOG administrator (uType 0)?
      *
      * Deliberately not is_authorized(), which is true for any valid user --
      * including uType 1 mobile users -- and whose third clause nominally
-     * admits a registered fog-client. Schema deploys need to mean "an admin is
-     * driving this", nothing looser.
+     * admits a registered fog-client. "An administrator is driving this"
+     * needs to mean exactly that, nothing looser.
+     *
+     * This is the whole of 1.5's authorization model. There is no RBAC on
+     * this branch, so uType 0 vs anything else is the only boundary
+     * available; GHSA-2hqx-5ffg-w4c3 was reported because the API never
+     * consulted it at all.
      *
      * @return bool
      */
-    public static function isSchemaAdmin()
+    public static function isAdminUser()
     {
         if (!self::$FOGUser || !self::$FOGUser->isValid()) {
             return false;
@@ -2967,6 +2972,18 @@ abstract class FOGBase
             );
         }
         return (int)$type === 0;
+    }
+    /**
+     * Is the current session a FOG administrator?
+     *
+     * Kept as the name the schema-deploy path asks the question by; the test
+     * itself is the generic one above, which the API gate shares.
+     *
+     * @return bool
+     */
+    public static function isSchemaAdmin()
+    {
+        return self::isAdminUser();
     }
     /**
      * Does this install have any FOG user rows yet?

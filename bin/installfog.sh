@@ -25,11 +25,42 @@ if [[ ! $EUID -eq 0 ]]; then
     exit 1 # Fail Sudo
 fi
 
-which useradd >/dev/null 2>&1
-if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
-    echo "Please switch to a proper root environment to run the installer!"
-    echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
-    echo "of the su command as it is important to load root's environment)."
+# The installer calls a number of tools that live in an sbin directory, so it
+# has to be sure they are reachable. This used to be inferred rather than
+# tested: `which useradd`, plus a demand that the string "sbin" appear at least
+# TWICE in $PATH -- a stand-in for "/sbin and /usr/sbin are both listed".
+#
+# That stand-in stopped being true once distributions merged /sbin and
+# /usr/sbin into /usr/bin. A correct root PATH may now name a single sbin
+# directory, or none at all, and got rejected. Arch is the original report
+# (GH-447): root's login PATH is /usr/local/sbin:/usr/local/bin:/usr/bin,
+# "sbin" occurs once, and the installer refused to start while telling the user
+# to load root's environment -- which they had. The reporter's workaround
+# proves the check was measuring nothing: appending /usr/sbin got them past it,
+# and on Arch /usr/sbin is a symlink to /usr/bin, so it added no binaries at
+# all. It only made the substring appear a second time. Fedora 43 and later
+# name no sbin directory in root's PATH whatsoever and were rejected too.
+#
+# So ask the real question. Put the standard sbin directories on PATH when they
+# exist and are not already listed, then check we can actually reach the tool.
+for sbindir in /usr/local/sbin /usr/sbin /sbin; do
+    [[ -d $sbindir ]] || continue
+    case ":${PATH}:" in
+        *:"${sbindir}":*) ;;
+        *) PATH="${PATH}:${sbindir}" ;;
+    esac
+done
+export PATH
+if ! command -v useradd >/dev/null 2>&1; then
+    echo "The installer could not find 'useradd'."
+    echo
+    echo "It normally lives in an sbin directory. If you became root with a"
+    echo "plain 'su' or with 'sudo', switch using 'sudo -i' or 'su -' instead"
+    echo "(skip the ' and note the hyphen at the end of the su command, as it"
+    echo "is what loads root's own environment)."
+    echo
+    echo "If the command genuinely is not installed, FOG cannot create its"
+    echo "system account and the install would fail later on regardless."
     exit 1
 fi
 
@@ -56,6 +87,8 @@ usage() {
     echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
     echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
     echo -e "\t-S    --force-https\t\tForce HTTPS for all communication"
+    echo -e "\t      --no-force-https\t\tUndo --force-https: serve both HTTP and"
+    echo -e "\t                     \t\t\tHTTPS without redirecting"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
@@ -77,11 +110,23 @@ usage() {
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
+    echo -e "\t      --secure-boot-key\t\tPrivate key used to re-sign the FOS"
+    echo -e "\t                       \t\t\tkernels for UEFI Secure Boot"
+    echo -e "\t      --secure-boot-cert\tCertificate matching --secure-boot-key"
+    echo -e "\t                        \t\t\t(both are required together)"
+    echo -e "\t      --no-secure-boot\t\tDo not generate a Secure Boot signing"
+    echo -e "\t                      \t\t\tkey, and leave the FOS kernels unsigned"
+    echo -e "\t      --no-ca-trust\t\tDo not add this server's CA to this"
+    echo -e "\t                   \t\t\tserver's own system trust store"
+    echo -e "\t      --web-ca-cert/-key/-root\tBring your own CA for the WEB zone: the"
+    echo -e "\t                 \t\t\tintermediate that signs this server's vhost"
+    echo -e "\t                 \t\t\tcertificate, its key, and the root it chains"
+    echo -e "\t                 \t\t\tto. All three are required together"
     exit 0
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,web-ca-cert:,web-ca-key:,web-ca-root:,internal-domain:,internal-subnet:,no-sb-name-constraints,extra-server-name:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -129,6 +174,52 @@ while :; do
             shttpproto="https"
             shift
             ;;
+        --no-force-https)
+            # GH-978: the counterpart to -S, and the only way back out of it.
+            # httpproto is persisted to .fogsettings, so once -S writes https
+            # there the `[[ -z $httpproto ]] && httpproto="http"` default can
+            # never fire again -- .fogsettings is sourced before it. Re-running
+            # without -S therefore kept forcing HTTPS, and hand-editing
+            # .fogsettings was the only escape. Setting shttpproto routes this
+            # through the same override that -S uses, so the two are symmetric.
+            shttpproto="http"
+            shift
+            ;;
+        --no-sb-name-constraints)
+            ssbNameConstraints="no"
+            shift
+            ;;
+        --extra-server-name)
+            if [[ -z "${2}" ]]; then
+                echo "$1 requires a hostname after"
+                usage
+                exit 3
+            fi
+            sextraServerNames="${sextraServerNames:+$sextraServerNames }${2}"
+            shift 2
+            ;;
+        --internal-domain)
+            if [[ -z "${2}" ]]; then
+                echo "$1 requires a domain name after"
+                usage
+                exit 3
+            fi
+            sinternalDomains="${sinternalDomains:+$sinternalDomains }${2}"
+            shift 2
+            ;;
+        --internal-subnet)
+            # Validated here rather than at use: an unchecked value reaches an
+            # OpenSSL extension config, and a malformed one there fails to build
+            # the certificate with an error naming neither the flag nor the
+            # value.
+            if [[ $(validip "${2%%/*}") -ne 0 ]]; then
+                echo "$1 requires a subnet like 10.20.30.0/24 after"
+                usage
+                exit 3
+            fi
+            sinternalSubnets="${sinternalSubnets:+$sinternalSubnets }${2}"
+            shift 2
+            ;;
         -K | --recreate-keys)
             srecreateKeys="yes"
             shift
@@ -174,6 +265,22 @@ while :; do
             swebroot="${2}"
             swebroot="${swebroot#'/'}"
             swebroot="${swebroot%'/'}"
+            # GH-529: store the FINAL "/x/" form here rather than the bare "x".
+            # The normalisation further down only runs on the upgrade path (it
+            # is gated on grepping an existing .fogsettings), so two separate
+            # bugs came out of not doing so:
+            #
+            #   -W /      stripped to "", and the application tested `-n
+            #             $swebroot`, so the one case the help text exists to
+            #             document was discarded and fell back to /fog/.
+            #   -W /fog   on a FRESH install left webroot as "fog" with no
+            #             slashes, producing a vhost matching ^fog(.*)$ and
+            #             URLs like http://1.2.3.4fogmanagement.
+            #
+            # swebrootset records that the flag was given, separately from its
+            # value, so an empty value still counts.
+            swebrootset=1
+            [[ -z $swebroot ]] && swebroot="/" || swebroot="/${swebroot}/"
             shift 2
             ;;
         -B | --backuppath)
@@ -222,6 +329,47 @@ while :; do
         -F | --no-vhost)
             novhost="y"
             shift
+            ;;
+        --secure-boot-key)
+            if [[ -f $2 ]]; then
+                ssecureBootKey="$2"
+            else
+                echo "$1 requires a readable private key file after"
+                usage
+                exit 3
+            fi
+            shift 2
+            ;;
+        --secure-boot-cert)
+            if [[ -f $2 ]]; then
+                ssecureBootCert="$2"
+            else
+                echo "$1 requires a readable certificate file after"
+                usage
+                exit 3
+            fi
+            shift 2
+            ;;
+        --no-secure-boot)
+            ssecureboot=0
+            shift
+            ;;
+        --no-ca-trust)
+            scatrust=0
+            shift
+            ;;
+        --web-ca-cert | --web-ca-key | --web-ca-root)
+            if [[ ! -f $2 ]]; then
+                echo "$1 requires a readable file after"
+                usage
+                exit 3
+            fi
+            case $1 in
+                --web-ca-cert) swebExtCACert="$2" ;;
+                --web-ca-key)  swebExtCAKey="$2" ;;
+                --web-ca-root) swebExtCARoot="$2" ;;
+            esac
+            shift 2
             ;;
         --)
             shift 
@@ -309,6 +457,7 @@ echo "Done"
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
+[[ -z $externalca ]] && externalca="no"
 [[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $tftpAdvOpts ]] && tftpAdvOpts=""
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
@@ -320,7 +469,6 @@ fi
 displayBanner
 echo -e "   Version: $version Installer/Updater\n"
 checkSELinux
-checkFirewall
 case $doupdate in
     1)
         if [[ -f $fogpriorconfig ]]; then
@@ -331,7 +479,7 @@ case $doupdate in
             [[ -n $blexports ]] && blexports=$blexports
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
-            [[ -n $swebroot ]] && webroot=$swebroot
+            [[ -n $swebrootset ]] && webroot=$swebroot
             [[ -n $sdocroot ]] && docroot=$sdocroot
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
             [[ -n $scopybackold ]] && copybackold=$scopybackold
@@ -349,10 +497,46 @@ esac
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
 [[ -n $sdocroot ]] && docroot=$sdocroot
-[[ -n $swebroot ]] && webroot=$swebroot
+[[ -n $swebrootset ]] && webroot=$swebroot
 [[ -n $sbackupPath ]] && backupPath=$sbackupPath
 [[ -n $sexitFail ]] && exitFail=$sexitFail
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
+[[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
+[[ -n $ssbNameConstraints ]] && sbNameConstraints=$ssbNameConstraints
+# Repeatable flags REPLACE the persisted list rather than appending to it:
+# an admin re-running with a narrower set means that set, and appending
+# would make a value impossible to remove without hand-editing .fogsettings.
+[[ -n $sinternalDomains ]] && internalDomains=$sinternalDomains
+[[ -n $sinternalSubnets ]] && internalSubnets=$sinternalSubnets
+[[ -n $sextraServerNames ]] && extraServerNames=$sextraServerNames
+[[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
+[[ -n $ssecureboot ]] && secureboot=$ssecureboot
+[[ -n $scatrust ]] && catrust=$scatrust
+[[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
+[[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
+[[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
+# Any one of them means "use my CA". Without this an admin who passed the trio
+# would get a silent "nothing happened" failure: a working install signed by
+# FOG's own Web CA, with no error to explain why theirs was ignored.
+[[ -n $webExtCACert || -n $webExtCAKey || -n $webExtCARoot ]] && externalca="yes"
+
+# Secure Boot signing is opt-in and only meaningful as a pair. Refuse half a
+# pair rather than silently leaving kernels unsigned on a server whose admin
+# believes they are signed -- that failure only shows up at a client, as a
+# Security Policy Violation with nothing on the server to explain it.
+if [[ -n $secureBootKey || -n $secureBootCert ]]; then
+    if [[ -z $secureBootKey || -z $secureBootCert ]]; then
+        echo " * --secure-boot-key and --secure-boot-cert must be set together"
+        exit 9
+    fi
+    for sbfile in "$secureBootKey" "$secureBootCert"; do
+        if [[ ! -r $sbfile ]]; then
+            echo " * Cannot read Secure Boot signing file: $sbfile"
+            exit 9
+        fi
+    done
+    unset sbfile
+fi
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
 case $? in
@@ -377,6 +561,11 @@ fi
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
 . ../lib/common/newinput.sh
+# GH-954: after BOTH paths that can set $ipaddress -- fresh detection in
+# input.sh, and .fogsettings sourced earlier on an upgrade. An install written
+# by an older installer has the multi-line value persisted, so normalizing only
+# at detection would leave every upgrade carrying the broken form forward.
+normalizeIpAddress
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
@@ -509,6 +698,10 @@ while [[ -z $blGo ]]; do
                 esac
             fi
             configureUsers
+            # GH-964: before either branch configures a web tier. Storage nodes
+            # get this too -- configureMinHttpd still runs as httpd_t and still
+            # has to reach the master over HTTP.
+            installSELinuxModule
             case $installtype in
                 [Ss])
                     checkDatabaseConnection
@@ -519,13 +712,26 @@ while [[ -z $blGo ]]; do
                     configureTFTPandPXE
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
+                    # Anchors the root, so this host's own curl/wget/PHP can
+                    # verify this host. Reads only $rootCAPem -- no key -- so
+                    # it sits on the far side of the hardening above.
+                    _installCATrustAnchor
                     configureUDPCast
                     installInitScript
                     installFOGServices
                     configureFOGService
                     configureNFS
+                    # GH-964 sibling: after every service is configured, so
+                    # the port set matches what was actually installed, and
+                    # before writeUpdateFile so the chosen action persists.
+                    configureFirewall
                     writeUpdateFile
                     linkOptFogDir
+                    installUtilities
                     if [[ $bluseralreadyexists == 1 ]]; then
                         echo
                         echo "\n * Upgrade complete\n"
@@ -555,6 +761,30 @@ while [[ -z $blGo ]]; do
                     ;;
                 [Nn])
                     configureMySql
+                    # GH-632: persist the settings the moment the database
+                    # credentials exist, not fifteen fallible steps later.
+                    #
+                    # configureMySql generates snmysqlpass with generatePassword
+                    # when it is unset -- which is every fresh install -- and
+                    # applies it to the database user immediately. .fogsettings
+                    # was then written dead last, after the web tier, DHCP,
+                    # TFTP, FTP, snapins, udpcast, the services and NFS. Any one
+                    # of those failing left a database whose password existed
+                    # only in this shell's memory, and the reporter's exact
+                    # question: "not sure how to find out the sql password".
+                    #
+                    # Only fresh installs can lose it -- on an upgrade
+                    # snmysqlpass is read back from .fogsettings and never
+                    # regenerated -- but a fresh install is precisely when
+                    # there is nothing else to recover it from.
+                    #
+                    # The final writeUpdateFile below still runs and records
+                    # everything settled after this point; this one just makes
+                    # sure a half-finished install is recoverable. Leaving a
+                    # .fogsettings behind also means a re-run finds the prior
+                    # settings and reuses the SAME password, which is what has
+                    # to happen for it to connect at all.
+                    writeUpdateFile
                     backupReports
                     configureHttpd
                     checkWebTier
@@ -565,13 +795,26 @@ while [[ -z $blGo ]]; do
                     configureTFTPandPXE
                     configureFTP
                     configureSnapins
+                    # After configureSnapins, whose recursive chown over $snapindir
+                    # is what used to leave the CA private key readable by the
+                    # web user. Running it earlier has no effect at all.
+                    _hardenPkiPermissions
+                    # Anchors the root, so this host's own curl/wget/PHP can
+                    # verify this host. Reads only $rootCAPem -- no key -- so
+                    # it sits on the far side of the hardening above.
+                    _installCATrustAnchor
                     configureUDPCast
                     installInitScript
                     installFOGServices
                     configureFOGService
                     configureNFS
+                    # GH-964 sibling: after every service is configured, so
+                    # the port set matches what was actually installed, and
+                    # before writeUpdateFile so the chosen action persists.
+                    configureFirewall
                     writeUpdateFile
                     linkOptFogDir
+                    installUtilities
                     updateStorageNodeCredentials
                     setupFogReporting
                     echo

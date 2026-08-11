@@ -194,13 +194,30 @@ class BootMenu extends FOGBase
             false,
             ''
         );
-        $curroot = trim($curroot, '/');
-        $webroot = '/fog/';
-        $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $webroot);
+        /**
+         * GH-529: FOG_WEB_ROOT was read and then discarded -- $this->_web was
+         * built from a literal '/fog/' while 'set fog-webroot' used the real
+         * setting, so the two halves of the boot URL disagreed on a custom
+         * webroot. That is why custom webroots broke PXE booting (GH-502).
+         *
+         * Normalise instead of trusting the stored form: the value is written
+         * by the installer, edited by hand in FOG Settings, and carried by
+         * older versions, so it turns up with and without either slash.
+         * $curroot is the path form ('/fog/') used to build absolute URLs;
+         * $bootroot is the bare form ('fog') because the iPXE template already
+         * supplies the separator in '${fog-ip}/${fog-webroot}'.
+         *
+         * basename() used to produce that bare form, which also meant a nested
+         * webroot such as '/apps/fog/' silently collapsed to 'fog'. trim keeps
+         * every segment.
+         */
+        $bootroot = trim((string)$curroot, '/');
+        $curroot = '/' . ($bootroot === '' ? '' : $bootroot . '/');
+        $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
         $Send['booturl'] = array(
             '#!ipxe',
             "set fog-ip $webserver",
-            sprintf('set fog-webroot %s', basename($curroot)),
+            sprintf('set fog-webroot %s', $bootroot),
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
@@ -1931,6 +1948,9 @@ class BootMenu extends FOGBase
                     )
                 );
                 break;
+            case 14:
+                $Send = self::fastmerge($Send, $this->_enrollSecureBootChoice());
+                break;
             default:
                 if (!$params) {
                     $Send = self::fastmerge(
@@ -1944,6 +1964,76 @@ class BootMenu extends FOGBase
                 }
         }
         return $Send;
+    }
+    /**
+     * Builds the iPXE choice for pxeID 14, "Enroll Secure Boot Key".
+     *
+     * Always shown (pxeRegOnly=2), so a technician never has to repoint a
+     * client's boot file just to enroll its MOK -- the same signed
+     * snponly.efi/shim chain every other client reaches already gets them
+     * here. If this server never configured kernel signing there is
+     * nothing to enroll, so this returns a message rather than attempting
+     * a chain to a target that was never staged.
+     *
+     * MokManager (mmx64.efi) only shows its "Enroll key from disk" menu
+     * when it is the boot target itself -- shim only invokes it when a
+     * pending MOK request already exists, which nothing here stages -- so
+     * this chains to it directly rather than through the normal shim gate.
+     *
+     * @return array
+     */
+    private function _enrollSecureBootChoice()
+    {
+        if (!file_exists(BASEPATH . 'service/secureboot' . DS . 'MOK.der')) {
+            return array(
+                'echo Secure Boot signing is not configured on this FOG '
+                . 'server.',
+                'echo Nothing to enroll -- returning to the menu...',
+                'sleep 5',
+                'goto MENU'
+            );
+        }
+        if (($_REQUEST['arch'] ?? '') === 'i386') {
+            return array(
+                'echo No signed Secure Boot shim exists for 32-bit UEFI.',
+                'echo Returning to the menu...',
+                'sleep 5',
+                'goto MENU'
+            );
+        }
+        // arm64's MokManager is mmaa64.efi, NOT mmx64.efi -- the binary is
+        // named for the architecture it runs on, and fog-ipxe stages it under
+        // that name. Chaining to arm64-efi/mmx64.efi is a file that has never
+        // existed, so every arm64 client fell into the error branch below.
+        $mmTarget = (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm'))
+            ? "$this->_booturl/secureboot/arm64-efi/mmaa64.efi"
+            : "$this->_booturl/secureboot/mmx64.efi";
+        // iPXE's EFI filesystem driver exposes every image it has downloaded
+        // -- kernel, initrd, or a plain imgfetch like this one -- to any EFI
+        // app that enumerates SimpleFileSystemProtocol handles. MokManager's
+        // own "Enroll key from disk" browser does exactly that, and a normal
+        // netboot already puts bzImage/init.xz in front of it this way, so
+        // fetching MOK.der here makes it selectable too, without a USB stick
+        // -- confirmed on physical hardware. Keep the USB fallback text below
+        // regardless, in case a given machine's MokManager only walks handles
+        // backed by a real block device.
+        return array(
+            "imgfetch $this->_booturl/secureboot/MOK.der MOK.der || "
+            . "echo Could not fetch MOK.der over the network.",
+            // No quotes in the text: iPXE's tokenizer treats them as quoting
+            // and strips them, so they would vanish from the output anyway.
+            'echo MOK.der has been downloaded into memory as MOK.der --',
+            'echo look for it under Enroll key from disk.',
+            'echo MokManager gives up after about 10 seconds with no',
+            'echo keypress, and reboots if left idle for a few minutes --',
+            'echo be ready before it appears.',
+            'echo If it is not listed there, have MOK.der on a',
+            'echo FAT-formatted USB stick in this machine instead.',
+            'sleep 8',
+            "chain -ar $mmTarget || "
+            . "echo Could not load the Secure Boot enrolment menu. && "
+            . "sleep 5 && goto MENU"
+        );
     }
     /**
      * Print the default information for all hosts
@@ -2068,6 +2158,33 @@ class BootMenu extends FOGBase
             '',
             'id'
         );
+        // pxeID 14 ("Enroll Secure Boot Key") is meaningless on a legacy BIOS
+        // boot: there is no UEFI variable store to enrol into, so both routes
+        // out of it -- the FOS task (mode=enrollsb) and the direct MokManager
+        // chain -- can only fail. It carries pxeRegOnly=2 so a technician never
+        // has to repoint a client's boot file to reach it, and that "always
+        // shown" is what put it in front of BIOS clients too.
+        //
+        // Gate on platform, not arch: ia32 UEFI is still UEFI (it gets a
+        // different refusal, with its own reason), and a 64-bit CPU booted in
+        // CSM mode is not UEFI at all.
+        //
+        // Only hide when the platform is positively known not to be EFI --
+        // an absent value means unknown, and hiding a working option from a
+        // UEFI client is a worse failure than showing a dead one to a BIOS
+        // client.
+        if (isset($_REQUEST['platform'])
+            && $_REQUEST['platform'] != 'efi'
+        ) {
+            $Menus = array_values(
+                array_filter(
+                    (array)$Menus,
+                    function ($Menu) {
+                        return (int)$Menu->get('id') !== 14;
+                    }
+                )
+            );
+        }
         array_map(
             function ($Menu) use (&$Send) {
                 $Send["item-". $Menu->get('name')] = $this->_menuItem(

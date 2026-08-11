@@ -83,8 +83,7 @@ msgid "30 Minutes"
 msgstr "30分"
 
 msgid "<p>Dependencies: port TCP 445 open in the client side"
-msgstr ""
-"<p>依存関係: クライアント側で TCP ポート 445 が開放されている必要があります"
+msgstr "<p>依存関係: クライアント側で TCP ポート 445 が開放されている必要があります"
 
 msgid "<p>Possible status: Windows, Linux, FOS and Unknown"
 msgstr "<p>利用可能な状態: Windows、Linux、FOS、不明"
@@ -572,6 +571,9 @@ msgstr "このホストを承認しますか？"
 msgid "Approved"
 msgstr "承認済み"
 
+msgid "Architecture"
+msgstr ""
+
 msgid "Are you sure you wish to"
 msgstr "次の操作を実行しますか:"
 
@@ -655,6 +657,9 @@ msgstr "ブートキーシーケンス"
 
 msgid "Boot Options"
 msgstr "ブートオプション"
+
+msgid "Boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON. Those images boot under Secure Boot on their own signed shim, so no firmware changes are needed."
+msgstr ""
 
 msgid "Broadcast Create Fail"
 msgstr "ブロードキャストの作成に失敗しました"
@@ -779,6 +784,12 @@ msgstr "キャプチャ"
 msgid "Captured"
 msgstr "キャプチャ済み"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
+msgid "Certificate SHA-256"
+msgstr ""
+
 msgid "Change password"
 msgstr "パスワードを変更"
 
@@ -824,8 +835,10 @@ msgstr "追加可能なユーザーを確認するにはここをクリックし
 msgid "Check that database is running"
 msgstr "データベースが稼働していることを確認してください"
 
-msgid ""
-"Check the capture folder is owned by and writable to the storage node user"
+msgid "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
@@ -906,6 +919,9 @@ msgstr "クライアント"
 msgid "Command"
 msgstr "コマンド"
 
+msgid "Compare the SHA-256 it prints against the one shown above. If they differ, stop -- that comparison is the whole security of this step."
+msgstr ""
+
 msgid "Complete"
 msgstr "完了"
 
@@ -942,8 +958,14 @@ msgstr "タスクを確認"
 msgid "Conflicting path/file"
 msgstr "競合するパス/ファイル"
 
+msgid "Copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher"
+msgstr ""
+
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
+
+msgid "Copy the three files above onto a USB stick, keeping them in the same folder -- the script expects MOK.der beside it."
+msgstr ""
 
 msgid "Could not find a Storage Node in this group"
 msgstr "このグループ内にストレージノードが見つかりません"
@@ -1309,8 +1331,15 @@ msgstr "完了しました（イメージ処理なし）！イメージが割り
 msgid "Dot in Filename not allowed!"
 msgstr "ファイル名にドットは使用できません！"
 
+#, fuzzy
+msgid "Download"
+msgstr "ダウンロードに失敗しました"
+
 msgid "Download Failed"
 msgstr "ダウンロードに失敗しました"
+
+msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
 
 msgid "Downloading Initrd"
 msgstr "Initrd をダウンロードしています"
@@ -1326,6 +1355,9 @@ msgstr "期間"
 
 msgid "ESC is defaulted"
 msgstr "ESC が既定です"
+
+msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
+msgstr ""
 
 msgid "Edit"
 msgstr "編集"
@@ -1375,6 +1407,9 @@ msgstr "終了時刻"
 msgid "Engineer"
 msgstr "担当者"
 
+msgid "Enrolment kit"
+msgstr ""
+
 msgid "Enter a group name to search for"
 msgstr "検索するグループ名を入力してください"
 
@@ -1386,6 +1421,9 @@ msgstr "検索するロケーション名を入力してください"
 
 msgid "Enter a model name to search for"
 msgstr "検索するモデル名を入力してください"
+
+msgid "Enter a one-time password twice when asked. It only proves at the next reboot that you are the same person; it is not stored and does not need to be strong."
+msgstr ""
 
 msgid "Enter a site name to search for"
 msgstr "検索するサイト名を入力してください"
@@ -1426,6 +1464,13 @@ msgstr "MAC アドレス一覧に対して複数のホストが返されまし�
 msgid "Error performing query"
 msgstr "クエリの実行中にエラーが発生しました"
 
+msgid "Error: Could not lock the Secure Boot staging directory"
+msgstr ""
+
+#, fuzzy
+msgid "Error: Could not stage the kernel for signing"
+msgstr "エラー: カーネルのダウンロードに失敗しました"
+
 msgid "Error: Failed to download initrd"
 msgstr "エラー: initrd のダウンロードに失敗しました"
 
@@ -1434,6 +1479,10 @@ msgstr "エラー: カーネルのダウンロードに失敗しました"
 
 msgid "Error: Failed to open temp file"
 msgstr "エラー: 一時ファイルを開けませんでした"
+
+#, fuzzy
+msgid "Error: Failed to sign the kernel for Secure Boot"
+msgstr "エラー: カーネルのダウンロードに失敗しました"
 
 msgid "Errors"
 msgstr "エラー"
@@ -1674,6 +1723,9 @@ msgstr "FOG はデータベースと通信できません"
 
 msgid "FOG server defaulting under the folder"
 msgstr "FOG サーバーは次のフォルダーを既定で使用します"
+
+msgid "FOS kernels on this server are signed for UEFI Secure Boot"
+msgstr ""
 
 msgid "FTP Connection has failed"
 msgstr "FTP 接続に失敗しました"
@@ -2411,6 +2463,9 @@ msgstr "アイコン"
 msgid "Icon File not found"
 msgstr "アイコンファイルが見つかりません"
 
+msgid "If MOK Manager does not appear, the machine did not boot through a shim and nothing was enrolled."
+msgstr ""
+
 msgid "If a new module is published the client will"
 msgstr "新しいモジュールが公開されると、クライアントは"
 
@@ -2428,6 +2483,9 @@ msgstr "オフの場合"
 
 msgid "If on"
 msgstr "オンの場合"
+
+msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
+msgstr ""
 
 msgid "If there is not a task set"
 msgstr "タスクが設定されていない場合"
@@ -2831,8 +2889,7 @@ msgid "Invalid URL"
 msgstr "無効な URL"
 
 msgid "Invalid cron field value. Only digits, *, /, -, and commas are allowed."
-msgstr ""
-"cron フィールドの値が無効です。使用できるのは数字、*、/、-、カンマのみです。"
+msgstr "cron フィールドの値が無効です。使用できるのは数字、*、/、-、カンマのみです。"
 
 msgid "Invalid data being parsed"
 msgstr "解析中のデータが無効です"
@@ -2920,8 +2977,7 @@ msgid "Invalid token passed for host"
 msgstr "ホストに無効なトークンが渡されました"
 
 msgid "Invalid type, merge to add, diff to remove"
-msgstr ""
-"無効なタイプです。追加するには merge、削除するには diff を指定してください"
+msgstr "無効なタイプです。追加するには merge、削除するには diff を指定してください"
 
 msgid "Invalid user and/or channel passed"
 msgstr "無効なユーザーまたはチャンネルが渡されました"
@@ -3689,12 +3745,14 @@ msgstr "ファイルはアップロードされませんでした"
 msgid "No files matched multicast image pattern"
 msgstr ""
 
+msgid "No firmware changes are needed"
+msgstr ""
+
 msgid "No friendly name defined"
 msgstr "表示名が定義されていません"
 
 msgid "No groups defined, search will return all hosts."
-msgstr ""
-"グループが定義されていないため、検索ではすべてのホストが対象となります。"
+msgstr "グループが定義されていないため、検索ではすべてのホストが対象となります。"
 
 msgid "No groups selected to be removed"
 msgstr "削除するグループが選択されていません"
@@ -3876,14 +3934,14 @@ msgstr "古いキーは文字列である必要があります"
 msgid "On Dashboard"
 msgstr "ダッシュボードに表示"
 
+msgid "On each client, once"
+msgstr ""
+
 msgid "On reboot we will try to find a new node"
 msgstr "再起動後、新しいノードの検出を試みます"
 
-msgid ""
-"One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
-msgstr ""
-"\"snapinfiles[]\" マルチパートフィールドを使用して、1 つ以上のファイルをアッ"
-"プロードする必要があります"
+msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
+msgstr "\"snapinfiles[]\" マルチパートフィールドを使用して、1 つ以上のファイルをアップロードする必要があります"
 
 msgid "One or more macs are associated with a host"
 msgstr "1 つ以上の MAC アドレスがホストに関連付けられています"
@@ -4177,8 +4235,7 @@ msgid "Please select the storage group this location relates to."
 msgstr "このロケーションに関連付けるストレージグループを選択してください。"
 
 msgid "Please update your FOG Client, this is old and insecure"
-msgstr ""
-"FOG クライアントを更新してください。このバージョンは古く、安全ではありません"
+msgstr "FOG クライアントを更新してください。このバージョンは古く、安全ではありません"
 
 msgid "Please use another hostname"
 msgstr "別のホスト名を使用してください"
@@ -4207,6 +4264,9 @@ msgstr "プラグイン名"
 msgid "Plugins"
 msgstr "プラグイン"
 
+msgid "Point your DHCP boot filename at"
+msgstr ""
+
 msgid "Port"
 msgstr "ポート"
 
@@ -4217,8 +4277,7 @@ msgid "Postfix requires an action of login"
 msgstr "Postfix では login アクションが必要です"
 
 msgid "Postfix requires an action of login, logout, or start to operate"
-msgstr ""
-"Postfix を動作させるには login、logout、または start アクションが必要です"
+msgstr "Postfix を動作させるには login、logout、または start アクションが必要です"
 
 msgid "Power Management"
 msgstr "電源管理"
@@ -4360,6 +4419,9 @@ msgstr "展開後に再起動"
 
 msgid "Reboot after install"
 msgstr "インストール後に再起動"
+
+msgid "Reboot. The machine stops on the blue MOK Manager screen: Enroll MOK, View key 0, Continue, Yes, then the password, then Reboot."
+msgstr ""
 
 msgid "Rebranding element has been successfully updated!"
 msgstr "ブランド設定を更新しました！"
@@ -4616,6 +4678,9 @@ msgstr "ルールを更新しました！"
 msgid "Rule value"
 msgstr "ルール値"
 
+msgid "Run the launcher (fog-enroll-mok.desktop, or fog-enroll-mok.sh directly). It re-runs itself with sudo."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Windows 実行中"
 
@@ -4634,12 +4699,8 @@ msgstr "Initrd を保存"
 msgid "Save Kernel"
 msgstr "カーネルを保存"
 
-msgid ""
-"Save completed but no valid ID was assigned (insertId=0). Possible duplicate-"
-"key update or missing auto-increment."
-msgstr ""
-"保存は完了しましたが、有効な ID が割り当てられませんでした（insertId=0）。重"
-"複キーによる更新、または自動採番が設定されていない可能性があります。"
+msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
+msgstr "保存は完了しましたが、有効な ID が割り当てられませんでした（insertId=0）。重複キーによる更新、または自動採番が設定されていない可能性があります。"
 
 msgid "Saving data for"
 msgstr "次のデータを保存しています:"
@@ -4715,6 +4776,16 @@ msgstr "検索結果が false を返しました"
 
 msgid "Second parameter must be in array(class,function)"
 msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
+
+msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
+msgstr ""
+
+#, fuzzy
+msgid "Secure Boot kernel signing is not configured on this server"
+msgstr "このサーバーにはイメージがありません"
 
 msgid "Select Image"
 msgstr "イメージを選択"
@@ -4855,6 +4926,9 @@ msgstr "インストール後にシャットダウン"
 
 msgid "Signed"
 msgstr "署名済み"
+
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
+msgstr ""
 
 msgid "Site"
 msgstr "サイト"
@@ -5052,9 +5126,7 @@ msgid "Snapin added!"
 msgstr "スナップインを追加しました！"
 
 msgid "Snapin file is too big, increase post_max_size in php.ini."
-msgstr ""
-"スナップインファイルが大きすぎます。php.ini の post_max_size を増やしてくださ"
-"い。"
+msgstr "スナップインファイルが大きすぎます。php.ini の post_max_size を増やしてください。"
 
 msgid "Snapin is invalid"
 msgstr "スナップインが無効です"
@@ -5362,6 +5434,10 @@ msgstr "TX"
 msgid "Table not defined for this class"
 msgstr "このクラスにテーブルが定義されていません"
 
+#, fuzzy
+msgid "Tag Name"
+msgstr "タスク名"
+
 msgid "Task"
 msgstr "タスク"
 
@@ -5474,9 +5550,7 @@ msgid "Tasked Successfully"
 msgstr "タスクを正常に設定しました"
 
 msgid "Tasked successfully, click active tasks to view in line."
-msgstr ""
-"タスクを正常に設定しました。キューを表示するには実行中のタスクをクリックして"
-"ください。"
+msgstr "タスクを正常に設定しました。キューを表示するには実行中のタスクをクリックしてください。"
 
 msgid "Tasking"
 msgstr "タスク実行"
@@ -5498,6 +5572,9 @@ msgstr "利用条件"
 
 msgid "Text"
 msgstr "テキスト"
+
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+msgstr ""
 
 #, fuzzy
 msgid "That session has already started"
@@ -5611,6 +5688,9 @@ msgstr "この MAC アドレスは別のホストに属しています"
 msgid "This area will allow the host checking in to tell"
 msgstr "この項目では、チェックインしてきたホストから"
 
+msgid "This build is experimental and may not work as expected"
+msgstr ""
+
 msgid "This file will only work on Windows"
 msgstr "このファイルは Windows でのみ使用できます"
 
@@ -5656,6 +5736,9 @@ msgstr "現在はこちらのインストーラーの使用を推奨します"
 msgid "This is useful in the case of slow links between"
 msgstr "これは拠点間の通信速度が遅い場合に便利です"
 
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
+
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr "ここでは iPXE メニュー項目を編集できます"
 
@@ -5698,12 +5781,8 @@ msgstr "このプラグインはインストールされていません"
 msgid "This section allows you to customize or alter"
 msgstr "このセクションでは各種設定をカスタマイズできます"
 
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
-msgstr ""
-"既知の MAC アドレスベンダー情報を FOG データベースへインポートし、識別しやす"
-"くできます"
+msgid "This section allows you to import known mac address makers into the FOG database for easier identification"
+msgstr "既知の MAC アドレスベンダー情報を FOG データベースへインポートし、識別しやすくできます"
 
 msgid "This section allows you to update"
 msgstr "このセクションでは更新を行えます"
@@ -5726,27 +5805,14 @@ msgstr "この設定では送信方法を定義します"
 msgid "This setting limits the bandwidth for replication between nodes"
 msgstr "この設定はノード間レプリケーションの帯域幅を制限します"
 
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-"この設定では、FOG が管理するプリンターのみを追加・削除します。プリンター管理"
-"に登録されていてもホストへ割り当てられていないプリンターは、そのホストに存在"
-"する場合は削除されます。ホストへ割り当てられているプリンターのみが追加されま"
-"す。"
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
+msgstr "この設定では、FOG が管理するプリンターのみを追加・削除します。プリンター管理に登録されていてもホストへ割り当てられていないプリンターは、そのホストに存在する場合は削除されます。ホストへ割り当てられているプリンターのみが追加されます。"
 
 msgid "This setting turns off all FOG Printer Management"
 msgstr "この設定は FOG のプリンター管理機能をすべて無効にします"
 
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"この設定では、FOG で割り当てられたプリンターのみがホストへ追加されます。割り"
-"当てられていないプリンターは、FOG 管理外のプリンターも含めて削除されます。"
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "この設定では、FOG で割り当てられたプリンターのみがホストへ追加されます。割り当てられていないプリンターは、FOG 管理外のプリンターも含めて削除されます。"
 
 msgid "This will allow you to configure how services"
 msgstr "ここではサービスの動作を設定できます"
@@ -5765,6 +5831,9 @@ msgstr "タイムアウト"
 
 msgid "Title must be a string"
 msgstr "タイトルは文字列で指定してください"
+
+msgid "To PXE boot with Secure Boot on"
+msgstr ""
 
 msgid "To be released only by"
 msgstr "次の担当者のみ返却可能"
@@ -5852,6 +5921,9 @@ msgstr "不明なデータベースエラー"
 
 msgid "Unknown upload error occurred"
 msgstr "不明なアップロードエラーが発生しました"
+
+msgid "Unless it was declined with"
+msgstr ""
 
 msgid "Unsupported URL Scheme"
 msgstr "サポートされていない URL スキーム"
@@ -6158,6 +6230,9 @@ msgstr "Web ルート"
 msgid "Weekly"
 msgstr "週単位"
 
+msgid "What to do next"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
 
@@ -6317,9 +6392,7 @@ msgstr "問題が発生した場合に原因の特定が困難になる可能性
 msgid "automatically"
 msgstr "自動的に"
 
-msgid ""
-"bandwidth graph, and multicast when the interface cannot be derived from the "
-"routing table"
+msgid "bandwidth graph, and multicast when the interface cannot be derived from the routing table"
 msgstr ""
 
 msgid "based task."
@@ -6589,6 +6662,9 @@ msgstr "秒単位"
 msgid "install or update the FOG database"
 msgstr "FOG データベースをインストールまたは更新"
 
+msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
+msgstr ""
+
 msgid "is already running with pid: "
 msgstr "は既に次の PID で実行中です: "
 
@@ -6764,6 +6840,9 @@ msgstr "表示する項目と、その表示位置や表示方法"
 msgid "previous install if needed"
 msgstr "必要に応じて以前のインストール"
 
+msgid "re-run the installer and check the installation log for a key generation or signing failure"
+msgstr ""
+
 msgid "read-only"
 msgstr "読み取り専用"
 
@@ -6786,8 +6865,7 @@ msgid "see fit"
 msgstr "必要に応じて"
 
 msgid "see the forums or lookup the commands and scripts available"
-msgstr ""
-"フォーラムを参照するか、利用可能なコマンドやスクリプトを確認してください"
+msgstr "フォーラムを参照するか、利用可能なコマンドやスクリプトを確認してください"
 
 msgid "sending on base port "
 msgstr "ベースポートから送信中 "
@@ -6827,9 +6905,7 @@ msgstr "タスクが見つかりました"
 msgid "terminating so it can be restarted"
 msgstr ""
 
-msgid ""
-"that detects the status on the fly, poweron or poweroff and the OS, of the "
-"client"
+msgid "that detects the status on the fly, poweron or poweroff and the OS, of the client"
 msgstr "クライアントの電源状態（オン/オフ）や OS をリアルタイムで検出します"
 
 msgid "the Initrd (initial ramdisk) which is used alongside the"
@@ -6869,8 +6945,7 @@ msgid "this is just another to ensure safety"
 msgstr "これは安全性を高めるための追加措置です"
 
 msgid "this kernel holds all the drivers for the client computer"
-msgstr ""
-"このカーネルにはクライアントコンピューター用の各種ドライバーが含まれています"
+msgstr "このカーネルにはクライアントコンピューター用の各種ドライバーが含まれています"
 
 msgid "this one is already in use by another image"
 msgstr "これは既に別のイメージで使用されています"
@@ -6994,6 +7069,10 @@ msgstr "そのノードの帯域幅を 1000 に設定した場合"
 
 #~ msgid "Your server only allows"
 #~ msgstr "サーバーで許可されているのは次のみです"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "終了"
 
 #~ msgid "tasks in queue"
 #~ msgstr "キュー内のタスク"

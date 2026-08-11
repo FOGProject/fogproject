@@ -200,28 +200,21 @@ abstract class FOGService extends FOGBase
      */
     public function getBanner()
     {
-        ob_start();
-        echo "\n";
-        echo "==================================\n";
-        echo "===        ====    =====      ====\n";
-        echo "===  =========  ==  ===   ==   ===\n";
-        echo "===  ========  ====  ==  ====  ===\n";
-        echo "===  ========  ====  ==  =========\n";
-        echo "===      ====  ====  ==  =========\n";
-        echo "===  ========  ====  ==  ===   ===\n";
-        echo "===  ========  ====  ==  ====  ===\n";
-        echo "===  =========  ==  ===   ==   ===\n";
-        echo "===  ==========    =====      ====\n";
-        echo "==================================\n";
-        echo "===== Free Opensource Ghost ======\n";
-        echo "==================================\n";
-        echo "============ Credits =============\n";
-        echo "= https://fogproject.org/Credits =\n";
-        echo "==================================\n";
-        echo "== Released under GPL Version 3 ==\n";
-        echo "==================================\n";
-        echo "\n";
-        self::outall(ob_get_clean());
+        // GH-497: this was twenty lines of ASCII art per start. Now that the
+        // log survives a restart it is repeated noise rather than a one-off
+        // header, and it pushed real output out of view in a `tail`. One line
+        // keeps what the banner was actually useful for -- a visible marker of
+        // where a restart begins, and which build is running.
+        //
+        // Still emitted from the daemon entry points under packages/service/,
+        // so the signature stays as it is.
+        self::outall(
+            sprintf(
+                '===== FOG %s -- %s starting =====',
+                FOG_VERSION,
+                get_class($this)
+            )
+        );
     }
     /**
      * Outputs the string passed
@@ -245,6 +238,42 @@ abstract class FOGService extends FOGBase
         return self::niceDate()->format('m-d-y g:i:s a');
     }
     /**
+     * Rotates a service log that has reached its size limit.
+     *
+     * GH-497: this used to unlink the log outright, which threw away the
+     * run you most likely wanted to read -- the one that had just filled
+     * the file. Shift the numbered generations instead and drop only the
+     * oldest, so there is always history behind the live file.
+     *
+     * Kept at a fixed five generations rather than a new setting. Disk cost
+     * is SERVICE_LOG_SIZE * (KEEP + 1) and admins already control the first
+     * term, so a second knob buys nothing and would cost a schema step.
+     *
+     * Two writers can race here: the supervisor and its forked child share
+     * a log, and both could see an oversize file and rotate. The loss is a
+     * duplicated shift, not corruption, and wlog() holds its handle only
+     * for the length of one write -- not worth a lock file.
+     *
+     * @param string $path the log path to rotate
+     *
+     * @return void
+     */
+    protected static function rotateLog($path)
+    {
+        $keep = 5;
+        if (file_exists("{$path}.{$keep}")) {
+            unlink("{$path}.{$keep}");
+        }
+        // Descending. Going the other way would overwrite .2 with .1 before
+        // .2 itself had been moved up to .3.
+        for ($i = $keep - 1; $i >= 1; $i--) {
+            if (file_exists("{$path}.{$i}")) {
+                rename("{$path}.{$i}", sprintf('%s.%d', $path, $i + 1));
+            }
+        }
+        rename($path, "{$path}.1");
+    }
+    /**
      * Outputs the passed string to the log
      *
      * @param string $string the string to write to log
@@ -261,7 +290,7 @@ abstract class FOGService extends FOGBase
                 $max_size = 500000;
             }
             if ($filesize >= $max_size) {
-                unlink($path);
+                self::rotateLog($path);
             }
         }
         $fh = fopen($path, 'ab');
@@ -796,41 +825,57 @@ abstract class FOGService extends FOGBase
                     $itemType,
                     $name
                 );
-                $myAddItem = escapeshellarg($myAddItem);
-                $remItem = escapeshellarg($remItem);
-                $logname = escapeshellarg($logname);
-                $myAddItem = trim($myAddItem, "'");
-                $myAddItem = sprintf(
-                    '"%s"',
-                    $myAddItem
-                );
-                $remItem = trim($remItem, "'");
-                $remItem = sprintf(
-                    '"%s"',
-                    $remItem
-                );
-                $logname = trim($logname, "'");
-                $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
-                $cmd .= "set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c --parallel=20 ";
-                $cmd .= "$opts ";
+                /**
+                 * GHSA-2hqx-5ffg-w4c3: this used to build one shell string
+                 * and hand it to proc_open(), which runs it through
+                 * `/bin/sh -c`. The storage node's ftpUser, ftpPass and ip
+                 * went in raw -- `-u $username,'$password' $ip` -- so a
+                 * single quote in the password, or anything at all in the
+                 * username or ip, escaped into the shell and executed as
+                 * root, the uid this daemon runs under.
+                 *
+                 * The argv is built as an ARRAY instead, so proc_open()
+                 * execs lftp directly and no shell ever parses these values.
+                 * That removes the class of bug rather than escaping this
+                 * one instance of it.
+                 *
+                 * The paths still need quoting, but for lftp's own script
+                 * parser -- see _lftpQuote(). The previous code called
+                 * escapeshellarg(), stripped the single quotes it had just
+                 * added and re-wrapped the result in double quotes, which
+                 * threw the escaping away and left `$`, backtick and
+                 * backslash live again.
+                 */
+                $script = "set xfer:log 1; set xfer:log-file "
+                    . self::_lftpQuote($logname) . ";";
+                $script .= "set ftp:list-options -a;set net:max-retries ";
+                $script .= "10;set net:timeout 30; $limit mirror -c --parallel=20 ";
+                $script .= "$opts ";
                 if (!empty($includeFile)) {
-                    $includeFile = escapeshellarg($includeFile);
-                    $includeFile = trim($includeFile, "'");
-                    $includeFile = sprintf(
-                        '"%s"',
-                        $includeFile
-                    );
-                    $cmd .= "$includeFile ";
+                    $script .= self::_lftpQuote($includeFile) . ' ';
                 }
-                $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
-                $cmd .= "$myAddItem $remItem;";
-                $cmd2 = sprintf(
-                    "%s exit' -u $username,[Protected] $ip",
-                    $cmd
+                $script .= "--ignore-time -vvv --exclude \".srvprivate\" ";
+                $script .= self::_lftpQuote($myAddItem)
+                    . ' '
+                    . self::_lftpQuote($remItem)
+                    . ';';
+                $script .= 'exit';
+                $cmd = array(
+                    'lftp',
+                    '-e',
+                    $script,
+                    '-u',
+                    "$username,$password",
+                    $ip
                 );
-                $cmd .= "exit' -u $username,'$password' $ip";
-                self::outall(" | CMD: $cmd2");
+                self::outall(
+                    sprintf(
+                        " | CMD: lftp -e '%s' -u %s,[Protected] %s",
+                        $script,
+                        $username,
+                        $ip
+                    )
+                );
                 unset($includeFile, $remItem, $myAddItem);
                 $this->startTasking(
                     $cmd,
@@ -853,9 +898,38 @@ abstract class FOGService extends FOGBase
         }
     }
     /**
+     * Quotes a value for lftp's own script parser.
+     *
+     * The replication script passed to `lftp -e` is parsed by lftp, not by
+     * a shell, so shell escaping is the wrong tool for it (and was actively
+     * harmful -- see replicate_items). lftp treats a double-quoted string as
+     * one word and honours backslash escapes inside it, so escaping the
+     * backslash and the double quote is sufficient to keep a path with
+     * spaces, quotes or metacharacters from splitting into extra lftp
+     * commands. Introduced with GHSA-2hqx-5ffg-w4c3.
+     *
+     * @param string $value the value to quote
+     *
+     * @return string
+     */
+    protected static function _lftpQuote($value)
+    {
+        return sprintf(
+            '"%s"',
+            str_replace(
+                array('\\', '"'),
+                array('\\\\', '\\"'),
+                (string)$value
+            )
+        );
+    }
+    /**
      * Starts taskings
      *
-     * @param string $cmd      The command to start
+     * @param string|array $cmd The command to start. An array is exec'd
+     *                          directly by proc_open() with no shell,
+     *                          which is how any command built from
+     *                          user-controlled values must be passed.
      * @param string $logname  The name of the log to write to
      * @param int    $index    The index to store tasking reference
      * @param mixed  $itemType The type of the item

@@ -1,0 +1,106 @@
+#!/bin/bash
+#
+# fog-sign-kernel - sign a staged FOS kernel for UEFI Secure Boot.
+#
+# Invoked by the web UI's Kernel Update page through a narrow sudoers rule, so
+# that the signing key can stay root-only. The web server downloads a kernel
+# into the staging directory, calls this, then ships the signed result to the
+# TFTP server -- which may be a remote storage node, which is why the signing
+# has to happen here rather than in place under service/ipxe.
+#
+# SECURITY: this script deliberately takes NO arguments. Every path it touches
+# comes from a root-owned config file, so a compromised web server cannot point
+# it at a key it should not use or a file outside the staging area. Note the
+# limit of that guarantee: the caller does control the *contents* of the staged
+# file, so anyone who can invoke this can have a kernel of their choosing
+# signed. What they cannot do is read the key and sign things elsewhere or
+# later. Closing the remaining gap would mean verifying the staged image
+# against a known-good hash before signing.
+#
+set -u
+
+# GH-850: the FOG base path is installer-driven, so the installer rewrites this
+# line to match $fogprogramdir when it installs the helper. The default below is
+# correct for a stock install and keeps this script runnable straight from the
+# repository.
+#
+# Substituted rather than passed as an argument, because taking no arguments at
+# all is this script's whole security property -- see above. An environment
+# variable would be no better: it puts the path back under the caller's control.
+CONF="/opt/fog/.fog-secureboot"
+
+if [[ ! -r $CONF ]]; then
+    echo "fog-sign-kernel: $CONF is missing or unreadable" >&2
+    exit 1
+fi
+
+# Read one key from the config. Deliberately NOT "source" -- the config is
+# root-owned data, and parsing it as shell would turn any future write access
+# to it into root code execution.
+readconf() {
+    sed -n "s/^$1=//p" "$CONF" | head -1
+}
+
+signKey=$(readconf SECUREBOOT_KEY)
+signCert=$(readconf SECUREBOOT_CERT)
+# The enrolled certificate, which in a split PKI is the issuing intermediate
+# rather than the signer. It has to travel inside the signature (--addcert) or
+# a kernel signed here chains to nothing any endpoint trusts. Falls back to the
+# signing cert, which is what a flat install has always used.
+mokCert=$(readconf SECUREBOOT_MOK_CERT)
+[[ -z $mokCert ]] && mokCert="$signCert"
+stageDir=$(readconf SECUREBOOT_STAGING)
+
+if [[ -z $signKey || -z $signCert || -z $stageDir ]]; then
+    echo "fog-sign-kernel: $CONF is incomplete" >&2
+    exit 1
+fi
+
+staged="${stageDir}/kernel"
+
+if [[ ! -f $staged ]]; then
+    echo "fog-sign-kernel: nothing staged at $staged" >&2
+    exit 1
+fi
+
+# Resolve and re-check: the staged path must still be a regular file directly
+# inside the configured staging directory once symlinks are taken out, so a
+# symlink planted by the web user cannot redirect the write.
+resolved=$(readlink -f "$staged" 2>/dev/null)
+if [[ -z $resolved || $(dirname "$resolved") != "$(readlink -f "$stageDir")" ]]; then
+    echo "fog-sign-kernel: staged file is not inside $stageDir" >&2
+    exit 1
+fi
+if [[ -L $staged ]]; then
+    echo "fog-sign-kernel: staged file must not be a symlink" >&2
+    exit 1
+fi
+
+for f in "$signKey" "$signCert"; do
+    if [[ ! -r $f ]]; then
+        echo "fog-sign-kernel: cannot read $f" >&2
+        exit 1
+    fi
+done
+
+if ! command -v sbsign >/dev/null 2>&1; then
+    echo "fog-sign-kernel: sbsign not installed" >&2
+    exit 1
+fi
+
+addcert=()
+if [[ -n $mokCert && "$(readlink -f "$mokCert" 2>/dev/null)" != "$(readlink -f "$signCert" 2>/dev/null)" ]]; then
+    addcert=(--addcert "$mokCert")
+fi
+if ! sbsign --key "$signKey" --cert "$signCert" "${addcert[@]}" \
+        --output "${resolved}.signed" "$resolved"; then
+    rm -f "${resolved}.signed"
+    echo "fog-sign-kernel: sbsign failed" >&2
+    exit 1
+fi
+
+# Hand the signed image back with the staging directory's ownership so the web
+# user can still read it for upload, but never the key that produced it.
+chown --reference="$resolved" "${resolved}.signed" 2>/dev/null
+mv -f "${resolved}.signed" "$resolved"
+exit 0

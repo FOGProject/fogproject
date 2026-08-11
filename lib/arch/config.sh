@@ -19,6 +19,9 @@
 [[ -z $packageupdater ]] && packageupdater="pacman -Syu --noconfirm"
 [[ -z $packmanUpdate ]] && packmanUpdate="$packageinstaller"
 [[ -z $packageQuery ]] && packageQuery="pacman -Q \$x"
+# Bulk forms of packageQuery/packagelist -- see loadPackageSets.
+pkgQueryAll() { pacman -Qq 2>/dev/null; }
+pkgListAll() { pacman -Slq 2>/dev/null; }
 [[ -z $langPackages ]] && langPackages="iso-codes"
 [[ -z $dhcpname ]] && dhcpname="dhcp"
 if [[ -z $webdirdest ]]; then

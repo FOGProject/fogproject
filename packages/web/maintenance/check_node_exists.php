@@ -22,9 +22,31 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+
+// Restrict to same-machine requests only -- the installer is the only caller
+// and posts here from the server's own IP. Note that, unlike 1.6, this file
+// deliberately does NOT also require the fogverified sentinel: the 1.5
+// installer's wget call at lib/common/functions.sh does not send one, so
+// requiring it here would break node registration on every install.
+$_remoteIp = $_SERVER['REMOTE_ADDR'] ?? '';
+$_serverIp = $_SERVER['SERVER_ADDR'] ?? '';
+if ($_remoteIp !== '127.0.0.1'
+    && $_remoteIp !== '::1'
+    && $_remoteIp !== $_serverIp
+) {
+    http_response_code(403);
+    exit;
+}
+unset($_remoteIp, $_serverIp);
+
+$ip = filter_input(INPUT_POST, 'ip', FILTER_VALIDATE_IP);
+if (!$ip) {
+    http_response_code(400);
+    exit;
+}
 $val = '';
 $exists = FOGCore::getClass('StorageNodeManager')
-    ->exists($_POST['ip'], '', 'ip');
+    ->exists($ip, '', 'ip');
 if ($exists) {
     $val = 'exists';
 }

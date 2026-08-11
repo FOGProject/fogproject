@@ -87,6 +87,9 @@ class SubMenuData extends Hook
                     'license' => self::$foglang['License'],
                     'kernelUpdate' => self::$foglang['KernelUpdate'],
                     'initrdUpdate' => self::$foglang['InitrdUpdate'],
+                    // Sits beside the two things it acts on: Secure Boot
+                    // signing is a property of the kernel this server serves.
+                    'secureBoot' => _('Secure Boot'),
                     'pxemenu' => self::$foglang['PXEBootMenu'],
                     'customizepxe' => self::$foglang['PXEConfiguration'],
                     'newMenu' => self::$foglang['NewMenu'],
