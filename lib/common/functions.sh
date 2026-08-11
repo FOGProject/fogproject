@@ -2776,6 +2776,11 @@ writeUpdateFile() {
         rootCAPem rootCAKey internalDomains internalSubnets sbNameConstraints
         extraServerNames
         secureBootKey secureBootCert secureboot secureBootMokCert
+        # --no-ca-trust, carried forward for exactly the reason secureboot
+        # above is: an admin who declined to have FOG write to this host's
+        # system trust store must not have that decision quietly reversed by
+        # the next upgrade, least of all under -y.
+        catrust
         # GH-964 sibling: what the admin chose for the local firewall
         # (configure/disable/skip). Persisted for the same reason the Secure
         # Boot keys are -- so an upgrade does not quietly undo a deliberate
@@ -3659,6 +3664,115 @@ _createWebLeaf() {
 # a path the admin has to type is worth more than a straight edge.
 _pkiBoxLine() {
     printf "  #%-65s#\n" "$1"
+}
+# Where this host keeps admin-supplied trust anchors, and what re-reads them.
+#
+# Chosen by what the box actually has rather than by $osid. Derivatives disagree
+# with their parent often enough, and $osid is specifically untrustworthy for
+# this: it means Arch on this branch but means Alpine on 1.6 (GH-447), so the
+# value alone does not identify the store layout across the two lines. The
+# layouts are mutually exclusive in practice -- a box has p11-kit's tree or
+# Debian's, not both -- so first match wins.
+#
+# Sets $caTrustDir/$caTrustCmd. Returns 1 when the host has no store to write
+# to, which is a real state (a minimal container without ca-certificates) and
+# not an error.
+_caTrustLayout() {
+    if [[ -d /etc/pki/ca-trust/source/anchors ]] && command -v update-ca-trust >>$error_log 2>&1; then
+        # RHEL/Fedora/Rocky/Alma
+        caTrustDir="/etc/pki/ca-trust/source/anchors"
+        caTrustCmd="update-ca-trust extract"
+    elif [[ -d /etc/ca-certificates/trust-source/anchors ]] && command -v trust >>$error_log 2>&1; then
+        # Arch
+        caTrustDir="/etc/ca-certificates/trust-source/anchors"
+        caTrustCmd="trust extract-compat"
+    elif [[ -d /usr/local/share/ca-certificates ]] && command -v update-ca-certificates >>$error_log 2>&1; then
+        # Debian/Ubuntu/Alpine
+        caTrustDir="/usr/local/share/ca-certificates"
+        caTrustCmd="update-ca-certificates"
+    else
+        return 1
+    fi
+    return 0
+}
+# Anchor this server's own CA in this server's own system trust store.
+#
+# FOG's PKI already reaches every consumer it can address directly: fog-client
+# pins ca.cert.der, iPXE gets the CA compiled into the binary at build time,
+# Secure Boot enrols a MOK. The host's own TLS clients were the gap. curl,
+# wget and PHP's stream wrapper all read the system store, and nothing had ever
+# told that store about the CA this installer mints -- so on the FOG server
+# itself every HTTPS call to the FOG server itself failed to verify, and the
+# callers inside FOG that have no way to pass a --cacert had no route to
+# working verification at all.
+#
+# Explicitly NOT a fix for the admin's browser, which is the thing people
+# actually notice. Firefox carries its own NSS store and Chrome reads a
+# per-user one, so neither consults what this writes -- and the browser is
+# usually on a different machine entirely. That import stays manual.
+#
+# The ROOT is what gets anchored, not the Web intermediate: anchoring the root
+# is what makes the intermediate and every leaf beneath it verify, and it is
+# the same certificate ca.cert.der publishes and fog-client pins, so one
+# certificate describes this server's trust wherever that trust is stated.
+# $rootCAPem unconditionally, unlike 1.6, which has to split the anchor out of
+# a master-issued chain on a storage node -- this line has no node certificate
+# issuance, so every install of either role holds its own root right here.
+#
+# Reads only the certificate, never a key, so it is deliberately placed on the
+# far side of _hardenPkiPermissions.
+_installCATrustAnchor() {
+    local anchor="$rootCAPem" st=0
+    # Default-on, --no-ca-trust to decline, persisted in .fogsettings -- the
+    # same shape as $secureboot, and for the same reason: an opt-out that
+    # reverted on the next upgrade would silently undo a deliberate decision.
+    [[ ${catrust:-1} -eq 1 ]] || return 0
+    [[ -n $anchor && -f $anchor ]] || return 0
+
+    dots "Trusting the FOG CA on this server"
+    if ! _caTrustLayout; then
+        echo "Skipped"
+        echo " * No system trust store was found on this host, so nothing was"
+        echo "   changed. HTTPS calls made ON this server to this server will"
+        echo "   still need the CA passed to them explicitly."
+        return 0
+    fi
+    # Re-encoded through openssl rather than copied, for two reasons. The file
+    # has to be PEM under a .crt name whatever the source was -- Debian's
+    # update-ca-certificates reads *.crt and nothing else -- and parsing it
+    # here rejects a malformed anchor at the point it can be attributed,
+    # instead of at refresh time where the store blames some other certificate.
+    #
+    # Staged through a temp file and moved into place only once openssl is
+    # happy. Whether a failed `openssl x509 -out` leaves an empty file behind
+    # varies by version, and a zero-byte .crt sitting in the anchor directory
+    # would make every later trust-store refresh on this box complain about a
+    # certificate that was never valid. mv within the same directory is atomic,
+    # so a re-run also cannot be caught halfway.
+    #
+    # A fixed destination filename, so --recreate-ca overwrites the previous
+    # anchor rather than leaving the retired CA trusted alongside its
+    # replacement. That is the whole reason this is not named after the CA's
+    # fingerprint or its date.
+    local staged="${caTrustDir}/.fog-server-ca.crt.$$"
+    if openssl x509 -in "$anchor" -out "$staged" >>$error_log 2>&1 && [[ -s $staged ]]; then
+        chmod 0644 "$staged" >>$error_log 2>&1
+        mv -f "$staged" "${caTrustDir}/fog-server-ca.crt" >>$error_log 2>&1 || st=1
+        [[ $st -eq 0 ]] && { $caTrustCmd >>$error_log 2>&1 || st=1; }
+    else
+        st=1
+    fi
+    rm -f "$staged" >>$error_log 2>&1
+    if [[ $st -ne 0 ]]; then
+        # Deliberately not errorStat: that aborts the install, and a server
+        # whose trust store could not be updated is still a working server.
+        echo "Failed"
+        echo " * Could not update the system trust store at ${caTrustDir}."
+        echo "   The install is otherwise fine -- HTTPS calls made on this"
+        echo "   server will need the CA passed to them explicitly."
+        return 0
+    fi
+    echo "Done"
 }
 _hardenPkiPermissions() {
     dots "Restricting private key access"

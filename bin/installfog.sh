@@ -116,11 +116,13 @@ usage() {
     echo -e "\t                        \t\t\t(both are required together)"
     echo -e "\t      --no-secure-boot\t\tDo not generate a Secure Boot signing"
     echo -e "\t                      \t\t\tkey, and leave the FOS kernels unsigned"
+    echo -e "\t      --no-ca-trust\t\tDo not add this server's CA to this"
+    echo -e "\t                   \t\t\tserver's own system trust store"
     exit 0
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,internal-domain:,internal-subnet:,no-sb-name-constraints,extra-server-name:"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,internal-domain:,internal-subnet:,no-sb-name-constraints,extra-server-name:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -348,6 +350,10 @@ while :; do
             ssecureboot=0
             shift
             ;;
+        --no-ca-trust)
+            scatrust=0
+            shift
+            ;;
         --)
             shift 
             break 
@@ -487,6 +493,7 @@ esac
 [[ -n $sextraServerNames ]] && extraServerNames=$sextraServerNames
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
+[[ -n $scatrust ]] && catrust=$scatrust
 
 # Secure Boot signing is opt-in and only meaningful as a pair. Refuse half a
 # pair rather than silently leaving kernels unsigned on a server whose admin
@@ -684,6 +691,10 @@ while [[ -z $blGo ]]; do
                     # is what used to leave the CA private key readable by the
                     # web user. Running it earlier has no effect at all.
                     _hardenPkiPermissions
+                    # Anchors the root, so this host's own curl/wget/PHP can
+                    # verify this host. Reads only $rootCAPem -- no key -- so
+                    # it sits on the far side of the hardening above.
+                    _installCATrustAnchor
                     configureUDPCast
                     installInitScript
                     installFOGServices
@@ -763,6 +774,10 @@ while [[ -z $blGo ]]; do
                     # is what used to leave the CA private key readable by the
                     # web user. Running it earlier has no effect at all.
                     _hardenPkiPermissions
+                    # Anchors the root, so this host's own curl/wget/PHP can
+                    # verify this host. Reads only $rootCAPem -- no key -- so
+                    # it sits on the far side of the hardening above.
+                    _installCATrustAnchor
                     configureUDPCast
                     installInitScript
                     installFOGServices
