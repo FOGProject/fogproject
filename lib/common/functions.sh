@@ -2772,6 +2772,11 @@ writeUpdateFile() {
         mysqldbname installlang storageLocation fogupdateloaded docroot webroot
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
         sslpath backupPath php_ver sslprivkey sendreports
+        # Persisted, or the next upgrade takes the createWebIntermediateCA arm
+        # instead and the admin's own CA quietly stops being the one in use.
+        # extcacert/extcakey/extcaroot come along because the web zone falls
+        # back to them, so a hand-set .fogsettings survives an upgrade too.
+        externalca extcacert extcakey extcaroot
         sslcakey sslcapem sslcachain sslcsr sslpubcert
         rootCAPem rootCAKey internalDomains internalSubnets sbNameConstraints
         extraServerNames
@@ -3143,6 +3148,116 @@ _sbNameConstraints() {
 # for an enterprise PKI to hand out. Signing beneath it would succeed and then
 # fail verification on every client, which is the worst of both outcomes -- so
 # detect it and leave the server exactly as it is instead.
+isCACert() {
+    local crt="$1"
+    if openssl x509 -in "$crt" -noout -ext basicConstraints >/dev/null 2>&1; then
+        openssl x509 -in "$crt" -noout -ext basicConstraints 2>/dev/null | grep -qi "CA:TRUE"
+    else
+        # Older OpenSSL without the -ext option (e.g. some Alpine builds)
+        openssl x509 -in "$crt" -noout -text 2>/dev/null | grep -A1 -i "Basic Constraints" | grep -qi "CA:TRUE"
+    fi
+}
+# Validate the admin-supplied external/intermediate CA and import it into FOG's
+# CA directory. On success sets sslcakey, sslcapem and sslcachain. Hard-fails
+# the install on any validation error.
+#
+# The zone parameter is carried over from 1.6 rather than dropped, even though
+# only the web zone is reachable here (and only the web zone is reachable
+# there): keeping this function identical across the two lines is what makes
+# the next fix to it a straight cherry-pick instead of a re-port. The flat
+# arm's names -- $extcacert/$extcakey/$extcaroot -- are also what the web zone
+# falls back to, so an admin who sets those by hand in .fogsettings is honoured
+# without this branch needing the --external-ca/--ca-* flag family as well.
+validateExternalCA() {
+    local zone="${1:-flat}"
+    local certsrc keysrc rootsrc destdir destcert destkey destchain
+    case $zone in
+        web)
+            certsrc="${webExtCACert:-$extcacert}"; keysrc="${webExtCAKey:-$extcakey}"; rootsrc="${webExtCARoot:-$extcaroot}"
+            destdir="$(_pkiZoneDir web)/ca"; destcert=".fogWebCA.pem"; destkey=".fogWebCA.key"; destchain=".fogWebCAchain.pem"
+            ;;
+        *)
+            certsrc="$extcacert"; keysrc="$extcakey"; rootsrc="$extcaroot"
+            destdir="$(_pkiZoneDir root)/ca"; destcert=".fogCA.pem"; destkey=".fogCA.key"; destchain=".fogCAchain.pem"
+            ;;
+    esac
+    mkdir -p "$destdir" >>$error_log 2>&1
+
+    local f haveSource=1
+    for f in "$certsrc" "$keysrc" "$rootsrc"; do
+        [[ -z $f || ! -r $f ]] && haveSource=0
+    done
+    if [[ $haveSource -eq 0 ]]; then
+        # No readable source files this run; reuse a previously imported CA if present
+        if [[ -e $destdir/$destcert && -e $destdir/$destkey && -e $destdir/$destchain ]]; then
+            sslcakey="$destdir/$destkey"
+            sslcapem="$destdir/$destcert"
+            sslcachain="$destdir/$destchain"
+            return 0
+        fi
+        echo "  External CA is enabled but a required file is missing or unreadable"
+        echo "  and no previously imported CA was found (zone: $zone):"
+        echo "    intermediate cert: ${certsrc:-<unset>}"
+        echo "    intermediate key:  ${keysrc:-<unset>}"
+        echo "    root cert:         ${rootsrc:-<unset>}"
+        echo "  Provide them via the --web-ca-cert/--web-ca-key/--web-ca-root"
+        echo "  options, then re-run the installer."
+        exit 1
+    fi
+    dots "Validating external CA files (${zone})"
+    # The supplied private key must match the supplied intermediate certificate
+    local certmod keymod
+    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log | openssl md5 2>>$error_log)
+    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log | openssl md5 2>>$error_log)
+    if [[ -z $certmod || $certmod != $keymod ]]; then
+        echo "Failed"
+        echo "  The supplied CA private key ($keysrc) does not match the"
+        echo "  supplied CA certificate ($certsrc)."
+        exit 1
+    fi
+    # The supplied intermediate must actually be a CA certificate
+    if ! isCACert "$certsrc"; then
+        echo "Failed"
+        echo "  The supplied certificate ($certsrc) is not a CA certificate"
+        echo "  (basicConstraints CA:TRUE is required)."
+        exit 1
+    fi
+    # The intermediate must chain up to the supplied root
+    if ! openssl verify -CAfile "$rootsrc" "$certsrc" >>$error_log 2>&1; then
+        echo "Failed"
+        echo "  The intermediate CA ($certsrc) does not verify against the"
+        echo "  supplied root CA ($rootsrc)."
+        exit 1
+    fi
+    # Import into the zone's directory so signing and serial files stay writable
+    # and the layout matches the generated case.
+    cp "$certsrc" "$destdir/$destcert" >>$error_log 2>&1
+    cp "$keysrc" "$destdir/$destkey" >>$error_log 2>&1
+    cat "$rootsrc" "$certsrc" > "$destdir/$destchain" 2>>$error_log
+    chmod 600 "$destdir/$destkey" >>$error_log 2>&1
+    # $sslcakey/$sslcapem/$sslcachain name the CA that signs the vhost leaf --
+    # which is what an external CA replaces, and all it replaces. The root that
+    # fog-client pins is $rootCAPem and is not touched here.
+    sslcakey="$destdir/$destkey"
+    sslcapem="$destdir/$destcert"
+    sslcachain="$destdir/$destchain"
+    errorStat $?
+    # If we are replacing the CA on a server that already issued a server cert, warn
+    if [[ $caCreated == yes && -n $sslpubcert && -e $sslpubcert ]] && \
+        ! openssl verify -CAfile "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
+        echo
+        echo "  ###################################################################"
+        echo "  # WARNING: switching this FOG server to an external/intermediate   #"
+        echo "  # CA. The web server certificate and iPXE binaries will be         #"
+        echo "  # regenerated and signed by the new CA. Any host whose fog-client  #"
+        echo "  # already pinned the previous FOG CA will not trust this server    #"
+        echo "  # until it re-pins, and PXE clients must pull the rebuilt iPXE      #"
+        echo "  # binaries. Re-run the fog-client installer and/or reboot PXE       #"
+        echo "  # clients after this install completes.                            #"
+        echo "  ###################################################################"
+        echo
+    fi
+}
 _rootCACanIssue() {
     rootCAIssuer=1
     rootCAIssuerWhy=""
@@ -3981,7 +4096,15 @@ EOF
     [[ -f $commLeafPem ]] && ln -sf "$commLeafPem" "${rootLeafDir}/.srvpublic.crt" >>$error_log 2>&1
 
     # --- Web zone ---------------------------------------------------------
-    if [[ ${rootCAIssuer:-1} -eq 1 ]]; then
+    #
+    # --web-ca-cert/-key/-root target this zone and only this zone: they name
+    # the CA that signs the vhost's leaf. The root, and therefore what
+    # fog-client pins, is untouched by them -- which is what makes it safe to
+    # point a satellite FOG server at a CA issued by another one without
+    # re-pinning a single client.
+    if [[ $externalca == yes ]]; then
+        validateExternalCA web
+    elif [[ ${rootCAIssuer:-1} -eq 1 ]]; then
         createWebIntermediateCA
     else
         # The CA cannot anchor an intermediate. Sign the web certificate

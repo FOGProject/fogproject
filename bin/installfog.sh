@@ -118,11 +118,15 @@ usage() {
     echo -e "\t                      \t\t\tkey, and leave the FOS kernels unsigned"
     echo -e "\t      --no-ca-trust\t\tDo not add this server's CA to this"
     echo -e "\t                   \t\t\tserver's own system trust store"
+    echo -e "\t      --web-ca-cert/-key/-root\tBring your own CA for the WEB zone: the"
+    echo -e "\t                 \t\t\tintermediate that signs this server's vhost"
+    echo -e "\t                 \t\t\tcertificate, its key, and the root it chains"
+    echo -e "\t                 \t\t\tto. All three are required together"
     exit 0
 }
 
 shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,internal-domain:,internal-subnet:,no-sb-name-constraints,extra-server-name:"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,web-ca-cert:,web-ca-key:,web-ca-root:,internal-domain:,internal-subnet:,no-sb-name-constraints,extra-server-name:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -354,6 +358,19 @@ while :; do
             scatrust=0
             shift
             ;;
+        --web-ca-cert | --web-ca-key | --web-ca-root)
+            if [[ ! -f $2 ]]; then
+                echo "$1 requires a readable file after"
+                usage
+                exit 3
+            fi
+            case $1 in
+                --web-ca-cert) swebExtCACert="$2" ;;
+                --web-ca-key)  swebExtCAKey="$2" ;;
+                --web-ca-root) swebExtCARoot="$2" ;;
+            esac
+            shift 2
+            ;;
         --)
             shift 
             break 
@@ -440,6 +457,7 @@ echo "Done"
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
+[[ -z $externalca ]] && externalca="no"
 [[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $tftpAdvOpts ]] && tftpAdvOpts=""
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
@@ -494,6 +512,13 @@ esac
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
 [[ -n $scatrust ]] && catrust=$scatrust
+[[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
+[[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
+[[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
+# Any one of them means "use my CA". Without this an admin who passed the trio
+# would get a silent "nothing happened" failure: a working install signed by
+# FOG's own Web CA, with no error to explain why theirs was ignored.
+[[ -n $webExtCACert || -n $webExtCAKey || -n $webExtCARoot ]] && externalca="yes"
 
 # Secure Boot signing is opt-in and only meaningful as a pair. Refuse half a
 # pair rather than silently leaving kernels unsigned on a server whose admin
