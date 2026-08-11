@@ -3326,11 +3326,20 @@ _collectPkiNames() {
 # shape. $5 carries the zone's own extension lines -- its extendedKeyUsage and,
 # where it applies, its nameConstraints.
 _issueIntermediateCA() {
-    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6"
+    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6" keyOfflineVar="$7"
     local st=0
     mkdir -p "$outdir" >>$error_log 2>&1 || st=1
     chmod 0700 "$outdir" >>$error_log 2>&1
-    [[ -f "${outdir}/${keyfile}" && -f "${outdir}/${certfile}" ]] && return 0
+    # The CERTIFICATE is what defines "this intermediate exists" -- same
+    # reasoning as the root (_resolveRootCA). The key may be legitimately
+    # offline (fog-offline-ca-key --zone secureboot): testing for both would
+    # mint a fresh intermediate -- silently overwriting the one every
+    # already-enrolled client trusts -- the moment an admin took that advice,
+    # on the very next ordinary upgrade.
+    if [[ -f "${outdir}/${certfile}" ]]; then
+        [[ -f "${outdir}/${keyfile}" ]] || { [[ -n $keyOfflineVar ]] && printf -v "$keyOfflineVar" 1; }
+        return 0
+    fi
     # Issuing needs the root's private key. An existing intermediate returns
     # above without ever touching it, which is what makes an offline root
     # workable day to day -- but a NEW one cannot be signed without it.
@@ -3403,7 +3412,7 @@ createWebIntermediateCA() {
     done
     sslcakey="${cadir}/.fogWebCA.key"
     sslcapem="${cadir}/.fogWebCA.pem"
-    if [[ ! -f $sslcakey || ! -f $sslcapem ]]; then
+    if [[ ! -f $sslcapem ]]; then
         dots "Creating FOG Web CA"
         # serverAuth alone. An EKU on a CA constrains what it may issue, which
         # is the whole reason this zone is separable: a web certificate from
@@ -4655,14 +4664,14 @@ createSecureBootIntermediateCA() {
     if [[ ${rootCAIssuer:-1} -ne 1 ]]; then
         return 1
     fi
-    if [[ ! -f "${cadir}/.fogSBCA.key" || ! -f "${cadir}/.fogSBCA.pem" ]]; then
+    if [[ ! -f "${cadir}/.fogSBCA.pem" ]]; then
         dots "Creating FOG Secure Boot CA"
         # codeSigning alone: an EKU on a CA constrains what it may issue, so
         # this intermediate can never mint a server certificate however its
         # leaf is written.
         _issueIntermediateCA "FOG Secure Boot CA" "$cadir" ".fogSBCA.key" ".fogSBCA.pem" \
             "extendedKeyUsage = codeSigning
-$(_sbNameConstraints)" "FOG Secure Boot"
+$(_sbNameConstraints)" "FOG Secure Boot" sbCAKeyOffline
         errorStat $?
     fi
     # A DER sibling of the intermediate, right next to .fogSBCA.pem in the PKI
@@ -4679,6 +4688,19 @@ $(_sbNameConstraints)" "FOG Secure Boot"
         chmod 0644 "${cadir}/.fogSBCA.der" >>$error_log 2>&1
     fi
     if [[ ! -f "${leafdir}/sign.key" || ! -f "${leafdir}/sign.pem" ]]; then
+        # Signing a leaf needs the Secure Boot CA's own key, same as a new
+        # intermediate needs the root's -- say so rather than letting openssl
+        # fail on a missing file, since the fix is the same shape: restore the
+        # key, re-run, take it back offline.
+        if [[ ${sbCAKeyOffline:-0} -eq 1 ]]; then
+            echo " * Cannot issue the Secure Boot code-signing certificate: the"
+            echo "   Secure Boot CA private key is not on this server (only"
+            echo "   ${cadir}/.fogSBCA.pem is present)."
+            echo " * Restore it to:"
+            echo "     ${cadir}/.fogSBCA.key"
+            echo "   re-run the installer, then move it back to your vault."
+            return 1
+        fi
         dots "Creating Secure Boot code signing certificate"
         mkdir -p "$leafdir" >>$error_log 2>&1 || st=1
         chmod 0700 "$leafdir" >>$error_log 2>&1
