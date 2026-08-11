@@ -141,8 +141,21 @@ if ($recorded && $recorded !== $remoteIP) {
 }
 // A DNS name is required -- see the note in fog-sign-node-cert about OpenSSL
 // falling back to the subject CN when a certificate carries none. A node
-// registered only by IP has no hostname on record, so derive one by reverse
-// lookup and fall back to the master's own domain if that fails.
+// registered only by IP has no hostname on record, so derive one: reverse DNS
+// first, then the node's own Name.
+//
+// The Name fallback is what the 409 below has always told admins to do, but
+// until now nothing read that field -- only $node->get('ip') was consulted, so
+// following the advice changed nothing and the request 409'd again. Taking the
+// hint literally is the smaller fix: a lab or an air-gapped segment often has
+// no PTR records at all, and requiring reverse DNS there means node
+// certificates simply cannot be issued.
+//
+// Name is the fallback rather than the primary source because it is free text
+// an admin can set to anything, where a PTR is at least asserted by whoever
+// runs DNS. It is bounded twice regardless: FILTER_VALIDATE_DOMAIN here, and
+// the issuing CA's own nameConstraints, which make fog-sign-node-cert reject a
+// name outside its permitted subtrees rather than issue for it.
 $haveDns = false;
 foreach ($names as $entry) {
     if (strpos($entry, 'DNS:') === 0) {
@@ -154,6 +167,16 @@ if (!$haveDns) {
     $ptr = gethostbyaddr($remoteIP);
     if ($ptr && $ptr !== $remoteIP && filter_var($ptr, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
         $names[] = 'DNS:' . $ptr;
+        $haveDns = true;
+    }
+}
+if (!$haveDns) {
+    // Deliberately not folded into the block above: a second IP SAN from the
+    // recorded address would make a count()-based test read as "we have a
+    // name" when every entry is still an address.
+    $nodeName = trim((string) $node->get('name'));
+    if ($nodeName && filter_var($nodeName, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        $names[] = 'DNS:' . $nodeName;
     } else {
         nodecertRespond(
             409,
