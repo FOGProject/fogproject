@@ -123,23 +123,45 @@ rather than on the far server.
 Each run writes `/root/fog-web-cas/<short>-webca.tar.gz` containing
 `webca.pem`, `webca.key`, `fog-root.pem`.
 
-### 2. Install on each server
+### 2. Copy the bundle to each server
+
+The bundle sits under `/root` because it carries a CA private key. Push it from
+the hub rather than pulling it — `sshd` ships `PermitRootLogin
+prohibit-password` on most distributions, and an unprivileged account cannot
+write to `/root` on the far end either, so the obvious
+`scp root@<hub>:/root/... /root/` fails at both ends with nothing more
+informative than `Permission denied`:
 
 ```bash
-scp root@<hub>:/root/fog-web-cas/<short>-webca.tar.gz /root/
-cd /root && tar -xzf <short>-webca.tar.gz
+# on the hub
+sudo cp /root/fog-web-cas/<short>-webca.tar.gz ~/
+sudo chown $USER: ~/<short>-webca.tar.gz
+scp ~/<short>-webca.tar.gz <you>@<far-server>:~/
+rm -f ~/<short>-webca.tar.gz
+```
+
+### 3. Install on each server
+
+```bash
+# on the far server
+sudo mkdir -p /root/webca
+sudo tar -xzf ~/<short>-webca.tar.gz -C /root/webca
 
 cd ~/fogproject/bin
-sudo ./installfog.sh --web-ca-cert /root/webca.pem \
-                     --web-ca-key  /root/webca.key \
-                     --web-ca-root /root/fog-root.pem
+sudo ./installfog.sh --web-ca-cert /root/webca/webca.pem \
+                     --web-ca-key  /root/webca/webca.key \
+                     --web-ca-root /root/webca/fog-root.pem
 ```
+
+Unpacking as root keeps `webca.key` unreadable to other accounts; it stays on
+this server permanently, so where it lands matters. Remove the tarball from your
+home directory afterwards.
 
 `--external-ca` is not needed; any one of the three implies it. You pass these
 **once** — the files are imported into the web zone and later upgrades reuse the
 import without the flags.
 
-### 3. Anchor the hub root wherever you need it
+### 4. Anchor the hub root wherever you need it
 
 One certificate now covers every server. On a Linux client:
 
