@@ -794,6 +794,9 @@ msgstr "抓取"
 msgid "Captured"
 msgstr "已抓取"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
@@ -5759,6 +5762,9 @@ msgstr "这是现在推荐使用的安装程序"
 
 msgid "This is useful in the case of slow links between"
 msgstr "在连接速度较慢的情况下，这很有用"
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr "此项目允许您按照自己的意愿编辑所有 iPXE 菜单项"

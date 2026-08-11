@@ -917,6 +917,9 @@ msgstr "Create"
 msgid "Captured"
 msgstr "Created"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
@@ -6561,6 +6564,9 @@ msgid "This is the recommended installer to use now"
 msgstr "This is the recommended installer to use now. It can be used on Windows, Linux, and Mac OS X."
 
 msgid "This is useful in the case of slow links between"
+msgstr ""
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"

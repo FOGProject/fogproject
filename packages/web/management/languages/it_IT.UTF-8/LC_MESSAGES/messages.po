@@ -819,6 +819,9 @@ msgstr "Catturare"
 msgid "Captured"
 msgstr "Catturato"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
@@ -5911,6 +5914,9 @@ msgstr "Questo è il programma di installazione consigliato da utilizzare ora"
 
 msgid "This is useful in the case of slow links between"
 msgstr "Questo è utile nel caso di legami lenti tra"
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr "Questa voce consente di modificare tutte le voci di menu iPXE"

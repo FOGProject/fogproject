@@ -784,6 +784,9 @@ msgstr "キャプチャ"
 msgid "Captured"
 msgstr "キャプチャ済み"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
@@ -5732,6 +5735,9 @@ msgstr "現在はこちらのインストーラーの使用を推奨します"
 
 msgid "This is useful in the case of slow links between"
 msgstr "これは拠点間の通信速度が遅い場合に便利です"
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr "ここでは iPXE メニュー項目を編集できます"

@@ -912,6 +912,9 @@ msgstr "Upload"
 msgid "Captured"
 msgstr "Erstellt"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
@@ -6564,6 +6567,9 @@ msgstr "Dies ist der empfohlene Installer. "
 
 msgid "This is useful in the case of slow links between"
 msgstr "Das ist nützlich bei langsamen Verbindungen"
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr "Mit diesem Element können Sie alle iPXE-Menülemente "
