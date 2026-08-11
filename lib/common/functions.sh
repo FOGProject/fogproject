@@ -4955,6 +4955,76 @@ _resolveWebLeafPaths() {
 # stays online. The historic test here was `[[ ! -x $sslpubcert ]]`, true of
 # every certificate ever written, so the leaf was re-signed on every single run
 # -- harmless while one key did every job, fatal once the signer can be offline.
+# Build what the web server must actually SEND, which is not the same file as
+# the leaf.
+#
+# The vhost was pointed at $sslpubcert alone. That is correct only while the
+# leaf is signed by the root directly -- one certificate is a complete chain to
+# a trusted anchor. The moment an intermediate sits in between (FOG's own Web
+# CA, or one supplied with --web-ca-cert), a client that trusts the root still
+# cannot build a path to it, because the intermediate is neither in its trust
+# store nor on the wire. It fails as "unable to get local issuer certificate",
+# which reads exactly like the CA was never installed.
+#
+# $sslcachain holds root+intermediate, in that order, and is deliberately NOT
+# what gets served: TLS wants leaf-first ordering, and the root is pointless on
+# the wire because a client that does not already have it will not trust it for
+# being sent. So two files are derived here:
+#
+#   $sslfullchain   leaf + intermediates      -- nginx's ssl_certificate
+#   $sslchainonly   intermediates only        -- Apache's SSLCertificateChainFile
+#
+# Apache gets the separate-file form rather than a concatenated
+# SSLCertificateFile because concatenation needs httpd >= 2.4.8 and this
+# installer still supports distros shipping 2.4.6, where it silently serves
+# only the first certificate -- the exact bug this function exists to fix.
+#
+# Both stay empty when there is no intermediate, and the callers fall back to
+# $sslpubcert, so a direct-signed server emits byte-identical config to before.
+_writeWebChainFiles() {
+    local leafdir block subj issuer
+    sslfullchain=""
+    sslchainonly=""
+    [[ -n $sslpubcert && -f $sslpubcert ]] || return 0
+    [[ -n $sslcachain && -f $sslcachain ]] || return 0
+
+    leafdir="$(_pkiZoneDir web)/leaf"
+    mkdir -p "$leafdir" >>$error_log 2>&1
+    local chainonly="${leafdir}/.webChain.pem"
+    local fullchain="${leafdir}/.webFullChain.pem"
+    : > "$chainonly"
+
+    # Every certificate in the chain file except self-signed ones. A self-signed
+    # certificate in here is the root, and it is the one thing that must not be
+    # sent. Splitting on the PEM boundary rather than trusting the file's order,
+    # because validateExternalCA and createWebIntermediateCA both write it
+    # root-first while an admin-supplied chain may be in any order at all.
+    local tmpd f
+    tmpd=$(mktemp -d) || return 0
+    awk -v d="$tmpd" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
+        "$sslcachain" 2>>$error_log
+    for f in "$tmpd"/c*.pem; do
+        [[ -f $f ]] || continue
+        subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+        issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+        [[ -z $subj ]] && continue
+        # -subject prints "subject=..." and -issuer "issuer=...", so compare the
+        # values rather than the whole line.
+        [[ ${subj#subject=} == "${issuer#issuer=}" ]] && continue
+        cat "$f" >> "$chainonly"
+    done
+    rm -rf "$tmpd" >>$error_log 2>&1
+
+    if [[ ! -s $chainonly ]]; then
+        rm -f "$chainonly" >>$error_log 2>&1
+        return 0
+    fi
+    cat "$sslpubcert" "$chainonly" > "$fullchain" 2>>$error_log || return 0
+    chmod 0644 "$chainonly" "$fullchain" >>$error_log 2>&1
+    sslchainonly="$chainonly"
+    sslfullchain="$fullchain"
+    return 0
+}
 _createWebLeaf() {
     local webdir leafdir stamp want st=0
     webdir="$(_pkiZoneDir web)"
@@ -5275,6 +5345,7 @@ EOF
     fi
     _resolveWebLeafPaths
     _createWebLeaf
+    _writeWebChainFiles
 
     # Canonical paths. FOG's own consumers -- the vhost, sbsign, certDecrypt --
     # only ever reference the canonical location, so the real file may live
@@ -5422,7 +5493,10 @@ EOF
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
                         echo "    ssl_dhparam ${sslpath}/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
-                        echo "    ssl_certificate $sslpubcert;" >> "$etcconf"
+                        # nginx has no separate chain directive -- ssl_certificate must BE the
+                        # concatenation. Falls back to the bare leaf when nothing sits between
+                        # it and the root.
+                        echo "    ssl_certificate ${sslfullchain:-$sslpubcert};" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
@@ -5516,7 +5590,10 @@ EOF
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
                         echo "    ssl_dhparam ${sslpath}/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
-                        echo "    ssl_certificate $sslpubcert;" >> "$etcconf"
+                        # nginx has no separate chain directive -- ssl_certificate must BE the
+                        # concatenation. Falls back to the bare leaf when nothing sits between
+                        # it and the root.
+                        echo "    ssl_certificate ${sslfullchain:-$sslpubcert};" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
@@ -5689,6 +5766,11 @@ EOF
                         echo "    SSLSessionTickets Off" >> "$etcconf"
                         echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                        # Separate file rather than concatenating into SSLCertificateFile:
+                        # concatenation needs httpd >= 2.4.8 and this installer still
+                        # supports 2.4.6, which would silently serve only the first
+                        # certificate -- the exact failure this is here to fix.
+                        [[ -n $sslchainonly ]] && echo "    SSLCertificateChainFile $sslchainonly" >> "$etcconf"
                         echo "    SSLCACertificateFile $sslcachain" >> "$etcconf"
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
@@ -5787,6 +5869,11 @@ EOF
                         echo "    SSLSessionTickets Off" >> "$etcconf"
                         echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                        # Separate file rather than concatenating into SSLCertificateFile:
+                        # concatenation needs httpd >= 2.4.8 and this installer still
+                        # supports 2.4.6, which would silently serve only the first
+                        # certificate -- the exact failure this is here to fix.
+                        [[ -n $sslchainonly ]] && echo "    SSLCertificateChainFile $sslchainonly" >> "$etcconf"
                         echo "    SSLCACertificateFile $sslcachain" >> "$etcconf"
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
