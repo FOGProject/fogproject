@@ -440,13 +440,49 @@ registerStorageNode() {
     # unset. Every fallback in this file now matches the installer's.
     [[ -z $webroot ]] && webroot="/fog/"
     dots "Checking if this node is registered"
-    storageNodeExists=$(curl -X POST -d "ip=${ipaddress}" -d "fogverified" -kL ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php -o -)
+    # -s: without it curl draws its progress meter straight into the installer's
+    # own output, so this step used to print two lines of transfer statistics in
+    # the middle of the dotted "Checking if this node is registered....." line.
+    storageNodeExists=$(curl -s -X POST -d "ip=${ipaddress}" -d "fogverified" -kL ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php -o -)
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        curl -s -k -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php
-        echo "Done"
+        # -L and a status check, neither of which this call used to have while
+        # the existence check right above it already followed redirects.
+        #
+        # Both post to THIS node's own web tier, which writes to the master's
+        # database. Anything that makes that web tier answer with a redirect
+        # therefore swallows the registration whole: the POST lands on the 3xx,
+        # nothing reaches create_update_node.php, and the unconditional "Done"
+        # below reported success anyway. That is exactly what a storage node
+        # under SELinux did before fog.te grew its mysqld_port_t rule -- the
+        # node could not read the master's database, so every page including
+        # this one 308'd to ?node=schema, the node never registered, and the
+        # first visible symptom was the master refusing it a certificate much
+        # later with "no storage node is registered at <ip>".
+        #
+        # Not fatal: the node's shares, services and FTP are already configured
+        # by this point, and registering by hand in the web UI is a normal
+        # recovery. Same choice _installNodeWebCert() makes when the master
+        # declines to issue -- say plainly what failed, then carry on.
+        regstatus=$(curl -s -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php)
+        case $regstatus in
+            2*)
+                echo "Done"
+                ;;
+            *)
+                echo "Failed"
+                echo " * ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php"
+                echo "   answered HTTP ${regstatus:-000}, so this node did not register"
+                echo "   itself with the master and will not appear in Storage Management."
+                echo " * Add it by hand there, or fix the cause and re-run this installer."
+                echo "   A redirect (3xx) here usually means this node's own web tier"
+                echo "   cannot reach the master's database and is bouncing every request"
+                echo "   to the schema page -- check for SELinux denials with:"
+                echo "     ausearch -m avc -ts recent"
+                ;;
+        esac
     else
         echo " * Node is registered"
     fi
