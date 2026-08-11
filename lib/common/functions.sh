@@ -5349,11 +5349,21 @@ EOF
     # Written unconditionally, unlike historically: the web leaf's CSR is built
     # from it on any run where the name set changed, not only on the run that
     # first created a key.
+    # prompt = no, not yes. Under "prompt = yes" OpenSSL reads the right-hand
+    # side of each [req_distinguished_name] entry as the PROMPT TEXT and then
+    # demands a value on stdin for every field. That was survivable while CN was
+    # the only entry -- the heredoc below fed exactly one line -- but once O and
+    # OU were added there were three prompts and still one line, so O and OU hit
+    # EOF and openssl aborted with "Error making certificate request". It only
+    # ever showed on a FRESH install, because this whole block is guarded on
+    # .srvprivate.key not already existing, which is why upgrades never hit it.
+    # With prompt = no the values below are taken literally, which is what they
+    # were always meant to be.
     cat > $sslpath/req.cnf << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
-prompt = yes
+prompt = no
 [req_distinguished_name]
 CN = $certip
 O = FOG Project
@@ -5390,9 +5400,11 @@ EOF
         # part of the wire framing, not a tunable.
         [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]] && \
             openssl genrsa -out $sslpath/.srvprivate.key 4096 >>$error_log 2>&1
-        openssl req -new -sha512 -key $sslpath/.srvprivate.key -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
-$certip
-EOF
+        # No heredoc: req.cnf is prompt = no, so every DN value comes from the
+        # config and openssl reads nothing from stdin. Feeding it a line here
+        # would be dead input, and it was the mismatch between that one line and
+        # the number of prompted fields that broke fresh installs.
+        openssl req -new -sha512 -key $sslpath/.srvprivate.key -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1
         errorStat $?
     fi
     _createCommLeaf
