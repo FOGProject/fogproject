@@ -176,6 +176,60 @@ signing, which is why `fog-sign-node-cert`'s own `openssl verify` step is what
 catches this. The third line is the CA's declared boundary working as intended:
 a node in a domain the admin never listed still needs `--internal-domain`.
 
+#### Live confirmation
+
+A sixth node — Rocky 9.6, `fognode1.lan` at `10.255.30.41`, no PTR record — was
+built and installed against the 1.6 master at `10.255.20.1` with all five fixes
+in place. It is the first stock storage-node install in this campaign to finish
+holding a certificate.
+
+```
+ * Checking if this node is registered.........................Done
+ * Node being registered as fognode1.lan.......................Done
+ * Requesting a web certificate from the master................Done
+```
+
+The record on the master, and the certificate on the node:
+
+```
+id=7  name=fognode1.lan  ip=10.255.30.41  enabled=1
+
+subject=CN=fognode1.lan, O=FOG Project, OU=FOG Web UI
+issuer =CN=FOG Web CA,   O=FOG Project, OU=FOG Web UI
+X509v3 Subject Alternative Name: IP Address:10.255.30.41, DNS:fognode1.lan
+X509v3 Extended Key Usage: TLS Web Server Authentication
+X509v3 Basic Constraints: critical CA:FALSE
+
+openssl verify -CAfile .nodeChain.pem .webLeaf.pem   ->  OK
+```
+
+httpd is serving that leaf (`SSLCertificateFile /opt/fog/pki/web/leaf/.webLeaf.pem`),
+and the master logged the issuance:
+
+```
+FOG nodecert: issued a web certificate to storage node 10.255.30.41
+              for IP:10.255.30.41, DNS:fognode1.lan
+```
+
+Note the name came from `hostname -f`: `.fogsettings` was seeded without a
+`hostname` entry, so this is the upgrade path where `$hostname` is unset — the
+case that would have silently fallen back to the address before.
+
+Three further checks against the live master:
+
+- **Legacy nodes.** Renaming the record to `10.255.30.41` and re-requesting
+  returns `HTTP 409` with `its Storage Node name ("10.255.30.41") is not usable
+  as one`, instead of the old `500` about name constraints. Renaming it back and
+  replaying the identical request returns `200` with
+  `names: ['IP:10.255.30.41', 'DNS:fognode1.lan']` and a leaf that verifies — so
+  the remedy the message names is the remedy that works.
+- **Collision guard**, run against the master's real rows: a posted
+  `fognode1.lan` or `debian` (both taken) falls back to the address; `fognode2.lan`
+  (free) is accepted. No node can take a name that would rewrite another's row.
+- **Idempotency.** A second installer run reports `Node is registered`, emits no
+  certificate request at all, and leaves the leaf's serial and `notBefore`
+  unchanged. Neither guard re-fires on upgrade.
+
 ---
 
 
