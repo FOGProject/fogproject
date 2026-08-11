@@ -297,6 +297,11 @@ Each zone is independently replaceable.
 `--external-ca`/`--ca-cert`/`--ca-key`/`--ca-root` still work and target the
 **Web** zone, which is what they have always effectively meant.
 
+To point *several independent FOG servers* at one trust anchor — separate
+installs, not storage nodes — see
+[MULTI_SERVER_CA.md](MULTI_SERVER_CA.md), which covers this flag set applied
+across a fleet and the alternatives to it.
+
 **The Client Communication zone is not replaceable this way, deliberately.**
 It is anchored at the certificate every fog-client has pinned, so replacing it
 means re-deploying trust to every registered machine. That is possible — push

@@ -1,0 +1,206 @@
+#!/bin/bash
+#
+#  FOG is a computer imaging solution.
+#  Copyright (C) 2007  Chuck Syperski & Jian Zhang
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#    any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Issue a Web CA for ANOTHER FOG server from this server's root.
+#
+# The case this exists for: several independent FOG installs -- not storage
+# nodes, separate servers with their own databases -- that an admin wants to
+# roll up to a single trust anchor, so one certificate in a browser or a system
+# trust store covers all of them instead of one per server.
+#
+# Storage nodes do NOT need this. A node asks the master for its certificate
+# automatically (see fog-sign-node-cert and docs/PKI_ZONES.md); this is for
+# servers that have no such relationship.
+#
+# Why a script rather than a documented openssl invocation: the permitted name
+# set is easy to get wrong in a way that is invisible until the far server's
+# web tier refuses to start. _defaultServerNames() puts `fogserver` and
+# `fog-server` on EVERY FOG leaf whatever the host is called, so a CA
+# constrained to only the satellite's own hostname cannot sign the certificate
+# it was minted for. This gets that right, and refuses to emit a CA whose
+# constraints would reject its own server's certificate.
+
+set -u
+
+CONF="/opt/fog/.fogsettings"
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <hostname> <ip> [extra-dns-name ...]
+
+Issues a name-constrained Web CA for the FOG server at <hostname>/<ip>, signed
+by THIS server's root, and writes a tarball holding the three files that
+server's installer needs.
+
+  <hostname>          the far server's hostname, exactly as \`hostname\` reports
+                      it there. It goes into the certificate's name constraints,
+                      so a guess that does not match will produce a CA that
+                      cannot sign that server's certificate.
+  <ip>                the far server's IP address.
+  extra-dns-name ...  any additional names that server is installed with
+                      (--extra-server-name / --internal-domain). Omitting one
+                      means its certificate will not verify.
+
+Install the result on the far server with:
+
+  tar -xzf <short>-webca.tar.gz
+  ./installfog.sh --web-ca-cert webca.pem \\
+                  --web-ca-key  webca.key \\
+                  --web-ca-root fog-root.pem
+
+Environment overrides: ROOT_CERT, ROOT_KEY, OUTDIR.
+See docs/MULTI_SERVER_CA.md for the full procedure and the alternatives.
+EOF
+}
+
+[[ ${1:-} == -h || ${1:-} == --help ]] && { usage; exit 0; }
+[[ $# -ge 2 ]] || { usage; exit 1; }
+
+host="$1"; ip="$2"; shift 2
+extras=("$@")
+
+[[ $EUID -eq 0 ]] || { echo "This must be run as root -- the root CA key is root-only by design." >&2; exit 1; }
+
+# .fogsettings is the source of truth for where this install keeps things, the
+# same as it is for the installer and for fog-offline-ca-key. Sourcing it rather
+# than hardcoding /opt/fog is what makes this work on a server installed with
+# --fogprogramdir.
+if [[ -r $CONF ]]; then
+    # shellcheck disable=SC1090
+    . "$CONF"
+elif [[ -r /etc/fog/fog.conf ]]; then
+    . /etc/fog/fog.conf
+    [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
+fi
+: "${fogprogramdir:=/opt/fog}"
+: "${sslpath:=${fogprogramdir}/snapins/ssl}"
+
+# $rootCAKey is never persisted to .fogsettings -- installfog.sh re-derives it
+# every run -- so this falls to the canonical path, the same as fog-offline-ca-key.
+ROOT_CERT="${ROOT_CERT:-${rootCAPem:-${sslpath}/CA/.fogCA.pem}}"
+ROOT_KEY="${ROOT_KEY:-${rootCAKey:-${fogprogramdir}/pki/root/ca/.fogCA.key}}"
+OUTDIR="${OUTDIR:-/root/fog-web-cas}"
+
+[[ -r $ROOT_CERT ]] || { echo "Cannot read the root certificate at ${ROOT_CERT}" >&2; exit 1; }
+if [[ ! -r $ROOT_KEY ]]; then
+    echo "Cannot read the root private key at ${ROOT_KEY}" >&2
+    echo "If it is offline (fog-offline-ca-key), restore it, run this, then take it away again." >&2
+    exit 1
+fi
+
+# A root carrying pathlen:0 cannot anchor an intermediate. Signing anyway would
+# produce a CA that verifies nowhere, which is the failure the installer's own
+# _rootCACanIssue() exists to avoid -- so refuse here for the same reason.
+if openssl x509 -in "$ROOT_CERT" -noout -ext basicConstraints 2>/dev/null | grep -q "pathlen:0"; then
+    echo "Refusing to continue: the root at ${ROOT_CERT} carries pathlen:0," >&2
+    echo "which forbids any CA beneath it. Nothing signed by it would verify." >&2
+    exit 1
+fi
+
+short="${host%%.*}"
+work="$(mktemp -d)" || exit 1
+trap 'rm -rf "$work"' EXIT
+mkdir -p "$OUTDIR" || exit 1
+chmod 0700 "$OUTDIR"
+
+# The permitted name set. `fogserver` and `fog-server` are NOT optional:
+# _defaultServerNames() puts both on every FOG leaf regardless of hostname, so a
+# CA that cannot sign them cannot sign the certificate it exists for.
+#
+# The parent domain is deliberately NOT granted. "fog2.lan" would grant DNS:lan
+# -- the whole .lan space -- and this key lives on a satellite server, so the
+# blast radius if it is stolen is exactly what these constraints bound. The FQDN
+# and the short name are both permitted, which is all _defaultServerNames emits
+# unless the admin added names, and those are what the extra arguments are for.
+perm=""
+add_dns() { [[ -n ${1:-} ]] && perm="${perm},permitted;DNS:$1"; }
+add_dns "$host"
+[[ $short != "$host" ]] && add_dns "$short"
+add_dns fogserver
+add_dns fog-server
+for e in ${extras+"${extras[@]}"}; do add_dns "$e"; done
+perm="${perm},permitted;IP:${ip}/255.255.255.255"
+perm="${perm},permitted;IP:127.0.0.0/255.0.0.0"
+
+cat > "$work/int.cnf" <<EOF
+[ req ]
+distinguished_name = req_dn
+prompt             = no
+
+[ req_dn ]
+CN = FOG Web CA - ${host}
+O  = FOG Project
+OU = FOG Web CA
+
+[ v3_int ]
+basicConstraints = critical,CA:TRUE,pathlen:0
+keyUsage         = critical,keyCertSign,cRLSign
+subjectKeyIdentifier = hash
+nameConstraints  = critical${perm}
+EOF
+
+st=0
+openssl genrsa -out "$work/webca.key" 4096 2>/dev/null || st=1
+openssl req -new -sha512 -key "$work/webca.key" -out "$work/webca.csr" \
+    -config "$work/int.cnf" 2>/dev/null || st=1
+# 30 years, matching _issueIntermediateCA: an intermediate is a CA too, and
+# renewing it means re-issuing the leaf beneath it, not a routine rotation.
+openssl x509 -req -in "$work/webca.csr" -CA "$ROOT_CERT" -CAkey "$ROOT_KEY" \
+    -CAcreateserial -sha512 -days 10950 -extensions v3_int \
+    -extfile "$work/int.cnf" -out "$work/webca.pem" 2>/dev/null || st=1
+[[ $st -eq 0 ]] || { echo "Failed to issue the intermediate." >&2; exit 1; }
+
+openssl verify -CAfile "$ROOT_CERT" "$work/webca.pem" >/dev/null 2>&1 || {
+    echo "The issued intermediate does not verify against ${ROOT_CERT}." >&2
+    exit 1
+}
+
+# Prove the constraints permit the certificate the far server will actually
+# build for itself, rather than discovering it there as a web tier that will not
+# start. This is the check that makes the script worth having.
+probe_sans="IP:${ip},DNS:${host},DNS:fogserver,DNS:fog-server"
+[[ $short != "$host" ]] && probe_sans="${probe_sans},DNS:${short}"
+for e in ${extras+"${extras[@]}"}; do probe_sans="${probe_sans},DNS:${e}"; done
+openssl req -newkey rsa:2048 -nodes -keyout "$work/probe.key" -out "$work/probe.csr" \
+    -subj "/CN=${host}" 2>/dev/null
+printf 'subjectAltName=%s\n' "$probe_sans" > "$work/probe.ext"
+openssl x509 -req -in "$work/probe.csr" -CA "$work/webca.pem" -CAkey "$work/webca.key" \
+    -CAcreateserial -days 1 -extfile "$work/probe.ext" -out "$work/probe.pem" 2>/dev/null
+cat "$ROOT_CERT" "$work/webca.pem" > "$work/probe-chain.pem"
+if ! openssl verify -CAfile "$work/probe-chain.pem" "$work/probe.pem" >/dev/null 2>&1; then
+    echo "Refusing to emit this CA: a certificate carrying the names that server" >&2
+    echo "will actually request does not verify under it." >&2
+    echo "  names probed: ${probe_sans}" >&2
+    echo "Check <hostname> matches what that server reports, and pass any" >&2
+    echo "--extra-server-name/--internal-domain values as extra arguments." >&2
+    exit 1
+fi
+
+cp "$ROOT_CERT" "$work/fog-root.pem"
+chmod 0600 "$work/webca.key"
+chmod 0644 "$work/webca.pem" "$work/fog-root.pem"
+tar -C "$work" -czf "${OUTDIR}/${short}-webca.tar.gz" webca.pem webca.key fog-root.pem || exit 1
+chmod 0600 "${OUTDIR}/${short}-webca.tar.gz"
+
+echo "Issued: CN=FOG Web CA - ${host}"
+echo "  bundle:   ${OUTDIR}/${short}-webca.tar.gz"
+echo "  permits:  ${perm#,}"
+echo
+echo "Copy it to ${host}, then there:"
+echo "  tar -xzf ${short}-webca.tar.gz"
+echo "  ./installfog.sh --web-ca-cert webca.pem --web-ca-key webca.key --web-ca-root fog-root.pem"
