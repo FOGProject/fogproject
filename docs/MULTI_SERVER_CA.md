@@ -231,6 +231,21 @@ and then skipped reissue because the *names* had not changed — a clean install
 that changed nothing. The signing CA is now part of that check. On a version
 with the fix, the next run reissues once by itself.
 
+**The leaf on disk is correct but the server still sends the old one.**
+Check for two FOG vhosts in one file:
+
+```bash
+grep -c '^<VirtualHost \*:443>' /etc/apache2/sites-available/001-fog.conf
+```
+
+A `2` means the install upgraded across the introduction of the FOG-managed
+vhost block while that migration still appended rather than replaced, so FOG's
+previous vhost is sitting above the managed one — and the first matching vhost
+is the one the web server uses. Update the installer and run it again; it
+detects and removes the stale copy by itself now. `openssl x509 -in
+"$(grep -oP "(?<=^sslpubcert=').*(?=')" /opt/fog/.fogsettings)" -noout -issuer`
+is what tells you the leaf itself was fine all along.
+
 **The far server's web tier will not start, or its certificate does not
 verify.** Its leaf carries a name the CA does not permit. Every FOG leaf
 includes `fogserver` and `fog-server` regardless of hostname, plus the host's

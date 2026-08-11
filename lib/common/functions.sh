@@ -5187,7 +5187,9 @@ spliceManagedBlock() {
             k == e          { print; skip=0; next }
             !skip           { print }
         ' "$conffile" > "$tmp" && mv -f "$tmp" "$conffile"
-        return $?
+        local st=$?
+        [[ $st -eq 0 ]] && dropShadowingVhosts "$conffile" "$contentfile"
+        return $st
     fi
     # Neither marker -> pre-marker file, FOG owned all of it, replace it whole.
     if ! grep -qF "$FOG_MANAGED_BEGIN" "$conffile" && ! grep -qF "$FOG_MANAGED_END" "$conffile"; then
@@ -5196,6 +5198,81 @@ spliceManagedBlock() {
     fi
     # Exactly one marker: damaged or hand-edited. Append, change nothing else.
     { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } >> "$conffile"
+}
+# Repairs a vhost that already carries a stale FOG block OUTSIDE the markers.
+#
+# The fix one branch up stops this happening, but only for a file that has not
+# been through it yet. Installs that ran between the marker system landing and
+# that fix already have FOG's previous vhost sitting above the managed block,
+# and a file in that state has both markers -- so the splice above replaces the
+# managed block correctly and walks straight past the stale copy, forever.
+# Apache serves the first matching <VirtualHost *:443> and nginx the first
+# matching server{}, so the stale copy wins: the install goes on serving
+# whatever paths it carried (old certificates, an old webroot) with nothing
+# anywhere reporting an error. Left alone, no future run ever clears it.
+#
+# The removal is deliberately narrow. Only a block that CLAIMS A NAME THE
+# MANAGED BLOCK ALSO CLAIMS is dropped -- a name collision FOG's block is meant
+# to win, so the block being removed could not have been serving anyway. An
+# admin's own vhost for some other name is untouched, and the caller's
+# $etcconf.$timestamp backup holds the file as it was either way.
+#
+# Keyed on names rather than on a FOG-specific signature line because the
+# generated vhost's contents have changed repeatedly across releases, while
+# "this block answers for the address FOG was installed on" has not.
+dropShadowingVhosts() {
+    local conffile="$1" contentfile="$2" tmp="${conffile}.fogshadow.$$" names
+    # ServerName/ServerAlias (Apache) and server_name (nginx) in one sweep --
+    # the file is only ever one of the two, so there is nothing to disambiguate.
+    names=$(awk '{
+                     d = tolower($1)
+                     if (d != "servername" && d != "serveralias" && d != "server_name") next
+                     for (i = 2; i <= NF; i++) { t = $i; sub(/;$/, "", t); if (t != "") print t }
+                 }' "$contentfile" | sort -u | tr '\n' ' ')
+    [[ -z $names ]] && return 0
+    awk -v b="$FOG_MANAGED_BEGIN" -v e="$FOG_MANAGED_END" -v names="$names" '
+        function claims(line,   d, i, t) {
+            d = tolower($1)
+            if (d != "servername" && d != "serveralias" && d != "server_name") return 0
+            for (i = 2; i <= NF; i++) { t = $i; sub(/;$/, "", t); if (t in want) return 1 }
+            return 0
+        }
+        function flush() {
+            if (!hit) printf "%s", buf
+            buf = ""; depth = 0; hit = 0
+        }
+        BEGIN { n = split(names, nm, " "); for (i = 1; i <= n; i++) if (nm[i] != "") want[nm[i]] = 1 }
+        { k = $0; sub(/[ \t\r]+$/, "", k) }
+        k == b { inblk = 1; print; next }
+        k == e { inblk = 0; print; next }
+        inblk  { print; next }
+        depth == 0 && /^[ \t]*<VirtualHost/     { depth = 1; apache = 1; buf = $0 "\n"; next }
+        depth == 0 && /^[ \t]*server[ \t]*\{/   { depth = 1; apache = 0; buf = $0 "\n"; next }
+        depth == 0                              { print; next }
+        {
+            buf = buf $0 "\n"
+            if (claims($0)) hit = 1
+            if (apache) { if ($0 ~ /<\/VirtualHost>/) flush() }
+            else {
+                depth += gsub(/\{/, "{")
+                depth -= gsub(/\}/, "}")
+                if (depth <= 0) flush()
+            }
+        }
+        # An unterminated block means the file was already malformed. Keep it
+        # rather than silently swallowing the tail.
+        END { if (buf != "") printf "%s", buf }
+    ' "$conffile" > "$tmp" || { rm -f "$tmp"; return 0; }
+    # Only swap it in if something was actually removed and the result is not
+    # empty -- an empty result would mean the parse went wrong, not that the
+    # file was all shadow.
+    if [[ -s "$tmp" ]] && ! cmp -s "$tmp" "$conffile"; then
+        mv -f "$tmp" "$conffile"
+        echo "  Removed a stale FOG vhost left outside the managed block in $conffile"
+    else
+        rm -f "$tmp"
+    fi
+    return 0
 }
 # Redirects the vhost generation that follows into a scratch file, so the ~260
 # existing `>> "$etcconf"` lines below need no edit at all: they keep writing
