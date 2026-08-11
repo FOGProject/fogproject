@@ -3279,12 +3279,22 @@ _installNodeCertSigner() {
         echo " * Could not set the config path in $helper."
         return 0
     fi
+    # The Secure Boot pair is written only when that CA actually exists, the
+    # same way the Web pair above is gated by this function's early return.
+    # Without the guard these were emitted unconditionally, so a server that
+    # never minted a Secure Boot CA -- one running an admin-supplied MOK, or one
+    # whose root cannot anchor an intermediate -- still advertised signing
+    # issuance through sudo and answered every request with a 500 from the
+    # helper. Naming a file that is not there is not a capability.
+    local sbca="$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem"
     {
         echo "PKI_WEB_CA_CERT=${sslcapem}"
         echo "PKI_WEB_CA_KEY=${sslcakey}"
         echo "PKI_ROOT_CERT=${rootCAPem}"
-        echo "PKI_SB_CA_CERT=$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem"
-        echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
+        if [[ -f $sbca ]]; then
+            echo "PKI_SB_CA_CERT=${sbca}"
+            echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
+        fi
         echo "PKI_STAGING=${stagedir}"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1
@@ -3309,6 +3319,13 @@ _installNodeCertSigner() {
         echo "Failed"
         echo " * Refusing to install an invalid sudoers rule; storage nodes will"
         echo "   keep generating their own self-signed certificates."
+    fi
+    # Said here, where the admin is the only one who can act on it, rather than
+    # left for a node to discover as a 500 during its own install. Web issuance
+    # is unaffected -- this server simply cannot sign kernels for a node.
+    if [[ ! -f $sbca ]]; then
+        echo " * No Secure Boot CA on this server, so storage nodes can be"
+        echo "   issued web certificates but not code-signing ones."
     fi
     # After this function's own Done/Failed, never before. setSELinuxContext
     # prints its own dots()/OK pair, so calling it between our dots() and our
