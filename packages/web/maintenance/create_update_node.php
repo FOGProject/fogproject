@@ -50,10 +50,52 @@ foreach ((array)$_POST as $key => &$val) {
     );
     unset($val);
 }
-$name = $ip = $stripped['ip'] ?? '';
+/**
+ * Decides what a self-registering node is called in Storage Management.
+ *
+ * The posted name used to be discarded outright -- this file did
+ * `$name = $ip = $stripped['ip']`, so the installer's `name=` field had no
+ * effect and every node was called after its own address. That is the reason a
+ * storage node could not be issued a certificate: nodecert.php builds the SAN
+ * from this record, and a Name that is an IP literal produces "DNS:10.0.0.5",
+ * which matches no DNS subtree in the Web CA's name constraints.
+ *
+ * The address stays the fallback, so a node that offers nothing usable ends up
+ * exactly where it used to be rather than unregistered.
+ *
+ * ngmMemberName is UNIQUE (schema step 1551) and FOGController::save() inserts
+ * with ON DUPLICATE KEY UPDATE, so accepting a name another node already holds
+ * would not fail -- it would quietly rewrite that node's row with this one's
+ * address and paths. Hostnames are not unique across a fleet the way addresses
+ * are (two default RHEL installs are both `localhost.localdomain`), so the name
+ * is checked for a collision before it is taken, not assumed to be free.
+ *
+ * @param string $posted Name the node asked to be registered under.
+ * @param string $ip     The node's address, used when the name is unusable.
+ *
+ * @return string
+ */
+function nodeRegistrationName($posted, $ip)
+{
+    $posted = trim((string) $posted);
+    if ($posted === ''
+        || filter_var($posted, FILTER_VALIDATE_IP)
+        || !filter_var($posted, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+        || preg_match('/^localhost(\..*)?$/i', $posted)
+    ) {
+        return $ip;
+    }
+    if (FOGCore::getClass('StorageNodeManager')->exists($posted, 0, 'name')) {
+        return $ip;
+    }
+    return $posted;
+}
+
+$ip = $stripped['ip'] ?? '';
 $user = $stripped['user'] ?? '';
 $pass = $stripped['pass'] ?? '';
 if (isset($_POST['newNode'])) {
+    $name = nodeRegistrationName($stripped['name'] ?? '', $ip);
     $path       = $stripped['path'] ?? '';
     $ftppath    = $stripped['ftppath'] ?? '';
     $sslpath    = $stripped['sslpath'] ?? '';

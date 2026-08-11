@@ -2311,6 +2311,48 @@ function fogBindScrollerAutosize() {
     setTimeout(fogSizeAllScrollers, 0);
   });
 }
+// DataTables' default errMode alerts "DataTables warning: table id=X - Ajax
+// error" and then throws away the only thing that would explain it. That text
+// names neither the status nor the reason, so a report of it arrives with
+// nothing to act on -- and the server's own answer (a 404 from
+// FOGPage::objectNotFound, a 406 carrying a SQLSTATE, a 403, a proxy timeout)
+// is discarded by the browser before anybody reads it. Two separate bug
+// reports have now been narrowed by hand purely because this alert says
+// nothing.
+//
+// The replacement shows what the server actually said and logs the whole
+// untruncated response to the console, so the next report carries its own
+// diagnosis. Only the Ajax half is changed: a DataTables error with no request
+// behind it (a column-count mismatch, say -- see registerExportTable) still
+// reports its original message.
+$.fn.dataTable.ext.errMode = function(settings, helpPage, message) {
+  var xhr = settings ? settings.jqXHR : null,
+    tableId = (settings && settings.sTableId) ? settings.sTableId : 'table',
+    detail = '';
+
+  if (xhr) {
+    if (xhr.responseJSON && xhr.responseJSON.error) {
+      detail = xhr.responseJSON.error;
+    } else if (xhr.responseText) {
+      // Truncated for the toast only; the console below keeps all of it. An
+      // HTML error page is worth showing the first line of -- it is usually
+      // the one that names the failure.
+      detail = $.trim(xhr.responseText).substring(0, 300);
+    }
+    detail = 'HTTP ' + xhr.status
+      + (detail ? ' - ' + detail : ' (empty response body)');
+  }
+
+  if (window.console && console.error) {
+    console.error('FOG: table "' + tableId + '" failed to load', {
+      dataTablesMessage: message,
+      status: xhr ? xhr.status : null,
+      response: xhr ? (xhr.responseJSON || xhr.responseText) : null
+    });
+  }
+
+  $.notify(tableId, detail || message, 'error');
+};
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
 

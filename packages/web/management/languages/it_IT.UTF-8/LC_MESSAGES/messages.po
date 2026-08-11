@@ -884,6 +884,10 @@ msgstr ""
 msgid "CA Path"
 msgstr "Percorso"
 
+#, fuzzy
+msgid "CA private key"
+msgstr "Chiave privata non è riuscita"
+
 msgid "CPU Cache"
 msgstr "cache della CPU"
 
@@ -1055,11 +1059,18 @@ msgstr "Sistema seriale"
 msgid "Case Version"
 msgstr "Ultima versione"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
 msgid "Certificate Verification"
+msgstr "Crea nuova posizione"
+
+#, fuzzy
+msgid "Certificates"
 msgstr "Crea nuova posizione"
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
@@ -2020,6 +2031,9 @@ msgstr "FOG non è in grado di comunicare con il database"
 
 msgid "FOG server defaulting under the folder"
 msgstr "server FOG per default nella cartella"
+
+msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
@@ -3624,6 +3638,9 @@ msgstr "È un"
 msgid "It can no longer be joined"
 msgstr ""
 
+msgid "It is restricted to root, which protects it from a compromise of this web application but not from a compromise of the machine. Moving it to a vault is a separate step:"
+msgstr ""
+
 msgid "It must be between 3 and 50 characters."
 msgstr ""
 
@@ -4392,6 +4409,10 @@ msgstr ""
 msgid "No"
 msgstr "Nodo"
 
+#, php-format
+msgid "No %1$s exists with ID %2$s"
+msgstr ""
+
 #, fuzzy
 msgid "No Action"
 msgstr "Azione"
@@ -4619,6 +4640,10 @@ msgid "Not Available"
 msgstr "Non disponibile"
 
 #, fuzzy
+msgid "Not Found"
+msgstr "File Icona non trovato"
+
+#, fuzzy
 msgid "Not Installed"
 msgstr "plugin installati"
 
@@ -4646,6 +4671,9 @@ msgstr "Non sincronizzare l'immagine"
 
 msgid "Not syncing Snapin"
 msgstr "Non sincronizzazione gli Snapin"
+
+msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
+msgstr ""
 
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
@@ -5227,6 +5255,10 @@ msgid "Private key path not found"
 msgstr "Percorso chiave privata non trovata"
 
 #, fuzzy
+msgid "Private keys are readable by the web server"
+msgstr "chiave privata non leggibile"
+
+#, fuzzy
 msgid "Product Key"
 msgstr "Host Product Key"
 
@@ -5276,6 +5308,9 @@ msgid "RX"
 msgstr "RX"
 
 msgid "Re-Transmit Hello Interval"
+msgstr ""
+
+msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
 msgstr ""
 
 #, fuzzy
@@ -5498,6 +5533,9 @@ msgstr "Riga"
 msgid "Running Windows"
 msgstr "Running Windows"
 
+msgid "SHA-256"
+msgstr ""
+
 msgid "SQL Error"
 msgstr "Errore SQL:"
 
@@ -5621,6 +5659,9 @@ msgid "Second paramater must be in [class,function]"
 msgstr ""
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot CA private key"
 msgstr ""
 
 msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
@@ -6635,6 +6676,9 @@ msgstr "Un host già esiste con questo nome!"
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
 
+msgid "That is the recommended state. Restore it only to issue a new intermediate or a certificate for a new storage node, then move it back."
+msgstr ""
+
 msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
 msgstr ""
 
@@ -6653,6 +6697,14 @@ msgstr ""
 
 msgid "The CA certificate path must be absolute"
 msgstr ""
+
+#, fuzzy
+msgid "The CA private key is not on this server"
+msgstr "Non ci sono gruppi su questo server"
+
+#, fuzzy
+msgid "The CA private key is on this server"
+msgstr "Non ci sono gruppi su questo server"
 
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
@@ -6709,6 +6761,9 @@ msgstr "Il file caricato supera upload_max_filesize"
 
 msgid "The uploaded file was only partially uploaded"
 msgstr "Il file caricato è stato solo parzialmente caricato"
+
+msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
+msgstr ""
 
 msgid "There are"
 msgstr "Ci sono"
@@ -6792,6 +6847,9 @@ msgid "This is the amount of physical disk space"
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
+msgstr ""
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
 #, fuzzy
@@ -6937,6 +6995,9 @@ msgstr "Memoria totale"
 
 msgid "Transmit"
 msgstr "Trasmettere"
+
+msgid "Trust anchor"
+msgstr ""
 
 msgid "Trusted Node CIDRs"
 msgstr ""
@@ -7488,8 +7549,14 @@ msgstr "Siamo il nome del nodo"
 msgid "We cannot connect to LDAP server"
 msgstr "Non è possibile connettersi al server LDAP"
 
+msgid "Web CA private key"
+msgstr ""
+
 msgid "Web Server"
 msgstr "Server web"
+
+msgid "Web server private key"
+msgstr ""
 
 msgid "Weekly"
 msgstr "settimanalmente"
@@ -8117,6 +8184,9 @@ msgstr ""
 
 msgid "previous install if needed"
 msgstr "installazione precedente se necessario"
+
+msgid "published as ca.cert.der and pinned by every fog-client"
+msgstr ""
 
 msgid "re-run the installer and check the installation log for a key generation or signing failure"
 msgstr ""
@@ -8801,10 +8871,6 @@ msgstr ""
 
 #~ msgid "There are no locations on this server"
 #~ msgstr "Non ci sono posizioni su questo server"
-
-#, fuzzy
-#~ msgid "There are no ous on this server"
-#~ msgstr "Non ci sono gruppi su questo server"
 
 #, fuzzy
 #~ msgid "There are no roles or user groups to map to yet."

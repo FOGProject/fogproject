@@ -936,6 +936,10 @@ msgstr ""
 msgid "CA Path"
 msgstr "Camino"
 
+#, fuzzy
+msgid "CA private key"
+msgstr "clave privada fracasó"
+
 msgid "CPU Cache"
 msgstr "caché de la CPU"
 
@@ -1111,11 +1115,18 @@ msgstr "sistema de serie"
 msgid "Case Version"
 msgstr "Versión del sistema"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
 msgid "Certificate Verification"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Certificates"
 msgstr "Crear nuevo grupo"
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
@@ -2130,6 +2141,9 @@ msgid "FOG is unable to communicate with the database"
 msgstr ""
 
 msgid "FOG server defaulting under the folder"
+msgstr ""
+
+msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -3853,6 +3867,9 @@ msgstr ""
 msgid "It can no longer be joined"
 msgstr ""
 
+msgid "It is restricted to root, which protects it from a compromise of this web application but not from a compromise of the machine. Moving it to a vault is a separate step:"
+msgstr ""
+
 msgid "It must be between 3 and 50 characters."
 msgstr ""
 
@@ -4679,6 +4696,10 @@ msgstr ""
 msgid "No"
 msgstr "Modelo"
 
+#, php-format
+msgid "No %1$s exists with ID %2$s"
+msgstr ""
+
 #, fuzzy
 msgid "No Action"
 msgstr "Acción"
@@ -4925,6 +4946,10 @@ msgid "Not Available"
 msgstr "No disponible"
 
 #, fuzzy
+msgid "Not Found"
+msgstr "Icono de archivo no encontrado"
+
+#, fuzzy
 msgid "Not Installed"
 msgstr "Instalador inteligente (recomendado)"
 
@@ -4952,6 +4977,9 @@ msgid "Not syncing Image"
 msgstr ""
 
 msgid "Not syncing Snapin"
+msgstr ""
+
+msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
 
 #, fuzzy
@@ -5568,6 +5596,10 @@ msgid "Private key path not found"
 msgstr "ruta de la clave privada no encontrado"
 
 #, fuzzy
+msgid "Private keys are readable by the web server"
+msgstr "clave privada no se puede leer"
+
+#, fuzzy
 msgid "Product Key"
 msgstr "Clave del producto Grupo"
 
@@ -5616,6 +5648,9 @@ msgid "RX"
 msgstr "RX"
 
 msgid "Re-Transmit Hello Interval"
+msgstr ""
+
+msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
 msgstr ""
 
 #, fuzzy
@@ -5853,6 +5888,9 @@ msgstr "Fila"
 msgid "Running Windows"
 msgstr "ejecutando la versión"
 
+msgid "SHA-256"
+msgstr ""
+
 #, fuzzy
 msgid "SQL Error"
 msgstr "Error"
@@ -5985,6 +6023,9 @@ msgid "Second paramater must be in [class,function]"
 msgstr ""
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot CA private key"
 msgstr ""
 
 msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
@@ -7091,6 +7132,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
 
+msgid "That is the recommended state. Restore it only to issue a new intermediate or a certificate for a new storage node, then move it back."
+msgstr ""
+
 msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
 msgstr ""
 
@@ -7109,6 +7153,14 @@ msgstr ""
 
 msgid "The CA certificate path must be absolute"
 msgstr ""
+
+#, fuzzy
+msgid "The CA private key is not on this server"
+msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+msgid "The CA private key is on this server"
+msgstr "No hay grupos en este servidor."
 
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
@@ -7170,6 +7222,9 @@ msgstr "El archivo subido excede la directiva upload_max_filesize en php.ini"
 
 msgid "The uploaded file was only partially uploaded"
 msgstr "El archivo subido se ha subido sólo parcialmente"
+
+msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
+msgstr ""
 
 #, fuzzy
 msgid "There are"
@@ -7257,6 +7312,9 @@ msgid "This is the amount of physical disk space"
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
+msgstr ""
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
 #, fuzzy
@@ -7399,6 +7457,9 @@ msgid "Total Memory"
 msgstr "Memoria total"
 
 msgid "Transmit"
+msgstr ""
+
+msgid "Trust anchor"
 msgstr ""
 
 msgid "Trusted Node CIDRs"
@@ -7978,8 +8039,14 @@ msgstr ""
 msgid "We cannot connect to LDAP server"
 msgstr "Error: No se pudo descargar kernel"
 
+msgid "Web CA private key"
+msgstr ""
+
 msgid "Web Server"
 msgstr "Servidor web"
+
+msgid "Web server private key"
+msgstr ""
 
 msgid "Weekly"
 msgstr "Semanal"
@@ -8645,6 +8712,9 @@ msgid "present"
 msgstr ""
 
 msgid "previous install if needed"
+msgstr ""
+
+msgid "published as ca.cert.der and pinned by every fog-client"
 msgstr ""
 
 msgid "re-run the installer and check the installation log for a key generation or signing failure"
@@ -9335,10 +9405,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "There are no locations on this server"
-#~ msgstr "No hay grupos en este servidor."
-
-#, fuzzy
-#~ msgid "There are no ous on this server"
 #~ msgstr "No hay grupos en este servidor."
 
 #, fuzzy

@@ -141,8 +141,21 @@ if ($recorded && $recorded !== $remoteIP) {
 }
 // A DNS name is required -- see the note in fog-sign-node-cert about OpenSSL
 // falling back to the subject CN when a certificate carries none. A node
-// registered only by IP has no hostname on record, so derive one by reverse
-// lookup and fall back to the master's own domain if that fails.
+// registered only by IP has no hostname on record, so derive one: reverse DNS
+// first, then the node's own Name.
+//
+// The Name fallback is what the 409 below has always told admins to do, but
+// until now nothing read that field -- only $node->get('ip') was consulted, so
+// following the advice changed nothing and the request 409'd again. Taking the
+// hint literally is the smaller fix: a lab or an air-gapped segment often has
+// no PTR records at all, and requiring reverse DNS there means node
+// certificates simply cannot be issued.
+//
+// Name is the fallback rather than the primary source because it is free text
+// an admin can set to anything, where a PTR is at least asserted by whoever
+// runs DNS. It is bounded twice regardless: FILTER_VALIDATE_DOMAIN here, and
+// the issuing CA's own nameConstraints, which make fog-sign-node-cert reject a
+// name outside its permitted subtrees rather than issue for it.
 $haveDns = false;
 foreach ($names as $entry) {
     if (strpos($entry, 'DNS:') === 0) {
@@ -154,12 +167,38 @@ if (!$haveDns) {
     $ptr = gethostbyaddr($remoteIP);
     if ($ptr && $ptr !== $remoteIP && filter_var($ptr, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
         $names[] = 'DNS:' . $ptr;
+        $haveDns = true;
+    }
+}
+if (!$haveDns) {
+    // Deliberately not folded into the block above: a second IP SAN from the
+    // recorded address would make a count()-based test read as "we have a
+    // name" when every entry is still an address.
+    $nodeName = trim((string) $node->get('name'));
+    // An IP literal is excluded explicitly, and is the case that matters: every
+    // node registered by an installer older than the fix in
+    // create_update_node.php is named after its own address. FILTER_VALIDATE_DOMAIN
+    // accepts "10.0.0.5" as a hostname -- the labels are legal -- so without this
+    // test the request goes on to be signed with DNS:10.0.0.5 and then dies at
+    // fog-sign-node-cert's verify step with "a requested name is probably outside
+    // the CA's name constraints", which says nothing about what to do. Failing
+    // here instead gives the admin the one instruction that fixes it.
+    if ($nodeName
+        && !filter_var($nodeName, FILTER_VALIDATE_IP)
+        && filter_var($nodeName, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+    ) {
+        $names[] = 'DNS:' . $nodeName;
     } else {
         nodecertRespond(
             409,
             [
-                'error' => 'this node has no resolvable hostname; give it one in '
-                    . 'DNS, or set its Storage Node name to a hostname, then retry'
+                'error' => sprintf(
+                    'this node has no resolvable hostname, and its Storage Node '
+                    . 'name (%s) is not usable as one. Give it a PTR record in '
+                    . 'DNS, or rename it to a hostname in Storage Management, '
+                    . 'then retry.',
+                    $nodeName === '' ? 'unset' : '"' . $nodeName . '"'
+                )
             ]
         );
     }

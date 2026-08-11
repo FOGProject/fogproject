@@ -191,13 +191,15 @@ usage() {
     echo -e "\t                        \t\t\t(both are required together)"
     echo -e "\t      --no-secure-boot\t\tDo not generate a Secure Boot signing"
     echo -e "\t                      \t\t\tkey, and leave the FOS kernels unsigned"
+    echo -e "\t      --no-ca-trust\t\tDo not add this server's CA to this"
+    echo -e "\t                   \t\t\tserver's own system trust store"
     exit 0
 }
 
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -492,6 +494,10 @@ while :; do
             ssecureboot=0
             shift
             ;;
+        --no-ca-trust)
+            scatrust=0
+            shift
+            ;;
         --netboot-proto)
             case $2 in
                 http|https) snetbootproto="$2" ;;
@@ -756,6 +762,7 @@ esac
 [[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
 [[ -n $ssecureboot ]] && secureboot=$ssecureboot
+[[ -n $scatrust ]] && catrust=$scatrust
 [[ -n $skernelBackupCount ]] && kernelBackupGenerations=$skernelBackupCount
 # Applied here, after .fogsettings is sourced, so an explicit flag beats a
 # persisted value and a persisted value beats the computed default.
@@ -1033,6 +1040,9 @@ while [[ -z $blGo ]]; do
                     if [[ $bluseralreadyexists == 1 ]]; then
                         # Already registered, so the master will answer.
                         _installNodeWebCert
+                        # After it, not before: on a node the anchor is pulled
+                        # out of the chain that call is what fetches.
+                        _installCATrustAnchor
                         echo
                         echo "\n * Upgrade complete\n"
                         echo
@@ -1043,6 +1053,9 @@ while [[ -z $blGo ]]; do
                         # it already knows, and this is the first point in a
                         # fresh node install where that is true.
                         _installNodeWebCert
+                        # After it, not before: on a node the anchor is pulled
+                        # out of the chain that call is what fetches.
+                        _installCATrustAnchor
                         [[ -n $snmysqlhost ]] && fogserver=$snmysqlhost || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
@@ -1117,6 +1130,11 @@ while [[ -z $blGo ]]; do
                     # sudoers rule is the only route the web tier has to the
                     # CA keys rather than one of two.
                     _installNodeCertSigner
+                    # Anchors the root the two calls above have just finished
+                    # settling, so this host's own curl/wget/PHP can verify
+                    # this host. Reads only $rootCAPem -- no key -- so it is
+                    # deliberately on the far side of _hardenPkiPermissions.
+                    _installCATrustAnchor
                     configureUDPCast
                     installInitScript
                     installFOGServices

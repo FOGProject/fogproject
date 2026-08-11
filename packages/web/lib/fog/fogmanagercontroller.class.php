@@ -252,10 +252,29 @@ abstract class FOGManagerController extends FOGBase
         ) {
             return $limit;
         }
+        // Both values are clamped, because neither is ours: they come straight
+        // off a DataTables POST. Scroller derives `start` from the scroll
+        // position of the virtual viewport, and on a table it cannot measure --
+        // one with no rows, or still hidden inside an unopened tab -- that
+        // arithmetic goes negative. It arrives here as `LIMIT -1, 50`, which is
+        // a SQL syntax error, so the grid's own AJAX call answers 406 with a
+        // raw SQLSTATE body and DataTables reports the only thing visible from
+        // the browser: "Ajax error". That is the whole of the message an admin
+        // gets, on a tab whose only distinguishing feature is that it is empty.
+        //
+        // A negative start means the first page. A negative length is the same
+        // defect with the "all rows" sentinel already returned above, so
+        // anything else negative is nonsense and is read as unbounded rather
+        // than built into `LIMIT 0, -5`.
+        $start = intval($request['start']);
+        $length = intval($request['length']);
+        if ($length < 0) {
+            return $limit;
+        }
         $limit = "LIMIT "
-            . intval($request['start'])
+            . max(0, $start)
             . ", "
-            . intval($request['length']);
+            . $length;
         return $limit;
     }
     /**

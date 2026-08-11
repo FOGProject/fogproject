@@ -277,6 +277,16 @@ uninstallFOG() {
         dots "Removing SSL CA"
         rm -rf "${sslpath:?}" >>$error_log 2>&1
         errorStat $?
+        # Tied to purge-ssl rather than run unconditionally: the anchor is only
+        # stale once the CA it names is actually gone. A plain uninstall keeps
+        # the CA precisely so a reinstall picks it back up, and revoking trust
+        # in a CA that is about to be reused would just be undone next run.
+        if _caTrustLayout && [[ -f ${caTrustDir}/fog-server-ca.crt ]]; then
+            dots "Untrusting the FOG CA on this server"
+            rm -f "${caTrustDir}/fog-server-ca.crt" >>$error_log 2>&1
+            $caTrustCmd >>$error_log 2>&1
+            errorStat $?
+        fi
     fi
     # Left until last: the account owns the paths above, so removing it first
     # would leave them orphaned mid-run if something failed.

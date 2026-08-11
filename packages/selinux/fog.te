@@ -1,4 +1,4 @@
-module fog 1.1.0;
+module fog 1.2.0;
 
 ########################################################################
 #
@@ -11,9 +11,10 @@ module fog 1.1.0;
 #
 # 1. OUTBOUND CONNECTIONS
 #
-# FOG's web tier makes three kinds of outbound connection: HTTP to itself
+# FOG's web tier makes four kinds of outbound connection: HTTP to itself
 # and to storage nodes, FTP to storage nodes for image and snapin
-# replication, and SSH (via php-pecl-ssh2) for node management. Under
+# replication, SSH (via php-pecl-ssh2) for node management, and MySQL to
+# the master's database when this machine is a storage node. Under
 # SELinux, httpd_t is not permitted any of them by default.
 #
 # The usual answer is `setsebool -P httpd_can_network_connect on`. That
@@ -123,6 +124,7 @@ require {
     type http_port_t;
     type ftp_port_t;
     type ssh_port_t;
+    type mysqld_port_t;
     attribute file_type;
     attribute non_security_file_type;
     attribute non_auth_file_type;
@@ -160,6 +162,35 @@ allow httpd_t ftp_port_t:tcp_socket name_connect;
 # installer.
 #
 allow httpd_t ssh_port_t:tcp_socket name_connect;
+
+#
+# MySQL: a STORAGE NODE's web tier talking to the MASTER's database.
+#
+# Easy to miss, because it is invisible on the install type most people
+# have. A master's database is local, so its web tier reaches it over the
+# unix socket and never needs a port grant. A storage node has no database
+# of its own -- config.class.php points DATABASE_HOST at the master -- so
+# every request it serves opens a TCP connection to another machine.
+#
+# Without this rule, under enforcing, that connect() is denied and the
+# failure is thoroughly misleading rather than obviously a denial:
+# PDODB throws, DatabaseManager::_getVersion() leaves $mySchema at 0,
+# schemaNeedsDeploy() reads 0 as "behind" (deliberately -- see the comment
+# on it in fogbase.class.php), and so EVERY page on the node 308-redirects
+# to ?node=schema. That includes maintenance/create_update_node.php, which
+# is how a node registers itself, so the node silently never registers and
+# then cannot be issued a certificate because the master has no record of
+# it. Nothing in FOG's own logs says "SELinux"; the installer's own
+# "Checking connection to master database" passes, because that check runs
+# from the shell and not from the confined php-fpm.
+#
+# mysqld_port_t rather than httpd_can_network_connect_db: the boolean also
+# grants httpd_t every other database port type in the policy (postgresql,
+# redis, mongod, and so on) on every FOG server, including masters that
+# have no reason to reach any database over TCP at all. This grants one
+# port type, and only the nodes that need it use it.
+#
+allow httpd_t mysqld_port_t:tcp_socket name_connect;
 
 ########################################################################
 # FOG's shared content type: /images, the capture directory, and snapins.

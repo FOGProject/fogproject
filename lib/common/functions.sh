@@ -434,19 +434,94 @@ checkDatabaseConnection() {
     fi
     errorStat $connected
 }
+# The name this node registers itself under in Storage Management.
+#
+# It used to be the node's IP address, which made the record's Name useless for
+# the one thing it is now needed for. A storage node has no certificate of its
+# own until the master issues one, and the master builds that certificate's SAN
+# from its record of the node -- reverse DNS first, then the Name. A Name that
+# is an IP literal yields "DNS:10.0.0.5", which is not a name: it matches no DNS
+# subtree in the Web CA's nameConstraints, so the certificate signs, fails
+# `openssl verify` inside fog-sign-node-cert, and the node is told only that
+# "a requested name is probably outside the CA's name constraints".
+#
+# Derived here rather than from $hostname alone because $hostname is set in
+# lib/common/input.sh, and a node install driven from a seeded .fogsettings runs
+# the installer's UPGRADE path, which never sources it -- the same gap that
+# leaves osid unrecoverable there. `hostname -f` is asked directly so the value
+# does not depend on which path got us here.
+#
+# Anything that cannot serve as a certificate name falls back to the address,
+# which is exactly the old behaviour. Rejected: an empty value, an IP literal,
+# localhost (the RHEL/Rocky minimal default, and identical on every node), and
+# anything outside the hostname grammar fog-sign-node-cert enforces.
+_nodeRegistrationName() {
+    local n
+    for n in "$hostname" "$(hostname -f 2>/dev/null)" "$(hostname 2>/dev/null)"; do
+        n="${n%.}"
+        [[ -z $n ]] && continue
+        [[ $n =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] && continue
+        [[ ${n,,} == localhost || ${n,,} == localhost.* ]] && continue
+        [[ $n =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]] || continue
+        echo "$n"
+        return 0
+    done
+    echo "$ipaddress"
+}
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
     # the two disagreed about where the app lives whenever webroot arrived
     # unset. Every fallback in this file now matches the installer's.
     [[ -z $webroot ]] && webroot="/fog/"
     dots "Checking if this node is registered"
-    storageNodeExists=$(curl -X POST -d "ip=${ipaddress}" -d "fogverified" -kL ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php -o -)
+    # -s: without it curl draws its progress meter straight into the installer's
+    # own output, so this step used to print two lines of transfer statistics in
+    # the middle of the dotted "Checking if this node is registered....." line.
+    storageNodeExists=$(curl -s -X POST -d "ip=${ipaddress}" -d "fogverified" -kL ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php -o -)
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
-        dots "Node being registered"
-        curl -s -k -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php
-        echo "Done"
+        # See _nodeRegistrationName: registering under a hostname rather than an
+        # address is what lets the master put a usable DNS name in this node's
+        # certificate. The master still has the last word -- it keeps the address
+        # as the Name if this one is unusable or already taken.
+        nodeRegName=$(_nodeRegistrationName)
+        dots "Node being registered as ${nodeRegName}"
+        # -L and a status check, neither of which this call used to have while
+        # the existence check right above it already followed redirects.
+        #
+        # Both post to THIS node's own web tier, which writes to the master's
+        # database. Anything that makes that web tier answer with a redirect
+        # therefore swallows the registration whole: the POST lands on the 3xx,
+        # nothing reaches create_update_node.php, and the unconditional "Done"
+        # below reported success anyway. That is exactly what a storage node
+        # under SELinux did before fog.te grew its mysqld_port_t rule -- the
+        # node could not read the master's database, so every page including
+        # this one 308'd to ?node=schema, the node never registered, and the
+        # first visible symptom was the master refusing it a certificate much
+        # later with "no storage node is registered at <ip>".
+        #
+        # Not fatal: the node's shares, services and FTP are already configured
+        # by this point, and registering by hand in the web UI is a normal
+        # recovery. Same choice _installNodeWebCert() makes when the master
+        # declines to issue -- say plainly what failed, then carry on.
+        regstatus=$(curl -s -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php)
+        case $regstatus in
+            2*)
+                echo "Done"
+                ;;
+            *)
+                echo "Failed"
+                echo " * ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php"
+                echo "   answered HTTP ${regstatus:-000}, so this node did not register"
+                echo "   itself with the master and will not appear in Storage Management."
+                echo " * Add it by hand there, or fix the cause and re-run this installer."
+                echo "   A redirect (3xx) here usually means this node's own web tier"
+                echo "   cannot reach the master's database and is bouncing every request"
+                echo "   to the schema page -- check for SELinux denials with:"
+                echo "     ausearch -m avc -ts recent"
+                ;;
+        esac
     else
         echo " * Node is registered"
     fi
@@ -3243,12 +3318,22 @@ _installNodeCertSigner() {
         echo " * Could not set the config path in $helper."
         return 0
     fi
+    # The Secure Boot pair is written only when that CA actually exists, the
+    # same way the Web pair above is gated by this function's early return.
+    # Without the guard these were emitted unconditionally, so a server that
+    # never minted a Secure Boot CA -- one running an admin-supplied MOK, or one
+    # whose root cannot anchor an intermediate -- still advertised signing
+    # issuance through sudo and answered every request with a 500 from the
+    # helper. Naming a file that is not there is not a capability.
+    local sbca="$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem"
     {
         echo "PKI_WEB_CA_CERT=${sslcapem}"
         echo "PKI_WEB_CA_KEY=${sslcakey}"
         echo "PKI_ROOT_CERT=${rootCAPem}"
-        echo "PKI_SB_CA_CERT=$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem"
-        echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
+        if [[ -f $sbca ]]; then
+            echo "PKI_SB_CA_CERT=${sbca}"
+            echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
+        fi
         echo "PKI_STAGING=${stagedir}"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1
@@ -3259,7 +3344,6 @@ _installNodeCertSigner() {
     mkdir -p "$stagedir" >>$error_log 2>&1
     chown "${apacheuser}":"${apacheuser}" "$stagedir" >>$error_log 2>&1
     chmod 0750 "$stagedir" >>$error_log 2>&1
-    setSELinuxContext "$stagedir" fog_share_t
 
     # Validate before installing: a malformed sudoers drop-in breaks sudo for
     # the whole machine, which is far worse than no node certificate issuance.
@@ -3275,6 +3359,20 @@ _installNodeCertSigner() {
         echo " * Refusing to install an invalid sudoers rule; storage nodes will"
         echo "   keep generating their own self-signed certificates."
     fi
+    # Said here, where the admin is the only one who can act on it, rather than
+    # left for a node to discover as a 500 during its own install. Web issuance
+    # is unaffected -- this server simply cannot sign kernels for a node.
+    if [[ ! -f $sbca ]]; then
+        echo " * No Secure Boot CA on this server, so storage nodes can be"
+        echo "   issued web certificates but not code-signing ones."
+    fi
+    # After this function's own Done/Failed, never before. setSELinuxContext
+    # prints its own dots()/OK pair, so calling it between our dots() and our
+    # terminator left "Installing node certificate signing helper......" with
+    # nothing closing it -- the SELinux line ran on into it and our "Done"
+    # landed alone on the next line. Every other caller labels after its
+    # errorStat for the same reason.
+    setSELinuxContext "$stagedir" fog_share_t
 }
 # Ask the master for a certificate, as a storage node.
 #
@@ -3392,6 +3490,140 @@ _installNodeWebCert() {
         echo "   to have it issued from the FOG Web CA instead."
     fi
 }
+# Where this host keeps admin-supplied trust anchors, and what re-reads them.
+#
+# Chosen by what the box actually has rather than by $osid. Derivatives
+# disagree with their parent often enough, and $osid is specifically untrustworthy
+# for this: it means Alpine on this branch but meant Arch on 1.5 (GH-447), so a
+# server upgraded from that line carries a value that would pick the wrong store.
+# The layouts are mutually exclusive in practice -- a box has p11-kit's tree or
+# Debian's, not both -- so first match wins.
+#
+# Sets $caTrustDir/$caTrustCmd. Returns 1 when the host has no store to write
+# to, which is a real state (a minimal container without ca-certificates) and
+# not an error.
+_caTrustLayout() {
+    if [[ -d /etc/pki/ca-trust/source/anchors ]] && command -v update-ca-trust >>$error_log 2>&1; then
+        # RHEL/Fedora/Rocky/Alma
+        caTrustDir="/etc/pki/ca-trust/source/anchors"
+        caTrustCmd="update-ca-trust extract"
+    elif [[ -d /etc/ca-certificates/trust-source/anchors ]] && command -v trust >>$error_log 2>&1; then
+        # Arch
+        caTrustDir="/etc/ca-certificates/trust-source/anchors"
+        caTrustCmd="trust extract-compat"
+    elif [[ -d /usr/local/share/ca-certificates ]] && command -v update-ca-certificates >>$error_log 2>&1; then
+        # Debian/Ubuntu/Alpine
+        caTrustDir="/usr/local/share/ca-certificates"
+        caTrustCmd="update-ca-certificates"
+    else
+        return 1
+    fi
+    return 0
+}
+# Which certificate this box should anchor, which is not the same file in both
+# roles. Sets $trustAnchorPem; returns 1 when there is nothing to anchor yet.
+#
+# A master holds the root itself, and the root is what to anchor -- not the Web
+# intermediate. Anchoring the root is what makes the intermediate and every
+# leaf beneath it verify, and it is the same certificate ca.cert.der publishes
+# and fog-client pins, so one certificate describes this server's trust
+# wherever that trust is stated.
+#
+# A storage node never receives the root's key and only ever gets a chain from
+# the master. fog-sign-node-cert writes that chain issuer-first with the root
+# appended when the master has one, so the LAST certificate in it is the root
+# where a root was sent and the Web intermediate where it was not. Either is a
+# correct anchor for the certificates this node will be served.
+_resolveTrustAnchor() {
+    trustAnchorPem=""
+    if [[ $installtype == [Ss] ]]; then
+        [[ -n $sslcachain && -f $sslcachain ]] || return 1
+        local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+        # The chain normally lands in this directory, so it normally exists --
+        # but $sslcachain is admin-overridable and can point anywhere, and a
+        # failed redirect here would look exactly like "nothing to anchor".
+        mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+        # Split off the last PEM block. openssl x509 reads only the first
+        # certificate in a bundle, so it cannot do this itself.
+        awk '/-----BEGIN CERTIFICATE-----/{n++; cert[n]=""} n{cert[n]=cert[n] $0 "\n"} END{printf "%s", cert[n]}' \
+            "$sslcachain" > "$out" 2>>$error_log
+        [[ -s $out ]] || return 1
+        trustAnchorPem="$out"
+    else
+        [[ -n $rootCAPem && -f $rootCAPem ]] || return 1
+        trustAnchorPem="$rootCAPem"
+    fi
+    return 0
+}
+# Anchor this server's own CA in this server's own system trust store.
+#
+# FOG's PKI already reaches every consumer it can address directly: fog-client
+# pins ca.cert.der, iPXE gets the CA compiled into the binary at build time,
+# Secure Boot enrols a MOK. The host's own TLS clients were the gap. curl,
+# wget, PHP's stream wrapper and the node-to-master status calls all read the
+# system store, and nothing had ever told that store about the CA this
+# installer mints -- so on the FOG server itself every HTTPS call to the FOG
+# server itself failed to verify, and the ones inside FOG that have no way to
+# pass a --cacert had no route to working verification at all.
+#
+# Explicitly NOT a fix for the admin's browser, which is the thing people
+# actually notice. Firefox carries its own NSS store and Chrome reads a
+# per-user one, so neither consults what this writes -- and the browser is
+# usually on a different machine entirely. That import stays manual.
+_installCATrustAnchor() {
+    local anchor st=0
+    # Default-on, --no-ca-trust to decline, persisted in .fogsettings -- the
+    # same shape as $secureboot, and for the same reason: an opt-out that
+    # reverted on the next upgrade would silently undo a deliberate decision.
+    [[ ${catrust:-1} -eq 1 ]] || return 0
+    _resolveTrustAnchor || return 0
+    anchor="$trustAnchorPem"
+
+    dots "Trusting the FOG CA on this server"
+    if ! _caTrustLayout; then
+        echo "Skipped"
+        echo " * No system trust store was found on this host, so nothing was"
+        echo "   changed. HTTPS calls made ON this server to this server will"
+        echo "   still need the CA passed to them explicitly."
+        return 0
+    fi
+    # Re-encoded through openssl rather than copied, for two reasons. The file
+    # has to be PEM under a .crt name whatever the source was -- Debian's
+    # update-ca-certificates reads *.crt and nothing else -- and parsing it
+    # here rejects a malformed anchor at the point it can be attributed,
+    # instead of at refresh time where the store blames some other certificate.
+    #
+    # Staged through a temp file and moved into place only once openssl is
+    # happy. Whether a failed `openssl x509 -out` leaves an empty file behind
+    # varies by version, and a zero-byte .crt sitting in the anchor directory
+    # would make every later trust-store refresh on this box complain about a
+    # certificate that was never valid. mv within the same directory is atomic,
+    # so a re-run also cannot be caught halfway.
+    #
+    # A fixed destination filename, so --recreate-ca overwrites the previous
+    # anchor rather than leaving the retired CA trusted alongside its
+    # replacement. That is the whole reason this is not named after the CA's
+    # fingerprint or its date.
+    local staged="${caTrustDir}/.fog-server-ca.crt.$$"
+    if openssl x509 -in "$anchor" -out "$staged" >>$error_log 2>&1 && [[ -s $staged ]]; then
+        chmod 0644 "$staged" >>$error_log 2>&1
+        mv -f "$staged" "${caTrustDir}/fog-server-ca.crt" >>$error_log 2>&1 || st=1
+        [[ $st -eq 0 ]] && { $caTrustCmd >>$error_log 2>&1 || st=1; }
+    else
+        st=1
+    fi
+    rm -f "$staged" >>$error_log 2>&1
+    if [[ $st -ne 0 ]]; then
+        # Deliberately not errorStat: that aborts the install, and a server
+        # whose trust store could not be updated is still a working server.
+        echo "Failed"
+        echo " * Could not update the system trust store at ${caTrustDir}."
+        echo "   The install is otherwise fine -- HTTPS calls made on this"
+        echo "   server will need the CA passed to them explicitly."
+        return 0
+    fi
+    echo "Done"
+}
 # Put the PKI private keys back under root's control, and keep them there.
 #
 # Called AFTER configureSnapins, which is the whole point. The historic layout
@@ -3406,6 +3638,15 @@ _installNodeWebCert() {
 # part of this server exposed to the network. Moving a key to a vault is a
 # separate and better step, and $fogprogramdir/bin/fog-offline-ca-key exists
 # for it.
+#
+# Pad a line to the fixed width of the surrounding '###' box. The prose lines
+# carry their own closing '#', but the lines holding a path cannot: $sslpath
+# and $fogprogramdir are both relocatable (GH-850), so the padding has to be
+# computed. An over-long path runs past the border rather than being cut --
+# a path the admin has to type is worth more than a straight edge.
+_pkiBoxLine() {
+    printf "  #%-65s#\n" "$1"
+}
 _hardenPkiPermissions() {
     dots "Restricting private key access"
     local sbca="$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
@@ -3447,11 +3688,16 @@ _hardenPkiPermissions() {
         chown root:${apacheuser} "$sslpath/.srvprivate.key" >>$error_log 2>&1
         chmod 0640 "$sslpath/.srvprivate.key" >>$error_log 2>&1
     fi
+    errorStat $?
     # configureSnapins now prunes $sslpath, so its recursive relabel no longer
     # reaches here either. Re-assert it, or SELinux denies the web tier the
     # read the mode above just granted.
+    #
+    # After errorStat, never before: setSELinuxContext prints its own
+    # dots()/OK pair, so calling it inside this function's dots window left
+    # "Restricting private key access......" with nothing closing it and our
+    # OK stranded on the following line.
     setSELinuxContext "$sslpath" fog_share_t
-    errorStat $?
     mkdir -p "${fogprogramdir}/bin" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-offline-ca-key \
         "${fogprogramdir}/bin/fog-offline-ca-key" >>$error_log 2>&1
@@ -3471,11 +3717,11 @@ _hardenPkiPermissions() {
                 if [[ -f $rootCAKey ]]; then
                     echo "  # The CA private key for this server is on this server, readable  #"
                     echo "  # only by root:                                                   #"
-                    echo "  #   ${rootCAKey}"
+                    _pkiBoxLine "   ${rootCAKey}"
                     echo "  #                                                                 #"
                     echo "  # That protects it from a compromise of the web application, but  #"
                     echo "  # not from a compromise of the machine. To move it to a vault:    #"
-                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault"
+                    _pkiBoxLine "   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault"
                     echo "  #                                                                 #"
                     echo "  # Day to day nothing needs it. Restore it only to issue a new     #"
                     echo "  # intermediate, or a certificate for a new storage node.          #"
@@ -3484,11 +3730,11 @@ _hardenPkiPermissions() {
                     [[ -f $rootCAKey ]] && echo "  #                                                                 #"
                     echo "  # The Secure Boot CA private key is also on this server,          #"
                     echo "  # readable only by root:                                          #"
-                    echo "  #   ${sbca}"
+                    _pkiBoxLine "   ${sbca}"
                     echo "  #                                                                 #"
                     echo "  # Restore it to issue a new Secure Boot intermediate, or a        #"
                     echo "  # new signing leaf. To move it to a vault:                        #"
-                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault --zone secureboot"
+                    _pkiBoxLine "   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault --zone secureboot"
                 fi
                 echo "  ###################################################################"
                 echo
@@ -3771,6 +4017,11 @@ writeUpdateFile() {
         # opt-out that reverted on the next upgrade would hand the admin back a
         # root-only key and a sudoers rule they had deliberately declined.
         secureBootKey secureBootCert secureboot
+        # --no-ca-trust, carried forward for exactly the reason secureboot
+        # above is: an admin who declined to have FOG write to this host's
+        # system trust store must not have that decision quietly reversed by
+        # the next upgrade, least of all under -y.
+        catrust
         # The certificate endpoints ENROL, which is not always the one that
         # signs. Persisted so an admin who supplied their own Secure Boot
         # intermediate does not have to re-pass it on every later run -- and
@@ -4547,11 +4798,20 @@ _resolveNetbootProto() {
 # shape. $5 carries the zone's own extension lines -- its extendedKeyUsage and,
 # where it applies, its nameConstraints.
 _issueIntermediateCA() {
-    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6"
+    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6" keyOfflineVar="$7"
     local st=0
     mkdir -p "$outdir" >>$error_log 2>&1 || st=1
     chmod 0700 "$outdir" >>$error_log 2>&1
-    [[ -f "${outdir}/${keyfile}" && -f "${outdir}/${certfile}" ]] && return 0
+    # The CERTIFICATE is what defines "this intermediate exists" -- same
+    # reasoning as the root (_resolveRootCA). The key may be legitimately
+    # offline (fog-offline-ca-key --zone secureboot): testing for both would
+    # mint a fresh intermediate -- silently overwriting the one every
+    # already-enrolled client trusts -- the moment an admin took that advice,
+    # on the very next ordinary upgrade.
+    if [[ -f "${outdir}/${certfile}" ]]; then
+        [[ -f "${outdir}/${keyfile}" ]] || { [[ -n $keyOfflineVar ]] && printf -v "$keyOfflineVar" 1; }
+        return 0
+    fi
     # Issuing needs the root's private key. An existing intermediate returns
     # above without ever touching it, which is what makes an offline root
     # workable day to day -- but a NEW one cannot be signed without it.
@@ -4625,7 +4885,7 @@ createWebIntermediateCA() {
     done
     sslcakey="${cadir}/.fogWebCA.key"
     sslcapem="${cadir}/.fogWebCA.pem"
-    if [[ ! -f $sslcakey || ! -f $sslcapem ]]; then
+    if [[ ! -f $sslcapem ]]; then
         dots "Creating FOG Web CA"
         # serverAuth alone. An EKU on a CA constrains what it may issue, which
         # is the whole reason this zone is separable: a web certificate from
@@ -4787,6 +5047,76 @@ _resolveWebLeafPaths() {
 # stays online. The historic test here was `[[ ! -x $sslpubcert ]]`, true of
 # every certificate ever written, so the leaf was re-signed on every single run
 # -- harmless while one key did every job, fatal once the signer can be offline.
+# Build what the web server must actually SEND, which is not the same file as
+# the leaf.
+#
+# The vhost was pointed at $sslpubcert alone. That is correct only while the
+# leaf is signed by the root directly -- one certificate is a complete chain to
+# a trusted anchor. The moment an intermediate sits in between (FOG's own Web
+# CA, or one supplied with --web-ca-cert), a client that trusts the root still
+# cannot build a path to it, because the intermediate is neither in its trust
+# store nor on the wire. It fails as "unable to get local issuer certificate",
+# which reads exactly like the CA was never installed.
+#
+# $sslcachain holds root+intermediate, in that order, and is deliberately NOT
+# what gets served: TLS wants leaf-first ordering, and the root is pointless on
+# the wire because a client that does not already have it will not trust it for
+# being sent. So two files are derived here:
+#
+#   $sslfullchain   leaf + intermediates      -- nginx's ssl_certificate
+#   $sslchainonly   intermediates only        -- Apache's SSLCertificateChainFile
+#
+# Apache gets the separate-file form rather than a concatenated
+# SSLCertificateFile because concatenation needs httpd >= 2.4.8 and this
+# installer still supports distros shipping 2.4.6, where it silently serves
+# only the first certificate -- the exact bug this function exists to fix.
+#
+# Both stay empty when there is no intermediate, and the callers fall back to
+# $sslpubcert, so a direct-signed server emits byte-identical config to before.
+_writeWebChainFiles() {
+    local leafdir block subj issuer
+    sslfullchain=""
+    sslchainonly=""
+    [[ -n $sslpubcert && -f $sslpubcert ]] || return 0
+    [[ -n $sslcachain && -f $sslcachain ]] || return 0
+
+    leafdir="$(_pkiZoneDir web)/leaf"
+    mkdir -p "$leafdir" >>$error_log 2>&1
+    local chainonly="${leafdir}/.webChain.pem"
+    local fullchain="${leafdir}/.webFullChain.pem"
+    : > "$chainonly"
+
+    # Every certificate in the chain file except self-signed ones. A self-signed
+    # certificate in here is the root, and it is the one thing that must not be
+    # sent. Splitting on the PEM boundary rather than trusting the file's order,
+    # because validateExternalCA and createWebIntermediateCA both write it
+    # root-first while an admin-supplied chain may be in any order at all.
+    local tmpd f
+    tmpd=$(mktemp -d) || return 0
+    awk -v d="$tmpd" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
+        "$sslcachain" 2>>$error_log
+    for f in "$tmpd"/c*.pem; do
+        [[ -f $f ]] || continue
+        subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+        issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+        [[ -z $subj ]] && continue
+        # -subject prints "subject=..." and -issuer "issuer=...", so compare the
+        # values rather than the whole line.
+        [[ ${subj#subject=} == "${issuer#issuer=}" ]] && continue
+        cat "$f" >> "$chainonly"
+    done
+    rm -rf "$tmpd" >>$error_log 2>&1
+
+    if [[ ! -s $chainonly ]]; then
+        rm -f "$chainonly" >>$error_log 2>&1
+        return 0
+    fi
+    cat "$sslpubcert" "$chainonly" > "$fullchain" 2>>$error_log || return 0
+    chmod 0644 "$chainonly" "$fullchain" >>$error_log 2>&1
+    sslchainonly="$chainonly"
+    sslfullchain="$fullchain"
+    return 0
+}
 _createWebLeaf() {
     local webdir leafdir stamp want st=0
     webdir="$(_pkiZoneDir web)"
@@ -4808,7 +5138,16 @@ _createWebLeaf() {
     # The name set, hashed. ca.cnf is rewritten from $ipaddresses/$hostname/
     # $extraServerNames on every run, so a changed hostname or a new
     # --extra-server-name changes this and nothing else has to notice.
-    want=$(openssl md5 < "$sslpath/ca.cnf" 2>/dev/null)
+    # The signing CA is part of the stamp, not just the name set. It used to be
+    # ca.cnf alone, which meant switching the Web CA -- --web-ca-cert/-key/-root
+    # pointing this server at a CA another FOG server issued -- imported the new
+    # CA and then returned right here without re-signing anything, because the
+    # NAMES had not changed. The install reported success and the vhost went on
+    # serving a certificate signed by the CA that had just been replaced, with
+    # nothing anywhere saying so.
+    want=$( { cat "$sslpath/ca.cnf" 2>/dev/null
+              openssl x509 -in "$sslcapem" -noout -fingerprint -sha256 2>/dev/null
+            } | openssl md5 2>/dev/null)
     if [[ -e $sslpubcert && -e $stamp && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
         return 0
     fi
@@ -4877,11 +5216,21 @@ FOG_MANAGED_END='# === END FOG MANAGED BLOCK ==='
 # '#' is a comment in both nginx and Apache syntax, so the markers are inert
 # in either file.
 #
-# Three cases, deliberately no fourth: no file -> write one; both markers
-# present -> replace between them; anything else (no markers, or only one
-# because a previous run died mid-write or someone hand-edited) -> append a
-# fresh block and touch nothing that was already there. Never guess at a
-# partial patch.
+# Four cases, deliberately no fifth: no file -> write one; both markers
+# present -> replace between them; NEITHER marker present -> the file predates
+# this mechanism, so replace it whole; exactly one marker (a previous run died
+# mid-write, or someone hand-edited) -> append a fresh block and touch nothing
+# that was already there. Never guess at a partial patch.
+#
+# The zero-marker case used to append too, and that was wrong. Before markers
+# existed FOG rewrote this file in full on every run -- the file was entirely
+# FOG's own output and nothing else could survive there. Appending to it on the
+# first post-upgrade run therefore left FOG's *previous* vhost in place above
+# the new block, and Apache serves the first matching <VirtualHost *:443>, so
+# the stale one won: a server re-installed onto a new web CA kept serving the
+# certificate paths from before the upgrade. Replacing whole restores exactly
+# what the pre-marker contract always did; the caller's `mv $etcconf
+# $etcconf.$timestamp` backup still holds the old content either way.
 spliceManagedBlock() {
     local conffile="$1" contentfile="$2" priorfile="$3"
     # $3 names where the file's PREVIOUS content lives, when the caller has
@@ -4930,9 +5279,92 @@ spliceManagedBlock() {
             k == e          { print; skip=0; next }
             !skip           { print }
         ' "$conffile" > "$tmp" && mv -f "$tmp" "$conffile"
+        local st=$?
+        [[ $st -eq 0 ]] && dropShadowingVhosts "$conffile" "$contentfile"
+        return $st
+    fi
+    # Neither marker -> pre-marker file, FOG owned all of it, replace it whole.
+    if ! grep -qF "$FOG_MANAGED_BEGIN" "$conffile" && ! grep -qF "$FOG_MANAGED_END" "$conffile"; then
+        { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } > "$conffile"
         return $?
     fi
+    # Exactly one marker: damaged or hand-edited. Append, change nothing else.
     { echo "$FOG_MANAGED_BEGIN"; cat "$contentfile"; echo "$FOG_MANAGED_END"; } >> "$conffile"
+}
+# Repairs a vhost that already carries a stale FOG block OUTSIDE the markers.
+#
+# The fix one branch up stops this happening, but only for a file that has not
+# been through it yet. Installs that ran between the marker system landing and
+# that fix already have FOG's previous vhost sitting above the managed block,
+# and a file in that state has both markers -- so the splice above replaces the
+# managed block correctly and walks straight past the stale copy, forever.
+# Apache serves the first matching <VirtualHost *:443> and nginx the first
+# matching server{}, so the stale copy wins: the install goes on serving
+# whatever paths it carried (old certificates, an old webroot) with nothing
+# anywhere reporting an error. Left alone, no future run ever clears it.
+#
+# The removal is deliberately narrow. Only a block that CLAIMS A NAME THE
+# MANAGED BLOCK ALSO CLAIMS is dropped -- a name collision FOG's block is meant
+# to win, so the block being removed could not have been serving anyway. An
+# admin's own vhost for some other name is untouched, and the caller's
+# $etcconf.$timestamp backup holds the file as it was either way.
+#
+# Keyed on names rather than on a FOG-specific signature line because the
+# generated vhost's contents have changed repeatedly across releases, while
+# "this block answers for the address FOG was installed on" has not.
+dropShadowingVhosts() {
+    local conffile="$1" contentfile="$2" tmp="${conffile}.fogshadow.$$" names
+    # ServerName/ServerAlias (Apache) and server_name (nginx) in one sweep --
+    # the file is only ever one of the two, so there is nothing to disambiguate.
+    names=$(awk '{
+                     d = tolower($1)
+                     if (d != "servername" && d != "serveralias" && d != "server_name") next
+                     for (i = 2; i <= NF; i++) { t = $i; sub(/;$/, "", t); if (t != "") print t }
+                 }' "$contentfile" | sort -u | tr '\n' ' ')
+    [[ -z $names ]] && return 0
+    awk -v b="$FOG_MANAGED_BEGIN" -v e="$FOG_MANAGED_END" -v names="$names" '
+        function claims(line,   d, i, t) {
+            d = tolower($1)
+            if (d != "servername" && d != "serveralias" && d != "server_name") return 0
+            for (i = 2; i <= NF; i++) { t = $i; sub(/;$/, "", t); if (t in want) return 1 }
+            return 0
+        }
+        function flush() {
+            if (!hit) printf "%s", buf
+            buf = ""; depth = 0; hit = 0
+        }
+        BEGIN { n = split(names, nm, " "); for (i = 1; i <= n; i++) if (nm[i] != "") want[nm[i]] = 1 }
+        { k = $0; sub(/[ \t\r]+$/, "", k) }
+        k == b { inblk = 1; print; next }
+        k == e { inblk = 0; print; next }
+        inblk  { print; next }
+        depth == 0 && /^[ \t]*<VirtualHost/     { depth = 1; apache = 1; buf = $0 "\n"; next }
+        depth == 0 && /^[ \t]*server[ \t]*\{/   { depth = 1; apache = 0; buf = $0 "\n"; next }
+        depth == 0                              { print; next }
+        {
+            buf = buf $0 "\n"
+            if (claims($0)) hit = 1
+            if (apache) { if ($0 ~ /<\/VirtualHost>/) flush() }
+            else {
+                depth += gsub(/\{/, "{")
+                depth -= gsub(/\}/, "}")
+                if (depth <= 0) flush()
+            }
+        }
+        # An unterminated block means the file was already malformed. Keep it
+        # rather than silently swallowing the tail.
+        END { if (buf != "") printf "%s", buf }
+    ' "$conffile" > "$tmp" || { rm -f "$tmp"; return 0; }
+    # Only swap it in if something was actually removed and the result is not
+    # empty -- an empty result would mean the parse went wrong, not that the
+    # file was all shadow.
+    if [[ -s "$tmp" ]] && ! cmp -s "$tmp" "$conffile"; then
+        mv -f "$tmp" "$conffile"
+        echo "  Removed a stale FOG vhost left outside the managed block in $conffile"
+    else
+        rm -f "$tmp"
+    fi
+    return 0
 }
 # Redirects the vhost generation that follows into a scratch file, so the ~260
 # existing `>> "$etcconf"` lines below need no edit at all: they keep writing
@@ -5009,11 +5441,21 @@ EOF
     # Written unconditionally, unlike historically: the web leaf's CSR is built
     # from it on any run where the name set changed, not only on the run that
     # first created a key.
+    # prompt = no, not yes. Under "prompt = yes" OpenSSL reads the right-hand
+    # side of each [req_distinguished_name] entry as the PROMPT TEXT and then
+    # demands a value on stdin for every field. That was survivable while CN was
+    # the only entry -- the heredoc below fed exactly one line -- but once O and
+    # OU were added there were three prompts and still one line, so O and OU hit
+    # EOF and openssl aborted with "Error making certificate request". It only
+    # ever showed on a FRESH install, because this whole block is guarded on
+    # .srvprivate.key not already existing, which is why upgrades never hit it.
+    # With prompt = no the values below are taken literally, which is what they
+    # were always meant to be.
     cat > $sslpath/req.cnf << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
-prompt = yes
+prompt = no
 [req_distinguished_name]
 CN = $certip
 O = FOG Project
@@ -5050,9 +5492,11 @@ EOF
         # part of the wire framing, not a tunable.
         [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]] && \
             openssl genrsa -out $sslpath/.srvprivate.key 4096 >>$error_log 2>&1
-        openssl req -new -sha512 -key $sslpath/.srvprivate.key -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
-$certip
-EOF
+        # No heredoc: req.cnf is prompt = no, so every DN value comes from the
+        # config and openssl reads nothing from stdin. Feeding it a line here
+        # would be dead input, and it was the mismatch between that one line and
+        # the number of prompted fields that broke fresh installs.
+        openssl req -new -sha512 -key $sslpath/.srvprivate.key -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1
         errorStat $?
     fi
     _createCommLeaf
@@ -5098,6 +5542,7 @@ EOF
     fi
     _resolveWebLeafPaths
     _createWebLeaf
+    _writeWebChainFiles
 
     # Canonical paths. FOG's own consumers -- the vhost, sbsign, certDecrypt --
     # only ever reference the canonical location, so the real file may live
@@ -5245,7 +5690,10 @@ EOF
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
                         echo "    ssl_dhparam ${sslpath}/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
-                        echo "    ssl_certificate $sslpubcert;" >> "$etcconf"
+                        # nginx has no separate chain directive -- ssl_certificate must BE the
+                        # concatenation. Falls back to the bare leaf when nothing sits between
+                        # it and the root.
+                        echo "    ssl_certificate ${sslfullchain:-$sslpubcert};" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
@@ -5339,7 +5787,10 @@ EOF
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
                         echo "    ssl_dhparam ${sslpath}/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
-                        echo "    ssl_certificate $sslpubcert;" >> "$etcconf"
+                        # nginx has no separate chain directive -- ssl_certificate must BE the
+                        # concatenation. Falls back to the bare leaf when nothing sits between
+                        # it and the root.
+                        echo "    ssl_certificate ${sslfullchain:-$sslpubcert};" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
@@ -5512,6 +5963,11 @@ EOF
                         echo "    SSLSessionTickets Off" >> "$etcconf"
                         echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                        # Separate file rather than concatenating into SSLCertificateFile:
+                        # concatenation needs httpd >= 2.4.8 and this installer still
+                        # supports 2.4.6, which would silently serve only the first
+                        # certificate -- the exact failure this is here to fix.
+                        [[ -n $sslchainonly ]] && echo "    SSLCertificateChainFile $sslchainonly" >> "$etcconf"
                         echo "    SSLCACertificateFile $sslcachain" >> "$etcconf"
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
@@ -5610,6 +6066,11 @@ EOF
                         echo "    SSLSessionTickets Off" >> "$etcconf"
                         echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                        # Separate file rather than concatenating into SSLCertificateFile:
+                        # concatenation needs httpd >= 2.4.8 and this installer still
+                        # supports 2.4.6, which would silently serve only the first
+                        # certificate -- the exact failure this is here to fix.
+                        [[ -n $sslchainonly ]] && echo "    SSLCertificateChainFile $sslchainonly" >> "$etcconf"
                         echo "    SSLCACertificateFile $sslcachain" >> "$etcconf"
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
@@ -6422,14 +6883,14 @@ createSecureBootIntermediateCA() {
     if [[ ${rootCAIssuer:-1} -ne 1 ]]; then
         return 1
     fi
-    if [[ ! -f "${cadir}/.fogSBCA.key" || ! -f "${cadir}/.fogSBCA.pem" ]]; then
+    if [[ ! -f "${cadir}/.fogSBCA.pem" ]]; then
         dots "Creating FOG Secure Boot CA"
         # codeSigning alone: an EKU on a CA constrains what it may issue, so
         # this intermediate can never mint a server certificate however its
         # leaf is written.
         _issueIntermediateCA "FOG Secure Boot CA" "$cadir" ".fogSBCA.key" ".fogSBCA.pem" \
             "extendedKeyUsage = codeSigning
-$(_sbNameConstraints)" "FOG Secure Boot"
+$(_sbNameConstraints)" "FOG Secure Boot" sbCAKeyOffline
         errorStat $?
     fi
     # A DER sibling of the intermediate, right next to .fogSBCA.pem in the PKI
@@ -6446,6 +6907,19 @@ $(_sbNameConstraints)" "FOG Secure Boot"
         chmod 0644 "${cadir}/.fogSBCA.der" >>$error_log 2>&1
     fi
     if [[ ! -f "${leafdir}/sign.key" || ! -f "${leafdir}/sign.pem" ]]; then
+        # Signing a leaf needs the Secure Boot CA's own key, same as a new
+        # intermediate needs the root's -- say so rather than letting openssl
+        # fail on a missing file, since the fix is the same shape: restore the
+        # key, re-run, take it back offline.
+        if [[ ${sbCAKeyOffline:-0} -eq 1 ]]; then
+            echo " * Cannot issue the Secure Boot code-signing certificate: the"
+            echo "   Secure Boot CA private key is not on this server (only"
+            echo "   ${cadir}/.fogSBCA.pem is present)."
+            echo " * Restore it to:"
+            echo "     ${cadir}/.fogSBCA.key"
+            echo "   re-run the installer, then move it back to your vault."
+            return 1
+        fi
         dots "Creating Secure Boot code signing certificate"
         mkdir -p "$leafdir" >>$error_log 2>&1 || st=1
         chmod 0700 "$leafdir" >>$error_log 2>&1

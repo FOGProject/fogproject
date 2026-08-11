@@ -144,7 +144,22 @@ while [[ -z $externalca ]]; do
             ;;
     esac
 done
-if [[ $externalca == yes && -z $autoaccept ]]; then
+# --web-ca-cert/--web-ca-key/--web-ca-root already answer this, and answering
+# it twice was worse than redundant: the prompt collects $extcacert/$extcakey/
+# $extcaroot, but validateExternalCA resolves ${webExtCACert:-$extcacert} and so
+# prefers the command line -- meaning anything typed here was silently
+# discarded. Under -y the prompt never ran and the flags worked, which made the
+# whole thing look like the flags only worked with -y.
+#
+# All three, not any: a partial trio still needs the rest collected, and the
+# per-variable fallback in validateExternalCA merges the two sources correctly.
+if [[ $externalca == yes && -n $webExtCACert && -n $webExtCAKey && -n $webExtCARoot ]]; then
+    echo
+    echo "  Using the CA files given on the command line:"
+    echo "    intermediate cert: $webExtCACert"
+    echo "    intermediate key:  $webExtCAKey"
+    echo "    root cert:         $webExtCARoot"
+elif [[ $externalca == yes && -z $autoaccept ]]; then
     echo
     echo "  Please provide the paths to your CA files. The intermediate CA"
     echo "  certificate and key are used to sign FOG's server certificate; the"
