@@ -47,7 +47,7 @@ What the matrix establishes:
 |---|---|---|
 | 1 | `fog.te` has no `mysqld_port_t` rule | Node web tier can't reach the master DB under SELinux; every page 308s to `?node=schema` |
 | 2 | `registerStorageNode`'s second curl lacks `-L`, and prints `Done` unconditionally | Registration silently no-ops behind any redirect |
-| 3 | Node record is named after its IP | `DNS:<ip>` can't satisfy the Web CA's DNS name constraints → 500 |
+| 3 | Node record is named after its IP — `create_update_node.php` discards the posted `name=` | `DNS:<ip>` can't satisfy the Web CA's DNS name constraints → 500 |
 | 4 | `_installNodeCertSigner` writes SB CA paths unguarded | `type=signing` 500s on any server without a Secure Boot CA |
 
 ### 1. SELinux: no rule for the master's database port
@@ -143,6 +143,38 @@ So even with #1 and #2 fixed, a stock node still gets no certificate unless
 reverse DNS exists, or the record is renamed by hand to something under the CA's
 permitted domains. Renaming node 3 to `debian.lan` is what made the successful
 issuance in section 1 below possible.
+
+**Fixed** in `bce22c403`. The posted `name=` was never the whole story:
+`create_update_node.php` opened with `$name = $ip = $stripped['ip']` and
+discarded it, so the field had no effect and no value the installer sent could
+have helped. Three changes:
+
+- the installer derives a name from `hostname -f` (not `$hostname`, which a
+  `.fogsettings`-seeded node install never has — that path skips `input.sh`);
+- `create_update_node.php` honours it, but only when it is a real hostname and
+  is not already taken. `ngmMemberName` is UNIQUE and `FOGController::save()`
+  inserts with `ON DUPLICATE KEY UPDATE`, so an unchecked name collision would
+  silently rewrite the other node's row rather than fail — and hostnames are not
+  unique across a fleet (two default RHEL installs are both
+  `localhost.localdomain`). Anything unusable falls back to the address, which
+  is the old behaviour exactly;
+- `nodecert.php` refuses to put an IP literal in a DNS SAN. `FILTER_VALIDATE_DOMAIN`
+  accepts `10.0.0.5` as a hostname, so without an explicit `FILTER_VALIDATE_IP`
+  test the request reached the signer and died at verify. Existing IP-named nodes
+  now get a 409 naming the two remedies instead.
+
+Verified against a CA carrying this master's exact permitted subtrees:
+
+```
+IP:10.255.30.13, DNS:10.255.30.13         signed=yes  verify=FAIL
+IP:10.255.30.13, DNS:fognode1.lan         signed=yes  verify=PASS
+IP:10.255.30.13, DNS:fognode1.example.org signed=yes  verify=FAIL
+```
+
+All three sign — OpenSSL applies name constraints when verifying, never when
+signing, which is why `fog-sign-node-cert`'s own `openssl verify` step is what
+catches this. The third line is the CA's declared boundary working as intended:
+a node in a domain the admin never listed still needs `--internal-domain`.
 
 ---
 
