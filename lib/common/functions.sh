@@ -3259,7 +3259,6 @@ _installNodeCertSigner() {
     mkdir -p "$stagedir" >>$error_log 2>&1
     chown "${apacheuser}":"${apacheuser}" "$stagedir" >>$error_log 2>&1
     chmod 0750 "$stagedir" >>$error_log 2>&1
-    setSELinuxContext "$stagedir" fog_share_t
 
     # Validate before installing: a malformed sudoers drop-in breaks sudo for
     # the whole machine, which is far worse than no node certificate issuance.
@@ -3275,6 +3274,13 @@ _installNodeCertSigner() {
         echo " * Refusing to install an invalid sudoers rule; storage nodes will"
         echo "   keep generating their own self-signed certificates."
     fi
+    # After this function's own Done/Failed, never before. setSELinuxContext
+    # prints its own dots()/OK pair, so calling it between our dots() and our
+    # terminator left "Installing node certificate signing helper......" with
+    # nothing closing it -- the SELinux line ran on into it and our "Done"
+    # landed alone on the next line. Every other caller labels after its
+    # errorStat for the same reason.
+    setSELinuxContext "$stagedir" fog_share_t
 }
 # Ask the master for a certificate, as a storage node.
 #
@@ -3406,6 +3412,15 @@ _installNodeWebCert() {
 # part of this server exposed to the network. Moving a key to a vault is a
 # separate and better step, and $fogprogramdir/bin/fog-offline-ca-key exists
 # for it.
+#
+# Pad a line to the fixed width of the surrounding '###' box. The prose lines
+# carry their own closing '#', but the lines holding a path cannot: $sslpath
+# and $fogprogramdir are both relocatable (GH-850), so the padding has to be
+# computed. An over-long path runs past the border rather than being cut --
+# a path the admin has to type is worth more than a straight edge.
+_pkiBoxLine() {
+    printf "  #%-65s#\n" "$1"
+}
 _hardenPkiPermissions() {
     dots "Restricting private key access"
     local sbca="$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
@@ -3447,11 +3462,16 @@ _hardenPkiPermissions() {
         chown root:${apacheuser} "$sslpath/.srvprivate.key" >>$error_log 2>&1
         chmod 0640 "$sslpath/.srvprivate.key" >>$error_log 2>&1
     fi
+    errorStat $?
     # configureSnapins now prunes $sslpath, so its recursive relabel no longer
     # reaches here either. Re-assert it, or SELinux denies the web tier the
     # read the mode above just granted.
+    #
+    # After errorStat, never before: setSELinuxContext prints its own
+    # dots()/OK pair, so calling it inside this function's dots window left
+    # "Restricting private key access......" with nothing closing it and our
+    # OK stranded on the following line.
     setSELinuxContext "$sslpath" fog_share_t
-    errorStat $?
     mkdir -p "${fogprogramdir}/bin" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-offline-ca-key \
         "${fogprogramdir}/bin/fog-offline-ca-key" >>$error_log 2>&1
@@ -3471,11 +3491,11 @@ _hardenPkiPermissions() {
                 if [[ -f $rootCAKey ]]; then
                     echo "  # The CA private key for this server is on this server, readable  #"
                     echo "  # only by root:                                                   #"
-                    echo "  #   ${rootCAKey}"
+                    _pkiBoxLine "   ${rootCAKey}"
                     echo "  #                                                                 #"
                     echo "  # That protects it from a compromise of the web application, but  #"
                     echo "  # not from a compromise of the machine. To move it to a vault:    #"
-                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault"
+                    _pkiBoxLine "   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault"
                     echo "  #                                                                 #"
                     echo "  # Day to day nothing needs it. Restore it only to issue a new     #"
                     echo "  # intermediate, or a certificate for a new storage node.          #"
@@ -3484,11 +3504,11 @@ _hardenPkiPermissions() {
                     [[ -f $rootCAKey ]] && echo "  #                                                                 #"
                     echo "  # The Secure Boot CA private key is also on this server,          #"
                     echo "  # readable only by root:                                          #"
-                    echo "  #   ${sbca}"
+                    _pkiBoxLine "   ${sbca}"
                     echo "  #                                                                 #"
                     echo "  # Restore it to issue a new Secure Boot intermediate, or a        #"
                     echo "  # new signing leaf. To move it to a vault:                        #"
-                    echo "  #   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault --zone secureboot"
+                    _pkiBoxLine "   ${fogprogramdir}/bin/fog-offline-ca-key /mnt/vault --zone secureboot"
                 fi
                 echo "  ###################################################################"
                 echo

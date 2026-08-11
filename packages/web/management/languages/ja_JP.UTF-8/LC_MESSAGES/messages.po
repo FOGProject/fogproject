@@ -867,6 +867,10 @@ msgstr ""
 msgid "CA Path"
 msgstr "パス"
 
+#, fuzzy
+msgid "CA private key"
+msgstr "秘密鍵の処理に失敗しました"
+
 msgid "CPU Cache"
 msgstr "CPU キャッシュ"
 
@@ -1037,11 +1041,18 @@ msgstr "シャーシシリアル"
 msgid "Case Version"
 msgstr "シャーシバージョン"
 
+msgid "Certificate SHA-1"
+msgstr ""
+
 msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
 msgid "Certificate Verification"
+msgstr "新しいロケーションを作成"
+
+#, fuzzy
+msgid "Certificates"
 msgstr "新しいロケーションを作成"
 
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
@@ -1998,6 +2009,9 @@ msgstr "FOG はデータベースと通信できません"
 
 msgid "FOG server defaulting under the folder"
 msgstr "FOG サーバーは次のフォルダーを既定で使用します"
+
+msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
@@ -3579,6 +3593,9 @@ msgstr "次の種類です"
 msgid "It can no longer be joined"
 msgstr ""
 
+msgid "It is restricted to root, which protects it from a compromise of this web application but not from a compromise of the machine. Moving it to a vault is a separate step:"
+msgstr ""
+
 #, fuzzy
 msgid "It must be between 3 and 50 characters."
 msgstr "ユーザー名は 41 文字未満で指定してください"
@@ -4600,6 +4617,9 @@ msgstr "イメージを同期していません"
 msgid "Not syncing Snapin"
 msgstr "スナップインを同期していません"
 
+msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
+msgstr ""
+
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "ストレージノード名"
@@ -5181,6 +5201,10 @@ msgid "Private key path not found"
 msgstr "秘密鍵のパスが見つかりません"
 
 #, fuzzy
+msgid "Private keys are readable by the web server"
+msgstr "秘密鍵を読み取れません"
+
+#, fuzzy
 msgid "Product Key"
 msgstr "プロダクトキー"
 
@@ -5230,6 +5254,9 @@ msgstr "RX"
 #, fuzzy
 msgid "Re-Transmit Hello Interval"
 msgstr "Hello 送信間隔"
+
+msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
+msgstr ""
 
 #, fuzzy
 msgid "Real Time"
@@ -5443,6 +5470,9 @@ msgstr "行"
 msgid "Running Windows"
 msgstr "Windows 実行中"
 
+msgid "SHA-256"
+msgstr ""
+
 msgid "SQL Error"
 msgstr "SQL エラー"
 
@@ -5569,6 +5599,9 @@ msgid "Second paramater must be in [class,function]"
 msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
 
 msgid "Secure Boot"
+msgstr ""
+
+msgid "Secure Boot CA private key"
 msgstr ""
 
 msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
@@ -6565,6 +6598,9 @@ msgstr "このグループは既にサブネットグループで使用されて
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
 
+msgid "That is the recommended state. Restore it only to issue a new intermediate or a certificate for a new storage node, then move it back."
+msgstr ""
+
 msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
 msgstr ""
 
@@ -6583,6 +6619,14 @@ msgstr ""
 
 msgid "The CA certificate path must be absolute"
 msgstr ""
+
+#, fuzzy
+msgid "The CA private key is not on this server"
+msgstr "このサーバーにはグループがありません"
+
+#, fuzzy
+msgid "The CA private key is on this server"
+msgstr "このサーバーにはグループがありません"
 
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
@@ -6639,6 +6683,9 @@ msgstr "アップロードしたファイルが upload_max_filesize を超えて
 
 msgid "The uploaded file was only partially uploaded"
 msgstr "アップロードしたファイルは一部しかアップロードされませんでした"
+
+msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
+msgstr ""
 
 msgid "There are"
 msgstr "あります"
@@ -6721,6 +6768,9 @@ msgid "This is the amount of physical disk space"
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
+msgstr ""
+
+msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
 #, fuzzy
@@ -6867,6 +6917,9 @@ msgstr "合計メモリ"
 
 msgid "Transmit"
 msgstr "送信"
+
+msgid "Trust anchor"
+msgstr ""
 
 msgid "Trusted Node CIDRs"
 msgstr ""
@@ -7418,8 +7471,14 @@ msgstr "現在のノード名"
 msgid "We cannot connect to LDAP server"
 msgstr "LDAP サーバーに接続できません"
 
+msgid "Web CA private key"
+msgstr ""
+
 msgid "Web Server"
 msgstr "サーバー"
+
+msgid "Web server private key"
+msgstr ""
 
 msgid "Weekly"
 msgstr "週単位"
@@ -8036,6 +8095,9 @@ msgstr ""
 
 msgid "previous install if needed"
 msgstr "必要に応じて以前のインストール"
+
+msgid "published as ca.cert.der and pinned by every fog-client"
+msgstr ""
 
 msgid "re-run the installer and check the installation log for a key generation or signing failure"
 msgstr ""
