@@ -434,6 +434,40 @@ checkDatabaseConnection() {
     fi
     errorStat $connected
 }
+# The name this node registers itself under in Storage Management.
+#
+# It used to be the node's IP address, which made the record's Name useless for
+# the one thing it is now needed for. A storage node has no certificate of its
+# own until the master issues one, and the master builds that certificate's SAN
+# from its record of the node -- reverse DNS first, then the Name. A Name that
+# is an IP literal yields "DNS:10.0.0.5", which is not a name: it matches no DNS
+# subtree in the Web CA's nameConstraints, so the certificate signs, fails
+# `openssl verify` inside fog-sign-node-cert, and the node is told only that
+# "a requested name is probably outside the CA's name constraints".
+#
+# Derived here rather than from $hostname alone because $hostname is set in
+# lib/common/input.sh, and a node install driven from a seeded .fogsettings runs
+# the installer's UPGRADE path, which never sources it -- the same gap that
+# leaves osid unrecoverable there. `hostname -f` is asked directly so the value
+# does not depend on which path got us here.
+#
+# Anything that cannot serve as a certificate name falls back to the address,
+# which is exactly the old behaviour. Rejected: an empty value, an IP literal,
+# localhost (the RHEL/Rocky minimal default, and identical on every node), and
+# anything outside the hostname grammar fog-sign-node-cert enforces.
+_nodeRegistrationName() {
+    local n
+    for n in "$hostname" "$(hostname -f 2>/dev/null)" "$(hostname 2>/dev/null)"; do
+        n="${n%.}"
+        [[ -z $n ]] && continue
+        [[ $n =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] && continue
+        [[ ${n,,} == localhost || ${n,,} == localhost.* ]] && continue
+        [[ $n =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]] || continue
+        echo "$n"
+        return 0
+    done
+    echo "$ipaddress"
+}
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
     # the two disagreed about where the app lives whenever webroot arrived
@@ -447,7 +481,12 @@ registerStorageNode() {
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
-        dots "Node being registered"
+        # See _nodeRegistrationName: registering under a hostname rather than an
+        # address is what lets the master put a usable DNS name in this node's
+        # certificate. The master still has the last word -- it keeps the address
+        # as the Name if this one is unusable or already taken.
+        nodeRegName=$(_nodeRegistrationName)
+        dots "Node being registered as ${nodeRegName}"
         # -L and a status check, neither of which this call used to have while
         # the existence check right above it already followed redirects.
         #
@@ -466,7 +505,7 @@ registerStorageNode() {
         # by this point, and registering by hand in the web UI is a normal
         # recovery. Same choice _installNodeWebCert() makes when the master
         # declines to issue -- say plainly what failed, then carry on.
-        regstatus=$(curl -s -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php)
+        regstatus=$(curl -s -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php)
         case $regstatus in
             2*)
                 echo "Done"

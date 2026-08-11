@@ -175,14 +175,30 @@ if (!$haveDns) {
     // recorded address would make a count()-based test read as "we have a
     // name" when every entry is still an address.
     $nodeName = trim((string) $node->get('name'));
-    if ($nodeName && filter_var($nodeName, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    // An IP literal is excluded explicitly, and is the case that matters: every
+    // node registered by an installer older than the fix in
+    // create_update_node.php is named after its own address. FILTER_VALIDATE_DOMAIN
+    // accepts "10.0.0.5" as a hostname -- the labels are legal -- so without this
+    // test the request goes on to be signed with DNS:10.0.0.5 and then dies at
+    // fog-sign-node-cert's verify step with "a requested name is probably outside
+    // the CA's name constraints", which says nothing about what to do. Failing
+    // here instead gives the admin the one instruction that fixes it.
+    if ($nodeName
+        && !filter_var($nodeName, FILTER_VALIDATE_IP)
+        && filter_var($nodeName, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+    ) {
         $names[] = 'DNS:' . $nodeName;
     } else {
         nodecertRespond(
             409,
             [
-                'error' => 'this node has no resolvable hostname; give it one in '
-                    . 'DNS, or set its Storage Node name to a hostname, then retry'
+                'error' => sprintf(
+                    'this node has no resolvable hostname, and its Storage Node '
+                    . 'name (%s) is not usable as one. Give it a PTR record in '
+                    . 'DNS, or rename it to a hostname in Storage Management, '
+                    . 'then retry.',
+                    $nodeName === '' ? 'unset' : '"' . $nodeName . '"'
+                )
             ]
         );
     }
