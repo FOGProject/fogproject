@@ -3398,6 +3398,140 @@ _installNodeWebCert() {
         echo "   to have it issued from the FOG Web CA instead."
     fi
 }
+# Where this host keeps admin-supplied trust anchors, and what re-reads them.
+#
+# Chosen by what the box actually has rather than by $osid. Derivatives
+# disagree with their parent often enough, and $osid is specifically untrustworthy
+# for this: it means Alpine on this branch but meant Arch on 1.5 (GH-447), so a
+# server upgraded from that line carries a value that would pick the wrong store.
+# The layouts are mutually exclusive in practice -- a box has p11-kit's tree or
+# Debian's, not both -- so first match wins.
+#
+# Sets $caTrustDir/$caTrustCmd. Returns 1 when the host has no store to write
+# to, which is a real state (a minimal container without ca-certificates) and
+# not an error.
+_caTrustLayout() {
+    if [[ -d /etc/pki/ca-trust/source/anchors ]] && command -v update-ca-trust >>$error_log 2>&1; then
+        # RHEL/Fedora/Rocky/Alma
+        caTrustDir="/etc/pki/ca-trust/source/anchors"
+        caTrustCmd="update-ca-trust extract"
+    elif [[ -d /etc/ca-certificates/trust-source/anchors ]] && command -v trust >>$error_log 2>&1; then
+        # Arch
+        caTrustDir="/etc/ca-certificates/trust-source/anchors"
+        caTrustCmd="trust extract-compat"
+    elif [[ -d /usr/local/share/ca-certificates ]] && command -v update-ca-certificates >>$error_log 2>&1; then
+        # Debian/Ubuntu/Alpine
+        caTrustDir="/usr/local/share/ca-certificates"
+        caTrustCmd="update-ca-certificates"
+    else
+        return 1
+    fi
+    return 0
+}
+# Which certificate this box should anchor, which is not the same file in both
+# roles. Sets $trustAnchorPem; returns 1 when there is nothing to anchor yet.
+#
+# A master holds the root itself, and the root is what to anchor -- not the Web
+# intermediate. Anchoring the root is what makes the intermediate and every
+# leaf beneath it verify, and it is the same certificate ca.cert.der publishes
+# and fog-client pins, so one certificate describes this server's trust
+# wherever that trust is stated.
+#
+# A storage node never receives the root's key and only ever gets a chain from
+# the master. fog-sign-node-cert writes that chain issuer-first with the root
+# appended when the master has one, so the LAST certificate in it is the root
+# where a root was sent and the Web intermediate where it was not. Either is a
+# correct anchor for the certificates this node will be served.
+_resolveTrustAnchor() {
+    trustAnchorPem=""
+    if [[ $installtype == [Ss] ]]; then
+        [[ -n $sslcachain && -f $sslcachain ]] || return 1
+        local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+        # The chain normally lands in this directory, so it normally exists --
+        # but $sslcachain is admin-overridable and can point anywhere, and a
+        # failed redirect here would look exactly like "nothing to anchor".
+        mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+        # Split off the last PEM block. openssl x509 reads only the first
+        # certificate in a bundle, so it cannot do this itself.
+        awk '/-----BEGIN CERTIFICATE-----/{n++; cert[n]=""} n{cert[n]=cert[n] $0 "\n"} END{printf "%s", cert[n]}' \
+            "$sslcachain" > "$out" 2>>$error_log
+        [[ -s $out ]] || return 1
+        trustAnchorPem="$out"
+    else
+        [[ -n $rootCAPem && -f $rootCAPem ]] || return 1
+        trustAnchorPem="$rootCAPem"
+    fi
+    return 0
+}
+# Anchor this server's own CA in this server's own system trust store.
+#
+# FOG's PKI already reaches every consumer it can address directly: fog-client
+# pins ca.cert.der, iPXE gets the CA compiled into the binary at build time,
+# Secure Boot enrols a MOK. The host's own TLS clients were the gap. curl,
+# wget, PHP's stream wrapper and the node-to-master status calls all read the
+# system store, and nothing had ever told that store about the CA this
+# installer mints -- so on the FOG server itself every HTTPS call to the FOG
+# server itself failed to verify, and the ones inside FOG that have no way to
+# pass a --cacert had no route to working verification at all.
+#
+# Explicitly NOT a fix for the admin's browser, which is the thing people
+# actually notice. Firefox carries its own NSS store and Chrome reads a
+# per-user one, so neither consults what this writes -- and the browser is
+# usually on a different machine entirely. That import stays manual.
+_installCATrustAnchor() {
+    local anchor st=0
+    # Default-on, --no-ca-trust to decline, persisted in .fogsettings -- the
+    # same shape as $secureboot, and for the same reason: an opt-out that
+    # reverted on the next upgrade would silently undo a deliberate decision.
+    [[ ${catrust:-1} -eq 1 ]] || return 0
+    _resolveTrustAnchor || return 0
+    anchor="$trustAnchorPem"
+
+    dots "Trusting the FOG CA on this server"
+    if ! _caTrustLayout; then
+        echo "Skipped"
+        echo " * No system trust store was found on this host, so nothing was"
+        echo "   changed. HTTPS calls made ON this server to this server will"
+        echo "   still need the CA passed to them explicitly."
+        return 0
+    fi
+    # Re-encoded through openssl rather than copied, for two reasons. The file
+    # has to be PEM under a .crt name whatever the source was -- Debian's
+    # update-ca-certificates reads *.crt and nothing else -- and parsing it
+    # here rejects a malformed anchor at the point it can be attributed,
+    # instead of at refresh time where the store blames some other certificate.
+    #
+    # Staged through a temp file and moved into place only once openssl is
+    # happy. Whether a failed `openssl x509 -out` leaves an empty file behind
+    # varies by version, and a zero-byte .crt sitting in the anchor directory
+    # would make every later trust-store refresh on this box complain about a
+    # certificate that was never valid. mv within the same directory is atomic,
+    # so a re-run also cannot be caught halfway.
+    #
+    # A fixed destination filename, so --recreate-ca overwrites the previous
+    # anchor rather than leaving the retired CA trusted alongside its
+    # replacement. That is the whole reason this is not named after the CA's
+    # fingerprint or its date.
+    local staged="${caTrustDir}/.fog-server-ca.crt.$$"
+    if openssl x509 -in "$anchor" -out "$staged" >>$error_log 2>&1 && [[ -s $staged ]]; then
+        chmod 0644 "$staged" >>$error_log 2>&1
+        mv -f "$staged" "${caTrustDir}/fog-server-ca.crt" >>$error_log 2>&1 || st=1
+        [[ $st -eq 0 ]] && { $caTrustCmd >>$error_log 2>&1 || st=1; }
+    else
+        st=1
+    fi
+    rm -f "$staged" >>$error_log 2>&1
+    if [[ $st -ne 0 ]]; then
+        # Deliberately not errorStat: that aborts the install, and a server
+        # whose trust store could not be updated is still a working server.
+        echo "Failed"
+        echo " * Could not update the system trust store at ${caTrustDir}."
+        echo "   The install is otherwise fine -- HTTPS calls made on this"
+        echo "   server will need the CA passed to them explicitly."
+        return 0
+    fi
+    echo "Done"
+}
 # Put the PKI private keys back under root's control, and keep them there.
 #
 # Called AFTER configureSnapins, which is the whole point. The historic layout
@@ -3791,6 +3925,11 @@ writeUpdateFile() {
         # opt-out that reverted on the next upgrade would hand the admin back a
         # root-only key and a sudoers rule they had deliberately declined.
         secureBootKey secureBootCert secureboot
+        # --no-ca-trust, carried forward for exactly the reason secureboot
+        # above is: an admin who declined to have FOG write to this host's
+        # system trust store must not have that decision quietly reversed by
+        # the next upgrade, least of all under -y.
+        catrust
         # The certificate endpoints ENROL, which is not always the one that
         # signs. Persisted so an admin who supplied their own Secure Boot
         # intermediate does not have to re-pass it on every later run -- and
