@@ -6842,13 +6842,18 @@ _publishSecureBootKit() {
 # gnu-efi project's own debugging utilities, unrelated to the cert-to-efi-*/
 # sign-efi-* tools this needs.) Built from source as a last resort.
 #
-# Only the two binaries fog-build-sb-authvars actually calls are built --
-# sbvarsign, the other tool this suite ships, is unused here and comes from
-# sbsigntools anyway, already a baseline dependency (see installPackages).
-# `make <binary>` is a real per-binary target upstream (each is
-# `name: name.o lib/lib.a`), so this skips the default `all` target entirely,
-# which additionally wants sample PK/KEK/db certs this install has no reason
-# to generate.
+# `install:` depends on `all` upstream, so there is no way to `make install`
+# just the two binaries fog-build-sb-authvars calls (cert-to-efi-sig-list,
+# sign-efi-sig-list) without building the whole suite -- sbvarsign and the
+# rest, none of which FOG uses, plus the self-signed sample PK/KEK/db test
+# certs `all` generates for itself. That is harmless clutter, not a risk:
+# `install` puts binaries in /usr/bin and the sample EFI test apps in
+# /usr/share/efitools/efi (see the upstream Makefile/Make.rules), never the
+# real EFI System Partition. Run verbatim -- `make && make install`, no
+# narrower invocation -- because that is the exact sequence confirmed to
+# build clean on Rocky 9; deriving a trimmed-down equivalent ourselves is
+# more to get subtly wrong than it is worth saving a few seconds of build
+# time on what is already a last-resort path.
 #
 # Pinned to 1.9.2 from the canonical upstream, git.kernel.org's jejb tree --
 # not a GitHub mirror -- the same source Fedora/AlmaLinux package.
@@ -6863,11 +6868,15 @@ _ensureEfitools() {
     work=$(mktemp -d) || return 1
 
     dots "Building efitools (no package for this distro)"
-    # The only build-time packages this needs beyond the C toolchain and
+    # The build-time packages this needs beyond the C toolchain and
     # sbsigntools this install already has -- named the same across every
     # distro this installer supports, unlike gnu-efi's runtime package, so no
-    # alternatives list is needed here.
-    $packageinstaller gcc make gnu-efi-devel help2man >>$error_log 2>&1
+    # alternatives list is needed here. libuuid-devel, openssl-devel, and
+    # perl-File-Slurp are linked/used by the build itself, not just gcc/make/
+    # gnu-efi-devel/help2man -- confirmed by a clean build on Rocky 9 failing
+    # without them.
+    $packageinstaller gcc make gnu-efi-devel libuuid-devel openssl-devel \
+        help2man perl-File-Slurp >>$error_log 2>&1
     if ! curl -fsSL "$url" -o "${work}/efitools.tar.gz" >>$error_log 2>&1; then
         echo "Failed"
         echo " * Could not download efitools ${ver} from ${url}."
@@ -6875,18 +6884,14 @@ _ensureEfitools() {
         return 1
     fi
     tar -xzf "${work}/efitools.tar.gz" -C "$work" >>$error_log 2>&1
-    (cd "${work}/efitools-${ver}" && make cert-to-efi-sig-list sign-efi-sig-list) >>$error_log 2>&1
-    if [[ ! -x "${work}/efitools-${ver}/cert-to-efi-sig-list" || \
-          ! -x "${work}/efitools-${ver}/sign-efi-sig-list" ]]; then
+    if ! (cd "${work}/efitools-${ver}" && make && make install) >>$error_log 2>&1 ||
+       ! command -v cert-to-efi-sig-list >/dev/null 2>&1 ||
+       ! command -v sign-efi-sig-list >/dev/null 2>&1; then
         echo "Failed"
         echo " * efitools ${ver} did not build; see ${error_log}."
         rm -rf "$work" >>$error_log 2>&1
         return 1
     fi
-    install -o root -g root -m 0755 \
-        "${work}/efitools-${ver}/cert-to-efi-sig-list" \
-        "${work}/efitools-${ver}/sign-efi-sig-list" \
-        /usr/local/bin/ >>$error_log 2>&1
     rm -rf "$work" >>$error_log 2>&1
     echo "Done"
 }
