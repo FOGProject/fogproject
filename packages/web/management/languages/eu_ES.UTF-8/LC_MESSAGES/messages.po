@@ -5839,6 +5839,9 @@ msgstr "Host Aktualisierung erfolgreich!"
 msgid "Schema reconcile"
 msgstr ""
 
+msgid "Schema row seed"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "iPXE-Einstellungen erfolgreich aktualisiert!"

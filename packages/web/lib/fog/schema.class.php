@@ -663,4 +663,119 @@ class Schema extends FOGController
             $name
         );
     }
+    /**
+     * Rows this release requires to exist, seeded by identity rather than
+     * by array position.
+     *
+     * The row-data counterpart to SchemaReconciler, and it exists for the
+     * same reason -- an indexed step only ever runs for installs sitting
+     * below it. vValue is a COUNT of applied elements, so a database whose
+     * count already exceeds the array length is permanently "up to date"
+     * and will never run another indexed step, whatever FOG_SCHEMA says. A
+     * 1.5 count carried across an upgrade does exactly that, and so does a
+     * value set by hand to get past a version check. Those installs are
+     * structurally repaired by the reconciler and were, until this, left
+     * missing any row a later step was supposed to insert.
+     *
+     * SchemaReconciler cannot cover it: it is declared strictly additive
+     * and explicitly never touches row data, which is what makes a stale
+     * manifest harmless there. This is the narrow, explicit exception --
+     * rows keyed by a natural identity, inserted only when absent, never
+     * updated and never deleted. An entry that is already present is left
+     * exactly as the administrator has it.
+     *
+     * Seeded WITHOUT a primary key value. pxeMenu.pxeID is auto_increment
+     * and the table is user-writable, so hardcoding "the next free id" is
+     * only correct on a pristine install -- see BootMenu::_menuOpt(), which
+     * matches these rows by name for the same reason.
+     *
+     * @return int|string Rows inserted, or an error string on failure.
+     */
+    public static function seedRequiredRows()
+    {
+        // name => column => value. Identity is the name.
+        //
+        // Every NOT NULL column without a default has to be listed, including
+        // pxeHotKeyEnable and pxeKeySequence -- both added by later ALTERs
+        // (see commons/schema.php) and so absent from the original CREATE
+        // TABLE. The seeding steps that came before could omit them because
+        // INSERT IGNORE downgrades error 1364 ("field doesn't have a default
+        // value") to a warning and substitutes an implicit default; a plain
+        // INSERT does not, and fails outright. Matching the values every
+        // existing row already carries: hotkeys off, empty sequence.
+        $required = [
+            'pxeMenu' => [
+                'key' => 'pxeName',
+                'rows' => [
+                    'fog.enrollsecureboot' => [
+                        'pxeDesc' => 'Enroll Secure Boot Key (MOK attended setup)',
+                        'pxeParams' => '',
+                        'pxeDefault' => 0,
+                        'pxeRegOnly' => 2,
+                        'pxeArgs' => null,
+                        'pxeHotKeyEnable' => '0',
+                        'pxeKeySequence' => '',
+                    ],
+                    'fog.enrollsecurebootunattended' => [
+                        'pxeDesc' => 'Enroll Secure Boot Key (Unattended - '
+                            . 'secure boot in setup mode required)',
+                        'pxeParams' => '',
+                        'pxeDefault' => 0,
+                        'pxeRegOnly' => 2,
+                        'pxeArgs' => 'mode=enrollsb',
+                        'pxeHotKeyEnable' => '0',
+                        'pxeKeySequence' => '',
+                    ],
+                ],
+            ],
+        ];
+        $inserted = 0;
+        foreach ($required as $table => $spec) {
+            foreach ((array)$spec['rows'] as $name => $values) {
+                $sql = sprintf(
+                    'SELECT COUNT(*) AS `cnt` FROM `%s` WHERE `%s` = %s',
+                    $table,
+                    $spec['key'],
+                    self::$DB->escape($name)
+                );
+                $res = self::$DB->query($sql);
+                if (false !== $res->error) {
+                    return $res->error;
+                }
+                $row = $res->fetch(PDO::FETCH_ASSOC)->get();
+                // Unreadable count is not "absent" -- inserting on a failed
+                // probe is how you end up with duplicates. Skip instead.
+                if (!is_array($row) || !isset($row['cnt'])) {
+                    continue;
+                }
+                if ((int)$row['cnt'] > 0) {
+                    continue;
+                }
+                $cols = array_merge([$spec['key']], array_keys($values));
+                $vals = array_merge([$name], array_values($values));
+                $sql = sprintf(
+                    'INSERT INTO `%s` (`%s`) VALUES (%s)',
+                    $table,
+                    implode('`,`', $cols),
+                    implode(
+                        ',',
+                        array_map(
+                            function ($v) {
+                                return null === $v
+                                    ? 'NULL'
+                                    : self::$DB->escape($v);
+                            },
+                            $vals
+                        )
+                    )
+                );
+                $res = self::$DB->query($sql);
+                if (false !== $res->error) {
+                    return $res->error;
+                }
+                ++$inserted;
+            }
+        }
+        return $inserted;
+    }
 }

@@ -281,20 +281,23 @@ class SchemaUpdaterPage extends FOGPage
             if (!DatabaseManager::getLink()) {
                 throw new Exception(_('Database connection unavailable.'));
             }
-            if (count($this->schema) <= self::$mySchema) {
-                $this->jsonSend(HTTPResponseCodes::HTTP_NO_CONTENT, json_encode(
-                    [
-                        'msg' => _('Update not required'),
-                        'title' => _('Update Not Required')
-                    ]
-                ));
-            }
-            $items = array_slice(
-                $this->schema,
-                self::$mySchema,
-                null,
-                true
-            );
+            // Whether there is any INDEXED work. There may be none and still
+            // be work to do: the reconcile and the required-row seed below are
+            // keyed on what the database actually looks like, not on a
+            // position in the array, and they are the only repair a database
+            // whose vValue already exceeds the array length can ever get. That
+            // used to return here before either of them ran, which is what
+            // left such a server permanently "up to date" AND permanently
+            // missing whatever a later step was supposed to insert.
+            $hasIndexed = count($this->schema) > self::$mySchema;
+            $items = $hasIndexed
+                ? array_slice(
+                    $this->schema,
+                    self::$mySchema,
+                    null,
+                    true
+                )
+                : [];
             $newSchema = self::getClass('Schema', 1);
             foreach ((array)$items as $version => &$updates) {
                 foreach ((array)$updates as &$update) {
@@ -471,11 +474,37 @@ class SchemaUpdaterPage extends FOGPage
                     sprintf('%s: %s', _('Schema reconcile'), $reconcile)
                 );
             }
+            // Required rows, seeded by identity rather than by array position.
+            // Same rationale as the reconcile above -- see
+            // Schema::seedRequiredRows() -- but for row data, which the
+            // reconciler is declared never to touch.
+            $seeded = Schema::seedRequiredRows();
+            if (is_string($seeded)) {
+                $errors[] = sprintf("%s: %s\n", _('Schema row seed'), $seeded);
+                error_log(
+                    sprintf("%s: %s\n", _('Schema row seed'), $seeded),
+                    3,
+                    BASEPATH . 'fog_schema_update_error.log'
+                );
+                error_log(sprintf('%s: %s', _('Schema row seed'), $seeded));
+                $seeded = 0;
+            }
             if (!$newSchema->save()
                 || count($errors) > 0
             ) {
                 $serverFault = true;
                 throw new Exception(_('Unable to update schema'));
+            }
+            // Reported only once everything above has actually run, so a
+            // server with no indexed steps left still gets its reconcile and
+            // its row seed before being told there was nothing to do.
+            if (!$hasIndexed && $seeded < 1) {
+                $this->jsonSend(HTTPResponseCodes::HTTP_NO_CONTENT, json_encode(
+                    [
+                        'msg' => _('Update not required'),
+                        'title' => _('Update Not Required')
+                    ]
+                ));
             }
             $db = self::$DB->returnThis();
             self::$DB->currentDb($db);

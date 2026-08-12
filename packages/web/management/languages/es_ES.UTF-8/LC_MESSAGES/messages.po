@@ -5972,6 +5972,9 @@ msgstr "actualización Valoración falló"
 msgid "Schema reconcile"
 msgstr ""
 
+msgid "Schema row seed"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "actualización de servicio no pudo"

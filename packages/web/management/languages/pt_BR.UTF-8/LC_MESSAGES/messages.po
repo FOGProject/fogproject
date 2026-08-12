@@ -5838,6 +5838,9 @@ msgstr "Instalar / Atualizar sucesso!"
 msgid "Schema reconcile"
 msgstr ""
 
+msgid "Schema row seed"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "Instalar / Atualizar sucesso!"

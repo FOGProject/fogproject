@@ -1957,6 +1957,28 @@ class BootMenu extends FOGBase
                 . 'goto bootme';
             $Send = self::fastmerge($Send, [$params]);
         }
+        // Keyed on pxeName, NOT pxeID.
+        //
+        // pxeMenu has an auto_increment primary key and is user-writable from
+        // iPXE Menu Customization, so "the next free id" is only ever true of
+        // a pristine install. Any site that had added a custom menu item held
+        // id 14 already, the seeding INSERT was silently ignored (INSERT
+        // IGNORE against a taken primary key does nothing), and the item never
+        // appeared -- while a fresh install got it every time. Worse in the
+        // other direction: keying the behaviour on the id meant that site's
+        // OWN custom entry would have started chaining to MokManager.
+        //
+        // Matching on the name removes the id from the contract entirely, so
+        // the row can be seeded with whatever id auto_increment hands out and
+        // nothing has to be moved out of the way.
+        //
+        // The numeric cases below are left alone deliberately: 1, 2 and 11 are
+        // seeded by the very first pxeMenu INSERT, which every install on
+        // earth ran before any admin could have added a row, so their ids are
+        // settled history rather than an assumption.
+        if ('fog.enrollsecureboot' === $option->name) {
+            return self::fastmerge($Send, $this->_enrollSecureBootChoice());
+        }
         switch ($option->id) {
             case 1:
                 $Send = self::fastmerge(
@@ -1982,9 +2004,6 @@ class BootMenu extends FOGBase
                         . "goto MENU"
                     ]
                 );
-                break;
-            case 14:
-                $Send = self::fastmerge($Send, $this->_enrollSecureBootChoice());
                 break;
             default:
                 if (!$params) {
@@ -2231,8 +2250,18 @@ class BootMenu extends FOGBase
             $Menus->data = array_values(
                 array_filter(
                     $Menus->data,
+                    // By pxeName, not pxeID -- see _menuOpt(). Keyed by id,
+                    // a BIOS client would have had an unrelated custom menu
+                    // entry sitting at 14 or 15 hidden from it instead.
                     function ($Menu) {
-                        return !in_array((int)$Menu->id, [14, 15], true);
+                        return !in_array(
+                            $Menu->name,
+                            [
+                                'fog.enrollsecureboot',
+                                'fog.enrollsecurebootunattended'
+                            ],
+                            true
+                        );
                     }
                 )
             );
@@ -2243,8 +2272,14 @@ class BootMenu extends FOGBase
         // lives in. Without all three the task type itself has nothing
         // valid to write and refuses (see schema step 323), so hide the PXE
         // entry point rather than advertise a choice that can only fail.
-        // pxeID 14 is unaffected: it only ever needed MOK.der, checked
-        // separately inside _enrollSecureBootChoice().
+        // The attended item is unaffected: it only ever needed MOK.der,
+        // checked separately inside _enrollSecureBootChoice().
+        //
+        // Matched by pxeName, not pxeID, for the reason spelled out in
+        // _menuOpt(): pxeMenu is user-writable with an auto_increment key, so
+        // these rows are only seeded at 14/15 on a pristine install. Keyed by
+        // id, a site whose own custom entry happened to sit at 15 would have
+        // had THAT entry hidden whenever the .auth files were absent.
         $authDir = BASEPATH . 'service/secureboot' . DS;
         if (!file_exists($authDir . 'PK.auth')
             || !file_exists($authDir . 'KEK.auth')
@@ -2254,7 +2289,7 @@ class BootMenu extends FOGBase
                 array_filter(
                     $Menus->data,
                     function ($Menu) {
-                        return (int)$Menu->id !== 15;
+                        return 'fog.enrollsecurebootunattended' !== $Menu->name;
                     }
                 )
             );

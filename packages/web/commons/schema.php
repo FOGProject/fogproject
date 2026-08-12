@@ -4983,9 +4983,17 @@ $this->schema[] = [
     // A new step, not an edit to step 321: that INSERT has already run on
     // every existing 1.6 beta server, and a server does not re-run a step
     // it has passed.
+    // Keyed on pxeName, not pxeID. pxeMenu is user-writable with an
+    // auto_increment key, so on a site that already had a custom menu item
+    // the step 321 INSERT IGNORE never landed and id 14 belongs to THAT
+    // admin's entry -- this UPDATE would have rewritten its description.
+    // Safe to key by name here rather than add yet another step: this
+    // shipped one commit ago and FOG_SCHEMA was never bumped past it, so no
+    // server has run it. See BootMenu::_menuOpt() and
+    // Schema::seedRequiredRows(), which key on the same name.
     "UPDATE `pxeMenu` SET "
     . "`pxeDesc`='Enroll Secure Boot Key (MOK attended setup)' "
-    . "WHERE `pxeID`=14",
+    . "WHERE `pxeName`='fog.enrollsecureboot'",
 ];
 // 325
 $this->schema[] = [

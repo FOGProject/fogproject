@@ -5557,6 +5557,9 @@ msgstr "サイトを更新しました"
 msgid "Schema reconcile"
 msgstr ""
 
+msgid "Schema row seed"
+msgstr ""
+
 #, fuzzy
 msgid "Schema updated successfully!"
 msgstr "iPXE 設定を更新しました！"

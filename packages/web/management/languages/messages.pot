@@ -4935,6 +4935,9 @@ msgstr ""
 msgid "Schema reconcile"
 msgstr ""
 
+msgid "Schema row seed"
+msgstr ""
+
 msgid "Schema updated successfully!"
 msgstr ""
 
