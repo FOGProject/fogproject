@@ -664,7 +664,31 @@ fogUserCount() {
 # the manual branch accepted any keypress -- so a failed schema update still
 # marched on to "Setup complete".
 verifySchemaDeploy() {
-    local expected=$(grep -o "define('FOG_SCHEMA', *[0-9]*" $webdirdest/lib/fog/system.class.php 2>/dev/null | grep -o '[0-9]*$')
+    # Compared against the STEP COUNT, not FOG_SCHEMA.
+    #
+    # vValue is a count of applied elements of $this->schema -- the updater
+    # writes $version + 1 and stops at the last index -- so it tops out at the
+    # number of steps in commons/schema.php. FOG_SCHEMA is a deliberately
+    # higher coarse gate that decides whether to SEND an admin to the updater;
+    # it has sat exactly 35 above the element count since at least 2024, on
+    # this branch and on dev-branch alike (279 - 244).
+    #
+    # Comparing the two therefore could never pass. A correct, fully updated
+    # fresh install lands on the element count and was told the release
+    # "requires" 35 more, then the installer exited 1. The only value that ever
+    # satisfied it was a vValue sitting at or above FOG_SCHEMA -- which is what
+    # a hand-set value or a 1.5 carried count looks like, and which is itself
+    # the "permanently up to date, never runs another indexed step" state that
+    # Schema::seedRequiredRows() exists to repair.
+    #
+    # count($this->schema) <= mySchema is the exact test the updater uses to
+    # decide it has nothing left to do, so it is the right thing to verify.
+    local expected=$(grep -c '^\$this->schema\[\] = ' $webdirdest/commons/schema.php 2>/dev/null)
+    # A zero count means the pattern stopped matching the file's formatting,
+    # not that there are no steps. Treat it as unknown and skip verification,
+    # the same rule schemaVersionInDB() follows -- asserting a bogus threshold
+    # would either fail every install or pass every broken one.
+    [[ -z $expected || $expected -lt 1 ]] && expected=""
     local deployed=$(schemaVersionInDB)
     if [[ -z $expected || -z $deployed ]]; then
         echo " * Skipping schema verification (unable to read the schema version)"
