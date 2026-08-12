@@ -69,19 +69,39 @@ class StorageGroup extends FOGController
         GROUP BY `nfsGroups`.`ngName`
         %s
         %s";
-    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+    /**
+     * No GROUP BY, and COUNT(DISTINCT), unlike the row query above.
+     *
+     * The row query needs the GROUP BY so SUM(ngmMaxClients) totals per group.
+     * Carrying it into the COUNT queries made them return one row PER GROUP,
+     * each holding that group's own member count -- and
+     * FOGManagerController::complex() reads $resFilterLength[0][0], the first
+     * row. So a server with three storage groups reported recordsTotal=1
+     * (the first group's member count), and DataTables' Scroller sizes its
+     * virtual scroll extent as recordsDisplay * rowHeight: the grid rendered
+     * every row but collapsed to a single row's height, with the rest reachable
+     * only by scrolling inside it. Reported on the forum, topic 18217.
+     *
+     * DISTINCT because the LEFT JOIN multiplies a group by its member count,
+     * so a plain COUNT would over-report a group holding several nodes. Counted
+     * on the primary key rather than ngName only because the template's first
+     * placeholder is the primary key; nfsGroups.ngName carries a UNIQUE index,
+     * so the two agree with the row query's GROUP BY either way.
+     *
+     * The JOIN stays: %s below is the caller's WHERE, which may reference
+     * nfsGroupMembers columns when searching.
+     */
+    protected $sqlFilterStr = "SELECT COUNT(DISTINCT `%s`)
         FROM `%s`
         LEFT OUTER JOIN `nfsGroupMembers`
         ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
         AND `nfsGroupMembers`.`ngmIsEnabled` = '1'
-        %s
-        GROUP BY `nfsGroups`.`ngName`";
-    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        %s";
+    protected $sqlTotalStr = "SELECT COUNT(DISTINCT `%s`)
         FROM `%s`
         LEFT OUTER JOIN `nfsGroupMembers`
         ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
-        AND `nfsGroupMembers`.`ngmIsEnabled` = '1'
-        GROUP BY `nfsGroups`.`ngName`";
+        AND `nfsGroupMembers`.`ngmIsEnabled` = '1'";
     /**
      * Load used tasks
      *

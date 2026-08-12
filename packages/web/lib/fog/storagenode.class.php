@@ -107,12 +107,24 @@ class StorageNode extends FOGController
         %s
         %s
         %s";
-    protected $sqlFilterStr = "SELECT COUNT(`%s`),`ngID`,`ngName`
+    /**
+     * ngID/ngName are deliberately NOT selected here, unlike the row query.
+     *
+     * These are pure aggregates with no GROUP BY, so selecting bare columns
+     * alongside COUNT() is only legal while ONLY_FULL_GROUP_BY is off -- and it
+     * is on by default in MySQL 5.7+ and 8. Where it is on, both queries error
+     * outright, complex() reads a missing row 0 and the grid ends up with a
+     * record count of zero: the same collapsed-to-one-row rendering the storage
+     * GROUP count bug produced (see storagegroup.class.php), reached a
+     * different way. Nothing consumed the two columns in any case -- only
+     * [0][0], the count, is ever read.
+     */
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
         FROM `%s`
         LEFT OUTER JOIN `nfsGroups`
         ON `nfsGroupMembers`.`ngmGroupID` = `nfsGroups`.`ngID`
         %s";
-    protected $sqlTotalStr = "SELECT COUNT(`%s`),`ngID`,`ngName`
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
         FROM `%s`
         LEFT OUTER JOIN `nfsGroups`
         ON `nfsGroupMembers`.`ngmGroupID` = `nfsGroups`.`ngID`";
