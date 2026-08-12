@@ -2049,9 +2049,10 @@ class Route extends FOGBase
      * that a response is a page and walk the pages without recomputing offsets.
      *
      * Always adds recordsReturned (rows actually in this response). When the
-     * request asked for a bounded page (?length) against a non-empty result
-     * set, also adds first/prev/next/last page URLs; each is null when it does
-     * not apply (e.g. prevUrl on the first page). recordsTotal/recordsFiltered
+     * response is a page against a non-empty result set -- because the request
+     * asked for one with ?length, or because limit() capped an unbounded one --
+     * also adds first/prev/next/last page URLs; each is null when it does not
+     * apply (e.g. prevUrl on the first page). recordsTotal/recordsFiltered
      * keep their existing full-count meaning — the DataTables UI depends on it.
      *
      * @param array $pass_vars The resolved pagination request (start/length).
@@ -2069,6 +2070,15 @@ class Route extends FOGBase
         $filtered = isset(self::$data['recordsFiltered'])
             ? (int)self::$data['recordsFiltered']
             : 0;
+        // An unpaginated caller no longer gets the whole table -- limit() caps
+        // it at MAX_ROWS so a million-row log cannot exhaust PHP mid-fetch. It
+        // therefore did receive a page, even though it never asked for one, so
+        // it needs the URLs to walk the rest; without them the cap is a wall
+        // and the rows behind it are unreachable by that client. The cap is the
+        // page size it was served at.
+        if ($length <= 0 && !empty(self::$data['truncated'])) {
+            $length = FOGManagerController::MAX_ROWS;
+        }
         if ($length <= 0 || $filtered <= 0) {
             self::$data['firstUrl'] = null;
             self::$data['prevUrl'] = null;

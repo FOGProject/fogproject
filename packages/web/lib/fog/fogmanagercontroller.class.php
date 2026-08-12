@@ -22,6 +22,28 @@
 abstract class FOGManagerController extends FOGBase
 {
     /**
+     * Hard cap on the rows one grid query will fetch when the request asks for
+     * all of them. Bounds the memory a single server-side-processing response
+     * can cost; see limit() for why "all rows" is no longer taken literally.
+     *
+     * It is a ceiling, not a guarantee: a wide grid whose formatters
+     * materialize a related object per row costs far more per row than a log
+     * table does, so this stops the failure that is reachable from the UI
+     * rather than proving every grid safe at the cap.
+     */
+    const MAX_ROWS = 10000;
+    /**
+     * Whether the last limit() call had to impose MAX_ROWS because the request
+     * did not bound itself. Read by complex() so the payload can say it is a
+     * page rather than the whole answer.
+     *
+     * A caller that sends its own start/length already knows it is paging and
+     * is not flagged; this is only ever set when the server chose the bound.
+     *
+     * @var bool
+     */
+    private static $_capped = false;
+    /**
      * The main class for the object.
      *
      * @var string
@@ -246,11 +268,41 @@ abstract class FOGManagerController extends FOGBase
      */
     public static function limit($request, $columns)
     {
-        $limit = '';
-        if (!isset($request['start'])
-            || $request['length'] == -1
-        ) {
-            return $limit;
+        self::$_capped = false;
+        // A request carrying no `start` at all is a REST list: /api/usertracking
+        // with no pagination. That used to mean no LIMIT, which is the same
+        // uncatchable memory fatal described below reached through the API
+        // instead of the UI, and on exactly the tables a reporting script is
+        // most likely to ask for. It takes the same cap; `truncated` in the
+        // envelope, and the nextUrl Route::paginate() builds from it, are how a
+        // consumer sees that it got a page and walks the rest.
+        if (!isset($request['start'])) {
+            self::$_capped = true;
+            return 'LIMIT 0, ' . self::MAX_ROWS;
+        }
+        // "All" (-1) is a page size the browser can ask for from the length
+        // menu, and an admin can make it the default for every grid through
+        // FOG_VIEW_DEFAULT_SCREEN. It used to mean no LIMIT at all, so the row
+        // query fetched the entire table into PHP in one fetchAll(). That is
+        // survivable on an entity grid -- hosts, images, snapins are counted in
+        // hundreds -- but userTracking, imagingLog and the other append-only
+        // logs are not bounded by anything: a host's Login History tab on a
+        // long-lived server asks for every login and logout ever recorded
+        // against it. At around 100k rows that exhausts PHP's memory_limit
+        // mid-fetch, and a memory fatal cannot be caught or rendered, so the
+        // grid's AJAX call answers 500 with a zero-byte body. There is nothing
+        // in that for the admin to act on and nothing in it for a bug report
+        // either.
+        //
+        // So "all rows" is bounded rather than unbounded. MAX_ROWS sits above
+        // any plausible entity grid, which keeps "All" behaving exactly as it
+        // does today everywhere it works today, and below the size at which the
+        // log tables take the request down. recordsFiltered still reports the
+        // true total, so the table's info line says how many rows there really
+        // are rather than pretending the capped page is all of them.
+        if ($request['length'] == -1) {
+            self::$_capped = true;
+            return 'LIMIT 0, ' . self::MAX_ROWS;
         }
         // Both values are clamped, because neither is ours: they come straight
         // off a DataTables POST. Scroller derives `start` from the scroll
@@ -263,13 +315,14 @@ abstract class FOGManagerController extends FOGBase
         // gets, on a tab whose only distinguishing feature is that it is empty.
         //
         // A negative start means the first page. A negative length is the same
-        // defect with the "all rows" sentinel already returned above, so
-        // anything else negative is nonsense and is read as unbounded rather
-        // than built into `LIMIT 0, -5`.
+        // defect with the "all rows" sentinel already handled above, so
+        // anything else negative is nonsense; it is read as "all rows" and
+        // takes the same cap rather than being built into `LIMIT 0, -5`.
         $start = intval($request['start']);
         $length = intval($request['length']);
         if ($length < 0) {
-            return $limit;
+            self::$_capped = true;
+            return 'LIMIT 0, ' . self::MAX_ROWS;
         }
         $limit = "LIMIT "
             . max(0, $start)
@@ -649,6 +702,14 @@ abstract class FOGManagerController extends FOGBase
             ),
             'recordsTotal' => intval($recordsTotal),
             'recordsFiltered' => intval($recordsFiltered),
+            // True when the caller did not bound the request and MAX_ROWS did
+            // it for them AND there was more behind the cap. Without this a
+            // capped response is indistinguishable from a complete one, which
+            // is how a reporting script silently loses rows. countOnly fetches
+            // no rows at all, so nothing was truncated there.
+            'truncated' => !$countOnly
+                && self::$_capped
+                && intval($recordsFiltered) > self::MAX_ROWS,
             'data' => $countOnly ? [] : self::dataOutput($columns, $data),
             //'sql_query' => $sql_query,
             //'filter_query' => $filter_query,
