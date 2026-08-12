@@ -1346,6 +1346,29 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
   }
 }
 
+// Restore the border-spacing the bundled DataTables CSS forgets.
+//
+// datatables.min.css declares `table.dataTable { border-collapse: separate; }`
+// but NOT the `border-spacing: 0` upstream always pairs with it. Bootstrap and
+// AdminLTE both set `table { border-collapse: collapse }`, which the more
+// specific `table.dataTable` overrides -- so every DataTable fell back to the
+// browser's DEFAULT `border-spacing: 2px`.
+//
+// Harmless on a paged table, but Scroller sizes its virtual viewport from a
+// UNIFORM row height and computes the total scroll extent as
+// recordsDisplay * rowHeight. That arithmetic cannot see spacing BETWEEN rows,
+// so the extent under-measured by ~2px per row and the last row of every
+// scrolling grid was clipped -- 9px short on a three-row table, more as the
+// table grows. It hid inside the storage-group count bug (see
+// storagegroup.class.php), which collapsed those grids to a single row.
+//
+// Applied to every DataTable rather than only scrolling ones: it is what
+// upstream intends in both cases, and scoping it to Scroller would leave paged
+// and scrolling grids with visibly different cell gaps.
+table.dataTable {
+  border-spacing: 0;
+}
+
 // Clip an over-long cell to an ellipsis instead of letting it run on over its
 // neighbour. Separate from the layout above because it is NOT wanted
 // everywhere: registerTable() adds it only to scrolling tables, where

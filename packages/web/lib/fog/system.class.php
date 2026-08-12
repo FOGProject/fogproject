@@ -59,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.3311');
+        define('FOG_VERSION', '1.6.0-beta.3312');
         define('FOG_CHANNEL', 'Beta');
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php. It is NOT the element count -- it has drifted
@@ -79,7 +79,7 @@ class System
         // permanently "up to date" from the updater's point of view and will
         // never run another indexed step, whatever this constant says.
         define('FOG_SCHEMA', 325);
-        define('FOG_BCACHE_VER', 273);
+        define('FOG_BCACHE_VER', 274);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
         // a release asset. Pinned here rather than tracked as "latest" so a
