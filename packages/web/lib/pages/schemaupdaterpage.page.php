@@ -38,7 +38,16 @@ class SchemaUpdaterPage extends FOGPage
     {
         parent::__construct($name);
         $schema = new Schema(1);
-        if ($schema->get('version') >= FOG_SCHEMA) {
+        // The row seed has to survive this gate. vValue >= FOG_SCHEMA is the
+        // normal "nothing to do" state, but it is also exactly the state a
+        // database with a carried-over 1.5 count sits in permanently -- and
+        // that is the install most likely to be missing a seeded row. Bouncing
+        // it to index.php made Schema::seedRequiredRows() unreachable for the
+        // very case it was written for, including via the installer, which
+        // POSTs its deploy to this same page.
+        if ($schema->get('version') >= FOG_SCHEMA
+            && !Schema::requiredRowsMissing()
+        ) {
             self::redirect('../management/index.php');
         }
         $this->name = _('Database Schema Installer / Updater');

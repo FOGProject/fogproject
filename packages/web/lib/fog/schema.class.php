@@ -689,9 +689,9 @@ class Schema extends FOGController
      * only correct on a pristine install -- see BootMenu::_menuOpt(), which
      * matches these rows by name for the same reason.
      *
-     * @return int|string Rows inserted, or an error string on failure.
+     * @return array Table => ['key' => identity column, 'rows' => name => cols]
      */
-    public static function seedRequiredRows()
+    private static function _requiredRows()
     {
         // name => column => value. Identity is the name.
         //
@@ -703,7 +703,7 @@ class Schema extends FOGController
         // value") to a warning and substitutes an implicit default; a plain
         // INSERT does not, and fails outright. Matching the values every
         // existing row already carries: hotkeys off, empty sequence.
-        $required = [
+        return [
             'pxeMenu' => [
                 'key' => 'pxeName',
                 'rows' => [
@@ -729,6 +729,59 @@ class Schema extends FOGController
                 ],
             ],
         ];
+    }
+    /**
+     * Is any required row missing?
+     *
+     * Exists so SchemaUpdaterPage can tell "up to date" apart from "nothing
+     * INDEXED left to do, but rows are still missing".
+     *
+     * That distinction is load-bearing. The updater page redirects away
+     * whenever vValue >= FOG_SCHEMA, and the installer's own deploy POSTs to
+     * that same page -- so on a database sitting at or above the constant,
+     * seedRequiredRows() could never be reached, which is precisely the state
+     * it was written to repair. Found by deleting a seeded row on a server at
+     * vValue == FOG_SCHEMA and watching the updater redirect instead of
+     * restoring it.
+     *
+     * Costs one COUNT per required row, and only on the schema page -- never
+     * on a normal request, which is why the equivalent gate in
+     * DatabaseManager::init() is deliberately left alone.
+     *
+     * @return bool True when at least one required row is absent.
+     */
+    public static function requiredRowsMissing()
+    {
+        foreach (self::_requiredRows() as $table => $spec) {
+            foreach ((array)$spec['rows'] as $name => $values) {
+                $sql = sprintf(
+                    'SELECT COUNT(*) AS `cnt` FROM `%s` WHERE `%s` = %s',
+                    $table,
+                    $spec['key'],
+                    self::$DB->escape($name)
+                );
+                $res = self::$DB->query($sql);
+                if (false !== $res->error) {
+                    // Unreadable means unknown. Saying "missing" would strand
+                    // an admin on the updater page for a probe that cannot run.
+                    continue;
+                }
+                $row = $res->fetch(PDO::FETCH_ASSOC)->get();
+                if (is_array($row) && isset($row['cnt']) && (int)$row['cnt'] < 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /**
+     * Inserts any required row that is absent. See _requiredRows().
+     *
+     * @return int|string Rows inserted, or an error string on failure.
+     */
+    public static function seedRequiredRows()
+    {
+        $required = self::_requiredRows();
         $inserted = 0;
         foreach ($required as $table => $spec) {
             foreach ((array)$spec['rows'] as $name => $values) {
