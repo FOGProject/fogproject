@@ -228,7 +228,26 @@ class Initiator
             $regext,
             RegexIterator::GET_MATCH
         );
-        return array_column(iterator_to_array($paths), 0);
+        // service/ holds fog-client entry points, not class sources, and one of
+        // them -- usertracking.report.php -- matches the *.report.php pattern.
+        // Its map key ("usertracking") collides with lib/fog/usertracking.class
+        // .php, and on a collision the file the directory walk reached first
+        // wins: readdir order, so identical code fails on one install and not
+        // the next. Where the entry point won, autoloading UserTracking -- which
+        // only the Login History grid does -- executed it, and its
+        // `require '../commons/base.inc.php'` booted FOG a second time:
+        // "Cannot declare class Initiator", a bodyless 500 on that one table.
+        // Nothing under service/ declares a class, so drop the directory rather
+        // than special-case the one file.
+        $entryPoints = BASEPATH . 'service' . DS;
+        return array_values(
+            array_filter(
+                array_column(iterator_to_array($paths), 0),
+                function ($path) use ($entryPoints) {
+                    return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0;
+                }
+            )
+        );
     }
 
     private static function _readFileListCache(string $file): ?array
