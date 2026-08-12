@@ -21,14 +21,25 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ChangeItems extends Hook
+/**
+ * Named for its plugin, like every other hook here, because the class name is
+ * derived from the filename: startClassFromFiles() strips .hook.php and skips
+ * any name already declared. This and the OU plugin's hook were both
+ * changeitems.hook.php, so whichever the autoloader's file walk reached first
+ * -- readdir order -- was the only one that ever loaded, and the other
+ * plugin's registrations silently never happened. It did not even need both
+ * plugins installed: registerInstalled() bails when $node is not an installed
+ * plugin, so an uninstalled location plugin winning the walk left the OU
+ * plugin's AD hook unregistered with nothing to show for it.
+ */
+class LocationChangeItems extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'ChangeItems';
+    public $name = 'LocationChangeItems';
     /**
      * The description of this hook.
      *

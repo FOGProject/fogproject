@@ -21,14 +21,19 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ChangeItems extends Hook
+/**
+ * Named for its plugin -- see LocationChangeItems, which shared this hook's
+ * old changeitems.hook.php filename and therefore its class name. Only one of
+ * the two ever loaded per request, decided by readdir order.
+ */
+class OUChangeItems extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'ChangeItems';
+    public $name = 'OUChangeItems';
     /**
      * The description of this hook.
      *
