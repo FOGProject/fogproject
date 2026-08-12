@@ -185,10 +185,16 @@ class Initiator
      *
      * The map is derived once per request from classFileList() (itself memoised
      * and TTL-cached), keyed on the lowercased basename minus its .<type>.php
-     * suffix — exactly what the built-in resolver matches. First file wins on a
-     * duplicate base, mirroring the include_path probe order the built-in uses,
-     * so behaviour is identical. A miss falls through to the still-registered
-     * built-in autoloader.
+     * suffix — exactly what the built-in resolver matches. A miss falls through
+     * to the still-registered built-in autoloader.
+     *
+     * Where two files claim one key the first one walked wins, and that is NOT
+     * what the built-in does: spl_autoload() loops the registered extensions on
+     * the outside and the include_path on the inside, so a .class.php always
+     * beats a .report.php of the same name however the directories are ordered.
+     * This map has no such precedence — the winner is readdir order, which
+     * differs per install. Keep colliding basenames out of the scan (see
+     * _scanClassFiles) rather than relying on either rule.
      *
      * @param string $class The class being autoloaded.
      *
