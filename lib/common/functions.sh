@@ -7658,6 +7658,234 @@ _resignKernels() {
     fi
     echo "Done"
 }
+# Re-sign the rEFInd binaries for UEFI Secure Boot.
+#
+# Why this exists at all: FOG_EFI_BOOT_EXIT_TYPE defaults to 'refind_efi', so on
+# a stock install rEFInd is what EVERY UEFI host chainloads on the way out of
+# the boot menu -- when a task finishes and when no task exists. bootmenu.class
+# emits 'chain -ar ${boot-url}/service/ipxe/refind*.efi', and under EFI that is
+# LoadImage/StartImage, so the firmware (or shim, on our signed snponly path)
+# validates it exactly as it validates the FOS kernel. An unsigned rEFInd dies
+# there with SECURITY VIOLATION.
+#
+# The symptom is deceptive, which is why this went unnoticed: imaging itself
+# works perfectly -- iPXE is signed, the kernel is signed by _resignKernels --
+# and the machine only fails afterwards, on the way to the disk. It reads as a
+# bootloader or partitioning problem, not a Secure Boot one. Reported on the
+# forum against 1.6.3200 (topic 18217), where the reporter fixed it by hand.
+#
+# What ships is not a substitute: refind.efi and refind_x64.efi carry Rod
+# Smith's own self-signed certificate, which is in nobody's db, and
+# refind_ia32.efi/refind_aa64.efi carry no signature at all.
+#
+# Deliberately NOT folded into _resignKernels(). That runs from downloadfiles(),
+# i.e. inside configureTFTPandPXE -- and restorePreservedCustomizations() runs
+# AFTER that and unconditionally copies the preserved refind set back over the
+# live one. Signing there would be undone on every upgrade by a restore doing
+# exactly its job. This is called after the restore instead, so it signs
+# whatever actually ends up in place.
+#
+# Nothing strips the existing signature: sbsign appends rather than replaces
+# ("Image was already signed; adding additional signature"), and a site that
+# followed rEFInd's own Secure Boot documentation may have enrolled Rod's
+# certificate. Removing it would break them for no gain.
+#
+# Master only. Storage nodes get configureMinHttpd, which never lays down the
+# web package's service/ipxe tree, so there is no rEFInd there to sign.
+#
+# PEM path of the certificate an image signed by this server VERIFIES against,
+# which in split-PKI mode is NOT the certificate it is signed WITH.
+#
+# sbverify resolves the embedded chain against the -cert as a trust anchor, so
+# an image signed by the leaf with --addcert <intermediate> verifies against the
+# intermediate and fails against the leaf:
+#
+#   $ sbsign --key leaf.key --cert leaf.crt --addcert ca.crt -o out.efi in.efi
+#   $ sbverify --cert leaf.crt out.efi   -> FAIL
+#   $ sbverify --cert ca.crt   out.efi   -> PASS
+#
+# That is why the "already signed by us, skip" test below cannot just reuse
+# _secureBootCertPem(): on a split-PKI server it would fail against every file
+# this function had already signed, and each installer run would append one more
+# signature to a file that grows forever.
+#
+# secureBootMokCert may be the DER copy an admin passed to --secureboot-ca-cert,
+# and sbverify takes PEM only -- same normalisation _secureBootCertPem() does
+# for the signing cert, against a separate filename so the two cannot clobber
+# each other.
+_secureBootAnchorPem() {
+    local pem="${fogprogramdir}/.fog-secureboot-anchor.pem"
+    # Flat mode, or no intermediate: the signing cert IS the anchor.
+    [[ -z $secureBootMokCert ]] && { _secureBootCertPem; return $?; }
+    mkdir -p "$fogprogramdir" >>$error_log 2>&1
+    if openssl x509 -in "$secureBootMokCert" -inform pem -noout >/dev/null 2>&1; then
+        cp -f "$secureBootMokCert" "$pem" >>$error_log 2>&1 || return 1
+    elif ! openssl x509 -in "$secureBootMokCert" -inform der -outform pem \
+            -out "$pem" >>$error_log 2>&1; then
+        return 1
+    fi
+    chown root:root "$pem" >>$error_log 2>&1
+    chmod 0644 "$pem" >>$error_log 2>&1
+    echo "$pem"
+}
+_resignRefind() {
+    [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+    local ipxedir="${webdirdest%/}/service/ipxe"
+    [[ -d $ipxedir ]] || return 0
+    if ! command -v sbsign >/dev/null 2>&1 || ! command -v sbverify >/dev/null 2>&1; then
+        # _resignKernels() has already warned about the missing tools in this
+        # same run; saying it twice helps nobody.
+        return 0
+    fi
+    local f fpath certpem anchorpem failed=0 signed=0
+    certpem=$(_secureBootCertPem) || return 0
+    # Verified against the anchor, signed with the leaf. See
+    # _secureBootAnchorPem() -- these are the same file in flat mode and
+    # deliberately different in split-PKI mode.
+    anchorpem=$(_secureBootAnchorPem) || anchorpem="$certpem"
+    local addcert=()
+    [[ -n $secureBootMokCert ]] \
+        && [[ "$(readlink -f "$secureBootMokCert" 2>/dev/null)" != "$(readlink -f "$certpem" 2>/dev/null)" ]] \
+        && addcert=(--addcert "$secureBootMokCert")
+    # refind.conf is data, not a PE image -- it is preserved alongside these but
+    # is not signable and does not need to be.
+    for f in refind.efi refind_x64.efi refind_ia32.efi refind_aa64.efi; do
+        fpath="${ipxedir}/${f}"
+        [[ -f $fpath ]] || continue
+        # Already carrying OUR signature. Either this run has nothing to do, or
+        # the file is an admin's own already-signed copy that
+        # restorePreservedCustomizations() just put back -- leave both alone.
+        # This is also what stops a re-run stacking a second signature, which
+        # is why it verifies against the anchor and not the signing cert.
+        sbverify --cert "$anchorpem" "$fpath" >/dev/null 2>&1 && continue
+        [[ $signed -eq 0 ]] && dots "Signing rEFInd for Secure Boot"
+        signed=1
+        # Signed via a temporary rather than in place: sbsign reads its input
+        # while writing its output, so input and --output must differ. The
+        # temporary is created in the same directory so it inherits the same
+        # SELinux context, and takes the original's ownership so the web user
+        # can still serve it.
+        if sbsign --key "$secureBootKey" --cert "$certpem" "${addcert[@]}" \
+                --output "${fpath}.signing" "$fpath" >>$error_log 2>&1; then
+            chown --reference="$fpath" "${fpath}.signing" >>$error_log 2>&1
+            chmod --reference="$fpath" "${fpath}.signing" >>$error_log 2>&1
+            mv -f "${fpath}.signing" "$fpath" >>$error_log 2>&1 || failed=1
+        else
+            rm -f "${fpath}.signing" >>$error_log 2>&1
+            failed=1
+        fi
+    done
+    [[ $signed -eq 0 ]] && return 0
+    if [[ $failed -ne 0 ]]; then
+        echo "Failed"
+        echo " * At least one rEFInd binary could not be signed. See $error_log."
+        echo "   Secure Boot clients will fail with SECURITY VIOLATION when they"
+        echo "   exit the boot menu until this is fixed."
+        return 0
+    fi
+    echo "Done"
+}
+# Sign CUSTOM kernels for UEFI Secure Boot.
+#
+# _resignKernels() covers the three names FOG downloads -- bzImage, bzImage32,
+# arm_Image -- and nothing else. But a kernel reaching a client does not have to
+# be one of those: bootmenu.class.php honours a per-host hostKernel/hostInit
+# override, groups set the same fields, and FOG_TFTP_PXE_KERNEL/_32/_ARM change
+# the default globally. Any of those boots a file this server has never signed,
+# which under Secure Boot fails exactly like the unsigned rEFInd did -- only at
+# the imaging step rather than on the way out of the menu.
+#
+# Runs after restorePreservedCustomizations() for the same reason _resignRefind
+# does, and more strongly: a custom kernel is not in the web package at all, so
+# configureHttpd()'s rm -rf removes it and the restore is what puts it back.
+# Before the restore there is literally nothing here to sign.
+#
+# WHICH files are custom is decided by subtraction, mirroring
+# backupPreservedCustomizations() -- (live directory) minus (what the source
+# tree ships) -- rather than by enumerating the settings above. Enumeration
+# cannot be complete: an admin's own pre-boot customization can chain a kernel
+# name FOG records nowhere. Subtraction covers those too, and reuses a rule that
+# already had to be got right for the backup.
+#
+# WHETHER a leftover file is signable is decided by sbverify, not by its name or
+# by an MZ magic test. The initrds (init.xz, arm_init.cpio.gz) sit in this same
+# directory and are not PE images; neither are memdisk or memtest.bin. grub.exe
+# is the one that makes a hand-rolled check dangerous -- it opens with a valid
+# "MZ" and is still not a PE ("pehdr is beyond end of file"), so a magic-byte
+# test would try to sign it. sbverify --list accepts exactly the images sbsign
+# can handle and rejects all of the above.
+_resignCustomKernels() {
+    [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+    local ipxedir="${webdirdest%/}/service/ipxe"
+    [[ -d $ipxedir ]] || return 0
+    # _resignKernels() has already warned in this same run if these are absent.
+    command -v sbsign >/dev/null 2>&1 || return 0
+    command -v sbverify >/dev/null 2>&1 || return 0
+    local shippeddir="${webdirsrc%/}/service/ipxe"
+    local kf bn certpem anchorpem failed=0 signed=0 names=""
+    certpem=$(_secureBootCertPem) || return 0
+    anchorpem=$(_secureBootAnchorPem) || anchorpem="$certpem"
+    local addcert=()
+    [[ -n $secureBootMokCert ]] \
+        && [[ "$(readlink -f "$secureBootMokCert" 2>/dev/null)" != "$(readlink -f "$certpem" 2>/dev/null)" ]] \
+        && addcert=(--addcert "$secureBootMokCert")
+    for kf in "${ipxedir}"/*; do
+        [[ -f $kf ]] || continue
+        bn=$(basename "$kf")
+        # Shipped by FOG -> not custom. rEFInd is caught here, having already
+        # been dealt with by _resignRefind(). If the source tree cannot be
+        # found this test fails for everything and each file falls through to
+        # the checks below, which is harmless: the PE gate rejects the blobs
+        # and the anchor test skips anything already signed.
+        [[ -e "${shippeddir}/${bn}" ]] && continue
+        case $bn in
+            # _resignKernels() owns the downloaded defaults, and signs them
+            # from a pristine .unsigned snapshot. Touching them here would
+            # append a second signature outside that scheme.
+            bzImage|bzImage32|arm_Image|init.xz|init_32.xz|arm_init.cpio.gz) continue ;;
+            # The .unsigned snapshots _resignKernels() keeps, the per-version
+            # siblings the backup leaves behind, and this function's own
+            # temporary. All are archival copies that nothing ever boots --
+            # and signing a .unsigned file would destroy the very property
+            # _resignKernels() depends on it for.
+            bzImage.*|bzImage32.*|arm_Image.*|init.xz.*|init_32.xz.*|arm_init.cpio.gz.*) continue ;;
+            *.unsigned|*.signing) continue ;;
+        esac
+        # Not a PE/COFF image sbsign could handle -- an initrd, a background,
+        # a BIOS blob. Not an error, just not ours to sign.
+        sbverify --list "$kf" >/dev/null 2>&1 || continue
+        # Already carries our signature. See _secureBootAnchorPem() for why
+        # this verifies against the anchor rather than the signing cert.
+        sbverify --cert "$anchorpem" "$kf" >/dev/null 2>&1 && continue
+        [[ $signed -eq 0 ]] && dots "Signing custom kernels for Secure Boot"
+        signed=1
+        if sbsign --key "$secureBootKey" --cert "$certpem" "${addcert[@]}" \
+                --output "${kf}.signing" "$kf" >>$error_log 2>&1; then
+            chown --reference="$kf" "${kf}.signing" >>$error_log 2>&1
+            chmod --reference="$kf" "${kf}.signing" >>$error_log 2>&1
+            if mv -f "${kf}.signing" "$kf" >>$error_log 2>&1; then
+                names="${names}${bn} "
+            else
+                failed=1
+            fi
+        else
+            rm -f "${kf}.signing" >>$error_log 2>&1
+            failed=1
+        fi
+    done
+    [[ $signed -eq 0 ]] && return 0
+    if [[ $failed -ne 0 ]]; then
+        echo "Failed"
+        echo " * At least one custom kernel could not be signed. See $error_log."
+        echo "   Hosts booting it will fail under Secure Boot until this is fixed."
+        return 0
+    fi
+    echo "Done"
+    # Named explicitly. These are the admin's own files, found by subtraction
+    # rather than from a list anyone wrote down, so the run should say what it
+    # decided to modify rather than change them silently.
+    echo " * Signed: ${names% }"
+}
 # The architecture -> boot-file mapping below intentionally mirrors the ISC
 # "class" blocks in the ISC branch of configureDHCP(). Keep the two in sync.
 # Hoisted into a helper so the live Kea config (configureKeaDHCP) and the

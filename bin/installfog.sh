@@ -1120,6 +1120,19 @@ while [[ -z $blGo ]]; do
                     # the admin's own files back on top of fresh defaults
                     # rather than being overwritten by them.
                     restorePreservedCustomizations
+                    # AFTER the restore, not with the kernels inside
+                    # downloadfiles(): the restore above copies the preserved
+                    # refind set back unconditionally, so anything signed
+                    # earlier in the run would be replaced by an unsigned copy.
+                    # Sign what actually ends up on disk.
+                    _resignRefind
+                    # Same ordering, stronger reason: a custom kernel is not in
+                    # the web package, so configureHttpd's rm -rf removed it and
+                    # the restore above is what put it back. Before this point
+                    # there was nothing here to sign. _resignRefind runs first
+                    # so the rEFInd set is already signed when this one walks
+                    # the same directory.
+                    _resignCustomKernels
                     configureFTP
                     configureSnapins
                     # After configureSnapins, whose recursive chown over $snapindir
