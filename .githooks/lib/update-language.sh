@@ -31,6 +31,25 @@ pot="$langdir/messages.pot"
 # strings: without them every regeneration rewrites the POT-Creation-Date and
 # every source line number, so the file differs on every run even when no
 # translatable string changed.
+# The plugin tree is fetched, not committed (ADR 0009), and the find below is a
+# filesystem walk -- so regenerating from a clone that has not run
+# bin/fetch-plugins.sh quietly produces a catalogue with every plugin string
+# missing. Measured on the first commit that hit it: 528 msgids gone, the whole
+# of LDAP, Windows Key and WOL Broadcast among them, and the only symptom was a
+# large diff in a file nobody reads closely.
+#
+# Refusing is right rather than fetching here: this script is deliberately
+# side-effect free -- it stages nothing, commits nothing and touches no network
+# -- and a translation regeneration is not the place to start downloading
+# releases. The caller knows whether it can fetch.
+plugindir="$project_dir/packages/web/lib/plugins"
+if [ ! -d "$plugindir" ] || [ -z "$(ls -A "$plugindir" 2>/dev/null)" ]; then
+    echo "update-language.sh: $plugindir is empty or missing." >&2
+    echo "Regenerating now would drop every plugin string from the catalogue." >&2
+    echo "Run bin/fetch-plugins.sh first." >&2
+    exit 1
+fi
+
 xgettext --language=PHP --from-code=UTF-8 --output="$pot" \
     --omit-header --no-location \
     $(find "$project_dir/packages/web/" -name "*.php")
