@@ -129,8 +129,30 @@ is what happens today.
 ### 4. `FOGProject/fog-plugins`, one repository
 
 The 15 bundled plugins move to a single `FOGProject/fog-plugins` monorepo, with
-history preserved via `git subtree split`. Per-plugin versions live in each
-manifest; the repository releases as one artifact that the FOG build consumes.
+history preserved. Per-plugin versions live in each manifest; the repository
+releases as one artifact that the FOG build consumes.
+
+`packages/web/lib/plugins/` stops being a tree in `FOGProject/fogproject` and
+becomes a staging directory the installer fills, exactly as `packages/tftp`
+already is for iPXE (GH-959). `FOG_PLUGINS_VERSION` in `system.class.php` pins
+the release; `bin/fetch-plugins.sh` downloads it, verifies it against its
+published sha256, and unpacks it before `configureHttpd()` lays the web
+package. A plugin can then be released without a FOG release, and a FOG
+release still ships a known set of plugins rather than whatever the default
+branch held on the day someone installed.
+
+Fetched, not a submodule. A submodule makes every `git clone` need
+`--recursive` and silently hands a wrong tree to anyone who forgets, and
+"silently wrong" is the failure this whole ADR exists to remove.
+
+**`git subtree split` does not work on this history.** `fogproject` has two
+root commits -- the 2008 SourceForge SVN import and an unrelated 2014-04-15
+root merged in later -- and subtree cannot map parents across the second, so
+it emits whole-repository commits unrewritten. `git-filter-repo` keeping both
+`packages/web/lib/plugins` and the `packages/web/management/plugins` path it
+was renamed from on 2014-05-20 produces a correct history whose tip tree is
+byte-for-byte the source subdirectory, and whose per-file `--follow` crosses
+the rename.
 
 One repo per plugin was the earlier sketch (#848) and is rejected for the
 bundled set: one maintainer with 15 repositories is 15 release chores for no
@@ -185,6 +207,11 @@ scopes, is the eventual fix. It is out of scope here and is not a prerequisite.
 - The FOG tarball and `fog-plugins` can now disagree about a plugin's version.
   The build pins a `fog-plugins` revision; the manifest range is what actually
   gates activation.
+- **A fresh `git clone` of `fogproject` has no plugins** until
+  `bin/fetch-plugins.sh` runs, which the installer does for you. That is the
+  cost of the split, and it is the cost `packages/tftp` already imposes. The
+  script leaves a hand-placed tree alone, so an offline site pre-populates the
+  directory once and never thinks about it again.
 - Uninstall still does not drop a plugin's tables. `schema()` is an append-only
   forward migration list with no down-steps, and that stays true — losing an
   admin's data on an uninstall is worse than leaving orphan tables.

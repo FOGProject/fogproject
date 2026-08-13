@@ -87,6 +87,12 @@ class System
         // to pick the download and to check out the matching source when an
         // HTTPS install has to rebuild with its own CA.
         define('FOG_IPXE_VERSION', 'v2.0.0-fog.6');
+        // ADR 0009: the bundled plugins live in FOGProject/fog-plugins and are
+        // no longer committed here. Same shape as the iPXE pin above -- the
+        // installer reads this to pick which release to download, so a given
+        // FOG release ships a known set of plugins rather than whatever the
+        // default branch held on the day someone installed.
+        define('FOG_PLUGINS_VERSION', 'v1.6.0');
         // GH-850: FOG_BASE_DIR is now installer-driven. Initiator loads
         // commons/fogpaths.php (written from the installer's $fogprogramdir)
         // before the autoloader runs, so in a normal boot these are already

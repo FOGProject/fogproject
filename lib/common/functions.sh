@@ -1607,6 +1607,38 @@ downloadipxe() {
     fi
     errorStat 0
 }
+downloadplugins() {
+    # The bundled plugins are a release of FOGProject/fog-plugins now, not a
+    # tree in this repository (ADR 0009). Fetched into packages/web/lib/plugins
+    # BEFORE configureHttpd lays the web package, because that is the copy the
+    # web root is made from -- fetching afterwards would put them somewhere
+    # nothing reads and the next upgrade's rm -rf would take them anyway.
+    #
+    # The work lives in bin/fetch-plugins.sh rather than here so a developer
+    # with a fresh clone can populate their tree without running an install.
+    # This wrapper only supplies the installer's messaging and its idea of what
+    # is fatal.
+    dots "Downloading plugins (${pluginsVer})"
+    if [[ ! -x ../bin/fetch-plugins.sh ]]; then
+        # Not fatal. An install from a release tarball has the plugins already
+        # unpacked in the tree and no reason to carry the fetcher.
+        echo "Skipped (no fetcher)"
+        return 0
+    fi
+    if ! pluginsgit="$pluginsgit" pluginsurl="$pluginsurl" pluginsVer="$pluginsVer" \
+        ../bin/fetch-plugins.sh --quiet >>$error_log 2>&1
+    then
+        # Guidance first: errorStat exits before returning unless $exitFail is
+        # set, so anything printed after it is never seen.
+        echo "Failed!"
+        echo " * Could not download the plugins (${pluginsVer}) from $pluginsgit"
+        echo " * For an offline install, place the plugin directories in"
+        echo " *   packages/web/lib/plugins/ and re-run"
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
+    errorStat 0
+}
 downloadipxesecureboot() {
     # The Secure Boot chain needs binaries FOG cannot build, because they are
     # signed by keys FOG does not hold: Microsoft's, for the shim, and iPXE's,
