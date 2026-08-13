@@ -561,7 +561,15 @@ class PluginManagement extends FOGPage
         try {
             $ids = ['id' => $plugins];
             $state = ['state' => 0];
-            $install = ['installed' => 0];
+            // pSchema goes back to 0 with the tables it describes. It is a
+            // count of applied migration steps, and uninstall() has just
+            // dropped everything those steps built -- leaving it at its old
+            // high-water mark made the NEXT install a no-op: applyUpdates()
+            // saw "already at step N", ran nothing, recreated no tables, and
+            // reported "Plugin installed!". The plugin then came up active
+            // with no tables and every query against it threw
+            // "Base table or view not found".
+            $install = ['installed' => 0, 'schema' => 0];
             $PluginManager = self::getClass('PluginManager');
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
