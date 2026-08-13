@@ -377,6 +377,21 @@ class PluginManagement extends FOGPage
         );
     }
     /**
+     * Placeholder so the POST below is reachable.
+     *
+     * FOGPageManager::render() resolves the sub to a method and falls back to
+     * index() unless a method of the BASE name exists -- it only appends
+     * 'Post' after that check has passed. Without this, a POST to
+     * sub=installArchiveCommit silently rendered the plugin list instead of
+     * committing, with a 200 and a page body rather than any error. Same
+     * reason activate(), install() and remove() are empty here.
+     *
+     * @return void
+     */
+    public function installArchiveCommit()
+    {
+    }
+    /**
      * Moves a staged plugin into the external root.
      *
      * The plugin lands on disk not installed and not active. Discovery writes
