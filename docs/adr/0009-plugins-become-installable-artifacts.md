@@ -97,7 +97,25 @@ constrained:
   `plugin.edit`: activating a plugin that is already on disk and introducing
   new executable code to the server are not the same authority, and a role
   that can do the first should not automatically do the second.
-- Off by default, behind a `globalSettings` flag an admin must deliberately set.
+- **Two independent switches, both required.** `FOG_PLUGIN_UI_INSTALL_ENABLED`
+  in `globalSettings`, off by default, is the half an admin turns on in the UI.
+  The external root being writable by the web user is the other half, and it is
+  a root act outside the web tier: `bin/fog-plugin-uploads.sh enable`, which
+  also sets the SELinux context. Neither alone is sufficient.
+
+  The split is the point. If the setting alone were enough, the UI would be
+  able to grant itself a web-writable directory that PHP autoloads code from —
+  the server handing itself the precondition for remote code execution, on the
+  say-so of a single database row. Requiring a shell as root means the
+  dangerous state cannot be reached from inside the application at all, and an
+  admin who wants the feature off permanently can revoke the directory and
+  ignore the setting entirely.
+
+  The cost is a worse first-run experience: the button is visible to any
+  `plugin.install` holder whether or not uploads are usable, and the modal
+  reports which half is missing when it is opened. Hiding the button was
+  rejected — an admin hunting for a feature they have permission to use and
+  cannot find is a worse failure than one being told what to switch on.
 - Installs to the external root only; never writes into `$webdirdest`.
 - Displays the archive checksum and the parsed manifest for confirmation
   **before** extraction, and refuses an archive whose manifest is absent,
@@ -145,7 +163,15 @@ scopes, is the eventual fix. It is out of scope here and is not a prerequisite.
 - **For the UI installer, that directory must also be web-server-writable** — a
   writable PHP directory reachable by the interpreter is exactly the shape that
   turns any file-write bug into remote code execution. It is why the installer
-  is opt-in and permission-gated rather than on by default.
+  needs both switches above, and why the writable half is deliberately not
+  something the application can grant itself.
+- **Code can now appear under a scanned root while the server is running**,
+  which was never previously possible: the class-file list is TTL-cached, so
+  without an explicit invalidation on install a freshly uploaded plugin stays
+  invisible to the autoloader for the length of the TTL. Everything downstream
+  then silently no-ops — no manager class, so no schema runs, no hooks
+  register, no page renders — while reporting success. Any future writer to a
+  scanned root has to invalidate the same cache.
 - ADR 0006's consequence that "unknown nodes/classes stay allowed, matching the
   RBAC stance" no longer holds: PR #1025 made both the API and page paths fail
   closed. A plugin that does not register a permission node is now unreachable
