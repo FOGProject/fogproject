@@ -1610,6 +1610,9 @@ msgstr "激活插件"
 msgid "Deactivate selected"
 msgstr "删除所选"
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr "调试"
 
@@ -8485,6 +8488,14 @@ msgstr "没有指定的图像"
 msgid "n/a"
 msgstr "N / A"
 
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
+msgstr ""
+
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
 msgid "never"
 msgstr ""
 
@@ -8634,6 +8645,10 @@ msgstr ""
 #, fuzzy
 msgid "success"
 msgstr "访问"
+
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
+msgstr ""
 
 msgid "task found"
 msgstr "发现任务"

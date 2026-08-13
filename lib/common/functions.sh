@@ -1359,6 +1359,29 @@ installFOGServices() {
     # Labelled where the directory is created rather than in a sweep at the end,
     # so a relocated $fogprogramdir (GH-850) is labelled wherever it landed.
     setSELinuxContext "$fogprogramdir/cache" httpd_sys_rw_content_t
+    # The external plugin root (ADR 0009). Created here so a fresh install has
+    # somewhere to put a third-party plugin; without it an admin has to guess
+    # the path and mkdir it as root first. Empty is the normal state and the
+    # web tier treats a missing or empty directory as "no external plugins".
+    #
+    # Deliberately NOT under $webdirdest: configureHttpd() does
+    # `rm -rf $webdirdest`, so anything an admin installed there would be
+    # deleted by the next upgrade. Living here it survives by construction.
+    dots "Creating FOG plugin directory"
+    mkdir -p $fogprogramdir/plugins >>$error_log 2>&1
+    # root-owned and read-only to the web tier ON PURPOSE. PHP autoloads code
+    # from this directory, so write access here is equivalent to write access
+    # to the FOG code tree -- a web-writable plugin root turns any file-write
+    # bug into remote code execution. Installing a plugin is a root action for
+    # now; the opt-in upload flow (ADR 0009 tier 3) has to solve that
+    # separately rather than by loosening this.
+    chown root:root $fogprogramdir/plugins >>$error_log 2>&1
+    chmod 0755 $fogprogramdir/plugins >>$error_log 2>&1
+    # httpd_sys_content_t, not the _rw_ variant the cache uses: the web tier
+    # only ever reads here. See the GH-964 note above for why /opt/fog's
+    # inherited usr_t is not left alone.
+    setSELinuxContext "$fogprogramdir/plugins" httpd_sys_content_t
+    errorStat $?
 }
 configureUDPCast() {
     dots "Setting up UDPCast"

@@ -1340,6 +1340,9 @@ msgstr ""
 msgid "Deactivate selected"
 msgstr ""
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr ""
 
@@ -7183,6 +7186,14 @@ msgstr ""
 msgid "n/a"
 msgstr ""
 
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
+msgstr ""
+
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
 msgid "never"
 msgstr ""
 
@@ -7315,6 +7326,10 @@ msgid "structural repair(s) applied"
 msgstr ""
 
 msgid "success"
+msgstr ""
+
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
 msgstr ""
 
 msgid "task found"

@@ -1611,6 +1611,9 @@ msgstr "Activer Plugins"
 msgid "Deactivate selected"
 msgstr "Supprimer sélectionnée"
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr "Déboguer"
 
@@ -8486,6 +8489,14 @@ msgstr "Aucune image spécifiée"
 msgid "n/a"
 msgstr "n / a"
 
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
+msgstr ""
+
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
 msgid "never"
 msgstr ""
 
@@ -8635,6 +8646,10 @@ msgstr ""
 #, fuzzy
 msgid "success"
 msgstr "Accès"
+
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
+msgstr ""
 
 msgid "task found"
 msgstr "tâche trouvée"

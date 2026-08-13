@@ -1530,6 +1530,9 @@ msgstr "プラグインを有効化"
 msgid "Deactivate selected"
 msgstr "選択項目を削除"
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr "デバッグ"
 
@@ -8047,6 +8050,14 @@ msgstr "指定する必要があります"
 msgid "n/a"
 msgstr "N/A"
 
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
+msgstr ""
+
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
 msgid "never"
 msgstr ""
 
@@ -8189,6 +8200,10 @@ msgstr ""
 #, fuzzy
 msgid "success"
 msgstr "アクセス"
+
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
+msgstr ""
 
 msgid "task found"
 msgstr "タスクが見つかりました"
