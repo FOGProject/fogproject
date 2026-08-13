@@ -5036,3 +5036,46 @@ $this->schema[] = [
     // on/off switch getActivePlugins() still honours.
     "DELETE FROM `globalSettings` WHERE `settingKey` = 'FOG_PLUGINSYS_DIR'",
 ];
+// 327
+$this->schema[] = [
+    // Repairs plugins whose pSchema survived their uninstall.
+    //
+    // pSchema counts applied migration steps, but uninstalling a plugin
+    // dropped its tables and left the count where it was. The next install
+    // then found "already at step N", applied nothing, created no tables, and
+    // still reported success -- the plugin came up active with nothing behind
+    // it and every query threw "Base table or view not found". Uninstall now
+    // clears the count with the tables (PluginManagement::removePost()), but
+    // every install that has ever uninstalled a plugin is already carrying a
+    // stale one, and the fix alone does not reach them.
+    //
+    // Safe by definition: a row that is not installed has no tables, so there
+    // is no applied migration for the count to describe. Untouched rows where
+    // pInstalled is 1.
+    "UPDATE `plugins` SET `pSchema` = 0 WHERE `pInstalled` <> '1'",
+];
+// 328
+$this->schema[] = [
+    // The switch for the UI plugin installer (ADR 0009 tier 3). Off, and it
+    // stays off until an admin turns it on, because turning it on is only
+    // half the job: the other half is a root-run command that makes
+    // /opt/fog/plugins writable by the web server, and that is a directory
+    // PHP autoloads code from. Until both are done the upload route refuses.
+    //
+    // Deliberately not a single click. A setting that could grant itself a
+    // web-writable code directory would be a worse hole than the one it is
+    // trying to be convenient about, so the privilege change is a separate,
+    // deliberate act with root behind it -- see bin/fog-plugin-uploads.sh.
+    "INSERT IGNORE INTO `globalSettings`"
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)"
+    . "VALUES"
+    . "('FOG_PLUGIN_UI_INSTALL_ENABLED','This setting allows plugins to be "
+    . "installed by uploading an archive in Plugin Management. It is off by "
+    . "default. A plugin is PHP that runs on this server, so anyone who can "
+    . "upload one can run code on it -- the upload also requires the "
+    . "plugin.install permission, which is separate from the permission to "
+    . "activate a plugin already on disk. Enabling this setting is not enough "
+    . "on its own: the plugin directory must also be made writable by the web "
+    . "server by running bin/fog-plugin-uploads.sh enable as "
+    . "root.','0','Plugin System')",
+];

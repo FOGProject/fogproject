@@ -63,8 +63,44 @@ msgid "%s Menu"
 msgstr "%s Menü"
 
 #, php-format
+msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s could not be loaded. Check that %s declares a class of that exact name."
+msgstr ""
+
+#, php-format
+msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s is not a readable .tar.gz archive."
+msgstr ""
+
+#, php-format
+msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
+msgstr ""
+
+#, php-format
+msgid "%s is not inside a plugin directory."
+msgstr ""
+
+#, php-format
+msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
 msgid "%s is required"
 msgstr "%s ist erforderlich"
+
+#, php-format
+msgid "%s replaced. Install it to apply any new database steps."
+msgstr ""
+
+#, php-format
+msgid "%s ships with FOG and cannot be replaced by an upload."
+msgstr ""
 
 #, php-format
 msgid "%s value \"%s\" did not match any %s by id or name; left unset"
@@ -139,6 +175,9 @@ msgid "60 Days"
 msgstr ""
 
 msgid "90 Days"
+msgstr ""
+
+msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
 #, fuzzy
@@ -217,6 +256,9 @@ msgstr ""
 #, fuzzy
 msgid "A permission name is required."
 msgstr "Ein Gruppenname ist erforderlich!"
+
+msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
+msgstr ""
 
 #, fuzzy
 msgid "A port must be specified"
@@ -1143,6 +1185,10 @@ msgstr "Seriennummer"
 msgid "Chassis Version"
 msgstr "Gehäuse-Version"
 
+#, php-format
+msgid "Check %s over before installing it."
+msgstr ""
+
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
@@ -1288,6 +1334,10 @@ msgid "Could not apply %s: %s"
 msgstr "Aktualisieren des Hosts fehlgeschlagen"
 
 #, fuzzy
+msgid "Could not create the staging directory."
+msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
+
+#, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "In dieser Gruppe wurde kein Speicherknoten gefunden"
 
@@ -1300,6 +1350,10 @@ msgid "Could not find any"
 msgstr "Nichts konnte gefunden werden"
 
 msgid "Could not find temp filename"
+msgstr "Temporärer Dateiname konnte nicht gefunden werden."
+
+#, fuzzy
+msgid "Could not link plugin assets"
 msgstr "Temporärer Dateiname konnte nicht gefunden werden."
 
 #, fuzzy
@@ -1344,6 +1398,10 @@ msgstr "Tmp-Datei konnte nicht gelesen werden."
 msgid "Could not register"
 msgstr "Konnte nicht registriert werden."
 
+#, php-format
+msgid "Could not replace the existing %s. Is %s writable?"
+msgstr ""
+
 #, fuzzy
 msgid "Could not seed the granted targets"
 msgstr "Tmp-Datei konnte nicht gelesen werden."
@@ -1353,8 +1411,16 @@ msgid "Could not send data from file"
 msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
+msgid "Could not stage the upload."
+msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#, fuzzy
 msgid "Could not update host"
 msgstr "Aktualisieren des Hosts fehlgeschlagen"
+
+#, php-format
+msgid "Could not write to %s. The UI installer needs that directory to be writable by the web server."
+msgstr ""
 
 #, fuzzy
 msgid "Count"
@@ -1602,6 +1668,9 @@ msgstr "Plugins aktivieren"
 msgid "Deactivate selected"
 msgstr "Ausgewählte löschen"
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr "Debug"
 
@@ -1838,6 +1907,9 @@ msgstr ""
 
 msgid "Dropped"
 msgstr "ausgeworfen"
+
+msgid "Duplicate plugin name; the later one is ignored"
+msgstr ""
 
 msgid "Duration"
 msgstr "Dauer"
@@ -2192,6 +2264,10 @@ msgid "Failed to destroy Storage Node"
 msgstr "Zerstören des Speicherknotens fehlgeschlagen"
 
 #, fuzzy
+msgid "Failed to forget "
+msgstr "Verbindung nicht möglich"
+
+#, fuzzy
 msgid "Failed to install "
 msgstr "Starten fehlgeschlagen"
 
@@ -2387,6 +2463,13 @@ msgstr ""
 
 msgid "Force"
 msgstr "zwingen"
+
+#, fuzzy
+msgid "Forget selected"
+msgstr "Ausgewählte löschen"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
 
 #, fuzzy
 msgid "Forums"
@@ -4622,6 +4705,10 @@ msgstr "Kein Zugriff erlaubt"
 msgid "No activity information available for this group"
 msgstr ""
 
+#, fuzzy
+msgid "No archive was uploaded."
+msgstr "Keine Datei wurde hochgeladen"
+
 msgid "No change"
 msgstr ""
 
@@ -4733,6 +4820,10 @@ msgstr "Pfad ist nicht verfügbar"
 
 msgid "No open slots"
 msgstr "Keine offenen Slots"
+
+#, fuzzy
+msgid "No plugins selected."
+msgstr "Snapin geschützt"
 
 #, fuzzy
 msgid "No printers assigned to this host"
@@ -5265,12 +5356,24 @@ msgid "Plugin Activate Success"
 msgstr "Drucker hinzufügen erfolgreich."
 
 #, fuzzy
+msgid "Plugin Archive Read"
+msgstr "Drucker erstellen fehlgeschlagen!"
+
+#, fuzzy
 msgid "Plugin Deactivate Fail"
 msgstr "Drucker erstellen fehlgeschlagen!"
 
 #, fuzzy
 msgid "Plugin Deactivate Success"
 msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "Plugin-Management"
 
 msgid "Plugin Install Fail"
 msgstr ""
@@ -5301,7 +5404,19 @@ msgid "Plugin Update Success"
 msgstr "Drucker aktualisiert!"
 
 #, fuzzy
+msgid "Plugin Upload Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Plugin Upload Success"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
 msgid "Plugin activated!"
+msgstr "Plugin-Name"
+
+#, fuzzy
+msgid "Plugin archive"
 msgstr "Plugin-Name"
 
 #, fuzzy
@@ -5320,9 +5435,16 @@ msgstr "Plugin-Name"
 msgid "Plugin updated!"
 msgstr "Drucker aktualisiert!"
 
+msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings."
+msgstr ""
+
 #, fuzzy
 msgid "Plugins"
 msgstr "Plugins"
+
+#, fuzzy
+msgid "Plugins Forgotten"
+msgstr "Plugin-Name"
 
 #, fuzzy
 msgid "Plugins activated!"
@@ -5613,6 +5735,10 @@ msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
 msgstr ""
+
+#, fuzzy
+msgid "Rename or remove one of them."
+msgstr "Fehler beim Aktualisieren des Tasks"
 
 #, fuzzy
 msgid "Replicating"
@@ -6977,6 +7103,10 @@ msgstr ""
 msgid "That session has already started"
 msgstr "Dieser Host ist bereits vorhanden."
 
+#, fuzzy
+msgid "That upload is no longer available."
+msgstr "Es gibt keine Images auf diesem Server."
+
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
@@ -7004,6 +7134,34 @@ msgstr ""
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
 msgstr ""
 
+msgid "The archive contains a link."
+msgstr ""
+
+#, php-format
+msgid "The archive contains an unsafe path: %s"
+msgstr ""
+
+msgid "The archive could not be extracted."
+msgstr ""
+
+#, fuzzy
+msgid "The archive could not be read."
+msgstr "Temporäre Datei konnte nicht gelesen werden."
+
+msgid "The archive did not extract as expected."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "The archive has no %s."
+msgstr "Es gibt"
+
+#, php-format
+msgid "The archive is larger than the %s limit."
+msgstr ""
+
+msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
@@ -7025,6 +7183,10 @@ msgstr "Die Installer für den FOG Client"
 msgid "The key will be assigned to registered hosts when a"
 msgstr "Der Schlüssel wird registrierten Hosts zugewiesen, wenn"
 
+#, php-format
+msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
+msgstr ""
+
 msgid "The manual enrolment steps below are unaffected."
 msgstr ""
 
@@ -7034,16 +7196,37 @@ msgstr "Der zu verwendende Knoten ist derzeit"
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
+#, fuzzy
+msgid "The plugin directory"
+msgstr "Home-Verzeichnis speichern"
+
+#, fuzzy
+msgid "The plugin directory does not exist."
+msgstr "Methode ist nicht vorhanden"
+
+msgid "The plugin will run but its JS and CSS will 404."
+msgstr ""
+
 msgid "The primary mac associated is"
 msgstr "Die zugeordnete Primär-MAC lautet"
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "Die Einstellungen wirken sich in der Regel auf alle Hosts aus."
 
+msgid "The staged plugin no longer matches its manifest."
+msgstr ""
+
 msgid "The storage groups associated storage node is not valid"
 msgstr "Der einer/mehrere Speichergruppen zugeordnete Speicherknoten ist ungültig"
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The upload did not arrive."
+msgstr ""
+
+#, php-format
+msgid "The upload failed (error %s). It may be larger than post_max_size, currently %s."
 msgstr ""
 
 #, fuzzy
@@ -7105,6 +7288,10 @@ msgstr "Es gibt nichts zu replizieren"
 
 msgid "There you can download utilities such as FOG Prep"
 msgstr "Dort können Sie Tools wie FOG Prep, "
+
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
+msgstr ""
 
 msgid "This change would leave no user with administrator access."
 msgstr ""
@@ -7534,10 +7721,17 @@ msgstr "Ein Name ist erforderlich!"
 msgid "Update selected"
 msgstr "ausgewählte Images hinzufügen"
 
+#, fuzzy
+msgid "Upload"
+msgstr "Berichte hochladen"
+
 msgid "Upload Reports"
 msgstr "Berichte hochladen"
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr ""
+
+msgid "Upload plugin"
 msgstr ""
 
 msgid "Uploaded file too large."
@@ -8255,6 +8449,10 @@ msgid "has failed to save"
 msgstr "konnte nicht gespeichert werden"
 
 #, fuzzy
+msgid "has no code on disk"
+msgstr "auf diesem Knoten nicht gefunden"
+
+#, fuzzy
 msgid "has started"
 msgstr "hat begonnen"
 
@@ -8476,6 +8674,14 @@ msgstr "muss angegeben werden"
 msgid "n/a"
 msgstr "nicht verfügbar"
 
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
+msgstr ""
+
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
 msgid "never"
 msgstr ""
 
@@ -8626,6 +8832,10 @@ msgstr ""
 #, fuzzy
 msgid "success"
 msgstr "Zugang"
+
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
+msgstr ""
 
 msgid "task found"
 msgstr "Task gefunden"
@@ -9335,6 +9545,10 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "z.B."
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "auf diesem Knoten nicht gefunden"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

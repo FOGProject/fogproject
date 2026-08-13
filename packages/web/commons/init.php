@@ -101,6 +101,28 @@ class Initiator
         if (!defined('FOG_LOG_DIR')) {
             define('FOG_LOG_DIR', FOG_BASE_DIR . DS . 'log');
         }
+        // The EXTERNAL plugin root (ADR 0009). Bundled plugins ship in the web
+        // tree at BASEPATH/lib/plugins and are re-laid from the tarball on every
+        // upgrade; third-party plugins live here instead, because
+        // configureHttpd() does `rm -rf $webdirdest` and would delete anything
+        // an admin had added. Living under FOG_BASE_DIR means it survives that
+        // wipe BY CONSTRUCTION, the same property $customizationsDir relies on,
+        // rather than by a backup-and-restore step that has to be re-made
+        // correctly every upgrade.
+        //
+        // Absent on an install that has never used one; every consumer treats a
+        // missing directory as "no external plugins" rather than an error.
+        //
+        // The final path segment MUST stay "plugins". FOGBase::fileitems()
+        // decides whether a source file belongs to a plugin by looking for a
+        // literal DS."plugins".DS in its path, which is how an external
+        // plugin's hooks, pages and reports get picked up by the same
+        // machinery as a bundled one. Point this somewhere not ending in
+        // /plugins and those files are silently treated as core, which
+        // bypasses the installed-plugin filter entirely.
+        if (!defined('FOG_PLUGIN_DIR')) {
+            define('FOG_PLUGIN_DIR', FOG_BASE_DIR . DS . 'plugins');
+        }
 
         $allpaths = array_unique(array_map('dirname', self::classFileList()));
         set_include_path(implode(PATH_SEPARATOR, $allpaths) . PATH_SEPARATOR . get_include_path());
@@ -166,7 +188,12 @@ class Initiator
         if (self::$fileList !== null) {
             return self::$fileList;
         }
-        $cacheFile = FOG_CACHE_DIR . DS . 'filelist.' . md5(BASEPATH) . '.json';
+        // Keyed on every scanned root, not just BASEPATH: an install that
+        // gains or loses the external plugin root has a genuinely different
+        // file list, and keying on BASEPATH alone would serve it the stale one
+        // until the TTL expired.
+        $cacheFile = FOG_CACHE_DIR . DS . 'filelist.'
+            . md5(implode('|', self::_scanRoots())) . '.json';
         $cached = self::_readFileListCache($cacheFile);
         if ($cached !== null) {
             return self::$fileList = $cached;
@@ -174,6 +201,32 @@ class Initiator
         $files = self::_scanClassFiles();
         self::_writeFileListCache($cacheFile, $files);
         return self::$fileList = $files;
+    }
+
+    /**
+     * Drops the cached class-file list so the next request rescans.
+     *
+     * Called when code is added to or removed from a scanned root while the
+     * server is running -- which only the plugin uploader does. Without it the
+     * new plugin stays invisible to the autoloader until the TTL expires: its
+     * manager, page and hook classes do not resolve, so installing it applies
+     * no schema, registers no hooks and renders no page, while reporting
+     * success. Up to five minutes of a plugin that is "installed" and inert.
+     *
+     * Only the current roots' entry is removed, and a failed unlink is not an
+     * error: the TTL still expires on its own, so the worst case is the delay
+     * this exists to avoid.
+     *
+     * @return void
+     */
+    public static function forgetClassFileList(): void
+    {
+        self::$fileList = null;
+        self::$classMap = null;
+        @unlink(
+            FOG_CACHE_DIR . DS . 'filelist.'
+            . md5(implode('|', self::_scanRoots())) . '.json'
+        );
     }
 
     /**
@@ -220,20 +273,68 @@ class Initiator
         }
         $key = strtolower($class);
         if (isset(self::$classMap[$key])) {
-            include self::$classMap[$key];
+            // include_once, not include. PHP does not call an autoloader
+            // twice for a name it managed to declare -- but it calls it every
+            // time for one it did not, and a file whose declared class name
+            // does not match its filename never satisfies the lookup. The
+            // second class_exists() on such a name re-included the file and
+            // died on "Cannot declare class X, because the name is already in
+            // use": an uncatchable fatal, so a bodyless HTTP 500. Proven with
+            // a plugin shipping class/<name>manager.class.php declaring
+            // something else.
+            include_once self::$classMap[$key];
         }
+    }
+
+    /**
+     * The roots the class scan walks: the web tree, plus the external plugin
+     * root when it exists.
+     *
+     * Both are returned with a trailing separator so a prefix comparison
+     * cannot match a sibling directory whose name merely starts the same way
+     * ("/opt/fog/plugins" must not accept "/opt/fog/plugins-backup").
+     *
+     * @return string[]
+     */
+    private static function _scanRoots(): array
+    {
+        $roots = [rtrim(BASEPATH, DS) . DS];
+        if (is_dir(FOG_PLUGIN_DIR)) {
+            $roots[] = rtrim(FOG_PLUGIN_DIR, DS) . DS;
+        }
+        return $roots;
     }
 
     private static function _scanClassFiles(): array
     {
         $regext = '#^.*\.(report|event|class|hook|page)\.php$#';
-        $paths = new RegexIterator(
-            new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(BASEPATH, FileSystemIterator::SKIP_DOTS)
-            ),
-            $regext,
-            RegexIterator::GET_MATCH
-        );
+        // Walked directly rather than through a symlink from the web tree.
+        // Activation does symlink an external plugin into lib/plugins so the
+        // browser can fetch its js/css, but RecursiveDirectoryIterator does
+        // NOT descend into a symlinked directory -- it yields the link itself
+        // as one entry -- so the link is invisible here. That is deliberate:
+        // scanning the real path finds each file exactly once, with no
+        // FOLLOW_SYMLINKS flag that would make the walk chase every other
+        // symlink in the tree as well.
+        $matches = [];
+        foreach (self::_scanRoots() as $root) {
+            $matches = array_merge(
+                $matches,
+                iterator_to_array(
+                    new RegexIterator(
+                        new RecursiveIteratorIterator(
+                            new RecursiveDirectoryIterator(
+                                $root,
+                                FileSystemIterator::SKIP_DOTS
+                            )
+                        ),
+                        $regext,
+                        RegexIterator::GET_MATCH
+                    ),
+                    false
+                )
+            );
+        }
         // service/ holds fog-client entry points, not class sources, and one of
         // them -- usertracking.report.php -- matches the *.report.php pattern.
         // Its map key ("usertracking") collides with lib/fog/usertracking.class
@@ -248,7 +349,7 @@ class Initiator
         $entryPoints = BASEPATH . 'service' . DS;
         return array_values(
             array_filter(
-                array_column(iterator_to_array($paths), 0),
+                array_column($matches, 0),
                 function ($path) use ($entryPoints) {
                     return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0;
                 }
@@ -273,12 +374,38 @@ class Initiator
             return null;
         }
         // FOG_CACHE_DIR is world-writable (sticky). Reject any list pointing
-        // outside the code tree so a poisoned cache can never feed foreign
-        // paths to the autoloader; in-tree-but-stale is healed by the TTL.
+        // outside the scanned roots so a poisoned cache can never feed foreign
+        // paths to the autoloader; in-root-but-stale is healed by the TTL.
+        //
+        // The external plugin root is a second accepted prefix, not a hole:
+        // it is only accepted while it exists, and the roots carry a trailing
+        // separator so a prefix match cannot escape into a sibling directory.
+        // Note this makes write access to FOG_PLUGIN_DIR equivalent to write
+        // access to the code tree -- which it already is, since the autoloader
+        // loads what lives there.
+        //
+        // The UI plugin installer (ADR 0009 tier 3) deliberately makes that
+        // directory web-writable, so on a server that has turned it on this
+        // guard no longer separates "the web user can write it" from "the
+        // autoloader will load it". That is the accepted cost of the feature,
+        // not an oversight, and it is why turning it on takes two acts: the
+        // FOG_PLUGIN_UI_INSTALL_ENABLED setting AND a root-run
+        // bin/fog-plugin-uploads.sh. The guard still earns its keep --
+        // FOG_CACHE_DIR itself is world-writable and is never a scan root, so
+        // a poisoned list still cannot point the autoloader at the cache.
+        $roots = self::_scanRoots();
         foreach ($data as $path) {
-            if (!is_string($path)
-                || strncmp($path, BASEPATH, strlen(BASEPATH)) !== 0
-            ) {
+            if (!is_string($path)) {
+                return null;
+            }
+            $inRoot = false;
+            foreach ($roots as $root) {
+                if (strncmp($path, $root, strlen($root)) === 0) {
+                    $inRoot = true;
+                    break;
+                }
+            }
+            if (!$inRoot) {
                 return null;
             }
         }

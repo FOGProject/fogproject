@@ -26,5 +26,7 @@ $fog_plugin['name'] = 'ntfy';
 $fog_plugin['description'] = 'Adds ntfy notifications using either the '
     . 'ntfy.sh default server or a self-hosted server.';
 $fog_plugin['menuicon'] = 'fa fa-comment fa-fw';
-$fog_plugin['menuicon_hover'] = null;
-$fog_plugin['entrypoint'] = 'html/run.php';
+$fog_plugin['version'] = '1.6.0';
+$fog_plugin['fog_min'] = '1.6.0';
+$fog_plugin['author'] = 'Tony Lam, Tom Elliott';
+$fog_plugin['homepage'] = 'https://fogproject.org';
