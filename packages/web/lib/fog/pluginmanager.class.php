@@ -33,7 +33,11 @@ class PluginManager extends FOGManagerController
     public function getPluginsNeedingUpdate()
     {
         $needing = [];
-        Route::listem('plugin', ['installed' => 1]);
+        // inputoverride = true so the caller's DataTables pagination cannot
+        // truncate this list -- see Plugin::getPlugins(). Read-only here, so
+        // the worst case was a missing "needs update" badge rather than a
+        // damaged row, but it is the same mistake.
+        Route::listem('plugin', ['installed' => 1], true);
         $plugins = json_decode(Route::getData());
         foreach ((array)$plugins->data as $row) {
             $plugin = self::getClass('Plugin', $row->id);
