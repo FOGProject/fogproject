@@ -1369,19 +1369,38 @@ installFOGServices() {
     # deleted by the next upgrade. Living here it survives by construction.
     dots "Creating FOG plugin directory"
     mkdir -p $fogprogramdir/plugins >>$error_log 2>&1
-    # root-owned and read-only to the web tier ON PURPOSE. PHP autoloads code
-    # from this directory, so write access here is equivalent to write access
-    # to the FOG code tree -- a web-writable plugin root turns any file-write
-    # bug into remote code execution. Installing a plugin is a root action for
-    # now; the opt-in upload flow (ADR 0009 tier 3) has to solve that
-    # separately rather than by loosening this.
-    chown root:root $fogprogramdir/plugins >>$error_log 2>&1
-    chmod 0755 $fogprogramdir/plugins >>$error_log 2>&1
-    # httpd_sys_content_t, not the _rw_ variant the cache uses: the web tier
-    # only ever reads here. See the GH-964 note above for why /opt/fog's
-    # inherited usr_t is not left alone.
-    setSELinuxContext "$fogprogramdir/plugins" httpd_sys_content_t
+    # An admin who has turned on UI plugin uploads gave this directory to the
+    # web user on purpose (bin/fog-plugin-uploads.sh). Re-running the installer
+    # must not quietly take that back: it would leave the setting saying
+    # uploads are on while every upload failed. So ownership is only asserted
+    # when the directory is still root's -- which covers a fresh install and
+    # any server that never opted in.
+    local pluginowner="$(stat -c '%U' $fogprogramdir/plugins 2>/dev/null)"
+    local plugincontext="httpd_sys_content_t"
+    if [[ $pluginowner == root || -z $pluginowner ]]; then
+        # root-owned and read-only to the web tier ON PURPOSE. PHP autoloads
+        # code from this directory, so write access here is equivalent to write
+        # access to the FOG code tree -- a web-writable plugin root turns any
+        # file-write bug into remote code execution. That is why enabling the
+        # upload flow takes a deliberate root command and is not the default.
+        chown root:root $fogprogramdir/plugins >>$error_log 2>&1
+        chmod 0755 $fogprogramdir/plugins >>$error_log 2>&1
+    else
+        # Uploads are enabled here, so the web tier writes as well as reads and
+        # needs the _rw_ label. Relabelling to the read-only type would break
+        # uploads on an enforcing host with nothing but an AVC denial to say so.
+        plugincontext="httpd_sys_rw_content_t"
+    fi
     errorStat $?
+    # Outside the dots/errorStat pair above: setSELinuxContext prints its own
+    # "Setting SELinux context" line, so calling it between them interleaved
+    # the two and left errorStat reporting the labelling result rather than
+    # whether the directory was created. Matches the cache block above.
+    #
+    # httpd_sys_content_t by default, not the _rw_ variant the cache uses: the
+    # web tier only reads here unless uploads have been enabled. See the GH-964
+    # note above for why /opt/fog's inherited usr_t is not left alone.
+    setSELinuxContext "$fogprogramdir/plugins" "$plugincontext"
 }
 configureUDPCast() {
     dots "Setting up UDPCast"
