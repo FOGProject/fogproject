@@ -2,9 +2,15 @@
 
 This guide walks you from an empty directory to a working, installable FOG
 plugin on the **working‑1.6** framework. It uses a complete, runnable example
-plugin — **`helloworld`** — that ships alongside this document at
-[`packages/web/lib/plugins/helloworld/`](../packages/web/lib/plugins/helloworld/).
+plugin — **`helloworld`** — which lives in
+[`FOGProject/fog-plugins`](https://github.com/FOGProject/fog-plugins) and
+lands at `packages/web/lib/plugins/helloworld/` once the plugins are fetched.
 Copy that directory, rename it, and you have a head start.
+
+> The bundled plugins are no longer committed to this repository. A fresh
+> clone has no `packages/web/lib/plugins/` at all until `bin/fetch-plugins.sh`
+> populates it from the release `FOG_PLUGINS_VERSION` pins — which the
+> installer does for you. Run it by hand if you just want the tree.
 
 > **Scope:** this targets the working‑1.6 plugin framework (the `formFields` /
 > `makeInput` page helpers, the `addPost`/`editPost` JSON pattern, and the
@@ -25,7 +31,7 @@ There are two places that directory can live, and which one you pick matters:
 
 | Root | For | Survives a FOG upgrade? |
 |---|---|---|
-| `packages/web/lib/plugins/<name>/` | plugins bundled with FOG itself | No — the tarball re‑lays this tree |
+| `packages/web/lib/plugins/<name>/` | plugins bundled with FOG itself, sourced from `FOGProject/fog-plugins` | No — the tarball re‑lays this tree |
 | `/opt/fog/plugins/<name>/` (`FOG_PLUGIN_DIR`) | **everything third‑party** | Yes |
 
 The installer's `configureHttpd()` does `rm -rf` on the web root before laying
@@ -33,6 +39,11 @@ the new one down, so a plugin installed into `lib/plugins/` is deleted by the
 next `installfog.sh` run without warning. `FOG_PLUGIN_DIR` sits outside the web
 root precisely so that cannot happen. See
 [ADR 0009](adr/0009-plugins-become-installable-artifacts.md).
+
+Bundling is not a route third parties take. `lib/plugins/` is filled from a
+pinned `fog-plugins` release, so putting a plugin there means opening a PR
+against that repository and waiting for FOG to pin a release containing it.
+Ship your own archive instead — see §11a.
 
 Discovery, the class autoloader and the routing all treat the two roots
 identically; the only difference an external plugin sees is that its `js/`,

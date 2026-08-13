@@ -1108,6 +1108,10 @@ while [[ -z $blGo ]]; do
                     # configureMySql has already run, so the FOG_IPXE_BG_FILE
                     # lookup inside has a database to ask.
                     backupPreservedCustomizations
+                    # Before configureHttpd, which is what copies
+                    # packages/web into the web root. The plugins are fetched
+                    # into that package, so they have to be there first.
+                    downloadplugins
                     configureHttpd
                     checkWebTier
                     backupDB
