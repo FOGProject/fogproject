@@ -113,7 +113,14 @@ class Plugin extends FOGController
     {
         $Plugins = [];
         $existing = [];
-        Route::listem('plugin');
+        // inputoverride = true. Without it listem() parses php://input for
+        // DataTables `start`/`length` and paginates THIS query with whatever
+        // grid the current request happens to be drawing. Discovery runs on
+        // every boot, including the boot inside a grid's own AJAX POST, so a
+        // page size below the plugin count returned a short list -- and every
+        // plugin past it looked new (see the id lookup below for what that
+        // then did). Discovery wants every row, always.
+        Route::listem('plugin', false, true);
         $rows = json_decode(Route::getData());
         foreach ((array)($rows->data ?? []) as $row) {
             $existing[strtolower((string)$row->name)] = $row;
@@ -166,6 +173,19 @@ class Plugin extends FOGController
                 }
             }
             $id = (int)($row->id ?? 0);
+            if ($changed && !$id) {
+                // Never insert on the strength of the row being absent from
+                // $existing. plugins.pName is UNIQUE and save() issues
+                // INSERT ... ON DUPLICATE KEY UPDATE, so an "insert" for a
+                // name that already exists silently OVERWRITES that row --
+                // blanking state, installed and pSchema, which presents to
+                // the admin as plugins uninstalling themselves. A single
+                // short list is all it takes, so confirm the row is really
+                // absent rather than trusting the list to be complete. One
+                // query, and only for a plugin that looks new.
+                $found = Route::getIds('plugin', ['name' => $name], 'id');
+                $id = (int)(reset($found) ?: 0);
+            }
             if ($changed) {
                 // Constructed WITH the id, so the row is loaded before the
                 // save. save() writes every databaseField, so saving an
