@@ -9,7 +9,8 @@
         installBtn = $('#install'),
         deactivateBtn = $('#deactivate'),
         removeBtn = $('#remove'),
-        updateBtn = $('#update');
+        updateBtn = $('#update'),
+        forgetBtn = $('#forget');
 
     // Refresh the "PLUGIN OPTIONS" sidebar section after a plugin's
     // installed/active state changes, so new items appear (and removed ones
@@ -28,6 +29,7 @@
         deactivateBtn.prop('disabled', disable);
         removeBtn.prop('disabled', disable);
         updateBtn.prop('disabled', disable);
+        forgetBtn.prop('disabled', disable);
     }
     function onSelect(selected) {
         var disabled = selected.count() == 0;
@@ -77,6 +79,12 @@
                     // Not a button: there is nothing the admin can do to this
                     // plugin from here. It states why activating it will be
                     // refused, so the refusal isn't the first they hear of it.
+                    // Ahead of the incompatible badge: with no code there is
+                    // no manifest, so compatError() finds nothing wrong and
+                    // the row would otherwise look completely ordinary.
+                    if (row.missing > 0) {
+                        return data + ' <span class="badge bg-danger" title="The plugin directory is gone. It cannot be activated. Use Forget to remove the row."><i class="fa fa-unlink"></i> Missing</span>';
+                    }
                     if (row.incompatible) {
                         return data + ' <span class="badge bg-danger" title="'+$('<div/>').text(row.incompatible).html()+'"><i class="fa fa-ban"></i> Incompatible</span>';
                     }
@@ -372,6 +380,28 @@
             }
             table.draw(false);
             table.rows({selected: true}).deselect();
+            refreshSidebar();
+        });
+    });
+
+    forgetBtn.on('click', function(e) {
+        e.preventDefault();
+        disableButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                plugins: $.getSelectedIds(table),
+                btnpressed: 1
+            };
+        $.apiCall(method, action, opts, function(err) {
+            disableButtons(false);
+            if (err) {
+                return;
+            }
+            // The rows are gone, not merely changed, so redraw from the
+            // server rather than repainting the current page in place.
+            table.rows({selected: true}).deselect();
+            table.draw(false);
             refreshSidebar();
         });
     });

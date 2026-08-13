@@ -1921,6 +1921,9 @@ msgstr ""
 msgid "Failed to destroy Storage Node"
 msgstr ""
 
+msgid "Failed to forget "
+msgstr ""
+
 msgid "Failed to install "
 msgstr ""
 
@@ -2084,6 +2087,12 @@ msgid "Forbidden (invalid CSRF token)"
 msgstr ""
 
 msgid "Force"
+msgstr ""
+
+msgid "Forget selected"
+msgstr ""
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
 msgstr ""
 
 msgid "Forums"
@@ -4064,6 +4073,9 @@ msgstr ""
 msgid "No open slots"
 msgstr ""
 
+msgid "No plugins selected."
+msgstr ""
+
 msgid "No printers assigned to this host"
 msgstr ""
 
@@ -4526,6 +4538,12 @@ msgstr ""
 msgid "Plugin Deactivate Success"
 msgstr ""
 
+msgid "Plugin Forget Fail"
+msgstr ""
+
+msgid "Plugin Forgotten"
+msgstr ""
+
 msgid "Plugin Install Fail"
 msgstr ""
 
@@ -4578,6 +4596,9 @@ msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in
 msgstr ""
 
 msgid "Plugins"
+msgstr ""
+
+msgid "Plugins Forgotten"
 msgstr ""
 
 msgid "Plugins activated!"
@@ -6143,6 +6164,10 @@ msgstr ""
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -7270,6 +7295,9 @@ msgid "item"
 msgstr ""
 
 msgid "items"
+msgstr ""
+
+msgid "its code is not on disk"
 msgstr ""
 
 msgid "kernel to boot the client computers"

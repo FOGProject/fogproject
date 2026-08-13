@@ -2267,6 +2267,10 @@ msgid "Failed to destroy Storage Node"
 msgstr "未能摧毁存储节点"
 
 #, fuzzy
+msgid "Failed to forget "
+msgstr "连接失败"
+
+#, fuzzy
 msgid "Failed to install "
 msgstr "未能摧毁"
 
@@ -2462,6 +2466,13 @@ msgstr ""
 
 msgid "Force"
 msgstr "力"
+
+#, fuzzy
+msgid "Forget selected"
+msgstr "删除所选"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
 
 #, fuzzy
 msgid "Forums"
@@ -4811,6 +4822,10 @@ msgid "No open slots"
 msgstr "没有开口槽"
 
 #, fuzzy
+msgid "No plugins selected."
+msgstr "更新管理单元"
+
+#, fuzzy
 msgid "No printers assigned to this host"
 msgstr "没有找到主机定义图片"
 
@@ -5352,6 +5367,14 @@ msgstr "打印机更新失败！"
 msgid "Plugin Deactivate Success"
 msgstr "打印机已经存在"
 
+#, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "插件管理"
+
 msgid "Plugin Install Fail"
 msgstr ""
 
@@ -5418,6 +5441,10 @@ msgstr ""
 #, fuzzy
 msgid "Plugins"
 msgstr "插入"
+
+#, fuzzy
+msgid "Plugins Forgotten"
+msgstr "插件名称"
 
 #, fuzzy
 msgid "Plugins activated!"
@@ -7261,6 +7288,10 @@ msgstr "没有什么可以复制"
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -8579,6 +8610,10 @@ msgstr ""
 
 msgid "items"
 msgstr ""
+
+#, fuzzy
+msgid "its code is not on disk"
+msgstr "图片没有节点发现"
 
 msgid "kernel to boot the client computers"
 msgstr ""

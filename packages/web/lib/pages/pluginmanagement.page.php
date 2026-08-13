@@ -83,6 +83,14 @@ class PluginManagement extends FOGPage
                 $row->incompatible = Plugin::compatError(
                     Plugin::readManifest((string)$row->location)
                 );
+                // A row whose directory is gone. Rendered rather than
+                // silently tolerated: it is otherwise indistinguishable from
+                // a plugin that simply has no manifest, and the only route
+                // out of it is the Forget action, which the admin has to know
+                // to reach for.
+                $row->missing = Plugin::isMissing((string)$row->location)
+                    ? 1
+                    : 0;
                 unset($row);
             }
             $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($data));
@@ -107,6 +115,17 @@ class PluginManagement extends FOGPage
 
         $update = ' method="post" action="'
             . '../management/index.php?node=plugin&sub=upgrade'
+            . '" ';
+
+        // 'forget', not 'deleteplugin'. _subToAction() maps a delete* sub to
+        // the delete action, and the plugin node registers only
+        // view/edit/install -- so plugin.delete would resolve to a permission
+        // nobody holds and the button would be dead for everyone. Deleting a
+        // row for code that is no longer there is housekeeping of the same
+        // authority as uninstalling, which is plugin.edit, and that is what
+        // this name resolves to.
+        $forget = ' method="post" action="'
+            . '../management/index.php?node=plugin&sub=forget'
             . '" ';
 
         // Upload, then Activate/Deactivate, in that emission order: inside a
@@ -183,6 +202,11 @@ class PluginManagement extends FOGPage
                     'id' => 'update',
                     'text' => _('Update selected'),
                     'props' => $update
+                ],
+                [
+                    'id' => 'forget',
+                    'text' => _('Forget selected'),
+                    'props' => $forget
                 ]
             ],
             'left',
@@ -925,6 +949,122 @@ class PluginManagement extends FOGPage
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Plugin Uninstall Fail')
+                ]
+            );
+        }
+        $this->jsonHookResponse(
+            [
+                'Plugin' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => $msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
+    }
+    /**
+     * Placeholder so the dispatcher routes ?sub=forget to forgetPost()
+     * instead of falling back to index().
+     *
+     * @return void
+     */
+    public function forget()
+    {
+    }
+    /**
+     * Deletes rows whose plugin code is no longer on disk.
+     *
+     * Discovery only ever walks directories, so a plugin whose code has been
+     * deleted leaves a row nothing will ever visit again. Until now there was
+     * no way to remove it: the page offers activate, deactivate, install and
+     * uninstall, none of which delete a row.
+     *
+     * Refuses any selected plugin whose code IS present, rather than deleting
+     * the row and letting the next discovery pass put it straight back. That
+     * would look like a working delete and be a no-op, which is the shape of
+     * bug this page has produced too many of already.
+     *
+     * The plugin's tables are left behind, and the message says so. They
+     * cannot be dropped: the list of what to drop lives in the manager
+     * class's schema(), which is exactly the code that has gone.
+     *
+     * @return void
+     */
+    public function forgetPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        $plugins = filter_input_array(
+            INPUT_POST,
+            [
+                'plugins' => [
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ]
+            ]
+        );
+        $plugins = array_filter(array_map('intval', (array)$plugins['plugins']));
+        self::$HookManager->processEvent('PLUGIN_FORGET_POST');
+
+        $serverFault = false;
+        try {
+            if (!count($plugins)) {
+                throw new Exception(_('No plugins selected.'));
+            }
+            Route::listem('plugin', ['id' => $plugins], true);
+            $rows = json_decode(Route::getData());
+            $present = [];
+            $forget = [];
+            foreach ((array)($rows->data ?? []) as $row) {
+                if (Plugin::isMissing((string)$row->location)) {
+                    $forget[(int)$row->id] = (string)$row->name;
+                    continue;
+                }
+                $present[] = $row->name;
+            }
+            if (count($present)) {
+                throw new Exception(
+                    sprintf(
+                        _('These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead.'),
+                        implode(', ', $present)
+                    )
+                );
+            }
+            foreach ($forget as $id => $name) {
+                $plugin = self::getClass('Plugin', $id);
+                if (!$plugin->destroy()) {
+                    $serverFault = true;
+                    throw new Exception(_('Failed to forget ') . $name);
+                }
+                // Same cleanup uninstall does. A row can reach here still
+                // marked installed -- the admin deleted the directory by hand
+                // rather than uninstalling first -- and its role permissions
+                // would otherwise outlive every trace of the plugin.
+                Authorization::purgePermissions(strtolower($name));
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'PLUGIN_FORGET_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed.'),
+                    'title' => (
+                        count($forget) == 1 ?
+                        _('Plugin Forgotten') :
+                        _('Plugins Forgotten')
+                    )
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'PLUGIN_FORGET_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Plugin Forget Fail')
                 ]
             );
         }

@@ -2167,6 +2167,10 @@ msgid "Failed to destroy Storage Node"
 msgstr "ストレージノードの破棄に失敗しました"
 
 #, fuzzy
+msgid "Failed to forget "
+msgstr "接続に失敗しました"
+
+#, fuzzy
 msgid "Failed to install "
 msgstr "プラグインのインストールに失敗しました"
 
@@ -2350,6 +2354,13 @@ msgstr "アクセスが拒否されました（無効な CSRF トークン）"
 
 msgid "Force"
 msgstr "強制"
+
+#, fuzzy
+msgid "Forget selected"
+msgstr "ロールが選択されていません"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
 
 #, fuzzy
 msgid "Forums"
@@ -4583,6 +4594,10 @@ msgid "No open slots"
 msgstr "空きスロットがありません"
 
 #, fuzzy
+msgid "No plugins selected."
+msgstr "ロールが選択されていません"
+
+#, fuzzy
 msgid "No printers assigned to this host"
 msgstr "このホストを認証するためのトークンが渡されていません"
 
@@ -5103,6 +5118,14 @@ msgid "Plugin Deactivate Success"
 msgstr "プリンターの作成に成功しました"
 
 #, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "プリンターの更新に失敗しました"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "プラグイン構成"
+
+#, fuzzy
 msgid "Plugin Install Fail"
 msgstr "プラグインのインストール"
 
@@ -5169,6 +5192,10 @@ msgstr ""
 
 msgid "Plugins"
 msgstr "プラグイン"
+
+#, fuzzy
+msgid "Plugins Forgotten"
+msgstr "プラグインをインストールしました！"
 
 #, fuzzy
 msgid "Plugins activated!"
@@ -6898,6 +6925,10 @@ msgstr "レプリケーションする項目はありません"
 msgid "There you can download utilities such as FOG Prep"
 msgstr "そこから FOG Prep などのユーティリティをダウンロードできます"
 
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -8148,6 +8179,10 @@ msgstr ""
 
 msgid "items"
 msgstr ""
+
+#, fuzzy
+msgid "its code is not on disk"
+msgstr "このノード上に見つかりません"
 
 msgid "kernel to boot the client computers"
 msgstr "クライアントコンピューターを起動するためのカーネル"
@@ -9751,9 +9786,6 @@ msgstr ""
 #~ msgid "No query sent"
 #~ msgstr "クエリが送信されていません"
 
-#~ msgid "No role selected"
-#~ msgstr "ロールが選択されていません"
-
 #~ msgid "No rule selected"
 #~ msgstr "ルールが選択されていません"
 
@@ -9952,9 +9984,6 @@ msgstr ""
 
 #~ msgid "Please wait until a slot is open"
 #~ msgstr "空きスロットができるまでお待ちください"
-
-#~ msgid "Plugin Configuration"
-#~ msgstr "プラグイン構成"
 
 #~ msgid "Postfix requires an action of login, logout, or start to operate"
 #~ msgstr "Postfix を動作させるには login、logout、または start アクションが必要です"

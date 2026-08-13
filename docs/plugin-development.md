@@ -401,6 +401,17 @@ Seed data (e.g. default `globalSettings` rows) is just another step — return t
    non‑destructive — safe to run on every upgrade.
 4. **Uninstall.** Inherited `uninstall()` drops the table; override it if you
    need to clean up settings, associations, or users you created.
+5. **Code removed.** Deleting the plugin directory does **not** delete its row.
+   Discovery only ever walks directories that exist, so nothing would visit
+   the row again to clean it up — and absence is not reliably permanent (an
+   unmounted external root, or the web tree mid-upgrade, makes every plugin
+   vanish at once). The row keeps its state and its `pSchema` count, so
+   putting the code back resumes exactly where it left off.
+
+   Plugin Management badges such a row **Missing**, refuses to activate or
+   install it, and offers **Forget selected** to delete the row deliberately.
+   Forget leaves the plugin's tables behind and says so: what to drop is
+   described by `schema()`, which is part of the code that has gone.
 
 ---
 
@@ -453,7 +464,10 @@ Fire your own events with `&`‑by‑reference args so listeners can mutate them
 - **`CREATE TABLE IF NOT EXISTS` never alters a live table.** Add columns via a
   new `schema()` step, not by editing `createSql()`.
 - **Filename = `strtolower(ClassName)` + suffix.** A mismatch means the class
-  silently won't autoload.
+  won't autoload. Silently, for most classes — but not for your manager:
+  install refuses outright if `class/<name>manager.class.php` exists and does
+  not declare `<Name>Manager`, because the fallback used to make the install
+  report success having created nothing.
 - **`menuicon`** beginning with `fa` is rendered as a font‑awesome icon;
   anything else is treated as an `<img>` `src`.
 - **`$serverFault`** must be `true` only for server‑side failures, so HTTP

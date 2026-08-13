@@ -127,6 +127,32 @@ class Plugin extends FOGController
             && strncmp($target, $extRoot, strlen($extRoot)) === 0);
     }
     /**
+     * True when a row's plugin code is not on disk.
+     *
+     * Derived at read time rather than stored in a column. A stored flag has
+     * to be cleared by something, and the thing that would clear it --
+     * discovery -- only ever walks directories that exist, so a plugin whose
+     * code came back would stay flagged until someone thought to re-run it.
+     * A stat() is cheaper than that class of bug.
+     *
+     * Deliberately does NOT change the row. Absence is not reliably
+     * permanent: the external root can be an unmounted NFS share, or the web
+     * tree can be mid-upgrade while configureHttpd() re-lays it, and either
+     * would make every external plugin vanish at once. Deactivating on
+     * absence would silently switch them all off; deleting would take their
+     * pSchema counts with it and the next install would re-run migrations
+     * from step zero against tables that already exist.
+     *
+     * @param string $location the row's stored location
+     *
+     * @return bool
+     */
+    public static function isMissing($location)
+    {
+        $location = trim((string)$location);
+        return '' === $location || !is_dir($location);
+    }
+    /**
      * Points lib/plugins/<name> at each external plugin, so the browser can
      * fetch its js/css.
      *
@@ -839,7 +865,12 @@ class Plugin extends FOGController
         if (!count($ids)) {
             return [];
         }
-        Route::listem('plugin');
+        // inputoverride = true: this needs every row, both to find the
+        // selected ones and to build the active set a dependency is checked
+        // against. Paginating it would under-report both. Safe today only
+        // because the POST body carries plugins[] and no DataTables length --
+        // which is not a property worth relying on. See getPlugins().
+        Route::listem('plugin', false, true);
         $rows = json_decode(Route::getData());
         $batch = [];
         $active = [];
@@ -857,6 +888,15 @@ class Plugin extends FOGController
         $available = array_merge($active, array_keys($batch));
         $blockers = [];
         foreach ($batch as $name => $row) {
+            // Checked before the manifest, because there is no manifest to
+            // read: readManifest() on a missing directory returns empty
+            // fog_min/fog_max, compatError() then finds nothing wrong, and a
+            // row with no code behind it activated and installed with a
+            // success message.
+            if (self::isMissing((string)$row->location)) {
+                $blockers[$name] = _('its code is not on disk');
+                continue;
+            }
             $manifest = self::readManifest((string)$row->location);
             $reason = self::compatError($manifest);
             if ('' === $reason) {

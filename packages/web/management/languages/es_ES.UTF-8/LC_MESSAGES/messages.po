@@ -2310,6 +2310,10 @@ msgid "Failed to destroy Storage Node"
 msgstr "No se ha podido destruir nodo de almacenamiento"
 
 #, fuzzy
+msgid "Failed to forget "
+msgstr "No se ha podido destruir"
+
+#, fuzzy
 msgid "Failed to install "
 msgstr "No se ha podido destruir"
 
@@ -2509,6 +2513,13 @@ msgstr ""
 
 msgid "Force"
 msgstr "Fuerza"
+
+#, fuzzy
+msgid "Forget selected"
+msgstr "Eliminar seleccionado"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
 
 #, fuzzy
 msgid "Forums"
@@ -4924,6 +4935,10 @@ msgid "No open slots"
 msgstr ""
 
 #, fuzzy
+msgid "No plugins selected."
+msgstr "Nombre snapin"
+
+#, fuzzy
 msgid "No printers assigned to this host"
 msgstr "No se ha definido de este alojamiento imagen"
 
@@ -5475,6 +5490,14 @@ msgstr "actualización de la impresora ha fallado!"
 msgid "Plugin Deactivate Success"
 msgstr "Impresora ya existe"
 
+#, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "Sin administración de la impresora"
+
 msgid "Plugin Install Fail"
 msgstr ""
 
@@ -5542,6 +5565,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Plugins"
+msgstr "Nombre de la impresora"
+
+#, fuzzy
+msgid "Plugins Forgotten"
 msgstr "Nombre de la impresora"
 
 #, fuzzy
@@ -7433,6 +7460,10 @@ msgstr ""
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -8748,6 +8779,10 @@ msgstr ""
 
 msgid "items"
 msgstr ""
+
+#, fuzzy
+msgid "its code is not on disk"
+msgstr "No se encontró Clase FOGPage para este nodo"
 
 msgid "kernel to boot the client computers"
 msgstr ""

@@ -2264,6 +2264,10 @@ msgid "Failed to destroy Storage Node"
 msgstr "Zerstören des Speicherknotens fehlgeschlagen"
 
 #, fuzzy
+msgid "Failed to forget "
+msgstr "Verbindung nicht möglich"
+
+#, fuzzy
 msgid "Failed to install "
 msgstr "Starten fehlgeschlagen"
 
@@ -2459,6 +2463,13 @@ msgstr ""
 
 msgid "Force"
 msgstr "zwingen"
+
+#, fuzzy
+msgid "Forget selected"
+msgstr "Ausgewählte löschen"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
 
 #, fuzzy
 msgid "Forums"
@@ -4811,6 +4822,10 @@ msgid "No open slots"
 msgstr "Keine offenen Slots"
 
 #, fuzzy
+msgid "No plugins selected."
+msgstr "Snapin geschützt"
+
+#, fuzzy
 msgid "No printers assigned to this host"
 msgstr "Kein valides Image für diesen Host definiert"
 
@@ -5352,6 +5367,14 @@ msgstr "Drucker erstellen fehlgeschlagen!"
 msgid "Plugin Deactivate Success"
 msgstr "Drucker hinzufügen erfolgreich."
 
+#, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "Plugin-Management"
+
 msgid "Plugin Install Fail"
 msgstr ""
 
@@ -5418,6 +5441,10 @@ msgstr ""
 #, fuzzy
 msgid "Plugins"
 msgstr "Plugins"
+
+#, fuzzy
+msgid "Plugins Forgotten"
+msgstr "Plugin-Name"
 
 #, fuzzy
 msgid "Plugins activated!"
@@ -7262,6 +7289,10 @@ msgstr "Es gibt nichts zu replizieren"
 msgid "There you can download utilities such as FOG Prep"
 msgstr "Dort können Sie Tools wie FOG Prep, "
 
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -8583,6 +8614,10 @@ msgstr ""
 
 msgid "items"
 msgstr ""
+
+#, fuzzy
+msgid "its code is not on disk"
+msgstr "auf diesem Knoten nicht gefunden"
 
 #, fuzzy
 msgid "kernel to boot the client computers"

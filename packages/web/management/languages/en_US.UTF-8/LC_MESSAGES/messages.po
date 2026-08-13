@@ -2266,6 +2266,10 @@ msgid "Failed to destroy Storage Node"
 msgstr "Failed to destroy Storage Node"
 
 #, fuzzy
+msgid "Failed to forget "
+msgstr "Failed to connect"
+
+#, fuzzy
 msgid "Failed to install "
 msgstr "Failed to destroy"
 
@@ -2461,6 +2465,13 @@ msgstr ""
 
 msgid "Force"
 msgstr "Force"
+
+#, fuzzy
+msgid "Forget selected"
+msgstr "Delete Selected"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
 
 #, fuzzy
 msgid "Forums"
@@ -4810,6 +4821,10 @@ msgid "No open slots"
 msgstr "No open slots"
 
 #, fuzzy
+msgid "No plugins selected."
+msgstr "Snapin updated"
+
+#, fuzzy
 msgid "No printers assigned to this host"
 msgstr "No Image defined for this host"
 
@@ -5351,6 +5366,14 @@ msgstr "Printer update failed!"
 msgid "Plugin Deactivate Success"
 msgstr "Printer already exists"
 
+#, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "Plugin Management"
+
 msgid "Plugin Install Fail"
 msgstr ""
 
@@ -5417,6 +5440,10 @@ msgstr ""
 #, fuzzy
 msgid "Plugins"
 msgstr "Plugin"
+
+#, fuzzy
+msgid "Plugins Forgotten"
+msgstr "Plugin Name"
 
 #, fuzzy
 msgid "Plugins activated!"
@@ -7260,6 +7287,10 @@ msgstr "There is nothing to replicate"
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -8578,6 +8609,10 @@ msgstr ""
 
 msgid "items"
 msgstr ""
+
+#, fuzzy
+msgid "its code is not on disk"
+msgstr "Image not found on node"
 
 msgid "kernel to boot the client computers"
 msgstr ""
