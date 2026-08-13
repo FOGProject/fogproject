@@ -212,6 +212,15 @@ scopes, is the eventual fix. It is out of scope here and is not a prerequisite.
   cost of the split, and it is the cost `packages/tftp` already imposes. The
   script leaves a hand-placed tree alone, so an offline site pre-populates the
   directory once and never thinks about it again.
+- **A change spanning core and a plugin is no longer one commit, so the order is
+  now load-bearing: release `fog-plugins` first, then land the core change and
+  the `FOG_PLUGINS_VERSION` bump together in a single PR.** This PR is the worked
+  example — it empties `Route::$sensitiveAlwaysFields`, and the LDAP plugin
+  re-adds `bindPwd` through `API_SENSITIVE_FIELDS`. Merging the core half alone
+  would have published a cleartext directory-service password on the API to
+  anyone who upgraded in the window. The pin makes the two halves arrive
+  together because `downloadplugins()` runs before `configureHttpd()`, so a
+  server is never serving requests against a core it has plugins older than.
 - Uninstall still does not drop a plugin's tables. `schema()` is an append-only
   forward migration list with no down-steps, and that stays true — losing an
   admin's data on an uninstall is worse than leaving orphan tables.

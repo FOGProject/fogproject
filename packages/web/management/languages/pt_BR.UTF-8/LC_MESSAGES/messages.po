@@ -281,8 +281,9 @@ msgstr "Uma imagem já existe com este nome!"
 msgid "A role with this name already exists!"
 msgstr "Um nome de host com esse nome já existe."
 
+#, fuzzy
 msgid "A selected role no longer exists"
-msgstr ""
+msgstr " não existe mais"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -682,8 +683,9 @@ msgstr "Instalar / Atualizar sucesso!"
 msgid "All methods of binding have failed"
 msgstr ""
 
+#, fuzzy
 msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
+msgstr "A largura de banda deve ser numérico e maior do que 0"
 
 msgid "All rights reserved."
 msgstr ""
@@ -958,8 +960,9 @@ msgstr "Carga falhou: %s"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
 msgid "CA Certificate Path"
-msgstr ""
+msgstr "Criar novo %s"
 
 #, fuzzy
 msgid "CA Path"
@@ -1705,8 +1708,9 @@ msgstr "Largura padrão"
 msgid "Default is disabled"
 msgstr "As doações são deficientes"
 
+#, fuzzy
 msgid "Default nested group depth"
-msgstr ""
+msgstr "Não é possível abrir arquivo para leitura"
 
 msgid "Delayed"
 msgstr "atrasado"
@@ -1924,14 +1928,17 @@ msgstr ""
 msgid "Edit"
 msgstr "Editar"
 
+#, fuzzy
 msgid "Edit Capone"
-msgstr ""
+msgstr "exportação Snapins"
 
+#, fuzzy
 msgid "Edit Capone ID"
-msgstr ""
+msgstr "exportação Snapins"
 
+#, fuzzy
 msgid "Editing Capone ID"
-msgstr ""
+msgstr "anfitrião Descrição"
 
 #, fuzzy
 msgid "Editing Global Capone Settings"
@@ -2698,8 +2705,9 @@ msgstr "anfitrião Localização"
 msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
 msgstr ""
 
+#, fuzzy
 msgid "Group Member Attribute"
-msgstr ""
+msgstr "Nome de usuário"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -2853,8 +2861,9 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
+#, fuzzy
 msgid "Hello World"
-msgstr ""
+msgstr "hospedar acrescentou"
 
 #, fuzzy
 msgid "Hello World Create Fail"
@@ -3580,8 +3589,9 @@ msgstr ""
 msgid "Init"
 msgstr "Lista de Host"
 
+#, fuzzy
 msgid "Init FS"
-msgstr ""
+msgstr "Lista de Host"
 
 #, fuzzy
 msgid "InitRD Versions"
@@ -4136,11 +4146,13 @@ msgstr "Link Conta Slack"
 msgid "Link Slack Account Success"
 msgstr "Link Conta Slack"
 
+#, fuzzy
 msgid "Link ntfy Topic"
-msgstr ""
+msgstr "Link Conta Slack"
 
+#, fuzzy
 msgid "Link ntfy Topic Fail"
-msgstr ""
+msgstr "Link Conta Slack"
 
 #, fuzzy
 msgid "Link ntfy Topic Success"
@@ -4614,8 +4626,9 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+#, fuzzy
 msgid "Nested Depth"
-msgstr ""
+msgstr "grupos"
 
 #, fuzzy
 msgid "Nested Groups"
@@ -4625,8 +4638,9 @@ msgstr "grupos"
 msgid "Nested depth must be a number"
 msgstr "Evento deve ser uma string"
 
+#, fuzzy
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr ""
+msgstr "Evento deve ser uma string"
 
 msgid "Nested group depth cap reached, so group membership may be incomplete"
 msgstr ""
@@ -5116,6 +5130,9 @@ msgid "Other Tag #2"
 msgstr "Outros Tag # 2"
 
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Page node is not registered as a permission node"
 msgstr ""
 
 #, fuzzy
@@ -5655,8 +5672,9 @@ msgstr "Anfitrião Update Failed"
 msgid "Reboot"
 msgstr "reinicialização"
 
+#, fuzzy
 msgid "Reboot after deploy"
-msgstr ""
+msgstr "foi destruído"
 
 msgid "Receive"
 msgstr "Receber"
@@ -6335,8 +6353,9 @@ msgstr "Gestão de tarefas"
 msgid "Slack Token"
 msgstr "Contas Slack"
 
+#, fuzzy
 msgid "Slack User/Slack Channel"
-msgstr ""
+msgstr "Usuário Nome / Canal"
 
 #, fuzzy
 msgid "Smart Installer"
@@ -6794,8 +6813,9 @@ msgstr "Nó de armazenamento"
 msgid "String must be a string"
 msgstr "Evento deve ser uma string"
 
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
-msgstr ""
+msgstr "descrição do grupo"
 
 #, fuzzy
 msgid "Subnet Group Create Fail"
@@ -6841,8 +6861,9 @@ msgstr "grupo adicionado"
 msgid "Subnet Groups"
 msgstr "Grupos de exportação"
 
+#, fuzzy
 msgid "Subnets"
-msgstr ""
+msgstr "Grupos de exportação"
 
 msgid "Subtree Only"
 msgstr ""
@@ -7417,8 +7438,9 @@ msgstr ""
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
+#, fuzzy
 msgid "Those images should be activated with the associated"
-msgstr ""
+msgstr "Não há snapins associados a este alojamento"
 
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
@@ -7462,8 +7484,9 @@ msgstr ""
 msgid "Topic already linked"
 msgstr "Conta já ligados"
 
+#, fuzzy
 msgid "Topic linked"
-msgstr ""
+msgstr "Conta já ligados"
 
 msgid "Topic name you choose, e.g. fog-alerts"
 msgstr ""
@@ -7739,8 +7762,9 @@ msgstr ""
 msgid "Uptime"
 msgstr "uptime"
 
+#, fuzzy
 msgid "Use Display Name from Directory"
-msgstr ""
+msgstr "Nome de usuário"
 
 #, fuzzy
 msgid "Use Group Match"
@@ -8162,8 +8186,9 @@ msgstr "Windows 8"
 msgid "Windows Product key"
 msgstr "Hospedar de Chave de Produto"
 
+#, fuzzy
 msgid "Windows keys is a plugin that associates product keys"
-msgstr ""
+msgstr "Uma imagem já existe com este nome!"
 
 msgid "Wipes"
 msgstr ""
@@ -9117,10 +9142,6 @@ msgstr ""
 #~ msgstr "modificar Grupo"
 
 #, fuzzy
-#~ msgid "All filters must be numeric and greater than 1"
-#~ msgstr "A largura de banda deve ser numérico e maior do que 0"
-
-#, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
 #~ msgstr "Uma imagem já existe com este nome!"
 
@@ -9535,10 +9556,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Nenhum banco de dados para trabalhar fora"
-
-#, fuzzy
-#~ msgid "no longer exists"
-#~ msgstr " não existe mais"
 
 #, fuzzy
 #~ msgid "version"

@@ -281,8 +281,9 @@ msgstr "An image already exists with this name!"
 msgid "A role with this name already exists!"
 msgstr "A hostname with that name already exists."
 
+#, fuzzy
 msgid "A selected role no longer exists"
-msgstr ""
+msgstr " no longer exists"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -682,8 +683,9 @@ msgstr "Install / Update Successful!"
 msgid "All methods of binding have failed"
 msgstr ""
 
+#, fuzzy
 msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
+msgstr "Bandwidth should be numeric and greater than 0"
 
 msgid "All rights reserved."
 msgstr ""
@@ -958,8 +960,9 @@ msgstr "Load failed: %s"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
 msgid "CA Certificate Path"
-msgstr ""
+msgstr "Create New %s"
 
 #, fuzzy
 msgid "CA Path"
@@ -1704,8 +1707,9 @@ msgstr "Default Width"
 msgid "Default is disabled"
 msgstr "Donations are disabled"
 
+#, fuzzy
 msgid "Default nested group depth"
-msgstr ""
+msgstr "Unable to open file for reading"
 
 msgid "Delayed"
 msgstr "Delayed"
@@ -1923,14 +1927,17 @@ msgstr ""
 msgid "Edit"
 msgstr "Edit"
 
+#, fuzzy
 msgid "Edit Capone"
-msgstr ""
+msgstr "Export Snapins"
 
+#, fuzzy
 msgid "Edit Capone ID"
-msgstr ""
+msgstr "Export Snapins"
 
+#, fuzzy
 msgid "Editing Capone ID"
-msgstr ""
+msgstr "Update Settings"
 
 #, fuzzy
 msgid "Editing Global Capone Settings"
@@ -2697,8 +2704,9 @@ msgstr "Host Location"
 msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
 msgstr ""
 
+#, fuzzy
 msgid "Group Member Attribute"
-msgstr ""
+msgstr "User Name"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -2852,8 +2860,9 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
+#, fuzzy
 msgid "Hello World"
-msgstr ""
+msgstr "Host added"
 
 #, fuzzy
 msgid "Hello World Create Fail"
@@ -3579,8 +3588,9 @@ msgstr ""
 msgid "Init"
 msgstr "Host List"
 
+#, fuzzy
 msgid "Init FS"
-msgstr ""
+msgstr "Host List"
 
 #, fuzzy
 msgid "InitRD Versions"
@@ -4135,11 +4145,13 @@ msgstr "Link Slack Account"
 msgid "Link Slack Account Success"
 msgstr "Link Slack Account"
 
+#, fuzzy
 msgid "Link ntfy Topic"
-msgstr ""
+msgstr "Link Slack Account"
 
+#, fuzzy
 msgid "Link ntfy Topic Fail"
-msgstr ""
+msgstr "Link Slack Account"
 
 #, fuzzy
 msgid "Link ntfy Topic Success"
@@ -4613,8 +4625,9 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+#, fuzzy
 msgid "Nested Depth"
-msgstr ""
+msgstr "Groups"
 
 #, fuzzy
 msgid "Nested Groups"
@@ -4624,8 +4637,9 @@ msgstr "Groups"
 msgid "Nested depth must be a number"
 msgstr "Event must be a string"
 
+#, fuzzy
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr ""
+msgstr "Event must be a string"
 
 msgid "Nested group depth cap reached, so group membership may be incomplete"
 msgstr ""
@@ -5115,6 +5129,9 @@ msgid "Other Tag #2"
 msgstr "Other Tag #2"
 
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Page node is not registered as a permission node"
 msgstr ""
 
 #, fuzzy
@@ -5654,8 +5671,9 @@ msgstr "Host Update Failed"
 msgid "Reboot"
 msgstr "Reboot"
 
+#, fuzzy
 msgid "Reboot after deploy"
-msgstr ""
+msgstr "has been destroyed"
 
 msgid "Receive"
 msgstr "Receive"
@@ -6334,8 +6352,9 @@ msgstr "Task Management"
 msgid "Slack Token"
 msgstr "Slack Accounts"
 
+#, fuzzy
 msgid "Slack User/Slack Channel"
-msgstr ""
+msgstr "User/Channel Name"
 
 #, fuzzy
 msgid "Smart Installer"
@@ -6793,8 +6812,9 @@ msgstr "Storage Node"
 msgid "String must be a string"
 msgstr "Event must be a string"
 
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
-msgstr ""
+msgstr "Group Description"
 
 #, fuzzy
 msgid "Subnet Group Create Fail"
@@ -6840,8 +6860,9 @@ msgstr "Group added"
 msgid "Subnet Groups"
 msgstr "Export Groups"
 
+#, fuzzy
 msgid "Subnets"
-msgstr ""
+msgstr "Export Groups"
 
 msgid "Subtree Only"
 msgstr ""
@@ -7416,8 +7437,9 @@ msgstr ""
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
+#, fuzzy
 msgid "Those images should be activated with the associated"
-msgstr ""
+msgstr "There are no snapins associated with this host"
 
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
@@ -7461,8 +7483,9 @@ msgstr ""
 msgid "Topic already linked"
 msgstr "Account already linked"
 
+#, fuzzy
 msgid "Topic linked"
-msgstr ""
+msgstr "Account already linked"
 
 msgid "Topic name you choose, e.g. fog-alerts"
 msgstr ""
@@ -7738,8 +7761,9 @@ msgstr ""
 msgid "Uptime"
 msgstr "Uptime"
 
+#, fuzzy
 msgid "Use Display Name from Directory"
-msgstr ""
+msgstr "User Name"
 
 #, fuzzy
 msgid "Use Group Match"
@@ -8161,8 +8185,9 @@ msgstr "Windows 8"
 msgid "Windows Product key"
 msgstr "Host Product Key"
 
+#, fuzzy
 msgid "Windows keys is a plugin that associates product keys"
-msgstr ""
+msgstr "An image already exists with this name!"
 
 msgid "Wipes"
 msgstr ""
@@ -9116,10 +9141,6 @@ msgstr ""
 #~ msgstr "Modify Group"
 
 #, fuzzy
-#~ msgid "All filters must be numeric and greater than 1"
-#~ msgstr "Bandwidth should be numeric and greater than 0"
-
-#, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
 #~ msgstr "An image already exists with this name!"
 
@@ -9530,10 +9551,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "No database to work off"
-
-#, fuzzy
-#~ msgid "no longer exists"
-#~ msgstr " no longer exists"
 
 #, fuzzy
 #~ msgid "version"

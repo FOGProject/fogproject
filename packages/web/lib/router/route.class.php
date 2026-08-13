@@ -176,21 +176,29 @@ class Route extends FOGBase
      *
      * The single-GET carve-out above exists for one reason: fog-client reads
      * a host's ADPass back out to join a domain, so that field has a real
-     * consumer and cannot be closed off. Nothing reads the LDAP bind password
-     * back out -- only the web tier binds with it, and it does so through the
-     * ORM, not the API -- so it has no reason to leave the server at all.
+     * consumer and cannot be closed off. A secret with no such consumer
+     * belongs here instead, so it never leaves the server at all.
      *
      * Anything listed here is also stripped from lists; the two tiers are
      * unioned for list payloads. Add a field here rather than above whenever
      * "some client legitimately needs to read this" is not true of it.
      *
+     * Empty in core: the only entry this ever held was the LDAP plugin's
+     * bindPwd, hand-written here because a plugin had no way to declare its
+     * own secrets. It declares them through API_SENSITIVE_FIELDS now -- read
+     * both tiers via sensitiveFieldMap(), never these properties directly,
+     * or plugin-declared fields are skipped.
+     *
      * @var array
      */
-    public static $sensitiveAlwaysFields = [
-        'ldap' => [
-            'bindPwd',
-        ],
-    ];
+    public static $sensitiveAlwaysFields = [];
+    /**
+     * Memoized union of the core tiers above and what plugins declare
+     * through API_SENSITIVE_FIELDS. Null until first built.
+     *
+     * @var array|null
+     */
+    private static $_sensitiveMap = null;
     /**
      * globalSettings rows whose VALUE is a credential.
      *
@@ -3706,6 +3714,43 @@ class Route extends FOGBase
         return self::$expandAll || in_array($token, self::$expand, true);
     }
     /**
+     * Both secret-field tiers, with what plugins declare folded in.
+     *
+     * A plugin's own table can hold a credential just as core's can -- an
+     * API token, a webhook URL, a bind password -- and before this hook the
+     * only way to keep one out of REST output was to hand-write it into the
+     * core arrays above, which is exactly what the LDAP plugin's bindPwd
+     * needed and no third-party plugin could ever do. Listeners append to
+     * either tier by class name, e.g.
+     *
+     *   $arguments['always']['ldap'][] = 'bindPwd';
+     *
+     * Memoized per request: the tiers are read on every serialized object,
+     * so firing the event each time would put a hook pass in the middle of
+     * every list payload's inner loop.
+     *
+     * @return array ['fields' => tier-1 map, 'always' => tier-2 map]
+     */
+    public static function sensitiveFieldMap()
+    {
+        if (null !== self::$_sensitiveMap) {
+            return self::$_sensitiveMap;
+        }
+        $fields = self::$sensitiveFields;
+        $always = self::$sensitiveAlwaysFields;
+        self::$HookManager->processEvent(
+            'API_SENSITIVE_FIELDS',
+            [
+                'fields' => &$fields,
+                'always' => &$always
+            ]
+        );
+        return self::$_sensitiveMap = [
+            'fields' => (array)$fields,
+            'always' => (array)$always
+        ];
+    }
+    /**
      * Removes decrypted secrets from a related/list object so they are only
      * ever exposed on a direct single-entity GET.
      *
@@ -3719,11 +3764,12 @@ class Route extends FOGBase
         if (!is_array($data)) {
             return $data;
         }
-        $fields = (array)(self::$sensitiveAlwaysFields[$classname] ?? []);
+        $map = self::sensitiveFieldMap();
+        $fields = (array)($map['always'][$classname] ?? []);
         if (!$alwaysOnly) {
             $fields = array_merge(
                 $fields,
-                (array)(self::$sensitiveFields[$classname] ?? [])
+                (array)($map['fields'][$classname] ?? [])
             );
         }
         foreach ($fields as $field) {

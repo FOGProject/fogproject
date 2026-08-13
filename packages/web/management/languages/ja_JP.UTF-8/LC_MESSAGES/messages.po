@@ -641,8 +641,9 @@ msgstr "項目を正常に削除しました！"
 msgid "All methods of binding have failed"
 msgstr "すべてのバインド方法に失敗しました"
 
+#, fuzzy
 msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
+msgstr "帯域幅は 0 より大きい数値で指定してください"
 
 msgid "All rights reserved."
 msgstr ""
@@ -902,8 +903,9 @@ msgstr "読み込みに失敗しました"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
 msgid "CA Certificate Path"
-msgstr ""
+msgstr "新しいロケーションを作成"
 
 #, fuzzy
 msgid "CA Path"
@@ -1624,8 +1626,9 @@ msgstr "既定の幅"
 msgid "Default is disabled"
 msgstr "既定では無効です"
 
+#, fuzzy
 msgid "Default nested group depth"
-msgstr ""
+msgstr "更新できません"
 
 msgid "Delayed"
 msgstr "遅延"
@@ -1845,14 +1848,17 @@ msgstr "ノードを編集"
 msgid "Edit Capone ID"
 msgstr "ノードを編集"
 
+#, fuzzy
 msgid "Editing Capone ID"
-msgstr ""
+msgstr "ノードを編集"
 
+#, fuzzy
 msgid "Editing Global Capone Settings"
-msgstr ""
+msgstr "グループモジュール設定"
 
+#, fuzzy
 msgid "Editing Global LDAP Settings"
-msgstr ""
+msgstr "グループモジュール設定"
 
 msgid "Email"
 msgstr "メール"
@@ -2727,8 +2733,9 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr "高さは 120 ピクセルである必要があります。"
 
+#, fuzzy
 msgid "Hello World"
-msgstr ""
+msgstr "ホストを追加しました！"
 
 #, fuzzy
 msgid "Hello World Create Fail"
@@ -3933,11 +3940,13 @@ msgstr "Slack アカウントのリンクに失敗しました"
 msgid "Link Slack Account Success"
 msgstr "Slack アカウントをリンクしました"
 
+#, fuzzy
 msgid "Link ntfy Topic"
-msgstr ""
+msgstr "Slack アカウントをリンクしました"
 
+#, fuzzy
 msgid "Link ntfy Topic Fail"
-msgstr ""
+msgstr "Slack アカウントをリンクしました"
 
 #, fuzzy
 msgid "Link ntfy Topic Success"
@@ -4392,8 +4401,9 @@ msgstr "削除するテーブル名が必要です"
 msgid "Needs a 256-bit key!"
 msgstr "256 ビットキーが必要です"
 
+#, fuzzy
 msgid "Nested Depth"
-msgstr ""
+msgstr "グループ"
 
 #, fuzzy
 msgid "Nested Groups"
@@ -4875,6 +4885,9 @@ msgid "Other Tag #2"
 msgstr "その他タグ #2"
 
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Page node is not registered as a permission node"
 msgstr ""
 
 #, fuzzy
@@ -6031,8 +6044,9 @@ msgstr "Slack 管理"
 msgid "Slack Token"
 msgstr "Slack アカウント"
 
+#, fuzzy
 msgid "Slack User/Slack Channel"
-msgstr ""
+msgstr "ユーザー/Channel 名"
 
 msgid "Smart Installer"
 msgstr "スマートインストーラー"
@@ -6457,8 +6471,9 @@ msgstr "ストレージノード"
 msgid "String must be a string"
 msgstr "String は文字列で指定してください"
 
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
-msgstr ""
+msgstr "グループの説明"
 
 #, fuzzy
 msgid "Subnet Group Create Fail"
@@ -7093,8 +7108,9 @@ msgstr ""
 msgid "Topic already linked"
 msgstr "アカウントは既にリンクされています"
 
+#, fuzzy
 msgid "Topic linked"
-msgstr ""
+msgstr "アカウントは既にリンクされています"
 
 msgid "Topic name you choose, e.g. fog-alerts"
 msgstr ""
@@ -7362,8 +7378,9 @@ msgstr "ファイルをアップロード"
 msgid "Uptime"
 msgstr "稼働時間"
 
+#, fuzzy
 msgid "Use Display Name from Directory"
-msgstr ""
+msgstr "ユーザー名属性"
 
 #, fuzzy
 msgid "Use Group Match"
@@ -7463,8 +7480,9 @@ msgstr "グループの関連付け"
 msgid "User Group Associations"
 msgstr "グループの関連付け"
 
+#, fuzzy
 msgid "User Group Count"
-msgstr ""
+msgstr "グループ自動ログアウト"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -8720,10 +8738,6 @@ msgstr ""
 
 #~ msgid "All Pending MACs approved"
 #~ msgstr "保留中のすべての MAC アドレスを承認しました"
-
-#, fuzzy
-#~ msgid "All filters must be numeric and greater than 1"
-#~ msgstr "帯域幅は 0 より大きい数値で指定してください"
 
 #~ msgid "All snapins"
 #~ msgstr "すべてのスナップイン"

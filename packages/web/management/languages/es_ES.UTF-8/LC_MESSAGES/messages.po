@@ -382,29 +382,33 @@ msgstr "Sin administración de la impresora"
 msgid "Access Denied"
 msgstr "impresora iPrint"
 
+#, fuzzy
 msgid "Access Token"
-msgstr ""
+msgstr "impresora iPrint"
 
 #, fuzzy
 msgid "Access token"
 msgstr "impresora iPrint"
 
+#, fuzzy
 msgid "Accessed By"
-msgstr ""
+msgstr "Exitoso"
 
 #, fuzzy
 msgid "Account Name"
 msgstr "impresora iPrint"
 
+#, fuzzy
 msgid "Account already linked"
-msgstr ""
+msgstr "impresora iPrint"
 
 #, fuzzy
 msgid "Account linked"
 msgstr "impresora iPrint"
 
+#, fuzzy
 msgid "Account linked to FOG GUI at"
-msgstr ""
+msgstr "impresora iPrint"
 
 #, fuzzy
 msgid "Account successfully added!"
@@ -930,8 +934,9 @@ msgstr "Creado"
 msgid "Broadcast Description"
 msgstr "Descripción del Grupo"
 
+#, fuzzy
 msgid "Broadcast IP"
-msgstr ""
+msgstr "Nombre de host"
 
 #, fuzzy
 msgid "Broadcast Name"
@@ -971,8 +976,9 @@ msgstr "Carga ha fallado: %s"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
 msgid "CA Certificate Path"
-msgstr ""
+msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "CA Path"
@@ -1071,8 +1077,9 @@ msgstr "tarea Cancelado"
 msgid "Cancelled due to new tasking."
 msgstr "Cancelada debido a las nuevas tareas a la vez."
 
+#, fuzzy
 msgid "Cannot bind to the LDAP server"
-msgstr ""
+msgstr "Error: No se pudo descargar kernel"
 
 msgid "Cannot change image when in tasking"
 msgstr ""
@@ -1180,8 +1187,9 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
+#, fuzzy
 msgid "Channel call is invalid"
-msgstr ""
+msgstr "La imagen no está habilitada"
 
 #, fuzzy
 msgid "Channel not found"
@@ -1725,8 +1733,9 @@ msgstr "Ancho por defecto"
 msgid "Default is disabled"
 msgstr "Ancho por defecto"
 
+#, fuzzy
 msgid "Default nested group depth"
-msgstr ""
+msgstr "No se puede abrir archivo para lectura"
 
 msgid "Delayed"
 msgstr "Retrasado"
@@ -1952,14 +1961,17 @@ msgstr ""
 msgid "Edit"
 msgstr "Editar"
 
+#, fuzzy
 msgid "Edit Capone"
-msgstr ""
+msgstr "snapins"
 
+#, fuzzy
 msgid "Edit Capone ID"
-msgstr ""
+msgstr "snapins"
 
+#, fuzzy
 msgid "Editing Capone ID"
-msgstr ""
+msgstr "Descripción del Grupo"
 
 #, fuzzy
 msgid "Editing Global Capone Settings"
@@ -2119,8 +2131,9 @@ msgstr "Configuración"
 msgid "Export LDAP Servers"
 msgstr "servidor TFTP"
 
+#, fuzzy
 msgid "Export Locations"
-msgstr ""
+msgstr "Lista de host"
 
 #, fuzzy
 msgid "Export OUs"
@@ -2138,8 +2151,9 @@ msgstr "Exportar"
 msgid "Export Success"
 msgstr "Exitoso"
 
+#, fuzzy
 msgid "Export Task States"
-msgstr ""
+msgstr "Tipo de tarea"
 
 #, fuzzy
 msgid "Export Task Types"
@@ -2747,8 +2761,9 @@ msgstr "Lista de host"
 msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
 msgstr ""
 
+#, fuzzy
 msgid "Group Member Attribute"
-msgstr ""
+msgstr "Nombre de usuario"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -2903,8 +2918,9 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
+#, fuzzy
 msgid "Hello World"
-msgstr ""
+msgstr "nombre de host"
 
 #, fuzzy
 msgid "Hello World Create Fail"
@@ -3564,8 +3580,9 @@ msgstr "Fecha"
 msgid "Import Failed"
 msgstr "imagen actualizada"
 
+#, fuzzy
 msgid "Import Locations"
-msgstr ""
+msgstr "Lista de host"
 
 #, fuzzy
 msgid "Import OUs"
@@ -3599,8 +3616,9 @@ msgstr "Exitoso"
 msgid "Import Succeeded With Warnings"
 msgstr "Exitoso"
 
+#, fuzzy
 msgid "Import Task States"
-msgstr ""
+msgstr "Tipo de tarea"
 
 #, fuzzy
 msgid "Import Task Types"
@@ -3654,15 +3672,17 @@ msgstr ""
 msgid "Init"
 msgstr "ID de host"
 
+#, fuzzy
 msgid "Init FS"
-msgstr ""
+msgstr "ID de host"
 
 #, fuzzy
 msgid "InitRD Versions"
 msgstr "Versión de la CPU"
 
+#, fuzzy
 msgid "Initial Template"
-msgstr ""
+msgstr "snapin replicador"
 
 #, fuzzy
 msgid "Initrd Update"
@@ -4033,8 +4053,9 @@ msgstr "Matar"
 msgid "LDAP"
 msgstr ""
 
+#, fuzzy
 msgid "LDAP Connection  Name"
-msgstr ""
+msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "LDAP Connection Name"
@@ -4116,8 +4137,9 @@ msgstr "Puerto de impresora"
 msgid "LDAP Server"
 msgstr "servidor TFTP"
 
+#, fuzzy
 msgid "LDAP Server Address"
-msgstr ""
+msgstr "servidor TFTP"
 
 #, fuzzy
 msgid "LDAP Server Description"
@@ -4207,8 +4229,9 @@ msgstr "Línea"
 msgid "Lines"
 msgstr "Línea"
 
+#, fuzzy
 msgid "Link Pushbullet Account"
-msgstr ""
+msgstr "Añadir nueva cuenta de usuario"
 
 #, fuzzy
 msgid "Link Pushbullet Account Fail"
@@ -4218,20 +4241,25 @@ msgstr "Añadir nueva cuenta de usuario"
 msgid "Link Pushbullet Account Success"
 msgstr "Añadir nueva cuenta de usuario"
 
+#, fuzzy
 msgid "Link Slack Account"
-msgstr ""
+msgstr "Añadir nueva cuenta de usuario"
 
+#, fuzzy
 msgid "Link Slack Account Fail"
-msgstr ""
+msgstr "Añadir nueva cuenta de usuario"
 
+#, fuzzy
 msgid "Link Slack Account Success"
-msgstr ""
+msgstr "Añadir nueva cuenta de usuario"
 
+#, fuzzy
 msgid "Link ntfy Topic"
-msgstr ""
+msgstr "actualización de servicio no pudo"
 
+#, fuzzy
 msgid "Link ntfy Topic Fail"
-msgstr ""
+msgstr "actualización de servicio no pudo"
 
 #, fuzzy
 msgid "Link ntfy Topic Success"
@@ -4723,8 +4751,9 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+#, fuzzy
 msgid "Nested Depth"
-msgstr ""
+msgstr "Grupo"
 
 #, fuzzy
 msgid "Nested Groups"
@@ -4734,8 +4763,9 @@ msgstr "Grupo"
 msgid "Nested depth must be a number"
 msgstr "Evento debe ser una cadena"
 
+#, fuzzy
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr ""
+msgstr "Evento debe ser una cadena"
 
 msgid "Nested group depth cap reached, so group membership may be incomplete"
 msgstr ""
@@ -5237,6 +5267,9 @@ msgstr "Otros Tag 2"
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
+msgid "Page node is not registered as a permission node"
+msgstr ""
+
 #, fuzzy
 msgid "Paged"
 msgstr "Imagen"
@@ -5592,8 +5625,9 @@ msgstr ""
 msgid "Port"
 msgstr "Puerto"
 
+#, fuzzy
 msgid "Port is not valid ldap/ldaps port"
-msgstr ""
+msgstr "Por favor seleccione una opción"
 
 msgid "Postfix requires an action of login"
 msgstr ""
@@ -5739,15 +5773,17 @@ msgstr "Objeto"
 msgid "Protected"
 msgstr "Protegido"
 
+#, fuzzy
 msgid "Pushbullet Accounts"
-msgstr ""
+msgstr "Añadir nueva cuenta de usuario"
 
 #, fuzzy
 msgid "Pushbullet Management"
 msgstr "Gestión de usuarios"
 
+#, fuzzy
 msgid "Pushbullet Token"
-msgstr ""
+msgstr "Gestión de usuarios"
 
 #, fuzzy
 msgid "Queue Deletion Cancel Fail"
@@ -5782,8 +5818,9 @@ msgstr "Tiempo de actividad del sistema"
 msgid "Reboot"
 msgstr "Reiniciar"
 
+#, fuzzy
 msgid "Reboot after deploy"
-msgstr ""
+msgstr "Deben estar cifrados"
 
 #, fuzzy
 msgid "Receive"
@@ -6470,8 +6507,9 @@ msgstr "Gestión de usuarios"
 msgid "Slack Token"
 msgstr ""
 
+#, fuzzy
 msgid "Slack User/Slack Channel"
-msgstr ""
+msgstr "Nombre del núcleo"
 
 #, fuzzy
 msgid "Smart Installer"
@@ -6957,8 +6995,9 @@ msgstr "nodo de almacenamiento"
 msgid "String must be a string"
 msgstr "Evento debe ser una cadena"
 
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
-msgstr ""
+msgstr "Descripción del Grupo"
 
 #, fuzzy
 msgid "Subnet Group Create Fail"
@@ -7004,8 +7043,9 @@ msgstr "grupo añadió"
 msgid "Subnet Groups"
 msgstr "Exportar"
 
+#, fuzzy
 msgid "Subnets"
-msgstr ""
+msgstr "Exportar"
 
 msgid "Subtree Only"
 msgstr ""
@@ -7582,8 +7622,9 @@ msgstr ""
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
+#, fuzzy
 msgid "Those images should be activated with the associated"
-msgstr ""
+msgstr "No hay snapins asociados con este anfitrión"
 
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
@@ -7626,8 +7667,9 @@ msgstr ""
 msgid "Topic already linked"
 msgstr ""
 
+#, fuzzy
 msgid "Topic linked"
-msgstr ""
+msgstr "impresora iPrint"
 
 msgid "Topic name you choose, e.g. fog-alerts"
 msgstr ""
@@ -7904,8 +7946,9 @@ msgstr ""
 msgid "Uptime"
 msgstr "el tiempo de actividad"
 
+#, fuzzy
 msgid "Use Display Name from Directory"
-msgstr ""
+msgstr "Nombre de usuario"
 
 #, fuzzy
 msgid "Use Group Match"
@@ -8114,8 +8157,9 @@ msgstr "Actualizar impresora"
 msgid "User added!"
 msgstr "Nombre de la impresora"
 
+#, fuzzy
 msgid "User call is invalid"
-msgstr ""
+msgstr "imagen asignado"
 
 #, fuzzy
 msgid "User group added!"
@@ -8144,8 +8188,9 @@ msgstr "actualización Valoración falló"
 msgid "User updated!"
 msgstr "el usuario actualiza"
 
+#, fuzzy
 msgid "User was not authorized by the LDAP server"
-msgstr ""
+msgstr "Error: No se pudo descargar kernel"
 
 #, fuzzy
 msgid "User/Channel"
@@ -8329,8 +8374,9 @@ msgstr "Nombre del núcleo"
 msgid "Windows Product key"
 msgstr "Clave del producto Grupo"
 
+#, fuzzy
 msgid "Windows keys is a plugin that associates product keys"
-msgstr ""
+msgstr "Una imagen ya existe con este nombre!"
 
 msgid "Wipes"
 msgstr ""
@@ -9139,8 +9185,9 @@ msgstr ""
 msgid "with status code"
 msgstr ""
 
+#, fuzzy
 msgid "with the host"
-msgstr ""
+msgstr "no dentro de este"
 
 #, fuzzy
 msgid "with this group"

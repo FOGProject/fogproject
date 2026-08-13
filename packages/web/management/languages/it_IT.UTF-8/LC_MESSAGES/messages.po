@@ -272,8 +272,9 @@ msgstr "Esiste già un ruolo con questo nome!"
 msgid "A role with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
 
+#, fuzzy
 msgid "A selected role no longer exists"
-msgstr ""
+msgstr "non è più in esecuzione"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -656,8 +657,9 @@ msgstr "Impostazioni iPXE aggiornate correttamente!"
 msgid "All methods of binding have failed"
 msgstr "Tutti i metodi di associazione sono falliti"
 
+#, fuzzy
 msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
+msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 
 msgid "All rights reserved."
 msgstr ""
@@ -919,8 +921,9 @@ msgstr "Caricamento non riuscito"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
 msgid "CA Certificate Path"
-msgstr ""
+msgstr "Crea nuova posizione"
 
 #, fuzzy
 msgid "CA Path"
@@ -1642,8 +1645,9 @@ msgstr "Larghezza predefinita"
 msgid "Default is disabled"
 msgstr "Il valore predefinito è disabilitato"
 
+#, fuzzy
 msgid "Default nested group depth"
-msgstr ""
+msgstr "Impossibile aprire il file per la lettura"
 
 msgid "Delayed"
 msgstr "Ritardato"
@@ -1856,14 +1860,17 @@ msgstr ""
 msgid "Edit"
 msgstr "Modifica"
 
+#, fuzzy
 msgid "Edit Capone"
-msgstr ""
+msgstr "Export Snapins"
 
+#, fuzzy
 msgid "Edit Capone ID"
-msgstr ""
+msgstr "Export Snapins"
 
+#, fuzzy
 msgid "Editing Capone ID"
-msgstr ""
+msgstr "Impostazioni modulo del gruppo"
 
 #, fuzzy
 msgid "Editing Global Capone Settings"
@@ -2756,8 +2763,9 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr "Altezza deve essere di 120 pixel."
 
+#, fuzzy
 msgid "Hello World"
-msgstr ""
+msgstr "Host aggiunto!"
 
 #, fuzzy
 msgid "Hello World Create Fail"
@@ -3451,8 +3459,9 @@ msgstr ""
 msgid "Init"
 msgstr "Host Init"
 
+#, fuzzy
 msgid "Init FS"
-msgstr ""
+msgstr "Host Init"
 
 #, fuzzy
 msgid "InitRD Versions"
@@ -3976,11 +3985,13 @@ msgstr "Connessione Account Slack fallita"
 msgid "Link Slack Account Success"
 msgstr "Connessione Account Slack completata"
 
+#, fuzzy
 msgid "Link ntfy Topic"
-msgstr ""
+msgstr "Connessione Account Slack completata"
 
+#, fuzzy
 msgid "Link ntfy Topic Fail"
-msgstr ""
+msgstr "Connessione Account Slack completata"
 
 #, fuzzy
 msgid "Link ntfy Topic Success"
@@ -4438,8 +4449,9 @@ msgstr "Necessario il nome tabella da cancellare"
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+#, fuzzy
 msgid "Nested Depth"
-msgstr ""
+msgstr "gruppi"
 
 #, fuzzy
 msgid "Nested Groups"
@@ -4449,8 +4461,9 @@ msgstr "gruppi"
 msgid "Nested depth must be a number"
 msgstr "Nuova chiave deve essere una stringa"
 
+#, fuzzy
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr ""
+msgstr "Nuova chiave deve essere una stringa"
 
 msgid "Nested group depth cap reached, so group membership may be incomplete"
 msgstr ""
@@ -4921,6 +4934,9 @@ msgid "Other Tag #2"
 msgstr "Altro Tag # 2"
 
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Page node is not registered as a permission node"
 msgstr ""
 
 #, fuzzy
@@ -5442,8 +5458,9 @@ msgstr "Data e Ora"
 msgid "Reboot"
 msgstr "Riavvio"
 
+#, fuzzy
 msgid "Reboot after deploy"
-msgstr ""
+msgstr "è stato completato"
 
 msgid "Receive"
 msgstr "Ricevere"
@@ -6095,8 +6112,9 @@ msgstr "Gestione dei compiti"
 msgid "Slack Token"
 msgstr "Slack Accounts"
 
+#, fuzzy
 msgid "Slack User/Slack Channel"
-msgstr ""
+msgstr "Utente / Nome canale"
 
 msgid "Smart Installer"
 msgstr "Smart Installer"
@@ -6522,8 +6540,9 @@ msgstr "Storage Node"
 msgid "String must be a string"
 msgstr "Stringa deve essere una stringa"
 
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
-msgstr ""
+msgstr "Descrizione del gruppo"
 
 #, fuzzy
 msgid "Subnet Group Create Fail"
@@ -6569,8 +6588,9 @@ msgstr "Gruppo aggiornato!"
 msgid "Subnet Groups"
 msgstr "Gruppi Export"
 
+#, fuzzy
 msgid "Subnets"
-msgstr ""
+msgstr "Gruppi Export"
 
 msgid "Subtree Only"
 msgstr "Solo Sottoalbero"
@@ -7163,8 +7183,9 @@ msgstr ""
 msgid "Topic already linked"
 msgstr "Account già collegato"
 
+#, fuzzy
 msgid "Topic linked"
-msgstr ""
+msgstr "Account già collegato"
 
 msgid "Topic name you choose, e.g. fog-alerts"
 msgstr ""
@@ -7433,8 +7454,9 @@ msgstr ""
 msgid "Uptime"
 msgstr "uptime"
 
+#, fuzzy
 msgid "Use Display Name from Directory"
-msgstr ""
+msgstr "Attributo nome utente"
 
 #, fuzzy
 msgid "Use Group Match"
@@ -8742,10 +8764,6 @@ msgstr ""
 #~ msgstr "Gruppo amministrativo"
 
 #, fuzzy
-#~ msgid "All filters must be numeric and greater than 1"
-#~ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
-
-#, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
 #~ msgstr "Esiste già un ruolo con questo nome!"
 
@@ -9154,10 +9172,6 @@ msgstr ""
 
 #~ msgid "no database to"
 #~ msgstr "Nessun database a"
-
-#, fuzzy
-#~ msgid "no longer exists"
-#~ msgstr "non è più in esecuzione"
 
 #~ msgid "version"
 #~ msgstr "versione"

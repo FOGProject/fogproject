@@ -174,11 +174,6 @@ class Authorization extends FOGBase
         'inventory' => 'host',
         'ipxe' => 'ipxe',
         'keysequence' => 'ipxe',
-        // Plugin-added classes otherwise fall through to the fail-open
-        // branch below and are readable by any authenticated user. This one
-        // carries a directory service account credential, so it is mapped
-        // explicitly ahead of the general fix for that fallback.
-        'ldap' => 'ldap',
         'macaddressassociation' => 'host',
         'module' => 'module',
         'moduleassociation' => 'module',
@@ -228,6 +223,16 @@ class Authorization extends FOGBase
      * @var array|null
      */
     private static $_registry = null;
+    /**
+     * Page nodes already reported as unregistered this request, so the
+     * diagnostic in resolvePagePermission() is logged once per node rather
+     * than once per call. buildMainMenuItems() resolves a permission for
+     * every menu entry on every page load, so an unbounded log line there
+     * would fill the error log with duplicates of a single misconfiguration.
+     *
+     * @var array
+     */
+    private static $_unmappedLogged = [];
     /**
      * The permission registry: registry node => list of valid actions.
      *
@@ -373,9 +378,9 @@ class Authorization extends FOGBase
      * Resolve a management page request to a required permission.
      *
      * Resolution order: node-independent sub override; exempt node ->
-     * null; node alias; unregistered node -> null (allow, plugin
-     * compatibility); explicit sub override; naming convention on the
-     * base sub; fallback GET -> view, POST -> edit (a convention miss can
+     * null; node alias; unregistered node -> 'unmapped.<node>' (deny to
+     * all but '*'); explicit sub override; naming convention on the base
+     * sub; fallback GET -> view, POST -> edit (a convention miss can
      * never let a view-only user write).
      *
      * @param string    $node   the page node (base value, e.g. 'host')
@@ -405,7 +410,40 @@ class Authorization extends FOGBase
         }
         $registry = self::registry();
         if (!isset($registry[$node])) {
-            return null;
+            // A page node nothing claims. This used to return null, which
+            // means "no check", so a plugin page whose author never fired
+            // PERMISSION_REGISTRY_DATA was reachable by every authenticated
+            // user at every verb -- view, edit and delete alike -- while the
+            // plugin's REST classes covering the same data were already
+            // denied. resolveApiPermission() closed that hole on the API
+            // side; this is the page side of the same stance.
+            //
+            // Deny by requiring a permission no role can be granted: the
+            // registry has no 'unmapped' node, so assertCanGrant() refuses
+            // to issue it and only a holder of '*' satisfies it. An
+            // administrator keeps working, a restricted role loses the free
+            // pass, and the log line names the node so the plugin author
+            // knows exactly what to register.
+            //
+            // Nothing on a stock install lands here: every core page node is
+            // in the registry, EXEMPT_NODES or NODE_ALIASES, and all 14
+            // shipped plugins register their node.
+            //
+            // The menu build resolves a permission per entry per page load,
+            // so the diagnostic is emitted once per node per request.
+            if (!isset(self::$_unmappedLogged[$node])) {
+                self::$_unmappedLogged[$node] = true;
+                error_log(
+                    sprintf(
+                        '%s: %s. %s',
+                        _('Page node is not registered as a permission node'),
+                        $node,
+                        _('Only administrators may use it until the plugin '
+                            . 'registers a matching permission node.')
+                    )
+                );
+            }
+            return 'unmapped.' . $node;
         }
         $overrides = self::SUB_OVERRIDES;
         if (isset($overrides[$node][$sub])) {

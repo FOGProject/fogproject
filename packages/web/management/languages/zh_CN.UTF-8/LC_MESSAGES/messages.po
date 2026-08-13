@@ -281,8 +281,9 @@ msgstr "图像已经存在具有此名称！"
 msgid "A role with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
+#, fuzzy
 msgid "A selected role no longer exists"
-msgstr ""
+msgstr "不复存在"
 
 msgid "A server URL and topic endpoint are required"
 msgstr ""
@@ -682,8 +683,9 @@ msgstr "安装/升级成功！"
 msgid "All methods of binding have failed"
 msgstr ""
 
+#, fuzzy
 msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
+msgstr "带宽应该是数字和大于0"
 
 msgid "All rights reserved."
 msgstr ""
@@ -958,8 +960,9 @@ msgstr "加载失败： %s"
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+#, fuzzy
 msgid "CA Certificate Path"
-msgstr ""
+msgstr "新建%s"
 
 #, fuzzy
 msgid "CA Path"
@@ -1705,8 +1708,9 @@ msgstr "默认宽度"
 msgid "Default is disabled"
 msgstr "捐款将被禁用"
 
+#, fuzzy
 msgid "Default nested group depth"
-msgstr ""
+msgstr "无法打开文件进行读取"
 
 msgid "Delayed"
 msgstr "延迟"
@@ -1924,14 +1928,17 @@ msgstr ""
 msgid "Edit"
 msgstr "编辑"
 
+#, fuzzy
 msgid "Edit Capone"
-msgstr ""
+msgstr "出口Snapins"
 
+#, fuzzy
 msgid "Edit Capone ID"
-msgstr ""
+msgstr "出口Snapins"
 
+#, fuzzy
 msgid "Editing Capone ID"
-msgstr ""
+msgstr "主机描述"
 
 #, fuzzy
 msgid "Editing Global Capone Settings"
@@ -2698,8 +2705,9 @@ msgstr "主机位置"
 msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
 msgstr ""
 
+#, fuzzy
 msgid "Group Member Attribute"
-msgstr ""
+msgstr "用户名"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -2853,8 +2861,9 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
+#, fuzzy
 msgid "Hello World"
-msgstr ""
+msgstr "添加主机"
 
 #, fuzzy
 msgid "Hello World Create Fail"
@@ -3580,8 +3589,9 @@ msgstr ""
 msgid "Init"
 msgstr "主机列表"
 
+#, fuzzy
 msgid "Init FS"
-msgstr ""
+msgstr "主机列表"
 
 #, fuzzy
 msgid "InitRD Versions"
@@ -4136,11 +4146,13 @@ msgstr "链接松弛账户"
 msgid "Link Slack Account Success"
 msgstr "链接松弛账户"
 
+#, fuzzy
 msgid "Link ntfy Topic"
-msgstr ""
+msgstr "链接松弛账户"
 
+#, fuzzy
 msgid "Link ntfy Topic Fail"
-msgstr ""
+msgstr "链接松弛账户"
 
 #, fuzzy
 msgid "Link ntfy Topic Success"
@@ -4614,8 +4626,9 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+#, fuzzy
 msgid "Nested Depth"
-msgstr ""
+msgstr "组"
 
 #, fuzzy
 msgid "Nested Groups"
@@ -4625,8 +4638,9 @@ msgstr "组"
 msgid "Nested depth must be a number"
 msgstr "事件必须是字符串"
 
+#, fuzzy
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr ""
+msgstr "事件必须是字符串"
 
 msgid "Nested group depth cap reached, so group membership may be incomplete"
 msgstr ""
@@ -5116,6 +5130,9 @@ msgid "Other Tag #2"
 msgstr "其他标签＃2"
 
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Page node is not registered as a permission node"
 msgstr ""
 
 #, fuzzy
@@ -5655,8 +5672,9 @@ msgstr "主机更新失败"
 msgid "Reboot"
 msgstr "重启"
 
+#, fuzzy
 msgid "Reboot after deploy"
-msgstr ""
+msgstr "已被破坏"
 
 msgid "Receive"
 msgstr "接收"
@@ -6335,8 +6353,9 @@ msgstr "任务管理"
 msgid "Slack Token"
 msgstr "斯莱克账户"
 
+#, fuzzy
 msgid "Slack User/Slack Channel"
-msgstr ""
+msgstr "用户/通道名称"
 
 #, fuzzy
 msgid "Smart Installer"
@@ -6794,8 +6813,9 @@ msgstr "存储节点"
 msgid "String must be a string"
 msgstr "事件必须是字符串"
 
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
-msgstr ""
+msgstr "团体简介"
 
 #, fuzzy
 msgid "Subnet Group Create Fail"
@@ -6841,8 +6861,9 @@ msgstr "集团补充"
 msgid "Subnet Groups"
 msgstr "出口组"
 
+#, fuzzy
 msgid "Subnets"
-msgstr ""
+msgstr "出口组"
 
 msgid "Subtree Only"
 msgstr ""
@@ -7417,8 +7438,9 @@ msgstr ""
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
+#, fuzzy
 msgid "Those images should be activated with the associated"
-msgstr ""
+msgstr "没有与此主机关联snapins"
 
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
@@ -7462,8 +7484,9 @@ msgstr ""
 msgid "Topic already linked"
 msgstr "帐户已链接"
 
+#, fuzzy
 msgid "Topic linked"
-msgstr ""
+msgstr "帐户已链接"
 
 msgid "Topic name you choose, e.g. fog-alerts"
 msgstr ""
@@ -7739,8 +7762,9 @@ msgstr ""
 msgid "Uptime"
 msgstr "正常运行时间"
 
+#, fuzzy
 msgid "Use Display Name from Directory"
-msgstr ""
+msgstr "用户名"
 
 #, fuzzy
 msgid "Use Group Match"
@@ -8162,8 +8186,9 @@ msgstr "Windows 8的"
 msgid "Windows Product key"
 msgstr "主机产品密钥"
 
+#, fuzzy
 msgid "Windows keys is a plugin that associates product keys"
-msgstr ""
+msgstr "图像已经存在具有此名称！"
 
 msgid "Wipes"
 msgstr ""
@@ -9117,10 +9142,6 @@ msgstr ""
 #~ msgstr "修改组"
 
 #, fuzzy
-#~ msgid "All filters must be numeric and greater than 1"
-#~ msgstr "带宽应该是数字和大于0"
-
-#, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
 #~ msgstr "图像已经存在具有此名称！"
 
@@ -9535,10 +9556,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "没有数据库工作关闭"
-
-#, fuzzy
-#~ msgid "no longer exists"
-#~ msgstr "不复存在"
 
 #, fuzzy
 #~ msgid "version"
