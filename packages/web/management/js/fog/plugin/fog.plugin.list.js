@@ -247,6 +247,113 @@
             table.draw(false);
         });
     });
+    // ---- Upload a plugin archive -------------------------------------
+    // Two steps on purpose. The first POST only unpacks the archive somewhere
+    // the autoloader does not look and reports what is inside it; nothing is
+    // installed until the second POST confirms the token. That is what makes
+    // the checksum and manifest shown here worth reading -- they describe the
+    // thing that is about to be installed, not the file name the browser sent.
+    var uploadBtn = $('#plugin-upload'),
+        uploadModalEl = $('#plugin-uploadModal'),
+        uploadForm = $('#plugin-upload-form'),
+        uploadPreview = $('#plugin-upload-preview'),
+        uploadSend = $('#plugin-upload-send'),
+        stagedToken = null;
+
+    function resetUpload() {
+        stagedToken = null;
+        uploadPreview.addClass('d-none').empty();
+        uploadForm.removeClass('d-none').empty();
+        uploadSend.prop('disabled', false).text(uploadSend.data('label') || 'Upload');
+    }
+    function esc(s) {
+        return $('<div/>').text(s === undefined || s === null ? '' : s).html();
+    }
+    function row(label, value) {
+        return '<dt class="col-sm-3">' + esc(label) + '</dt>'
+            + '<dd class="col-sm-9">' + esc(value) + '</dd>';
+    }
+    uploadSend.data('label', uploadSend.text());
+
+    uploadBtn.on('click', function(e) {
+        e.preventDefault();
+        resetUpload();
+        // Fetched each time the modal opens, so the "switch this on first"
+        // message reflects the server as it is now.
+        uploadForm.load('../management/index.php?node=plugin&sub=installArchive');
+        uploadModalEl.modal('show');
+    });
+    uploadModalEl.on('hidden.bs.modal', resetUpload);
+
+    uploadSend.on('click', function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        // Second click: the archive is already staged, so confirm it.
+        if (stagedToken) {
+            btn.prop('disabled', true);
+            $.apiCall(
+                'post',
+                '../management/index.php?node=plugin&sub=installArchiveCommit',
+                {token: stagedToken},
+                function(err) {
+                    btn.prop('disabled', false);
+                    if (err) {
+                        return;
+                    }
+                    uploadModalEl.modal('hide');
+                    table.draw(false);
+                }
+            );
+            return;
+        }
+        var file = $('#pluginarchive')[0];
+        if (!file || !file.files.length) {
+            return;
+        }
+        var data = new FormData();
+        data.append('pluginarchive', file.files[0]);
+        btn.prop('disabled', true);
+        // processData=false is apiCall's FormData mode. Going through it
+        // rather than a hand-rolled $.ajax is what gets the upload progress
+        // bar, the error toast and the CSRF header without repeating any of
+        // them here.
+        $.apiCall(
+            'post',
+            '../management/index.php?node=plugin&sub=installArchive',
+            data,
+            function(err, res) {
+                btn.prop('disabled', false);
+                if (err || !res || !res.token) {
+                    return;
+                }
+                var m = res.manifest || {};
+                stagedToken = res.token;
+                uploadForm.addClass('d-none');
+                uploadPreview.removeClass('d-none').html(
+                    (res.upgrade
+                        ? '<div class="alert alert-warning">'
+                            + esc(res.name)
+                            + ' is already installed here. Confirming will replace its files.'
+                            + '</div>'
+                        : '')
+                    + '<dl class="row mb-0">'
+                    + row('Plugin', res.name)
+                    + row('Version', m.version || '—')
+                    + row('Author', m.author || '—')
+                    + row('Homepage', m.homepage || '—')
+                    + row('Requires FOG', (m.fog_min || 'any') + ' — ' + (m.fog_max || 'any'))
+                    + row('Requires plugins', (m.requires && m.requires.length) ? m.requires.join(', ') : '—')
+                    + row('Description', m.description || '—')
+                    + row('Files', res.files)
+                    + row('SHA-256', res.sha256)
+                    + '</dl>'
+                );
+                btn.text('Install ' + res.name);
+            },
+            false
+        );
+    });
+
     removeBtn.on('click', function(e) {
         e.preventDefault();
         disableButtons(true);

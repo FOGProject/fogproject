@@ -490,6 +490,74 @@ Fire your own events with `&`‑by‑reference args so listeners can mutate them
 
 ---
 
+## 11a. Shipping your plugin to other people
+
+Package it as a `.tar.gz` containing **one directory, named for the plugin**:
+
+```
+tar czf myplugin-1.0.0.tar.gz myplugin/
+```
+
+Publish the archive's `sha256sum` alongside it — Plugin Management shows the
+checksum of what was uploaded so an admin can compare the two before
+installing.
+
+Admins have two routes:
+
+- **`git clone` or untar into `/opt/fog/plugins/`** as root. Always available,
+  nothing to switch on.
+- **Plugin Management → Upload plugin.** Off by default; see below.
+
+### The archive must survive validation
+
+FOG unpacks the archive somewhere the autoloader does not look, reads the
+manifest, and shows the admin what it found *before* anything is installed. It
+is refused outright if:
+
+| | |
+|---|---|
+| it isn't a readable `.tar.gz` | opened as a tar regardless of the file name |
+| it holds anything other than exactly one top-level directory | including a stray file at the archive root |
+| an entry path is absolute or contains `..` | an interior `..` gets past PharData; FOG checks anyway |
+| there is no `<name>/config/plugin.config.php` | |
+| the manifest's `name` isn't the directory name | |
+| the plugin is outside its own `fog_min`/`fog_max` range | |
+| a **bundled** plugin already has that name | a bundled plugin always wins the collision, so the upload could never load |
+| it is over 64 MB | `post_max_size` usually bites first |
+
+Symlinks need no rule: `PharData` writes them out as empty regular files, so
+they cannot escape — but it also means **a plugin that relies on a symlink will
+install subtly broken.** Don't ship one.
+
+Uploading a plugin that is already in `/opt/fog/plugins` is an upgrade; the
+admin is warned that files will be replaced, and the old copy is only deleted
+once the new one is in place. Installing the files does **not** install or
+activate the plugin — the admin still does that from the same page, so "the
+files are here" and "this code is running" stay separate decisions.
+
+### Turning uploads on (admins)
+
+Two independent switches, both required:
+
+1. `FOG_PLUGIN_UI_INSTALL_ENABLED` in **FOG Configuration → FOG Settings →
+   Plugin System**.
+2. `sudo bin/fog-plugin-uploads.sh enable`, which makes `/opt/fog/plugins`
+   writable by the web server (and relabels it for SELinux). `disable` and
+   `status` do what they say.
+
+The upload route also needs the **`plugin.install`** permission, which is
+deliberately *not* part of `plugin.edit`: activating a plugin that is already
+on disk and adding new executable code to the server are different authorities.
+
+> **Understand what you are turning on.** A plugin is PHP that FOG autoloads
+> and runs as the web user. Making its directory web-writable means any
+> file-write bug anywhere in FOG can put executable code on the server. That is
+> why step 2 is a root command rather than something the settings page can do
+> for itself — and why leaving uploads off and using `git clone` is a perfectly
+> good answer.
+
+---
+
 ## 12. Reference plugins
 
 - **`helloworld`** — this guide's minimal, complete CRUD example.

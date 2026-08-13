@@ -59,8 +59,40 @@ msgid "%s Menu"
 msgstr "%s メニュー"
 
 #, php-format
+msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s is not a readable .tar.gz archive."
+msgstr ""
+
+#, php-format
+msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
+msgstr ""
+
+#, php-format
+msgid "%s is not inside a plugin directory."
+msgstr ""
+
+#, php-format
+msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
 msgid "%s is required"
 msgstr "%s は必須です"
+
+#, php-format
+msgid "%s replaced. Install it to apply any new database steps."
+msgstr ""
+
+#, php-format
+msgid "%s ships with FOG and cannot be replaced by an upload."
+msgstr ""
 
 #, php-format
 msgid "%s value \"%s\" did not match any %s by id or name; left unset"
@@ -136,6 +168,9 @@ msgstr ""
 msgid "90 Days"
 msgstr ""
 
+msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
+msgstr ""
+
 msgid "A LDAP setup already exists with this name!"
 msgstr "この名前の LDAP 設定は既に存在します！"
 
@@ -203,6 +238,9 @@ msgstr "\"name\" プロパティを使用する場合は、名前を定義する
 #, fuzzy
 msgid "A permission name is required."
 msgstr "プリンター名は必須です！"
+
+msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
+msgstr ""
 
 #, fuzzy
 msgid "A port must be specified"
@@ -1085,6 +1123,10 @@ msgstr "シャーシシリアル"
 msgid "Chassis Version"
 msgstr "シャーシバージョン"
 
+#, php-format
+msgid "Check %s over before installing it."
+msgstr ""
+
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
@@ -1219,6 +1261,10 @@ msgstr ""
 msgid "Could not apply %s: %s"
 msgstr "見つかりませんでした"
 
+#, fuzzy
+msgid "Could not create the staging directory."
+msgstr "スナップインジョブの作成に失敗しました"
+
 msgid "Could not find a Storage Node in this group"
 msgstr "このグループ内にストレージノードが見つかりません"
 
@@ -1274,6 +1320,10 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not register"
 msgstr "登録できませんでした"
 
+#, php-format
+msgid "Could not replace the existing %s. Is %s writable?"
+msgstr ""
+
 #, fuzzy
 msgid "Could not seed the granted targets"
 msgstr "一時ファイルを読み取れませんでした。"
@@ -1285,6 +1335,10 @@ msgstr "一時ファイルを読み取れませんでした。"
 #, fuzzy
 msgid "Could not update host"
 msgstr "ホストの更新に失敗しました"
+
+#, php-format
+msgid "Could not write to %s. The UI installer needs that directory to be writable by the web server."
+msgstr ""
 
 #, fuzzy
 msgid "Count"
@@ -4409,6 +4463,10 @@ msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
 
 #, fuzzy
+msgid "No archive was uploaded."
+msgstr "ファイルはアップロードされませんでした"
+
+#, fuzzy
 msgid "No change"
 msgstr "変更を適用しますか？"
 
@@ -5025,6 +5083,10 @@ msgid "Plugin Activate Success"
 msgstr "ルールを関連付けました"
 
 #, fuzzy
+msgid "Plugin Archive Read"
+msgstr "ルールの関連付けに失敗しました"
+
+#, fuzzy
 msgid "Plugin Deactivate Fail"
 msgstr "プラグインの説明"
 
@@ -5063,7 +5125,19 @@ msgid "Plugin Update Success"
 msgstr "プリンターの更新に成功しました"
 
 #, fuzzy
+msgid "Plugin Upload Fail"
+msgstr "プリンターの更新に失敗しました"
+
+#, fuzzy
+msgid "Plugin Upload Success"
+msgstr "プリンターの更新に成功しました"
+
+#, fuzzy
 msgid "Plugin activated!"
+msgstr "プラグインをインストールしました！"
+
+#, fuzzy
+msgid "Plugin archive"
 msgstr "プラグインをインストールしました！"
 
 #, fuzzy
@@ -5081,6 +5155,9 @@ msgstr "プラグインをインストールしました！"
 #, fuzzy
 msgid "Plugin updated!"
 msgstr "プリンターを更新しました！"
+
+msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings."
+msgstr ""
 
 msgid "Plugins"
 msgstr "プラグイン"
@@ -6632,6 +6709,10 @@ msgstr ""
 msgid "That session has already started"
 msgstr "このホストは既に存在します"
 
+#, fuzzy
+msgid "That upload is no longer available."
+msgstr "このサーバーにはイメージがありません"
+
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
@@ -6658,6 +6739,34 @@ msgstr ""
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
 msgstr ""
 
+msgid "The archive contains a link."
+msgstr ""
+
+#, php-format
+msgid "The archive contains an unsafe path: %s"
+msgstr ""
+
+msgid "The archive could not be extracted."
+msgstr ""
+
+#, fuzzy
+msgid "The archive could not be read."
+msgstr "強制終了できませんでした"
+
+msgid "The archive did not extract as expected."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "The archive has no %s."
+msgstr "あります"
+
+#, php-format
+msgid "The archive is larger than the %s limit."
+msgstr ""
+
+msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
@@ -6677,6 +6786,10 @@ msgstr "FOG クライアント用インストーラー"
 msgid "The key will be assigned to registered hosts when a"
 msgstr "キーは、登録済みホストに次の場合割り当てられます"
 
+#, php-format
+msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
+msgstr ""
+
 msgid "The manual enrolment steps below are unaffected."
 msgstr ""
 
@@ -6687,6 +6800,14 @@ msgstr "使用しようとしているノードは現在"
 msgid "The path requested is already in use by another image!"
 msgstr "これは既に別のイメージで使用されています"
 
+#, fuzzy
+msgid "The plugin directory"
+msgstr "ディレクトリ"
+
+#, fuzzy
+msgid "The plugin directory does not exist."
+msgstr "関数が存在しません"
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -6696,10 +6817,21 @@ msgstr "関連付けられたプライマリ MAC アドレス:"
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
 
+#, fuzzy
+msgid "The staged plugin no longer matches its manifest."
+msgstr "選択したプリンターを追加"
+
 msgid "The storage groups associated storage node is not valid"
 msgstr "ストレージグループに関連付けられたストレージノードが無効です"
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The upload did not arrive."
+msgstr ""
+
+#, php-format
+msgid "The upload failed (error %s). It may be larger than post_max_size, currently %s."
 msgstr ""
 
 msgid "The uploaded file exceeds the max_file_size"
@@ -7171,11 +7303,18 @@ msgstr "更新は必要ありません！"
 msgid "Update selected"
 msgstr "選択項目を削除"
 
+#, fuzzy
+msgid "Upload"
+msgstr "レポートをアップロード"
+
 msgid "Upload Reports"
 msgstr "レポートをアップロード"
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
 msgstr "アップロードできるファイルの拡張子は jpg、jpeg、png のいずれかです"
+
+msgid "Upload plugin"
+msgstr ""
 
 #, fuzzy
 msgid "Uploaded file too large."
@@ -10182,10 +10321,6 @@ msgstr ""
 
 #~ msgid "The old client was distributed with FOG 1.2.0 and earlier."
 #~ msgstr "旧クライアントは FOG 1.2.0 以前で配布されていました。"
-
-#, fuzzy
-#~ msgid "The selected target no longer exists."
-#~ msgstr "選択したプリンターを追加"
 
 #~ msgid "There are currently"
 #~ msgstr "現在"

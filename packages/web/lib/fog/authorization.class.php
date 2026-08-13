@@ -73,6 +73,16 @@ class Authorization extends FOGBase
         'host' => [
             'savegroup' => 'group.create'
         ],
+        // Uploading a plugin archive introduces new executable code to the
+        // server; activating one that is already on disk does not. Without
+        // these both would land on plugin.edit, because _subToAction() has no
+        // reason to know the difference -- 'install' matches none of its
+        // prefixes and a POST falls through to 'edit'. A role that may switch
+        // plugins on must not thereby be able to add one (ADR 0009).
+        'plugin' => [
+            'installarchive' => 'plugin.install',
+            'installarchivecommit' => 'plugin.install'
+        ],
         'image' => [
             'sessioncreate' => 'image.task',
             'sessioncancel' => 'image.task',
@@ -251,7 +261,7 @@ class Authorization extends FOGBase
             'service' => ['view', 'edit'],
             'settings' => ['view', 'edit'],
             'report' => ['view', 'create'],
-            'plugin' => ['view', 'edit']
+            'plugin' => ['view', 'edit', 'install']
         ];
         self::$HookManager->processEvent(
             'PERMISSION_REGISTRY_DATA',

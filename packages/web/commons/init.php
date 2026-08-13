@@ -347,8 +347,17 @@ class Initiator
         // separator so a prefix match cannot escape into a sibling directory.
         // Note this makes write access to FOG_PLUGIN_DIR equivalent to write
         // access to the code tree -- which it already is, since the autoloader
-        // loads what lives there. It is the reason that directory must not be
-        // made web-writable casually (ADR 0009).
+        // loads what lives there.
+        //
+        // The UI plugin installer (ADR 0009 tier 3) deliberately makes that
+        // directory web-writable, so on a server that has turned it on this
+        // guard no longer separates "the web user can write it" from "the
+        // autoloader will load it". That is the accepted cost of the feature,
+        // not an oversight, and it is why turning it on takes two acts: the
+        // FOG_PLUGIN_UI_INSTALL_ENABLED setting AND a root-run
+        // bin/fog-plugin-uploads.sh. The guard still earns its keep --
+        // FOG_CACHE_DIR itself is world-writable and is never a scan root, so
+        // a poisoned list still cannot point the autoloader at the cache.
         $roots = self::_scanRoots();
         foreach ($data as $path) {
             if (!is_string($path)) {

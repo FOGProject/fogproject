@@ -44,7 +44,39 @@ msgid "%s Menu"
 msgstr ""
 
 #, php-format
+msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s is not a readable .tar.gz archive."
+msgstr ""
+
+#, php-format
+msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
+msgstr ""
+
+#, php-format
+msgid "%s is not inside a plugin directory."
+msgstr ""
+
+#, php-format
+msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
 msgid "%s is required"
+msgstr ""
+
+#, php-format
+msgid "%s replaced. Install it to apply any new database steps."
+msgstr ""
+
+#, php-format
+msgid "%s ships with FOG and cannot be replaced by an upload."
 msgstr ""
 
 #, php-format
@@ -118,6 +150,9 @@ msgstr ""
 msgid "90 Days"
 msgstr ""
 
+msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
+msgstr ""
+
 msgid "A LDAP setup already exists with this name!"
 msgstr ""
 
@@ -176,6 +211,9 @@ msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
 msgid "A permission name is required."
+msgstr ""
+
+msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
 msgstr ""
 
 msgid "A port must be specified"
@@ -954,6 +992,10 @@ msgstr ""
 msgid "Chassis Version"
 msgstr ""
 
+#, php-format
+msgid "Check %s over before installing it."
+msgstr ""
+
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
@@ -1081,6 +1123,9 @@ msgstr ""
 msgid "Could not apply %s: %s"
 msgstr ""
 
+msgid "Could not create the staging directory."
+msgstr ""
+
 msgid "Could not find a Storage Node in this group"
 msgstr ""
 
@@ -1129,6 +1174,10 @@ msgstr ""
 msgid "Could not register"
 msgstr ""
 
+#, php-format
+msgid "Could not replace the existing %s. Is %s writable?"
+msgstr ""
+
 msgid "Could not seed the granted targets"
 msgstr ""
 
@@ -1136,6 +1185,10 @@ msgid "Could not send data from file"
 msgstr ""
 
 msgid "Could not update host"
+msgstr ""
+
+#, php-format
+msgid "Could not write to %s. The UI installer needs that directory to be writable by the web server."
 msgstr ""
 
 msgid "Count"
@@ -3902,6 +3955,9 @@ msgstr ""
 msgid "No activity information available for this group"
 msgstr ""
 
+msgid "No archive was uploaded."
+msgstr ""
+
 msgid "No change"
 msgstr ""
 
@@ -4454,6 +4510,9 @@ msgstr ""
 msgid "Plugin Activate Success"
 msgstr ""
 
+msgid "Plugin Archive Read"
+msgstr ""
+
 msgid "Plugin Deactivate Fail"
 msgstr ""
 
@@ -4484,7 +4543,16 @@ msgstr ""
 msgid "Plugin Update Success"
 msgstr ""
 
+msgid "Plugin Upload Fail"
+msgstr ""
+
+msgid "Plugin Upload Success"
+msgstr ""
+
 msgid "Plugin activated!"
+msgstr ""
+
+msgid "Plugin archive"
 msgstr ""
 
 msgid "Plugin deactivated!"
@@ -4497,6 +4565,9 @@ msgid "Plugin uninstalled!"
 msgstr ""
 
 msgid "Plugin updated!"
+msgstr ""
+
+msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings."
 msgstr ""
 
 msgid "Plugins"
@@ -5898,6 +5969,9 @@ msgstr ""
 msgid "That session has already started"
 msgstr ""
 
+msgid "That upload is no longer available."
+msgstr ""
+
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
@@ -5922,6 +5996,33 @@ msgstr ""
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
 msgstr ""
 
+msgid "The archive contains a link."
+msgstr ""
+
+#, php-format
+msgid "The archive contains an unsafe path: %s"
+msgstr ""
+
+msgid "The archive could not be extracted."
+msgstr ""
+
+msgid "The archive could not be read."
+msgstr ""
+
+msgid "The archive did not extract as expected."
+msgstr ""
+
+#, php-format
+msgid "The archive has no %s."
+msgstr ""
+
+#, php-format
+msgid "The archive is larger than the %s limit."
+msgstr ""
+
+msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
@@ -5940,6 +6041,10 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+#, php-format
+msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
+msgstr ""
+
 msgid "The manual enrolment steps below are unaffected."
 msgstr ""
 
@@ -5947,6 +6052,12 @@ msgid "The node trying to be used is currently"
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
+msgstr ""
+
+msgid "The plugin directory"
+msgstr ""
+
+msgid "The plugin directory does not exist."
 msgstr ""
 
 msgid "The plugin will run but its JS and CSS will 404."
@@ -5958,10 +6069,20 @@ msgstr ""
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
+msgid "The staged plugin no longer matches its manifest."
+msgstr ""
+
 msgid "The storage groups associated storage node is not valid"
 msgstr ""
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The upload did not arrive."
+msgstr ""
+
+#, php-format
+msgid "The upload failed (error %s). It may be larger than post_max_size, currently %s."
 msgstr ""
 
 msgid "The uploaded file exceeds the max_file_size"
@@ -6383,10 +6504,16 @@ msgstr ""
 msgid "Update selected"
 msgstr ""
 
+msgid "Upload"
+msgstr ""
+
 msgid "Upload Reports"
 msgstr ""
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr ""
+
+msgid "Upload plugin"
 msgstr ""
 
 msgid "Uploaded file too large."

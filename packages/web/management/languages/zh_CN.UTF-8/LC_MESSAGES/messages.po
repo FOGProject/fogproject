@@ -68,8 +68,40 @@ msgid "%s Menu"
 msgstr "%s菜单"
 
 #, php-format
+msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s is not a readable .tar.gz archive."
+msgstr ""
+
+#, php-format
+msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
+msgstr ""
+
+#, php-format
+msgid "%s is not inside a plugin directory."
+msgstr ""
+
+#, php-format
+msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
 msgid "%s is required"
 msgstr "%s是必需的"
+
+#, php-format
+msgid "%s replaced. Install it to apply any new database steps."
+msgstr ""
+
+#, php-format
+msgid "%s ships with FOG and cannot be replaced by an upload."
+msgstr ""
 
 #, php-format
 msgid "%s value \"%s\" did not match any %s by id or name; left unset"
@@ -144,6 +176,9 @@ msgid "60 Days"
 msgstr ""
 
 msgid "90 Days"
+msgstr ""
+
+msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
 #, fuzzy
@@ -222,6 +257,9 @@ msgstr ""
 #, fuzzy
 msgid "A permission name is required."
 msgstr "图像名是必需的！"
+
+msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
+msgstr ""
 
 #, fuzzy
 msgid "A port must be specified"
@@ -1147,6 +1185,10 @@ msgstr "序列号"
 msgid "Chassis Version"
 msgstr "机箱版本"
 
+#, php-format
+msgid "Check %s over before installing it."
+msgstr ""
+
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
@@ -1292,6 +1334,10 @@ msgid "Could not apply %s: %s"
 msgstr "无法更新"
 
 #, fuzzy
+msgid "Could not create the staging directory."
+msgstr "无法创建管理单元工作"
+
+#, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "找不到存储节点，有一个图像，此组内启用？"
 
@@ -1352,6 +1398,10 @@ msgstr "无法读取tmp文件。"
 msgid "Could not register"
 msgstr "无法创建打印机"
 
+#, php-format
+msgid "Could not replace the existing %s. Is %s writable?"
+msgstr ""
+
 #, fuzzy
 msgid "Could not seed the granted targets"
 msgstr "无法读取tmp文件。"
@@ -1363,6 +1413,10 @@ msgstr "无法读取tmp文件。"
 #, fuzzy
 msgid "Could not update host"
 msgstr "无法更新"
+
+#, php-format
+msgid "Could not write to %s. The UI installer needs that directory to be writable by the web server."
+msgstr ""
 
 #, fuzzy
 msgid "Count"
@@ -4632,6 +4686,10 @@ msgstr ""
 msgid "No activity information available for this group"
 msgstr ""
 
+#, fuzzy
+msgid "No archive was uploaded."
+msgstr "没有文件被上传"
+
 msgid "No change"
 msgstr ""
 
@@ -5275,6 +5333,10 @@ msgid "Plugin Activate Success"
 msgstr "打印机已经存在"
 
 #, fuzzy
+msgid "Plugin Archive Read"
+msgstr "打印机更新失败！"
+
+#, fuzzy
 msgid "Plugin Deactivate Fail"
 msgstr "打印机更新失败！"
 
@@ -5311,7 +5373,19 @@ msgid "Plugin Update Success"
 msgstr "打印机更新！"
 
 #, fuzzy
+msgid "Plugin Upload Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Plugin Upload Success"
+msgstr "打印机更新！"
+
+#, fuzzy
 msgid "Plugin activated!"
+msgstr "插件名称"
+
+#, fuzzy
+msgid "Plugin archive"
 msgstr "插件名称"
 
 #, fuzzy
@@ -5329,6 +5403,9 @@ msgstr "插件名称"
 #, fuzzy
 msgid "Plugin updated!"
 msgstr "打印机更新！"
+
+msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings."
+msgstr ""
 
 #, fuzzy
 msgid "Plugins"
@@ -6990,6 +7067,10 @@ msgstr ""
 msgid "That session has already started"
 msgstr "打印机已经存在"
 
+#, fuzzy
+msgid "That upload is no longer available."
+msgstr "有此服务器上没有图像。"
+
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
@@ -7017,6 +7098,34 @@ msgstr ""
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
 msgstr ""
 
+msgid "The archive contains a link."
+msgstr ""
+
+#, php-format
+msgid "The archive contains an unsafe path: %s"
+msgstr ""
+
+msgid "The archive could not be extracted."
+msgstr ""
+
+#, fuzzy
+msgid "The archive could not be read."
+msgstr "无法读取临时文件"
+
+msgid "The archive did not extract as expected."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "The archive has no %s."
+msgstr "有"
+
+#, php-format
+msgid "The archive is larger than the %s limit."
+msgstr ""
+
+msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
@@ -7038,6 +7147,10 @@ msgstr "此设置定义使用SSH客户端的用户名。"
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+#, php-format
+msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
+msgstr ""
+
 msgid "The manual enrolment steps below are unaffected."
 msgstr ""
 
@@ -7046,6 +7159,14 @@ msgstr ""
 
 msgid "The path requested is already in use by another image!"
 msgstr ""
+
+#, fuzzy
+msgid "The plugin directory"
+msgstr "目录"
+
+#, fuzzy
+msgid "The plugin directory does not exist."
+msgstr "方法不存在"
 
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
@@ -7056,10 +7177,20 @@ msgstr ""
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
+msgid "The staged plugin no longer matches its manifest."
+msgstr ""
+
 msgid "The storage groups associated storage node is not valid"
 msgstr "存储组相关联的存储节点无效"
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The upload did not arrive."
+msgstr ""
+
+#, php-format
+msgid "The upload failed (error %s). It may be larger than post_max_size, currently %s."
 msgstr ""
 
 #, fuzzy
@@ -7550,10 +7681,17 @@ msgstr "图像名是必需的！"
 msgid "Update selected"
 msgstr "打印机"
 
+#, fuzzy
+msgid "Upload"
+msgstr "上传报告"
+
 msgid "Upload Reports"
 msgstr "上传报告"
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr ""
+
+msgid "Upload plugin"
 msgstr ""
 
 msgid "Uploaded file too large."

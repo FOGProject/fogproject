@@ -109,8 +109,49 @@ class PluginManagement extends FOGPage
             . '../management/index.php?node=plugin&sub=upgrade'
             . '" ';
 
+        // Upload, then Activate/Deactivate, in that emission order: inside a
+        // float-end cluster the buttons run left to right, so the supporting
+        // action is emitted first and "Activate selected" stays the one
+        // primary on this side. Secondary, not primary, for the same reason.
+        //
+        // The button is rendered whenever the caller holds plugin.install --
+        // not only when uploads are switched on -- so an admin who has the
+        // permission is told what to turn on rather than left looking for a
+        // button that is not there. The modal body says which half is missing.
+        $uploadModal = '';
+        $buttons = '';
+        if (Authorization::can('plugin.install')) {
+            $buttons .= self::makeButton(
+                'plugin-upload',
+                _('Upload plugin'),
+                'btn btn-secondary float-end',
+                ' type="button" '
+            );
+            $uploadModal = self::makeModal(
+                'plugin-uploadModal',
+                _('Upload plugin'),
+                '<div id="plugin-upload-form"></div>'
+                . '<div id="plugin-upload-preview" class="d-none"></div>',
+                self::makeButton(
+                    'plugin-upload-cancel',
+                    _('Cancel'),
+                    'btn btn-outline-secondary float-start',
+                    ' type="button" data-bs-dismiss="modal" '
+                )
+                . self::makeButton(
+                    'plugin-upload-send',
+                    _('Upload'),
+                    'btn btn-primary float-end',
+                    ' type="button" '
+                ),
+                '',
+                'primary',
+                'modal-lg'
+            );
+        }
+
         // Activate/Deactivate Plugins
-        $buttons = '<div class="btn-group float-end">';
+        $buttons .= '<div class="btn-group float-end">';
         $buttons .= self::makeSplitButton(
             'activate',
             _('Activate selected'),
@@ -162,6 +203,241 @@ class PluginManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        // Outside the card, and this page's table is not wrapped in a form, so
+        // the modal's own form is not nested inside another one.
+        echo $uploadModal;
+    }
+    /**
+     * Why archive uploads are not available, or '' when they are.
+     *
+     * Two independent switches, both required, because either one alone is a
+     * hole. The setting is what an admin turns on in the UI; the directory
+     * permission is a root act (bin/fog-plugin-uploads.sh). If the setting
+     * alone were enough, the UI could grant itself a web-writable directory
+     * that PHP autoloads code from, which is the thing the split exists to
+     * prevent.
+     *
+     * @return string a human-readable reason, or ''
+     */
+    public static function uploadsBlocked()
+    {
+        if (!self::getSetting('FOG_PLUGIN_UI_INSTALL_ENABLED')) {
+            return _('Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings.');
+        }
+        if (!defined('FOG_PLUGIN_DIR') || !is_dir(FOG_PLUGIN_DIR)) {
+            return sprintf(
+                _('%s does not exist. Re-run the FOG installer.'),
+                defined('FOG_PLUGIN_DIR') ? FOG_PLUGIN_DIR : _('The plugin directory')
+            );
+        }
+        if (!is_writable(FOG_PLUGIN_DIR)) {
+            return sprintf(
+                _('%s is not writable by the web server. Run "bin/fog-plugin-uploads.sh enable" as root.'),
+                FOG_PLUGIN_DIR
+            );
+        }
+        return '';
+    }
+    /**
+     * The upload form, fetched into the modal by the browser.
+     *
+     * Fetched rather than rendered inline so the reason an upload is
+     * unavailable is worked out when the modal is opened, not when the page
+     * was last loaded -- an admin who runs the enable script in another window
+     * does not have to hunt for why the button still complains.
+     *
+     * @return void
+     */
+    public function installArchive()
+    {
+        $blocked = self::uploadsBlocked();
+        if ('' !== $blocked) {
+            echo '<div class="alert alert-warning mb-0">'
+                . Initiator::e($blocked)
+                . '</div>';
+            exit;
+        }
+        $fields = [
+            self::makeLabel(
+                'col-sm-3 col-form-label',
+                'pluginarchive',
+                _('Plugin archive')
+                . '<br/>(' . _('Max Size') . ': ' . ini_get('post_max_size') . ')'
+            ) => '<div class="input-group">'
+            . self::makeLabel(
+                'btn btn-info',
+                'pluginarchive',
+                _('Browse')
+                . self::makeInput(
+                    'd-none',
+                    'pluginarchive',
+                    '',
+                    'file',
+                    'pluginarchive',
+                    '',
+                    true
+                )
+            )
+            . self::makeInput(
+                'form-control filedisp',
+                '',
+                '',
+                'text',
+                'pluginarchivedisp',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
+            . '</div>'
+            . '<span class="form-text">'
+            . _('A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it.')
+            . '</span>',
+        ];
+        echo '<p class="form-text">';
+        echo _(
+            'A plugin is PHP that runs on this server. Only upload one you '
+            . 'trust. Nothing is installed until you have seen what the '
+            . 'archive contains and confirmed it.'
+        );
+        echo '</p>';
+        echo self::formFields($fields);
+        exit;
+    }
+    /**
+     * Accepts the upload, stages it, and describes what it holds.
+     *
+     * Nothing is installed here. The archive is unpacked somewhere the
+     * autoloader does not look and the caller is handed a token plus the
+     * manifest, so the confirmation step has something real to show rather
+     * than the file name the browser supplied.
+     *
+     * @return void
+     */
+    public function installArchivePost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        $serverFault = false;
+        try {
+            $blocked = self::uploadsBlocked();
+            if ('' !== $blocked) {
+                throw new Exception($blocked);
+            }
+            if (!isset($_FILES['pluginarchive'])
+                || !is_uploaded_file((string)$_FILES['pluginarchive']['tmp_name'])
+            ) {
+                throw new Exception(_('No archive was uploaded.'));
+            }
+            if ($_FILES['pluginarchive']['error'] > 0) {
+                throw new Exception(
+                    sprintf(
+                        _('The upload failed (error %s). It may be larger than post_max_size, currently %s.'),
+                        $_FILES['pluginarchive']['error'],
+                        ini_get('post_max_size')
+                    )
+                );
+            }
+            $staged = Plugin::stageArchive(
+                (string)$_FILES['pluginarchive']['tmp_name'],
+                basename((string)$_FILES['pluginarchive']['name'])
+            );
+            if (isset($staged['error'])) {
+                throw new Exception($staged['error']);
+            }
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $hook = 'PLUGIN_ARCHIVE_STAGED';
+            $msg = json_encode($staged);
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'PLUGIN_ARCHIVE_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Plugin Upload Fail')
+                ]
+            );
+        }
+        $this->jsonHookResponse(
+            [
+                'Plugin' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => $msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
+    }
+    /**
+     * Moves a staged plugin into the external root.
+     *
+     * The plugin lands on disk not installed and not active. Discovery writes
+     * its row on the next boot and the admin still has to install and activate
+     * it, which keeps "the files are here" and "this code is running" two
+     * separate decisions.
+     *
+     * @return void
+     */
+    public function installArchiveCommitPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        $serverFault = false;
+        try {
+            $blocked = self::uploadsBlocked();
+            if ('' !== $blocked) {
+                throw new Exception($blocked);
+            }
+            $token = (string)filter_input(INPUT_POST, 'token');
+            $result = Plugin::commitStaged($token);
+            if (isset($result['error'])) {
+                throw new Exception($result['error']);
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'PLUGIN_ARCHIVE_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => sprintf(
+                        $result['upgrade']
+                            ? _('%s replaced. Install it to apply any new database steps.')
+                            : _('%s added. Install it to set up its database.'),
+                        $result['name']
+                    ),
+                    'title' => _('Plugin Upload Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'PLUGIN_ARCHIVE_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Plugin Upload Fail')
+                ]
+            );
+        }
+        $this->jsonHookResponse(
+            [
+                'Plugin' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => $msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Stops a batch that contains a plugin which cannot run here.

@@ -367,6 +367,399 @@ class Plugin extends FOGController
         return '';
     }
     /**
+     * Largest plugin archive accepted, before PHP's own upload limits.
+     *
+     * A plugin is source code. Sixty-four megabytes is already generous for
+     * that and small enough that a refused upload cannot fill the cache
+     * partition. post_max_size/upload_max_filesize usually bite first; this is
+     * the bound that does not depend on how a distro tuned php.ini.
+     */
+    const MAX_ARCHIVE_BYTES = 67108864;
+    /**
+     * Staged uploads older than this are swept, in seconds.
+     *
+     * An upload that is never confirmed leaves a directory behind. An hour is
+     * far longer than the gap between the preview and the admin clicking
+     * Install, and short enough that abandoned uploads do not accumulate.
+     */
+    const STAGING_TTL = 3600;
+    /**
+     * Where an uploaded plugin waits between preview and confirmation.
+     *
+     * Under FOG_CACHE_DIR, deliberately NOT under either plugin root: nothing
+     * here is on the autoload path, so an archive that fails validation -- or
+     * one the admin looks at and rejects -- never becomes loadable code.
+     *
+     * @return string with a trailing separator
+     */
+    public static function stagingRoot()
+    {
+        return rtrim(FOG_CACHE_DIR, DS) . DS . 'plugin-staging' . DS;
+    }
+    /**
+     * Unpacks an uploaded archive into staging and describes what is in it.
+     *
+     * Two passes, and the order matters. The archive's entry list is checked
+     * structurally FIRST -- while it is still a file and nothing has been
+     * written -- because that is the only point at which a malicious path can
+     * still be refused for free. Only an archive that survives that is
+     * extracted, and only then is its manifest read.
+     *
+     * Reading the manifest means `include`ing PHP out of the archive, which
+     * is why extraction lands in staging rather than the plugin root: the code
+     * runs either way (the caller holds plugin.install, whose entire meaning
+     * is "may introduce executable code"), but a refused install leaves
+     * nothing behind where the autoloader would find it.
+     *
+     * @param string $file path to the uploaded temporary file
+     * @param string $name the client-supplied file name, for the error text
+     *
+     * @return array ['error' => string] or a description of the staged plugin
+     */
+    public static function stageArchive($file, $name = '')
+    {
+        self::purgeStaging();
+        $fail = function ($why) {
+            return ['error' => $why];
+        };
+        if (!is_readable($file)) {
+            return $fail(_('The upload did not arrive.'));
+        }
+        if (filesize($file) > self::MAX_ARCHIVE_BYTES) {
+            return $fail(
+                sprintf(
+                    _('The archive is larger than the %s limit.'),
+                    self::MAX_ARCHIVE_BYTES / 1048576 . 'MB'
+                )
+            );
+        }
+        // PharData reads .tar.gz without shelling out and, crucially, lets the
+        // entry list be inspected before anything is written to disk. The
+        // upload has no trustworthy extension, so the file is opened as a tar
+        // regardless of what it was called.
+        try {
+            $phar = new PharData($file, 0, null, Phar::TAR | Phar::GZ);
+        } catch (Exception $e) {
+            return $fail(
+                sprintf(
+                    _('%s is not a readable .tar.gz archive.'),
+                    $name ?: basename($file)
+                )
+            );
+        }
+        $prefix = 'phar://' . str_replace(DIRECTORY_SEPARATOR, '/', $file) . '/';
+        $tops = [];
+        $hasManifest = false;
+        try {
+            $walk = new RecursiveIteratorIterator(
+                $phar,
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+            foreach ($walk as $entry) {
+                $rel = str_replace('\\', '/', $entry->getPathname());
+                if (strncmp($rel, $prefix, strlen($prefix)) === 0) {
+                    $rel = substr($rel, strlen($prefix));
+                }
+                $rel = ltrim($rel, '/');
+                if ('' === $rel
+                    || '/' === substr($rel, 0, 1)
+                    || preg_match('#(^|/)\.\.(/|$)#', $rel)
+                ) {
+                    return $fail(
+                        sprintf(_('The archive contains an unsafe path: %s'), $rel)
+                    );
+                }
+                $parts = explode('/', $rel);
+                if (count($parts) < 2) {
+                    // Everything must live under one directory named for the
+                    // plugin. A file at the root would extract straight into
+                    // the plugin root and could land on a neighbour.
+                    if (!$entry->isDir()) {
+                        return $fail(
+                            sprintf(
+                                _('%s is not inside a plugin directory.'),
+                                $rel
+                            )
+                        );
+                    }
+                }
+                $tops[$parts[0]] = true;
+                if ('config/plugin.config.php' === implode('/', array_slice($parts, 1))) {
+                    $hasManifest = true;
+                }
+            }
+        } catch (Exception $e) {
+            return $fail(_('The archive could not be read.'));
+        }
+        if (count($tops) !== 1) {
+            return $fail(
+                _('The archive must hold exactly one plugin directory.')
+            );
+        }
+        $top = strtolower((string)key($tops));
+        if (!preg_match('#^[a-z0-9][a-z0-9_-]*$#', $top)) {
+            return $fail(
+                sprintf(
+                    _('%s is not a usable plugin name. Use lowercase letters, digits, - and _.'),
+                    $top
+                )
+            );
+        }
+        if (!$hasManifest) {
+            return $fail(
+                sprintf(
+                    _('The archive has no %s.'),
+                    $top . '/config/plugin.config.php'
+                )
+            );
+        }
+        // A bundled plugin of the same name always wins (_getDirs() refuses
+        // the external copy), so an archive that collides with one would
+        // install and then never load. Refuse it here where it can be
+        // explained rather than leaving the admin to wonder.
+        if (is_dir(self::bundledRoot() . $top)) {
+            return $fail(
+                sprintf(
+                    _('%s ships with FOG and cannot be replaced by an upload.'),
+                    $top
+                )
+            );
+        }
+        $token = bin2hex(random_bytes(16));
+        $dir = self::stagingRoot() . $token . DS;
+        if (!self::_makeStagingDir($dir)) {
+            return $fail(_('Could not create the staging directory.'));
+        }
+        try {
+            $phar->extractTo($dir, null, true);
+        } catch (Exception $e) {
+            self::rmTree($dir);
+            return $fail(_('The archive could not be extracted.'));
+        }
+        $staged = $dir . $top;
+        if (!is_dir($staged)) {
+            self::rmTree($dir);
+            return $fail(_('The archive did not extract as expected.'));
+        }
+        // Checked on what is actually on disk, not on the archive's entry
+        // list. PharData reports isLink() false for a tar symlink and writes
+        // it out as an empty regular file, so an entry-level check would have
+        // looked right and caught nothing. This asserts the property that
+        // matters -- a link is how an install writes outside its own
+        // directory -- against the extracted tree, whatever produced it.
+        if (self::_hasLink($staged)) {
+            self::rmTree($dir);
+            return $fail(_('The archive contains a link.'));
+        }
+        $manifest = self::readManifest($staged);
+        if ($manifest['name'] !== $top) {
+            self::rmTree($dir);
+            return $fail(
+                sprintf(
+                    _("The manifest calls this plugin '%s' but the directory is '%s'. They must match."),
+                    $manifest['name'],
+                    $top
+                )
+            );
+        }
+        $compat = self::compatError($manifest);
+        if ('' !== $compat) {
+            self::rmTree($dir);
+            return $fail(sprintf('%s %s', $top, $compat));
+        }
+
+        return [
+            // notifyFromAPI() shows 'Bad Response' for a payload carrying
+            // none of msg/error/info/warning, and every apiCall() response
+            // goes through it. 'info' rather than 'msg' because nothing has
+            // been installed yet -- this is a preview, not a success.
+            'info' => sprintf(
+                _('Check %s over before installing it.'),
+                $top
+            ),
+            'title' => _('Plugin Archive Read'),
+            'token' => $token,
+            'name' => $top,
+            'manifest' => $manifest,
+            // The checksum of what was uploaded, so an admin can compare it
+            // with whatever the plugin's author published.
+            'sha256' => hash_file('sha256', $file),
+            'files' => count($tops) ? iterator_count(
+                new RecursiveIteratorIterator(new PharData($file))
+            ) : 0,
+            // Installing over an existing external plugin is an upgrade. It
+            // is allowed, but the admin is told, because it replaces files.
+            'upgrade' => is_dir(rtrim(FOG_PLUGIN_DIR, DS) . DS . $top),
+        ];
+    }
+    /**
+     * Moves a staged plugin into the external root.
+     *
+     * The checks from stageArchive() are repeated rather than trusted: the
+     * preview and the confirmation are two requests, and between them the
+     * server could have been upgraded out of the plugin's range or a bundled
+     * plugin of the same name could have appeared.
+     *
+     * @param string $token the staging token from stageArchive()
+     *
+     * @return array ['error' => string] or ['name' => string]
+     */
+    public static function commitStaged($token)
+    {
+        // Hex only. The token names a directory, so anything else is a path
+        // traversal attempt rather than a typo.
+        if (!preg_match('#^[a-f0-9]{32}$#', (string)$token)) {
+            return ['error' => _('That upload is no longer available.')];
+        }
+        $dir = self::stagingRoot() . $token . DS;
+        $dirs = (array)glob($dir . '*', GLOB_ONLYDIR);
+        if (count($dirs) !== 1) {
+            return ['error' => _('That upload is no longer available.')];
+        }
+        $staged = $dirs[0];
+        $name = strtolower(basename($staged));
+        $manifest = self::readManifest($staged);
+        $compat = self::compatError($manifest);
+        if ($manifest['name'] !== $name || '' !== $compat) {
+            self::rmTree($dir);
+            return [
+                'error' => $compat
+                    ? sprintf('%s %s', $name, $compat)
+                    : _('The staged plugin no longer matches its manifest.')
+            ];
+        }
+        if (is_dir(self::bundledRoot() . $name)) {
+            self::rmTree($dir);
+            return [
+                'error' => sprintf(
+                    _('%s ships with FOG and cannot be replaced by an upload.'),
+                    $name
+                )
+            ];
+        }
+        if (!defined('FOG_PLUGIN_DIR') || !is_dir(FOG_PLUGIN_DIR)) {
+            return ['error' => _('The plugin directory does not exist.')];
+        }
+        $target = rtrim(FOG_PLUGIN_DIR, DS) . DS . $name;
+        // An upgrade replaces files, so the old copy is moved aside first and
+        // only deleted once the new one is in place. A failed rename then
+        // leaves the plugin as it was rather than gone.
+        $backup = null;
+        if (is_dir($target)) {
+            $backup = $dir . '.replaced-' . $name;
+            if (!@rename($target, $backup)) {
+                return [
+                    'error' => sprintf(
+                        _('Could not replace the existing %s. Is %s writable?'),
+                        $name,
+                        FOG_PLUGIN_DIR
+                    )
+                ];
+            }
+        }
+        if (!@rename($staged, $target)) {
+            if (null !== $backup) {
+                @rename($backup, $target);
+            }
+            self::rmTree($dir);
+            return [
+                'error' => sprintf(
+                    _('Could not write to %s. The UI installer needs that directory to be writable by the web server.'),
+                    FOG_PLUGIN_DIR
+                )
+            ];
+        }
+        self::rmTree($dir);
+
+        return ['name' => $name, 'upgrade' => null !== $backup];
+    }
+    /**
+     * Removes staged uploads nobody confirmed.
+     *
+     * @return void
+     */
+    public static function purgeStaging()
+    {
+        $cutoff = time() - self::STAGING_TTL;
+        foreach ((array)glob(self::stagingRoot() . '*', GLOB_ONLYDIR) as $dir) {
+            if (@filemtime($dir) < $cutoff) {
+                self::rmTree($dir);
+            }
+        }
+    }
+    /**
+     * Deletes a directory tree, refusing to follow links out of it.
+     *
+     * @param string $dir the directory to remove
+     *
+     * @return void
+     */
+    public static function rmTree($dir)
+    {
+        $dir = rtrim((string)$dir, DS);
+        // Only ever used on staging, and only ever called with a path this
+        // class built. The guard is here so a future caller cannot turn a
+        // typo into a recursive delete of something that matters.
+        $root = rtrim(self::stagingRoot(), DS);
+        if ('' === $dir || strncmp($dir, $root . DS, strlen($root) + 1) !== 0) {
+            return;
+        }
+        foreach ((array)@scandir($dir) as $entry) {
+            if ('.' === $entry || '..' === $entry) {
+                continue;
+            }
+            $path = $dir . DS . $entry;
+            if (is_link($path) || !is_dir($path)) {
+                @unlink($path);
+                continue;
+            }
+            self::rmTree($path);
+        }
+        @rmdir($dir);
+    }
+    /**
+     * True if anything in this tree is a symlink.
+     *
+     * @param string $dir the directory to walk
+     *
+     * @return bool
+     */
+    private static function _hasLink($dir)
+    {
+        foreach ((array)@scandir($dir) as $entry) {
+            if ('.' === $entry || '..' === $entry) {
+                continue;
+            }
+            $path = rtrim($dir, DS) . DS . $entry;
+            if (is_link($path)) {
+                return true;
+            }
+            if (is_dir($path) && self::_hasLink($path)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Creates the staging directory, and the root above it if needed.
+     *
+     * 0700: staging holds code that has been neither validated nor accepted,
+     * and FOG_CACHE_DIR around it is world-writable. Only the web user that
+     * wrote it needs to read it back.
+     *
+     * @param string $dir the directory to create
+     *
+     * @return bool
+     */
+    private static function _makeStagingDir($dir)
+    {
+        $root = rtrim(self::stagingRoot(), DS);
+        if (!is_dir($root) && !@mkdir($root, 0700, true) && !is_dir($root)) {
+            return false;
+        }
+        return (bool)@mkdir($dir, 0700, true);
+    }
+    /**
      * Why these plugins cannot be switched on, keyed by plugin name.
      *
      * Both the things that stop a plugin running are checked here rather than
