@@ -204,6 +204,32 @@ class Initiator
     }
 
     /**
+     * Drops the cached class-file list so the next request rescans.
+     *
+     * Called when code is added to or removed from a scanned root while the
+     * server is running -- which only the plugin uploader does. Without it the
+     * new plugin stays invisible to the autoloader until the TTL expires: its
+     * manager, page and hook classes do not resolve, so installing it applies
+     * no schema, registers no hooks and renders no page, while reporting
+     * success. Up to five minutes of a plugin that is "installed" and inert.
+     *
+     * Only the current roots' entry is removed, and a failed unlink is not an
+     * error: the TTL still expires on its own, so the worst case is the delay
+     * this exists to avoid.
+     *
+     * @return void
+     */
+    public static function forgetClassFileList(): void
+    {
+        self::$fileList = null;
+        self::$classMap = null;
+        @unlink(
+            FOG_CACHE_DIR . DS . 'filelist.'
+            . md5(implode('|', self::_scanRoots())) . '.json'
+        );
+    }
+
+    /**
      * Resolve a class to its source file via an O(1) name => path map.
      *
      * The built-in spl_autoload() probes every include_path directory by every

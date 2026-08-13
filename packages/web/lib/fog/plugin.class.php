@@ -726,6 +726,12 @@ class Plugin extends FOGController
             ];
         }
         self::rmTree($dir);
+        // Code has just appeared under a scanned root while the server is
+        // running. The autoloader's file list is TTL-cached, so without this
+        // the new plugin stays invisible for up to five minutes: its manager,
+        // page and hook classes do not resolve, installing it applies no
+        // schema and registers no hooks, and it all reports success.
+        Initiator::forgetClassFileList();
 
         return ['name' => $name, 'upgrade' => null !== $backup];
     }
@@ -1052,6 +1058,26 @@ class Plugin extends FOGController
     public function installdb()
     {
         $manager = $this->getManager();
+        // getManager() falls back to PluginManager when the plugin's own
+        // manager class will not load, and PluginManager has neither schema()
+        // nor install() -- so the fallback below returned true and the install
+        // reported success having done nothing. A plugin that ships a manager
+        // file we cannot load is a broken install, not a plugin without a
+        // manager, and the two have to be told apart: a hooks-only plugin
+        // genuinely has no manager and must still install cleanly.
+        $ownManager = strtolower($this->get('name')) . 'manager';
+        $managerFile = rtrim($this->get('location'), DS) . DS . 'class'
+            . DS . $ownManager . '.class.php';
+        if (file_exists($managerFile)
+            && !class_exists($this->get('name') . 'Manager')
+        ) {
+            throw new Exception(
+                sprintf(
+                    _('%s could not be loaded. Its class file is present but the autoloader cannot see it yet.'),
+                    $this->get('name') . 'Manager'
+                )
+            );
+        }
         if (!method_exists($manager, 'schema')) {
             return method_exists($manager, 'install')
                 ? (bool)$manager->install()
