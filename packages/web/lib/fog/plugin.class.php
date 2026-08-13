@@ -894,7 +894,7 @@ class Plugin extends FOGController
             // row with no code behind it activated and installed with a
             // success message.
             if (self::isMissing((string)$row->location)) {
-                $blockers[$name] = _('its code is not on disk');
+                $blockers[$name] = _('has no code on disk');
                 continue;
             }
             $manifest = self::readManifest((string)$row->location);

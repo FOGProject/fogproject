@@ -8613,6 +8613,10 @@ msgid "has failed to save"
 msgstr "no ha logrado ahorrar"
 
 #, fuzzy
+msgid "has no code on disk"
+msgstr "No se encontró Clase FOGPage para este nodo"
+
+#, fuzzy
 msgid "has started"
 msgstr "se ha iniciado en el puerto"
 
@@ -8779,10 +8783,6 @@ msgstr ""
 
 msgid "items"
 msgstr ""
-
-#, fuzzy
-msgid "its code is not on disk"
-msgstr "No se encontró Clase FOGPage para este nodo"
 
 msgid "kernel to boot the client computers"
 msgstr ""
@@ -9678,6 +9678,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "before me"
 #~ msgstr "Nombre del núcleo"
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "No se encontró Clase FOGPage para este nodo"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

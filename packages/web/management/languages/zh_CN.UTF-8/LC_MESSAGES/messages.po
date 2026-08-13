@@ -8445,6 +8445,10 @@ msgid "has failed to save"
 msgstr "未能保存"
 
 #, fuzzy
+msgid "has no code on disk"
+msgstr "图片没有节点发现"
+
+#, fuzzy
 msgid "has started"
 msgstr "任务开始"
 
@@ -8610,10 +8614,6 @@ msgstr ""
 
 msgid "items"
 msgstr ""
-
-#, fuzzy
-msgid "its code is not on disk"
-msgstr "图片没有节点发现"
 
 msgid "kernel to boot the client computers"
 msgstr ""
@@ -9523,6 +9523,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "我面前"
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "图片没有节点发现"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

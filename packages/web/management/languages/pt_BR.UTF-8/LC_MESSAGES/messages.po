@@ -8445,6 +8445,10 @@ msgid "has failed to save"
 msgstr "não foi capaz de salvar"
 
 #, fuzzy
+msgid "has no code on disk"
+msgstr "Imagem não encontrada no nó"
+
+#, fuzzy
 msgid "has started"
 msgstr "tarefa iniciada"
 
@@ -8610,10 +8614,6 @@ msgstr ""
 
 msgid "items"
 msgstr ""
-
-#, fuzzy
-msgid "its code is not on disk"
-msgstr "Imagem não encontrada no nó"
 
 msgid "kernel to boot the client computers"
 msgstr ""
@@ -9523,6 +9523,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "antes de mim"
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "Imagem não encontrada no nó"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

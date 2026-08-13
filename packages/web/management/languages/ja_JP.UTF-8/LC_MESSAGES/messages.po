@@ -8023,6 +8023,10 @@ msgstr "削除に失敗しました"
 msgid "has failed to save"
 msgstr "保存に失敗しました"
 
+#, fuzzy
+msgid "has no code on disk"
+msgstr "このノード上に見つかりません"
+
 msgid "has started"
 msgstr "開始しました"
 
@@ -8179,10 +8183,6 @@ msgstr ""
 
 msgid "items"
 msgstr ""
-
-#, fuzzy
-msgid "its code is not on disk"
-msgstr "このノード上に見つかりません"
 
 msgid "kernel to boot the client computers"
 msgstr "クライアントコンピューターを起動するためのカーネル"
@@ -10738,6 +10738,10 @@ msgstr ""
 
 #~ msgid "it will enforce login to gain access to the advanced"
 #~ msgstr "詳細メニューへアクセスするにはログインが必要になります"
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "このノード上に見つかりません"
 
 #~ msgid "may see the issue and help and/or use the solutions"
 #~ msgstr "問題を確認し、支援したり解決策を利用したりできます"

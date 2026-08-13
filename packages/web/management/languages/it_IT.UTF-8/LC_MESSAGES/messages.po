@@ -8104,6 +8104,10 @@ msgstr "è fallita la distruzione"
 msgid "has failed to save"
 msgstr "fallito il salvataggio"
 
+#, fuzzy
+msgid "has no code on disk"
+msgstr "Non trovato su questo nodo"
+
 msgid "has started"
 msgstr "è iniziato"
 
@@ -8258,10 +8262,6 @@ msgstr ""
 
 msgid "items"
 msgstr ""
-
-#, fuzzy
-msgid "its code is not on disk"
-msgstr "Non trovato su questo nodo"
 
 #, fuzzy
 msgid "kernel to boot the client computers"
@@ -9143,6 +9143,10 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "es."
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "Non trovato su questo nodo"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

@@ -7156,6 +7156,9 @@ msgstr ""
 msgid "has failed to save"
 msgstr ""
 
+msgid "has no code on disk"
+msgstr ""
+
 msgid "has started"
 msgstr ""
 
@@ -7295,9 +7298,6 @@ msgid "item"
 msgstr ""
 
 msgid "items"
-msgstr ""
-
-msgid "its code is not on disk"
 msgstr ""
 
 msgid "kernel to boot the client computers"

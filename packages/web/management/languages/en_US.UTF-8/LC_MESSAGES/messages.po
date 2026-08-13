@@ -8444,6 +8444,10 @@ msgid "has failed to save"
 msgstr "has failed to save"
 
 #, fuzzy
+msgid "has no code on disk"
+msgstr "Image not found on node"
+
+#, fuzzy
 msgid "has started"
 msgstr "Task Started"
 
@@ -8609,10 +8613,6 @@ msgstr ""
 
 msgid "items"
 msgstr ""
-
-#, fuzzy
-msgid "its code is not on disk"
-msgstr "Image not found on node"
 
 msgid "kernel to boot the client computers"
 msgstr ""
@@ -9518,6 +9518,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "before me"
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "Image not found on node"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

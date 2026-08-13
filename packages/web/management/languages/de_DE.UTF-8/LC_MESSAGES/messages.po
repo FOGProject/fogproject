@@ -8449,6 +8449,10 @@ msgid "has failed to save"
 msgstr "konnte nicht gespeichert werden"
 
 #, fuzzy
+msgid "has no code on disk"
+msgstr "auf diesem Knoten nicht gefunden"
+
+#, fuzzy
 msgid "has started"
 msgstr "hat begonnen"
 
@@ -8614,10 +8618,6 @@ msgstr ""
 
 msgid "items"
 msgstr ""
-
-#, fuzzy
-msgid "its code is not on disk"
-msgstr "auf diesem Knoten nicht gefunden"
 
 #, fuzzy
 msgid "kernel to boot the client computers"
@@ -9545,6 +9545,10 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "z.B."
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "auf diesem Knoten nicht gefunden"
 
 #, fuzzy
 #~ msgid "multicast tasks!"
