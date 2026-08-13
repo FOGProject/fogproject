@@ -1333,6 +1333,10 @@ msgid "Could not send data from file"
 msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
+msgid "Could not stage the upload."
+msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
 msgid "Could not update host"
 msgstr "ホストの更新に失敗しました"
 

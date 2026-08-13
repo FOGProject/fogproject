@@ -419,7 +419,14 @@ class Plugin extends FOGController
     public static function stageArchive($file, $name = '')
     {
         self::purgeStaging();
-        $fail = function ($why) {
+        // $dir is captured by reference so every failure below cleans up the
+        // staging directory without each return having to remember to. Before
+        // the directory exists it is null and this is just an early return.
+        $dir = null;
+        $fail = function ($why) use (&$dir) {
+            if (null !== $dir) {
+                self::rmTree($dir);
+            }
             return ['error' => $why];
         };
         if (!is_readable($file)) {
@@ -433,12 +440,26 @@ class Plugin extends FOGController
                 )
             );
         }
+        // The archive is copied under a .tar.gz name before it is opened.
+        // PharData decides the format from the FILE EXTENSION and refuses
+        // anything it does not recognise -- passing Phar::TAR|Phar::GZ does not
+        // override that -- and PHP's upload temp file is /tmp/phpXXXXXX with no
+        // extension at all, so opening it in place always threw "file
+        // extension (or combination) not recognised".
+        $token = bin2hex(random_bytes(16));
+        $made = self::stagingRoot() . $token . DS;
+        if (!self::_makeStagingDir($made)) {
+            return $fail(_('Could not create the staging directory.'));
+        }
+        $dir = $made;
+        $archive = $dir . 'upload.tar.gz';
+        if (!@copy($file, $archive)) {
+            return $fail(_('Could not stage the upload.'));
+        }
         // PharData reads .tar.gz without shelling out and, crucially, lets the
-        // entry list be inspected before anything is written to disk. The
-        // upload has no trustworthy extension, so the file is opened as a tar
-        // regardless of what it was called.
+        // entry list be inspected before anything is extracted.
         try {
-            $phar = new PharData($file, 0, null, Phar::TAR | Phar::GZ);
+            $phar = new PharData($archive, 0, null, Phar::TAR | Phar::GZ);
         } catch (Exception $e) {
             return $fail(
                 sprintf(
@@ -447,9 +468,10 @@ class Plugin extends FOGController
                 )
             );
         }
-        $prefix = 'phar://' . str_replace(DIRECTORY_SEPARATOR, '/', $file) . '/';
+        $prefix = 'phar://' . str_replace(DIRECTORY_SEPARATOR, '/', $archive) . '/';
         $tops = [];
         $hasManifest = false;
+        $fileCount = 0;
         try {
             $walk = new RecursiveIteratorIterator(
                 $phar,
@@ -482,6 +504,9 @@ class Plugin extends FOGController
                             )
                         );
                     }
+                }
+                if (!$entry->isDir()) {
+                    $fileCount++;
                 }
                 $tops[$parts[0]] = true;
                 if ('config/plugin.config.php' === implode('/', array_slice($parts, 1))) {
@@ -525,20 +550,13 @@ class Plugin extends FOGController
                 )
             );
         }
-        $token = bin2hex(random_bytes(16));
-        $dir = self::stagingRoot() . $token . DS;
-        if (!self::_makeStagingDir($dir)) {
-            return $fail(_('Could not create the staging directory.'));
-        }
         try {
             $phar->extractTo($dir, null, true);
         } catch (Exception $e) {
-            self::rmTree($dir);
             return $fail(_('The archive could not be extracted.'));
         }
         $staged = $dir . $top;
         if (!is_dir($staged)) {
-            self::rmTree($dir);
             return $fail(_('The archive did not extract as expected.'));
         }
         // Checked on what is actually on disk, not on the archive's entry
@@ -548,12 +566,10 @@ class Plugin extends FOGController
         // matters -- a link is how an install writes outside its own
         // directory -- against the extracted tree, whatever produced it.
         if (self::_hasLink($staged)) {
-            self::rmTree($dir);
             return $fail(_('The archive contains a link.'));
         }
         $manifest = self::readManifest($staged);
         if ($manifest['name'] !== $top) {
-            self::rmTree($dir);
             return $fail(
                 sprintf(
                     _("The manifest calls this plugin '%s' but the directory is '%s'. They must match."),
@@ -564,9 +580,15 @@ class Plugin extends FOGController
         }
         $compat = self::compatError($manifest);
         if ('' !== $compat) {
-            self::rmTree($dir);
             return $fail(sprintf('%s %s', $top, $compat));
         }
+
+        // The copy is only needed to give PharData a recognisable extension.
+        // Removed once extraction is done so commitStaged() moves a directory
+        // holding the plugin and nothing else. The handle goes first: it is
+        // still open on the file being deleted.
+        unset($phar, $walk);
+        @unlink($archive);
 
         return [
             // notifyFromAPI() shows 'Bad Response' for a payload carrying
@@ -584,9 +606,7 @@ class Plugin extends FOGController
             // The checksum of what was uploaded, so an admin can compare it
             // with whatever the plugin's author published.
             'sha256' => hash_file('sha256', $file),
-            'files' => count($tops) ? iterator_count(
-                new RecursiveIteratorIterator(new PharData($file))
-            ) : 0,
+            'files' => $fileCount,
             // Installing over an existing external plugin is an upgrade. It
             // is allowed, but the admin is told, because it replaces files.
             'upgrade' => is_dir(rtrim(FOG_PLUGIN_DIR, DS) . DS . $top),

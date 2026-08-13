@@ -1411,6 +1411,10 @@ msgid "Could not send data from file"
 msgstr "Não foi possível ler o arquivo tmp."
 
 #, fuzzy
+msgid "Could not stage the upload."
+msgstr "Não foi possível ler o arquivo tmp."
+
+#, fuzzy
 msgid "Could not update host"
 msgstr "Falha ao atualizar"
 

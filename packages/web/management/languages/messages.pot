@@ -1184,6 +1184,9 @@ msgstr ""
 msgid "Could not send data from file"
 msgstr ""
 
+msgid "Could not stage the upload."
+msgstr ""
+
 msgid "Could not update host"
 msgstr ""
 
