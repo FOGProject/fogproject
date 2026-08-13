@@ -149,16 +149,20 @@ class BootMenu extends FOGBase
         // the router's and was emitting pub_key (the host's symmetric AES-256
         // session key, not a public key), sec_tok, productKey and
         // ADPassLegacy to anyone who POSTed a known mac. Source the secret
-        // names from Route::$sensitiveFields so the two lists cannot drift
+        // names from the router's own tiers so the two lists cannot drift
         // again when a new secret field is added.
         // Reported by Aisle Research (086 / 4.28.2).
-        // Both tiers: $sensitiveAlwaysFields holds the secrets no client may
+        // Both tiers: the 'always' tier holds the secrets no client may
         // read back at all, which this endpoint least of all -- it is the
-        // unauthenticated one. Iterating only $sensitiveFields would let a
+        // unauthenticated one. Iterating only the first tier would let a
         // field silently leave this blocklist the moment it was promoted to
         // the stricter tier, which is the exact drift this loop exists to
         // prevent.
-        foreach ([Route::$sensitiveFields, Route::$sensitiveAlwaysFields] as $tier) {
+        // Via sensitiveFieldMap() rather than the raw properties, so a
+        // secret a plugin declares through API_SENSITIVE_FIELDS is blocked
+        // here too. Reading the properties direct would silently exempt
+        // every plugin-declared field from the one unauthenticated endpoint.
+        foreach (Route::sensitiveFieldMap() as $tier) {
             foreach ($tier as $fields) {
                 $ignore_keys = array_merge($ignore_keys, $fields);
             }

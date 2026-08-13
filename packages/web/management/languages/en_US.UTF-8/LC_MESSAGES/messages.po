@@ -5026,6 +5026,9 @@ msgstr "Other Tag #2"
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
+msgid "Page node is not registered as a permission node"
+msgstr ""
+
 #, fuzzy
 msgid "Paged"
 msgstr "Imaged"

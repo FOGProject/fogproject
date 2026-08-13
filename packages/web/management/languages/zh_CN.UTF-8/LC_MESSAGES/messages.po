@@ -5027,6 +5027,9 @@ msgstr "其他标签＃2"
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
+msgid "Page node is not registered as a permission node"
+msgstr ""
+
 #, fuzzy
 msgid "Paged"
 msgstr "成像"

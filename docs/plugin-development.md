@@ -232,16 +232,18 @@ matching `*GeneralPost()` that mutates `$this->obj` before the shared `save()`.
 ### 4.5 Hooks — `hooks/*.hook.php`
 
 Each hook is a small class extending `Hook`, with `public $node`, that registers
-callbacks **in its constructor, guarded by the install check**:
+callbacks **in its constructor**. Use `registerInstalled()` — it applies the
+"only when this plugin is installed" guard for you and takes an ordered list of
+`[event, method]` pairs:
 
 ```php
 public function __construct()
 {
     parent::__construct();
-    if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-        return;                       // do nothing unless this plugin is installed
-    }
-    self::$HookManager->register('MAIN_MENU_DATA', [$this, 'menuData']);
+    $this->registerInstalled([
+        ['MAIN_MENU_DATA', 'menuData'],
+        ['PERMISSION_REGISTRY_DATA', 'permData'],
+    ]);
 }
 ```
 
@@ -268,6 +270,21 @@ The example ships three hooks:
 > writable by **any** authenticated user regardless of role. If your endpoint
 > is admin-only when you did not intend it to be, check the log and rename the
 > class (or register the node) rather than working around it.
+
+> **Register your node, or your page is admin-only.** The same stance applies
+> to the management page, not just the REST classes: a node absent from the
+> permission registry resolves to `unmapped.<node>`, which no role can be
+> granted, so only a holder of `*` can reach it — and its sidebar entry is
+> hidden from everyone else. It logs one line per node per request naming
+> what to register. Firing `PERMISSION_REGISTRY_DATA` is therefore not
+> optional; a plugin that skips it is not "ungated", it is unreachable.
+>
+> ```php
+> public function permData($arguments)
+> {
+>     $arguments['registry'][$this->node] = ['view', 'create', 'edit', 'delete'];
+> }
+> ```
 
 ### 4.6 JavaScript — `js/fog.helloworld.*.js`
 
@@ -371,6 +388,24 @@ Global configuration lives in the `globalSettings` table.
 - **Instantiation:** prefer `self::getClass('HelloWorld')` /
   `self::getClass('HelloWorldManager')` over `new`.
 - **Translation:** wrap UI strings in `_('…')`.
+- **Secrets in your table:** if a column holds a credential — an API token, a
+  webhook URL, a bind password — declare it through `API_SENSITIVE_FIELDS` or
+  it is emitted in REST payloads and by the unauthenticated boot endpoint.
+  Two tiers:
+
+  | Tier | Stripped from | Use when |
+  |---|---|---|
+  | `fields` | lists and expanded relations | a client legitimately reads it back on a direct single GET (as fog-client does with `host.ADPass`) |
+  | `always` | everything, single GET included | nothing outside the web tier ever needs it |
+
+  ```php
+  public function declareSensitiveFields($arguments)
+  {
+      $arguments['always'][$this->node][] = 'bindPwd';
+  }
+  ```
+
+  Prefer `always` unless you can name the consumer that reads the field back.
 
 ---
 
@@ -383,7 +418,9 @@ Global configuration lives in the `globalSettings` table.
 | `SEARCH_PAGES` | make the node searchable |
 | `PAGES_WITH_OBJECTS` | enable the object (edit/delete) flow for the node |
 | `PAGE_JS_FILES` | inject JS files for the current page |
+| `PERMISSION_REGISTRY_DATA` | register the node and its actions — **required**, see §4.5 |
 | `API_VALID_CLASSES` | expose the node over the REST API (name classes after your permission node — see §4.5) |
+| `API_SENSITIVE_FIELDS` | keep credential columns out of API and boot-endpoint output — see §8 |
 | `<NODE>_ADD_FIELDS` / `_GENERAL_FIELDS` | let others extend your forms |
 | `<NODE>_ADD_POST` / `_EDIT_POST` / `_ADD_SUCCESS` / `_ADD_FAIL` | extension points around your saves |
 

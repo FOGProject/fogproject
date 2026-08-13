@@ -66,17 +66,41 @@ class AddLDAPAPI extends Hook
         // statement.
         $this->registerInstalled([
             ['API_VALID_CLASSES', 'injectAPIElements'],
+            ['API_SENSITIVE_FIELDS', 'declareSensitiveFields'],
             ['CUSTOMIZE_DT_COLUMNS', 'customizeDT'],
             ['LDAP_EXPORT_ITEMS', 'stripBindPassword'],
         ]);
     }
     /**
+     * Declares the bind password as a secret the API must never emit.
+     *
+     * The 'always' tier rather than the ordinary one: that tier is stripped
+     * from a direct single-entity GET as well as from lists. Host.ADPass
+     * sits in the ordinary tier because fog-client genuinely reads it back
+     * to join a domain; nothing reads bindPwd back -- only the web tier
+     * binds with it, and it does so through the ORM -- so it has no reason
+     * to leave the server at all.
+     *
+     * This lived in Route::$sensitiveAlwaysFields as a hardcoded 'ldap' key
+     * until API_SENSITIVE_FIELDS existed, because a plugin had no way to
+     * declare its own secrets. Core no longer names this plugin anywhere.
+     *
+     * @param mixed $arguments The tier maps to modify.
+     *
+     * @return void
+     */
+    public function declareSensitiveFields($arguments)
+    {
+        $arguments['always'][$this->node][] = 'bindPwd';
+    }
+    /**
      * Keeps the bind password out of the LDAP export.
      *
      * The directory service account credential is stored in cleartext, and
-     * only the web tier ever binds with it -- Route::$sensitiveFields already
-     * strips it from API listings and the LDAP report omits it for the same
-     * reason. The CSV export is the one bulk surface that still carried it.
+     * only the web tier ever binds with it -- declareSensitiveFields() above
+     * already strips it from API payloads and the LDAP report omits it for
+     * the same reason. The CSV export is the one bulk surface that still
+     * carried it.
      *
      * The cost is that an exported server re-imports unable to bind and the
      * password has to be re-entered; handing the credential out in a

@@ -4244,6 +4244,9 @@ msgstr ""
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
+msgid "Page node is not registered as a permission node"
+msgstr ""
+
 msgid "Paged"
 msgstr ""
 
