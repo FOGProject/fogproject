@@ -75,11 +75,108 @@ class Plugin extends FOGController
      */
     public static function pluginRoots()
     {
-        $roots = [rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS];
+        $roots = [self::bundledRoot()];
         if (defined('FOG_PLUGIN_DIR') && is_dir(FOG_PLUGIN_DIR)) {
             $roots[] = rtrim(FOG_PLUGIN_DIR, DS) . DS;
         }
         return $roots;
+    }
+    /**
+     * The bundled plugin root, inside the web tree.
+     *
+     * @return string with a trailing separator
+     */
+    public static function bundledRoot()
+    {
+        return rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS;
+    }
+    /**
+     * Points lib/plugins/<name> at each external plugin, so the browser can
+     * fetch its js/css.
+     *
+     * PHP finds an external plugin's classes by scanning FOG_PLUGIN_DIR
+     * directly, but the BROWSER cannot: FOG_PLUGIN_DIR is outside the
+     * document root by design, so every <script src> a plugin injects would
+     * 404. A symlink in the web tree closes that without changing a single
+     * asset path -- Hook::injectPluginJS() still emits
+     * ../lib/plugins/<node>/js/..., exactly as it does for a bundled plugin.
+     *
+     * These links are DERIVED state, rebuilt from the external root, never
+     * the plugin's home. That is what makes them safe to sit inside
+     * $webdirdest, which configureHttpd() deletes wholesale on every upgrade:
+     * the next page load puts them back. It is also why this runs from
+     * getPlugins() -- on every boot, self-healing -- rather than from the
+     * installer, which would only heal on an upgrade and never when an admin
+     * drops a plugin in by hand.
+     *
+     * Only ever touches links pointing INTO the external root. A real
+     * directory is left alone (a bundled plugin of the same name wins, and
+     * _getDirs() logs the clash), and so is a symlink an admin made pointing
+     * somewhere else of their own.
+     *
+     * Requires FollowSymLinks on Apache; nginx follows unconditionally. A
+     * failure here is degraded, not fatal -- the plugin still runs, its
+     * assets just 404 -- so it logs and carries on.
+     *
+     * @return void
+     */
+    public static function syncAssetLinks()
+    {
+        if (!defined('FOG_PLUGIN_DIR') || !is_dir(FOG_PLUGIN_DIR)) {
+            return;
+        }
+        $webRoot = self::bundledRoot();
+        $extRoot = rtrim(FOG_PLUGIN_DIR, DS) . DS;
+
+        // Sweep links whose external plugin has gone away. Left in place they
+        // are litter that a later bundled plugin of the same name would
+        // collide with.
+        foreach ((array)@scandir($webRoot) as $entry) {
+            if ('.' === $entry || '..' === $entry) {
+                continue;
+            }
+            $link = $webRoot . $entry;
+            if (!is_link($link)) {
+                continue;
+            }
+            $target = @readlink($link);
+            if (!is_string($target)
+                || strncmp($target, $extRoot, strlen($extRoot)) !== 0
+            ) {
+                continue;
+            }
+            if (!is_dir($target)) {
+                @unlink($link);
+            }
+        }
+
+        foreach ((array)glob($extRoot . '*' . DS . 'config' . DS . 'plugin.config.php') as $config) {
+            $dir = dirname(dirname($config));
+            $link = $webRoot . strtolower(basename($dir));
+            if (is_link($link)) {
+                if (@readlink($link) === $dir) {
+                    continue;
+                }
+                @unlink($link);
+            } elseif (file_exists($link)) {
+                // A real bundled directory of the same name. _getDirs()
+                // refuses the external one, so linking over the bundled
+                // plugin's assets would serve files for a plugin that is not
+                // the one running.
+                continue;
+            }
+            if (!@symlink($dir, $link)) {
+                error_log(
+                    sprintf(
+                        '%s: %s -> %s. %s',
+                        _('Could not link plugin assets'),
+                        $link,
+                        $dir,
+                        _('The plugin will run but its JS and CSS will 404.')
+                    )
+                );
+            }
+        }
     }
     /**
      * Gets the directories of plugins.
@@ -108,6 +205,27 @@ class Plugin extends FOGController
         foreach (self::pluginRoots() as $root) {
             foreach ((array)glob($root . '*' . DS . 'config' . DS . 'plugin.config.php') as $config) {
                 $dir = dirname(dirname($config)) . DS;
+                // Skip our own asset links. glob() resolves symlinks, so an
+                // external plugin linked into the web tree by
+                // syncAssetLinks() matches under BOTH roots -- and the
+                // bundled root is scanned first, so without this the plugin
+                // would be recorded at its symlink path and the duplicate
+                // check would then refuse its real one, logging a clash on
+                // every boot. Matched on the link TARGET rather than "is a
+                // symlink" so a link an admin made themselves, pointing
+                // outside the external root, still works as it always did.
+                if (is_link(rtrim($dir, DS))) {
+                    $target = @readlink(rtrim($dir, DS));
+                    $extRoot = defined('FOG_PLUGIN_DIR')
+                        ? rtrim(FOG_PLUGIN_DIR, DS) . DS
+                        : null;
+                    if (null !== $extRoot
+                        && is_string($target)
+                        && strncmp($target, $extRoot, strlen($extRoot)) === 0
+                    ) {
+                        continue;
+                    }
+                }
                 $name = strtolower(basename($dir));
                 // A plugin in a later root sharing a name with an earlier one
                 // is REFUSED, not merged and not shadowed. Silently letting an
@@ -157,6 +275,9 @@ class Plugin extends FOGController
     {
         $Plugins = [];
         $existing = [];
+        // Before discovery, so an external plugin added or removed since the
+        // last boot has its asset link in step with the row written below.
+        self::syncAssetLinks();
         // inputoverride = true. Without it listem() parses php://input for
         // DataTables `start`/`length` and paginates THIS query with whatever
         // grid the current request happens to be drawing. Discovery runs on

@@ -1093,6 +1093,9 @@ msgstr ""
 msgid "Could not find temp filename"
 msgstr ""
 
+msgid "Could not link plugin assets"
+msgstr ""
+
 msgid "Could not notify"
 msgstr ""
 
@@ -5941,6 +5944,9 @@ msgid "The node trying to be used is currently"
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
+msgstr ""
+
+msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
 msgid "The primary mac associated is"

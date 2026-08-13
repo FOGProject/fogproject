@@ -1306,6 +1306,10 @@ msgid "Could not find temp filename"
 msgstr "Could not find temp filename"
 
 #, fuzzy
+msgid "Could not link plugin assets"
+msgstr "Could not find temp filename"
+
+#, fuzzy
 msgid "Could not notify"
 msgstr "Could not read tmp file."
 
@@ -7037,6 +7041,9 @@ msgid "The node trying to be used is currently"
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
+msgstr ""
+
+msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
 msgid "The primary mac associated is"

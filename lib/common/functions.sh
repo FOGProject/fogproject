@@ -5996,7 +5996,28 @@ EOF
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
                         echo "    </IfModule>" >> "$etcconf"
+                        # Options +FollowSymLinks, stated rather than inherited.
+                        # Two things in the web tree are symlinks and neither is
+                        # served without it: the self-referential
+                        # $webdirdest/$(basename $webdirdest) link created after
+                        # this block, and lib/plugins/<name> for every plugin
+                        # installed under $fogprogramdir/plugins, which
+                        # Plugin::syncAssetLinks() maintains so an external
+                        # plugin's js/css is reachable from outside the document
+                        # root (ADR 0009).
+                        #
+                        # This has always worked only because the distro's stock
+                        # httpd.conf grants "Options Indexes FollowSymLinks" on
+                        # /var/www/html and FOG never said otherwise. A hardened
+                        # base config, or a docroot outside that block, silently
+                        # turned FOG's own symlinks into 403s.
+                        #
+                        # SymLinksIfOwnerMatch is not a substitute: the link is
+                        # written by the web user and the plugin directory it
+                        # points at is typically root-owned, so the owners do not
+                        # match and the link would be refused.
                         echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        Options +FollowSymLinks" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
                         # GH-529: apache does NOT resolve symlinks when matching
@@ -6007,6 +6028,7 @@ EOF
                         # different string.
                         if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                            echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi
@@ -6032,6 +6054,7 @@ EOF
                         echo "</VirtualHost>" >> "$etcconf"
                     else
                         echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        Options +FollowSymLinks" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
                         # GH-529: apache does NOT resolve symlinks when matching
@@ -6042,6 +6065,7 @@ EOF
                         # different string.
                         if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                            echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi
@@ -6100,6 +6124,7 @@ EOF
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
                         echo "    </IfModule>" >> "$etcconf"
                         echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        Options +FollowSymLinks" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
                         # GH-529: apache does NOT resolve symlinks when matching
@@ -6110,6 +6135,7 @@ EOF
                         # different string.
                         if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                            echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi

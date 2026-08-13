@@ -1249,6 +1249,10 @@ msgstr "Impossibile trovare"
 msgid "Could not find temp filename"
 msgstr "Impossibile trovare il nome del file temporaneo"
 
+#, fuzzy
+msgid "Could not link plugin assets"
+msgstr "Impossibile trovare il nome del file temporaneo"
+
 msgid "Could not notify"
 msgstr "Non posso notificare"
 
@@ -6749,6 +6753,9 @@ msgid "The node trying to be used is currently"
 msgstr "Il nodo che si sta cercando di essere utilizzato è attualmente"
 
 msgid "The path requested is already in use by another image!"
+msgstr ""
+
+msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
 msgid "The primary mac associated is"

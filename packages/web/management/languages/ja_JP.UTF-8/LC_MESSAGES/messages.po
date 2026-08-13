@@ -1231,6 +1231,10 @@ msgstr "見つかりませんでした"
 msgid "Could not find temp filename"
 msgstr "一時ファイル名が見つかりません"
 
+#, fuzzy
+msgid "Could not link plugin assets"
+msgstr "一時ファイル名が見つかりません"
+
 msgid "Could not notify"
 msgstr "通知できませんでした"
 
@@ -6679,6 +6683,9 @@ msgstr "使用しようとしているノードは現在"
 #, fuzzy
 msgid "The path requested is already in use by another image!"
 msgstr "これは既に別のイメージで使用されています"
+
+msgid "The plugin will run but its JS and CSS will 404."
+msgstr ""
 
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
