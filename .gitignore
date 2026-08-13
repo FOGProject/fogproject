@@ -106,7 +106,8 @@ packages/web/lib/plugins/hostext
 docs/agents/
 CONTEXT.md
 CONTEXT-MAP.md
-docs/adr/
+# docs/adr/ is deliberately NOT ignored. ADRs record why a decision was
+# taken, which is only useful to a contributor if it ships with the code.
 skills-lock.json
 # GH-959: iPXE binaries now come from FOGProject/fog-ipxe as a release asset.
 # packages/tftp is a staging directory the installer fills at runtime.
