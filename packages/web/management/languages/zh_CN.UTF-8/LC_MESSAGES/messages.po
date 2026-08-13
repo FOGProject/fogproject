@@ -68,8 +68,44 @@ msgid "%s Menu"
 msgstr "%s菜单"
 
 #, php-format
+msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s could not be loaded. Check that %s declares a class of that exact name."
+msgstr ""
+
+#, php-format
+msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s is not a readable .tar.gz archive."
+msgstr ""
+
+#, php-format
+msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
+msgstr ""
+
+#, php-format
+msgid "%s is not inside a plugin directory."
+msgstr ""
+
+#, php-format
+msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
 msgid "%s is required"
 msgstr "%s是必需的"
+
+#, php-format
+msgid "%s replaced. Install it to apply any new database steps."
+msgstr ""
+
+#, php-format
+msgid "%s ships with FOG and cannot be replaced by an upload."
+msgstr ""
 
 #, php-format
 msgid "%s value \"%s\" did not match any %s by id or name; left unset"
@@ -111,9 +147,6 @@ msgstr "10分钟"
 msgid "100"
 msgstr ""
 
-msgid "192.168.1.0/24, 10.1.0.0/16"
-msgstr ""
-
 msgid "192.168.1.252 or printer.example.com:9100"
 msgstr ""
 
@@ -146,28 +179,11 @@ msgstr ""
 msgid "90 Days"
 msgstr ""
 
-#, fuzzy
-msgid "A LDAP setup already exists with this name!"
-msgstr "图像已经存在具有此名称！"
+msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
+msgstr ""
 
 msgid "A TCP/IP port printer requires an IP address or hostname."
 msgstr ""
-
-#, fuzzy
-msgid "A Windows Key already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A Windows Key already exists with this product key!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A broadcast already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A dmi field must be set!"
-msgstr "事件必须是字符串"
 
 #, fuzzy
 msgid "A file"
@@ -185,14 +201,6 @@ msgid "A group already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "A group must be selected."
-msgstr "存储组中删除"
-
-#, fuzzy
-msgid "A group name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
 msgid "A host already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -203,10 +211,6 @@ msgstr "使用此名称的主机名已经存在。"
 #, fuzzy
 msgid "A host with this mac already exists with name"
 msgstr "与此MAC主机与主机名已经存在： %s"
-
-#, fuzzy
-msgid "A location already exists with this name!"
-msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "A menu entry already exists with this name!"
@@ -223,9 +227,8 @@ msgstr ""
 msgid "A permission name is required."
 msgstr "图像名是必需的！"
 
-#, fuzzy
-msgid "A port must be specified"
-msgstr "没有指定的图像"
+msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
+msgstr ""
 
 #, fuzzy
 msgid "A printer already exists with this name!"
@@ -238,16 +241,6 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "A role with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
-
-msgid "A selected role no longer exists"
-msgstr ""
-
-msgid "A server URL and topic endpoint are required"
-msgstr ""
-
-#, fuzzy
-msgid "A site already exists with this name!"
-msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "A snapin already exists with this name!"
@@ -262,31 +255,11 @@ msgid "A storage group exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "A storage group must be selected."
-msgstr "存储组中删除"
-
-#, fuzzy
 msgid "A storage node already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A subnet group already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A subnet group is already using this group."
 msgstr "图像已经存在具有此名称！"
 
 msgid "A task already exists for this host at the scheduled tasking"
 msgstr "任务已经存在这台主机在预定任务"
-
-#, fuzzy
-msgid "A task state already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A task type already exists with this name!"
-msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "A user already exists with this name"
@@ -299,9 +272,6 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "A user group with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
-
-msgid "A user signing in through this server receives every role and user group granted by a directory group they belong to. Select a group to change what it grants."
-msgstr ""
 
 #, fuzzy
 msgid "A username already exists with this name!"
@@ -329,9 +299,6 @@ msgstr ""
 msgid "Aborted due to failure of \"%s\" with exit code %s"
 msgstr ""
 
-msgid "Access"
-msgstr "访问"
-
 msgid "Access Control Management"
 msgstr "门禁管理"
 
@@ -339,33 +306,9 @@ msgstr "门禁管理"
 msgid "Access Denied"
 msgstr "访问令牌"
 
-msgid "Access Token"
-msgstr "访问令牌"
-
-#, fuzzy
-msgid "Access token"
-msgstr "访问令牌"
-
-msgid "Accessed By"
-msgstr "通过访问"
-
 #, fuzzy
 msgid "Account Name"
 msgstr "所有访问控制"
-
-msgid "Account already linked"
-msgstr "帐户已链接"
-
-#, fuzzy
-msgid "Account linked"
-msgstr "帐户已链接"
-
-msgid "Account linked to FOG GUI at"
-msgstr "帐户相关联的雾GUI"
-
-#, fuzzy
-msgid "Account successfully added!"
-msgstr "成功更新"
 
 msgid "Action"
 msgstr "行动"
@@ -413,24 +356,12 @@ msgid "Add"
 msgstr "加"
 
 #, fuzzy
-msgid "Add Hello World failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
 msgid "Add Hosts to Group Fail"
 msgstr "添加到组"
 
 #, fuzzy
 msgid "Add Hosts to Groups Success"
 msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Add LDAP group failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add LDAP server failed!"
-msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Add New MAC Address"
@@ -445,14 +376,6 @@ msgstr "添加存储节点"
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "添加存储组"
-
-#, fuzzy
-msgid "Add broadcast failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add capone failed!"
-msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Add failed"
@@ -471,10 +394,6 @@ msgid "Add image failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "Add location failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
 msgid "Add menu failed!"
 msgstr "添加管理单元失败！"
 
@@ -483,20 +402,8 @@ msgid "Add module failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "Add ntfy topic failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add ou failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
 msgid "Add printer failed!"
 msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add pushbullet account failed!"
-msgstr "链接Pushbullet账户"
 
 #, fuzzy
 msgid "Add role failed!"
@@ -510,14 +417,6 @@ msgstr "打印机"
 msgid "Add selected to group"
 msgstr "打印机"
 
-#, fuzzy
-msgid "Add site failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add slack account failed!"
-msgstr "添加管理单元失败！"
-
 msgid "Add snapin failed!"
 msgstr "添加管理单元失败！"
 
@@ -526,27 +425,11 @@ msgid "Add storage node failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "Add subnet group failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add task state failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add task type failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
 msgid "Add user failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Add user group failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Add windows key failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
@@ -559,10 +442,6 @@ msgstr "添加FOGPage： %s ，节点： %s"
 
 msgid "Adding Key"
 msgstr "添加关键"
-
-#, fuzzy
-msgid "Additional Icon Elements"
-msgstr "附加的MAC"
 
 #, fuzzy
 msgid "Administrator"
@@ -580,10 +459,6 @@ msgstr "高级需要登录"
 
 msgid "Advanced Options"
 msgstr "高级选项"
-
-#, fuzzy
-msgid "Advanced Task"
-msgstr "高级"
 
 #, fuzzy
 msgid "Advanced Tasks"
@@ -637,22 +512,7 @@ msgstr ""
 msgid "All items imported successfully"
 msgstr "安装/升级成功！"
 
-msgid "All methods of binding have failed"
-msgstr ""
-
-msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
-
 msgid "All rights reserved."
-msgstr ""
-
-msgid "Allow API"
-msgstr ""
-
-msgid "Allows editing/creating of Task States fog currently has."
-msgstr ""
-
-msgid "Allows editing/creating of Task Types fog currently has."
 msgstr ""
 
 #, fuzzy
@@ -664,20 +524,8 @@ msgid "Also confirm that the database is indeed running"
 msgstr "检查数据库运行"
 
 #, fuzzy
-msgid "An LDAP server already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "An OU already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
 msgid "An SQL error occurred"
 msgstr "发生未知上传错误。返回代码："
-
-#, fuzzy
-msgid "An entry already exists with this name!"
-msgstr "图像已经存在具有此名称！"
 
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -689,28 +537,12 @@ msgstr "使用此名称的主机名已经存在。"
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
-#, fuzzy
-msgid "An ou already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
 msgid "Annually"
 msgstr "每年"
-
-msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
-msgstr ""
-
-msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
-msgstr ""
 
 #, fuzzy
 msgid "Applications"
 msgstr "操作"
-
-msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
-msgstr ""
-
-msgid "Applies to LDAP servers using the \"expand\" strategy, which walks one query per level of nesting on every sign-in. A server can override this on its own settings. Directories rarely nest more than three or four deep."
-msgstr ""
 
 msgid "Applying a database schema update requires an administrator account."
 msgstr ""
@@ -748,14 +580,6 @@ msgstr ""
 
 msgid "Area"
 msgstr ""
-
-#, fuzzy
-msgid "Assigned Group"
-msgstr "存储组名称"
-
-#, fuzzy
-msgid "Assigned Group Name"
-msgstr "存储组名称"
 
 msgid "Assigned Image"
 msgstr "分配图像"
@@ -831,9 +655,6 @@ msgstr "带宽"
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "带宽应该是数字和大于0"
 
-msgid "Base Only"
-msgstr ""
-
 msgid "Bash Script"
 msgstr ""
 
@@ -843,64 +664,12 @@ msgstr "基本任务"
 msgid "Batch Script"
 msgstr ""
 
-msgid "Bind DN"
-msgstr ""
-
-#, fuzzy
-msgid "Bind Password"
-msgstr "域密码"
-
 #, fuzzy
 msgid "Boot Options"
 msgstr "启动选项："
 
-msgid "Boot files from"
-msgstr ""
-
 msgid "Both"
 msgstr ""
-
-#, fuzzy
-msgid "Broadcast Address"
-msgstr "广播名称"
-
-#, fuzzy
-msgid "Broadcast Create Fail"
-msgstr "主机创建失败"
-
-#, fuzzy
-msgid "Broadcast Create Success"
-msgstr "主机创建"
-
-#, fuzzy
-msgid "Broadcast Description"
-msgstr "主机描述"
-
-msgid "Broadcast IP"
-msgstr "广播IP"
-
-msgid "Broadcast Name"
-msgstr "广播名称"
-
-#, fuzzy
-msgid "Broadcast Update Fail"
-msgstr "广播更新"
-
-#, fuzzy
-msgid "Broadcast Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Broadcast added!"
-msgstr "广播名称"
-
-#, fuzzy
-msgid "Broadcast update failed!"
-msgstr "广播更新"
-
-#, fuzzy
-msgid "Broadcast updated!"
-msgstr "广播更新"
 
 msgid "Browse"
 msgstr ""
@@ -915,13 +684,6 @@ msgstr "加载失败： %s"
 
 msgid "Bypass Bitlocker Detection"
 msgstr ""
-
-msgid "CA Certificate Path"
-msgstr ""
-
-#, fuzzy
-msgid "CA Path"
-msgstr "路径"
 
 #, fuzzy
 msgid "CA private key"
@@ -986,9 +748,6 @@ msgstr "默认刷新频率"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
-msgstr ""
-
 msgid "Can not redeclare route"
 msgstr ""
 
@@ -1015,10 +774,6 @@ msgstr "取消任务"
 msgid "Cancelled due to new tasking."
 msgstr "由于新的任务取消。"
 
-#, fuzzy
-msgid "Cannot bind to the LDAP server"
-msgstr "无法连接到数据库"
-
 msgid "Cannot change image when in tasking"
 msgstr ""
 
@@ -1039,45 +794,6 @@ msgstr ""
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "无法设置taskings未决的或无效的项目"
-
-#, fuzzy
-msgid "Capone"
-msgstr "卡波恩部署"
-
-#, fuzzy
-msgid "Capone Create Fail"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Capone Create Success"
-msgstr "更新管理单元"
-
-msgid "Capone Deploy"
-msgstr "卡波恩部署"
-
-#, fuzzy
-msgid "Capone Management"
-msgstr "管理单元管理"
-
-#, fuzzy
-msgid "Capone Update Fail"
-msgstr "管理单元更新失败"
-
-#, fuzzy
-msgid "Capone Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Capone added!"
-msgstr "管理单元名称"
-
-#, fuzzy
-msgid "Capone update failed!"
-msgstr "管理单元更新失败"
-
-#, fuzzy
-msgid "Capone updated!"
-msgstr "更新管理单元"
 
 #, fuzzy
 msgid "Capture"
@@ -1110,28 +826,14 @@ msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
-msgid "Certificate Verification"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Certificates"
 msgstr "新建%s"
-
-msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
-msgstr ""
 
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
 msgid "Channel"
 msgstr ""
-
-msgid "Channel call is invalid"
-msgstr "通道调用无效"
-
-#, fuzzy
-msgid "Channel not found"
-msgstr "未发现记录，错误： %s"
 
 #, fuzzy
 msgid "Chassis Asset Tag"
@@ -1146,6 +848,10 @@ msgstr "序列号"
 
 msgid "Chassis Version"
 msgstr "机箱版本"
+
+#, php-format
+msgid "Check %s over before installing it."
+msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
@@ -1292,6 +998,10 @@ msgid "Could not apply %s: %s"
 msgstr "无法更新"
 
 #, fuzzy
+msgid "Could not create the staging directory."
+msgstr "无法创建管理单元工作"
+
+#, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "找不到存储节点，有一个图像，此组内启用？"
 
@@ -1304,6 +1014,10 @@ msgid "Could not find any"
 msgstr "找不到临时文件名"
 
 msgid "Could not find temp filename"
+msgstr "找不到临时文件名"
+
+#, fuzzy
+msgid "Could not link plugin assets"
 msgstr "找不到临时文件名"
 
 #, fuzzy
@@ -1326,39 +1040,32 @@ msgstr "无法读取tmp文件。"
 msgid "Could not read snapin file"
 msgstr "无法读取tmp文件。"
 
-msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
-msgstr ""
-
-#, fuzzy
-msgid "Could not read the group mappings"
-msgstr "无法读取tmp文件。"
-
-#, fuzzy
-msgid "Could not read the recorded grants"
-msgstr "无法读取tmp文件。"
-
 msgid "Could not read tmp file."
-msgstr "无法读取tmp文件。"
-
-#, fuzzy
-msgid "Could not record the granted targets"
 msgstr "无法读取tmp文件。"
 
 #, fuzzy
 msgid "Could not register"
 msgstr "无法创建打印机"
 
-#, fuzzy
-msgid "Could not seed the granted targets"
-msgstr "无法读取tmp文件。"
+#, php-format
+msgid "Could not replace the existing %s. Is %s writable?"
+msgstr ""
 
 #, fuzzy
 msgid "Could not send data from file"
 msgstr "无法读取tmp文件。"
 
 #, fuzzy
+msgid "Could not stage the upload."
+msgstr "无法读取tmp文件。"
+
+#, fuzzy
 msgid "Could not update host"
 msgstr "无法更新"
+
+#, php-format
+msgid "Could not write to %s. The UI installer needs that directory to be writable by the web server."
+msgstr ""
 
 #, fuzzy
 msgid "Count"
@@ -1379,19 +1086,7 @@ msgid "Create New %s"
 msgstr "新建%s"
 
 #, fuzzy
-msgid "Create New Broadcast"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New Capone"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Create New Group"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New Hello World"
 msgstr "新建%s"
 
 #, fuzzy
@@ -1411,23 +1106,7 @@ msgid "Create New Ipxe Menu"
 msgstr "新建%s"
 
 #, fuzzy
-msgid "Create New LDAP Group"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New LDAP Server"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New Location"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Create New Module"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New OU"
 msgstr "新建%s"
 
 #, fuzzy
@@ -1443,10 +1122,6 @@ msgid "Create New Scheduled"
 msgstr "新建%s"
 
 #, fuzzy
-msgid "Create New Site"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Create New Snapin"
 msgstr "新建%s"
 
@@ -1459,27 +1134,11 @@ msgid "Create New Storage Node"
 msgstr "新建%s"
 
 #, fuzzy
-msgid "Create New Subnet Group"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New Task State"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New Task Type"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Create New User"
 msgstr "新建%s"
 
 #, fuzzy
 msgid "Create New User Group"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Create New Windows Key"
 msgstr "新建%s"
 
 #, fuzzy
@@ -1523,9 +1182,6 @@ msgstr "由...制作"
 msgid "Created by FOG Reg on"
 msgstr "创建者FOG上注册"
 
-msgid "Credentials"
-msgstr ""
-
 msgid "Cron"
 msgstr "克龙"
 
@@ -1542,9 +1198,6 @@ msgid "Current Records"
 msgstr "当前记录"
 
 msgid "Current member-host AD state"
-msgstr ""
-
-msgid "DMI Field"
 msgstr ""
 
 msgid "DNF Log"
@@ -1606,6 +1259,9 @@ msgstr "激活插件"
 msgid "Deactivate selected"
 msgstr "删除所选"
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr "调试"
 
@@ -1631,13 +1287,6 @@ msgstr "默认刷新频率"
 
 msgid "Default Width"
 msgstr "默认宽度"
-
-#, fuzzy
-msgid "Default is disabled"
-msgstr "捐款将被禁用"
-
-msgid "Default nested group depth"
-msgstr ""
 
 msgid "Delayed"
 msgstr "延迟"
@@ -1693,9 +1342,6 @@ msgstr "部署"
 msgid "Deploy Method"
 msgstr "部署方法"
 
-msgid "Depth"
-msgstr ""
-
 msgid "Description"
 msgstr "描述"
 
@@ -1720,14 +1366,6 @@ msgid "Directory Cleaner"
 msgstr "目录清洁"
 
 #, fuzzy
-msgid "Directory Group"
-msgstr "目录"
-
-#, fuzzy
-msgid "Directory Group Name"
-msgstr "目录"
-
-#, fuzzy
 msgid "Disable on all hosts"
 msgstr "启用"
 
@@ -1736,14 +1374,6 @@ msgstr ""
 
 msgid "Display"
 msgstr "显示"
-
-#, fuzzy
-msgid "Display Name Attribute"
-msgstr "用户名"
-
-#, fuzzy
-msgid "Display Name Enabled"
-msgstr "用户名"
 
 #, fuzzy
 msgid "Display With"
@@ -1755,10 +1385,6 @@ msgstr "不要列出菜单上"
 #, fuzzy
 msgid "Documentation"
 msgstr "位置"
-
-#, fuzzy
-msgid "Domain Admins"
-msgstr "域名"
 
 #, fuzzy
 msgid "Domain Joining"
@@ -1843,6 +1469,9 @@ msgstr ""
 msgid "Dropped"
 msgstr "下降"
 
+msgid "Duplicate plugin name; the later one is ignored"
+msgstr ""
+
 msgid "Duration"
 msgstr "为期"
 
@@ -1852,33 +1481,10 @@ msgstr ""
 msgid "Edit"
 msgstr "编辑"
 
-msgid "Edit Capone"
-msgstr ""
-
-msgid "Edit Capone ID"
-msgstr ""
-
-msgid "Editing Capone ID"
-msgstr ""
-
-#, fuzzy
-msgid "Editing Global Capone Settings"
-msgstr "主机描述"
-
-#, fuzzy
-msgid "Editing Global LDAP Settings"
-msgstr "主机描述"
-
-msgid "Email"
-msgstr "电子邮件"
-
 msgid "Empty filename in upload"
 msgstr ""
 
 msgid "Enable Domain Joining"
-msgstr ""
-
-msgid "Enable Sending via Location"
 msgstr ""
 
 #, fuzzy
@@ -1984,23 +1590,12 @@ msgstr ""
 msgid "Exists item must be boolean"
 msgstr ""
 
-msgid "Expand - walk the chain (any directory)"
-msgstr ""
-
 msgid "Export"
 msgstr "出口"
 
 #, fuzzy
 msgid "Export "
 msgstr "出口"
-
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "主机出口"
-
-#, fuzzy
-msgid "Export Capones"
-msgstr "出口Snapins"
 
 #, fuzzy
 msgid "Export Complete"
@@ -2010,44 +1605,8 @@ msgid "Export Configuration"
 msgstr "导出配置"
 
 #, fuzzy
-msgid "Export LDAP Servers"
-msgstr "LDAP服务器"
-
-#, fuzzy
-msgid "Export Locations"
-msgstr "主机位置"
-
-#, fuzzy
-msgid "Export OUs"
-msgstr "导出用户"
-
-#, fuzzy
-msgid "Export Sites"
-msgstr "出口打印机"
-
-#, fuzzy
-msgid "Export Subnet Groups"
-msgstr "出口组"
-
-#, fuzzy
 msgid "Export Success"
 msgstr "成功"
-
-#, fuzzy
-msgid "Export Task States"
-msgstr "任务的国家"
-
-#, fuzzy
-msgid "Export Task Types"
-msgstr "任务类型"
-
-#, fuzzy
-msgid "Export WOL Broadcasts"
-msgstr "主机出口"
-
-#, fuzzy
-msgid "Export Windows Keys"
-msgstr "Windows 8的"
 
 msgid "FOG"
 msgstr "雾"
@@ -2193,6 +1752,10 @@ msgstr "未能摧毁存储组"
 
 msgid "Failed to destroy Storage Node"
 msgstr "未能摧毁存储节点"
+
+#, fuzzy
+msgid "Failed to forget "
+msgstr "连接失败"
 
 #, fuzzy
 msgid "Failed to install "
@@ -2349,10 +1912,6 @@ msgid "Files Deleted List"
 msgstr "删除的文件数据"
 
 #, fuzzy
-msgid "Filter"
-msgstr "文件"
-
-#, fuzzy
 msgid "Finding any images associated"
 msgstr "没有snapins相关"
 
@@ -2392,6 +1951,13 @@ msgid "Force"
 msgstr "力"
 
 #, fuzzy
+msgid "Forget selected"
+msgstr "删除所选"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
+
+#, fuzzy
 msgid "Forums"
 msgstr "FOG论坛"
 
@@ -2426,9 +1992,6 @@ msgstr "使用的磁盘空间"
 msgid "Free Memory"
 msgstr "可用内存"
 
-msgid "FreeIPA"
-msgstr ""
-
 #, fuzzy
 msgid "Friendly Name"
 msgstr "内核名称"
@@ -2448,10 +2011,6 @@ msgstr "行动"
 msgid "Function Error"
 msgstr "行动"
 
-#, fuzzy
-msgid "Function does not exist"
-msgstr "方法不存在"
-
 msgid "GNU General Public License"
 msgstr ""
 
@@ -2469,9 +2028,6 @@ msgstr "一般"
 msgid "General Information"
 msgstr "一般信息"
 
-msgid "Generic LDAP"
-msgstr ""
-
 msgid "Getting image size for"
 msgstr ""
 
@@ -2482,26 +2038,7 @@ msgstr ""
 msgid "Global Module Settings"
 msgstr "主机描述"
 
-#, fuzzy
-msgid "Global Options"
-msgstr "启动选项："
-
-#, fuzzy
-msgid "Global Settings Update Fail"
-msgstr "设置更新"
-
-#, fuzzy
-msgid "Global Settings Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Global settings updated!"
-msgstr "更新位置"
-
 msgid "Got in line at"
-msgstr ""
-
-msgid "Grants"
 msgstr ""
 
 #, fuzzy
@@ -2521,19 +2058,11 @@ msgid "Group"
 msgstr "组"
 
 #, fuzzy
-msgid "Group Association"
-msgstr "存储节点创建"
-
-#, fuzzy
 msgid "Group Associations"
 msgstr "存储节点创建"
 
 #, fuzzy
 msgid "Group BIOS Exit"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Group Count"
 msgstr "出口Snapins"
 
 #, fuzzy
@@ -2590,18 +2119,6 @@ msgid "Group Kernel Arguments"
 msgstr "集团内核参数"
 
 #, fuzzy
-msgid "Group Location"
-msgstr "主机位置"
-
-#, fuzzy
-msgid "Group Location Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Group Location Updated!"
-msgstr "更新位置"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "登录历史记录"
 
@@ -2609,37 +2126,11 @@ msgid "Group Management"
 msgstr "集团管理"
 
 #, fuzzy
-msgid "Group Matching"
-msgstr "主机位置"
-
-msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
-msgstr ""
-
-msgid "Group Member Attribute"
-msgstr ""
-
-#, fuzzy
 msgid "Group Module Associations"
 msgstr "图像协会"
 
 msgid "Group Name"
 msgstr "组名称"
-
-#, fuzzy
-msgid "Group Name Attribute"
-msgstr "用户名"
-
-#, fuzzy
-msgid "Group OU"
-msgstr "组"
-
-#, fuzzy
-msgid "Group OU Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Group OU Updated!"
-msgstr "集团补充"
 
 msgid "Group Primary Disk"
 msgstr "集团主磁盘"
@@ -2656,22 +2147,6 @@ msgid "Group Product Key"
 msgstr "集团产品密钥"
 
 #, fuzzy
-msgid "Group Search DN"
-msgstr "主机搜索"
-
-#, fuzzy
-msgid "Group Site"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "集团补充"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "历史管理单元"
 
@@ -2681,18 +2156,6 @@ msgstr "历史管理单元"
 
 #, fuzzy
 msgid "Group Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Group Update Location Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Group Update OU Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "集团创建失败"
 
 #, fuzzy
@@ -2706,10 +2169,6 @@ msgstr "集团补充"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "集团是无效的"
-
-#, fuzzy
-msgid "Group membership search failed"
-msgstr "用户更新失败"
 
 #, fuzzy
 msgid "Group update failed!"
@@ -2728,9 +2187,6 @@ msgstr ""
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "错误代码"
-
-msgid "Hard - require a valid certificate"
-msgstr ""
 
 msgid "Hard Disk Firmware"
 msgstr ""
@@ -2770,41 +2226,6 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
-msgid "Hello World"
-msgstr ""
-
-#, fuzzy
-msgid "Hello World Create Fail"
-msgstr "主机创建失败"
-
-#, fuzzy
-msgid "Hello World Create Success"
-msgstr "主机创建"
-
-#, fuzzy
-msgid "Hello World Management"
-msgstr "报告管理"
-
-#, fuzzy
-msgid "Hello World Update Fail"
-msgstr "内核更新"
-
-#, fuzzy
-msgid "Hello World Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Hello World added!"
-msgstr "添加主机"
-
-#, fuzzy
-msgid "Hello World update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "Hello World updated!"
-msgstr "用户更新"
-
 #, fuzzy
 msgid "Help and Guides"
 msgstr "帮助和引导"
@@ -2831,20 +2252,12 @@ msgid "Host Approval Success"
 msgstr "主机创建"
 
 #, fuzzy
-msgid "Host Association"
-msgstr "无关联的节点"
-
-#, fuzzy
 msgid "Host Associations"
 msgstr "无关联的节点"
 
 #, fuzzy
 msgid "Host BIOS Exit Type"
 msgstr "主持人EFI退出类型"
-
-#, fuzzy
-msgid "Host Count"
-msgstr "主机列表"
 
 #, fuzzy
 msgid "Host Create Fail"
@@ -2908,17 +2321,6 @@ msgstr "主机内核参数"
 msgid "Host List"
 msgstr "主机列表"
 
-msgid "Host Location"
-msgstr "主机位置"
-
-#, fuzzy
-msgid "Host Location Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Host Location Updated!"
-msgstr "更新位置"
-
 msgid "Host Login History"
 msgstr "主机登录历史"
 
@@ -2931,18 +2333,6 @@ msgstr "图像协会"
 
 msgid "Host Name"
 msgstr "主机名"
-
-#, fuzzy
-msgid "Host OU"
-msgstr "主机ID"
-
-#, fuzzy
-msgid "Host OU Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Host OU Updated!"
-msgstr "用户更新"
 
 msgid "Host Primary Disk"
 msgstr "主机主磁盘"
@@ -2966,18 +2356,6 @@ msgid "Host Registration"
 msgstr "主机注册"
 
 #, fuzzy
-msgid "Host Site"
-msgstr "主机列表"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "服务更新！"
-
-#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "无关联的节点"
 
@@ -2987,18 +2365,6 @@ msgstr "历史管理单元"
 
 #, fuzzy
 msgid "Host Update Fail"
-msgstr "主机更新失败"
-
-#, fuzzy
-msgid "Host Update Location Fail"
-msgstr "主机更新失败"
-
-#, fuzzy
-msgid "Host Update OU Fail"
-msgstr "主机更新失败"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "主机更新失败"
 
 #, fuzzy
@@ -3108,9 +2474,6 @@ msgstr "IP传递是不正确"
 msgid "IP of host appears to be"
 msgstr ""
 
-msgid "Icon"
-msgstr "图标"
-
 msgid "Icon File not found"
 msgstr "图标文件未找到"
 
@@ -3172,10 +2535,6 @@ msgstr "图片"
 msgid "Image %s for session %s is missing or invalid; skipping"
 msgstr ""
 
-#, fuzzy
-msgid "Image Associated"
-msgstr "图像协会"
-
 msgid "Image Association"
 msgstr "图像协会"
 
@@ -3211,10 +2570,6 @@ msgid "Image Manager"
 msgstr "图像管理器"
 
 msgid "Image Name"
-msgstr "图片名称"
-
-#, fuzzy
-msgid "Image OS"
 msgstr "图片名称"
 
 #, fuzzy
@@ -3280,22 +2635,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Image Used"
 msgstr "成像"
-
-#, fuzzy
-msgid "Image Windows Key"
-msgstr "Windows 8的"
-
-#, fuzzy
-msgid "Image Windows Key Update Fail"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Image Windows Key Update Success"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Image Windows Key Updated!"
-msgstr "用户管理"
 
 #, fuzzy
 msgid "Image added!"
@@ -3375,16 +2714,8 @@ msgid "Import"
 msgstr "进口"
 
 #, fuzzy
-msgid "Import Broadcasts"
-msgstr "进口主机"
-
-#, fuzzy
 msgid "Import CSV"
 msgstr "导出CSV"
-
-#, fuzzy
-msgid "Import Capones"
-msgstr "进口Snapins"
 
 msgid "Import Configuration"
 msgstr "导入配置"
@@ -3406,14 +2737,6 @@ msgid "Import Failed"
 msgstr "图片更新"
 
 #, fuzzy
-msgid "Import Locations"
-msgstr "主机位置"
-
-#, fuzzy
-msgid "Import OUs"
-msgstr "导入用户"
-
-#, fuzzy
 msgid "Import Partially Succeeded"
 msgstr "日期"
 
@@ -3426,32 +2749,12 @@ msgid "Import Reports"
 msgstr "进口主机"
 
 #, fuzzy
-msgid "Import Sites"
-msgstr "进口打印机"
-
-#, fuzzy
-msgid "Import Subnet Groups"
-msgstr "导入组"
-
-#, fuzzy
 msgid "Import Succeeded"
 msgstr "成功"
 
 #, fuzzy
 msgid "Import Succeeded With Warnings"
 msgstr "成功"
-
-#, fuzzy
-msgid "Import Task States"
-msgstr "任务的国家"
-
-#, fuzzy
-msgid "Import Task Types"
-msgstr "任务类型"
-
-#, fuzzy
-msgid "Import Windows Keys"
-msgstr "Windows 8的"
 
 #, fuzzy
 msgid "Import a new Plugin"
@@ -3486,27 +2789,9 @@ msgstr ""
 msgid "Information"
 msgstr "信息"
 
-msgid "Inherit - use the system ldap.conf setting"
-msgstr ""
-
-#, php-format
-msgid "Inherit global (%s)"
-msgstr ""
-
-#, fuzzy
-msgid "Init"
-msgstr "主机列表"
-
-msgid "Init FS"
-msgstr ""
-
 #, fuzzy
 msgid "InitRD Versions"
 msgstr "CPU版本"
-
-#, fuzzy
-msgid "Initial Template"
-msgstr "模板管理单元"
 
 #, fuzzy
 msgid "Initrd Update"
@@ -3631,10 +2916,6 @@ msgstr "无效的网址"
 msgid "Invalid Windows product key"
 msgstr "主机产品密钥"
 
-#, fuzzy, php-format
-msgid "Invalid certificate verification level: %s"
-msgstr "选择一个有效的图像"
-
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
@@ -3676,9 +2957,6 @@ msgstr "关键无效被删除"
 msgid "Invalid key being set"
 msgstr "无效的关键字设定"
 
-msgid "Invalid method called"
-msgstr "所谓的无效方法"
-
 #, fuzzy
 msgid "Invalid path"
 msgstr "无效的主机"
@@ -3714,9 +2992,6 @@ msgstr "任务无效"
 #, fuzzy
 msgid "Invalid tasking!"
 msgstr "任务无效"
-
-msgid "Invalid token passed"
-msgstr "无效的令牌传递"
 
 #, fuzzy
 msgid "Invalid token passed for host"
@@ -3759,10 +3034,6 @@ msgstr "库存"
 msgid "Inventory Static"
 msgstr "库存"
 
-#, fuzzy
-msgid "Is Advanced"
-msgstr "高级"
-
 msgid "Is Enabled"
 msgstr "已启用"
 
@@ -3791,9 +3062,6 @@ msgstr ""
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr ""
 
-msgid "It tells the client to download snapins from"
-msgstr ""
-
 msgid "It will operate based on the fields the area typcially requires."
 msgstr ""
 
@@ -3802,12 +3070,6 @@ msgstr ""
 
 msgid "Kernel"
 msgstr "核心"
-
-msgid "Kernel Args"
-msgstr "内核参数数量"
-
-msgid "Kernel Arguments"
-msgstr "内核参数"
 
 msgid "Kernel Update"
 msgstr "内核更新"
@@ -3823,16 +3085,9 @@ msgstr "内核版本"
 msgid "Kernel Versions"
 msgstr "内核版本"
 
-msgid "Kernels/Inits from location"
-msgstr "从位置仁/ Inits"
-
 #, fuzzy
 msgid "Key"
 msgstr "DMI关键"
-
-#, fuzzy
-msgid "Key Association"
-msgstr "图像协会"
 
 #, fuzzy
 msgid "Key field must be a string"
@@ -3849,137 +3104,11 @@ msgstr "事件必须是字符串"
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-msgid "Key to match"
-msgstr ""
-
 msgid "Keys cached"
 msgstr ""
 
 msgid "Kill"
 msgstr "杀"
-
-msgid "LDAP"
-msgstr ""
-
-#, fuzzy
-msgid "LDAP Connection  Name"
-msgstr "地点名称"
-
-#, fuzzy
-msgid "LDAP Connection Name"
-msgstr "地点名称"
-
-#, fuzzy
-msgid "LDAP Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "LDAP Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "LDAP Group"
-msgstr "组"
-
-#, fuzzy
-msgid "LDAP Group Associations"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "LDAP Group Create Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "LDAP Group Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "LDAP Group Management"
-msgstr "集团管理"
-
-#, fuzzy
-msgid "LDAP Group Role Associations"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "LDAP Group Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "LDAP Group Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "LDAP Group User Group Associations"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "LDAP Group added!"
-msgstr "集团补充"
-
-#, fuzzy
-msgid "LDAP Group associations updated!"
-msgstr "更新位置"
-
-#, fuzzy
-msgid "LDAP Group update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "LDAP Group updated!"
-msgstr "集团补充"
-
-#, fuzzy
-msgid "LDAP Groups"
-msgstr "组"
-
-msgid "LDAP Management"
-msgstr "LDAP管理"
-
-#, fuzzy
-msgid "LDAP Ports"
-msgstr "LDAP服务器"
-
-msgid "LDAP Server"
-msgstr "LDAP服务器"
-
-msgid "LDAP Server Address"
-msgstr "LDAP服务器地址"
-
-msgid "LDAP Server Description"
-msgstr "LDAP服务器说明"
-
-#, fuzzy
-msgid "LDAP Server Name"
-msgstr "LDAP服务器名称"
-
-#, fuzzy
-msgid "LDAP Server Port"
-msgstr "LDAP服务器"
-
-#, fuzzy
-msgid "LDAP Server Update Fail"
-msgstr "LDAP服务器名称"
-
-#, fuzzy
-msgid "LDAP Server Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "LDAP Server added!"
-msgstr "LDAP服务器名称"
-
-#, fuzzy
-msgid "LDAP Server update failed!"
-msgstr "LDAP服务器名称"
-
-#, fuzzy
-msgid "LDAP Server updated!"
-msgstr "LDAP服务器名称"
-
-#, fuzzy
-msgid "LDAP Servers"
-msgstr "LDAP服务器"
 
 msgid "Language"
 msgstr "语言"
@@ -4011,12 +3140,6 @@ msgstr "最新版本"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
-msgid "Leave blank to keep the current password"
-msgstr ""
-
-msgid "Level"
-msgstr ""
-
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "事件必须是字符串"
@@ -4031,38 +3154,6 @@ msgstr "线"
 msgid "Lines"
 msgstr "线"
 
-msgid "Link Pushbullet Account"
-msgstr "链接Pushbullet账户"
-
-#, fuzzy
-msgid "Link Pushbullet Account Fail"
-msgstr "链接Pushbullet账户"
-
-#, fuzzy
-msgid "Link Pushbullet Account Success"
-msgstr "链接Pushbullet账户"
-
-msgid "Link Slack Account"
-msgstr "链接松弛账户"
-
-#, fuzzy
-msgid "Link Slack Account Fail"
-msgstr "链接松弛账户"
-
-#, fuzzy
-msgid "Link Slack Account Success"
-msgstr "链接松弛账户"
-
-msgid "Link ntfy Topic"
-msgstr ""
-
-msgid "Link ntfy Topic Fail"
-msgstr ""
-
-#, fuzzy
-msgid "Link ntfy Topic Success"
-msgstr "链接松弛账户"
-
 #, fuzzy
 msgid "List"
 msgstr "线"
@@ -4074,14 +3165,6 @@ msgstr "列表中的所有%s"
 #, fuzzy
 msgid "List All Plugins"
 msgstr "安装插件"
-
-#, fuzzy
-msgid "List All Task States"
-msgstr "任务的国家"
-
-#, fuzzy
-msgid "List All Task Types"
-msgstr "任务类型"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -4108,54 +3191,8 @@ msgstr "加载数据到现场%s"
 msgid "Location"
 msgstr "位置"
 
-#, fuzzy
-msgid "Location Association"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Location Create Fail"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Location Create Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Location Description"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Location Host Associations"
-msgstr "图像协会"
-
 msgid "Location Management"
 msgstr "位置管理"
-
-msgid "Location Name"
-msgstr "地点名称"
-
-#, fuzzy
-msgid "Location Update Fail"
-msgstr "更新位置"
-
-#, fuzzy
-msgid "Location Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Location added!"
-msgstr "地点名称"
-
-msgid "Location is a plugin that allows your FOG Server"
-msgstr ""
-
-#, fuzzy
-msgid "Location update failed!"
-msgstr "管理单元更新失败"
-
-#, fuzzy
-msgid "Location updated!"
-msgstr "更新位置"
 
 msgid "Locations"
 msgstr "位置"
@@ -4293,9 +3330,6 @@ msgstr "最大尺寸"
 msgid "Members"
 msgstr "会员"
 
-msgid "Members of this directory group receive these roles on sign in. Roles are recomputed from the directory each time, so removing someone from the group downgrades them at their next login."
-msgstr ""
-
 msgid "Membership"
 msgstr "籍"
 
@@ -4349,9 +3383,6 @@ msgstr "这里不允许"
 
 msgid "Method does not exist"
 msgstr "方法不存在"
-
-msgid "Microsoft AD"
-msgstr ""
 
 msgid "Midnight"
 msgstr "午夜"
@@ -4515,10 +3546,6 @@ msgstr ""
 msgid "NOT"
 msgstr "不"
 
-#, fuzzy
-msgid "NOTE"
-msgstr "不"
-
 msgid "NOTE: Forums are the most command fastest method of getting help with any aspect of FOG."
 msgstr ""
 
@@ -4531,31 +3558,6 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
-msgid "Nested Depth"
-msgstr ""
-
-#, fuzzy
-msgid "Nested Groups"
-msgstr "组"
-
-#, fuzzy
-msgid "Nested depth must be a number"
-msgstr "事件必须是字符串"
-
-msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr ""
-
-msgid "Nested group depth cap reached, so group membership may be incomplete"
-msgstr ""
-
-#, fuzzy
-msgid "Nested group depth must be between 1 and 100"
-msgstr "事件必须是字符串"
-
-#, fuzzy
-msgid "Nested group search failed"
-msgstr "用户更新失败"
-
 msgid "Network Information"
 msgstr "网络信息"
 
@@ -4565,9 +3567,6 @@ msgstr "网络打印机"
 
 msgid "Network Printer"
 msgstr "网络打印机"
-
-msgid "Never - do not verify (insecure)"
-msgstr ""
 
 msgid "New"
 msgstr "新"
@@ -4616,11 +3615,12 @@ msgstr "没有指定的Image"
 msgid "No Printer Management"
 msgstr "没有打印机管理"
 
-msgid "No access is allowed"
-msgstr ""
-
 msgid "No activity information available for this group"
 msgstr ""
+
+#, fuzzy
+msgid "No archive was uploaded."
+msgstr "没有文件被上传"
 
 msgid "No change"
 msgstr ""
@@ -4733,6 +3733,10 @@ msgstr "没有可用的散列"
 
 msgid "No open slots"
 msgstr "没有开口槽"
+
+#, fuzzy
+msgid "No plugins selected."
+msgstr "更新管理单元"
 
 #, fuzzy
 msgid "No printers assigned to this host"
@@ -4873,70 +3877,7 @@ msgstr "存储节点名称"
 msgid "O/S"
 msgstr "O / S"
 
-msgid "OU"
-msgstr ""
-
-#, fuzzy
-msgid "OU Association"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "OU Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "OU Create Success"
-msgstr "用户创建"
-
-msgid "OU DN"
-msgstr ""
-
-#, fuzzy
-msgid "OU Description"
-msgstr "描述"
-
-#, fuzzy
-msgid "OU Host Associations"
-msgstr "无关联的节点"
-
-#, fuzzy
-msgid "OU Management"
-msgstr "管理"
-
-#, fuzzy
-msgid "OU Name"
-msgstr "操作系统名称"
-
-#, fuzzy
-msgid "OU Update Fail"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "OU Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "OU added!"
-msgstr "打印机名称"
-
-msgid "OU is a plugin that allows you to predefine OU's and associate with hosts."
-msgstr ""
-
-#, fuzzy
-msgid "OU update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "OU updated!"
-msgstr "用户更新"
-
-msgid "OUs"
-msgstr ""
-
 msgid "Off"
-msgstr ""
-
-msgid "Off - direct membership only"
 msgstr ""
 
 #, fuzzy
@@ -4989,9 +3930,6 @@ msgstr "开源计算机克隆解决方案"
 msgid "Open VNC Connection To"
 msgstr ""
 
-msgid "OpenLDAP"
-msgstr ""
-
 #, fuzzy
 msgid "Operation field not set"
 msgstr "操作字段没有设置： %s"
@@ -5000,9 +3938,6 @@ msgid "Optional. Pick a type to pre-fill the command fields below; you can still
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
-msgstr ""
-
-msgid "Order"
 msgstr ""
 
 msgid "Organizational Unit"
@@ -5181,9 +4116,6 @@ msgstr "请选择一个图像"
 msgid "Please confirm you want to delete"
 msgstr "请确认您要删除"
 
-msgid "Please confirm you would like to dissociate the selected directory groups"
-msgstr ""
-
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -5194,15 +4126,7 @@ msgid "Please confirm you would like to unset the primary group from the selecte
 msgstr ""
 
 #, fuzzy
-msgid "Please enter a name"
-msgstr "请输入一个有效的主机名"
-
-#, fuzzy
 msgid "Please enter a printer name."
-msgstr "请输入一个有效的主机名"
-
-#, fuzzy
-msgid "Please enter a valid CIDR subnet."
 msgstr "请输入一个有效的主机名"
 
 msgid "Please enter a valid hostname"
@@ -5215,34 +4139,15 @@ msgid "Please physically associate"
 msgstr ""
 
 #, fuzzy
-msgid "Please select a valid certificate verification level"
-msgstr "选择一个有效的图像"
-
-#, fuzzy
 msgid "Please select a valid image"
-msgstr "选择一个有效的图像"
-
-#, fuzzy
-msgid "Please select a valid ldap port"
-msgstr "请输入一个有效的IP"
-
-#, fuzzy
-msgid "Please select a valid nested group strategy"
 msgstr "选择一个有效的图像"
 
 #, fuzzy
 msgid "Please select a valid printer type."
 msgstr "选择一个有效的图像"
 
-#, fuzzy
-msgid "Please select an LDAP server!"
-msgstr "请选择一个选项"
-
 msgid "Please select an option"
 msgstr "请选择一个选项"
-
-msgid "Please start user/channel with @/# respectively"
-msgstr ""
 
 #, fuzzy
 msgid "Please use another group name"
@@ -5268,12 +4173,24 @@ msgid "Plugin Activate Success"
 msgstr "打印机已经存在"
 
 #, fuzzy
+msgid "Plugin Archive Read"
+msgstr "打印机更新失败！"
+
+#, fuzzy
 msgid "Plugin Deactivate Fail"
 msgstr "打印机更新失败！"
 
 #, fuzzy
 msgid "Plugin Deactivate Success"
 msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "插件管理"
 
 msgid "Plugin Install Fail"
 msgstr ""
@@ -5304,7 +4221,19 @@ msgid "Plugin Update Success"
 msgstr "打印机更新！"
 
 #, fuzzy
+msgid "Plugin Upload Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Plugin Upload Success"
+msgstr "打印机更新！"
+
+#, fuzzy
 msgid "Plugin activated!"
+msgstr "插件名称"
+
+#, fuzzy
+msgid "Plugin archive"
 msgstr "插件名称"
 
 #, fuzzy
@@ -5323,9 +4252,16 @@ msgstr "插件名称"
 msgid "Plugin updated!"
 msgstr "打印机更新！"
 
+msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings."
+msgstr ""
+
 #, fuzzy
 msgid "Plugins"
 msgstr "插入"
+
+#, fuzzy
+msgid "Plugins Forgotten"
+msgstr "插件名称"
 
 #, fuzzy
 msgid "Plugins activated!"
@@ -5349,10 +4285,6 @@ msgid "Port"
 msgstr "港口"
 
 #, fuzzy
-msgid "Port is not valid ldap/ldaps port"
-msgstr "端口是无效的LDAP / LDAPS端口"
-
-#, fuzzy
 msgid "Postfix requires an action of login"
 msgstr "Postfix的需要登录的一个动作，注销，或开始工作"
 
@@ -5368,9 +4300,6 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
-msgstr ""
-
-msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
 #, fuzzy
@@ -5492,17 +4421,6 @@ msgstr "目的"
 msgid "Protected"
 msgstr "受保护"
 
-msgid "Pushbullet Accounts"
-msgstr "Pushbullet账户"
-
-#, fuzzy
-msgid "Pushbullet Management"
-msgstr "客户管理"
-
-#, fuzzy
-msgid "Pushbullet Token"
-msgstr "Pushbullet账户"
-
 #, fuzzy
 msgid "Queue Deletion Cancel Fail"
 msgstr "用户创建"
@@ -5535,9 +4453,6 @@ msgstr "主机更新失败"
 
 msgid "Reboot"
 msgstr "重启"
-
-msgid "Reboot after deploy"
-msgstr ""
 
 msgid "Receive"
 msgstr "接收"
@@ -5574,19 +4489,12 @@ msgstr ""
 msgid "Remember Me"
 msgstr ""
 
-msgid "Remote address attempting to login"
-msgstr ""
-
 msgid "Remove"
 msgstr "去掉"
 
 #, fuzzy
 msgid "Remove Fail"
 msgstr "去除"
-
-#, fuzzy
-msgid "Remove LDAP Group Associations"
-msgstr "图像协会"
 
 #, fuzzy
 msgid "Remove associated files"
@@ -5616,6 +4524,10 @@ msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
 msgstr ""
+
+#, fuzzy
+msgid "Rename or remove one of them."
+msgstr "无法更新任务"
 
 #, fuzzy
 msgid "Replicating"
@@ -5657,10 +4569,6 @@ msgstr "访问令牌"
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
-#, fuzzy
-msgid "Result"
-msgstr "结果"
-
 msgid "Resume Reload"
 msgstr ""
 
@@ -5676,10 +4584,6 @@ msgstr "返回键的值"
 
 msgid "Reverse"
 msgstr ""
-
-#, fuzzy
-msgid "Role"
-msgstr "模块名称"
 
 #, fuzzy
 msgid "Role Association"
@@ -5729,12 +4633,6 @@ msgstr "存储节点创建"
 msgid "Role added!"
 msgstr "打印机名称"
 
-msgid "Role for LDAP admin group"
-msgstr ""
-
-msgid "Role for LDAP user group"
-msgstr ""
-
 #, fuzzy
 msgid "Role update failed!"
 msgstr "打印机更新失败！"
@@ -5742,9 +4640,6 @@ msgstr "打印机更新失败！"
 #, fuzzy
 msgid "Role updated!"
 msgstr "打印机更新！"
-
-msgid "Role when group matching is off"
-msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -5862,32 +4757,6 @@ msgid "Search"
 msgstr "搜索"
 
 #, fuzzy
-msgid "Search Base DN"
-msgstr "搜索"
-
-#, fuzzy
-msgid "Search DN"
-msgstr "搜索"
-
-msgid "Search DN did not return any results"
-msgstr ""
-
-#, fuzzy
-msgid "Search Key"
-msgstr "搜索"
-
-#, fuzzy
-msgid "Search Method"
-msgstr "搜索"
-
-#, fuzzy
-msgid "Search Scope"
-msgstr "搜索"
-
-msgid "Search results returned false"
-msgstr ""
-
-#, fuzzy
 msgid "Search settings"
 msgstr "服务状态"
 
@@ -5940,10 +4809,6 @@ msgid "Server Information"
 msgstr "一般信息"
 
 msgid "Server Shell"
-msgstr "服务器外壳"
-
-#, fuzzy
-msgid "Server URL"
 msgstr "服务器外壳"
 
 msgid "Server appears to be offline or unavailable!"
@@ -6090,10 +4955,6 @@ msgid "Shutdown"
 msgstr "关掉"
 
 #, fuzzy
-msgid "Shutdown after deploy"
-msgstr "已被破坏"
-
-#, fuzzy
 msgid "Shutdown when complete"
 msgstr "已被破坏"
 
@@ -6110,74 +4971,6 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
-
-#, fuzzy
-msgid "Site"
-msgstr "分钟"
-
-#, fuzzy
-msgid "Site Association"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Site Create Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Site Create Success"
-msgstr "打印机已经存在"
-
-#, fuzzy
-msgid "Site Description"
-msgstr "打印机说明"
-
-#, fuzzy
-msgid "Site Group Associations"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Site Host Associations"
-msgstr "无关联的节点"
-
-#, fuzzy
-msgid "Site Management"
-msgstr "存储管理"
-
-#, fuzzy
-msgid "Site Name"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Site Update Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Site User Associations"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Site User Group Associations"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Site added!"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Site update failed!"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Site updated!"
-msgstr "打印机更新！"
-
-#, fuzzy
-msgid "Sites"
-msgstr "分钟"
 
 #, fuzzy
 msgid "Size"
@@ -6199,20 +4992,6 @@ msgid "Skipping unsafe queued delete path"
 msgstr ""
 
 msgid "Skipping, will need manual removal"
-msgstr ""
-
-msgid "Slack Accounts"
-msgstr "斯莱克账户"
-
-#, fuzzy
-msgid "Slack Management"
-msgstr "任务管理"
-
-#, fuzzy
-msgid "Slack Token"
-msgstr "斯莱克账户"
-
-msgid "Slack User/Slack Channel"
 msgstr ""
 
 #, fuzzy
@@ -6600,10 +5379,6 @@ msgid "Storage Node Password"
 msgstr "存储节点密码"
 
 #, fuzzy
-msgid "Storage Node Protocol"
-msgstr "存储节点的IP"
-
-#, fuzzy
 msgid "Storage Node SSL Path"
 msgstr "存储节点的IP"
 
@@ -6670,62 +5445,6 @@ msgstr "存储节点"
 #, fuzzy
 msgid "String must be a string"
 msgstr "事件必须是字符串"
-
-msgid "Subnet Group -> Group Relationship"
-msgstr ""
-
-#, fuzzy
-msgid "Subnet Group Create Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Subnet Group Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Subnet Group Description"
-msgstr "团体简介"
-
-#, fuzzy
-msgid "Subnet Group Management"
-msgstr "集团管理"
-
-#, fuzzy
-msgid "Subnet Group Name"
-msgstr "存储组名称"
-
-#, fuzzy
-msgid "Subnet Group Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Subnet Group Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Subnet Group added!"
-msgstr "集团补充"
-
-#, fuzzy
-msgid "Subnet Group update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "Subnet Group updated!"
-msgstr "集团补充"
-
-#, fuzzy
-msgid "Subnet Groups"
-msgstr "出口组"
-
-msgid "Subnets"
-msgstr ""
-
-msgid "Subtree Only"
-msgstr ""
-
-msgid "Subtree and Below"
-msgstr ""
 
 #, fuzzy
 msgid "Successfully added hosts to the provided groups!"
@@ -6826,87 +5545,8 @@ msgstr "任务名称"
 msgid "Task Reboot"
 msgstr "任务重新启动"
 
-#, fuzzy
-msgid "Task State Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Task State Create SUccess"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Task State Description"
-msgstr "打印机说明"
-
-#, fuzzy
-msgid "Task State Icon"
-msgstr "任务的国家"
-
-#, fuzzy
-msgid "Task State Management"
-msgstr "任务管理"
-
-#, fuzzy
-msgid "Task State Name"
-msgstr "任务的国家"
-
-#, fuzzy
-msgid "Task State Update Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Task State Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Task State Updated!"
-msgstr "任务状态添加，编辑"
-
-msgid "Task States"
-msgstr "任务的国家"
-
 msgid "Task Type"
 msgstr "任务类型"
-
-#, fuzzy
-msgid "Task Type Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Task Type Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Task Type Description"
-msgstr "图片说明"
-
-#, fuzzy
-msgid "Task Type Icon"
-msgstr "任务类型"
-
-#, fuzzy
-msgid "Task Type Management"
-msgstr "任务管理"
-
-#, fuzzy
-msgid "Task Type Name"
-msgstr "任务状态添加，编辑"
-
-#, fuzzy
-msgid "Task Type Update Fail"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "Task Type Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Task Type Updated!"
-msgstr "任务类型"
-
-#, fuzzy
-msgid "Task Type added!"
-msgstr "任务状态添加，编辑"
 
 #, fuzzy
 msgid "Task Type is invalid"
@@ -6914,9 +5554,6 @@ msgstr "任务类型无效"
 
 msgid "Task Type is not valid"
 msgstr "任务类型是无效"
-
-msgid "Task Types"
-msgstr "任务类型"
 
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
@@ -6934,26 +5571,11 @@ msgid "Task started for"
 msgstr "任务开始"
 
 #, fuzzy
-msgid "Task state added!"
-msgstr "任务状态添加，编辑"
-
-#, fuzzy
-msgid "Task state update failed!"
-msgstr "用户创建"
-
-#, fuzzy
 msgid "Task type is invalid"
 msgstr "任务类型无效"
 
-#, fuzzy
-msgid "Task type update failed!"
-msgstr "用户更新失败"
-
 msgid "Tasks"
 msgstr "任务"
-
-msgid "Team"
-msgstr "球队"
 
 #, fuzzy
 msgid "Terminal"
@@ -6961,10 +5583,6 @@ msgstr "串行"
 
 msgid "Text"
 msgstr "文本"
-
-#, fuzzy
-msgid "That group is already defined for this server!"
-msgstr "图像已经存在具有此名称！"
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
@@ -6979,18 +5597,16 @@ msgstr ""
 msgid "That session has already started"
 msgstr "打印机已经存在"
 
+#, fuzzy
+msgid "That upload is no longer available."
+msgstr "有此服务器上没有图像。"
+
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "此设置定义"
-
-msgid "The CA certificate path is too long (255 characters max)"
-msgstr ""
-
-msgid "The CA certificate path must be absolute"
-msgstr ""
 
 #, fuzzy
 msgid "The CA private key is not on this server"
@@ -7003,19 +5619,37 @@ msgstr "有此服务器上没有组。"
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
-msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgid "The archive contains a link."
 msgstr ""
 
-msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
+#, php-format
+msgid "The archive contains an unsafe path: %s"
+msgstr ""
+
+msgid "The archive could not be extracted."
+msgstr ""
+
+#, fuzzy
+msgid "The archive could not be read."
+msgstr "无法读取临时文件"
+
+msgid "The archive did not extract as expected."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "The archive has no %s."
+msgstr "有"
+
+#, php-format
+msgid "The archive is larger than the %s limit."
+msgstr ""
+
+msgid "The archive must hold exactly one plugin directory."
 msgstr ""
 
 #, fuzzy
 msgid "The current user is invalid."
 msgstr "任务类型无效"
-
-#, fuzzy
-msgid "The image associated does not have a valid OS!"
-msgstr "存储组相关联的存储节点无效"
 
 msgid "The image storage group assigned is not valid"
 msgstr "分配图像存储组无效"
@@ -7024,7 +5658,8 @@ msgstr "分配图像存储组无效"
 msgid "The installers for the fog client"
 msgstr "此设置定义使用SSH客户端的用户名。"
 
-msgid "The key will be assigned to registered hosts when a"
+#, php-format
+msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
 
 msgid "The manual enrolment steps below are unaffected."
@@ -7036,16 +5671,37 @@ msgstr ""
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
+#, fuzzy
+msgid "The plugin directory"
+msgstr "目录"
+
+#, fuzzy
+msgid "The plugin directory does not exist."
+msgstr "方法不存在"
+
+msgid "The plugin will run but its JS and CSS will 404."
+msgstr ""
+
 msgid "The primary mac associated is"
 msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
+msgid "The staged plugin no longer matches its manifest."
+msgstr ""
+
 msgid "The storage groups associated storage node is not valid"
 msgstr "存储组相关联的存储节点无效"
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The upload did not arrive."
+msgstr ""
+
+#, php-format
+msgid "The upload failed (error %s). It may be larger than post_max_size, currently %s."
 msgstr ""
 
 #, fuzzy
@@ -7108,10 +5764,11 @@ msgstr "没有什么可以复制"
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
-msgid "This change would leave no user with administrator access."
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
 
-msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgid "This change would leave no user with administrator access."
 msgstr ""
 
 #, fuzzy
@@ -7131,9 +5788,6 @@ msgid "This is a single run task that should not run now."
 msgstr ""
 
 msgid "This is a single run task that should run now."
-msgstr ""
-
-msgid "This is especially useful if you have multiple"
 msgstr ""
 
 #, fuzzy
@@ -7178,10 +5832,6 @@ msgstr ""
 
 #, fuzzy
 msgid "This setting"
-msgstr "此设置定义"
-
-#, fuzzy
-msgid "This setting defines sending the"
 msgstr "此设置定义"
 
 msgid "This setting defines the number of items to display when listing/searching elements. The default value is 10."
@@ -7233,9 +5883,6 @@ msgstr ""
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
-msgid "Those images should be activated with the associated"
-msgstr ""
-
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -7264,29 +5911,9 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "图像协会"
 
-msgid "Token or user:pass (optional)"
-msgstr ""
-
 #, fuzzy
 msgid "Too many MACs"
 msgstr "主机主MAC"
-
-msgid "Topic Endpoint"
-msgstr ""
-
-#, fuzzy
-msgid "Topic already linked"
-msgstr "帐户已链接"
-
-msgid "Topic linked"
-msgstr ""
-
-msgid "Topic name you choose, e.g. fog-alerts"
-msgstr ""
-
-#, fuzzy
-msgid "Topic successfully added!"
-msgstr "成功更新"
 
 #, fuzzy
 msgid "Total Clients"
@@ -7374,26 +6001,6 @@ msgstr "无法打开文件进行读取"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "无法更新任务"
-
-#, fuzzy
-msgid "Unable to set LDAP role mapping."
-msgstr "无法打开文件进行读取"
-
-#, fuzzy
-msgid "Unable to set action field"
-msgstr "服务器连接出错"
-
-#, fuzzy
-msgid "Unable to set dmi field"
-msgstr "无法打开文件进行读取"
-
-#, fuzzy
-msgid "Unable to set ldap ports."
-msgstr "无法打开文件进行读取"
-
-#, fuzzy
-msgid "Unable to set nested group depth."
-msgstr "无法打开文件进行读取"
 
 msgid "Unable to uninstall, no method exists for "
 msgstr ""
@@ -7536,10 +6143,17 @@ msgstr "图像名是必需的！"
 msgid "Update selected"
 msgstr "打印机"
 
+#, fuzzy
+msgid "Upload"
+msgstr "上传报告"
+
 msgid "Upload Reports"
 msgstr "上传报告"
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr ""
+
+msgid "Upload plugin"
 msgstr ""
 
 msgid "Uploaded file too large."
@@ -7547,16 +6161,6 @@ msgstr ""
 
 msgid "Uptime"
 msgstr "正常运行时间"
-
-msgid "Use Display Name from Directory"
-msgstr ""
-
-#, fuzzy
-msgid "Use Group Match"
-msgstr "主机位置"
-
-msgid "Use LDAP SSL"
-msgstr ""
 
 msgid "Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the pack is unzipped on the client."
 msgstr ""
@@ -7585,9 +6189,6 @@ msgid "Use the input below to set the name for your new kernel."
 msgstr ""
 
 msgid "Use the links below if you need assistance."
-msgstr ""
-
-msgid "Use the selector to choose how many items you want exported"
 msgstr ""
 
 msgid "Used"
@@ -7625,10 +6226,6 @@ msgid "User Cleanup"
 msgstr "用户清理"
 
 #, fuzzy
-msgid "User Count"
-msgstr "CPU计数"
-
-#, fuzzy
 msgid "User Create Fail"
 msgstr "用户创建"
 
@@ -7637,24 +6234,12 @@ msgid "User Create Success"
 msgstr "用户创建"
 
 #, fuzzy
-msgid "User DN"
-msgstr "用户名"
-
-#, fuzzy
-msgid "User Group"
-msgstr "组"
-
-#, fuzzy
 msgid "User Group Association"
 msgstr "存储节点创建"
 
 #, fuzzy
 msgid "User Group Associations"
 msgstr "存储节点创建"
-
-#, fuzzy
-msgid "User Group Count"
-msgstr "出口Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7681,22 +6266,6 @@ msgid "User Group Role Associations"
 msgstr "图像协会"
 
 #, fuzzy
-msgid "User Group Site"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "集团补充"
-
-#, fuzzy
 msgid "User Group Update Fail"
 msgstr "集团创建失败"
 
@@ -7718,28 +6287,8 @@ msgstr "用户管理"
 msgid "User Name"
 msgstr "用户名"
 
-#, fuzzy
-msgid "User Name Attribute"
-msgstr "用户名"
-
 msgid "User Password"
 msgstr "用户密码"
-
-#, fuzzy
-msgid "User Site"
-msgstr "添加新的管理单元"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "服务更新！"
 
 msgid "User Tracker"
 msgstr "用户跟踪"
@@ -7756,9 +6305,6 @@ msgstr "安装/升级成功！"
 msgid "User added!"
 msgstr "打印机名称"
 
-msgid "User call is invalid"
-msgstr "用户调用无效"
-
 #, fuzzy
 msgid "User group added!"
 msgstr "打印机名称"
@@ -7771,13 +6317,6 @@ msgstr "用户更新失败"
 msgid "User group updated!"
 msgstr "用户更新"
 
-msgid "User matched none of the mapped groups"
-msgstr ""
-
-#, fuzzy
-msgid "User not found"
-msgstr "未发现记录，错误： %s"
-
 #, fuzzy
 msgid "User update failed!"
 msgstr "用户更新失败"
@@ -7785,17 +6324,6 @@ msgstr "用户更新失败"
 #, fuzzy
 msgid "User updated!"
 msgstr "用户更新"
-
-#, fuzzy
-msgid "User was not authorized by the LDAP server"
-msgstr "这个LDAP服务器输入名称。"
-
-#, fuzzy
-msgid "User/Channel"
-msgstr "用户/通道名称"
-
-msgid "User/Channel Name"
-msgstr "用户/通道名称"
 
 msgid "Username"
 msgstr "用户名"
@@ -7806,15 +6334,8 @@ msgstr ""
 msgid "Username must end with a number or letter."
 msgstr ""
 
-#, fuzzy
-msgid "Username was blank"
-msgstr "用户名"
-
 msgid "Users"
 msgstr "用户"
-
-msgid "Using the group match function"
-msgstr ""
 
 msgid "VB Script"
 msgstr ""
@@ -7837,14 +6358,6 @@ msgstr "版"
 
 msgid "View"
 msgstr ""
-
-#, fuzzy
-msgid "WOL Broadcast Management"
-msgstr "位置管理"
-
-#, fuzzy
-msgid "WOL Broadcasts"
-msgstr "所有广播"
 
 #, fuzzy
 msgid "Wait time has changed to"
@@ -7874,10 +6387,6 @@ msgstr ""
 msgid "We are node name"
 msgstr "存储节点名称"
 
-#, fuzzy
-msgid "We cannot connect to LDAP server"
-msgstr "无法连接到数据库"
-
 msgid "Web CA private key"
 msgstr ""
 
@@ -7900,9 +6409,6 @@ msgstr "已成功更新"
 msgid "What to do next"
 msgstr ""
 
-msgid "When the plugin is removed, the assigned key will remain"
-msgstr ""
-
 msgid "Where to get help and guides"
 msgstr ""
 
@@ -7913,65 +6419,6 @@ msgid "Width must be 650 pixels."
 msgstr ""
 
 msgid "Window size must be greater than 1"
-msgstr ""
-
-#, fuzzy
-msgid "Windows 10 Professional"
-msgstr "主机描述"
-
-#, fuzzy
-msgid "Windows Key"
-msgstr "Windows 8的"
-
-#, fuzzy
-msgid "Windows Key Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Windows Key Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Windows Key Description"
-msgstr "主机描述"
-
-#, fuzzy
-msgid "Windows Key Management"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Windows Key Name"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Windows Key Update Fail"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Windows Key Update Success"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Windows Key added!"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Windows Key update failed!"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Windows Key updated!"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Windows Keys"
-msgstr "Windows 8的"
-
-#, fuzzy
-msgid "Windows Product key"
-msgstr "主机产品密钥"
-
-msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
 msgid "Wipes"
@@ -7994,9 +6441,6 @@ msgstr ""
 
 #, php-format
 msgid "You do not have permission to access this page (%s required)."
-msgstr ""
-
-msgid "You do not have permission to change LDAP group associations."
 msgstr ""
 
 msgid "You do not have permission to perform this action."
@@ -8081,16 +6525,10 @@ msgstr ""
 msgid "between"
 msgstr ""
 
-msgid "between different sites"
-msgstr ""
-
 msgid "blank for default"
 msgstr ""
 
 msgid "boot the client computers"
-msgstr ""
-
-msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
@@ -8113,10 +6551,6 @@ msgid "clients"
 msgstr "客户"
 
 #, fuzzy
-msgid "completed imaging"
-msgstr "完成"
-
-#, fuzzy
 msgid "confirm"
 msgstr "任务无效"
 
@@ -8133,9 +6567,6 @@ msgid "could not be killed"
 msgstr "无法读取临时文件"
 
 msgid "day"
-msgstr ""
-
-msgid "deploy task occurs for it"
 msgstr ""
 
 msgid "directive in php.ini"
@@ -8189,9 +6620,6 @@ msgstr ""
 msgid "failed to execute, there are no clients included"
 msgstr ""
 
-msgid "failed to login"
-msgstr "登录失败"
-
 #, fuzzy
 msgid "failed to start"
 msgstr "未能摧毁"
@@ -8202,9 +6630,6 @@ msgstr "失败"
 
 msgid "filesize"
 msgstr "文件大小"
-
-msgid "for Microsoft Windows to images"
-msgstr ""
 
 #, fuzzy
 msgid "found"
@@ -8239,19 +6664,15 @@ msgid "has been successfully updated"
 msgstr "已成功更新"
 
 #, fuzzy
-msgid "has completed on"
-msgstr "已被破坏"
-
-#, fuzzy
-msgid "has completed snapin tasking"
-msgstr "无效的管理单元任务处理"
-
-#, fuzzy
 msgid "has failed to destroy"
 msgstr "未能被销毁"
 
 msgid "has failed to save"
 msgstr "未能保存"
+
+#, fuzzy
+msgid "has no code on disk"
+msgstr "图片没有节点发现"
 
 #, fuzzy
 msgid "has started"
@@ -8346,10 +6767,6 @@ msgid "images to a storage group"
 msgstr "主存储组"
 
 #, fuzzy
-msgid "imaging failed"
-msgstr "加载失败： %s"
-
-#, fuzzy
 msgid "in"
 msgstr "分钟"
 
@@ -8423,17 +6840,10 @@ msgstr ""
 msgid "kernel to boot the client computers"
 msgstr ""
 
-#, fuzzy
-msgid "key"
-msgstr "DMI关键"
-
 msgid "keys"
 msgstr ""
 
 msgid "limited to 1Mbps on that node"
-msgstr ""
-
-msgid "location url based on the host that checks in"
 msgstr ""
 
 msgid "logged in"
@@ -8464,9 +6874,6 @@ msgstr ""
 msgid "month"
 msgstr "每月一次"
 
-msgid "multiple places to get your image"
-msgstr ""
-
 #, fuzzy
 msgid "must be specified"
 msgstr "没有指定的图像"
@@ -8474,10 +6881,15 @@ msgstr "没有指定的图像"
 msgid "n/a"
 msgstr "N / A"
 
-msgid "never"
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
 msgstr ""
 
-msgid "no response from server"
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
+msgid "never"
 msgstr ""
 
 msgid "node is the distributor of the images"
@@ -8497,14 +6909,6 @@ msgstr "图片没有节点发现"
 #, fuzzy
 msgid "not found on this node"
 msgstr "图片没有节点发现"
-
-#, fuzzy
-msgid "ntfy Accounts"
-msgstr "斯莱克账户"
-
-#, fuzzy
-msgid "ntfy Management"
-msgstr "客户管理"
 
 #, fuzzy
 msgid "object"
@@ -8588,9 +6992,6 @@ msgstr "设置"
 msgid "short"
 msgstr ""
 
-msgid "sites with clients moving back and forth"
-msgstr ""
-
 #, fuzzy
 msgid "snapin"
 msgstr "管理单元"
@@ -8624,6 +7025,10 @@ msgstr ""
 msgid "success"
 msgstr "访问"
 
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
+msgstr ""
+
 msgid "task found"
 msgstr "发现任务"
 
@@ -8638,9 +7043,6 @@ msgid "the Linux kernel which is used to"
 msgstr ""
 
 msgid "the following command in a terminal"
-msgstr ""
-
-msgid "the host defined location where available"
 msgstr ""
 
 msgid "the initrd (initial ramdisk) which is alongside the"
@@ -8696,9 +7098,6 @@ msgstr "没有要求的关键"
 #, fuzzy
 msgid "to get the requested initrd"
 msgstr "没有要求的关键"
-
-msgid "to operate in an environment where there may be"
-msgstr ""
 
 msgid "to review."
 msgstr "回顾。"
@@ -8764,13 +7163,6 @@ msgstr "Windows 7的"
 msgid "wipe out all of your images stored on"
 msgstr ""
 
-msgid "with status code"
-msgstr ""
-
-#, fuzzy
-msgid "with the host"
-msgstr "不在此"
-
 #, fuzzy
 msgid "with this group"
 msgstr "不在此"
@@ -8782,16 +7174,52 @@ msgid "{node}"
 msgstr ""
 
 #, fuzzy
+#~ msgid "A LDAP setup already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A Windows Key already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A Windows Key already exists with this product key!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A broadcast already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A dmi field must be set!"
+#~ msgstr "事件必须是字符串"
+
+#, fuzzy
 #~ msgid "A filter must be specified"
 #~ msgstr "没有指定的图像"
+
+#, fuzzy
+#~ msgid "A group must be selected."
+#~ msgstr "存储组中删除"
+
+#, fuzzy
+#~ msgid "A group name is required!"
+#~ msgstr "图像名是必需的！"
 
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "A location already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 #~ msgid "A name with this type-value pair already exists!"
 #~ msgstr "使用此名称的主机名已经存在。"
+
+#, fuzzy
+#~ msgid "A port must be specified"
+#~ msgstr "没有指定的图像"
 
 #, fuzzy
 #~ msgid "A rule already exists with that type-value pair!"
@@ -8802,8 +7230,35 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "A site already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A storage group must be selected."
+#~ msgstr "存储组中删除"
+
+#, fuzzy
+#~ msgid "A subnet group already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A subnet group is already using this group."
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A task state already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A task type already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "图像已经存在具有此名称！"
+
+#~ msgid "Access"
+#~ msgstr "访问"
 
 #, fuzzy
 #~ msgid "Access Control Name"
@@ -8816,6 +7271,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Access Controls"
 #~ msgstr "所有访问控制"
+
+#~ msgid "Access Token"
+#~ msgstr "访问令牌"
+
+#, fuzzy
+#~ msgid "Access token"
+#~ msgstr "访问令牌"
 
 #, fuzzy
 #~ msgid "Accesscontrol Create Fail"
@@ -8881,6 +7343,23 @@ msgstr ""
 #~ msgid "Accesscontrol updated!"
 #~ msgstr "所有访问控制"
 
+#~ msgid "Accessed By"
+#~ msgstr "通过访问"
+
+#~ msgid "Account already linked"
+#~ msgstr "帐户已链接"
+
+#, fuzzy
+#~ msgid "Account linked"
+#~ msgstr "帐户已链接"
+
+#~ msgid "Account linked to FOG GUI at"
+#~ msgstr "帐户相关联的雾GUI"
+
+#, fuzzy
+#~ msgid "Account successfully added!"
+#~ msgstr "成功更新"
+
 #, fuzzy
 #~ msgid "Active Multi-cast Tasks"
 #~ msgstr "活动组播任务"
@@ -8888,6 +7367,18 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add Directory Group"
 #~ msgstr "添加存储组"
+
+#, fuzzy
+#~ msgid "Add Hello World failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add LDAP group failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add LDAP server failed!"
+#~ msgstr "添加管理单元失败！"
 
 #, fuzzy
 #~ msgid "Add Selected"
@@ -8898,8 +7389,60 @@ msgstr ""
 #~ msgstr "添加管理单元失败！"
 
 #, fuzzy
+#~ msgid "Add broadcast failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add capone failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add location failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add ntfy topic failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add ou failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add pushbullet account failed!"
+#~ msgstr "链接Pushbullet账户"
+
+#, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add site failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add slack account failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add subnet group failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add task state failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add task type failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Add windows key failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
+#~ msgid "Additional Icon Elements"
+#~ msgstr "附加的MAC"
 
 #, fuzzy
 #~ msgid "Admin Group"
@@ -8910,8 +7453,20 @@ msgstr ""
 #~ msgstr "修改组"
 
 #, fuzzy
+#~ msgid "Advanced Task"
+#~ msgstr "高级"
+
+#, fuzzy
 #~ msgid "All filters must be numeric and greater than 1"
 #~ msgstr "带宽应该是数字和大于0"
+
+#, fuzzy
+#~ msgid "An LDAP server already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "An OU already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
@@ -8922,8 +7477,128 @@ msgstr ""
 #~ msgstr "使用此名称的主机名已经存在。"
 
 #, fuzzy
+#~ msgid "An entry already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "An ou already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "Assigned Group"
+#~ msgstr "存储组名称"
+
+#, fuzzy
+#~ msgid "Assigned Group Name"
+#~ msgstr "存储组名称"
+
+#, fuzzy
+#~ msgid "Bind Password"
+#~ msgstr "域密码"
+
+#, fuzzy
+#~ msgid "Broadcast Address"
+#~ msgstr "广播名称"
+
+#, fuzzy
+#~ msgid "Broadcast Create Fail"
+#~ msgstr "主机创建失败"
+
+#, fuzzy
+#~ msgid "Broadcast Create Success"
+#~ msgstr "主机创建"
+
+#, fuzzy
+#~ msgid "Broadcast Description"
+#~ msgstr "主机描述"
+
+#~ msgid "Broadcast IP"
+#~ msgstr "广播IP"
+
+#~ msgid "Broadcast Name"
+#~ msgstr "广播名称"
+
+#, fuzzy
+#~ msgid "Broadcast Update Fail"
+#~ msgstr "广播更新"
+
+#, fuzzy
+#~ msgid "Broadcast Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Broadcast added!"
+#~ msgstr "广播名称"
+
+#, fuzzy
+#~ msgid "Broadcast update failed!"
+#~ msgstr "广播更新"
+
+#, fuzzy
+#~ msgid "Broadcast updated!"
+#~ msgstr "广播更新"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "保存更改"
+
+#, fuzzy
+#~ msgid "CA Path"
+#~ msgstr "路径"
+
+#, fuzzy
+#~ msgid "Cannot bind to the LDAP server"
+#~ msgstr "无法连接到数据库"
+
+#, fuzzy
+#~ msgid "Capone"
+#~ msgstr "卡波恩部署"
+
+#, fuzzy
+#~ msgid "Capone Create Fail"
+#~ msgstr "更新管理单元"
+
+#, fuzzy
+#~ msgid "Capone Create Success"
+#~ msgstr "更新管理单元"
+
+#~ msgid "Capone Deploy"
+#~ msgstr "卡波恩部署"
+
+#, fuzzy
+#~ msgid "Capone Management"
+#~ msgstr "管理单元管理"
+
+#, fuzzy
+#~ msgid "Capone Update Fail"
+#~ msgstr "管理单元更新失败"
+
+#, fuzzy
+#~ msgid "Capone Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Capone added!"
+#~ msgstr "管理单元名称"
+
+#, fuzzy
+#~ msgid "Capone update failed!"
+#~ msgstr "管理单元更新失败"
+
+#, fuzzy
+#~ msgid "Capone updated!"
+#~ msgstr "更新管理单元"
+
+#, fuzzy
+#~ msgid "Certificate Verification"
+#~ msgstr "新建%s"
+
+#~ msgid "Channel call is invalid"
+#~ msgstr "通道调用无效"
+
+#, fuzzy
+#~ msgid "Channel not found"
+#~ msgstr "未发现记录，错误： %s"
 
 #~ msgid "Check that database is running"
 #~ msgstr "检查数据库运行"
@@ -8933,7 +7608,35 @@ msgstr ""
 #~ msgstr "设置"
 
 #, fuzzy
+#~ msgid "Could not read the group mappings"
+#~ msgstr "无法读取tmp文件。"
+
+#, fuzzy
+#~ msgid "Could not read the recorded grants"
+#~ msgstr "无法读取tmp文件。"
+
+#, fuzzy
+#~ msgid "Could not record the granted targets"
+#~ msgstr "无法读取tmp文件。"
+
+#, fuzzy
+#~ msgid "Could not seed the granted targets"
+#~ msgstr "无法读取tmp文件。"
+
+#, fuzzy
 #~ msgid "Create New Accesscontrol"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Broadcast"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Capone"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Hello World"
 #~ msgstr "新建%s"
 
 #, fuzzy
@@ -8941,7 +7644,43 @@ msgstr ""
 #~ msgstr "新建%s"
 
 #, fuzzy
+#~ msgid "Create New LDAP Group"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New LDAP Server"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Location"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New OU"
+#~ msgstr "新建%s"
+
+#, fuzzy
 #~ msgid "Create New Rule"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Site"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Subnet Group"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Task State"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Task Type"
+#~ msgstr "新建%s"
+
+#, fuzzy
+#~ msgid "Create New Windows Key"
 #~ msgstr "新建%s"
 
 #, fuzzy
@@ -8953,11 +7692,58 @@ msgstr ""
 #~ msgstr "没有可用的散列"
 
 #, fuzzy
+#~ msgid "Default is disabled"
+#~ msgstr "捐款将被禁用"
+
+#, fuzzy
+#~ msgid "Directory Group"
+#~ msgstr "目录"
+
+#, fuzzy
+#~ msgid "Directory Group Name"
+#~ msgstr "目录"
+
+#, fuzzy
+#~ msgid "Display Name Attribute"
+#~ msgstr "用户名"
+
+#, fuzzy
+#~ msgid "Display Name Enabled"
+#~ msgstr "用户名"
+
+#, fuzzy
+#~ msgid "Domain Admins"
+#~ msgstr "域名"
+
+#, fuzzy
+#~ msgid "Editing Global Capone Settings"
+#~ msgstr "主机描述"
+
+#, fuzzy
+#~ msgid "Editing Global LDAP Settings"
+#~ msgstr "主机描述"
+
+#~ msgid "Email"
+#~ msgstr "电子邮件"
+
+#, fuzzy
+#~ msgid "Export Broadcasts"
+#~ msgstr "主机出口"
+
+#, fuzzy
+#~ msgid "Export Capones"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "主机出口"
 
 #~ msgid "Export Images"
 #~ msgstr "导出图像"
+
+#, fuzzy
+#~ msgid "Export LDAP Servers"
+#~ msgstr "LDAP服务器"
 
 #, fuzzy
 #~ msgid "Export LDAP Settings"
@@ -8966,6 +7752,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Export LDAPs"
 #~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Export Locations"
+#~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Export OUs"
+#~ msgstr "导出用户"
 
 #~ msgid "Export Printers"
 #~ msgstr "出口打印机"
@@ -8978,6 +7772,10 @@ msgstr ""
 #~ msgid "Export Rules"
 #~ msgstr "成功"
 
+#, fuzzy
+#~ msgid "Export Sites"
+#~ msgstr "出口打印机"
+
 #~ msgid "Export Snapins"
 #~ msgstr "出口Snapins"
 
@@ -8989,8 +7787,28 @@ msgstr ""
 #~ msgid "Export Storage Nodes"
 #~ msgstr "所有存储节点"
 
+#, fuzzy
+#~ msgid "Export Subnet Groups"
+#~ msgstr "出口组"
+
+#, fuzzy
+#~ msgid "Export Task States"
+#~ msgstr "任务的国家"
+
+#, fuzzy
+#~ msgid "Export Task Types"
+#~ msgstr "任务类型"
+
 #~ msgid "Export Users"
 #~ msgstr "导出用户"
+
+#, fuzzy
+#~ msgid "Export WOL Broadcasts"
+#~ msgstr "主机出口"
+
+#, fuzzy
+#~ msgid "Export Windows Keys"
+#~ msgstr "Windows 8的"
 
 #~ msgid "Failed to add/update snapin file"
 #~ msgstr "无法添加/更新管理单元文件"
@@ -9007,20 +7825,156 @@ msgstr ""
 #~ msgstr "我不是雾Web服务器"
 
 #, fuzzy
+#~ msgid "Filter"
+#~ msgstr "文件"
+
+#, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "重启"
+
+#, fuzzy
+#~ msgid "Function does not exist"
+#~ msgstr "方法不存在"
+
+#, fuzzy
+#~ msgid "Global Options"
+#~ msgstr "启动选项："
+
+#, fuzzy
+#~ msgid "Global Settings Update Fail"
+#~ msgstr "设置更新"
+
+#, fuzzy
+#~ msgid "Global Settings Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Global settings updated!"
+#~ msgstr "更新位置"
+
+#, fuzzy
+#~ msgid "Group Association"
+#~ msgstr "存储节点创建"
+
+#, fuzzy
+#~ msgid "Group Count"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "Group Location"
+#~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Group Location Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Group Location Updated!"
+#~ msgstr "更新位置"
 
 #, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "主机位置"
 
 #, fuzzy
+#~ msgid "Group Matching"
+#~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Group Name Attribute"
+#~ msgstr "用户名"
+
+#, fuzzy
+#~ msgid "Group OU"
+#~ msgstr "组"
+
+#, fuzzy
+#~ msgid "Group OU Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Group OU Updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "Group Search DN"
+#~ msgstr "主机搜索"
+
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "Group Update Location Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "Group Update OU Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "Group membership search failed"
+#~ msgstr "用户更新失败"
+
+#, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "主机描述"
 
 #, fuzzy
+#~ msgid "Hello World Create Fail"
+#~ msgstr "主机创建失败"
+
+#, fuzzy
+#~ msgid "Hello World Create Success"
+#~ msgstr "主机创建"
+
+#, fuzzy
+#~ msgid "Hello World Management"
+#~ msgstr "报告管理"
+
+#, fuzzy
+#~ msgid "Hello World Update Fail"
+#~ msgstr "内核更新"
+
+#, fuzzy
+#~ msgid "Hello World Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Hello World added!"
+#~ msgstr "添加主机"
+
+#, fuzzy
+#~ msgid "Hello World update failed!"
+#~ msgstr "用户更新失败"
+
+#, fuzzy
+#~ msgid "Hello World updated!"
+#~ msgstr "用户更新"
+
+#, fuzzy
 #~ msgid "Host Associated"
 #~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "Host Association"
+#~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "Host Count"
+#~ msgstr "主机列表"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -9038,9 +7992,56 @@ msgstr ""
 #~ msgid "Host Ext Variable"
 #~ msgstr "用户更新失败"
 
+#~ msgid "Host Location"
+#~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Host Location Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Host Location Updated!"
+#~ msgstr "更新位置"
+
+#, fuzzy
+#~ msgid "Host OU"
+#~ msgstr "主机ID"
+
+#, fuzzy
+#~ msgid "Host OU Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Host OU Updated!"
+#~ msgstr "用户更新"
+
+#, fuzzy
+#~ msgid "Host Site"
+#~ msgstr "主机列表"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "服务更新！"
+
 #, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "历史管理单元"
+
+#, fuzzy
+#~ msgid "Host Update Location Fail"
+#~ msgstr "主机更新失败"
+
+#, fuzzy
+#~ msgid "Host Update OU Fail"
+#~ msgstr "主机更新失败"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "主机更新失败"
 
 #, fuzzy
 #~ msgid "Host module settings"
@@ -9074,6 +8075,41 @@ msgstr ""
 #~ msgid "Hostext updated!"
 #~ msgstr "用户更新"
 
+#~ msgid "Icon"
+#~ msgstr "图标"
+
+#, fuzzy
+#~ msgid "Image Associated"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Image OS"
+#~ msgstr "图片名称"
+
+#, fuzzy
+#~ msgid "Image Windows Key"
+#~ msgstr "Windows 8的"
+
+#, fuzzy
+#~ msgid "Image Windows Key Update Fail"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Image Windows Key Update Success"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Image Windows Key Updated!"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Import Broadcasts"
+#~ msgstr "进口主机"
+
+#, fuzzy
+#~ msgid "Import Capones"
+#~ msgstr "进口Snapins"
+
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "进口主机"
@@ -9084,6 +8120,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import LDAP Settings"
 #~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Import Locations"
+#~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Import OUs"
+#~ msgstr "导入用户"
 
 #~ msgid "Import Printers"
 #~ msgstr "进口打印机"
@@ -9096,6 +8140,10 @@ msgstr ""
 #~ msgid "Import Rules"
 #~ msgstr "进口主机"
 
+#, fuzzy
+#~ msgid "Import Sites"
+#~ msgstr "进口打印机"
+
 #~ msgid "Import Snapins"
 #~ msgstr "进口Snapins"
 
@@ -9107,12 +8155,183 @@ msgstr ""
 #~ msgid "Import Storage Nodes"
 #~ msgstr "所有存储节点"
 
+#, fuzzy
+#~ msgid "Import Subnet Groups"
+#~ msgstr "导入组"
+
+#, fuzzy
+#~ msgid "Import Task States"
+#~ msgstr "任务的国家"
+
+#, fuzzy
+#~ msgid "Import Task Types"
+#~ msgstr "任务类型"
+
 #~ msgid "Import Users"
 #~ msgstr "导入用户"
 
 #, fuzzy
+#~ msgid "Import Windows Keys"
+#~ msgstr "Windows 8的"
+
+#, fuzzy
+#~ msgid "Init"
+#~ msgstr "主机列表"
+
+#, fuzzy
+#~ msgid "Initial Template"
+#~ msgstr "模板管理单元"
+
+#, fuzzy
 #~ msgid "Invalid Type"
 #~ msgstr "无效类型"
+
+#, fuzzy, php-format
+#~ msgid "Invalid certificate verification level: %s"
+#~ msgstr "选择一个有效的图像"
+
+#~ msgid "Invalid method called"
+#~ msgstr "所谓的无效方法"
+
+#~ msgid "Invalid token passed"
+#~ msgstr "无效的令牌传递"
+
+#, fuzzy
+#~ msgid "Is Advanced"
+#~ msgstr "高级"
+
+#~ msgid "Kernel Args"
+#~ msgstr "内核参数数量"
+
+#~ msgid "Kernel Arguments"
+#~ msgstr "内核参数"
+
+#~ msgid "Kernels/Inits from location"
+#~ msgstr "从位置仁/ Inits"
+
+#, fuzzy
+#~ msgid "Key Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "地点名称"
+
+#, fuzzy
+#~ msgid "LDAP Connection Name"
+#~ msgstr "地点名称"
+
+#, fuzzy
+#~ msgid "LDAP Create Fail"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "LDAP Create Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "LDAP Group"
+#~ msgstr "组"
+
+#, fuzzy
+#~ msgid "LDAP Group Associations"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "LDAP Group Create Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "LDAP Group Create Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "LDAP Group Management"
+#~ msgstr "集团管理"
+
+#, fuzzy
+#~ msgid "LDAP Group Role Associations"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "LDAP Group Update Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "LDAP Group Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "LDAP Group User Group Associations"
+#~ msgstr "存储节点创建"
+
+#, fuzzy
+#~ msgid "LDAP Group added!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "LDAP Group associations updated!"
+#~ msgstr "更新位置"
+
+#, fuzzy
+#~ msgid "LDAP Group update failed!"
+#~ msgstr "用户更新失败"
+
+#, fuzzy
+#~ msgid "LDAP Group updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "LDAP Groups"
+#~ msgstr "组"
+
+#~ msgid "LDAP Management"
+#~ msgstr "LDAP管理"
+
+#, fuzzy
+#~ msgid "LDAP Ports"
+#~ msgstr "LDAP服务器"
+
+#~ msgid "LDAP Server"
+#~ msgstr "LDAP服务器"
+
+#~ msgid "LDAP Server Address"
+#~ msgstr "LDAP服务器地址"
+
+#~ msgid "LDAP Server Description"
+#~ msgstr "LDAP服务器说明"
+
+#, fuzzy
+#~ msgid "LDAP Server Name"
+#~ msgstr "LDAP服务器名称"
+
+#, fuzzy
+#~ msgid "LDAP Server Port"
+#~ msgstr "LDAP服务器"
+
+#, fuzzy
+#~ msgid "LDAP Server Update Fail"
+#~ msgstr "LDAP服务器名称"
+
+#, fuzzy
+#~ msgid "LDAP Server Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "LDAP Server added!"
+#~ msgstr "LDAP服务器名称"
+
+#, fuzzy
+#~ msgid "LDAP Server update failed!"
+#~ msgstr "LDAP服务器名称"
+
+#, fuzzy
+#~ msgid "LDAP Server updated!"
+#~ msgstr "LDAP服务器名称"
+
+#, fuzzy
+#~ msgid "LDAP Servers"
+#~ msgstr "LDAP服务器"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -9121,6 +8340,32 @@ msgstr ""
 #, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "最新版本"
+
+#~ msgid "Link Pushbullet Account"
+#~ msgstr "链接Pushbullet账户"
+
+#, fuzzy
+#~ msgid "Link Pushbullet Account Fail"
+#~ msgstr "链接Pushbullet账户"
+
+#, fuzzy
+#~ msgid "Link Pushbullet Account Success"
+#~ msgstr "链接Pushbullet账户"
+
+#~ msgid "Link Slack Account"
+#~ msgstr "链接松弛账户"
+
+#, fuzzy
+#~ msgid "Link Slack Account Fail"
+#~ msgstr "链接松弛账户"
+
+#, fuzzy
+#~ msgid "Link Slack Account Success"
+#~ msgstr "链接松弛账户"
+
+#, fuzzy
+#~ msgid "Link ntfy Topic Success"
+#~ msgstr "链接松弛账户"
 
 #, fuzzy
 #~ msgid "List All Roles"
@@ -9131,8 +8376,79 @@ msgstr ""
 #~ msgstr "列表中的所有%s"
 
 #, fuzzy
+#~ msgid "List All Task States"
+#~ msgstr "任务的国家"
+
+#, fuzzy
+#~ msgid "List All Task Types"
+#~ msgstr "任务类型"
+
+#, fuzzy
+#~ msgid "Location Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Location Create Fail"
+#~ msgstr "更新管理单元"
+
+#, fuzzy
+#~ msgid "Location Create Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Location Description"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Location Host Associations"
+#~ msgstr "图像协会"
+
+#~ msgid "Location Name"
+#~ msgstr "地点名称"
+
+#, fuzzy
+#~ msgid "Location Update Fail"
+#~ msgstr "更新位置"
+
+#, fuzzy
+#~ msgid "Location Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Location added!"
+#~ msgstr "地点名称"
+
+#, fuzzy
+#~ msgid "Location update failed!"
+#~ msgstr "管理单元更新失败"
+
+#, fuzzy
+#~ msgid "Location updated!"
+#~ msgstr "更新位置"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "NOTE"
+#~ msgstr "不"
+
+#, fuzzy
+#~ msgid "Nested Groups"
+#~ msgstr "组"
+
+#, fuzzy
+#~ msgid "Nested depth must be a number"
+#~ msgstr "事件必须是字符串"
+
+#, fuzzy
+#~ msgid "Nested group depth must be between 1 and 100"
+#~ msgstr "事件必须是字符串"
+
+#, fuzzy
+#~ msgid "Nested group search failed"
+#~ msgstr "用户更新失败"
 
 #~ msgid "No FOGPage Class found for this node"
 #~ msgstr "没有FOGPage类中找到此节点"
@@ -9160,6 +8476,54 @@ msgstr ""
 #~ msgstr "修改组"
 
 #, fuzzy
+#~ msgid "OU Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "OU Create Fail"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "OU Create Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "OU Description"
+#~ msgstr "描述"
+
+#, fuzzy
+#~ msgid "OU Host Associations"
+#~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "OU Management"
+#~ msgstr "管理"
+
+#, fuzzy
+#~ msgid "OU Name"
+#~ msgstr "操作系统名称"
+
+#, fuzzy
+#~ msgid "OU Update Fail"
+#~ msgstr "用户更新失败"
+
+#, fuzzy
+#~ msgid "OU Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "OU added!"
+#~ msgstr "打印机名称"
+
+#, fuzzy
+#~ msgid "OU update failed!"
+#~ msgstr "用户更新失败"
+
+#, fuzzy
+#~ msgid "OU updated!"
+#~ msgstr "用户更新"
+
+#, fuzzy
 #~ msgid "Pause"
 #~ msgstr "用户"
 
@@ -9167,12 +8531,59 @@ msgstr ""
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "这个位置输入名称。"
 
+#, fuzzy
+#~ msgid "Please enter a name"
+#~ msgstr "请输入一个有效的主机名"
+
+#, fuzzy
+#~ msgid "Please enter a valid CIDR subnet."
+#~ msgstr "请输入一个有效的主机名"
+
+#, fuzzy
+#~ msgid "Please select a valid certificate verification level"
+#~ msgstr "选择一个有效的图像"
+
+#, fuzzy
+#~ msgid "Please select a valid ldap port"
+#~ msgstr "请输入一个有效的IP"
+
+#, fuzzy
+#~ msgid "Please select a valid nested group strategy"
+#~ msgstr "选择一个有效的图像"
+
+#, fuzzy
+#~ msgid "Please select an LDAP server!"
+#~ msgstr "请选择一个选项"
+
+#, fuzzy
+#~ msgid "Port is not valid ldap/ldaps port"
+#~ msgstr "端口是无效的LDAP / LDAPS端口"
+
 #~ msgid "Printer Alias"
 #~ msgstr "打印机别名"
+
+#~ msgid "Pushbullet Accounts"
+#~ msgstr "Pushbullet账户"
+
+#, fuzzy
+#~ msgid "Pushbullet Management"
+#~ msgstr "客户管理"
+
+#, fuzzy
+#~ msgid "Pushbullet Token"
+#~ msgstr "Pushbullet账户"
+
+#, fuzzy
+#~ msgid "Remove LDAP Group Associations"
+#~ msgstr "图像协会"
 
 #, fuzzy
 #~ msgid "Remove Selected"
 #~ msgstr "删除选定snapins"
+
+#, fuzzy
+#~ msgid "Result"
+#~ msgstr "结果"
 
 #~ msgid "Results"
 #~ msgstr "结果"
@@ -9180,6 +8591,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Resume"
 #~ msgstr "结果"
+
+#, fuzzy
+#~ msgid "Role"
+#~ msgstr "模块名称"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "行数设置不正确"
@@ -9233,6 +8648,113 @@ msgstr ""
 #~ msgstr "打印机更新失败！"
 
 #, fuzzy
+#~ msgid "Search Base DN"
+#~ msgstr "搜索"
+
+#, fuzzy
+#~ msgid "Search DN"
+#~ msgstr "搜索"
+
+#, fuzzy
+#~ msgid "Search Key"
+#~ msgstr "搜索"
+
+#, fuzzy
+#~ msgid "Search Method"
+#~ msgstr "搜索"
+
+#, fuzzy
+#~ msgid "Search Scope"
+#~ msgstr "搜索"
+
+#, fuzzy
+#~ msgid "Server URL"
+#~ msgstr "服务器外壳"
+
+#, fuzzy
+#~ msgid "Shutdown after deploy"
+#~ msgstr "已被破坏"
+
+#, fuzzy
+#~ msgid "Site"
+#~ msgstr "分钟"
+
+#, fuzzy
+#~ msgid "Site Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Site Create Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Site Create Success"
+#~ msgstr "打印机已经存在"
+
+#, fuzzy
+#~ msgid "Site Description"
+#~ msgstr "打印机说明"
+
+#, fuzzy
+#~ msgid "Site Group Associations"
+#~ msgstr "存储节点创建"
+
+#, fuzzy
+#~ msgid "Site Host Associations"
+#~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "Site Management"
+#~ msgstr "存储管理"
+
+#, fuzzy
+#~ msgid "Site Name"
+#~ msgstr "打印机名称"
+
+#, fuzzy
+#~ msgid "Site Update Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Site User Associations"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Site User Group Associations"
+#~ msgstr "存储节点创建"
+
+#, fuzzy
+#~ msgid "Site added!"
+#~ msgstr "打印机名称"
+
+#, fuzzy
+#~ msgid "Site update failed!"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Site updated!"
+#~ msgstr "打印机更新！"
+
+#, fuzzy
+#~ msgid "Sites"
+#~ msgstr "分钟"
+
+#~ msgid "Slack Accounts"
+#~ msgstr "斯莱克账户"
+
+#, fuzzy
+#~ msgid "Slack Management"
+#~ msgstr "任务管理"
+
+#, fuzzy
+#~ msgid "Slack Token"
+#~ msgstr "斯莱克账户"
+
+#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "更新管理单元"
 
@@ -9244,16 +8766,169 @@ msgstr ""
 #~ msgid "Storage Node Associated"
 #~ msgstr "存储节点创建"
 
+#, fuzzy
+#~ msgid "Storage Node Protocol"
+#~ msgstr "存储节点的IP"
+
+#, fuzzy
+#~ msgid "Subnet Group Create Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "Subnet Group Create Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Subnet Group Description"
+#~ msgstr "团体简介"
+
+#, fuzzy
+#~ msgid "Subnet Group Management"
+#~ msgstr "集团管理"
+
+#, fuzzy
+#~ msgid "Subnet Group Name"
+#~ msgstr "存储组名称"
+
+#, fuzzy
+#~ msgid "Subnet Group Update Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "Subnet Group Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Subnet Group added!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "Subnet Group update failed!"
+#~ msgstr "用户更新失败"
+
+#, fuzzy
+#~ msgid "Subnet Group updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "Subnet Groups"
+#~ msgstr "出口组"
+
 #~ msgid "Successful"
 #~ msgstr "成功"
+
+#, fuzzy
+#~ msgid "Task State Create Fail"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Task State Create SUccess"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Task State Description"
+#~ msgstr "打印机说明"
+
+#, fuzzy
+#~ msgid "Task State Icon"
+#~ msgstr "任务的国家"
+
+#, fuzzy
+#~ msgid "Task State Management"
+#~ msgstr "任务管理"
+
+#, fuzzy
+#~ msgid "Task State Name"
+#~ msgstr "任务的国家"
+
+#, fuzzy
+#~ msgid "Task State Update Fail"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Task State Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Task State Updated!"
+#~ msgstr "任务状态添加，编辑"
+
+#~ msgid "Task States"
+#~ msgstr "任务的国家"
+
+#, fuzzy
+#~ msgid "Task Type Create Fail"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Task Type Create Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Task Type Description"
+#~ msgstr "图片说明"
+
+#, fuzzy
+#~ msgid "Task Type Icon"
+#~ msgstr "任务类型"
+
+#, fuzzy
+#~ msgid "Task Type Management"
+#~ msgstr "任务管理"
+
+#, fuzzy
+#~ msgid "Task Type Name"
+#~ msgstr "任务状态添加，编辑"
+
+#, fuzzy
+#~ msgid "Task Type Update Fail"
+#~ msgstr "用户更新失败"
+
+#, fuzzy
+#~ msgid "Task Type Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Task Type Updated!"
+#~ msgstr "任务类型"
+
+#, fuzzy
+#~ msgid "Task Type added!"
+#~ msgstr "任务状态添加，编辑"
+
+#~ msgid "Task Types"
+#~ msgstr "任务类型"
 
 #, fuzzy
 #~ msgid "Task run time"
 #~ msgstr "任务登录时间"
 
 #, fuzzy
+#~ msgid "Task state added!"
+#~ msgstr "任务状态添加，编辑"
+
+#, fuzzy
+#~ msgid "Task state update failed!"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Task type update failed!"
+#~ msgstr "用户更新失败"
+
+#~ msgid "Team"
+#~ msgstr "球队"
+
+#, fuzzy
+#~ msgid "That group is already defined for this server!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "打印机已经存在"
+
+#, fuzzy
+#~ msgid "The image associated does not have a valid OS!"
+#~ msgstr "存储组相关联的存储节点无效"
 
 #, fuzzy
 #~ msgid "There are no locations on this server"
@@ -9267,12 +8942,44 @@ msgstr ""
 #~ msgid "There are no snapins on this server"
 #~ msgstr "有此服务器上没有snapins。"
 
+#, fuzzy
+#~ msgid "This setting defines sending the"
+#~ msgstr "此设置定义"
+
+#, fuzzy
+#~ msgid "Topic already linked"
+#~ msgstr "帐户已链接"
+
+#, fuzzy
+#~ msgid "Topic successfully added!"
+#~ msgstr "成功更新"
+
 #~ msgid "Total Rows"
 #~ msgstr "共行"
 
 #, fuzzy
 #~ msgid "Unable to find basic information!"
 #~ msgstr "无法找到基本信息"
+
+#, fuzzy
+#~ msgid "Unable to set LDAP role mapping."
+#~ msgstr "无法打开文件进行读取"
+
+#, fuzzy
+#~ msgid "Unable to set action field"
+#~ msgstr "服务器连接出错"
+
+#, fuzzy
+#~ msgid "Unable to set dmi field"
+#~ msgstr "无法打开文件进行读取"
+
+#, fuzzy
+#~ msgid "Unable to set ldap ports."
+#~ msgstr "无法打开文件进行读取"
+
+#, fuzzy
+#~ msgid "Unable to set nested group depth."
+#~ msgstr "无法打开文件进行读取"
 
 #, fuzzy
 #~ msgid "Unable to set user filter."
@@ -9291,6 +8998,46 @@ msgstr ""
 #~ msgstr "删除选定的打印机"
 
 #, fuzzy
+#~ msgid "Use Group Match"
+#~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "User Count"
+#~ msgstr "CPU计数"
+
+#, fuzzy
+#~ msgid "User DN"
+#~ msgstr "用户名"
+
+#, fuzzy
+#~ msgid "User Group"
+#~ msgstr "组"
+
+#, fuzzy
+#~ msgid "User Group Count"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "User Name Attribute"
+#~ msgstr "用户名"
+
+#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "用户清理"
 
@@ -9301,6 +9048,112 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "添加新的管理单元"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "服务更新！"
+
+#~ msgid "User call is invalid"
+#~ msgstr "用户调用无效"
+
+#, fuzzy
+#~ msgid "User not found"
+#~ msgstr "未发现记录，错误： %s"
+
+#, fuzzy
+#~ msgid "User was not authorized by the LDAP server"
+#~ msgstr "这个LDAP服务器输入名称。"
+
+#, fuzzy
+#~ msgid "User/Channel"
+#~ msgstr "用户/通道名称"
+
+#~ msgid "User/Channel Name"
+#~ msgstr "用户/通道名称"
+
+#, fuzzy
+#~ msgid "Username was blank"
+#~ msgstr "用户名"
+
+#, fuzzy
+#~ msgid "WOL Broadcast Management"
+#~ msgstr "位置管理"
+
+#, fuzzy
+#~ msgid "WOL Broadcasts"
+#~ msgstr "所有广播"
+
+#, fuzzy
+#~ msgid "We cannot connect to LDAP server"
+#~ msgstr "无法连接到数据库"
+
+#, fuzzy
+#~ msgid "Windows 10 Professional"
+#~ msgstr "主机描述"
+
+#, fuzzy
+#~ msgid "Windows Key"
+#~ msgstr "Windows 8的"
+
+#, fuzzy
+#~ msgid "Windows Key Create Fail"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Windows Key Create Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Windows Key Description"
+#~ msgstr "主机描述"
+
+#, fuzzy
+#~ msgid "Windows Key Management"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Windows Key Name"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Windows Key Update Fail"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Windows Key Update Success"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Windows Key added!"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Windows Key update failed!"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Windows Key updated!"
+#~ msgstr "用户管理"
+
+#, fuzzy
+#~ msgid "Windows Keys"
+#~ msgstr "Windows 8的"
+
+#, fuzzy
+#~ msgid "Windows Product key"
+#~ msgstr "主机产品密钥"
 
 #, fuzzy
 #~ msgid "You have version"
@@ -9318,6 +9171,33 @@ msgstr ""
 #~ msgstr "我面前"
 
 #, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "完成"
+
+#~ msgid "failed to login"
+#~ msgstr "登录失败"
+
+#, fuzzy
+#~ msgid "has completed on"
+#~ msgstr "已被破坏"
+
+#, fuzzy
+#~ msgid "has completed snapin tasking"
+#~ msgstr "无效的管理单元任务处理"
+
+#, fuzzy
+#~ msgid "imaging failed"
+#~ msgstr "加载失败： %s"
+
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "图片没有节点发现"
+
+#, fuzzy
+#~ msgid "key"
+#~ msgstr "DMI关键"
+
+#, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "活动组播任务"
 
@@ -9330,5 +9210,17 @@ msgstr ""
 #~ msgstr "不复存在"
 
 #, fuzzy
+#~ msgid "ntfy Accounts"
+#~ msgstr "斯莱克账户"
+
+#, fuzzy
+#~ msgid "ntfy Management"
+#~ msgstr "客户管理"
+
+#, fuzzy
 #~ msgid "version"
 #~ msgstr "版"
+
+#, fuzzy
+#~ msgid "with the host"
+#~ msgstr "不在此"

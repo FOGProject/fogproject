@@ -1359,6 +1359,48 @@ installFOGServices() {
     # Labelled where the directory is created rather than in a sweep at the end,
     # so a relocated $fogprogramdir (GH-850) is labelled wherever it landed.
     setSELinuxContext "$fogprogramdir/cache" httpd_sys_rw_content_t
+    # The external plugin root (ADR 0009). Created here so a fresh install has
+    # somewhere to put a third-party plugin; without it an admin has to guess
+    # the path and mkdir it as root first. Empty is the normal state and the
+    # web tier treats a missing or empty directory as "no external plugins".
+    #
+    # Deliberately NOT under $webdirdest: configureHttpd() does
+    # `rm -rf $webdirdest`, so anything an admin installed there would be
+    # deleted by the next upgrade. Living here it survives by construction.
+    dots "Creating FOG plugin directory"
+    mkdir -p $fogprogramdir/plugins >>$error_log 2>&1
+    # An admin who has turned on UI plugin uploads gave this directory to the
+    # web user on purpose (bin/fog-plugin-uploads.sh). Re-running the installer
+    # must not quietly take that back: it would leave the setting saying
+    # uploads are on while every upload failed. So ownership is only asserted
+    # when the directory is still root's -- which covers a fresh install and
+    # any server that never opted in.
+    local pluginowner="$(stat -c '%U' $fogprogramdir/plugins 2>/dev/null)"
+    local plugincontext="httpd_sys_content_t"
+    if [[ $pluginowner == root || -z $pluginowner ]]; then
+        # root-owned and read-only to the web tier ON PURPOSE. PHP autoloads
+        # code from this directory, so write access here is equivalent to write
+        # access to the FOG code tree -- a web-writable plugin root turns any
+        # file-write bug into remote code execution. That is why enabling the
+        # upload flow takes a deliberate root command and is not the default.
+        chown root:root $fogprogramdir/plugins >>$error_log 2>&1
+        chmod 0755 $fogprogramdir/plugins >>$error_log 2>&1
+    else
+        # Uploads are enabled here, so the web tier writes as well as reads and
+        # needs the _rw_ label. Relabelling to the read-only type would break
+        # uploads on an enforcing host with nothing but an AVC denial to say so.
+        plugincontext="httpd_sys_rw_content_t"
+    fi
+    errorStat $?
+    # Outside the dots/errorStat pair above: setSELinuxContext prints its own
+    # "Setting SELinux context" line, so calling it between them interleaved
+    # the two and left errorStat reporting the labelling result rather than
+    # whether the directory was created. Matches the cache block above.
+    #
+    # httpd_sys_content_t by default, not the _rw_ variant the cache uses: the
+    # web tier only reads here unless uploads have been enabled. See the GH-964
+    # note above for why /opt/fog's inherited usr_t is not left alone.
+    setSELinuxContext "$fogprogramdir/plugins" "$plugincontext"
 }
 configureUDPCast() {
     dots "Setting up UDPCast"
@@ -1560,6 +1602,38 @@ downloadipxe() {
         echo "Failed!"
         echo " * Could not download $tarball from ${ipxeurl}/${ipxeVer}/"
         echo " * For an offline install, place the extracted binaries in $dest"
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
+    errorStat 0
+}
+downloadplugins() {
+    # The bundled plugins are a release of FOGProject/fog-plugins now, not a
+    # tree in this repository (ADR 0009). Fetched into packages/web/lib/plugins
+    # BEFORE configureHttpd lays the web package, because that is the copy the
+    # web root is made from -- fetching afterwards would put them somewhere
+    # nothing reads and the next upgrade's rm -rf would take them anyway.
+    #
+    # The work lives in bin/fetch-plugins.sh rather than here so a developer
+    # with a fresh clone can populate their tree without running an install.
+    # This wrapper only supplies the installer's messaging and its idea of what
+    # is fatal.
+    dots "Downloading plugins (${pluginsVer})"
+    if [[ ! -x ../bin/fetch-plugins.sh ]]; then
+        # Not fatal. An install from a release tarball has the plugins already
+        # unpacked in the tree and no reason to carry the fetcher.
+        echo "Skipped (no fetcher)"
+        return 0
+    fi
+    if ! pluginsgit="$pluginsgit" pluginsurl="$pluginsurl" pluginsVer="$pluginsVer" \
+        ../bin/fetch-plugins.sh --quiet >>$error_log 2>&1
+    then
+        # Guidance first: errorStat exits before returning unless $exitFail is
+        # set, so anything printed after it is never seen.
+        echo "Failed!"
+        echo " * Could not download the plugins (${pluginsVer}) from $pluginsgit"
+        echo " * For an offline install, place the plugin directories in"
+        echo " *   packages/web/lib/plugins/ and re-run"
         [[ -z $exitFail ]] && exit 1
         return 1
     fi
@@ -5996,7 +6070,28 @@ EOF
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
                         echo "    </IfModule>" >> "$etcconf"
+                        # Options +FollowSymLinks, stated rather than inherited.
+                        # Two things in the web tree are symlinks and neither is
+                        # served without it: the self-referential
+                        # $webdirdest/$(basename $webdirdest) link created after
+                        # this block, and lib/plugins/<name> for every plugin
+                        # installed under $fogprogramdir/plugins, which
+                        # Plugin::syncAssetLinks() maintains so an external
+                        # plugin's js/css is reachable from outside the document
+                        # root (ADR 0009).
+                        #
+                        # This has always worked only because the distro's stock
+                        # httpd.conf grants "Options Indexes FollowSymLinks" on
+                        # /var/www/html and FOG never said otherwise. A hardened
+                        # base config, or a docroot outside that block, silently
+                        # turned FOG's own symlinks into 403s.
+                        #
+                        # SymLinksIfOwnerMatch is not a substitute: the link is
+                        # written by the web user and the plugin directory it
+                        # points at is typically root-owned, so the owners do not
+                        # match and the link would be refused.
                         echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        Options +FollowSymLinks" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
                         # GH-529: apache does NOT resolve symlinks when matching
@@ -6007,6 +6102,7 @@ EOF
                         # different string.
                         if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                            echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi
@@ -6032,6 +6128,7 @@ EOF
                         echo "</VirtualHost>" >> "$etcconf"
                     else
                         echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        Options +FollowSymLinks" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
                         # GH-529: apache does NOT resolve symlinks when matching
@@ -6042,6 +6139,7 @@ EOF
                         # different string.
                         if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                            echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi
@@ -6100,6 +6198,7 @@ EOF
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
                         echo "    </IfModule>" >> "$etcconf"
                         echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        Options +FollowSymLinks" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
                         # GH-529: apache does NOT resolve symlinks when matching
@@ -6110,6 +6209,7 @@ EOF
                         # different string.
                         if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
+                            echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi

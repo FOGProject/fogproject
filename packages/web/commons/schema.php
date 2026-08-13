@@ -5020,3 +5020,62 @@ $this->schema[] = [
     . "(Unattended - secure boot in setup mode required)', '0', '2', "
     . "'mode=enrollsb')",
 ];
+// 326
+$this->schema[] = [
+    // Removes FOG_PLUGINSYS_DIR. The setting only ever pretended to be
+    // configurable: Plugin::_getDirs() read it and, whenever it was not
+    // exactly '../lib/plugins/', wrote that value straight back before
+    // using it -- so editing it in FOG Configuration changed nothing and
+    // was silently reverted on the next boot. _getDirs() no longer reads
+    // it at all, which leaves an editable row in the UI that does nothing,
+    // and a setting that lies is worse than no setting.
+    //
+    // The plugin roots are fixed in code instead (BASEPATH/lib/plugins,
+    // plus FOG_PLUGIN_DIR for third-party plugins -- see ADR 0009).
+    // FOG_PLUGINSYS_ENABLED is deliberately NOT touched: that one is a real
+    // on/off switch getActivePlugins() still honours.
+    "DELETE FROM `globalSettings` WHERE `settingKey` = 'FOG_PLUGINSYS_DIR'",
+];
+// 327
+$this->schema[] = [
+    // Repairs plugins whose pSchema survived their uninstall.
+    //
+    // pSchema counts applied migration steps, but uninstalling a plugin
+    // dropped its tables and left the count where it was. The next install
+    // then found "already at step N", applied nothing, created no tables, and
+    // still reported success -- the plugin came up active with nothing behind
+    // it and every query threw "Base table or view not found". Uninstall now
+    // clears the count with the tables (PluginManagement::removePost()), but
+    // every install that has ever uninstalled a plugin is already carrying a
+    // stale one, and the fix alone does not reach them.
+    //
+    // Safe by definition: a row that is not installed has no tables, so there
+    // is no applied migration for the count to describe. Untouched rows where
+    // pInstalled is 1.
+    "UPDATE `plugins` SET `pSchema` = 0 WHERE `pInstalled` <> '1'",
+];
+// 328
+$this->schema[] = [
+    // The switch for the UI plugin installer (ADR 0009 tier 3). Off, and it
+    // stays off until an admin turns it on, because turning it on is only
+    // half the job: the other half is a root-run command that makes
+    // /opt/fog/plugins writable by the web server, and that is a directory
+    // PHP autoloads code from. Until both are done the upload route refuses.
+    //
+    // Deliberately not a single click. A setting that could grant itself a
+    // web-writable code directory would be a worse hole than the one it is
+    // trying to be convenient about, so the privilege change is a separate,
+    // deliberate act with root behind it -- see bin/fog-plugin-uploads.sh.
+    "INSERT IGNORE INTO `globalSettings`"
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)"
+    . "VALUES"
+    . "('FOG_PLUGIN_UI_INSTALL_ENABLED','This setting allows plugins to be "
+    . "installed by uploading an archive in Plugin Management. It is off by "
+    . "default. A plugin is PHP that runs on this server, so anyone who can "
+    . "upload one can run code on it -- the upload also requires the "
+    . "plugin.install permission, which is separate from the permission to "
+    . "activate a plugin already on disk. Enabling this setting is not enough "
+    . "on its own: the plugin directory must also be made writable by the web "
+    . "server by running bin/fog-plugin-uploads.sh enable as "
+    . "root.','0','Plugin System')",
+];

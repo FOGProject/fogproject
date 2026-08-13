@@ -78,8 +78,8 @@ class System
         // 1.5.x carried count does, see SchemaReconciler's docstring -- is
         // permanently "up to date" from the updater's point of view and will
         // never run another indexed step, whatever this constant says.
-        define('FOG_SCHEMA', 325);
-        define('FOG_BCACHE_VER', 274);
+        define('FOG_SCHEMA', 328);
+        define('FOG_BCACHE_VER', 277);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
         // a release asset. Pinned here rather than tracked as "latest" so a
@@ -87,6 +87,12 @@ class System
         // to pick the download and to check out the matching source when an
         // HTTPS install has to rebuild with its own CA.
         define('FOG_IPXE_VERSION', 'v2.0.0-fog.6');
+        // ADR 0009: the bundled plugins live in FOGProject/fog-plugins and are
+        // no longer committed here. Same shape as the iPXE pin above -- the
+        // installer reads this to pick which release to download, so a given
+        // FOG release ships a known set of plugins rather than whatever the
+        // default branch held on the day someone installed.
+        define('FOG_PLUGINS_VERSION', 'v1.6.1');
         // GH-850: FOG_BASE_DIR is now installer-driven. Initiator loads
         // commons/fogpaths.php (written from the installer's $fogprogramdir)
         // before the autoloader runs, so in a normal boot these are already

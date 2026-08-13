@@ -30,6 +30,16 @@
 # rather than whatever happened to be tagged the day someone installed.
 [[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
 [[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.6"
+# The bundled plugins are a separate repository too (ADR 0009), pinned and
+# fetched exactly like iPXE above. packages/web/lib/plugins is therefore a
+# staging directory the installer fills, not a tree carried in git, so a plugin
+# can be released without a FOG release and a FOG release still ships a known
+# set. bin/fetch-plugins.sh does the work and is runnable on its own, which is
+# what a developer wanting plugins in a fresh clone uses.
+[[ -z $pluginsgit ]] && pluginsgit="https://github.com/FOGProject/fog-plugins"
+[[ -z $pluginsurl ]] && pluginsurl="${pluginsgit}/releases/download"
+[[ -z $pluginsVer ]] && pluginsVer="$(awk -F\' /"define\('FOG_PLUGINS_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
+[[ -z $pluginsVer ]] && pluginsVer="v1.6.0"
 fog_udpversion="20250223"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-${fog_udpversion}.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-${fog_udpversion}"

@@ -59,8 +59,44 @@ msgid "%s Menu"
 msgstr "%s メニュー"
 
 #, php-format
+msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s could not be loaded. Check that %s declares a class of that exact name."
+msgstr ""
+
+#, php-format
+msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s is not a readable .tar.gz archive."
+msgstr ""
+
+#, php-format
+msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
+msgstr ""
+
+#, php-format
+msgid "%s is not inside a plugin directory."
+msgstr ""
+
+#, php-format
+msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
 msgid "%s is required"
 msgstr "%s は必須です"
+
+#, php-format
+msgid "%s replaced. Install it to apply any new database steps."
+msgstr ""
+
+#, php-format
+msgid "%s ships with FOG and cannot be replaced by an upload."
+msgstr ""
 
 #, php-format
 msgid "%s value \"%s\" did not match any %s by id or name; left unset"
@@ -101,9 +137,6 @@ msgstr "10分"
 msgid "100"
 msgstr ""
 
-msgid "192.168.1.0/24, 10.1.0.0/16"
-msgstr ""
-
 msgid "192.168.1.252 or printer.example.com:9100"
 msgstr ""
 
@@ -136,25 +169,11 @@ msgstr ""
 msgid "90 Days"
 msgstr ""
 
-msgid "A LDAP setup already exists with this name!"
-msgstr "この名前の LDAP 設定は既に存在します！"
+msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
+msgstr ""
 
 msgid "A TCP/IP port printer requires an IP address or hostname."
 msgstr ""
-
-msgid "A Windows Key already exists with this name!"
-msgstr "この名前の Windows キーは既に存在します！"
-
-#, fuzzy
-msgid "A Windows Key already exists with this product key!"
-msgstr "この名前の Windows キーは既に存在します！"
-
-msgid "A broadcast already exists with this name!"
-msgstr "この名前のブロードキャストは既に存在します！"
-
-#, fuzzy
-msgid "A dmi field must be set!"
-msgstr "名前を設定する必要があります"
 
 msgid "A file"
 msgstr "ファイル"
@@ -170,12 +189,6 @@ msgstr "名前は必須です！"
 msgid "A group already exists with this name!"
 msgstr "この名前のグループは既に存在します！"
 
-msgid "A group must be selected."
-msgstr "グループを選択してください。"
-
-msgid "A group name is required!"
-msgstr "グループ名は必須です！"
-
 msgid "A host already exists with this name!"
 msgstr "この名前のホストは既に存在します！"
 
@@ -184,10 +197,6 @@ msgstr "その名前のホストは既に存在します"
 
 msgid "A host with this mac already exists with name"
 msgstr "この MAC アドレスを持つホストは既に存在します"
-
-#, fuzzy
-msgid "A location already exists with this name!"
-msgstr "この名前のスナップインは既に存在します！"
 
 #, fuzzy
 msgid "A menu entry already exists with this name!"
@@ -204,9 +213,8 @@ msgstr "\"name\" プロパティを使用する場合は、名前を定義する
 msgid "A permission name is required."
 msgstr "プリンター名は必須です！"
 
-#, fuzzy
-msgid "A port must be specified"
-msgstr "指定する必要があります"
+msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
+msgstr ""
 
 msgid "A printer already exists with this name!"
 msgstr "この名前のプリンターは既に存在します！"
@@ -217,16 +225,6 @@ msgstr "この名前のロールは既に存在します！"
 #, fuzzy
 msgid "A role with this name already exists!"
 msgstr "その名前のホストは既に存在します"
-
-#, fuzzy
-msgid "A selected role no longer exists"
-msgstr "選択したプリンターを追加"
-
-msgid "A server URL and topic endpoint are required"
-msgstr ""
-
-msgid "A site already exists with this name!"
-msgstr "この名前のサイトは既に存在します！"
 
 msgid "A snapin already exists with this name!"
 msgstr "この名前のスナップインは既に存在します！"
@@ -240,27 +238,11 @@ msgid "A storage group exists with this name!"
 msgstr "この名前のサイトは既に存在します！"
 
 #, fuzzy
-msgid "A storage group must be selected."
-msgstr "グループを選択してください。"
-
-#, fuzzy
 msgid "A storage node already exists with this name!"
 msgstr "この名前のロールは既に存在します！"
 
-msgid "A subnet group already exists with this name!"
-msgstr "この名前のサブネットグループは既に存在します！"
-
-msgid "A subnet group is already using this group."
-msgstr "このグループは既にサブネットグループで使用されています。"
-
 msgid "A task already exists for this host at the scheduled tasking"
 msgstr "このホストには、同じスケジュール時刻のタスクが既に存在します"
-
-msgid "A task state already exists with this name!"
-msgstr "この名前のタスク状態は既に存在します！"
-
-msgid "A task type already exists with this name!"
-msgstr "この名前のタスクタイプは既に存在します！"
 
 msgid "A user already exists with this name"
 msgstr "この名前のユーザーは既に存在します"
@@ -272,9 +254,6 @@ msgstr "この名前のグループは既に存在します！"
 #, fuzzy
 msgid "A user group with this name already exists!"
 msgstr "その名前のホストは既に存在します"
-
-msgid "A user signing in through this server receives every role and user group granted by a directory group they belong to. Select a group to change what it grants."
-msgstr ""
 
 msgid "A username already exists with this name!"
 msgstr "このユーザー名は既に存在します！"
@@ -302,41 +281,15 @@ msgstr ""
 msgid "Aborted due to failure of \"%s\" with exit code %s"
 msgstr ""
 
-msgid "Access"
-msgstr "アクセス"
-
 msgid "Access Control Management"
 msgstr "アクセス制御管理"
 
 msgid "Access Denied"
 msgstr "アクセス拒否"
 
-msgid "Access Token"
-msgstr "アクセストークン"
-
-#, fuzzy
-msgid "Access token"
-msgstr "アクセストークン"
-
-msgid "Accessed By"
-msgstr "アクセス元"
-
 #, fuzzy
 msgid "Account Name"
 msgstr "リセット対象のアカウント名"
-
-msgid "Account already linked"
-msgstr "アカウントは既にリンクされています"
-
-#, fuzzy
-msgid "Account linked"
-msgstr "アカウントは既にリンクされています"
-
-msgid "Account linked to FOG GUI at"
-msgstr "FOG GUI にリンクされているアカウント："
-
-msgid "Account successfully added!"
-msgstr "アカウントが正常に追加されました！"
 
 msgid "Action"
 msgstr "操作"
@@ -385,23 +338,12 @@ msgid "Add"
 msgstr "追加"
 
 #, fuzzy
-msgid "Add Hello World failed!"
-msgstr "ロールの追加に失敗しました！"
-
-#, fuzzy
 msgid "Add Hosts to Group Fail"
 msgstr "ホストのグループ追加に失敗しました"
 
 #, fuzzy
 msgid "Add Hosts to Groups Success"
 msgstr "ホストをグループに追加しました"
-
-#, fuzzy
-msgid "Add LDAP group failed!"
-msgstr "グループの追加に失敗しました！"
-
-msgid "Add LDAP server failed!"
-msgstr "LDAP サーバーの追加に失敗しました！"
 
 #, fuzzy
 msgid "Add New MAC Address"
@@ -417,13 +359,6 @@ msgstr "ストレージノードを追加"
 msgid "Add To Group(s)"
 msgstr "グループに追加"
 
-msgid "Add broadcast failed!"
-msgstr "ブロードキャストの追加に失敗しました！"
-
-#, fuzzy
-msgid "Add capone failed!"
-msgstr "ロケーションの追加に失敗しました！"
-
 msgid "Add failed"
 msgstr "追加に失敗しました"
 
@@ -436,9 +371,6 @@ msgstr "ホストの追加に失敗しました！"
 msgid "Add image failed!"
 msgstr "イメージの追加に失敗しました！"
 
-msgid "Add location failed!"
-msgstr "ロケーションの追加に失敗しました！"
-
 #, fuzzy
 msgid "Add menu failed!"
 msgstr "イメージの追加に失敗しました！"
@@ -447,20 +379,8 @@ msgstr "イメージの追加に失敗しました！"
 msgid "Add module failed!"
 msgstr "ルールの追加に失敗しました！"
 
-#, fuzzy
-msgid "Add ntfy topic failed!"
-msgstr "スナップインの追加に失敗しました！"
-
-#, fuzzy
-msgid "Add ou failed!"
-msgstr "グループの追加に失敗しました！"
-
 msgid "Add printer failed!"
 msgstr "プリンターの追加に失敗しました！"
-
-#, fuzzy
-msgid "Add pushbullet account failed!"
-msgstr "Pushbullet アカウントを追加"
 
 msgid "Add role failed!"
 msgstr "ロールの追加に失敗しました！"
@@ -473,28 +393,11 @@ msgstr "選択したホストを追加"
 msgid "Add selected to group"
 msgstr "選択したストレージグループを追加"
 
-msgid "Add site failed!"
-msgstr "サイトの追加に失敗しました！"
-
-#, fuzzy
-msgid "Add slack account failed!"
-msgstr "ロケーションの追加に失敗しました！"
-
 msgid "Add snapin failed!"
 msgstr "スナップインの追加に失敗しました！"
 
 msgid "Add storage node failed!"
 msgstr "ストレージノードの追加に失敗しました！"
-
-#, fuzzy
-msgid "Add subnet group failed!"
-msgstr "サブネットグループの追加に失敗しました！"
-
-msgid "Add task state failed!"
-msgstr "タスク状態の追加に失敗しました！"
-
-msgid "Add task type failed!"
-msgstr "タスクタイプの追加に失敗しました！"
 
 msgid "Add user failed!"
 msgstr "ユーザーの追加に失敗しました！"
@@ -502,10 +405,6 @@ msgstr "ユーザーの追加に失敗しました！"
 #, fuzzy
 msgid "Add user group failed!"
 msgstr "グループの追加に失敗しました！"
-
-#, fuzzy
-msgid "Add windows key failed!"
-msgstr "Windows キーの追加に失敗しました！"
 
 #, fuzzy
 msgid "Add/Remove Managed Printers"
@@ -517,10 +416,6 @@ msgstr "FOGPage を追加中: %s、ノード: %s"
 
 msgid "Adding Key"
 msgstr "キーを追加中"
-
-#, fuzzy
-msgid "Additional Icon Elements"
-msgstr "追加のアイコン要素"
 
 msgid "Administrator"
 msgstr ""
@@ -536,10 +431,6 @@ msgstr "詳細メニューにはログインが必要です"
 
 msgid "Advanced Options"
 msgstr "詳細オプション"
-
-#, fuzzy
-msgid "Advanced Task"
-msgstr "詳細"
 
 #, fuzzy
 msgid "Advanced Tasks"
@@ -596,23 +487,8 @@ msgstr "ホストに同じイメージが割り当てられていません"
 msgid "All items imported successfully"
 msgstr "項目を正常に削除しました！"
 
-msgid "All methods of binding have failed"
-msgstr "すべてのバインド方法に失敗しました"
-
-msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
-
 msgid "All rights reserved."
 msgstr ""
-
-msgid "Allow API"
-msgstr ""
-
-msgid "Allows editing/creating of Task States fog currently has."
-msgstr "現在 FOG に登録されているタスク状態の編集および作成を許可します。"
-
-msgid "Allows editing/creating of Task Types fog currently has."
-msgstr "現在 FOG に登録されているタスクタイプの編集および作成を許可します。"
 
 msgid "Already created"
 msgstr "既に作成されています"
@@ -621,20 +497,8 @@ msgid "Also confirm that the database is indeed running"
 msgstr "データベースが実際に稼働していることも確認してください"
 
 #, fuzzy
-msgid "An LDAP server already exists with this name!"
-msgstr "この名前の LDAP 設定は既に存在します！"
-
-#, fuzzy
-msgid "An OU already exists with this name!"
-msgstr "この名前のイメージは既に存在します！"
-
-#, fuzzy
 msgid "An SQL error occurred"
 msgstr "不明なアップロードエラーが発生しました"
-
-#, fuzzy
-msgid "An entry already exists with this name!"
-msgstr "この名前のプリンターは既に存在します！"
 
 msgid "An image already exists with this name!"
 msgstr "この名前のイメージは既に存在します！"
@@ -646,27 +510,11 @@ msgstr "その名前のホストは既に存在します"
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
-#, fuzzy
-msgid "An ou already exists with this name!"
-msgstr "この名前のグループは既に存在します！"
-
 msgid "Annually"
 msgstr "毎年"
 
-msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
-msgstr ""
-
-msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
-msgstr ""
-
 msgid "Applications"
 msgstr "アプリケーション"
-
-msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
-msgstr ""
-
-msgid "Applies to LDAP servers using the \"expand\" strategy, which walks one query per level of nesting on every sign-in. A server can override this on its own settings. Directories rarely nest more than three or four deep."
-msgstr ""
 
 msgid "Applying a database schema update requires an administrator account."
 msgstr ""
@@ -703,14 +551,6 @@ msgstr ""
 
 msgid "Area"
 msgstr ""
-
-#, fuzzy
-msgid "Assigned Group"
-msgstr "管理者グループ"
-
-#, fuzzy
-msgid "Assigned Group Name"
-msgstr "ストレージグループ名"
 
 msgid "Assigned Image"
 msgstr "割り当てられたイメージ"
@@ -784,9 +624,6 @@ msgstr "帯域幅"
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "帯域幅は 0 より大きい数値で指定してください"
 
-msgid "Base Only"
-msgstr "ベースのみ"
-
 msgid "Bash Script"
 msgstr ""
 
@@ -796,55 +633,11 @@ msgstr "基本タスク"
 msgid "Batch Script"
 msgstr ""
 
-msgid "Bind DN"
-msgstr "バインド DN"
-
-msgid "Bind Password"
-msgstr "バインドパスワード"
-
 msgid "Boot Options"
 msgstr "ブートオプション"
 
-msgid "Boot files from"
-msgstr ""
-
 msgid "Both"
 msgstr ""
-
-#, fuzzy
-msgid "Broadcast Address"
-msgstr "新しいブロードキャストアドレス"
-
-msgid "Broadcast Create Fail"
-msgstr "ブロードキャストの作成に失敗しました"
-
-msgid "Broadcast Create Success"
-msgstr "ブロードキャストを作成しました"
-
-#, fuzzy
-msgid "Broadcast Description"
-msgstr "ホストの説明"
-
-msgid "Broadcast IP"
-msgstr "ブロードキャスト IP"
-
-msgid "Broadcast Name"
-msgstr "ブロードキャスト名"
-
-msgid "Broadcast Update Fail"
-msgstr "ブロードキャストの更新に失敗しました"
-
-msgid "Broadcast Update Success"
-msgstr "ブロードキャストを更新しました"
-
-msgid "Broadcast added!"
-msgstr "ブロードキャストを追加しました！"
-
-msgid "Broadcast update failed!"
-msgstr "ブロードキャストの更新に失敗しました！"
-
-msgid "Broadcast updated!"
-msgstr "ブロードキャストを更新しました！"
 
 msgid "Browse"
 msgstr "参照"
@@ -859,13 +652,6 @@ msgstr "読み込みに失敗しました"
 
 msgid "Bypass Bitlocker Detection"
 msgstr ""
-
-msgid "CA Certificate Path"
-msgstr ""
-
-#, fuzzy
-msgid "CA Path"
-msgstr "パス"
 
 #, fuzzy
 msgid "CA private key"
@@ -928,10 +714,6 @@ msgstr ""
 msgid "Call"
 msgstr "呼び出し"
 
-#, fuzzy
-msgid "Can be a comma seperated list."
-msgstr "カンマ区切りの一覧を指定できます。"
-
 msgid "Can not redeclare route"
 msgstr "ルートを再定義できません"
 
@@ -958,9 +740,6 @@ msgstr "キャンセルされたタスク"
 msgid "Cancelled due to new tasking."
 msgstr "新しいタスクによりキャンセルされました。"
 
-msgid "Cannot bind to the LDAP server"
-msgstr "LDAP サーバーにバインドできません"
-
 msgid "Cannot change image when in tasking"
 msgstr "タスク実行中はイメージを変更できません"
 
@@ -979,45 +758,6 @@ msgstr ""
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "保留中のホストにタスクを設定できません"
-
-#, fuzzy
-msgid "Capone"
-msgstr "Capone 展開"
-
-#, fuzzy
-msgid "Capone Create Fail"
-msgstr "スナップインの作成に失敗しました"
-
-#, fuzzy
-msgid "Capone Create Success"
-msgstr "スナップインを作成しました"
-
-msgid "Capone Deploy"
-msgstr "Capone 展開"
-
-#, fuzzy
-msgid "Capone Management"
-msgstr "スナップイン管理"
-
-#, fuzzy
-msgid "Capone Update Fail"
-msgstr "スナップインの更新に失敗しました"
-
-#, fuzzy
-msgid "Capone Update Success"
-msgstr "スナップインを更新しました"
-
-#, fuzzy
-msgid "Capone added!"
-msgstr "スナップインを追加しました！"
-
-#, fuzzy
-msgid "Capone update failed!"
-msgstr "スナップインの更新に失敗しました！"
-
-#, fuzzy
-msgid "Capone updated!"
-msgstr "スナップインを更新しました！"
 
 msgid "Capture"
 msgstr "キャプチャ"
@@ -1048,28 +788,14 @@ msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
-msgid "Certificate Verification"
-msgstr "新しいロケーションを作成"
-
-#, fuzzy
 msgid "Certificates"
 msgstr "新しいロケーションを作成"
-
-msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
-msgstr ""
 
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
 msgid "Channel"
 msgstr ""
-
-msgid "Channel call is invalid"
-msgstr "チャネル呼び出しが無効です"
-
-#, fuzzy
-msgid "Channel not found"
-msgstr "アイコンファイルが見つかりません"
 
 #, fuzzy
 msgid "Chassis Asset Tag"
@@ -1084,6 +810,10 @@ msgstr "シャーシシリアル"
 
 msgid "Chassis Version"
 msgstr "シャーシバージョン"
+
+#, php-format
+msgid "Check %s over before installing it."
+msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
@@ -1219,6 +949,10 @@ msgstr ""
 msgid "Could not apply %s: %s"
 msgstr "見つかりませんでした"
 
+#, fuzzy
+msgid "Could not create the staging directory."
+msgstr "スナップインジョブの作成に失敗しました"
+
 msgid "Could not find a Storage Node in this group"
 msgstr "このグループ内にストレージノードが見つかりません"
 
@@ -1229,6 +963,10 @@ msgid "Could not find any"
 msgstr "見つかりませんでした"
 
 msgid "Could not find temp filename"
+msgstr "一時ファイル名が見つかりません"
+
+#, fuzzy
+msgid "Could not link plugin assets"
 msgstr "一時ファイル名が見つかりません"
 
 msgid "Could not notify"
@@ -1249,38 +987,31 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not read snapin file"
 msgstr "スナップインファイルを読み取れませんでした"
 
-msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
-msgstr ""
-
-#, fuzzy
-msgid "Could not read the group mappings"
-msgstr "一時ファイルを読み取れませんでした。"
-
-#, fuzzy
-msgid "Could not read the recorded grants"
-msgstr "一時ファイルを読み取れませんでした。"
-
 msgid "Could not read tmp file."
-msgstr "一時ファイルを読み取れませんでした。"
-
-#, fuzzy
-msgid "Could not record the granted targets"
 msgstr "一時ファイルを読み取れませんでした。"
 
 msgid "Could not register"
 msgstr "登録できませんでした"
 
-#, fuzzy
-msgid "Could not seed the granted targets"
-msgstr "一時ファイルを読み取れませんでした。"
+#, php-format
+msgid "Could not replace the existing %s. Is %s writable?"
+msgstr ""
 
 #, fuzzy
 msgid "Could not send data from file"
 msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
+msgid "Could not stage the upload."
+msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
 msgid "Could not update host"
 msgstr "ホストの更新に失敗しました"
+
+#, php-format
+msgid "Could not write to %s. The UI installer needs that directory to be writable by the web server."
+msgstr ""
 
 #, fuzzy
 msgid "Count"
@@ -1301,20 +1032,8 @@ msgid "Create New %s"
 msgstr "新しい %s を作成"
 
 #, fuzzy
-msgid "Create New Broadcast"
-msgstr "WOL ブロードキャストを作成しますか？"
-
-#, fuzzy
-msgid "Create New Capone"
-msgstr "新しいスナップインを作成"
-
-#, fuzzy
 msgid "Create New Group"
 msgstr "新しいグループを作成"
-
-#, fuzzy
-msgid "Create New Hello World"
-msgstr "新しいキーを作成"
 
 #, fuzzy
 msgid "Create New Host"
@@ -1333,23 +1052,8 @@ msgid "Create New Ipxe Menu"
 msgstr "新しいキーを作成"
 
 #, fuzzy
-msgid "Create New LDAP Group"
-msgstr "新しいグループを作成"
-
-#, fuzzy
-msgid "Create New LDAP Server"
-msgstr "新しい LDAP を作成"
-
-msgid "Create New Location"
-msgstr "新しいロケーションを作成"
-
-#, fuzzy
 msgid "Create New Module"
 msgstr "新しいキーを作成"
-
-#, fuzzy
-msgid "Create New OU"
-msgstr "新しい %s を作成"
 
 msgid "Create New Printer"
 msgstr "新しいプリンターを作成"
@@ -1361,10 +1065,6 @@ msgstr "新しいキーを作成"
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "新しい電源管理スケジュールを作成"
-
-#, fuzzy
-msgid "Create New Site"
-msgstr "新しいプリンターを作成"
 
 msgid "Create New Snapin"
 msgstr "新しいスナップインを作成"
@@ -1378,28 +1078,12 @@ msgid "Create New Storage Node"
 msgstr "ストレージノードを作成"
 
 #, fuzzy
-msgid "Create New Subnet Group"
-msgstr "新しいサブネットグループを作成しますか？"
-
-#, fuzzy
-msgid "Create New Task State"
-msgstr "タスク状態を作成"
-
-#, fuzzy
-msgid "Create New Task Type"
-msgstr "タスクタイプを作成"
-
-#, fuzzy
 msgid "Create New User"
 msgstr "新しい %s を作成"
 
 #, fuzzy
 msgid "Create New User Group"
 msgstr "新しいサブネットグループを作成しますか？"
-
-#, fuzzy
-msgid "Create New Windows Key"
-msgstr "新しい Windows キー"
 
 #, fuzzy
 msgid "Create Scheduled Power task"
@@ -1443,10 +1127,6 @@ msgstr "ジョブ作成時刻"
 msgid "Created by FOG Reg on"
 msgstr "FOG Reg により作成:"
 
-#, fuzzy
-msgid "Credentials"
-msgstr "クレジット"
-
 msgid "Cron"
 msgstr "Cron"
 
@@ -1464,9 +1144,6 @@ msgstr "現在のレコード"
 
 msgid "Current member-host AD state"
 msgstr ""
-
-msgid "DMI Field"
-msgstr "DMI フィールド"
 
 msgid "DNF Log"
 msgstr ""
@@ -1526,6 +1203,9 @@ msgstr "プラグインを有効化"
 msgid "Deactivate selected"
 msgstr "選択項目を削除"
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr "デバッグ"
 
@@ -1551,12 +1231,6 @@ msgstr "既定の更新レート"
 
 msgid "Default Width"
 msgstr "既定の幅"
-
-msgid "Default is disabled"
-msgstr "既定では無効です"
-
-msgid "Default nested group depth"
-msgstr ""
 
 msgid "Delayed"
 msgstr "遅延"
@@ -1609,9 +1283,6 @@ msgstr "展開"
 msgid "Deploy Method"
 msgstr "展開方法"
 
-msgid "Depth"
-msgstr ""
-
 msgid "Description"
 msgstr "説明"
 
@@ -1633,14 +1304,6 @@ msgstr "ディレクトリは既に存在します"
 msgid "Directory Cleaner"
 msgstr "ディレクトリクリーナー"
 
-#, fuzzy
-msgid "Directory Group"
-msgstr "ディレクトリ"
-
-#, fuzzy
-msgid "Directory Group Name"
-msgstr "ディレクトリ"
-
 msgid "Disable on all hosts"
 msgstr ""
 
@@ -1649,14 +1312,6 @@ msgstr ""
 
 msgid "Display"
 msgstr "表示"
-
-#, fuzzy
-msgid "Display Name Attribute"
-msgstr "ユーザー名属性"
-
-#, fuzzy
-msgid "Display Name Enabled"
-msgstr "グラフ有効"
 
 #, fuzzy
 msgid "Display With"
@@ -1668,10 +1323,6 @@ msgstr "メニューに表示しない"
 #, fuzzy
 msgid "Documentation"
 msgstr "詳細ドキュメント"
-
-#, fuzzy
-msgid "Domain Admins"
-msgstr "ドメイン名"
 
 #, fuzzy
 msgid "Domain Joining"
@@ -1756,6 +1407,9 @@ msgstr ""
 msgid "Dropped"
 msgstr "切断済み"
 
+msgid "Duplicate plugin name; the later one is ignored"
+msgstr ""
+
 msgid "Duration"
 msgstr "期間"
 
@@ -1765,36 +1419,12 @@ msgstr ""
 msgid "Edit"
 msgstr "編集"
 
-#, fuzzy
-msgid "Edit Capone"
-msgstr "ノードを編集"
-
-#, fuzzy
-msgid "Edit Capone ID"
-msgstr "ノードを編集"
-
-msgid "Editing Capone ID"
-msgstr ""
-
-msgid "Editing Global Capone Settings"
-msgstr ""
-
-msgid "Editing Global LDAP Settings"
-msgstr ""
-
-msgid "Email"
-msgstr "メール"
-
 msgid "Empty filename in upload"
 msgstr ""
 
 #, fuzzy
 msgid "Enable Domain Joining"
 msgstr "ロケーション送信を有効化"
-
-#, fuzzy
-msgid "Enable Sending via Location"
-msgstr "スナップインロケーション"
 
 msgid "Enable on all hosts"
 msgstr ""
@@ -1896,23 +1526,12 @@ msgstr ""
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
 
-msgid "Expand - walk the chain (any directory)"
-msgstr ""
-
 msgid "Export"
 msgstr "エクスポート"
 
 #, fuzzy
 msgid "Export "
 msgstr "エクスポート"
-
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "WOL ブロードキャストをエクスポート"
-
-#, fuzzy
-msgid "Export Capones"
-msgstr "スナップインをエクスポート"
 
 msgid "Export Complete"
 msgstr "エクスポートが完了しました"
@@ -1921,39 +1540,8 @@ msgid "Export Configuration"
 msgstr "構成をエクスポート"
 
 #, fuzzy
-msgid "Export LDAP Servers"
-msgstr "LDAP サーバー"
-
-msgid "Export Locations"
-msgstr "ロケーションをエクスポート"
-
-#, fuzzy
-msgid "Export OUs"
-msgstr "ユーザーをエクスポート"
-
-msgid "Export Sites"
-msgstr "サイトをエクスポート"
-
-#, fuzzy
-msgid "Export Subnet Groups"
-msgstr "サブネットグループをエクスポート"
-
-#, fuzzy
 msgid "Export Success"
 msgstr "インポートに成功しました"
-
-msgid "Export Task States"
-msgstr "タスク状態をエクスポート"
-
-msgid "Export Task Types"
-msgstr "タスクタイプをエクスポート"
-
-#, fuzzy
-msgid "Export WOL Broadcasts"
-msgstr "WOL ブロードキャストをエクスポート"
-
-msgid "Export Windows Keys"
-msgstr "Windows キーをエクスポート"
 
 msgid "FOG"
 msgstr "FOG"
@@ -2093,6 +1681,10 @@ msgstr "ストレージグループの破棄に失敗しました"
 
 msgid "Failed to destroy Storage Node"
 msgstr "ストレージノードの破棄に失敗しました"
+
+#, fuzzy
+msgid "Failed to forget "
+msgstr "接続に失敗しました"
 
 #, fuzzy
 msgid "Failed to install "
@@ -2239,9 +1831,6 @@ msgstr "ストレージノードの破棄に失敗しました"
 msgid "Files Deleted List"
 msgstr "ルールの削除に失敗しました"
 
-msgid "Filter"
-msgstr "フィルター"
-
 msgid "Finding any images associated"
 msgstr "関連付けられたイメージを検索しています"
 
@@ -2280,6 +1869,13 @@ msgid "Force"
 msgstr "強制"
 
 #, fuzzy
+msgid "Forget selected"
+msgstr "ロールが選択されていません"
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
+
+#, fuzzy
 msgid "Forums"
 msgstr "FOG フォーラム"
 
@@ -2313,10 +1909,6 @@ msgstr "空きディスク領域"
 msgid "Free Memory"
 msgstr "空きメモリ"
 
-#, fuzzy
-msgid "FreeIPA"
-msgstr "空き"
-
 msgid "Friendly Name"
 msgstr "表示名"
 
@@ -2334,9 +1926,6 @@ msgstr "関数"
 msgid "Function Error"
 msgstr "関数"
 
-msgid "Function does not exist"
-msgstr "関数が存在しません"
-
 msgid "GNU General Public License"
 msgstr "GNU General Public License"
 
@@ -2352,9 +1941,6 @@ msgstr "全般"
 msgid "General Information"
 msgstr "一般情報"
 
-msgid "Generic LDAP"
-msgstr "汎用 LDAP"
-
 msgid "Getting image size for"
 msgstr "次のイメージのサイズを取得しています"
 
@@ -2365,27 +1951,8 @@ msgstr "次のスナップインのハッシュ値とサイズを取得してい
 msgid "Global Module Settings"
 msgstr "グループモジュール設定"
 
-#, fuzzy
-msgid "Global Options"
-msgstr "ブートオプション"
-
-#, fuzzy
-msgid "Global Settings Update Fail"
-msgstr "設定の更新に失敗しました"
-
-#, fuzzy
-msgid "Global Settings Update Success"
-msgstr "設定を更新しました"
-
-#, fuzzy
-msgid "Global settings updated!"
-msgstr "ロケーションを更新しました！"
-
 msgid "Got in line at"
 msgstr "キューに登録されました:"
-
-msgid "Grants"
-msgstr ""
 
 #, fuzzy
 msgid "Graph Color"
@@ -2403,20 +1970,12 @@ msgstr "Green FOG"
 msgid "Group"
 msgstr "グループ"
 
-#, fuzzy
-msgid "Group Association"
-msgstr "グループの関連付け"
-
 msgid "Group Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
 msgid "Group BIOS Exit"
 msgstr "グループ EFI 終了方法"
-
-#, fuzzy
-msgid "Group Count"
-msgstr "グループ自動ログアウト"
 
 msgid "Group Create Fail"
 msgstr "グループの作成に失敗しました"
@@ -2470,18 +2029,6 @@ msgid "Group Kernel Arguments"
 msgstr "グループカーネル引数"
 
 #, fuzzy
-msgid "Group Location"
-msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "Group Location Update Success"
-msgstr "ロケーションを更新しました"
-
-#, fuzzy
-msgid "Group Location Updated!"
-msgstr "ロケーションを更新しました！"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "ログイン履歴"
 
@@ -2489,37 +2036,11 @@ msgid "Group Management"
 msgstr "グループ管理"
 
 #, fuzzy
-msgid "Group Matching"
-msgstr "グループ管理"
-
-msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
-msgstr ""
-
-msgid "Group Member Attribute"
-msgstr "グループメンバー属性"
-
-#, fuzzy
 msgid "Group Module Associations"
 msgstr "グループの関連付け"
 
 msgid "Group Name"
 msgstr "グループ名"
-
-#, fuzzy
-msgid "Group Name Attribute"
-msgstr "グループメンバー属性"
-
-#, fuzzy
-msgid "Group OU"
-msgstr "グループ"
-
-#, fuzzy
-msgid "Group OU Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "Group OU Updated!"
-msgstr "グループを更新しました！"
 
 msgid "Group Primary Disk"
 msgstr "グループプライマリディスク"
@@ -2535,21 +2056,6 @@ msgstr "プリンター設定"
 msgid "Group Product Key"
 msgstr "グループ プロダクトキー"
 
-msgid "Group Search DN"
-msgstr "グループ検索 DN"
-
-#, fuzzy
-msgid "Group Site"
-msgstr "グループイメージ"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "サイトを更新しました！"
-
 #, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "グループ スナップイン"
@@ -2561,18 +2067,6 @@ msgstr "スナップイン履歴"
 msgid "Group Update Fail"
 msgstr "グループの更新に失敗しました"
 
-#, fuzzy
-msgid "Group Update Location Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "Group Update OU Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "Group Update Site Fail"
-msgstr "グループの更新に失敗しました"
-
 msgid "Group Update Success"
 msgstr "グループの更新に成功しました"
 
@@ -2581,10 +2075,6 @@ msgstr "グループを追加しました！"
 
 msgid "Group is not valid"
 msgstr "グループが無効です"
-
-#, fuzzy
-msgid "Group membership search failed"
-msgstr "ユーザーの更新に失敗しました！"
 
 msgid "Group update failed!"
 msgstr "グループの更新に失敗しました！"
@@ -2602,9 +2092,6 @@ msgstr "また、キャプチャできません"
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "エラーコード"
-
-msgid "Hard - require a valid certificate"
-msgstr ""
 
 msgid "Hard Disk Firmware"
 msgstr "ハードディスクファームウェア"
@@ -2644,41 +2131,6 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr "高さは 120 ピクセルである必要があります。"
 
-msgid "Hello World"
-msgstr ""
-
-#, fuzzy
-msgid "Hello World Create Fail"
-msgstr "ホストの作成に失敗しました"
-
-#, fuzzy
-msgid "Hello World Create Success"
-msgstr "ホストの作成に成功しました"
-
-#, fuzzy
-msgid "Hello World Management"
-msgstr "レポート管理"
-
-#, fuzzy
-msgid "Hello World Update Fail"
-msgstr "ホストの更新に失敗しました"
-
-#, fuzzy
-msgid "Hello World Update Success"
-msgstr "ホストの更新に成功しました"
-
-#, fuzzy
-msgid "Hello World added!"
-msgstr "ホストを追加しました！"
-
-#, fuzzy
-msgid "Hello World update failed!"
-msgstr "ロールの更新に失敗しました！"
-
-#, fuzzy
-msgid "Hello World updated!"
-msgstr "ホストを更新しました！"
-
 #, fuzzy
 msgid "Help and Guides"
 msgstr "ヘルプとガイド"
@@ -2704,20 +2156,12 @@ msgid "Host Approval Success"
 msgstr "承認に成功しました"
 
 #, fuzzy
-msgid "Host Association"
-msgstr "関連付けられたホスト"
-
-#, fuzzy
 msgid "Host Associations"
 msgstr "関連付けられたホスト"
 
 #, fuzzy
 msgid "Host BIOS Exit Type"
 msgstr "ホスト EFI 終了方法"
-
-#, fuzzy
-msgid "Host Count"
-msgstr "ホスト Init"
 
 msgid "Host Create Fail"
 msgstr "ホストの作成に失敗しました"
@@ -2776,17 +2220,6 @@ msgstr "ホストカーネル引数"
 msgid "Host List"
 msgstr "ホスト一覧"
 
-msgid "Host Location"
-msgstr "ホスト ロケーション"
-
-#, fuzzy
-msgid "Host Location Update Success"
-msgstr "ロケーションを更新しました"
-
-#, fuzzy
-msgid "Host Location Updated!"
-msgstr "ロケーションを更新しました！"
-
 msgid "Host Login History"
 msgstr "ホストログイン履歴"
 
@@ -2799,18 +2232,6 @@ msgstr "ルールの関連付け"
 
 msgid "Host Name"
 msgstr "ホスト名"
-
-#, fuzzy
-msgid "Host OU"
-msgstr "ホスト AD OU"
-
-#, fuzzy
-msgid "Host OU Update Success"
-msgstr "ホストの更新に成功しました"
-
-#, fuzzy
-msgid "Host OU Updated!"
-msgstr "ホストを更新しました！"
 
 msgid "Host Primary Disk"
 msgstr "ホストプライマリディスク"
@@ -2832,17 +2253,6 @@ msgstr "ホスト プロダクトキー"
 msgid "Host Registration"
 msgstr "ホスト登録"
 
-msgid "Host Site"
-msgstr "ホスト サイト"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "サイトを更新しました！"
-
 #, fuzzy
 msgid "Host Snapin Associations"
 msgstr "スナップインロケーション"
@@ -2851,18 +2261,6 @@ msgid "Host Snapin History"
 msgstr "ホストスナップイン履歴"
 
 msgid "Host Update Fail"
-msgstr "ホストの更新に失敗しました"
-
-#, fuzzy
-msgid "Host Update Location Fail"
-msgstr "ホストの更新に失敗しました"
-
-#, fuzzy
-msgid "Host Update OU Fail"
-msgstr "ホストの更新に失敗しました"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "ホストの更新に失敗しました"
 
 msgid "Host Update Success"
@@ -2968,9 +2366,6 @@ msgstr "指定された IP アドレスが正しくありません"
 msgid "IP of host appears to be"
 msgstr "このノードはオンラインではないようです"
 
-msgid "Icon"
-msgstr "アイコン"
-
 msgid "Icon File not found"
 msgstr "アイコンファイルが見つかりません"
 
@@ -3032,10 +2427,6 @@ msgstr "イメージ"
 msgid "Image %s for session %s is missing or invalid; skipping"
 msgstr ""
 
-#, fuzzy
-msgid "Image Associated"
-msgstr "関連付けられたイメージ: "
-
 msgid "Image Association"
 msgstr "イメージの関連付け"
 
@@ -3070,10 +2461,6 @@ msgstr "イメージ管理"
 
 msgid "Image Name"
 msgstr "イメージ名"
-
-#, fuzzy
-msgid "Image OS"
-msgstr "イメージサイズ"
 
 #, fuzzy
 msgid "Image Operating System"
@@ -3133,22 +2520,6 @@ msgstr "イメージを更新しました"
 
 msgid "Image Used"
 msgstr "使用中のイメージ"
-
-#, fuzzy
-msgid "Image Windows Key"
-msgstr "新しい Windows キー"
-
-#, fuzzy
-msgid "Image Windows Key Update Fail"
-msgstr "Windows キーの更新に失敗しました"
-
-#, fuzzy
-msgid "Image Windows Key Update Success"
-msgstr "Windows キーの更新に成功しました"
-
-#, fuzzy
-msgid "Image Windows Key Updated!"
-msgstr "Windows キーを更新しました！"
 
 msgid "Image added!"
 msgstr "イメージを追加しました！"
@@ -3219,16 +2590,8 @@ msgstr "イメージ処理を開始しました"
 msgid "Import"
 msgstr "インポート"
 
-#, fuzzy
-msgid "Import Broadcasts"
-msgstr "WOL ブロードキャストをインポート"
-
 msgid "Import CSV"
 msgstr "CSV をインポート"
-
-#, fuzzy
-msgid "Import Capones"
-msgstr "スナップインをインポート"
 
 msgid "Import Configuration"
 msgstr "構成をインポート"
@@ -3247,13 +2610,6 @@ msgstr "データベースをインポート"
 msgid "Import Failed"
 msgstr "インポートに失敗しました"
 
-msgid "Import Locations"
-msgstr "ロケーションをインポート"
-
-#, fuzzy
-msgid "Import OUs"
-msgstr "ユーザーをインポート"
-
 #, fuzzy
 msgid "Import Partially Succeeded"
 msgstr "インポートに失敗しました"
@@ -3265,28 +2621,12 @@ msgstr "レポートをインポートしますか？"
 msgid "Import Reports"
 msgstr "レポートをインポート"
 
-msgid "Import Sites"
-msgstr "サイトをインポート"
-
-#, fuzzy
-msgid "Import Subnet Groups"
-msgstr "サブネットグループをインポート"
-
 #, fuzzy
 msgid "Import Succeeded"
 msgstr "インポートに成功しました"
 
 msgid "Import Succeeded With Warnings"
 msgstr ""
-
-msgid "Import Task States"
-msgstr "タスク状態をインポート"
-
-msgid "Import Task Types"
-msgstr "タスクタイプをインポート"
-
-msgid "Import Windows Keys"
-msgstr "Windows キーをインポート"
 
 #, fuzzy
 msgid "Import a new Plugin"
@@ -3319,26 +2659,9 @@ msgstr ""
 msgid "Information"
 msgstr "情報"
 
-msgid "Inherit - use the system ldap.conf setting"
-msgstr ""
-
-#, php-format
-msgid "Inherit global (%s)"
-msgstr ""
-
-msgid "Init"
-msgstr "Init"
-
-#, fuzzy
-msgid "Init FS"
-msgstr "Init"
-
 #, fuzzy
 msgid "InitRD Versions"
 msgstr "クライアントバージョン"
-
-msgid "Initial Template"
-msgstr "初期テンプレート"
 
 msgid "Initrd Update"
 msgstr "Initrd 更新"
@@ -3454,10 +2777,6 @@ msgstr "無効な URL"
 msgid "Invalid Windows product key"
 msgstr "指定されたプロダクトキーが無効です"
 
-#, fuzzy, php-format
-msgid "Invalid certificate verification level: %s"
-msgstr "有効な LDAP ポートを選択してください"
-
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
@@ -3497,9 +2816,6 @@ msgstr "要求されたキーが無効です"
 msgid "Invalid key being set"
 msgstr "設定しようとしているキーが無効です"
 
-msgid "Invalid method called"
-msgstr "無効なメソッドが呼び出されました"
-
 msgid "Invalid path"
 msgstr "無効なパス"
 
@@ -3528,9 +2844,6 @@ msgstr "無効なタスク ID が送信されました"
 
 msgid "Invalid tasking!"
 msgstr "無効なタスクです！"
-
-msgid "Invalid token passed"
-msgstr "無効なトークンが渡されました"
 
 msgid "Invalid token passed for host"
 msgstr "ホストに無効なトークンが渡されました"
@@ -3572,9 +2885,6 @@ msgstr "インベントリレポート"
 msgid "Inventory Static"
 msgstr "インベントリ"
 
-msgid "Is Advanced"
-msgstr "詳細"
-
 msgid "Is Enabled"
 msgstr "有効"
 
@@ -3603,9 +2913,6 @@ msgstr "ユーザー名は 41 文字未満で指定してください"
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr "ノードの最大帯域幅設定を取得して動作します"
 
-msgid "It tells the client to download snapins from"
-msgstr "クライアントに次の場所からスナップインをダウンロードするよう指示します"
-
 #, fuzzy
 msgid "It will operate based on the fields the area typcially requires."
 msgstr "通常その領域で必要とされるフィールドに基づいて動作します"
@@ -3615,12 +2922,6 @@ msgstr ""
 
 msgid "Kernel"
 msgstr "カーネル"
-
-msgid "Kernel Args"
-msgstr "カーネル引数"
-
-msgid "Kernel Arguments"
-msgstr "カーネル引数"
 
 msgid "Kernel Update"
 msgstr "カーネル更新"
@@ -3636,15 +2937,8 @@ msgstr "カーネルバージョン"
 msgid "Kernel Versions"
 msgstr "カーネルバージョン"
 
-msgid "Kernels/Inits from location"
-msgstr "ロケーションからのカーネル/Init"
-
 msgid "Key"
 msgstr "キー"
-
-#, fuzzy
-msgid "Key Association"
-msgstr "ルールの関連付け"
 
 msgid "Key field must be a string"
 msgstr "キーフィールドは文字列で指定してください"
@@ -3659,130 +2953,11 @@ msgstr "キーは文字列またはインデックスで指定してください
 msgid "Key must be an array of keys or a string."
 msgstr "キーはキー配列または文字列で指定してください。"
 
-msgid "Key to match"
-msgstr ""
-
 msgid "Keys cached"
 msgstr ""
 
 msgid "Kill"
 msgstr "強制終了"
-
-#, fuzzy
-msgid "LDAP"
-msgstr "OpenLDAP"
-
-#, fuzzy
-msgid "LDAP Connection  Name"
-msgstr "LDAP 接続名"
-
-msgid "LDAP Connection Name"
-msgstr "LDAP 接続名"
-
-msgid "LDAP Create Fail"
-msgstr "LDAP の作成に失敗しました"
-
-msgid "LDAP Create Success"
-msgstr "LDAP を作成しました"
-
-#, fuzzy
-msgid "LDAP Group"
-msgstr "すべてのグループ"
-
-#, fuzzy
-msgid "LDAP Group Associations"
-msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "LDAP Group Create Fail"
-msgstr "グループの作成に失敗しました"
-
-#, fuzzy
-msgid "LDAP Group Create Success"
-msgstr "グループの作成に成功しました"
-
-#, fuzzy
-msgid "LDAP Group Management"
-msgstr "グループ管理"
-
-#, fuzzy
-msgid "LDAP Group Role Associations"
-msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "LDAP Group Update Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "LDAP Group Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "LDAP Group User Group Associations"
-msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "LDAP Group added!"
-msgstr "グループを追加しました！"
-
-#, fuzzy
-msgid "LDAP Group associations updated!"
-msgstr "ロケーションを更新しました！"
-
-#, fuzzy
-msgid "LDAP Group update failed!"
-msgstr "グループの更新に失敗しました！"
-
-#, fuzzy
-msgid "LDAP Group updated!"
-msgstr "グループを更新しました！"
-
-#, fuzzy
-msgid "LDAP Groups"
-msgstr "すべてのグループ"
-
-msgid "LDAP Management"
-msgstr "LDAP 管理"
-
-msgid "LDAP Ports"
-msgstr "LDAP ポート"
-
-msgid "LDAP Server"
-msgstr "LDAP サーバー"
-
-msgid "LDAP Server Address"
-msgstr "LDAP サーバーアドレス"
-
-msgid "LDAP Server Description"
-msgstr "LDAP サーバーの説明"
-
-#, fuzzy
-msgid "LDAP Server Name"
-msgstr "LDAP サーバーを追加しました！"
-
-msgid "LDAP Server Port"
-msgstr "LDAP サーバーポート"
-
-#, fuzzy
-msgid "LDAP Server Update Fail"
-msgstr "LDAP の更新に失敗しました"
-
-#, fuzzy
-msgid "LDAP Server Update Success"
-msgstr "LDAP を更新しました"
-
-msgid "LDAP Server added!"
-msgstr "LDAP サーバーを追加しました！"
-
-#, fuzzy
-msgid "LDAP Server update failed!"
-msgstr "LDAP サーバーを更新しました！"
-
-msgid "LDAP Server updated!"
-msgstr "LDAP サーバーを更新しました！"
-
-msgid "LDAP Servers"
-msgstr "LDAP サーバー"
 
 msgid "Language"
 msgstr "言語"
@@ -3813,13 +2988,6 @@ msgstr "最新バージョン"
 msgid "Leave a field blank to keep each host's current value."
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
 
-#, fuzzy
-msgid "Leave blank to keep the current password"
-msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
-
-msgid "Level"
-msgstr ""
-
 msgid "Level must be an integer"
 msgstr "レベルは整数である必要があります"
 
@@ -3832,34 +3000,6 @@ msgstr "行"
 msgid "Lines"
 msgstr "行"
 
-msgid "Link Pushbullet Account"
-msgstr "Pushbullet アカウントをリンク"
-
-msgid "Link Pushbullet Account Fail"
-msgstr "Pushbullet アカウントのリンクに失敗しました"
-
-msgid "Link Pushbullet Account Success"
-msgstr "Pushbullet アカウントをリンクしました"
-
-msgid "Link Slack Account"
-msgstr "Slack アカウントをリンク"
-
-msgid "Link Slack Account Fail"
-msgstr "Slack アカウントのリンクに失敗しました"
-
-msgid "Link Slack Account Success"
-msgstr "Slack アカウントをリンクしました"
-
-msgid "Link ntfy Topic"
-msgstr ""
-
-msgid "Link ntfy Topic Fail"
-msgstr ""
-
-#, fuzzy
-msgid "Link ntfy Topic Success"
-msgstr "Slack アカウントをリンクしました"
-
 msgid "List"
 msgstr "一覧"
 
@@ -3870,14 +3010,6 @@ msgstr "すべての %s を一覧表示"
 #, fuzzy
 msgid "List All Plugins"
 msgstr "プラグインをインストール"
-
-#, fuzzy
-msgid "List All Task States"
-msgstr "タスク状態"
-
-#, fuzzy
-msgid "List All Task Types"
-msgstr "タスクタイプ"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -3902,46 +3034,8 @@ msgstr "フィールドにデータを読み込んでいます"
 msgid "Location"
 msgstr "ロケーション"
 
-msgid "Location Association"
-msgstr "ロケーションの関連付け"
-
-msgid "Location Create Fail"
-msgstr "ロケーションの作成に失敗しました"
-
-msgid "Location Create Success"
-msgstr "ロケーションを作成しました"
-
-#, fuzzy
-msgid "Location Description"
-msgstr "ロケーションの関連付け"
-
-#, fuzzy
-msgid "Location Host Associations"
-msgstr "ロケーションの関連付け"
-
 msgid "Location Management"
 msgstr "ロケーション管理"
-
-msgid "Location Name"
-msgstr "ロケーション名"
-
-msgid "Location Update Fail"
-msgstr "ロケーションの更新に失敗しました"
-
-msgid "Location Update Success"
-msgstr "ロケーションを更新しました"
-
-msgid "Location added!"
-msgstr "ロケーションを追加しました！"
-
-msgid "Location is a plugin that allows your FOG Server"
-msgstr "ロケーションは、FOG サーバーで利用できるプラグインです"
-
-msgid "Location update failed!"
-msgstr "ロケーションの更新に失敗しました！"
-
-msgid "Location updated!"
-msgstr "ロケーションを更新しました！"
 
 msgid "Locations"
 msgstr "ロケーション"
@@ -4073,9 +3167,6 @@ msgstr "最大サイズ"
 msgid "Members"
 msgstr "メンバー"
 
-msgid "Members of this directory group receive these roles on sign in. Roles are recomputed from the directory each time, so removing someone from the group downgrades them at their next login."
-msgstr ""
-
 msgid "Membership"
 msgstr "メンバーシップ"
 
@@ -4131,9 +3222,6 @@ msgstr "パスは許可されていません"
 
 msgid "Method does not exist"
 msgstr "メソッドが存在しません"
-
-msgid "Microsoft AD"
-msgstr "Microsoft AD"
 
 msgid "Midnight"
 msgstr "午前 0 時"
@@ -4292,9 +3380,6 @@ msgstr "名前"
 msgid "NOT"
 msgstr "NOT"
 
-msgid "NOTE"
-msgstr "注意"
-
 #, fuzzy
 msgid "NOTE: Forums are the most command fastest method of getting help with any aspect of FOG."
 msgstr "フォーラムは、最も一般的で迅速なサポートを受ける方法です"
@@ -4309,32 +3394,6 @@ msgstr "削除するテーブル名が必要です"
 msgid "Needs a 256-bit key!"
 msgstr "256 ビットキーが必要です"
 
-msgid "Nested Depth"
-msgstr ""
-
-#, fuzzy
-msgid "Nested Groups"
-msgstr "グループ"
-
-#, fuzzy
-msgid "Nested depth must be a number"
-msgstr "新しいキーは文字列である必要があります"
-
-#, fuzzy
-msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr "ユーザー名は 41 文字未満で指定してください"
-
-msgid "Nested group depth cap reached, so group membership may be incomplete"
-msgstr ""
-
-#, fuzzy
-msgid "Nested group depth must be between 1 and 100"
-msgstr "ユーザー名は 41 文字未満で指定してください"
-
-#, fuzzy
-msgid "Nested group search failed"
-msgstr "ユーザーの更新に失敗しました！"
-
 msgid "Network Information"
 msgstr "ネットワーク情報"
 
@@ -4344,9 +3403,6 @@ msgstr "ネットワークインストーラー"
 
 msgid "Network Printer"
 msgstr "ネットワークプリンター"
-
-msgid "Never - do not verify (insecure)"
-msgstr ""
 
 msgid "New"
 msgstr "新規"
@@ -4392,11 +3448,12 @@ msgstr "イメージが指定されていません"
 msgid "No Printer Management"
 msgstr "プリンター管理なし"
 
-msgid "No access is allowed"
-msgstr "アクセスは許可されていません"
-
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
+
+#, fuzzy
+msgid "No archive was uploaded."
+msgstr "ファイルはアップロードされませんでした"
 
 #, fuzzy
 msgid "No change"
@@ -4505,6 +3562,10 @@ msgstr "ノードは利用できません"
 
 msgid "No open slots"
 msgstr "空きスロットがありません"
+
+#, fuzzy
+msgid "No plugins selected."
+msgstr "ロールが選択されていません"
 
 #, fuzzy
 msgid "No printers assigned to this host"
@@ -4635,70 +3696,7 @@ msgstr "ストレージノード名"
 msgid "O/S"
 msgstr "OS"
 
-msgid "OU"
-msgstr ""
-
-#, fuzzy
-msgid "OU Association"
-msgstr "ルールの関連付け"
-
-#, fuzzy
-msgid "OU Create Fail"
-msgstr "ユーザーの作成に失敗しました"
-
-#, fuzzy
-msgid "OU Create Success"
-msgstr "ユーザーの作成に成功しました"
-
-msgid "OU DN"
-msgstr ""
-
-#, fuzzy
-msgid "OU Description"
-msgstr "説明"
-
-#, fuzzy
-msgid "OU Host Associations"
-msgstr "ホストに関連付けられたスナップイン"
-
-#, fuzzy
-msgid "OU Management"
-msgstr "管理"
-
-#, fuzzy
-msgid "OU Name"
-msgstr "OS 名"
-
-#, fuzzy
-msgid "OU Update Fail"
-msgstr "ユーザーの更新に失敗しました"
-
-#, fuzzy
-msgid "OU Update Success"
-msgstr "ユーザーの更新に成功しました"
-
-#, fuzzy
-msgid "OU added!"
-msgstr "ユーザーを追加しました！"
-
-msgid "OU is a plugin that allows you to predefine OU's and associate with hosts."
-msgstr ""
-
-#, fuzzy
-msgid "OU update failed!"
-msgstr "ユーザーの更新に失敗しました！"
-
-#, fuzzy
-msgid "OU updated!"
-msgstr "ユーザーを更新しました！"
-
-msgid "OUs"
-msgstr ""
-
 msgid "Off"
-msgstr ""
-
-msgid "Off - direct membership only"
 msgstr ""
 
 msgid "Old key must be a string"
@@ -4748,9 +3746,6 @@ msgstr "オープンソースのコンピュータークローニングソリュ
 msgid "Open VNC Connection To"
 msgstr "次への VNC 接続を開く"
 
-msgid "OpenLDAP"
-msgstr "OpenLDAP"
-
 msgid "Operation field not set"
 msgstr "操作フィールドが設定されていません"
 
@@ -4759,9 +3754,6 @@ msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr "または、参加するセッション番号が指定されていません"
-
-msgid "Order"
-msgstr ""
 
 msgid "Organizational Unit"
 msgstr "組織単位"
@@ -4934,9 +3926,6 @@ msgstr "イメージを選択してください"
 msgid "Please confirm you want to delete"
 msgstr "削除してもよろしいですか"
 
-msgid "Please confirm you would like to dissociate the selected directory groups"
-msgstr ""
-
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -4947,15 +3936,8 @@ msgid "Please confirm you would like to unset the primary group from the selecte
 msgstr ""
 
 #, fuzzy
-msgid "Please enter a name"
-msgstr "ホスト名を入力してください"
-
-#, fuzzy
 msgid "Please enter a printer name."
 msgstr "ホスト名を入力してください"
-
-msgid "Please enter a valid CIDR subnet."
-msgstr "有効な CIDR サブネットを入力してください。"
 
 msgid "Please enter a valid hostname"
 msgstr "有効なホスト名を入力してください"
@@ -4967,33 +3949,15 @@ msgid "Please physically associate"
 msgstr "物理的に関連付けてください"
 
 #, fuzzy
-msgid "Please select a valid certificate verification level"
-msgstr "有効な LDAP ポートを選択してください"
-
-#, fuzzy
 msgid "Please select a valid image"
 msgstr "有効なイメージを選択してください"
-
-msgid "Please select a valid ldap port"
-msgstr "有効な LDAP ポートを選択してください"
-
-#, fuzzy
-msgid "Please select a valid nested group strategy"
-msgstr "有効な LDAP ポートを選択してください"
 
 #, fuzzy
 msgid "Please select a valid printer type."
 msgstr "有効な LDAP ポートを選択してください"
 
-#, fuzzy
-msgid "Please select an LDAP server!"
-msgstr "使用する LDAP ポートを選択してください"
-
 msgid "Please select an option"
 msgstr "オプションを選択してください"
-
-msgid "Please start user/channel with @/# respectively"
-msgstr ""
 
 #, fuzzy
 msgid "Please use another group name"
@@ -5018,12 +3982,24 @@ msgid "Plugin Activate Success"
 msgstr "ルールを関連付けました"
 
 #, fuzzy
+msgid "Plugin Archive Read"
+msgstr "ルールの関連付けに失敗しました"
+
+#, fuzzy
 msgid "Plugin Deactivate Fail"
 msgstr "プラグインの説明"
 
 #, fuzzy
 msgid "Plugin Deactivate Success"
 msgstr "プリンターの作成に成功しました"
+
+#, fuzzy
+msgid "Plugin Forget Fail"
+msgstr "プリンターの更新に失敗しました"
+
+#, fuzzy
+msgid "Plugin Forgotten"
+msgstr "プラグイン構成"
 
 #, fuzzy
 msgid "Plugin Install Fail"
@@ -5056,7 +4032,19 @@ msgid "Plugin Update Success"
 msgstr "プリンターの更新に成功しました"
 
 #, fuzzy
+msgid "Plugin Upload Fail"
+msgstr "プリンターの更新に失敗しました"
+
+#, fuzzy
+msgid "Plugin Upload Success"
+msgstr "プリンターの更新に成功しました"
+
+#, fuzzy
 msgid "Plugin activated!"
+msgstr "プラグインをインストールしました！"
+
+#, fuzzy
+msgid "Plugin archive"
 msgstr "プラグインをインストールしました！"
 
 #, fuzzy
@@ -5075,8 +4063,15 @@ msgstr "プラグインをインストールしました！"
 msgid "Plugin updated!"
 msgstr "プリンターを更新しました！"
 
+msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings."
+msgstr ""
+
 msgid "Plugins"
 msgstr "プラグイン"
+
+#, fuzzy
+msgid "Plugins Forgotten"
+msgstr "プラグインをインストールしました！"
 
 #, fuzzy
 msgid "Plugins activated!"
@@ -5100,9 +4095,6 @@ msgstr ""
 msgid "Port"
 msgstr "ポート"
 
-msgid "Port is not valid ldap/ldaps port"
-msgstr "ポートは有効な ldap/ldaps ポートではありません"
-
 msgid "Postfix requires an action of login"
 msgstr "Postfix では login アクションが必要です"
 
@@ -5116,9 +4108,6 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
-msgstr ""
-
-msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
 #, fuzzy
@@ -5232,16 +4221,6 @@ msgstr "FOG Project"
 msgid "Protected"
 msgstr "保護済み"
 
-msgid "Pushbullet Accounts"
-msgstr "Pushbullet アカウント"
-
-msgid "Pushbullet Management"
-msgstr "Pushbullet 管理"
-
-#, fuzzy
-msgid "Pushbullet Token"
-msgstr "Pushbullet アカウント"
-
 #, fuzzy
 msgid "Queue Deletion Cancel Fail"
 msgstr "ルールの削除に失敗しました"
@@ -5276,9 +4255,6 @@ msgstr "日時"
 msgid "Reboot"
 msgstr "再起動"
 
-msgid "Reboot after deploy"
-msgstr "展開後に再起動"
-
 msgid "Receive"
 msgstr "受信"
 
@@ -5312,19 +4288,12 @@ msgstr ""
 msgid "Remember Me"
 msgstr ""
 
-msgid "Remote address attempting to login"
-msgstr "ログインを試行したリモートアドレス"
-
 msgid "Remove"
 msgstr "削除"
 
 #, fuzzy
 msgid "Remove Fail"
 msgstr "削除に失敗しました"
-
-#, fuzzy
-msgid "Remove LDAP Group Associations"
-msgstr "グループの関連付け"
 
 #, fuzzy
 msgid "Remove associated files"
@@ -5351,6 +4320,9 @@ msgid "Removing this group would leave no user with administrator access."
 msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
+msgid "Rename or remove one of them."
 msgstr ""
 
 msgid "Replicating"
@@ -5390,9 +4362,6 @@ msgstr "トークンをリセット"
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
-msgid "Result"
-msgstr "結果"
-
 msgid "Resume Reload"
 msgstr ""
 
@@ -5407,10 +4376,6 @@ msgstr "キーの値を返しています"
 
 msgid "Reverse"
 msgstr ""
-
-#, fuzzy
-msgid "Role"
-msgstr "ロール"
 
 #, fuzzy
 msgid "Role Association"
@@ -5453,20 +4418,11 @@ msgstr "グループの関連付け"
 msgid "Role added!"
 msgstr "ロールを追加しました！"
 
-msgid "Role for LDAP admin group"
-msgstr ""
-
-msgid "Role for LDAP user group"
-msgstr ""
-
 msgid "Role update failed!"
 msgstr "ロールの更新に失敗しました！"
 
 msgid "Role updated!"
 msgstr "ロールを更新しました！"
-
-msgid "Role when group matching is off"
-msgstr ""
 
 #, fuzzy
 msgid "Roles"
@@ -5582,28 +4538,6 @@ msgstr "画面の幅（ピクセル）"
 msgid "Search"
 msgstr "検索"
 
-msgid "Search Base DN"
-msgstr "検索ベース DN"
-
-msgid "Search DN"
-msgstr "検索 DN"
-
-msgid "Search DN did not return any results"
-msgstr "検索 DN は結果を返しませんでした"
-
-#, fuzzy
-msgid "Search Key"
-msgstr "検索"
-
-msgid "Search Method"
-msgstr "検索方法"
-
-msgid "Search Scope"
-msgstr "検索範囲"
-
-msgid "Search results returned false"
-msgstr "検索結果が false を返しました"
-
 #, fuzzy
 msgid "Search settings"
 msgstr "設定"
@@ -5656,10 +4590,6 @@ msgid "Server Information"
 msgstr "サーバー情報"
 
 msgid "Server Shell"
-msgstr "サーバーシェル"
-
-#, fuzzy
-msgid "Server URL"
 msgstr "サーバーシェル"
 
 msgid "Server appears to be offline or unavailable!"
@@ -5800,9 +4730,6 @@ msgstr "メニューの表示方法"
 msgid "Shutdown"
 msgstr "シャットダウン"
 
-msgid "Shutdown after deploy"
-msgstr "展開後にシャットダウン"
-
 #, fuzzy
 msgid "Shutdown when complete"
 msgstr "完了しました"
@@ -5820,63 +4747,6 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
-
-msgid "Site"
-msgstr "サイト"
-
-msgid "Site Association"
-msgstr "サイトの関連付け"
-
-msgid "Site Create Fail"
-msgstr "サイトの作成に失敗しました"
-
-msgid "Site Create Success"
-msgstr "サイトを作成しました"
-
-msgid "Site Description"
-msgstr "サイトの説明"
-
-#, fuzzy
-msgid "Site Group Associations"
-msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "Site Host Associations"
-msgstr "サイトの関連付け"
-
-#, fuzzy
-msgid "Site Management"
-msgstr "ストレージ管理"
-
-msgid "Site Name"
-msgstr "サイト名"
-
-msgid "Site Update Fail"
-msgstr "サイトの更新に失敗しました"
-
-msgid "Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "Site User Associations"
-msgstr "サイトの関連付け"
-
-#, fuzzy
-msgid "Site User Group Associations"
-msgstr "グループの関連付け"
-
-msgid "Site added!"
-msgstr "サイトを追加しました！"
-
-msgid "Site update failed!"
-msgstr "サイトの更新に失敗しました！"
-
-#, fuzzy
-msgid "Site updated!"
-msgstr "サイトを更新しました！"
-
-msgid "Sites"
-msgstr "サイト"
 
 msgid "Size"
 msgstr "サイズ"
@@ -5897,19 +4767,6 @@ msgid "Skipping unsafe queued delete path"
 msgstr ""
 
 msgid "Skipping, will need manual removal"
-msgstr ""
-
-msgid "Slack Accounts"
-msgstr "Slack アカウント"
-
-msgid "Slack Management"
-msgstr "Slack 管理"
-
-#, fuzzy
-msgid "Slack Token"
-msgstr "Slack アカウント"
-
-msgid "Slack User/Slack Channel"
 msgstr ""
 
 msgid "Smart Installer"
@@ -6269,9 +5126,6 @@ msgstr "ストレージノード名"
 msgid "Storage Node Password"
 msgstr "ストレージノードパスワード"
 
-msgid "Storage Node Protocol"
-msgstr "ストレージノードプロトコル"
-
 #, fuzzy
 msgid "Storage Node SSL Path"
 msgstr "ストレージノード IP"
@@ -6334,61 +5188,6 @@ msgstr "ストレージノード"
 
 msgid "String must be a string"
 msgstr "String は文字列で指定してください"
-
-msgid "Subnet Group -> Group Relationship"
-msgstr ""
-
-#, fuzzy
-msgid "Subnet Group Create Fail"
-msgstr "サブネットグループの作成に失敗しました"
-
-#, fuzzy
-msgid "Subnet Group Create Success"
-msgstr "サブネットグループを作成しました"
-
-#, fuzzy
-msgid "Subnet Group Description"
-msgstr "グループの説明"
-
-#, fuzzy
-msgid "Subnet Group Management"
-msgstr "サブネットグループ管理"
-
-#, fuzzy
-msgid "Subnet Group Name"
-msgstr "サブネットグループ"
-
-#, fuzzy
-msgid "Subnet Group Update Fail"
-msgstr "サブネットグループの更新に失敗しました"
-
-#, fuzzy
-msgid "Subnet Group Update Success"
-msgstr "サブネットグループを更新しました"
-
-#, fuzzy
-msgid "Subnet Group added!"
-msgstr "サブネットグループを追加しました！"
-
-#, fuzzy
-msgid "Subnet Group update failed!"
-msgstr "サブネットグループの更新に失敗しました！"
-
-#, fuzzy
-msgid "Subnet Group updated!"
-msgstr "サブネットグループを更新しました！"
-
-msgid "Subnet Groups"
-msgstr "サブネットグループ"
-
-msgid "Subnets"
-msgstr "サブネット"
-
-msgid "Subtree Only"
-msgstr "サブツリーのみ"
-
-msgid "Subtree and Below"
-msgstr "サブツリー以下"
 
 #, fuzzy
 msgid "Successfully added hosts to the provided groups!"
@@ -6484,75 +5283,8 @@ msgstr "タスク名"
 msgid "Task Reboot"
 msgstr "タスク再起動"
 
-msgid "Task State Create Fail"
-msgstr "タスク状態の作成に失敗しました"
-
-#, fuzzy
-msgid "Task State Create SUccess"
-msgstr "タスク状態を作成しました"
-
-#, fuzzy
-msgid "Task State Description"
-msgstr "サイトの説明"
-
-#, fuzzy
-msgid "Task State Icon"
-msgstr "タスク状態"
-
-msgid "Task State Management"
-msgstr "タスク状態管理"
-
-#, fuzzy
-msgid "Task State Name"
-msgstr "タスク状態を追加しました！"
-
-msgid "Task State Update Fail"
-msgstr "タスク状態の更新に失敗しました"
-
-msgid "Task State Update Success"
-msgstr "タスク状態を更新しました"
-
-msgid "Task State Updated!"
-msgstr "タスク状態を更新しました！"
-
-msgid "Task States"
-msgstr "タスク状態"
-
 msgid "Task Type"
 msgstr "タスクタイプ"
-
-msgid "Task Type Create Fail"
-msgstr "タスクタイプの作成に失敗しました"
-
-msgid "Task Type Create Success"
-msgstr "タスクタイプを作成しました"
-
-#, fuzzy
-msgid "Task Type Description"
-msgstr "イメージの説明"
-
-#, fuzzy
-msgid "Task Type Icon"
-msgstr "タスクタイプ"
-
-msgid "Task Type Management"
-msgstr "タスクタイプ管理"
-
-#, fuzzy
-msgid "Task Type Name"
-msgstr "タスクタイプを追加しました！"
-
-msgid "Task Type Update Fail"
-msgstr "タスクタイプの更新に失敗しました"
-
-msgid "Task Type Update Success"
-msgstr "タスクタイプを更新しました"
-
-msgid "Task Type Updated!"
-msgstr "タスクタイプを更新しました！"
-
-msgid "Task Type added!"
-msgstr "タスクタイプを追加しました！"
 
 #, fuzzy
 msgid "Task Type is invalid"
@@ -6560,9 +5292,6 @@ msgstr "タスクタイプが無効です"
 
 msgid "Task Type is not valid"
 msgstr "タスクタイプが無効です"
-
-msgid "Task Types"
-msgstr "タスクタイプ"
 
 #, fuzzy
 msgid "Task not created as there are no associated Tasks"
@@ -6578,36 +5307,17 @@ msgid "Task started for"
 msgstr "次のタスクを開始しました"
 
 #, fuzzy
-msgid "Task state added!"
-msgstr "タスク状態を追加しました！"
-
-#, fuzzy
-msgid "Task state update failed!"
-msgstr "タスク状態の更新に失敗しました"
-
-#, fuzzy
 msgid "Task type is invalid"
 msgstr "タスクタイプが無効です"
 
-#, fuzzy
-msgid "Task type update failed!"
-msgstr "タスクタイプの更新に失敗しました"
-
 msgid "Tasks"
 msgstr "タスク"
-
-msgid "Team"
-msgstr "チーム"
 
 msgid "Terminal"
 msgstr "ターミナル"
 
 msgid "Text"
 msgstr "テキスト"
-
-#, fuzzy
-msgid "That group is already defined for this server!"
-msgstr "このグループは既にサブネットグループで使用されています。"
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
@@ -6622,17 +5332,15 @@ msgstr ""
 msgid "That session has already started"
 msgstr "このホストは既に存在します"
 
+#, fuzzy
+msgid "That upload is no longer available."
+msgstr "このサーバーにはイメージがありません"
+
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "「マスターノード」設定は、どのノードを"
-
-msgid "The CA certificate path is too long (255 characters max)"
-msgstr ""
-
-msgid "The CA certificate path must be absolute"
-msgstr ""
 
 #, fuzzy
 msgid "The CA private key is not on this server"
@@ -6645,18 +5353,36 @@ msgstr "このサーバーにはグループがありません"
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
-msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgid "The archive contains a link."
 msgstr ""
 
-msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
+#, php-format
+msgid "The archive contains an unsafe path: %s"
+msgstr ""
+
+msgid "The archive could not be extracted."
+msgstr ""
+
+#, fuzzy
+msgid "The archive could not be read."
+msgstr "強制終了できませんでした"
+
+msgid "The archive did not extract as expected."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "The archive has no %s."
+msgstr "あります"
+
+#, php-format
+msgid "The archive is larger than the %s limit."
+msgstr ""
+
+msgid "The archive must hold exactly one plugin directory."
 msgstr ""
 
 msgid "The current user is invalid."
 msgstr ""
-
-#, fuzzy
-msgid "The image associated does not have a valid OS!"
-msgstr "ストレージグループに関連付けられたストレージノードが無効です"
 
 msgid "The image storage group assigned is not valid"
 msgstr "割り当てられたイメージのストレージグループが無効です"
@@ -6664,8 +5390,9 @@ msgstr "割り当てられたイメージのストレージグループが無効
 msgid "The installers for the fog client"
 msgstr "FOG クライアント用インストーラー"
 
-msgid "The key will be assigned to registered hosts when a"
-msgstr "キーは、登録済みホストに次の場合割り当てられます"
+#, php-format
+msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
+msgstr ""
 
 msgid "The manual enrolment steps below are unaffected."
 msgstr ""
@@ -6677,16 +5404,38 @@ msgstr "使用しようとしているノードは現在"
 msgid "The path requested is already in use by another image!"
 msgstr "これは既に別のイメージで使用されています"
 
+#, fuzzy
+msgid "The plugin directory"
+msgstr "ディレクトリ"
+
+#, fuzzy
+msgid "The plugin directory does not exist."
+msgstr "関数が存在しません"
+
+msgid "The plugin will run but its JS and CSS will 404."
+msgstr ""
+
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
 
+#, fuzzy
+msgid "The staged plugin no longer matches its manifest."
+msgstr "選択したプリンターを追加"
+
 msgid "The storage groups associated storage node is not valid"
 msgstr "ストレージグループに関連付けられたストレージノードが無効です"
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The upload did not arrive."
+msgstr ""
+
+#, php-format
+msgid "The upload failed (error %s). It may be larger than post_max_size, currently %s."
 msgstr ""
 
 msgid "The uploaded file exceeds the max_file_size"
@@ -6745,10 +5494,11 @@ msgstr "レプリケーションする項目はありません"
 msgid "There you can download utilities such as FOG Prep"
 msgstr "そこから FOG Prep などのユーティリティをダウンロードできます"
 
-msgid "This change would leave no user with administrator access."
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
 
-msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgid "This change would leave no user with administrator access."
 msgstr ""
 
 msgid "This host already exists"
@@ -6768,9 +5518,6 @@ msgstr "これは一度だけ実行されるタスクであり、現在は実行
 
 msgid "This is a single run task that should run now."
 msgstr "これは一度だけ実行されるタスクであり、現在実行される予定です。"
-
-msgid "This is especially useful if you have multiple"
-msgstr "複数ある場合に特に便利です"
 
 msgid "This is not the master for this group"
 msgstr "このグループのマスターノードではありません"
@@ -6812,9 +5559,6 @@ msgstr "このサーバーの IP アドレス"
 
 msgid "This setting"
 msgstr "この設定"
-
-msgid "This setting defines sending the"
-msgstr "この設定では送信方法を定義します"
 
 msgid "This setting defines the number of items to display when listing/searching elements. The default value is 10."
 msgstr ""
@@ -6865,9 +5609,6 @@ msgstr "このグループ内のすべてのホストでこの項目をクリア
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
-msgid "Those images should be activated with the associated"
-msgstr "これらのイメージは関連付けられた"
-
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -6896,28 +5637,8 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "ナビゲーション切り替え"
 
-msgid "Token or user:pass (optional)"
-msgstr ""
-
 msgid "Too many MACs"
 msgstr "MAC アドレスが多すぎます"
-
-msgid "Topic Endpoint"
-msgstr ""
-
-#, fuzzy
-msgid "Topic already linked"
-msgstr "アカウントは既にリンクされています"
-
-msgid "Topic linked"
-msgstr ""
-
-msgid "Topic name you choose, e.g. fog-alerts"
-msgstr ""
-
-#, fuzzy
-msgid "Topic successfully added!"
-msgstr "アカウントが正常に追加されました！"
 
 #, fuzzy
 msgid "Total Clients"
@@ -6998,26 +5719,6 @@ msgstr "読み取り用にファイルを開けません"
 
 msgid "Unable to remove protected items"
 msgstr ""
-
-#, fuzzy
-msgid "Unable to set LDAP role mapping."
-msgstr "更新できません"
-
-#, fuzzy
-msgid "Unable to set action field"
-msgstr "更新できません"
-
-#, fuzzy
-msgid "Unable to set dmi field"
-msgstr "更新できません"
-
-#, fuzzy
-msgid "Unable to set ldap ports."
-msgstr "更新できません"
-
-#, fuzzy
-msgid "Unable to set nested group depth."
-msgstr "更新できません"
 
 msgid "Unable to uninstall, no method exists for "
 msgstr ""
@@ -7158,11 +5859,18 @@ msgstr "更新は必要ありません！"
 msgid "Update selected"
 msgstr "選択項目を削除"
 
+#, fuzzy
+msgid "Upload"
+msgstr "レポートをアップロード"
+
 msgid "Upload Reports"
 msgstr "レポートをアップロード"
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
 msgstr "アップロードできるファイルの拡張子は jpg、jpeg、png のいずれかです"
+
+msgid "Upload plugin"
+msgstr ""
 
 #, fuzzy
 msgid "Uploaded file too large."
@@ -7170,16 +5878,6 @@ msgstr "ファイルをアップロード"
 
 msgid "Uptime"
 msgstr "稼働時間"
-
-msgid "Use Display Name from Directory"
-msgstr ""
-
-#, fuzzy
-msgid "Use Group Match"
-msgstr "グループ照合を使用（推奨）"
-
-msgid "Use LDAP SSL"
-msgstr ""
 
 msgid "Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the pack is unzipped on the client."
 msgstr ""
@@ -7210,9 +5908,6 @@ msgstr ""
 #, fuzzy
 msgid "Use the links below if you need assistance."
 msgstr "サポートが必要な場合は、以下のリンクを参照してください"
-
-msgid "Use the selector to choose how many items you want exported"
-msgstr ""
 
 msgid "Used"
 msgstr "使用済み"
@@ -7247,22 +5942,11 @@ msgstr "ルールの関連付け"
 msgid "User Cleanup"
 msgstr "ユーザークリーンアップ"
 
-#, fuzzy
-msgid "User Count"
-msgstr "CPU 数"
-
 msgid "User Create Fail"
 msgstr "ユーザーの作成に失敗しました"
 
 msgid "User Create Success"
 msgstr "ユーザーの作成に成功しました"
-
-msgid "User DN"
-msgstr "ユーザー DN"
-
-#, fuzzy
-msgid "User Group"
-msgstr "グループ"
 
 #, fuzzy
 msgid "User Group Association"
@@ -7271,9 +5955,6 @@ msgstr "グループの関連付け"
 #, fuzzy
 msgid "User Group Associations"
 msgstr "グループの関連付け"
-
-msgid "User Group Count"
-msgstr ""
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7300,22 +5981,6 @@ msgid "User Group Role Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
-msgid "User Group Site"
-msgstr "ユーザーを更新しました！"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "サイトを更新しました！"
-
-#, fuzzy
 msgid "User Group Update Fail"
 msgstr "グループの更新に失敗しました"
 
@@ -7337,27 +6002,8 @@ msgstr "ユーザー管理"
 msgid "User Name"
 msgstr "ユーザー名"
 
-msgid "User Name Attribute"
-msgstr "ユーザー名属性"
-
 msgid "User Password"
 msgstr "ユーザーパスワード"
-
-#, fuzzy
-msgid "User Site"
-msgstr "ユーザーフィルター"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "サイトの更新に失敗しました"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "サイトを更新しました！"
 
 msgid "User Tracker"
 msgstr "ユーザートラッカー"
@@ -7371,9 +6017,6 @@ msgstr "ユーザーの更新に成功しました"
 msgid "User added!"
 msgstr "ユーザーを追加しました！"
 
-msgid "User call is invalid"
-msgstr "無効なユーザー呼び出しです"
-
 #, fuzzy
 msgid "User group added!"
 msgstr "ユーザーを追加しました！"
@@ -7386,28 +6029,11 @@ msgstr "ユーザーの更新に失敗しました！"
 msgid "User group updated!"
 msgstr "ユーザーを更新しました！"
 
-msgid "User matched none of the mapped groups"
-msgstr ""
-
-#, fuzzy
-msgid "User not found"
-msgstr "レコードが見つかりません"
-
 msgid "User update failed!"
 msgstr "ユーザーの更新に失敗しました！"
 
 msgid "User updated!"
 msgstr "ユーザーを更新しました！"
-
-msgid "User was not authorized by the LDAP server"
-msgstr "LDAP サーバーでユーザー認証に失敗しました"
-
-#, fuzzy
-msgid "User/Channel"
-msgstr "ユーザー/Channel 名"
-
-msgid "User/Channel Name"
-msgstr "ユーザー/Channel 名"
 
 msgid "Username"
 msgstr "ユーザー名"
@@ -7420,15 +6046,8 @@ msgstr "ユーザー名は 3 文字以上で指定してください"
 msgid "Username must end with a number or letter."
 msgstr "ユーザー名は英数字またはアンダースコアで開始する必要があります"
 
-#, fuzzy
-msgid "Username was blank"
-msgstr "ユーザー名"
-
 msgid "Users"
 msgstr "ユーザー"
-
-msgid "Using the group match function"
-msgstr "グループ照合機能を使用しています"
 
 msgid "VB Script"
 msgstr ""
@@ -7451,12 +6070,6 @@ msgstr "バージョン"
 
 msgid "View"
 msgstr ""
-
-msgid "WOL Broadcast Management"
-msgstr "WOL ブロードキャスト管理"
-
-msgid "WOL Broadcasts"
-msgstr "WOL ブロードキャスト"
 
 msgid "Wait time has changed to"
 msgstr "待機時間を次の値に変更しました:"
@@ -7482,9 +6095,6 @@ msgstr "現在のノード ID"
 msgid "We are node name"
 msgstr "現在のノード名"
 
-msgid "We cannot connect to LDAP server"
-msgstr "LDAP サーバーに接続できません"
-
 msgid "Web CA private key"
 msgstr ""
 
@@ -7507,9 +6117,6 @@ msgstr "強制終了されました"
 msgid "What to do next"
 msgstr ""
 
-msgid "When the plugin is removed, the assigned key will remain"
-msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
-
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
@@ -7522,54 +6129,6 @@ msgstr "幅は 650 ピクセルである必要があります。"
 
 msgid "Window size must be greater than 1"
 msgstr "ウィンドウサイズは 1 より大きい必要があります"
-
-#, fuzzy
-msgid "Windows 10 Professional"
-msgstr "Windows キー全般"
-
-msgid "Windows Key"
-msgstr "Windows キー"
-
-msgid "Windows Key Create Fail"
-msgstr "Windows キーの作成に失敗しました"
-
-msgid "Windows Key Create Success"
-msgstr "Windows キーの作成に成功しました"
-
-msgid "Windows Key Description"
-msgstr "Windows キーの説明"
-
-msgid "Windows Key Management"
-msgstr "Windows キー管理"
-
-msgid "Windows Key Name"
-msgstr "Windows キー名"
-
-msgid "Windows Key Update Fail"
-msgstr "Windows キーの更新に失敗しました"
-
-msgid "Windows Key Update Success"
-msgstr "Windows キーの更新に成功しました"
-
-msgid "Windows Key added!"
-msgstr "Windows キーを追加しました！"
-
-#, fuzzy
-msgid "Windows Key update failed!"
-msgstr "Windows キーを更新しました！"
-
-msgid "Windows Key updated!"
-msgstr "Windows キーを更新しました！"
-
-msgid "Windows Keys"
-msgstr "Windows キー"
-
-#, fuzzy
-msgid "Windows Product key"
-msgstr "ホスト プロダクトキー"
-
-msgid "Windows keys is a plugin that associates product keys"
-msgstr "Windows キーは、プロダクトキーを関連付けるプラグインです"
 
 msgid "Wipes"
 msgstr ""
@@ -7592,10 +6151,6 @@ msgstr ""
 #, php-format
 msgid "You do not have permission to access this page (%s required)."
 msgstr ""
-
-#, fuzzy
-msgid "You do not have permission to change LDAP group associations."
-msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 msgid "You do not have permission to perform this action."
 msgstr ""
@@ -7675,18 +6230,12 @@ msgstr "このノードで自分より前"
 msgid "between"
 msgstr "～の間"
 
-msgid "between different sites"
-msgstr "異なるサイト間"
-
 #, fuzzy
 msgid "blank for default"
 msgstr "空欄の場合は既定値"
 
 msgid "boot the client computers"
 msgstr "クライアントコンピューターを起動"
-
-msgid "but bind password is not set"
-msgstr "ただし、バインドパスワードが設定されていません"
 
 msgid "but has recently failed for this host"
 msgstr "ただし、このホストでは最近失敗しています"
@@ -7703,10 +6252,6 @@ msgstr "クライアント"
 msgid "clients"
 msgstr "クライアント"
 
-#, fuzzy
-msgid "completed imaging"
-msgstr "イメージ処理が完了しました。"
-
 msgid "confirm"
 msgstr ""
 
@@ -7721,9 +6266,6 @@ msgstr "強制終了できませんでした"
 
 msgid "day"
 msgstr "日"
-
-msgid "deploy task occurs for it"
-msgstr "展開タスクが実行されたとき"
 
 msgid "directive in php.ini"
 msgstr "php.ini のディレクティブ"
@@ -7774,9 +6316,6 @@ msgstr "実行に失敗しました。ポートは偶数の数値である必要
 msgid "failed to execute, there are no clients included"
 msgstr "実行に失敗しました。対象のクライアントが含まれていません"
 
-msgid "failed to login"
-msgstr "ログインに失敗しました"
-
 msgid "failed to start"
 msgstr "開始に失敗しました"
 
@@ -7786,9 +6325,6 @@ msgstr "ファイル"
 
 msgid "filesize"
 msgstr "ファイルサイズ"
-
-msgid "for Microsoft Windows to images"
-msgstr "Microsoft Windows 用にイメージへ"
 
 msgid "found"
 msgstr "見つかりました"
@@ -7818,19 +6354,15 @@ msgstr "正常に削除されました"
 msgid "has been successfully updated"
 msgstr "正常に更新されました"
 
-#, fuzzy
-msgid "has completed on"
-msgstr "完了しました"
-
-#, fuzzy
-msgid "has completed snapin tasking"
-msgstr "スナップインタスクが完了しました。"
-
 msgid "has failed to destroy"
 msgstr "削除に失敗しました"
 
 msgid "has failed to save"
 msgstr "保存に失敗しました"
+
+#, fuzzy
+msgid "has no code on disk"
+msgstr "このノード上に見つかりません"
 
 msgid "has started"
 msgstr "開始しました"
@@ -7918,10 +6450,6 @@ msgid "images to a storage group"
 msgstr "イメージをストレージグループへ"
 
 #, fuzzy
-msgid "imaging failed"
-msgstr "イメージ処理に失敗しました。"
-
-#, fuzzy
 msgid "in"
 msgstr "分"
 
@@ -7992,17 +6520,11 @@ msgstr ""
 msgid "kernel to boot the client computers"
 msgstr "クライアントコンピューターを起動するためのカーネル"
 
-msgid "key"
-msgstr "キー"
-
 msgid "keys"
 msgstr ""
 
 msgid "limited to 1Mbps on that node"
 msgstr "そのノードで 1 Mbps に制限されます"
-
-msgid "location url based on the host that checks in"
-msgstr "チェックインしたホストに基づくロケーション URL"
 
 msgid "logged in"
 msgstr "ログイン済み"
@@ -8028,19 +6550,21 @@ msgstr ""
 msgid "month"
 msgstr "月"
 
-msgid "multiple places to get your image"
-msgstr "イメージの取得元が複数ある"
-
 msgid "must be specified"
 msgstr "指定する必要があります"
 
 msgid "n/a"
 msgstr "N/A"
 
-msgid "never"
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
 msgstr ""
 
-msgid "no response from server"
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
+msgid "never"
 msgstr ""
 
 msgid "node is the distributor of the images"
@@ -8058,14 +6582,6 @@ msgstr "このノード上に見つかりません"
 
 msgid "not found on this node"
 msgstr "このノード上に見つかりません"
-
-#, fuzzy
-msgid "ntfy Accounts"
-msgstr "Slack アカウント"
-
-#, fuzzy
-msgid "ntfy Management"
-msgstr "クライアント管理"
 
 msgid "object"
 msgstr "オブジェクト"
@@ -8148,9 +6664,6 @@ msgstr "設定"
 msgid "short"
 msgstr ""
 
-msgid "sites with clients moving back and forth"
-msgstr "クライアントが行き来する複数のサイト"
-
 msgid "snapin"
 msgstr "スナップイン"
 
@@ -8180,6 +6693,10 @@ msgstr ""
 msgid "success"
 msgstr "アクセス"
 
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
+msgstr ""
+
 msgid "task found"
 msgstr "タスクが見つかりました"
 
@@ -8195,9 +6712,6 @@ msgstr "次の処理に使用される Linux カーネル"
 
 msgid "the following command in a terminal"
 msgstr "ターミナルで次のコマンドを実行してください"
-
-msgid "the host defined location where available"
-msgstr "利用可能な場合は、ホストで定義されたロケーション"
 
 #, fuzzy
 msgid "the initrd (initial ramdisk) which is alongside the"
@@ -8248,9 +6762,6 @@ msgstr "要求されたカーネルを取得するため"
 #, fuzzy
 msgid "to get the requested initrd"
 msgstr "要求された Initrd を取得するため"
-
-msgid "to operate in an environment where there may be"
-msgstr "次のような環境でも動作できるように"
 
 msgid "to review."
 msgstr "確認してください。"
@@ -8312,12 +6823,6 @@ msgstr "ウィンドウ"
 msgid "wipe out all of your images stored on"
 msgstr "保存されているすべてのイメージを削除します"
 
-msgid "with status code"
-msgstr ""
-
-msgid "with the host"
-msgstr "ホストと"
-
 msgid "with this group"
 msgstr "このグループと"
 
@@ -8353,8 +6858,25 @@ msgstr ""
 #~ msgid "<p>Version 1.5.5"
 #~ msgstr "<p>バージョン 1.5.5"
 
+#~ msgid "A LDAP setup already exists with this name!"
+#~ msgstr "この名前の LDAP 設定は既に存在します！"
+
+#~ msgid "A Windows Key already exists with this name!"
+#~ msgstr "この名前の Windows キーは既に存在します！"
+
+#, fuzzy
+#~ msgid "A Windows Key already exists with this product key!"
+#~ msgstr "この名前の Windows キーは既に存在します！"
+
 #~ msgid "A broadcast address is required"
 #~ msgstr "ブロードキャストアドレスは必須です"
+
+#~ msgid "A broadcast already exists with this name!"
+#~ msgstr "この名前のブロードキャストは既に存在します！"
+
+#, fuzzy
+#~ msgid "A dmi field must be set!"
+#~ msgstr "名前を設定する必要があります"
 
 #, fuzzy
 #~ msgid "A filter must be specified"
@@ -8366,8 +6888,18 @@ msgstr ""
 #~ msgid "A group is required!"
 #~ msgstr "グループは必須です！"
 
+#~ msgid "A group must be selected."
+#~ msgstr "グループを選択してください。"
+
+#~ msgid "A group name is required!"
+#~ msgstr "グループ名は必須です！"
+
 #~ msgid "A host name is required!"
 #~ msgstr "ホスト名は必須です！"
+
+#, fuzzy
+#~ msgid "A location already exists with this name!"
+#~ msgstr "この名前のスナップインは既に存在します！"
 
 #~ msgid "A location with that name already exists."
 #~ msgstr "この名前のロケーションは既に存在します。"
@@ -8378,8 +6910,19 @@ msgstr ""
 #~ msgid "A password is required!"
 #~ msgstr "パスワードは必須です！"
 
+#, fuzzy
+#~ msgid "A port must be specified"
+#~ msgstr "指定する必要があります"
+
 #~ msgid "A rule already exists with this name"
 #~ msgstr "この名前のルールは既に存在します"
+
+#, fuzzy
+#~ msgid "A selected role no longer exists"
+#~ msgstr "選択したプリンターを追加"
+
+#~ msgid "A site already exists with this name!"
+#~ msgstr "この名前のサイトは既に存在します！"
 
 #~ msgid "A snapin name is required!"
 #~ msgstr "スナップイン名は必須です！"
@@ -8387,8 +6930,24 @@ msgstr ""
 #~ msgid "A storage group is required!"
 #~ msgstr "ストレージグループは必須です！"
 
+#, fuzzy
+#~ msgid "A storage group must be selected."
+#~ msgstr "グループを選択してください。"
+
+#~ msgid "A subnet group already exists with this name!"
+#~ msgstr "この名前のサブネットグループは既に存在します！"
+
+#~ msgid "A subnet group is already using this group."
+#~ msgstr "このグループは既にサブネットグループで使用されています。"
+
 #~ msgid "A subnetgroup already exists with this name!"
 #~ msgstr "この名前のサブネットグループは既に存在します！"
+
+#~ msgid "A task state already exists with this name!"
+#~ msgstr "この名前のタスク状態は既に存在します！"
+
+#~ msgid "A task type already exists with this name!"
+#~ msgstr "この名前のタスクタイプは既に存在します！"
 
 #~ msgid "A user name is required!"
 #~ msgstr "ユーザー名は必須です！"
@@ -8411,6 +6970,9 @@ msgstr ""
 #~ msgid "Accepted"
 #~ msgstr "承認済み"
 
+#~ msgid "Access"
+#~ msgstr "アクセス"
+
 #~ msgid "Access Control Role General"
 #~ msgstr "アクセス制御ロール - 一般"
 
@@ -8426,11 +6988,34 @@ msgstr ""
 #~ msgid "Access Controls"
 #~ msgstr "アクセス制御"
 
+#~ msgid "Access Token"
+#~ msgstr "アクセストークン"
+
 #~ msgid "Access level is still 0 or false"
 #~ msgstr "アクセスレベルが 0 または false のままです"
 
+#, fuzzy
+#~ msgid "Access token"
+#~ msgstr "アクセストークン"
+
+#~ msgid "Accessed By"
+#~ msgstr "アクセス元"
+
+#~ msgid "Account already linked"
+#~ msgstr "アカウントは既にリンクされています"
+
+#, fuzzy
+#~ msgid "Account linked"
+#~ msgstr "アカウントは既にリンクされています"
+
+#~ msgid "Account linked to FOG GUI at"
+#~ msgstr "FOG GUI にリンクされているアカウント："
+
 #~ msgid "Account removed from FOG GUI at"
 #~ msgstr "FOG GUI から削除されたアカウント:"
+
+#~ msgid "Account successfully added!"
+#~ msgstr "アカウントが正常に追加されました！"
 
 #, fuzzy
 #~ msgid "Add Directory Group"
@@ -8439,8 +7024,19 @@ msgstr ""
 #~ msgid "Add Event"
 #~ msgstr "イベントを追加"
 
+#, fuzzy
+#~ msgid "Add Hello World failed!"
+#~ msgstr "ロールの追加に失敗しました！"
+
 #~ msgid "Add Hosts"
 #~ msgstr "ホストを追加"
+
+#, fuzzy
+#~ msgid "Add LDAP group failed!"
+#~ msgstr "グループの追加に失敗しました！"
+
+#~ msgid "Add LDAP server failed!"
+#~ msgstr "LDAP サーバーの追加に失敗しました！"
 
 #~ msgid "Add MAC"
 #~ msgstr "MAC アドレスを追加"
@@ -8469,6 +7065,16 @@ msgstr ""
 #~ msgid "Add any custom text you would like"
 #~ msgstr "任意のカスタムテキストを入力してください"
 
+#~ msgid "Add broadcast failed!"
+#~ msgstr "ブロードキャストの追加に失敗しました！"
+
+#, fuzzy
+#~ msgid "Add capone failed!"
+#~ msgstr "ロケーションの追加に失敗しました！"
+
+#~ msgid "Add location failed!"
+#~ msgstr "ロケーションの追加に失敗しました！"
+
 #, php-format
 #~ msgid "Add new role"
 #~ msgstr "新しいロールを追加"
@@ -8477,11 +7083,48 @@ msgstr ""
 #~ msgid "Add new rule"
 #~ msgstr "新しいルールを追加"
 
+#, fuzzy
+#~ msgid "Add ntfy topic failed!"
+#~ msgstr "スナップインの追加に失敗しました！"
+
+#, fuzzy
+#~ msgid "Add ou failed!"
+#~ msgstr "グループの追加に失敗しました！"
+
+#, fuzzy
+#~ msgid "Add pushbullet account failed!"
+#~ msgstr "Pushbullet アカウントを追加"
+
 #~ msgid "Add selected rules"
 #~ msgstr "選択したルールを追加"
 
 #~ msgid "Add selected users"
 #~ msgstr "選択したユーザーを追加"
+
+#~ msgid "Add site failed!"
+#~ msgstr "サイトの追加に失敗しました！"
+
+#, fuzzy
+#~ msgid "Add slack account failed!"
+#~ msgstr "ロケーションの追加に失敗しました！"
+
+#, fuzzy
+#~ msgid "Add subnet group failed!"
+#~ msgstr "サブネットグループの追加に失敗しました！"
+
+#~ msgid "Add task state failed!"
+#~ msgstr "タスク状態の追加に失敗しました！"
+
+#~ msgid "Add task type failed!"
+#~ msgstr "タスクタイプの追加に失敗しました！"
+
+#, fuzzy
+#~ msgid "Add windows key failed!"
+#~ msgstr "Windows キーの追加に失敗しました！"
+
+#, fuzzy
+#~ msgid "Additional Icon Elements"
+#~ msgstr "追加のアイコン要素"
 
 #~ msgid "Additional MACs"
 #~ msgstr "追加の MAC アドレス"
@@ -8505,6 +7148,10 @@ msgstr ""
 #~ msgid "Advanced Settings"
 #~ msgstr "詳細設定"
 
+#, fuzzy
+#~ msgid "Advanced Task"
+#~ msgstr "詳細"
+
 #~ msgid "Advanced menu command"
 #~ msgstr "詳細メニューコマンド"
 
@@ -8518,11 +7165,36 @@ msgstr ""
 #~ msgid "All filters must be numeric and greater than 1"
 #~ msgstr "帯域幅は 0 より大きい数値で指定してください"
 
+#~ msgid "All methods of binding have failed"
+#~ msgstr "すべてのバインド方法に失敗しました"
+
 #~ msgid "All snapins"
 #~ msgstr "すべてのスナップイン"
 
+#~ msgid "Allows editing/creating of Task States fog currently has."
+#~ msgstr "現在 FOG に登録されているタスク状態の編集および作成を許可します。"
+
+#~ msgid "Allows editing/creating of Task Types fog currently has."
+#~ msgstr "現在 FOG に登録されているタスクタイプの編集および作成を許可します。"
+
 #~ msgid "Although there are multiple levels already"
 #~ msgstr "既に複数のレベルがありますが"
+
+#, fuzzy
+#~ msgid "An LDAP server already exists with this name!"
+#~ msgstr "この名前の LDAP 設定は既に存在します！"
+
+#, fuzzy
+#~ msgid "An OU already exists with this name!"
+#~ msgstr "この名前のイメージは既に存在します！"
+
+#, fuzzy
+#~ msgid "An entry already exists with this name!"
+#~ msgstr "この名前のプリンターは既に存在します！"
+
+#, fuzzy
+#~ msgid "An ou already exists with this name!"
+#~ msgstr "この名前のグループは既に存在します！"
 
 #~ msgid "Approve All Pending MACs for All Hosts"
 #~ msgstr "すべてのホストの保留中 MAC アドレスをすべて承認"
@@ -8551,6 +7223,14 @@ msgstr ""
 #~ msgid "Array"
 #~ msgstr "配列"
 
+#, fuzzy
+#~ msgid "Assigned Group"
+#~ msgstr "管理者グループ"
+
+#, fuzzy
+#~ msgid "Assigned Group Name"
+#~ msgstr "ストレージグループ名"
+
 #~ msgid "Assignment saved successfully"
 #~ msgstr "割り当てを正常に保存しました"
 
@@ -8569,17 +7249,72 @@ msgstr ""
 #~ msgid "Barcode Numbers"
 #~ msgstr "バーコード番号"
 
+#~ msgid "Base Only"
+#~ msgstr "ベースのみ"
+
 #~ msgid "Basic Settings"
 #~ msgstr "基本設定"
 
+#~ msgid "Bind DN"
+#~ msgstr "バインド DN"
+
+#~ msgid "Bind Password"
+#~ msgstr "バインドパスワード"
+
 #~ msgid "Boot Exit settings"
 #~ msgstr "ブート終了設定"
+
+#, fuzzy
+#~ msgid "Broadcast Address"
+#~ msgstr "新しいブロードキャストアドレス"
+
+#~ msgid "Broadcast Create Fail"
+#~ msgstr "ブロードキャストの作成に失敗しました"
+
+#~ msgid "Broadcast Create Success"
+#~ msgstr "ブロードキャストを作成しました"
+
+#, fuzzy
+#~ msgid "Broadcast Description"
+#~ msgstr "ホストの説明"
+
+#~ msgid "Broadcast IP"
+#~ msgstr "ブロードキャスト IP"
+
+#~ msgid "Broadcast Name"
+#~ msgstr "ブロードキャスト名"
+
+#~ msgid "Broadcast Update Fail"
+#~ msgstr "ブロードキャストの更新に失敗しました"
+
+#~ msgid "Broadcast Update Success"
+#~ msgstr "ブロードキャストを更新しました"
+
+#~ msgid "Broadcast added!"
+#~ msgstr "ブロードキャストを追加しました！"
+
+#~ msgid "Broadcast update failed!"
+#~ msgstr "ブロードキャストの更新に失敗しました！"
+
+#~ msgid "Broadcast updated!"
+#~ msgstr "ブロードキャストを更新しました！"
+
+#, fuzzy
+#~ msgid "CA Path"
+#~ msgstr "パス"
+
+#, fuzzy
+#~ msgid "Can be a comma seperated list."
+#~ msgstr "カンマ区切りの一覧を指定できます。"
 
 #~ msgid "Cannot add Primary mac as additional mac"
 #~ msgstr "プライマリ MAC アドレスを追加 MAC アドレスとして追加できません"
 
 #~ msgid "Cannot add a pre-existing primary mac"
 #~ msgstr "既存のプライマリ MAC アドレスを追加できません"
+
+#~ msgid "Cannot bind to the LDAP server"
+#~ msgstr "LDAP サーバーにバインドできません"
 
 #~ msgid "Cannot cancel tasks this way"
 #~ msgstr "この方法ではタスクをキャンセルできません"
@@ -8595,6 +7330,56 @@ msgstr ""
 
 #~ msgid "Cannot view from browser"
 #~ msgstr "ブラウザーから表示できません"
+
+#, fuzzy
+#~ msgid "Capone"
+#~ msgstr "Capone 展開"
+
+#, fuzzy
+#~ msgid "Capone Create Fail"
+#~ msgstr "スナップインの作成に失敗しました"
+
+#, fuzzy
+#~ msgid "Capone Create Success"
+#~ msgstr "スナップインを作成しました"
+
+#~ msgid "Capone Deploy"
+#~ msgstr "Capone 展開"
+
+#, fuzzy
+#~ msgid "Capone Management"
+#~ msgstr "スナップイン管理"
+
+#, fuzzy
+#~ msgid "Capone Update Fail"
+#~ msgstr "スナップインの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Capone Update Success"
+#~ msgstr "スナップインを更新しました"
+
+#, fuzzy
+#~ msgid "Capone added!"
+#~ msgstr "スナップインを追加しました！"
+
+#, fuzzy
+#~ msgid "Capone update failed!"
+#~ msgstr "スナップインの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "Capone updated!"
+#~ msgstr "スナップインを更新しました！"
+
+#, fuzzy
+#~ msgid "Certificate Verification"
+#~ msgstr "新しいロケーションを作成"
+
+#~ msgid "Channel call is invalid"
+#~ msgstr "チャネル呼び出しが無効です"
+
+#, fuzzy
+#~ msgid "Channel not found"
+#~ msgstr "アイコンファイルが見つかりません"
 
 #~ msgid "Chat is also available on the forums for more realtime help"
 #~ msgstr "よりリアルタイムな支援が必要な場合はフォーラムのチャットも利用できます"
@@ -8662,8 +7447,71 @@ msgstr ""
 #~ msgid "Conflicting path/file"
 #~ msgstr "競合するパス/ファイル"
 
+#, fuzzy
+#~ msgid "Could not read the group mappings"
+#~ msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+#~ msgid "Could not read the recorded grants"
+#~ msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+#~ msgid "Could not record the granted targets"
+#~ msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+#~ msgid "Could not seed the granted targets"
+#~ msgstr "一時ファイルを読み取れませんでした。"
+
 #~ msgid "Create New Access Control Role"
 #~ msgstr "新しいアクセス制御ロールを作成"
+
+#, fuzzy
+#~ msgid "Create New Broadcast"
+#~ msgstr "WOL ブロードキャストを作成しますか？"
+
+#, fuzzy
+#~ msgid "Create New Capone"
+#~ msgstr "新しいスナップインを作成"
+
+#, fuzzy
+#~ msgid "Create New Hello World"
+#~ msgstr "新しいキーを作成"
+
+#, fuzzy
+#~ msgid "Create New LDAP Group"
+#~ msgstr "新しいグループを作成"
+
+#, fuzzy
+#~ msgid "Create New LDAP Server"
+#~ msgstr "新しい LDAP を作成"
+
+#~ msgid "Create New Location"
+#~ msgstr "新しいロケーションを作成"
+
+#, fuzzy
+#~ msgid "Create New OU"
+#~ msgstr "新しい %s を作成"
+
+#, fuzzy
+#~ msgid "Create New Site"
+#~ msgstr "新しいプリンターを作成"
+
+#, fuzzy
+#~ msgid "Create New Subnet Group"
+#~ msgstr "新しいサブネットグループを作成しますか？"
+
+#, fuzzy
+#~ msgid "Create New Task State"
+#~ msgstr "タスク状態を作成"
+
+#, fuzzy
+#~ msgid "Create New Task Type"
+#~ msgstr "タスクタイプを作成"
+
+#, fuzzy
+#~ msgid "Create New Windows Key"
+#~ msgstr "新しい Windows キー"
 
 #~ msgid "Create New iPXE Menu Entry"
 #~ msgstr "新しい iPXE メニューエントリを作成"
@@ -8684,6 +7532,10 @@ msgstr ""
 #~ msgid "Create user?"
 #~ msgstr "ユーザーを作成しますか？"
 
+#, fuzzy
+#~ msgid "Credentials"
+#~ msgstr "クレジット"
+
 #~ msgid "Cross platform"
 #~ msgstr "クロスプラットフォーム"
 
@@ -8695,6 +7547,9 @@ msgstr ""
 
 #~ msgid "Current settings"
 #~ msgstr "現在の設定"
+
+#~ msgid "DMI Field"
+#~ msgstr "DMI フィールド"
 
 #~ msgid "DMI Key"
 #~ msgstr "DMI キー"
@@ -8722,6 +7577,9 @@ msgstr ""
 
 #~ msgid "Date of checkout"
 #~ msgstr "貸出日"
+
+#~ msgid "Default is disabled"
+#~ msgstr "既定では無効です"
 
 #~ msgid "Default log out time (in minutes)"
 #~ msgstr "既定のログアウト時間（分）"
@@ -8759,6 +7617,26 @@ msgstr ""
 #~ msgid "Directories"
 #~ msgstr "ディレクトリ"
 
+#, fuzzy
+#~ msgid "Directory Group"
+#~ msgstr "ディレクトリ"
+
+#, fuzzy
+#~ msgid "Directory Group Name"
+#~ msgstr "ディレクトリ"
+
+#, fuzzy
+#~ msgid "Display Name Attribute"
+#~ msgstr "ユーザー名属性"
+
+#, fuzzy
+#~ msgid "Display Name Enabled"
+#~ msgstr "グラフ有効"
+
+#, fuzzy
+#~ msgid "Domain Admins"
+#~ msgstr "ドメイン名"
+
 #~ msgid "Domain Password Legacy"
 #~ msgstr "従来のドメインパスワード"
 
@@ -8770,6 +7648,14 @@ msgstr ""
 
 #~ msgid "ESC is defaulted"
 #~ msgstr "ESC が既定です"
+
+#, fuzzy
+#~ msgid "Edit Capone"
+#~ msgstr "ノードを編集"
+
+#, fuzzy
+#~ msgid "Edit Capone ID"
+#~ msgstr "ノードを編集"
 
 #~ msgid "Edit Host"
 #~ msgstr "ホストを編集"
@@ -8786,8 +7672,15 @@ msgstr ""
 #~ msgid "Either reboot or shutdown action must be used."
 #~ msgstr "再起動またはシャットダウン操作のいずれかを使用する必要があります。"
 
+#~ msgid "Email"
+#~ msgstr "メール"
+
 #~ msgid "Enable Nested Group Matching (Active Directory only)"
 #~ msgstr "ネストされたグループ照合を有効化（Active Directory のみ）"
+
+#, fuzzy
+#~ msgid "Enable Sending via Location"
+#~ msgstr "スナップインロケーション"
 
 #~ msgid "End Date"
 #~ msgstr "終了日"
@@ -8840,8 +7733,16 @@ msgstr ""
 #~ msgid "Export Accesscontrols"
 #~ msgstr "アクセス制御をエクスポート"
 
+#, fuzzy
+#~ msgid "Export Broadcasts"
+#~ msgstr "WOL ブロードキャストをエクスポート"
+
 #~ msgid "Export CSV"
 #~ msgstr "CSV をエクスポート"
+
+#, fuzzy
+#~ msgid "Export Capones"
+#~ msgstr "スナップインをエクスポート"
 
 #~ msgid "Export Checksums"
 #~ msgstr "チェックサムをエクスポート"
@@ -8861,14 +7762,45 @@ msgstr ""
 #~ msgid "Export Images"
 #~ msgstr "イメージをエクスポート"
 
+#, fuzzy
+#~ msgid "Export LDAP Servers"
+#~ msgstr "LDAP サーバー"
+
 #~ msgid "Export LDAPs"
 #~ msgstr "LDAP をエクスポート"
+
+#~ msgid "Export Locations"
+#~ msgstr "ロケーションをエクスポート"
+
+#, fuzzy
+#~ msgid "Export OUs"
+#~ msgstr "ユーザーをエクスポート"
 
 #~ msgid "Export PDF"
 #~ msgstr "PDF をエクスポート"
 
 #~ msgid "Export Printers"
 #~ msgstr "プリンターをエクスポート"
+
+#~ msgid "Export Sites"
+#~ msgstr "サイトをエクスポート"
+
+#, fuzzy
+#~ msgid "Export Subnet Groups"
+#~ msgstr "サブネットグループをエクスポート"
+
+#~ msgid "Export Task States"
+#~ msgstr "タスク状態をエクスポート"
+
+#~ msgid "Export Task Types"
+#~ msgstr "タスクタイプをエクスポート"
+
+#, fuzzy
+#~ msgid "Export WOL Broadcasts"
+#~ msgstr "WOL ブロードキャストをエクスポート"
+
+#~ msgid "Export Windows Keys"
+#~ msgstr "Windows キーをエクスポート"
 
 #~ msgid "Extension"
 #~ msgstr "拡張子"
@@ -8986,6 +7918,9 @@ msgstr ""
 #~ msgid "Filesize"
 #~ msgstr "ファイルサイズ"
 
+#~ msgid "Filter"
+#~ msgstr "フィルター"
+
 #~ msgid "For example, a GPO policy to push"
 #~ msgstr "たとえば、配布するための GPO ポリシー"
 
@@ -9001,24 +7936,93 @@ msgstr ""
 #~ msgid "Found snapin information"
 #~ msgstr "スナップイン情報が見つかりました。"
 
+#, fuzzy
+#~ msgid "FreeIPA"
+#~ msgstr "空き"
+
 #~ msgid "Full Inventory Export"
 #~ msgstr "完全なインベントリをエクスポート"
+
+#~ msgid "Function does not exist"
+#~ msgstr "関数が存在しません"
 
 #~ msgid "Generate"
 #~ msgstr "生成"
 
+#~ msgid "Generic LDAP"
+#~ msgstr "汎用 LDAP"
+
+#, fuzzy
+#~ msgid "Global Options"
+#~ msgstr "ブートオプション"
+
+#, fuzzy
+#~ msgid "Global Settings Update Fail"
+#~ msgstr "設定の更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Global Settings Update Success"
+#~ msgstr "設定を更新しました"
+
+#, fuzzy
+#~ msgid "Global settings updated!"
+#~ msgstr "ロケーションを更新しました！"
+
 #~ msgid "Goto task list"
 #~ msgstr "タスク一覧へ移動"
 
+#, fuzzy
+#~ msgid "Group Association"
+#~ msgstr "グループの関連付け"
+
 #~ msgid "Group Bios Exit Type"
 #~ msgstr "グループ BIOS 終了方法"
+
+#, fuzzy
+#~ msgid "Group Count"
+#~ msgstr "グループ自動ログアウト"
 
 #~ msgid "Group FOG Client Module configuration"
 #~ msgstr "グループ FOG クライアントモジュール設定"
 
 #, fuzzy
+#~ msgid "Group Location"
+#~ msgstr "グループの関連付け"
+
+#, fuzzy
+#~ msgid "Group Location Update Success"
+#~ msgstr "ロケーションを更新しました"
+
+#, fuzzy
+#~ msgid "Group Location Updated!"
+#~ msgstr "ロケーションを更新しました！"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "グループ管理"
+
+#, fuzzy
+#~ msgid "Group Matching"
+#~ msgstr "グループ管理"
+
+#~ msgid "Group Member Attribute"
+#~ msgstr "グループメンバー属性"
+
+#, fuzzy
+#~ msgid "Group Name Attribute"
+#~ msgstr "グループメンバー属性"
+
+#, fuzzy
+#~ msgid "Group OU"
+#~ msgstr "グループ"
+
+#, fuzzy
+#~ msgid "Group OU Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Group OU Updated!"
+#~ msgstr "グループを更新しました！"
 
 #~ msgid "Group Power Management Remove"
 #~ msgstr "グループ電源管理を削除"
@@ -9029,11 +8033,42 @@ msgstr ""
 #~ msgid "Group Screen Resolution"
 #~ msgstr "グループ画面解像度"
 
+#~ msgid "Group Search DN"
+#~ msgstr "グループ検索 DN"
+
 #~ msgid "Group Search DN did not return any results"
 #~ msgstr "グループ検索 DN は結果を返しませんでした"
 
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "グループイメージ"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
+#, fuzzy
+#~ msgid "Group Update Location Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Group Update OU Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "グループの更新に失敗しました"
+
 #~ msgid "Group general"
 #~ msgstr "グループ全般"
+
+#, fuzzy
+#~ msgid "Group membership search failed"
+#~ msgstr "ユーザーの更新に失敗しました！"
 
 #~ msgid "Groups are not allowed to schedule upload tasks"
 #~ msgstr "グループではアップロードタスクをスケジュールできません"
@@ -9049,6 +8084,38 @@ msgstr ""
 
 #~ msgid "HD Serial"
 #~ msgstr "HD シリアル"
+
+#, fuzzy
+#~ msgid "Hello World Create Fail"
+#~ msgstr "ホストの作成に失敗しました"
+
+#, fuzzy
+#~ msgid "Hello World Create Success"
+#~ msgstr "ホストの作成に成功しました"
+
+#, fuzzy
+#~ msgid "Hello World Management"
+#~ msgstr "レポート管理"
+
+#, fuzzy
+#~ msgid "Hello World Update Fail"
+#~ msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Hello World Update Success"
+#~ msgstr "ホストの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Hello World added!"
+#~ msgstr "ホストを追加しました！"
+
+#, fuzzy
+#~ msgid "Hello World update failed!"
+#~ msgstr "ロールの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "Hello World updated!"
+#~ msgstr "ホストを更新しました！"
 
 #~ msgid "Hide Menu"
 #~ msgstr "メニューを非表示"
@@ -9083,8 +8150,16 @@ msgstr ""
 #~ msgid "Host AD Join"
 #~ msgstr "ホスト AD 参加"
 
+#, fuzzy
+#~ msgid "Host Association"
+#~ msgstr "関連付けられたホスト"
+
 #~ msgid "Host Bios Exit Type"
 #~ msgstr "ホスト BIOS 終了方法"
+
+#, fuzzy
+#~ msgid "Host Count"
+#~ msgstr "ホスト Init"
 
 #~ msgid "Host Desc"
 #~ msgstr "ホスト説明"
@@ -9098,6 +8173,17 @@ msgstr ""
 #~ msgid "Host Listing Export"
 #~ msgstr "ホスト一覧をエクスポート"
 
+#~ msgid "Host Location"
+#~ msgstr "ホスト ロケーション"
+
+#, fuzzy
+#~ msgid "Host Location Update Success"
+#~ msgstr "ロケーションを更新しました"
+
+#, fuzzy
+#~ msgid "Host Location Updated!"
+#~ msgstr "ロケーションを更新しました！"
+
 #~ msgid "Host MAC"
 #~ msgstr "ホスト MAC アドレス"
 
@@ -9107,6 +8193,18 @@ msgstr ""
 #~ msgid "Host Memory"
 #~ msgstr "ホストメモリ"
 
+#, fuzzy
+#~ msgid "Host OU"
+#~ msgstr "ホスト AD OU"
+
+#, fuzzy
+#~ msgid "Host OU Update Success"
+#~ msgstr "ホストの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Host OU Updated!"
+#~ msgstr "ホストを更新しました！"
+
 #~ msgid "Host Pending MAC"
 #~ msgstr "ホスト保留中 MAC アドレス"
 
@@ -9115,6 +8213,17 @@ msgstr ""
 
 #~ msgid "Host Screen Resolution"
 #~ msgstr "ホスト画面解像度"
+
+#~ msgid "Host Site"
+#~ msgstr "ホスト サイト"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "サイトを更新しました！"
 
 #~ msgid "Host Snapins"
 #~ msgstr "ホスト スナップイン"
@@ -9127,6 +8236,18 @@ msgstr ""
 
 #~ msgid "Host Unassociated Snapins"
 #~ msgstr "ホストに関連付けられていないスナップイン"
+
+#, fuzzy
+#~ msgid "Host Update Location Fail"
+#~ msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Host Update OU Fail"
+#~ msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "ホストの更新に失敗しました"
 
 #~ msgid "Host Virus History"
 #~ msgstr "ホスト ウイルス 履歴"
@@ -9164,6 +8285,9 @@ msgstr ""
 #~ msgid "ID Must be set to edit"
 #~ msgstr "編集するには ID を指定する必要があります"
 
+#~ msgid "Icon"
+#~ msgstr "アイコン"
+
 #~ msgid "If a new module is published the client will"
 #~ msgstr "新しいモジュールが公開されると、クライアントは"
 
@@ -9185,6 +8309,10 @@ msgstr ""
 #~ msgid "If you need help understanding what items are needed please"
 #~ msgstr "必要な項目についてサポートが必要な場合は"
 
+#, fuzzy
+#~ msgid "Image Associated"
+#~ msgstr "関連付けられたイメージ: "
+
 #~ msgid "Image Definition"
 #~ msgstr "イメージ定義"
 
@@ -9200,11 +8328,31 @@ msgstr ""
 #~ msgid "Image Membership"
 #~ msgstr "イメージメンバーシップ"
 
+#, fuzzy
+#~ msgid "Image OS"
+#~ msgstr "イメージサイズ"
+
 #~ msgid "Image Size: ON CLIENT"
 #~ msgstr "イメージサイズ: クライアント上"
 
 #~ msgid "Image Size: ON SERVER"
 #~ msgstr "イメージサイズ: サーバー上"
+
+#, fuzzy
+#~ msgid "Image Windows Key"
+#~ msgstr "新しい Windows キー"
+
+#, fuzzy
+#~ msgid "Image Windows Key Update Fail"
+#~ msgstr "Windows キーの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Image Windows Key Update Success"
+#~ msgstr "Windows キーの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Image Windows Key Updated!"
+#~ msgstr "Windows キーを更新しました！"
 
 #~ msgid "Image to DMI Mappings"
 #~ msgstr "イメージと DMI のマッピング"
@@ -9215,8 +8363,16 @@ msgstr ""
 #~ msgid "Import Accesscontrols"
 #~ msgstr "アクセス制御をインポート"
 
+#, fuzzy
+#~ msgid "Import Broadcasts"
+#~ msgstr "WOL ブロードキャストをインポート"
+
 #~ msgid "Import CSV?"
 #~ msgstr "CSV をインポートしますか？"
+
+#, fuzzy
+#~ msgid "Import Capones"
+#~ msgstr "スナップインをインポート"
 
 #~ msgid "Import Database?"
 #~ msgstr "データベースをインポートしますか？"
@@ -9236,14 +8392,47 @@ msgstr ""
 #~ msgid "Import LDAPs"
 #~ msgstr "LDAP をインポート"
 
+#~ msgid "Import Locations"
+#~ msgstr "ロケーションをインポート"
+
+#, fuzzy
+#~ msgid "Import OUs"
+#~ msgstr "ユーザーをインポート"
+
 #~ msgid "Import Printers"
 #~ msgstr "プリンターをインポート"
+
+#~ msgid "Import Sites"
+#~ msgstr "サイトをインポート"
+
+#, fuzzy
+#~ msgid "Import Subnet Groups"
+#~ msgstr "サブネットグループをインポート"
+
+#~ msgid "Import Task States"
+#~ msgstr "タスク状態をインポート"
+
+#~ msgid "Import Task Types"
+#~ msgstr "タスクタイプをインポート"
+
+#~ msgid "Import Windows Keys"
+#~ msgstr "Windows キーをインポート"
 
 #~ msgid "Included Items"
 #~ msgstr "含まれる項目"
 
 #~ msgid "Info"
 #~ msgstr "情報"
+
+#~ msgid "Init"
+#~ msgstr "Init"
+
+#, fuzzy
+#~ msgid "Init FS"
+#~ msgstr "Init"
+
+#~ msgid "Initial Template"
+#~ msgstr "初期テンプレート"
 
 #~ msgid "Initrd Name"
 #~ msgstr "Initrd 名"
@@ -9275,6 +8464,10 @@ msgstr ""
 #~ msgid "Invalid Type"
 #~ msgstr "無効なタイプ"
 
+#, fuzzy, php-format
+#~ msgid "Invalid certificate verification level: %s"
+#~ msgstr "有効な LDAP ポートを選択してください"
+
 #~ msgid "Invalid data found"
 #~ msgstr "無効なデータが見つかりました"
 
@@ -9283,6 +8476,9 @@ msgstr ""
 
 #~ msgid "Invalid image assigned to host"
 #~ msgstr "ホストに割り当てられたイメージが無効です"
+
+#~ msgid "Invalid method called"
+#~ msgstr "無効なメソッドが呼び出されました"
 
 #~ msgid "Invalid numeric entry"
 #~ msgstr "無効な数値入力です"
@@ -9302,8 +8498,14 @@ msgstr ""
 #~ msgid "Invalid tasking type passed"
 #~ msgstr "無効なタスクタイプが渡されました"
 
+#~ msgid "Invalid token passed"
+#~ msgstr "無効なトークンが渡されました"
+
 #~ msgid "Invalid user and/or channel passed"
 #~ msgstr "無効なユーザーまたはチャンネルが渡されました"
+
+#~ msgid "Is Advanced"
+#~ msgstr "詳細"
 
 #~ msgid "Is Restricted User "
 #~ msgstr "制限付きユーザー "
@@ -9317,6 +8519,9 @@ msgstr ""
 #~ msgid "It is primarily geared for the smart installer methodology now"
 #~ msgstr "現在は主にスマートインストーラー方式向けに設計されています"
 
+#~ msgid "It tells the client to download snapins from"
+#~ msgstr "クライアントに次の場所からスナップインをダウンロードするよう指示します"
+
 #~ msgid "Items must be an array"
 #~ msgstr "項目は配列である必要があります"
 
@@ -9326,8 +8531,21 @@ msgstr ""
 #~ msgid "Join Domain after deploy"
 #~ msgstr "展開後にドメイン参加"
 
+#~ msgid "Kernel Args"
+#~ msgstr "カーネル引数"
+
+#~ msgid "Kernel Arguments"
+#~ msgstr "カーネル引数"
+
 #~ msgid "Kernel Name"
 #~ msgstr "カーネル名"
+
+#~ msgid "Kernels/Inits from location"
+#~ msgstr "ロケーションからのカーネル/Init"
+
+#, fuzzy
+#~ msgid "Key Association"
+#~ msgstr "ルールの関連付け"
 
 #~ msgid "Key Name"
 #~ msgstr "キー名"
@@ -9335,8 +8553,124 @@ msgstr ""
 #~ msgid "Key must be a string"
 #~ msgstr "キーは文字列で指定してください"
 
+#, fuzzy
+#~ msgid "LDAP"
+#~ msgstr "OpenLDAP"
+
+#, fuzzy
+#~ msgid "LDAP Connection  Name"
+#~ msgstr "LDAP 接続名"
+
+#~ msgid "LDAP Connection Name"
+#~ msgstr "LDAP 接続名"
+
+#~ msgid "LDAP Create Fail"
+#~ msgstr "LDAP の作成に失敗しました"
+
+#~ msgid "LDAP Create Success"
+#~ msgstr "LDAP を作成しました"
+
 #~ msgid "LDAP General"
 #~ msgstr "LDAP 全般"
+
+#, fuzzy
+#~ msgid "LDAP Group"
+#~ msgstr "すべてのグループ"
+
+#, fuzzy
+#~ msgid "LDAP Group Associations"
+#~ msgstr "グループの関連付け"
+
+#, fuzzy
+#~ msgid "LDAP Group Create Fail"
+#~ msgstr "グループの作成に失敗しました"
+
+#, fuzzy
+#~ msgid "LDAP Group Create Success"
+#~ msgstr "グループの作成に成功しました"
+
+#, fuzzy
+#~ msgid "LDAP Group Management"
+#~ msgstr "グループ管理"
+
+#, fuzzy
+#~ msgid "LDAP Group Role Associations"
+#~ msgstr "グループの関連付け"
+
+#, fuzzy
+#~ msgid "LDAP Group Update Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "LDAP Group Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "LDAP Group User Group Associations"
+#~ msgstr "グループの関連付け"
+
+#, fuzzy
+#~ msgid "LDAP Group added!"
+#~ msgstr "グループを追加しました！"
+
+#, fuzzy
+#~ msgid "LDAP Group associations updated!"
+#~ msgstr "ロケーションを更新しました！"
+
+#, fuzzy
+#~ msgid "LDAP Group update failed!"
+#~ msgstr "グループの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "LDAP Group updated!"
+#~ msgstr "グループを更新しました！"
+
+#, fuzzy
+#~ msgid "LDAP Groups"
+#~ msgstr "すべてのグループ"
+
+#~ msgid "LDAP Management"
+#~ msgstr "LDAP 管理"
+
+#~ msgid "LDAP Ports"
+#~ msgstr "LDAP ポート"
+
+#~ msgid "LDAP Server"
+#~ msgstr "LDAP サーバー"
+
+#~ msgid "LDAP Server Address"
+#~ msgstr "LDAP サーバーアドレス"
+
+#~ msgid "LDAP Server Description"
+#~ msgstr "LDAP サーバーの説明"
+
+#, fuzzy
+#~ msgid "LDAP Server Name"
+#~ msgstr "LDAP サーバーを追加しました！"
+
+#~ msgid "LDAP Server Port"
+#~ msgstr "LDAP サーバーポート"
+
+#, fuzzy
+#~ msgid "LDAP Server Update Fail"
+#~ msgstr "LDAP の更新に失敗しました"
+
+#, fuzzy
+#~ msgid "LDAP Server Update Success"
+#~ msgstr "LDAP を更新しました"
+
+#~ msgid "LDAP Server added!"
+#~ msgstr "LDAP サーバーを追加しました！"
+
+#, fuzzy
+#~ msgid "LDAP Server update failed!"
+#~ msgstr "LDAP サーバーを更新しました！"
+
+#~ msgid "LDAP Server updated!"
+#~ msgstr "LDAP サーバーを更新しました！"
+
+#~ msgid "LDAP Servers"
+#~ msgstr "LDAP サーバー"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -9348,14 +8682,48 @@ msgstr ""
 #~ msgid "Last captured"
 #~ msgstr "最終キャプチャ"
 
+#, fuzzy
+#~ msgid "Leave blank to keep the current password"
+#~ msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
+
 #~ msgid "Link New Account"
 #~ msgstr "新しいアカウントをリンク"
+
+#~ msgid "Link Pushbullet Account"
+#~ msgstr "Pushbullet アカウントをリンク"
+
+#~ msgid "Link Pushbullet Account Fail"
+#~ msgstr "Pushbullet アカウントのリンクに失敗しました"
+
+#~ msgid "Link Pushbullet Account Success"
+#~ msgstr "Pushbullet アカウントをリンクしました"
+
+#~ msgid "Link Slack Account"
+#~ msgstr "Slack アカウントをリンク"
+
+#~ msgid "Link Slack Account Fail"
+#~ msgstr "Slack アカウントのリンクに失敗しました"
+
+#~ msgid "Link Slack Account Success"
+#~ msgstr "Slack アカウントをリンクしました"
 
 #~ msgid "Link must be a string"
 #~ msgstr "リンクは文字列である必要があります"
 
+#, fuzzy
+#~ msgid "Link ntfy Topic Success"
+#~ msgstr "Slack アカウントをリンクしました"
+
 #~ msgid "Linux"
 #~ msgstr "Linux"
+
+#, fuzzy
+#~ msgid "List All Task States"
+#~ msgstr "タスク状態"
+
+#, fuzzy
+#~ msgid "List All Task Types"
+#~ msgstr "タスクタイプ"
 
 #, php-format
 #~ msgid "List all roles"
@@ -9364,8 +8732,46 @@ msgstr ""
 #~ msgid "Load MAC Vendors"
 #~ msgstr "MAC ベンダーを読み込み"
 
+#~ msgid "Location Association"
+#~ msgstr "ロケーションの関連付け"
+
+#~ msgid "Location Create Fail"
+#~ msgstr "ロケーションの作成に失敗しました"
+
+#~ msgid "Location Create Success"
+#~ msgstr "ロケーションを作成しました"
+
+#, fuzzy
+#~ msgid "Location Description"
+#~ msgstr "ロケーションの関連付け"
+
 #~ msgid "Location General"
 #~ msgstr "ロケーション全般"
+
+#, fuzzy
+#~ msgid "Location Host Associations"
+#~ msgstr "ロケーションの関連付け"
+
+#~ msgid "Location Name"
+#~ msgstr "ロケーション名"
+
+#~ msgid "Location Update Fail"
+#~ msgstr "ロケーションの更新に失敗しました"
+
+#~ msgid "Location Update Success"
+#~ msgstr "ロケーションを更新しました"
+
+#~ msgid "Location added!"
+#~ msgstr "ロケーションを追加しました！"
+
+#~ msgid "Location is a plugin that allows your FOG Server"
+#~ msgstr "ロケーションは、FOG サーバーで利用できるプラグインです"
+
+#~ msgid "Location update failed!"
+#~ msgstr "ロケーションの更新に失敗しました！"
+
+#~ msgid "Location updated!"
+#~ msgstr "ロケーションを更新しました！"
 
 #~ msgid "Location/Deployed"
 #~ msgstr "ロケーション/展開済み"
@@ -9431,6 +8837,9 @@ msgstr ""
 #~ msgid "Menu colors, pairings, settings"
 #~ msgstr "メニューの色、関連付け、設定"
 
+#~ msgid "Microsoft AD"
+#~ msgstr "Microsoft AD"
+
 #~ msgid "Mind you"
 #~ msgstr "注意してください"
 
@@ -9470,6 +8879,9 @@ msgstr ""
 #~ msgid "Must use an"
 #~ msgstr "次を使用する必要があります"
 
+#~ msgid "NOTE"
+#~ msgstr "注意"
+
 #~ msgid "NOTICE"
 #~ msgstr "通知"
 
@@ -9481,6 +8893,26 @@ msgstr ""
 
 #~ msgid "Needs action string of ask, get, or list"
 #~ msgstr "action には ask、get、list のいずれかの文字列が必要です"
+
+#, fuzzy
+#~ msgid "Nested Groups"
+#~ msgstr "グループ"
+
+#, fuzzy
+#~ msgid "Nested depth must be a number"
+#~ msgstr "新しいキーは文字列である必要があります"
+
+#, fuzzy
+#~ msgid "Nested depth must be between 0 and 100, or blank to inherit"
+#~ msgstr "ユーザー名は 41 文字未満で指定してください"
+
+#, fuzzy
+#~ msgid "Nested group depth must be between 1 and 100"
+#~ msgstr "ユーザー名は 41 文字未満で指定してください"
+
+#, fuzzy
+#~ msgid "Nested group search failed"
+#~ msgstr "ユーザーの更新に失敗しました！"
 
 #~ msgid "New Client and Utilities"
 #~ msgstr "新しいクライアントとユーティリティ"
@@ -9542,6 +8974,9 @@ msgstr ""
 #~ msgid "No Site"
 #~ msgstr "サイトなし"
 
+#~ msgid "No access is allowed"
+#~ msgstr "アクセスは許可されていません"
+
 #~ msgid "No complete time recorded"
 #~ msgstr "完了時刻は記録されていません"
 
@@ -9578,9 +9013,6 @@ msgstr ""
 
 #~ msgid "No query sent"
 #~ msgstr "クエリが送信されていません"
-
-#~ msgid "No role selected"
-#~ msgstr "ロールが選択されていません"
 
 #~ msgid "No rule selected"
 #~ msgstr "ルールが選択されていません"
@@ -9628,6 +9060,54 @@ msgstr ""
 #~ msgid "Nothing passed to search for"
 #~ msgstr "検索対象が渡されていません"
 
+#, fuzzy
+#~ msgid "OU Association"
+#~ msgstr "ルールの関連付け"
+
+#, fuzzy
+#~ msgid "OU Create Fail"
+#~ msgstr "ユーザーの作成に失敗しました"
+
+#, fuzzy
+#~ msgid "OU Create Success"
+#~ msgstr "ユーザーの作成に成功しました"
+
+#, fuzzy
+#~ msgid "OU Description"
+#~ msgstr "説明"
+
+#, fuzzy
+#~ msgid "OU Host Associations"
+#~ msgstr "ホストに関連付けられたスナップイン"
+
+#, fuzzy
+#~ msgid "OU Management"
+#~ msgstr "管理"
+
+#, fuzzy
+#~ msgid "OU Name"
+#~ msgstr "OS 名"
+
+#, fuzzy
+#~ msgid "OU Update Fail"
+#~ msgstr "ユーザーの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "OU Update Success"
+#~ msgstr "ユーザーの更新に成功しました"
+
+#, fuzzy
+#~ msgid "OU added!"
+#~ msgstr "ユーザーを追加しました！"
+
+#, fuzzy
+#~ msgid "OU update failed!"
+#~ msgstr "ユーザーの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "OU updated!"
+#~ msgstr "ユーザーを更新しました！"
+
 #~ msgid "Object"
 #~ msgstr "オブジェクト"
 
@@ -9636,6 +9116,9 @@ msgstr ""
 
 #~ msgid "Only Assigned Printers"
 #~ msgstr "割り当てられたプリンターのみ"
+
+#~ msgid "OpenLDAP"
+#~ msgstr "OpenLDAP"
 
 #~ msgid "Option below enforces a login system"
 #~ msgstr "以下のオプションでログイン機能を有効にします"
@@ -9751,11 +9234,18 @@ msgstr ""
 #~ msgid "Please enter a mac address"
 #~ msgstr "MAC アドレスを入力してください"
 
+#, fuzzy
+#~ msgid "Please enter a name"
+#~ msgstr "ホスト名を入力してください"
+
 #~ msgid "Please enter a name for this LDAP server."
 #~ msgstr "この LDAP サーバーの名前を入力してください。"
 
 #~ msgid "Please enter a name for this location."
 #~ msgstr "このロケーションの名前を入力してください。"
+
+#~ msgid "Please enter a valid CIDR subnet."
+#~ msgstr "有効な CIDR サブネットを入力してください。"
 
 #~ msgid "Please enter a valid CIDR subnets comma separated list"
 #~ msgstr "有効な CIDR サブネットをカンマ区切りで入力してください"
@@ -9769,6 +9259,21 @@ msgstr ""
 #~ msgid "Please input a session name"
 #~ msgstr "セッション名を入力してください"
 
+#, fuzzy
+#~ msgid "Please select a valid certificate verification level"
+#~ msgstr "有効な LDAP ポートを選択してください"
+
+#~ msgid "Please select a valid ldap port"
+#~ msgstr "有効な LDAP ポートを選択してください"
+
+#, fuzzy
+#~ msgid "Please select a valid nested group strategy"
+#~ msgstr "有効な LDAP ポートを選択してください"
+
+#, fuzzy
+#~ msgid "Please select an LDAP server!"
+#~ msgstr "使用する LDAP ポートを選択してください"
+
 #~ msgid "Please select the snapin you want to install"
 #~ msgstr "インストールするスナップインを選択してください"
 
@@ -9781,8 +9286,8 @@ msgstr ""
 #~ msgid "Please wait until a slot is open"
 #~ msgstr "空きスロットができるまでお待ちください"
 
-#~ msgid "Plugin Configuration"
-#~ msgstr "プラグイン構成"
+#~ msgid "Port is not valid ldap/ldaps port"
+#~ msgstr "ポートは有効な ldap/ldaps ポートではありません"
 
 #~ msgid "Postfix requires an action of login, logout, or start to operate"
 #~ msgstr "Postfix を動作させるには login、logout、または start アクションが必要です"
@@ -9805,11 +9310,24 @@ msgstr ""
 #~ msgid "Printer name already exists"
 #~ msgstr "このプリンター名は既に存在します"
 
+#~ msgid "Pushbullet Accounts"
+#~ msgstr "Pushbullet アカウント"
+
+#~ msgid "Pushbullet Management"
+#~ msgstr "Pushbullet 管理"
+
+#, fuzzy
+#~ msgid "Pushbullet Token"
+#~ msgstr "Pushbullet アカウント"
+
 #~ msgid "Quarantine"
 #~ msgstr "隔離"
 
 #~ msgid "Quick"
 #~ msgstr "クイック"
+
+#~ msgid "Reboot after deploy"
+#~ msgstr "展開後に再起動"
 
 #~ msgid "Reboot after install"
 #~ msgstr "インストール後に再起動"
@@ -9819,6 +9337,9 @@ msgstr ""
 
 #~ msgid "Releasing Staff Initials"
 #~ msgstr "返却担当者のイニシャル"
+
+#~ msgid "Remote address attempting to login"
+#~ msgstr "ログインを試行したリモートアドレス"
 
 #~ msgid "Remove "
 #~ msgstr "削除 "
@@ -9831,6 +9352,10 @@ msgstr ""
 
 #~ msgid "Remove Images"
 #~ msgstr "イメージを削除"
+
+#, fuzzy
+#~ msgid "Remove LDAP Group Associations"
+#~ msgstr "グループの関連付け"
 
 #~ msgid "Remove MAC"
 #~ msgstr "MAC アドレスを削除"
@@ -9871,6 +9396,9 @@ msgstr ""
 #~ msgid "Requires templates to process"
 #~ msgstr "処理するテンプレートが必要です"
 
+#~ msgid "Result"
+#~ msgstr "結果"
+
 #~ msgid "Results"
 #~ msgstr "結果"
 
@@ -9889,6 +9417,10 @@ msgstr ""
 
 #~ msgid "Rexmit Hello Interval"
 #~ msgstr "Hello 再送信間隔"
+
+#, fuzzy
+#~ msgid "Role"
+#~ msgstr "ロール"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "行番号が正しく設定されていません"
@@ -9935,8 +9467,30 @@ msgstr ""
 #~ msgid "Schedule with shutdown"
 #~ msgstr "シャットダウンを含めてスケジュール"
 
+#~ msgid "Search Base DN"
+#~ msgstr "検索ベース DN"
+
+#~ msgid "Search DN"
+#~ msgstr "検索 DN"
+
+#~ msgid "Search DN did not return any results"
+#~ msgstr "検索 DN は結果を返しませんでした"
+
+#, fuzzy
+#~ msgid "Search Key"
+#~ msgstr "検索"
+
+#~ msgid "Search Method"
+#~ msgstr "検索方法"
+
+#~ msgid "Search Scope"
+#~ msgstr "検索範囲"
+
 #~ msgid "Search pattern"
 #~ msgstr "検索パターン"
+
+#~ msgid "Search results returned false"
+#~ msgstr "検索結果が false を返しました"
 
 #~ msgid "Select Image"
 #~ msgstr "イメージを選択"
@@ -9971,6 +9525,10 @@ msgstr ""
 #~ msgid "Serial"
 #~ msgstr "シリアル"
 
+#, fuzzy
+#~ msgid "Server URL"
+#~ msgstr "サーバーシェル"
+
 #~ msgid "Server information at a glance."
 #~ msgstr "サーバー情報の概要"
 
@@ -9998,14 +9556,84 @@ msgstr ""
 #~ msgid "Setting logout to one second prior to next login"
 #~ msgstr "次回ログインの 1 秒前にログアウトするよう設定しています"
 
+#~ msgid "Shutdown after deploy"
+#~ msgstr "展開後にシャットダウン"
+
 #~ msgid "Shutdown after install"
 #~ msgstr "インストール後にシャットダウン"
+
+#~ msgid "Site"
+#~ msgstr "サイト"
+
+#~ msgid "Site Association"
+#~ msgstr "サイトの関連付け"
 
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
 
+#~ msgid "Site Create Fail"
+#~ msgstr "サイトの作成に失敗しました"
+
+#~ msgid "Site Create Success"
+#~ msgstr "サイトを作成しました"
+
+#~ msgid "Site Description"
+#~ msgstr "サイトの説明"
+
 #~ msgid "Site General"
 #~ msgstr "サイト全般"
+
+#, fuzzy
+#~ msgid "Site Group Associations"
+#~ msgstr "グループの関連付け"
+
+#, fuzzy
+#~ msgid "Site Host Associations"
+#~ msgstr "サイトの関連付け"
+
+#, fuzzy
+#~ msgid "Site Management"
+#~ msgstr "ストレージ管理"
+
+#~ msgid "Site Name"
+#~ msgstr "サイト名"
+
+#~ msgid "Site Update Fail"
+#~ msgstr "サイトの更新に失敗しました"
+
+#~ msgid "Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "Site User Associations"
+#~ msgstr "サイトの関連付け"
+
+#, fuzzy
+#~ msgid "Site User Group Associations"
+#~ msgstr "グループの関連付け"
+
+#~ msgid "Site added!"
+#~ msgstr "サイトを追加しました！"
+
+#~ msgid "Site update failed!"
+#~ msgstr "サイトの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "Site updated!"
+#~ msgstr "サイトを更新しました！"
+
+#~ msgid "Sites"
+#~ msgstr "サイト"
+
+#~ msgid "Slack Accounts"
+#~ msgstr "Slack アカウント"
+
+#~ msgid "Slack Management"
+#~ msgstr "Slack 管理"
+
+#, fuzzy
+#~ msgid "Slack Token"
+#~ msgstr "Slack アカウント"
 
 #~ msgid "Snapin Args"
 #~ msgstr "スナップイン引数"
@@ -10082,11 +9710,66 @@ msgstr ""
 #~ msgid "Storage Node General"
 #~ msgstr "ストレージノード全般"
 
+#~ msgid "Storage Node Protocol"
+#~ msgstr "ストレージノードプロトコル"
+
 #~ msgid "Storage Node update failed!"
 #~ msgstr "ストレージノードの更新に失敗しました！"
 
+#, fuzzy
+#~ msgid "Subnet Group Create Fail"
+#~ msgstr "サブネットグループの作成に失敗しました"
+
+#, fuzzy
+#~ msgid "Subnet Group Create Success"
+#~ msgstr "サブネットグループを作成しました"
+
+#, fuzzy
+#~ msgid "Subnet Group Description"
+#~ msgstr "グループの説明"
+
+#, fuzzy
+#~ msgid "Subnet Group Management"
+#~ msgstr "サブネットグループ管理"
+
+#, fuzzy
+#~ msgid "Subnet Group Name"
+#~ msgstr "サブネットグループ"
+
+#, fuzzy
+#~ msgid "Subnet Group Update Fail"
+#~ msgstr "サブネットグループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Subnet Group Update Success"
+#~ msgstr "サブネットグループを更新しました"
+
+#, fuzzy
+#~ msgid "Subnet Group added!"
+#~ msgstr "サブネットグループを追加しました！"
+
+#, fuzzy
+#~ msgid "Subnet Group update failed!"
+#~ msgstr "サブネットグループの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "Subnet Group updated!"
+#~ msgstr "サブネットグループを更新しました！"
+
+#~ msgid "Subnet Groups"
+#~ msgstr "サブネットグループ"
+
 #~ msgid "SubnetGroup General"
 #~ msgstr "サブネットグループ全般"
+
+#~ msgid "Subnets"
+#~ msgstr "サブネット"
+
+#~ msgid "Subtree Only"
+#~ msgstr "サブツリーのみ"
+
+#~ msgid "Subtree and Below"
+#~ msgstr "サブツリー以下"
 
 #~ msgid "Successfully created"
 #~ msgstr "作成しました"
@@ -10106,14 +9789,96 @@ msgstr ""
 #~ msgid "Task Complete Time"
 #~ msgstr "タスク完了時刻"
 
+#~ msgid "Task State Create Fail"
+#~ msgstr "タスク状態の作成に失敗しました"
+
+#, fuzzy
+#~ msgid "Task State Create SUccess"
+#~ msgstr "タスク状態を作成しました"
+
+#, fuzzy
+#~ msgid "Task State Description"
+#~ msgstr "サイトの説明"
+
 #~ msgid "Task State General"
 #~ msgstr "タスク状態全般"
+
+#, fuzzy
+#~ msgid "Task State Icon"
+#~ msgstr "タスク状態"
+
+#~ msgid "Task State Management"
+#~ msgstr "タスク状態管理"
+
+#, fuzzy
+#~ msgid "Task State Name"
+#~ msgstr "タスク状態を追加しました！"
+
+#~ msgid "Task State Update Fail"
+#~ msgstr "タスク状態の更新に失敗しました"
+
+#~ msgid "Task State Update Success"
+#~ msgstr "タスク状態を更新しました"
+
+#~ msgid "Task State Updated!"
+#~ msgstr "タスク状態を更新しました！"
+
+#~ msgid "Task States"
+#~ msgstr "タスク状態"
+
+#~ msgid "Task Type Create Fail"
+#~ msgstr "タスクタイプの作成に失敗しました"
+
+#~ msgid "Task Type Create Success"
+#~ msgstr "タスクタイプを作成しました"
+
+#, fuzzy
+#~ msgid "Task Type Description"
+#~ msgstr "イメージの説明"
 
 #~ msgid "Task Type General"
 #~ msgstr "タスクタイプ全般"
 
+#, fuzzy
+#~ msgid "Task Type Icon"
+#~ msgstr "タスクタイプ"
+
+#~ msgid "Task Type Management"
+#~ msgstr "タスクタイプ管理"
+
+#, fuzzy
+#~ msgid "Task Type Name"
+#~ msgstr "タスクタイプを追加しました！"
+
+#~ msgid "Task Type Update Fail"
+#~ msgstr "タスクタイプの更新に失敗しました"
+
+#~ msgid "Task Type Update Success"
+#~ msgstr "タスクタイプを更新しました"
+
+#~ msgid "Task Type Updated!"
+#~ msgstr "タスクタイプを更新しました！"
+
+#~ msgid "Task Type added!"
+#~ msgstr "タスクタイプを追加しました！"
+
+#~ msgid "Task Types"
+#~ msgstr "タスクタイプ"
+
 #~ msgid "Task forced to start"
 #~ msgstr "タスクを強制開始しました"
+
+#, fuzzy
+#~ msgid "Task state added!"
+#~ msgstr "タスク状態を追加しました！"
+
+#, fuzzy
+#~ msgid "Task state update failed!"
+#~ msgstr "タスク状態の更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Task type update failed!"
+#~ msgstr "タスクタイプの更新に失敗しました"
 
 #~ msgid "Tasked Successfully"
 #~ msgstr "タスクを正常に設定しました"
@@ -10127,8 +9892,15 @@ msgstr ""
 #~ msgid "Tasking Failed"
 #~ msgstr "タスク実行に失敗しました"
 
+#~ msgid "Team"
+#~ msgstr "チーム"
+
 #~ msgid "Terms and Conditions"
 #~ msgstr "利用条件"
+
+#, fuzzy
+#~ msgid "That group is already defined for this server!"
+#~ msgstr "このグループは既にサブネットグループで使用されています。"
 
 #, fuzzy
 #~ msgid "That mapping already exists."
@@ -10146,6 +9918,13 @@ msgstr ""
 #~ msgid "The following errors occurred"
 #~ msgstr "次のエラーが発生しました"
 
+#, fuzzy
+#~ msgid "The image associated does not have a valid OS!"
+#~ msgstr "ストレージグループに関連付けられたストレージノードが無効です"
+
+#~ msgid "The key will be assigned to registered hosts when a"
+#~ msgstr "キーは、登録済みホストに次の場合割り当てられます"
+
 #~ msgid "The old client is what was distributed with"
 #~ msgstr "旧クライアントは次のバージョンまで配布されていました"
 
@@ -10157,10 +9936,6 @@ msgstr ""
 
 #~ msgid "The old client was distributed with FOG 1.2.0 and earlier."
 #~ msgstr "旧クライアントは FOG 1.2.0 以前で配布されていました。"
-
-#, fuzzy
-#~ msgid "The selected target no longer exists."
-#~ msgstr "選択したプリンターを追加"
 
 #~ msgid "There are currently"
 #~ msgstr "現在"
@@ -10183,6 +9958,9 @@ msgstr ""
 
 #~ msgid "This file will only work on Windows"
 #~ msgstr "このファイルは Windows でのみ使用できます"
+
+#~ msgid "This is especially useful if you have multiple"
+#~ msgstr "複数ある場合に特に便利です"
 
 #~ msgid "This is ipxe script commands to operate with"
 #~ msgstr "iPXE を制御するためのスクリプトコマンドです"
@@ -10244,8 +10022,14 @@ msgstr ""
 #~ msgid "This section allows you to upload user"
 #~ msgstr "このセクションではユーザー情報をアップロードできます"
 
+#~ msgid "This setting defines sending the"
+#~ msgstr "この設定では送信方法を定義します"
+
 #~ msgid "This setting turns off all FOG Printer Management"
 #~ msgstr "この設定は FOG のプリンター管理機能をすべて無効にします"
+
+#~ msgid "Those images should be activated with the associated"
+#~ msgstr "これらのイメージは関連付けられた"
 
 #~ msgid "Timeout"
 #~ msgstr "タイムアウト"
@@ -10262,6 +10046,14 @@ msgstr ""
 #~ msgid "To view a report, select an item from the menu"
 #~ msgstr "レポートを表示するには、メニューから項目を選択してください"
 
+#, fuzzy
+#~ msgid "Topic already linked"
+#~ msgstr "アカウントは既にリンクされています"
+
+#, fuzzy
+#~ msgid "Topic successfully added!"
+#~ msgstr "アカウントが正常に追加されました！"
+
 #~ msgid "Total Rows"
 #~ msgstr "合計行数"
 
@@ -10270,6 +10062,26 @@ msgstr ""
 
 #~ msgid "Unable to find basic information!"
 #~ msgstr "基本情報が見つかりません！"
+
+#, fuzzy
+#~ msgid "Unable to set LDAP role mapping."
+#~ msgstr "更新できません"
+
+#, fuzzy
+#~ msgid "Unable to set action field"
+#~ msgstr "更新できません"
+
+#, fuzzy
+#~ msgid "Unable to set dmi field"
+#~ msgstr "更新できません"
+
+#, fuzzy
+#~ msgid "Unable to set ldap ports."
+#~ msgstr "更新できません"
+
+#, fuzzy
+#~ msgid "Unable to set nested group depth."
+#~ msgstr "更新できません"
 
 #, fuzzy
 #~ msgid "Unable to set user filter."
@@ -10319,6 +10131,10 @@ msgstr ""
 #~ msgid "Upload failed for \"%s\" (error code %d)"
 #~ msgstr "\"%s\" のアップロードに失敗しました（エラーコード: %d）"
 
+#, fuzzy
+#~ msgid "Use Group Match"
+#~ msgstr "グループ照合を使用（推奨）"
+
 #~ msgid "Use inits and kernels from this node"
 #~ msgstr "このノードの Init とカーネルを使用"
 
@@ -10337,17 +10153,80 @@ msgstr ""
 #~ msgid "User Change Password"
 #~ msgstr "ユーザーパスワードを変更"
 
+#, fuzzy
+#~ msgid "User Count"
+#~ msgstr "CPU 数"
+
+#~ msgid "User DN"
+#~ msgstr "ユーザー DN"
+
 #~ msgid "User General"
 #~ msgstr "ユーザー全般"
+
+#, fuzzy
+#~ msgid "User Group"
+#~ msgstr "グループ"
+
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "ユーザーを更新しました！"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
+#~ msgid "User Name Attribute"
+#~ msgstr "ユーザー名属性"
 
 #~ msgid "User Password (confirm)"
 #~ msgstr "ユーザーパスワード（確認）"
 
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "ユーザーフィルター"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "サイトの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
 #~ msgid "User Tracking"
 #~ msgstr "ユーザー追跡"
 
+#~ msgid "User call is invalid"
+#~ msgstr "無効なユーザー呼び出しです"
+
 #~ msgid "User name"
 #~ msgstr "ユーザー名"
+
+#, fuzzy
+#~ msgid "User not found"
+#~ msgstr "レコードが見つかりません"
+
+#~ msgid "User was not authorized by the LDAP server"
+#~ msgstr "LDAP サーバーでユーザー認証に失敗しました"
+
+#, fuzzy
+#~ msgid "User/Channel"
+#~ msgstr "ユーザー/Channel 名"
+
+#~ msgid "User/Channel Name"
+#~ msgstr "ユーザー/Channel 名"
 
 #~ msgid "User/Channel to post to"
 #~ msgstr "投稿先のユーザー/Channel"
@@ -10357,6 +10236,13 @@ msgstr ""
 
 #~ msgid "Username does not meet requirements"
 #~ msgstr "ユーザー名が要件を満たしていません"
+
+#, fuzzy
+#~ msgid "Username was blank"
+#~ msgstr "ユーザー名"
+
+#~ msgid "Using the group match function"
+#~ msgstr "グループ照合機能を使用しています"
 
 #~ msgid "Valid Host Colors"
 #~ msgstr "有効なホストカラー"
@@ -10385,20 +10271,84 @@ msgstr ""
 #~ msgid "WOL Broadcast General"
 #~ msgstr "WOL ブロードキャスト全般"
 
+#~ msgid "WOL Broadcast Management"
+#~ msgstr "WOL ブロードキャスト管理"
+
+#~ msgid "WOL Broadcasts"
+#~ msgstr "WOL ブロードキャスト"
+
 #~ msgid "Wake on lan?"
 #~ msgstr "Wake on LAN を実行しますか？"
+
+#~ msgid "We cannot connect to LDAP server"
+#~ msgstr "LDAP サーバーに接続できません"
 
 #~ msgid "Web root"
 #~ msgstr "Web ルート"
 
+#~ msgid "When the plugin is removed, the assigned key will remain"
+#~ msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
+
+#, fuzzy
+#~ msgid "Windows 10 Professional"
+#~ msgstr "Windows キー全般"
+
+#~ msgid "Windows Key"
+#~ msgstr "Windows キー"
+
+#~ msgid "Windows Key Create Fail"
+#~ msgstr "Windows キーの作成に失敗しました"
+
+#~ msgid "Windows Key Create Success"
+#~ msgstr "Windows キーの作成に成功しました"
+
+#~ msgid "Windows Key Description"
+#~ msgstr "Windows キーの説明"
+
+#~ msgid "Windows Key Management"
+#~ msgstr "Windows キー管理"
+
+#~ msgid "Windows Key Name"
+#~ msgstr "Windows キー名"
+
+#~ msgid "Windows Key Update Fail"
+#~ msgstr "Windows キーの更新に失敗しました"
+
+#~ msgid "Windows Key Update Success"
+#~ msgstr "Windows キーの更新に成功しました"
+
+#~ msgid "Windows Key added!"
+#~ msgstr "Windows キーを追加しました！"
+
 #~ msgid "Windows Key for Image"
 #~ msgstr "イメージ用 Windows キー"
+
+#, fuzzy
+#~ msgid "Windows Key update failed!"
+#~ msgstr "Windows キーを更新しました！"
+
+#~ msgid "Windows Key updated!"
+#~ msgstr "Windows キーを更新しました！"
+
+#~ msgid "Windows Keys"
+#~ msgstr "Windows キー"
+
+#, fuzzy
+#~ msgid "Windows Product key"
+#~ msgstr "ホスト プロダクトキー"
+
+#~ msgid "Windows keys is a plugin that associates product keys"
+#~ msgstr "Windows キーは、プロダクトキーを関連付けるプラグインです"
 
 #~ msgid "Working with node"
 #~ msgstr "ノードを処理しています"
 
 #~ msgid "Wrong file name!"
 #~ msgstr "ファイル名が正しくありません！"
+
+#, fuzzy
+#~ msgid "You do not have permission to change LDAP group associations."
+#~ msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 #~ msgid "You have version"
 #~ msgstr "現在のバージョン"
@@ -10458,6 +10408,16 @@ msgstr ""
 #~ msgid "before me"
 #~ msgstr "自分より前"
 
+#~ msgid "between different sites"
+#~ msgstr "異なるサイト間"
+
+#~ msgid "but bind password is not set"
+#~ msgstr "ただし、バインドパスワードが設定されていません"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "イメージ処理が完了しました。"
+
 #~ msgid "config files that run on the client computers."
 #~ msgstr "クライアントコンピューター上で実行される設定ファイル。"
 
@@ -10473,6 +10433,9 @@ msgstr ""
 #~ msgid "deleted"
 #~ msgstr "削除済み"
 
+#~ msgid "deploy task occurs for it"
+#~ msgstr "展開タスクが実行されたとき"
+
 #~ msgid "download the module and use it on the next"
 #~ msgstr "モジュールをダウンロードし、次回以降に使用します"
 
@@ -10482,8 +10445,14 @@ msgstr ""
 #~ msgid "e.g."
 #~ msgstr "例:"
 
+#~ msgid "failed to login"
+#~ msgstr "ログインに失敗しました"
+
 #~ msgid "faster"
 #~ msgstr "高速"
+
+#~ msgid "for Microsoft Windows to images"
+#~ msgstr "Microsoft Windows 用にイメージへ"
 
 #~ msgid "for the advanced menu parameters"
 #~ msgstr "詳細メニューパラメーター用"
@@ -10493,6 +10462,14 @@ msgstr ""
 
 #~ msgid "has been started on port"
 #~ msgstr "次のポートで開始されました"
+
+#, fuzzy
+#~ msgid "has completed on"
+#~ msgstr "完了しました"
+
+#, fuzzy
+#~ msgid "has completed snapin tasking"
+#~ msgstr "スナップインタスクが完了しました。"
 
 #~ msgid "help with any aspect of FOG"
 #~ msgstr "FOG に関するあらゆるサポート"
@@ -10518,6 +10495,10 @@ msgstr ""
 #~ msgid "if there is a task"
 #~ msgstr "タスクがある場合"
 
+#, fuzzy
+#~ msgid "imaging failed"
+#~ msgstr "イメージ処理に失敗しました。"
+
 #~ msgid "install or update the FOG database"
 #~ msgstr "FOG データベースをインストールまたは更新"
 
@@ -10542,6 +10523,16 @@ msgstr ""
 #~ msgid "it will enforce login to gain access to the advanced"
 #~ msgstr "詳細メニューへアクセスするにはログインが必要になります"
 
+#, fuzzy
+#~ msgid "its code is not on disk"
+#~ msgstr "このノード上に見つかりません"
+
+#~ msgid "key"
+#~ msgstr "キー"
+
+#~ msgid "location url based on the host that checks in"
+#~ msgstr "チェックインしたホストに基づくロケーション URL"
+
 #~ msgid "may see the issue and help and/or use the solutions"
 #~ msgstr "問題を確認し、支援したり解決策を利用したりできます"
 
@@ -10561,12 +10552,23 @@ msgstr ""
 #~ msgid "multicast tasks!"
 #~ msgstr "マルチキャストタスク"
 
+#~ msgid "multiple places to get your image"
+#~ msgstr "イメージの取得元が複数ある"
+
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"
 
 #, fuzzy
 #~ msgid "no longer exists"
 #~ msgstr "選択したプリンターを追加"
+
+#, fuzzy
+#~ msgid "ntfy Accounts"
+#~ msgstr "Slack アカウント"
+
+#, fuzzy
+#~ msgid "ntfy Management"
+#~ msgstr "クライアント管理"
 
 #~ msgid "of"
 #~ msgstr "の"
@@ -10604,6 +10606,9 @@ msgstr ""
 #~ msgid "see the forums or lookup the commands and scripts available"
 #~ msgstr "フォーラムを参照するか、利用可能なコマンドやスクリプトを確認してください"
 
+#~ msgid "sites with clients moving back and forth"
+#~ msgstr "クライアントが行き来する複数のサイト"
+
 #~ msgid "successfully removed!"
 #~ msgstr "正常に削除しました！"
 
@@ -10618,6 +10623,9 @@ msgstr ""
 
 #~ msgid "the base FOG install"
 #~ msgstr "FOG の基本インストール"
+
+#~ msgid "the host defined location where available"
+#~ msgstr "利用可能な場合は、ホストで定義されたロケーション"
 
 #~ msgid "the main and the host"
 #~ msgstr "メイン設定とホスト設定"
@@ -10636,6 +10644,9 @@ msgstr ""
 
 #~ msgid "to be booted if no keys are pressed when the menu is"
 #~ msgstr "メニュー表示中にキーが押されなかった場合に起動する"
+
+#~ msgid "to operate in an environment where there may be"
+#~ msgstr "次のような環境でも動作できるように"
 
 #~ msgid "to signify if this is a user or channel to send to"
 #~ msgstr "送信先がユーザーかチャンネルかを指定します"
@@ -10660,6 +10671,9 @@ msgstr ""
 
 #~ msgid "with modules and config"
 #~ msgstr "モジュールと構成を含めて"
+
+#~ msgid "with the host"
+#~ msgstr "ホストと"
 
 #~ msgid "would you like to install it now"
 #~ msgstr "今すぐインストールしますか？"

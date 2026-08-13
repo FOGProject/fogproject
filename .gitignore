@@ -76,7 +76,6 @@ packages/FOGService.msi
 packages/web/client/FOGService.msi
 packages/web/management/bower_components
 packages/web/management/dist
-packages/web/management/plugins
 packages/web/service/ipxe/*Image*
 packages/web/service/ipxe/init*.xz
 packages/web/service/ipxe/*.sha256
@@ -106,8 +105,16 @@ packages/web/lib/plugins/hostext
 docs/agents/
 CONTEXT.md
 CONTEXT-MAP.md
-docs/adr/
+# docs/adr/ is deliberately NOT ignored. ADRs record why a decision was
+# taken, which is only useful to a contributor if it ships with the code.
 skills-lock.json
 # GH-959: iPXE binaries now come from FOGProject/fog-ipxe as a release asset.
 # packages/tftp is a staging directory the installer fills at runtime.
 /packages/tftp/
+
+# ADR 0009: the bundled plugins now come from FOGProject/fog-plugins as a
+# release asset, pinned by FOG_PLUGINS_VERSION. packages/web/lib/plugins is a
+# staging directory bin/fetch-plugins.sh fills, the same arrangement as
+# packages/tftp above. A fresh clone has no plugins until that script is run,
+# which the installer does for you.
+/packages/web/lib/plugins/

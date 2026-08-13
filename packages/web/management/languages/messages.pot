@@ -44,7 +44,43 @@ msgid "%s Menu"
 msgstr ""
 
 #, php-format
+msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s could not be loaded. Check that %s declares a class of that exact name."
+msgstr ""
+
+#, php-format
+msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s is not a readable .tar.gz archive."
+msgstr ""
+
+#, php-format
+msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
+msgstr ""
+
+#, php-format
+msgid "%s is not inside a plugin directory."
+msgstr ""
+
+#, php-format
+msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
 msgid "%s is required"
+msgstr ""
+
+#, php-format
+msgid "%s replaced. Install it to apply any new database steps."
+msgstr ""
+
+#, php-format
+msgid "%s ships with FOG and cannot be replaced by an upload."
 msgstr ""
 
 #, php-format
@@ -85,9 +121,6 @@ msgstr ""
 msgid "100"
 msgstr ""
 
-msgid "192.168.1.0/24, 10.1.0.0/16"
-msgstr ""
-
 msgid "192.168.1.252 or printer.example.com:9100"
 msgstr ""
 
@@ -118,22 +151,10 @@ msgstr ""
 msgid "90 Days"
 msgstr ""
 
-msgid "A LDAP setup already exists with this name!"
+msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
 msgid "A TCP/IP port printer requires an IP address or hostname."
-msgstr ""
-
-msgid "A Windows Key already exists with this name!"
-msgstr ""
-
-msgid "A Windows Key already exists with this product key!"
-msgstr ""
-
-msgid "A broadcast already exists with this name!"
-msgstr ""
-
-msgid "A dmi field must be set!"
 msgstr ""
 
 msgid "A file"
@@ -148,12 +169,6 @@ msgstr ""
 msgid "A group already exists with this name!"
 msgstr ""
 
-msgid "A group must be selected."
-msgstr ""
-
-msgid "A group name is required!"
-msgstr ""
-
 msgid "A host already exists with this name!"
 msgstr ""
 
@@ -161,9 +176,6 @@ msgid "A host with that name already exists"
 msgstr ""
 
 msgid "A host with this mac already exists with name"
-msgstr ""
-
-msgid "A location already exists with this name!"
 msgstr ""
 
 msgid "A menu entry already exists with this name!"
@@ -178,7 +190,7 @@ msgstr ""
 msgid "A permission name is required."
 msgstr ""
 
-msgid "A port must be specified"
+msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
 msgstr ""
 
 msgid "A printer already exists with this name!"
@@ -190,15 +202,6 @@ msgstr ""
 msgid "A role with this name already exists!"
 msgstr ""
 
-msgid "A selected role no longer exists"
-msgstr ""
-
-msgid "A server URL and topic endpoint are required"
-msgstr ""
-
-msgid "A site already exists with this name!"
-msgstr ""
-
 msgid "A snapin already exists with this name!"
 msgstr ""
 
@@ -208,25 +211,10 @@ msgstr ""
 msgid "A storage group exists with this name!"
 msgstr ""
 
-msgid "A storage group must be selected."
-msgstr ""
-
 msgid "A storage node already exists with this name!"
 msgstr ""
 
-msgid "A subnet group already exists with this name!"
-msgstr ""
-
-msgid "A subnet group is already using this group."
-msgstr ""
-
 msgid "A task already exists for this host at the scheduled tasking"
-msgstr ""
-
-msgid "A task state already exists with this name!"
-msgstr ""
-
-msgid "A task type already exists with this name!"
 msgstr ""
 
 msgid "A user already exists with this name"
@@ -236,9 +224,6 @@ msgid "A user group already exists with this name!"
 msgstr ""
 
 msgid "A user group with this name already exists!"
-msgstr ""
-
-msgid "A user signing in through this server receives every role and user group granted by a directory group they belong to. Select a group to change what it grants."
 msgstr ""
 
 msgid "A username already exists with this name!"
@@ -266,37 +251,13 @@ msgstr ""
 msgid "Aborted due to failure of \"%s\" with exit code %s"
 msgstr ""
 
-msgid "Access"
-msgstr ""
-
 msgid "Access Control Management"
 msgstr ""
 
 msgid "Access Denied"
 msgstr ""
 
-msgid "Access Token"
-msgstr ""
-
-msgid "Access token"
-msgstr ""
-
-msgid "Accessed By"
-msgstr ""
-
 msgid "Account Name"
-msgstr ""
-
-msgid "Account already linked"
-msgstr ""
-
-msgid "Account linked"
-msgstr ""
-
-msgid "Account linked to FOG GUI at"
-msgstr ""
-
-msgid "Account successfully added!"
 msgstr ""
 
 msgid "Action"
@@ -341,19 +302,10 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-msgid "Add Hello World failed!"
-msgstr ""
-
 msgid "Add Hosts to Group Fail"
 msgstr ""
 
 msgid "Add Hosts to Groups Success"
-msgstr ""
-
-msgid "Add LDAP group failed!"
-msgstr ""
-
-msgid "Add LDAP server failed!"
 msgstr ""
 
 msgid "Add New MAC Address"
@@ -368,12 +320,6 @@ msgstr ""
 msgid "Add To Group(s)"
 msgstr ""
 
-msgid "Add broadcast failed!"
-msgstr ""
-
-msgid "Add capone failed!"
-msgstr ""
-
 msgid "Add failed"
 msgstr ""
 
@@ -386,25 +332,13 @@ msgstr ""
 msgid "Add image failed!"
 msgstr ""
 
-msgid "Add location failed!"
-msgstr ""
-
 msgid "Add menu failed!"
 msgstr ""
 
 msgid "Add module failed!"
 msgstr ""
 
-msgid "Add ntfy topic failed!"
-msgstr ""
-
-msgid "Add ou failed!"
-msgstr ""
-
 msgid "Add printer failed!"
-msgstr ""
-
-msgid "Add pushbullet account failed!"
 msgstr ""
 
 msgid "Add role failed!"
@@ -416,34 +350,16 @@ msgstr ""
 msgid "Add selected to group"
 msgstr ""
 
-msgid "Add site failed!"
-msgstr ""
-
-msgid "Add slack account failed!"
-msgstr ""
-
 msgid "Add snapin failed!"
 msgstr ""
 
 msgid "Add storage node failed!"
 msgstr ""
 
-msgid "Add subnet group failed!"
-msgstr ""
-
-msgid "Add task state failed!"
-msgstr ""
-
-msgid "Add task type failed!"
-msgstr ""
-
 msgid "Add user failed!"
 msgstr ""
 
 msgid "Add user group failed!"
-msgstr ""
-
-msgid "Add windows key failed!"
 msgstr ""
 
 msgid "Add/Remove Managed Printers"
@@ -454,9 +370,6 @@ msgid "Adding FOGPage: %s, Node: %s"
 msgstr ""
 
 msgid "Adding Key"
-msgstr ""
-
-msgid "Additional Icon Elements"
 msgstr ""
 
 msgid "Administrator"
@@ -472,9 +385,6 @@ msgid "Advanced Login Required"
 msgstr ""
 
 msgid "Advanced Options"
-msgstr ""
-
-msgid "Advanced Task"
 msgstr ""
 
 msgid "Advanced Tasks"
@@ -522,22 +432,7 @@ msgstr ""
 msgid "All items imported successfully"
 msgstr ""
 
-msgid "All methods of binding have failed"
-msgstr ""
-
-msgid "All ports must be numeric, greater than 0, and less than 65536"
-msgstr ""
-
 msgid "All rights reserved."
-msgstr ""
-
-msgid "Allow API"
-msgstr ""
-
-msgid "Allows editing/creating of Task States fog currently has."
-msgstr ""
-
-msgid "Allows editing/creating of Task Types fog currently has."
 msgstr ""
 
 msgid "Already created"
@@ -546,16 +441,7 @@ msgstr ""
 msgid "Also confirm that the database is indeed running"
 msgstr ""
 
-msgid "An LDAP server already exists with this name!"
-msgstr ""
-
-msgid "An OU already exists with this name!"
-msgstr ""
-
 msgid "An SQL error occurred"
-msgstr ""
-
-msgid "An entry already exists with this name!"
 msgstr ""
 
 msgid "An image already exists with this name!"
@@ -567,25 +453,10 @@ msgstr ""
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
-msgid "An ou already exists with this name!"
-msgstr ""
-
 msgid "Annually"
 msgstr ""
 
-msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
-msgstr ""
-
-msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
-msgstr ""
-
 msgid "Applications"
-msgstr ""
-
-msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
-msgstr ""
-
-msgid "Applies to LDAP servers using the \"expand\" strategy, which walks one query per level of nesting on every sign-in. A server can override this on its own settings. Directories rarely nest more than three or four deep."
 msgstr ""
 
 msgid "Applying a database schema update requires an administrator account."
@@ -616,12 +487,6 @@ msgid "Architecture"
 msgstr ""
 
 msgid "Area"
-msgstr ""
-
-msgid "Assigned Group"
-msgstr ""
-
-msgid "Assigned Group Name"
 msgstr ""
 
 msgid "Assigned Image"
@@ -687,9 +552,6 @@ msgstr ""
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr ""
 
-msgid "Base Only"
-msgstr ""
-
 msgid "Bash Script"
 msgstr ""
 
@@ -699,52 +561,10 @@ msgstr ""
 msgid "Batch Script"
 msgstr ""
 
-msgid "Bind DN"
-msgstr ""
-
-msgid "Bind Password"
-msgstr ""
-
 msgid "Boot Options"
 msgstr ""
 
-msgid "Boot files from"
-msgstr ""
-
 msgid "Both"
-msgstr ""
-
-msgid "Broadcast Address"
-msgstr ""
-
-msgid "Broadcast Create Fail"
-msgstr ""
-
-msgid "Broadcast Create Success"
-msgstr ""
-
-msgid "Broadcast Description"
-msgstr ""
-
-msgid "Broadcast IP"
-msgstr ""
-
-msgid "Broadcast Name"
-msgstr ""
-
-msgid "Broadcast Update Fail"
-msgstr ""
-
-msgid "Broadcast Update Success"
-msgstr ""
-
-msgid "Broadcast added!"
-msgstr ""
-
-msgid "Broadcast update failed!"
-msgstr ""
-
-msgid "Broadcast updated!"
 msgstr ""
 
 msgid "Browse"
@@ -757,12 +577,6 @@ msgid "Bulk load failed"
 msgstr ""
 
 msgid "Bypass Bitlocker Detection"
-msgstr ""
-
-msgid "CA Certificate Path"
-msgstr ""
-
-msgid "CA Path"
 msgstr ""
 
 msgid "CA private key"
@@ -822,9 +636,6 @@ msgstr ""
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
-msgstr ""
-
 msgid "Can not redeclare route"
 msgstr ""
 
@@ -846,9 +657,6 @@ msgstr ""
 msgid "Cancelled due to new tasking."
 msgstr ""
 
-msgid "Cannot bind to the LDAP server"
-msgstr ""
-
 msgid "Cannot change image when in tasking"
 msgstr ""
 
@@ -865,36 +673,6 @@ msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
 
 msgid "Cannot task pending hosts"
-msgstr ""
-
-msgid "Capone"
-msgstr ""
-
-msgid "Capone Create Fail"
-msgstr ""
-
-msgid "Capone Create Success"
-msgstr ""
-
-msgid "Capone Deploy"
-msgstr ""
-
-msgid "Capone Management"
-msgstr ""
-
-msgid "Capone Update Fail"
-msgstr ""
-
-msgid "Capone Update Success"
-msgstr ""
-
-msgid "Capone added!"
-msgstr ""
-
-msgid "Capone update failed!"
-msgstr ""
-
-msgid "Capone updated!"
 msgstr ""
 
 msgid "Capture"
@@ -921,25 +699,13 @@ msgstr ""
 msgid "Certificate SHA-256"
 msgstr ""
 
-msgid "Certificate Verification"
-msgstr ""
-
 msgid "Certificates"
-msgstr ""
-
-msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
 msgid "Channel"
-msgstr ""
-
-msgid "Channel call is invalid"
-msgstr ""
-
-msgid "Channel not found"
 msgstr ""
 
 msgid "Chassis Asset Tag"
@@ -952,6 +718,10 @@ msgid "Chassis Serial Number"
 msgstr ""
 
 msgid "Chassis Version"
+msgstr ""
+
+#, php-format
+msgid "Check %s over before installing it."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
@@ -1081,6 +851,9 @@ msgstr ""
 msgid "Could not apply %s: %s"
 msgstr ""
 
+msgid "Could not create the staging directory."
+msgstr ""
+
 msgid "Could not find a Storage Node in this group"
 msgstr ""
 
@@ -1091,6 +864,9 @@ msgid "Could not find any"
 msgstr ""
 
 msgid "Could not find temp filename"
+msgstr ""
+
+msgid "Could not link plugin assets"
 msgstr ""
 
 msgid "Could not notify"
@@ -1108,31 +884,27 @@ msgstr ""
 msgid "Could not read snapin file"
 msgstr ""
 
-msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
-msgstr ""
-
-msgid "Could not read the group mappings"
-msgstr ""
-
-msgid "Could not read the recorded grants"
-msgstr ""
-
 msgid "Could not read tmp file."
-msgstr ""
-
-msgid "Could not record the granted targets"
 msgstr ""
 
 msgid "Could not register"
 msgstr ""
 
-msgid "Could not seed the granted targets"
+#, php-format
+msgid "Could not replace the existing %s. Is %s writable?"
 msgstr ""
 
 msgid "Could not send data from file"
 msgstr ""
 
+msgid "Could not stage the upload."
+msgstr ""
+
 msgid "Could not update host"
+msgstr ""
+
+#, php-format
+msgid "Could not write to %s. The UI installer needs that directory to be writable by the web server."
 msgstr ""
 
 msgid "Count"
@@ -1151,16 +923,7 @@ msgstr ""
 msgid "Create New %s"
 msgstr ""
 
-msgid "Create New Broadcast"
-msgstr ""
-
-msgid "Create New Capone"
-msgstr ""
-
 msgid "Create New Group"
-msgstr ""
-
-msgid "Create New Hello World"
 msgstr ""
 
 msgid "Create New Host"
@@ -1175,19 +938,7 @@ msgstr ""
 msgid "Create New Ipxe Menu"
 msgstr ""
 
-msgid "Create New LDAP Group"
-msgstr ""
-
-msgid "Create New LDAP Server"
-msgstr ""
-
-msgid "Create New Location"
-msgstr ""
-
 msgid "Create New Module"
-msgstr ""
-
-msgid "Create New OU"
 msgstr ""
 
 msgid "Create New Printer"
@@ -1199,9 +950,6 @@ msgstr ""
 msgid "Create New Scheduled"
 msgstr ""
 
-msgid "Create New Site"
-msgstr ""
-
 msgid "Create New Snapin"
 msgstr ""
 
@@ -1211,22 +959,10 @@ msgstr ""
 msgid "Create New Storage Node"
 msgstr ""
 
-msgid "Create New Subnet Group"
-msgstr ""
-
-msgid "Create New Task State"
-msgstr ""
-
-msgid "Create New Task Type"
-msgstr ""
-
 msgid "Create New User"
 msgstr ""
 
 msgid "Create New User Group"
-msgstr ""
-
-msgid "Create New Windows Key"
 msgstr ""
 
 msgid "Create Scheduled Power task"
@@ -1262,9 +998,6 @@ msgstr ""
 msgid "Created by FOG Reg on"
 msgstr ""
 
-msgid "Credentials"
-msgstr ""
-
 msgid "Cron"
 msgstr ""
 
@@ -1281,9 +1014,6 @@ msgid "Current Records"
 msgstr ""
 
 msgid "Current member-host AD state"
-msgstr ""
-
-msgid "DMI Field"
 msgstr ""
 
 msgid "DNF Log"
@@ -1337,6 +1067,9 @@ msgstr ""
 msgid "Deactivate selected"
 msgstr ""
 
+msgid "Deactivated an incompatible plugin"
+msgstr ""
+
 msgid "Debug"
 msgstr ""
 
@@ -1359,12 +1092,6 @@ msgid "Default Refresh Rate"
 msgstr ""
 
 msgid "Default Width"
-msgstr ""
-
-msgid "Default is disabled"
-msgstr ""
-
-msgid "Default nested group depth"
 msgstr ""
 
 msgid "Delayed"
@@ -1412,9 +1139,6 @@ msgstr ""
 msgid "Deploy Method"
 msgstr ""
 
-msgid "Depth"
-msgstr ""
-
 msgid "Description"
 msgstr ""
 
@@ -1436,12 +1160,6 @@ msgstr ""
 msgid "Directory Cleaner"
 msgstr ""
 
-msgid "Directory Group"
-msgstr ""
-
-msgid "Directory Group Name"
-msgstr ""
-
 msgid "Disable on all hosts"
 msgstr ""
 
@@ -1451,12 +1169,6 @@ msgstr ""
 msgid "Display"
 msgstr ""
 
-msgid "Display Name Attribute"
-msgstr ""
-
-msgid "Display Name Enabled"
-msgstr ""
-
 msgid "Display With"
 msgstr ""
 
@@ -1464,9 +1176,6 @@ msgid "Do not list on menu"
 msgstr ""
 
 msgid "Documentation"
-msgstr ""
-
-msgid "Domain Admins"
 msgstr ""
 
 msgid "Domain Joining"
@@ -1538,6 +1247,9 @@ msgstr ""
 msgid "Dropped"
 msgstr ""
 
+msgid "Duplicate plugin name; the later one is ignored"
+msgstr ""
+
 msgid "Duration"
 msgstr ""
 
@@ -1547,31 +1259,10 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-msgid "Edit Capone"
-msgstr ""
-
-msgid "Edit Capone ID"
-msgstr ""
-
-msgid "Editing Capone ID"
-msgstr ""
-
-msgid "Editing Global Capone Settings"
-msgstr ""
-
-msgid "Editing Global LDAP Settings"
-msgstr ""
-
-msgid "Email"
-msgstr ""
-
 msgid "Empty filename in upload"
 msgstr ""
 
 msgid "Enable Domain Joining"
-msgstr ""
-
-msgid "Enable Sending via Location"
 msgstr ""
 
 msgid "Enable on all hosts"
@@ -1670,19 +1361,10 @@ msgstr ""
 msgid "Exists item must be boolean"
 msgstr ""
 
-msgid "Expand - walk the chain (any directory)"
-msgstr ""
-
 msgid "Export"
 msgstr ""
 
 msgid "Export "
-msgstr ""
-
-msgid "Export Broadcasts"
-msgstr ""
-
-msgid "Export Capones"
 msgstr ""
 
 msgid "Export Complete"
@@ -1691,34 +1373,7 @@ msgstr ""
 msgid "Export Configuration"
 msgstr ""
 
-msgid "Export LDAP Servers"
-msgstr ""
-
-msgid "Export Locations"
-msgstr ""
-
-msgid "Export OUs"
-msgstr ""
-
-msgid "Export Sites"
-msgstr ""
-
-msgid "Export Subnet Groups"
-msgstr ""
-
 msgid "Export Success"
-msgstr ""
-
-msgid "Export Task States"
-msgstr ""
-
-msgid "Export Task Types"
-msgstr ""
-
-msgid "Export WOL Broadcasts"
-msgstr ""
-
-msgid "Export Windows Keys"
 msgstr ""
 
 msgid "FOG"
@@ -1852,6 +1507,9 @@ msgstr ""
 msgid "Failed to destroy Storage Node"
 msgstr ""
 
+msgid "Failed to forget "
+msgstr ""
+
 msgid "Failed to install "
 msgstr ""
 
@@ -1978,9 +1636,6 @@ msgstr ""
 msgid "Files Deleted List"
 msgstr ""
 
-msgid "Filter"
-msgstr ""
-
 msgid "Finding any images associated"
 msgstr ""
 
@@ -2017,6 +1672,12 @@ msgstr ""
 msgid "Force"
 msgstr ""
 
+msgid "Forget selected"
+msgstr ""
+
+msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
+msgstr ""
+
 msgid "Forums"
 msgstr ""
 
@@ -2050,9 +1711,6 @@ msgstr ""
 msgid "Free Memory"
 msgstr ""
 
-msgid "FreeIPA"
-msgstr ""
-
 msgid "Friendly Name"
 msgstr ""
 
@@ -2066,9 +1724,6 @@ msgid "Function"
 msgstr ""
 
 msgid "Function Error"
-msgstr ""
-
-msgid "Function does not exist"
 msgstr ""
 
 msgid "GNU General Public License"
@@ -2086,9 +1741,6 @@ msgstr ""
 msgid "General Information"
 msgstr ""
 
-msgid "Generic LDAP"
-msgstr ""
-
 msgid "Getting image size for"
 msgstr ""
 
@@ -2098,22 +1750,7 @@ msgstr ""
 msgid "Global Module Settings"
 msgstr ""
 
-msgid "Global Options"
-msgstr ""
-
-msgid "Global Settings Update Fail"
-msgstr ""
-
-msgid "Global Settings Update Success"
-msgstr ""
-
-msgid "Global settings updated!"
-msgstr ""
-
 msgid "Got in line at"
-msgstr ""
-
-msgid "Grants"
 msgstr ""
 
 msgid "Graph Color"
@@ -2131,16 +1768,10 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
-msgid "Group Association"
-msgstr ""
-
 msgid "Group Associations"
 msgstr ""
 
 msgid "Group BIOS Exit"
-msgstr ""
-
-msgid "Group Count"
 msgstr ""
 
 msgid "Group Create Fail"
@@ -2185,46 +1816,16 @@ msgstr ""
 msgid "Group Kernel Arguments"
 msgstr ""
 
-msgid "Group Location"
-msgstr ""
-
-msgid "Group Location Update Success"
-msgstr ""
-
-msgid "Group Location Updated!"
-msgstr ""
-
 msgid "Group Login History"
 msgstr ""
 
 msgid "Group Management"
 msgstr ""
 
-msgid "Group Matching"
-msgstr ""
-
-msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
-msgstr ""
-
-msgid "Group Member Attribute"
-msgstr ""
-
 msgid "Group Module Associations"
 msgstr ""
 
 msgid "Group Name"
-msgstr ""
-
-msgid "Group Name Attribute"
-msgstr ""
-
-msgid "Group OU"
-msgstr ""
-
-msgid "Group OU Update Success"
-msgstr ""
-
-msgid "Group OU Updated!"
 msgstr ""
 
 msgid "Group Primary Disk"
@@ -2239,18 +1840,6 @@ msgstr ""
 msgid "Group Product Key"
 msgstr ""
 
-msgid "Group Search DN"
-msgstr ""
-
-msgid "Group Site"
-msgstr ""
-
-msgid "Group Site Update Success"
-msgstr ""
-
-msgid "Group Site Updated!"
-msgstr ""
-
 msgid "Group Snapin Assignment"
 msgstr ""
 
@@ -2260,15 +1849,6 @@ msgstr ""
 msgid "Group Update Fail"
 msgstr ""
 
-msgid "Group Update Location Fail"
-msgstr ""
-
-msgid "Group Update OU Fail"
-msgstr ""
-
-msgid "Group Update Site Fail"
-msgstr ""
-
 msgid "Group Update Success"
 msgstr ""
 
@@ -2276,9 +1856,6 @@ msgid "Group added!"
 msgstr ""
 
 msgid "Group is not valid"
-msgstr ""
-
-msgid "Group membership search failed"
 msgstr ""
 
 msgid "Group update failed!"
@@ -2294,9 +1871,6 @@ msgid "Groups cannot create capture tasks"
 msgstr ""
 
 msgid "HTML Error Code"
-msgstr ""
-
-msgid "Hard - require a valid certificate"
 msgstr ""
 
 msgid "Hard Disk Firmware"
@@ -2333,33 +1907,6 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
-msgid "Hello World"
-msgstr ""
-
-msgid "Hello World Create Fail"
-msgstr ""
-
-msgid "Hello World Create Success"
-msgstr ""
-
-msgid "Hello World Management"
-msgstr ""
-
-msgid "Hello World Update Fail"
-msgstr ""
-
-msgid "Hello World Update Success"
-msgstr ""
-
-msgid "Hello World added!"
-msgstr ""
-
-msgid "Hello World update failed!"
-msgstr ""
-
-msgid "Hello World updated!"
-msgstr ""
-
 msgid "Help and Guides"
 msgstr ""
 
@@ -2381,16 +1928,10 @@ msgstr ""
 msgid "Host Approval Success"
 msgstr ""
 
-msgid "Host Association"
-msgstr ""
-
 msgid "Host Associations"
 msgstr ""
 
 msgid "Host BIOS Exit Type"
-msgstr ""
-
-msgid "Host Count"
 msgstr ""
 
 msgid "Host Create Fail"
@@ -2444,15 +1985,6 @@ msgstr ""
 msgid "Host List"
 msgstr ""
 
-msgid "Host Location"
-msgstr ""
-
-msgid "Host Location Update Success"
-msgstr ""
-
-msgid "Host Location Updated!"
-msgstr ""
-
 msgid "Host Login History"
 msgstr ""
 
@@ -2463,15 +1995,6 @@ msgid "Host Module Associations"
 msgstr ""
 
 msgid "Host Name"
-msgstr ""
-
-msgid "Host OU"
-msgstr ""
-
-msgid "Host OU Update Success"
-msgstr ""
-
-msgid "Host OU Updated!"
 msgstr ""
 
 msgid "Host Primary Disk"
@@ -2492,15 +2015,6 @@ msgstr ""
 msgid "Host Registration"
 msgstr ""
 
-msgid "Host Site"
-msgstr ""
-
-msgid "Host Site Update Success"
-msgstr ""
-
-msgid "Host Site Updated!"
-msgstr ""
-
 msgid "Host Snapin Associations"
 msgstr ""
 
@@ -2508,15 +2022,6 @@ msgid "Host Snapin History"
 msgstr ""
 
 msgid "Host Update Fail"
-msgstr ""
-
-msgid "Host Update Location Fail"
-msgstr ""
-
-msgid "Host Update OU Fail"
-msgstr ""
-
-msgid "Host Update Site Fail"
 msgstr ""
 
 msgid "Host Update Success"
@@ -2612,9 +2117,6 @@ msgstr ""
 msgid "IP of host appears to be"
 msgstr ""
 
-msgid "Icon"
-msgstr ""
-
 msgid "Icon File not found"
 msgstr ""
 
@@ -2671,9 +2173,6 @@ msgstr ""
 msgid "Image %s for session %s is missing or invalid; skipping"
 msgstr ""
 
-msgid "Image Associated"
-msgstr ""
-
 msgid "Image Association"
 msgstr ""
 
@@ -2705,9 +2204,6 @@ msgid "Image Manager"
 msgstr ""
 
 msgid "Image Name"
-msgstr ""
-
-msgid "Image OS"
 msgstr ""
 
 msgid "Image Operating System"
@@ -2760,18 +2256,6 @@ msgid "Image Update Success"
 msgstr ""
 
 msgid "Image Used"
-msgstr ""
-
-msgid "Image Windows Key"
-msgstr ""
-
-msgid "Image Windows Key Update Fail"
-msgstr ""
-
-msgid "Image Windows Key Update Success"
-msgstr ""
-
-msgid "Image Windows Key Updated!"
 msgstr ""
 
 msgid "Image added!"
@@ -2837,13 +2321,7 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-msgid "Import Broadcasts"
-msgstr ""
-
 msgid "Import CSV"
-msgstr ""
-
-msgid "Import Capones"
 msgstr ""
 
 msgid "Import Configuration"
@@ -2861,12 +2339,6 @@ msgstr ""
 msgid "Import Failed"
 msgstr ""
 
-msgid "Import Locations"
-msgstr ""
-
-msgid "Import OUs"
-msgstr ""
-
 msgid "Import Partially Succeeded"
 msgstr ""
 
@@ -2876,25 +2348,10 @@ msgstr ""
 msgid "Import Reports"
 msgstr ""
 
-msgid "Import Sites"
-msgstr ""
-
-msgid "Import Subnet Groups"
-msgstr ""
-
 msgid "Import Succeeded"
 msgstr ""
 
 msgid "Import Succeeded With Warnings"
-msgstr ""
-
-msgid "Import Task States"
-msgstr ""
-
-msgid "Import Task Types"
-msgstr ""
-
-msgid "Import Windows Keys"
 msgstr ""
 
 msgid "Import a new Plugin"
@@ -2925,23 +2382,7 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-msgid "Inherit - use the system ldap.conf setting"
-msgstr ""
-
-#, php-format
-msgid "Inherit global (%s)"
-msgstr ""
-
-msgid "Init"
-msgstr ""
-
-msgid "Init FS"
-msgstr ""
-
 msgid "InitRD Versions"
-msgstr ""
-
-msgid "Initial Template"
 msgstr ""
 
 msgid "Initrd Update"
@@ -3050,10 +2491,6 @@ msgid "Invalid Windows product key"
 msgstr ""
 
 #, php-format
-msgid "Invalid certificate verification level: %s"
-msgstr ""
-
-#, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
 
@@ -3090,9 +2527,6 @@ msgstr ""
 msgid "Invalid key being set"
 msgstr ""
 
-msgid "Invalid method called"
-msgstr ""
-
 msgid "Invalid path"
 msgstr ""
 
@@ -3118,9 +2552,6 @@ msgid "Invalid task id sent"
 msgstr ""
 
 msgid "Invalid tasking!"
-msgstr ""
-
-msgid "Invalid token passed"
 msgstr ""
 
 msgid "Invalid token passed for host"
@@ -3156,9 +2587,6 @@ msgstr ""
 msgid "Inventory Static"
 msgstr ""
 
-msgid "Is Advanced"
-msgstr ""
-
 msgid "Is Enabled"
 msgstr ""
 
@@ -3186,9 +2614,6 @@ msgstr ""
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr ""
 
-msgid "It tells the client to download snapins from"
-msgstr ""
-
 msgid "It will operate based on the fields the area typcially requires."
 msgstr ""
 
@@ -3196,12 +2621,6 @@ msgid "Kbps"
 msgstr ""
 
 msgid "Kernel"
-msgstr ""
-
-msgid "Kernel Args"
-msgstr ""
-
-msgid "Kernel Arguments"
 msgstr ""
 
 msgid "Kernel Update"
@@ -3216,13 +2635,7 @@ msgstr ""
 msgid "Kernel Versions"
 msgstr ""
 
-msgid "Kernels/Inits from location"
-msgstr ""
-
 msgid "Key"
-msgstr ""
-
-msgid "Key Association"
 msgstr ""
 
 msgid "Key field must be a string"
@@ -3237,109 +2650,10 @@ msgstr ""
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-msgid "Key to match"
-msgstr ""
-
 msgid "Keys cached"
 msgstr ""
 
 msgid "Kill"
-msgstr ""
-
-msgid "LDAP"
-msgstr ""
-
-msgid "LDAP Connection  Name"
-msgstr ""
-
-msgid "LDAP Connection Name"
-msgstr ""
-
-msgid "LDAP Create Fail"
-msgstr ""
-
-msgid "LDAP Create Success"
-msgstr ""
-
-msgid "LDAP Group"
-msgstr ""
-
-msgid "LDAP Group Associations"
-msgstr ""
-
-msgid "LDAP Group Create Fail"
-msgstr ""
-
-msgid "LDAP Group Create Success"
-msgstr ""
-
-msgid "LDAP Group Management"
-msgstr ""
-
-msgid "LDAP Group Role Associations"
-msgstr ""
-
-msgid "LDAP Group Update Fail"
-msgstr ""
-
-msgid "LDAP Group Update Success"
-msgstr ""
-
-msgid "LDAP Group User Group Associations"
-msgstr ""
-
-msgid "LDAP Group added!"
-msgstr ""
-
-msgid "LDAP Group associations updated!"
-msgstr ""
-
-msgid "LDAP Group update failed!"
-msgstr ""
-
-msgid "LDAP Group updated!"
-msgstr ""
-
-msgid "LDAP Groups"
-msgstr ""
-
-msgid "LDAP Management"
-msgstr ""
-
-msgid "LDAP Ports"
-msgstr ""
-
-msgid "LDAP Server"
-msgstr ""
-
-msgid "LDAP Server Address"
-msgstr ""
-
-msgid "LDAP Server Description"
-msgstr ""
-
-msgid "LDAP Server Name"
-msgstr ""
-
-msgid "LDAP Server Port"
-msgstr ""
-
-msgid "LDAP Server Update Fail"
-msgstr ""
-
-msgid "LDAP Server Update Success"
-msgstr ""
-
-msgid "LDAP Server added!"
-msgstr ""
-
-msgid "LDAP Server update failed!"
-msgstr ""
-
-msgid "LDAP Server updated!"
-msgstr ""
-
-msgid "LDAP Servers"
 msgstr ""
 
 msgid "Language"
@@ -3369,12 +2683,6 @@ msgstr ""
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
-msgid "Leave blank to keep the current password"
-msgstr ""
-
-msgid "Level"
-msgstr ""
-
 msgid "Level must be an integer"
 msgstr ""
 
@@ -3387,33 +2695,6 @@ msgstr ""
 msgid "Lines"
 msgstr ""
 
-msgid "Link Pushbullet Account"
-msgstr ""
-
-msgid "Link Pushbullet Account Fail"
-msgstr ""
-
-msgid "Link Pushbullet Account Success"
-msgstr ""
-
-msgid "Link Slack Account"
-msgstr ""
-
-msgid "Link Slack Account Fail"
-msgstr ""
-
-msgid "Link Slack Account Success"
-msgstr ""
-
-msgid "Link ntfy Topic"
-msgstr ""
-
-msgid "Link ntfy Topic Fail"
-msgstr ""
-
-msgid "Link ntfy Topic Success"
-msgstr ""
-
 msgid "List"
 msgstr ""
 
@@ -3422,12 +2703,6 @@ msgid "List All %s"
 msgstr ""
 
 msgid "List All Plugins"
-msgstr ""
-
-msgid "List All Task States"
-msgstr ""
-
-msgid "List All Task Types"
 msgstr ""
 
 msgid "List Available Plugins"
@@ -3451,43 +2726,7 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-msgid "Location Association"
-msgstr ""
-
-msgid "Location Create Fail"
-msgstr ""
-
-msgid "Location Create Success"
-msgstr ""
-
-msgid "Location Description"
-msgstr ""
-
-msgid "Location Host Associations"
-msgstr ""
-
 msgid "Location Management"
-msgstr ""
-
-msgid "Location Name"
-msgstr ""
-
-msgid "Location Update Fail"
-msgstr ""
-
-msgid "Location Update Success"
-msgstr ""
-
-msgid "Location added!"
-msgstr ""
-
-msgid "Location is a plugin that allows your FOG Server"
-msgstr ""
-
-msgid "Location update failed!"
-msgstr ""
-
-msgid "Location updated!"
 msgstr ""
 
 msgid "Locations"
@@ -3607,9 +2846,6 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-msgid "Members of this directory group receive these roles on sign in. Roles are recomputed from the directory each time, so removing someone from the group downgrades them at their next login."
-msgstr ""
-
 msgid "Membership"
 msgstr ""
 
@@ -3653,9 +2889,6 @@ msgid "Method Not Allowed"
 msgstr ""
 
 msgid "Method does not exist"
-msgstr ""
-
-msgid "Microsoft AD"
 msgstr ""
 
 msgid "Midnight"
@@ -3796,9 +3029,6 @@ msgstr ""
 msgid "NOT"
 msgstr ""
 
-msgid "NOTE"
-msgstr ""
-
 msgid "NOTE: Forums are the most command fastest method of getting help with any aspect of FOG."
 msgstr ""
 
@@ -3811,27 +3041,6 @@ msgstr ""
 msgid "Needs a 256-bit key!"
 msgstr ""
 
-msgid "Nested Depth"
-msgstr ""
-
-msgid "Nested Groups"
-msgstr ""
-
-msgid "Nested depth must be a number"
-msgstr ""
-
-msgid "Nested depth must be between 0 and 100, or blank to inherit"
-msgstr ""
-
-msgid "Nested group depth cap reached, so group membership may be incomplete"
-msgstr ""
-
-msgid "Nested group depth must be between 1 and 100"
-msgstr ""
-
-msgid "Nested group search failed"
-msgstr ""
-
 msgid "Network Information"
 msgstr ""
 
@@ -3839,9 +3048,6 @@ msgid "Network Interface"
 msgstr ""
 
 msgid "Network Printer"
-msgstr ""
-
-msgid "Never - do not verify (insecure)"
 msgstr ""
 
 msgid "New"
@@ -3887,10 +3093,10 @@ msgstr ""
 msgid "No Printer Management"
 msgstr ""
 
-msgid "No access is allowed"
+msgid "No activity information available for this group"
 msgstr ""
 
-msgid "No activity information available for this group"
+msgid "No archive was uploaded."
 msgstr ""
 
 msgid "No change"
@@ -3990,6 +3196,9 @@ msgid "No nodes available"
 msgstr ""
 
 msgid "No open slots"
+msgstr ""
+
+msgid "No plugins selected."
 msgstr ""
 
 msgid "No printers assigned to this host"
@@ -4109,58 +3318,7 @@ msgstr ""
 msgid "O/S"
 msgstr ""
 
-msgid "OU"
-msgstr ""
-
-msgid "OU Association"
-msgstr ""
-
-msgid "OU Create Fail"
-msgstr ""
-
-msgid "OU Create Success"
-msgstr ""
-
-msgid "OU DN"
-msgstr ""
-
-msgid "OU Description"
-msgstr ""
-
-msgid "OU Host Associations"
-msgstr ""
-
-msgid "OU Management"
-msgstr ""
-
-msgid "OU Name"
-msgstr ""
-
-msgid "OU Update Fail"
-msgstr ""
-
-msgid "OU Update Success"
-msgstr ""
-
-msgid "OU added!"
-msgstr ""
-
-msgid "OU is a plugin that allows you to predefine OU's and associate with hosts."
-msgstr ""
-
-msgid "OU update failed!"
-msgstr ""
-
-msgid "OU updated!"
-msgstr ""
-
-msgid "OUs"
-msgstr ""
-
 msgid "Off"
-msgstr ""
-
-msgid "Off - direct membership only"
 msgstr ""
 
 msgid "Old key must be a string"
@@ -4208,9 +3366,6 @@ msgstr ""
 msgid "Open VNC Connection To"
 msgstr ""
 
-msgid "OpenLDAP"
-msgstr ""
-
 msgid "Operation field not set"
 msgstr ""
 
@@ -4218,9 +3373,6 @@ msgid "Optional. Pick a type to pre-fill the command fields below; you can still
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
-msgstr ""
-
-msgid "Order"
 msgstr ""
 
 msgid "Organizational Unit"
@@ -4376,9 +3528,6 @@ msgstr ""
 msgid "Please confirm you want to delete"
 msgstr ""
 
-msgid "Please confirm you would like to dissociate the selected directory groups"
-msgstr ""
-
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -4388,13 +3537,7 @@ msgstr ""
 msgid "Please confirm you would like to unset the primary group from the selected snapins"
 msgstr ""
 
-msgid "Please enter a name"
-msgstr ""
-
 msgid "Please enter a printer name."
-msgstr ""
-
-msgid "Please enter a valid CIDR subnet."
 msgstr ""
 
 msgid "Please enter a valid hostname"
@@ -4406,28 +3549,13 @@ msgstr ""
 msgid "Please physically associate"
 msgstr ""
 
-msgid "Please select a valid certificate verification level"
-msgstr ""
-
 msgid "Please select a valid image"
-msgstr ""
-
-msgid "Please select a valid ldap port"
-msgstr ""
-
-msgid "Please select a valid nested group strategy"
 msgstr ""
 
 msgid "Please select a valid printer type."
 msgstr ""
 
-msgid "Please select an LDAP server!"
-msgstr ""
-
 msgid "Please select an option"
-msgstr ""
-
-msgid "Please start user/channel with @/# respectively"
 msgstr ""
 
 msgid "Please use another group name"
@@ -4448,10 +3576,19 @@ msgstr ""
 msgid "Plugin Activate Success"
 msgstr ""
 
+msgid "Plugin Archive Read"
+msgstr ""
+
 msgid "Plugin Deactivate Fail"
 msgstr ""
 
 msgid "Plugin Deactivate Success"
+msgstr ""
+
+msgid "Plugin Forget Fail"
+msgstr ""
+
+msgid "Plugin Forgotten"
 msgstr ""
 
 msgid "Plugin Install Fail"
@@ -4478,7 +3615,16 @@ msgstr ""
 msgid "Plugin Update Success"
 msgstr ""
 
+msgid "Plugin Upload Fail"
+msgstr ""
+
+msgid "Plugin Upload Success"
+msgstr ""
+
 msgid "Plugin activated!"
+msgstr ""
+
+msgid "Plugin archive"
 msgstr ""
 
 msgid "Plugin deactivated!"
@@ -4493,7 +3639,13 @@ msgstr ""
 msgid "Plugin updated!"
 msgstr ""
 
+msgid "Plugin uploads are switched off. Turn on FOG_PLUGIN_UI_INSTALL_ENABLED in FOG Settings."
+msgstr ""
+
 msgid "Plugins"
+msgstr ""
+
+msgid "Plugins Forgotten"
 msgstr ""
 
 msgid "Plugins activated!"
@@ -4514,9 +3666,6 @@ msgstr ""
 msgid "Port"
 msgstr ""
 
-msgid "Port is not valid ldap/ldaps port"
-msgstr ""
-
 msgid "Postfix requires an action of login"
 msgstr ""
 
@@ -4530,9 +3679,6 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
-msgstr ""
-
-msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
 msgid "Primary"
@@ -4640,15 +3786,6 @@ msgstr ""
 msgid "Protected"
 msgstr ""
 
-msgid "Pushbullet Accounts"
-msgstr ""
-
-msgid "Pushbullet Management"
-msgstr ""
-
-msgid "Pushbullet Token"
-msgstr ""
-
 msgid "Queue Deletion Cancel Fail"
 msgstr ""
 
@@ -4677,9 +3814,6 @@ msgid "Real Time"
 msgstr ""
 
 msgid "Reboot"
-msgstr ""
-
-msgid "Reboot after deploy"
 msgstr ""
 
 msgid "Receive"
@@ -4713,16 +3847,10 @@ msgstr ""
 msgid "Remember Me"
 msgstr ""
 
-msgid "Remote address attempting to login"
-msgstr ""
-
 msgid "Remove"
 msgstr ""
 
 msgid "Remove Fail"
-msgstr ""
-
-msgid "Remove LDAP Group Associations"
 msgstr ""
 
 msgid "Remove associated files"
@@ -4747,6 +3875,9 @@ msgid "Removing this group would leave no user with administrator access."
 msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
+msgid "Rename or remove one of them."
 msgstr ""
 
 msgid "Replicating"
@@ -4785,9 +3916,6 @@ msgstr ""
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
-msgid "Result"
-msgstr ""
-
 msgid "Resume Reload"
 msgstr ""
 
@@ -4801,9 +3929,6 @@ msgid "Returning value of key"
 msgstr ""
 
 msgid "Reverse"
-msgstr ""
-
-msgid "Role"
 msgstr ""
 
 msgid "Role Association"
@@ -4842,19 +3967,10 @@ msgstr ""
 msgid "Role added!"
 msgstr ""
 
-msgid "Role for LDAP admin group"
-msgstr ""
-
-msgid "Role for LDAP user group"
-msgstr ""
-
 msgid "Role update failed!"
 msgstr ""
 
 msgid "Role updated!"
-msgstr ""
-
-msgid "Role when group matching is off"
 msgstr ""
 
 msgid "Roles"
@@ -4956,27 +4072,6 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-msgid "Search Base DN"
-msgstr ""
-
-msgid "Search DN"
-msgstr ""
-
-msgid "Search DN did not return any results"
-msgstr ""
-
-msgid "Search Key"
-msgstr ""
-
-msgid "Search Method"
-msgstr ""
-
-msgid "Search Scope"
-msgstr ""
-
-msgid "Search results returned false"
-msgstr ""
-
 msgid "Search settings"
 msgstr ""
 
@@ -5023,9 +4118,6 @@ msgid "Server Information"
 msgstr ""
 
 msgid "Server Shell"
-msgstr ""
-
-msgid "Server URL"
 msgstr ""
 
 msgid "Server appears to be offline or unavailable!"
@@ -5147,9 +4239,6 @@ msgstr ""
 msgid "Shutdown"
 msgstr ""
 
-msgid "Shutdown after deploy"
-msgstr ""
-
 msgid "Shutdown when complete"
 msgstr ""
 
@@ -5164,57 +4253,6 @@ msgid "Signed in as %s."
 msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
-msgstr ""
-
-msgid "Site"
-msgstr ""
-
-msgid "Site Association"
-msgstr ""
-
-msgid "Site Create Fail"
-msgstr ""
-
-msgid "Site Create Success"
-msgstr ""
-
-msgid "Site Description"
-msgstr ""
-
-msgid "Site Group Associations"
-msgstr ""
-
-msgid "Site Host Associations"
-msgstr ""
-
-msgid "Site Management"
-msgstr ""
-
-msgid "Site Name"
-msgstr ""
-
-msgid "Site Update Fail"
-msgstr ""
-
-msgid "Site Update Success"
-msgstr ""
-
-msgid "Site User Associations"
-msgstr ""
-
-msgid "Site User Group Associations"
-msgstr ""
-
-msgid "Site added!"
-msgstr ""
-
-msgid "Site update failed!"
-msgstr ""
-
-msgid "Site updated!"
-msgstr ""
-
-msgid "Sites"
 msgstr ""
 
 msgid "Size"
@@ -5235,18 +4273,6 @@ msgid "Skipping unsafe queued delete path"
 msgstr ""
 
 msgid "Skipping, will need manual removal"
-msgstr ""
-
-msgid "Slack Accounts"
-msgstr ""
-
-msgid "Slack Management"
-msgstr ""
-
-msgid "Slack Token"
-msgstr ""
-
-msgid "Slack User/Slack Channel"
 msgstr ""
 
 msgid "Smart Installer"
@@ -5576,9 +4602,6 @@ msgstr ""
 msgid "Storage Node Password"
 msgstr ""
 
-msgid "Storage Node Protocol"
-msgstr ""
-
 msgid "Storage Node SSL Path"
 msgstr ""
 
@@ -5631,51 +4654,6 @@ msgid "Storage Nodes"
 msgstr ""
 
 msgid "String must be a string"
-msgstr ""
-
-msgid "Subnet Group -> Group Relationship"
-msgstr ""
-
-msgid "Subnet Group Create Fail"
-msgstr ""
-
-msgid "Subnet Group Create Success"
-msgstr ""
-
-msgid "Subnet Group Description"
-msgstr ""
-
-msgid "Subnet Group Management"
-msgstr ""
-
-msgid "Subnet Group Name"
-msgstr ""
-
-msgid "Subnet Group Update Fail"
-msgstr ""
-
-msgid "Subnet Group Update Success"
-msgstr ""
-
-msgid "Subnet Group added!"
-msgstr ""
-
-msgid "Subnet Group update failed!"
-msgstr ""
-
-msgid "Subnet Group updated!"
-msgstr ""
-
-msgid "Subnet Groups"
-msgstr ""
-
-msgid "Subnets"
-msgstr ""
-
-msgid "Subtree Only"
-msgstr ""
-
-msgid "Subtree and Below"
 msgstr ""
 
 msgid "Successfully added hosts to the provided groups!"
@@ -5766,76 +4744,13 @@ msgstr ""
 msgid "Task Reboot"
 msgstr ""
 
-msgid "Task State Create Fail"
-msgstr ""
-
-msgid "Task State Create SUccess"
-msgstr ""
-
-msgid "Task State Description"
-msgstr ""
-
-msgid "Task State Icon"
-msgstr ""
-
-msgid "Task State Management"
-msgstr ""
-
-msgid "Task State Name"
-msgstr ""
-
-msgid "Task State Update Fail"
-msgstr ""
-
-msgid "Task State Update Success"
-msgstr ""
-
-msgid "Task State Updated!"
-msgstr ""
-
-msgid "Task States"
-msgstr ""
-
 msgid "Task Type"
-msgstr ""
-
-msgid "Task Type Create Fail"
-msgstr ""
-
-msgid "Task Type Create Success"
-msgstr ""
-
-msgid "Task Type Description"
-msgstr ""
-
-msgid "Task Type Icon"
-msgstr ""
-
-msgid "Task Type Management"
-msgstr ""
-
-msgid "Task Type Name"
-msgstr ""
-
-msgid "Task Type Update Fail"
-msgstr ""
-
-msgid "Task Type Update Success"
-msgstr ""
-
-msgid "Task Type Updated!"
-msgstr ""
-
-msgid "Task Type added!"
 msgstr ""
 
 msgid "Task Type is invalid"
 msgstr ""
 
 msgid "Task Type is not valid"
-msgstr ""
-
-msgid "Task Types"
 msgstr ""
 
 msgid "Task not created as there are no associated Tasks"
@@ -5850,31 +4765,16 @@ msgstr ""
 msgid "Task started for"
 msgstr ""
 
-msgid "Task state added!"
-msgstr ""
-
-msgid "Task state update failed!"
-msgstr ""
-
 msgid "Task type is invalid"
 msgstr ""
 
-msgid "Task type update failed!"
-msgstr ""
-
 msgid "Tasks"
-msgstr ""
-
-msgid "Team"
 msgstr ""
 
 msgid "Terminal"
 msgstr ""
 
 msgid "Text"
-msgstr ""
-
-msgid "That group is already defined for this server!"
 msgstr ""
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
@@ -5889,16 +4789,13 @@ msgstr ""
 msgid "That session has already started"
 msgstr ""
 
+msgid "That upload is no longer available."
+msgstr ""
+
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
-msgstr ""
-
-msgid "The CA certificate path is too long (255 characters max)"
-msgstr ""
-
-msgid "The CA certificate path must be absolute"
 msgstr ""
 
 msgid "The CA private key is not on this server"
@@ -5910,16 +4807,34 @@ msgstr ""
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
-msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgid "The archive contains a link."
 msgstr ""
 
-msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
+#, php-format
+msgid "The archive contains an unsafe path: %s"
+msgstr ""
+
+msgid "The archive could not be extracted."
+msgstr ""
+
+msgid "The archive could not be read."
+msgstr ""
+
+msgid "The archive did not extract as expected."
+msgstr ""
+
+#, php-format
+msgid "The archive has no %s."
+msgstr ""
+
+#, php-format
+msgid "The archive is larger than the %s limit."
+msgstr ""
+
+msgid "The archive must hold exactly one plugin directory."
 msgstr ""
 
 msgid "The current user is invalid."
-msgstr ""
-
-msgid "The image associated does not have a valid OS!"
 msgstr ""
 
 msgid "The image storage group assigned is not valid"
@@ -5928,7 +4843,8 @@ msgstr ""
 msgid "The installers for the fog client"
 msgstr ""
 
-msgid "The key will be assigned to registered hosts when a"
+#, php-format
+msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
 
 msgid "The manual enrolment steps below are unaffected."
@@ -5940,16 +4856,35 @@ msgstr ""
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
+msgid "The plugin directory"
+msgstr ""
+
+msgid "The plugin directory does not exist."
+msgstr ""
+
+msgid "The plugin will run but its JS and CSS will 404."
+msgstr ""
+
 msgid "The primary mac associated is"
 msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
+msgid "The staged plugin no longer matches its manifest."
+msgstr ""
+
 msgid "The storage groups associated storage node is not valid"
 msgstr ""
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The upload did not arrive."
+msgstr ""
+
+#, php-format
+msgid "The upload failed (error %s). It may be larger than post_max_size, currently %s."
 msgstr ""
 
 msgid "The uploaded file exceeds the max_file_size"
@@ -6003,10 +4938,11 @@ msgstr ""
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
-msgid "This change would leave no user with administrator access."
+#, php-format
+msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
 
-msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgid "This change would leave no user with administrator access."
 msgstr ""
 
 msgid "This host already exists"
@@ -6025,9 +4961,6 @@ msgid "This is a single run task that should not run now."
 msgstr ""
 
 msgid "This is a single run task that should run now."
-msgstr ""
-
-msgid "This is especially useful if you have multiple"
 msgstr ""
 
 msgid "This is not the master for this group"
@@ -6067,9 +5000,6 @@ msgid "This servers ip(s)"
 msgstr ""
 
 msgid "This setting"
-msgstr ""
-
-msgid "This setting defines sending the"
 msgstr ""
 
 msgid "This setting defines the number of items to display when listing/searching elements. The default value is 10."
@@ -6117,9 +5047,6 @@ msgstr ""
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
-msgid "Those images should be activated with the associated"
-msgstr ""
-
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -6147,25 +5074,7 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr ""
 
-msgid "Token or user:pass (optional)"
-msgstr ""
-
 msgid "Too many MACs"
-msgstr ""
-
-msgid "Topic Endpoint"
-msgstr ""
-
-msgid "Topic already linked"
-msgstr ""
-
-msgid "Topic linked"
-msgstr ""
-
-msgid "Topic name you choose, e.g. fog-alerts"
-msgstr ""
-
-msgid "Topic successfully added!"
 msgstr ""
 
 msgid "Total Clients"
@@ -6238,21 +5147,6 @@ msgid "Unable to open file for reading"
 msgstr ""
 
 msgid "Unable to remove protected items"
-msgstr ""
-
-msgid "Unable to set LDAP role mapping."
-msgstr ""
-
-msgid "Unable to set action field"
-msgstr ""
-
-msgid "Unable to set dmi field"
-msgstr ""
-
-msgid "Unable to set ldap ports."
-msgstr ""
-
-msgid "Unable to set nested group depth."
 msgstr ""
 
 msgid "Unable to uninstall, no method exists for "
@@ -6371,25 +5265,22 @@ msgstr ""
 msgid "Update selected"
 msgstr ""
 
+msgid "Upload"
+msgstr ""
+
 msgid "Upload Reports"
 msgstr ""
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
 msgstr ""
 
+msgid "Upload plugin"
+msgstr ""
+
 msgid "Uploaded file too large."
 msgstr ""
 
 msgid "Uptime"
-msgstr ""
-
-msgid "Use Display Name from Directory"
-msgstr ""
-
-msgid "Use Group Match"
-msgstr ""
-
-msgid "Use LDAP SSL"
 msgstr ""
 
 msgid "Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the pack is unzipped on the client."
@@ -6417,9 +5308,6 @@ msgid "Use the input below to set the name for your new kernel."
 msgstr ""
 
 msgid "Use the links below if you need assistance."
-msgstr ""
-
-msgid "Use the selector to choose how many items you want exported"
 msgstr ""
 
 msgid "Used"
@@ -6452,28 +5340,16 @@ msgstr ""
 msgid "User Cleanup"
 msgstr ""
 
-msgid "User Count"
-msgstr ""
-
 msgid "User Create Fail"
 msgstr ""
 
 msgid "User Create Success"
 msgstr ""
 
-msgid "User DN"
-msgstr ""
-
-msgid "User Group"
-msgstr ""
-
 msgid "User Group Association"
 msgstr ""
 
 msgid "User Group Associations"
-msgstr ""
-
-msgid "User Group Count"
 msgstr ""
 
 msgid "User Group Create Fail"
@@ -6494,18 +5370,6 @@ msgstr ""
 msgid "User Group Role Associations"
 msgstr ""
 
-msgid "User Group Site"
-msgstr ""
-
-msgid "User Group Site Update Fail"
-msgstr ""
-
-msgid "User Group Site Update Success"
-msgstr ""
-
-msgid "User Group Site Updated!"
-msgstr ""
-
 msgid "User Group Update Fail"
 msgstr ""
 
@@ -6524,22 +5388,7 @@ msgstr ""
 msgid "User Name"
 msgstr ""
 
-msgid "User Name Attribute"
-msgstr ""
-
 msgid "User Password"
-msgstr ""
-
-msgid "User Site"
-msgstr ""
-
-msgid "User Site Update Fail"
-msgstr ""
-
-msgid "User Site Update Success"
-msgstr ""
-
-msgid "User Site Updated!"
 msgstr ""
 
 msgid "User Tracker"
@@ -6554,9 +5403,6 @@ msgstr ""
 msgid "User added!"
 msgstr ""
 
-msgid "User call is invalid"
-msgstr ""
-
 msgid "User group added!"
 msgstr ""
 
@@ -6566,25 +5412,10 @@ msgstr ""
 msgid "User group updated!"
 msgstr ""
 
-msgid "User matched none of the mapped groups"
-msgstr ""
-
-msgid "User not found"
-msgstr ""
-
 msgid "User update failed!"
 msgstr ""
 
 msgid "User updated!"
-msgstr ""
-
-msgid "User was not authorized by the LDAP server"
-msgstr ""
-
-msgid "User/Channel"
-msgstr ""
-
-msgid "User/Channel Name"
 msgstr ""
 
 msgid "Username"
@@ -6596,13 +5427,7 @@ msgstr ""
 msgid "Username must end with a number or letter."
 msgstr ""
 
-msgid "Username was blank"
-msgstr ""
-
 msgid "Users"
-msgstr ""
-
-msgid "Using the group match function"
 msgstr ""
 
 msgid "VB Script"
@@ -6624,12 +5449,6 @@ msgid "Versions"
 msgstr ""
 
 msgid "View"
-msgstr ""
-
-msgid "WOL Broadcast Management"
-msgstr ""
-
-msgid "WOL Broadcasts"
 msgstr ""
 
 msgid "Wait time has changed to"
@@ -6656,9 +5475,6 @@ msgstr ""
 msgid "We are node name"
 msgstr ""
 
-msgid "We cannot connect to LDAP server"
-msgstr ""
-
 msgid "Web CA private key"
 msgstr ""
 
@@ -6680,9 +5496,6 @@ msgstr ""
 msgid "What to do next"
 msgstr ""
 
-msgid "When the plugin is removed, the assigned key will remain"
-msgstr ""
-
 msgid "Where to get help and guides"
 msgstr ""
 
@@ -6693,51 +5506,6 @@ msgid "Width must be 650 pixels."
 msgstr ""
 
 msgid "Window size must be greater than 1"
-msgstr ""
-
-msgid "Windows 10 Professional"
-msgstr ""
-
-msgid "Windows Key"
-msgstr ""
-
-msgid "Windows Key Create Fail"
-msgstr ""
-
-msgid "Windows Key Create Success"
-msgstr ""
-
-msgid "Windows Key Description"
-msgstr ""
-
-msgid "Windows Key Management"
-msgstr ""
-
-msgid "Windows Key Name"
-msgstr ""
-
-msgid "Windows Key Update Fail"
-msgstr ""
-
-msgid "Windows Key Update Success"
-msgstr ""
-
-msgid "Windows Key added!"
-msgstr ""
-
-msgid "Windows Key update failed!"
-msgstr ""
-
-msgid "Windows Key updated!"
-msgstr ""
-
-msgid "Windows Keys"
-msgstr ""
-
-msgid "Windows Product key"
-msgstr ""
-
-msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
 msgid "Wipes"
@@ -6760,9 +5528,6 @@ msgstr ""
 
 #, php-format
 msgid "You do not have permission to access this page (%s required)."
-msgstr ""
-
-msgid "You do not have permission to change LDAP group associations."
 msgstr ""
 
 msgid "You do not have permission to perform this action."
@@ -6840,16 +5605,10 @@ msgstr ""
 msgid "between"
 msgstr ""
 
-msgid "between different sites"
-msgstr ""
-
 msgid "blank for default"
 msgstr ""
 
 msgid "boot the client computers"
-msgstr ""
-
-msgid "but bind password is not set"
 msgstr ""
 
 msgid "but has recently failed for this host"
@@ -6867,9 +5626,6 @@ msgstr ""
 msgid "clients"
 msgstr ""
 
-msgid "completed imaging"
-msgstr ""
-
 msgid "confirm"
 msgstr ""
 
@@ -6883,9 +5639,6 @@ msgid "could not be killed"
 msgstr ""
 
 msgid "day"
-msgstr ""
-
-msgid "deploy task occurs for it"
 msgstr ""
 
 msgid "directive in php.ini"
@@ -6931,9 +5684,6 @@ msgstr ""
 msgid "failed to execute, there are no clients included"
 msgstr ""
 
-msgid "failed to login"
-msgstr ""
-
 msgid "failed to start"
 msgstr ""
 
@@ -6941,9 +5691,6 @@ msgid "file to"
 msgstr ""
 
 msgid "filesize"
-msgstr ""
-
-msgid "for Microsoft Windows to images"
 msgstr ""
 
 msgid "found"
@@ -6973,16 +5720,13 @@ msgstr ""
 msgid "has been successfully updated"
 msgstr ""
 
-msgid "has completed on"
-msgstr ""
-
-msgid "has completed snapin tasking"
-msgstr ""
-
 msgid "has failed to destroy"
 msgstr ""
 
 msgid "has failed to save"
+msgstr ""
+
+msgid "has no code on disk"
 msgstr ""
 
 msgid "has started"
@@ -7060,9 +5804,6 @@ msgstr ""
 msgid "images to a storage group"
 msgstr ""
 
-msgid "imaging failed"
-msgstr ""
-
 msgid "in"
 msgstr ""
 
@@ -7129,16 +5870,10 @@ msgstr ""
 msgid "kernel to boot the client computers"
 msgstr ""
 
-msgid "key"
-msgstr ""
-
 msgid "keys"
 msgstr ""
 
 msgid "limited to 1Mbps on that node"
-msgstr ""
-
-msgid "location url based on the host that checks in"
 msgstr ""
 
 msgid "logged in"
@@ -7165,19 +5900,21 @@ msgstr ""
 msgid "month"
 msgstr ""
 
-msgid "multiple places to get your image"
-msgstr ""
-
 msgid "must be specified"
 msgstr ""
 
 msgid "n/a"
 msgstr ""
 
-msgid "never"
+#, php-format
+msgid "needs FOG %s or newer; this server is %s"
 msgstr ""
 
-msgid "no response from server"
+#, php-format
+msgid "needs these plugins active first: %s"
+msgstr ""
+
+msgid "never"
 msgstr ""
 
 msgid "node is the distributor of the images"
@@ -7193,12 +5930,6 @@ msgid "not found on disk"
 msgstr ""
 
 msgid "not found on this node"
-msgstr ""
-
-msgid "ntfy Accounts"
-msgstr ""
-
-msgid "ntfy Management"
 msgstr ""
 
 msgid "object"
@@ -7277,9 +6008,6 @@ msgstr ""
 msgid "short"
 msgstr ""
 
-msgid "sites with clients moving back and forth"
-msgstr ""
-
 msgid "snapin"
 msgstr ""
 
@@ -7308,6 +6036,10 @@ msgstr ""
 msgid "success"
 msgstr ""
 
+#, php-format
+msgid "supports FOG up to %s; this server is %s"
+msgstr ""
+
 msgid "task found"
 msgstr ""
 
@@ -7322,9 +6054,6 @@ msgid "the Linux kernel which is used to"
 msgstr ""
 
 msgid "the following command in a terminal"
-msgstr ""
-
-msgid "the host defined location where available"
 msgstr ""
 
 msgid "the initrd (initial ramdisk) which is alongside the"
@@ -7370,9 +6099,6 @@ msgid "to get the requested Kernel"
 msgstr ""
 
 msgid "to get the requested initrd"
-msgstr ""
-
-msgid "to operate in an environment where there may be"
 msgstr ""
 
 msgid "to review."
@@ -7430,12 +6156,6 @@ msgid "window"
 msgstr ""
 
 msgid "wipe out all of your images stored on"
-msgstr ""
-
-msgid "with status code"
-msgstr ""
-
-msgid "with the host"
 msgstr ""
 
 msgid "with this group"
