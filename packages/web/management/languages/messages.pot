@@ -1538,6 +1538,9 @@ msgstr ""
 msgid "Dropped"
 msgstr ""
 
+msgid "Duplicate plugin name; the later one is ignored"
+msgstr ""
+
 msgid "Duration"
 msgstr ""
 
@@ -4744,6 +4747,9 @@ msgid "Removing this group would leave no user with administrator access."
 msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
+msgid "Rename or remove one of them."
 msgstr ""
 
 msgid "Replicating"

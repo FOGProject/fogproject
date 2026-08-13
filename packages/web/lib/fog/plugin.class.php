@@ -62,9 +62,29 @@ class Plugin extends FOGController
         'description'
     ];
     /**
+     * The roots a plugin may live under, in precedence order.
+     *
+     * Bundled plugins ship inside the web tree and are re-laid from the
+     * tarball on every upgrade. Third-party plugins live under
+     * FOG_PLUGIN_DIR, outside $webdirdest, because configureHttpd() does
+     * `rm -rf $webdirdest` and would otherwise delete them (ADR 0009).
+     *
+     * Bundled is listed first and wins a name collision -- see _getDirs().
+     *
+     * @return array absolute paths, each with a trailing separator
+     */
+    public static function pluginRoots()
+    {
+        $roots = [rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS];
+        if (defined('FOG_PLUGIN_DIR') && is_dir(FOG_PLUGIN_DIR)) {
+            $roots[] = rtrim(FOG_PLUGIN_DIR, DS) . DS;
+        }
+        return $roots;
+    }
+    /**
      * Gets the directories of plugins.
      *
-     * Globs the plugin root one level deep for <root>/<name>/config/
+     * Globs each root one level deep for <root>/<name>/config/
      * plugin.config.php. This used to filter self::fileitems(), which since
      * 698b6dc6c ("cache the BASEPATH class-file scan") filters
      * Initiator::classFileList() -- a list built from a regex matching only
@@ -76,17 +96,41 @@ class Plugin extends FOGController
      * because the `plugins` rows written before that commit still described
      * them, which also left those rows frozen at whatever they said then.
      *
-     * A targeted glob is also cheaper than what it replaced -- one shallow
-     * glob instead of a filter over a recursive walk of the whole tree.
+     * A targeted glob is also cheaper than what it replaced -- two shallow
+     * globs instead of a filter over a recursive walk of the whole tree.
      *
      * @return array
      */
     private function _getDirs()
     {
-        $root = rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS;
         $dirs = [];
-        foreach ((array)glob($root . '*' . DS . 'config' . DS . 'plugin.config.php') as $config) {
-            $dirs[] = dirname(dirname($config)) . DS;
+        $seen = [];
+        foreach (self::pluginRoots() as $root) {
+            foreach ((array)glob($root . '*' . DS . 'config' . DS . 'plugin.config.php') as $config) {
+                $dir = dirname(dirname($config)) . DS;
+                $name = strtolower(basename($dir));
+                // A plugin in a later root sharing a name with an earlier one
+                // is REFUSED, not merged and not shadowed. Silently letting an
+                // external directory take over a bundled plugin's node is a
+                // supply-chain trick, and the reverse -- an upgrade quietly
+                // disabling an admin's plugin -- is just as surprising. Name
+                // both paths so whichever it is can be resolved by hand.
+                if (isset($seen[$name])) {
+                    error_log(
+                        sprintf(
+                            '%s: %s (%s, %s). %s',
+                            _('Duplicate plugin name; the later one is ignored'),
+                            $name,
+                            $seen[$name],
+                            $dir,
+                            _('Rename or remove one of them.')
+                        )
+                    );
+                    continue;
+                }
+                $seen[$name] = $dir;
+                $dirs[] = $dir;
+            }
         }
         return $dirs;
     }

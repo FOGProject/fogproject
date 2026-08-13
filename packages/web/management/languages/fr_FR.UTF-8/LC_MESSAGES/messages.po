@@ -1844,6 +1844,9 @@ msgstr ""
 msgid "Dropped"
 msgstr "Chuté"
 
+msgid "Duplicate plugin name; the later one is ignored"
+msgstr ""
+
 msgid "Duration"
 msgstr "Durée"
 
@@ -5614,6 +5617,10 @@ msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
 msgstr ""
+
+#, fuzzy
+msgid "Rename or remove one of them."
+msgstr "Impossible de mettre à jour la tâche"
 
 #, fuzzy
 msgid "Replicating"
