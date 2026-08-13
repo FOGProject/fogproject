@@ -5020,3 +5020,19 @@ $this->schema[] = [
     . "(Unattended - secure boot in setup mode required)', '0', '2', "
     . "'mode=enrollsb')",
 ];
+// 326
+$this->schema[] = [
+    // Removes FOG_PLUGINSYS_DIR. The setting only ever pretended to be
+    // configurable: Plugin::_getDirs() read it and, whenever it was not
+    // exactly '../lib/plugins/', wrote that value straight back before
+    // using it -- so editing it in FOG Configuration changed nothing and
+    // was silently reverted on the next boot. _getDirs() no longer reads
+    // it at all, which leaves an editable row in the UI that does nothing,
+    // and a setting that lies is worse than no setting.
+    //
+    // The plugin roots are fixed in code instead (BASEPATH/lib/plugins,
+    // plus FOG_PLUGIN_DIR for third-party plugins -- see ADR 0009).
+    // FOG_PLUGINSYS_ENABLED is deliberately NOT touched: that one is a real
+    // on/off switch getActivePlugins() still honours.
+    "DELETE FROM `globalSettings` WHERE `settingKey` = 'FOG_PLUGINSYS_DIR'",
+];

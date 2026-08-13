@@ -64,49 +64,63 @@ class Plugin extends FOGController
     /**
      * Gets the directories of plugins.
      *
+     * Globs the plugin root one level deep for <root>/<name>/config/
+     * plugin.config.php. This used to filter self::fileitems(), which since
+     * 698b6dc6c ("cache the BASEPATH class-file scan") filters
+     * Initiator::classFileList() -- a list built from a regex matching only
+     * *.class.php, *.page.php, *.hook.php, *.event.php and *.report.php.
+     * plugin.config.php matches none of those, so the filter could never
+     * return anything and discovery had been silently finding zero plugins:
+     * a fresh install offered none to install at all, and a newly added
+     * directory was never picked up. Existing installs kept working only
+     * because the `plugins` rows written before that commit still described
+     * them, which also left those rows frozen at whatever they said then.
+     *
+     * A targeted glob is also cheaper than what it replaced -- one shallow
+     * glob instead of a filter over a recursive walk of the whole tree.
+     *
      * @return array
      */
     private function _getDirs()
     {
-        $dir = trim(self::getSetting('FOG_PLUGINSYS_DIR'));
-        if ($dir != '../lib/plugins/') {
-            self::setSetting('FOG_PLUGINSYS_DIR', '../lib/plugins/');
-            $dir = '../lib/plugins/';
+        $root = rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS;
+        $dirs = [];
+        foreach ((array)glob($root . '*' . DS . 'config' . DS . 'plugin.config.php') as $config) {
+            $dirs[] = dirname(dirname($config)) . DS;
         }
-        $patternReplacer = function ($element) {
-            return preg_replace('#config/plugin\.config\.php$#i', '', $element[0]);
-        };
-        $regext = '#^.+/config/plugin\.config\.php$#i';
-        return array_values(
-            array_unique(
-                array_filter(
-                    array_map(
-                        $patternReplacer,
-                        self::fileitems(
-                            '.config.php',
-                            'config',
-                            false,
-                            false
-                        )
-                    )
-                )
-            )
-        );
+        return $dirs;
     }
     /**
      * Gets plugins.
+     *
+     * Reads every existing `plugins` row up front, in ONE query, and keys it
+     * by name. What this replaced did seven queries per plugin -- an id
+     * lookup, a load, and five separate exists() calls, one per field it
+     * wanted to compare -- and getActivePlugins() calls this on every boot.
+     * At fifteen bundled plugins that is over a hundred queries on every page
+     * load. The cost never showed up only because discovery was returning
+     * nothing at all (see _getDirs()), so fixing that without this would have
+     * traded a silent breakage for a loud slowdown.
+     *
+     * Comparing the row in PHP is also a truer test than exists() was.
+     * exists() asks "does ANY row hold this value in this column", so two
+     * plugins sharing a description each looked unchanged even when one of
+     * them genuinely had drifted.
      *
      * @return array
      */
     public function getPlugins()
     {
         $Plugins = [];
-        foreach ((array) $this->_getDirs() as &$file) {
-            $pluginID = Route::getIds(
-                'plugin',
-                ['name' => basename($file)]
-            );
-            $pluginID = count($pluginID ?: []) ? @min($pluginID) : 0;
+        $existing = [];
+        Route::listem('plugin');
+        $rows = json_decode(Route::getData());
+        foreach ((array)($rows->data ?? []) as $row) {
+            $existing[strtolower((string)$row->name)] = $row;
+        }
+        foreach ((array) $this->_getDirs() as $file) {
+            $name = strtolower(basename($file));
+            $row = $existing[$name] ?? null;
             $configFile = sprintf(
                 '%s/config/plugin.config.php',
                 rtrim($file, '/')
@@ -132,48 +146,49 @@ class Plugin extends FOGController
                     $fog_plugin['menuicon']
                 );
             }
-            $plugin = self::getClass('Plugin', $pluginID)
-                ->set('name', strtolower(basename($file)))
-                ->set('description', $fog_plugin['description'])
-                ->set('location', $file)
-                ->set('runfile', $runFile)
-                ->set('icon', $icon);
-            $plugman = self::getClass('PluginManager');
-            $nameexists = $plugman->exists(
-                $plugin->get('name'),
-                '',
-                'name'
-            );
-            $descexists = $plugman->exists(
-                $plugin->get('description'),
-                '',
-                'description'
-            );
-            $locexists = $plugman->exists(
-                $plugin->get('location'),
-                '',
-                'location'
-            );
-            $runfileexists = $plugman->exists(
-                $plugin->get('runfile'),
-                '',
-                'runfile'
-            );
-            $iconexists = $plugman->exists(
-                $plugin->get('icon'),
-                '',
-                'icon'
-            );
-            if (!$nameexists
-                || !$descexists
-                || !$locexists
-                || !$runfileexists
-                || !$iconexists
-            ) {
+            $fields = [
+                'name' => $name,
+                'description' => $fog_plugin['description'],
+                'location' => $file,
+                'runfile' => $runFile,
+                'icon' => $icon,
+            ];
+            // Some plugins wrap their description in _(), so the value
+            // compared here is locale-dependent and the stored one is
+            // whatever locale last ran discovery. That settles after a single
+            // write per locale change rather than rewriting every boot, which
+            // is why it is left alone: excluding description from the compare
+            // would mean an edited description never reached the row at all.
+            $changed = null === $row;
+            foreach ($fields as $field => $value) {
+                if (!$changed && (string)($row->{$field} ?? '') !== (string)$value) {
+                    $changed = true;
+                }
+            }
+            $id = (int)($row->id ?? 0);
+            if ($changed) {
+                // Constructed WITH the id, so the row is loaded before the
+                // save. save() writes every databaseField, so saving an
+                // unloaded object would blank the columns discovery does not
+                // set -- state, installed, version, pSchema -- silently
+                // uninstalling every plugin. The load costs a query, which is
+                // why it is on this branch and not the common one.
+                $plugin = self::getClass('Plugin', $id);
+                foreach ($fields as $field => $value) {
+                    $plugin->set($field, $value);
+                }
                 $plugin->save();
+            } else {
+                // Nothing to write, so skip the load entirely and hydrate
+                // from the row already in hand. Keeps steady-state discovery
+                // at the single listem() above.
+                $plugin = self::getClass('Plugin');
+                $plugin->set('id', $id);
+                foreach ($fields as $field => $value) {
+                    $plugin->set($field, $value);
+                }
             }
             $Plugins[] = $plugin;
-            unset($file);
         }
 
         return $Plugins;
