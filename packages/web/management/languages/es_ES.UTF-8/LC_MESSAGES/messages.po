@@ -70,7 +70,7 @@ msgid "%s added. Install it to set up its database."
 msgstr ""
 
 #, php-format
-msgid "%s could not be loaded. Its class file is present but the autoloader cannot see it yet."
+msgid "%s could not be loaded. Check that %s declares a class of that exact name."
 msgstr ""
 
 #, php-format

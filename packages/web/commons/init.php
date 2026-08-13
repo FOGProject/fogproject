@@ -273,7 +273,16 @@ class Initiator
         }
         $key = strtolower($class);
         if (isset(self::$classMap[$key])) {
-            include self::$classMap[$key];
+            // include_once, not include. PHP does not call an autoloader
+            // twice for a name it managed to declare -- but it calls it every
+            // time for one it did not, and a file whose declared class name
+            // does not match its filename never satisfies the lookup. The
+            // second class_exists() on such a name re-included the file and
+            // died on "Cannot declare class X, because the name is already in
+            // use": an uncatchable fatal, so a bodyless HTTP 500. Proven with
+            // a plugin shipping class/<name>manager.class.php declaring
+            // something else.
+            include_once self::$classMap[$key];
         }
     }
 

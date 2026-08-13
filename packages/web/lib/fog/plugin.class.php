@@ -1065,16 +1065,20 @@ class Plugin extends FOGController
         // file we cannot load is a broken install, not a plugin without a
         // manager, and the two have to be told apart: a hooks-only plugin
         // genuinely has no manager and must still install cleanly.
-        $ownManager = strtolower($this->get('name')) . 'manager';
+        $wanted = $this->get('name') . 'Manager';
         $managerFile = rtrim($this->get('location'), DS) . DS . 'class'
-            . DS . $ownManager . '.class.php';
+            . DS . strtolower($wanted) . '.class.php';
+        // Asked of $manager rather than class_exists($wanted): getManager()
+        // has already resolved it, and asking again would autoload the same
+        // file a second time.
         if (file_exists($managerFile)
-            && !class_exists($this->get('name') . 'Manager')
+            && strcasecmp(get_class($manager), $wanted) !== 0
         ) {
             throw new Exception(
                 sprintf(
-                    _('%s could not be loaded. Its class file is present but the autoloader cannot see it yet.'),
-                    $this->get('name') . 'Manager'
+                    _('%s could not be loaded. Check that %s declares a class of that exact name.'),
+                    $wanted,
+                    'class' . DS . strtolower($wanted) . '.class.php'
                 )
             );
         }
