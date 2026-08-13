@@ -42,6 +42,7 @@ class PluginManagement extends FOGPage
         $this->headerData = [
             _('Plugin Name'),
             _('Description'),
+            _('Version'),
             _('Location'),
             _('Activated'),
             _('Installed')
@@ -53,9 +54,10 @@ class PluginManagement extends FOGPage
         // the table carries .fog-table-fixed (see fog.plugin.list.js), which
         // switches it to a fixed layout.
         $this->attributes = [
+            ['width' => '18%'],
+            ['width' => '32%'],
+            ['width' => '10%'],
             ['width' => '20%'],
-            ['width' => '38%'],
-            ['width' => '22%'],
             ['width' => '10%'],
             ['width' => '10%']
         ];
@@ -74,6 +76,13 @@ class PluginManagement extends FOGPage
             foreach ((array)$data->data as &$row) {
                 $plugin = self::getClass('Plugin', $row->id);
                 $row->needsupdate = $plugin->needsSchemaUpdate() ? 1 : 0;
+                // Why a plugin can't be turned on, rendered on the row rather
+                // than only raised when the activate button is pressed. The
+                // reason is a property of the plugin, so an admin should be
+                // able to see it without first trying and failing.
+                $row->incompatible = Plugin::compatError(
+                    Plugin::readManifest((string)$row->location)
+                );
                 unset($row);
             }
             $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($data));
@@ -155,6 +164,32 @@ class PluginManagement extends FOGPage
         echo '</div>';
     }
     /**
+     * Stops a batch that contains a plugin which cannot run here.
+     *
+     * The whole batch is refused rather than the offending members quietly
+     * skipped: a partial success reported as "Plugins activated!" leaves the
+     * admin believing something is on that isn't, and the plugins in a batch
+     * are often the ones that depend on each other.
+     *
+     * @param array $plugins the posted plugin ids
+     *
+     * @throws Exception when any of them is blocked
+     *
+     * @return void
+     */
+    private function _refuseBlocked($plugins)
+    {
+        $blockers = Plugin::activationBlockers((array)$plugins);
+        if (!count($blockers)) {
+            return;
+        }
+        $reasons = [];
+        foreach ($blockers as $name => $reason) {
+            $reasons[] = sprintf('%s %s', $name, $reason);
+        }
+        throw new Exception(implode('; ', $reasons));
+    }
+    /**
      * Just a place holder
      *
      * @return void
@@ -184,6 +219,7 @@ class PluginManagement extends FOGPage
 
         $serverFault = false;
         try {
+            $this->_refuseBlocked($plugins);
             $ids = ['id' => $plugins];
             $state = ['state' => 1];
             $PluginManager = self::getClass('PluginManager');
@@ -258,6 +294,7 @@ class PluginManagement extends FOGPage
 
         $serverFault = false;
         try {
+            $this->_refuseBlocked($plugins);
             $ids = ['id' => $plugins];
             $state = ['state' => 1];
             $install = ['installed' => 1];

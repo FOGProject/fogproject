@@ -16,10 +16,28 @@ Copy that directory, rename it, and you have a head start.
 
 ## 1. What a plugin is
 
-A FOG plugin is just a directory under `packages/web/lib/plugins/<name>/`
-containing PHP classes that FOG auto‑discovers. There is no build step and no
-registration list to edit — drop the directory in, activate the plugin in the
-UI (**Plugin Management**), and it works.
+A FOG plugin is just a directory containing PHP classes that FOG
+auto‑discovers. There is no build step and no registration list to edit — drop
+the directory in, activate the plugin in the UI (**Plugin Management**), and it
+works.
+
+There are two places that directory can live, and which one you pick matters:
+
+| Root | For | Survives a FOG upgrade? |
+|---|---|---|
+| `packages/web/lib/plugins/<name>/` | plugins bundled with FOG itself | No — the tarball re‑lays this tree |
+| `/opt/fog/plugins/<name>/` (`FOG_PLUGIN_DIR`) | **everything third‑party** | Yes |
+
+The installer's `configureHttpd()` does `rm -rf` on the web root before laying
+the new one down, so a plugin installed into `lib/plugins/` is deleted by the
+next `installfog.sh` run without warning. `FOG_PLUGIN_DIR` sits outside the web
+root precisely so that cannot happen. See
+[ADR 0009](adr/0009-plugins-become-installable-artifacts.md).
+
+Discovery, the class autoloader and the routing all treat the two roots
+identically; the only difference an external plugin sees is that its `js/`,
+`css/` and `images/` are reached through a symlink FOG maintains for it (see
+§10).
 
 A typical plugin provides:
 
@@ -66,9 +84,9 @@ The running example, `helloworld`, manages a trivial entity with a `name` and a
 ## 3. Directory layout
 
 ```
-packages/web/lib/plugins/helloworld/
+<root>/helloworld/                  # <root> = lib/plugins (bundled) or /opt/fog/plugins
 ├── config/
-│   └── plugin.config.php          # discovery metadata ($fog_plugin[...])
+│   └── plugin.config.php          # the manifest ($fog_plugin[...])
 ├── class/
 │   ├── helloworld.class.php        # HelloWorld         (model, FOGController)
 │   └── helloworldmanager.class.php # HelloWorldManager  (manager + schema())
@@ -92,9 +110,9 @@ lowercase and use it consistently (`$fog_plugin['name']`, each hook's
 
 ## 4. Step by step
 
-### 4.1 `config/plugin.config.php`
+### 4.1 `config/plugin.config.php` — the manifest
 
-Discovery metadata. `Plugin::getPlugins()` `include`s this file and reads the
+`Plugin::readManifest()` `include`s this file during discovery and reads the
 `$fog_plugin` array.
 
 ```php
@@ -102,13 +120,48 @@ $fog_plugin = [];
 $fog_plugin['name']        = 'helloworld';           // == directory name
 $fog_plugin['description'] = 'Skeleton example plugin …';
 $fog_plugin['menuicon']    = 'fa fa-cube fa-fw';     // "fa …" => icon; else <img src>
-$fog_plugin['menuicon_hover'] = null;
-$fog_plugin['entrypoint']  = 'html/run.php';         // legacy/conventional; not shipped
+$fog_plugin['version']     = '1.0.0';                // your plugin's own version
+$fog_plugin['fog_min']     = '1.6.0';                // oldest FOG it runs on
+$fog_plugin['fog_max']     = '1.7.0';                // newest FOG it runs on
+$fog_plugin['requires']    = ['location'];           // other plugins, by directory name
+$fog_plugin['author']      = 'Your Name';
+$fog_plugin['homepage']    = 'https://example.org/my-plugin';
 ```
 
-> The `entrypoint` is vestigial — no plugin actually ships `html/run.php`;
-> routing happens through the `node` → page‑class mapping. Declare it anyway for
-> consistency with every other plugin.
+| Key | Required | What it does |
+|---|---|---|
+| `name` | yes | Machine name and routing `node`. Must equal the directory name, lowercase. |
+| `description` | no | Shown in Plugin Management. |
+| `menuicon` | no | Defaults to `fa fa-plug fa-fw`. |
+| `version` | no | Yours to number. Shown in the grid, stored in `plugins.pVersion`. Nothing compares it to anything. |
+| `fog_min` / `fog_max` | no | The FOG range you support. An absent bound is no bound. |
+| `requires` | no | Plugins that must be active first. |
+| `author`, `homepage` | no | Attribution. |
+
+**Every key except `name` is optional**, so a plugin written before the manifest
+existed keeps working untouched.
+
+#### How the compatibility range is enforced
+
+- Activating or installing a plugin outside its range is **refused**, with the
+  reason in the error toast. The whole batch is refused, not just the offending
+  plugin — a partial success reported as "Plugins activated!" is worse than a
+  clean failure.
+- If a FOG upgrade moves the server out of the range of a plugin that is
+  already active, the next boot **deactivates it** and logs why. `installed` and
+  `pSchema` are left alone, so its tables and applied migrations survive and
+  re‑activating once you ship a compatible build is one click.
+- Only the **numeric core** of a version is compared. `FOG_VERSION` is
+  `1.6.0-beta.3318` on a beta and `version_compare()` sorts that *below*
+  `1.6.0`, so comparing raw would refuse `fog_min = '1.6.0'` on the entire beta
+  branch.
+- Plugins turned on in the same batch satisfy each other's `requires`, so the
+  order you tick the checkboxes in doesn't matter.
+
+> `menuicon_hover` and `entrypoint` used to appear here. Nothing ever read
+> either one — no plugin has ever shipped the `html/run.php` that `entrypoint`
+> named, and routing goes through the `node` → page‑class mapping. Both are
+> gone; if your manifest still sets them they are simply ignored.
 
 ### 4.2 Model — `class/helloworld.class.php`
 
@@ -335,11 +388,14 @@ Seed data (e.g. default `globalSettings` rows) is just another step — return t
 
 ## 6. Lifecycle
 
-1. **Discovery.** `Plugin::getPlugins()` scans the plugins directory, `include`s
-   each `config/plugin.config.php`, and upserts a row in the `plugins` table.
+1. **Discovery.** `Plugin::getPlugins()` scans **both** plugin roots, reads each
+   manifest, and upserts a row in the `plugins` table. It also maintains the
+   asset symlink for external plugins and deactivates any active plugin that
+   this FOG version has moved out of range.
 2. **Activation.** An admin enables the plugin in **Plugin Management**. Its
    `node` is added to `FOGBase::$pluginsinstalled`, which is what every hook
-   constructor checks before registering.
+   constructor checks before registering. Refused if `fog_min`/`fog_max`/
+   `requires` say it cannot run here.
 3. **Install / upgrade.** `Plugin::installdb()` runs `schema()` via
    `applyUpdates()` and tracks `pSchema`. This is idempotent and
    non‑destructive — safe to run on every upgrade.
@@ -406,15 +462,24 @@ Fire your own events with `&`‑by‑reference args so listeners can mutate them
   `$pluginsinstalled`, or your hooks run for a plugin that isn't enabled.
 - **List columns** in the JS must match `$headerData` order and the keys the
   router emits (`mainlink`, `id`, friendly field names).
+- **An external plugin's assets are served through a symlink FOG maintains for
+  you.** `/opt/fog/` is outside the document root, so the browser cannot reach
+  it; every discovery pass (re)creates `lib/plugins/<name>` →
+  `/opt/fog/plugins/<name>` so `../lib/plugins/<name>/js/…` resolves for a
+  bundled and an external plugin alike. You do nothing — reference your assets
+  the normal way and `Hook::injectPluginJS()` emits the right URL. Apache needs
+  `Options +FollowSymLinks` (the installer sets it); nginx follows regardless.
 
 ---
 
 ## 11. Install & test your plugin
 
-1. Copy `helloworld/` to `packages/web/lib/plugins/<yourname>/` and rename the
-   directory, the classes, the files (lowercased), every `$node`, and the
-   `$fog_plugin['name']`.
-2. Deploy to the web root (e.g. `copybacktrunk.sh "" "" "1.6"`).
+1. Copy `helloworld/` to `/opt/fog/plugins/<yourname>/` (or, for a plugin you
+   intend to bundle with FOG itself, `packages/web/lib/plugins/<yourname>/`) and
+   rename the directory, the classes, the files (lowercased), every `$node`, and
+   the `$fog_plugin['name']`.
+2. Deploy to the web root (e.g. `copybacktrunk.sh "" "" "1.6"`) — only needed
+   for a bundled plugin; `/opt/fog/plugins/` is already live.
 3. In the UI: **Plugin System → Plugin Management → install/activate** your
    plugin.
 4. Confirm: the sidebar entry appears, **Create New** saves a row (check the
@@ -430,8 +495,12 @@ Fire your own events with `&`‑by‑reference args so listeners can mutate them
 - **`helloworld`** — this guide's minimal, complete CRUD example.
 - **`subnetgroup`** — a clean real CRUD plugin (model→class relationship,
   Export/Import, `schema()`).
-- **`accesscontrol`** — a multi‑table plugin showing a richer `schema()` with
-  seed and closure steps.
+- **`site`** — a five‑table plugin, and the reference for object scoping via
+  `OBJECT_SCOPE_CHECK`. Its `schema()` shows how to retire a table you shipped
+  (steps are immutable: step 3 creates it, step 4 drops it).
+- **`persistentgroups`** — a plugin that is nothing but a `schema()` closure
+  step (it installs a MySQL trigger). No page, no model, no hooks: proof that
+  none of those are mandatory.
 - **`ldap`** — authentication/integration plugin (custom hooks beyond CRUD).
 
 When in doubt, copy the closest existing plugin and adapt it — the conventions

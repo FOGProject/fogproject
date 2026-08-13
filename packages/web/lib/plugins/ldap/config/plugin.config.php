@@ -27,5 +27,7 @@ $fog_plugin['description'] = 'LDAP plugin to use a LDAP validation with FOG'
     . 'manager software.  (e.g. apt-get install php5-ldap, '
     . 'yum install php-ldap)';
 $fog_plugin['menuicon'] = 'fa fa-key fa-fw';
-$fog_plugin['menuicon_hover'] = null;
-$fog_plugin['entrypoint'] = 'html/run.php';
+$fog_plugin['version'] = '1.6.0';
+$fog_plugin['fog_min'] = '1.6.0';
+$fog_plugin['author'] = 'Tom Elliott';
+$fog_plugin['homepage'] = 'https://fogproject.org';

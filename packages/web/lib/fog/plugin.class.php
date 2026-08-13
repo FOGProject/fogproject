@@ -253,6 +253,174 @@ class Plugin extends FOGController
         return $dirs;
     }
     /**
+     * Reads and normalizes a plugin's manifest.
+     *
+     * Every caller gets the same keys with the same types whatever the config
+     * file actually declares, so no consumer has to null-check its way
+     * through a third-party author's omissions.
+     *
+     * $fog_plugin is reset before the include for a real reason: the file
+     * assigns into that variable, and getPlugins() reads one config after
+     * another in a single request. Without the reset a config that omits a
+     * key silently inherited the PREVIOUS plugin's value for it -- so a
+     * plugin with no description would show the description of whichever
+     * plugin happened to be read before it.
+     *
+     * 'entrypoint' is deliberately not returned. Every bundled plugin
+     * declared 'html/run.php' and not one of them ships that file; nothing
+     * has ever loaded it. Routing goes through the node -> page-class map.
+     *
+     * @param string $dir the plugin directory
+     *
+     * @return array
+     */
+    public static function readManifest($dir)
+    {
+        $file = rtrim($dir, DS) . DS . 'config' . DS . 'plugin.config.php';
+        $fog_plugin = [];
+        if (is_readable($file)) {
+            include $file;
+        }
+        $manifest = (array)$fog_plugin;
+        $string = function ($key, $default = '') use ($manifest) {
+            return trim((string)($manifest[$key] ?? $default));
+        };
+        return [
+            'name' => strtolower($string('name', basename(rtrim($dir, DS)))),
+            'description' => $string('description'),
+            'menuicon' => $string('menuicon', 'fa fa-plug fa-fw'),
+            'version' => $string('version'),
+            'fog_min' => $string('fog_min'),
+            'fog_max' => $string('fog_max'),
+            'author' => $string('author'),
+            'homepage' => $string('homepage'),
+            'requires' => array_values(
+                array_filter(
+                    array_map(
+                        function ($req) {
+                            return strtolower(trim((string)$req));
+                        },
+                        (array)($manifest['requires'] ?? [])
+                    )
+                )
+            ),
+        ];
+    }
+    /**
+     * The comparable part of a version string.
+     *
+     * FOG_VERSION carries a channel suffix -- '1.6.0-beta.3318',
+     * '1.6.0-RC-1' -- and version_compare() sorts any such suffix BELOW the
+     * bare release, so '1.6.0-beta.3318' < '1.6.0'. Compared raw, a plugin
+     * declaring fog_min '1.6.0' would be refused on every single 1.6.0 beta,
+     * which is the entire population of this branch. Comparing only the
+     * numeric core is what makes a declared minimum mean what an author
+     * intends by it.
+     *
+     * @param string $version
+     *
+     * @return string
+     */
+    public static function versionCore($version)
+    {
+        $version = trim((string)$version);
+        $cut = strpos($version, '-');
+        return false === $cut ? $version : substr($version, 0, $cut);
+    }
+    /**
+     * Why this plugin cannot run on this FOG, or '' if it can.
+     *
+     * An unset bound is no bound, so a plugin declaring neither -- which is
+     * every plugin written before the manifest existed -- is compatible with
+     * everything and keeps working untouched.
+     *
+     * @param array       $manifest from readManifest()
+     * @param string|null $fogVersion defaults to the running FOG_VERSION
+     *
+     * @return string a human-readable reason, or '' when compatible
+     */
+    public static function compatError(array $manifest, $fogVersion = null)
+    {
+        if (null === $fogVersion) {
+            $fogVersion = defined('FOG_VERSION') ? FOG_VERSION : '';
+        }
+        $fog = self::versionCore($fogVersion);
+        if ('' === $fog) {
+            return '';
+        }
+        $min = self::versionCore($manifest['fog_min'] ?? '');
+        $max = self::versionCore($manifest['fog_max'] ?? '');
+        if ('' !== $min && version_compare($fog, $min, '<')) {
+            return sprintf(
+                _('needs FOG %s or newer; this server is %s'),
+                $min,
+                $fog
+            );
+        }
+        if ('' !== $max && version_compare($fog, $max, '>')) {
+            return sprintf(
+                _('supports FOG up to %s; this server is %s'),
+                $max,
+                $fog
+            );
+        }
+        return '';
+    }
+    /**
+     * Why these plugins cannot be switched on, keyed by plugin name.
+     *
+     * Both the things that stop a plugin running are checked here rather than
+     * at the two call sites: the FOG range it declares, and the other plugins
+     * it declares it needs. An empty return means every id given is safe to
+     * activate or install.
+     *
+     * @param array $ids plugin row ids
+     *
+     * @return array name => human-readable reason
+     */
+    public static function activationBlockers(array $ids)
+    {
+        $ids = array_filter(array_map('intval', $ids));
+        if (!count($ids)) {
+            return [];
+        }
+        Route::listem('plugin');
+        $rows = json_decode(Route::getData());
+        $batch = [];
+        $active = [];
+        foreach ((array)($rows->data ?? []) as $row) {
+            $name = strtolower((string)$row->name);
+            if (in_array((int)$row->id, $ids, true)) {
+                $batch[$name] = $row;
+            } elseif ($row->installed && $row->state) {
+                $active[] = $name;
+            }
+        }
+        // A plugin in the same batch counts as satisfying a dependency. The
+        // whole batch is turned on in one go, so demanding the user submit
+        // them in dependency order would be a rule with nothing behind it.
+        $available = array_merge($active, array_keys($batch));
+        $blockers = [];
+        foreach ($batch as $name => $row) {
+            $manifest = self::readManifest((string)$row->location);
+            $reason = self::compatError($manifest);
+            if ('' === $reason) {
+                $missing = array_diff($manifest['requires'], $available);
+                if (count($missing)) {
+                    $reason = sprintf(
+                        _('needs these plugins active first: %s'),
+                        implode(', ', $missing)
+                    );
+                }
+            }
+            if ('' !== $reason) {
+                $blockers[$name] = $reason;
+            }
+        }
+
+        return $blockers;
+    }
+    /**
      * Gets plugins.
      *
      * Reads every existing `plugins` row up front, in ONE query, and keys it
@@ -293,38 +461,58 @@ class Plugin extends FOGController
         foreach ((array) $this->_getDirs() as $file) {
             $name = strtolower(basename($file));
             $row = $existing[$name] ?? null;
-            $configFile = sprintf(
-                '%s/config/plugin.config.php',
-                rtrim($file, '/')
-            );
-            include $configFile;
-            $runFile = sprintf(
-                '%s%s',
-                $file,
-                $fog_plugin['entrypoint']
-            );
+            $manifest = self::readManifest($file);
             $matchIcon = preg_match(
                 '#^fa[\-]?#',
-                $fog_plugin['menuicon']
+                $manifest['menuicon']
             );
             if (false == $matchIcon) {
                 $icon = sprintf(
                     '<img src="%s" width="66" height="66"/>',
-                    $fog_plugin['menuicon']
+                    $manifest['menuicon']
                 );
             } else {
                 $icon = sprintf(
                     '<i class="%s fa-2x" width="66" height="66"></i>',
-                    $fog_plugin['menuicon']
+                    $manifest['menuicon']
                 );
             }
             $fields = [
                 'name' => $name,
-                'description' => $fog_plugin['description'],
+                'description' => $manifest['description'],
                 'location' => $file,
-                'runfile' => $runFile,
+                // pVersion has existed since the table was created and
+                // nothing ever wrote it -- every row reads ''. It is the
+                // manifest's version now, so "which build of this plugin is
+                // installed" finally has an answer.
+                'version' => $manifest['version'],
+                // runfile always '' now. It held $location . 'html/run.php',
+                // a path no plugin has ever shipped and nothing has ever
+                // loaded; readManifest() no longer returns an entrypoint to
+                // build it from. The column stays -- dropping it is a schema
+                // step for no gain -- and empties itself on the next boot.
+                'runfile' => '',
                 'icon' => $icon,
             ];
+            // Upgrading FOG can move the server out of a plugin's declared
+            // range while that plugin is switched on, and nothing else would
+            // notice: the plugin's hooks just keep firing against a core its
+            // author never claimed to support. Discovery turns it off instead.
+            // Only `state` is cleared -- `installed` and `pSchema` stay, so
+            // the plugin's tables and applied-migration count survive and
+            // re-activating once it catches up is a single click.
+            $compat = self::compatError($manifest);
+            if ('' !== $compat && $row && $row->installed && $row->state) {
+                $fields['state'] = 0;
+                error_log(
+                    sprintf(
+                        '%s: %s %s',
+                        _('Deactivated an incompatible plugin'),
+                        $name,
+                        $compat
+                    )
+                );
+            }
             // Some plugins wrap their description in _(), so the value
             // compared here is locale-dependent and the stored one is
             // whatever locale last ran discovery. That settles after a single
