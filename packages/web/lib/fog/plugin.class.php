@@ -91,6 +91,42 @@ class Plugin extends FOGController
         return rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS;
     }
     /**
+     * True only if a REAL bundled plugin of this name exists.
+     *
+     * Not just is_dir(): syncAssetLinks() puts a symlink at
+     * lib/plugins/<name> for every external plugin, is_dir() follows it, and
+     * an external plugin would then look bundled to anything asking this
+     * question. That made the second upload of a plugin -- the upgrade --
+     * refuse itself with "ships with FOG", because its own asset link from
+     * the first install was sitting in the bundled root.
+     *
+     * Matched on the link TARGET, the same test _getDirs() uses, so a symlink
+     * an admin made themselves pointing somewhere outside the external root
+     * still counts as bundled: _getDirs() would load it from the bundled root
+     * and it would genuinely win the collision.
+     *
+     * @param string $name the plugin's directory name
+     *
+     * @return bool
+     */
+    public static function isBundled($name)
+    {
+        $path = self::bundledRoot() . strtolower((string)$name);
+        if (!is_dir($path)) {
+            return false;
+        }
+        if (!is_link($path)) {
+            return true;
+        }
+        $target = @readlink($path);
+        $extRoot = defined('FOG_PLUGIN_DIR')
+            ? rtrim(FOG_PLUGIN_DIR, DS) . DS
+            : null;
+        return !(null !== $extRoot
+            && is_string($target)
+            && strncmp($target, $extRoot, strlen($extRoot)) === 0);
+    }
+    /**
      * Points lib/plugins/<name> at each external plugin, so the browser can
      * fetch its js/css.
      *
@@ -542,7 +578,7 @@ class Plugin extends FOGController
         // the external copy), so an archive that collides with one would
         // install and then never load. Refuse it here where it can be
         // explained rather than leaving the admin to wonder.
-        if (is_dir(self::bundledRoot() . $top)) {
+        if (self::isBundled($top)) {
             return $fail(
                 sprintf(
                     _('%s ships with FOG and cannot be replaced by an upload.'),
@@ -648,7 +684,7 @@ class Plugin extends FOGController
                     : _('The staged plugin no longer matches its manifest.')
             ];
         }
-        if (is_dir(self::bundledRoot() . $name)) {
+        if (self::isBundled($name)) {
             self::rmTree($dir);
             return [
                 'error' => sprintf(
