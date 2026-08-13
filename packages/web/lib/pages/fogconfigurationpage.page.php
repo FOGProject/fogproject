@@ -1138,7 +1138,8 @@ class FOGConfigurationPage extends FOGPage
             );
             $items = [];
             foreach ($vars as $key => &$val) {
-                Route::indiv('setting', $key);
+                $id = self::_settingIdFor($key);
+                Route::indiv('setting', $id);
                 $set = trim($val);
                 $Service = json_decode(
                     Route::getData()
@@ -1158,7 +1159,7 @@ class FOGConfigurationPage extends FOGPage
                     }
                 }
                 unset($val);
-                $items[] = [$key, $name, $set];
+                $items[] = [$id, $name, $set];
                 unset($Service);
                 unset($val);
             }
@@ -2039,6 +2040,46 @@ class FOGConfigurationPage extends FOGPage
         return $input;
         return $input;
     }
+    /**
+     * Resolves a posted settings key to a globalSettings row id.
+     *
+     * The settings forms post ids, so Route::indiv() -- which loads by id --
+     * has always been right for them. A post keyed by setting NAME instead
+     * got a bodyless 404 and no explanation: indiv() calls sendResponse(),
+     * which calls breakHead(), which exits. Both savers collect $items and
+     * insertBatch once at the end, so nothing had been written yet and the
+     * whole save was silently discarded. A scripted settings change looked
+     * like it had worked.
+     *
+     * Names are resolved here rather than inside Route::indiv() because
+     * indiv() is the generic single-entity loader for every class in the
+     * API. Teaching it to fall back to a name lookup would change that
+     * contract everywhere in order to fix it in two places.
+     *
+     * An unresolvable key is returned untouched, so a genuinely bogus key
+     * still reaches the same 404 it always did.
+     *
+     * @param string $key the posted key: a row id, or a setting name
+     *
+     * @return string the id to load, and to write back as the row id
+     */
+    private static function _settingIdFor($key)
+    {
+        if (is_numeric($key)) {
+            return $key;
+        }
+        // Anchored, and deliberately narrower than "not empty": this value
+        // comes straight off the request body and goes into a Route filter,
+        // where a '*' or '+' in a scalar value is turned into LIKE '%' and
+        // would match every setting -- handing back the first id and writing
+        // the posted value to a setting nobody named. Setting keys are
+        // ALL_CAPS_WITH_UNDERSCORES, so anything else is not one.
+        if (!preg_match('/^[A-Za-z0-9_]+$/', (string)$key)) {
+            return $key;
+        }
+        $ids = Route::getIds('setting', ['name' => $key], 'id');
+        return count($ids) ? array_shift($ids) : $key;
+    }
     public function settingsPost()
     {
         self::checkAuthAndCSRF();
@@ -2065,7 +2106,11 @@ class FOGConfigurationPage extends FOGPage
             // the missing initialisation; `??` would have hidden it too.
             $items = [];
             foreach ($combined as $key => &$val) {
-                Route::indiv('setting', $key);
+                // Resolved into its own variable: $key stays the posted key
+                // because the $_FILES lookup below is keyed by what the form
+                // actually sent.
+                $id = self::_settingIdFor($key);
+                Route::indiv('setting', $id);
                 if (!isset($_FILES[$key]) || !$_FILES[$key]) {
                     $set = trim(filter_var($val));
                 }
@@ -2201,7 +2246,7 @@ class FOGConfigurationPage extends FOGPage
                             self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
                         }
                 }
-                $items[] = [$key, $name, $set];
+                $items[] = [$id, $name, $set];
                 unset($Setting);
             }
             if (count($items) > 0) {
