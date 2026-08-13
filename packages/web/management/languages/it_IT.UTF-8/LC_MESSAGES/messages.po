@@ -146,6 +146,9 @@ msgstr "10 minuti"
 msgid "100"
 msgstr ""
 
+msgid "192.168.1.0/24, 10.1.0.0/16"
+msgstr ""
+
 msgid "192.168.1.252 or printer.example.com:9100"
 msgstr ""
 
@@ -181,8 +184,26 @@ msgstr ""
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
+msgid "A LDAP setup already exists with this name!"
+msgstr "Un'impostazione LDAP esiste già con questo nome!"
+
 msgid "A TCP/IP port printer requires an IP address or hostname."
 msgstr ""
+
+#, fuzzy
+msgid "A Windows Key already exists with this name!"
+msgstr "Un host già esiste con questo nome!"
+
+#, fuzzy
+msgid "A Windows Key already exists with this product key!"
+msgstr "Un host già esiste con questo nome!"
+
+msgid "A broadcast already exists with this name!"
+msgstr "Un broadcast esiste già con questo nome!"
+
+#, fuzzy
+msgid "A dmi field must be set!"
+msgstr "Campo chiave deve essere una stringa"
 
 msgid "A file"
 msgstr "Un file"
@@ -197,6 +218,14 @@ msgstr "È richiesto un nome di gruppo!"
 msgid "A group already exists with this name!"
 msgstr "Esiste già un gruppo con questo nome!"
 
+#, fuzzy
+msgid "A group must be selected."
+msgstr "Storage Group cancellato"
+
+#, fuzzy
+msgid "A group name is required!"
+msgstr "È richiesto un nome di gruppo!"
+
 msgid "A host already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
 
@@ -205,6 +234,10 @@ msgstr "Un nome host con questo nome esiste già"
 
 msgid "A host with this mac already exists with name"
 msgstr "Un host con questo MAC esiste già con il nome"
+
+#, fuzzy
+msgid "A location already exists with this name!"
+msgstr "Esiste già un snapin con questo nome!"
 
 #, fuzzy
 msgid "A menu entry already exists with this name!"
@@ -224,6 +257,10 @@ msgstr "È richiesto un nome di gruppo!"
 msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
 msgstr ""
 
+#, fuzzy
+msgid "A port must be specified"
+msgstr "deve essere specificato"
+
 msgid "A printer already exists with this name!"
 msgstr "Nome stampante già esistente on questo nome!"
 
@@ -234,6 +271,17 @@ msgstr "Esiste già un ruolo con questo nome!"
 #, fuzzy
 msgid "A role with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
+
+#, fuzzy
+msgid "A selected role no longer exists"
+msgstr "non è più in esecuzione"
+
+msgid "A server URL and topic endpoint are required"
+msgstr ""
+
+#, fuzzy
+msgid "A site already exists with this name!"
+msgstr "Un host già esiste con questo nome!"
 
 msgid "A snapin already exists with this name!"
 msgstr "Esiste già un snapin con questo nome!"
@@ -247,11 +295,29 @@ msgid "A storage group exists with this name!"
 msgstr "Un host già esiste con questo nome!"
 
 #, fuzzy
+msgid "A storage group must be selected."
+msgstr "Storage Group cancellato"
+
+#, fuzzy
 msgid "A storage node already exists with this name!"
+msgstr "Un host già esiste con questo nome!"
+
+#, fuzzy
+msgid "A subnet group already exists with this name!"
+msgstr "Esiste già un gruppo con questo nome!"
+
+#, fuzzy
+msgid "A subnet group is already using this group."
 msgstr "Un host già esiste con questo nome!"
 
 msgid "A task already exists for this host at the scheduled tasking"
 msgstr "Un compito esiste già per questo host al tasking programmata"
+
+msgid "A task state already exists with this name!"
+msgstr "Uno stato di attività già esiste con questo nome!"
+
+msgid "A task type already exists with this name!"
+msgstr "Un tipo di attività esiste già con questo nome!"
 
 msgid "A user already exists with this name"
 msgstr "Esiste già un utente con questo nome!"
@@ -263,6 +329,9 @@ msgstr "Esiste già un gruppo con questo nome!"
 #, fuzzy
 msgid "A user group with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
+
+msgid "A user signing in through this server receives every role and user group granted by a directory group they belong to. Select a group to change what it grants."
+msgstr ""
 
 msgid "A username already exists with this name!"
 msgstr "Esiste già un nome utente con questo nome!"
@@ -290,6 +359,9 @@ msgstr ""
 msgid "Aborted due to failure of \"%s\" with exit code %s"
 msgstr ""
 
+msgid "Access"
+msgstr "Accesso"
+
 msgid "Access Control Management"
 msgstr "Gestione Access Control"
 
@@ -297,9 +369,32 @@ msgstr "Gestione Access Control"
 msgid "Access Denied"
 msgstr "Token di accesso"
 
+msgid "Access Token"
+msgstr "Token di accesso"
+
+#, fuzzy
+msgid "Access token"
+msgstr "Token di accesso"
+
+msgid "Accessed By"
+msgstr "Si accede da"
+
 #, fuzzy
 msgid "Account Name"
 msgstr "Controllo accessi"
+
+msgid "Account already linked"
+msgstr "Account già collegato"
+
+#, fuzzy
+msgid "Account linked"
+msgstr "Account già collegato"
+
+msgid "Account linked to FOG GUI at"
+msgstr "Account collegato alla nebbia GUI a"
+
+msgid "Account successfully added!"
+msgstr "Account aggiunto con successo!"
 
 msgid "Action"
 msgstr "Azione"
@@ -347,12 +442,23 @@ msgid "Add"
 msgstr "Aggiungere"
 
 #, fuzzy
+msgid "Add Hello World failed!"
+msgstr "Aggiunta utente fallita!"
+
+#, fuzzy
 msgid "Add Hosts to Group Fail"
 msgstr "Aggiunta host al gruppo fallita"
 
 #, fuzzy
 msgid "Add Hosts to Groups Success"
 msgstr "Aggiunta host al gruppo completata"
+
+#, fuzzy
+msgid "Add LDAP group failed!"
+msgstr "Aggiunta gruppo non riuscito!"
+
+msgid "Add LDAP server failed!"
+msgstr "Aggiunta LDAP server fallita!"
 
 #, fuzzy
 msgid "Add New MAC Address"
@@ -368,6 +474,13 @@ msgstr "Aggiungere Storage Node"
 msgid "Add To Group(s)"
 msgstr "Aggiungere gruppo di archiviazione"
 
+msgid "Add broadcast failed!"
+msgstr "Aggiunta broadcast non riuscita!"
+
+#, fuzzy
+msgid "Add capone failed!"
+msgstr "Aggiunta posizione non riuscita!"
+
 msgid "Add failed"
 msgstr "Aggiunta fallita"
 
@@ -380,6 +493,9 @@ msgstr "Aggiunta host non riuscita!"
 msgid "Add image failed!"
 msgstr "Aggiuta immagine non riuscita!"
 
+msgid "Add location failed!"
+msgstr "Aggiunta posizione non riuscita!"
+
 #, fuzzy
 msgid "Add menu failed!"
 msgstr "Aggiunta gruppo non riuscito!"
@@ -388,8 +504,20 @@ msgstr "Aggiunta gruppo non riuscito!"
 msgid "Add module failed!"
 msgstr "Aggiunta utente fallita!"
 
+#, fuzzy
+msgid "Add ntfy topic failed!"
+msgstr "Aggiungi snapin non riuscito!"
+
+#, fuzzy
+msgid "Add ou failed!"
+msgstr "Aggiunta gruppo non riuscito!"
+
 msgid "Add printer failed!"
 msgstr "Aggiunta stampante non riuscita!"
+
+#, fuzzy
+msgid "Add pushbullet account failed!"
+msgstr "Connessione Pushbullet Account fallita"
 
 #, fuzzy
 msgid "Add role failed!"
@@ -403,11 +531,29 @@ msgstr "Aggiungi stampanti selezionate"
 msgid "Add selected to group"
 msgstr "Aggiungi gruppo di archiviazione selezionato"
 
+#, fuzzy
+msgid "Add site failed!"
+msgstr "Aggiunta host non riuscita!"
+
+#, fuzzy
+msgid "Add slack account failed!"
+msgstr "Aggiunta posizione non riuscita!"
+
 msgid "Add snapin failed!"
 msgstr "Aggiungi snapin non riuscito!"
 
 msgid "Add storage node failed!"
 msgstr "Aggiunta nodo di archiviazione fallita!"
+
+#, fuzzy
+msgid "Add subnet group failed!"
+msgstr "Aggiunta gruppo non riuscito!"
+
+msgid "Add task state failed!"
+msgstr "Aggiunta stato attività non riuscito!"
+
+msgid "Add task type failed!"
+msgstr "Aggiunta tipo attività non riuscita!"
 
 msgid "Add user failed!"
 msgstr "Aggiunta utente fallita!"
@@ -415,6 +561,10 @@ msgstr "Aggiunta utente fallita!"
 #, fuzzy
 msgid "Add user group failed!"
 msgstr "Aggiunta gruppo non riuscito!"
+
+#, fuzzy
+msgid "Add windows key failed!"
+msgstr "Aggiunta host non riuscita!"
 
 #, fuzzy
 msgid "Add/Remove Managed Printers"
@@ -426,6 +576,10 @@ msgstr "FOGPage Aggiunta: %s , nodo: %s"
 
 msgid "Adding Key"
 msgstr "Aggiunta chiave"
+
+#, fuzzy
+msgid "Additional Icon Elements"
+msgstr "MAC aggiuntivi"
 
 #, fuzzy
 msgid "Administrator"
@@ -443,6 +597,10 @@ msgstr "Avanzata Login Richiesto"
 
 msgid "Advanced Options"
 msgstr "Opzioni avanzate"
+
+#, fuzzy
+msgid "Advanced Task"
+msgstr "Avanzate"
 
 #, fuzzy
 msgid "Advanced Tasks"
@@ -496,8 +654,24 @@ msgstr ""
 msgid "All items imported successfully"
 msgstr "Impostazioni iPXE aggiornate correttamente!"
 
+msgid "All methods of binding have failed"
+msgstr "Tutti i metodi di associazione sono falliti"
+
+#, fuzzy
+msgid "All ports must be numeric, greater than 0, and less than 65536"
+msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
+
 msgid "All rights reserved."
 msgstr ""
+
+msgid "Allow API"
+msgstr ""
+
+msgid "Allows editing/creating of Task States fog currently has."
+msgstr "Consente la modifica/creazione di Task States per FOG."
+
+msgid "Allows editing/creating of Task Types fog currently has."
+msgstr "Consente la modifica / creazione di tipi di attività FOG."
 
 msgid "Already created"
 msgstr "Già creato"
@@ -506,8 +680,20 @@ msgid "Also confirm that the database is indeed running"
 msgstr "Confermare anche che il database sia in esecuzione"
 
 #, fuzzy
+msgid "An LDAP server already exists with this name!"
+msgstr "Un'impostazione LDAP esiste già con questo nome!"
+
+#, fuzzy
+msgid "An OU already exists with this name!"
+msgstr "Un'immagine esiste già con questo nome!"
+
+#, fuzzy
 msgid "An SQL error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
+
+#, fuzzy
+msgid "An entry already exists with this name!"
+msgstr "Esiste già un utente con questo nome!"
 
 msgid "An image already exists with this name!"
 msgstr "Un'immagine esiste già con questo nome!"
@@ -519,11 +705,27 @@ msgstr "Un nome host con questo nome esiste già"
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
+#, fuzzy
+msgid "An ou already exists with this name!"
+msgstr "Esiste già un gruppo con questo nome!"
+
 msgid "Annually"
 msgstr "Annualmente"
 
+msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
 msgid "Applications"
 msgstr "Applicazioni"
+
+msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
+msgstr ""
+
+msgid "Applies to LDAP servers using the \"expand\" strategy, which walks one query per level of nesting on every sign-in. A server can override this on its own settings. Directories rarely nest more than three or four deep."
+msgstr ""
 
 msgid "Applying a database schema update requires an administrator account."
 msgstr ""
@@ -560,6 +762,14 @@ msgstr ""
 
 msgid "Area"
 msgstr ""
+
+#, fuzzy
+msgid "Assigned Group"
+msgstr "Nome gruppo di archiviazione"
+
+#, fuzzy
+msgid "Assigned Group Name"
+msgstr "Nome gruppo di archiviazione"
 
 msgid "Assigned Image"
 msgstr "Immagine assegnata"
@@ -634,6 +844,9 @@ msgstr "Larghezza di banda"
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 
+msgid "Base Only"
+msgstr "Solo base"
+
 msgid "Bash Script"
 msgstr ""
 
@@ -643,12 +856,56 @@ msgstr "Operazioni di base"
 msgid "Batch Script"
 msgstr ""
 
+msgid "Bind DN"
+msgstr "Bind DN"
+
+msgid "Bind Password"
+msgstr "Bind Password"
+
 #, fuzzy
 msgid "Boot Options"
 msgstr "Opzioni di avvio:"
 
+msgid "Boot files from"
+msgstr ""
+
 msgid "Both"
 msgstr ""
+
+#, fuzzy
+msgid "Broadcast Address"
+msgstr "Broadcast aggiunto!"
+
+msgid "Broadcast Create Fail"
+msgstr "Creazione Broadcast fallita"
+
+msgid "Broadcast Create Success"
+msgstr "Creazione Broadcast completata"
+
+#, fuzzy
+msgid "Broadcast Description"
+msgstr "Host Descrizione"
+
+msgid "Broadcast IP"
+msgstr "Broadcast IP"
+
+msgid "Broadcast Name"
+msgstr "Nome Broadcast"
+
+msgid "Broadcast Update Fail"
+msgstr "Aggiornamento Broadcast fallita"
+
+msgid "Broadcast Update Success"
+msgstr "Aggiornamento Broadcast completata"
+
+msgid "Broadcast added!"
+msgstr "Broadcast aggiunto!"
+
+msgid "Broadcast update failed!"
+msgstr "Aggiornamento Broadcast fallito!"
+
+msgid "Broadcast updated!"
+msgstr "Broadcast aggiornato!"
 
 msgid "Browse"
 msgstr "Sfoglia"
@@ -663,6 +920,14 @@ msgstr "Caricamento non riuscito"
 
 msgid "Bypass Bitlocker Detection"
 msgstr ""
+
+#, fuzzy
+msgid "CA Certificate Path"
+msgstr "Crea nuova posizione"
+
+#, fuzzy
+msgid "CA Path"
+msgstr "Percorso"
 
 #, fuzzy
 msgid "CA private key"
@@ -727,6 +992,9 @@ msgstr "Predefinito: frequenza aggiornamento"
 msgid "Call"
 msgstr "Chiamata"
 
+msgid "Can be a comma seperated list."
+msgstr ""
+
 msgid "Can not redeclare route"
 msgstr "Impossibile ridichiarare il percorso"
 
@@ -753,6 +1021,9 @@ msgstr "compito Annullato"
 msgid "Cancelled due to new tasking."
 msgstr "Annullato a causa della nuova tasking."
 
+msgid "Cannot bind to the LDAP server"
+msgstr "Impossibile legare al server LDAP"
+
 msgid "Cannot change image when in tasking"
 msgstr "Impossibile modificare l'immagine durante l'attività"
 
@@ -771,6 +1042,45 @@ msgstr ""
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Impossibile affidare attività ad host in attesa"
+
+#, fuzzy
+msgid "Capone"
+msgstr "Capone Deploy"
+
+#, fuzzy
+msgid "Capone Create Fail"
+msgstr "Creazione Snapin fallita"
+
+#, fuzzy
+msgid "Capone Create Success"
+msgstr "Creazione Snapin completata"
+
+msgid "Capone Deploy"
+msgstr "Capone Deploy"
+
+#, fuzzy
+msgid "Capone Management"
+msgstr "Gestione Snapin"
+
+#, fuzzy
+msgid "Capone Update Fail"
+msgstr "Aggiornamento Snapin fallito"
+
+#, fuzzy
+msgid "Capone Update Success"
+msgstr "Modifica Snapin riuscita"
+
+#, fuzzy
+msgid "Capone added!"
+msgstr "Snapin aggiunto!"
+
+#, fuzzy
+msgid "Capone update failed!"
+msgstr "Aggiornamento Snapin fallito!"
+
+#, fuzzy
+msgid "Capone updated!"
+msgstr "Snap-in aggiornato!"
 
 msgid "Capture"
 msgstr "Catturare"
@@ -801,14 +1111,28 @@ msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
+msgid "Certificate Verification"
+msgstr "Crea nuova posizione"
+
+#, fuzzy
 msgid "Certificates"
 msgstr "Crea nuova posizione"
+
+msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
+msgstr ""
 
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
 msgid "Channel"
 msgstr ""
+
+msgid "Channel call is invalid"
+msgstr "chiamata canale non è valido"
+
+#, fuzzy
+msgid "Channel not found"
+msgstr "Record non trovato"
 
 #, fuzzy
 msgid "Chassis Asset Tag"
@@ -1000,7 +1324,22 @@ msgstr "Impossibile leggere il file tmp."
 msgid "Could not read snapin file"
 msgstr "Impossibile leggere il file snapin"
 
+msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
+msgstr ""
+
+#, fuzzy
+msgid "Could not read the group mappings"
+msgstr "Impossibile leggere il file tmp."
+
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "Impossibile leggere il file tmp."
+
 msgid "Could not read tmp file."
+msgstr "Impossibile leggere il file tmp."
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "Impossibile leggere il file tmp."
 
 msgid "Could not register"
@@ -1009,6 +1348,10 @@ msgstr "Non posso registrare"
 #, php-format
 msgid "Could not replace the existing %s. Is %s writable?"
 msgstr ""
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "Impossibile leggere il file tmp."
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1045,7 +1388,19 @@ msgid "Create New %s"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
+msgid "Create New Broadcast"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "Create New Capone"
+msgstr "Crea nuovo snapin"
+
+#, fuzzy
 msgid "Create New Group"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "Create New Hello World"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
@@ -1065,7 +1420,22 @@ msgid "Create New Ipxe Menu"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
+msgid "Create New LDAP Group"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "Create New LDAP Server"
+msgstr "Crea nuova stampante"
+
+msgid "Create New Location"
+msgstr "Crea nuova posizione"
+
+#, fuzzy
 msgid "Create New Module"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "Create New OU"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
@@ -1081,6 +1451,10 @@ msgid "Create New Scheduled"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
+msgid "Create New Site"
+msgstr "Crea nuova stampante"
+
+#, fuzzy
 msgid "Create New Snapin"
 msgstr "Crea nuovo snapin"
 
@@ -1093,12 +1467,28 @@ msgid "Create New Storage Node"
 msgstr "Crea nuova stampante"
 
 #, fuzzy
+msgid "Create New Subnet Group"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "Create New Task State"
+msgstr "Crea nuova stampante"
+
+#, fuzzy
+msgid "Create New Task Type"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
 msgid "Create New User"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
 msgid "Create New User Group"
 msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "Create New Windows Key"
+msgstr "Crea nuova stampante"
 
 #, fuzzy
 msgid "Create Scheduled Power task"
@@ -1141,6 +1531,9 @@ msgstr "Creato da"
 msgid "Created by FOG Reg on"
 msgstr "Creato da FOG Reg su"
 
+msgid "Credentials"
+msgstr ""
+
 msgid "Cron"
 msgstr "cron"
 
@@ -1157,6 +1550,9 @@ msgid "Current Records"
 msgstr "Current Records"
 
 msgid "Current member-host AD state"
+msgstr ""
+
+msgid "DMI Field"
 msgstr ""
 
 msgid "DNF Log"
@@ -1246,6 +1642,13 @@ msgstr "Predefinito: frequenza aggiornamento"
 msgid "Default Width"
 msgstr "Larghezza predefinita"
 
+msgid "Default is disabled"
+msgstr "Il valore predefinito è disabilitato"
+
+#, fuzzy
+msgid "Default nested group depth"
+msgstr "Impossibile aprire il file per la lettura"
+
 msgid "Delayed"
 msgstr "Ritardato"
 
@@ -1297,6 +1700,9 @@ msgstr "Distribuisci"
 msgid "Deploy Method"
 msgstr "Metodo Deploy"
 
+msgid "Depth"
+msgstr ""
+
 msgid "Description"
 msgstr "Descrizione"
 
@@ -1319,6 +1725,14 @@ msgid "Directory Cleaner"
 msgstr "directory Cleaner"
 
 #, fuzzy
+msgid "Directory Group"
+msgstr "elenco"
+
+#, fuzzy
+msgid "Directory Group Name"
+msgstr "elenco"
+
+#, fuzzy
 msgid "Disable on all hosts"
 msgstr "Disabilitato"
 
@@ -1327,6 +1741,14 @@ msgstr ""
 
 msgid "Display"
 msgstr "Display"
+
+#, fuzzy
+msgid "Display Name Attribute"
+msgstr "Attributo nome utente"
+
+#, fuzzy
+msgid "Display Name Enabled"
+msgstr "Attributo nome utente"
 
 #, fuzzy
 msgid "Display With"
@@ -1338,6 +1760,10 @@ msgstr "Non elencare nel menu"
 #, fuzzy
 msgid "Documentation"
 msgstr "Luogo"
+
+#, fuzzy
+msgid "Domain Admins"
+msgstr "Nome del dominio"
 
 #, fuzzy
 msgid "Domain Joining"
@@ -1434,12 +1860,38 @@ msgstr ""
 msgid "Edit"
 msgstr "Modifica"
 
+#, fuzzy
+msgid "Edit Capone"
+msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Edit Capone ID"
+msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Editing Capone ID"
+msgstr "Impostazioni modulo del gruppo"
+
+#, fuzzy
+msgid "Editing Global Capone Settings"
+msgstr "Impostazioni modulo del gruppo"
+
+#, fuzzy
+msgid "Editing Global LDAP Settings"
+msgstr "Impostazioni modulo del gruppo"
+
+msgid "Email"
+msgstr "E-mail"
+
 msgid "Empty filename in upload"
 msgstr ""
 
 #, fuzzy
 msgid "Enable Domain Joining"
 msgstr "Abilita invio posizione "
+
+msgid "Enable Sending via Location"
+msgstr ""
 
 #, fuzzy
 msgid "Enable on all hosts"
@@ -1542,12 +1994,23 @@ msgstr ""
 msgid "Exists item must be boolean"
 msgstr "Exists deve essere boolean"
 
+msgid "Expand - walk the chain (any directory)"
+msgstr ""
+
 msgid "Export"
 msgstr "Esportare"
 
 #, fuzzy
 msgid "Export "
 msgstr "Esportare"
+
+#, fuzzy
+msgid "Export Broadcasts"
+msgstr "Host Export"
+
+#, fuzzy
+msgid "Export Capones"
+msgstr "Export Snapins"
 
 msgid "Export Complete"
 msgstr "Esportazione Completata"
@@ -1556,8 +2019,39 @@ msgid "Export Configuration"
 msgstr "Esporta configurazione"
 
 #, fuzzy
+msgid "Export LDAP Servers"
+msgstr "LDAP Servers"
+
+msgid "Export Locations"
+msgstr "Esporta luoghi"
+
+#, fuzzy
+msgid "Export OUs"
+msgstr "Esporta utenti"
+
+msgid "Export Sites"
+msgstr "Esporta Siti"
+
+#, fuzzy
+msgid "Export Subnet Groups"
+msgstr "Gruppi Export"
+
+#, fuzzy
 msgid "Export Success"
 msgstr "Importazione riuscita"
+
+msgid "Export Task States"
+msgstr "Esporta Stato delle attività"
+
+msgid "Export Task Types"
+msgstr "Esporta tipi di attività"
+
+#, fuzzy
+msgid "Export WOL Broadcasts"
+msgstr "Host Export"
+
+msgid "Export Windows Keys"
+msgstr "Esporta chiavi Windows"
 
 msgid "FOG"
 msgstr "NEBBIA"
@@ -1855,6 +2349,9 @@ msgstr "Impossibile per distruggere il nodo di archiviazione"
 msgid "Files Deleted List"
 msgstr "Cancellare i file"
 
+msgid "Filter"
+msgstr "Filtro"
+
 msgid "Finding any images associated"
 msgstr "Trovare tutte le immagini associate"
 
@@ -1933,6 +2430,9 @@ msgstr "Spazio libero su disco"
 msgid "Free Memory"
 msgstr "Memoria libera"
 
+msgid "FreeIPA"
+msgstr ""
+
 msgid "Friendly Name"
 msgstr "Nome amichevole"
 
@@ -1949,6 +2449,9 @@ msgstr "Funzione"
 #, fuzzy
 msgid "Function Error"
 msgstr "Funzione"
+
+msgid "Function does not exist"
+msgstr "La funzione non esiste"
 
 msgid "GNU General Public License"
 msgstr ""
@@ -1967,6 +2470,9 @@ msgstr "Generale"
 msgid "General Information"
 msgstr "Informazione generale"
 
+msgid "Generic LDAP"
+msgstr "LDAP Generico"
+
 msgid "Getting image size for"
 msgstr "Ottenere la dimensione dell'immagine per"
 
@@ -1977,7 +2483,26 @@ msgstr "Ottenere hash di snapin e dimensione per"
 msgid "Global Module Settings"
 msgstr "Impostazioni modulo del gruppo"
 
+#, fuzzy
+msgid "Global Options"
+msgstr "Opzioni di avvio:"
+
+#, fuzzy
+msgid "Global Settings Update Fail"
+msgstr "Aggiornamento Impostazioni non riuscito"
+
+#, fuzzy
+msgid "Global Settings Update Success"
+msgstr "Modifica Impostazioni completata"
+
+#, fuzzy
+msgid "Global settings updated!"
+msgstr "Posizione aggiornata!"
+
 msgid "Got in line at"
+msgstr ""
+
+msgid "Grants"
 msgstr ""
 
 #, fuzzy
@@ -1997,11 +2522,19 @@ msgid "Group"
 msgstr "Gruppo"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "Storage Node Creato"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "Storage Node Creato"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "Gruppo Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "Gruppo Snapins"
 
 msgid "Group Create Fail"
@@ -2056,6 +2589,18 @@ msgid "Group Kernel Arguments"
 msgstr "Argomenti Gruppo Kernel"
 
 #, fuzzy
+msgid "Group Location"
+msgstr "Host Luoghi"
+
+#, fuzzy
+msgid "Group Location Update Success"
+msgstr "Modifica posizione riuscita"
+
+#, fuzzy
+msgid "Group Location Updated!"
+msgstr "Posizione aggiornata!"
+
+#, fuzzy
 msgid "Group Login History"
 msgstr "Accesso Storia"
 
@@ -2063,11 +2608,37 @@ msgid "Group Management"
 msgstr "Direzione del Gruppo"
 
 #, fuzzy
+msgid "Group Matching"
+msgstr "Host Luoghi"
+
+msgid "Group Matching is off for this server, so directory groups cannot be read and these mappings are not used. Users who can bind receive the fallback role from the global LDAP settings instead."
+msgstr ""
+
+msgid "Group Member Attribute"
+msgstr "Attributo membro del gruppo"
+
+#, fuzzy
 msgid "Group Module Associations"
 msgstr "Regole di associazione"
 
 msgid "Group Name"
 msgstr "Nome del gruppo"
+
+#, fuzzy
+msgid "Group Name Attribute"
+msgstr "Attributo membro del gruppo"
+
+#, fuzzy
+msgid "Group OU"
+msgstr "Gruppo"
+
+#, fuzzy
+msgid "Group OU Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "Group OU Updated!"
+msgstr "Gruppo aggiornato!"
 
 msgid "Group Primary Disk"
 msgstr "Gruppo di dischi primario"
@@ -2083,6 +2654,21 @@ msgstr "Configurazione della stampante"
 msgid "Group Product Key"
 msgstr "Product Key Group"
 
+msgid "Group Search DN"
+msgstr "Ricerca gruppo DN"
+
+#, fuzzy
+msgid "Group Site"
+msgstr "Gruppo Snapins"
+
+#, fuzzy
+msgid "Group Site Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "Group Site Updated!"
+msgstr "Gruppo aggiornato!"
+
 #, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "Storia Snapin Host"
@@ -2094,6 +2680,18 @@ msgstr "Storia Snapin"
 msgid "Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
 
+#, fuzzy
+msgid "Group Update Location Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "Group Update OU Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "Group Update Site Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
 msgid "Group Update Success"
 msgstr "Aggiornamento del gruppo completato"
 
@@ -2102,6 +2700,10 @@ msgstr "Gruppo aggiunto!"
 
 msgid "Group is not valid"
 msgstr "Gruppo non valido"
+
+#, fuzzy
+msgid "Group membership search failed"
+msgstr "Aggiornamento utente non riuscita"
 
 msgid "Group update failed!"
 msgstr "Aggiornamento del gruppo non riuscito!"
@@ -2119,6 +2721,9 @@ msgstr "e non può essere catturato"
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "Codice di errore"
+
+msgid "Hard - require a valid certificate"
+msgstr ""
 
 msgid "Hard Disk Firmware"
 msgstr ""
@@ -2159,6 +2764,42 @@ msgid "Height must be 120 pixels."
 msgstr "Altezza deve essere di 120 pixel."
 
 #, fuzzy
+msgid "Hello World"
+msgstr "Host aggiunto!"
+
+#, fuzzy
+msgid "Hello World Create Fail"
+msgstr "Creazione Host fallita"
+
+#, fuzzy
+msgid "Hello World Create Success"
+msgstr "Creazione Host con successo"
+
+#, fuzzy
+msgid "Hello World Management"
+msgstr "Relazione sulla gestione"
+
+#, fuzzy
+msgid "Hello World Update Fail"
+msgstr "Aggiornamento del kernel"
+
+#, fuzzy
+msgid "Hello World Update Success"
+msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+msgid "Hello World added!"
+msgstr "Host aggiunto!"
+
+#, fuzzy
+msgid "Hello World update failed!"
+msgstr "Aggiornamento ruolo non riuscito"
+
+#, fuzzy
+msgid "Hello World updated!"
+msgstr "Utente aggiornato"
+
+#, fuzzy
 msgid "Help and Guides"
 msgstr "Aiuto e guida"
 
@@ -2184,12 +2825,20 @@ msgid "Host Approval Success"
 msgstr "Creazione Host con successo"
 
 #, fuzzy
+msgid "Host Association"
+msgstr "Host associato"
+
+#, fuzzy
 msgid "Host Associations"
 msgstr "Host associato"
 
 #, fuzzy
 msgid "Host BIOS Exit Type"
 msgstr "Host EFI Tipo Exit"
+
+#, fuzzy
+msgid "Host Count"
+msgstr "Host Init"
 
 msgid "Host Create Fail"
 msgstr "Creazione Host fallita"
@@ -2250,6 +2899,17 @@ msgstr "Host argomenti del kernel"
 msgid "Host List"
 msgstr "Lista Host"
 
+msgid "Host Location"
+msgstr "Host Luoghi"
+
+#, fuzzy
+msgid "Host Location Update Success"
+msgstr "Modifica posizione riuscita"
+
+#, fuzzy
+msgid "Host Location Updated!"
+msgstr "Posizione aggiornata!"
+
 msgid "Host Login History"
 msgstr "Host Accesso Storia"
 
@@ -2262,6 +2922,18 @@ msgstr "Regole di associazione"
 
 msgid "Host Name"
 msgstr "Nome Host"
+
+#, fuzzy
+msgid "Host OU"
+msgstr "Host AD OU"
+
+#, fuzzy
+msgid "Host OU Update Success"
+msgstr "Aggiornamento host completato!"
+
+#, fuzzy
+msgid "Host OU Updated!"
+msgstr "Host aggiornato!"
 
 msgid "Host Primary Disk"
 msgstr "Host disco principale"
@@ -2284,6 +2956,18 @@ msgid "Host Registration"
 msgstr "registrazione Host"
 
 #, fuzzy
+msgid "Host Site"
+msgstr "Lista Host"
+
+#, fuzzy
+msgid "Host Site Update Success"
+msgstr "Aggiornamento host completato!"
+
+#, fuzzy
+msgid "Host Site Updated!"
+msgstr "Sito aggiornato!"
+
+#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "Host associato"
 
@@ -2291,6 +2975,18 @@ msgid "Host Snapin History"
 msgstr "Storia Snapin Host"
 
 msgid "Host Update Fail"
+msgstr "Aggiornamento Host completato"
+
+#, fuzzy
+msgid "Host Update Location Fail"
+msgstr "Aggiornamento Host completato"
+
+#, fuzzy
+msgid "Host Update OU Fail"
+msgstr "Aggiornamento Host completato"
+
+#, fuzzy
+msgid "Host Update Site Fail"
 msgstr "Aggiornamento Host completato"
 
 msgid "Host Update Success"
@@ -2395,6 +3091,9 @@ msgstr "IP Passato è corretto"
 msgid "IP of host appears to be"
 msgstr ""
 
+msgid "Icon"
+msgstr "Icona"
+
 msgid "Icon File not found"
 msgstr "File Icona non trovato"
 
@@ -2456,6 +3155,10 @@ msgstr "Immagine"
 msgid "Image %s for session %s is missing or invalid; skipping"
 msgstr ""
 
+#, fuzzy
+msgid "Image Associated"
+msgstr "Associazione immagine"
+
 msgid "Image Association"
 msgstr "Associazione immagine"
 
@@ -2490,6 +3193,10 @@ msgstr "Image manager"
 
 msgid "Image Name"
 msgstr "Nome immagine"
+
+#, fuzzy
+msgid "Image OS"
+msgstr "Dimensioni immagine"
 
 #, fuzzy
 msgid "Image Operating System"
@@ -2549,6 +3256,22 @@ msgstr "Modifica immagine riuscita"
 
 msgid "Image Used"
 msgstr "Immagine utilizzata"
+
+#, fuzzy
+msgid "Image Windows Key"
+msgstr "Importa chiavi Windows"
+
+#, fuzzy
+msgid "Image Windows Key Update Fail"
+msgstr "Chiave di Windows Aggiornata"
+
+#, fuzzy
+msgid "Image Windows Key Update Success"
+msgstr "Chiave di Windows Aggiornata"
+
+#, fuzzy
+msgid "Image Windows Key Updated!"
+msgstr "Chiave di Windows Aggiornata"
 
 msgid "Image added!"
 msgstr "Immagine aggiunta!"
@@ -2623,8 +3346,16 @@ msgstr "Host Imaging Storia"
 msgid "Import"
 msgstr "Importare"
 
+#, fuzzy
+msgid "Import Broadcasts"
+msgstr "Importa Host"
+
 msgid "Import CSV"
 msgstr "Importa CSV"
+
+#, fuzzy
+msgid "Import Capones"
+msgstr "Importa Snapins"
 
 msgid "Import Configuration"
 msgstr "Importa configurazione"
@@ -2644,6 +3375,13 @@ msgstr "Importa database"
 msgid "Import Failed"
 msgstr "immagine aggiornata"
 
+msgid "Import Locations"
+msgstr "Importa luoghi"
+
+#, fuzzy
+msgid "Import OUs"
+msgstr "Importa utenti"
+
 #, fuzzy
 msgid "Import Partially Succeeded"
 msgstr "Importa database"
@@ -2655,6 +3393,13 @@ msgstr "Importa Report"
 msgid "Import Reports"
 msgstr "Importa Report"
 
+msgid "Import Sites"
+msgstr "importa Siti"
+
+#, fuzzy
+msgid "Import Subnet Groups"
+msgstr "Gruppi di importazione"
+
 #, fuzzy
 msgid "Import Succeeded"
 msgstr "Importazione riuscita"
@@ -2662,6 +3407,15 @@ msgstr "Importazione riuscita"
 #, fuzzy
 msgid "Import Succeeded With Warnings"
 msgstr "Importazione riuscita"
+
+msgid "Import Task States"
+msgstr "Importa Stato delle attività"
+
+msgid "Import Task Types"
+msgstr "Importa tipi di attività"
+
+msgid "Import Windows Keys"
+msgstr "Importa chiavi Windows"
 
 #, fuzzy
 msgid "Import a new Plugin"
@@ -2694,9 +3448,27 @@ msgstr ""
 msgid "Information"
 msgstr "Informazioni"
 
+msgid "Inherit - use the system ldap.conf setting"
+msgstr ""
+
+#, php-format
+msgid "Inherit global (%s)"
+msgstr ""
+
+#, fuzzy
+msgid "Init"
+msgstr "Host Init"
+
+#, fuzzy
+msgid "Init FS"
+msgstr "Host Init"
+
 #, fuzzy
 msgid "InitRD Versions"
 msgstr "Versione client"
+
+msgid "Initial Template"
+msgstr "Modello iniziale"
 
 #, fuzzy
 msgid "Initrd Update"
@@ -2814,6 +3586,10 @@ msgstr "Unità non valida"
 msgid "Invalid Windows product key"
 msgstr "Host Product Key"
 
+#, fuzzy, php-format
+msgid "Invalid certificate verification level: %s"
+msgstr "Selezionare un'immagine valida"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
@@ -2852,6 +3628,9 @@ msgstr "chiave non valida richiesta"
 msgid "Invalid key being set"
 msgstr "chiave non valido stato impostato"
 
+msgid "Invalid method called"
+msgstr "metodo valido chiamato"
+
 #, fuzzy
 msgid "Invalid path"
 msgstr "Host non valido"
@@ -2884,6 +3663,9 @@ msgstr "ID attività non valido inviato"
 
 msgid "Invalid tasking!"
 msgstr "Compito non valido!"
+
+msgid "Invalid token passed"
+msgstr "Token non valido passato"
 
 #, fuzzy
 msgid "Invalid token passed for host"
@@ -2926,6 +3708,10 @@ msgstr "Inventario"
 msgid "Inventory Static"
 msgstr "Inventario"
 
+#, fuzzy
+msgid "Is Advanced"
+msgstr "Avanzate"
+
 msgid "Is Enabled"
 msgstr "È abilitato"
 
@@ -2953,6 +3739,9 @@ msgstr ""
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr "funziona ottenendo l'impostazione massima della larghezza di banda del nodo"
 
+msgid "It tells the client to download snapins from"
+msgstr "indica al client di scaricare gli snapins da"
+
 msgid "It will operate based on the fields the area typcially requires."
 msgstr ""
 
@@ -2961,6 +3750,12 @@ msgstr ""
 
 msgid "Kernel"
 msgstr "nocciolo"
+
+msgid "Kernel Args"
+msgstr "kernel Args"
+
+msgid "Kernel Arguments"
+msgstr "argomenti del kernel"
 
 msgid "Kernel Update"
 msgstr "Aggiornamento del kernel"
@@ -2976,8 +3771,15 @@ msgstr "versioni del kernel"
 msgid "Kernel Versions"
 msgstr "versioni del kernel"
 
+msgid "Kernels/Inits from location"
+msgstr "I kernel / INIT dalla posizione"
+
 msgid "Key"
 msgstr "Chiave"
+
+#, fuzzy
+msgid "Key Association"
+msgstr "Associazione Sito"
 
 msgid "Key field must be a string"
 msgstr "Campo chiave deve essere una stringa"
@@ -2992,11 +3794,132 @@ msgstr "Chiave deve essere una stringa o un indice"
 msgid "Key must be an array of keys or a string."
 msgstr "Chiave deve essere un array o una stringa."
 
+#, fuzzy
+msgid "Key to match"
+msgstr "I file non corrispondono"
+
 msgid "Keys cached"
 msgstr ""
 
 msgid "Kill"
 msgstr "Uccidere"
+
+#, fuzzy
+msgid "LDAP"
+msgstr "OpenLDAP"
+
+msgid "LDAP Connection  Name"
+msgstr "Nome connessione LDAP"
+
+#, fuzzy
+msgid "LDAP Connection Name"
+msgstr "Nome connessione LDAP"
+
+msgid "LDAP Create Fail"
+msgstr "LDAP Creazione Fallita"
+
+msgid "LDAP Create Success"
+msgstr "LDAP Creazione Riusciata"
+
+#, fuzzy
+msgid "LDAP Group"
+msgstr "gruppi"
+
+#, fuzzy
+msgid "LDAP Group Associations"
+msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "LDAP Group Create Fail"
+msgstr "Creazione Gruppo fallita"
+
+#, fuzzy
+msgid "LDAP Group Create Success"
+msgstr "Creazione Gruppo completata"
+
+#, fuzzy
+msgid "LDAP Group Management"
+msgstr "Direzione del Gruppo"
+
+#, fuzzy
+msgid "LDAP Group Role Associations"
+msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "LDAP Group Update Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "LDAP Group Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "LDAP Group User Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "LDAP Group added!"
+msgstr "Gruppo aggiunto!"
+
+#, fuzzy
+msgid "LDAP Group associations updated!"
+msgstr "Posizione aggiornata!"
+
+#, fuzzy
+msgid "LDAP Group update failed!"
+msgstr "Aggiornamento del gruppo non riuscito!"
+
+#, fuzzy
+msgid "LDAP Group updated!"
+msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+msgid "LDAP Groups"
+msgstr "gruppi"
+
+msgid "LDAP Management"
+msgstr "Gestione LDAP"
+
+#, fuzzy
+msgid "LDAP Ports"
+msgstr "Porta LDAP Server"
+
+msgid "LDAP Server"
+msgstr "Server LDAP"
+
+msgid "LDAP Server Address"
+msgstr "Indirizzo server LDAP"
+
+msgid "LDAP Server Description"
+msgstr "LDAP Server Descrizione"
+
+#, fuzzy
+msgid "LDAP Server Name"
+msgstr "LDAP Server aggiunto!"
+
+msgid "LDAP Server Port"
+msgstr "Porta LDAP Server"
+
+#, fuzzy
+msgid "LDAP Server Update Fail"
+msgstr "LDAP Server modificato!"
+
+#, fuzzy
+msgid "LDAP Server Update Success"
+msgstr "LDAP Creazione Riusciata"
+
+msgid "LDAP Server added!"
+msgstr "LDAP Server aggiunto!"
+
+#, fuzzy
+msgid "LDAP Server update failed!"
+msgstr "LDAP Server modificato!"
+
+msgid "LDAP Server updated!"
+msgstr "LDAP Server modificato!"
+
+msgid "LDAP Servers"
+msgstr "LDAP Servers"
 
 msgid "Language"
 msgstr "Lingua"
@@ -3026,6 +3949,12 @@ msgstr "Ultima versione"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave blank to keep the current password"
+msgstr ""
+
+msgid "Level"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
 
@@ -3038,6 +3967,36 @@ msgstr "linea"
 msgid "Lines"
 msgstr "Linee"
 
+msgid "Link Pushbullet Account"
+msgstr "Conto di collegamento Pushbullet"
+
+msgid "Link Pushbullet Account Fail"
+msgstr "Connessione Pushbullet Account fallita"
+
+msgid "Link Pushbullet Account Success"
+msgstr "Connessione Pushbullet Account completata"
+
+msgid "Link Slack Account"
+msgstr "Connettività Slack"
+
+msgid "Link Slack Account Fail"
+msgstr "Connessione Account Slack fallita"
+
+msgid "Link Slack Account Success"
+msgstr "Connessione Account Slack completata"
+
+#, fuzzy
+msgid "Link ntfy Topic"
+msgstr "Connessione Account Slack completata"
+
+#, fuzzy
+msgid "Link ntfy Topic Fail"
+msgstr "Connessione Account Slack completata"
+
+#, fuzzy
+msgid "Link ntfy Topic Success"
+msgstr "Connessione Account Slack completata"
+
 msgid "List"
 msgstr "Elenca"
 
@@ -3048,6 +4007,14 @@ msgstr "Elencare tutti %s"
 #, fuzzy
 msgid "List All Plugins"
 msgstr "installare plugin"
+
+#, fuzzy
+msgid "List All Task States"
+msgstr "Stati attività"
+
+#, fuzzy
+msgid "List All Task Types"
+msgstr "Tipi di attività"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -3072,8 +4039,47 @@ msgstr "Caricamento dei dati campo"
 msgid "Location"
 msgstr "Luogo"
 
+msgid "Location Association"
+msgstr "Associazione Posizione"
+
+msgid "Location Create Fail"
+msgstr "Creazione posizione fallita"
+
+#, fuzzy
+msgid "Location Create Success"
+msgstr "Modifica posizione riuscita"
+
+#, fuzzy
+msgid "Location Description"
+msgstr "Associazione Posizione"
+
+#, fuzzy
+msgid "Location Host Associations"
+msgstr "Associazione Posizione"
+
 msgid "Location Management"
 msgstr "Gestione della posizione"
+
+msgid "Location Name"
+msgstr "Nome del luogo"
+
+msgid "Location Update Fail"
+msgstr "Aggiornamento posizione fallita"
+
+msgid "Location Update Success"
+msgstr "Modifica posizione riuscita"
+
+msgid "Location added!"
+msgstr "Posizione aggiunta!"
+
+msgid "Location is a plugin that allows your FOG Server"
+msgstr "Luoghi è un plugin che consente al server FOG"
+
+msgid "Location update failed!"
+msgstr "Aggiornamento posizione non riuscito"
+
+msgid "Location updated!"
+msgstr "Posizione aggiornata!"
 
 msgid "Locations"
 msgstr "sedi"
@@ -3209,6 +4215,9 @@ msgstr "Dimensione massima"
 msgid "Members"
 msgstr "Utenti"
 
+msgid "Members of this directory group receive these roles on sign in. Roles are recomputed from the directory each time, so removing someone from the group downgrades them at their next login."
+msgstr ""
+
 msgid "Membership"
 msgstr "membri"
 
@@ -3262,6 +4271,9 @@ msgstr "Non ammessi qui"
 
 msgid "Method does not exist"
 msgstr "Metodo non esiste"
+
+msgid "Microsoft AD"
+msgstr "Microsoft AD"
 
 msgid "Midnight"
 msgstr "Mezzanotte"
@@ -3422,6 +4434,9 @@ msgstr "NOME"
 msgid "NOT"
 msgstr "NON"
 
+msgid "NOTE"
+msgstr "NOTE"
+
 msgid "NOTE: Forums are the most command fastest method of getting help with any aspect of FOG."
 msgstr ""
 
@@ -3434,6 +4449,33 @@ msgstr "Necessario il nome tabella da cancellare"
 msgid "Needs a 256-bit key!"
 msgstr ""
 
+#, fuzzy
+msgid "Nested Depth"
+msgstr "gruppi"
+
+#, fuzzy
+msgid "Nested Groups"
+msgstr "gruppi"
+
+#, fuzzy
+msgid "Nested depth must be a number"
+msgstr "Nuova chiave deve essere una stringa"
+
+#, fuzzy
+msgid "Nested depth must be between 0 and 100, or blank to inherit"
+msgstr "Nuova chiave deve essere una stringa"
+
+msgid "Nested group depth cap reached, so group membership may be incomplete"
+msgstr ""
+
+#, fuzzy
+msgid "Nested group depth must be between 1 and 100"
+msgstr "Nuova chiave deve essere una stringa"
+
+#, fuzzy
+msgid "Nested group search failed"
+msgstr "Aggiornamento utente non riuscita"
+
 msgid "Network Information"
 msgstr "Informationi di rete"
 
@@ -3443,6 +4485,9 @@ msgstr "Installazione via rete"
 
 msgid "Network Printer"
 msgstr "stampante di rete"
+
+msgid "Never - do not verify (insecure)"
+msgstr ""
 
 msgid "New"
 msgstr "Nuovo"
@@ -3489,6 +4534,9 @@ msgstr "Nessuna immagine specificata"
 
 msgid "No Printer Management"
 msgstr "No Printer Management"
+
+msgid "No access is allowed"
+msgstr "Nessun accesso è consentito"
 
 msgid "No activity information available for this group"
 msgstr ""
@@ -3738,7 +4786,70 @@ msgstr "Nome Storage Node"
 msgid "O/S"
 msgstr "O / S"
 
+msgid "OU"
+msgstr ""
+
+#, fuzzy
+msgid "OU Association"
+msgstr "Associazione Sito"
+
+#, fuzzy
+msgid "OU Create Fail"
+msgstr "Creazione utente fallita"
+
+#, fuzzy
+msgid "OU Create Success"
+msgstr "Creazione utente riuscita"
+
+msgid "OU DN"
+msgstr ""
+
+#, fuzzy
+msgid "OU Description"
+msgstr "Descrizione"
+
+#, fuzzy
+msgid "OU Host Associations"
+msgstr "Host associato"
+
+#, fuzzy
+msgid "OU Management"
+msgstr "Gestione"
+
+#, fuzzy
+msgid "OU Name"
+msgstr "Nome OS"
+
+#, fuzzy
+msgid "OU Update Fail"
+msgstr "Aggiornamento utente non riuscita"
+
+#, fuzzy
+msgid "OU Update Success"
+msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+msgid "OU added!"
+msgstr "Utente aggiunto!"
+
+msgid "OU is a plugin that allows you to predefine OU's and associate with hosts."
+msgstr ""
+
+#, fuzzy
+msgid "OU update failed!"
+msgstr "Aggiornamento utente non riuscita"
+
+#, fuzzy
+msgid "OU updated!"
+msgstr "Utente aggiornato"
+
+msgid "OUs"
+msgstr ""
+
 msgid "Off"
+msgstr ""
+
+msgid "Off - direct membership only"
 msgstr ""
 
 msgid "Old key must be a string"
@@ -3788,6 +4899,9 @@ msgstr "Open Source Computer Clonazione Soluzione"
 msgid "Open VNC Connection To"
 msgstr ""
 
+msgid "OpenLDAP"
+msgstr "OpenLDAP"
+
 msgid "Operation field not set"
 msgstr "Campo operazione non impostato"
 
@@ -3796,6 +4910,9 @@ msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr "Oppure non è stato definito alcun numero per l'accesso alla sessione"
+
+msgid "Order"
+msgstr ""
 
 msgid "Organizational Unit"
 msgstr "Unità organizzativa"
@@ -3967,6 +5084,9 @@ msgstr "Scegliere un immagine"
 msgid "Please confirm you want to delete"
 msgstr "Conferma che desideri eliminare"
 
+msgid "Please confirm you would like to dissociate the selected directory groups"
+msgstr ""
+
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -3977,7 +5097,15 @@ msgid "Please confirm you would like to unset the primary group from the selecte
 msgstr ""
 
 #, fuzzy
+msgid "Please enter a name"
+msgstr "Si prega di inserire un nome host valido"
+
+#, fuzzy
 msgid "Please enter a printer name."
+msgstr "Si prega di inserire un nome host valido"
+
+#, fuzzy
+msgid "Please enter a valid CIDR subnet."
 msgstr "Si prega di inserire un nome host valido"
 
 msgid "Please enter a valid hostname"
@@ -3990,15 +5118,33 @@ msgid "Please physically associate"
 msgstr "Si prega di associare fisicamente"
 
 #, fuzzy
+msgid "Please select a valid certificate verification level"
+msgstr "Selezionare un'immagine valida"
+
+#, fuzzy
 msgid "Please select a valid image"
+msgstr "Selezionare un'immagine valida"
+
+msgid "Please select a valid ldap port"
+msgstr "Seleziona una porta ldap valida"
+
+#, fuzzy
+msgid "Please select a valid nested group strategy"
 msgstr "Selezionare un'immagine valida"
 
 #, fuzzy
 msgid "Please select a valid printer type."
 msgstr "Selezionare un'immagine valida"
 
+#, fuzzy
+msgid "Please select an LDAP server!"
+msgstr "per favore selezionate un'opzione"
+
 msgid "Please select an option"
 msgstr "per favore selezionate un'opzione"
+
+msgid "Please start user/channel with @/# respectively"
+msgstr ""
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4133,6 +5279,9 @@ msgstr ""
 msgid "Port"
 msgstr "Porta"
 
+msgid "Port is not valid ldap/ldaps port"
+msgstr "La porta non è la porta ldap / ldaps valida"
+
 msgid "Postfix requires an action of login"
 msgstr "Postfix richiede un'azione di accesso"
 
@@ -4147,6 +5296,9 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
 #, fuzzy
@@ -4262,6 +5414,17 @@ msgstr "oggetto"
 msgid "Protected"
 msgstr "Protetta"
 
+msgid "Pushbullet Accounts"
+msgstr "Pushbullet Conti"
+
+#, fuzzy
+msgid "Pushbullet Management"
+msgstr "client Management"
+
+#, fuzzy
+msgid "Pushbullet Token"
+msgstr "Pushbullet Conti"
+
 #, fuzzy
 msgid "Queue Deletion Cancel Fail"
 msgstr "Aggiunta tipo attività fallita"
@@ -4294,6 +5457,10 @@ msgstr "Data e Ora"
 
 msgid "Reboot"
 msgstr "Riavvio"
+
+#, fuzzy
+msgid "Reboot after deploy"
+msgstr "è stato completato"
 
 msgid "Receive"
 msgstr "Ricevere"
@@ -4329,12 +5496,19 @@ msgstr ""
 msgid "Remember Me"
 msgstr ""
 
+msgid "Remote address attempting to login"
+msgstr "Indirizzo remoto che cerca di accedere"
+
 msgid "Remove"
 msgstr "Rimuovere"
 
 #, fuzzy
 msgid "Remove Fail"
 msgstr "Rimozione fallita"
+
+#, fuzzy
+msgid "Remove LDAP Group Associations"
+msgstr "Regole di associazione"
 
 #, fuzzy
 msgid "Remove associated files"
@@ -4404,6 +5578,9 @@ msgstr "Reset Token"
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
+msgid "Result"
+msgstr "Risultati"
+
 msgid "Resume Reload"
 msgstr ""
 
@@ -4418,6 +5595,10 @@ msgstr "Tornando valore della chiave"
 
 msgid "Reverse"
 msgstr ""
+
+#, fuzzy
+msgid "Role"
+msgstr "Nome regola"
 
 #, fuzzy
 msgid "Role Association"
@@ -4466,6 +5647,12 @@ msgstr "Storage Node Creato"
 msgid "Role added!"
 msgstr "Stampante aggiunta"
 
+msgid "Role for LDAP admin group"
+msgstr ""
+
+msgid "Role for LDAP user group"
+msgstr ""
+
 #, fuzzy
 msgid "Role update failed!"
 msgstr "Aggiornamento della stampante non è riuscito!"
@@ -4473,6 +5660,9 @@ msgstr "Aggiornamento della stampante non è riuscito!"
 #, fuzzy
 msgid "Role updated!"
 msgstr "aggiornato stampante!"
+
+msgid "Role when group matching is off"
+msgstr ""
 
 msgid "Roles"
 msgstr ""
@@ -4585,6 +5775,28 @@ msgstr ""
 msgid "Search"
 msgstr "Ricerca"
 
+msgid "Search Base DN"
+msgstr "Cerca Base DN"
+
+msgid "Search DN"
+msgstr "Search DN"
+
+msgid "Search DN did not return any results"
+msgstr "Ricerca DN non ha restituito alcun risultato"
+
+#, fuzzy
+msgid "Search Key"
+msgstr "Ricerca"
+
+msgid "Search Method"
+msgstr "Metodo di ricerca"
+
+msgid "Search Scope"
+msgstr "Scope di ricerca"
+
+msgid "Search results returned false"
+msgstr "Risultati di ricerca che restituiscono false"
+
 #, fuzzy
 msgid "Search settings"
 msgstr "Stato servizio"
@@ -4638,6 +5850,10 @@ msgid "Server Information"
 msgstr "Informazione generale"
 
 msgid "Server Shell"
+msgstr "Server Shell"
+
+#, fuzzy
+msgid "Server URL"
 msgstr "Server Shell"
 
 msgid "Server appears to be offline or unavailable!"
@@ -4779,6 +5995,10 @@ msgid "Shutdown"
 msgstr "Spegnimento"
 
 #, fuzzy
+msgid "Shutdown after deploy"
+msgstr "è stato completato"
+
+#, fuzzy
 msgid "Shutdown when complete"
 msgstr "è stato completato"
 
@@ -4795,6 +6015,70 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
+
+#, fuzzy
+msgid "Site"
+msgstr "Siti"
+
+msgid "Site Association"
+msgstr "Associazione Sito"
+
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "Creazione stampante fallita"
+
+#, fuzzy
+msgid "Site Create Success"
+msgstr "Creazione stampante riuscita"
+
+msgid "Site Description"
+msgstr "Descrizione Sito"
+
+#, fuzzy
+msgid "Site Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "Host associato"
+
+#, fuzzy
+msgid "Site Management"
+msgstr "Storage Management"
+
+msgid "Site Name"
+msgstr "Nome sito"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "Aggiornamento della stampante non riuscito"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Aggiornamento host completato!"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "Associazione Sito"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "Site added!"
+msgstr "Stampante aggiunta"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "aggiornato stampante!"
+
+msgid "Sites"
+msgstr "Siti"
 
 msgid "Size"
 msgstr "Dimensione"
@@ -4816,6 +6100,21 @@ msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""
+
+msgid "Slack Accounts"
+msgstr "Slack Accounts"
+
+#, fuzzy
+msgid "Slack Management"
+msgstr "Gestione dei compiti"
+
+#, fuzzy
+msgid "Slack Token"
+msgstr "Slack Accounts"
+
+#, fuzzy
+msgid "Slack User/Slack Channel"
+msgstr "Utente / Nome canale"
 
 msgid "Smart Installer"
 msgstr "Smart Installer"
@@ -5175,6 +6474,10 @@ msgid "Storage Node Password"
 msgstr "Storage Node password"
 
 #, fuzzy
+msgid "Storage Node Protocol"
+msgstr "Storage Node IP"
+
+#, fuzzy
 msgid "Storage Node SSL Path"
 msgstr "Storage Node IP"
 
@@ -5236,6 +6539,65 @@ msgstr "Storage Node"
 
 msgid "String must be a string"
 msgstr "Stringa deve essere una stringa"
+
+#, fuzzy
+msgid "Subnet Group -> Group Relationship"
+msgstr "Descrizione del gruppo"
+
+#, fuzzy
+msgid "Subnet Group Create Fail"
+msgstr "Creazione Gruppo fallita"
+
+#, fuzzy
+msgid "Subnet Group Create Success"
+msgstr "Creazione Gruppo completata"
+
+#, fuzzy
+msgid "Subnet Group Description"
+msgstr "Descrizione del gruppo"
+
+#, fuzzy
+msgid "Subnet Group Management"
+msgstr "Direzione del Gruppo"
+
+#, fuzzy
+msgid "Subnet Group Name"
+msgstr "Nome gruppo di archiviazione"
+
+#, fuzzy
+msgid "Subnet Group Update Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "Subnet Group Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "Subnet Group added!"
+msgstr "Gruppo aggiunto!"
+
+#, fuzzy
+msgid "Subnet Group update failed!"
+msgstr "Aggiornamento del gruppo non riuscito!"
+
+#, fuzzy
+msgid "Subnet Group updated!"
+msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+msgid "Subnet Groups"
+msgstr "Gruppi Export"
+
+#, fuzzy
+msgid "Subnets"
+msgstr "Gruppi Export"
+
+msgid "Subtree Only"
+msgstr "Solo Sottoalbero"
+
+#, fuzzy
+msgid "Subtree and Below"
+msgstr "Sottoalbero e inferiore"
 
 #, fuzzy
 msgid "Successfully added hosts to the provided groups!"
@@ -5333,8 +6695,77 @@ msgstr "Nome attività"
 msgid "Task Reboot"
 msgstr "Task Reboot"
 
+msgid "Task State Create Fail"
+msgstr "Creazione stato attività falita!"
+
+#, fuzzy
+msgid "Task State Create SUccess"
+msgstr "Aggiunta stato attività riuscito!"
+
+#, fuzzy
+msgid "Task State Description"
+msgstr "Descrizione Sito"
+
+#, fuzzy
+msgid "Task State Icon"
+msgstr "Stati attività"
+
+#, fuzzy
+msgid "Task State Management"
+msgstr "Gestione dei compiti"
+
+#, fuzzy
+msgid "Task State Name"
+msgstr "Stati attività"
+
+msgid "Task State Update Fail"
+msgstr "Aggiunta stato attività fallito"
+
+msgid "Task State Update Success"
+msgstr "Aggiunta stato attività riuscito!"
+
+msgid "Task State Updated!"
+msgstr "Aggiunta stato attività aggiormato!"
+
+msgid "Task States"
+msgstr "Stati attività"
+
 msgid "Task Type"
 msgstr "Tipo attività"
+
+msgid "Task Type Create Fail"
+msgstr "Aggiunta tipo attività fallita"
+
+msgid "Task Type Create Success"
+msgstr "Aggiunta tipo attività riuscita"
+
+#, fuzzy
+msgid "Task Type Description"
+msgstr "Descrizione dell'immagine"
+
+#, fuzzy
+msgid "Task Type Icon"
+msgstr "Tipo attività"
+
+#, fuzzy
+msgid "Task Type Management"
+msgstr "Gestione dei compiti"
+
+#, fuzzy
+msgid "Task Type Name"
+msgstr "Aggiunta tipo attività riuscita!"
+
+msgid "Task Type Update Fail"
+msgstr "Aggiornamento tipo attività fallita"
+
+msgid "Task Type Update Success"
+msgstr "Aggiornamento tipo attività riuscita"
+
+msgid "Task Type Updated!"
+msgstr "Tipi di attività aggiornata!"
+
+msgid "Task Type added!"
+msgstr "Aggiunta tipo attività riuscita!"
 
 #, fuzzy
 msgid "Task Type is invalid"
@@ -5342,6 +6773,9 @@ msgstr "Tipo di attività non è valido"
 
 msgid "Task Type is not valid"
 msgstr "Task Type non è valido"
+
+msgid "Task Types"
+msgstr "Tipi di attività"
 
 msgid "Task not created as there are no associated Tasks"
 msgstr "Attività non creata poiché non ci sono attività associate"
@@ -5357,17 +6791,36 @@ msgid "Task started for"
 msgstr "Attività iniziata"
 
 #, fuzzy
+msgid "Task state added!"
+msgstr "Aggiunta tipo attività riuscita!"
+
+#, fuzzy
+msgid "Task state update failed!"
+msgstr "Aggiunta stato attività fallito"
+
+#, fuzzy
 msgid "Task type is invalid"
 msgstr "Tipo di attività non è valido"
 
+#, fuzzy
+msgid "Task type update failed!"
+msgstr "Aggiornamento tipo attività fallita"
+
 msgid "Tasks"
 msgstr "Attività"
+
+msgid "Team"
+msgstr "Squadra"
 
 msgid "Terminal"
 msgstr "Terminale"
 
 msgid "Text"
 msgstr "Testo"
+
+#, fuzzy
+msgid "That group is already defined for this server!"
+msgstr "Un host già esiste con questo nome!"
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
@@ -5392,6 +6845,12 @@ msgstr ""
 msgid "The 'Is Master Node' setting defines which"
 msgstr "L'impostazione \"nodo master\" definisce quale"
 
+msgid "The CA certificate path is too long (255 characters max)"
+msgstr ""
+
+msgid "The CA certificate path must be absolute"
+msgstr ""
+
 #, fuzzy
 msgid "The CA private key is not on this server"
 msgstr "Non ci sono gruppi su questo server"
@@ -5401,6 +6860,9 @@ msgid "The CA private key is on this server"
 msgstr "Non ci sono gruppi su questo server"
 
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
+msgstr ""
+
+msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
 msgstr ""
 
 msgid "The archive contains a link."
@@ -5431,15 +6893,25 @@ msgstr ""
 msgid "The archive must hold exactly one plugin directory."
 msgstr ""
 
+msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
+msgstr ""
+
 #, fuzzy
 msgid "The current user is invalid."
 msgstr "Tipo di attività non è valido"
+
+#, fuzzy
+msgid "The image associated does not have a valid OS!"
+msgstr "Il nodo di archiviazione gruppi di archiviazione associato non è valido"
 
 msgid "The image storage group assigned is not valid"
 msgstr "Il gruppo di archiviazione immagine assegnato non è valido"
 
 msgid "The installers for the fog client"
 msgstr "Installatori per fog client"
+
+msgid "The key will be assigned to registered hosts when a"
+msgstr "La chiave verrà assegnata agli host registrati quando una"
 
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
@@ -5550,6 +7022,9 @@ msgstr ""
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
+msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgstr ""
+
 msgid "This host already exists"
 msgstr "Questo host esiste già"
 
@@ -5567,6 +7042,9 @@ msgstr ""
 
 msgid "This is a single run task that should run now."
 msgstr ""
+
+msgid "This is especially useful if you have multiple"
+msgstr "Ciò è particolarmente utile se si dispone di più"
 
 #, fuzzy
 msgid "This is not the master for this group"
@@ -5609,6 +7087,9 @@ msgstr "IP di questo server"
 
 msgid "This setting"
 msgstr "Questa impostazione"
+
+msgid "This setting defines sending the"
+msgstr "Questa impostazione definisce l'invio"
 
 msgid "This setting defines the number of items to display when listing/searching elements. The default value is 10."
 msgstr ""
@@ -5658,6 +7139,9 @@ msgstr ""
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
+msgid "Those images should be activated with the associated"
+msgstr "Queste immagini devono essere attivate con le relative"
+
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -5686,8 +7170,29 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "Regole di associazione"
 
+msgid "Token or user:pass (optional)"
+msgstr ""
+
 msgid "Too many MACs"
 msgstr "Troppi MAC"
+
+msgid "Topic Endpoint"
+msgstr ""
+
+#, fuzzy
+msgid "Topic already linked"
+msgstr "Account già collegato"
+
+#, fuzzy
+msgid "Topic linked"
+msgstr "Account già collegato"
+
+msgid "Topic name you choose, e.g. fog-alerts"
+msgstr ""
+
+#, fuzzy
+msgid "Topic successfully added!"
+msgstr "Account aggiunto con successo!"
 
 #, fuzzy
 msgid "Total Clients"
@@ -5771,6 +7276,26 @@ msgstr "Impossibile aprire il file per la lettura"
 #, fuzzy
 msgid "Unable to remove protected items"
 msgstr "Impossibile aggiornare compito"
+
+#, fuzzy
+msgid "Unable to set LDAP role mapping."
+msgstr "Impossibile aprire il file per la lettura"
+
+#, fuzzy
+msgid "Unable to set action field"
+msgstr "Impossibile contattare il server"
+
+#, fuzzy
+msgid "Unable to set dmi field"
+msgstr "Impossibile aprire il file per la lettura"
+
+#, fuzzy
+msgid "Unable to set ldap ports."
+msgstr "Impossibile aprire il file per la lettura"
+
+#, fuzzy
+msgid "Unable to set nested group depth."
+msgstr "Impossibile aprire il file per la lettura"
 
 msgid "Unable to uninstall, no method exists for "
 msgstr ""
@@ -5929,6 +7454,17 @@ msgstr ""
 msgid "Uptime"
 msgstr "uptime"
 
+#, fuzzy
+msgid "Use Display Name from Directory"
+msgstr "Attributo nome utente"
+
+#, fuzzy
+msgid "Use Group Match"
+msgstr "Host Luoghi"
+
+msgid "Use LDAP SSL"
+msgstr ""
+
 msgid "Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the pack is unzipped on the client."
 msgstr ""
 
@@ -5956,6 +7492,9 @@ msgid "Use the input below to set the name for your new kernel."
 msgstr ""
 
 msgid "Use the links below if you need assistance."
+msgstr ""
+
+msgid "Use the selector to choose how many items you want exported"
 msgstr ""
 
 msgid "Used"
@@ -5991,11 +7530,22 @@ msgstr "Associazione Sito"
 msgid "User Cleanup"
 msgstr "Cleanup utente"
 
+#, fuzzy
+msgid "User Count"
+msgstr "Conte CPU"
+
 msgid "User Create Fail"
 msgstr "Creazione utente fallita"
 
 msgid "User Create Success"
 msgstr "Creazione utente riuscita"
+
+msgid "User DN"
+msgstr "User DN"
+
+#, fuzzy
+msgid "User Group"
+msgstr "gruppi"
 
 #, fuzzy
 msgid "User Group Association"
@@ -6004,6 +7554,10 @@ msgstr "Storage Node Creato"
 #, fuzzy
 msgid "User Group Associations"
 msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "Gruppo Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -6030,6 +7584,22 @@ msgid "User Group Role Associations"
 msgstr "Regole di associazione"
 
 #, fuzzy
+msgid "User Group Site"
+msgstr "Gruppo Snapins"
+
+#, fuzzy
+msgid "User Group Site Update Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "User Group Site Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "User Group Site Updated!"
+msgstr "Gruppo aggiornato!"
+
+#, fuzzy
 msgid "User Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
 
@@ -6051,8 +7621,27 @@ msgstr "Gestione utenti"
 msgid "User Name"
 msgstr "Nome utente"
 
+msgid "User Name Attribute"
+msgstr "Attributo nome utente"
+
 msgid "User Password"
 msgstr "Password utente"
+
+#, fuzzy
+msgid "User Site"
+msgstr "Nuovo Sito"
+
+#, fuzzy
+msgid "User Site Update Fail"
+msgstr "Aggiornamento della stampante non riuscito"
+
+#, fuzzy
+msgid "User Site Update Success"
+msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+msgid "User Site Updated!"
+msgstr "Sito aggiornato!"
 
 msgid "User Tracker"
 msgstr "Tracker utente"
@@ -6066,6 +7655,9 @@ msgstr "Utente aggiornato con successo"
 msgid "User added!"
 msgstr "Utente aggiunto!"
 
+msgid "User call is invalid"
+msgstr "chiamata dell'utente non è valido"
+
 #, fuzzy
 msgid "User group added!"
 msgstr "Utente aggiunto!"
@@ -6078,11 +7670,28 @@ msgstr "Aggiornamento utente non riuscita"
 msgid "User group updated!"
 msgstr "Utente aggiornato"
 
+msgid "User matched none of the mapped groups"
+msgstr ""
+
+#, fuzzy
+msgid "User not found"
+msgstr "Record non trovato"
+
 msgid "User update failed!"
 msgstr "Aggiornamento utente non riuscita"
 
 msgid "User updated!"
 msgstr "Utente aggiornato"
+
+msgid "User was not authorized by the LDAP server"
+msgstr "L'utente non è stato autorizzato dal server LDAP"
+
+#, fuzzy
+msgid "User/Channel"
+msgstr "Utente / Nome canale"
+
+msgid "User/Channel Name"
+msgstr "Utente / Nome canale"
 
 msgid "Username"
 msgstr "Nome utente"
@@ -6093,8 +7702,15 @@ msgstr ""
 msgid "Username must end with a number or letter."
 msgstr ""
 
+#, fuzzy
+msgid "Username was blank"
+msgstr "Nome utente"
+
 msgid "Users"
 msgstr "utenti"
+
+msgid "Using the group match function"
+msgstr "Utilizzo della funzione di corrispondenza gruppo"
 
 msgid "VB Script"
 msgstr ""
@@ -6117,6 +7733,13 @@ msgstr "Versione"
 
 msgid "View"
 msgstr ""
+
+#, fuzzy
+msgid "WOL Broadcast Management"
+msgstr "Gestione della posizione"
+
+msgid "WOL Broadcasts"
+msgstr "Broadcast WOL"
 
 msgid "Wait time has changed to"
 msgstr "Il tempo di attesa è cambiato"
@@ -6142,6 +7765,9 @@ msgstr "Siamo ID nodo"
 msgid "We are node name"
 msgstr "Siamo il nome del nodo"
 
+msgid "We cannot connect to LDAP server"
+msgstr "Non è possibile connettersi al server LDAP"
+
 msgid "Web CA private key"
 msgstr ""
 
@@ -6164,6 +7790,9 @@ msgstr "è stato cancellato"
 msgid "What to do next"
 msgstr ""
 
+msgid "When the plugin is removed, the assigned key will remain"
+msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
+
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "Dove ottenere aiuto"
@@ -6176,6 +7805,62 @@ msgstr "Larghezza deve essere di 650 pixel."
 
 msgid "Window size must be greater than 1"
 msgstr "La finestra dati deve essere maggiore di 1"
+
+#, fuzzy
+msgid "Windows 10 Professional"
+msgstr "Descrizione chiave di Windows"
+
+#, fuzzy
+msgid "Windows Key"
+msgstr "Chiave Windows"
+
+#, fuzzy
+msgid "Windows Key Create Fail"
+msgstr "Creazione utente fallita"
+
+#, fuzzy
+msgid "Windows Key Create Success"
+msgstr "Creazione utente riuscita"
+
+msgid "Windows Key Description"
+msgstr "Descrizione chiave di Windows"
+
+#, fuzzy
+msgid "Windows Key Management"
+msgstr "Nome chiave di Windows"
+
+msgid "Windows Key Name"
+msgstr "Nome chiave di Windows"
+
+#, fuzzy
+msgid "Windows Key Update Fail"
+msgstr "Chiave di Windows Aggiornata"
+
+#, fuzzy
+msgid "Windows Key Update Success"
+msgstr "Chiave di Windows Aggiornata"
+
+#, fuzzy
+msgid "Windows Key added!"
+msgstr "Nome chiave di Windows"
+
+#, fuzzy
+msgid "Windows Key update failed!"
+msgstr "Chiave di Windows Aggiornata"
+
+#, fuzzy
+msgid "Windows Key updated!"
+msgstr "Chiave di Windows Aggiornata"
+
+msgid "Windows Keys"
+msgstr "Chiave Windows"
+
+#, fuzzy
+msgid "Windows Product key"
+msgstr "Host Product Key"
+
+msgid "Windows keys is a plugin that associates product keys"
+msgstr "Tasti di Windows è un plugin che associa le chiavi di prodotto"
 
 msgid "Wipes"
 msgstr ""
@@ -6197,6 +7882,9 @@ msgstr ""
 
 #, php-format
 msgid "You do not have permission to access this page (%s required)."
+msgstr ""
+
+msgid "You do not have permission to change LDAP group associations."
 msgstr ""
 
 msgid "You do not have permission to perform this action."
@@ -6277,11 +7965,17 @@ msgstr "prima di me su questo nodo"
 msgid "between"
 msgstr "fra"
 
+msgid "between different sites"
+msgstr "tra diversi siti"
+
 msgid "blank for default"
 msgstr ""
 
 msgid "boot the client computers"
 msgstr "avvia i computer client"
+
+msgid "but bind password is not set"
+msgstr "Ma la bind password non è impostata"
 
 msgid "but has recently failed for this host"
 msgstr "ma è fallito di recente per questo host"
@@ -6301,6 +7995,10 @@ msgid "clients"
 msgstr "client"
 
 #, fuzzy
+msgid "completed imaging"
+msgstr "Completato"
+
+#, fuzzy
 msgid "confirm"
 msgstr "Conferma il task"
 
@@ -6318,6 +8016,9 @@ msgstr "Impossibile leggere il file temporaneo"
 
 msgid "day"
 msgstr "giorno"
+
+msgid "deploy task occurs for it"
+msgstr "attività di distribuzione avviene per esso"
 
 msgid "directive in php.ini"
 msgstr "direttiva in php.ini"
@@ -6368,6 +8069,9 @@ msgstr ""
 msgid "failed to execute, there are no clients included"
 msgstr ""
 
+msgid "failed to login"
+msgstr "non è riuscito a effettuare il login"
+
 msgid "failed to start"
 msgstr "non è riuscito a iniziare"
 
@@ -6376,6 +8080,9 @@ msgstr "File con"
 
 msgid "filesize"
 msgstr "dimensione del file"
+
+msgid "for Microsoft Windows to images"
+msgstr "per Microsoft Windows per immagini"
 
 msgid "found"
 msgstr "trovato"
@@ -6404,6 +8111,14 @@ msgstr "è stato distrutta con successo"
 
 msgid "has been successfully updated"
 msgstr "è stato aggiornato con successo"
+
+#, fuzzy
+msgid "has completed on"
+msgstr "è stato completato"
+
+#, fuzzy
+msgid "has completed snapin tasking"
+msgstr "Non valido Snapin Tasking"
 
 msgid "has failed to destroy"
 msgstr "è fallita la distruzione"
@@ -6499,6 +8214,10 @@ msgid "images to a storage group"
 msgstr "Immagini in un gruppo di archiviazione"
 
 #, fuzzy
+msgid "imaging failed"
+msgstr "Caricamento non riuscito"
+
+#, fuzzy
 msgid "in"
 msgstr "minuti"
 
@@ -6570,11 +8289,17 @@ msgstr ""
 msgid "kernel to boot the client computers"
 msgstr "avvia i computer client"
 
+msgid "key"
+msgstr "chiave"
+
 msgid "keys"
 msgstr ""
 
 msgid "limited to 1Mbps on that node"
 msgstr "limitata a 1Mbps su quel nodo"
+
+msgid "location url based on the host that checks in"
+msgstr "Url di posizione basata sull'host che controlla e"
 
 msgid "logged in"
 msgstr ""
@@ -6601,6 +8326,9 @@ msgstr ""
 msgid "month"
 msgstr "mese"
 
+msgid "multiple places to get your image"
+msgstr "più posti per ottenere l'immagine"
+
 msgid "must be specified"
 msgstr "deve essere specificato"
 
@@ -6618,6 +8346,9 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no response from server"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr "nodo è il distributore delle immagini"
 
@@ -6633,6 +8364,14 @@ msgstr "Non trovato su questo nodo"
 
 msgid "not found on this node"
 msgstr "Non trovato su questo nodo"
+
+#, fuzzy
+msgid "ntfy Accounts"
+msgstr "Slack Accounts"
+
+#, fuzzy
+msgid "ntfy Management"
+msgstr "client Management"
 
 msgid "object"
 msgstr "oggetto"
@@ -6713,6 +8452,9 @@ msgstr "impostazioni"
 msgid "short"
 msgstr ""
 
+msgid "sites with clients moving back and forth"
+msgstr "siti con client che si muovono avanti e indietro"
+
 msgid "snapin"
 msgstr "snapin"
 
@@ -6761,6 +8503,9 @@ msgstr "il kernel Linux che verrà usato"
 
 msgid "the following command in a terminal"
 msgstr "il seguente comando in un terminale"
+
+msgid "the host defined location where available"
+msgstr "la posizione definita dall'host, se disponibile"
 
 msgid "the initrd (initial ramdisk) which is alongside the"
 msgstr ""
@@ -6811,6 +8556,9 @@ msgstr "pr ottenere il Kernel richiesto"
 #, fuzzy
 msgid "to get the requested initrd"
 msgstr "pr ottenere il Kernel richiesto"
+
+msgid "to operate in an environment where there may be"
+msgstr "per operare in un ambiente in cui ci possa essere"
 
 msgid "to review."
 msgstr "da revisionare"
@@ -6873,6 +8621,12 @@ msgstr "finestra"
 msgid "wipe out all of your images stored on"
 msgstr "cancellare tutte le immagini archiviate in"
 
+msgid "with status code"
+msgstr ""
+
+msgid "with the host"
+msgstr "con l'host"
+
 msgid "with this group"
 msgstr "con questo gruppo"
 
@@ -6882,51 +8636,17 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 msgid "{node}"
 msgstr ""
 
-#~ msgid "A LDAP setup already exists with this name!"
-#~ msgstr "Un'impostazione LDAP esiste già con questo nome!"
-
-#, fuzzy
-#~ msgid "A Windows Key already exists with this name!"
-#~ msgstr "Un host già esiste con questo nome!"
-
-#, fuzzy
-#~ msgid "A Windows Key already exists with this product key!"
-#~ msgstr "Un host già esiste con questo nome!"
-
-#~ msgid "A broadcast already exists with this name!"
-#~ msgstr "Un broadcast esiste già con questo nome!"
-
-#, fuzzy
-#~ msgid "A dmi field must be set!"
-#~ msgstr "Campo chiave deve essere una stringa"
-
 #, fuzzy
 #~ msgid "A filter must be specified"
 #~ msgstr "deve essere specificato"
-
-#, fuzzy
-#~ msgid "A group must be selected."
-#~ msgstr "Storage Group cancellato"
-
-#, fuzzy
-#~ msgid "A group name is required!"
-#~ msgstr "È richiesto un nome di gruppo!"
 
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Un host già esiste con questo nome!"
 
 #, fuzzy
-#~ msgid "A location already exists with this name!"
-#~ msgstr "Esiste già un snapin con questo nome!"
-
-#, fuzzy
 #~ msgid "A name with this type-value pair already exists!"
 #~ msgstr "Un nome host con questo nome esiste già"
-
-#, fuzzy
-#~ msgid "A port must be specified"
-#~ msgstr "deve essere specificato"
 
 #, fuzzy
 #~ msgid "A rule already exists with that type-value pair!"
@@ -6937,33 +8657,8 @@ msgstr ""
 #~ msgstr "Esiste già un ruolo con questo nome!"
 
 #, fuzzy
-#~ msgid "A site already exists with this name!"
-#~ msgstr "Un host già esiste con questo nome!"
-
-#, fuzzy
-#~ msgid "A storage group must be selected."
-#~ msgstr "Storage Group cancellato"
-
-#, fuzzy
-#~ msgid "A subnet group already exists with this name!"
-#~ msgstr "Esiste già un gruppo con questo nome!"
-
-#, fuzzy
-#~ msgid "A subnet group is already using this group."
-#~ msgstr "Un host già esiste con questo nome!"
-
-#~ msgid "A task state already exists with this name!"
-#~ msgstr "Uno stato di attività già esiste con questo nome!"
-
-#~ msgid "A task type already exists with this name!"
-#~ msgstr "Un tipo di attività esiste già con questo nome!"
-
-#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Esiste già un ruolo con questo nome!"
-
-#~ msgid "Access"
-#~ msgstr "Accesso"
 
 #, fuzzy
 #~ msgid "Access Control Name"
@@ -6975,15 +8670,8 @@ msgstr ""
 #~ msgid "Access Controls"
 #~ msgstr "Controllo accessi"
 
-#~ msgid "Access Token"
-#~ msgstr "Token di accesso"
-
 #~ msgid "Access level is still 0 or false"
 #~ msgstr "Il livello di accesso è ancora 0 o falso"
-
-#, fuzzy
-#~ msgid "Access token"
-#~ msgstr "Token di accesso"
 
 #, fuzzy
 #~ msgid "Accesscontrol Create Fail"
@@ -7049,39 +8737,12 @@ msgstr ""
 #~ msgid "Accesscontrol updated!"
 #~ msgstr "Controllo accessi"
 
-#~ msgid "Accessed By"
-#~ msgstr "Si accede da"
-
-#~ msgid "Account already linked"
-#~ msgstr "Account già collegato"
-
-#, fuzzy
-#~ msgid "Account linked"
-#~ msgstr "Account già collegato"
-
-#~ msgid "Account linked to FOG GUI at"
-#~ msgstr "Account collegato alla nebbia GUI a"
-
-#~ msgid "Account successfully added!"
-#~ msgstr "Account aggiunto con successo!"
-
 #~ msgid "Active Multi-cast Tasks"
 #~ msgstr "Attività multi-cast attive"
 
 #, fuzzy
 #~ msgid "Add Directory Group"
 #~ msgstr "Aggiungere gruppo di archiviazione"
-
-#, fuzzy
-#~ msgid "Add Hello World failed!"
-#~ msgstr "Aggiunta utente fallita!"
-
-#, fuzzy
-#~ msgid "Add LDAP group failed!"
-#~ msgstr "Aggiunta gruppo non riuscito!"
-
-#~ msgid "Add LDAP server failed!"
-#~ msgstr "Aggiunta LDAP server fallita!"
 
 #, fuzzy
 #~ msgid "Add Selected"
@@ -7091,57 +8752,9 @@ msgstr ""
 #~ msgid "Add accesscontrol failed!"
 #~ msgstr "Aggiunta posizione non riuscita!"
 
-#~ msgid "Add broadcast failed!"
-#~ msgstr "Aggiunta broadcast non riuscita!"
-
-#, fuzzy
-#~ msgid "Add capone failed!"
-#~ msgstr "Aggiunta posizione non riuscita!"
-
-#~ msgid "Add location failed!"
-#~ msgstr "Aggiunta posizione non riuscita!"
-
-#, fuzzy
-#~ msgid "Add ntfy topic failed!"
-#~ msgstr "Aggiungi snapin non riuscito!"
-
-#, fuzzy
-#~ msgid "Add ou failed!"
-#~ msgstr "Aggiunta gruppo non riuscito!"
-
-#, fuzzy
-#~ msgid "Add pushbullet account failed!"
-#~ msgstr "Connessione Pushbullet Account fallita"
-
 #, fuzzy
 #~ msgid "Add rule failed!"
 #~ msgstr "Aggiunta utente fallita!"
-
-#, fuzzy
-#~ msgid "Add site failed!"
-#~ msgstr "Aggiunta host non riuscita!"
-
-#, fuzzy
-#~ msgid "Add slack account failed!"
-#~ msgstr "Aggiunta posizione non riuscita!"
-
-#, fuzzy
-#~ msgid "Add subnet group failed!"
-#~ msgstr "Aggiunta gruppo non riuscito!"
-
-#~ msgid "Add task state failed!"
-#~ msgstr "Aggiunta stato attività non riuscito!"
-
-#~ msgid "Add task type failed!"
-#~ msgstr "Aggiunta tipo attività non riuscita!"
-
-#, fuzzy
-#~ msgid "Add windows key failed!"
-#~ msgstr "Aggiunta host non riuscita!"
-
-#, fuzzy
-#~ msgid "Additional Icon Elements"
-#~ msgstr "MAC aggiuntivi"
 
 #~ msgid "Admin Group"
 #~ msgstr "Gruppo amministrativo"
@@ -7149,31 +8762,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Administrator Group"
 #~ msgstr "Gruppo amministrativo"
-
-#, fuzzy
-#~ msgid "Advanced Task"
-#~ msgstr "Avanzate"
-
-#, fuzzy
-#~ msgid "All filters must be numeric and greater than 1"
-#~ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
-
-#~ msgid "All methods of binding have failed"
-#~ msgstr "Tutti i metodi di associazione sono falliti"
-
-#~ msgid "Allows editing/creating of Task States fog currently has."
-#~ msgstr "Consente la modifica/creazione di Task States per FOG."
-
-#~ msgid "Allows editing/creating of Task Types fog currently has."
-#~ msgstr "Consente la modifica / creazione di tipi di attività FOG."
-
-#, fuzzy
-#~ msgid "An LDAP server already exists with this name!"
-#~ msgstr "Un'impostazione LDAP esiste già con questo nome!"
-
-#, fuzzy
-#~ msgid "An OU already exists with this name!"
-#~ msgstr "Un'immagine esiste già con questo nome!"
 
 #, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
@@ -7184,125 +8772,8 @@ msgstr ""
 #~ msgstr "Un nome host con questo nome esiste già"
 
 #, fuzzy
-#~ msgid "An entry already exists with this name!"
-#~ msgstr "Esiste già un utente con questo nome!"
-
-#, fuzzy
-#~ msgid "An ou already exists with this name!"
-#~ msgstr "Esiste già un gruppo con questo nome!"
-
-#, fuzzy
-#~ msgid "Assigned Group"
-#~ msgstr "Nome gruppo di archiviazione"
-
-#, fuzzy
-#~ msgid "Assigned Group Name"
-#~ msgstr "Nome gruppo di archiviazione"
-
-#~ msgid "Base Only"
-#~ msgstr "Solo base"
-
-#~ msgid "Bind DN"
-#~ msgstr "Bind DN"
-
-#~ msgid "Bind Password"
-#~ msgstr "Bind Password"
-
-#, fuzzy
-#~ msgid "Broadcast Address"
-#~ msgstr "Broadcast aggiunto!"
-
-#~ msgid "Broadcast Create Fail"
-#~ msgstr "Creazione Broadcast fallita"
-
-#~ msgid "Broadcast Create Success"
-#~ msgstr "Creazione Broadcast completata"
-
-#, fuzzy
-#~ msgid "Broadcast Description"
-#~ msgstr "Host Descrizione"
-
-#~ msgid "Broadcast IP"
-#~ msgstr "Broadcast IP"
-
-#~ msgid "Broadcast Name"
-#~ msgstr "Nome Broadcast"
-
-#~ msgid "Broadcast Update Fail"
-#~ msgstr "Aggiornamento Broadcast fallita"
-
-#~ msgid "Broadcast Update Success"
-#~ msgstr "Aggiornamento Broadcast completata"
-
-#~ msgid "Broadcast added!"
-#~ msgstr "Broadcast aggiunto!"
-
-#~ msgid "Broadcast update failed!"
-#~ msgstr "Aggiornamento Broadcast fallito!"
-
-#~ msgid "Broadcast updated!"
-#~ msgstr "Broadcast aggiornato!"
-
-#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Applicare cambiamenti?"
-
-#, fuzzy
-#~ msgid "CA Path"
-#~ msgstr "Percorso"
-
-#~ msgid "Cannot bind to the LDAP server"
-#~ msgstr "Impossibile legare al server LDAP"
-
-#, fuzzy
-#~ msgid "Capone"
-#~ msgstr "Capone Deploy"
-
-#, fuzzy
-#~ msgid "Capone Create Fail"
-#~ msgstr "Creazione Snapin fallita"
-
-#, fuzzy
-#~ msgid "Capone Create Success"
-#~ msgstr "Creazione Snapin completata"
-
-#~ msgid "Capone Deploy"
-#~ msgstr "Capone Deploy"
-
-#, fuzzy
-#~ msgid "Capone Management"
-#~ msgstr "Gestione Snapin"
-
-#, fuzzy
-#~ msgid "Capone Update Fail"
-#~ msgstr "Aggiornamento Snapin fallito"
-
-#, fuzzy
-#~ msgid "Capone Update Success"
-#~ msgstr "Modifica Snapin riuscita"
-
-#, fuzzy
-#~ msgid "Capone added!"
-#~ msgstr "Snapin aggiunto!"
-
-#, fuzzy
-#~ msgid "Capone update failed!"
-#~ msgstr "Aggiornamento Snapin fallito!"
-
-#, fuzzy
-#~ msgid "Capone updated!"
-#~ msgstr "Snap-in aggiornato!"
-
-#, fuzzy
-#~ msgid "Certificate Verification"
-#~ msgstr "Crea nuova posizione"
-
-#~ msgid "Channel call is invalid"
-#~ msgstr "chiamata canale non è valido"
-
-#, fuzzy
-#~ msgid "Channel not found"
-#~ msgstr "Record non trovato"
 
 #~ msgid "Check that database is running"
 #~ msgstr "Controllare che database è in esecuzione"
@@ -7312,35 +8783,7 @@ msgstr ""
 #~ msgstr "Impostazioni Client"
 
 #, fuzzy
-#~ msgid "Could not read the group mappings"
-#~ msgstr "Impossibile leggere il file tmp."
-
-#, fuzzy
-#~ msgid "Could not read the recorded grants"
-#~ msgstr "Impossibile leggere il file tmp."
-
-#, fuzzy
-#~ msgid "Could not record the granted targets"
-#~ msgstr "Impossibile leggere il file tmp."
-
-#, fuzzy
-#~ msgid "Could not seed the granted targets"
-#~ msgstr "Impossibile leggere il file tmp."
-
-#, fuzzy
 #~ msgid "Create New Accesscontrol"
-#~ msgstr "Crea nuovo %s"
-
-#, fuzzy
-#~ msgid "Create New Broadcast"
-#~ msgstr "Crea nuovo %s"
-
-#, fuzzy
-#~ msgid "Create New Capone"
-#~ msgstr "Crea nuovo snapin"
-
-#, fuzzy
-#~ msgid "Create New Hello World"
 #~ msgstr "Crea nuovo %s"
 
 #, fuzzy
@@ -7348,43 +8791,8 @@ msgstr ""
 #~ msgstr "Crea nuovo %s"
 
 #, fuzzy
-#~ msgid "Create New LDAP Group"
-#~ msgstr "Crea nuovo %s"
-
-#, fuzzy
-#~ msgid "Create New LDAP Server"
-#~ msgstr "Crea nuova stampante"
-
-#~ msgid "Create New Location"
-#~ msgstr "Crea nuova posizione"
-
-#, fuzzy
-#~ msgid "Create New OU"
-#~ msgstr "Crea nuovo %s"
-
-#, fuzzy
 #~ msgid "Create New Rule"
 #~ msgstr "Crea nuovo %s"
-
-#, fuzzy
-#~ msgid "Create New Site"
-#~ msgstr "Crea nuova stampante"
-
-#, fuzzy
-#~ msgid "Create New Subnet Group"
-#~ msgstr "Crea nuovo %s"
-
-#, fuzzy
-#~ msgid "Create New Task State"
-#~ msgstr "Crea nuova stampante"
-
-#, fuzzy
-#~ msgid "Create New Task Type"
-#~ msgstr "Crea nuovo %s"
-
-#, fuzzy
-#~ msgid "Create New Windows Key"
-#~ msgstr "Crea nuova stampante"
 
 #, fuzzy
 #~ msgid "Create and associate"
@@ -7394,48 +8802,6 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Percorso non disponibile"
 
-#~ msgid "Default is disabled"
-#~ msgstr "Il valore predefinito è disabilitato"
-
-#, fuzzy
-#~ msgid "Directory Group"
-#~ msgstr "elenco"
-
-#, fuzzy
-#~ msgid "Directory Group Name"
-#~ msgstr "elenco"
-
-#, fuzzy
-#~ msgid "Display Name Attribute"
-#~ msgstr "Attributo nome utente"
-
-#, fuzzy
-#~ msgid "Display Name Enabled"
-#~ msgstr "Attributo nome utente"
-
-#, fuzzy
-#~ msgid "Domain Admins"
-#~ msgstr "Nome del dominio"
-
-#, fuzzy
-#~ msgid "Editing Global Capone Settings"
-#~ msgstr "Impostazioni modulo del gruppo"
-
-#, fuzzy
-#~ msgid "Editing Global LDAP Settings"
-#~ msgstr "Impostazioni modulo del gruppo"
-
-#~ msgid "Email"
-#~ msgstr "E-mail"
-
-#, fuzzy
-#~ msgid "Export Broadcasts"
-#~ msgstr "Host Export"
-
-#, fuzzy
-#~ msgid "Export Capones"
-#~ msgstr "Export Snapins"
-
 #, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Host Export"
@@ -7444,23 +8810,12 @@ msgstr ""
 #~ msgstr "esportare immagini"
 
 #, fuzzy
-#~ msgid "Export LDAP Servers"
-#~ msgstr "LDAP Servers"
-
-#, fuzzy
 #~ msgid "Export LDAP Settings"
 #~ msgstr "Esporta luoghi"
 
 #, fuzzy
 #~ msgid "Export LDAPs"
 #~ msgstr "Esporta luoghi"
-
-#~ msgid "Export Locations"
-#~ msgstr "Esporta luoghi"
-
-#, fuzzy
-#~ msgid "Export OUs"
-#~ msgstr "Esporta utenti"
 
 #~ msgid "Export Printers"
 #~ msgstr "Stampanti Export"
@@ -7473,9 +8828,6 @@ msgstr ""
 #~ msgid "Export Rules"
 #~ msgstr "Importazione riuscita"
 
-#~ msgid "Export Sites"
-#~ msgstr "Esporta Siti"
-
 #~ msgid "Export Snapins"
 #~ msgstr "Export Snapins"
 
@@ -7487,25 +8839,8 @@ msgstr ""
 #~ msgid "Export Storage Nodes"
 #~ msgstr "Tutti i nodi di storage"
 
-#, fuzzy
-#~ msgid "Export Subnet Groups"
-#~ msgstr "Gruppi Export"
-
-#~ msgid "Export Task States"
-#~ msgstr "Esporta Stato delle attività"
-
-#~ msgid "Export Task Types"
-#~ msgstr "Esporta tipi di attività"
-
 #~ msgid "Export Users"
 #~ msgstr "Esporta utenti"
-
-#, fuzzy
-#~ msgid "Export WOL Broadcasts"
-#~ msgstr "Host Export"
-
-#~ msgid "Export Windows Keys"
-#~ msgstr "Esporta chiavi Windows"
 
 #~ msgid "Failed to add/update snapin file"
 #~ msgstr "Impossibile aggiungere / aggiornare il file snapin"
@@ -7521,161 +8856,22 @@ msgstr ""
 #~ msgid "Files do not match on server"
 #~ msgstr "Io non sono il server web fog"
 
-#~ msgid "Filter"
-#~ msgstr "Filtro"
-
 #, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "Riavvio"
-
-#~ msgid "Function does not exist"
-#~ msgstr "La funzione non esiste"
-
-#~ msgid "Generic LDAP"
-#~ msgstr "LDAP Generico"
-
-#, fuzzy
-#~ msgid "Global Options"
-#~ msgstr "Opzioni di avvio:"
-
-#, fuzzy
-#~ msgid "Global Settings Update Fail"
-#~ msgstr "Aggiornamento Impostazioni non riuscito"
-
-#, fuzzy
-#~ msgid "Global Settings Update Success"
-#~ msgstr "Modifica Impostazioni completata"
-
-#, fuzzy
-#~ msgid "Global settings updated!"
-#~ msgstr "Posizione aggiornata!"
-
-#, fuzzy
-#~ msgid "Group Association"
-#~ msgstr "Storage Node Creato"
-
-#, fuzzy
-#~ msgid "Group Count"
-#~ msgstr "Gruppo Snapins"
-
-#, fuzzy
-#~ msgid "Group Location"
-#~ msgstr "Host Luoghi"
-
-#, fuzzy
-#~ msgid "Group Location Update Success"
-#~ msgstr "Modifica posizione riuscita"
-
-#, fuzzy
-#~ msgid "Group Location Updated!"
-#~ msgstr "Posizione aggiornata!"
 
 #, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Host Luoghi"
 
-#, fuzzy
-#~ msgid "Group Matching"
-#~ msgstr "Host Luoghi"
-
-#~ msgid "Group Member Attribute"
-#~ msgstr "Attributo membro del gruppo"
-
-#, fuzzy
-#~ msgid "Group Name Attribute"
-#~ msgstr "Attributo membro del gruppo"
-
-#, fuzzy
-#~ msgid "Group OU"
-#~ msgstr "Gruppo"
-
-#, fuzzy
-#~ msgid "Group OU Update Success"
-#~ msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-#~ msgid "Group OU Updated!"
-#~ msgstr "Gruppo aggiornato!"
-
-#~ msgid "Group Search DN"
-#~ msgstr "Ricerca gruppo DN"
-
 #~ msgid "Group Search DN did not return any results"
 #~ msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
-
-#, fuzzy
-#~ msgid "Group Site"
-#~ msgstr "Gruppo Snapins"
-
-#, fuzzy
-#~ msgid "Group Site Update Success"
-#~ msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-#~ msgid "Group Site Updated!"
-#~ msgstr "Gruppo aggiornato!"
-
-#, fuzzy
-#~ msgid "Group Update Location Fail"
-#~ msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-#~ msgid "Group Update OU Fail"
-#~ msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-#~ msgid "Group Update Site Fail"
-#~ msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-#~ msgid "Group membership search failed"
-#~ msgstr "Aggiornamento utente non riuscita"
 
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"
 
-#, fuzzy
-#~ msgid "Hello World Create Fail"
-#~ msgstr "Creazione Host fallita"
-
-#, fuzzy
-#~ msgid "Hello World Create Success"
-#~ msgstr "Creazione Host con successo"
-
-#, fuzzy
-#~ msgid "Hello World Management"
-#~ msgstr "Relazione sulla gestione"
-
-#, fuzzy
-#~ msgid "Hello World Update Fail"
-#~ msgstr "Aggiornamento del kernel"
-
-#, fuzzy
-#~ msgid "Hello World Update Success"
-#~ msgstr "Utente aggiornato con successo"
-
-#, fuzzy
-#~ msgid "Hello World added!"
-#~ msgstr "Host aggiunto!"
-
-#, fuzzy
-#~ msgid "Hello World update failed!"
-#~ msgstr "Aggiornamento ruolo non riuscito"
-
-#, fuzzy
-#~ msgid "Hello World updated!"
-#~ msgstr "Utente aggiornato"
-
 #~ msgid "Host Associated"
 #~ msgstr "Host associato"
-
-#, fuzzy
-#~ msgid "Host Association"
-#~ msgstr "Host associato"
-
-#, fuzzy
-#~ msgid "Host Count"
-#~ msgstr "Host Init"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -7693,56 +8889,9 @@ msgstr ""
 #~ msgid "Host Ext Variable"
 #~ msgstr "Aggiornamento ruolo non riuscito"
 
-#~ msgid "Host Location"
-#~ msgstr "Host Luoghi"
-
-#, fuzzy
-#~ msgid "Host Location Update Success"
-#~ msgstr "Modifica posizione riuscita"
-
-#, fuzzy
-#~ msgid "Host Location Updated!"
-#~ msgstr "Posizione aggiornata!"
-
-#, fuzzy
-#~ msgid "Host OU"
-#~ msgstr "Host AD OU"
-
-#, fuzzy
-#~ msgid "Host OU Update Success"
-#~ msgstr "Aggiornamento host completato!"
-
-#, fuzzy
-#~ msgid "Host OU Updated!"
-#~ msgstr "Host aggiornato!"
-
-#, fuzzy
-#~ msgid "Host Site"
-#~ msgstr "Lista Host"
-
-#, fuzzy
-#~ msgid "Host Site Update Success"
-#~ msgstr "Aggiornamento host completato!"
-
-#, fuzzy
-#~ msgid "Host Site Updated!"
-#~ msgstr "Sito aggiornato!"
-
 #, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "Storia Snapin Host"
-
-#, fuzzy
-#~ msgid "Host Update Location Fail"
-#~ msgstr "Aggiornamento Host completato"
-
-#, fuzzy
-#~ msgid "Host Update OU Fail"
-#~ msgstr "Aggiornamento Host completato"
-
-#, fuzzy
-#~ msgid "Host Update Site Fail"
-#~ msgstr "Aggiornamento Host completato"
 
 #~ msgid "Host module settings"
 #~ msgstr "Impostazioni del modulo host"
@@ -7775,41 +8924,6 @@ msgstr ""
 #~ msgid "Hostext updated!"
 #~ msgstr "Host aggiornato!"
 
-#~ msgid "Icon"
-#~ msgstr "Icona"
-
-#, fuzzy
-#~ msgid "Image Associated"
-#~ msgstr "Associazione immagine"
-
-#, fuzzy
-#~ msgid "Image OS"
-#~ msgstr "Dimensioni immagine"
-
-#, fuzzy
-#~ msgid "Image Windows Key"
-#~ msgstr "Importa chiavi Windows"
-
-#, fuzzy
-#~ msgid "Image Windows Key Update Fail"
-#~ msgstr "Chiave di Windows Aggiornata"
-
-#, fuzzy
-#~ msgid "Image Windows Key Update Success"
-#~ msgstr "Chiave di Windows Aggiornata"
-
-#, fuzzy
-#~ msgid "Image Windows Key Updated!"
-#~ msgstr "Chiave di Windows Aggiornata"
-
-#, fuzzy
-#~ msgid "Import Broadcasts"
-#~ msgstr "Importa Host"
-
-#, fuzzy
-#~ msgid "Import Capones"
-#~ msgstr "Importa Snapins"
-
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Importa Host"
@@ -7820,13 +8934,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import LDAP Settings"
 #~ msgstr "Importa luoghi"
-
-#~ msgid "Import Locations"
-#~ msgstr "Importa luoghi"
-
-#, fuzzy
-#~ msgid "Import OUs"
-#~ msgstr "Importa utenti"
 
 #~ msgid "Import Printers"
 #~ msgstr "Stampanti di importazione"
@@ -7839,9 +8946,6 @@ msgstr ""
 #~ msgid "Import Rules"
 #~ msgstr "Importa Report"
 
-#~ msgid "Import Sites"
-#~ msgstr "importa Siti"
-
 #~ msgid "Import Snapins"
 #~ msgstr "Importa Snapins"
 
@@ -7853,182 +8957,11 @@ msgstr ""
 #~ msgid "Import Storage Nodes"
 #~ msgstr "Tutti i nodi di storage"
 
-#, fuzzy
-#~ msgid "Import Subnet Groups"
-#~ msgstr "Gruppi di importazione"
-
-#~ msgid "Import Task States"
-#~ msgstr "Importa Stato delle attività"
-
-#~ msgid "Import Task Types"
-#~ msgstr "Importa tipi di attività"
-
 #~ msgid "Import Users"
 #~ msgstr "Importa utenti"
 
-#~ msgid "Import Windows Keys"
-#~ msgstr "Importa chiavi Windows"
-
-#, fuzzy
-#~ msgid "Init"
-#~ msgstr "Host Init"
-
-#~ msgid "Initial Template"
-#~ msgstr "Modello iniziale"
-
 #~ msgid "Invalid Type"
 #~ msgstr "Tipo non valido"
-
-#, fuzzy, php-format
-#~ msgid "Invalid certificate verification level: %s"
-#~ msgstr "Selezionare un'immagine valida"
-
-#~ msgid "Invalid method called"
-#~ msgstr "metodo valido chiamato"
-
-#~ msgid "Invalid token passed"
-#~ msgstr "Token non valido passato"
-
-#, fuzzy
-#~ msgid "Is Advanced"
-#~ msgstr "Avanzate"
-
-#~ msgid "It tells the client to download snapins from"
-#~ msgstr "indica al client di scaricare gli snapins da"
-
-#~ msgid "Kernel Args"
-#~ msgstr "kernel Args"
-
-#~ msgid "Kernel Arguments"
-#~ msgstr "argomenti del kernel"
-
-#~ msgid "Kernels/Inits from location"
-#~ msgstr "I kernel / INIT dalla posizione"
-
-#, fuzzy
-#~ msgid "Key Association"
-#~ msgstr "Associazione Sito"
-
-#, fuzzy
-#~ msgid "Key to match"
-#~ msgstr "I file non corrispondono"
-
-#, fuzzy
-#~ msgid "LDAP"
-#~ msgstr "OpenLDAP"
-
-#~ msgid "LDAP Connection  Name"
-#~ msgstr "Nome connessione LDAP"
-
-#, fuzzy
-#~ msgid "LDAP Connection Name"
-#~ msgstr "Nome connessione LDAP"
-
-#~ msgid "LDAP Create Fail"
-#~ msgstr "LDAP Creazione Fallita"
-
-#~ msgid "LDAP Create Success"
-#~ msgstr "LDAP Creazione Riusciata"
-
-#, fuzzy
-#~ msgid "LDAP Group"
-#~ msgstr "gruppi"
-
-#, fuzzy
-#~ msgid "LDAP Group Associations"
-#~ msgstr "Regole di associazione"
-
-#, fuzzy
-#~ msgid "LDAP Group Create Fail"
-#~ msgstr "Creazione Gruppo fallita"
-
-#, fuzzy
-#~ msgid "LDAP Group Create Success"
-#~ msgstr "Creazione Gruppo completata"
-
-#, fuzzy
-#~ msgid "LDAP Group Management"
-#~ msgstr "Direzione del Gruppo"
-
-#, fuzzy
-#~ msgid "LDAP Group Role Associations"
-#~ msgstr "Regole di associazione"
-
-#, fuzzy
-#~ msgid "LDAP Group Update Fail"
-#~ msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-#~ msgid "LDAP Group Update Success"
-#~ msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-#~ msgid "LDAP Group User Group Associations"
-#~ msgstr "Storage Node Creato"
-
-#, fuzzy
-#~ msgid "LDAP Group added!"
-#~ msgstr "Gruppo aggiunto!"
-
-#, fuzzy
-#~ msgid "LDAP Group associations updated!"
-#~ msgstr "Posizione aggiornata!"
-
-#, fuzzy
-#~ msgid "LDAP Group update failed!"
-#~ msgstr "Aggiornamento del gruppo non riuscito!"
-
-#, fuzzy
-#~ msgid "LDAP Group updated!"
-#~ msgstr "Gruppo aggiornato!"
-
-#, fuzzy
-#~ msgid "LDAP Groups"
-#~ msgstr "gruppi"
-
-#~ msgid "LDAP Management"
-#~ msgstr "Gestione LDAP"
-
-#, fuzzy
-#~ msgid "LDAP Ports"
-#~ msgstr "Porta LDAP Server"
-
-#~ msgid "LDAP Server"
-#~ msgstr "Server LDAP"
-
-#~ msgid "LDAP Server Address"
-#~ msgstr "Indirizzo server LDAP"
-
-#~ msgid "LDAP Server Description"
-#~ msgstr "LDAP Server Descrizione"
-
-#, fuzzy
-#~ msgid "LDAP Server Name"
-#~ msgstr "LDAP Server aggiunto!"
-
-#~ msgid "LDAP Server Port"
-#~ msgstr "Porta LDAP Server"
-
-#, fuzzy
-#~ msgid "LDAP Server Update Fail"
-#~ msgstr "LDAP Server modificato!"
-
-#, fuzzy
-#~ msgid "LDAP Server Update Success"
-#~ msgstr "LDAP Creazione Riusciata"
-
-#~ msgid "LDAP Server added!"
-#~ msgstr "LDAP Server aggiunto!"
-
-#, fuzzy
-#~ msgid "LDAP Server update failed!"
-#~ msgstr "LDAP Server modificato!"
-
-#~ msgid "LDAP Server updated!"
-#~ msgstr "LDAP Server modificato!"
-
-#~ msgid "LDAP Servers"
-#~ msgstr "LDAP Servers"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -8036,28 +8969,6 @@ msgstr ""
 
 #~ msgid "Latest SVN Version"
 #~ msgstr "Ultima versione di SVN"
-
-#~ msgid "Link Pushbullet Account"
-#~ msgstr "Conto di collegamento Pushbullet"
-
-#~ msgid "Link Pushbullet Account Fail"
-#~ msgstr "Connessione Pushbullet Account fallita"
-
-#~ msgid "Link Pushbullet Account Success"
-#~ msgstr "Connessione Pushbullet Account completata"
-
-#~ msgid "Link Slack Account"
-#~ msgstr "Connettività Slack"
-
-#~ msgid "Link Slack Account Fail"
-#~ msgstr "Connessione Account Slack fallita"
-
-#~ msgid "Link Slack Account Success"
-#~ msgstr "Connessione Account Slack completata"
-
-#, fuzzy
-#~ msgid "Link ntfy Topic Success"
-#~ msgstr "Connessione Account Slack completata"
 
 #, fuzzy
 #~ msgid "List All Roles"
@@ -8068,83 +8979,11 @@ msgstr ""
 #~ msgstr "Elencare tutti %s"
 
 #, fuzzy
-#~ msgid "List All Task States"
-#~ msgstr "Stati attività"
-
-#, fuzzy
-#~ msgid "List All Task Types"
-#~ msgstr "Tipi di attività"
-
-#~ msgid "Location Association"
-#~ msgstr "Associazione Posizione"
-
-#~ msgid "Location Create Fail"
-#~ msgstr "Creazione posizione fallita"
-
-#, fuzzy
-#~ msgid "Location Create Success"
-#~ msgstr "Modifica posizione riuscita"
-
-#, fuzzy
-#~ msgid "Location Description"
-#~ msgstr "Associazione Posizione"
-
-#, fuzzy
-#~ msgid "Location Host Associations"
-#~ msgstr "Associazione Posizione"
-
-#~ msgid "Location Name"
-#~ msgstr "Nome del luogo"
-
-#~ msgid "Location Update Fail"
-#~ msgstr "Aggiornamento posizione fallita"
-
-#~ msgid "Location Update Success"
-#~ msgstr "Modifica posizione riuscita"
-
-#~ msgid "Location added!"
-#~ msgstr "Posizione aggiunta!"
-
-#~ msgid "Location is a plugin that allows your FOG Server"
-#~ msgstr "Luoghi è un plugin che consente al server FOG"
-
-#~ msgid "Location update failed!"
-#~ msgstr "Aggiornamento posizione non riuscito"
-
-#~ msgid "Location updated!"
-#~ msgstr "Posizione aggiornata!"
-
-#~ msgid "Microsoft AD"
-#~ msgstr "Microsoft AD"
-
-#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "Host associato"
 
-#~ msgid "NOTE"
-#~ msgstr "NOTE"
-
-#, fuzzy
-#~ msgid "Nested Groups"
-#~ msgstr "gruppi"
-
-#, fuzzy
-#~ msgid "Nested depth must be a number"
-#~ msgstr "Nuova chiave deve essere una stringa"
-
-#, fuzzy
-#~ msgid "Nested group depth must be between 1 and 100"
-#~ msgstr "Nuova chiave deve essere una stringa"
-
-#, fuzzy
-#~ msgid "Nested group search failed"
-#~ msgstr "Aggiornamento utente non riuscita"
-
 #~ msgid "No FOGPage Class found for this node"
 #~ msgstr "Nessun FOGPage Classe trovato per questo nodo"
-
-#~ msgid "No access is allowed"
-#~ msgstr "Nessun accesso è consentito"
 
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
@@ -8172,116 +9011,18 @@ msgstr ""
 #~ msgid "Non-Administrator Group"
 #~ msgstr "Gruppo amministrativo"
 
-#, fuzzy
-#~ msgid "OU Association"
-#~ msgstr "Associazione Sito"
-
-#, fuzzy
-#~ msgid "OU Create Fail"
-#~ msgstr "Creazione utente fallita"
-
-#, fuzzy
-#~ msgid "OU Create Success"
-#~ msgstr "Creazione utente riuscita"
-
-#, fuzzy
-#~ msgid "OU Description"
-#~ msgstr "Descrizione"
-
-#, fuzzy
-#~ msgid "OU Host Associations"
-#~ msgstr "Host associato"
-
-#, fuzzy
-#~ msgid "OU Management"
-#~ msgstr "Gestione"
-
-#, fuzzy
-#~ msgid "OU Name"
-#~ msgstr "Nome OS"
-
-#, fuzzy
-#~ msgid "OU Update Fail"
-#~ msgstr "Aggiornamento utente non riuscita"
-
-#, fuzzy
-#~ msgid "OU Update Success"
-#~ msgstr "Utente aggiornato con successo"
-
-#, fuzzy
-#~ msgid "OU added!"
-#~ msgstr "Utente aggiunto!"
-
-#, fuzzy
-#~ msgid "OU update failed!"
-#~ msgstr "Aggiornamento utente non riuscita"
-
-#, fuzzy
-#~ msgid "OU updated!"
-#~ msgstr "Utente aggiornato"
-
-#~ msgid "OpenLDAP"
-#~ msgstr "OpenLDAP"
-
 #~ msgid "Pause"
 #~ msgstr "Pausa"
 
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "Inserisci un nome di amministratore o di ricerca per cellulari"
 
-#, fuzzy
-#~ msgid "Please enter a name"
-#~ msgstr "Si prega di inserire un nome host valido"
-
-#, fuzzy
-#~ msgid "Please enter a valid CIDR subnet."
-#~ msgstr "Si prega di inserire un nome host valido"
-
-#, fuzzy
-#~ msgid "Please select a valid certificate verification level"
-#~ msgstr "Selezionare un'immagine valida"
-
-#~ msgid "Please select a valid ldap port"
-#~ msgstr "Seleziona una porta ldap valida"
-
-#, fuzzy
-#~ msgid "Please select a valid nested group strategy"
-#~ msgstr "Selezionare un'immagine valida"
-
-#, fuzzy
-#~ msgid "Please select an LDAP server!"
-#~ msgstr "per favore selezionate un'opzione"
-
-#~ msgid "Port is not valid ldap/ldaps port"
-#~ msgstr "La porta non è la porta ldap / ldaps valida"
-
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"
-
-#~ msgid "Pushbullet Accounts"
-#~ msgstr "Pushbullet Conti"
-
-#, fuzzy
-#~ msgid "Pushbullet Management"
-#~ msgstr "client Management"
-
-#, fuzzy
-#~ msgid "Pushbullet Token"
-#~ msgstr "Pushbullet Conti"
-
-#~ msgid "Remote address attempting to login"
-#~ msgstr "Indirizzo remoto che cerca di accedere"
-
-#, fuzzy
-#~ msgid "Remove LDAP Group Associations"
-#~ msgstr "Regole di associazione"
 
 #, fuzzy
 #~ msgid "Remove Selected"
 #~ msgstr "Rimuovi i selezionati"
-
-#~ msgid "Result"
-#~ msgstr "Risultati"
 
 #~ msgid "Results"
 #~ msgstr "risultati"
@@ -8289,10 +9030,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Resume"
 #~ msgstr "Risultati"
-
-#, fuzzy
-#~ msgid "Role"
-#~ msgstr "Nome regola"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "numero di riga non impostato correttamente"
@@ -8342,111 +9079,6 @@ msgstr ""
 #~ msgid "Rule update failed!"
 #~ msgstr "Aggiornamento della stampante non è riuscito!"
 
-#~ msgid "Search Base DN"
-#~ msgstr "Cerca Base DN"
-
-#~ msgid "Search DN"
-#~ msgstr "Search DN"
-
-#~ msgid "Search DN did not return any results"
-#~ msgstr "Ricerca DN non ha restituito alcun risultato"
-
-#, fuzzy
-#~ msgid "Search Key"
-#~ msgstr "Ricerca"
-
-#~ msgid "Search Method"
-#~ msgstr "Metodo di ricerca"
-
-#~ msgid "Search Scope"
-#~ msgstr "Scope di ricerca"
-
-#~ msgid "Search results returned false"
-#~ msgstr "Risultati di ricerca che restituiscono false"
-
-#, fuzzy
-#~ msgid "Server URL"
-#~ msgstr "Server Shell"
-
-#, fuzzy
-#~ msgid "Shutdown after deploy"
-#~ msgstr "è stato completato"
-
-#, fuzzy
-#~ msgid "Site"
-#~ msgstr "Siti"
-
-#~ msgid "Site Association"
-#~ msgstr "Associazione Sito"
-
-#, fuzzy
-#~ msgid "Site Create Fail"
-#~ msgstr "Creazione stampante fallita"
-
-#, fuzzy
-#~ msgid "Site Create Success"
-#~ msgstr "Creazione stampante riuscita"
-
-#~ msgid "Site Description"
-#~ msgstr "Descrizione Sito"
-
-#, fuzzy
-#~ msgid "Site Group Associations"
-#~ msgstr "Storage Node Creato"
-
-#, fuzzy
-#~ msgid "Site Host Associations"
-#~ msgstr "Host associato"
-
-#, fuzzy
-#~ msgid "Site Management"
-#~ msgstr "Storage Management"
-
-#~ msgid "Site Name"
-#~ msgstr "Nome sito"
-
-#, fuzzy
-#~ msgid "Site Update Fail"
-#~ msgstr "Aggiornamento della stampante non riuscito"
-
-#, fuzzy
-#~ msgid "Site Update Success"
-#~ msgstr "Aggiornamento host completato!"
-
-#, fuzzy
-#~ msgid "Site User Associations"
-#~ msgstr "Associazione Sito"
-
-#, fuzzy
-#~ msgid "Site User Group Associations"
-#~ msgstr "Storage Node Creato"
-
-#, fuzzy
-#~ msgid "Site added!"
-#~ msgstr "Stampante aggiunta"
-
-#, fuzzy
-#~ msgid "Site update failed!"
-#~ msgstr "Aggiornamento della stampante non è riuscito!"
-
-#, fuzzy
-#~ msgid "Site updated!"
-#~ msgstr "aggiornato stampante!"
-
-#~ msgid "Sites"
-#~ msgstr "Siti"
-
-#~ msgid "Slack Accounts"
-#~ msgstr "Slack Accounts"
-
-#, fuzzy
-#~ msgid "Slack Management"
-#~ msgstr "Gestione dei compiti"
-
-#, fuzzy
-#~ msgid "Slack Token"
-#~ msgstr "Slack Accounts"
-
 #~ msgid "Snapin Created"
 #~ msgstr "Snapin creato"
 
@@ -8457,169 +9089,16 @@ msgstr ""
 #~ msgid "Storage Node Associated"
 #~ msgstr "Storage Node Creato"
 
-#, fuzzy
-#~ msgid "Storage Node Protocol"
-#~ msgstr "Storage Node IP"
-
-#, fuzzy
-#~ msgid "Subnet Group Create Fail"
-#~ msgstr "Creazione Gruppo fallita"
-
-#, fuzzy
-#~ msgid "Subnet Group Create Success"
-#~ msgstr "Creazione Gruppo completata"
-
-#, fuzzy
-#~ msgid "Subnet Group Description"
-#~ msgstr "Descrizione del gruppo"
-
-#, fuzzy
-#~ msgid "Subnet Group Management"
-#~ msgstr "Direzione del Gruppo"
-
-#, fuzzy
-#~ msgid "Subnet Group Name"
-#~ msgstr "Nome gruppo di archiviazione"
-
-#, fuzzy
-#~ msgid "Subnet Group Update Fail"
-#~ msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-#~ msgid "Subnet Group Update Success"
-#~ msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-#~ msgid "Subnet Group added!"
-#~ msgstr "Gruppo aggiunto!"
-
-#, fuzzy
-#~ msgid "Subnet Group update failed!"
-#~ msgstr "Aggiornamento del gruppo non riuscito!"
-
-#, fuzzy
-#~ msgid "Subnet Group updated!"
-#~ msgstr "Gruppo aggiornato!"
-
-#, fuzzy
-#~ msgid "Subnet Groups"
-#~ msgstr "Gruppi Export"
-
-#~ msgid "Subtree Only"
-#~ msgstr "Solo Sottoalbero"
-
-#, fuzzy
-#~ msgid "Subtree and Below"
-#~ msgstr "Sottoalbero e inferiore"
-
 #~ msgid "Successful"
 #~ msgstr "Riuscito"
-
-#~ msgid "Task State Create Fail"
-#~ msgstr "Creazione stato attività falita!"
-
-#, fuzzy
-#~ msgid "Task State Create SUccess"
-#~ msgstr "Aggiunta stato attività riuscito!"
-
-#, fuzzy
-#~ msgid "Task State Description"
-#~ msgstr "Descrizione Sito"
-
-#, fuzzy
-#~ msgid "Task State Icon"
-#~ msgstr "Stati attività"
-
-#, fuzzy
-#~ msgid "Task State Management"
-#~ msgstr "Gestione dei compiti"
-
-#, fuzzy
-#~ msgid "Task State Name"
-#~ msgstr "Stati attività"
-
-#~ msgid "Task State Update Fail"
-#~ msgstr "Aggiunta stato attività fallito"
-
-#~ msgid "Task State Update Success"
-#~ msgstr "Aggiunta stato attività riuscito!"
-
-#~ msgid "Task State Updated!"
-#~ msgstr "Aggiunta stato attività aggiormato!"
-
-#~ msgid "Task States"
-#~ msgstr "Stati attività"
-
-#~ msgid "Task Type Create Fail"
-#~ msgstr "Aggiunta tipo attività fallita"
-
-#~ msgid "Task Type Create Success"
-#~ msgstr "Aggiunta tipo attività riuscita"
-
-#, fuzzy
-#~ msgid "Task Type Description"
-#~ msgstr "Descrizione dell'immagine"
-
-#, fuzzy
-#~ msgid "Task Type Icon"
-#~ msgstr "Tipo attività"
-
-#, fuzzy
-#~ msgid "Task Type Management"
-#~ msgstr "Gestione dei compiti"
-
-#, fuzzy
-#~ msgid "Task Type Name"
-#~ msgstr "Aggiunta tipo attività riuscita!"
-
-#~ msgid "Task Type Update Fail"
-#~ msgstr "Aggiornamento tipo attività fallita"
-
-#~ msgid "Task Type Update Success"
-#~ msgstr "Aggiornamento tipo attività riuscita"
-
-#~ msgid "Task Type Updated!"
-#~ msgstr "Tipi di attività aggiornata!"
-
-#~ msgid "Task Type added!"
-#~ msgstr "Aggiunta tipo attività riuscita!"
-
-#~ msgid "Task Types"
-#~ msgstr "Tipi di attività"
 
 #, fuzzy
 #~ msgid "Task run time"
 #~ msgstr "Task Ora di Arrivo"
 
 #, fuzzy
-#~ msgid "Task state added!"
-#~ msgstr "Aggiunta tipo attività riuscita!"
-
-#, fuzzy
-#~ msgid "Task state update failed!"
-#~ msgstr "Aggiunta stato attività fallito"
-
-#, fuzzy
-#~ msgid "Task type update failed!"
-#~ msgstr "Aggiornamento tipo attività fallita"
-
-#~ msgid "Team"
-#~ msgstr "Squadra"
-
-#, fuzzy
-#~ msgid "That group is already defined for this server!"
-#~ msgstr "Un host già esiste con questo nome!"
-
-#, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "Questo host esiste già"
-
-#, fuzzy
-#~ msgid "The image associated does not have a valid OS!"
-#~ msgstr "Il nodo di archiviazione gruppi di archiviazione associato non è valido"
-
-#~ msgid "The key will be assigned to registered hosts when a"
-#~ msgstr "La chiave verrà assegnata agli host registrati quando una"
 
 #~ msgid "There are no locations on this server"
 #~ msgstr "Non ci sono posizioni su questo server"
@@ -8631,48 +9110,11 @@ msgstr ""
 #~ msgid "There are no snapins on this server"
 #~ msgstr "Non ci sono snapins su questo server"
 
-#~ msgid "This is especially useful if you have multiple"
-#~ msgstr "Ciò è particolarmente utile se si dispone di più"
-
-#~ msgid "This setting defines sending the"
-#~ msgstr "Questa impostazione definisce l'invio"
-
-#~ msgid "Those images should be activated with the associated"
-#~ msgstr "Queste immagini devono essere attivate con le relative"
-
-#, fuzzy
-#~ msgid "Topic already linked"
-#~ msgstr "Account già collegato"
-
-#, fuzzy
-#~ msgid "Topic successfully added!"
-#~ msgstr "Account aggiunto con successo!"
-
 #~ msgid "Total Rows"
 #~ msgstr "Righe totali"
 
 #~ msgid "Unable to find basic information!"
 #~ msgstr "Impossibile trovare informazioni di base!"
-
-#, fuzzy
-#~ msgid "Unable to set LDAP role mapping."
-#~ msgstr "Impossibile aprire il file per la lettura"
-
-#, fuzzy
-#~ msgid "Unable to set action field"
-#~ msgstr "Impossibile contattare il server"
-
-#, fuzzy
-#~ msgid "Unable to set dmi field"
-#~ msgstr "Impossibile aprire il file per la lettura"
-
-#, fuzzy
-#~ msgid "Unable to set ldap ports."
-#~ msgstr "Impossibile aprire il file per la lettura"
-
-#, fuzzy
-#~ msgid "Unable to set nested group depth."
-#~ msgstr "Impossibile aprire il file per la lettura"
 
 #, fuzzy
 #~ msgid "Unable to set user filter."
@@ -8690,44 +9132,6 @@ msgstr ""
 #~ msgstr "Aggiorna/Rimuovi stampanti"
 
 #, fuzzy
-#~ msgid "Use Group Match"
-#~ msgstr "Host Luoghi"
-
-#, fuzzy
-#~ msgid "User Count"
-#~ msgstr "Conte CPU"
-
-#~ msgid "User DN"
-#~ msgstr "User DN"
-
-#, fuzzy
-#~ msgid "User Group"
-#~ msgstr "gruppi"
-
-#, fuzzy
-#~ msgid "User Group Count"
-#~ msgstr "Gruppo Snapins"
-
-#, fuzzy
-#~ msgid "User Group Site"
-#~ msgstr "Gruppo Snapins"
-
-#, fuzzy
-#~ msgid "User Group Site Update Fail"
-#~ msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-#~ msgid "User Group Site Update Success"
-#~ msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-#~ msgid "User Group Site Updated!"
-#~ msgstr "Gruppo aggiornato!"
-
-#~ msgid "User Name Attribute"
-#~ msgstr "Attributo nome utente"
-
-#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "Cleanup utente"
 
@@ -8738,115 +9142,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Utente aggiornato con successo"
-
-#, fuzzy
-#~ msgid "User Site"
-#~ msgstr "Nuovo Sito"
-
-#, fuzzy
-#~ msgid "User Site Update Fail"
-#~ msgstr "Aggiornamento della stampante non riuscito"
-
-#, fuzzy
-#~ msgid "User Site Update Success"
-#~ msgstr "Utente aggiornato con successo"
-
-#, fuzzy
-#~ msgid "User Site Updated!"
-#~ msgstr "Sito aggiornato!"
-
-#~ msgid "User call is invalid"
-#~ msgstr "chiamata dell'utente non è valido"
-
-#, fuzzy
-#~ msgid "User not found"
-#~ msgstr "Record non trovato"
-
-#~ msgid "User was not authorized by the LDAP server"
-#~ msgstr "L'utente non è stato autorizzato dal server LDAP"
-
-#, fuzzy
-#~ msgid "User/Channel"
-#~ msgstr "Utente / Nome canale"
-
-#~ msgid "User/Channel Name"
-#~ msgstr "Utente / Nome canale"
-
-#, fuzzy
-#~ msgid "Username was blank"
-#~ msgstr "Nome utente"
-
-#~ msgid "Using the group match function"
-#~ msgstr "Utilizzo della funzione di corrispondenza gruppo"
-
-#, fuzzy
-#~ msgid "WOL Broadcast Management"
-#~ msgstr "Gestione della posizione"
-
-#~ msgid "WOL Broadcasts"
-#~ msgstr "Broadcast WOL"
-
-#~ msgid "We cannot connect to LDAP server"
-#~ msgstr "Non è possibile connettersi al server LDAP"
-
-#~ msgid "When the plugin is removed, the assigned key will remain"
-#~ msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
-
-#, fuzzy
-#~ msgid "Windows 10 Professional"
-#~ msgstr "Descrizione chiave di Windows"
-
-#, fuzzy
-#~ msgid "Windows Key"
-#~ msgstr "Chiave Windows"
-
-#, fuzzy
-#~ msgid "Windows Key Create Fail"
-#~ msgstr "Creazione utente fallita"
-
-#, fuzzy
-#~ msgid "Windows Key Create Success"
-#~ msgstr "Creazione utente riuscita"
-
-#~ msgid "Windows Key Description"
-#~ msgstr "Descrizione chiave di Windows"
-
-#, fuzzy
-#~ msgid "Windows Key Management"
-#~ msgstr "Nome chiave di Windows"
-
-#~ msgid "Windows Key Name"
-#~ msgstr "Nome chiave di Windows"
-
-#, fuzzy
-#~ msgid "Windows Key Update Fail"
-#~ msgstr "Chiave di Windows Aggiornata"
-
-#, fuzzy
-#~ msgid "Windows Key Update Success"
-#~ msgstr "Chiave di Windows Aggiornata"
-
-#, fuzzy
-#~ msgid "Windows Key added!"
-#~ msgstr "Nome chiave di Windows"
-
-#, fuzzy
-#~ msgid "Windows Key update failed!"
-#~ msgstr "Chiave di Windows Aggiornata"
-
-#, fuzzy
-#~ msgid "Windows Key updated!"
-#~ msgstr "Chiave di Windows Aggiornata"
-
-#~ msgid "Windows Keys"
-#~ msgstr "Chiave Windows"
-
-#, fuzzy
-#~ msgid "Windows Product key"
-#~ msgstr "Host Product Key"
-
-#~ msgid "Windows keys is a plugin that associates product keys"
-#~ msgstr "Tasti di Windows è un plugin che associa le chiavi di prodotto"
 
 #~ msgid "You have version"
 #~ msgstr "Hai l'ultima versione"
@@ -8861,86 +9156,22 @@ msgstr ""
 #~ msgid "before me"
 #~ msgstr "prima di me"
 
-#~ msgid "between different sites"
-#~ msgstr "tra diversi siti"
-
 #~ msgid "but"
 #~ msgstr "ma"
 
-#~ msgid "but bind password is not set"
-#~ msgstr "Ma la bind password non è impostata"
-
-#, fuzzy
-#~ msgid "completed imaging"
-#~ msgstr "Completato"
-
-#~ msgid "deploy task occurs for it"
-#~ msgstr "attività di distribuzione avviene per esso"
-
 #~ msgid "e.g."
 #~ msgstr "es."
-
-#~ msgid "failed to login"
-#~ msgstr "non è riuscito a effettuare il login"
-
-#~ msgid "for Microsoft Windows to images"
-#~ msgstr "per Microsoft Windows per immagini"
-
-#, fuzzy
-#~ msgid "has completed on"
-#~ msgstr "è stato completato"
-
-#, fuzzy
-#~ msgid "has completed snapin tasking"
-#~ msgstr "Non valido Snapin Tasking"
-
-#, fuzzy
-#~ msgid "imaging failed"
-#~ msgstr "Caricamento non riuscito"
 
 #, fuzzy
 #~ msgid "its code is not on disk"
 #~ msgstr "Non trovato su questo nodo"
 
-#~ msgid "key"
-#~ msgstr "chiave"
-
-#~ msgid "location url based on the host that checks in"
-#~ msgstr "Url di posizione basata sull'host che controlla e"
-
 #, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "Compiti multicast attivi"
 
-#~ msgid "multiple places to get your image"
-#~ msgstr "più posti per ottenere l'immagine"
-
 #~ msgid "no database to"
 #~ msgstr "Nessun database a"
 
-#, fuzzy
-#~ msgid "no longer exists"
-#~ msgstr "non è più in esecuzione"
-
-#, fuzzy
-#~ msgid "ntfy Accounts"
-#~ msgstr "Slack Accounts"
-
-#, fuzzy
-#~ msgid "ntfy Management"
-#~ msgstr "client Management"
-
-#~ msgid "sites with clients moving back and forth"
-#~ msgstr "siti con client che si muovono avanti e indietro"
-
-#~ msgid "the host defined location where available"
-#~ msgstr "la posizione definita dall'host, se disponibile"
-
-#~ msgid "to operate in an environment where there may be"
-#~ msgstr "per operare in un ambiente in cui ci possa essere"
-
 #~ msgid "version"
 #~ msgstr "versione"
-
-#~ msgid "with the host"
-#~ msgstr "con l'host"
