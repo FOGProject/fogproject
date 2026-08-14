@@ -8170,6 +8170,42 @@ _keaAppleClass() {
         }
 EOFAPL
 }
+_keaRunAs() {
+    # Print the account "kea-dhcp4 -t" must run as to read $1, or nothing for root.
+    #
+    # Debian/Ubuntu ship /etc/kea as 0750 owned by the service account (_kea),
+    # and their AppArmor profile grants kea-dhcp4 "/etc/kea/** r" while
+    # deliberately withholding cap_dac_read_search and cap_dac_override. Root is
+    # neither the directory's owner nor in its group, so a root-run validation
+    # cannot even traverse the directory: Kea reports "Unable to open file
+    # <path>" for a file that plainly exists, and the install aborts (#1039).
+    # The daemon itself was never affected because systemd runs it as _kea.
+    #
+    # Validating as the directory's owner needs no DAC bypass at all, so it
+    # succeeds with the AppArmor profile intact. Do NOT "fix" this by putting the
+    # profile into complain mode or deleting it -- that disables a protection the
+    # distro shipped on purpose, on a box the admin did not ask us to weaken.
+    # Where /etc/kea is root-owned (RedHat, Arch, Alpine) this returns nothing
+    # and the validation runs as root exactly as before.
+    local owner
+    owner=$(stat -c '%U' "$(dirname "$1")" 2>/dev/null)
+    [[ -z $owner || $owner == root || $owner == UNKNOWN ]] && return 0
+    id -u "$owner" >/dev/null 2>&1 || return 0
+    printf '%s' "$owner"
+}
+_keaValidate() {
+    # Syntax-check $1, dropping to the config directory's owner when root cannot
+    # read it (see _keaRunAs). Returns kea-dhcp4's exit status.
+    local runas
+    runas=$(_keaRunAs "$1")
+    if [[ -z $runas ]]; then
+        kea-dhcp4 -t "$1" >>$error_log 2>&1
+    elif command -v runuser >/dev/null 2>&1; then
+        runuser -u "$runas" -- kea-dhcp4 -t "$1" >>$error_log 2>&1
+    else
+        su -s /bin/sh -c "kea-dhcp4 -t '$1'" "$runas" >>$error_log 2>&1
+    fi
+}
 _writeKeaConfig() {
     # $1 = target file, $2 = client-classes block. Reads $interface, $ipaddress,
     # $network, $cidr, $startrange, $endrange and $optdata from the caller's scope.
@@ -8200,6 +8236,12 @@ $2
     }
 }
 EOFKEA
+    # The service account has to be able to read this, and a hardened root umask
+    # (027/077) would otherwise leave it unreadable to anyone but root -- which
+    # breaks the daemon, not just the syntax check. 0644 is the mode the distro
+    # packages ship this file with; the generated config holds no credentials
+    # (the lease database is memfile).
+    chmod 0644 "$1" >>$error_log 2>&1
 }
 configureKeaDHCP() {
     local cidr=$(mask2cidr $submask)
@@ -8224,15 +8266,28 @@ configureKeaDHCP() {
         return 1
     fi
     if command -v kea-dhcp4 >/dev/null 2>&1; then
-        if ! kea-dhcp4 -t "$target" >>$error_log 2>&1; then
+        if ! _keaValidate "$target"; then
             echo "Failed"
             echo "Kea base configuration failed validation (kea-dhcp4 -t); see $error_log"
+            # "Unable to open file" against a file we just wrote and can stat is
+            # never a syntax error -- it is a mandatory access control denial
+            # (AppArmor on Debian/Ubuntu, SELinux on RedHat) stopping kea-dhcp4
+            # from reading it. Say so, because the generic message sends people
+            # hunting for a JSON typo that isn't there (#1039).
+            if [[ -s $target ]] && tail -n 20 "$error_log" 2>/dev/null | grep -q 'Unable to open file'; then
+                echo ""
+                echo " * $target exists and is readable, so this is not a syntax error."
+                echo "   Something is denying kea-dhcp4 access to it. Check:"
+                echo "     dmesg | grep -i 'apparmor.*kea'      (Debian/Ubuntu)"
+                echo "     ausearch -m avc -c kea-dhcp4         (RedHat/Rocky)"
+                echo "   Please report this with that output rather than disabling AppArmor."
+            fi
             return 1
         fi
         # Tier 2: best-effort Apple BSDP; drop if Kea rejects it.
         _writeKeaConfig "$tmp" "${baseclasses},
 ${appleclass}"
-        if kea-dhcp4 -t "$tmp" >>$error_log 2>&1; then
+        if _keaValidate "$tmp"; then
             mv -f "$tmp" "$target"
         else
             rm -f "$tmp"
