@@ -4014,6 +4014,22 @@ linkOptFogDir() {
     # a real directory the bare `ln -s` did not fail, it created
     # /var/log/fog/log inside it. `! -e` is true for a dangling link (it follows
     # the link) and false for a real directory, which is what we want in both.
+    # A symlink pointing at the WRONG place is repaired here, which the guard
+    # below cannot do: `! -e` is false for a link that resolves, and
+    # linkIfAbsent() deliberately leaves a resolving link alone. So an install
+    # that later moved $servicelogs kept /var/log/fog aimed at the old
+    # directory forever -- and the log viewer reads through that link
+    # (FOGLogPaths::FOG_LINK), so it went on showing the previous location's
+    # files with no indication anything was stale.
+    #
+    # Only ever replaces a symlink. A real directory is still left alone, for
+    # the GH-850 reason below.
+    if [[ -L /var/log/fog && "$(readlink /var/log/fog)" != "${servicelogs%/}" ]]; then
+        dots "Repointing FOG log link at $servicelogs"
+        rm -f /var/log/fog >>$error_log 2>&1
+        ln -s "${servicelogs%/}" /var/log/fog >>$error_log 2>&1
+        errorStat $?
+    fi
     if [[ ! -e /var/log/fog ]]; then
         dots "Linking FOG Logs to Linux Logs"
         linkIfAbsent "$servicelogs" /var/log/fog
