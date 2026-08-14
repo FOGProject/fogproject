@@ -24,9 +24,17 @@ class MACAddress extends FOGBase
     /**
      * Pattern to validate MACAddresses.
      *
+     * Accepts the three formats a mac may arrive in: colon or hyphen
+     * separated octets, twelve bare hex digits, or dot separated quads.
+     * Public so code that needs to recognise a mac without building a
+     * MACAddress (see FOGBase::stripAndDecodeMac) shares this one definition.
+     *
      * @var string
      */
-    private static $_pattern = '';
+    public const PATTERN = '/^(?:[[:xdigit:]]{2}([-:]))'
+        . '(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$'
+        . '|^(?:[[:xdigit:]]{12})$|^(?:[[:xdigit:]]'
+        . '{4}([.])){2}[[:xdigit:]]{4}$/';
     /**
      * This msg packet.
      *
@@ -64,17 +72,6 @@ class MACAddress extends FOGBase
      */
     public function __construct($mac)
     {
-        /**
-         * Defines our grep/search patterns for
-         * validating a MAC Address.
-         */
-        self::$_pattern = sprintf(
-            '%s%s%s%s',
-            '/^(?:[[:xdigit:]]{2}([-:]))',
-            '(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$',
-            '|^(?:[[:xdigit:]]{12})$|^(?:[[:xdigit:]]',
-            '{4}([.])){2}[[:xdigit:]]{4}$/'
-        );
         /**
          * Pull in our base initialized items.
          */
@@ -180,7 +177,7 @@ class MACAddress extends FOGBase
          */
         $mac = array_values(
             preg_grep(
-                self::$_pattern,
+                self::PATTERN,
                 (array) $mac
             )
         );
@@ -275,7 +272,7 @@ class MACAddress extends FOGBase
          * Returns as bool.
          */
         return (bool) preg_match(
-            self::$_pattern,
+            self::PATTERN,
             $this->MAC
         );
     }

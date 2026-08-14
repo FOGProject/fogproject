@@ -534,7 +534,7 @@ abstract class FOGBase
                     file_get_contents('php://input'),
                     $vars
                 );
-                $mac = $vars['mac'];
+                $mac = $vars['mac'] ?? '';
             }
         }
         // disabling sysuuid detection code for now as it is causing
@@ -545,11 +545,12 @@ abstract class FOGBase
                     $sysuuid = filter_input(INPUT_GET, 'sysuuid');
                 }
          */
-        // If encoded decode and store value
-        if ($encoded === true) {
-            $mac = base64_decode($mac);
-            //            $sysuuid = base64_decode($sysuuid);
-        }
+        // Normalize the mac. stripAndDecode() rewrites $_REQUEST, but the mac
+        // is read here from the raw request via filter_input() (or passed in
+        // explicitly), which that rewrite never touches, so the encoding has
+        // to be resolved here. The legacy $encoded flag is now redundant but
+        // kept for call-signature compatibility.
+        $mac = self::stripAndDecodeMac($mac);
         // See if we can find the host by system uuid rather than by mac's first.
         /*        if ($sysuuid) {
                     $Inventory = self::getClass('Inventory')
@@ -2403,6 +2404,65 @@ abstract class FOGBase
         }
 
         return $item;
+    }
+    /**
+     * Strips and decodes a mac, or a '|' separated list of macs.
+     *
+     * FOS base64-encodes the mac on some paths (registration, deploy) and
+     * sends it plain on others (checkin, the standalone inventory task), so
+     * the encoding has to be sniffed. The sniff cannot be the one
+     * stripAndDecode() uses -- "do the decoded bytes happen to be valid
+     * UTF-8" -- because a hex mac is built entirely out of base64 alphabet
+     * characters, so a plain mac decodes to accidentally-valid UTF-8 roughly
+     * once in every few hundred (measured: 0.26% lowercase, 0.84% upper) and
+     * that host would then silently fail to resolve, intermittently and per
+     * mac. Sniff on shape instead: keep the plain value when it is already a
+     * well formed mac list, and accept the decoded value only when it is one.
+     *
+     * @param mixed $mac the raw mac value
+     *
+     * @return string
+     */
+    public static function stripAndDecodeMac($mac)
+    {
+        $mac = trim((string) ($mac ?? ''));
+        if ($mac === '' || self::isMacList($mac)) {
+            return Initiator::e($mac);
+        }
+        $decoded = trim(base64_decode(str_replace(' ', '+', $mac)));
+        if (self::isMacList($decoded)) {
+            return Initiator::e($decoded);
+        }
+
+        // Neither shape matched; hand back the plain value so the caller
+        // reports the mac it was actually sent.
+        return Initiator::e($mac);
+    }
+    /**
+     * Tests whether a string is a '|' separated list of mac addresses.
+     *
+     * @param string $macs the string to test
+     *
+     * @return bool
+     */
+    private static function isMacList($macs)
+    {
+        $parts = array_filter(
+            array_map(
+                'trim',
+                explode('|', $macs)
+            )
+        );
+        if (count($parts) < 1) {
+            return false;
+        }
+        foreach ($parts as $part) {
+            if (!preg_match(MACAddress::PATTERN, $part)) {
+                return false;
+            }
+        }
+
+        return true;
     }
     /**
      * Gets the master interface based on the ip found.

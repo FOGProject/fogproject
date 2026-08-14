@@ -26,8 +26,11 @@ header('Content-Type: text/plain');
 FOGCore::stripAndDecode($_REQUEST);
 try {
     // Authenticate by host/MAC the same way the other FOS-facing service
-    // endpoints do; getHostItem() reads the mac itself and throws on an
-    // unknown/invalid host.
+    // endpoints do; getHostItem() reads the mac itself (via filter_input on
+    // the raw request) and normalizes it, so it handles the base64-encoded
+    // mac fog.inventory sends on registration/deploy as well as the plain mac
+    // the standalone inventory task sends. It throws on an unknown/invalid
+    // host.
     FOGCore::getHostItem(false);
     if (!FOGCore::$Host->isValid()) {
         throw new Exception(_('Invalid Host'));
