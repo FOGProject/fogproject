@@ -5109,3 +5109,39 @@ $this->schema[] = [
     . "runner service. (Default /dev/tty3)','/dev/tty3',"
     . "'FOG Linux Service TTY Output')"
 ];
+// 330
+$this->schema[] = [
+    // Schedule-only test task for fog.enrollsbforce (fos repo): forces the
+    // db/KEK/PK authenticated write sbEnrollDb() performs, without task type
+    // 25's "only when sbState()=='setup'" guard, to find out whether the
+    // same signed .auth updates also succeed as ordinary authenticated
+    // writes outside Setup Mode -- e.g. on a machine that already enrolled
+    // this same PK/KEK once. See fos ADR-0009: write policy follows a valid
+    // signature against what's currently enrolled, not whether Secure Boot
+    // enforcement itself is on or off, so that may hold even while
+    // enforcing.
+    //
+    // No pxeMenu row: deliberately schedule-only, against a single test
+    // host, via Task Management. Scheduling creates a real `tasks` row tied
+    // to a real hostID, which is what the unregistered-host PXE-menu path
+    // (pxeID 15) does not do -- see Post_Wipe.php/TaskQueue::checkout()'s
+    // "No Active Task found" failure that surfaced testing that path.
+    //
+    // ttID 26 is the next free id. Safe to hardcode here, unlike pxeMenu:
+    // taskTypes has no admin-facing "create a custom type" page, so there is
+    // no user-writable auto_increment collision risk to guard against (see
+    // step 324's rationale for why that mattered for pxeMenu).
+    //
+    // ttIsAdvanced '1': this is a throwaway diagnostic, not a fleet
+    // operation, so it stays behind the Advanced toggle rather than sitting
+    // next to ttID 25 in the normal task list.
+    "INSERT IGNORE INTO `taskTypes` "
+    . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,`ttKernel`,"
+    . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
+    . "VALUES "
+    . "(26,'Enroll Secure Boot (TEST - force DB write)','TEST TASK: forces "
+    . "the Secure Boot database write (db/KEK/PK) regardless of firmware "
+    . "state, to check whether it succeeds outside UEFI Setup Mode. Not for "
+    . "fleet use -- schedule against a single test host only.','shield','',"
+    . "'mode=enrollsbforce','fog','1','both')",
+];
