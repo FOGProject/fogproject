@@ -7413,10 +7413,6 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
-#, fuzzy
-msgid "This server is not a master node"
-msgstr " | Este não é o nó mestre"
-
 msgid "This servers ip(s)"
 msgstr ""
 
@@ -9539,6 +9535,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "There are no snapins on this server"
 #~ msgstr "Não há snapins neste servidor."
+
+#, fuzzy
+#~ msgid "This server is not a master node"
+#~ msgstr " | Este não é o nó mestre"
 
 #~ msgid "Total Rows"
 #~ msgstr "total de linhas"

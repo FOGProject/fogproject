@@ -7041,10 +7041,6 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
-#, fuzzy
-msgid "This server is not a master node"
-msgstr "| これはマスターノードではありません"
-
 msgid "This servers ip(s)"
 msgstr "このサーバーの IP アドレス"
 
@@ -10493,6 +10489,10 @@ msgstr ""
 
 #~ msgid "This section allows you to upload user"
 #~ msgstr "このセクションではユーザー情報をアップロードできます"
+
+#, fuzzy
+#~ msgid "This server is not a master node"
+#~ msgstr "| これはマスターノードではありません"
 
 #~ msgid "This setting turns off all FOG Printer Management"
 #~ msgstr "この設定は FOG のプリンター管理機能をすべて無効にします"

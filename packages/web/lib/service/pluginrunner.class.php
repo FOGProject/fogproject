@@ -321,11 +321,16 @@ class PluginRunner extends FOGService
             // Every other daemon gates on this, and plugin tasks need it for
             // the same reason: without it each node in a group runs every
             // task, so a task that sends a notification sends one per node.
-            if (!count($this->checkIfNodeMaster() ?: [])) {
-                throw new Exception(
-                    _('This server is not a master node')
-                );
-            }
+            //
+            // Called for the throw, not for the return value.
+            // checkIfNodeMaster() either returns a non-empty list or throws
+            // " | This is not the master node" itself, so a count guard here
+            // can never fire -- which is why the other seven daemons simply
+            // foreach over it. This used to wrap it in a count() test and
+            // throw a second message of its own; that message was
+            // unreachable, and reading it here suggested the log line came
+            // from this class when it always came from the base.
+            $this->checkIfNodeMaster();
             $tasks = $this->_discoverTasks();
             if (!count($tasks)) {
                 throw new Exception(_('No plugin tasks to run'));
