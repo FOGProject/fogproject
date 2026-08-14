@@ -37,19 +37,10 @@ $decodePath = urldecode(
 );
 $imagePaths = Route::getIds('storagenode', [], 'path');
 $snapinPaths = Route::getIds('storagenode', [], 'snapinpath');
-$validPaths = [
-    '/var/log/apache2',
-    '/var/log/fog',
-    // ADR 0010: the plugin runner's own log directory. It runs as the web
-    // user, so its log cannot live in the root-owned directory beside the
-    // other eight, and the glob below descends exactly one level. Must stay
-    // in step with $logPaths in StorageNode::_getData(), which is what asks
-    // for it -- a path requested but not listed here is silently dropped.
-    '/var/log/fog/plugins',
-    '/var/log/httpd',
-    '/var/log/nginx',
-    '/var/log/php*'
-];
+// The same list StorageNode::_getData() asks with. It has to be, or a path it
+// requests is dropped here with no error -- which is why it is no longer a
+// second copy.
+$validPaths = FOGLogPaths::directories();
 $validPaths = array_merge(
     $imagePaths,
     $snapinPaths,

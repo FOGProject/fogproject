@@ -65,31 +65,16 @@ function vals($reverse, $HookManager, $lines, $file)
         '#^%s$#',
         $folder
     );
-    // Matched ANCHORED and exact against the requested file's dirname, so a
-    // subdirectory is not covered by its parent being listed -- each one has
-    // to appear in its own right.
+    // The reader's view of FOGLogPaths: separator-terminated and wildcard
+    // free, because the pattern above is anchored -- so a subdirectory is NOT
+    // covered by its parent being listed, and each has to appear in its own
+    // right. This shares source data with the enumeration sites but not the
+    // matching: theirs compiles the requested path as an unanchored regex,
+    // and this is an authorization list.
     //
-    // ADR 0010: the plugin runner runs as the web user and keeps its log in a
-    // subdirectory it owns rather than the root-owned directory beside the
-    // other eight. Both spellings are listed because the viewer reaches it as
-    // /var/log/fog (a symlink the installer makes) while FOG_LOG_DIR is the
-    // real path, and either can arrive here depending on SERVICE_LOG_PATH.
-    //
-    // A plugin shipping a log of its own outside these should add its folder
-    // through the LOG_FOLDERS hook below rather than by editing this list.
-    $folders = [
-        '/var/log/fog/',
-        '/var/log/fog/plugins/',
-        FOG_LOG_DIR . DS,
-        FOG_LOG_DIR . DS . 'plugins' . DS,
-        '/var/log/httpd/',
-        '/var/log/apache2/',
-        '/var/log/nginx/',
-        '/var/log/php-fpm/',
-        '/var/log/php5.6-fpm/',
-        '/var/log/php5-fpm/',
-        '/var/log/php7.0-fpm/'
-    ];
+    // A plugin shipping a log outside these should add its folder through the
+    // LOG_FOLDERS hook below rather than by editing FOGLogPaths.
+    $folders = FOGLogPaths::readable();
     $HookManager->processEvent(
         'LOG_FOLDERS',
         ['folders' => &$folders]
