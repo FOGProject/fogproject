@@ -8392,6 +8392,9 @@ msgstr "Temporäre Datei konnte nicht gelesen werden."
 msgid "could not be killed"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
 
+msgid "cycles since last line"
+msgstr ""
+
 msgid "day"
 msgstr "Tag"
 

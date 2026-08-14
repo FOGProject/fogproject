@@ -8390,6 +8390,9 @@ msgstr "Não foi possível ler arquivo temporário"
 msgid "could not be killed"
 msgstr "Não foi possível ler arquivo temporário"
 
+msgid "cycles since last line"
+msgstr ""
+
 msgid "day"
 msgstr ""
 

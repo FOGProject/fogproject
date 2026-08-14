@@ -8389,6 +8389,9 @@ msgstr "Could not read temp file"
 msgid "could not be killed"
 msgstr "Could not read temp file"
 
+msgid "cycles since last line"
+msgstr ""
+
 msgid "day"
 msgstr ""
 

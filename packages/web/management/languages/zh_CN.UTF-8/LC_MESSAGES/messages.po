@@ -8390,6 +8390,9 @@ msgstr "无法读取临时文件"
 msgid "could not be killed"
 msgstr "无法读取临时文件"
 
+msgid "cycles since last line"
+msgstr ""
+
 msgid "day"
 msgstr ""
 

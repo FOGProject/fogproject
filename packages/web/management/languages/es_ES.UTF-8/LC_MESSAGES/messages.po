@@ -8578,6 +8578,9 @@ msgstr "No se pudo leer el archivo temporal"
 msgid "could not be killed"
 msgstr "No se pudo leer el archivo temporal"
 
+msgid "cycles since last line"
+msgstr ""
+
 msgid "day"
 msgstr ""
 
