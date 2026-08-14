@@ -26,15 +26,7 @@ msgstr " * Imagegröße ist global deaktiviert"
 msgid " * Multicast service is globally disabled"
 msgstr " * Multicast Service ist global deaktiviert"
 
-#, fuzzy
-msgid " * No plugin tasks to run"
-msgstr "Keine gültigen Tasks gefunden"
-
 msgid " * Ping hosts is globally disabled"
-msgstr "* Anpingen der Hosts ist global deaktiviert"
-
-#, fuzzy
-msgid " * Plugin runner is globally disabled"
 msgstr "* Anpingen der Hosts ist global deaktiviert"
 
 #, fuzzy
@@ -46,14 +38,6 @@ msgstr "* Snapin Replikation ist global deaktiviert"
 
 msgid " * Task Scheduler is globally disabled"
 msgstr "* Taskplaner ist global deaktiviert"
-
-#, fuzzy
-msgid " * The plugin system is disabled"
-msgstr "* Anpingen der Hosts ist global deaktiviert"
-
-#, fuzzy
-msgid " * This server is not a master node"
-msgstr " | Dies ist nicht der Master-Knoten"
 
 #, fuzzy
 msgid " to login"
@@ -4852,6 +4836,10 @@ msgid "No open slots"
 msgstr "Keine offenen Slots"
 
 #, fuzzy
+msgid "No plugin tasks to run"
+msgstr "Keine gültigen Tasks gefunden"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "Snapin geschützt"
 
@@ -5459,6 +5447,10 @@ msgstr "Plugin-Name"
 #, fuzzy
 msgid "Plugin installed!"
 msgstr "Plugin-Name"
+
+#, fuzzy
+msgid "Plugin runner is globally disabled"
+msgstr "* Anpingen der Hosts ist global deaktiviert"
 
 #, fuzzy
 msgid "Plugin uninstalled!"
@@ -7257,6 +7249,10 @@ msgstr "Home-Verzeichnis speichern"
 msgid "The plugin directory does not exist."
 msgstr "Methode ist nicht vorhanden"
 
+#, fuzzy
+msgid "The plugin system is disabled"
+msgstr "* Anpingen der Hosts ist global deaktiviert"
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -7410,6 +7406,10 @@ msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
+
+#, fuzzy
+msgid "This server is not a master node"
+msgstr " | Dies ist nicht der Master-Knoten"
 
 msgid "This servers ip(s)"
 msgstr "IP(s) dieses Servers"

@@ -43,6 +43,21 @@ class PluginRunner extends FOGService
      */
     const MIN_INTERVAL = 60;
     /**
+     * Seconds before an unchanged idle reason is repeated in the log.
+     *
+     * The loop wakes every PLUGINRUNNERSLEEPTIME and the normal state of a
+     * server with no plugin tasks is to have nothing to do, so logging the
+     * reason every pass writes ~1440 identical lines a day and rotates the
+     * interesting history out from under itself.
+     *
+     * Not silenced altogether: a daemon that says nothing for days is the
+     * failure ADR 0010 decision 4 exists to expose. Once an hour is enough to
+     * prove it is alive, and a CHANGE of reason is always logged at once.
+     *
+     * @var int
+     */
+    const IDLE_REPEAT = 3600;
+    /**
      * Is the service globally enabled.
      *
      * @var int
@@ -65,6 +80,16 @@ class PluginRunner extends FOGService
      * @var array
      */
     private $_nextRun = [];
+    /**
+     * The last idle reason logged, and when.
+     *
+     * @var string|null
+     */
+    private $_lastIdle = null;
+    /**
+     * @var int
+     */
+    private $_lastIdleAt = 0;
     /**
      * Initializes the PluginRunner class.
      *
@@ -266,24 +291,27 @@ class PluginRunner extends FOGService
             self::$_runnerOn = self::getSetting('PLUGINRUNNERGLOBALENABLED');
             if (self::$_runnerOn < 1) {
                 throw new Exception(
-                    _(' * Plugin runner is globally disabled')
+                    _('Plugin runner is globally disabled')
                 );
             }
             if (!self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                throw new Exception(_(' * The plugin system is disabled'));
+                throw new Exception(_('The plugin system is disabled'));
             }
             // Every other daemon gates on this, and plugin tasks need it for
             // the same reason: without it each node in a group runs every
             // task, so a task that sends a notification sends one per node.
             if (!count($this->checkIfNodeMaster() ?: [])) {
                 throw new Exception(
-                    _(' * This server is not a master node')
+                    _('This server is not a master node')
                 );
             }
             $tasks = $this->_discoverTasks();
             if (!count($tasks)) {
-                throw new Exception(_(' * No plugin tasks to run'));
+                throw new Exception(_('No plugin tasks to run'));
             }
+            // Reached work, so the next idle spell is a state change and gets
+            // logged immediately rather than waiting out IDLE_REPEAT.
+            $this->_lastIdle = null;
             // Drop schedule entries for tasks that have gone -- a plugin
             // deactivated, upgraded, or Forgotten. Left in place they are a
             // slow leak in a process meant to run for months.
@@ -311,12 +339,37 @@ class PluginRunner extends FOGService
                     + $interval;
             }
         } catch (Exception $e) {
-            self::outall(
-                sprintf(
-                    ' * %s',
-                    $e->getMessage()
-                )
-            );
+            $this->_logIdle($e->getMessage());
         }
+    }
+    /**
+     * Logs a reason the cycle did no work, throttled to one line per
+     * IDLE_REPEAT while the reason is unchanged.
+     *
+     * The messages these carry are not errors -- "no plugin tasks to run" is
+     * the normal state of a stock server -- but they are the only proof the
+     * loop is turning, so they are throttled rather than dropped. A change of
+     * reason is a state change and always logs at once.
+     *
+     * @param string $message the reason, without the ' * ' prefix
+     *
+     * @return void
+     */
+    private function _logIdle($message)
+    {
+        $now = self::niceDate()->getTimestamp();
+        if ($message === $this->_lastIdle
+            && ($now - $this->_lastIdleAt) < self::IDLE_REPEAT
+        ) {
+            return;
+        }
+        $this->_lastIdle = $message;
+        $this->_lastIdleAt = $now;
+        self::outall(
+            sprintf(
+                ' * %s',
+                $message
+            )
+        );
     }
 }

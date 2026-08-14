@@ -31,16 +31,8 @@ msgstr "Snapin with that name already exists"
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
-#, fuzzy
-msgid " * No plugin tasks to run"
-msgstr "No valid class sent"
-
 msgid " * Ping hosts is globally disabled"
 msgstr ""
-
-#, fuzzy
-msgid " * Plugin runner is globally disabled"
-msgstr "Snapin with that name already exists"
 
 #, fuzzy
 msgid " * Snapin hash is globally disabled"
@@ -51,13 +43,6 @@ msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
-
-msgid " * The plugin system is disabled"
-msgstr ""
-
-#, fuzzy
-msgid " * This server is not a master node"
-msgstr " | This is not the master node"
 
 #, fuzzy
 msgid " to login"
@@ -4850,6 +4835,10 @@ msgid "No open slots"
 msgstr "No open slots"
 
 #, fuzzy
+msgid "No plugin tasks to run"
+msgstr "No valid class sent"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "Snapin updated"
 
@@ -5457,6 +5446,10 @@ msgstr "Plugin Name"
 #, fuzzy
 msgid "Plugin installed!"
 msgstr "Plugin Name"
+
+#, fuzzy
+msgid "Plugin runner is globally disabled"
+msgstr "Snapin with that name already exists"
 
 #, fuzzy
 msgid "Plugin uninstalled!"
@@ -7253,6 +7246,10 @@ msgstr "Directory"
 msgid "The plugin directory does not exist."
 msgstr "Method does not exist"
 
+#, fuzzy
+msgid "The plugin system is disabled"
+msgstr "Donations are disabled"
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -7406,6 +7403,10 @@ msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
+
+#, fuzzy
+msgid "This server is not a master node"
+msgstr " | This is not the master node"
 
 msgid "This servers ip(s)"
 msgstr ""

@@ -30,14 +30,7 @@ msgstr ""
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
-#, fuzzy
-msgid " * No plugin tasks to run"
-msgstr "Ninguna clase válida enviado"
-
 msgid " * Ping hosts is globally disabled"
-msgstr ""
-
-msgid " * Plugin runner is globally disabled"
 msgstr ""
 
 msgid " * Snapin hash is globally disabled"
@@ -47,12 +40,6 @@ msgid " * Snapin replication is globally disabled"
 msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
-msgstr ""
-
-msgid " * The plugin system is disabled"
-msgstr ""
-
-msgid " * This server is not a master node"
 msgstr ""
 
 #, fuzzy
@@ -4978,6 +4965,10 @@ msgid "No open slots"
 msgstr ""
 
 #, fuzzy
+msgid "No plugin tasks to run"
+msgstr "Ninguna clase válida enviado"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "Nombre snapin"
 
@@ -5596,6 +5587,10 @@ msgstr "Nombre de la impresora"
 
 #, fuzzy
 msgid "Plugin installed!"
+msgstr "Nombre de la impresora"
+
+#, fuzzy
+msgid "Plugin runner is globally disabled"
 msgstr "Nombre de la impresora"
 
 #, fuzzy
@@ -7440,6 +7435,10 @@ msgstr "Directorio"
 msgid "The plugin directory does not exist."
 msgstr "Método no existe"
 
+#, fuzzy
+msgid "The plugin system is disabled"
+msgstr "Ancho por defecto"
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -7594,6 +7593,10 @@ msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
+
+#, fuzzy
+msgid "This server is not a master node"
+msgstr "La dirección MAC ya está en uso por otro host"
 
 msgid "This servers ip(s)"
 msgstr ""

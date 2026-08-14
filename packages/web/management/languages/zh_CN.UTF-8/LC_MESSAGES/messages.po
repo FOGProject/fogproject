@@ -31,16 +31,8 @@ msgstr "管理单元与该名称已经存在"
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
-#, fuzzy
-msgid " * No plugin tasks to run"
-msgstr "发送无有效类"
-
 msgid " * Ping hosts is globally disabled"
 msgstr ""
-
-#, fuzzy
-msgid " * Plugin runner is globally disabled"
-msgstr "管理单元与该名称已经存在"
 
 #, fuzzy
 msgid " * Snapin hash is globally disabled"
@@ -51,13 +43,6 @@ msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
-
-msgid " * The plugin system is disabled"
-msgstr ""
-
-#, fuzzy
-msgid " * This server is not a master node"
-msgstr "|这不是主节点"
 
 #, fuzzy
 msgid " to login"
@@ -4851,6 +4836,10 @@ msgid "No open slots"
 msgstr "没有开口槽"
 
 #, fuzzy
+msgid "No plugin tasks to run"
+msgstr "发送无有效类"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "更新管理单元"
 
@@ -5458,6 +5447,10 @@ msgstr "插件名称"
 #, fuzzy
 msgid "Plugin installed!"
 msgstr "插件名称"
+
+#, fuzzy
+msgid "Plugin runner is globally disabled"
+msgstr "管理单元与该名称已经存在"
 
 #, fuzzy
 msgid "Plugin uninstalled!"
@@ -7254,6 +7247,10 @@ msgstr "目录"
 msgid "The plugin directory does not exist."
 msgstr "方法不存在"
 
+#, fuzzy
+msgid "The plugin system is disabled"
+msgstr "捐款将被禁用"
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -7407,6 +7404,10 @@ msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
+
+#, fuzzy
+msgid "This server is not a master node"
+msgstr "|这不是主节点"
 
 msgid "This servers ip(s)"
 msgstr ""

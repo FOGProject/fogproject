@@ -32,15 +32,7 @@ msgstr "* La dimensione dell'immagine è disattivata globalmente"
 msgid " * Multicast service is globally disabled"
 msgstr "* Il servizio Multicast è disabilitato a livello globale"
 
-#, fuzzy
-msgid " * No plugin tasks to run"
-msgstr "Non sono stati trovati compiti validi"
-
 msgid " * Ping hosts is globally disabled"
-msgstr "* Gli host Ping sono disattivati a livello globale"
-
-#, fuzzy
-msgid " * Plugin runner is globally disabled"
 msgstr "* Gli host Ping sono disattivati a livello globale"
 
 msgid " * Snapin hash is globally disabled"
@@ -51,14 +43,6 @@ msgstr "* La replica Snapin è disattivata globalmente"
 
 msgid " * Task Scheduler is globally disabled"
 msgstr "* Il task scheduler è disattivato a livello globale"
-
-#, fuzzy
-msgid " * The plugin system is disabled"
-msgstr "* Gli host Ping sono disattivati a livello globale"
-
-#, fuzzy
-msgid " * This server is not a master node"
-msgstr " | Questo non è il nodo master"
 
 #, fuzzy
 msgid " to login"
@@ -4668,6 +4652,10 @@ msgid "No open slots"
 msgstr "Nessuno slot aperti"
 
 #, fuzzy
+msgid "No plugin tasks to run"
+msgstr "Non sono stati trovati compiti validi"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "Snapin Protetto"
 
@@ -5255,6 +5243,10 @@ msgstr "Nome Plugin"
 #, fuzzy
 msgid "Plugin installed!"
 msgstr "Nome Plugin"
+
+#, fuzzy
+msgid "Plugin runner is globally disabled"
+msgstr "* Gli host Ping sono disattivati a livello globale"
 
 #, fuzzy
 msgid "Plugin uninstalled!"
@@ -6965,6 +6957,10 @@ msgstr "directory"
 msgid "The plugin directory does not exist."
 msgstr "La funzione non esiste"
 
+#, fuzzy
+msgid "The plugin system is disabled"
+msgstr "* Gli host Ping sono disattivati a livello globale"
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -7112,6 +7108,10 @@ msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
+
+#, fuzzy
+msgid "This server is not a master node"
+msgstr " | Questo non è il nodo master"
 
 msgid "This servers ip(s)"
 msgstr "IP di questo server"

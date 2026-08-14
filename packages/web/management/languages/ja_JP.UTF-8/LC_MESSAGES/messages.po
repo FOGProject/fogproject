@@ -24,15 +24,7 @@ msgstr "* イメージサイズ機能は全体設定で無効になっていま�
 msgid " * Multicast service is globally disabled"
 msgstr "* マルチキャストサービスは全体設定で無効になっています"
 
-#, fuzzy
-msgid " * No plugin tasks to run"
-msgstr "有効なタスクが見つかりません"
-
 msgid " * Ping hosts is globally disabled"
-msgstr "* ホストのPing機能は全体設定で無効になっています"
-
-#, fuzzy
-msgid " * Plugin runner is globally disabled"
 msgstr "* ホストのPing機能は全体設定で無効になっています"
 
 msgid " * Snapin hash is globally disabled"
@@ -43,14 +35,6 @@ msgstr "* スナップインレプリケーションは全体設定で無効に�
 
 msgid " * Task Scheduler is globally disabled"
 msgstr "* タスクスケジューラは全体設定で無効になっています"
-
-#, fuzzy
-msgid " * The plugin system is disabled"
-msgstr "このプラグインはインストールされていません"
-
-#, fuzzy
-msgid " * This server is not a master node"
-msgstr "| これはマスターノードではありません"
 
 #, fuzzy
 msgid " to login"
@@ -4620,6 +4604,10 @@ msgid "No open slots"
 msgstr "空きスロットがありません"
 
 #, fuzzy
+msgid "No plugin tasks to run"
+msgstr "有効なタスクが見つかりません"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "ロールが選択されていません"
 
@@ -5207,6 +5195,10 @@ msgstr "プラグインをインストールしました！"
 #, fuzzy
 msgid "Plugin installed!"
 msgstr "プラグインをインストールしました！"
+
+#, fuzzy
+msgid "Plugin runner is globally disabled"
+msgstr "* ホストのPing機能は全体設定で無効になっています"
 
 #, fuzzy
 msgid "Plugin uninstalled!"
@@ -6889,6 +6881,10 @@ msgstr "ディレクトリ"
 msgid "The plugin directory does not exist."
 msgstr "関数が存在しません"
 
+#, fuzzy
+msgid "The plugin system is disabled"
+msgstr "このプラグインはインストールされていません"
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -7036,6 +7032,10 @@ msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
+
+#, fuzzy
+msgid "This server is not a master node"
+msgstr "| これはマスターノードではありません"
 
 msgid "This servers ip(s)"
 msgstr "このサーバーの IP アドレス"

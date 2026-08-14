@@ -10,13 +10,7 @@ msgstr ""
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
-msgid " * No plugin tasks to run"
-msgstr ""
-
 msgid " * Ping hosts is globally disabled"
-msgstr ""
-
-msgid " * Plugin runner is globally disabled"
 msgstr ""
 
 msgid " * Snapin hash is globally disabled"
@@ -26,12 +20,6 @@ msgid " * Snapin replication is globally disabled"
 msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
-msgstr ""
-
-msgid " * The plugin system is disabled"
-msgstr ""
-
-msgid " * This server is not a master node"
 msgstr ""
 
 msgid " to login"
@@ -4085,6 +4073,9 @@ msgstr ""
 msgid "No open slots"
 msgstr ""
 
+msgid "No plugin tasks to run"
+msgstr ""
+
 msgid "No plugins selected."
 msgstr ""
 
@@ -4599,6 +4590,9 @@ msgid "Plugin deactivated!"
 msgstr ""
 
 msgid "Plugin installed!"
+msgstr ""
+
+msgid "Plugin runner is globally disabled"
 msgstr ""
 
 msgid "Plugin uninstalled!"
@@ -6115,6 +6109,9 @@ msgstr ""
 msgid "The plugin directory does not exist."
 msgstr ""
 
+msgid "The plugin system is disabled"
+msgstr ""
+
 msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
@@ -6253,6 +6250,9 @@ msgid "This section allows you to upload user defined reports that may not be a 
 msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
+msgstr ""
+
+msgid "This server is not a master node"
 msgstr ""
 
 msgid "This servers ip(s)"
