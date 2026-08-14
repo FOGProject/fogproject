@@ -59,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.3353');
+        define('FOG_VERSION', '1.6.0-beta.3354');
         define('FOG_CHANNEL', 'Beta');
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php. It is NOT the element count -- it has drifted
