@@ -97,4 +97,30 @@ abstract class PluginTask extends FOGBase
     {
         return $this->name ?: get_class($this);
     }
+    /**
+     * Writes a line to the runner's log, tagged with this task.
+     *
+     * Exists so that a task's own output lands between the start and finish
+     * lines the runner writes around it, in the one file an admin is already
+     * tailing. Without it every plugin invents its own destination and the
+     * log the runner keeps is only ever half the story.
+     *
+     * FOGService::$log is a single shared static, set by PluginRunner's
+     * constructor, so the static call reaches the running daemon's log rather
+     * than needing the task to hold a reference to it.
+     *
+     * @param string $message the line to write
+     *
+     * @return void
+     */
+    protected function log($message)
+    {
+        PluginRunner::outall(
+            sprintf(
+                '   - [%s] %s',
+                $this->label(),
+                $message
+            )
+        );
+    }
 }
