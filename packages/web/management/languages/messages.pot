@@ -2432,6 +2432,9 @@ msgstr ""
 msgid "Hello World added!"
 msgstr ""
 
+msgid "Hello World entries"
+msgstr ""
+
 msgid "Hello World update failed!"
 msgstr ""
 
@@ -4560,6 +4563,9 @@ msgid "Plugin Management"
 msgstr ""
 
 msgid "Plugin Name"
+msgstr ""
+
+msgid "Plugin Runner"
 msgstr ""
 
 msgid "Plugin Uninstall Fail"

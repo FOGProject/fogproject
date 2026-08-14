@@ -2947,6 +2947,10 @@ msgid "Hello World added!"
 msgstr "nombre de host"
 
 #, fuzzy
+msgid "Hello World entries"
+msgstr "nombre de host"
+
+#, fuzzy
 msgid "Hello World update failed!"
 msgstr "actualización Valoración falló"
 
@@ -5548,6 +5552,10 @@ msgstr "Sin administración de la impresora"
 
 #, fuzzy
 msgid "Plugin Name"
+msgstr "Nombre de la impresora"
+
+#, fuzzy
+msgid "Plugin Runner"
 msgstr "Nombre de la impresora"
 
 msgid "Plugin Uninstall Fail"

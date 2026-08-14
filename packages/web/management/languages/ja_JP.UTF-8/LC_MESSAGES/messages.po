@@ -2762,6 +2762,10 @@ msgid "Hello World added!"
 msgstr "ホストを追加しました！"
 
 #, fuzzy
+msgid "Hello World entries"
+msgstr "ホストを追加しました！"
+
+#, fuzzy
 msgid "Hello World update failed!"
 msgstr "ロールの更新に失敗しました！"
 
@@ -5155,6 +5159,10 @@ msgstr "プラグイン管理"
 
 msgid "Plugin Name"
 msgstr "プラグイン名"
+
+#, fuzzy
+msgid "Plugin Runner"
+msgstr "プラグインをインストールしました！"
 
 #, fuzzy
 msgid "Plugin Uninstall Fail"

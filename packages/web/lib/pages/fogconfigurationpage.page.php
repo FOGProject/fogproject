@@ -2641,6 +2641,7 @@ class FOGConfigurationPage extends FOGPage
                     $imagesizelogname,
                     $multicastlogname,
                     $pinghostlogname,
+                    $pluginrunnerlogname,
                     $schedulerlogname,
                     $servicelogname,
                     $snapinhashlogname,
@@ -2651,6 +2652,7 @@ class FOGConfigurationPage extends FOGPage
                     'IMAGESIZELOGFILENAME',
                     'MULTICASTLOGFILENAME',
                     'PINGHOSTLOGFILENAME',
+                    'PLUGINRUNNERLOGFILENAME',
                     'SCHEDULERLOGFILENAME',
                     'SERVICEMASTERLOGFILENAME',
                     'SNAPINHASHLOGFILENAME',
@@ -2696,6 +2698,11 @@ class FOGConfigurationPage extends FOGPage
                     $fogfiles
                 );
                 $filedeletequeuelog = array_shift($filedeletequeuelog);
+                $pluginrunnerlog = preg_grep(
+                    '#('.$pluginrunnerlogname.'$)#i',
+                    $fogfiles
+                );
+                $pluginrunnerlog = array_shift($pluginrunnerlog);
                 $svcmasterlog = preg_grep(
                     '#('.$servicelogname.'$)#i',
                     $fogfiles
@@ -2789,6 +2796,15 @@ class FOGConfigurationPage extends FOGPage
                     ) => (
                         $filedeletequeuelog ?
                         $filedeletequeuelog :
+                        null
+                    ),
+                    (
+                        $pluginrunnerlog ?
+                        _('Plugin Runner') :
+                        null
+                    ) => (
+                        $pluginrunnerlog ?
+                        $pluginrunnerlog :
                         null
                     ),
                 ];

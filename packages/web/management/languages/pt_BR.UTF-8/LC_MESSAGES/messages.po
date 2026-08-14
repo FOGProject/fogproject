@@ -2890,6 +2890,10 @@ msgid "Hello World added!"
 msgstr "hospedar acrescentou"
 
 #, fuzzy
+msgid "Hello World entries"
+msgstr "hospedar acrescentou"
+
+#, fuzzy
 msgid "Hello World update failed!"
 msgstr "atualização do utilizador falhou"
 
@@ -5407,6 +5411,10 @@ msgid "Plugin Management"
 msgstr "Gestão Plugin"
 
 msgid "Plugin Name"
+msgstr "Nome Plugin"
+
+#, fuzzy
+msgid "Plugin Runner"
 msgstr "Nome Plugin"
 
 msgid "Plugin Uninstall Fail"

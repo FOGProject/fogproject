@@ -2890,6 +2890,10 @@ msgid "Hello World added!"
 msgstr "添加主机"
 
 #, fuzzy
+msgid "Hello World entries"
+msgstr "添加主机"
+
+#, fuzzy
 msgid "Hello World update failed!"
 msgstr "用户更新失败"
 
@@ -5407,6 +5411,10 @@ msgid "Plugin Management"
 msgstr "插件管理"
 
 msgid "Plugin Name"
+msgstr "插件名称"
+
+#, fuzzy
+msgid "Plugin Runner"
 msgstr "插件名称"
 
 msgid "Plugin Uninstall Fail"

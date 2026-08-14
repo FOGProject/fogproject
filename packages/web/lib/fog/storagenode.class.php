@@ -272,6 +272,13 @@ class StorageNode extends FOGController
         $logPaths = [
             '/var/log/apache2',
             '/var/log/fog',
+            // ADR 0010: FOGPluginRunner runs as the web user and so keeps its
+            // log in a subdirectory it owns, rather than in the root-owned
+            // one beside the other eight. getfiles.php globs a single level,
+            // so without naming the subdirectory here its log is invisible to
+            // the log viewer -- the daemon would be running and unreadable
+            // from the UI, which is half the observability the ADR promised.
+            '/var/log/fog/plugins',
             '/var/log/httpd',
             '/var/log/nginx',
             '/var/log/php*',
