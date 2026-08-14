@@ -51,12 +51,23 @@ class PluginRunner extends FOGService
      * interesting history out from under itself.
      *
      * Not silenced altogether: a daemon that says nothing for days is the
-     * failure ADR 0010 decision 4 exists to expose. Once an hour is enough to
-     * prove it is alive, and a CHANGE of reason is always logged at once.
+     * failure ADR 0010 decision 4 exists to expose. A CHANGE of reason is
+     * always logged at once.
+     *
+     * This was an hour, and an hour was too long. A throttled idle line is
+     * the ONLY proof this daemon is still turning, so the throttle window is
+     * also the window in which "idle" and "wedged" are indistinguishable --
+     * a freshly restarted runner looked frozen to its own maintainer for the
+     * first hour of its life. Fifteen minutes costs 96 lines a day, which is
+     * 7% of the flood that prompted the throttle, and brings the worst-case
+     * "is it alive?" answer down from a working morning to a coffee break.
+     * The cycle count on each line closes the rest of the gap: it says how
+     * many passes happened in the silence, so one line proves the loop
+     * turned rather than merely that the process is resident.
      *
      * @var int
      */
-    const IDLE_REPEAT = 3600;
+    const IDLE_REPEAT = 900;
     /**
      * Is the service globally enabled.
      *
@@ -90,6 +101,16 @@ class PluginRunner extends FOGService
      * @var int
      */
     private $_lastIdleAt = 0;
+    /**
+     * Cycles that went by without a line since the last one was written.
+     *
+     * Reported on the next line so a reader can tell a loop that is turning
+     * quietly from one that has stopped -- without it, the two produce
+     * byte-identical logs.
+     *
+     * @var int
+     */
+    private $_idleSkipped = 0;
     /**
      * Initializes the PluginRunner class.
      *
@@ -310,8 +331,11 @@ class PluginRunner extends FOGService
                 throw new Exception(_('No plugin tasks to run'));
             }
             // Reached work, so the next idle spell is a state change and gets
-            // logged immediately rather than waiting out IDLE_REPEAT.
+            // logged immediately rather than waiting out IDLE_REPEAT. The
+            // skipped count goes with it: it measures a silence, and the run
+            // lines below have just ended the one it was counting.
             $this->_lastIdle = null;
+            $this->_idleSkipped = 0;
             // Drop schedule entries for tasks that have gone -- a plugin
             // deactivated, upgraded, or Forgotten. Left in place they are a
             // slow leak in a process meant to run for months.
@@ -361,14 +385,28 @@ class PluginRunner extends FOGService
         if ($message === $this->_lastIdle
             && ($now - $this->_lastIdleAt) < self::IDLE_REPEAT
         ) {
+            ++$this->_idleSkipped;
             return;
+        }
+        // Only once there is a silence to account for. The first line after
+        // a start has nothing behind it, and "(cycles since last line: 0)"
+        // on it would just be noise.
+        $skipped = '';
+        if ($this->_idleSkipped > 0) {
+            $skipped = sprintf(
+                ' (%s: %d)',
+                _('cycles since last line'),
+                $this->_idleSkipped
+            );
         }
         $this->_lastIdle = $message;
         $this->_lastIdleAt = $now;
+        $this->_idleSkipped = 0;
         self::outall(
             sprintf(
-                ' * %s',
-                $message
+                ' * %s%s',
+                $message,
+                $skipped
             )
         );
     }
