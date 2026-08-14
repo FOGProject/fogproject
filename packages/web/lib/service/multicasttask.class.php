@@ -480,17 +480,15 @@ class MulticastTask extends FOGService
      */
     public function getUDPCastLogFile()
     {
-        $keys = [
-            'MULTICASTLOGFILENAME',
-            'SERVICE_LOG_PATH'
-        ];
-        list(
-            $filenam,
-            $logpath
-        ) = self::getSetting($keys);
+        // FOG_LOG_DIR rather than the SERVICE_LOG_PATH globalSetting, for the
+        // reason spelled out in FOGService::__construct(): the setting is a
+        // record of where the installer put the logs, not a second control
+        // over it. This file has to land beside the other service logs or the
+        // log viewer cannot reach it.
+        $filenam = self::getSetting('MULTICASTLOGFILENAME');
         return $this->altLog = sprintf(
-            '/%s/%s.udpcast.%s',
-            trim((string)$logpath, '/'),
+            '%s%s.udpcast.%s',
+            rtrim(FOG_LOG_DIR, DS) . DS,
             $filenam,
             $this->getID()
         );

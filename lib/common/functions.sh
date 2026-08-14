@@ -532,17 +532,25 @@ updateStorageNodeCredentials() {
     curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}/maintenance/create_update_node.php
     echo "Done"
 }
-# Mirrors fog_git_path/fog_update_channel/extraServerNames into globalSettings
-# so the GUI can show them without SSH. Like fogprogramdir's mirror into
-# /etc/fog/fog.conf (GH-850), these are RECORDS, not controls: .fogsettings
-# stays the source of truth, and the next installfog.sh/updatefog.sh run
-# overwrites whatever an admin may have hand-edited here through the generic
-# Settings tab.
+# Mirrors fog_git_path/fog_update_channel/extraServerNames/servicelogs into
+# globalSettings so the GUI can show them without SSH. Like fogprogramdir's
+# mirror into /etc/fog/fog.conf (GH-850), these are RECORDS, not controls:
+# .fogsettings stays the source of truth, and the next installfog.sh/
+# updatefog.sh run overwrites whatever an admin may have hand-edited here
+# through the generic Settings tab.
 recordGitUpdateSettings() {
     dots "Recording fog_git_path/update channel/extra server names"
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"$fog_git_path\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_git_path\"" $mysqldbname >>$error_log 2>&1
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, staging, or dev.', \"$fog_update_channel\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_update_channel\"" $mysqldbname >>$error_log 2>&1
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_EXTRA_SERVER_NAMES', 'Extra vhost/certificate name(s) this server answers to, beyond the primary hostname and detected IPs. Set via --extra-server-name -- editing it here has no effect on the next update.', \"$extraServerNames\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$extraServerNames\"" $mysqldbname >>$error_log 2>&1
+    # SERVICE_LOG_PATH used to be an independent control, and nothing kept it
+    # in step with where the install actually put its logs. Relocating
+    # $fogprogramdir (GH-850) moved $servicelogs, FOG_LOG_DIR and the
+    # /var/log/fog link with it and left this row saying /opt/fog/log -- so the
+    # daemons wrote to one directory while the log viewer read another, with no
+    # error anywhere. Recording it makes the two agree by construction. The
+    # daemons take FOG_LOG_DIR now, so this really is a record.
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('SERVICE_LOG_PATH', 'Where the linux side fog services write their logs. Recorded automatically by installfog.sh from the install path -- editing it here has no effect. To move the logs, re-run the installer with a different base path.', \"${servicelogs%/}/\", 'FOG Linux Service Logs') ON DUPLICATE KEY UPDATE settingValue=\"${servicelogs%/}/\", settingDesc=VALUES(settingDesc)" $mysqldbname >>$error_log 2>&1
     errorStat $?
 }
 backupDB() {

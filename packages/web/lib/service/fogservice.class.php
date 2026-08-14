@@ -71,14 +71,21 @@ abstract class FOGService extends FOGBase
     public function __construct()
     {
         parent::__construct();
-        $logpath = trim(trim(self::getSetting('SERVICE_LOG_PATH'), '/'));
-        if (!$logpath) {
-            $logpath = 'opt/fog/log';
-        }
-        self::$logpath = sprintf(
-            '/%s/',
-            $logpath
-        );
+        // FOG_LOG_DIR, not the SERVICE_LOG_PATH globalSetting.
+        //
+        // The two were independent and nothing kept them in step. FOG_LOG_DIR
+        // is derived from the installer's base path, and so are $servicelogs
+        // and the /var/log/fog symlink the log viewer reads through -- but the
+        // setting stayed at whatever the schema seeded. Relocating the install
+        // (GH-850) therefore left the daemons writing to /opt/fog/log while
+        // everything else had moved, with nothing reporting it; editing the
+        // setting in the UI produced the same split the other way round.
+        //
+        // The installer now records the setting from $servicelogs
+        // (recordGitUpdateSettings), so it shows where logs go and stays true;
+        // reading it back here would just reintroduce the second source of
+        // truth it exists to document.
+        self::$logpath = rtrim(FOG_LOG_DIR, DS) . DS;
         self::$knownips = Route::getIds(
             'storagenode',
             ['isEnabled' => 1],

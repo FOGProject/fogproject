@@ -128,10 +128,10 @@ class PluginRunner extends FOGService
             ),
             DS
         );
-        // Best effort. The installer creates and chowns this, but
-        // SERVICE_LOG_PATH is an admin-editable setting, and a daemon that
-        // silently writes nowhere because a directory is missing is precisely
-        // the failure this service is built to make visible.
+        // Best effort. The installer creates and chowns this, but a daemon
+        // that silently writes nowhere because a directory is missing is
+        // precisely the failure this service is built to make visible -- and
+        // this one cannot create it as root the way the other eight could.
         if (!is_dir($logdir)) {
             @mkdir($logdir, 0755, true);
         }
