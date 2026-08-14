@@ -32,8 +32,16 @@ msgstr "SnapIn avec ce nom existe déjà"
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
+#, fuzzy
+msgid " * No plugin tasks to run"
+msgstr "Aucune classe valide envoyé"
+
 msgid " * Ping hosts is globally disabled"
 msgstr ""
+
+#, fuzzy
+msgid " * Plugin runner is globally disabled"
+msgstr "SnapIn avec ce nom existe déjà"
 
 #, fuzzy
 msgid " * Snapin hash is globally disabled"
@@ -44,6 +52,13 @@ msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
+
+msgid " * The plugin system is disabled"
+msgstr ""
+
+#, fuzzy
+msgid " * This server is not a master node"
+msgstr " | Cela ne veut pas le nœud maître"
 
 #, fuzzy
 msgid " to login"
@@ -6340,6 +6355,9 @@ msgstr "Il n'y a rien à répliquer"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -7063,6 +7081,14 @@ msgstr "Type de tâche n'est pas valide"
 msgid "Task Types"
 msgstr "Types de tâches"
 
+#, fuzzy
+msgid "Task failed"
+msgstr "Échec du chargement: %s"
+
+#, fuzzy
+msgid "Task finished"
+msgstr "Tâche Started"
+
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
 
@@ -7076,6 +7102,10 @@ msgstr "Tâche Started"
 
 #, fuzzy
 msgid "Task started for"
+msgstr "Tâche Started"
+
+#, fuzzy
+msgid "Task starting"
 msgstr "Tâche Started"
 
 #, fuzzy
@@ -8248,6 +8278,9 @@ msgstr "Accès"
 #, fuzzy
 msgid "additional macs"
 msgstr "MACs supplémentaires"
+
+msgid "after"
+msgstr ""
 
 #, fuzzy
 msgid "ago"

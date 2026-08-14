@@ -31,8 +31,16 @@ msgstr "管理单元与该名称已经存在"
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
+#, fuzzy
+msgid " * No plugin tasks to run"
+msgstr "发送无有效类"
+
 msgid " * Ping hosts is globally disabled"
 msgstr ""
+
+#, fuzzy
+msgid " * Plugin runner is globally disabled"
+msgstr "管理单元与该名称已经存在"
 
 #, fuzzy
 msgid " * Snapin hash is globally disabled"
@@ -43,6 +51,13 @@ msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
+
+msgid " * The plugin system is disabled"
+msgstr ""
+
+#, fuzzy
+msgid " * This server is not a master node"
+msgstr "|这不是主节点"
 
 #, fuzzy
 msgid " to login"
@@ -6339,6 +6354,9 @@ msgstr "没有什么可以复制"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -7062,6 +7080,14 @@ msgstr "任务类型是无效"
 msgid "Task Types"
 msgstr "任务类型"
 
+#, fuzzy
+msgid "Task failed"
+msgstr "加载失败： %s"
+
+#, fuzzy
+msgid "Task finished"
+msgstr "任务开始"
+
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
 
@@ -7075,6 +7101,10 @@ msgstr "任务开始"
 
 #, fuzzy
 msgid "Task started for"
+msgstr "任务开始"
+
+#, fuzzy
+msgid "Task starting"
 msgstr "任务开始"
 
 #, fuzzy
@@ -8247,6 +8277,9 @@ msgstr "访问"
 #, fuzzy
 msgid "additional macs"
 msgstr "附加的MAC"
+
+msgid "after"
+msgstr ""
 
 #, fuzzy
 msgid "ago"

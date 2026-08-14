@@ -126,7 +126,7 @@ class Initiator
 
         $allpaths = array_unique(array_map('dirname', self::classFileList()));
         set_include_path(implode(PATH_SEPARATOR, $allpaths) . PATH_SEPARATOR . get_include_path());
-        spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php');
+        spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php,.task.php');
         // Fast path: an O(1) class-name => file map (see self::autoload). The
         // built-in autoloader is kept registered behind it as a fallback so any
         // class not yet in the (TTL-cached) map still resolves by include_path
@@ -170,7 +170,7 @@ class Initiator
 
     /**
      * Every autoloadable source file under BASEPATH (*.class.php, *.page.php,
-     * *.event.php, *.hook.php, *.report.php).
+     * *.event.php, *.hook.php, *.report.php, *.task.php).
      *
      * The recursive directory walk this requires is the most expensive part of
      * each request's bootstrap (it stats the whole tree) and was previously run
@@ -260,7 +260,7 @@ class Initiator
             foreach (self::classFileList() as $path) {
                 $base = strtolower(
                     preg_replace(
-                        '#\.(report|event|class|hook|page)\.php$#',
+                        '#\.(report|event|class|hook|page|task)\.php$#',
                         '',
                         basename($path)
                     )
@@ -307,7 +307,7 @@ class Initiator
 
     private static function _scanClassFiles(): array
     {
-        $regext = '#^.*\.(report|event|class|hook|page)\.php$#';
+        $regext = '#^.*\.(report|event|class|hook|page|task)\.php$#';
         // Walked directly rather than through a symlink from the web tree.
         // Activation does symlink an external plugin into lib/plugins so the
         // browser can fetch its js/css, but RecursiveDirectoryIterator does

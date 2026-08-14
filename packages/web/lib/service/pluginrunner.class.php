@@ -1,0 +1,322 @@
+<?php
+/**
+ * Runs background work declared by installed, active plugins.
+ *
+ * PHP version 5
+ *
+ * @category PluginRunner
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Runs background work declared by installed, active plugins.
+ *
+ * One core-owned daemon for every plugin, rather than a unit per plugin
+ * (ADR 0010). A plugin never ships a systemd unit: the external plugin root
+ * is web-writable whenever uploads are enabled, and a web-writable path
+ * feeding a root-executed unit file is the GHSA-2hqx shape exactly.
+ *
+ * The lifecycle is the plugin's, not systemd's -- a task runs only while its
+ * plugin is both active and installed, so deactivating a plugin stops its
+ * tasks on the next cycle with no unit to disable and nothing left behind on
+ * Forget.
+ *
+ * @category PluginRunner
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+class PluginRunner extends FOGService
+{
+    /**
+     * Floor for a task's declared interval, in seconds.
+     *
+     * Third-party code declares $interval, and a task shipping 0 -- by
+     * mistake or by a property it forgot to set -- would otherwise run on
+     * every pass of the loop. The floor makes the worst case "runs once a
+     * minute", not "saturates a core".
+     *
+     * @var int
+     */
+    const MIN_INTERVAL = 60;
+    /**
+     * Is the service globally enabled.
+     *
+     * @var int
+     */
+    private static $_runnerOn = 0;
+    /**
+     * Where to get the service's sleeptime.
+     *
+     * @var string
+     */
+    public static $sleeptime = 'PLUGINRUNNERSLEEPTIME';
+    /**
+     * When each discovered task is next due, keyed "<plugin>/<task>".
+     *
+     * Held in memory, not a table (ADR 0010 decision 5). A restart therefore
+     * makes every task immediately due, which is why PluginTask requires
+     * run() to be idempotent. One fewer table, and the failure mode is a task
+     * running early rather than a schedule silently drifting.
+     *
+     * @var array
+     */
+    private $_nextRun = [];
+    /**
+     * Initializes the PluginRunner class.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $runnerkeys = [
+            'PLUGINRUNNERDEVICEOUTPUT',
+            'PLUGINRUNNERLOGFILENAME',
+            self::$sleeptime
+        ];
+        list(
+            $dev,
+            $log,
+            $zzz
+        ) = self::getSetting($runnerkeys);
+        // Its own sub-directory of the service log path, not a file alongside
+        // the other seven. wlog() rotates by rename() and unlink(), which need
+        // write on the DIRECTORY, not just the file -- so giving this daemon a
+        // rotatable log in the shared directory would mean giving the web user
+        // (and therefore every plugin) the ability to rename or delete the
+        // root daemons' logs. That is the same escalation ADR 0010 avoided by
+        // not running as root, arriving through the log path instead.
+        //
+        // The subdirectory is core policy rather than part of the setting, so
+        // PLUGINRUNNERLOGFILENAME stays a plain filename like every other
+        // service's.
+        $logdir = sprintf(
+            '%splugins%s',
+            (
+                self::$logpath ?
+                self::$logpath :
+                FOG_LOG_DIR . DS
+            ),
+            DS
+        );
+        // Best effort. The installer creates and chowns this, but
+        // SERVICE_LOG_PATH is an admin-editable setting, and a daemon that
+        // silently writes nowhere because a directory is missing is precisely
+        // the failure this service is built to make visible.
+        if (!is_dir($logdir)) {
+            @mkdir($logdir, 0755, true);
+        }
+        static::$log = sprintf(
+            '%s%s',
+            $logdir,
+            (
+                $log ?
+                $log :
+                'fogpluginrunner.log'
+            )
+        );
+        static::$dev = (
+            $dev ?
+            $dev :
+            '/dev/tty3'
+        );
+        // The sleep time is also the scheduling granularity: a task asking for
+        // 60 seconds gets 60 seconds only because this defaults to 60. Raise
+        // it and every task's effective interval rounds up to it.
+        static::$zzz = (
+            $zzz ?
+            $zzz :
+            60
+        );
+    }
+    /**
+     * Finds the tasks every active, installed plugin declares.
+     *
+     * Keyed "<plugin>/<class>" so two plugins may ship a task of the same
+     * name without one displacing the other's schedule.
+     *
+     * @return array of key => PluginTask
+     */
+    private function _discoverTasks()
+    {
+        $tasks = [];
+        // inputoverride = true, for the same reason Plugin::getPlugins() sets
+        // it: without it listem() parses php://input for DataTables paging.
+        // There is no request behind a daemon, but the argument is cheap and
+        // leaving it off would make this depend on that staying true.
+        Route::listem(
+            'plugin',
+            [
+                'installed' => 1,
+                'state' => 1
+            ],
+            true
+        );
+        $plugins = json_decode(Route::getData());
+        foreach ((array)($plugins->data ?? []) as $plugin) {
+            $name = strtolower(trim((string)$plugin->name));
+            $location = trim((string)$plugin->location);
+            // A row whose code is not on disk. Plugin::isMissing() does not
+            // deactivate for this -- the external root can be an unmounted
+            // NFS share -- so the row is still active and it falls to each
+            // reader to skip it.
+            if (Plugin::isMissing($location)) {
+                continue;
+            }
+            $dir = rtrim($location, DS) . DS . 'tasks';
+            if (!is_dir($dir)) {
+                continue;
+            }
+            foreach ((array)glob($dir . DS . '*.task.php') as $file) {
+                $class = basename($file, '.task.php');
+                // is_subclass_of() rather than class_exists() alone. The
+                // autoloader resolves a class by basename across every
+                // scanned root, so a plugin shipping tasks/host.task.php
+                // would otherwise have this instantiate the core Host model
+                // and call run() on it. The check is on the base class, so
+                // the only thing that can be loaded here is something written
+                // to be a task.
+                if (!is_subclass_of($class, 'PluginTask')) {
+                    self::outall(
+                        sprintf(
+                            ' * %s: %s/%s',
+                            _('Skipping, not a PluginTask'),
+                            $name,
+                            basename($file)
+                        )
+                    );
+                    continue;
+                }
+                $task = self::getClass($class);
+                if (!$task->active) {
+                    continue;
+                }
+                $tasks[$name . '/' . $class] = $task;
+            }
+        }
+        return $tasks;
+    }
+    /**
+     * Runs one task, logging both ends of it.
+     *
+     * The finish line is the point of this method. #815, #917, #944 and the
+     * 1.5 FileDeleter that sat wedged for ten months all shared one shape:
+     * systemd reports the unit active while the daemon does nothing, and the
+     * log says nothing at all. A start line with no matching finish line is
+     * the signal that was missing every time, and third-party code in the
+     * loop makes that shape more likely, not less.
+     *
+     * @param string     $key  the "<plugin>/<class>" identifier
+     * @param PluginTask $task the task to run
+     *
+     * @return void
+     */
+    private function _runTask($key, PluginTask $task)
+    {
+        self::outall(
+            sprintf(
+                ' * %s: %s (%s)',
+                _('Task starting'),
+                $key,
+                $task->label()
+            )
+        );
+        $started = microtime(true);
+        try {
+            $task->run();
+            self::outall(
+                sprintf(
+                    ' * %s: %s %s %.2fs',
+                    _('Task finished'),
+                    $key,
+                    _('in'),
+                    microtime(true) - $started
+                )
+            );
+        } catch (Throwable $e) {
+            // Throwable, not Exception: an Error walks past a catch on
+            // Exception and would kill the child, which the supervisor then
+            // re-forks straight back into the same failure (#815). A plugin
+            // task is third-party code and a TypeError in it is at least as
+            // likely as a thrown Exception.
+            self::outall(
+                sprintf(
+                    ' * %s: %s %s %.2fs -- %s',
+                    _('Task failed'),
+                    $key,
+                    _('after'),
+                    microtime(true) - $started,
+                    $e->getMessage()
+                )
+            );
+        }
+    }
+    /**
+     * Service run.
+     *
+     * @return void
+     */
+    public function serviceRun()
+    {
+        try {
+            self::$_runnerOn = self::getSetting('PLUGINRUNNERGLOBALENABLED');
+            if (self::$_runnerOn < 1) {
+                throw new Exception(
+                    _(' * Plugin runner is globally disabled')
+                );
+            }
+            if (!self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+                throw new Exception(_(' * The plugin system is disabled'));
+            }
+            // Every other daemon gates on this, and plugin tasks need it for
+            // the same reason: without it each node in a group runs every
+            // task, so a task that sends a notification sends one per node.
+            if (!count($this->checkIfNodeMaster() ?: [])) {
+                throw new Exception(
+                    _(' * This server is not a master node')
+                );
+            }
+            $tasks = $this->_discoverTasks();
+            if (!count($tasks)) {
+                throw new Exception(_(' * No plugin tasks to run'));
+            }
+            // Drop schedule entries for tasks that have gone -- a plugin
+            // deactivated, upgraded, or Forgotten. Left in place they are a
+            // slow leak in a process meant to run for months.
+            $this->_nextRun = array_intersect_key(
+                $this->_nextRun,
+                $tasks
+            );
+            $now = self::niceDate()->getTimestamp();
+            foreach ($tasks as $key => $task) {
+                $interval = max(
+                    self::MIN_INTERVAL,
+                    (int)$task->interval
+                );
+                if (isset($this->_nextRun[$key])
+                    && $now < $this->_nextRun[$key]
+                ) {
+                    continue;
+                }
+                $this->_runTask($key, $task);
+                // Scheduled after the run, and scheduled whether it succeeded
+                // or threw. Setting it only on success would put a task that
+                // fails fast into a hot loop, which is how a broken plugin
+                // takes the log and the database with it.
+                $this->_nextRun[$key] = self::niceDate()->getTimestamp()
+                    + $interval;
+            }
+        } catch (Exception $e) {
+            self::outall(
+                sprintf(
+                    ' * %s',
+                    $e->getMessage()
+                )
+            );
+        }
+    }
+}

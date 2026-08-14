@@ -26,7 +26,15 @@ msgstr " * Imagegröße ist global deaktiviert"
 msgid " * Multicast service is globally disabled"
 msgstr " * Multicast Service ist global deaktiviert"
 
+#, fuzzy
+msgid " * No plugin tasks to run"
+msgstr "Keine gültigen Tasks gefunden"
+
 msgid " * Ping hosts is globally disabled"
+msgstr "* Anpingen der Hosts ist global deaktiviert"
+
+#, fuzzy
+msgid " * Plugin runner is globally disabled"
 msgstr "* Anpingen der Hosts ist global deaktiviert"
 
 #, fuzzy
@@ -38,6 +46,14 @@ msgstr "* Snapin Replikation ist global deaktiviert"
 
 msgid " * Task Scheduler is globally disabled"
 msgstr "* Taskplaner ist global deaktiviert"
+
+#, fuzzy
+msgid " * The plugin system is disabled"
+msgstr "* Anpingen der Hosts ist global deaktiviert"
+
+#, fuzzy
+msgid " * This server is not a master node"
+msgstr " | Dies ist nicht der Master-Knoten"
 
 #, fuzzy
 msgid " to login"
@@ -6339,6 +6355,9 @@ msgstr "Es gibt nichts zu replizieren"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -7064,6 +7083,14 @@ msgstr "Task-Typ ist nicht gültig"
 msgid "Task Types"
 msgstr "Task-Typen"
 
+#, fuzzy
+msgid "Task failed"
+msgstr "Laden fehlgeschlagen: %s"
+
+#, fuzzy
+msgid "Task finished"
+msgstr "Task gestartet"
+
 msgid "Task not created as there are no associated Tasks"
 msgstr "Task wird nicht erstellt, da keine zugeordneten Tasks vorhanden sind"
 
@@ -7077,6 +7104,10 @@ msgstr "Task gestartet"
 
 #, fuzzy
 msgid "Task started for"
+msgstr "Task gestartet"
+
+#, fuzzy
+msgid "Task starting"
 msgstr "Task gestartet"
 
 #, fuzzy
@@ -8248,6 +8279,9 @@ msgstr "Zugang"
 #, fuzzy
 msgid "additional macs"
 msgstr "zusätzliche MACs haben"
+
+msgid "after"
+msgstr ""
 
 #, fuzzy
 msgid "ago"

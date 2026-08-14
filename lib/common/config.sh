@@ -88,6 +88,7 @@ if [[ $systemctl == yes ]]; then
     initdPHfullname="FOGPingHosts.service"
     initdISfullname="FOGImageSize.service"
     initdFDfullname="FOGFileDeleter.service"
+    initdPRfullname="FOGPluginRunner.service"
     case $linuxReleaseName_lower in
         *ubuntu*|*bian*|*mint*)
             initdpath="/lib/systemd/system"
@@ -125,6 +126,7 @@ else
     initdPHfullname="FOGPingHosts"
     initdISfullname="FOGImageSize"
     initdFDfullname="FOGFileDeleter"
+    initdPRfullname="FOGPluginRunner"
     case $linuxReleaseName_lower in
         *ubuntu*|*bian*|*mint*)
             initdsrc="../packages/init.d/ubuntu"
@@ -137,7 +139,7 @@ else
             ;;
     esac
 fi
-serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname $initdFDfullname"
+serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname $initdFDfullname $initdPRfullname"
 # GH-964 sibling: port windows the installer both configures a service to use
 # and opens in the firewall. They live here, together, because the two have to
 # agree -- a passive range pinned in vsftpd.conf but not opened, or opened but

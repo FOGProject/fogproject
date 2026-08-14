@@ -5079,3 +5079,33 @@ $this->schema[] = [
     . "server by running bin/fog-plugin-uploads.sh enable as "
     . "root.','0','Plugin System')",
 ];
+// 329
+$this->schema[] = [
+    // FOGPluginRunner, the single daemon behind every plugin's scheduled work
+    // (ADR 0010). Categories match the other seven services so the runner
+    // appears alongside them on the configuration page rather than in a
+    // section of its own.
+    //
+    // The sleep time is also the scheduling granularity: a task asking for 60
+    // seconds gets 60 only because this defaults to 60, and raising it rounds
+    // every task's effective interval up to it.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('PLUGINRUNNERGLOBALENABLED','This setting defines if the plugin task "
+    . "runner should be enabled or not. It runs background work declared by "
+    . "installed, active plugins. (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled'),"
+    . "('PLUGINRUNNERSLEEPTIME','The amount of time between plugin task "
+    . "runner passes. This is also the finest schedule a plugin task can ask "
+    . "for. Value is in seconds. (Default 60)',"
+    . "'60','FOG Linux Service Sleep Times'),"
+    . "('PLUGINRUNNERLOGFILENAME','Filename to store the plugin task runner "
+    . "log file to. It is written to a plugins/ subdirectory of the service "
+    . "log path, because this service runs as the web user rather than root. "
+    . "(Default fogpluginrunner.log)','fogpluginrunner.log',"
+    . "'FOG Linux Service Logs'),"
+    . "('PLUGINRUNNERDEVICEOUTPUT','The tty to output to for the plugin task "
+    . "runner service. (Default /dev/tty3)','/dev/tty3',"
+    . "'FOG Linux Service TTY Output')"
+];

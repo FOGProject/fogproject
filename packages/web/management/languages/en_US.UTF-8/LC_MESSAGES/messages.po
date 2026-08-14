@@ -31,8 +31,16 @@ msgstr "Snapin with that name already exists"
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
+#, fuzzy
+msgid " * No plugin tasks to run"
+msgstr "No valid class sent"
+
 msgid " * Ping hosts is globally disabled"
 msgstr ""
+
+#, fuzzy
+msgid " * Plugin runner is globally disabled"
+msgstr "Snapin with that name already exists"
 
 #, fuzzy
 msgid " * Snapin hash is globally disabled"
@@ -43,6 +51,13 @@ msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
+
+msgid " * The plugin system is disabled"
+msgstr ""
+
+#, fuzzy
+msgid " * This server is not a master node"
+msgstr " | This is not the master node"
 
 #, fuzzy
 msgid " to login"
@@ -6338,6 +6353,9 @@ msgstr "There is nothing to replicate"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -7061,6 +7079,14 @@ msgstr "Task Type is not valid"
 msgid "Task Types"
 msgstr "Task Types"
 
+#, fuzzy
+msgid "Task failed"
+msgstr "Load failed: %s"
+
+#, fuzzy
+msgid "Task finished"
+msgstr "Task Started"
+
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
 
@@ -7074,6 +7100,10 @@ msgstr "Task Started"
 
 #, fuzzy
 msgid "Task started for"
+msgstr "Task Started"
+
+#, fuzzy
+msgid "Task starting"
 msgstr "Task Started"
 
 #, fuzzy
@@ -8246,6 +8276,9 @@ msgstr "Access"
 #, fuzzy
 msgid "additional macs"
 msgstr "Additional MACs"
+
+msgid "after"
+msgstr ""
 
 #, fuzzy
 msgid "ago"

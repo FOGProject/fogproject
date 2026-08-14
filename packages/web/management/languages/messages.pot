@@ -10,7 +10,13 @@ msgstr ""
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
+msgid " * No plugin tasks to run"
+msgstr ""
+
 msgid " * Ping hosts is globally disabled"
+msgstr ""
+
+msgid " * Plugin runner is globally disabled"
 msgstr ""
 
 msgid " * Snapin hash is globally disabled"
@@ -20,6 +26,12 @@ msgid " * Snapin replication is globally disabled"
 msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
+msgstr ""
+
+msgid " * The plugin system is disabled"
+msgstr ""
+
+msgid " * This server is not a master node"
 msgstr ""
 
 msgid " to login"
@@ -5345,6 +5357,9 @@ msgstr ""
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -5949,6 +5964,12 @@ msgstr ""
 msgid "Task Types"
 msgstr ""
 
+msgid "Task failed"
+msgstr ""
+
+msgid "Task finished"
+msgstr ""
+
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
 
@@ -5959,6 +5980,9 @@ msgid "Task started"
 msgstr ""
 
 msgid "Task started for"
+msgstr ""
+
+msgid "Task starting"
 msgstr ""
 
 msgid "Task state added!"
@@ -6967,6 +6991,9 @@ msgid "access"
 msgstr ""
 
 msgid "additional macs"
+msgstr ""
+
+msgid "after"
 msgstr ""
 
 msgid "ago"

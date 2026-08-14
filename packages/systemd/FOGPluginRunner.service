@@ -1,0 +1,38 @@
+### BEGIN INIT INFO
+# Provides: FOGPluginRunner
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd
+# Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# X-Interactive: true
+# Short-Description: Start/Stop FOGPluginRunner
+# Long-Description: Runs background work declared by installed, active plugins.
+# FOGPluginRunner is the single daemon behind every plugin's scheduled tasks,
+# so that a plugin never has to ship a systemd unit of its own.
+### END INIT INFO
+
+[Unit]
+Description=FOGPluginRunner
+After=syslog.target network.target network-online.target mysql.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+# ADR 0010: alone among the FOG daemons this one runs as the web user rather
+# than root. It executes third-party plugin code, and a plugin's code already
+# runs as the web user everywhere else -- putting it in a root daemon would
+# escalate every installed plugin to root as a side effect of a feature about
+# scheduling.
+#
+# FOGWEBUSER is a placeholder installInitScript() rewrites to $apacheuser in
+# the INSTALLED copy, never here. If that substitution does not happen systemd
+# refuses to start the unit on an unknown user, which is the intended failure:
+# loud, rather than silently falling back to root.
+User=FOGWEBUSER
+Group=FOGWEBUSER
+ExecStart=/usr/bin/env php /opt/fog/service/FOGPluginRunner/FOGPluginRunner
+
+[Install]
+WantedBy=multi-user.target

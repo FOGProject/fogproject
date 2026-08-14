@@ -24,7 +24,15 @@ msgstr "* イメージサイズ機能は全体設定で無効になっていま�
 msgid " * Multicast service is globally disabled"
 msgstr "* マルチキャストサービスは全体設定で無効になっています"
 
+#, fuzzy
+msgid " * No plugin tasks to run"
+msgstr "有効なタスクが見つかりません"
+
 msgid " * Ping hosts is globally disabled"
+msgstr "* ホストのPing機能は全体設定で無効になっています"
+
+#, fuzzy
+msgid " * Plugin runner is globally disabled"
 msgstr "* ホストのPing機能は全体設定で無効になっています"
 
 msgid " * Snapin hash is globally disabled"
@@ -35,6 +43,14 @@ msgstr "* スナップインレプリケーションは全体設定で無効に�
 
 msgid " * Task Scheduler is globally disabled"
 msgstr "* タスクスケジューラは全体設定で無効になっています"
+
+#, fuzzy
+msgid " * The plugin system is disabled"
+msgstr "このプラグインはインストールされていません"
+
+#, fuzzy
+msgid " * This server is not a master node"
+msgstr "| これはマスターノードではありません"
 
 #, fuzzy
 msgid " to login"
@@ -6031,6 +6047,9 @@ msgstr "レプリケーションする項目はありません"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -6702,6 +6721,14 @@ msgid "Task Types"
 msgstr "タスクタイプ"
 
 #, fuzzy
+msgid "Task failed"
+msgstr "タスク実行に失敗しました"
+
+#, fuzzy
+msgid "Task finished"
+msgstr "タスク実行に失敗しました"
+
+#, fuzzy
 msgid "Task not created as there are no associated Tasks"
 msgstr "関連付けられたタスクがないため、タスクは作成されませんでした"
 
@@ -6713,6 +6740,10 @@ msgstr "タスクを開始しました"
 
 msgid "Task started for"
 msgstr "次のタスクを開始しました"
+
+#, fuzzy
+msgid "Task starting"
+msgstr "タスクを開始しました"
 
 #, fuzzy
 msgid "Task state added!"
@@ -7836,6 +7867,9 @@ msgstr "アクセス"
 
 msgid "additional macs"
 msgstr "追加 MAC アドレス"
+
+msgid "after"
+msgstr ""
 
 msgid "ago"
 msgstr "前"
@@ -10339,9 +10373,6 @@ msgstr ""
 #~ msgid "Tasking"
 #~ msgstr "タスク実行"
 
-#~ msgid "Tasking Failed"
-#~ msgstr "タスク実行に失敗しました"
-
 #~ msgid "Terms and Conditions"
 #~ msgstr "利用条件"
 
@@ -10439,9 +10470,6 @@ msgstr ""
 
 #~ msgid "This module is only used on the old client."
 #~ msgstr "このモジュールは旧クライアントでのみ使用されます。"
-
-#~ msgid "This plugin is not installed"
-#~ msgstr "このプラグインはインストールされていません"
 
 #~ msgid "This section allows you to customize or alter"
 #~ msgstr "このセクションでは各種設定をカスタマイズできます"

@@ -32,7 +32,15 @@ msgstr "* La dimensione dell'immagine è disattivata globalmente"
 msgid " * Multicast service is globally disabled"
 msgstr "* Il servizio Multicast è disabilitato a livello globale"
 
+#, fuzzy
+msgid " * No plugin tasks to run"
+msgstr "Non sono stati trovati compiti validi"
+
 msgid " * Ping hosts is globally disabled"
+msgstr "* Gli host Ping sono disattivati a livello globale"
+
+#, fuzzy
+msgid " * Plugin runner is globally disabled"
 msgstr "* Gli host Ping sono disattivati a livello globale"
 
 msgid " * Snapin hash is globally disabled"
@@ -43,6 +51,14 @@ msgstr "* La replica Snapin è disattivata globalmente"
 
 msgid " * Task Scheduler is globally disabled"
 msgstr "* Il task scheduler è disattivato a livello globale"
+
+#, fuzzy
+msgid " * The plugin system is disabled"
+msgstr "* Gli host Ping sono disattivati a livello globale"
+
+#, fuzzy
+msgid " * This server is not a master node"
+msgstr " | Questo non è il nodo master"
 
 #, fuzzy
 msgid " to login"
@@ -6098,6 +6114,9 @@ msgstr "Non c'è nulla da replicare"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -6777,6 +6796,14 @@ msgstr "Task Type non è valido"
 msgid "Task Types"
 msgstr "Tipi di attività"
 
+#, fuzzy
+msgid "Task failed"
+msgstr "Caricamento non riuscito"
+
+#, fuzzy
+msgid "Task finished"
+msgstr "Attività iniziata"
+
 msgid "Task not created as there are no associated Tasks"
 msgstr "Attività non creata poiché non ci sono attività associate"
 
@@ -6788,6 +6815,10 @@ msgstr "Attività iniziata"
 
 #, fuzzy
 msgid "Task started for"
+msgstr "Attività iniziata"
+
+#, fuzzy
+msgid "Task starting"
 msgstr "Attività iniziata"
 
 #, fuzzy
@@ -7917,6 +7948,9 @@ msgstr "Accesso"
 
 msgid "additional macs"
 msgstr "MAC aggiuntivi"
+
+msgid "after"
+msgstr ""
 
 msgid "ago"
 msgstr "fa"

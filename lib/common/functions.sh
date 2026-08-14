@@ -1340,6 +1340,27 @@ installFOGServices() {
     chmod +x -R $servicedst/
     mkdir -p $servicelogs
     errorStat $?
+    # ADR 0010: FOGPluginRunner runs as the web user, so it cannot write into
+    # $servicelogs, which is root's. It gets its own subdirectory instead of
+    # group-write on the shared one -- log rotation renames and unlinks, so
+    # shared write would let plugin code delete the root daemons' logs.
+    dots "Creating FOG plugin runner log directory"
+    mkdir -p $servicelogs/plugins >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/plugins >>$error_log 2>&1
+    setSELinuxContext "$servicelogs/plugins" httpd_sys_rw_content_t
+    errorStat $?
+    # servicemaster.log is where service_lib.php writes every daemon's start,
+    # stop and fatal lines, and where PHP's own error_log is pointed. The
+    # runner has to be able to append to it or its supervisor lines silently
+    # divert to journald while the other eight keep landing here -- one log
+    # with a hole in it is worse than either alternative. Group write only:
+    # root still owns it, and the file is appended to, never rotated, so no
+    # directory write is implied.
+    dots "Setting FOG service master log ownership"
+    touch $servicelogs/servicemaster.log >>$error_log 2>&1
+    chown root:${apacheuser} $servicelogs/servicemaster.log >>$error_log 2>&1
+    chmod 660 $servicelogs/servicemaster.log >>$error_log 2>&1
+    errorStat $?
     dots "Creating FOG cache directory"
     mkdir -p $fogprogramdir/cache >>$error_log 2>&1
     # The settings-cache flush signal is written by the web tier AND by the CLI
@@ -2952,6 +2973,21 @@ installInitScript() {
                 "$initdpath/$(basename $unitfile)" >>$error_log 2>&1
         done
     fi
+    # ADR 0010: FOGPluginRunner is the one daemon that does NOT run as root --
+    # it executes third-party plugin code, which runs as the web user
+    # everywhere else. Its shipped unit/init script carries the literal
+    # FOGWEBUSER, rewritten here to the real account in the INSTALLED copy
+    # only, on the same "cp -f restores the source every run" reasoning as the
+    # path substitution above.
+    #
+    # Unconditional, unlike that one. A placeholder left in place is not a
+    # cosmetic default: systemd refuses to start a unit whose User= does not
+    # resolve, which is the intended failure -- loud, rather than quietly
+    # running plugin code as root.
+    for unitfile in $initdsrc/*; do
+        sed -i "s|FOGWEBUSER|${apacheuser}|g" \
+            "$initdpath/$(basename $unitfile)" >>$error_log 2>&1
+    done
     # Guarded: on Alpine and other non-systemd hosts systemctl does not exist,
     # and the old `cp && systemctl daemon-reload` chain made errorStat report
     # this step as Failed purely because the reload could not run.

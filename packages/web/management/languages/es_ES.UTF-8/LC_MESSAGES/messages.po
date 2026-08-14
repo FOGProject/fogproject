@@ -30,7 +30,14 @@ msgstr ""
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
+#, fuzzy
+msgid " * No plugin tasks to run"
+msgstr "Ninguna clase válida enviado"
+
 msgid " * Ping hosts is globally disabled"
+msgstr ""
+
+msgid " * Plugin runner is globally disabled"
 msgstr ""
 
 msgid " * Snapin hash is globally disabled"
@@ -40,6 +47,12 @@ msgid " * Snapin replication is globally disabled"
 msgstr ""
 
 msgid " * Task Scheduler is globally disabled"
+msgstr ""
+
+msgid " * The plugin system is disabled"
+msgstr ""
+
+msgid " * This server is not a master node"
 msgstr ""
 
 #, fuzzy
@@ -6494,6 +6507,9 @@ msgstr ""
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, not a PluginTask"
+msgstr ""
+
 msgid "Skipping, will need manual removal"
 msgstr ""
 
@@ -7250,6 +7266,14 @@ msgstr "tipo de tarea no es válida"
 msgid "Task Types"
 msgstr "Tipo de tarea"
 
+#, fuzzy
+msgid "Task failed"
+msgstr "Carga ha fallado: %s"
+
+#, fuzzy
+msgid "Task finished"
+msgstr "Nombre de la tarea"
+
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
 
@@ -7262,6 +7286,10 @@ msgstr "Nombre de la tarea"
 
 #, fuzzy
 msgid "Task started for"
+msgstr "Nombre de la tarea"
+
+#, fuzzy
+msgid "Task starting"
 msgstr "Nombre de la tarea"
 
 #, fuzzy
@@ -8434,6 +8462,9 @@ msgid "access"
 msgstr "Exitoso"
 
 msgid "additional macs"
+msgstr ""
+
+msgid "after"
 msgstr ""
 
 #, fuzzy
