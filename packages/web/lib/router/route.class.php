@@ -401,7 +401,8 @@ class Route extends FOGBase
         ];
         $unauthexact = [
             $webrootbase . 'system/status',
-            $webrootbase . 'system/info'
+            $webrootbase . 'system/info',
+            $webrootbase . 'system/openapi'
         ];
         $requripath = strtok((string)self::$requesturi, '?');
         $requribase = dirname($requripath);
@@ -480,6 +481,19 @@ class Route extends FOGBase
         self::setMatches();
         self::runMatches();
         self::printer(self::$data);
+    }
+    /**
+     * The configured webroot, normalised with a leading and trailing slash.
+     *
+     * Exposed so OpenAPI can build servers[].url from the same value the
+     * router anchors its paths to, rather than reconstructing it from the
+     * setting and risking the two disagreeing (GH-529).
+     *
+     * @return string
+     */
+    public static function webrootbase()
+    {
+        return self::$_webrootbase;
     }
     /**
      * Just ensures the where items are consistent for later use
@@ -626,6 +640,10 @@ class Route extends FOGBase
             '/system/[status|info]',
             [__CLASS__, 'status'],
             'status'
+        )->get(
+            '/system/openapi',
+            [__CLASS__, 'openapi'],
+            'openapi'
         )->get(
             '/system/export',
             [__CLASS__, 'export'],
@@ -947,6 +965,26 @@ class Route extends FOGBase
             'version' => FOG_VERSION,
             'msg' => _('success')
         ];
+    }
+    /**
+     * Serves an OpenAPI description of this server's API.
+     *
+     * Unauthenticated, alongside status/info, so a client can discover what
+     * it is talking to before it has credentials. It exposes only the shape
+     * of the API -- class names, field names and types -- all of which are
+     * already public in the source, and no data.
+     *
+     * Built per request rather than read from a shipped file, because
+     * $validClasses and the sensitive-field lists are both mutated at
+     * runtime by plugin hooks; a static file would describe the classes FOG
+     * ships with rather than the ones this server actually exposes. See
+     * OpenAPI for what the generator can and cannot derive.
+     *
+     * @return void
+     */
+    public static function openapi()
+    {
+        self::$data = OpenAPI::document();
     }
     /**
      * Streams a full SQL backup of the FOG database.
