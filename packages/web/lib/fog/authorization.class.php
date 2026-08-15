@@ -52,7 +52,11 @@ class Authorization extends FOGBase
      * @var array
      */
     const NODE_ALIASES = [
-        'about' => 'settings'
+        'about' => 'settings',
+        // The API reference lays out every class and field the API exposes,
+        // which is the same class of server information the settings pages
+        // carry, so it takes the same gate rather than a node of its own.
+        'apidocs' => 'settings'
     ];
     /**
      * Exact sub overrides that the naming conventions would misresolve.
