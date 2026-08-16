@@ -6592,6 +6592,13 @@ msgstr "There is nothing to replicate"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "Snapin Storage Group"
+
+msgid "Skipping, no such task type"
+msgstr ""
+
 msgid "Skipping, not a PluginTask"
 msgstr ""
 
@@ -7668,6 +7675,10 @@ msgstr ""
 #, fuzzy
 msgid "This machine already registered as "
 msgstr "Already registered as"
+
+#, fuzzy
+msgid "This node could not be found"
+msgstr "Could not read temp file"
 
 msgid "This node does not appear to be online"
 msgstr ""

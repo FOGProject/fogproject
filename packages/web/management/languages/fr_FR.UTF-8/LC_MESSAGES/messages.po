@@ -6594,6 +6594,13 @@ msgstr "Il n'y a rien à répliquer"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "Storage Group Snapin"
+
+msgid "Skipping, no such task type"
+msgstr ""
+
 msgid "Skipping, not a PluginTask"
 msgstr ""
 
@@ -7670,6 +7677,10 @@ msgstr ""
 #, fuzzy
 msgid "This machine already registered as "
 msgstr "Déjà inscrit comme"
+
+#, fuzzy
+msgid "This node could not be found"
+msgstr "Impossible de lire le fichier temporaire"
 
 msgid "This node does not appear to be online"
 msgstr ""

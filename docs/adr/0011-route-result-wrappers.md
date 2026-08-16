@@ -99,6 +99,9 @@ $assocs = Route::getList('ouassociation', ['hostID' => $id]);   // rows
 $ou     = Route::getItem('ou', $ouId);                           // one entity
 ```
 
+Plus `Route::asValue(callable)` for the callers those two do not fit — see
+below. All three raise rather than exit.
+
 Four properties, each chosen against a specific failure:
 
 **They return rows, so there is no envelope to hold wrongly.** `getList()`
@@ -143,6 +146,34 @@ ambiguous, `getItem()` asks a cheap id-only question first and returns null when
 there is no such row — or when the caller may not see it. One extra indexed
 query is the price of leaving `indiv()`'s HTTP behavior exactly as it is.
 
+### `asValue()` covers what the other two do not
+
+`getList()` and `getItem()` unwrap, and unwrapping is the wrong answer for two
+kinds of caller:
+
+- **Callers that genuinely want the envelope.** `taskscheduler.class.php:133`
+  reads `->recordsFiltered` off `active()` for its task count and then iterates
+  `->data`; `filedeleter.class.php:160` does the same. Earlier drafts of this
+  document claimed essentially no caller needed the metadata. That was wrong,
+  and it was found by migrating the daemons.
+- **Helpers with no wrapper.** `active()`, `names()`, `availablekernels()`,
+  `logfiles()`. `pinghosts.class.php` calls `names('host')`, whose payload is a
+  bare list with no envelope to unwrap at all.
+
+```php
+$tasks = Route::asValue(function () { Route::active('scheduledtask'); });
+$tasks->recordsFiltered;   // reads exactly as before
+```
+
+It returns exactly what `json_decode(Route::getData())` returned, so adopting it
+is a swap with no semantic change. What it adds is the half those callers still
+need: inside the callable, a failure raises instead of ending the process.
+
+It is deliberately the third choice. `getList()`/`getItem()` say what the caller
+wants and remove the envelope that has now caused three silent bugs; `asValue()`
+preserves the envelope, and with it the opportunity. Reach for it only when
+neither of the other two fits.
+
 ### `inputoverride` is true
 
 Internal callers are not answering a DataTables POST. With the default,
@@ -160,7 +191,8 @@ is zero unless one is on the stack, and `listem()`, `indiv()`, `active()` and
 Migration is a separate, ordered exercise and is explicitly not part of
 adopting this ADR:
 
-1. daemons and services — 26 sites, the only bucket that can kill a process
+1. ~~daemons and services — 26 sites, the only bucket that can kill a process~~
+   **done**; 11 files, verified against a live 1.6 install
 2. client endpoints and hooks — 4 sites, invisible failures
 3. `fog-plugins` — 37 sites, gated on this shipping in a release
 4. pages, models, reports — 94 sites, mechanical, least urgent
@@ -168,7 +200,25 @@ adopting this ADR:
    they may be right to leave alone, but that should be a decision rather than
    an omission
 
-`multicasttask.class.php`'s hand-rolled guard can retire once step 1 reaches it.
+### `multicasttask.class.php`'s hand-rolled guard stays
+
+This document originally said the guard could retire once step 1 reached it.
+Step 1 has now reached it, and it cannot — the guard was doing two jobs and the
+wrappers only take over one.
+
+`getItem()` establishes **existence**. `indiv()` gates on **`isValid()`**. So a
+deleted image now answers null, which is the half that killed the daemon; but an
+image that is present and does not validate — `osID` of 0, a blank name or path
+— still reaches `indiv()` and still fails. It raises rather than exiting now, so
+the daemon survives, but the exception unwinds the entire session-collection
+pass and takes every other queued session with it. The guard keeps that failure
+scoped to the one session it belongs to, which is a smaller claim than the one
+it originally made and still worth the four lines.
+
+Making `getItem()` gate on validity instead was considered and rejected: the
+existence check runs through `getIds()`, so it also answers null for a row the
+caller may not *see*, and constructing the entity to test `isValid()` directly
+would bypass that filtering. Refs #907.
 
 ### What this does not fix
 

@@ -4480,6 +4480,48 @@ class Route extends FOGBase
         return self::objectify($data);
     }
     /**
+     * Runs any router call as a value rather than as a response.
+     *
+     * getList() and getItem() cover listem() and indiv(), which is most of the
+     * tree, and they drop the envelope because their callers only ever wanted
+     * the rows. Some callers want the envelope: taskscheduler reads
+     * `->recordsFiltered` off active() for its task count and then iterates
+     * `->data`, so unwrapping would change what it does.
+     *
+     * This is the escape hatch for those, and for the helpers no wrapper
+     * covers -- active(), names(), availablekernels(), logfiles(). It returns
+     * exactly what `json_decode(Route::getData())` returned, envelope and all,
+     * so adopting it is a swap with no semantic change at all. What it adds is
+     * the part the daemons need: inside the callable, a failure raises instead
+     * of ending the process.
+     *
+     *     $tasks = Route::asValue(function () { Route::active('scheduledtask'); });
+     *     $tasks->recordsFiltered;   // reads exactly as before
+     *
+     * Prefer getList()/getItem() where they fit; they say more about intent
+     * and they remove the envelope that has now caused three silent bugs.
+     *
+     * @param callable $call Makes the router call. Its return value is
+     *                       ignored; the result is read from Route::$data,
+     *                       which is how every helper reports.
+     *
+     * @throws \Exception Whatever the call raised, rather than exiting.
+     *
+     * @return mixed
+     */
+    public static function asValue(callable $call)
+    {
+        self::$_rethrowDepth++;
+        try {
+            $call();
+            $data = self::$data;
+            self::$data = '';
+        } finally {
+            self::$_rethrowDepth--;
+        }
+        return self::objectify($data);
+    }
+    /**
      * Delete items in mass.
      *
      * @param string $class      The class we're to remove items.

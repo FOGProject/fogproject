@@ -5574,6 +5574,12 @@ msgstr ""
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+msgid "Skipping, no such storage group"
+msgstr ""
+
+msgid "Skipping, no such task type"
+msgstr ""
+
 msgid "Skipping, not a PluginTask"
 msgstr ""
 
@@ -6488,6 +6494,9 @@ msgid "This is what MokManager's own View key screen shows after enrolling from 
 msgstr ""
 
 msgid "This machine already registered as "
+msgstr ""
+
+msgid "This node could not be found"
 msgstr ""
 
 msgid "This node does not appear to be online"

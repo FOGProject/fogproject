@@ -6747,6 +6747,13 @@ msgstr ""
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "Grupo de almacenamiento primaria"
+
+msgid "Skipping, no such task type"
+msgstr ""
+
 msgid "Skipping, not a PluginTask"
 msgstr ""
 
@@ -7857,6 +7864,10 @@ msgstr ""
 #, fuzzy
 msgid "This machine already registered as "
 msgstr "Impresora ya existe"
+
+#, fuzzy
+msgid "This node could not be found"
+msgstr "No se pudo leer el archivo temporal"
 
 msgid "This node does not appear to be online"
 msgstr ""
