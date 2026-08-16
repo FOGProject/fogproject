@@ -637,8 +637,8 @@ msgstr "Fa deve essere boolean"
 msgid "All"
 msgstr "Tutti"
 
-#, fuzzy
-msgid "All "
+#, fuzzy, php-format
+msgid "All %s"
 msgstr "tutti gli host"
 
 msgid "All Boot Menu Items"
@@ -1347,6 +1347,10 @@ msgstr ""
 
 msgid "Confirm that you would like to update the MAC vendor listing"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Confirm you would like to delete this %s"
+msgstr "Errore: Impossibile scaricare il kernel"
 
 #, fuzzy
 msgid "Confirm you would like to download a new initrd"
@@ -2110,8 +2114,8 @@ msgstr ""
 msgid "Export"
 msgstr "Esportare"
 
-#, fuzzy
-msgid "Export "
+#, fuzzy, php-format
+msgid "Export %s"
 msgstr "Esportare"
 
 #, fuzzy
@@ -2580,6 +2584,14 @@ msgstr "Product Key Group"
 
 #, fuzzy
 msgid "GPU Vendors"
+msgstr "Venditore BIOS"
+
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "Product Key Group"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
 msgstr "Venditore BIOS"
 
 msgid "General"
@@ -3633,6 +3645,10 @@ msgstr ""
 
 msgid "Interface"
 msgstr "Interfaccia"
+
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
 
 msgid "Interface not ready, waiting for it to come up"
 msgstr "Interfaccia non pronta, in attesa che venga visualizzata"
@@ -5276,6 +5292,10 @@ msgstr "Scegliere un immagine"
 msgid "Please confirm you want to delete"
 msgstr "Conferma che desideri eliminare"
 
+#, fuzzy, php-format
+msgid "Please confirm you would like to dissociate the selected %s"
+msgstr "Conferma che desideri eliminare"
+
 msgid "Please confirm you would like to dissociate the selected directory groups"
 msgstr ""
 
@@ -5725,6 +5745,10 @@ msgstr "Indirizzo remoto che cerca di accedere"
 
 msgid "Remove"
 msgstr "Rimuovere"
+
+#, fuzzy, php-format
+msgid "Remove %s Associations"
+msgstr "Regole di associazione"
 
 #, fuzzy
 msgid "Remove Fail"
@@ -7332,9 +7356,9 @@ msgstr "Ci sono"
 msgid "There are many reasons why this could be the case"
 msgstr "Ci sono molte ragioni per cui questo potrebbe essere il caso"
 
-#, fuzzy
-msgid "There are no "
-msgstr "Ci sono"
+#, fuzzy, php-format
+msgid "There are no %s on this server"
+msgstr "Non ci sono gruppi su questo server"
 
 msgid "There are no groups on this server"
 msgstr "Non ci sono gruppi su questo server"
@@ -7431,8 +7455,8 @@ msgstr ""
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
-#, fuzzy
-msgid "This machine already registered as "
+#, fuzzy, php-format
+msgid "This machine already registered as %s"
 msgstr "Già registrato come"
 
 #, fuzzy
@@ -7784,7 +7808,8 @@ msgstr ""
 msgid "Unpaged and uncapped. Accepts an optional trailing filter segment and an optional field name to return instead of the id."
 msgstr ""
 
-msgid "Unsafe hostname entered, please try again: "
+#, php-format
+msgid "Unsafe hostname entered, please try again: %s"
 msgstr ""
 
 msgid "Unset"
@@ -9549,6 +9574,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "Questo host esiste già"
+
+#, fuzzy
+#~ msgid "There are no "
+#~ msgstr "Ci sono"
 
 #~ msgid "There are no locations on this server"
 #~ msgstr "Non ci sono posizioni su questo server"

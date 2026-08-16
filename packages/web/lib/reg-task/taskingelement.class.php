@@ -195,7 +195,10 @@ abstract class TaskingElement extends FOGBase
             );
             if (count($names ?: []) <= 0) {
                 throw new \Exception(
-                    _('There are no ' . $classname . 's on this server')
+                    sprintf(
+                        _('There are no %s on this server'),
+                        $classname . 's'
+                    )
                 );
             }
             foreach ($names as $item) {
