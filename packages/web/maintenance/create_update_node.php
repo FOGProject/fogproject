@@ -127,14 +127,11 @@ if (isset($_POST['newNode'])) {
 } elseif (isset($_POST['nodePass'])) {
     // $ip, $user, $pass are already base64_decoded via the $stripped loop above.
     // Do NOT call base64_decode() again here.
-    Route::listem(
+    $StorageNodes = Route::getList(
         'storagenode',
         ['ip' => $ip]
     );
-    $StorageNodes = json_decode(
-        Route::getData()
-    );
-    foreach ($StorageNodes->data as &$StorageNode) {
+    foreach ($StorageNodes as &$StorageNode) {
         if ($StorageNode->user === trim($user)
             && $StorageNode->pass === trim($pass)
         ) {

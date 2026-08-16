@@ -122,14 +122,11 @@ abstract class TaskingElement extends FOGBase
                 if (!count($this->StorageGroup->get($getter) ?: [])) {
                     $getter = 'allnodes';
                 }
-                Route::listem(
+                $StorageNodes = Route::getList(
                     'storagenode',
                     ['id' => $this->StorageGroup->get($getter)]
                 );
-                $StorageNodes = json_decode(
-                    Route::getData()
-                );
-                foreach ($StorageNodes->data as &$StorageNode) {
+                foreach ($StorageNodes as &$StorageNode) {
                     $this->StorageNodes[] = self::getClass(
                         'StorageNode',
                         $StorageNode->id
@@ -185,8 +182,14 @@ abstract class TaskingElement extends FOGBase
     public static function getlisting($classname)
     {
         try {
-            Route::names($classname);
-            $names = json_decode(Route::getData());
+            // asValue(): names() has no wrapper of its own, and its payload
+            // is a bare list with no envelope to unwrap. This is here so a
+            // failure raises into the caller rather than ending the response.
+            $names = Route::asValue(
+                function () use ($classname) {
+                    Route::names($classname);
+                }
+            );
             if (count($names ?: []) <= 0) {
                 throw new \Exception(
                     _('There are no ' . $classname . 's on this server')

@@ -83,9 +83,7 @@ class HostManager extends FOGManagerController
         if (empty($filter)) {
             return;
         }
-        Route::listem('inventory', $filter, false, 'OR');
-        $Inventories = json_decode(Route::getData());
-        $Inventories = $Inventories->data;
+        $Inventories = Route::getList('inventory', $filter, 'OR');
         if (count($Inventories ?: []) < 1) {
             return;
         }

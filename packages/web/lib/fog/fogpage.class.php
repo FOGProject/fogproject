@@ -1752,12 +1752,11 @@ abstract class FOGPage extends FOGBase
                     'storagegroupID'
                 ];
                 $insert_values = [];
-                Route::listem(
+                $items = Route::getList(
                     $this->childClass,
                     $where
                 );
-                $items = json_decode(Route::getData());
-                foreach ($items->data as $item) {
+                foreach ($items as $item) {
                     $storagegroups[$item->$pathKey] = Route::getIds(
                         $groupassoc,
                         [strtolower($this->childClass).'ID' => $item->id],
@@ -3671,9 +3670,7 @@ abstract class FOGPage extends FOGBase
         $idSet = [];
         $nameToId = [];
         $idToName = [];
-        Route::listem($class, false, true);
-        $items = json_decode(Route::getData());
-        $items = isset($items->data) ? $items->data : [];
+        $items = Route::getList($class);
         foreach ($items as &$it) {
             if (!isset($it->id)) {
                 continue;
@@ -4067,13 +4064,10 @@ abstract class FOGPage extends FOGBase
             ) {
                 continue;
             }
-            Route::listem(
+            $rows = Route::getList(
                 $entry['bulkclass'],
-                [$entry['parentkey'] => $ids],
-                true
+                [$entry['parentkey'] => $ids]
             );
-            $rows = json_decode(Route::getData());
-            $rows = isset($rows->data) ? $rows->data : [];
             $orderkey = isset($entry['orderkey']) ? $entry['orderkey'] : '';
             $byParent = [];
             foreach ($rows as $r) {

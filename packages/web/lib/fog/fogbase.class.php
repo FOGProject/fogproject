@@ -741,19 +741,16 @@ abstract class FOGBase
             'taskID' => self::$Host->get('task')->get('id'),
             'hostID' => self::$Host->get('id'),
         ];
-        Route::listem(
+        $NodeFails = Route::getList(
             'nodefailure',
             $find
-        );
-        $NodeFails = json_decode(
-            Route::getData()
         );
         $nodeRet = array_values(
             array_unique(
                 array_filter(
                     array_map(
                         $nodeFail,
-                        $NodeFails->data
+                        $NodeFails
                     )
                 )
             )
@@ -3317,17 +3314,15 @@ abstract class FOGBase
         if ($macCount < 1) {
             return;
         }
-        Route::listem(
+        $StorageNodes = Route::getList(
             'storagenode',
             ['isEnabled' => 1]
         );
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
-        foreach ($StorageNodes->data as &$StorageNode) {
-            Route::indiv('storagenode', $StorageNode->id);
-            $StorageNode = json_decode(Route::getData());
-            if (!$StorageNode->online) {
+        foreach ($StorageNodes as &$StorageNode) {
+            // getItem(), not indiv(): a node deleted between the list and the
+            // fetch answers null here rather than ending the response.
+            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
+            if (!$StorageNode || !$StorageNode->online) {
                 continue;
             }
             $nodeURLs[] = sprintf(
