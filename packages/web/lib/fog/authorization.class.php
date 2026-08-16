@@ -696,16 +696,31 @@ class Authorization extends FOGBase
     /**
      * Is a specific object within the acting user's object scope?
      *
-     * Object scope is an OPTIONAL boundary layered on top of the verb
-     * permission. It has no built-in meaning: a plugin (currently Site)
-     * enforces it by listening for OBJECT_SCOPE_CHECK and flipping
-     * 'allowed' to false for objects outside the user's scope. With no
-     * listener registered the boundary does not exist and every object is
-     * in scope, so this is inert on a stock install.
+     * Object scope is a boundary layered on top of the verb permission:
+     * the permission says what you may do, this says which objects you may
+     * do it to. Core owns it, and SiteScope answers it -- sites moved out
+     * of the site plugin and into core, so this is no longer inert on a
+     * stock install.
+     *
+     * It still stays out of the way on an install that has not configured
+     * sites. SiteScope allows everything when no sites exist, so a server
+     * that has never used them, or one running new code against a schema
+     * that has not been deployed yet, behaves exactly as before.
+     *
+     * OBJECT_SCOPE_CHECK is still fired, and still first. Third-party
+     * listeners keep the contract they were written against: flip
+     * 'allowed' to false to deny an object core would have allowed. What
+     * changed is that the core site decision is combined with AND
+     * afterwards, so a listener can deny past core but cannot GRANT past
+     * it -- for a security boundary the composition has to be deny-wins,
+     * or a plugin could hand out another site's hosts by setting a flag.
      *
      * Unrestricted users (global '*' holders) and requests with
      * no concrete single-object id (id < 1 — list, create, mass op) always
-     * pass; scope is only meaningful for one existing object.
+     * pass; scope is only meaningful for one existing object. The '*'
+     * short circuit is deliberately ahead of everything else: a full
+     * administrator is never subject to a site boundary, and that is
+     * structural here rather than a rule SiteScope has to remember.
      *
      * @param string   $node   the page/api node (e.g. 'host')
      * @param int      $id     the target object id
@@ -729,16 +744,23 @@ class Authorization extends FOGBase
                 0
             );
         }
+        $node = strtolower(trim((string)$node));
         $allowed = true;
         self::$HookManager->processEvent(
             'OBJECT_SCOPE_CHECK',
             [
-                'node' => strtolower(trim((string)$node)),
+                'node' => $node,
                 'id' => $id,
                 'userID' => (int)$userID,
                 'allowed' => &$allowed
             ]
         );
+        // Core's site boundary, applied after the event and combined with
+        // AND. Skipped when a listener has already denied -- deny is deny,
+        // and there is no reason to spend the query.
+        if ($allowed && !SiteScope::inScope($node, $id, (int)$userID)) {
+            $allowed = false;
+        }
         return (bool)$allowed;
     }
     /**
