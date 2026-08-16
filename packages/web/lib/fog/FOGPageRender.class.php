@@ -735,4 +735,165 @@ trait FOGPageRender
         }
         return $fields;
     }
+
+    /**
+     * Site membership map for the per-object Site tab.
+     *
+     * node => [member route, object id field, manager class]. The
+     * manager is spelled out rather than derived: ucfirst() on the route
+     * yields Sitehostmember, not SiteHostMember, and getClass() would fail
+     * to resolve it only at the moment somebody saves the tab.
+     *
+     * Kept here rather than read
+     * from SiteScope: that map is table and column names for the boundary
+     * queries, this one is route names for the ORM, and collapsing them
+     * would tie a security lookup to a presentation detail.
+     *
+     * @var array
+     */
+    protected static $siteTabMap = [
+        'host' => ['sitehostmember', 'hostID', 'SiteHostMemberManager'],
+        'user' => ['siteusermember', 'userID', 'SiteUserMemberManager'],
+        'group' => ['sitegroupmember', 'groupID', 'SiteGroupMemberManager'],
+        'usergroup' => [
+            'siteusergroupmember',
+            'usergroupID',
+            'SiteUserGroupMemberManager'
+        ]
+    ];
+    /**
+     * The site ids an object currently belongs to.
+     *
+     * @param string $node     the owning node
+     * @param int    $objectID the object id
+     *
+     * @return array int site ids
+     */
+    protected static function siteIDsFor($node, $objectID)
+    {
+        if (!isset(self::$siteTabMap[$node]) || (int)$objectID < 1) {
+            return [];
+        }
+        list($route, $field) = self::$siteTabMap[$node];
+        return array_map(
+            'intval',
+            (array)Route::getIds(
+                $route,
+                [$field => (int)$objectID],
+                'siteID'
+            )
+        );
+    }
+    /**
+     * Renders the Site tab shared by the host, user, group and usergroup
+     * edit pages.
+     *
+     * A single dropdown, as the site plugin had it: an object sits at one
+     * site, and that is the shape admins already know.
+     *
+     * The membership tables are many-to-many though, and the site page's
+     * association grids can genuinely put one object in several sites --
+     * at which point saving this tab replaces all of them with the one
+     * selected. That is the plugin's behaviour and it is kept, but it is
+     * no longer SILENT: when an object is in more than one site the tab
+     * says so and names them, so the replacement is a choice rather than a
+     * surprise. Losing a membership with no message is the failure worth
+     * spending markup on.
+     *
+     * @param string $node the owning node (host|user|group|usergroup)
+     * @param object $obj  the owning object
+     *
+     * @return void
+     */
+    protected function renderSiteTab($node, $obj)
+    {
+        $objectID = (int)$obj->get('id');
+        $current = self::siteIDsFor($node, $objectID);
+        $siteID = (
+            (int)filter_input(INPUT_POST, 'site') ?:
+            (int)reset($current)
+        );
+
+        $fields = [
+            self::makeLabel(
+                'col-sm-3 col-form-label',
+                'site',
+                _('Site')
+            ) => self::getClass('SiteManager')->buildSelectBox($siteID, 'site')
+        ];
+
+        $buttons = self::makeButton(
+            'site-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        );
+        // Create-and-associate, same button and modal the grid tabs get.
+        // Added before the *_FIELDS event so a listener still sees it, and
+        // right after Update so Update stays the rightmost (primary) one.
+        $createModal = self::renderAssocCreate(
+            $node . '-site',
+            'site',
+            $buttons,
+            $objectID
+        );
+
+        self::$HookManager->processEvent(
+            strtoupper($node) . '_SITE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'obj' => &$obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            '',
+            $node . '-site-form',
+            self::makeTabUpdateURL($node . '-site', $objectID),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="card">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Site');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        if (count($current) > 1) {
+            $names = [];
+            foreach ($current as $sid) {
+                $site = self::getClass('Site', $sid);
+                if ($site->isValid()) {
+                    $names[] = $site->get('name');
+                }
+            }
+            echo '<div class="alert alert-warning">'
+                . sprintf(
+                    _(
+                        'This is currently in %d sites (%s). Saving here '
+                        . 'replaces them all with the single site selected '
+                        . 'below. Use the site\'s own page to keep more '
+                        . 'than one.'
+                    ),
+                    count($current),
+                    Initiator::e(implode(', ', $names))
+                )
+                . '</div>';
+        }
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        // Outside the form, deliberately: the modal holds a fetched create
+        // form, and a <form> inside another <form> is invalid markup -- the
+        // browser drops the inner one and the create posts nothing.
+        echo $createModal;
+    }
 }

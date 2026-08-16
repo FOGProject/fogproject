@@ -6185,6 +6185,9 @@ msgstr ""
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
+msgid "Site"
+msgstr "サイト"
+
 msgid "Site Create Fail"
 msgstr "サイトの作成に失敗しました"
 
@@ -7146,6 +7149,10 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
 
+#, fuzzy
+msgid "The selected site no longer exists"
+msgstr "選択したプリンターを追加"
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
 
@@ -7256,6 +7263,10 @@ msgstr "これは一度だけ実行されるタスクであり、現在は実行
 
 msgid "This is a single run task that should run now."
 msgstr "これは一度だけ実行されるタスクであり、現在実行される予定です。"
+
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
+msgstr ""
 
 msgid "This is especially useful if you have multiple"
 msgstr "複数ある場合に特に便利です"
@@ -10558,9 +10569,6 @@ msgstr ""
 
 #~ msgid "Shutdown after install"
 #~ msgstr "インストール後にシャットダウン"
-
-#~ msgid "Site"
-#~ msgstr "サイト"
 
 #~ msgid "Site Association"
 #~ msgstr "サイトの関連付け"

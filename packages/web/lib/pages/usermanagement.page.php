@@ -782,6 +782,15 @@ class UserManagement extends FOGPage
                 $this->userGroup();
             }
         ];
+        // Site
+        $tabData[] = [
+            'name' => _('Site'),
+            'id' => 'user-site',
+            'generator' => function () {
+                $this->userSite();
+            }
+        ];
+
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -800,6 +809,9 @@ class UserManagement extends FOGPage
             function (&$serverFault) {
                 global $tab;
                 switch ($tab) {
+                    case 'user-site':
+                        $this->userSitePost();
+                        break;
                     case 'user-general':
                         $this->userGeneralPost();
                         break;
@@ -870,5 +882,24 @@ class UserManagement extends FOGPage
                 ]
             ]
         );
+    }
+
+    /**
+     * Presents the site tab.
+     *
+     * @return void
+     */
+    public function userSite()
+    {
+        $this->renderSiteTab('user', $this->obj);
+    }
+    /**
+     * Updates the site.
+     *
+     * @return void
+     */
+    public function userSitePost()
+    {
+        $this->siteTabPost('user', $this->obj);
     }
 }

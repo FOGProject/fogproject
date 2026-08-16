@@ -3519,6 +3519,15 @@ class HostManagement extends FOGPage
                 ]
             ]
         ];
+        // Site
+        $tabData[] = [
+            'name' => _('Site'),
+            'id' => 'host-site',
+            'generator' => function () {
+                $this->hostSite();
+            }
+        ];
+
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -3537,6 +3546,9 @@ class HostManagement extends FOGPage
             function (&$serverFault) {
                 global $tab;
                 switch ($tab) {
+                    case 'host-site':
+                        $this->hostSitePost();
+                        break;
                     case 'host-general':
                         $this->hostGeneralPost();
                         break;
@@ -4570,5 +4582,24 @@ class HostManagement extends FOGPage
                 'disablebtn' => false
             ]
         ));
+    }
+
+    /**
+     * Presents the site tab.
+     *
+     * @return void
+     */
+    public function hostSite()
+    {
+        $this->renderSiteTab('host', $this->obj);
+    }
+    /**
+     * Updates the site.
+     *
+     * @return void
+     */
+    public function hostSitePost()
+    {
+        $this->siteTabPost('host', $this->obj);
     }
 }
