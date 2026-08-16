@@ -286,10 +286,6 @@ msgstr "non è più in esecuzione"
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
-#, fuzzy
-msgid "A site already exists with this name!"
-msgstr "Un host già esiste con questo nome!"
-
 msgid "A snapin already exists with this name!"
 msgstr "Esiste già un snapin con questo nome!"
 
@@ -548,10 +544,6 @@ msgstr "Aggiungi stampanti selezionate"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Aggiungi gruppo di archiviazione selezionato"
-
-#, fuzzy
-msgid "Add site failed!"
-msgstr "Aggiunta host non riuscita!"
 
 #, fuzzy
 msgid "Add slack account failed!"
@@ -1525,10 +1517,6 @@ msgid "Create New Scheduled"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
-msgid "Create New Site"
-msgstr "Crea nuova stampante"
-
-#, fuzzy
 msgid "Create New Snapin"
 msgstr "Crea nuovo snapin"
 
@@ -2115,9 +2103,6 @@ msgstr "Esporta luoghi"
 msgid "Export OUs"
 msgstr "Esporta utenti"
 
-msgid "Export Sites"
-msgstr "Esporta Siti"
-
 #, fuzzy
 msgid "Export Subnet Groups"
 msgstr "Gruppi Export"
@@ -2627,19 +2612,11 @@ msgid "Group"
 msgstr "Gruppo"
 
 #, fuzzy
-msgid "Group Association"
-msgstr "Storage Node Creato"
-
-#, fuzzy
 msgid "Group Associations"
 msgstr "Storage Node Creato"
 
 #, fuzzy
 msgid "Group BIOS Exit"
-msgstr "Gruppo Snapins"
-
-#, fuzzy
-msgid "Group Count"
 msgstr "Gruppo Snapins"
 
 msgid "Group Create Fail"
@@ -2763,18 +2740,6 @@ msgid "Group Search DN"
 msgstr "Ricerca gruppo DN"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "Gruppo Snapins"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "Gruppo aggiornato!"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "Storia Snapin Host"
 
@@ -2791,10 +2756,6 @@ msgstr "Aggiornamento gruppo non riuscito"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "Aggiornamento gruppo non riuscito"
 
 msgid "Group Update Success"
@@ -2949,10 +2910,6 @@ msgstr "Host associato"
 msgid "Host BIOS Exit Type"
 msgstr "Host EFI Tipo Exit"
 
-#, fuzzy
-msgid "Host Count"
-msgstr "Host Init"
-
 msgid "Host Create Fail"
 msgstr "Creazione Host fallita"
 
@@ -3069,18 +3026,6 @@ msgid "Host Registration"
 msgstr "registrazione Host"
 
 #, fuzzy
-msgid "Host Site"
-msgstr "Lista Host"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "Aggiornamento host completato!"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "Sito aggiornato!"
-
-#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "Host associato"
 
@@ -3096,10 +3041,6 @@ msgstr "Aggiornamento Host completato"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "Aggiornamento Host completato"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "Aggiornamento Host completato"
 
 msgid "Host Update Success"
@@ -3513,9 +3454,6 @@ msgstr "Importa Report"
 
 msgid "Import Reports"
 msgstr "Importa Report"
-
-msgid "Import Sites"
-msgstr "importa Siti"
 
 #, fuzzy
 msgid "Import Subnet Groups"
@@ -5934,6 +5872,9 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 msgid "Saving data for"
 msgstr "Salvataggio dei dati per"
 
@@ -6273,70 +6214,6 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
-
-#, fuzzy
-msgid "Site"
-msgstr "Siti"
-
-msgid "Site Association"
-msgstr "Associazione Sito"
-
-#, fuzzy
-msgid "Site Create Fail"
-msgstr "Creazione stampante fallita"
-
-#, fuzzy
-msgid "Site Create Success"
-msgstr "Creazione stampante riuscita"
-
-msgid "Site Description"
-msgstr "Descrizione Sito"
-
-#, fuzzy
-msgid "Site Group Associations"
-msgstr "Storage Node Creato"
-
-#, fuzzy
-msgid "Site Host Associations"
-msgstr "Host associato"
-
-#, fuzzy
-msgid "Site Management"
-msgstr "Storage Management"
-
-msgid "Site Name"
-msgstr "Nome sito"
-
-#, fuzzy
-msgid "Site Update Fail"
-msgstr "Aggiornamento della stampante non riuscito"
-
-#, fuzzy
-msgid "Site Update Success"
-msgstr "Aggiornamento host completato!"
-
-#, fuzzy
-msgid "Site User Associations"
-msgstr "Associazione Sito"
-
-#, fuzzy
-msgid "Site User Group Associations"
-msgstr "Storage Node Creato"
-
-#, fuzzy
-msgid "Site added!"
-msgstr "Stampante aggiunta"
-
-#, fuzzy
-msgid "Site update failed!"
-msgstr "Aggiornamento della stampante non è riuscito!"
-
-#, fuzzy
-msgid "Site updated!"
-msgstr "aggiornato stampante!"
-
-msgid "Sites"
-msgstr "Siti"
 
 msgid "Size"
 msgstr "Dimensione"
@@ -7896,10 +7773,6 @@ msgstr "Associazione Sito"
 msgid "User Cleanup"
 msgstr "Cleanup utente"
 
-#, fuzzy
-msgid "User Count"
-msgstr "Conte CPU"
-
 msgid "User Create Fail"
 msgstr "Creazione utente fallita"
 
@@ -7920,10 +7793,6 @@ msgstr "Storage Node Creato"
 #, fuzzy
 msgid "User Group Associations"
 msgstr "Storage Node Creato"
-
-#, fuzzy
-msgid "User Group Count"
-msgstr "Gruppo Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7948,22 +7817,6 @@ msgstr "Gruppo Snapins"
 #, fuzzy
 msgid "User Group Role Associations"
 msgstr "Regole di associazione"
-
-#, fuzzy
-msgid "User Group Site"
-msgstr "Gruppo Snapins"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "Gruppo aggiornato!"
 
 #, fuzzy
 msgid "User Group Update Fail"
@@ -7992,22 +7845,6 @@ msgstr "Attributo nome utente"
 
 msgid "User Password"
 msgstr "Password utente"
-
-#, fuzzy
-msgid "User Site"
-msgstr "Nuovo Sito"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "Aggiornamento della stampante non riuscito"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "Utente aggiornato con successo"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "Sito aggiornato!"
 
 msgid "User Tracker"
 msgstr "Tracker utente"
@@ -9033,6 +8870,10 @@ msgstr ""
 #~ msgstr "Esiste già un ruolo con questo nome!"
 
 #, fuzzy
+#~ msgid "A site already exists with this name!"
+#~ msgstr "Un host già esiste con questo nome!"
+
+#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Esiste già un ruolo con questo nome!"
 
@@ -9132,6 +8973,10 @@ msgstr ""
 #~ msgid "Add rule failed!"
 #~ msgstr "Aggiunta utente fallita!"
 
+#, fuzzy
+#~ msgid "Add site failed!"
+#~ msgstr "Aggiunta host non riuscita!"
+
 #~ msgid "Admin Group"
 #~ msgstr "Gruppo amministrativo"
 
@@ -9171,6 +9016,10 @@ msgstr ""
 #~ msgstr "Crea nuovo %s"
 
 #, fuzzy
+#~ msgid "Create New Site"
+#~ msgstr "Crea nuova stampante"
+
+#, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "Nessun nodo associato"
 
@@ -9203,6 +9052,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Export Rules"
 #~ msgstr "Importazione riuscita"
+
+#~ msgid "Export Sites"
+#~ msgstr "Esporta Siti"
 
 #~ msgid "Export Snapins"
 #~ msgstr "Export Snapins"
@@ -9237,17 +9089,45 @@ msgstr ""
 #~ msgstr "Riavvio"
 
 #, fuzzy
+#~ msgid "Group Association"
+#~ msgstr "Storage Node Creato"
+
+#, fuzzy
+#~ msgid "Group Count"
+#~ msgstr "Gruppo Snapins"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Host Luoghi"
 
 #~ msgid "Group Search DN did not return any results"
 #~ msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
 
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "Gruppo Snapins"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "Aggiornamento gruppo non riuscito"
+
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"
 
 #~ msgid "Host Associated"
 #~ msgstr "Host associato"
+
+#, fuzzy
+#~ msgid "Host Count"
+#~ msgstr "Host Init"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -9266,8 +9146,24 @@ msgstr ""
 #~ msgstr "Aggiornamento ruolo non riuscito"
 
 #, fuzzy
+#~ msgid "Host Site"
+#~ msgstr "Lista Host"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "Aggiornamento host completato!"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "Sito aggiornato!"
+
+#, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "Storia Snapin Host"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "Aggiornamento Host completato"
 
 #~ msgid "Host module settings"
 #~ msgstr "Impostazioni del modulo host"
@@ -9321,6 +9217,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Rules"
 #~ msgstr "Importa Report"
+
+#~ msgid "Import Sites"
+#~ msgstr "importa Siti"
 
 #~ msgid "Import Snapins"
 #~ msgstr "Importa Snapins"
@@ -9455,6 +9354,70 @@ msgstr ""
 #~ msgid "Rule update failed!"
 #~ msgstr "Aggiornamento della stampante non è riuscito!"
 
+#, fuzzy
+#~ msgid "Site"
+#~ msgstr "Siti"
+
+#~ msgid "Site Association"
+#~ msgstr "Associazione Sito"
+
+#, fuzzy
+#~ msgid "Site Create Fail"
+#~ msgstr "Creazione stampante fallita"
+
+#, fuzzy
+#~ msgid "Site Create Success"
+#~ msgstr "Creazione stampante riuscita"
+
+#~ msgid "Site Description"
+#~ msgstr "Descrizione Sito"
+
+#, fuzzy
+#~ msgid "Site Group Associations"
+#~ msgstr "Storage Node Creato"
+
+#, fuzzy
+#~ msgid "Site Host Associations"
+#~ msgstr "Host associato"
+
+#, fuzzy
+#~ msgid "Site Management"
+#~ msgstr "Storage Management"
+
+#~ msgid "Site Name"
+#~ msgstr "Nome sito"
+
+#, fuzzy
+#~ msgid "Site Update Fail"
+#~ msgstr "Aggiornamento della stampante non riuscito"
+
+#, fuzzy
+#~ msgid "Site Update Success"
+#~ msgstr "Aggiornamento host completato!"
+
+#, fuzzy
+#~ msgid "Site User Associations"
+#~ msgstr "Associazione Sito"
+
+#, fuzzy
+#~ msgid "Site User Group Associations"
+#~ msgstr "Storage Node Creato"
+
+#, fuzzy
+#~ msgid "Site added!"
+#~ msgstr "Stampante aggiunta"
+
+#, fuzzy
+#~ msgid "Site update failed!"
+#~ msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+#~ msgid "Site updated!"
+#~ msgstr "aggiornato stampante!"
+
+#~ msgid "Sites"
+#~ msgstr "Siti"
+
 #~ msgid "Snapin Created"
 #~ msgstr "Snapin creato"
 
@@ -9512,6 +9475,30 @@ msgstr ""
 #~ msgstr "Aggiorna/Rimuovi stampanti"
 
 #, fuzzy
+#~ msgid "User Count"
+#~ msgstr "Conte CPU"
+
+#, fuzzy
+#~ msgid "User Group Count"
+#~ msgstr "Gruppo Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "Gruppo Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "Gruppo aggiornato!"
+
+#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "Cleanup utente"
 
@@ -9522,6 +9509,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "Nuovo Sito"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "Aggiornamento della stampante non riuscito"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "Sito aggiornato!"
 
 #~ msgid "You have version"
 #~ msgstr "Hai l'ultima versione"

@@ -244,9 +244,6 @@ msgstr ""
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
-msgid "A site already exists with this name!"
-msgstr ""
-
 msgid "A snapin already exists with this name!"
 msgstr ""
 
@@ -472,9 +469,6 @@ msgid "Add selected"
 msgstr ""
 
 msgid "Add selected to group"
-msgstr ""
-
-msgid "Add site failed!"
 msgstr ""
 
 msgid "Add slack account failed!"
@@ -1331,9 +1325,6 @@ msgstr ""
 msgid "Create New Scheduled"
 msgstr ""
 
-msgid "Create New Site"
-msgstr ""
-
 msgid "Create New Snapin"
 msgstr ""
 
@@ -1850,9 +1841,6 @@ msgstr ""
 msgid "Export OUs"
 msgstr ""
 
-msgid "Export Sites"
-msgstr ""
-
 msgid "Export Subnet Groups"
 msgstr ""
 
@@ -2307,16 +2295,10 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
-msgid "Group Association"
-msgstr ""
-
 msgid "Group Associations"
 msgstr ""
 
 msgid "Group BIOS Exit"
-msgstr ""
-
-msgid "Group Count"
 msgstr ""
 
 msgid "Group Create Fail"
@@ -2418,15 +2400,6 @@ msgstr ""
 msgid "Group Search DN"
 msgstr ""
 
-msgid "Group Site"
-msgstr ""
-
-msgid "Group Site Update Success"
-msgstr ""
-
-msgid "Group Site Updated!"
-msgstr ""
-
 msgid "Group Snapin Assignment"
 msgstr ""
 
@@ -2440,9 +2413,6 @@ msgid "Group Update Location Fail"
 msgstr ""
 
 msgid "Group Update OU Fail"
-msgstr ""
-
-msgid "Group Update Site Fail"
 msgstr ""
 
 msgid "Group Update Success"
@@ -2572,9 +2542,6 @@ msgstr ""
 msgid "Host BIOS Exit Type"
 msgstr ""
 
-msgid "Host Count"
-msgstr ""
-
 msgid "Host Create Fail"
 msgstr ""
 
@@ -2674,15 +2641,6 @@ msgstr ""
 msgid "Host Registration"
 msgstr ""
 
-msgid "Host Site"
-msgstr ""
-
-msgid "Host Site Update Success"
-msgstr ""
-
-msgid "Host Site Updated!"
-msgstr ""
-
 msgid "Host Snapin Associations"
 msgstr ""
 
@@ -2696,9 +2654,6 @@ msgid "Host Update Location Fail"
 msgstr ""
 
 msgid "Host Update OU Fail"
-msgstr ""
-
-msgid "Host Update Site Fail"
 msgstr ""
 
 msgid "Host Update Success"
@@ -3064,9 +3019,6 @@ msgid "Import Report"
 msgstr ""
 
 msgid "Import Reports"
-msgstr ""
-
-msgid "Import Sites"
 msgstr ""
 
 msgid "Import Subnet Groups"
@@ -5214,6 +5166,9 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 msgid "Saving data for"
 msgstr ""
 
@@ -5507,57 +5462,6 @@ msgid "Signed in as %s."
 msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
-msgstr ""
-
-msgid "Site"
-msgstr ""
-
-msgid "Site Association"
-msgstr ""
-
-msgid "Site Create Fail"
-msgstr ""
-
-msgid "Site Create Success"
-msgstr ""
-
-msgid "Site Description"
-msgstr ""
-
-msgid "Site Group Associations"
-msgstr ""
-
-msgid "Site Host Associations"
-msgstr ""
-
-msgid "Site Management"
-msgstr ""
-
-msgid "Site Name"
-msgstr ""
-
-msgid "Site Update Fail"
-msgstr ""
-
-msgid "Site Update Success"
-msgstr ""
-
-msgid "Site User Associations"
-msgstr ""
-
-msgid "Site User Group Associations"
-msgstr ""
-
-msgid "Site added!"
-msgstr ""
-
-msgid "Site update failed!"
-msgstr ""
-
-msgid "Site updated!"
-msgstr ""
-
-msgid "Sites"
 msgstr ""
 
 msgid "Size"
@@ -6953,9 +6857,6 @@ msgstr ""
 msgid "User Cleanup"
 msgstr ""
 
-msgid "User Count"
-msgstr ""
-
 msgid "User Create Fail"
 msgstr ""
 
@@ -6974,9 +6875,6 @@ msgstr ""
 msgid "User Group Associations"
 msgstr ""
 
-msgid "User Group Count"
-msgstr ""
-
 msgid "User Group Create Fail"
 msgstr ""
 
@@ -6993,18 +6891,6 @@ msgid "User Group Name"
 msgstr ""
 
 msgid "User Group Role Associations"
-msgstr ""
-
-msgid "User Group Site"
-msgstr ""
-
-msgid "User Group Site Update Fail"
-msgstr ""
-
-msgid "User Group Site Update Success"
-msgstr ""
-
-msgid "User Group Site Updated!"
 msgstr ""
 
 msgid "User Group Update Fail"
@@ -7029,18 +6915,6 @@ msgid "User Name Attribute"
 msgstr ""
 
 msgid "User Password"
-msgstr ""
-
-msgid "User Site"
-msgstr ""
-
-msgid "User Site Update Fail"
-msgstr ""
-
-msgid "User Site Update Success"
-msgstr ""
-
-msgid "User Site Updated!"
 msgstr ""
 
 msgid "User Tracker"
