@@ -171,7 +171,7 @@ class Snapin extends FOGController
             throw new \Exception(self::$foglang['ProtectedSnapin']);
         }
         foreach ($this->get('storagegroups') as $storagegroupID) {
-            self::getClass('filedeletequeue')
+            self::getClass('FileDeleteQueue')
                 ->set('path', $this->get('file'))
                 ->set('pathtype', 'Snapin')
                 ->set('createdTime', self::formatTime('now', 'Y-m-d H:i:s'))

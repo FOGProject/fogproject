@@ -210,7 +210,7 @@ class Image extends FOGController
             throw new \Exception(self::$foglang['ProtectedImage']);
         }
         foreach ($this->get('storagegroups') as $storagegroupID) {
-            self::getClass('filedeletequeue')
+            self::getClass('FileDeleteQueue')
                 ->set('path', $this->get('path'))
                 ->set('pathtype', 'Image')
                 ->set('createdTime', self::formatTime('now', 'Y-m-d H:i:s'))
