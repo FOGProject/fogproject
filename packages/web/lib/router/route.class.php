@@ -154,6 +154,17 @@ class Route extends FOGBase
      * @var int
      */
     private static $_deleteDepth = 0;
+    /**
+     * Nesting depth of the getX() result wrappers.
+     *
+     * Non-zero means a caller below the HTTP boundary is on the stack, so
+     * failed() rethrows instead of ending the response. A counter rather than
+     * a flag because listem() fires hooks that may re-enter Route, and the
+     * inner call must inherit the outer caller's context.
+     *
+     * @var int
+     */
+    private static $_rethrowDepth = 0;
     public static $sensitiveFields = [
         'host' => [
             'ADPass',
@@ -961,6 +972,33 @@ class Route extends FOGBase
      */
     public static function sendResponse($code, $msg = false)
     {
+        // The router is the HTTP boundary and is entitled to end the response:
+        // breakHead() sets the status and exits. That is still exactly what
+        // happens for every caller that reaches here normally.
+        //
+        // It is the wrong answer below that boundary, and this is called from
+        // well below it -- eleven classes under lib/service back the CLI
+        // daemons, where the exit ends the daemon process after writing an
+        // HTTP status line to stdout, and the client endpoints, where a
+        // non-2xx is invisible to the client and reads as a transport failure
+        // rather than an answer. multicasttask.class.php already carries a
+        // hand-rolled guard against exactly this (see #907); it had to
+        // duplicate indiv()'s own validity test to avoid calling it.
+        //
+        // So when a getX() result wrapper is on the stack, report the failure
+        // as an exception and let the caller decide. Those callers can catch
+        // and log; they cannot un-exit. See ADR 0011.
+        //
+        // The guard lives here rather than in the individual catch blocks
+        // because this is the single choke point -- 44 call sites in this
+        // class funnel through it, and paths like getsearchbody() end the
+        // response without ever reaching listem()'s own catch.
+        if (self::$_rethrowDepth > 0) {
+            throw new \RuntimeException(
+                is_string($msg) && $msg !== '' ? $msg : (string)$code,
+                (int)$code
+            );
+        }
         HTTPResponseCodes::breakHead(
             $code,
             $msg
@@ -4309,6 +4347,137 @@ class Route extends FOGBase
         $data = self::$data;
         self::$data = '';
         return is_array($data) ? $data : [];
+    }
+    /**
+     * Returns a list's rows directly as a PHP array.
+     *
+     * The listem() counterpart of getIds(), and the reason it exists is the
+     * same: `Route::listem(...); json_decode(Route::getData());` encodes the
+     * result to JSON only to decode it straight back, and leaves every caller
+     * holding the paginated envelope.
+     *
+     * That envelope is the DataTables and pagination contract and is not going
+     * anywhere -- but the rows live under its `data` key, and a caller that
+     * iterates the envelope instead walks its eleven scalar members (draw,
+     * recordsTotal, the page URLs...) and gets null for every field. It does
+     * not error, it warns. That mistake has shipped three times: the ou
+     * plugin never set ADOU on any client check-in, cancelling a group's tasks
+     * cancelled nothing, and the iPXE menu never applied its fog.local label.
+     *
+     * This returns the rows, so there is no envelope for a caller to hold
+     * wrongly. Every permission filter, hook, expand and pluginItems step
+     * still runs -- listem() does the work and this adds no policy.
+     *
+     * Failures rethrow rather than ending the response; see failed().
+     *
+     * @param string $class      The class to list.
+     * @param mixed  $whereItems The items to filter on.
+     * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby    How to order the returned rows.
+     *
+     * @throws \Exception When the underlying query fails.
+     *
+     * @return array The rows, or an empty array. Never null, so a foreach
+     *               over the result is always safe.
+     */
+    public static function getList(
+        $class,
+        $whereItems = false,
+        $operator = 'AND',
+        $orderby = 'name'
+    ) {
+        self::$_rethrowDepth++;
+        try {
+            // inputoverride stays true: an internal caller is not answering a
+            // DataTables POST, and without it listem() would read pagination
+            // out of php://input and silently page a result the caller asked
+            // for in full.
+            self::listem($class, $whereItems, true, $operator, $orderby);
+            $data = self::$data;
+            self::$data = '';
+        } finally {
+            self::$_rethrowDepth--;
+        }
+        if (is_array($data) && isset($data['data'])) {
+            $rows = is_array($data['data']) ? $data['data'] : [];
+        } else {
+            $rows = is_array($data) ? $data : [];
+        }
+        return self::objectify($rows);
+    }
+    /**
+     * Builds the object graph json_decode() would have produced, without the
+     * encode/decode round-trip.
+     *
+     * The idiom these wrappers replace ends in json_decode(), so its rows
+     * arrive as stdClass and every one of the ~190 call sites reads
+     * `$row->field`. Handing back raw arrays would make migrating them a
+     * rewrite rather than a swap, and a `$row->id` left behind on an array is
+     * a null read, not an error -- the same silent shape as the envelope bug
+     * this is meant to end.
+     *
+     * Mirrors json_decode()'s rule exactly: a list stays a list, an
+     * associative array becomes stdClass, scalars pass through untouched. An
+     * empty array stays an array, as json_decode('[]') does.
+     *
+     * @param mixed $value The value to convert.
+     *
+     * @return mixed
+     */
+    private static function objectify($value)
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+        // array_is_list() is PHP 8.1; the floor here is 7.4.
+        $isList = $value === []
+            || array_keys($value) === range(0, count($value) - 1);
+        $out = [];
+        foreach ($value as $key => $item) {
+            $out[$key] = self::objectify($item);
+        }
+        return $isList ? $out : (object)$out;
+    }
+    /**
+     * Returns one entity directly as a PHP object.
+     *
+     * The indiv() counterpart of getIds(). indiv()'s payload is flat -- there
+     * is no envelope on a single entity -- so this exists for the round-trip
+     * and for the not-found behaviour rather than for unwrapping.
+     *
+     * Existence is established first with an id-only query, deliberately.
+     * indiv() answers a row it cannot find with sendResponse(404), which
+     * reaches breakHead() and exits, and that is the right answer at the HTTP
+     * boundary. Rather than change it, this asks a cheap indexed question
+     * first so the wrapper can return null the way its callers need. One
+     * extra id-only query is the price of not making indiv() ambiguous.
+     *
+     * Failures rethrow rather than ending the response; see failed().
+     *
+     * @param string $class The class to fetch.
+     * @param mixed  $id    The id to fetch.
+     *
+     * @throws \Exception When the underlying query fails.
+     *
+     * @return object|null The entity, or null when no such row exists or the
+     *                     caller may not see it.
+     */
+    public static function getItem($class, $id)
+    {
+        self::$_rethrowDepth++;
+        try {
+            if (count(self::getIds($class, ['id' => $id])) === 0) {
+                return null;
+            }
+            self::indiv($class, $id);
+            $data = self::$data;
+            self::$data = '';
+        } finally {
+            self::$_rethrowDepth--;
+        }
+        // getter() builds an associative array; hand back the object graph so
+        // call sites read the same as the json_decode() form they replace.
+        return self::objectify($data);
     }
     /**
      * Delete items in mass.
