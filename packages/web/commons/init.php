@@ -162,6 +162,16 @@ class Initiator
     /** Seconds a persisted file-list cache is trusted before it is rebuilt. */
     private const FILELIST_TTL = 300;
 
+    /**
+     * The one namespace prefix the bridge in autoload() answers for.
+     *
+     * Deliberately a constant and not a setting. A bridge whose namespace
+     * varies per install is a bridge nobody can write documentation for, and
+     * one that answered for ANY prefix would make a plugin's `Vendor\Host`
+     * silently resolve to core's `Host`.
+     */
+    private const BRIDGE_NS = 'FOG\\';
+
     /** In-process memo of the class-source file list. */
     private static ?array $fileList = null;
 
@@ -249,6 +259,10 @@ class Initiator
      * differs per install. Keep colliding basenames out of the scan (see
      * _scanClassFiles) rather than relying on either rule.
      *
+     * A name that misses the map and carries the FOG\ prefix falls through to
+     * _bridgeNamespaced() below rather than to the built-in resolver, which
+     * cannot find it -- see that method.
+     *
      * @param string $class The class being autoloaded.
      *
      * @return void
@@ -283,6 +297,66 @@ class Initiator
             // a plugin shipping class/<name>manager.class.php declaring
             // something else.
             include_once self::$classMap[$key];
+            return;
+        }
+
+        self::_bridgeNamespaced($class);
+    }
+
+    /**
+     * Resolve a FOG\<Name> request to the still-global <Name> and alias it.
+     *
+     * Nothing in the tree is namespaced yet, so `FOG\User` currently misses
+     * everywhere and does so silently. autoload()'s map is keyed on a
+     * lowercased basename, and no basename can contain a backslash, so
+     * `fog\user` is never a key; the bare spl_autoload() registered behind it
+     * then converts the separator to a directory and probes for
+     * `fog/user.class.php`, which no include_path entry holds. No error, no
+     * log line, just a class-not-found at the call site.
+     *
+     * This makes the namespaced spelling work ahead of the files themselves
+     * moving, so call sites and plugin code can be written forward-compatibly
+     * now and the eventual migration is not also a flag day for every caller.
+     * class_alias produces one class entry under two names, so `instanceof`,
+     * `new`, Reflection and every getClass() consumer see a single type.
+     * (get_class() still reports the DECLARED name -- that asymmetry is why
+     * namespacing the models is a separate problem from bridging their names,
+     * and why this is safe while that is not.)
+     *
+     * Flat names only. A nested request such as FOG\Model\Host is the shape
+     * the real migration will use, and answering it here by guessing at the
+     * last segment would resolve two different future classes to one file.
+     *
+     * @param string $class The namespaced class being autoloaded.
+     *
+     * @return void
+     */
+    private static function _bridgeNamespaced(string $class): void
+    {
+        if (strncasecmp($class, self::BRIDGE_NS, strlen(self::BRIDGE_NS)) !== 0) {
+            return;
+        }
+        $short = substr($class, strlen(self::BRIDGE_NS));
+        if ($short === '' || strpos($short, '\\') !== false) {
+            return;
+        }
+        $key = strtolower($short);
+        if (!isset(self::$classMap[$key])) {
+            return;
+        }
+        include_once self::$classMap[$key];
+        // Checked with autoload OFF. With it on, a file whose declared class
+        // name does not match its basename would re-enter autoload() for the
+        // same short name and hit the "Cannot declare class X" fatal the
+        // include_once above exists to avoid. Aliasing a name that was never
+        // declared is itself a fatal, so both halves matter: only alias what
+        // the include actually produced, and let PHP raise its own
+        // catchable class-not-found for anything else.
+        if (class_exists($short, false)
+            || interface_exists($short, false)
+            || trait_exists($short, false)
+        ) {
+            class_alias($short, $class);
         }
     }
 

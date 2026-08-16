@@ -68,16 +68,33 @@ The running example, `helloworld`, manages a trivial entity with a `name` and a
 - **Boot chain.** Every entry point loads `commons/base.inc.php` →
   `commons/init.php` → `LoadGlobals`, which sets the shared singletons
   (`FOGBase::$DB`, `$HookManager`, `$EventManager`, `$currentUser`).
-- **Autoloader.** `Initiator` scans `BASEPATH` recursively, adds every
-  directory containing a `*.{class,page,hook,event,report}.php` file to the PHP
-  `include_path`, then registers PHP's **default** `spl_autoload`. That default
-  autoloader **lowercases the class name** to find the file. So:
+- **Autoloader.** `Initiator` scans `BASEPATH` recursively, builds a
+  lowercased‑basename → path map of every `*.{class,page,hook,event,report,task}.php`
+  file, and registers that ahead of PHP's default `spl_autoload` (which stays
+  registered as a fallback). Lookup **lowercases the class name** to find the
+  file. So:
 
   > **The filename must be `strtolower(ClassName)` + the suffix.**
   > `class HelloWorldManagement` ⇒ `helloworldmanagement.page.php`.
   > `class AddHelloWorldJS` ⇒ `addhelloworldjs.hook.php`.
 
   (Class names in code are PascalCase; the files on disk are all‑lowercase.)
+
+  **Namespaced spellings work too.** `FOG\Host` resolves to the same class as
+  `Host` — the autoloader falls back to the short name and `class_alias`es the
+  result. One class entry under two names, so `instanceof`, `new`, Reflection
+  and `FOGBase::getClass()` all see a single type.
+
+  Nothing in FOG is namespaced yet; this exists so plugin code written today
+  survives the migration when it happens. Either spelling is correct for all of
+  1.6, and bare `Host` is the one to use if your plugin must also run on 1.6
+  betas before this landed. Two limits worth knowing: only the flat `FOG\<Name>`
+  form is bridged (`FOG\Model\Host` deliberately does not resolve), and your own
+  namespace is never touched — a `Vendor\Host` in your plugin stays yours and
+  will not silently become core's `Host`.
+
+  This does **not** change the filename rule above. `FOG\Host` is found by
+  looking up `host`, so the file is still `host.class.php`.
 - **Routing.** The whole UI is driven by `?node=<x>&sub=<y>&id=<n>`. `node` maps
   to a page class (`helloworld` → `HelloWorldManagement`, matched by its
   `public $node = 'helloworld'`), and `sub` maps to a method on it

@@ -65,7 +65,7 @@
  * This constant existing rather than the assertion simply being deleted is
  * the point: the flip is the bridge's regression test.
  */
-const EXPECT_BRIDGE = false;
+const EXPECT_BRIDGE = true;
 
 // An explicit path means "probe that tree", which is a different job from
 // "check this checkout" -- see the header. Compared by realpath so that
