@@ -527,7 +527,7 @@ class TaskManagementPage extends FOGPage
             $var = ucfirst($type);
             $$var = self::getClass($var, $id);
             if (!$$var->isValid()) {
-                throw new Exception(_(sprintf('Invalid %s', $var)));
+                throw new Exception(sprintf(_('Invalid %s'), $var));
             }
             $typeID = filter_input(INPUT_GET, 'type');
             $TaskType = new TaskType($typeID);
@@ -649,11 +649,9 @@ class TaskManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->title = _(
-            sprintf(
-                '%s Advanced Actions',
-                ucfirst($type)
-            )
+        $this->title = sprintf(
+            _('%s Advanced Actions'),
+            ucfirst($type)
         );
         global $id;
         $types = array(

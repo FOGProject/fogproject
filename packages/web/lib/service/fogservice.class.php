@@ -168,7 +168,7 @@ abstract class FOGService extends FOGBase
         }
         foreach (self::$ips as &$ip) {
             self::outall(
-                _("Interface Ready with IP Address: $ip")
+                sprintf(_('Interface Ready with IP Address: %s'), $ip)
             );
             unset($ip);
         }
@@ -419,7 +419,7 @@ abstract class FOGService extends FOGBase
                     _('Not syncing'),
                     $objType,
                     _('between'),
-                    _("{$itemType}s")
+                    _($itemType) . 's'
                 )
             );
             self::outall(
@@ -446,7 +446,7 @@ abstract class FOGService extends FOGBase
                     $groupOrNodeCount,
                     (
                         $groupOrNodeCount != 1 ?
-                        _("{$itemType}s") :
+                        _($itemType) . 's'  :
                         _($itemType)
                     )
                 )
@@ -531,7 +531,7 @@ abstract class FOGService extends FOGBase
                             _('Not syncing'),
                             $objType,
                             _('between'),
-                            _("{$itemType}s")
+                            _($itemType) . 's'
                         )
                     );
                     self::outall(

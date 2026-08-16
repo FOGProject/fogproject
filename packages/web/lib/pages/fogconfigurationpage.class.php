@@ -1918,7 +1918,10 @@ class FOGConfigurationPage extends FOGPage
             unset($DefMenuIDs);
             $msg = json_encode(
                 array(
-                    'msg' => _("$menu_item successfully updated!"),
+                    'msg' => sprintf(
+                        _('%s successfully updated!'),
+                        $menu_item
+                    ),
                     'title' => _('iPXE Item Update Success')
                 )
             );

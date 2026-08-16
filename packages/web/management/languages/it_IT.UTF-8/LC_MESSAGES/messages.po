@@ -40,9 +40,6 @@ msgstr "* La replica Snapin è disattivata globalmente"
 msgid " * Task Scheduler is globally disabled"
 msgstr "* Il task scheduler è disattivato a livello globale"
 
-msgid " Name"
-msgstr "Nome"
-
 #, fuzzy
 msgid " No open slots "
 msgstr "Nessuno slot aperti"
@@ -60,6 +57,10 @@ msgstr "Impossibile trovare il Nodo Archiviazione master"
 msgid "$_POST variable is empty, check apache error log."
 msgstr "La variabile $ _POST è vuota, controlla il log degli errori di apache."
 
+#, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "Azioni Avanzate"
+
 #, php-format
 msgid "%s ID %d is not valid"
 msgstr "%s ID %d non valido"
@@ -76,9 +77,17 @@ msgstr "%s Responsabile"
 msgid "%s Menu"
 msgstr "%s Menu"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "Nome"
+
 #, php-format
 msgid "%s is required"
 msgstr "%s è richiesto"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "è stato aggiornato con successo"
 
 msgid "1 Hour"
 msgstr "1 ora"
@@ -424,6 +433,10 @@ msgstr "Aggiunta ruolo non riuscita!"
 msgid "Add rule failed!"
 msgstr "Aggiunta ruolo non riuscita!"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "Aggiungi stampanti selezionate"
+
 #, fuzzy
 msgid "Add selected hosts"
 msgstr "Aggiungi stampanti selezionate"
@@ -519,6 +532,10 @@ msgstr "Fa deve essere boolean"
 
 msgid "All"
 msgstr "Tutti"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "Elencare tutti %s"
 
 msgid "All Groups"
 msgstr "tutti i gruppi"
@@ -845,6 +862,10 @@ msgstr "Telaio Version"
 
 msgid "Chat is also available on the forums for more realtime help"
 msgstr "La chat è anche disponibile all'interno del forum per una maggiore assistenza in tempo reale"
+
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "Controllare qui per vedere cosa è possibile aggiungere stampanti"
 
 #, fuzzy
 msgid "Check here to see what hosts can be added"
@@ -2056,6 +2077,14 @@ msgstr "Product Key Group"
 msgid "GPU Vendors"
 msgstr "Venditore BIOS"
 
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "Product Key Group"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
+msgstr "Venditore BIOS"
+
 msgid "General"
 msgstr "Generale"
 
@@ -2909,10 +2938,18 @@ msgstr "Impostazioni di integrità"
 msgid "Interface"
 msgstr "Interfaccia"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr "Interfaccia non pronta, in attesa che venga visualizzata"
 
 msgid "Invalid"
+msgstr "Non valido"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "Non valido"
 
 msgid "Invalid Class"
@@ -4588,7 +4625,8 @@ msgstr "Indirizzo remoto che cerca di accedere"
 msgid "Remove"
 msgstr "Rimuovere"
 
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "Rimuovere"
 
 #, fuzzy
@@ -4619,7 +4657,8 @@ msgstr "Rimuovere"
 msgid "Remove failed"
 msgstr "Rimozione fallita"
 
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "Rimuovi i selezionati"
 
 msgid "Remove selected groups"

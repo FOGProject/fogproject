@@ -39,9 +39,6 @@ msgstr " * Replicação de Snapin está desabilitada globalmente"
 msgid " * Task Scheduler is globally disabled"
 msgstr " * Agendador de Tarefas está desabilitado globalmente"
 
-msgid " Name"
-msgstr " Nome"
-
 msgid " No open slots "
 msgstr " Não há slots abertos "
 
@@ -56,6 +53,10 @@ msgstr " | Não foi possível encontrar o caminho da imagem"
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "A variável $_POST está vazia, verifique o log de erros do apache."
+
+#, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "Ações Avançadas"
 
 #, php-format
 msgid "%s ID %d is not valid"
@@ -73,9 +74,17 @@ msgstr "Gerenciador de %s"
 msgid "%s Menu"
 msgstr "Menu de %s"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr " Nome"
+
 #, php-format
 msgid "%s is required"
 msgstr "%s é obrigatório"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "foi atualizado com sucesso"
 
 msgid "1 Hour"
 msgstr "1 Hora"
@@ -406,6 +415,10 @@ msgstr "Falha ao adicionar função!"
 msgid "Add rule failed!"
 msgstr "Falha ao adicionar regra!"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "Adicionar hosts selecionados"
+
 msgid "Add selected hosts"
 msgstr "Adicionar hosts selecionados"
 
@@ -496,6 +509,10 @@ msgstr "Campo 'Ago' deve ser booleano"
 
 msgid "All"
 msgstr "Todos"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "Listar Todos os %s"
 
 msgid "All Groups"
 msgstr "Todos os Grupos"
@@ -820,6 +837,10 @@ msgstr "Versão do Chassi"
 
 msgid "Chat is also available on the forums for more realtime help"
 msgstr "O Chat também está disponível nos fóruns para ajuda em tempo real"
+
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "Verifique aqui para ver quais hosts podem ser adicionados"
 
 msgid "Check here to see what hosts can be added"
 msgstr "Verifique aqui para ver quais hosts podem ser adicionados"
@@ -1992,6 +2013,14 @@ msgstr "Produtos GPU"
 msgid "GPU Vendors"
 msgstr "Fabricantes de GPU"
 
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "Produtos GPU"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
+msgstr "Fabricantes de GPU"
+
 msgid "General"
 msgstr "Geral"
 
@@ -2828,10 +2857,18 @@ msgstr "Configurações de Integridade"
 msgid "Interface"
 msgstr "Interface"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr "Interface não está pronta, aguardando inicialização"
 
 msgid "Invalid"
+msgstr "Inválido"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "Inválido"
 
 msgid "Invalid Class"
@@ -4488,7 +4525,8 @@ msgstr "Endereço remoto tentando fazer login"
 msgid "Remove"
 msgstr "Remover"
 
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "Remover "
 
 msgid "Remove Accesscontrol Rules"
@@ -4515,7 +4553,8 @@ msgstr "Remover Usuários"
 msgid "Remove failed"
 msgstr "Falha ao remover"
 
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "Remover selecionados "
 
 msgid "Remove selected groups"

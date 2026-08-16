@@ -2551,8 +2551,8 @@ class HostManagementPage extends FOGPage
             _('Chassis Asset') => $caseast
         );
         for ($i = 0; $i < count($gpuvendorsArray); $i++) {
-            $fields[_("GPU-$i Vendor")] = $gpuvendorsArray[$i];
-            $fields[_("GPU-$i Product")] = $gpuproductsArray[$i];
+            $fields[sprintf(_('GPU-%d Vendor'), $i)] = $gpuvendorsArray[$i];
+            $fields[sprintf(_('GPU-%d Product'), $i)] = $gpuproductsArray[$i];
         }
         if ($this->obj->get('inventory')->isValid()) {
             array_walk($fields, $this->fieldsToData);

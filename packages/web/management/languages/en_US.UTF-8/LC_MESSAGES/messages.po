@@ -41,10 +41,6 @@ msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
 #, fuzzy
-msgid " Name"
-msgstr "Name"
-
-#, fuzzy
 msgid " No open slots "
 msgstr "No open slots"
 
@@ -62,6 +58,10 @@ msgid "$_POST variable is empty, check apache error log."
 msgstr "$_POST variable is empty, check apache error log."
 
 #, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "Advanced Actions"
+
+#, fuzzy, php-format
 msgid "%s ID %d is not valid"
 msgstr "%s ID %s is not valid"
 
@@ -77,9 +77,17 @@ msgstr "%s Manager"
 msgid "%s Menu"
 msgstr "%s Menu"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "Name"
+
 #, php-format
 msgid "%s is required"
 msgstr "%s is required"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "has been successfully updated"
 
 #, fuzzy
 msgid "1 Hour"
@@ -472,6 +480,10 @@ msgstr "Add snapin failed!"
 msgid "Add rule failed!"
 msgstr "Add snapin failed!"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "Remove selected printers"
+
 #, fuzzy
 msgid "Add selected hosts"
 msgstr "Remove selected printers"
@@ -578,6 +590,10 @@ msgstr ""
 
 msgid "All"
 msgstr "All"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "List All %s"
 
 msgid "All Groups"
 msgstr "All Groups"
@@ -944,6 +960,10 @@ msgstr "Chassis Version"
 
 msgid "Chat is also available on the forums for more realtime help"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "Check here to see what printers can be added"
 
 #, fuzzy
 msgid "Check here to see what hosts can be added"
@@ -2270,6 +2290,14 @@ msgstr "Group Product Key"
 msgid "GPU Vendors"
 msgstr "BIOS Vendor"
 
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "Group Product Key"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
+msgstr "BIOS Vendor"
+
 msgid "General"
 msgstr "General"
 
@@ -3228,11 +3256,19 @@ msgstr "Settings"
 msgid "Interface"
 msgstr "Interface"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 #, fuzzy
 msgid "Invalid"
+msgstr "Invalid ID"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "Invalid ID"
 
 msgid "Invalid Class"
@@ -5082,8 +5118,8 @@ msgstr ""
 msgid "Remove"
 msgstr "Remove"
 
-#, fuzzy
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "Remove"
 
 #, fuzzy
@@ -5117,8 +5153,8 @@ msgstr "Remove"
 msgid "Remove failed"
 msgstr "Removed"
 
-#, fuzzy
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "Remove selected snapins"
 
 #, fuzzy
