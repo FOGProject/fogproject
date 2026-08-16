@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * The printer class
  *
@@ -194,13 +197,13 @@ class Printer extends FOGController
         foreach ((array)$printerTypes as $short => &$long) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                Initiator::e($short),
+                \Initiator::e($short),
                 (
                     filter_input(INPUT_POST, 'printertype') === $short ?
                     ' selected' :
                     ''
                 ),
-                Initiator::e($long)
+                \Initiator::e($long)
             );
             unset($short, $long);
         }
@@ -234,3 +237,11 @@ class Printer extends FOGController
         return parent::destroy($key);
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\Printer', 'Printer');

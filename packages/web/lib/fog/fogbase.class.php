@@ -12,6 +12,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * FOGBase, the base class for pretty much all of fog.
  *
@@ -477,9 +480,9 @@ abstract class FOGBase
             }
             printf(
                 '<option value="%s"%s>%s</option>',
-                Initiator::e($value),
+                \Initiator::e($value),
                 (self::$selected == $value ? ' selected' : ''),
-                Initiator::e($option)
+                \Initiator::e($option)
             );
         };
         /**
@@ -1624,7 +1627,7 @@ abstract class FOGBase
                 $array[$old_key],
                 'utf-8'
             );
-            $array[$new_key] = Initiator::sanitizeItems(
+            $array[$new_key] = \Initiator::sanitizeItems(
                 $item
             );
         } else {
@@ -3011,9 +3014,9 @@ abstract class FOGBase
         return sprintf(
             '<a href="../management/index.php?node=%s&sub=edit&id=%d">'
             . '%s - (%d)</a>',
-            Initiator::e($node),
+            \Initiator::e($node),
             (int)$id,
-            Initiator::e($name),
+            \Initiator::e($name),
             (int)$id
         );
     }
@@ -3079,7 +3082,7 @@ abstract class FOGBase
             $val = $tmp;
         }
 
-        return Initiator::e(trim($val));
+        return \Initiator::e(trim($val));
     }
     /**
      * Strips and decodes a mac, or a '|' separated list of macs.
@@ -3103,16 +3106,16 @@ abstract class FOGBase
     {
         $mac = trim((string) ($mac ?? ''));
         if ($mac === '' || self::isMacList($mac)) {
-            return Initiator::e($mac);
+            return \Initiator::e($mac);
         }
         $decoded = trim(base64_decode(str_replace(' ', '+', $mac)));
         if (self::isMacList($decoded)) {
-            return Initiator::e($decoded);
+            return \Initiator::e($decoded);
         }
 
         // Neither shape matched; hand back the plain value so the caller
         // reports the mac it was actually sent.
-        return Initiator::e($mac);
+        return \Initiator::e($mac);
     }
     /**
      * Tests whether a string is a '|' separated list of mac addresses.
@@ -3623,7 +3626,7 @@ abstract class FOGBase
         // kept path is wrapped as a [0 => path] match array to preserve the
         // shape the closure below and startClassFromFiles() expect.
         $files = [];
-        foreach (Initiator::classFileList() as $path) {
+        foreach (\Initiator::classFileList() as $path) {
             if (preg_match($regext, $path)) {
                 $files[] = [$path];
             }
@@ -4166,3 +4169,11 @@ abstract class FOGBase
         error_log($contents);
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\FOGBase', 'FOGBase');

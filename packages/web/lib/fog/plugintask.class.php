@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Base class for background work a plugin declares.
  *
@@ -110,11 +113,18 @@ abstract class PluginTask extends FOGBase
      * constructor, so the static call reaches the running daemon's log rather
      * than needing the task to hold a reference to it.
      *
+     * Named logLine() rather than log(): FOGBase::log() is `public static`,
+     * and PHP refuses to let a subclass redeclare an inherited static method
+     * as an instance one. That is a fatal at class-declaration time, so
+     * naming this log() made PluginTask itself unloadable -- and since
+     * PluginRunner reaches every task through is_subclass_of($class,
+     * 'PluginTask'), it took the runner down with it.
+     *
      * @param string $message the line to write
      *
      * @return void
      */
-    protected function log($message)
+    protected function logLine($message)
     {
         PluginRunner::outall(
             sprintf(
@@ -125,3 +135,11 @@ abstract class PluginTask extends FOGBase
         );
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\PluginTask', 'PluginTask');

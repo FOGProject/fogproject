@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Handles the display of schema and schema updating in general.
  *
@@ -110,19 +113,19 @@ class SchemaUpdaterPage extends FOGPage
                     . '<a href="../management/index.php?node=logout" '
                     . 'class="alert-link">%s</a>'
                     . '</div></div>',
-                    Initiator::e(
+                    \Initiator::e(
                         sprintf(
                             _('Signed in as %s.'),
                             self::$FOGUser->get('name')
                         )
                     ),
-                    Initiator::e(
+                    \Initiator::e(
                         _(
                             'Applying a database schema update requires an '
                             . 'administrator account.'
                         )
                     ),
-                    Initiator::e(_('Log out and sign in as an administrator'))
+                    \Initiator::e(_('Log out and sign in as an administrator'))
                 );
                 return;
             }
@@ -151,7 +154,7 @@ class SchemaUpdaterPage extends FOGPage
         // this path, which is the whole of GH-927.
         if (self::installTokenParam()) {
             echo '<input type="hidden" name="fogtoken" value="'
-                . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
+                . \Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
                 . '"/>';
         }
         echo '<div class="card" id="schema-modify">';
@@ -551,3 +554,11 @@ class SchemaUpdaterPage extends FOGPage
         $this->jsonSend($code, $msg);
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\SchemaUpdaterPage', 'SchemaUpdaterPage');

@@ -18,6 +18,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 trait FOGPageRender
 {
     /**
@@ -199,8 +202,8 @@ trait FOGPageRender
             'btn btn-secondary float-end',
             sprintf(
                 ' type="button" data-create-node="%s" data-assoc-action="%s" ',
-                Initiator::e($createNode),
-                Initiator::e(
+                \Initiator::e($createNode),
+                \Initiator::e(
                     self::makeTabUpdateURL($tabSlug, $ownerId)
                 )
             )
@@ -210,7 +213,7 @@ trait FOGPageRender
             $label,
             sprintf(
                 '<div id="%s-create-form"></div>',
-                Initiator::e($tabSlug)
+                \Initiator::e($tabSlug)
             ),
             self::makeButton(
                 "$tabSlug-create-cancel",
@@ -925,7 +928,7 @@ trait FOGPageRender
                         . 'than one.'
                     ),
                     count($current),
-                    Initiator::e(implode(', ', $names))
+                    \Initiator::e(implode(', ', $names))
                 )
                 . '</div>';
         }
@@ -942,3 +945,11 @@ trait FOGPageRender
         echo $createModal;
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\FOGPageRender', 'FOGPageRender');

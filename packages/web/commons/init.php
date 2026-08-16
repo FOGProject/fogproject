@@ -445,6 +445,19 @@ class Initiator
             return;
         }
         include_once self::$classMap[$key];
+        // Phase 3: the file may declare the namespaced name ITSELF, and then
+        // alias the global one back the other way. There is nothing left to
+        // bridge in that case, and aliasing again would be a "Cannot declare
+        // class FOG\X, because the name is already in use" warning on every
+        // single class load. Checked before the branch below, because that
+        // branch's own condition is satisfied too -- the file's own
+        // class_alias() has by now declared the short name.
+        if (class_exists($class, false)
+            || interface_exists($class, false)
+            || trait_exists($class, false)
+        ) {
+            return;
+        }
         // Checked with autoload OFF. With it on, a file whose declared class
         // name does not match its basename would re-enter autoload() for the
         // same short name and hit the "Cannot declare class X" fatal the
@@ -499,7 +512,7 @@ class Initiator
                         new \RecursiveIteratorIterator(
                             new \RecursiveDirectoryIterator(
                                 $root,
-                                \FileSystemIterator::SKIP_DOTS
+                                \FilesystemIterator::SKIP_DOTS
                             )
                         ),
                         $regext,

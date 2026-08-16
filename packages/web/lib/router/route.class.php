@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org/
  */
+
+namespace FOG;
+
 class Route extends FOGBase
 {
     /**
@@ -555,7 +558,7 @@ class Route extends FOGBase
          * webroot. AltoRouter wants it without the trailing slash, and an
          * install served from the document root itself wants it empty.
          */
-        self::$router = new AltoRouter(
+        self::$router = new \AltoRouter(
             [],
             rtrim(self::$_webrootbase, '/')
         );
@@ -829,7 +832,7 @@ class Route extends FOGBase
             'unisearch'
         )->map(
             'PUT|POST',
-            "${expanded}/join",
+            "{$expanded}/join",
             [__CLASS__, 'joining'],
             'join'
         )->get(
@@ -841,19 +844,19 @@ class Route extends FOGBase
             [__CLASS__, 'availableinitrds'],
             'initrdUpdate'
         )->get(
-            "${expandeda}/[current|active]",
+            "{$expandeda}/[current|active]",
             [__CLASS__, 'active'],
             'active'
         )->get(
-            "${expanded}/count/[*:whereItems]?",
+            "{$expanded}/count/[*:whereItems]?",
             [__CLASS__, 'count'],
             'count'
         )->get(
-            "${expanded}/names/[*:whereItems]?",
+            "{$expanded}/names/[*:whereItems]?",
             [__CLASS__, 'names'],
             'names'
         )->get(
-            "${expanded}/ids/[*:whereItems]?/[*:getField]?",
+            "{$expanded}/ids/[*:whereItems]?/[*:getField]?",
             [__CLASS__, 'ids'],
             'ids'
         )->get(
@@ -861,15 +864,15 @@ class Route extends FOGBase
             [__CLASS__, 'bandwidth'],
             'bandwidth'
         )->get(
-            "${expanded}/search/[*:item]",
+            "{$expanded}/search/[*:item]",
             [__CLASS__, 'search'],
             'search'
         )->get(
-            "${expanded}/[i:id]",
+            "{$expanded}/[i:id]",
             [__CLASS__, 'indiv'],
             'indiv'
         )->get(
-            "${expanded}/[list|all]?/[*:whereItems]?",
+            "{$expanded}/[list|all]?/[*:whereItems]?",
             [__CLASS__, 'listem'],
             'list'
         )->get(
@@ -885,11 +888,11 @@ class Route extends FOGBase
             [__CLASS__, 'logfiles'],
             'logfiles'
         )->put(
-            "${expanded}/[i:id]/[update|edit]?",
+            "{$expanded}/[i:id]/[update|edit]?",
             [__CLASS__, 'edit'],
             'update'
         )->post(
-            "${expandedt}/[i:id]/[task]",
+            "{$expandedt}/[i:id]/[task]",
             [__CLASS__, 'task'],
             'task'
         )->post(
@@ -901,7 +904,7 @@ class Route extends FOGBase
             [__CLASS__, 'uploadSnapinFiles'],
             'uploadSnapinFiles'
         )->post(
-            "${expanded}/[create|new]?",
+            "{$expanded}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
         )->get(
@@ -917,11 +920,11 @@ class Route extends FOGBase
             [__CLASS__, 'settingsCacheRefresh'],
             'settingsCacheRefresh'
         )->delete(
-            "${expandedt}/[i:id]?/[cancel]",
+            "{$expandedt}/[i:id]?/[cancel]",
             [__CLASS__, 'cancel'],
             'cancel'
         )->delete(
-            "${expanded}/[i:id]/[delete|remove]?",
+            "{$expanded}/[i:id]/[delete|remove]?",
             [__CLASS__, 'delete'],
             'delete'
         );
@@ -1837,7 +1840,7 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . '(' . $d . ') - ' . Initiator::e($row['hostName'])
+                                . '(' . $d . ') - ' . \Initiator::e($row['hostName'])
                                 . '</a>';
                         }
                     ];
@@ -2203,7 +2206,7 @@ class Route extends FOGBase
                         'db' => 'utUserName',
                         'dt' => 'username',
                         'formatter' => function ($d, $row) {
-                            return Initiator::e($d);
+                            return \Initiator::e($d);
                         }
                     ];
                     $columns[] = [
@@ -2216,7 +2219,7 @@ class Route extends FOGBase
                             );
                         },
                         'formatter' => function ($d, $row) {
-                            return Initiator::e(self::rel('Host', $d)->get('name'));
+                            return \Initiator::e(self::rel('Host', $d)->get('name'));
                         }
                     ];
                     $columns[] = [
@@ -2618,8 +2621,8 @@ class Route extends FOGBase
                 {$j}
                 WHERE `{$classVars['databaseFields']['id']}` LIKE :item1
                 OR `{$classVars['databaseFields']['name']}` LIKE :item2
-                ${w}
-                ${g}";
+                {$w}
+                {$g}";
                 if ($limit > 0) {
                     $sql .= " LIMIT " . (int)$limit;
                 }
@@ -5926,7 +5929,7 @@ class Route extends FOGBase
                     }
                     // Escaped because this is text straight out of the GitHub
                     // feed and DataTables renders cell data as HTML.
-                    $k_i_type = Initiator::e($k_i_type);
+                    $k_i_type = \Initiator::e($k_i_type);
                     if ($k_hint === ' (experimental)') {
                         // The badge replaces the plain text rather than sitting
                         // next to it -- appending one leaves the cell reading
@@ -6027,3 +6030,11 @@ class Route extends FOGBase
         ];
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\Route', 'Route');

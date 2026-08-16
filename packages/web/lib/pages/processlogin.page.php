@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Processes the current login.
  *
@@ -53,11 +56,11 @@ class ProcessLogin extends FOGPage
         $langmenu = '<select class="form-control fog-select2" name="ulang" id="ulang">';
         foreach ($foglang['Language'] as $base => &$lang) {
             $langmenu .= '<option value="'
-                . Initiator::e($base)
+                . \Initiator::e($base)
                 . '"'
                 . ($base == $selected ? ' selected' : '')
                 . '>'
-                . Initiator::e($lang)
+                . \Initiator::e($lang)
                 . '</option>';
             unset($lang);
         }
@@ -79,7 +82,7 @@ class ProcessLogin extends FOGPage
             $type = self::$FOGUser->get('type');
             if ($ulang && isset($_SESSION['FOG_LANG']) && $_SESSION['FOG_LANG'] != $ulang) {
                 $_SESSION['FOG_LANG'] = $ulang;
-                Initiator::language($_SESSION['FOG_LANG']);
+                \Initiator::language($_SESSION['FOG_LANG']);
             }
             self::$HookManager->processEvent(
                 'USER_TYPE_HOOK',
@@ -256,7 +259,7 @@ class ProcessLogin extends FOGPage
             true
         );
         echo '<button type="button" class="input-group-text fog-password-toggle"'
-            . ' aria-label="' . Initiator::e(_('Show password')) . '"'
+            . ' aria-label="' . \Initiator::e(_('Show password')) . '"'
             . ' aria-pressed="false" tabindex="-1">'
             . '<span class="fa fa-eye"></span></button>';
         echo '</div>';
@@ -302,3 +305,11 @@ class ProcessLogin extends FOGPage
         echo '</div>';
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\ProcessLogin', 'ProcessLogin');

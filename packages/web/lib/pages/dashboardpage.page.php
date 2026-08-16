@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Presents the home/dashboard page.
  *
@@ -112,10 +115,10 @@ class DashboardPage extends FOGPage
             $url = self::$httpproto.'://' . $url;
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s" data-name="%s"%s>%s</option>',
-                Initiator::e($StorageNode->id),
-                Initiator::e($StorageNode->name),
+                \Initiator::e($StorageNode->id),
+                \Initiator::e($StorageNode->name),
                 ($StorageNode->isMaster ? ' data-master="1"' : ''),
-                Initiator::e($StorageNode->name)
+                \Initiator::e($StorageNode->name)
             );
             self::$_nodeNames[] = $StorageNode->name;
             self::$_nodeURLs[] = sprintf(
@@ -130,8 +133,8 @@ class DashboardPage extends FOGPage
         foreach ($Groups as &$StorageGroup) {
             self::$_groupOpts .= sprintf(
                 '<option value="%s">%s</option>',
-                Initiator::e($StorageGroup->id),
-                Initiator::e($StorageGroup->name)
+                \Initiator::e($StorageGroup->id),
+                \Initiator::e($StorageGroup->name)
             );
             unset($StorageGroup);
         }
@@ -785,3 +788,11 @@ class DashboardPage extends FOGPage
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($versions));
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\DashboardPage', 'DashboardPage');

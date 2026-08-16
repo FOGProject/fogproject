@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Boot menu for the fog pxe system
  *
@@ -1955,7 +1958,7 @@ class BootMenu extends FOGBase
                 );
             }
         }
-        return ["item${hotkey}${name} ${desc}"];
+        return ["item{$hotkey}{$name} {$desc}"];
     }
     /**
      * The options of the menu
@@ -2353,3 +2356,11 @@ class BootMenu extends FOGBase
         $this->_parseMe($Send);
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\BootMenu', 'BootMenu');

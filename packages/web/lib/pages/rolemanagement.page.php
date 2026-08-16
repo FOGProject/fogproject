@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Role management page — native role-based access control.
  *
@@ -356,7 +359,7 @@ class RoleManagement extends FOGPage
         foreach ($actions as $action) {
             $label = $actionLabels[$action] ?? ucfirst($action);
             echo '<th class="text-center">'
-                . Initiator::e($label)
+                . \Initiator::e($label)
                 . '</th>';
         }
         echo '</tr></thead>';
@@ -364,7 +367,7 @@ class RoleManagement extends FOGPage
         foreach ($registry as $rnode => $nodeActions) {
             $label = $nodeLabels[$rnode] ?? ucfirst($rnode);
             echo '<tr>';
-            echo '<td>' . Initiator::e($label) . '</td>';
+            echo '<td>' . \Initiator::e($label) . '</td>';
             foreach ($actions as $action) {
                 echo '<td class="text-center">';
                 if (in_array($action, (array)$nodeActions, true)) {
@@ -771,3 +774,11 @@ class RoleManagement extends FOGPage
         );
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\RoleManagement', 'RoleManagement');

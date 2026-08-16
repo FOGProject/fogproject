@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * FOG Manager Controller, main object mass getter.
  *
@@ -1191,7 +1194,7 @@ abstract class FOGManagerController extends FOGBase
                 continue;
             }
             echo '<option value="'
-                . Initiator::e($Item->{$useKey})
+                . \Initiator::e($Item->{$useKey})
                 . '"'
                 . (
                     $matchID == $Item->{$useKey} ?
@@ -1203,8 +1206,8 @@ abstract class FOGManagerController extends FOGBase
                     )
                 )
                 . '>'
-                . Initiator::e($Item->name)
-                . ' - (' . Initiator::e($Item->id) . ')'
+                . \Initiator::e($Item->name)
+                . ' - (' . \Initiator::e($Item->id) . ')'
                 . '</option>';
             unset($Item);
         }
@@ -1467,3 +1470,11 @@ abstract class FOGManagerController extends FOGBase
         return $this->sqlTotalStr;
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\FOGManagerController', 'FOGManagerController');

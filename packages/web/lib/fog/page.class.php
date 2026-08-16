@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * The page display/modifier
  *
@@ -529,9 +532,9 @@ class Page extends FOGBase
                         echo '<div class="app-content-header">';
                         echo '<div class="container-fluid">';
                         echo '<h1 id="sectionTitle">';
-                        echo Initiator::e($this->sectionTitle);
+                        echo \Initiator::e($this->sectionTitle);
                         echo '<small id="pageTitle">';
-                        echo Initiator::e($this->pageTitle);
+                        echo \Initiator::e($this->pageTitle);
                         echo '</small>';
                         echo '</h1>';
                         echo '</div>';
@@ -561,3 +564,11 @@ class Page extends FOGBase
         return (bool)filter_input(INPUT_GET, 'contentOnly');
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\Page', 'Page');
