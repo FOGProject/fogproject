@@ -5252,3 +5252,192 @@ $this->schema[] = [
     . "KEY `sugmUserGroupID` (`sugmUserGroupID`)"
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
 ];
+// 332
+$this->schema[] = [
+    // Rebuild the site plugin's data as core's, then drop the plugin's
+    // tables -- but only on proof that everything was carried across.
+    //
+    // One closure rather than a list of statements, for two reasons. A
+    // server that never had the plugin has none of these tables, and
+    // "Table doesn't exist" is error 1146, which is NOT in the updater's
+    // skip list (1050, 1054, 1060, 1061, 1062, 1091) -- an unguarded
+    // INSERT ... SELECT would abort the whole update on every fresh
+    // install. And the drop has to see what the inserts actually wrote,
+    // which only holds if they run in one place.
+    //
+    // Ids are preserved: `sites`.`siteID` takes the plugin's `sID`. The
+    // table was created empty one step ago and this is its only writer, so
+    // there is nothing to collide with, and it means the four membership
+    // tables need no id translation at all. It also makes the whole step
+    // idempotent for free -- a re-run re-inserts the same ids and every
+    // row is ignored.
+    function () {
+        $tables = [
+            'site',
+            'siteHostAssoc',
+            'siteUserAssoc',
+            'siteGroupAssoc',
+            'siteUserGroupAssoc',
+        ];
+        // Checked one at a time rather than as a set. The plugin grew
+        // siteGroupAssoc and siteUserGroupAssoc in its own schema steps 5
+        // and 6, so an install that stopped applying them earlier has the
+        // first three and not the last two. That is a normal server, not a
+        // damaged one, and it must migrate what it has.
+        $present = [];
+        $rows = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` "
+            . "FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` IN ('" . implode("','", $tables) . "')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array)$rows as $row) {
+            $present[] = $row['t'];
+        }
+        if (!in_array('site', $present, true)) {
+            // Never had the plugin, or already migrated and dropped.
+            return true;
+        }
+
+        // Sites. Duplicate names are renamed rather than dropped: the
+        // plugin put no unique key on sName, core does, and two sites
+        // called "HQ" are two different sites with two different member
+        // lists -- INSERT IGNORE would silently discard one of them and
+        // take its members with it. The suffix is derived from how many
+        // lower-id rows share the name, so it is stable across re-runs and
+        // needs no window function (MariaDB 10.2+ only, and FOG runs on
+        // older).
+        //
+        // A rename that collides with a real existing name is left to the
+        // count gate below: the row is ignored, the counts disagree, and
+        // the plugin's tables survive for a human to sort out.
+        $dupRank = "(SELECT COUNT(*) FROM `site` `p` "
+            . "WHERE `p`.`sName` = `s`.`sName` AND `p`.`sID` < `s`.`sID`)";
+        self::$DB->query(
+            "INSERT IGNORE INTO `sites` (`siteID`, `siteName`, `siteDesc`) "
+            . "SELECT `s`.`sID`, "
+            . "CASE WHEN $dupRank = 0 THEN `s`.`sName` "
+            . "ELSE CONCAT(`s`.`sName`, ' (', $dupRank + 1, ')') END, "
+            . "`s`.`sDesc` "
+            . "FROM `site` `s`"
+        );
+
+        // Memberships. SELECT DISTINCT because the plugin's association
+        // tables carry no unique key, so the same host can be in the same
+        // site twice; core's tables do, so the duplicate would be ignored
+        // and the raw row counts would disagree on a database that is
+        // actually fine. Rows pointing at a site that no longer exists are
+        // excluded here and counted separately below -- they are already
+        // unusable, and letting them block the drop would strand the
+        // tables on exactly the servers that need tidying most.
+        $members = [
+            // core table => [core site col, core obj col,
+            //                plugin table, plugin site col, plugin obj col]
+            'siteHostMembers' => [
+                'shmSiteID', 'shmHostID',
+                'siteHostAssoc', 'shaSiteID', 'shaHostID',
+            ],
+            'siteUserMembers' => [
+                'sumSiteID', 'sumUserID',
+                'siteUserAssoc', 'suaSiteID', 'suaUserID',
+            ],
+            'siteGroupMembers' => [
+                'sgmSiteID', 'sgmGroupID',
+                'siteGroupAssoc', 'sgaSiteID', 'sgaGroupID',
+            ],
+            'siteUserGroupMembers' => [
+                'sugmSiteID', 'sugmUserGroupID',
+                'siteUserGroupAssoc', 'sugaSiteID', 'sugaUserGroupID',
+            ],
+        ];
+        foreach ($members as $dest => $map) {
+            list($dSite, $dObj, $src, $sSite, $sObj) = $map;
+            if (!in_array($src, $present, true)) {
+                continue;
+            }
+            self::$DB->query(
+                "INSERT IGNORE INTO `$dest` (`$dSite`, `$dObj`) "
+                . "SELECT DISTINCT `$sSite`, `$sObj` FROM `$src` "
+                . "WHERE `$sSite` IN (SELECT `siteID` FROM `sites`)"
+            );
+        }
+
+        // Aliased column + FETCH_ASSOC, matching Schema::_rowsMissing().
+        // get() with no field argument does not reduce a single-column row
+        // to a scalar, so the alias is what makes the value reachable.
+        $count = function ($sql) {
+            $row = self::$DB->query($sql)->fetch(\PDO::FETCH_ASSOC)->get();
+            return is_array($row) && isset($row['cnt']) ? (int)$row['cnt'] : 0;
+        };
+
+        // The gate. Counted per category so the log names which one is
+        // short, and compared as "what the source says should be there"
+        // against "what is there", both scoped to the sites that migrated.
+        $mismatch = [];
+        $orphans = 0;
+        $expected = $count("SELECT COUNT(*) AS `cnt` FROM `site`");
+        $actual = $count(
+            "SELECT COUNT(*) AS `cnt` FROM `sites` "
+            . "WHERE `siteID` IN (SELECT `sID` FROM `site`)"
+        );
+        if ($expected !== $actual) {
+            $mismatch[] = "sites: expected $expected, wrote $actual";
+        }
+        foreach ($members as $dest => $map) {
+            list($dSite, $dObj, $src, $sSite, $sObj) = $map;
+            if (!in_array($src, $present, true)) {
+                continue;
+            }
+            $expected = $count(
+                "SELECT COUNT(DISTINCT `$sSite`, `$sObj`) AS `cnt` FROM `$src` "
+                . "WHERE `$sSite` IN (SELECT `siteID` FROM `sites`)"
+            );
+            $actual = $count(
+                "SELECT COUNT(*) AS `cnt` FROM `$dest` "
+                . "WHERE `$dSite` IN (SELECT `sID` FROM `site`)"
+            );
+            if ($expected !== $actual) {
+                $mismatch[] = "$dest: expected $expected, wrote $actual";
+            }
+            $orphans += $count(
+                "SELECT COUNT(*) AS `cnt` FROM `$src` "
+                . "WHERE `$sSite` NOT IN (SELECT `siteID` FROM `sites`)"
+            );
+        }
+
+        if ($orphans > 0) {
+            error_log(
+                sprintf(
+                    'FOG site migration: %d association row(s) referenced a '
+                    . 'site that does not exist and were not carried across. '
+                    . 'They were already unreachable.',
+                    $orphans
+                )
+            );
+        }
+
+        if (count($mismatch)) {
+            // Deliberately NOT a returned error string. That would abort
+            // the schema update and leave the admin unable to finish an
+            // upgrade over data that is still intact and still readable.
+            // Keeping the source tables is the whole remedy: the repair is
+            // a forward fix, and a forward fix needs its input.
+            error_log(
+                'FOG site migration: counts disagree, so the site plugin '
+                . 'tables have been KEPT rather than dropped -- '
+                . implode('; ', $mismatch)
+                . '. Core is using the new `sites` tables from now on; the '
+                . 'old ones are left only so the difference can be worked '
+                . 'out. Nothing is lost.'
+            );
+            return true;
+        }
+
+        foreach (array_reverse($tables) as $table) {
+            if (in_array($table, $present, true)) {
+                self::$DB->query("DROP TABLE IF EXISTS `$table`");
+            }
+        }
+        return true;
+    },
+];
