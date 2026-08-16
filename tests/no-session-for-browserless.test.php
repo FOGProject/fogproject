@@ -69,7 +69,7 @@ foreach (['packages/web/service', 'packages/web/status', 'packages/web/api',
     if (!is_dir($dir)) {
         continue;
     }
-    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+    $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
     foreach ($it as $f) {
         if (!$f->isFile() || 'php' !== $f->getExtension()) {
             continue;
@@ -102,7 +102,7 @@ foreach ($browserless as $dir) {
     if (!is_dir($dir)) {
         continue;
     }
-    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+    $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
     foreach ($it as $f) {
         if (!$f->isFile() || 'php' !== $f->getExtension()) {
             continue;
