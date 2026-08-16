@@ -1334,6 +1334,10 @@ msgid "Could not apply %s: %s"
 msgstr "見つかりませんでした"
 
 #, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "スナップインジョブの作成に失敗しました"
+
+#, fuzzy
 msgid "Could not create the staging directory."
 msgstr "スナップインジョブの作成に失敗しました"
 

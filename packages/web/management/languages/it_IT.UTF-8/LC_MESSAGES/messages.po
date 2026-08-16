@@ -1353,6 +1353,10 @@ msgid "Could not apply %s: %s"
 msgstr "Impossibile aggiornare l'host"
 
 #, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "Impossibile creare Snapin lavoro"
+
+#, fuzzy
 msgid "Could not create the staging directory."
 msgstr "Impossibile creare Snapin lavoro"
 

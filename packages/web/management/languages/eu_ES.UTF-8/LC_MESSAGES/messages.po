@@ -1403,6 +1403,10 @@ msgid "Could not apply %s: %s"
 msgstr "Aktualisieren des Hosts fehlgeschlagen"
 
 #, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
+
+#, fuzzy
 msgid "Could not create the staging directory."
 msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
 

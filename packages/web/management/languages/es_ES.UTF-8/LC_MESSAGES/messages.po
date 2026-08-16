@@ -1427,6 +1427,10 @@ msgid "Could not apply %s: %s"
 msgstr "No se ha podido destruir"
 
 #, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "No se pudo crear Complemento de empleo"
+
+#, fuzzy
 msgid "Could not create the staging directory."
 msgstr "No se pudo crear Complemento de empleo"
 
