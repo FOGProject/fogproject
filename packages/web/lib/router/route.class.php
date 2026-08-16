@@ -832,15 +832,25 @@ class Route extends FOGBase
         }
         foreach ($classVars['databaseFields'] as &$key) {
             $key = $class->key($key);
-            if (!isset($vars->$key)) {
-                $val = $class->get($key);
-            } else {
-                $val = $vars->$key;
-            }
             if ($key == 'id') {
+                unset($key);
                 continue;
             }
-            $class->set($key, $val);
+            // A field the body did not mention is left exactly as loaded.
+            // It used to be re-set to its own current value, which reads
+            // as a no-op and is not: set() may transform, and User::set()
+            // hashes any non-override write to 'password'. So every PUT to
+            // a user re-hashed the stored hash -- password_verify() then
+            // fails against the real password and that account is locked
+            // out permanently, with the request answering 200. save()
+            // builds its statement from $this->data for every
+            // databaseField regardless of what was set(), so skipping is
+            // otherwise byte-identical.
+            if (!isset($vars->$key)) {
+                unset($key);
+                continue;
+            }
+            $class->set($key, $vars->$key);
             unset($key);
         }
         switch ($classname) {
