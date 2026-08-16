@@ -2236,6 +2236,10 @@ class Route extends FOGBase
                 ]
             );
             self::_applySiteScope($classname);
+            self::_applySettingValueScope(
+                $classname,
+                isset($pass_vars) ? $pass_vars : []
+            );
             self::$data['_lang'] = $classname;
             if (self::$getterDepth === 0
                 && self::expandRequested()
@@ -5130,6 +5134,94 @@ class Route extends FOGBase
         }
         if (count($kept) === count($payload['data'])) {
             self::$data = $payload;
+            return;
+        }
+        $payload['data'] = array_values($kept);
+        $payload['recordsFiltered'] = count($kept);
+        $payload['recordsTotal'] = count($kept);
+        self::$data = $payload;
+    }
+    /**
+     * Drops credential settings that a grid search could only have matched
+     * on their value.
+     *
+     * The grid half of what unisearch() does inline. A setting's value stays
+     * searchable, because that is what searching settings is FOR -- finding
+     * FOG_TFTP_PXE_KERNEL by "bzImage" is the everyday case and a key-only
+     * search can never do it. What must not happen is a hit confirming a
+     * substring of a value maskSensitiveSetting() has blanked: the row comes
+     * back with an empty value, and its mere presence is the answer.
+     *
+     * Done here, on the rows, rather than as a NOT IN or NOT REGEXP in the
+     * WHERE. An SQL-side exclusion needs isSensitiveSetting()'s rule --
+     * pattern, include list, exempt list -- rewritten in another dialect,
+     * and when the two drift nothing fails; the values simply become
+     * findable again. Calling the predicate keeps one rule in one place.
+     *
+     * Three properties worth stating because each is load bearing:
+     *
+     *   - With NO search term this does nothing. A plain listing must still
+     *     return every setting with its value masked, exactly as before.
+     *   - A sensitive row matched on any VISIBLE field is kept. Searching
+     *     "PASSWORD" should still find FOG_TFTP_FTP_PASSWORD; the key was
+     *     never the secret.
+     *   - recordsTotal is rewritten as well as recordsFiltered. Leaving the
+     *     SQL count in place would answer the question the dropped row was
+     *     dropped for.
+     *
+     * @param string $classname The entity listed.
+     * @param array  $vars      The DataTables request body.
+     *
+     * @return void
+     */
+    private static function _applySettingValueScope($classname, $vars)
+    {
+        if ('setting' !== strtolower((string)$classname)) {
+            return;
+        }
+        $terms = [];
+        if ('' !== trim((string)($vars['search']['value'] ?? ''))) {
+            $terms[] = (string)$vars['search']['value'];
+        }
+        foreach ((array)($vars['columns'] ?? []) as $col) {
+            if ('' !== trim((string)($col['search']['value'] ?? ''))) {
+                $terms[] = (string)$col['search']['value'];
+            }
+        }
+        if (!count($terms)) {
+            return;
+        }
+        $payload = self::$data;
+        if (empty($payload['data']) || !is_array($payload['data'])) {
+            return;
+        }
+        $kept = [];
+        foreach ($payload['data'] as $row) {
+            $arr = (array)$row;
+            if (!self::isSensitiveSetting((string)($arr['name'] ?? ''))) {
+                $kept[] = $row;
+                continue;
+            }
+            // Every field EXCEPT the value, rather than a list of the four
+            // this class has today, so a column added later is covered by
+            // default instead of by remembering.
+            $visible = false;
+            foreach ($arr as $field => $cell) {
+                if ('value' === $field || !is_scalar($cell)) {
+                    continue;
+                }
+                foreach ($terms as $term) {
+                    if (false !== stripos((string)$cell, $term)) {
+                        $visible = true;
+                        break 2;
+                    }
+                }
+            }
+            if ($visible) {
+                $kept[] = $row;
+            }
+        }
+        if (count($kept) === count($payload['data'])) {
             return;
         }
         $payload['data'] = array_values($kept);
