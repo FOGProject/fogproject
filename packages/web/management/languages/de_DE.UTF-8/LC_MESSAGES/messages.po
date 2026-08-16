@@ -7369,6 +7369,10 @@ msgstr "Task-Typ hinzugefügt"
 msgid "Task state update failed!"
 msgstr "Aktualisierung des Task Status fehlgeschlagen"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "Es gibt keine Snapins auf diesem Server."
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "Task-Typ ist nicht gültig"

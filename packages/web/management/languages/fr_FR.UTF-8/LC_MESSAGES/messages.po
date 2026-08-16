@@ -7369,6 +7369,10 @@ msgstr "État Tâche ajouté, édition"
 msgid "Task state update failed!"
 msgstr "utilisateur créé"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "Il n'y a pas snapins sur ce serveur."
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "Type de tâche n'est pas valide"

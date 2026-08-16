@@ -7554,6 +7554,10 @@ msgstr "Nombre de la tarea"
 msgid "Task state update failed!"
 msgstr "creado por el usuario"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "No hay grupos en este servidor."
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "tipo de tarea no es válida"

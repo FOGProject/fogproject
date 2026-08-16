@@ -7368,6 +7368,10 @@ msgstr "任务状态添加，编辑"
 msgid "Task state update failed!"
 msgstr "用户创建"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "有此服务器上没有snapins。"
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "任务类型无效"

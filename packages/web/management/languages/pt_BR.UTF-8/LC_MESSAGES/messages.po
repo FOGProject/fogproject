@@ -7368,6 +7368,10 @@ msgstr "Estado tarefa adicional, a edição"
 msgid "Task state update failed!"
 msgstr "usuário criado"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "Não há snapins neste servidor."
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "tipo de tarefa não é válido"
