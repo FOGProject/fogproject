@@ -2764,6 +2764,27 @@ abstract class FOGBase
             ->validatePw($username, $password);
     }
     /**
+     * Proves a credential without establishing a session.
+     *
+     * For callers with no browser to carry one -- the iPXE boot menu and
+     * service/ipxe/advanced.php -- where attemptLogin() would otherwise
+     * stamp $_SESSION['FOG_USER'] for a request that can never present the
+     * cookie back.
+     *
+     * Returns a User either way, exactly like attemptLogin(), so callers
+     * MUST test isValid(). A returned object is never itself the answer.
+     *
+     * @param string $username the username to attempt
+     * @param string $password the password to attempt
+     *
+     * @return object
+     */
+    public static function authenticateOnly($username, $password)
+    {
+        return self::getClass('User')
+            ->authenticate($username, $password);
+    }
+    /**
      * Clears the mac lookup table
      *
      * @return bool
