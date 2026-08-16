@@ -30,13 +30,25 @@ $flat = preg_replace('/"\s*\r?\n\s*\.\s*"/', '', $src);
 
 $failures = [];
 
+// Keyed on pxeName, not pxeID. pxeMenu is user-writable with an
+// auto_increment key, so on a site that already had a custom menu item the
+// seeding INSERT IGNORE never landed and id 14 belongs to THAT admin's entry
+// -- keyed by id this UPDATE rewrote their description. Re-keyed by
+// facea052b; this assertion was written against the id form and was not
+// updated with it, which nothing noticed because nothing ran it.
 if (strpos(
     $flat,
     "UPDATE `pxeMenu` SET `pxeDesc`='Enroll Secure Boot Key "
-    . "(MOK attended setup)' WHERE `pxeID`=14"
+    . "(MOK attended setup)' WHERE `pxeName`='fog.enrollsecureboot'"
 ) === false) {
-    $failures[] = "no UPDATE renaming pxeID 14 to "
-        . "'Enroll Secure Boot Key (MOK attended setup)'";
+    $failures[] = "no UPDATE renaming fog.enrollsecureboot to "
+        . "'Enroll Secure Boot Key (MOK attended setup)', keyed by pxeName";
+}
+
+// The id form must not come back: it is the bug facea052b fixed.
+if (preg_match('/UPDATE `pxeMenu`[^;]{0,200}WHERE `pxeID`=1[45]/', $flat)) {
+    $failures[] = "a pxeMenu UPDATE is keyed by pxeID again -- "
+        . "pxeMenu is user-writable, key on pxeName";
 }
 
 if (strpos(
