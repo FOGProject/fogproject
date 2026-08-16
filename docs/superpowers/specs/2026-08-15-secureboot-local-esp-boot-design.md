@@ -261,9 +261,58 @@ config might have changed.
 - **`sbsign` across 45 files** is expected to take seconds, and there is a `dots`
   line so it is not silent — but it has not been timed on real hardware. If it
   turns out slow, the progress line is already in place to build on.
-- **Exposing `/tftpboot` over HTTP is new surface**, though not new exposure: the
-  same tree is already served by TFTP with no authentication. Worth a reviewer's
-  eye anyway, since HTTP reaches further than TFTP typically does.
+- **Exposing `/tftpboot` over HTTP** — researched below and cleared, with one
+  documentation follow-up rather than a code change.
+
+## Security review of the HTTP exposure
+
+Researched rather than assumed, because "it is already on TFTP" is only half an
+argument — reachability changes even when content sensitivity does not.
+
+**Nothing sensitive is in the tree.** Full inventory: the release-asset iPXE
+binaries, `default.ipxe` (generated at `functions.sh:1528`, containing only the
+server IP and the `boot.php` URL), the `autoexec.ipxe` hard links, and
+`secureboot/` — upstream's signed shim/loader plus `mmx64.efi`.
+`TFTP_FTP_PASSWORD` lives in `$webdirdest/lib/fog/config.class.php`, not here.
+`${tftpdirdst}.prev` and `${tftpdirdst}.fogbackup` are *siblings* of the
+directory, not children, so the link does not reach them.
+
+**No traversal.** Nothing creates a symlink inside `$tftpdirdst` — `autoexec.ipxe`
+uses hard links (`ln -f`, `functions.sh:1780`), deliberately, because
+`in.tftpd -s` chroots and an absolute symlink would not resolve after it. So
+`FollowSymLinks` has nothing to follow back out of the tree. The known Apache
+symlink risk is a *shared hosting* problem — an untrusted tenant linking to
+another tenant's files — and there is no untrusted user who can write to the FOG
+web root or the TFTP tree.
+
+**No write path.** Apache serves read-only, and `in.tftpd -s` without `-c` was
+read-only already.
+
+**FOG already does exactly this, and that is the decisive point.**
+`_resignKernels()` signs `bzImage`, which lives at `$webdirdest/service/ipxe/`
+and is fetched by every client over `$_booturl` — `self::$httpproto`,
+`bootmenu.class.php:462` — with no authentication. MOK-signed boot artifacts
+served over unauthenticated HTTP is already normal FOG operation. The
+`secureboot/` binaries are upstream's public releases; the identical files are
+downloadable from fog-ipxe's own release assets. Nothing here becomes public
+that was not already.
+
+**HTTP is the recommended transport for this, not a downgrade.** iPXE's own docs
+favour HTTP over TFTP, and UEFI HTTP Boot is a firmware standard. No CVE exists
+for exposing PXE artifacts over HTTP; FOG's actual CVEs are elsewhere
+(command injection in `export.php`, auth bypass, world-readable `.fogsettings`).
+
+**The one real delta is reach.** TFTP is UDP/69 and LAN-scoped in practice; HTTP
+goes as far as the web server does, which on an internet-facing server is
+further. Content sensitivity is unchanged; reachability is not.
+
+**Residual, handled by documentation.** The link exposes the directory as it
+will be, not a fixed file list, so anything an admin later drops into the TFTP
+tree becomes web-reachable. FOG has form for this failure mode — the login-leak
+issue in ≤1.5.10.41.4 was logs landing on the web root. Addressed with a section
+in `docs/SUPPORTED_CUSTOMIZATIONS.md` stating that the tree is HTTP-reachable and
+must not be used as a scratch area, and noting that an admin who does not want it
+published can delete the symlink after each install.
 
 ## Verification
 

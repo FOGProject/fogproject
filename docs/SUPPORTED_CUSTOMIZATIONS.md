@@ -134,6 +134,42 @@ mid-install.
 
 ---
 
+## The TFTP tree is reachable over HTTP
+
+**Not a customization point — a property to know about before you put anything
+there.**
+
+Your TFTP directory (`/tftpboot`, or `/var/lib/tftpboot`, `/srv/tftp`,
+`/var/tftpboot` depending on the distro) is published under the web root as a
+symlink:
+
+```
+<webroot>/service/secureboot/signed-pxe-boot-files  ->  /tftpboot
+```
+
+That is how a machine with no PXE boot option in its firmware fetches a signed
+iPXE binary for its own EFI System Partition — those machines cannot get a boot
+file over the network any other way. The link is recreated on every install.
+
+Directory listing is switched off for it (`Options -Indexes` on Apache,
+`autoindex off` on nginx), so the contents are not browsable, but **any file in
+that tree can be downloaded by anyone who can reach your web server**. Nothing
+FOG puts there is sensitive — iPXE binaries, `default.ipxe`, `autoexec.ipxe`,
+and upstream's signed Secure Boot binaries, all of which were already served
+unauthenticated over TFTP. But the exposure applies to the whole directory, now
+and in future.
+
+**So do not use the TFTP directory as a scratch or staging area.** Anything you
+drop in there — a backup, a key, a capture, a config you were mid-way through
+editing — becomes web-reachable. HTTP reaches considerably further than TFTP
+does in most networks. Put working files anywhere else.
+
+If you would rather not publish the tree at all, delete the symlink after each
+install; nothing but local-ESP boot depends on it. Bear in mind it comes back
+on the next run.
+
+---
+
 ## What is NOT automatically preserved
 
 Listed plainly so none of it is a surprise.

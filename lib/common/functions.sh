@@ -7605,6 +7605,16 @@ _publishSecureBootKit() {
     # the signed-pxe-boot-files <Directory> and location blocks in
     # configureHttpd(). An index.php cannot do that job: it would have to live in
     # $tftpdirdst, where TFTP would serve it too.
+    #
+    # Nothing FOG puts in that tree is sensitive -- iPXE binaries, default.ipxe,
+    # autoexec.ipxe and upstream's signed Secure Boot set, every one of them
+    # already served unauthenticated over TFTP, and bzImage is already served
+    # MOK-signed over unauthenticated HTTP from service/ipxe. What changes is
+    # reach, not sensitivity: HTTP travels further than UDP/69 usually does. The
+    # exposure covers the whole directory as it will be, not a fixed list, so
+    # docs/SUPPORTED_CUSTOMIZATIONS.md tells admins not to use it as a scratch
+    # area. No symlink is ever created inside $tftpdirdst -- autoexec.ipxe uses
+    # hard links -- so FollowSymLinks has nothing to follow back out.
     ln -sfn "${tftpdirdst%/}" "${kitdir}/signed-pxe-boot-files" >>$error_log 2>&1
     # Keep the directory from being browsable, matching service/ipxe.
     echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
