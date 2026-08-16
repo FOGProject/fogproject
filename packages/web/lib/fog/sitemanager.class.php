@@ -40,14 +40,25 @@ class SiteManager extends FOGManagerController
      * if that was taken), and an admin may rename it afterwards. The flag
      * is the identity.
      *
+     * Direct SQL rather than Route::getIds(): `catchall` is not one of
+     * Site's database fields (it cannot be -- see Site::$additionalFields),
+     * so there is no column for a filter to name. It is also NULL-or-1, and
+     * a filter builder that emits `= :val` has no way to ask for NOT NULL.
+     *
      * @return Site|null
      */
     public function catchAll()
     {
-        $ids = Route::getIds('site', ['catchall' => 1]);
-        if (empty($ids)) {
+        $row = self::$DB
+            ->query(
+                'SELECT `siteID` AS `id` FROM `sites` '
+                . 'WHERE `siteCatchAll` IS NOT NULL LIMIT 1'
+            )
+            ->fetch(\PDO::FETCH_ASSOC)
+            ->get();
+        if (!is_array($row) || empty($row['id'])) {
             return null;
         }
-        return self::getClass('Site', (int)array_shift($ids));
+        return self::getClass('Site', (int)$row['id']);
     }
 }
