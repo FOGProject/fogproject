@@ -2352,11 +2352,6 @@ class Route extends FOGBase
                 ) {
                     continue;
                 }
-                $data['_lang'][$search] = (
-                    $search != 'setting' ?
-                    _($search) :
-                    _('settings')
-                );
                 $searchfor = $search;
                 if ($search === 'ipxe') {
                     $searchfor = 'pxemenuoptions';
@@ -2365,6 +2360,28 @@ class Route extends FOGBase
                     $searchfor,
                     '',
                     true
+                );
+                // An entity with no `name` field has nothing for a universal
+                // search to match on or to label a result with. Skipped
+                // rather than special-cased, because this list is not ours
+                // alone: SEARCH_PAGES hands $searchPages to plugins BY
+                // REFERENCE and they append to it, so no amount of reading
+                // the core list can tell you what arrives here. The live
+                // example is the ntfy plugin, whose model is id/serverURL/
+                // topicEndpoint/credentials -- every unisearch emitted two
+                // "Undefined array key: name" warnings, built a SELECT with
+                // an empty backtick pair, got false back, and then
+                // foreach()ed over the false.
+                //
+                // Before the _lang stamp, so a skipped entity does not leave
+                // a heading behind for results it will never contribute.
+                if (!isset($classVars['databaseFields']['name'])) {
+                    continue;
+                }
+                $data['_lang'][$search] = (
+                    $search != 'setting' ?
+                    _($search) :
+                    _('settings')
                 );
                 $j = $w = $g = '';
                 $params = ['item1' => $like, 'item2' => $like];
@@ -3425,7 +3442,21 @@ class Route extends FOGBase
         if (!is_array($data)) {
             return $data;
         }
-        $classname = isset($data['_lang'])
+        // is_scalar, because '_lang' is not always the classname stamp this
+        // was written for. unisearch() builds it as an ARRAY -- a heading per
+        // entity plus 'AllResults' -- so the cast produced the literal string
+        // "Array", a PHP "Array to string conversion" warning on every
+        // universal search, and a classname of "array" that matches nothing
+        // in the sensitive map. Stripping therefore did nothing at all on
+        // that path while appearing to run.
+        //
+        // Falling through to $emitClassname is right for it: a multi-entity
+        // payload has no single classname, and guessing one would strip the
+        // wrong entity's fields. What keeps that safe is upstream -- the
+        // unisearch query selects exactly two columns and each row is rebuilt
+        // as ['id' => ..., 'name' => ...], so no secret can reach here. If
+        // that ever selects more, this needs a per-entity pass, not a cast.
+        $classname = isset($data['_lang']) && is_scalar($data['_lang'])
             ? strtolower((string)$data['_lang'])
             : self::$emitClassname;
         if ('' === $classname) {
