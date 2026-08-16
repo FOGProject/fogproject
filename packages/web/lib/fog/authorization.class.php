@@ -764,6 +764,53 @@ class Authorization extends FOGBase
         return (bool)$allowed;
     }
     /**
+     * The object ids a user may see for a listed node, or null when the
+     * list needs no narrowing at all.
+     *
+     * The list counterpart of objectInScope(), and the distinction the
+     * return type carries is the whole point: null means "no boundary
+     * applies -- leave the list alone", while an ARRAY narrows the list,
+     * and an EMPTY array is a real answer meaning the user may see
+     * nothing. Collapsing those two onto "empty" is the mistake that
+     * silently shows every host to a user with no site.
+     *
+     * null is returned for an unrestricted '*' holder, a node that is not
+     * site-scoped, an install with no sites configured, and a member of a
+     * catch-all site -- the same short circuits objectInScope() applies,
+     * so single objects and lists cannot disagree about who is scoped.
+     *
+     * @param string   $node   the node being listed
+     * @param int|null $userID acting user (defaults to current user)
+     *
+     * @return array|null ids to narrow to, or null for no restriction
+     */
+    public static function scopedObjectIDs($node, $userID = null)
+    {
+        if (self::_isUnrestricted($userID)) {
+            return null;
+        }
+        if (null === $userID) {
+            $userID = (
+                self::$FOGUser && self::$FOGUser->isValid() ?
+                (int)self::$FOGUser->get('id') :
+                0
+            );
+        }
+        $userID = (int)$userID;
+        $node = strtolower(trim((string)$node));
+        if (!SiteScope::isScopedNode($node)) {
+            return null;
+        }
+        // Same two short circuits as the single-object path: a server with
+        // no sites behaves as it always did, and a catch-all member is not
+        // narrowed to an enumerated list (which would stop covering
+        // objects created after the catch-all was made).
+        if (!SiteScope::anySitesExist() || SiteScope::isUnscoped($userID)) {
+            return null;
+        }
+        return SiteScope::allInScopeIDs($node, $userID);
+    }
+    /**
      * Enforce object scope for a management page request. Allowed →
      * returns silently. Denied → 403 JSON (AJAX) or a flash message plus
      * redirect home (full page), then exits. Mirrors the denial UX of

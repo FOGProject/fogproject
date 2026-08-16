@@ -966,6 +966,21 @@ abstract class FOGPage extends FOGBase
                         'delNeeded' => &$delNeeded
                     ]
                 );
+                // Core's site boundary for the listed page. Re-lists with
+                // the in-scope ids rather than dropping rows from the
+                // payload above, so the row counts describe what the user
+                // can actually see -- a filtered payload with the unscoped
+                // totals still tells them how much exists outside their
+                // scope. null means no boundary applies; an empty array is
+                // a real deny-all and must still narrow the list.
+                $scopeIDs = Authorization::scopedObjectIDs($this->node);
+                if (null !== $scopeIDs) {
+                    Route::listem(
+                        $this->childClass,
+                        ['id' => $scopeIDs ?: [0]]
+                    );
+                    $data = Route::getData();
+                }
                 echo $data;
                 exit;
             }
