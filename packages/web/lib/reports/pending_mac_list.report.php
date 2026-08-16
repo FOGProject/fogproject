@@ -228,7 +228,7 @@ class Pending_MAC_List extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body text-center">';
-        echo _("The follow MACs have been ${msg}.");
+        echo _("The follow MACs have been {$msg}.");
         echo '<br/>';
         echo '<ul class="nav nav-pills nav-stacked">';
         echo '<li><a href="#">';

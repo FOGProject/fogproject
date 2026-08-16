@@ -343,47 +343,47 @@ class Route extends FOGBase
                 'export'
             )
             ->get(
-                "${expandeda}/[current|active]",
+                "{$expandeda}/[current|active]",
                 array(__CLASS__, 'active'),
                 'active'
             )
             ->get(
-                "${expanded}/search/[*:item]",
+                "{$expanded}/search/[*:item]",
                 array(__CLASS__, 'search'),
                 'search'
             )
             ->get(
-                "${expanded}/[list|all]?",
+                "{$expanded}/[list|all]?",
                 array(__CLASS__, 'listem'),
                 'list'
             )
             ->get(
-                "${expanded}/[details]/?[*:item]?",
+                "{$expanded}/[details]/?[*:item]?",
                 array(__CLASS__, 'listdetails'),
                 'listdetails'
             )
             ->get(
-                "${expanded}/[i:id]/?[*:item]?",
+                "{$expanded}/[i:id]/?[*:item]?",
                 array(__CLASS__, 'indiv'),
                 'indiv'
             )
             ->get(
-                "${expanded}/names/[*:whereItems]?",
+                "{$expanded}/names/[*:whereItems]?",
                 array(__CLASS__, 'names'),
                 'names'
             )
             ->get(
-                "${expanded}/ids/[*:whereItems]?/[*:getField]?",
+                "{$expanded}/ids/[*:whereItems]?/[*:getField]?",
                 array(__CLASS__, 'ids'),
                 'ids'
             )
             ->put(
-                "${expanded}/[i:id]/[update|edit]?",
+                "{$expanded}/[i:id]/[update|edit]?",
                 array(__CLASS__, 'edit'),
                 'update'
             )
             ->post(
-                "${expandedt}/[i:id]/[task]",
+                "{$expandedt}/[i:id]/[task]",
                 array(__CLASS__, 'task'),
                 'task'
             )
@@ -398,17 +398,17 @@ class Route extends FOGBase
                 'uploadSnapinFiles'
             )
             ->post(
-                "${expanded}/[create|new]?",
+                "{$expanded}/[create|new]?",
                 array(__CLASS__, 'create'),
                 'create'
             )
             ->delete(
-                "${expandedt}/[i:id]?/[cancel]",
+                "{$expandedt}/[i:id]?/[cancel]",
                 array(__CLASS__, 'cancel'),
                 'cancel'
             )
             ->delete(
-                "${expanded}/[i:id]/[delete|remove]?",
+                "{$expanded}/[i:id]/[delete|remove]?",
                 array(__CLASS__, 'delete'),
                 'delete'
             );
