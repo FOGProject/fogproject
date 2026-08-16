@@ -61,20 +61,13 @@ class ApiDocumentation extends FOGPage
     public function index(...$args)
     {
         /**
-         * The page manager already queues js/fog/apidocs/fog.apidocs.list.js
-         * for this node; the renderer it drives has to be on the page first,
-         * since that script calls SwaggerUIBundle directly.
+         * The Swagger UI bundle and its stylesheets are registered against
+         * the apidocs node in Page, alongside every other page's assets.
+         * They were queued from here originally, through
+         * getClass('Page')->addJavascript(), which silently did nothing:
+         * getClass() news up a fresh Page every call, so the assets landed on
+         * a throwaway object and were never emitted.
          */
-        self::getClass('Page')->addJavascript('js/swagger-ui-bundle.js');
-        self::getClass('Page')->addCSS('css/swagger-ui.css');
-        /**
-         * Swagger UI ships one theme and no dark mode. This keys its colours
-         * off data-bs-theme, the same attribute FOG's own toggle sets, so the
-         * page follows the admin's existing preference instead of being the
-         * one white rectangle in a dark UI.
-         */
-        self::getClass('Page')->addCSS('css/swagger-ui-fog.css');
-
         $apiEnabled = (bool)self::getSetting('FOG_API_ENABLED');
         $specUrl = sprintf(
             '%s://%s%ssystem/openapi',

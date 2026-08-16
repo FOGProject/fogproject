@@ -194,6 +194,16 @@ class Page extends FOGBase
         foreach ($stylesheets as $stylesheet) {
             $this->addCSS($stylesheet);
         }
+        // Node scoped stylesheets, same reasoning as the node scoped scripts
+        // in setJavascripts(): this is the Page instance that renders, so it
+        // is the only one whose addCSS() survives. Swagger UI's stylesheet is
+        // 182KB and belongs on exactly one page, and the FOG overlay after it
+        // keys off data-bs-theme so the reference follows the dark mode toggle
+        // rather than staying white in a dark UI.
+        if ('apidocs' === $node) {
+            $this->addCSS('css/swagger-ui.css');
+            $this->addCSS('css/swagger-ui-fog.css');
+        }
         if (!$this->theme) {
             $this->theme = self::getSetting('FOG_THEME');
             if (!$this->theme) {
@@ -278,6 +288,20 @@ class Page extends FOGBase
             }
             if ($jscolorneeded) {
                 $files[] = 'js/jscolor.js';
+            }
+            // Swagger UI renders the API reference. It has to be added here,
+            // with the rest of the page's scripts, because this list is built
+            // on the Page instance that actually renders. A page class calling
+            // getClass('Page')->addJavascript() gets a fresh throwaway object
+            // -- getClass() news one up every call -- so the asset is served
+            // but never referenced, and the only symptom is a blank panel.
+            //
+            // Node scoped like jscolor above: the bundle is 1.5MB and nothing
+            // else on the site uses it. Listed before the node's own list.js
+            // so it is defined first, though fog.apidocs.list.js no longer
+            // depends on that.
+            if ('apidocs' === $node) {
+                $files[] = 'js/swagger-ui-bundle.js';
             }
         }
         if (isset($filepaths) && $filepaths && !file_exists($filepaths)) {
