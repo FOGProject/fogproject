@@ -165,6 +165,48 @@ Everything is driven by `?node=host&sub=list&id=42`:
 - `node` → maps to a page class (e.g., `host` → `HostManagement`)
 - `sub` → maps to a method on that class (e.g., `list` → `HostManagement::index()`)
 
+### REST API routes and the OpenAPI document
+
+The REST API is routed separately from the `?node=` UI above: `Route::defineRoutes()`
+(`lib/router/route.class.php`) maps the URIs, and `OpenAPI::document()`
+(`lib/fog/openapi.class.php`) describes them, served at `system/openapi` and `swagger.json`
+and rendered by the API Documentation page. The document is generated per request, but only
+*partly* from the router — so **a route change can change behaviour without changing the
+document**. Treat the spec as part of the route commit, not as follow-up.
+
+Updates itself, nothing to do:
+
+| Changed | Covered by |
+|---|---|
+| `Route::$validClasses` | `_paths()` — emits the ten generic operations, a schema and a tag per class, plugin classes included |
+| `$validTaskingClasses` / `$validActiveTasks` | adds `/{id}/task` and `/{id}/cancel`, or `/current` |
+| a model's `$databaseFields` / `$databaseFieldsRequired` / `$databaseFieldsToIgnore` | `_entitySchema()` reflects them; column types come from `commons/schema-expected.php`, so regenerate the manifest or the field is typed `string` |
+| the permission a route requires | `_op()` calls the same `Authorization::resolveApiPermission()` the router does |
+
+Hand-edit `openapi.class.php` in the same commit:
+
+| Changed | Also edit |
+|---|---|
+| added a route that is not the generic CRUD shape | `_classPaths()` for a per-class route, `_fixedPaths()` for a `system/*` or other fixed one |
+| changed a hand-built response body (e.g. `Route::status()` feeding `/system/info`) | that path's literal schema in `_fixedPaths()` |
+| added or renamed a route alias, or an optional trailing segment | the prose on the affected operation — aliases are collapsed to one documented path deliberately |
+| added a field to a special request body (e.g. the task body) | the literal property list in `_classPaths()` |
+
+Two standing rules:
+
+- If a commit touches `route.class.php` and not `openapi.class.php`, say in the message why no
+  spec change was needed. "It is generated" is not the answer for a non-CRUD route.
+- The document is **OAS 3.0.3, not 3.1** — nullable is `nullable: true` and a genuine union is
+  `_oneOfTypes()`, never `type: [x, 'null']`. The `OAS_VERSION` docblock explains why; that is a
+  decision to revisit, not to quietly extend.
+
+**Downstream consumers of the class list.** FogApi (`darksidemilk/FogApi`, the PowerShell module)
+keeps its *own* hardcoded copy of the 1.6 class list in `Private/Get-DynmicParam.ps1` for
+`-coreObject` tab completion — it does not read `system/openapi`. A class added here is missing
+there until someone syncs it by hand, and that list has already drifted. So when a change adds or
+removes a route class, call it out in the PR body under a "Downstream" note naming FogApi, so the
+sync is visible rather than discovered later.
+
 ### Settings
 
 All app config lives in the `globalSettings` MySQL table:
@@ -338,6 +380,7 @@ badly — `ou` and `windowskey` become "Ou" and "Windowskey" without it.
 - Do not use raw `$_GET`/`$_POST` — use `filter_input()` or the already-sanitized values
 - Do not echo user data without `Initiator::e()`
 - Do not remove hooks, events, or plugin integration points without explicit confirmation
+- Do not add or change a REST route without checking whether `OpenAPI::document()` still describes it
 - Do not touch `config.class.php` — it's generated and excluded from git
 - Do not change existing `$databaseFields` key names without understanding the ORM impact
 
