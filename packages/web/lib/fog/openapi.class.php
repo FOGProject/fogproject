@@ -99,6 +99,7 @@ class OpenAPI extends FOGBase
             'info' => self::_info(),
             'servers' => self::_servers(),
             'security' => self::_globalSecurity(),
+            'x-fog-paging' => self::pagingLimits(),
             'tags' => self::_tags(),
             'paths' => self::_paths(),
             'components' => [
@@ -106,6 +107,71 @@ class OpenAPI extends FOGBase
                 'parameters' => self::_commonParameters(),
                 'schemas' => self::_schemas()
             ]
+        ];
+    }
+
+    /**
+     * The server's own paging bounds, so a client can size its requests from
+     * what this server does rather than from a number copied out of the
+     * source at some point in the past.
+     *
+     * Both are constants rather than settings today, which is exactly why
+     * they are worth publishing: nothing else exposes them, so a client had
+     * no way to learn them except by reading the PHP, and a number learned
+     * that way is wrong the moment either changes.
+     *
+     * Read through reflection rather than referenced directly so that a
+     * change to either constant reaches this without anyone remembering to
+     * update it here.
+     *
+     * Also served by system/info, which is the cheap way to read it -- this
+     * document is several hundred kilobytes and a client that only wants two
+     * integers should not have to fetch all of it.
+     *
+     * @return array
+     */
+    public static function pagingLimits()
+    {
+        $maxRows = null;
+        $expandMax = null;
+        try {
+            $manager = new ReflectionClass('FOGManagerController');
+            if ($manager->hasConstant('MAX_ROWS')) {
+                $maxRows = (int)$manager->getConstant('MAX_ROWS');
+            }
+        } catch (Exception $e) {
+            $maxRows = null;
+        } catch (Error $e) {
+            $maxRows = null;
+        }
+        try {
+            $router = new ReflectionClass('Route');
+            if ($router->hasConstant('EXPAND_MAX_ITEMS')) {
+                $expandMax = (int)$router->getConstant('EXPAND_MAX_ITEMS');
+            }
+        } catch (Exception $e) {
+            $expandMax = null;
+        } catch (Error $e) {
+            $expandMax = null;
+        }
+
+        return [
+            'maxRows' => $maxRows,
+            'expandMaxItems' => $expandMax,
+            'description' => implode(' ', [
+                'maxRows is the row cap applied to a list request that does',
+                'not carry a start parameter, that asks for length=-1, or',
+                'that sends a negative length. A request with an explicit',
+                'non-negative start and a positive length is served verbatim',
+                'and is not capped, so a client that always pages explicitly',
+                'never meets maxRows.',
+                'expandMaxItems is different: an ?expand request has its page',
+                'size clamped to this value even when a larger length was',
+                'asked for, so a page can come back smaller than requested.',
+                'Advance by the number of rows actually returned rather than',
+                'by the length you asked for, and follow nextUrl until it is',
+                'null.'
+            ])
         ];
     }
 
