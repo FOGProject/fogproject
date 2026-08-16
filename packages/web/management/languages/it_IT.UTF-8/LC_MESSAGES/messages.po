@@ -7081,6 +7081,10 @@ msgstr "Aggiunta tipo attività riuscita!"
 msgid "Task state update failed!"
 msgstr "Aggiunta stato attività fallito"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "Non ci sono snapins su questo server"
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "Tipo di attività non è valido"

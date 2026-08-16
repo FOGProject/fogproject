@@ -6220,6 +6220,10 @@ msgstr ""
 msgid "Task state update failed!"
 msgstr ""
 
+#, php-format
+msgid "Task type %d is missing from this server."
+msgstr ""
+
 msgid "Task type is invalid"
 msgstr ""
 

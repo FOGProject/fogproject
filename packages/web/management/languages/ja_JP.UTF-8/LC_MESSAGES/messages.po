@@ -7006,6 +7006,10 @@ msgstr "タスク状態を追加しました！"
 msgid "Task state update failed!"
 msgstr "タスク状態の更新に失敗しました"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "このサーバーにはスナップインがありません"
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "タスクタイプが無効です"
