@@ -1487,6 +1487,10 @@ abstract class FOGController extends FOGBase
      * @param string $qStr       Custom SQL String to use?
      * @param string $qFilterStr Custom SQL Filter String to use?
      * @param string $qTotalStr  Custom SQL Total string to use?
+     * @param string $assocOrder Alias to ORDER BY when the grid sorts on the
+     *                           association column, for a custom $qStr whose
+     *                           association value does not sort the way it
+     *                           reads (group's all/some/none tri-state).
      *
      * @return string
      */
@@ -1498,7 +1502,8 @@ abstract class FOGController extends FOGBase
         $addColumns = [],
         $qStr = '',
         $qFilterStr = '',
-        $qTotalStr = ''
+        $qTotalStr = '',
+        $assocOrder = ''
     ) {
         header('Content-type: application/json');
         parse_str(
@@ -1602,10 +1607,14 @@ abstract class FOGController extends FOGBase
             unset($real);
         }
         if ($secondary) {
-            $columns[] = [
+            $assocColumn = [
                 'do' => $secondID,
                 'dt' => 'association'
             ];
+            if ('' !== $assocOrder) {
+                $assocColumn['order'] = $assocOrder;
+            }
+            $columns[] = $assocColumn;
         }
         foreach ((array)$addColumns as &$column) {
             $columns[] = $column;
