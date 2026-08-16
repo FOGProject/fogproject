@@ -75,6 +75,10 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, php-format
+msgid "%s is maintained by the server and cannot be set"
+msgstr ""
+
+#, php-format
 msgid "%s is not a readable .tar.gz archive."
 msgstr ""
 
@@ -4457,6 +4461,9 @@ msgstr "Hauptmenü"
 #, fuzzy
 msgid "Main navigation"
 msgstr "Regel Zuordnung"
+
+msgid "Maintained by the server. It may be sent back unchanged, but a request that would change it is refused."
+msgstr ""
 
 #, fuzzy
 msgid "Make default"
