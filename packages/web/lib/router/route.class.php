@@ -832,7 +832,7 @@ class Route extends FOGBase
             'unisearch'
         )->map(
             'PUT|POST',
-            "${expanded}/join",
+            "{$expanded}/join",
             [__CLASS__, 'joining'],
             'join'
         )->get(
@@ -844,19 +844,19 @@ class Route extends FOGBase
             [__CLASS__, 'availableinitrds'],
             'initrdUpdate'
         )->get(
-            "${expandeda}/[current|active]",
+            "{$expandeda}/[current|active]",
             [__CLASS__, 'active'],
             'active'
         )->get(
-            "${expanded}/count/[*:whereItems]?",
+            "{$expanded}/count/[*:whereItems]?",
             [__CLASS__, 'count'],
             'count'
         )->get(
-            "${expanded}/names/[*:whereItems]?",
+            "{$expanded}/names/[*:whereItems]?",
             [__CLASS__, 'names'],
             'names'
         )->get(
-            "${expanded}/ids/[*:whereItems]?/[*:getField]?",
+            "{$expanded}/ids/[*:whereItems]?/[*:getField]?",
             [__CLASS__, 'ids'],
             'ids'
         )->get(
@@ -864,15 +864,15 @@ class Route extends FOGBase
             [__CLASS__, 'bandwidth'],
             'bandwidth'
         )->get(
-            "${expanded}/search/[*:item]",
+            "{$expanded}/search/[*:item]",
             [__CLASS__, 'search'],
             'search'
         )->get(
-            "${expanded}/[i:id]",
+            "{$expanded}/[i:id]",
             [__CLASS__, 'indiv'],
             'indiv'
         )->get(
-            "${expanded}/[list|all]?/[*:whereItems]?",
+            "{$expanded}/[list|all]?/[*:whereItems]?",
             [__CLASS__, 'listem'],
             'list'
         )->get(
@@ -888,11 +888,11 @@ class Route extends FOGBase
             [__CLASS__, 'logfiles'],
             'logfiles'
         )->put(
-            "${expanded}/[i:id]/[update|edit]?",
+            "{$expanded}/[i:id]/[update|edit]?",
             [__CLASS__, 'edit'],
             'update'
         )->post(
-            "${expandedt}/[i:id]/[task]",
+            "{$expandedt}/[i:id]/[task]",
             [__CLASS__, 'task'],
             'task'
         )->post(
@@ -904,7 +904,7 @@ class Route extends FOGBase
             [__CLASS__, 'uploadSnapinFiles'],
             'uploadSnapinFiles'
         )->post(
-            "${expanded}/[create|new]?",
+            "{$expanded}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
         )->get(
@@ -920,11 +920,11 @@ class Route extends FOGBase
             [__CLASS__, 'settingsCacheRefresh'],
             'settingsCacheRefresh'
         )->delete(
-            "${expandedt}/[i:id]?/[cancel]",
+            "{$expandedt}/[i:id]?/[cancel]",
             [__CLASS__, 'cancel'],
             'cancel'
         )->delete(
-            "${expanded}/[i:id]/[delete|remove]?",
+            "{$expanded}/[i:id]/[delete|remove]?",
             [__CLASS__, 'delete'],
             'delete'
         );
@@ -2621,8 +2621,8 @@ class Route extends FOGBase
                 {$j}
                 WHERE `{$classVars['databaseFields']['id']}` LIKE :item1
                 OR `{$classVars['databaseFields']['name']}` LIKE :item2
-                ${w}
-                ${g}";
+                {$w}
+                {$g}";
                 if ($limit > 0) {
                     $sql .= " LIMIT " . (int)$limit;
                 }
