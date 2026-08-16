@@ -1137,6 +1137,18 @@ while [[ -z $blGo ]]; do
                     # so the rEFInd set is already signed when this one walks
                     # the same directory.
                     _resignCustomKernels
+                    # A different tree entirely -- $tftpdirdst, not the web root
+                    # -- so unlike the two above this has no dependency on
+                    # restorePreservedCustomizations, which only ever touches
+                    # service/ipxe. What it does need is configureTFTPandPXE's
+                    # copy loop to have filled $tftpdirdst and downloadfiles() to
+                    # have set up the signing keys, both of which have run by
+                    # here. Grouped with the other signing for cohesion.
+                    #
+                    # Deliberately absent from the storage-node branch above, for
+                    # the same reason _resignRefind and _resignKernels are: a node
+                    # does not hold the signing key.
+                    _signLocalIpxe
                     configureFTP
                     configureSnapins
                     # After configureSnapins, whose recursive chown over $snapindir

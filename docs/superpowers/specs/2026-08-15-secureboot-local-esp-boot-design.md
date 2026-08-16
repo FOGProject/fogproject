@@ -226,29 +226,44 @@ config might have changed.
 | Publish signed copies into `service/secureboot/` | Duplicates the whole matrix and lets the copies drift from `/tftpboot`. |
 | Also publish the two-line ESP `autoexec.ipxe` | Deferred, not rejected. The client-side tooling writes it today, and it is two lines. Worth revisiting if a "copy this directory to your ESP" kit is wanted later. |
 
-## Risks and open questions
+## Resolved during implementation
 
-- **Does `restorePreservedCustomizations` touch `/tftpboot`?** Placing the call
-  after it makes this moot either way, but confirm during implementation so the
-  ordering comment states the real reason.
-- **`sbsign` across the full matrix** is 45 `.efi` files — 5 names
-  (`snp`/`snponly`/`ipxe`/`intel`/`realtek`) × 3 arches × 3 embed variants
-  (script / 10sec / EMBED-less). Expected to be seconds, but time one run and, if
-  it is slower than that, add a `dots` progress line rather than letting the
-  install look hung.
+- **`restorePreservedCustomizations` does not touch `/tftpboot`.** It only ever
+  works inside `${webdirdest}service/ipxe`. So unlike `_resignRefind`,
+  `_signLocalIpxe` has no restore dependency — it is placed alongside the other
+  signing calls for cohesion, not for correctness, and its comment says so. What
+  it does depend on is `configureTFTPandPXE`'s copy loop and `downloadfiles()`'
+  key setup, both of which have run by that point.
+- **Nothing stamps or verifies `/tftpboot` contents**, so no re-stamping is
+  needed. `_stampFogSum` is only ever applied to `${webdirdest}/service/ipxe/*`,
+  which is why `_resignKernels` had to re-stamp and this does not.
+- **The three Apache blocks were not refactored into a helper.** They were
+  already three byte-identical copies; matching that pattern keeps the diff
+  surgical and reviewable rather than mixing a refactor into a feature. The
+  helper is still worth extracting — six copies is past the point where it pays
+  — but as its own change.
+- **The `find` prune expression is verified**, against a mock tree of the real
+  shape: 45 `.efi` matched (5 names × 3 arches × 3 embed variants), zero from
+  `secureboot/`, zero non-PE artifacts (`.kpxe`/`.lkrn`/`.usb`/`.iso`/`.ipxe`),
+  and correct with a trailing slash on `$tftpdirdst`.
+- **`ln -sfn` is verified idempotent** — two runs leave one link in the kit dir
+  and nothing nested inside `$tftpdirdst`. Without `-n`, the second run would
+  have created the link *inside* the directory the first one points at.
+
+## Remaining risks
+
 - **The index suppression depends on Apache matching `<Directory>` on the
   unresolved path.** That is what the GH-529 comment at `functions.sh:6158-6163`
   records, and the block is written on that basis — but it is load-bearing here,
   because if Apache resolved the link instead, the block would not match and the
   inherited `Indexes` would leak a `/tftpboot` listing. Verification step 3 is
-  the check that matters.
-- **Signing changes checksums.** `_resignKernels` had exactly this problem and
-  the fix was to re-stamp after signing (`functions.sh:6905-6912`). Check
-  whether anything stamps or verifies `/tftpboot` contents; if so, re-stamp after
-  `_signLocalIpxe` for the same reason.
-- **`Options -Indexes` needs adding in three places** in the Apache branch.
-  Worth checking whether those three blocks can share a helper rather than
-  growing a fourth copy-paste.
+  the check that matters. Untestable without a running Apache.
+- **`sbsign` across 45 files** is expected to take seconds, and there is a `dots`
+  line so it is not silent — but it has not been timed on real hardware. If it
+  turns out slow, the progress line is already in place to build on.
+- **Exposing `/tftpboot` over HTTP is new surface**, though not new exposure: the
+  same tree is already served by TFTP with no authentication. Worth a reviewer's
+  eye anyway, since HTTP reaches further than TFTP typically does.
 
 ## Verification
 
