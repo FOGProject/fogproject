@@ -573,8 +573,18 @@ class Route extends FOGBase
         if (count($whereItems ?: []) < 1) {
             return;
         }
+        self::_assertNoSensitiveFilter($whereItems, $class);
         $classVars = self::getClass($class, '', true);
-        $valid = array_keys((array)$classVars['databaseFields']);
+        // Blocked fields are dropped from the advertised list as well as
+        // refused above -- an error that names them as valid alternatives
+        // would be telling the caller to retry with the one thing this
+        // refuses.
+        $valid = array_values(
+            array_diff(
+                array_keys((array)$classVars['databaseFields']),
+                self::unfilterableFields($class)
+            )
+        );
         $unknown = array_diff(array_keys($whereItems), $valid);
         if (count($unknown) < 1) {
             return;
@@ -589,6 +599,80 @@ class Route extends FOGBase
                         implode(', ', $unknown)
                     ),
                     'valid' => $valid
+                ]
+            )
+        );
+    }
+    /**
+     * Fields a REQUEST may never filter or search on.
+     *
+     * The same list the emitter strips, read from the same place, because
+     * two lists that must agree are two lists that will not. Plugin secrets
+     * declared through API_SENSITIVE_FIELDS are included by construction --
+     * sensitiveFieldMap() fires that event -- so a plugin gets this
+     * protection without knowing the rule exists.
+     *
+     * Both tiers, deliberately. 'always' is never returned at all; 'fields'
+     * is returned on a direct single-entity GET and stripped everywhere
+     * else. Filtering is neither: it is a question asked of every row at
+     * once, which is exactly the shape a single-GET exemption is not meant
+     * to cover.
+     *
+     * NOT the place for globalSettings values. A setting's value is
+     * ordinary configuration for all but a handful of keys, so it is
+     * filtered per ROW against isSensitiveSetting() rather than blocked
+     * per FIELD -- blocking the field would take "which setting holds
+     * bzImage" away to protect four passwords.
+     *
+     * @param string $class The entity being filtered.
+     *
+     * @return array friendly field names
+     */
+    public static function unfilterableFields($class)
+    {
+        $map = self::sensitiveFieldMap();
+        $classname = strtolower(trim((string)$class));
+        return array_values(
+            array_unique(
+                array_merge(
+                    (array)($map['always'][$classname] ?? []),
+                    (array)($map['fields'][$classname] ?? [])
+                )
+            )
+        );
+    }
+    /**
+     * Refuses a request that filters on a field the emitter would strip.
+     *
+     * Rejected rather than silently ignored. Dropping the key would answer
+     * with the UNFILTERED set, which is a worse surprise than an error --
+     * a caller asking for one host would get all of them. The field names
+     * are already public in the OpenAPI document, so naming them here tells
+     * an attacker nothing they could not read from /system/openapi.
+     *
+     * @param array  $whereItems The request-supplied filter.
+     * @param string $class      The entity being filtered.
+     *
+     * @return void
+     */
+    private static function _assertNoSensitiveFilter($whereItems, $class)
+    {
+        $blocked = array_intersect(
+            array_keys((array)$whereItems),
+            self::unfilterableFields($class)
+        );
+        if (count($blocked) < 1) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_BAD_REQUEST,
+            json_encode(
+                [
+                    'error' => sprintf(
+                        _('Cannot filter %s on: %s'),
+                        strtolower($class),
+                        implode(', ', $blocked)
+                    )
                 ]
             )
         );
@@ -2094,6 +2178,35 @@ class Route extends FOGBase
                 ]
             );
 
+            // A field the emitter strips must not be searchable either.
+            //
+            // Marked unsearchable rather than dropped, because these columns
+            // are load bearing for callers that are not the API. listem() is
+            // shared with the web tier: product_keys.report.php calls
+            // listem('host') and has nothing to report without productKey.
+            // Removing the column would break the report to close a search;
+            // stripSensitive() at the emitter is what keeps it off the wire.
+            //
+            // Searching is the part with no legitimate use. The value never
+            // comes back, so a match can only ever be read as an answer about
+            // a value the caller is not allowed to see -- and DataTables
+            // filters are substring LIKEs, so the answer is repeatable one
+            // character at a time. host.sec_tok and user.token are stored in
+            // plaintext and matched exactly at authentication, which is what
+            // makes this worth closing rather than noting.
+            //
+            // Applied after CUSTOMIZE_DT_COLUMNS so a column a plugin adds
+            // for its own declared secret is covered too, and keyed on 'dt'
+            // because that is the name a DataTables request asks for.
+            $unsearchable = self::unfilterableFields($classname);
+            if (count($unsearchable)) {
+                foreach ($columns as $ci => $col) {
+                    if (in_array($col['dt'] ?? '', $unsearchable, true)) {
+                        $columns[$ci]['nosearch'] = true;
+                    }
+                }
+            }
+
             self::$data = FOGManagerController::complex(
                 isset($pass_vars) ? $pass_vars : '',
                 $table,
@@ -3264,6 +3377,7 @@ class Route extends FOGBase
                 true
             );
             $find = [];
+            $classname = $class;
             $class = new $class;
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
@@ -3272,6 +3386,13 @@ class Route extends FOGBase
                 }
                 unset($key);
             }
+            // The other request-facing filter entry point. Intersecting with
+            // the class's own fields, which is all this used to do, admits
+            // every sensitive field -- they ARE the class's fields. Only
+            // _assertNoSensitiveFilter() is called, not the full key check:
+            // this body has always ignored keys it does not recognise, and
+            // starting to 400 on them would be a separate behaviour change.
+            self::_assertNoSensitiveFilter($find, $classname);
 
             // Request-supplied, so the caller-facing '*'/'+' wildcards apply
             // here (they used to be expanded down in _buildSql, which also
