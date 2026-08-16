@@ -1011,7 +1011,7 @@ abstract class FOGPage extends FOGBase
             }
             printf(
                 _('Index page of: %s%s'),
-                get_class($this),
+                self::shortName($this),
                 (
                     count($args ?: []) ?
                     sprintf(_(', Arguments = %s'), implode(', ', $args)) :

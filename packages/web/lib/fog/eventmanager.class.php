@@ -60,7 +60,11 @@ class EventManager extends FOGBase
             if (!is_array($listener) && !is_object($listener)) {
                 throw new \Exception(_('Listener must be an array or an object'));
             }
-            switch (get_class($this)) {
+            // Short name: the cases below are bare class names and the
+            // default arm throws. A namespaced FQCN would hit that default
+            // for every register() call, so no hook and no event would ever
+            // register -- and the throw is caught and merely logged.
+            switch (self::shortName($this)) {
                 case 'EventManager':
                     if (!($listener instanceof Event)) {
                         throw new \Exception(_('Class must extend event'));
@@ -83,7 +87,7 @@ class EventManager extends FOGBase
                         $msg = sprintf(
                             '%s: %s->%s',
                             _('Method does not exist'),
-                            get_class($listener[0]),
+                            self::shortName($listener[0]),
                             $listener[1]
                         );
                         throw new \Exception($msg);

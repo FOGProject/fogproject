@@ -153,10 +153,14 @@ abstract class FOGManagerController extends FOGBase
     public function __construct()
     {
         parent::__construct();
+        // Short name: $childClass is not only instantiated, it is lowercased
+        // into an HTML name=/id= attribute and passed to Route::listem(),
+        // which validates it against Route::$validClasses -- a list of bare
+        // lowercase names that 'fog\host' is not a member of.
         $this->childClass = preg_replace(
             '#_?Manager$#',
             '',
-            get_class($this)
+            self::shortName($this)
         );
         $classVars = self::getClass(
             $this->childClass,

@@ -192,7 +192,7 @@ abstract class FOGService extends FOGBase
         self::outall(
             sprintf(
                 'FOGService: %s - %s',
-                get_class($this),
+                self::shortName($this),
                 _('Waiting for mysql to be available')
             )
         );
@@ -218,7 +218,7 @@ abstract class FOGService extends FOGBase
             sprintf(
                 '===== FOG %s -- %s starting =====',
                 FOG_VERSION,
-                get_class($this)
+                self::shortName($this)
             )
         );
     }
@@ -324,7 +324,7 @@ abstract class FOGService extends FOGBase
         self::outall(
             sprintf(
                 ' * Starting %s Service',
-                get_class($this)
+                self::shortName($this)
             )
         );
         self::outall(
@@ -400,7 +400,9 @@ abstract class FOGService extends FOGBase
             throw new \Exception(_('This node does not appear to be online'));
         }
         $StorageNodes = Route::getList('storagenode', $find);
-        $objType = get_class($Obj);
+        // Short name: compared to 'Snapin' below to pick between the
+        // snapin path fields and the image path fields.
+        $objType = self::shortName($Obj);
         $groupOrNodeCount = count($StorageNodes);
         $counttest = 2;
         if (!$master) {
