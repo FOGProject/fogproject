@@ -3021,9 +3021,13 @@ class Route extends FOGBase
                     $Tasks = json_decode(
                         Route::getData()
                     );
-                    foreach ($Tasks as &$Task) {
+                    // ->data, not the envelope: listem() returns the paginated
+                    // wrapper. Iterating the wrapper walked its own scalar
+                    // members, so $Task->id was null on every pass and this
+                    // cancelled nothing at all -- cancelling a group's tasks
+                    // reported success and left every task running.
+                    foreach ($Tasks->data as $Task) {
                         self::getClass('Task', $Task->id)->cancel();
-                        unset($Task);
                     }
                     break;
                 case 'host':
