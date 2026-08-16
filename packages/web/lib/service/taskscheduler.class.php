@@ -236,7 +236,7 @@ class TaskScheduler extends FOGService
                 self::outall(
                     sprintf(
                         "\t\t - %s %s",
-                        get_class($Item),
+                        self::shortName($Item),
                         $Item->get('name')
                     )
                 );

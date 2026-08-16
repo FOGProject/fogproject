@@ -497,6 +497,11 @@ class OpenAPI extends FOGBase
             ? array_values((array)$vars['databaseFieldsRequired'])
             : [];
         $sensitive = self::_sensitiveFields($class);
+        // Read through Route for the same reason the sensitive tiers are:
+        // a plugin declares its own via API_SERVER_OWNED_FIELDS.
+        $serverOwned = method_exists('Route', 'serverOwnedFields')
+            ? array_map('strtolower', (array)Route::serverOwnedFields($class))
+            : [];
 
         $properties = [];
         foreach ($fields as $property => $column) {
@@ -521,6 +526,19 @@ class OpenAPI extends FOGBase
                 $schema['x-fog-sensitive'] = 'list';
                 $schema['description'] = _(
                     'Omitted from list responses; returned only on a single GET by id.'
+                );
+            }
+            // Server-maintained fields answer 400 to a write that would
+            // change them, so documenting them as settable would document
+            // a request the router refuses. readOnly rather than omitted:
+            // several are still RETURNED, and a client may legitimately
+            // send one back unchanged.
+            if (in_array(strtolower($property), $serverOwned, true)) {
+                $schema['x-fog-server-owned'] = true;
+                $schema['readOnly'] = true;
+                $schema['description'] = _(
+                    'Maintained by the server. It may be sent back unchanged, '
+                    . 'but a request that would change it is refused.'
                 );
             }
             $properties[$property] = $schema;

@@ -153,10 +153,14 @@ abstract class FOGManagerController extends FOGBase
     public function __construct()
     {
         parent::__construct();
+        // Short name: $childClass is not only instantiated, it is lowercased
+        // into an HTML name=/id= attribute and passed to Route::listem(),
+        // which validates it against Route::$validClasses -- a list of bare
+        // lowercase names that 'fog\host' is not a member of.
         $this->childClass = preg_replace(
             '#_?Manager$#',
             '',
-            get_class($this)
+            self::shortName($this)
         );
         $classVars = self::getClass(
             $this->childClass,
@@ -368,10 +372,32 @@ abstract class FOGManagerController extends FOGBase
     {
         $column = self::columnFor($columns, $orderby);
         if (null !== $column
-            && isset($column['db'])
             && !(isset($column['removeFromQuery']) && $column['removeFromQuery'])
         ) {
-            return $column['db'];
+            // 'order' names a different alias to sort this column by, for the
+            // case where the displayed value does not sort the way it reads.
+            // Group's tri-state association is the one that needs it: its
+            // labels are all/some/none, which alphabetically come out
+            // all/none/some, so it sorts on a numeric rank alias instead.
+            if (isset($column['order'])) {
+                return $column['order'];
+            }
+            if (isset($column['db'])) {
+                return $column['db'];
+            }
+            // A column carrying only 'do' is a SELECT alias rather than a real
+            // table column -- the association tabs' `IF(... ) AS <owner>Assoc`
+            // is the case that matters. MySQL lets ORDER BY name a select
+            // alias, so it is sortable; it just is not findable by its alias,
+            // because the grid asks for it by its OUTPUT name ('association')
+            // and the alias is built from the owning class. Without this the
+            // lookup fell through to the loop below, which compares 'do'
+            // against the requested name and so could never match -- the sort
+            // was dropped silently and every association tab came back ordered
+            // by name alone, ignoring the requested "associated first".
+            if (isset($column['do'])) {
+                return $column['do'];
+            }
         }
         foreach ((array)$columns as $column) {
             if (isset($column['removeFromQuery']) && $column['removeFromQuery']) {
@@ -382,6 +408,28 @@ abstract class FOGManagerController extends FOGBase
             }
         }
         return null;
+    }
+    /**
+     * Renders a resolved order target for the ORDER BY clause.
+     *
+     * A plain column or select alias is quoted as an identifier, as it always
+     * was. A column's 'order' key may instead give a whole SQL expression --
+     * group's tri-state ranking is the one that does -- and backticking that
+     * would turn it into a nonexistent column name, so it is emitted as-is.
+     * Nothing user-supplied reaches here: 'order' is only ever set from a
+     * column definition written in PHP, and everything else is matched
+     * against those definitions before it gets this far.
+     *
+     * @param string $ref The resolved column, alias, or expression
+     *
+     * @return string The ORDER BY target
+     */
+    protected static function orderRef($ref)
+    {
+        if (preg_match('/^[A-Za-z0-9_]+$/', $ref)) {
+            return '`' . $ref . '`';
+        }
+        return $ref;
     }
     /**
      * Ordering
@@ -421,7 +469,7 @@ abstract class FOGManagerController extends FOGBase
                 $orderCol = self::orderColumn($columns, 'id');
             }
             if (null !== $orderCol) {
-                $order = 'ORDER BY `' . $orderCol . '` ASC';
+                $order = 'ORDER BY ' . self::orderRef($orderCol) . ' ASC';
             }
             return $order;
         }
@@ -450,7 +498,7 @@ abstract class FOGManagerController extends FOGBase
             $dir = $request['order'][$i]['dir'] === 'asc' ?
                 'ASC' :
                 'DESC';
-            $orderBy[] = '`'.$orderCol.'` '.$dir;
+            $orderBy[] = self::orderRef($orderCol).' '.$dir;
         }
         if (count($orderBy ?: []) > 0) {
             $order = 'ORDER BY '.implode(', ', $orderBy);
@@ -465,6 +513,15 @@ abstract class FOGManagerController extends FOGBase
      * NOTE this does not match the built-in DataTables filtering which does it
      * word by word on any field. It's possible to do here performance on large
      * databases would be very poor
+     *
+     * Two column flags suppress a column here, and they mean different
+     * things. 'removeFromQuery' says the column is not a real column of the
+     * table -- an aggregate or a formatter's invention -- so naming it in
+     * SQL is an error. 'nosearch' says the column IS real and IS selected,
+     * but must never be matched against: Route::listem() sets it on every
+     * field the emitter strips, so a caller cannot use match/no-match to
+     * learn a value the response refuses to contain. The searchable flag in
+     * the request cannot serve for this -- the client sends it.
      *
      * @param array $request  Data sent to server by DataTables
      * @param array $columns  Column information array
@@ -493,6 +550,7 @@ abstract class FOGManagerController extends FOGBase
                     || $requestColumn['searchable'] != 'true'
                     || !isset($column['db'])
                     || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
+                    || (isset($column['nosearch']) && $column['nosearch'])
                 ) {
                     continue;
                 }
@@ -512,6 +570,7 @@ abstract class FOGManagerController extends FOGBase
                     || $str == ''
                     || !isset($column['db'])
                     || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
+                    || (isset($column['nosearch']) && $column['nosearch'])
                 ) {
                     continue;
                 }

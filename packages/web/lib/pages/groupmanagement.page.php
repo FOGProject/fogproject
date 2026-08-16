@@ -80,7 +80,7 @@ class GroupManagement extends FOGPage
         $labelClass = 'col-sm-3 col-form-label';
 
         // The fields to display
-        return [
+        $fields = [
             self::makeLabel(
                 $labelClass,
                 'group',
@@ -154,6 +154,8 @@ class GroupManagement extends FOGPage
                 $dev
             )
         ];
+
+        return self::fastmerge($fields, self::siteAddField($labelClass));
     }
     /**
      * Create a new group.
@@ -232,6 +234,7 @@ class GroupManagement extends FOGPage
                     $serverFault = true;
                     throw new \Exception(_('Add group failed!'));
                 }
+                $this->siteAddPost('group', $Group);
                 return $Group;
             }
         );
@@ -2948,7 +2951,17 @@ class GroupManagement extends FOGPage
             [],
             $where,
             $addColumns,
-            $qStr
+            $qStr,
+            '',
+            '',
+            // Sorting the labels themselves gives all/none/some, because that
+            // is their alphabetical order. Rank them so the column sorts the
+            // way the tri-state reads: fully covered, then partial, then not
+            // covered. Done as an ORDER BY expression over the alias rather
+            // than a second CASE in the SELECT -- the coverage subquery is
+            // correlated and already evaluated three times per row, and MySQL
+            // does not fold identical copies of it together.
+            "FIELD(`groupAssoc`,'all','some','none')"
         );
     }
     /**

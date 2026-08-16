@@ -30,14 +30,27 @@
  *      covered by it too. An enumerated list would look identical on
  *      upgrade day and then quietly stop containing new objects.
  *
- *   2. If NO sites exist at all, everything is in scope. Redundant once
- *      schema step 333 has created the catch-all -- and that is exactly why
- *      it is here. Between deploying new code and running the schema
- *      updater a server has this class and an empty (or absent) `sites`
- *      table, and endpoints that do not route through the updater gate
- *      would otherwise deny every non-'*' user everything. A server with a
- *      pending schema deploy must behave like today, not lock its admin
- *      out of the page they need in order to fix it.
+ *   2. If no site is IN USE -- meaning no site exists other than the
+ *      catch-all -- everything is in scope. Two states share that answer
+ *      and both need it:
+ *
+ *        - the window between deploying this code and running the schema
+ *          updater, where `sites` is empty or absent. Endpoints that do
+ *          not route through the updater gate would otherwise deny every
+ *          non-'*' user everything, and a server with a pending schema
+ *          deploy must behave like today rather than lock its admin out of
+ *          the page that fixes it.
+ *        - a server that migrated and then never created a site. Step 333
+ *          always creates the catch-all, so counting rows would answer
+ *          "sites exist" forever, on every install in the world, including
+ *          ones that never had the plugin. Scoping would be switched on
+ *          for a feature nobody turned on -- and the first account created
+ *          after the upgrade, which nothing adds to the catch-all, would
+ *          be denied everything while every account that existed the day
+ *          before kept working.
+ *
+ *      So the question this asks is "is anybody actually using sites",
+ *      not "does the table have rows in it".
  *
  * A node this does not scope is always in scope. Images, snapins and
  * printers are deliberately not scoped: each needs its own answer to what a
@@ -91,11 +104,18 @@ class SiteScope extends FOGBase
      */
     private static $_catchAll = [];
     /**
-     * Per-request cache of "does any site exist". Null until asked.
+     * Per-request cache of "is any site in use". Null until asked.
      *
      * @var bool|null
      */
-    private static $_anySites = null;
+    private static $_sitesInUse = null;
+    /**
+     * Per-request cache of the catch-all site id. Null until asked, 0 when
+     * there is not one.
+     *
+     * @var int|null
+     */
+    private static $_catchAllID = null;
     /**
      * Drops the per-request caches.
      *
@@ -110,7 +130,8 @@ class SiteScope extends FOGBase
     {
         self::$_userSites = [];
         self::$_catchAll = [];
-        self::$_anySites = null;
+        self::$_sitesInUse = null;
+        self::$_catchAllID = null;
     }
     /**
      * Runs a scalar count, treating an unusable table as zero.
@@ -139,18 +160,90 @@ class SiteScope extends FOGBase
         return is_array($row) && isset($row['cnt']) ? (int)$row['cnt'] : 0;
     }
     /**
-     * Does this install have any sites at all?
+     * Is this install actually using sites?
+     *
+     * The catch-all is excluded deliberately and is the whole point of the
+     * method: it is created by the schema updater on every server, so a
+     * plain row count answers yes on installs that have never seen a site
+     * in their lives. See the class docblock.
      *
      * @return bool
      */
-    public static function anySitesExist()
+    public static function sitesInUse()
     {
-        if (null === self::$_anySites) {
-            self::$_anySites = self::_count(
-                'SELECT COUNT(*) AS `cnt` FROM `sites`'
+        if (null === self::$_sitesInUse) {
+            self::$_sitesInUse = self::_count(
+                'SELECT COUNT(*) AS `cnt` FROM `sites` '
+                . 'WHERE `siteCatchAll` IS NULL'
             ) > 0;
         }
-        return self::$_anySites;
+        return self::$_sitesInUse;
+    }
+    /**
+     * The catch-all site's id, or 0 if this install has not got one.
+     *
+     * `siteCatchAll` is UNIQUE and CHECK-constrained to 1, so at most one
+     * row can ever answer this -- the LIMIT is belt and braces, not a
+     * choice between candidates.
+     *
+     * @return int
+     */
+    public static function catchAllID()
+    {
+        if (null === self::$_catchAllID) {
+            self::$_catchAllID = self::_count(
+                'SELECT `siteID` AS `cnt` FROM `sites` '
+                . 'WHERE `siteCatchAll` IS NOT NULL LIMIT 1'
+            );
+        }
+        return self::$_catchAllID;
+    }
+    /**
+     * Puts a user in the catch-all site, if there is one.
+     *
+     * Exists because a user created after the migration would otherwise be
+     * the only account on the server in no site at all. Step 333 enrolled
+     * every account that existed on upgrade day; this is the same rule
+     * applied to the ones created afterwards, and it lives here rather than
+     * in each of the four creation paths (the add page, the add modal, a
+     * REST POST, and the ldap plugin's auto-provision on first login)
+     * because only the last of those involves anybody clicking anything.
+     *
+     * Callers gate on sitesInUse(): once real sites exist, which site a new
+     * user belongs to is an administrative decision and defaulting it to
+     * "all of them" would be an access-control decision made by accident.
+     *
+     * INSERT IGNORE rather than a check-then-insert: the pair is UNIQUE, so
+     * the database already answers "already a member" without a round trip.
+     *
+     * @param int $userID the user id
+     *
+     * @return bool whether the user is now in the catch-all
+     */
+    public static function joinCatchAll($userID)
+    {
+        $userID = (int)$userID;
+        $siteID = self::catchAllID();
+        if ($userID < 1 || $siteID < 1) {
+            return false;
+        }
+        try {
+            $res = self::$DB->query(
+                'INSERT IGNORE INTO `siteUserMembers` '
+                . '(`sumSiteID`, `sumUserID`) VALUES (:sid, :uid)',
+                [],
+                ['sid' => $siteID, 'uid' => $userID]
+            );
+            if (false !== $res->error) {
+                return false;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+        // The membership caches now describe a world one row out of date,
+        // and this user's own request continues after the save.
+        self::forgetCaches();
+        return true;
     }
     /**
      * Is this user a member of a catch-all site?
@@ -337,7 +430,7 @@ class SiteScope extends FOGBase
         if (!isset(self::$_nodes[$node]) && 'task' !== $node) {
             return true;
         }
-        if (!self::anySitesExist()) {
+        if (!self::sitesInUse()) {
             return true;
         }
         if (self::isUnscoped($userID)) {
@@ -391,7 +484,7 @@ class SiteScope extends FOGBase
         if (!isset(self::$_nodes[$node]) && 'task' !== $node) {
             return $ids;
         }
-        if (!self::anySitesExist() || self::isUnscoped($userID)) {
+        if (!self::sitesInUse() || self::isUnscoped($userID)) {
             return $ids;
         }
         if (empty($ids)) {

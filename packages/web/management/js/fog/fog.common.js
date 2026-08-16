@@ -652,8 +652,9 @@ $.registerGeneralTab = function(opts) {
 //                    cannot add a sub method to a core page class, so its
 //                    table has to be served from the plugin's own node. Core
 //                    tabs should leave this unset and keep the convention.
-// opts.order       - optional initial sort override (default
-//                    [[1,'asc'],[0,'asc']] — associated rows first, then name).
+// opts.order       - optional initial sort override (default is the
+//                    association column ascending, then column 0 — associated
+//                    rows first, then name).
 // opts.columns     - optional DataTables columns (default the standard
 //                    mainLink + association pair; ou passes a {data:'name'} col0
 //                    it renders as a host link via opts.columnDefs).
@@ -713,8 +714,19 @@ $.registerAssociationTab = function(opts) {
     $.checkItemUpdate(table, this, e, updateBtn, undefined, opts.afterCommit);
   }
 
+  // The association column is not always index 1 -- the LDAP group tabs put a
+  // directory-server column between the name and it -- so find it rather than
+  // assume. Ascending puts 'associated' ahead of 'dissociated'.
+  var assocIdx = columns.length - 1;
+  for (var ci = 0; ci < columns.length; ci++) {
+    if (columns[ci].data === 'association') {
+      assocIdx = ci;
+      break;
+    }
+  }
+
   var table = $(tableSel).registerTable(onSelect, {
-    order: opts.order || [[1, 'asc'], [0, 'asc']],
+    order: opts.order || [[assocIdx, 'asc'], [0, 'asc']],
     columns: columns,
     rowId: 'id',
     columnDefs: columnDefs,

@@ -80,6 +80,10 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, php-format
+msgid "%s is maintained by the server and cannot be set"
+msgstr ""
+
+#, php-format
 msgid "%s is not a readable .tar.gz archive."
 msgstr ""
 
@@ -1100,6 +1104,10 @@ msgid "Cannot connect to ftp server"
 msgstr "Impossibile connettersi al server ftp"
 
 msgid "Cannot delete the primary mac address, please reselect"
+msgstr ""
+
+#, php-format
+msgid "Cannot filter %s on: %s"
 msgstr ""
 
 #, fuzzy
@@ -4283,6 +4291,9 @@ msgstr "Menu principale"
 #, fuzzy
 msgid "Main navigation"
 msgstr "Regole di associazione"
+
+msgid "Maintained by the server. It may be sent back unchanged, but a request that would change it is refused."
+msgstr ""
 
 #, fuzzy
 msgid "Make default"

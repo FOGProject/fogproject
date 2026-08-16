@@ -491,4 +491,26 @@ trait FOGPagePost
                 [[$objectID, $siteID]]
             );
     }
+    /**
+     * Applies the create form's Site field to the object just created.
+     *
+     * Same rule as the edit tab, so it is the same code -- but only when
+     * the field was actually posted. siteAddField() renders nothing on a
+     * server with no sites, and a hook may drop it; in either case the
+     * absent field means "nothing was asked for", not "no site", and
+     * treating it as the latter would delete the catch-all membership
+     * User::save() had just given a brand new account.
+     *
+     * @param string $node the owning node (host|user|group|usergroup)
+     * @param object $obj  the object just created
+     *
+     * @return void
+     */
+    protected function siteAddPost($node, $obj)
+    {
+        if (null === filter_input(INPUT_POST, 'site')) {
+            return;
+        }
+        $this->siteTabPost($node, $obj);
+    }
 }

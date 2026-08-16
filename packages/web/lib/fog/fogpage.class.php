@@ -110,6 +110,7 @@ abstract class FOGPage extends FOGBase
         'printer',
         'task',
         'role',
+        'site',
         'usergroup'
     ];
     /**
@@ -1010,7 +1011,7 @@ abstract class FOGPage extends FOGBase
             }
             printf(
                 _('Index page of: %s%s'),
-                get_class($this),
+                self::shortName($this),
                 (
                     count($args ?: []) ?
                     sprintf(_(', Arguments = %s'), implode(', ', $args)) :
@@ -1797,7 +1798,7 @@ abstract class FOGPage extends FOGBase
                         ];
                     }
                 }
-                self::getClass('filedeletequeuemanager')
+                self::getClass('FileDeleteQueueManager')
                     ->insertBatch(
                         $insert_fields,
                         $insert_values

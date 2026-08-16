@@ -213,7 +213,7 @@ abstract class FOGController extends FOGBase
     {
         $str = sprintf(
             '%s ID: %s',
-            get_class($this),
+            self::shortName($this),
             $this->get('id')
         );
         if ($this->get('name')) {
@@ -567,7 +567,7 @@ abstract class FOGController extends FOGBase
             $msg = sprintf(
                 '%s %s %s',
                 _('Saving data for'),
-                get_class($this),
+                self::shortName($this),
                 _('object')
             );
             self::info($msg);
@@ -593,7 +593,7 @@ abstract class FOGController extends FOGBase
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s.',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('NAME'),
@@ -603,7 +603,7 @@ abstract class FOGController extends FOGBase
                 } else {
                     $msg = sprintf(
                         '%s %s: %s %s.',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('has been successfully updated')
@@ -616,7 +616,7 @@ abstract class FOGController extends FOGBase
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s. %s: %s',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('Name'),
@@ -628,7 +628,7 @@ abstract class FOGController extends FOGBase
                 } else {
                     $msg = sprintf(
                         '%s %s: %s %s. %s: %s',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('has failed to save'),
@@ -820,6 +820,8 @@ abstract class FOGController extends FOGBase
                 ->query($query, [], $queryArray)
                 ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
                 ->get();
+            // class-name consumer: fed straight back to getClass(), which
+            // resolves a namespaced name and a global one alike.
             $classname = get_class($this);
             foreach ((array) $rows as &$row) {
                 if (!isset($row[$realKey])) {
@@ -920,8 +922,11 @@ abstract class FOGController extends FOGBase
             // arbitrary keys to ids here would cost a query on every
             // destroy() in the system.
             if ('id' === $key) {
+                // Short name: the callee switches on 'user'/'role'/
+                // 'usergroup' with a `default: return;`, so a namespaced
+                // FQCN here would silently skip the lockout guard.
                 Authorization::assertAdminRemainsAfterDelete(
-                    strtolower(get_class($this)),
+                    strtolower(self::shortName($this)),
                     [$val]
                 );
             }
@@ -948,7 +953,7 @@ abstract class FOGController extends FOGBase
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s.',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('Name'),
@@ -958,7 +963,7 @@ abstract class FOGController extends FOGBase
                 } else {
                     $msg = sprintf(
                         '%s %s: %s %s.',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('has been successfully destroyed')
@@ -971,7 +976,7 @@ abstract class FOGController extends FOGBase
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s. %s: %s',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('Name'),
@@ -983,7 +988,7 @@ abstract class FOGController extends FOGBase
                 } else {
                     $msg = sprintf(
                         '%s %s: %s %s. %s: %s',
-                        get_class($this),
+                        self::shortName($this),
                         _('ID'),
                         $this->get('id'),
                         _('has failed to destroy'),
@@ -1302,7 +1307,9 @@ abstract class FOGController extends FOGBase
             $c->buildQuery($join, $whereArrayAnd, $c, $not, $compare);
             unset($class, $fields, $c);
         };
-        $className = strtolower(get_class($this));
+        // Short name: this is a join-table key, compared against keys the
+        // relationship map supplies as bare lowercase class names.
+        $className = strtolower(self::shortName($this));
         if (!array_key_exists($className, $join)) {
             $join[$className] = false;
         }
@@ -1361,7 +1368,10 @@ abstract class FOGController extends FOGBase
      */
     public function getManager()
     {
-        $man = get_class($this).'Manager';
+        // Short name: a partially namespaced tree can have FOG\Host while
+        // HostManager is still global, so derive the bare name and let the
+        // autoloader (and, after Phase 3, the compatibility alias) resolve it.
+        $man = self::shortName($this).'Manager';
         return new $man;
     }
     /**
@@ -1383,7 +1393,8 @@ abstract class FOGController extends FOGBase
         // Class to call, if implicit leave off association.
         $classCall = ($implicitCall ? $assocItem : "{$assocItem}Association");
         // Main object and string setters.
-        $obj = strtolower(get_class($this));
+        // Short name: $objstr below becomes a database column name.
+        $obj = strtolower(self::shortName($this));
         $objstr = "{$obj}ID";
         $assocstr = "{$alterItem}ID";
 
@@ -1487,6 +1498,10 @@ abstract class FOGController extends FOGBase
      * @param string $qStr       Custom SQL String to use?
      * @param string $qFilterStr Custom SQL Filter String to use?
      * @param string $qTotalStr  Custom SQL Total string to use?
+     * @param string $assocOrder Alias to ORDER BY when the grid sorts on the
+     *                           association column, for a custom $qStr whose
+     *                           association value does not sort the way it
+     *                           reads (group's all/some/none tri-state).
      *
      * @return string
      */
@@ -1498,7 +1513,8 @@ abstract class FOGController extends FOGBase
         $addColumns = [],
         $qStr = '',
         $qFilterStr = '',
-        $qTotalStr = ''
+        $qTotalStr = '',
+        $assocOrder = ''
     ) {
         header('Content-type: application/json');
         parse_str(
@@ -1517,8 +1533,9 @@ abstract class FOGController extends FOGBase
         }
 
         $itemID = $privars['id'];
-        $itemassocID = strtolower(get_class($this)). 'ID';
-        $secondID = strtolower(get_class($this)). 'Assoc';
+        // Short name: both of these become database column names.
+        $itemassocID = strtolower(self::shortName($this)). 'ID';
+        $secondID = strtolower(self::shortName($this)). 'Assoc';
         // $secvars only exists when a secondary is supplied; $secondRID is
         // likewise only consumed inside the secondary branches below, so keep
         // its computation guarded to avoid touching an undefined $secvars.
@@ -1602,10 +1619,14 @@ abstract class FOGController extends FOGBase
             unset($real);
         }
         if ($secondary) {
-            $columns[] = [
+            $assocColumn = [
                 'do' => $secondID,
                 'dt' => 'association'
             ];
+            if ('' !== $assocOrder) {
+                $assocColumn['order'] = $assocOrder;
+            }
+            $columns[] = $assocColumn;
         }
         foreach ((array)$addColumns as &$column) {
             $columns[] = $column;

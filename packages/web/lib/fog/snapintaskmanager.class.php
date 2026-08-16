@@ -89,7 +89,7 @@ class SnapinTaskManager extends FOGManagerController
                 unset($snapinJobIDs[$i]);
                 continue;
             }
-            $Host = self::getClass('snapinjob', $jobID)
+            $Host = self::getClass('SnapinJob', $jobID)
                 ->get('host');
             $Task = $Host->get('task');
             if (in_array($Task->get('typeID'), TaskType::SNAPINTASKS)) {

@@ -88,6 +88,8 @@ class HookManager extends EventManager
         }
         foreach ((array) $this->data[$event] as &$function) {
             $active = false;
+            // class-name consumer: handed straight to ReflectionClass,
+            // which resolves a namespaced name and a global one alike.
             $className = get_class($function[0]);
             $refClass = new \ReflectionClass($className);
             $filename = $refClass->getFileName();

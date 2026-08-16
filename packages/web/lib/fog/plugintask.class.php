@@ -95,7 +95,8 @@ abstract class PluginTask extends FOGBase
      */
     public function label()
     {
-        return $this->name ?: get_class($this);
+        // Short name: this label is displayed and written to the runner log.
+        return $this->name ?: self::shortName($this);
     }
     /**
      * Writes a line to the runner's log, tagged with this task.

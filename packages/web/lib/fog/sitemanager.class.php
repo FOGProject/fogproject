@@ -32,22 +32,4 @@ class SiteManager extends FOGManagerController
      * @var string
      */
     public $tablename = 'sites';
-    /**
-     * The catch-all site, or null when there is not one.
-     *
-     * Read by id from the flag rather than by name: the name is whatever
-     * was free when schema step 333 ran ('Everything', or 'Everything (2)'
-     * if that was taken), and an admin may rename it afterwards. The flag
-     * is the identity.
-     *
-     * @return Site|null
-     */
-    public function catchAll()
-    {
-        $ids = Route::getIds('site', ['catchall' => 1]);
-        if (empty($ids)) {
-            return null;
-        }
-        return self::getClass('Site', (int)array_shift($ids));
-    }
 }

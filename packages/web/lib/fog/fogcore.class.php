@@ -228,6 +228,7 @@ class FOGCore extends FOGBase
                 ini_set('memory_limit', sprintf('%dM', $memoryLimit));
             }
         }
+        // class-name consumer: getClass() resolves either spelling.
         return self::getClass(__CLASS__);
     }
 }
