@@ -62,11 +62,18 @@ class ApiDocumentation extends FOGPage
     {
         /**
          * The page manager already queues js/fog/apidocs/fog.apidocs.list.js
-         * for this node; the renderer it drives has to be on the page too.
-         * Order does not matter -- a custom element upgrades whenever its
-         * definition lands, so <rapi-doc> can be in the DOM first.
+         * for this node; the renderer it drives has to be on the page first,
+         * since that script calls SwaggerUIBundle directly.
          */
-        self::getClass('Page')->addJavascript('js/rapidoc.min.js');
+        self::getClass('Page')->addJavascript('js/swagger-ui-bundle.js');
+        self::getClass('Page')->addCSS('css/swagger-ui.css');
+        /**
+         * Swagger UI ships one theme and no dark mode. This keys its colours
+         * off data-bs-theme, the same attribute FOG's own toggle sets, so the
+         * page follows the admin's existing preference instead of being the
+         * one white rectangle in a dark UI.
+         */
+        self::getClass('Page')->addCSS('css/swagger-ui-fog.css');
 
         $apiEnabled = (bool)self::getSetting('FOG_API_ENABLED');
         $specUrl = sprintf(

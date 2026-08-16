@@ -1,0 +1,155 @@
+/**
+ * Makes Swagger UI follow FOG's own light/dark toggle.
+ *
+ * Swagger UI ships exactly one theme -- light -- with no dark mode and no
+ * switcher, and the community theme packs target 3.x and stopped being
+ * maintained in 2022. FOG meanwhile has had a working dark mode since the
+ * AdminLTE 4 work: data-bs-theme on <html>, driven by the fogTheme cookie or
+ * the OS preference (see management/js/fog/theme.js). Left alone, the API
+ * page would be the one white rectangle in an otherwise dark admin UI.
+ *
+ * So rather than vendor a second theme, these overrides key off the same
+ * attribute everything else in FOG keys off. Flipping the toggle re-themes
+ * this page with it, because it is the same signal, not a copy of it.
+ *
+ * Everything is scoped under [data-bs-theme="dark"] .swagger-ui so the
+ * shipped stylesheet remains untouched in light mode.
+ */
+
+/* Let the surrounding page own the margins; Swagger UI's own wrapper adds
+   padding that fights the AdminLTE container. */
+.swagger-ui .wrapper {
+    padding: 0;
+    max-width: none;
+}
+.swagger-ui .info {
+    margin: 18px 0;
+}
+
+[data-bs-theme="dark"] {
+    /* Named here rather than inline so a value is changed in one place. */
+    --fog-sui-bg: #1f2429;
+    --fog-sui-raised: #262c33;
+    --fog-sui-sunken: #171b1f;
+    --fog-sui-ink: #dfe3e8;
+    --fog-sui-ink-dim: #a3acb6;
+    --fog-sui-hair: #39414a;
+    --fog-sui-accent: #4aa3df;
+}
+
+[data-bs-theme="dark"] .swagger-ui,
+[data-bs-theme="dark"] .swagger-ui .info .title,
+[data-bs-theme="dark"] .swagger-ui .info li,
+[data-bs-theme="dark"] .swagger-ui .info p,
+[data-bs-theme="dark"] .swagger-ui .info table,
+[data-bs-theme="dark"] .swagger-ui label,
+[data-bs-theme="dark"] .swagger-ui .opblock-tag,
+[data-bs-theme="dark"] .swagger-ui .opblock .opblock-summary-operation-id,
+[data-bs-theme="dark"] .swagger-ui .opblock .opblock-summary-path,
+[data-bs-theme="dark"] .swagger-ui .opblock .opblock-summary-description,
+[data-bs-theme="dark"] .swagger-ui .opblock-description-wrapper p,
+[data-bs-theme="dark"] .swagger-ui .opblock-external-docs-wrapper p,
+[data-bs-theme="dark"] .swagger-ui .opblock-title_normal p,
+[data-bs-theme="dark"] .swagger-ui .responses-inner h4,
+[data-bs-theme="dark"] .swagger-ui .responses-inner h5,
+[data-bs-theme="dark"] .swagger-ui .response-col_status,
+[data-bs-theme="dark"] .swagger-ui .response-col_links,
+[data-bs-theme="dark"] .swagger-ui .parameter__name,
+[data-bs-theme="dark"] .swagger-ui .parameter__type,
+[data-bs-theme="dark"] .swagger-ui .parameter__in,
+[data-bs-theme="dark"] .swagger-ui table thead tr td,
+[data-bs-theme="dark"] .swagger-ui table thead tr th,
+[data-bs-theme="dark"] .swagger-ui .model,
+[data-bs-theme="dark"] .swagger-ui .model-title,
+[data-bs-theme="dark"] .swagger-ui section.models h4,
+[data-bs-theme="dark"] .swagger-ui section.models h5,
+[data-bs-theme="dark"] .swagger-ui .dialog-ux .modal-ux-header h3,
+[data-bs-theme="dark"] .swagger-ui .dialog-ux .modal-ux-content h4,
+[data-bs-theme="dark"] .swagger-ui .dialog-ux .modal-ux-content p,
+[data-bs-theme="dark"] .swagger-ui .tab li button.tablinks {
+    color: var(--fog-sui-ink);
+}
+
+[data-bs-theme="dark"] .swagger-ui .info .base-url,
+[data-bs-theme="dark"] .swagger-ui .info .title small pre,
+[data-bs-theme="dark"] .swagger-ui .parameter__extension,
+[data-bs-theme="dark"] .swagger-ui .prop-format,
+[data-bs-theme="dark"] .swagger-ui .response-col_description__inner div.renderedMarkdown p,
+[data-bs-theme="dark"] .swagger-ui .opblock-tag small {
+    color: var(--fog-sui-ink-dim);
+}
+
+/* Panels. The shipped theme leans on white and near-white fills, each of
+   which has to be named or it punches a hole in the dark page. */
+[data-bs-theme="dark"] .swagger-ui .opblock .opblock-section-header,
+[data-bs-theme="dark"] .swagger-ui .scheme-container,
+[data-bs-theme="dark"] .swagger-ui section.models,
+[data-bs-theme="dark"] .swagger-ui .dialog-ux .modal-ux,
+[data-bs-theme="dark"] .swagger-ui .model-box,
+[data-bs-theme="dark"] .swagger-ui .responses-inner {
+    background: var(--fog-sui-raised);
+    border-color: var(--fog-sui-hair);
+    box-shadow: none;
+}
+
+[data-bs-theme="dark"] .swagger-ui .opblock-tag,
+[data-bs-theme="dark"] .swagger-ui section.models .model-container,
+[data-bs-theme="dark"] .swagger-ui table tbody tr td {
+    border-color: var(--fog-sui-hair);
+}
+
+/* Operation blocks keep their method hue but need a dark body behind it. */
+[data-bs-theme="dark"] .swagger-ui .opblock {
+    background: var(--fog-sui-raised);
+    border-color: var(--fog-sui-hair);
+    box-shadow: none;
+}
+[data-bs-theme="dark"] .swagger-ui .opblock .opblock-summary {
+    border-color: var(--fog-sui-hair);
+}
+
+/* Code and examples read as sunken rather than as another white card. */
+[data-bs-theme="dark"] .swagger-ui .highlight-code,
+[data-bs-theme="dark"] .swagger-ui .microlight,
+[data-bs-theme="dark"] .swagger-ui .curl-command,
+[data-bs-theme="dark"] .swagger-ui .body-param__example,
+[data-bs-theme="dark"] .swagger-ui .example {
+    background: var(--fog-sui-sunken);
+    color: var(--fog-sui-ink);
+}
+
+/* Form controls. Left alone these stay white-on-white in dark mode, which
+   makes the try-it panel unusable rather than merely ugly. */
+[data-bs-theme="dark"] .swagger-ui input[type="text"],
+[data-bs-theme="dark"] .swagger-ui input[type="password"],
+[data-bs-theme="dark"] .swagger-ui input[type="email"],
+[data-bs-theme="dark"] .swagger-ui input[type="file"],
+[data-bs-theme="dark"] .swagger-ui input[type="search"],
+[data-bs-theme="dark"] .swagger-ui textarea,
+[data-bs-theme="dark"] .swagger-ui select {
+    background: var(--fog-sui-sunken);
+    color: var(--fog-sui-ink);
+    border-color: var(--fog-sui-hair);
+}
+[data-bs-theme="dark"] .swagger-ui .btn {
+    color: var(--fog-sui-ink);
+    border-color: var(--fog-sui-hair);
+}
+[data-bs-theme="dark"] .swagger-ui .btn.authorize {
+    color: var(--fog-sui-accent);
+    border-color: var(--fog-sui-accent);
+}
+[data-bs-theme="dark"] .swagger-ui .btn.authorize svg {
+    fill: var(--fog-sui-accent);
+}
+
+/* The arrows and the lock are black SVGs on a dark ground otherwise. */
+[data-bs-theme="dark"] .swagger-ui svg:not(.authorize svg) {
+    fill: var(--fog-sui-ink-dim);
+}
+
+/* Swagger UI's own top bar is hidden in the FOG page, but guard it in case a
+   future layout switches StandaloneLayout on. */
+[data-bs-theme="dark"] .swagger-ui .topbar {
+    background: var(--fog-sui-sunken);
+}

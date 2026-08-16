@@ -402,7 +402,11 @@ class Route extends FOGBase
         $unauthexact = [
             $webrootbase . 'system/status',
             $webrootbase . 'system/info',
-            $webrootbase . 'system/openapi'
+            $webrootbase . 'system/openapi',
+            // swagger.json is where a great many people and tools look first,
+            // Swagger UI having been the name for this long before it was
+            // renamed OpenAPI. Same handler, same document.
+            $webrootbase . 'swagger.json'
         ];
         $requripath = strtok((string)self::$requesturi, '?');
         $requribase = dirname($requripath);
@@ -644,6 +648,14 @@ class Route extends FOGBase
             '/system/openapi',
             [__CLASS__, 'openapi'],
             'openapi'
+        )->get(
+            // Alias. swagger.json is the filename people and tooling reach
+            // for first -- Swagger UI predates the OpenAPI rename and the
+            // habit stuck. Same handler, same document, so neither name is
+            // the one that goes stale.
+            '/swagger.json',
+            [__CLASS__, 'openapi'],
+            'openapiSwaggerAlias'
         )->get(
             '/system/export',
             [__CLASS__, 'export'],

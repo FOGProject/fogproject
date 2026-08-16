@@ -1123,7 +1123,9 @@ class OpenAPI extends FOGBase
                     'openapi',
                     _('This document'),
                     _('Unauthenticated, and generated per request from this '
-                        . 'server\'s live routing and model metadata.'),
+                        . 'server\'s live routing and model metadata. Also '
+                        . 'served at /swagger.json, which is where most '
+                        . 'tooling looks first.'),
                     $json(['type' => 'object'], _('An OpenAPI document.'))
                 )
             ],
