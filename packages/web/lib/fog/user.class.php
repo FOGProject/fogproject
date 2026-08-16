@@ -211,6 +211,57 @@ class User extends FOGController
      *
      * @return object
      */
+    /**
+     * Proves an identity without establishing a session.
+     *
+     * The iPXE boot menu and service/ipxe/advanced.php authenticate, but
+     * they have no browser: iPXE carries no cookie, so a PHP session
+     * created for one of those requests can never be presented back. They
+     * went through validatePw(), which stamps $_SESSION['FOG_USER'] and
+     * runs _isLoggedIn() -- so every PXE menu login minted an authenticated
+     * session with no owner. This is the half of validatePw() they actually
+     * wanted.
+     *
+     * Acceptance deliberately mirrors validatePw()'s, including the branch
+     * where passwordValidate() fails but a hook has already populated
+     * self::$FOGUser -- that is how the LDAP plugin signs a user in on this
+     * branch, and narrowing it here would break LDAP logins at the PXE menu.
+     * Tightening that path is separate, larger work; this method must not
+     * change WHO gets in, only whether a session is created.
+     *
+     * @param string $username the username
+     * @param string $password the password
+     *
+     * @return self populated on success, an invalid User otherwise
+     */
+    public function authenticate($username, $password)
+    {
+        $test = preg_match(
+            '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
+            $username
+        );
+        if (!$test) {
+            return new self(0);
+        }
+        if ($this->passwordValidate($username, $password)) {
+            return $this;
+        }
+        if (self::$FOGUser->isValid()) {
+            $type = self::$FOGUser->get('type');
+            self::$HookManager
+                ->processEvent(
+                    'USER_TYPE_HOOK',
+                    array('type' => &$type)
+                );
+            $this
+                ->set('id', self::$FOGUser->get('id'))
+                ->set('name', self::$FOGUser->get('name'))
+                ->set('password', '', true)
+                ->set('type', $type);
+            return $this;
+        }
+        return new self(0);
+    }
     public function validatePw(
         $username,
         $password
