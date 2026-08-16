@@ -10,10 +10,32 @@
  * goes on to `new System()` and `new Config()` and needs MySQL. So the
  * constructor is called directly and startInit() deliberately is not.
  *
- * FOG_BASE_DIR, FOG_CACHE_DIR and FOG_PLUGIN_DIR are defined here first.
+ * FOG_CACHE_DIR, FOG_LOG_DIR and FOG_PLUGIN_DIR are defined here first.
  * init.php guards each with `if (!defined(...))` (commons/init.php:91-125),
  * so pre-defining them redirects the file-list cache into a throwaway
  * directory instead of writing to /opt/fog on the machine running the test.
+ *
+ * FOG_BASE_DIR is deliberately NOT pre-defined, even though it is the parent
+ * of all three. On a deployed tree init.php pulls in commons/fogpaths.php,
+ * which the installer generates as a bare `define('FOG_BASE_DIR', ...)` with
+ * no guard of its own -- pre-defining it there produces a "Constant already
+ * defined" warning. Since every path this test could care about is overridden
+ * individually above, FOG_BASE_DIR is left for whoever normally sets it and
+ * goes unused.
+ *
+ * Two ways to run it:
+ *
+ *   php tests/autoload.test.php                    # the source tree
+ *   php tests/autoload.test.php /var/www/html/fog  # a live server
+ *
+ * The second is a deployment diagnostic, and it answers questions the source
+ * tree cannot: whether an upgrade left a duplicate class file behind, whether
+ * a hand-installed plugin declares a class its filename does not, whether the
+ * generated config.class.php is where the autoloader expects. Given an
+ * explicit path the bridge check becomes a REPORT rather than an assertion --
+ * a server legitimately runs an older FOG than the checkout you are standing
+ * in, and failing over that would make the diagnostic mode useless. Every
+ * other check still asserts: they are invariants of any tree that boots.
  *
  * Four things are checked:
  *   1. A representative class from each scan root resolves.
@@ -45,10 +67,15 @@
  */
 const EXPECT_BRIDGE = false;
 
-$webroot = rtrim(
-    $argv[1] ?? dirname(__DIR__) . '/packages/web',
-    '/'
-);
+// An explicit path means "probe that tree", which is a different job from
+// "check this checkout" -- see the header. Compared by realpath so that
+// pointing it at the source tree by hand is still strict mode.
+$default = dirname(__DIR__) . '/packages/web';
+$webroot = rtrim($argv[1] ?? $default, '/');
+$diagnostic = isset($argv[1])
+    && realpath($webroot) !== false
+    && realpath($webroot) !== realpath($default);
+
 $init = $webroot . '/commons/init.php';
 
 if (!is_readable($init)) {
@@ -58,6 +85,7 @@ if (!is_readable($init)) {
 
 $tmp = sys_get_temp_dir() . '/fog-autoload-test-' . getmypid();
 @mkdir($tmp . '/cache', 0700, true);
+@mkdir($tmp . '/log', 0700, true);
 @mkdir($tmp . '/sessions', 0700, true);
 
 register_shutdown_function(
@@ -76,13 +104,39 @@ register_shutdown_function(
     }
 );
 
-define('FOG_BASE_DIR', $tmp);
+/*
+ * FOG_CACHE_DIR is forced to a throwaway directory ALWAYS, in both modes,
+ * and this is the one line here that must never become conditional.
+ *
+ * Left alone it defaults under FOG_BASE_DIR, and classFileList() does not
+ * merely read that directory -- it WRITES filelist.<md5>.json into it
+ * (commons/init.php:195, :415-429). Point the harness at a live server
+ * without this and a test script rebuilds, or clobbers, that server's live
+ * class-file cache. FOG_BASE_DIR and FOG_CACHE_DIR are guarded separately by
+ * init.php, which is exactly what makes "real tree, harmless cache" possible.
+ *
+ * FOG_LOG_DIR goes the same way for the same reason, cheaply.
+ */
 define('FOG_CACHE_DIR', $tmp . '/cache');
-// Pointed at an empty directory on purpose. The external plugin root is a
-// real scan root (commons/init.php:299-306) and its contents differ per
-// install, so including whatever this machine happens to have would make the
-// test's result depend on the machine.
-define('FOG_PLUGIN_DIR', $tmp . '/plugins');
+define('FOG_LOG_DIR', $tmp . '/log');
+
+/*
+ * The external plugin root is a real scan root (commons/init.php:299-306),
+ * and the two modes want opposite things from it.
+ *
+ * Checking the checkout: pin it to an empty directory. Its contents differ
+ * per machine, and a test whose result depends on what the developer happens
+ * to have installed in /opt/fog is not a test.
+ *
+ * Probing a server: leave it undefined, so fogpaths.php (or init.php's
+ * /opt/fog fallback) supplies the real one. Third-party plugins living there
+ * are half the reason to run this against a server at all -- a hand-installed
+ * plugin whose class name does not match its filename is invisible to hooks,
+ * pages and reports, and this is the only thing that would say so.
+ */
+if (!$diagnostic) {
+    define('FOG_PLUGIN_DIR', $tmp . '/plugins');
+}
 
 // The constructor calls session_start(). Keep it off the system session path
 // so this never depends on that directory being writable by whoever ran it.
@@ -90,6 +144,24 @@ ini_set('session.save_path', $tmp . '/sessions');
 
 require $init;
 new Initiator();
+
+/*
+ * classFileList() and the O(1) class map arrived with 1.6. A 1.5 tree has an
+ * Initiator that only sets include_path and registers the built-in resolver,
+ * so everything below either fatals on an undefined method or silently checks
+ * nothing. Caught here rather than left to blow up two hundred lines later:
+ * pointing this at a 1.5 server is a reasonable thing to try, and "that tree
+ * predates what this checks" is a useful answer where an uncaught Error is
+ * not.
+ */
+if (!method_exists('Initiator', 'classFileList')) {
+    fwrite(
+        STDERR,
+        "FAIL: $webroot has no Initiator::classFileList(), so it predates "
+        . "the 1.6 class map this checks. Nothing to test here.\n"
+    );
+    exit(1);
+}
 
 $failures = [];
 
@@ -173,16 +245,18 @@ foreach ($mismatched as $m) {
     $failures[] = "filename/class mismatch: $m";
 }
 
-// 4. The bridge.
+// 4. The bridge. Asserted against the checkout, reported against a server:
+// a server legitimately runs an older FOG than the tree you are standing in,
+// and failing over that would make the diagnostic mode useless.
 $bridged = class_exists('FOG\Host');
-if ($bridged !== EXPECT_BRIDGE) {
+if (!$diagnostic && $bridged !== EXPECT_BRIDGE) {
     $failures[] = EXPECT_BRIDGE
         ? 'FOG\Host did not resolve; the Initiator::autoload() bridge is '
             . 'missing or no longer aliases short names'
         : 'FOG\Host resolved unexpectedly; if the bridge has landed, flip '
             . 'EXPECT_BRIDGE at the top of this file';
 }
-if (EXPECT_BRIDGE && $bridged) {
+if ($bridged) {
     // An alias, not a second class: same class entry, so `instanceof` and
     // every getClass()/Reflection consumer see one type. get_class() still
     // reports the declared name -- that asymmetry is why namespacing the
@@ -214,9 +288,22 @@ if (EXPECT_BRIDGE && $bridged) {
     }
 }
 
+// In diagnostic mode say WHICH FOG was probed. "the bridge is missing" is
+// only actionable next to the version that is missing it.
+$version = '';
+$sys = $webroot . '/lib/fog/system.class.php';
+if ($diagnostic && is_readable($sys)
+    && preg_match("/FOG_VERSION',\s*'([^']+)'/", file_get_contents($sys), $vm)
+) {
+    $version = ' ' . $vm[1];
+}
+
 printf(
-    "autoload: %d classes declared in tree, %d loaded this run, bridge=%s\n",
+    "autoload%s: %d classes declared in %s%s, %d loaded this run, bridge=%s\n",
+    $diagnostic ? ' (diagnostic)' : '',
     count($declares),
+    $diagnostic ? $webroot : 'tree',
+    $version,
     count(get_declared_classes()),
     $bridged ? 'yes' : 'no'
 );
