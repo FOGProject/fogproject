@@ -103,13 +103,22 @@ class SnapinReplicator extends FOGService
                 );
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
-                Route::indiv(
+                // getItem(), not indiv(): a miss answers with null here
+                // rather than exiting the daemon child outright. Refs #907.
+                $StorageGroup = Route::getItem(
                     'storagegroup',
                     $myStorageGroupID
                 );
-                $StorageGroup = json_decode(
-                    Route::getData()
-                );
+                if (!$StorageGroup) {
+                    self::outall(
+                        sprintf(
+                            ' * %s: %d',
+                            _('Skipping, no such storage group'),
+                            $myStorageGroupID
+                        )
+                    );
+                    continue;
+                }
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -203,12 +212,9 @@ class SnapinReplicator extends FOGService
                     $find,
                     'snapinID'
                 );
-                Route::listem(
+                $Snapins = Route::getList(
                     'snapin',
                     ['id' => $snapinIDs]
-                );
-                $Snapins = json_decode(
-                    Route::getData()
                 );
                 /**
                  * Handles replicating of our ssl folder and contents.
@@ -232,7 +238,7 @@ class SnapinReplicator extends FOGService
                         $ssl
                     );
                 }
-                foreach ($Snapins->data as $Snapin) {
+                foreach ($Snapins as $Snapin) {
                     if (!Snapin::getPrimaryGroup($myStorageGroupID, $Snapin->id)) {
                         self::outall(
                             sprintf(
@@ -270,7 +276,7 @@ class SnapinReplicator extends FOGService
                         _('snapin replication')
                     )
                 );
-                foreach ($Snapins->data as $Snapin) {
+                foreach ($Snapins as $Snapin) {
                     $S = new Snapin($Snapin->id);
                     $this->replicateItems(
                         $myStorageGroupID,

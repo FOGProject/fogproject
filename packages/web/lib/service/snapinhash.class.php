@@ -95,13 +95,22 @@ class SnapinHash extends FOGService
             foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
-                Route::indiv(
+                // getItem(), not indiv(): a miss answers with null here
+                // rather than exiting the daemon child outright. Refs #907.
+                $StorageGroup = Route::getItem(
                     'storagegroup',
                     $myStorageGroupID
                 );
-                $StorageGroup = json_decode(
-                    Route::getData()
-                );
+                if (!$StorageGroup) {
+                    self::outall(
+                        sprintf(
+                            ' * %s: %d',
+                            _('Skipping, no such storage group'),
+                            $myStorageGroupID
+                        )
+                    );
+                    continue;
+                }
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -174,14 +183,11 @@ class SnapinHash extends FOGService
                         _('to update hash values as needed')
                     )
                 );
-                Route::listem(
+                $Snapins = Route::getList(
                     'snapin',
                     ['id' => $snapinIDs]
                 );
-                $Snapins = json_decode(
-                    Route::getData()
-                );
-                foreach ($Snapins->data as $Snapin) {
+                foreach ($Snapins as $Snapin) {
                     self::outall(
                         sprintf(
                             ' * %s: %s, %s: %d',

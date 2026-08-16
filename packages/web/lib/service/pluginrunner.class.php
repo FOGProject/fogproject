@@ -190,20 +190,17 @@ class PluginRunner extends FOGService
     private function _discoverTasks()
     {
         $tasks = [];
-        // inputoverride = true, for the same reason Plugin::getPlugins() sets
-        // it: without it listem() parses php://input for DataTables paging.
-        // There is no request behind a daemon, but the argument is cheap and
-        // leaving it off would make this depend on that staying true.
-        Route::listem(
+        // getList() always sets inputoverride, which is why the explicit
+        // argument is gone: without it listem() parses php://input for
+        // DataTables paging, and there is no request behind a daemon.
+        $plugins = Route::getList(
             'plugin',
             [
                 'installed' => 1,
                 'state' => 1
-            ],
-            true
+            ]
         );
-        $plugins = json_decode(Route::getData());
-        foreach ((array)($plugins->data ?? []) as $plugin) {
+        foreach ($plugins as $plugin) {
             $name = strtolower(trim((string)$plugin->name));
             $location = trim((string)$plugin->location);
             // A row whose code is not on disk. Plugin::isMissing() does not
