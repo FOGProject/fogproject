@@ -291,6 +291,7 @@ class Route extends FOGBase
         'roleusergroupassociation',
         'scheduledtask',
         'setting',
+        'site',
         'snapin',
         'snapinassociation',
         'snapingroupassociation',
@@ -4745,6 +4746,22 @@ class Route extends FOGBase
                     $removeItems = [
                         'usergroupmember' => $findWhere,
                         'roleusergroupassociation' => $findWhere
+                    ];
+                    break;
+                case 'site':
+                    // Deleting a site clears its four membership lists.
+                    // Nothing stops the CATCH-ALL site being deleted here:
+                    // it is an ordinary site carrying a flag, and refusing
+                    // would be a rule the admin cannot see or undo. What it
+                    // costs is real though -- every user who relied on it
+                    // for blanket access falls back to their own sites, and
+                    // a user with none then sees nothing.
+                    $findWhere = ['siteID' => $itemIDs];
+                    $removeItems = [
+                        'sitehostmember' => $findWhere,
+                        'siteusermember' => $findWhere,
+                        'sitegroupmember' => $findWhere,
+                        'siteusergroupmember' => $findWhere
                     ];
                     break;
                 default:

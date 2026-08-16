@@ -296,10 +296,6 @@ msgid "A server URL and topic endpoint are required"
 msgstr ""
 
 #, fuzzy
-msgid "A site already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
 msgid "A snapin already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -570,10 +566,6 @@ msgstr "打印机"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "打印机"
-
-#, fuzzy
-msgid "Add site failed!"
-msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Add slack account failed!"
@@ -1586,10 +1578,6 @@ msgid "Create New Scheduled"
 msgstr "新建%s"
 
 #, fuzzy
-msgid "Create New Site"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Create New Snapin"
 msgstr "新建%s"
 
@@ -2187,10 +2175,6 @@ msgid "Export OUs"
 msgstr "导出用户"
 
 #, fuzzy
-msgid "Export Sites"
-msgstr "出口打印机"
-
-#, fuzzy
 msgid "Export Subnet Groups"
 msgstr "出口组"
 
@@ -2716,19 +2700,11 @@ msgid "Group"
 msgstr "组"
 
 #, fuzzy
-msgid "Group Association"
-msgstr "存储节点创建"
-
-#, fuzzy
 msgid "Group Associations"
 msgstr "存储节点创建"
 
 #, fuzzy
 msgid "Group BIOS Exit"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Group Count"
 msgstr "出口Snapins"
 
 #, fuzzy
@@ -2856,18 +2832,6 @@ msgid "Group Search DN"
 msgstr "主机搜索"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "集团补充"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "历史管理单元"
 
@@ -2885,10 +2849,6 @@ msgstr "集团创建失败"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "集团创建失败"
 
 #, fuzzy
@@ -3048,10 +3008,6 @@ msgid "Host BIOS Exit Type"
 msgstr "主持人EFI退出类型"
 
 #, fuzzy
-msgid "Host Count"
-msgstr "主机列表"
-
-#, fuzzy
 msgid "Host Create Fail"
 msgstr "主机创建失败"
 
@@ -3171,18 +3127,6 @@ msgid "Host Registration"
 msgstr "主机注册"
 
 #, fuzzy
-msgid "Host Site"
-msgstr "主机列表"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "服务更新！"
-
-#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "无关联的节点"
 
@@ -3200,10 +3144,6 @@ msgstr "主机更新失败"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "主机更新失败"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "主机更新失败"
 
 #, fuzzy
@@ -3637,10 +3577,6 @@ msgstr "进口主机"
 #, fuzzy
 msgid "Import Reports"
 msgstr "进口主机"
-
-#, fuzzy
-msgid "Import Sites"
-msgstr "进口打印机"
 
 #, fuzzy
 msgid "Import Subnet Groups"
@@ -6159,6 +6095,9 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "保存数据%s对象"
@@ -6509,74 +6448,6 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
-
-#, fuzzy
-msgid "Site"
-msgstr "分钟"
-
-#, fuzzy
-msgid "Site Association"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Site Create Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Site Create Success"
-msgstr "打印机已经存在"
-
-#, fuzzy
-msgid "Site Description"
-msgstr "打印机说明"
-
-#, fuzzy
-msgid "Site Group Associations"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Site Host Associations"
-msgstr "无关联的节点"
-
-#, fuzzy
-msgid "Site Management"
-msgstr "存储管理"
-
-#, fuzzy
-msgid "Site Name"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Site Update Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Site User Associations"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Site User Group Associations"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Site added!"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Site update failed!"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Site updated!"
-msgstr "打印机更新！"
-
-#, fuzzy
-msgid "Sites"
-msgstr "分钟"
 
 #, fuzzy
 msgid "Size"
@@ -8205,10 +8076,6 @@ msgid "User Cleanup"
 msgstr "用户清理"
 
 #, fuzzy
-msgid "User Count"
-msgstr "CPU计数"
-
-#, fuzzy
 msgid "User Create Fail"
 msgstr "用户创建"
 
@@ -8233,10 +8100,6 @@ msgid "User Group Associations"
 msgstr "存储节点创建"
 
 #, fuzzy
-msgid "User Group Count"
-msgstr "出口Snapins"
-
-#, fuzzy
 msgid "User Group Create Fail"
 msgstr "集团创建失败"
 
@@ -8259,22 +8122,6 @@ msgstr "出口Snapins"
 #, fuzzy
 msgid "User Group Role Associations"
 msgstr "图像协会"
-
-#, fuzzy
-msgid "User Group Site"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "集团补充"
 
 #, fuzzy
 msgid "User Group Update Fail"
@@ -8304,22 +8151,6 @@ msgstr "用户名"
 
 msgid "User Password"
 msgstr "用户密码"
-
-#, fuzzy
-msgid "User Site"
-msgstr "添加新的管理单元"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "服务更新！"
 
 msgid "User Tracker"
 msgstr "用户跟踪"
@@ -9409,6 +9240,10 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "A site already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "图像已经存在具有此名称！"
 
@@ -9509,6 +9344,10 @@ msgstr ""
 #~ msgstr "添加管理单元失败！"
 
 #, fuzzy
+#~ msgid "Add site failed!"
+#~ msgstr "添加管理单元失败！"
+
+#, fuzzy
 #~ msgid "Admin Group"
 #~ msgstr "修改组"
 
@@ -9548,6 +9387,10 @@ msgstr ""
 #~ msgstr "新建%s"
 
 #, fuzzy
+#~ msgid "Create New Site"
+#~ msgstr "新建%s"
+
+#, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "无关联的节点"
 
@@ -9580,6 +9423,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Export Rules"
 #~ msgstr "成功"
+
+#, fuzzy
+#~ msgid "Export Sites"
+#~ msgstr "出口打印机"
 
 #~ msgid "Export Snapins"
 #~ msgstr "出口Snapins"
@@ -9614,8 +9461,32 @@ msgstr ""
 #~ msgstr "重启"
 
 #, fuzzy
+#~ msgid "Group Association"
+#~ msgstr "存储节点创建"
+
+#, fuzzy
+#~ msgid "Group Count"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "集团创建失败"
 
 #, fuzzy
 #~ msgid "Group module settings"
@@ -9624,6 +9495,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Associated"
 #~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "Host Count"
+#~ msgstr "主机列表"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -9642,8 +9517,24 @@ msgstr ""
 #~ msgstr "用户更新失败"
 
 #, fuzzy
+#~ msgid "Host Site"
+#~ msgstr "主机列表"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "服务更新！"
+
+#, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "历史管理单元"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "主机更新失败"
 
 #, fuzzy
 #~ msgid "Host module settings"
@@ -9698,6 +9589,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Rules"
 #~ msgstr "进口主机"
+
+#, fuzzy
+#~ msgid "Import Sites"
+#~ msgstr "进口打印机"
 
 #~ msgid "Import Snapins"
 #~ msgstr "进口Snapins"
@@ -9836,6 +9731,74 @@ msgstr ""
 #~ msgstr "打印机更新失败！"
 
 #, fuzzy
+#~ msgid "Site"
+#~ msgstr "分钟"
+
+#, fuzzy
+#~ msgid "Site Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Site Create Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Site Create Success"
+#~ msgstr "打印机已经存在"
+
+#, fuzzy
+#~ msgid "Site Description"
+#~ msgstr "打印机说明"
+
+#, fuzzy
+#~ msgid "Site Group Associations"
+#~ msgstr "存储节点创建"
+
+#, fuzzy
+#~ msgid "Site Host Associations"
+#~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "Site Management"
+#~ msgstr "存储管理"
+
+#, fuzzy
+#~ msgid "Site Name"
+#~ msgstr "打印机名称"
+
+#, fuzzy
+#~ msgid "Site Update Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Site User Associations"
+#~ msgstr "图像协会"
+
+#, fuzzy
+#~ msgid "Site User Group Associations"
+#~ msgstr "存储节点创建"
+
+#, fuzzy
+#~ msgid "Site added!"
+#~ msgstr "打印机名称"
+
+#, fuzzy
+#~ msgid "Site update failed!"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Site updated!"
+#~ msgstr "打印机更新！"
+
+#, fuzzy
+#~ msgid "Sites"
+#~ msgstr "分钟"
+
+#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "更新管理单元"
 
@@ -9898,6 +9861,30 @@ msgstr ""
 #~ msgstr "删除选定的打印机"
 
 #, fuzzy
+#~ msgid "User Count"
+#~ msgstr "CPU计数"
+
+#, fuzzy
+#~ msgid "User Group Count"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "用户清理"
 
@@ -9908,6 +9895,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "添加新的管理单元"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "服务更新！"
 
 #, fuzzy
 #~ msgid "You have version"

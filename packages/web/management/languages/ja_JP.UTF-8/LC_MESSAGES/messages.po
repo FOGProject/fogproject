@@ -274,9 +274,6 @@ msgstr "選択したプリンターを追加"
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
-msgid "A site already exists with this name!"
-msgstr "この名前のサイトは既に存在します！"
-
 msgid "A snapin already exists with this name!"
 msgstr "この名前のスナップインは既に存在します！"
 
@@ -532,9 +529,6 @@ msgstr "選択したホストを追加"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "選択したストレージグループを追加"
-
-msgid "Add site failed!"
-msgstr "サイトの追加に失敗しました！"
 
 #, fuzzy
 msgid "Add slack account failed!"
@@ -1504,10 +1498,6 @@ msgstr "新しいキーを作成"
 msgid "Create New Scheduled"
 msgstr "新しい電源管理スケジュールを作成"
 
-#, fuzzy
-msgid "Create New Site"
-msgstr "新しいプリンターを作成"
-
 msgid "Create New Snapin"
 msgstr "新しいスナップインを作成"
 
@@ -2095,9 +2085,6 @@ msgstr "ロケーションをエクスポート"
 msgid "Export OUs"
 msgstr "ユーザーをエクスポート"
 
-msgid "Export Sites"
-msgstr "サイトをエクスポート"
-
 #, fuzzy
 msgid "Export Subnet Groups"
 msgstr "サブネットグループをエクスポート"
@@ -2597,20 +2584,12 @@ msgstr "Green FOG"
 msgid "Group"
 msgstr "グループ"
 
-#, fuzzy
-msgid "Group Association"
-msgstr "グループの関連付け"
-
 msgid "Group Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
 msgid "Group BIOS Exit"
 msgstr "グループ EFI 終了方法"
-
-#, fuzzy
-msgid "Group Count"
-msgstr "グループ自動ログアウト"
 
 msgid "Group Create Fail"
 msgstr "グループの作成に失敗しました"
@@ -2733,18 +2712,6 @@ msgid "Group Search DN"
 msgstr "グループ検索 DN"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "グループイメージ"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "サイトを更新しました！"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "グループ スナップイン"
 
@@ -2761,10 +2728,6 @@ msgstr "グループの更新に失敗しました"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "グループの更新に失敗しました"
 
 msgid "Group Update Success"
@@ -2918,10 +2881,6 @@ msgstr "関連付けられたホスト"
 msgid "Host BIOS Exit Type"
 msgstr "ホスト EFI 終了方法"
 
-#, fuzzy
-msgid "Host Count"
-msgstr "ホスト Init"
-
 msgid "Host Create Fail"
 msgstr "ホストの作成に失敗しました"
 
@@ -3035,17 +2994,6 @@ msgstr "ホスト プロダクトキー"
 msgid "Host Registration"
 msgstr "ホスト登録"
 
-msgid "Host Site"
-msgstr "ホスト サイト"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "サイトを更新しました！"
-
 #, fuzzy
 msgid "Host Snapin Associations"
 msgstr "スナップインロケーション"
@@ -3062,10 +3010,6 @@ msgstr "ホストの更新に失敗しました"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "ホストの更新に失敗しました"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "ホストの更新に失敗しました"
 
 msgid "Host Update Success"
@@ -3475,9 +3419,6 @@ msgstr "レポートをインポートしますか？"
 
 msgid "Import Reports"
 msgstr "レポートをインポート"
-
-msgid "Import Sites"
-msgstr "サイトをインポート"
 
 #, fuzzy
 msgid "Import Subnet Groups"
@@ -5876,6 +5817,9 @@ msgstr "保存は完了しましたが、有効な ID が割り当てられま�
 msgid "Save order"
 msgstr "Initrd を保存"
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 msgid "Saving data for"
 msgstr "次のデータを保存しています:"
 
@@ -6214,63 +6158,6 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
-
-msgid "Site"
-msgstr "サイト"
-
-msgid "Site Association"
-msgstr "サイトの関連付け"
-
-msgid "Site Create Fail"
-msgstr "サイトの作成に失敗しました"
-
-msgid "Site Create Success"
-msgstr "サイトを作成しました"
-
-msgid "Site Description"
-msgstr "サイトの説明"
-
-#, fuzzy
-msgid "Site Group Associations"
-msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "Site Host Associations"
-msgstr "サイトの関連付け"
-
-#, fuzzy
-msgid "Site Management"
-msgstr "ストレージ管理"
-
-msgid "Site Name"
-msgstr "サイト名"
-
-msgid "Site Update Fail"
-msgstr "サイトの更新に失敗しました"
-
-msgid "Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "Site User Associations"
-msgstr "サイトの関連付け"
-
-#, fuzzy
-msgid "Site User Group Associations"
-msgstr "グループの関連付け"
-
-msgid "Site added!"
-msgstr "サイトを追加しました！"
-
-msgid "Site update failed!"
-msgstr "サイトの更新に失敗しました！"
-
-#, fuzzy
-msgid "Site updated!"
-msgstr "サイトを更新しました！"
-
-msgid "Sites"
-msgstr "サイト"
 
 msgid "Size"
 msgstr "サイズ"
@@ -7822,10 +7709,6 @@ msgstr "ルールの関連付け"
 msgid "User Cleanup"
 msgstr "ユーザークリーンアップ"
 
-#, fuzzy
-msgid "User Count"
-msgstr "CPU 数"
-
 msgid "User Create Fail"
 msgstr "ユーザーの作成に失敗しました"
 
@@ -7846,10 +7729,6 @@ msgstr "グループの関連付け"
 #, fuzzy
 msgid "User Group Associations"
 msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "User Group Count"
-msgstr "グループ自動ログアウト"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -7874,22 +7753,6 @@ msgstr "グループ名"
 #, fuzzy
 msgid "User Group Role Associations"
 msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "User Group Site"
-msgstr "ユーザーを更新しました！"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "サイトを更新しました！"
 
 #, fuzzy
 msgid "User Group Update Fail"
@@ -7918,22 +7781,6 @@ msgstr "ユーザー名属性"
 
 msgid "User Password"
 msgstr "ユーザーパスワード"
-
-#, fuzzy
-msgid "User Site"
-msgstr "ユーザーフィルター"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "サイトの更新に失敗しました"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "サイトを更新しました！"
 
 msgid "User Tracker"
 msgstr "ユーザートラッカー"
@@ -8983,6 +8830,9 @@ msgstr ""
 #~ msgid "A rule already exists with this name"
 #~ msgstr "この名前のルールは既に存在します"
 
+#~ msgid "A site already exists with this name!"
+#~ msgstr "この名前のサイトは既に存在します！"
+
 #~ msgid "A snapin name is required!"
 #~ msgstr "スナップイン名は必須です！"
 
@@ -9084,6 +8934,9 @@ msgstr ""
 
 #~ msgid "Add selected users"
 #~ msgstr "選択したユーザーを追加"
+
+#~ msgid "Add site failed!"
+#~ msgstr "サイトの追加に失敗しました！"
 
 #~ msgid "Additional MACs"
 #~ msgstr "追加の MAC アドレス"
@@ -9262,6 +9115,10 @@ msgstr ""
 
 #~ msgid "Create New Access Control Role"
 #~ msgstr "新しいアクセス制御ロールを作成"
+
+#, fuzzy
+#~ msgid "Create New Site"
+#~ msgstr "新しいプリンターを作成"
 
 #~ msgid "Create New iPXE Menu Entry"
 #~ msgstr "新しい iPXE メニューエントリを作成"
@@ -9465,6 +9322,9 @@ msgstr ""
 #~ msgid "Export Printers"
 #~ msgstr "プリンターをエクスポート"
 
+#~ msgid "Export Sites"
+#~ msgstr "サイトをエクスポート"
+
 #~ msgid "Extension"
 #~ msgstr "拡張子"
 
@@ -9605,8 +9465,16 @@ msgstr ""
 #~ msgid "Goto task list"
 #~ msgstr "タスク一覧へ移動"
 
+#, fuzzy
+#~ msgid "Group Association"
+#~ msgstr "グループの関連付け"
+
 #~ msgid "Group Bios Exit Type"
 #~ msgstr "グループ BIOS 終了方法"
+
+#, fuzzy
+#~ msgid "Group Count"
+#~ msgstr "グループ自動ログアウト"
 
 #~ msgid "Group FOG Client Module configuration"
 #~ msgstr "グループ FOG クライアントモジュール設定"
@@ -9626,6 +9494,22 @@ msgstr ""
 
 #~ msgid "Group Search DN did not return any results"
 #~ msgstr "グループ検索 DN は結果を返しませんでした"
+
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "グループイメージ"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "グループの更新に失敗しました"
 
 #~ msgid "Group general"
 #~ msgstr "グループ全般"
@@ -9681,6 +9565,10 @@ msgstr ""
 #~ msgid "Host Bios Exit Type"
 #~ msgstr "ホスト BIOS 終了方法"
 
+#, fuzzy
+#~ msgid "Host Count"
+#~ msgstr "ホスト Init"
+
 #~ msgid "Host Desc"
 #~ msgstr "ホスト説明"
 
@@ -9711,6 +9599,17 @@ msgstr ""
 #~ msgid "Host Screen Resolution"
 #~ msgstr "ホスト画面解像度"
 
+#~ msgid "Host Site"
+#~ msgstr "ホスト サイト"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
 #~ msgid "Host Snapins"
 #~ msgstr "ホスト スナップイン"
 
@@ -9722,6 +9621,10 @@ msgstr ""
 
 #~ msgid "Host Unassociated Snapins"
 #~ msgstr "ホストに関連付けられていないスナップイン"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "ホストの更新に失敗しました"
 
 #~ msgid "Host Virus History"
 #~ msgstr "ホスト ウイルス 履歴"
@@ -9833,6 +9736,9 @@ msgstr ""
 
 #~ msgid "Import Printers"
 #~ msgstr "プリンターをインポート"
+
+#~ msgid "Import Sites"
+#~ msgstr "サイトをインポート"
 
 #~ msgid "Included Items"
 #~ msgstr "含まれる項目"
@@ -10590,11 +10496,68 @@ msgstr ""
 #~ msgid "Shutdown after install"
 #~ msgstr "インストール後にシャットダウン"
 
+#~ msgid "Site"
+#~ msgstr "サイト"
+
+#~ msgid "Site Association"
+#~ msgstr "サイトの関連付け"
+
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
 
+#~ msgid "Site Create Fail"
+#~ msgstr "サイトの作成に失敗しました"
+
+#~ msgid "Site Create Success"
+#~ msgstr "サイトを作成しました"
+
+#~ msgid "Site Description"
+#~ msgstr "サイトの説明"
+
 #~ msgid "Site General"
 #~ msgstr "サイト全般"
+
+#, fuzzy
+#~ msgid "Site Group Associations"
+#~ msgstr "グループの関連付け"
+
+#, fuzzy
+#~ msgid "Site Host Associations"
+#~ msgstr "サイトの関連付け"
+
+#, fuzzy
+#~ msgid "Site Management"
+#~ msgstr "ストレージ管理"
+
+#~ msgid "Site Name"
+#~ msgstr "サイト名"
+
+#~ msgid "Site Update Fail"
+#~ msgstr "サイトの更新に失敗しました"
+
+#~ msgid "Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "Site User Associations"
+#~ msgstr "サイトの関連付け"
+
+#, fuzzy
+#~ msgid "Site User Group Associations"
+#~ msgstr "グループの関連付け"
+
+#~ msgid "Site added!"
+#~ msgstr "サイトを追加しました！"
+
+#~ msgid "Site update failed!"
+#~ msgstr "サイトの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "Site updated!"
+#~ msgstr "サイトを更新しました！"
+
+#~ msgid "Sites"
+#~ msgstr "サイト"
 
 #~ msgid "Snapin Args"
 #~ msgstr "スナップイン引数"
@@ -10920,11 +10883,51 @@ msgstr ""
 #~ msgid "User Change Password"
 #~ msgstr "ユーザーパスワードを変更"
 
+#, fuzzy
+#~ msgid "User Count"
+#~ msgstr "CPU 数"
+
 #~ msgid "User General"
 #~ msgstr "ユーザー全般"
 
+#, fuzzy
+#~ msgid "User Group Count"
+#~ msgstr "グループ自動ログアウト"
+
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "ユーザーを更新しました！"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
 #~ msgid "User Password (confirm)"
 #~ msgstr "ユーザーパスワード（確認）"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "ユーザーフィルター"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "サイトの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "サイトを更新しました！"
 
 #~ msgid "User Tracking"
 #~ msgstr "ユーザー追跡"

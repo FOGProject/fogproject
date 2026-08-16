@@ -205,6 +205,7 @@ class Authorization extends FOGBase
         'roleuserassociation' => 'role',
         'scheduledtask' => 'task',
         'setting' => 'settings',
+        'site' => 'site',
         'snapin' => 'snapin',
         'snapinassociation' => 'snapin',
         'snapingroupassociation' => 'snapin',
@@ -290,6 +291,11 @@ class Authorization extends FOGBase
             'user' => ['view', 'create', 'edit', 'delete'],
             'usergroup' => ['view', 'create', 'edit', 'delete'],
             'role' => ['view', 'create', 'edit', 'delete'],
+            // Sites came in from the site plugin. The node keeps the name
+            // the plugin registered so grants written against it survive
+            // the move -- a rename here would silently drop every existing
+            // site.* permission on upgrade.
+            'site' => ['view', 'create', 'edit', 'delete'],
             'storagenode' => ['view', 'create', 'edit', 'delete'],
             'storagegroup' => ['view', 'create', 'edit', 'delete'],
             'ipxe' => ['view', 'create', 'edit', 'delete'],

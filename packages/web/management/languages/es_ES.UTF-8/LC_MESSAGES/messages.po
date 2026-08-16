@@ -293,10 +293,6 @@ msgid "A server URL and topic endpoint are required"
 msgstr ""
 
 #, fuzzy
-msgid "A site already exists with this name!"
-msgstr "Una imagen ya existe con este nombre!"
-
-#, fuzzy
 msgid "A snapin already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
@@ -580,10 +576,6 @@ msgstr "Impresora"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Impresora"
-
-#, fuzzy
-msgid "Add site failed!"
-msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "Add slack account failed!"
@@ -1605,10 +1597,6 @@ msgid "Create New Scheduled"
 msgstr "Crear nuevo grupo"
 
 #, fuzzy
-msgid "Create New Site"
-msgstr "Crear nuevo grupo"
-
-#, fuzzy
 msgid "Create New Snapin"
 msgstr "Crear nuevo grupo"
 
@@ -2226,10 +2214,6 @@ msgid "Export OUs"
 msgstr "Exportar"
 
 #, fuzzy
-msgid "Export Sites"
-msgstr "impresora iPrint"
-
-#, fuzzy
 msgid "Export Subnet Groups"
 msgstr "Exportar"
 
@@ -2771,19 +2755,11 @@ msgid "Group"
 msgstr "Grupo"
 
 #, fuzzy
-msgid "Group Association"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
 msgid "Group Associations"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
 msgid "Group BIOS Exit"
-msgstr "snapins"
-
-#, fuzzy
-msgid "Group Count"
 msgstr "snapins"
 
 #, fuzzy
@@ -2912,18 +2888,6 @@ msgid "Group Search DN"
 msgstr "Disco de grupo primario"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "snapins"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "creado por el usuario"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "grupo añadió"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "Camino snapin"
 
@@ -2941,10 +2905,6 @@ msgstr "Grupo Error de creación"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "Grupo Error de creación"
 
 #, fuzzy
@@ -3106,10 +3066,6 @@ msgid "Host BIOS Exit Type"
 msgstr "Grupo EFI Tipo de salida"
 
 #, fuzzy
-msgid "Host Count"
-msgstr "ID de host"
-
-#, fuzzy
 msgid "Host Create Fail"
 msgstr "Grupo Error de creación"
 
@@ -3241,18 +3197,6 @@ msgid "Host Registration"
 msgstr "Lista de host"
 
 #, fuzzy
-msgid "Host Site"
-msgstr "Hospedadores"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "actualización Valoración falló"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "Servicio de Actualización!"
-
-#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "No nodo asociado"
 
@@ -3270,10 +3214,6 @@ msgstr "actualización Valoración falló"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "actualización Valoración falló"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "actualización Valoración falló"
 
 #, fuzzy
@@ -3720,10 +3660,6 @@ msgstr "Importar"
 #, fuzzy
 msgid "Import Reports"
 msgstr "Importar"
-
-#, fuzzy
-msgid "Import Sites"
-msgstr "Impresora TCP / IP Port"
 
 #, fuzzy
 msgid "Import Subnet Groups"
@@ -6310,6 +6246,9 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Guardar los datos de %s objeto"
@@ -6664,74 +6603,6 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
-
-#, fuzzy
-msgid "Site"
-msgstr "minutos"
-
-#, fuzzy
-msgid "Site Association"
-msgstr "Asociación para la imagen"
-
-#, fuzzy
-msgid "Site Create Fail"
-msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-msgid "Site Create Success"
-msgstr "Impresora ya existe"
-
-#, fuzzy
-msgid "Site Description"
-msgstr "Descripción de la impresora"
-
-#, fuzzy
-msgid "Site Group Associations"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Site Host Associations"
-msgstr "No nodo asociado"
-
-#, fuzzy
-msgid "Site Management"
-msgstr "Gestión de usuarios"
-
-#, fuzzy
-msgid "Site Name"
-msgstr "Nombre de la impresora"
-
-#, fuzzy
-msgid "Site Update Fail"
-msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-msgid "Site Update Success"
-msgstr "actualización Valoración falló"
-
-#, fuzzy
-msgid "Site User Associations"
-msgstr "Asociación para la imagen"
-
-#, fuzzy
-msgid "Site User Group Associations"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Site added!"
-msgstr "Nombre de la impresora"
-
-#, fuzzy
-msgid "Site update failed!"
-msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-msgid "Site updated!"
-msgstr "Impresora actualiza!"
-
-#, fuzzy
-msgid "Sites"
-msgstr "minutos"
 
 #, fuzzy
 msgid "Size"
@@ -8389,10 +8260,6 @@ msgid "User Cleanup"
 msgstr ""
 
 #, fuzzy
-msgid "User Count"
-msgstr "Contador de la CPU"
-
-#, fuzzy
 msgid "User Create Fail"
 msgstr "creado por el usuario"
 
@@ -8417,10 +8284,6 @@ msgid "User Group Associations"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "User Group Count"
-msgstr "snapins"
-
-#, fuzzy
 msgid "User Group Create Fail"
 msgstr "Grupo Error de creación"
 
@@ -8443,22 +8306,6 @@ msgstr "snapins"
 #, fuzzy
 msgid "User Group Role Associations"
 msgstr "Asociación para la imagen"
-
-#, fuzzy
-msgid "User Group Site"
-msgstr "snapins"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "creado por el usuario"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "grupo añadió"
 
 #, fuzzy
 msgid "User Group Update Fail"
@@ -8488,22 +8335,6 @@ msgstr "Nombre de usuario"
 
 msgid "User Password"
 msgstr "Contraseña de usuario"
-
-#, fuzzy
-msgid "User Site"
-msgstr "snapin"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "Actualizar impresora"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "Servicio de Actualización!"
 
 #, fuzzy
 msgid "User Tracker"
@@ -9594,6 +9425,10 @@ msgstr ""
 #~ msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
+#~ msgid "A site already exists with this name!"
+#~ msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Una imagen ya existe con este nombre!"
 
@@ -9694,6 +9529,10 @@ msgstr ""
 #~ msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
+#~ msgid "Add site failed!"
+#~ msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
 #~ msgid "Admin Group"
 #~ msgstr "modificar Grupo"
 
@@ -9734,6 +9573,10 @@ msgstr ""
 #~ msgstr "Crear nuevo grupo"
 
 #, fuzzy
+#~ msgid "Create New Site"
+#~ msgstr "Crear nuevo grupo"
+
+#, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "No nodo asociado"
 
@@ -9770,6 +9613,10 @@ msgstr ""
 #~ msgstr "Exitoso"
 
 #, fuzzy
+#~ msgid "Export Sites"
+#~ msgstr "impresora iPrint"
+
+#, fuzzy
 #~ msgid "Export Snapins"
 #~ msgstr "snapins"
 
@@ -9802,8 +9649,32 @@ msgstr ""
 #~ msgstr "Reiniciar"
 
 #, fuzzy
+#~ msgid "Group Association"
+#~ msgstr "nodo de almacenamiento"
+
+#, fuzzy
+#~ msgid "Group Count"
+#~ msgstr "snapins"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Lista de host"
+
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "snapins"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "creado por el usuario"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "grupo añadió"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "Grupo Error de creación"
 
 #, fuzzy
 #~ msgid "Group module settings"
@@ -9812,6 +9683,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Associated"
 #~ msgstr "No nodo asociado"
+
+#, fuzzy
+#~ msgid "Host Count"
+#~ msgstr "ID de host"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -9830,8 +9705,24 @@ msgstr ""
 #~ msgstr "actualización Valoración falló"
 
 #, fuzzy
+#~ msgid "Host Site"
+#~ msgstr "Hospedadores"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "actualización Valoración falló"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "Servicio de Actualización!"
+
+#, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "Camino snapin"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "actualización Valoración falló"
 
 #, fuzzy
 #~ msgid "Host module settings"
@@ -9888,6 +9779,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Rules"
 #~ msgstr "Importar"
+
+#, fuzzy
+#~ msgid "Import Sites"
+#~ msgstr "Impresora TCP / IP Port"
 
 #, fuzzy
 #~ msgid "Import Snapins"
@@ -10015,6 +9910,74 @@ msgstr ""
 #~ msgstr "actualización de la impresora ha fallado!"
 
 #, fuzzy
+#~ msgid "Site"
+#~ msgstr "minutos"
+
+#, fuzzy
+#~ msgid "Site Association"
+#~ msgstr "Asociación para la imagen"
+
+#, fuzzy
+#~ msgid "Site Create Fail"
+#~ msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+#~ msgid "Site Create Success"
+#~ msgstr "Impresora ya existe"
+
+#, fuzzy
+#~ msgid "Site Description"
+#~ msgstr "Descripción de la impresora"
+
+#, fuzzy
+#~ msgid "Site Group Associations"
+#~ msgstr "nodo de almacenamiento"
+
+#, fuzzy
+#~ msgid "Site Host Associations"
+#~ msgstr "No nodo asociado"
+
+#, fuzzy
+#~ msgid "Site Management"
+#~ msgstr "Gestión de usuarios"
+
+#, fuzzy
+#~ msgid "Site Name"
+#~ msgstr "Nombre de la impresora"
+
+#, fuzzy
+#~ msgid "Site Update Fail"
+#~ msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+#~ msgid "Site Update Success"
+#~ msgstr "actualización Valoración falló"
+
+#, fuzzy
+#~ msgid "Site User Associations"
+#~ msgstr "Asociación para la imagen"
+
+#, fuzzy
+#~ msgid "Site User Group Associations"
+#~ msgstr "nodo de almacenamiento"
+
+#, fuzzy
+#~ msgid "Site added!"
+#~ msgstr "Nombre de la impresora"
+
+#, fuzzy
+#~ msgid "Site update failed!"
+#~ msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+#~ msgid "Site updated!"
+#~ msgstr "Impresora actualiza!"
+
+#, fuzzy
+#~ msgid "Sites"
+#~ msgstr "minutos"
+
+#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "Nombre snapin"
 
@@ -10077,6 +10040,30 @@ msgstr ""
 #~ msgstr "Eliminar todos los elementos seleccionados"
 
 #, fuzzy
+#~ msgid "User Count"
+#~ msgstr "Contador de la CPU"
+
+#, fuzzy
+#~ msgid "User Group Count"
+#~ msgstr "snapins"
+
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "snapins"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "Grupo Error de creación"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "creado por el usuario"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "grupo añadió"
+
+#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "snapin"
 
@@ -10087,6 +10074,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Actualizar impresora"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "snapin"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "Actualizar impresora"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "Servicio de Actualización!"
 
 #, fuzzy
 #~ msgid "You have version"
