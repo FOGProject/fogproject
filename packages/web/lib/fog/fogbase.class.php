@@ -553,15 +553,6 @@ abstract class FOGBase
             return new \ReflectionClass(count($args ?: []) === 1 ? $args[0] : $args);
         }
 
-        global $sub;
-        // If class is Storage, test if sub is group or node.
-        if ($class === 'Storage') {
-            $class = 'StorageNode';
-            if (preg_match('#storage[\-|_]group#i', $sub)) {
-                $class = 'StorageGroup';
-            }
-        }
-
         // Initiate Reflection item.
         $obj = new \ReflectionClass($class);
 
