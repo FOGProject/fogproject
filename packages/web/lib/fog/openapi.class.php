@@ -160,23 +160,23 @@ class OpenAPI extends FOGBase
         $maxRows = null;
         $expandMax = null;
         try {
-            $manager = new ReflectionClass('FOGManagerController');
+            $manager = new \ReflectionClass('FOGManagerController');
             if ($manager->hasConstant('MAX_ROWS')) {
                 $maxRows = (int)$manager->getConstant('MAX_ROWS');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $maxRows = null;
-        } catch (Error $e) {
+        } catch (\Error $e) {
             $maxRows = null;
         }
         try {
-            $router = new ReflectionClass('Route');
+            $router = new \ReflectionClass('Route');
             if ($router->hasConstant('EXPAND_MAX_ITEMS')) {
                 $expandMax = (int)$router->getConstant('EXPAND_MAX_ITEMS');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $expandMax = null;
-        } catch (Error $e) {
+        } catch (\Error $e) {
             $expandMax = null;
         }
 
