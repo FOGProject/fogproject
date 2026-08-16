@@ -1,0 +1,33 @@
+# Dependency update automation.
+#
+# Committing vendor/ (see packages/web/composer.json) means a CVE in a
+# dependency needs a FOG release to fix. That is only an acceptable trade if
+# the CVE is found automatically, so this ships alongside composer.json rather
+# than as a follow-up -- before there is anything to watch, so the watch is
+# never retrofitted onto a dependency that has already been sitting there.
+#
+# TWO THINGS THIS FILE NEEDS THAT IT CANNOT DO ITSELF:
+#
+# 1. GitHub reads dependabot.yml from the repository's DEFAULT branch, which
+#    is `stable`. This file living on working-1.6 does nothing until it
+#    reaches stable -- which happens when working-1.6 becomes the release
+#    line, not before. Until then, treat dependency updates as manual:
+#    `composer outdated --direct` in packages/web.
+# 2. Dependabot must be enabled for the repository in its settings. That is
+#    not a file in this tree.
+#
+# target-branch is not optional. Without it Dependabot opens against the
+# default branch, `stable`, where PRs are auto-closed -- so every update it
+# ever raised would be closed unread.
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /packages/web
+    target-branch: working-1.6
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+    labels:
+      - dependencies
