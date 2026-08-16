@@ -120,8 +120,7 @@ $fields = $prop('databaseFields');
 $expected = [
     'id' => 'siteID',
     'name' => 'siteName',
-    'description' => 'siteDesc',
-    'catchall' => 'siteCatchAll'
+    'description' => 'siteDesc'
 ];
 foreach ($expected as $friendly => $column) {
     check(
@@ -145,6 +144,56 @@ foreach (['users', 'hosts', 'groups', 'usergroups'] as $assoc) {
         $checks
     );
 }
+
+/*
+ * 2b. `catchall` must NOT be a database field, and the reason is not
+ *     stylistic. FOGController::save() only omits a column -- and so stores
+ *     SQL NULL -- when the FRIENDLY key ends in "id"; for every other key an
+ *     unset value is coerced to '' and written (fogcontroller.class.php:515).
+ *     `siteCatchAll` is TINYINT UNSIGNED with `CHECK (siteCatchAll = 1)`, so
+ *     '' is rejected with MySQL 1366 and the ENTIRE insert fails.
+ *
+ *     That shipped: every "create site" failed while the page reported
+ *     "Site added!" with HTTP 201, because the error only surfaced in the
+ *     history table. So the column is written by makeCatchAll() in SQL and
+ *     read by loadCatchall(), and declaring it a database field re-breaks
+ *     creation completely.
+ */
+check(
+    'catchall is NOT a database field (save() would write \'\' and fail '
+    . 'the CHECK constraint)',
+    !array_key_exists('catchall', $fields),
+    $failures,
+    $checks
+);
+check(
+    'catchall is an additional field',
+    in_array('catchall', $prop('additionalFields'), true),
+    $failures,
+    $checks
+);
+check(
+    'Site::loadCatchall() exists, so load() still populates the flag',
+    method_exists('Site', 'loadCatchall'),
+    $failures,
+    $checks
+);
+/*
+ * 2c. save() must propagate parent::save()'s failure. An override that
+ *     returns $this unconditionally makes every `if (!$obj->save())` in the
+ *     page dead code -- which is exactly how the create failure above got
+ *     reported as a success.
+ */
+$saveSrc = file_get_contents($ref->getFileName());
+check(
+    'Site::save() returns false when parent::save() fails',
+    (bool)preg_match(
+        '/if\s*\(\s*!\s*parent::save\(\)\s*\)\s*\{\s*return false;/',
+        $saveSrc
+    ),
+    $failures,
+    $checks
+);
 
 /*
  * 3. The list query counts members with COUNT(DISTINCT ...). Four LEFT

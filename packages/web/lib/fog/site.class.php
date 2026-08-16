@@ -45,8 +45,7 @@ class Site extends FOGController
     protected $databaseFields = [
         'id' => 'siteID',
         'name' => 'siteName',
-        'description' => 'siteDesc',
-        'catchall' => 'siteCatchAll'
+        'description' => 'siteDesc'
     ];
     /**
      * The required fields.
@@ -59,13 +58,26 @@ class Site extends FOGController
     /**
      * Additional fields.
      *
+     * `catchall` is here rather than in $databaseFields, and that placement
+     * is load bearing. FOGController::save() can only omit a column -- and
+     * so store SQL NULL -- when the FRIENDLY key ends in "id"; for every
+     * other key an unset value is coerced to '' and written. `siteCatchAll`
+     * is TINYINT UNSIGNED with a CHECK of exactly 1, so '' is rejected
+     * outright (MySQL 1366) and the whole INSERT fails.
+     *
+     * That is not theoretical: with it declared as a database field, every
+     * "create site" failed while the page reported success. So the column
+     * is not save()-managed at all. makeCatchAll() writes it in SQL, and
+     * loadCatchall() reads it.
+     *
      * @var array
      */
     protected $additionalFields = [
         'users',
         'hosts',
         'groups',
-        'usergroups'
+        'usergroups',
+        'catchall'
     ];
     /**
      * The list query.
@@ -204,17 +216,14 @@ class Site extends FOGController
      */
     public function save()
     {
-        // `siteDesc` is LONGTEXT NOT NULL with no default -- a TEXT column
-        // cannot carry one before MySQL 8.0.13, so the empty case has to be
-        // filled in here. save() drops null-valued fields before building
-        // the column list, so leaving it unset omits the column entirely
-        // and strict mode rejects the INSERT.
-        if (!$this->isPopulated('description')
-            || null === $this->get('description')
-        ) {
-            $this->set('description', '');
+        // Propagated, not discarded. parent::save() returns false on
+        // failure, and an override that returns $this regardless makes
+        // every caller's `if (!$obj->save())` unreachable -- the create
+        // page then reports "Site added!" over a row that was never
+        // written, with the real error only in the history table.
+        if (!parent::save()) {
+            return false;
         }
-        parent::save();
         return $this
             ->assocSetter('SiteUserMember', 'user', true)
             ->assocSetter('SiteHostMember', 'host', true)
@@ -239,10 +248,11 @@ class Site extends FOGController
      *
      * `siteCatchAll` is NULL or 1 and nothing else -- a UNIQUE index makes
      * "at most one" a property of the table rather than of this code, and a
-     * CHECK constraint rejects 0. So turning the flag OFF means writing
-     * NULL, and save() DROPS null-valued fields before building its column
-     * list, which would silently leave the site as the catch-all while
-     * reporting success.
+     * CHECK constraint rejects 0. save() cannot write either state: it
+     * coerces an empty non-"id" field to '' rather than NULL (see the
+     * $additionalFields docblock), so turning the flag OFF through it
+     * fails the CHECK, and so does creating a site that was never meant to
+     * be the catch-all at all.
      *
      * Turning it ON has to clear the incumbent first or the UNIQUE index
      * rejects the write. Done as two statements in one transaction so a
@@ -326,6 +336,35 @@ class Site extends FOGController
             'usergroups',
             (array)Route::getIds('siteusergroupmember', $find, 'usergroupID')
         );
+    }
+    /**
+     * Load the catch-all flag.
+     *
+     * Read in SQL because `catchall` is not a database field -- see the
+     * $additionalFields docblock for why it cannot be one -- so load()
+     * would otherwise never populate it and isCatchAll() would answer
+     * "no" for the catch-all site itself.
+     *
+     * @return void
+     */
+    protected function loadCatchall()
+    {
+        $id = (int)$this->get('id');
+        if ($id < 1) {
+            $this->set('catchall', null);
+            return;
+        }
+        $row = self::$DB
+            ->query(
+                'SELECT `siteCatchAll` AS `flag` FROM `sites` '
+                . 'WHERE `siteID` = :id',
+                [],
+                ['id' => $id]
+            )
+            ->fetch(\PDO::FETCH_ASSOC)
+            ->get();
+        $flag = is_array($row) && isset($row['flag']) ? $row['flag'] : null;
+        $this->set('catchall', ('' === $flag ? null : $flag));
     }
     /**
      * Load hosts.

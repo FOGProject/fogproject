@@ -110,6 +110,7 @@ abstract class FOGPage extends FOGBase
         'printer',
         'task',
         'role',
+        'site',
         'usergroup'
     ];
     /**
