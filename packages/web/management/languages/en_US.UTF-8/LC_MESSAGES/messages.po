@@ -296,6 +296,10 @@ msgid "A server URL and topic endpoint are required"
 msgstr ""
 
 #, fuzzy
+msgid "A site already exists with this name!"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
 msgid "A snapin already exists with this name!"
 msgstr "An image already exists with this name!"
 
@@ -566,6 +570,10 @@ msgstr "Remove selected printers"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Remove selected snapins"
+
+#, fuzzy
+msgid "Add site failed!"
+msgstr "Add snapin failed!"
 
 #, fuzzy
 msgid "Add slack account failed!"
@@ -1203,6 +1211,9 @@ msgstr "System Serial"
 msgid "Case Version"
 msgstr "Latest Version"
 
+msgid "Catch-All Site"
+msgstr ""
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1574,6 +1585,10 @@ msgstr "Create New %s"
 
 #, fuzzy
 msgid "Create New Scheduled"
+msgstr "Create New %s"
+
+#, fuzzy
+msgid "Create New Site"
 msgstr "Create New %s"
 
 #, fuzzy
@@ -2699,11 +2714,19 @@ msgid "Group"
 msgstr "Group"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "Storage Node Created"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "Storage Node Created"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "Export Snapins"
 
 #, fuzzy
@@ -3005,6 +3028,10 @@ msgstr "No node associated"
 #, fuzzy
 msgid "Host BIOS Exit Type"
 msgstr "Host EFI Exit Type"
+
+#, fuzzy
+msgid "Host Count"
+msgstr "Host List"
 
 #, fuzzy
 msgid "Host Create Fail"
@@ -6449,6 +6476,66 @@ msgid "Signing is already done on this server. The remaining work is per-client 
 msgstr ""
 
 #, fuzzy
+msgid "Site Create Fail"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Site Create Success"
+msgstr "Printer already exists"
+
+#, fuzzy
+msgid "Site Description"
+msgstr "Printer Description"
+
+#, fuzzy
+msgid "Site Group Associations"
+msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "No node associated"
+
+#, fuzzy
+msgid "Site Management"
+msgstr "Storage Management"
+
+#, fuzzy
+msgid "Site Name"
+msgstr "Printer Name"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Install / Update Successful!"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "Image Association"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "Site added!"
+msgstr "Printer Name"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "Printer updated!"
+
+#, fuzzy
+msgid "Sites"
+msgstr "minutes"
+
+#, fuzzy
 msgid "Size"
 msgstr "Max Size"
 
@@ -7545,6 +7632,9 @@ msgstr " | This is not the primary group"
 msgid "This is the amount of physical disk space"
 msgstr ""
 
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
+msgstr ""
+
 msgid "This is the minimum space for the host this is deploying to."
 msgstr ""
 
@@ -8075,6 +8165,10 @@ msgid "User Cleanup"
 msgstr "User Cleanup"
 
 #, fuzzy
+msgid "User Count"
+msgstr "CPU Count"
+
+#, fuzzy
 msgid "User Create Fail"
 msgstr "User created"
 
@@ -8097,6 +8191,10 @@ msgstr "Storage Node Created"
 #, fuzzy
 msgid "User Group Associations"
 msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "Export Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -9239,10 +9337,6 @@ msgstr ""
 #~ msgstr "An image already exists with this name!"
 
 #, fuzzy
-#~ msgid "A site already exists with this name!"
-#~ msgstr "An image already exists with this name!"
-
-#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "An image already exists with this name!"
 
@@ -9343,10 +9437,6 @@ msgstr ""
 #~ msgstr "Add snapin failed!"
 
 #, fuzzy
-#~ msgid "Add site failed!"
-#~ msgstr "Add snapin failed!"
-
-#, fuzzy
 #~ msgid "Admin Group"
 #~ msgstr "Modify Group"
 
@@ -9383,10 +9473,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Create New Rule"
-#~ msgstr "Create New %s"
-
-#, fuzzy
-#~ msgid "Create New Site"
 #~ msgstr "Create New %s"
 
 #, fuzzy
@@ -9460,14 +9546,6 @@ msgstr ""
 #~ msgstr "Reboot"
 
 #, fuzzy
-#~ msgid "Group Association"
-#~ msgstr "Storage Node Created"
-
-#, fuzzy
-#~ msgid "Group Count"
-#~ msgstr "Export Snapins"
-
-#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Host Location"
 
@@ -9494,10 +9572,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Associated"
 #~ msgstr "No node associated"
-
-#, fuzzy
-#~ msgid "Host Count"
-#~ msgstr "Host List"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -9734,66 +9808,6 @@ msgstr ""
 #~ msgstr "Image Association"
 
 #, fuzzy
-#~ msgid "Site Create Fail"
-#~ msgstr "Printer update failed!"
-
-#, fuzzy
-#~ msgid "Site Create Success"
-#~ msgstr "Printer already exists"
-
-#, fuzzy
-#~ msgid "Site Description"
-#~ msgstr "Printer Description"
-
-#, fuzzy
-#~ msgid "Site Group Associations"
-#~ msgstr "Storage Node Created"
-
-#, fuzzy
-#~ msgid "Site Host Associations"
-#~ msgstr "No node associated"
-
-#, fuzzy
-#~ msgid "Site Management"
-#~ msgstr "Storage Management"
-
-#, fuzzy
-#~ msgid "Site Name"
-#~ msgstr "Printer Name"
-
-#, fuzzy
-#~ msgid "Site Update Fail"
-#~ msgstr "Printer update failed!"
-
-#, fuzzy
-#~ msgid "Site Update Success"
-#~ msgstr "Install / Update Successful!"
-
-#, fuzzy
-#~ msgid "Site User Associations"
-#~ msgstr "Image Association"
-
-#, fuzzy
-#~ msgid "Site User Group Associations"
-#~ msgstr "Storage Node Created"
-
-#, fuzzy
-#~ msgid "Site added!"
-#~ msgstr "Printer Name"
-
-#, fuzzy
-#~ msgid "Site update failed!"
-#~ msgstr "Printer update failed!"
-
-#, fuzzy
-#~ msgid "Site updated!"
-#~ msgstr "Printer updated!"
-
-#, fuzzy
-#~ msgid "Sites"
-#~ msgstr "minutes"
-
-#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "Snapin updated"
 
@@ -9854,14 +9868,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "Update Printer"
-
-#, fuzzy
-#~ msgid "User Count"
-#~ msgstr "CPU Count"
-
-#, fuzzy
-#~ msgid "User Group Count"
-#~ msgstr "Export Snapins"
 
 #, fuzzy
 #~ msgid "User Group Site"

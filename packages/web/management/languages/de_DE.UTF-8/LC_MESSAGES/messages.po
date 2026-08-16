@@ -291,6 +291,10 @@ msgid "A server URL and topic endpoint are required"
 msgstr ""
 
 #, fuzzy
+msgid "A site already exists with this name!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
 msgid "A snapin already exists with this name!"
 msgstr "Ein Snapin mit diesem Namen ist bereits vorhanden!"
 
@@ -562,6 +566,10 @@ msgstr "ausgewählte Images hinzufügen"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Ausgewählte Speichergruppen hinzufügen"
+
+#, fuzzy
+msgid "Add site failed!"
+msgstr "Hinzufügen eines Hosts fehlgeschlagen!"
 
 #, fuzzy
 msgid "Add slack account failed!"
@@ -1199,6 +1207,9 @@ msgstr "Seriennummer"
 msgid "Case Version"
 msgstr "Neueste Version"
 
+msgid "Catch-All Site"
+msgstr ""
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1572,6 +1583,10 @@ msgstr "Neuen Schlüssel erstellen"
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Neuen Schlüssel erstellen"
+
+#, fuzzy
+msgid "Create New Site"
+msgstr "Neuen Drucker erstellen"
 
 #, fuzzy
 msgid "Create New Snapin"
@@ -2697,11 +2712,19 @@ msgid "Group"
 msgstr "Gruppe"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "Speicherknoten erstellt"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "Gruppen-Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "Gruppen-Snapins"
 
 #, fuzzy
@@ -3003,6 +3026,10 @@ msgstr "zugeordneter Host"
 #, fuzzy
 msgid "Host BIOS Exit Type"
 msgstr "Host-EFI-Exit-Typ"
+
+#, fuzzy
+msgid "Host Count"
+msgstr "Host Init"
 
 #, fuzzy
 msgid "Host Create Fail"
@@ -6449,6 +6476,66 @@ msgid "Signing is already done on this server. The remaining work is per-client 
 msgstr ""
 
 #, fuzzy
+msgid "Site Create Fail"
+msgstr "Drucker erstellen fehlgeschlagen!"
+
+#, fuzzy
+msgid "Site Create Success"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+msgid "Site Description"
+msgstr "Site Beschreibung"
+
+#, fuzzy
+msgid "Site Group Associations"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "zugeordneter Host"
+
+#, fuzzy
+msgid "Site Management"
+msgstr "Speicherverwaltung"
+
+#, fuzzy
+msgid "Site Name"
+msgstr "Sitename"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Host Aktualisierung erfolgreich!"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "Site Zugehörigkeit"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+msgid "Site added!"
+msgstr "Drucker hinzugefügt"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
+msgid "Sites"
+msgstr "Sites"
+
+#, fuzzy
 msgid "Size"
 msgstr "Größe"
 
@@ -7548,6 +7635,9 @@ msgstr "Dies ist nicht die primäre Gruppe"
 msgid "This is the amount of physical disk space"
 msgstr ""
 
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
+msgstr ""
+
 msgid "This is the minimum space for the host this is deploying to."
 msgstr ""
 
@@ -8077,6 +8167,10 @@ msgid "User Cleanup"
 msgstr "Benutzer-Bereinigung"
 
 #, fuzzy
+msgid "User Count"
+msgstr "CPU-Anzahl"
+
+#, fuzzy
 msgid "User Create Fail"
 msgstr "Benutzer erstellen fehlgeschlagen"
 
@@ -8099,6 +8193,10 @@ msgstr "Speicherknoten erstellt"
 #, fuzzy
 msgid "User Group Associations"
 msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "Gruppen-Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -9245,10 +9343,6 @@ msgstr ""
 #~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-#~ msgid "A site already exists with this name!"
-#~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
@@ -9352,10 +9446,6 @@ msgstr ""
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
 #, fuzzy
-#~ msgid "Add site failed!"
-#~ msgstr "Hinzufügen eines Hosts fehlgeschlagen!"
-
-#, fuzzy
 #~ msgid "Admin Group"
 #~ msgstr "Admingruppe"
 
@@ -9393,10 +9483,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Create New Rule"
 #~ msgstr "Neuen Schlüssel erstellen"
-
-#, fuzzy
-#~ msgid "Create New Site"
-#~ msgstr "Neuen Drucker erstellen"
 
 #, fuzzy
 #~ msgid "Create and associate"
@@ -9469,14 +9555,6 @@ msgstr ""
 #~ msgstr "Neustarten"
 
 #, fuzzy
-#~ msgid "Group Association"
-#~ msgstr "Speicherknoten erstellt"
-
-#, fuzzy
-#~ msgid "Group Count"
-#~ msgstr "Gruppen-Snapins"
-
-#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Host Standort"
 
@@ -9506,10 +9584,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Associated"
 #~ msgstr "zugeordneter Host"
-
-#, fuzzy
-#~ msgid "Host Count"
-#~ msgstr "Host Init"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -9754,66 +9828,6 @@ msgstr ""
 #~ msgstr "Site Zugehörigkeit"
 
 #, fuzzy
-#~ msgid "Site Create Fail"
-#~ msgstr "Drucker erstellen fehlgeschlagen!"
-
-#, fuzzy
-#~ msgid "Site Create Success"
-#~ msgstr "Drucker hinzufügen erfolgreich."
-
-#, fuzzy
-#~ msgid "Site Description"
-#~ msgstr "Site Beschreibung"
-
-#, fuzzy
-#~ msgid "Site Group Associations"
-#~ msgstr "Speicherknoten erstellt"
-
-#, fuzzy
-#~ msgid "Site Host Associations"
-#~ msgstr "zugeordneter Host"
-
-#, fuzzy
-#~ msgid "Site Management"
-#~ msgstr "Speicherverwaltung"
-
-#, fuzzy
-#~ msgid "Site Name"
-#~ msgstr "Sitename"
-
-#, fuzzy
-#~ msgid "Site Update Fail"
-#~ msgstr "Drucker-Update fehlgeschlagen!"
-
-#, fuzzy
-#~ msgid "Site Update Success"
-#~ msgstr "Host Aktualisierung erfolgreich!"
-
-#, fuzzy
-#~ msgid "Site User Associations"
-#~ msgstr "Site Zugehörigkeit"
-
-#, fuzzy
-#~ msgid "Site User Group Associations"
-#~ msgstr "Speicherknoten erstellt"
-
-#, fuzzy
-#~ msgid "Site added!"
-#~ msgstr "Drucker hinzugefügt"
-
-#, fuzzy
-#~ msgid "Site update failed!"
-#~ msgstr "Drucker-Update fehlgeschlagen!"
-
-#, fuzzy
-#~ msgid "Site updated!"
-#~ msgstr "Drucker aktualisiert!"
-
-#, fuzzy
-#~ msgid "Sites"
-#~ msgstr "Sites"
-
-#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "Snapin erstellt"
 
@@ -9874,14 +9888,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "Drucker Aktualisieren/Entfernen"
-
-#, fuzzy
-#~ msgid "User Count"
-#~ msgstr "CPU-Anzahl"
-
-#, fuzzy
-#~ msgid "User Group Count"
-#~ msgstr "Gruppen-Snapins"
 
 #, fuzzy
 #~ msgid "User Group Site"

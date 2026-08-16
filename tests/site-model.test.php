@@ -251,6 +251,109 @@ check(
     $checks
 );
 
+/*
+ * 6. The page, and the one cross-file contract in it that breaks quietly.
+ *
+ * fog.site.list.js binds DataTables columns by name to the `dt` names
+ * Route declares for the site class. They live in different files, in
+ * different languages, and a mismatch renders an empty column with no
+ * error anywhere -- so it is asserted rather than trusted.
+ */
+check(
+    'SiteManagement page resolves',
+    class_exists('SiteManagement', true),
+    $failures,
+    $checks
+);
+if (class_exists('SiteManagement', true)) {
+    $pref = new \ReflectionClass('SiteManagement');
+    check(
+        'SiteManagement page resolves to core, not to a plugin copy',
+        false === strpos($pref->getFileName(), DIRECTORY_SEPARATOR . 'plugins'),
+        $failures,
+        $checks
+    );
+    $pvars = $pref->getDefaultProperties();
+    check(
+        'SiteManagement drives the site node',
+        ($pvars['node'] ?? null) === 'site',
+        $failures,
+        $checks
+    );
+    // The association lists must read the CORE membership tables. Pointing
+    // at the plugin's dropped ones would show every tab as empty.
+    $pageSrc = file_get_contents($pref->getFileName());
+    foreach (
+        [
+            'sitehostmember',
+            'siteusermember',
+            'sitegroupmember',
+            'siteusergroupmember'
+        ] as $assoc
+    ) {
+        check(
+            "association lists use $assoc",
+            false !== strpos($pageSrc, "'$assoc'"),
+            $failures,
+            $checks
+        );
+    }
+    // The dropped tables and the plugin's association classes, by name.
+    // Not a blanket search for 'Assoc': `siteAssoc` is the join alias
+    // getItemsList() derives as strtolower(get_class($this)).'Assoc', and
+    // renderAssocTab is a helper -- both are correct and both contain it.
+    foreach (
+        [
+            'siteHostAssoc',
+            'siteUserAssoc',
+            'siteGroupAssoc',
+            'siteUserGroupAssoc',
+            'sitehostassociation',
+            'siteuserassociation',
+            'sitegroupassociation',
+            'siteusergroupassociation'
+        ] as $dropped
+    ) {
+        check(
+            "the page does not reference the dropped $dropped",
+            false === strpos($pageSrc, $dropped),
+            $failures,
+            $checks
+        );
+    }
+}
+
+$listJs = $webroot . '/management/js/fog/site/fog.site.list.js';
+$routeSrc = file_get_contents($webroot . '/lib/router/route.class.php');
+check(
+    'the site list JS exists',
+    is_readable($listJs),
+    $failures,
+    $checks
+);
+if (is_readable($listJs)) {
+    preg_match_all(
+        "/data:\s*'([a-z]+)'/",
+        file_get_contents($listJs),
+        $bound
+    );
+    $columns = array_diff($bound[1], ['mainlink']);
+    check(
+        'the list JS binds the four member counts',
+        count($columns) === 4,
+        $failures,
+        $checks
+    );
+    foreach ($columns as $col) {
+        check(
+            "Route declares a dt name for the JS column '$col'",
+            false !== strpos($routeSrc, "'dt' => '$col'"),
+            $failures,
+            $checks
+        );
+    }
+}
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
     foreach ($failures as $f) {

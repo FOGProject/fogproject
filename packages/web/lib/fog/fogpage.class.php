@@ -486,6 +486,13 @@ abstract class FOGPage extends FOGBase
                 _('Roles'),
                 'fa fa-key'
             ],
+            // Beside roles rather than beside hosts: a site says which
+            // objects a user may reach, which is the same kind of answer a
+            // role gives about which actions.
+            'site' => [
+                _('Sites'),
+                'fa fa-map-marker'
+            ],
             'ipxe' => [
                 _('iPXE Menu'),
                 'fa fa-bars'
