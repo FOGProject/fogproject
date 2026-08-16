@@ -287,11 +287,18 @@ Five PRs. Each is green on its own, and 3.0–3.2 are all shippable without ever
 starting 3.3 — which is the point. If Phase 3 gets abandoned halfway, the tree is
 strictly better than it started.
 
-> **Status, 2026-08-16.** 3.0–3.2 are **merged** — `working-1.6` @ `5d3cac339`,
-> suite 23 → 25 tests. PR #1098 (dead `Storage` steering), #1099 (`shortName()`
-> and the 35 derivation sites), #1100 (the case-inconsistent literals).
-> 3.3 has not been started and needs its own go-ahead; the four lab checks
-> listed under 3.1 should be run first.
+> **Status, 2026-08-16: Phase 3 is complete.** `working-1.6` @ `5c3bbf69f`,
+> suite 23 → 27 tests. #1098 (dead `Storage` steering), #1099 (`shortName()` and
+> the 35 derivation sites), #1100 (the case-inconsistent literals), #1101
+> (`PluginTask` was unloadable — found while verifying, fixed separately),
+> #1102 (the 226-file migration), #1103 (ADR 0013 and the plugin guidance).
+>
+> Two things below did not survive contact and are worth reading against what
+> actually happened. The plan sized 3.3 as batches; it went in one pass, because
+> the bridge makes a half-converted tree work and file order stops mattering.
+> And the plan's verification section was wrong about what would be sufficient:
+> the migration passed every test in `tests/` *and* resolved all 226 classes
+> under both spellings while being unable to render a page. See ADR 0013.
 
 ### PR 3.0 — Remove the dead `Storage` steering
 
