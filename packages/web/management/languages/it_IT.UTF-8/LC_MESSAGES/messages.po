@@ -6352,6 +6352,13 @@ msgstr "Non c'è nulla da replicare"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "Snap in un gruppo di archiviazione"
+
+msgid "Skipping, no such task type"
+msgstr ""
+
 msgid "Skipping, not a PluginTask"
 msgstr ""
 
@@ -7374,6 +7381,10 @@ msgstr ""
 #, fuzzy
 msgid "This machine already registered as "
 msgstr "Già registrato come"
+
+#, fuzzy
+msgid "This node could not be found"
+msgstr "Impossibile leggere il file temporaneo"
 
 msgid "This node does not appear to be online"
 msgstr ""

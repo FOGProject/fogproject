@@ -154,8 +154,14 @@ class FileDeleter extends FOGService
             if (self::$_schedOn < 1) {
                 throw new \Exception(_(' * File delete queue is globally disabled'));
             }
-            Route::active('filedeletequeue');
-            $filedeletes = json_decode(Route::getData());
+            // asValue(), not getList(): the count below comes off the
+            // envelope, so the envelope has to survive. What this buys is the
+            // other half -- a failure raises instead of ending the daemon.
+            $filedeletes = Route::asValue(
+                function () {
+                    Route::active('filedeletequeue');
+                }
+            );
 
             $taskCount = $filedeletes->recordsFiltered;
 
@@ -206,15 +212,14 @@ class FileDeleter extends FOGService
                 $Task = self::getClass('filedeletequeue', $filedelete->id)
                     ->set('stateID', self::getProgressState())
                     ->save();
-                Route::listem(
+                $StorageNodes = Route::getList(
                     'storagenode',
                     [
                         'storagegroupID' => $filedelete->storagegroupID,
                         'isEnabled' => 1
                     ]
                 );
-                $StorageNodes = json_decode(Route::getData());
-                foreach ($StorageNodes->data as $StorageNode) {
+                foreach ($StorageNodes as $StorageNode) {
                     switch ($filedelete->pathtype) {
                         case 'Image':
                         case 'image':

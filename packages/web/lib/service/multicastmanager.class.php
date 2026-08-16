@@ -214,14 +214,11 @@ class MulticastManager extends FOGService
     private function _reconcileOrphanedSenders()
     {
         foreach ($this->checkIfNodeMaster() as $StorageNode) {
-            Route::listem(
+            $Sessions = Route::getList(
                 'multicastsession',
                 ['sendernode' => $StorageNode->id]
             );
-            $Sessions = json_decode(
-                Route::getData()
-            );
-            foreach ($Sessions->data as $Session) {
+            foreach ($Sessions as $Session) {
                 $pid = (int)$Session->senderpid;
                 if ($pid < 1) {
                     continue;

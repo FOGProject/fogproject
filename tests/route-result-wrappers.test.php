@@ -77,7 +77,7 @@ if (!class_exists('Route')) {
 
 $ref = new \ReflectionClass('Route');
 
-foreach (['getList', 'getItem', 'objectify'] as $method) {
+foreach (['getList', 'getItem', 'asValue', 'objectify'] as $method) {
     if (!$ref->hasMethod($method)) {
         $failures[] = "Route::$method() is missing";
     }
@@ -133,6 +133,48 @@ foreach ($shapes as $label => $input) {
     );
 }
 
+// ---- 1b. asValue() hands back the whole payload, envelope included -------
+
+// getList() drops the envelope on purpose; asValue() must not, because
+// taskscheduler and filedeleter read recordsFiltered off it. DB-free: the
+// callable writes Route::$data the way active()/names() do.
+$dataProp = $ref->getProperty('data');
+$dataProp->setAccessible(true);
+
+$envelope = [
+    'draw' => 0,
+    'recordsTotal' => 2,
+    'recordsFiltered' => 2,
+    'data' => [['id' => '1'], ['id' => '2']],
+];
+$got = Route::asValue(
+    function () use ($dataProp, $envelope) {
+        $dataProp->setValue(null, $envelope);
+    }
+);
+expect($failures, 'asValue keeps recordsFiltered', 2, $got->recordsFiltered ?? null);
+expect($failures, 'asValue keeps data as a list', 2, count($got->data ?? []));
+expect($failures, 'asValue rows are objects', '1', $got->data[0]->id ?? null);
+expect(
+    $failures,
+    'asValue matches the json round-trip it replaces',
+    json_encode(json_decode(json_encode($envelope))),
+    json_encode($got)
+);
+
+// A bare list payload -- names() reports this shape -- stays a list, so the
+// count() in pinghosts reads the same.
+$got = Route::asValue(
+    function () use ($dataProp) {
+        $dataProp->setValue(null, ['a', 'b', 'c']);
+    }
+);
+expect($failures, 'asValue passes a bare list through', 'array', gettype($got));
+expect($failures, 'asValue bare list count', 3, count($got));
+
+// Route::$data must be cleared, or the next caller inherits this result.
+expect($failures, 'asValue clears Route::$data', '', $dataProp->getValue());
+
 // ---- 2. the rethrow guard ------------------------------------------------
 
 $depth = $ref->getProperty('_rethrowDepth');
@@ -165,6 +207,18 @@ try {
 } catch (Throwable $e) {
     echo 'MARKER:wrongtype:' . get_class($e);
 }
+// Same question, but with asValue() raising the depth rather than the test.
+// Eleven daemon sites now go through it, so it has to carry the guard itself.
+$d->setValue(null, 0);
+try {
+    Route::asValue(function () { Route::sendResponse(406, 'inner'); });
+    echo ' MARKER2:noraise';
+} catch (RuntimeException $e) {
+    echo ' MARKER2:raised:' . $e->getMessage();
+} catch (Throwable $e) {
+    echo ' MARKER2:wrongtype:' . get_class($e);
+}
+echo ' DEPTH:' . $d->getValue();
 PROBE;
 
 $out = [];
@@ -183,6 +237,15 @@ if (strpos($got, 'MARKER:raised:probe:406') === false) {
         $failures[] = 'sendResponse() did not raise as expected: '
             . var_export(substr($got, 0, 120), true);
     }
+}
+
+if (strpos($got, 'MARKER2:raised:inner') === false) {
+    $failures[] = 'asValue() did not raise its callable\'s failure: '
+        . var_export(substr($got, 0, 200), true);
+}
+if (strpos($got, 'DEPTH:0') === false) {
+    $failures[] = 'asValue() left the rethrow depth raised after a failure: '
+        . var_export(substr($got, 0, 200), true);
 }
 
 // A wrapper must leave the depth where it found it, including after a failure.

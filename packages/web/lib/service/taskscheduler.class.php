@@ -127,14 +127,23 @@ class TaskScheduler extends FOGService
                     self::wakeUp($hostMACs);
                 }
             }
+            // asValue(), not getList(): both counts below come off the
+            // envelope, so the envelope has to survive. What this buys is the
+            // other half -- a failure raises instead of ending the daemon.
             // Scheduled Task Information
-            Route::active('scheduledtask');
-            $ScheduledTasks = json_decode(Route::getData());
+            $ScheduledTasks = Route::asValue(
+                function () {
+                    Route::active('scheduledtask');
+                }
+            );
             $staskcount = $ScheduledTasks->recordsFiltered;
 
             // Powermanagement Task Information
-            Route::active('powermanagement');
-            $PMTasks = json_decode(Route::getData());
+            $PMTasks = Route::asValue(
+                function () {
+                    Route::active('powermanagement');
+                }
+            );
             $ptaskcount = $PMTasks->recordsFiltered;
             $taskCount = $staskcount + $ptaskcount;
             if ($taskCount <= 0) {
@@ -162,9 +171,8 @@ class TaskScheduler extends FOGService
                 'stateID' => self::getCheckedInState(),
                 'typeID' => $used
             ];
-            Route::listem('task', $find);
-            $Tasks = json_decode(Route::getData());
-            foreach ($Tasks->data as $Task) {
+            $Tasks = Route::getList('task', $find);
+            foreach ($Tasks as $Task) {
                 if(self::getClass('Task', $Task->id)->expireTaskCheckin()) {
                     self::outall(
                         ' * '
@@ -232,8 +240,20 @@ class TaskScheduler extends FOGService
                         $Item->get('name')
                     )
                 );
-                Route::indiv('tasktype', $Task->get('taskTypeID'));
-                $tasktype = json_decode(Route::getData());
+                // getItem(), not indiv(): a scheduled task pointing at a task
+                // type that has since been deleted used to exit the daemon
+                // here rather than skip the one task. Refs #907.
+                $tasktype = Route::getItem('tasktype', $Task->get('taskTypeID'));
+                if (!$tasktype) {
+                    self::outall(
+                        sprintf(
+                            "\t\t - %s: %s",
+                            _('Skipping, no such task type'),
+                            $Task->get('taskTypeID')
+                        )
+                    );
+                    continue;
+                }
                 $Item->createImagePackage(
                     $tasktype,
                     $Task->get('name'),

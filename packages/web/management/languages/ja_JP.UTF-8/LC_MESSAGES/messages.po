@@ -6286,6 +6286,13 @@ msgstr "レプリケーションする項目はありません"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "スナップインをストレージグループへ"
+
+msgid "Skipping, no such task type"
+msgstr ""
+
 msgid "Skipping, not a PluginTask"
 msgstr ""
 
@@ -7299,6 +7306,10 @@ msgstr ""
 #, fuzzy
 msgid "This machine already registered as "
 msgstr "既に次の名前で登録されています:"
+
+#, fuzzy
+msgid "This node could not be found"
+msgstr "強制終了できませんでした"
 
 msgid "This node does not appear to be online"
 msgstr "このノードはオンラインではないようです"

@@ -6593,6 +6593,13 @@ msgstr "没有什么可以复制"
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "管理单元存储组"
+
+msgid "Skipping, no such task type"
+msgstr ""
+
 msgid "Skipping, not a PluginTask"
 msgstr ""
 
@@ -7669,6 +7676,10 @@ msgstr ""
 #, fuzzy
 msgid "This machine already registered as "
 msgstr "已注册为"
+
+#, fuzzy
+msgid "This node could not be found"
+msgstr "无法读取临时文件"
 
 msgid "This node does not appear to be online"
 msgstr ""
