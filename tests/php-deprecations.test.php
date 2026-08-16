@@ -31,12 +31,27 @@
 $root = dirname(__DIR__);
 chdir($root);
 
+/*
+ * Vendored libraries are exempt, the same three that bin/namespace-fog-classes
+ * .php refuses to touch. They are swap candidates for their Packagist releases
+ * (ifsnop/mysqldump-php, altorouter/altorouter), so hand-editing them to
+ * silence a notice makes the swap harder and would be reverted by it anyway.
+ * Upstream's own deprecations are upstream's to fix, or ours to fix by taking
+ * a newer release.
+ */
+const VENDORED = [
+    'packages/web/lib/db/mysqldump.class.php',
+    'packages/web/lib/router/altorouter.class.php',
+    'packages/web/lib/router/altotransformer.class.php',
+];
+
 $files = array_filter(
     explode("\n", (string) shell_exec('git ls-files "*.php"')),
     function ($f) {
         return '' !== $f
             && is_readable($f)
-            && 0 !== strpos($f, 'packages/web/vendor/');
+            && 0 !== strpos($f, 'packages/web/vendor/')
+            && !in_array($f, VENDORED, true);
     }
 );
 
