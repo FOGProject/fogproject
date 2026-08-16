@@ -1120,18 +1120,14 @@ abstract class FOGManagerController extends FOGBase
         );
         if ($filter) {
             $find = ['id' => $filter];
-            Route::listem(
+            $Items = Route::getList(
                 $this->childClass,
-                $find,
-                true
+                $find
             );
         } else {
-            Route::listem($this->childClass, false, true);
+            $Items = Route::getList($this->childClass);
         }
-        $Items = json_decode(
-            Route::getData()
-        );
-        foreach ($Items->data as &$Item) {
+        foreach ($Items as &$Item) {
             if (isset($Item->isEnabled) && !$Item->isEnabled) {
                 continue;
             }

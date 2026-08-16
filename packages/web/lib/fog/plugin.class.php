@@ -870,11 +870,10 @@ class Plugin extends FOGController
         // against. Paginating it would under-report both. Safe today only
         // because the POST body carries plugins[] and no DataTables length --
         // which is not a property worth relying on. See getPlugins().
-        Route::listem('plugin', false, true);
-        $rows = json_decode(Route::getData());
+        $rows = Route::getList('plugin');
         $batch = [];
         $active = [];
-        foreach ((array)($rows->data ?? []) as $row) {
+        foreach ($rows as $row) {
             $name = strtolower((string)$row->name);
             if (in_array((int)$row->id, $ids, true)) {
                 $batch[$name] = $row;
@@ -948,9 +947,8 @@ class Plugin extends FOGController
         // page size below the plugin count returned a short list -- and every
         // plugin past it looked new (see the id lookup below for what that
         // then did). Discovery wants every row, always.
-        Route::listem('plugin', false, true);
-        $rows = json_decode(Route::getData());
-        foreach ((array)($rows->data ?? []) as $row) {
+        $rows = Route::getList('plugin');
+        foreach ($rows as $row) {
             $existing[strtolower((string)$row->name)] = $row;
         }
         foreach ((array) $this->_getDirs() as $file) {

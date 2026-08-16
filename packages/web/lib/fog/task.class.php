@@ -226,10 +226,9 @@ class Task extends TaskType
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
         ];
-        Route::listem(__CLASS__, $find);
-        $Tasks = json_decode(Route::getData());
+        $Tasks = Route::getList(__CLASS__, $find);
 
-        foreach ($Tasks->data as $Task) {
+        foreach ($Tasks as $Task) {
             $tid = (int) $Task->id;
             if ($tid === $myTaskID) {
                 continue;

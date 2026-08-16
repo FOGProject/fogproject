@@ -319,8 +319,18 @@ class Registration extends FOGBase
                 _('Done, without imaging! Image not in storage group.')
             );
         }
-        Route::indiv('tasktype', TaskType::DEPLOY);
-        $tasktype = json_decode(Route::getData());
+        // getItem(), not indiv(): a missing task type answers null rather
+        // than ending the registration response with a 404 the client cannot
+        // see. Refs #907, ADR 0011.
+        $tasktype = Route::getItem('tasktype', TaskType::DEPLOY);
+        if (!$tasktype) {
+            throw new \Exception(
+                sprintf(
+                    _('Task type %d is missing from this server.'),
+                    TaskType::DEPLOY
+                )
+            );
+        }
         $task = self::$Host->createImagePackage(
             $tasktype,
             'AutoRegTask',

@@ -700,13 +700,12 @@ class Group extends FOGController
             } elseif ($TaskType->isDeploy) {
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
-                Route::listem(
+                $Hosts = Route::getList(
                     'host',
                     ['id' => $hostIDs]
                 );
-                $Hosts = json_decode(Route::getData());
                 $imageMap = [];
-                foreach ($Hosts->data as $Host) {
+                foreach ($Hosts as $Host) {
                     $imageMap[$Host->id] = $Host->imageID;
                 }
                 $batchFields = [

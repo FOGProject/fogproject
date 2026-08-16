@@ -909,19 +909,14 @@ class Host extends FOGController
             }
             $nextSequence = 1;
             // listem order is ASC by the requested field, so the last row has max sequence.
-            Route::listem(
+            $existingTasks = Route::getList(
                 'snapintask',
                 ['jobID' => $snapinJobID],
-                false,
                 'AND',
                 'sequence'
             );
-            $existingTasks = json_decode(Route::getData());
-            if (isset($existingTasks->data)
-                && count((array)$existingTasks->data) > 0
-            ) {
-                $dataArray = (array)$existingTasks->data;
-                $lastTask = end($dataArray);
+            if (count($existingTasks) > 0) {
+                $lastTask = end($existingTasks);
                 $nextSequence = max(1, (int)$lastTask->sequence + 1);
             }
             foreach ((array)$snapin as &$snapinID) {
@@ -1214,7 +1209,7 @@ class Host extends FOGController
                 // port, own local sender.
                 $mcGroupID = $StorageNode->get('storagegroupID');
                 if ($sessionjoin) {
-                    Route::listem(
+                    $MCSessions = Route::getList(
                         'multicastsession',
                         [
                             'name' => $taskName,
@@ -1222,13 +1217,9 @@ class Host extends FOGController
                             'storagegroupID' => $mcGroupID
                         ]
                     );
-                    $MCSessions = json_decode(
-                        Route::getData()
-                    );
-                    $MCSessions = $MCSessions->data;
                     $assoc = true;
                 } else {
-                    Route::listem(
+                    $MCSessions = Route::getList(
                         'multicastsession',
                         [
                             'image' => $Image->get('id'),
@@ -1236,10 +1227,6 @@ class Host extends FOGController
                             'storagegroupID' => $mcGroupID
                         ]
                     );
-                    $MCSessions = json_decode(
-                        Route::getData()
-                    );
-                    $MCSessions = $MCSessions->data;
                 }
                 $MultiSessJoin = array_values(
                     array_filter(
@@ -1605,15 +1592,12 @@ class Host extends FOGController
         if ($hostID < 1) {
             return;
         }
-        Route::listem(
+        $associations = Route::getList(
             'snapinassociation',
             ['hostID' => $hostID],
-            false,
             'AND',
             'sequence'
         );
-        $associations = json_decode(Route::getData());
-        $associations = isset($associations->data) ? $associations->data : [];
         $maxSequence = 0;
         $unsequenced = [];
         foreach ($associations as $association) {
