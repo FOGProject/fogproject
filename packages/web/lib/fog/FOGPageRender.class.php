@@ -785,6 +785,51 @@ trait FOGPageRender
         );
     }
     /**
+     * The Site field for a "Create New X" form, or nothing if this install
+     * has no sites at all.
+     *
+     * Creating an object and then having to open it again to say where it
+     * lives is the shape the site plugin had, and for a USER it is worse
+     * than tedious: site scope is deny-all, so between the two steps the
+     * account exists and sees nothing.
+     *
+     * The default differs by what the server is doing, and deliberately:
+     *
+     *   - no real site yet -- the catch-all is the only option there is, so
+     *     it is preselected. This is the same answer User::save() reaches
+     *     on its own for the paths with no form behind them; the field is
+     *     here so the page agrees with what is about to happen rather than
+     *     appearing to offer a choice it does not have.
+     *   - real sites exist -- blank. Which site a new object belongs to is
+     *     the admin's call at that point, and preselecting the catch-all
+     *     would quietly grant every new account sight of everything.
+     *
+     * Returns [] when there are no sites and no catch-all, which is the
+     * pre-schema-333 window: rendering a select box out of a table that
+     * may not exist yet would take the create page down with it.
+     *
+     * @param string $labelClass the form's label class
+     *
+     * @return array fields fragment to merge onto the create form
+     */
+    protected static function siteAddField($labelClass = 'col-sm-3 col-form-label')
+    {
+        if (SiteScope::catchAllID() < 1 && !SiteScope::sitesInUse()) {
+            return [];
+        }
+        $siteID = (
+            (int)filter_input(INPUT_POST, 'site') ?:
+            (SiteScope::sitesInUse() ? 0 : SiteScope::catchAllID())
+        );
+        return [
+            self::makeLabel(
+                $labelClass,
+                'site',
+                _('Site')
+            ) => self::getClass('SiteManager')->buildSelectBox($siteID, 'site')
+        ];
+    }
+    /**
      * Renders the Site tab shared by the host, user, group and usergroup
      * edit pages.
      *

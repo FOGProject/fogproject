@@ -48,7 +48,9 @@ class MulticastTask extends FOGService
             'CHECK_NODE_MASTER',
             [
                 'StorageNode' => &$StorageNode,
-                'FOGServiceClass' => __CLASS__
+                // Short name: plugins receive this through the hook and
+                // compare it against a bare class name.
+                'FOGServiceClass' => self::shortName(__CLASS__)
             ]
         );
         if (!$StorageNode->isMaster) {

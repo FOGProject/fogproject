@@ -146,7 +146,8 @@ abstract class Event extends FOGBase
                 DS,
                 $typePath,
                 DS,
-                get_class($obj)
+                // Short name: this becomes a log filename.
+                self::shortName($obj)
             );
             $logtxt = sprintf(
                 "[%s] %s\r\n",

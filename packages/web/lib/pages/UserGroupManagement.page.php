@@ -59,7 +59,7 @@ class UserGroupManagement extends FOGPage
 
         $labelClass = 'col-sm-3 col-form-label';
 
-        return [
+        $fields = [
             self::makeLabel(
                 $labelClass,
                 'usergroup',
@@ -85,6 +85,8 @@ class UserGroupManagement extends FOGPage
                 $description
             )
         ];
+
+        return self::fastmerge($fields, self::siteAddField($labelClass));
     }
     /**
      * Create new user group.
@@ -147,6 +149,7 @@ class UserGroupManagement extends FOGPage
                     $serverFault = true;
                     throw new \Exception(_('Add user group failed!'));
                 }
+                $this->siteAddPost('usergroup', $UserGroup);
                 return $UserGroup;
             }
         );

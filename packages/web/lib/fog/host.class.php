@@ -242,7 +242,12 @@ class Host extends FOGController
                 . 'a-z 0-9 ! @ # $ % ^ ( ) - \' { } . ~ _'
             );
         }
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
         if (array_key_exists('mac', $this->data)) {
             self::getClass('MACAddressAssociation')
                 ->set('mac', $this->get('mac'))

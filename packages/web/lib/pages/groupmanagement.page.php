@@ -80,7 +80,7 @@ class GroupManagement extends FOGPage
         $labelClass = 'col-sm-3 col-form-label';
 
         // The fields to display
-        return [
+        $fields = [
             self::makeLabel(
                 $labelClass,
                 'group',
@@ -154,6 +154,8 @@ class GroupManagement extends FOGPage
                 $dev
             )
         ];
+
+        return self::fastmerge($fields, self::siteAddField($labelClass));
     }
     /**
      * Create a new group.
@@ -232,6 +234,7 @@ class GroupManagement extends FOGPage
                     $serverFault = true;
                     throw new \Exception(_('Add group failed!'));
                 }
+                $this->siteAddPost('group', $Group);
                 return $Group;
             }
         );

@@ -502,6 +502,28 @@ Global configuration lives in the `globalSettings` table.
 
   Prefer `always` unless you can name the consumer that reads the field back.
 
+- **Columns only your code should write:** `Route::edit()` and `Route::create()`
+  copy a JSON body straight into your model's `databaseFields`, so by default
+  anyone who can reach the API can set any column you declare. Declare the ones
+  your server-side code maintains — a token you issue, a counter, a timestamp
+  you stamp — through `API_SERVER_OWNED_FIELDS`:
+
+  ```php
+  public function declareServerOwnedFields($arguments)
+  {
+      $arguments['fields'][$this->node][] = 'apiToken';
+  }
+  ```
+
+  A request that tries to **change** one gets a 400. A request that carries the
+  same value it already had is let through, so a client that GETs your object
+  and PUTs the whole thing back keeps working — don't "fix" that by rejecting
+  the field's mere presence.
+
+  This is a different question from `API_SENSITIVE_FIELDS`, which is about what
+  leaves the server. A field can be one, the other, or both: `host.ADPass` is
+  sensitive but genuinely settable over the API, so it is only in the first list.
+
 ---
 
 ## 9. Common hook events
@@ -516,6 +538,7 @@ Global configuration lives in the `globalSettings` table.
 | `PERMISSION_REGISTRY_DATA` | register the node and its actions — **required**, see §4.5 |
 | `API_VALID_CLASSES` | expose the node over the REST API (name classes after your permission node — see §4.5) |
 | `API_SENSITIVE_FIELDS` | keep credential columns out of API and boot-endpoint output — see §8 |
+| `API_SERVER_OWNED_FIELDS` | refuse API writes to columns your own code maintains — see §8 |
 | `<NODE>_ADD_FIELDS` / `_GENERAL_FIELDS` | let others extend your forms |
 | `<NODE>_ADD_POST` / `_EDIT_POST` / `_ADD_SUCCESS` / `_ADD_FAIL` | extension points around your saves |
 

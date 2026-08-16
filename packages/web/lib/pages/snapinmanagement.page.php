@@ -1255,7 +1255,7 @@ class SnapinManagement extends FOGPage
                             $storagegroupID
                         ];
                     }
-                    self::getClass('filedeletequeuemanager')->insertBatch(
+                    self::getClass('FileDeleteQueueManager')->insertBatch(
                         $insert_fields,
                         $insert_values
                     );

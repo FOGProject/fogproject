@@ -610,7 +610,7 @@ class BootMenu extends FOGBase
             $findWhere
         );
         $id = count($id ?: []) ? max($id) : 0;
-        self::getClass('iPXE', $id)
+        self::getClass('Ipxe', $id)
             ->set('product', $findWhere['product'])
             ->set('manufacturer', $findWhere['manufacturer'])
             ->set('mac', $findWhere['mac'])

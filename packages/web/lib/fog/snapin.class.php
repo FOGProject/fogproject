@@ -136,7 +136,12 @@ class Snapin extends FOGController
      */
     public function save()
     {
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
 
         $primary = Route::getIds(
             'snapingroupassociation',
@@ -166,7 +171,7 @@ class Snapin extends FOGController
             throw new \Exception(self::$foglang['ProtectedSnapin']);
         }
         foreach ($this->get('storagegroups') as $storagegroupID) {
-            self::getClass('filedeletequeue')
+            self::getClass('FileDeleteQueue')
                 ->set('path', $this->get('file'))
                 ->set('pathtype', 'Snapin')
                 ->set('createdTime', self::formatTime('now', 'Y-m-d H:i:s'))

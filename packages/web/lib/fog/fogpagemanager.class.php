@@ -251,7 +251,7 @@ class FOGPageManager extends FOGBase
             self::info(
                 sprintf(
                     _('Adding FOGPage: %s, Node: %s'),
-                    get_class($class),
+                    self::shortName($class),
                     $class->node
                 )
             );
@@ -261,7 +261,7 @@ class FOGPageManager extends FOGBase
                 _('Failed to add Page: Node: %s, Page Class: %s, Error: %s'),
                 [
                     $class->node,
-                    get_class($class),
+                    self::shortName($class),
                     $e->getMessage()
                 ]
             );
