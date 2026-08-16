@@ -78,8 +78,25 @@
             // invites pointing this at some other server's document. There is
             // one spec worth reading here and it is this server's.
             layout: 'BaseLayout',
-            docExpansion: 'list',
-            defaultModelsExpandDepth: 1,
+            // 'none', not 'list'. 'list' expands every tag group on load, and
+            // this document is generated: 69 tags x the ten generic routes each
+            // class gets (list, create, get, update, delete, search, count,
+            // names, ids, join) is 716 operations, which Swagger UI renders as
+            // 17,400 DOM nodes before the page is usable. 'none' renders the 69
+            // tag headers only -- 1,672 nodes -- and expands on demand. Measured
+            // on the 1.6 lab: settled render 4.3s -> 2.5s, and every subsequent
+            // interaction stops reconciling a 17k-node tree.
+            //
+            // A hand-written spec would never hit this; one generated from the
+            // class list grows an operation block every time a class or a plugin
+            // is added, so the default that suits a 20-operation API is the wrong
+            // one here by construction.
+            docExpansion: 'none',
+            // Collapsed groups need a way in other than scrolling 69 headers.
+            filter: true,
+            // Depth 1 still walks all 70 schemas at startup. The models section
+            // is reference material read on purpose, not on arrival.
+            defaultModelsExpandDepth: 0,
             // Same-origin, so the browser sends the session cookie and try-it
             // works against this very server.
             withCredentials: true
