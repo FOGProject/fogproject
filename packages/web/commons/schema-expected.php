@@ -619,6 +619,51 @@ return [
                 'vValue' => 'int(11) NOT NULL',
             ],
         ],
+        'siteGroupMembers' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteGroupMembers` ( `sgmID` int(11) NOT NULL AUTO_INCREMENT, `sgmName` varchar(60) NOT NULL DEFAULT \'\', `sgmSiteID` int(11) NOT NULL, `sgmGroupID` int(11) NOT NULL, PRIMARY KEY (`sgmID`), UNIQUE KEY `sgmSiteGroup` (`sgmSiteID`,`sgmGroupID`), KEY `sgmGroupID` (`sgmGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sgmID' => 'int(11) NOT NULL',
+                'sgmName' => 'varchar(60) NOT NULL DEFAULT \'\'',
+                'sgmSiteID' => 'int(11) NOT NULL',
+                'sgmGroupID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'siteHostMembers' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteHostMembers` ( `shmID` int(11) NOT NULL AUTO_INCREMENT, `shmName` varchar(60) NOT NULL DEFAULT \'\', `shmSiteID` int(11) NOT NULL, `shmHostID` int(11) NOT NULL, PRIMARY KEY (`shmID`), UNIQUE KEY `shmSiteHost` (`shmSiteID`,`shmHostID`), KEY `shmHostID` (`shmHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'shmID' => 'int(11) NOT NULL',
+                'shmName' => 'varchar(60) NOT NULL DEFAULT \'\'',
+                'shmSiteID' => 'int(11) NOT NULL',
+                'shmHostID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'sites' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `sites` ( `siteID` int(11) NOT NULL AUTO_INCREMENT, `siteName` varchar(255) NOT NULL, `siteDesc` longtext NOT NULL, `siteCatchAll` tinyint(1) unsigned DEFAULT NULL, PRIMARY KEY (`siteID`), UNIQUE KEY `siteName` (`siteName`), UNIQUE KEY `siteCatchAll` (`siteCatchAll`), CONSTRAINT `siteCatchAllIsOneOrNull` CHECK (`siteCatchAll` = 1) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'siteID' => 'int(11) NOT NULL',
+                'siteName' => 'varchar(255) NOT NULL',
+                'siteDesc' => 'longtext NOT NULL',
+                'siteCatchAll' => 'tinyint(1) unsigned DEFAULT NULL',
+            ],
+        ],
+        'siteUserGroupMembers' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserGroupMembers` ( `sugmID` int(11) NOT NULL AUTO_INCREMENT, `sugmName` varchar(60) NOT NULL DEFAULT \'\', `sugmSiteID` int(11) NOT NULL, `sugmUserGroupID` int(11) NOT NULL, PRIMARY KEY (`sugmID`), UNIQUE KEY `sugmSiteUserGroup` (`sugmSiteID`,`sugmUserGroupID`), KEY `sugmUserGroupID` (`sugmUserGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sugmID' => 'int(11) NOT NULL',
+                'sugmName' => 'varchar(60) NOT NULL DEFAULT \'\'',
+                'sugmSiteID' => 'int(11) NOT NULL',
+                'sugmUserGroupID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'siteUserMembers' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserMembers` ( `sumID` int(11) NOT NULL AUTO_INCREMENT, `sumName` varchar(60) NOT NULL DEFAULT \'\', `sumSiteID` int(11) NOT NULL, `sumUserID` int(11) NOT NULL, PRIMARY KEY (`sumID`), UNIQUE KEY `sumSiteUser` (`sumSiteID`,`sumUserID`), KEY `sumUserID` (`sumUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sumID' => 'int(11) NOT NULL',
+                'sumName' => 'varchar(60) NOT NULL DEFAULT \'\'',
+                'sumSiteID' => 'int(11) NOT NULL',
+                'sumUserID' => 'int(11) NOT NULL',
+            ],
+        ],
         'snapinAssoc' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `snapinAssoc` ( `saID` int(11) NOT NULL AUTO_INCREMENT, `saHostID` int(11) NOT NULL, `saSnapinID` int(11) NOT NULL, `saSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`saID`), UNIQUE KEY `saHostID` (`saHostID`,`saSnapinID`), UNIQUE KEY `saSnapinID` (`saSnapinID`,`saHostID`), KEY `new_index` (`saHostID`), KEY `new_index1` (`saSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
