@@ -5573,3 +5573,62 @@ $this->schema[] = [
         return true;
     },
 ];
+// 334
+$this->schema[] = [
+    // Retire the site plugin's `plugins` row.
+    //
+    // The plugin's code is gone as of fog-plugins v1.6.5 -- sites are core
+    // now -- but deleting the directory does not delete the row that
+    // described it. Discovery only ever walks directories that exist, so
+    // nothing else will ever touch it, and Plugin Management goes on
+    // listing `site` as installed and active with no code behind it.
+    //
+    // Inert rather than dangerous: hooks are loaded from disk, so none of
+    // the plugin's four enforcement hooks can fire, and activationBlockers()
+    // already refuses to re-activate anything with "no code on disk". This
+    // is tidying a ghost, not closing a hole.
+    //
+    // A closure because the row must only go if it really is the bundled
+    // plugin we deleted. Three conditions, and each one is load bearing:
+    //
+    //   name = 'site'          the only plugin this release retired
+    //   location under the     an admin's own `site` plugin in
+    //     bundled root         FOG_PLUGIN_DIR is not ours to delete
+    //   directory absent       the code really is gone
+    //
+    // The last one is the reason isMissing()'s docblock warns against
+    // acting on absence generally: an unmounted external root makes every
+    // plugin look absent at once. Pinning to the bundled root -- which is
+    // inside the web tree the installer just re-laid -- takes that failure
+    // mode off the table, because if THAT is missing the server has bigger
+    // problems than a stale row.
+    function () {
+        $row = self::$DB->query(
+            "SELECT `pID` AS `id`, `pLocation` AS `loc` FROM `plugins` "
+            . "WHERE LOWER(`pName`) = 'site' LIMIT 1"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (!is_array($row) || empty($row['id'])) {
+            return true;
+        }
+        $loc = trim((string)($row['loc'] ?? ''));
+        $bundled = rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS;
+        if ('' === $loc || 0 !== strncmp($loc, $bundled, strlen($bundled))) {
+            return true;
+        }
+        if (is_dir($loc)) {
+            // Code still there, so the row is describing something real and
+            // this is not the state the step was written for -- someone put
+            // the plugin back deliberately, or an install ran the updater
+            // over an older web tree. A step runs once, so nothing revisits
+            // this; leaving a live plugin's row alone is the right way to
+            // spend that one chance.
+            return true;
+        }
+        self::$DB->query(
+            "DELETE FROM `plugins` WHERE `pID` = :id",
+            [],
+            ['id' => (int)$row['id']]
+        );
+        return true;
+    },
+];
