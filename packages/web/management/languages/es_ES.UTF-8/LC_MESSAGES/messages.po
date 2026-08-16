@@ -39,10 +39,6 @@ msgstr ""
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
-#, fuzzy
-msgid " Name"
-msgstr "Nombre"
-
 msgid " No open slots "
 msgstr ""
 
@@ -60,6 +56,10 @@ msgstr "No se puede encontrar el nodo de almacenamiento:"
 msgid "$_POST variable is empty, check apache error log."
 msgstr "La variable $_POST está vacía, verifique el registro de errores de apache."
 
+#, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "Acciones avanzadas"
+
 #, php-format
 msgid "%s ID %d is not valid"
 msgstr "%s ID %d no es válido"
@@ -76,9 +76,17 @@ msgstr "Gestor %s"
 msgid "%s Menu"
 msgstr "Menú %s"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "Nombre"
+
 #, php-format
 msgid "%s is required"
 msgstr "%s es obligatorio"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "Creado con éxito"
 
 #, fuzzy
 msgid "1 Hour"
@@ -468,6 +476,10 @@ msgstr "¡Error al añadir un rol!"
 msgid "Add rule failed!"
 msgstr "Fallo al añadir una regla!"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "Añadir equipos seleccionados"
+
 msgid "Add selected hosts"
 msgstr "Añadir equipos seleccionados"
 
@@ -573,6 +585,10 @@ msgstr ""
 
 msgid "All"
 msgstr "Todos"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "Listar todos %s"
 
 #, fuzzy
 msgid "All Groups"
@@ -936,6 +952,10 @@ msgid "Chassis Version"
 msgstr "Versión"
 
 msgid "Chat is also available on the forums for more realtime help"
+msgstr ""
+
+#, php-format
+msgid "Check here to see what %s can be added"
 msgstr ""
 
 msgid "Check here to see what hosts can be added"
@@ -2251,6 +2271,14 @@ msgstr "Grupo principal"
 msgid "GPU Vendors"
 msgstr "Versión"
 
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "Grupo principal"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
+msgstr "Versión"
+
 msgid "General"
 msgstr ""
 
@@ -3246,11 +3274,19 @@ msgstr "Configuración del cliente"
 msgid "Interface"
 msgstr ""
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 #, fuzzy
 msgid "Invalid"
+msgstr "MAC Address inválida!"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "MAC Address inválida!"
 
 #, fuzzy
@@ -5093,8 +5129,8 @@ msgstr ""
 msgid "Remove"
 msgstr "Eliminar"
 
-#, fuzzy
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "Eliminar"
 
 #, fuzzy
@@ -5125,8 +5161,8 @@ msgstr "Eliminar usuarios"
 msgid "Remove failed"
 msgstr "Error al eliminar"
 
-#, fuzzy
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "Borrar equipos seleccionados"
 
 #, fuzzy

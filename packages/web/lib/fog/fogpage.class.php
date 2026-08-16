@@ -436,14 +436,16 @@ abstract class FOGPage extends FOGBase
         $exportMenu = sprintf('Export%s', $this->childClass);
         $importMenu = sprintf('Import%s', $this->childClass);
         $this->menu = array(
+            /**
+             * No _() around the sprintf: a msgid built at runtime can never
+             * match the literal xgettext extracted, so the outer call was a
+             * guaranteed miss that returned its own argument. Dropping it
+             * changes nothing at runtime and stops the line claiming to be
+             * translatable.
+             */
             'list' => sprintf(
                 self::$foglang['ListAll'],
-                _(
-                    sprintf(
-                        '%ss',
-                        $this->childClass
-                    )
-                )
+                sprintf('%ss', $this->childClass)
             ),
             'add' => sprintf(
                 self::$foglang['CreateNew'],
@@ -516,9 +518,8 @@ abstract class FOGPage extends FOGBase
         $this->title = _('Search');
         if (in_array($this->node, self::$searchPages)) {
             $this->title = sprintf(
-                '%s %s',
-                _('All'),
-                _("{$this->childClass}s")
+                _('All %s'),
+                $this->childClass . 's'
             );
             global $node;
             global $sub;
@@ -3958,7 +3959,7 @@ abstract class FOGPage extends FOGBase
             . $this->node
             . '1" class="toggle-checkbox1" id="toggler"/>'
             . '</label>',
-            _(ucfirst($objType) . ' Name')
+            sprintf(_('%s Name'), ucfirst($objType))
         );
         $this->templates = array(
             '<label for="host-${host_id}">'
@@ -4039,7 +4040,7 @@ abstract class FOGPage extends FOGBase
                 . '" id="'
                 . $meShow
                 . '"/>';
-            echo _("Check here to see what $getType can be added");
+            printf(_('Check here to see what %s can be added'), $getType);
             echo '</label>';
             echo '</div>';
             echo '</div>';
@@ -4060,7 +4061,7 @@ abstract class FOGPage extends FOGBase
             echo '<label for="update'
                 . $getType
                 . '" class="control-label col-xs-4">';
-            echo _("Add selected $getType");
+            printf(_('Add selected %s'), $getType);
             echo '</label>';
             echo '<div class="col-xs-8">';
             echo '<button type="submit" name="addHosts" '
@@ -4084,7 +4085,7 @@ abstract class FOGPage extends FOGBase
             '<label for="toggler1">'
             . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler1"/></label>',
-            _(ucfirst($objType) . ' Name')
+            sprintf(_('%s Name'), ucfirst($objType))
         );
         $this->templates = array(
             '<label for="hostrm-${host_id}">'
@@ -4108,14 +4109,14 @@ abstract class FOGPage extends FOGBase
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
-            echo _('Remove ' . ucfirst($getType));
+            printf(_('Remove %s'), ucfirst($getType));
             echo '</h4>';
             echo '</div>';
             echo '<div class="panel-body">';
             $this->render(12);
             echo '<div class="form-group">';
             echo '<label for="remhosts" class="control-label col-xs-4">';
-            echo _('Remove selected ' . $getType);
+            printf(_('Remove selected %s'), $getType);
             echo '</label>';
             echo '<div class="col-xs-8">';
             echo '<button type="submit" name="remhosts" class='

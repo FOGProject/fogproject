@@ -39,9 +39,6 @@ msgstr "Snapin 复制已全局禁用"
 msgid " * Task Scheduler is globally disabled"
 msgstr "任务调度器已全局禁用"
 
-msgid " Name"
-msgstr "名称"
-
 msgid " No open slots "
 msgstr "没有开放位置"
 
@@ -56,6 +53,10 @@ msgstr "|找不到镜像路径"
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "$ _POST变量为空，检查apache错误日志。"
+
+#, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "高级操作"
 
 #, php-format
 msgid "%s ID %d is not valid"
@@ -73,9 +74,17 @@ msgstr "%s管理器"
 msgid "%s Menu"
 msgstr "%s菜单"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "名称"
+
 #, php-format
 msgid "%s is required"
 msgstr "%s是必需的"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "已成功更新"
 
 msgid "1 Hour"
 msgstr "1小时"
@@ -406,6 +415,10 @@ msgstr "添加角色失败!"
 msgid "Add rule failed!"
 msgstr "添加规则失败!"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "添加选定的主机"
+
 msgid "Add selected hosts"
 msgstr "添加选定的主机"
 
@@ -496,6 +509,10 @@ msgstr "Ago必须是布尔值"
 
 msgid "All"
 msgstr "所有"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "列出所有%s"
 
 msgid "All Groups"
 msgstr "所有组"
@@ -820,6 +837,10 @@ msgstr "机箱版本"
 
 msgid "Chat is also available on the forums for more realtime help"
 msgstr "访问论坛以获取帮助"
+
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "点击以查看可添加主机"
 
 msgid "Check here to see what hosts can be added"
 msgstr "点击以查看可添加主机"
@@ -1992,6 +2013,14 @@ msgstr "GPU产品"
 msgid "GPU Vendors"
 msgstr "GPU供应商"
 
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "GPU产品"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
+msgstr "GPU供应商"
+
 msgid "General"
 msgstr "一般"
 
@@ -2828,10 +2857,18 @@ msgstr "完整性设置"
 msgid "Interface"
 msgstr "接口"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr "接口未准备好，正在等待其启动"
 
 msgid "Invalid"
+msgstr "无效"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "无效"
 
 msgid "Invalid Class"
@@ -4488,7 +4525,8 @@ msgstr "远程地址尝试登录"
 msgid "Remove"
 msgstr "去掉"
 
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "去掉"
 
 msgid "Remove Accesscontrol Rules"
@@ -4515,7 +4553,8 @@ msgstr "移除用户"
 msgid "Remove failed"
 msgstr "移除失败"
 
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "删除选定"
 
 msgid "Remove selected groups"

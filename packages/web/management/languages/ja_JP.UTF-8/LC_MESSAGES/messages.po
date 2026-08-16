@@ -32,9 +32,6 @@ msgstr "* スナップインレプリケーションは全体設定で無効に�
 msgid " * Task Scheduler is globally disabled"
 msgstr "* タスクスケジューラは全体設定で無効になっています"
 
-msgid " Name"
-msgstr "名前"
-
 msgid " No open slots "
 msgstr "空きスロットがありません"
 
@@ -49,6 +46,10 @@ msgstr "| イメージパスが見つかりません"
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "$_POST 変数が空です。Apache のエラーログを確認してください。"
+
+#, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "詳細操作"
 
 #, php-format
 msgid "%s ID %d is not valid"
@@ -66,9 +67,17 @@ msgstr "%s 管理"
 msgid "%s Menu"
 msgstr "%s メニュー"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "名前"
+
 #, php-format
 msgid "%s is required"
 msgstr "%s は必須です"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "正常に更新されました"
 
 msgid "1 Hour"
 msgstr "1時間"
@@ -396,6 +405,10 @@ msgstr "ロールの追加に失敗しました！"
 msgid "Add rule failed!"
 msgstr "ルールの追加に失敗しました！"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "選択したホストを追加"
+
 msgid "Add selected hosts"
 msgstr "選択したホストを追加"
 
@@ -486,6 +499,10 @@ msgstr "Ago はブール値である必要があります"
 
 msgid "All"
 msgstr "すべて"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "すべての %s を一覧表示"
 
 msgid "All Groups"
 msgstr "すべてのグループ"
@@ -810,6 +827,10 @@ msgstr "シャーシバージョン"
 
 msgid "Chat is also available on the forums for more realtime help"
 msgstr "よりリアルタイムな支援が必要な場合はフォーラムのチャットも利用できます"
+
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "追加可能なホストを確認するにはここをクリックしてください"
 
 msgid "Check here to see what hosts can be added"
 msgstr "追加可能なホストを確認するにはここをクリックしてください"
@@ -1979,6 +2000,14 @@ msgstr "GPU 製品"
 msgid "GPU Vendors"
 msgstr "GPU ベンダー"
 
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "GPU 製品"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
+msgstr "GPU ベンダー"
+
 msgid "General"
 msgstr "全般"
 
@@ -2813,10 +2842,18 @@ msgstr "整合性設定"
 msgid "Interface"
 msgstr "インターフェイス"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr "インターフェイスの準備ができていません。起動を待機しています"
 
 msgid "Invalid"
+msgstr "無効"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "無効"
 
 msgid "Invalid Class"
@@ -4464,7 +4501,8 @@ msgstr "ログインを試行したリモートアドレス"
 msgid "Remove"
 msgstr "削除"
 
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "削除 "
 
 msgid "Remove Accesscontrol Rules"
@@ -4491,7 +4529,8 @@ msgstr "ユーザーを削除"
 msgid "Remove failed"
 msgstr "削除に失敗しました"
 
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "選択した項目を削除"
 
 msgid "Remove selected groups"

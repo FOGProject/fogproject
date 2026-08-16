@@ -36,10 +36,6 @@ msgid " * Task Scheduler is globally disabled"
 msgstr "* Taskplaner ist global deaktiviert"
 
 #, fuzzy
-msgid " Name"
-msgstr " Name"
-
-#, fuzzy
 msgid " No open slots "
 msgstr "Keine offenen Slots"
 
@@ -57,6 +53,10 @@ msgid "$_POST variable is empty, check apache error log."
 msgstr "$_POST Variable ist leer, siehe Apache Errorlog"
 
 #, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "Erweiterte Aktionen"
+
+#, fuzzy, php-format
 msgid "%s ID %d is not valid"
 msgstr "%s ID %s ist nicht gültig"
 
@@ -72,9 +72,17 @@ msgstr "%s Manager"
 msgid "%s Menu"
 msgstr "%s Menü"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr " Name"
+
 #, php-format
 msgid "%s is required"
 msgstr "%s ist erforderlich"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "wurde erfolgreich aktualisiert"
 
 #, fuzzy
 msgid "1 Hour"
@@ -467,6 +475,10 @@ msgstr "Hinzufügen einer Rolle fehlgeschlagen"
 msgid "Add rule failed!"
 msgstr "Hinzufügen einer Rolle fehlgeschlagen"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "Ausgewählte Drucker hinzufügen"
+
 #, fuzzy
 msgid "Add selected hosts"
 msgstr "Ausgewählte Drucker hinzufügen"
@@ -573,6 +585,10 @@ msgstr "Ago muss boolean sein"
 
 msgid "All"
 msgstr "Alle"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "Alle %s auflisten"
 
 msgid "All Groups"
 msgstr "Alle Gruppen"
@@ -939,6 +955,10 @@ msgstr "Gehäuse-Version"
 
 msgid "Chat is also available on the forums for more realtime help"
 msgstr "Für mehr Echtzeit-Hilfe gibt es auch die Chat-Funktion. "
+
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "Überprüfen Sie hier, welche Drucker hinzugefügt werden können"
 
 #, fuzzy
 msgid "Check here to see what hosts can be added"
@@ -2267,6 +2287,14 @@ msgstr "Produktschlüssel der Gruppe"
 msgid "GPU Vendors"
 msgstr "BIOS-Anbieter"
 
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "Produktschlüssel der Gruppe"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
+msgstr "BIOS-Anbieter"
+
 msgid "General"
 msgstr "Allgemein"
 
@@ -3227,11 +3255,19 @@ msgstr "Integritätseinstellungen"
 msgid "Interface"
 msgstr "Schnittstelle"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr "Netzwerkschnittstelle nicht bereit, warte auf deren Start"
 
 #, fuzzy
 msgid "Invalid"
+msgstr "Ungültig"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "Ungültig"
 
 msgid "Invalid Class"
@@ -5082,8 +5118,8 @@ msgstr "Remote-Adresse versucht, sich anzumelden"
 msgid "Remove"
 msgstr "Entfernen"
 
-#, fuzzy
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "Entfernen "
 
 #, fuzzy
@@ -5117,8 +5153,8 @@ msgstr "Entfernen "
 msgid "Remove failed"
 msgstr "Entfernen fehlgeschlagen"
 
-#, fuzzy
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "Ausgewählte entfernen "
 
 #, fuzzy

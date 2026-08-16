@@ -19,9 +19,6 @@ msgstr ""
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
-msgid " Name"
-msgstr ""
-
 msgid " No open slots "
 msgstr ""
 
@@ -35,6 +32,10 @@ msgid " | Unable to find image path"
 msgstr ""
 
 msgid "$_POST variable is empty, check apache error log."
+msgstr ""
+
+#, php-format
+msgid "%s Advanced Actions"
 msgstr ""
 
 #, php-format
@@ -54,7 +55,15 @@ msgid "%s Menu"
 msgstr ""
 
 #, php-format
+msgid "%s Name"
+msgstr ""
+
+#, php-format
 msgid "%s is required"
+msgstr ""
+
+#, php-format
+msgid "%s successfully updated!"
 msgstr ""
 
 msgid "1 Hour"
@@ -383,6 +392,10 @@ msgstr ""
 msgid "Add rule failed!"
 msgstr ""
 
+#, php-format
+msgid "Add selected %s"
+msgstr ""
+
 msgid "Add selected hosts"
 msgstr ""
 
@@ -472,6 +485,10 @@ msgid "Ago must be boolean"
 msgstr ""
 
 msgid "All"
+msgstr ""
+
+#, php-format
+msgid "All %s"
 msgstr ""
 
 msgid "All Groups"
@@ -796,6 +813,10 @@ msgid "Chassis Version"
 msgstr ""
 
 msgid "Chat is also available on the forums for more realtime help"
+msgstr ""
+
+#, php-format
+msgid "Check here to see what %s can be added"
 msgstr ""
 
 msgid "Check here to see what hosts can be added"
@@ -1963,6 +1984,14 @@ msgstr ""
 msgid "GPU Vendors"
 msgstr ""
 
+#, php-format
+msgid "GPU-%d Product"
+msgstr ""
+
+#, php-format
+msgid "GPU-%d Vendor"
+msgstr ""
+
 msgid "General"
 msgstr ""
 
@@ -2793,10 +2822,18 @@ msgstr ""
 msgid "Interface"
 msgstr ""
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 msgid "Invalid"
+msgstr ""
+
+#, php-format
+msgid "Invalid %s"
 msgstr ""
 
 msgid "Invalid Class"
@@ -4441,7 +4478,8 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-msgid "Remove "
+#, php-format
+msgid "Remove %s"
 msgstr ""
 
 msgid "Remove Accesscontrol Rules"
@@ -4468,7 +4506,8 @@ msgstr ""
 msgid "Remove failed"
 msgstr ""
 
-msgid "Remove selected "
+#, php-format
+msgid "Remove selected %s"
 msgstr ""
 
 msgid "Remove selected groups"
