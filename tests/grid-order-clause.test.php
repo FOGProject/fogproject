@@ -45,6 +45,17 @@ class DatabaseManager
 {
 }
 
+/*
+ * The target is required directly, so no autoloader is running to bridge
+ * names for us. Since Phase 3 the file declares `namespace FOG;` and its
+ * `extends FOGBase` therefore resolves to FOG\FOGBase -- which the stubs
+ * above do not provide. Aliasing them into FOG\ is the same move the real
+ * class files make in the opposite direction, and it keeps the stubs
+ * readable as the global names the rest of this file uses.
+ */
+class_alias('FOGBase', 'FOG\\FOGBase');
+class_alias('DatabaseManager', 'FOG\\DatabaseManager');
+
 require $target;
 
 /**
