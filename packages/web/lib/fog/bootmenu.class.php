@@ -1435,9 +1435,13 @@ class BootMenu extends FOGBase
         if ($noMenu) {
             $this->noMenu();
         }
-        $tmpUser = self::attemptLogin(
-            $_REQUEST['username'],
-            $_REQUEST['password']
+        // authenticateOnly: iPXE holds no cookie, so a session established
+        // here could never be presented back -- it would just be an
+        // authenticated session nobody owns. The isValid() test below is
+        // the whole point of the call.
+        $tmpUser = self::authenticateOnly(
+            $_REQUEST['username'] ?? '',
+            $_REQUEST['password'] ?? ''
         );
         if ($tmpUser->isValid()) {
             self::$HookManager
