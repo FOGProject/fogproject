@@ -176,6 +176,53 @@ class OpenAPI extends FOGBase
     }
 
     /**
+     * The shape of what pagingLimits() returns.
+     *
+     * Kept next to the producer so the two are read together. Publishing the
+     * bounds on system/info only helps a client that was generated from this
+     * document if the document says the key is there -- a generator builds
+     * its model from this property list, so an undescribed key is a key the
+     * generated client cannot see, which would defeat the point of putting
+     * the bounds on the cheap endpoint in the first place.
+     *
+     * Both integers are nullable because pagingLimits() reports null rather
+     * than a guess when reflection cannot find the constant.
+     *
+     * @return array
+     */
+    private static function _pagingSchema()
+    {
+        return [
+            'type' => 'object',
+            'description' => _('Server paging bounds. Also published as '
+                . 'x-fog-paging at the root of this document.'),
+            'properties' => [
+                'maxRows' => [
+                    'type' => 'integer',
+                    'nullable' => true,
+                    'description' => _('Row cap applied to a list request '
+                        . 'that omits start, asks for length=-1, or sends a '
+                        . 'negative length. An explicit non-negative start '
+                        . 'with a positive length is served verbatim.')
+                ],
+                'expandMaxItems' => [
+                    'type' => 'integer',
+                    'nullable' => true,
+                    'description' => _('Page size cap applied to an expand '
+                        . 'request even when a larger length was asked for, '
+                        . 'so a page can be smaller than requested. Advance '
+                        . 'by the rows returned, not the length requested.')
+                ],
+                'description' => [
+                    'type' => 'string',
+                    'description' => _('The same rules in prose, for a client '
+                        . 'reading this at runtime.')
+                ]
+            ]
+        ];
+    }
+
+    /**
      * Document metadata.
      *
      * @return array
@@ -1169,17 +1216,21 @@ class OpenAPI extends FOGBase
                 'get' => self::_op(
                     '',
                     'status',
-                    _('Server version'),
-                    _('Unauthenticated. Also reachable as /system/status.'),
+                    _('Server version and paging bounds'),
+                    _('Unauthenticated. Also reachable as /system/status. The '
+                        . 'cheap way to read the paging bounds -- the same '
+                        . 'values appear as x-fog-paging on this document, '
+                        . 'which is several hundred kilobytes larger.'),
                     $json(
                         [
                             'type' => 'object',
                             'properties' => [
                                 'version' => ['type' => 'string'],
+                                'paging' => self::_pagingSchema(),
                                 'msg' => ['type' => 'string']
                             ]
                         ],
-                        _('Version information.')
+                        _('Version information and paging bounds.')
                     )
                 )
             ],
