@@ -497,7 +497,7 @@ abstract class FOGManagerController extends FOGBase
                     continue;
                 }
                 $columnSrch = $column['db'];
-                $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
+                $binding = self::bind($bindings, '%'.$str.'%', \PDO::PARAM_STR);
                 $globalSearch[] = "`".$columnSrch."` LIKE ".$binding;
             }
         }
@@ -519,7 +519,7 @@ abstract class FOGManagerController extends FOGBase
                 $binding = self::bind(
                     $bindings,
                     '%' . $str . '%',
-                    PDO::PARAM_STR
+                    \PDO::PARAM_STR
                 );
                 $columnSearch[] = "`".$columnSrch."` LIKE ".$binding;
             }
@@ -749,11 +749,11 @@ abstract class FOGManagerController extends FOGBase
         // Execute
         try {
             $stmt->execute();
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             self::fatal(_("An SQL error occurred").": ".$e->getMessage() . "SQL: $sql");
         }
         // Return all
-        return $stmt->fetchAll(PDO::FETCH_BOTH);
+        return $stmt->fetchAll(\PDO::FETCH_BOTH);
     }
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * Internal methods
@@ -852,10 +852,10 @@ abstract class FOGManagerController extends FOGBase
         $fieldlength = count($fields ?: []);
         $valuelength = count($values ?: []);
         if ($fieldlength < 1) {
-            throw new Exception(_('No fields passed'));
+            throw new \Exception(_('No fields passed'));
         }
         if ($valuelength < 1) {
-            throw new Exception(_('No values passed'));
+            throw new \Exception(_('No values passed'));
         }
         $keys = [];
         foreach ((array) $fields as &$key) {
@@ -893,7 +893,7 @@ abstract class FOGManagerController extends FOGBase
                 unset($value);
             }
             if (count($vals ?: []) < 1) {
-                throw new Exception(_('No data to insert'));
+                throw new \Exception(_('No data to insert'));
             }
             $query = sprintf(
                 $this->insertBatchTemplate,
@@ -1120,18 +1120,14 @@ abstract class FOGManagerController extends FOGBase
         );
         if ($filter) {
             $find = ['id' => $filter];
-            Route::listem(
+            $Items = Route::getList(
                 $this->childClass,
-                $find,
-                true
+                $find
             );
         } else {
-            Route::listem($this->childClass, false, true);
+            $Items = Route::getList($this->childClass);
         }
-        $Items = json_decode(
-            Route::getData()
-        );
-        foreach ($Items->data as &$Item) {
+        foreach ($Items as &$Item) {
             if (isset($Item->isEnabled) && !$Item->isEnabled) {
                 continue;
             }

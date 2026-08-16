@@ -62,18 +62,15 @@ class PM extends FOGClient
             'onDemand' => [0, ''],
             'action' => ['shutdown', 'reboot']
         ];
-        Route::listem(
+        $PMTasks = Route::getList(
             'powermanagement',
             $PMFind
-        );
-        $PMTasks = json_decode(
-            Route::getData()
         );
         $data = [
             'onDemand' => $action,
             'tasks' => [],
         ];
-        foreach ($PMTasks->data as $PMTask) {
+        foreach ($PMTasks as $PMTask) {
             $min = trim($PMTask->min);
             $hour = trim($PMTask->hour);
             $dom = trim($PMTask->dom);

@@ -175,6 +175,9 @@ msgstr ""
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
+msgid "A FOG username and password."
+msgstr ""
+
 msgid "A LDAP setup already exists with this name!"
 msgstr "この名前の LDAP 設定は既に存在します！"
 
@@ -238,6 +241,10 @@ msgstr "この名前のロールは既に存在します！"
 
 msgid "A name must be defined if using the \"name\" property"
 msgstr "\"name\" プロパティを使用する場合は、名前を定義する必要があります"
+
+#, fuzzy
+msgid "A page of results."
+msgstr "すべてのルールを一覧表示"
 
 #, fuzzy
 msgid "A permission name is required."
@@ -328,6 +335,10 @@ msgstr "有効なデータベース接続を確立できませんでした"
 msgid "API"
 msgstr "API？"
 
+#, fuzzy
+msgid "API Documentation"
+msgstr "詳細ドキュメント"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
@@ -342,6 +353,9 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Accepts the same optional trailing filter segment as a list. Reports the true filtered total and ignores paging."
 msgstr ""
 
 msgid "Access"
@@ -406,6 +420,10 @@ msgid "Activated"
 msgstr "有効"
 
 msgid "Active"
+msgstr "有効"
+
+#, fuzzy, php-format
+msgid "Active %s"
 msgstr "有効"
 
 msgid "Active Directory"
@@ -663,6 +681,21 @@ msgstr "既に作成されています"
 msgid "Also confirm that the database is indeed running"
 msgstr "データベースが実際に稼働していることも確認してください"
 
+msgid "Also reachable as /active."
+msgstr ""
+
+msgid "Also reachable as /create and /new."
+msgstr ""
+
+msgid "Also reachable as /delete and /remove."
+msgstr ""
+
+msgid "Also reachable as /list and /all. A trailing filter segment accepts field:value pairs."
+msgstr ""
+
+msgid "Also reachable as /update and /edit. Send only the fields being changed."
+msgstr ""
+
 #, fuzzy
 msgid "An LDAP server already exists with this name!"
 msgstr "この名前の LDAP 設定は既に存在します！"
@@ -670,6 +703,9 @@ msgstr "この名前の LDAP 設定は既に存在します！"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "この名前のイメージは既に存在します！"
+
+msgid "An OpenAPI document."
+msgstr ""
 
 #, fuzzy
 msgid "An SQL error occurred"
@@ -689,9 +725,15 @@ msgstr "その名前のホストは既に存在します"
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
+msgid "An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "この名前のグループは既に存在します！"
+
+msgid "An unpaged array."
+msgstr ""
 
 msgid "Annually"
 msgstr "毎年"
@@ -791,6 +833,12 @@ msgstr "ping を試行しています"
 msgid "Attempting to ping host"
 msgstr "ping を試行しています"
 
+msgid "Authenticated but not permitted."
+msgstr ""
+
+msgid "Authentication missing or invalid."
+msgstr ""
+
 msgid "Auto"
 msgstr "自動"
 
@@ -821,6 +869,10 @@ msgstr "BIOS ベンダー"
 msgid "BIOS Version"
 msgstr "BIOS バージョン"
 
+#, fuzzy
+msgid "Bad request."
+msgstr "必須です"
+
 msgid "Bandwidth"
 msgstr "帯域幅"
 
@@ -844,6 +896,9 @@ msgstr "バインド DN"
 
 msgid "Bind Password"
 msgstr "バインドパスワード"
+
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgstr ""
 
 msgid "Boot Options"
 msgstr "ブートオプション"
@@ -966,6 +1021,10 @@ msgstr "既定の更新レート"
 msgid "Cache Refreshed"
 msgstr ""
 
+#, fuzzy
+msgid "Cache state."
+msgstr "開始しました"
+
 msgid "Cached keys"
 msgstr ""
 
@@ -989,6 +1048,10 @@ msgstr "選択項目を削除"
 
 #, fuzzy
 msgid "Cancel Selected Tasks"
+msgstr "キャンセルされたタスク"
+
+#, fuzzy, php-format
+msgid "Cancel a %s task"
 msgstr "キャンセルされたタスク"
 
 #, fuzzy
@@ -1084,6 +1147,10 @@ msgstr "シャーシシリアル"
 #, fuzzy
 msgid "Case Version"
 msgstr "シャーシバージョン"
+
+#, fuzzy
+msgid "Catch-All Site"
+msgstr "サイトを作成"
 
 msgid "Certificate SHA-1"
 msgstr ""
@@ -1203,6 +1270,9 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
+msgstr ""
+
 msgid "Command"
 msgstr "コマンド"
 
@@ -1266,6 +1336,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Could not apply %s: %s"
 msgstr "見つかりませんでした"
+
+#, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "スナップインジョブの作成に失敗しました"
 
 #, fuzzy
 msgid "Could not create the staging directory."
@@ -1352,6 +1426,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Count"
+msgstr "CPU 数"
+
+#, fuzzy, php-format
+msgid "Count %s"
 msgstr "CPU 数"
 
 msgid "Create"
@@ -1481,6 +1559,10 @@ msgstr "タスク状態を作成"
 msgid "Create Task Success"
 msgstr "タスクタイプを作成"
 
+#, fuzzy, php-format
+msgid "Create a %s"
+msgstr "新しい %s を作成"
+
 #, fuzzy
 msgid "Create new Session Task"
 msgstr "現在のセッション"
@@ -1488,6 +1570,10 @@ msgstr "現在のセッション"
 #, fuzzy
 msgid "Create new tasking"
 msgstr "新しいスナップインを作成"
+
+#, php-format
+msgid "Create or update a %s by natural key"
+msgstr ""
 
 #, fuzzy
 msgid "Create task form fail"
@@ -1661,6 +1747,10 @@ msgstr "MAC アドレスを削除"
 
 msgid "Delete Success"
 msgstr "削除に成功しました"
+
+#, fuzzy, php-format
+msgid "Delete a %s"
+msgstr "削除に失敗しました"
 
 #, fuzzy
 msgid "Delete associated hosts"
@@ -2009,9 +2099,6 @@ msgstr "ロケーションをエクスポート"
 msgid "Export OUs"
 msgstr "ユーザーをエクスポート"
 
-msgid "Export Sites"
-msgstr "サイトをエクスポート"
-
 #, fuzzy
 msgid "Export Subnet Groups"
 msgstr "サブネットグループをエクスポート"
@@ -2032,6 +2119,10 @@ msgstr "WOL ブロードキャストをエクスポート"
 
 msgid "Export Windows Keys"
 msgstr "Windows キーをエクスポート"
+
+#, fuzzy
+msgid "Export the database"
+msgstr "データベースをエクスポート"
 
 msgid "FOG"
 msgstr "FOG"
@@ -2242,6 +2333,9 @@ msgstr "フィールドとタイプの数は一致している必要がありま
 msgid "Fields not defined for this class"
 msgstr "このクラスにはフィールドが定義されていません"
 
+msgid "Fields withheld from list responses are returned here."
+msgstr ""
+
 msgid "File"
 msgstr "ファイル"
 
@@ -2338,6 +2432,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Flush Settings Cache"
+msgstr "FOG 設定"
+
+#, fuzzy
+msgid "Flush the settings cache"
 msgstr "FOG 設定"
 
 msgid "For a live-USB enrolment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
@@ -2441,8 +2539,16 @@ msgstr "全般"
 msgid "General Information"
 msgstr "一般情報"
 
+#, php-format
+msgid "Generated from this server's own routing and model metadata, so it describes the classes and routes this install exposes. The raw document is at %s."
+msgstr ""
+
 msgid "Generic LDAP"
 msgstr "汎用 LDAP"
+
+#, php-format
+msgid "Get one %s by id"
+msgstr ""
 
 msgid "Getting image size for"
 msgstr "次のイメージのサイズを取得しています"
@@ -2628,18 +2734,6 @@ msgid "Group Search DN"
 msgstr "グループ検索 DN"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "グループイメージ"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "サイトを更新しました！"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "グループ スナップイン"
 
@@ -2656,10 +2750,6 @@ msgstr "グループの更新に失敗しました"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "グループの更新に失敗しました"
 
 msgid "Group Update Success"
@@ -2680,6 +2770,10 @@ msgstr "グループの更新に失敗しました！"
 
 msgid "Group updated!"
 msgstr "グループを更新しました！"
+
+#, fuzzy
+msgid "Grouped matches."
+msgstr "グループ管理"
 
 msgid "Groups"
 msgstr "グループ"
@@ -2926,17 +3020,6 @@ msgstr "ホスト プロダクトキー"
 msgid "Host Registration"
 msgstr "ホスト登録"
 
-msgid "Host Site"
-msgstr "ホスト サイト"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "サイトを更新しました！"
-
 #, fuzzy
 msgid "Host Snapin Associations"
 msgstr "スナップインロケーション"
@@ -2953,10 +3036,6 @@ msgstr "ホストの更新に失敗しました"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "ホストの更新に失敗しました"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "ホストの更新に失敗しました"
 
 msgid "Host Update Success"
@@ -3067,6 +3146,14 @@ msgstr "アイコン"
 
 msgid "Icon File not found"
 msgstr "アイコンファイルが見つかりません"
+
+#, php-format
+msgid "Id and name pairs for %s"
+msgstr ""
+
+#, php-format
+msgid "Ids for %s"
+msgstr ""
 
 msgid "If credentials are correct"
 msgstr "認証情報が正しい場合"
@@ -3359,9 +3446,6 @@ msgstr "レポートをインポートしますか？"
 msgid "Import Reports"
 msgstr "レポートをインポート"
 
-msgid "Import Sites"
-msgstr "サイトをインポート"
-
 #, fuzzy
 msgid "Import Subnet Groups"
 msgstr "サブネットグループをインポート"
@@ -3428,6 +3512,14 @@ msgid "Init FS"
 msgstr "Init"
 
 #, fuzzy
+msgid "Init images present on disk"
+msgstr "このノード上に見つかりません"
+
+#, fuzzy
+msgid "Init images."
+msgstr "無効なイメージ"
+
+#, fuzzy
 msgid "InitRD Versions"
 msgstr "クライアントバージョン"
 
@@ -3482,6 +3574,10 @@ msgstr "インターフェイス"
 
 msgid "Interface not ready, waiting for it to come up"
 msgstr "インターフェイスの準備ができていません。起動を待機しています"
+
+#, fuzzy
+msgid "Interface throughput"
+msgstr "インターフェイス"
 
 msgid "Invalid"
 msgstr "無効"
@@ -3730,6 +3826,14 @@ msgstr "カーネルバージョン"
 msgid "Kernel Versions"
 msgstr "カーネルバージョン"
 
+#, fuzzy
+msgid "Kernels present on disk"
+msgstr "カーネルバージョン"
+
+#, fuzzy
+msgid "Kernels."
+msgstr "カーネル"
+
 msgid "Kernels/Inits from location"
 msgstr "ロケーションからのカーネル/Init"
 
@@ -3959,6 +4063,10 @@ msgstr "Slack アカウントをリンクしました"
 msgid "List"
 msgstr "一覧"
 
+#, fuzzy, php-format
+msgid "List %s"
+msgstr "すべての %s を一覧表示"
+
 #, php-format
 msgid "List All %s"
 msgstr "すべての %s を一覧表示"
@@ -4044,6 +4152,9 @@ msgstr "ロケーション"
 
 msgid "Log Viewer"
 msgstr "ログビューアー"
+
+msgid "Log contents."
+msgstr ""
 
 msgid "Log out and sign in as an administrator"
 msgstr ""
@@ -4442,7 +4553,14 @@ msgstr "ネットワークインストーラー"
 msgid "Network Printer"
 msgstr "ネットワークプリンター"
 
+#, fuzzy
+msgid "Network interface name."
+msgstr "ネットワークインストーラー"
+
 msgid "Never - do not verify (insecure)"
+msgstr ""
+
+msgid "Never returned by the API."
 msgstr ""
 
 msgid "New"
@@ -4658,8 +4776,15 @@ msgstr "このイメージを削除できる有効なマスターノードがあ
 msgid "No storagegroups assigned to this snapin"
 msgstr "割り当てられたイメージのストレージグループが無効です"
 
+msgid "No such object."
+msgstr ""
+
 msgid "No token passed to authenticate this host"
 msgstr "このホストを認証するためのトークンが渡されていません"
+
+#, fuzzy
+msgid "No type information available for this column."
+msgstr "このグループで利用可能なアクティビティ情報はありません"
 
 msgid "No valid storage nodes found"
 msgstr "有効なストレージノードが見つかりません"
@@ -4741,6 +4866,9 @@ msgstr ""
 msgid "Nothing to do on Storage Node Named"
 msgstr "ストレージノード名"
 
+msgid "Null when this is the last page."
+msgstr ""
+
 msgid "O/S"
 msgstr "OS"
 
@@ -4813,6 +4941,9 @@ msgstr ""
 msgid "Old key must be a string"
 msgstr "古いキーは文字列である必要があります"
 
+msgid "Omitted from list responses; returned only on a single GET by id."
+msgstr ""
+
 msgid "On"
 msgstr ""
 
@@ -4863,6 +4994,14 @@ msgstr "OpenLDAP"
 msgid "Operation field not set"
 msgstr "操作フィールドが設定されていません"
 
+#, php-format
+msgid "Operations on %1$s, stored in the %2$s table."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "Operations on %s."
+msgstr "操作フィールドが設定されていません"
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward."
 msgstr ""
 
@@ -4896,6 +5035,9 @@ msgid "PLUGIN OPTIONS"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
+msgstr ""
+
+msgid "Page size. Send it, together with start, on every list call: a request with no start is capped at MAX_ROWS and returns a partial result with truncated set."
 msgstr ""
 
 #, fuzzy
@@ -4969,7 +5111,15 @@ msgstr "保留中ホスト"
 msgid "Pending MAC Addresses"
 msgstr "保留中 MAC アドレス"
 
+#, fuzzy
+msgid "Pending MAC addresses"
+msgstr "保留中 MAC アドレス"
+
 msgid "Pending MACs"
+msgstr "保留中 MAC アドレス"
+
+#, fuzzy
+msgid "Pending MACs."
 msgstr "保留中 MAC アドレス"
 
 msgid "Pending Mac List"
@@ -5398,6 +5548,10 @@ msgstr "ルールの削除に失敗しました"
 msgid "Queue Deletion Cancel Success"
 msgstr "ルールを削除しました"
 
+#, php-format
+msgid "Queue a task against a %s"
+msgstr ""
+
 msgid "Queued"
 msgstr "キュー済み"
 
@@ -5405,6 +5559,9 @@ msgid "Queued Path Deletions"
 msgstr ""
 
 msgid "RESOURCES"
+msgstr ""
+
+msgid "REST API reference"
 msgstr ""
 
 msgid "RX"
@@ -5415,6 +5572,9 @@ msgid "Re-Transmit Hello Interval"
 msgstr "Hello 送信間隔"
 
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
+msgstr ""
+
+msgid "Read a server log"
 msgstr ""
 
 #, fuzzy
@@ -5439,6 +5599,10 @@ msgstr "レコードが見つかりません"
 
 msgid "Refresh Settings Cache"
 msgstr ""
+
+#, fuzzy
+msgid "Refresh the settings cache"
+msgstr "FOG 設定"
 
 msgid "Register must be managed from hooks or events"
 msgstr "登録はフックまたはイベントから管理する必要があります"
@@ -5541,6 +5705,10 @@ msgstr "トークンをリセット"
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
+#, php-format
+msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
 msgid "Result"
 msgstr "結果"
 
@@ -5555,6 +5723,9 @@ msgstr "戻りコード"
 
 msgid "Returning value of key"
 msgstr "キーの値を返しています"
+
+msgid "Returns the same envelope as a list."
+msgstr ""
 
 msgid "Reverse"
 msgstr ""
@@ -5629,6 +5800,16 @@ msgstr "ルートは配列または Traversable のインスタンスである�
 msgid "Row"
 msgstr "行"
 
+msgid "Row offset. Only honoured when length is also sent -- the server reads start from inside the length branch."
+msgstr ""
+
+#, fuzzy
+msgid "Rows in this page."
+msgstr "このイメージを含むノード"
+
+msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Windows 実行中"
 
@@ -5637,6 +5818,9 @@ msgstr ""
 
 msgid "SQL Error"
 msgstr "SQL エラー"
+
+msgid "SQL dump."
+msgstr ""
 
 #, fuzzy
 msgid "SSH Connection Failed"
@@ -5658,6 +5842,9 @@ msgstr "保存は完了しましたが、有効な ID が割り当てられま�
 #, fuzzy
 msgid "Save order"
 msgstr "Initrd を保存"
+
+msgid "Save the site before setting catch-all"
+msgstr ""
 
 msgid "Saving data for"
 msgstr "次のデータを保存しています:"
@@ -5733,6 +5920,10 @@ msgstr "画面の幅（ピクセル）"
 msgid "Search"
 msgstr "検索"
 
+#, fuzzy, php-format
+msgid "Search %s"
+msgstr "検索"
+
 msgid "Search Base DN"
 msgstr "検索ベース DN"
 
@@ -5751,6 +5942,9 @@ msgstr "検索方法"
 
 msgid "Search Scope"
 msgstr "検索範囲"
+
+msgid "Search every class at once"
+msgstr ""
 
 msgid "Search results returned false"
 msgstr "検索結果が false を返しました"
@@ -5816,9 +6010,24 @@ msgstr "サーバーシェル"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, fuzzy
+msgid "Server facts."
+msgstr "サーバー情報"
+
+#, fuzzy
+msgid "Server identity"
+msgstr "サーバーシェル"
+
 #, fuzzy, php-format
 msgid "Server is only configured to run %d multicast tasks"
 msgstr "サービス設定"
+
+msgid "Server status, export and metadata."
+msgstr ""
+
+#, fuzzy
+msgid "Server version"
+msgstr "カーネルバージョン"
 
 msgid "Service"
 msgstr "サービス"
@@ -5923,6 +6132,10 @@ msgstr "設定を更新しました"
 msgid "Settings cache flushed"
 msgstr "設定を正常に保存しました！"
 
+#, fuzzy
+msgid "Settings cache state"
+msgstr "設定を正常に保存しました！"
+
 msgid "Settings successfully stored!"
 msgstr "設定を正常に保存しました！"
 
@@ -5974,9 +6187,6 @@ msgstr ""
 
 msgid "Site"
 msgstr "サイト"
-
-msgid "Site Association"
-msgstr "サイトの関連付け"
 
 msgid "Site Create Fail"
 msgstr "サイトの作成に失敗しました"
@@ -6045,6 +6255,13 @@ msgid "Skipping as there is nothing to do"
 msgstr "レプリケーションする項目はありません"
 
 msgid "Skipping unsafe queued delete path"
+msgstr ""
+
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "スナップインをストレージグループへ"
+
+msgid "Skipping, no such task type"
 msgstr ""
 
 msgid "Skipping, not a PluginTask"
@@ -6487,6 +6704,9 @@ msgstr "ストレージノードを更新しました！"
 msgid "Storage Nodes"
 msgstr "ストレージノード"
 
+msgid "Streams a full SQL dump as an attachment."
+msgstr ""
+
 msgid "String must be a string"
 msgstr "String は文字列で指定してください"
 
@@ -6545,6 +6765,10 @@ msgstr "サブツリーのみ"
 
 msgid "Subtree and Below"
 msgstr "サブツリー以下"
+
+#, fuzzy
+msgid "Success."
+msgstr "アクセス"
 
 #, fuzzy
 msgid "Successfully added hosts to the provided groups!"
@@ -6753,6 +6977,10 @@ msgstr "タスク状態を追加しました！"
 msgid "Task state update failed!"
 msgstr "タスク状態の更新に失敗しました"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "このサーバーにはスナップインがありません"
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "タスクタイプが無効です"
@@ -6772,6 +7000,9 @@ msgstr "ターミナル"
 
 msgid "Text"
 msgstr "テキスト"
+
+msgid "Text to match across the class fields."
+msgstr ""
 
 #, fuzzy
 msgid "That group is already defined for this server!"
@@ -6799,6 +7030,10 @@ msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "「マスターノード」設定は、どのノードを"
+
+#, fuzzy
+msgid "The API is disabled"
+msgstr "既定では無効です"
 
 msgid "The CA certificate path is too long (255 characters max)"
 msgstr ""
@@ -6851,6 +7086,17 @@ msgstr ""
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
+#, fuzzy
+msgid "The count."
+msgstr "CPU 数"
+
+msgid "The created object."
+msgstr ""
+
+#, fuzzy
+msgid "The created task."
+msgstr "タスクの作成に失敗しました"
+
 msgid "The current user is invalid."
 msgstr ""
 
@@ -6878,6 +7124,10 @@ msgid "The node trying to be used is currently"
 msgstr "使用しようとしているノードは現在"
 
 #, fuzzy
+msgid "The object."
+msgstr "オブジェクト"
+
+#, fuzzy
 msgid "The path requested is already in use by another image!"
 msgstr "これは既に別のイメージで使用されています"
 
@@ -6898,6 +7148,10 @@ msgstr ""
 
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
+
+#, fuzzy
+msgid "The selected site no longer exists"
+msgstr "選択したプリンターを追加"
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
@@ -6979,10 +7233,17 @@ msgstr "そこから FOG Prep などのユーティリティをダウンロー�
 msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
 
+#, fuzzy
+msgid "This FOG server"
+msgstr "このサーバーの IP アドレス"
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
 msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgstr ""
+
+msgid "This document"
 msgstr ""
 
 msgid "This host already exists"
@@ -7003,6 +7264,10 @@ msgstr "これは一度だけ実行されるタスクであり、現在は実行
 msgid "This is a single run task that should run now."
 msgstr "これは一度だけ実行されるタスクであり、現在実行される予定です。"
 
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
+msgstr ""
+
 msgid "This is especially useful if you have multiple"
 msgstr "複数ある場合に特に便利です"
 
@@ -7015,6 +7280,9 @@ msgstr "これはプライマリグループではありません"
 msgid "This is the amount of physical disk space"
 msgstr ""
 
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
+msgstr ""
+
 msgid "This is the minimum space for the host this is deploying to."
 msgstr ""
 
@@ -7025,12 +7293,19 @@ msgstr ""
 msgid "This machine already registered as "
 msgstr "既に次の名前で登録されています:"
 
+#, fuzzy
+msgid "This node could not be found"
+msgstr "強制終了できませんでした"
+
 msgid "This node does not appear to be online"
 msgstr "このノードはオンラインではないようです"
 
 #, fuzzy
 msgid "This page allows you to upload a CSV file into fog."
 msgstr "このページでは CSV ファイルを FOG にアップロードできます"
+
+msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
+msgstr ""
 
 msgid "This section allows you to update"
 msgstr "このセクションでは更新を行えます"
@@ -7102,6 +7377,9 @@ msgstr ""
 msgid "Those images should be activated with the associated"
 msgstr "これらのイメージは関連付けられた"
 
+msgid "Throughput sample."
+msgstr ""
+
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -7164,8 +7442,14 @@ msgstr "合計ディスク容量"
 msgid "Total Memory"
 msgstr "合計メモリ"
 
+msgid "Total rows in the table, unfiltered."
+msgstr ""
+
 msgid "Transmit"
 msgstr "送信"
+
+msgid "True only when the server capped an unbounded request at MAX_ROWS. Never set when the caller sent start/length."
+msgstr ""
 
 msgid "Trust anchor"
 msgstr ""
@@ -7273,6 +7557,16 @@ msgstr "更新できません"
 msgid "Unable to update task"
 msgstr "タスクの更新に失敗しました"
 
+msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
+msgstr ""
+
+#, fuzzy
+msgid "Unauthenticated."
+msgstr "認証できません"
+
+msgid "Unauthenticated. Also reachable as /system/status."
+msgstr ""
+
 msgid "Unauthorized"
 msgstr "権限がありません"
 
@@ -7333,6 +7627,12 @@ msgstr "選択したイメージを削除"
 msgid "Unmark selected pending"
 msgstr "選択したスナップインを削除"
 
+msgid "Unpaged and uncapped -- the cheap way to enumerate a large table. Accepts an optional trailing filter segment."
+msgstr ""
+
+msgid "Unpaged and uncapped. Accepts an optional trailing filter segment and an optional field name to return instead of the id."
+msgstr ""
+
 msgid "Unsafe hostname entered, please try again: "
 msgstr ""
 
@@ -7385,6 +7685,10 @@ msgstr "MAC アドレスを更新"
 msgid "Update Not Required"
 msgstr "更新は必要ありません！"
 
+#, fuzzy, php-format
+msgid "Update a %s"
+msgstr "更新"
+
 #, fuzzy
 msgid "Update not required"
 msgstr "更新は必要ありません！"
@@ -7410,8 +7714,14 @@ msgstr ""
 msgid "Uploaded file too large."
 msgstr "ファイルをアップロード"
 
+msgid "Upserts against the association keys rather than an id."
+msgstr ""
+
 msgid "Uptime"
 msgstr "稼働時間"
+
+msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
+msgstr ""
 
 #, fuzzy
 msgid "Use Display Name from Directory"
@@ -7544,22 +7854,6 @@ msgid "User Group Role Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
-msgid "User Group Site"
-msgstr "ユーザーを更新しました！"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "サイトを更新しました！"
-
-#, fuzzy
 msgid "User Group Update Fail"
 msgstr "グループの更新に失敗しました"
 
@@ -7586,22 +7880,6 @@ msgstr "ユーザー名属性"
 
 msgid "User Password"
 msgstr "ユーザーパスワード"
-
-#, fuzzy
-msgid "User Site"
-msgstr "ユーザーフィルター"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "サイトの更新に失敗しました"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "サイトを更新しました！"
 
 msgid "User Tracker"
 msgstr "ユーザートラッカー"
@@ -7688,6 +7966,10 @@ msgstr "変数の内容"
 
 msgid "Version"
 msgstr "バージョン"
+
+#, fuzzy
+msgid "Version information."
+msgstr "FOG バージョン情報"
 
 #, fuzzy
 msgid "Versions"
@@ -8936,9 +9218,6 @@ msgstr ""
 #~ msgid "Create Rule?"
 #~ msgstr "ルールを作成しますか？"
 
-#~ msgid "Create Site"
-#~ msgstr "サイトを作成"
-
 #, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "関連付けられたノードがありません"
@@ -9108,9 +9387,6 @@ msgstr ""
 #~ msgid "Export Checksums"
 #~ msgstr "チェックサムをエクスポート"
 
-#~ msgid "Export Database"
-#~ msgstr "データベースをエクスポート"
-
 #~ msgid "Export Database?"
 #~ msgstr "データベースをエクスポートしますか？"
 
@@ -9131,6 +9407,9 @@ msgstr ""
 
 #~ msgid "Export Printers"
 #~ msgstr "プリンターをエクスポート"
+
+#~ msgid "Export Sites"
+#~ msgstr "サイトをエクスポート"
 
 #~ msgid "Extension"
 #~ msgstr "拡張子"
@@ -9294,6 +9573,22 @@ msgstr ""
 #~ msgid "Group Search DN did not return any results"
 #~ msgstr "グループ検索 DN は結果を返しませんでした"
 
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "グループイメージ"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "グループの更新に失敗しました"
+
 #~ msgid "Group general"
 #~ msgstr "グループ全般"
 
@@ -9378,6 +9673,17 @@ msgstr ""
 #~ msgid "Host Screen Resolution"
 #~ msgstr "ホスト画面解像度"
 
+#~ msgid "Host Site"
+#~ msgstr "ホスト サイト"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
 #~ msgid "Host Snapins"
 #~ msgstr "ホスト スナップイン"
 
@@ -9389,6 +9695,10 @@ msgstr ""
 
 #~ msgid "Host Unassociated Snapins"
 #~ msgstr "ホストに関連付けられていないスナップイン"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "ホストの更新に失敗しました"
 
 #~ msgid "Host Virus History"
 #~ msgstr "ホスト ウイルス 履歴"
@@ -9500,6 +9810,9 @@ msgstr ""
 
 #~ msgid "Import Printers"
 #~ msgstr "プリンターをインポート"
+
+#~ msgid "Import Sites"
+#~ msgstr "サイトをインポート"
 
 #~ msgid "Included Items"
 #~ msgstr "含まれる項目"
@@ -10257,6 +10570,9 @@ msgstr ""
 #~ msgid "Shutdown after install"
 #~ msgstr "インストール後にシャットダウン"
 
+#~ msgid "Site Association"
+#~ msgstr "サイトの関連付け"
+
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
 
@@ -10590,8 +10906,40 @@ msgstr ""
 #~ msgid "User General"
 #~ msgstr "ユーザー全般"
 
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "ユーザーを更新しました！"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
 #~ msgid "User Password (confirm)"
 #~ msgstr "ユーザーパスワード（確認）"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "ユーザーフィルター"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "サイトの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "サイトを更新しました！"
 
 #~ msgid "User Tracking"
 #~ msgstr "ユーザー追跡"
@@ -10791,10 +11139,6 @@ msgstr ""
 
 #~ msgid "it will enforce login to gain access to the advanced"
 #~ msgstr "詳細メニューへアクセスするにはログインが必要になります"
-
-#, fuzzy
-#~ msgid "its code is not on disk"
-#~ msgstr "このノード上に見つかりません"
 
 #~ msgid "may see the issue and help and/or use the solutions"
 #~ msgstr "問題を確認し、支援したり解決策を利用したりできます"

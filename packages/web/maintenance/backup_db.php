@@ -40,7 +40,7 @@ $tmpfile = '/tmp/' . $backup_name;
 $data = '';
 FOGCore::getClass('Mysqldump')->start($tmpfile);
 if (!file_exists($tmpfile) || !is_readable($tmpfile)) {
-    throw new Exception(_('Could not read file from tmp folder.'));
+    throw new \Exception(_('Could not read file from tmp folder.'));
 }
 $fh = fopen($tmpfile, 'rb');
 while (!feof($fh)) {

@@ -69,7 +69,7 @@ class ImageManagement extends FOGPage
     {
         try {
             return $StorageGroup->getMasterStorageNode();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $getter = count($StorageGroup->get('enablednodes')) > 0
                 ? 'enablednodes'
                 : 'allnodes';
@@ -437,19 +437,19 @@ class ImageManagement extends FOGPage
                 $exists = self::getClass('ImageManager')
                     ->exists($image);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('An image already exists with this name!')
                     );
                 }
                 if (in_array($path, ['postdownloadscripts','dev'])) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Please choose a different filename/path as this is reserved')
                     );
                 }
                 $exists = self::getClass('ImageManager')
                     ->exists($path, '', 'path');
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('The path requested is already in use by another image!')
                     );
                 }
@@ -467,7 +467,7 @@ class ImageManagement extends FOGPage
                     ->addGroup($storagegroup);
                 if (!$Image->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add image failed!'));
+                    throw new \Exception(_('Add image failed!'));
                 }
                 /**
                  * During image creation we only allow a single group anyway.
@@ -813,7 +813,7 @@ class ImageManagement extends FOGPage
             filter_input(INPUT_POST, 'compression')
         );
         if ($this->obj->get('name') != $image && $exists) {
-            throw new Exception(_('An image with this name already exists!'));
+            throw new \Exception(_('An image with this name already exists!'));
         }
         $imagemanage = (int)trim(
             filter_input(INPUT_POST, 'imagemanage')
@@ -1101,7 +1101,7 @@ class ImageManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Image update failed!'));
+                    throw new \Exception(_('Image update failed!'));
                 }
             }
         );
@@ -1355,16 +1355,16 @@ class ImageManagement extends FOGPage
         );
         $sessionshutdown = (int)isset($_POST['sessionshutdown']);
         if (!$image) {
-            throw new Exception(_('Please choose an image'));
+            throw new \Exception(_('Please choose an image'));
         }
         $Image = new Image($image);
         if (!$Image->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 _('Please select a valid image')
             );
         }
         if (self::getClass('MulticastSessionManager')->exists($sessionname)) {
-            throw new Exception(_('Session with that name already exists!'));
+            throw new \Exception(_('Session with that name already exists!'));
         }
         if ($sessioncount < 1) {
             $sessioncount = Route::getCount('host');
@@ -1441,7 +1441,7 @@ class ImageManagement extends FOGPage
                     $MulticastSession = $this->sessionCreate();
                     if (!$MulticastSession->save()) {
                         $serverFault = true;
-                        throw new Exception(_('Failed to create Session'));
+                        throw new \Exception(_('Failed to create Session'));
                     }
 
                     // The port was already chosen by
@@ -1467,7 +1467,7 @@ class ImageManagement extends FOGPage
             );
             $code = 201;
             $hook = 'IMAGE_MULTICAST_SESSION_SUCCESS';
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $hook = 'IMAGE_MULTICAST_SESSION_FAIL';
             $msg = json_encode(
@@ -1609,11 +1609,16 @@ class ImageManagement extends FOGPage
                 ]
             ));
         }
-        Route::names(
-            'storagegroup',
-            ['id' => $storagegroupsAssigned]
+        // asValue(): names() has no wrapper of its own, and its payload is
+        // a bare list with nothing to unwrap.
+        $storagegroupNames = Route::asValue(
+            function () use ($storagegroupsAssigned) {
+                Route::names(
+                    'storagegroup',
+                    ['id' => $storagegroupsAssigned]
+                );
+            }
         );
-        $storagegroupNames = json_decode(Route::getData());
         foreach ($storagegroupNames as &$storagegroup) {
             $storagegroups[$storagegroup->id] = $storagegroup->name;
             unset($storagegroup);

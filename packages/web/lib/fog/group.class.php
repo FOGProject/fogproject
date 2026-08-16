@@ -489,7 +489,7 @@ class Group extends FOGController
     {
         $Image = new Image($imageID);
         if (!$Image->isValid() && is_numeric($imageID)) {
-            throw new Exception(_('Select a valid image'));
+            throw new \Exception(_('Select a valid image'));
         }
         $states = self::fastmerge(
             self::getQueuedStates(),
@@ -503,7 +503,7 @@ class Group extends FOGController
             ]
         );
         if ($TaskCount > 0) {
-            throw new Exception(_('There is a host in a tasking'));
+            throw new \Exception(_('There is a host in a tasking'));
         }
         self::getClass('HostManager')
             ->update(
@@ -553,7 +553,7 @@ class Group extends FOGController
             . self::niceDate()->format('Y-m-d H:i:s');
         $hostCount = $this->getHostCount();
         if ($hostCount < 1) {
-            throw new Exception(_('No hosts to task'));
+            throw new \Exception(_('No hosts to task'));
         }
         $hostids = $this->get('hosts');
         $find = [
@@ -569,7 +569,7 @@ class Group extends FOGController
             Route::getIds('task', $find, 'hostID')
         );
         if (count($hostids ?: []) < 1) {
-            throw new Exception(_('No hosts available to task'));
+            throw new \Exception(_('No hosts available to task'));
         }
         $imagingTypes = $TaskType->isImagingTask;
         $now = $this->niceDate();
@@ -585,18 +585,18 @@ class Group extends FOGController
             $imageID = self::minId(Route::getIds('host', $find, 'imageID'));
             $Image = new Image($imageID);
             if (!$Image->isValid()) {
-                throw new Exception(self::$foglang['ImageNotValid']);
+                throw new \Exception(self::$foglang['ImageNotValid']);
             }
             if (!$Image->get('isEnabled')) {
-                throw new Exception(_('Image is not enabled'));
+                throw new \Exception(_('Image is not enabled'));
             }
             $StorageGroup = $Image->getStorageGroup();
             if (!$StorageGroup->isValid()) {
-                throw new Exception(self::$foglang['ImageGroupNotValid']);
+                throw new \Exception(self::$foglang['ImageGroupNotValid']);
             }
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$StorageNode->isValid()) {
-                throw new Exception(_('Unable to find master Storage Node'));
+                throw new \Exception(_('Unable to find master Storage Node'));
             }
             if ($TaskType->isMulticast) {
                 MulticastSession::assertCapacity();
@@ -700,13 +700,12 @@ class Group extends FOGController
             } elseif ($TaskType->isDeploy) {
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
-                Route::listem(
+                $Hosts = Route::getList(
                     'host',
                     ['id' => $hostIDs]
                 );
-                $Hosts = json_decode(Route::getData());
                 $imageMap = [];
-                foreach ($Hosts->data as $Host) {
+                foreach ($Hosts as $Host) {
                     $imageMap[$Host->id] = $Host->imageID;
                 }
                 $batchFields = [

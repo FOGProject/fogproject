@@ -13,6 +13,36 @@ declare(strict_types=1);
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+/*
+ * Composer's PSR-4 loader for FOG\ => packages/web/src.
+ *
+ * Here, at file scope, because this is the one file every entry point
+ * reaches: the web UI, the API, the 41 fog-client endpoints under service/,
+ * status/, maintenance/, and all nine CLI daemons via
+ * packages/service/lib/service_lib.php all arrive through
+ * commons/base.inc.php -> require 'init.php'. There is no second bootstrap
+ * to keep in step.
+ *
+ * Loading here also fixes the chain order for free. spl_autoload_register is
+ * a queue, and this runs at include time while Initiator::autoload() is
+ * registered later inside the constructor -- so a real namespaced class in
+ * src/ is found by Composer first, and only a miss falls through to the
+ * short-name bridge below. That is the right precedence: the bridge is a
+ * compatibility shim, not the destination.
+ *
+ * Guarded because the file legitimately may not be there: a checkout that
+ * has not run `composer install`, and -- the case that actually matters --
+ * every server installed before this commit, whose web tree has no vendor/
+ * until the next upgrade re-lays it. FOG must boot without it.
+ */
+$fogComposerAutoload = __DIR__ . DIRECTORY_SEPARATOR . '..'
+    . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+if (is_readable($fogComposerAutoload)) {
+    require_once $fogComposerAutoload;
+}
+unset($fogComposerAutoload);
+
 class Initiator
 {
     private static $sanitizeItems;
@@ -162,6 +192,16 @@ class Initiator
     /** Seconds a persisted file-list cache is trusted before it is rebuilt. */
     private const FILELIST_TTL = 300;
 
+    /**
+     * The one namespace prefix the bridge in autoload() answers for.
+     *
+     * Deliberately a constant and not a setting. A bridge whose namespace
+     * varies per install is a bridge nobody can write documentation for, and
+     * one that answered for ANY prefix would make a plugin's `Vendor\Host`
+     * silently resolve to core's `Host`.
+     */
+    private const BRIDGE_NS = 'FOG\\';
+
     /** In-process memo of the class-source file list. */
     private static ?array $fileList = null;
 
@@ -230,6 +270,35 @@ class Initiator
     }
 
     /**
+     * Is this path plugin code rather than core code?
+     *
+     * Two roots count: BASEPATH/lib/plugins, where the bundled plugins are
+     * unpacked by bin/fetch-plugins.sh, and FOG_PLUGIN_DIR, where an admin's
+     * own plugins live (ADR 0009). Everything else under BASEPATH is core.
+     *
+     * Used only to break a name collision in autoload(), so it answers the
+     * one question that matters there -- may this file shadow a core class --
+     * and nothing else.
+     *
+     * @param string $path An absolute path from the class-file scan.
+     *
+     * @return bool
+     */
+    private static function _isPluginPath(string $path): bool
+    {
+        $roots = [rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS];
+        if (defined('FOG_PLUGIN_DIR') && FOG_PLUGIN_DIR) {
+            $roots[] = rtrim(FOG_PLUGIN_DIR, DS) . DS;
+        }
+        foreach ($roots as $root) {
+            if (strncmp($path, $root, strlen($root)) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Resolve a class to its source file via an O(1) name => path map.
      *
      * The built-in spl_autoload() probes every include_path directory by every
@@ -241,13 +310,37 @@ class Initiator
      * suffix — exactly what the built-in resolver matches. A miss falls through
      * to the still-registered built-in autoloader.
      *
-     * Where two files claim one key the first one walked wins, and that is NOT
-     * what the built-in does: spl_autoload() loops the registered extensions on
-     * the outside and the include_path on the inside, so a .class.php always
-     * beats a .report.php of the same name however the directories are ordered.
-     * This map has no such precedence — the winner is readdir order, which
-     * differs per install. Keep colliding basenames out of the scan (see
-     * _scanClassFiles) rather than relying on either rule.
+     * Where two files claim one key, CORE WINS and the collision is logged.
+     * Keeping colliding basenames out of the scan is still the rule (see
+     * _scanClassFiles) -- this is what happens when that rule is broken.
+     *
+     * It used to be "first one walked wins", which is readdir order and so
+     * differs per install: the same code resolving to a different file on two
+     * servers, silently. That is the usertracking failure documented in
+     * _scanClassFiles, and it had a second edge nobody had cause to look at
+     * yet -- external plugins under FOG_PLUGIN_DIR already lost to core,
+     * because _scanRoots() puts BASEPATH first and first-wins does the rest,
+     * but BUNDLED plugins live *inside* BASEPATH at lib/plugins, so they
+     * shared one directory walk with lib/fog and the winner was a coin flip.
+     * A bundled plugin shipping class/authorization.class.php could therefore
+     * replace core's Authorization on some installs and not others.
+     *
+     * Core winning makes the two plugin roots behave the same way, which is
+     * the behaviour the external-plugin case already had, and it is the only
+     * safe direction: a plugin must never be able to shadow a core class by
+     * naming a file after it. Verified against the shipped tree at the time
+     * of writing -- 396 scanned files, zero colliding basenames -- so this
+     * changes no resolution that exists today.
+     *
+     * Note this is still NOT what the built-in does: spl_autoload() loops the
+     * registered extensions on the outside and the include_path on the inside,
+     * so a .class.php always beats a .report.php of the same name however the
+     * directories are ordered. Two core files colliding remain unordered, and
+     * are reported rather than resolved.
+     *
+     * A name that misses the map and carries the FOG\ prefix falls through to
+     * _bridgeNamespaced() below rather than to the built-in resolver, which
+     * cannot find it -- see that method.
      *
      * @param string $class The class being autoloaded.
      *
@@ -267,7 +360,28 @@ class Initiator
                 );
                 if (!isset($map[$base])) {
                     $map[$base] = $path;
+                    continue;
                 }
+                // Collision. Let a core file displace a plugin one, and say so
+                // either way -- a shadowed class is otherwise completely
+                // silent, and the symptom (a method that does not exist, or
+                // one that reads the wrong table) surfaces nowhere near here.
+                $held = $map[$base];
+                if (self::_isPluginPath($held) && !self::_isPluginPath($path)) {
+                    $map[$base] = $path;
+                }
+                $loser = ($map[$base] === $held) ? $path : $held;
+                error_log(
+                    sprintf(
+                        'FOG autoloader: two files claim the class name "%s"; '
+                        . 'using %s and ignoring %s. Rename one -- a shadowed '
+                        . 'class resolves to whichever file this rule picks, '
+                        . 'not to the one the caller meant.',
+                        $base,
+                        $map[$base],
+                        $loser
+                    )
+                );
             }
             self::$classMap = $map;
         }
@@ -283,6 +397,66 @@ class Initiator
             // a plugin shipping class/<name>manager.class.php declaring
             // something else.
             include_once self::$classMap[$key];
+            return;
+        }
+
+        self::_bridgeNamespaced($class);
+    }
+
+    /**
+     * Resolve a FOG\<Name> request to the still-global <Name> and alias it.
+     *
+     * Nothing in the tree is namespaced yet, so `FOG\User` currently misses
+     * everywhere and does so silently. autoload()'s map is keyed on a
+     * lowercased basename, and no basename can contain a backslash, so
+     * `fog\user` is never a key; the bare spl_autoload() registered behind it
+     * then converts the separator to a directory and probes for
+     * `fog/user.class.php`, which no include_path entry holds. No error, no
+     * log line, just a class-not-found at the call site.
+     *
+     * This makes the namespaced spelling work ahead of the files themselves
+     * moving, so call sites and plugin code can be written forward-compatibly
+     * now and the eventual migration is not also a flag day for every caller.
+     * class_alias produces one class entry under two names, so `instanceof`,
+     * `new`, Reflection and every getClass() consumer see a single type.
+     * (get_class() still reports the DECLARED name -- that asymmetry is why
+     * namespacing the models is a separate problem from bridging their names,
+     * and why this is safe while that is not.)
+     *
+     * Flat names only. A nested request such as FOG\Model\Host is the shape
+     * the real migration will use, and answering it here by guessing at the
+     * last segment would resolve two different future classes to one file.
+     *
+     * @param string $class The namespaced class being autoloaded.
+     *
+     * @return void
+     */
+    private static function _bridgeNamespaced(string $class): void
+    {
+        if (strncasecmp($class, self::BRIDGE_NS, strlen(self::BRIDGE_NS)) !== 0) {
+            return;
+        }
+        $short = substr($class, strlen(self::BRIDGE_NS));
+        if ($short === '' || strpos($short, '\\') !== false) {
+            return;
+        }
+        $key = strtolower($short);
+        if (!isset(self::$classMap[$key])) {
+            return;
+        }
+        include_once self::$classMap[$key];
+        // Checked with autoload OFF. With it on, a file whose declared class
+        // name does not match its basename would re-enter autoload() for the
+        // same short name and hit the "Cannot declare class X" fatal the
+        // include_once above exists to avoid. Aliasing a name that was never
+        // declared is itself a fatal, so both halves matter: only alias what
+        // the include actually produced, and let PHP raise its own
+        // catchable class-not-found for anything else.
+        if (class_exists($short, false)
+            || interface_exists($short, false)
+            || trait_exists($short, false)
+        ) {
+            class_alias($short, $class);
         }
     }
 
@@ -321,15 +495,15 @@ class Initiator
             $matches = array_merge(
                 $matches,
                 iterator_to_array(
-                    new RegexIterator(
-                        new RecursiveIteratorIterator(
-                            new RecursiveDirectoryIterator(
+                    new \RegexIterator(
+                        new \RecursiveIteratorIterator(
+                            new \RecursiveDirectoryIterator(
                                 $root,
-                                FileSystemIterator::SKIP_DOTS
+                                \FileSystemIterator::SKIP_DOTS
                             )
                         ),
                         $regext,
-                        RegexIterator::GET_MATCH
+                        \RegexIterator::GET_MATCH
                     ),
                     false
                 )
@@ -346,12 +520,23 @@ class Initiator
         // "Cannot declare class Initiator", a bodyless 500 on that one table.
         // Nothing under service/ declares a class, so drop the directory rather
         // than special-case the one file.
+        //
+        // vendor/ is dropped for a related reason. Composer packages are
+        // PSR-4 and use bare .php, so today none of them matches $regext at
+        // all -- but "today" is the whole problem: a dependency that ships
+        // one file called anything.class.php would silently claim that map
+        // key, and third-party code winning a name collision against a FOG
+        // class is not a failure mode worth leaving open for the sake of two
+        // lines. Composer's own autoloader resolves everything under vendor/;
+        // this scan must never be a second route to it.
         $entryPoints = BASEPATH . 'service' . DS;
+        $vendor = BASEPATH . 'vendor' . DS;
         return array_values(
             array_filter(
                 array_column($matches, 0),
-                function ($path) use ($entryPoints) {
-                    return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0;
+                function ($path) use ($entryPoints, $vendor) {
+                    return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0
+                        && strncmp($path, $vendor, strlen($vendor)) !== 0;
                 }
             )
         );
@@ -456,7 +641,7 @@ class Initiator
     private static function _verCheck(): void
     {
         if (version_compare(phpversion(), '7.4', '<')) {
-            throw new Exception('FOG Requires PHP v7.4 or higher. You have PHP v' . phpversion());
+            throw new \Exception('FOG Requires PHP v7.4 or higher. You have PHP v' . phpversion());
         }
     }
 
@@ -465,7 +650,7 @@ class Initiator
         $requiredExtensions = ['gettext', 'mysqli'];
         $loadedExtensions = get_loaded_extensions();
         if (count(array_intersect($requiredExtensions, $loadedExtensions)) < count($requiredExtensions)) {
-            throw new Exception(_('Missing one or more extensions.'));
+            throw new \Exception(_('Missing one or more extensions.'));
         }
     }
 

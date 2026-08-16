@@ -214,14 +214,11 @@ class MulticastManager extends FOGService
     private function _reconcileOrphanedSenders()
     {
         foreach ($this->checkIfNodeMaster() as $StorageNode) {
-            Route::listem(
+            $Sessions = Route::getList(
                 'multicastsession',
                 ['sendernode' => $StorageNode->id]
             );
-            $Sessions = json_decode(
-                Route::getData()
-            );
-            foreach ($Sessions->data as $Session) {
+            foreach ($Sessions as $Session) {
                 $pid = (int)$Session->senderpid;
                 if ($pid < 1) {
                     continue;
@@ -322,7 +319,7 @@ class MulticastManager extends FOGService
 
                 // If disabled, state and restart loop.
                 if (self::$_mcOn < 1) {
-                    throw new Exception(
+                    throw new \Exception(
                         _(' * Multicast service is globally disabled')
                     );
                 }
@@ -799,7 +796,7 @@ class MulticastManager extends FOGService
                     );
                     $Task->clearSenderRef();
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 self::outall($e->getMessage());
             }
             if ($first) {

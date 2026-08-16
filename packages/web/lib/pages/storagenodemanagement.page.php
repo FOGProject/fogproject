@@ -494,13 +494,13 @@ class StorageNodeManagement extends FOGPage
             $exists = self::getClass('StorageNodeManager')
                 ->exists($storagenode);
             if ($exists) {
-                throw new Exception(
+                throw new \Exception(
                     _('A storage node already exists with this name!')
                 );
             }
             if (is_numeric($bandwidth)) {
                 if ($bandwidth < 0) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Bandwidth should be numeric and greater than 0')
                     );
                 }
@@ -530,7 +530,7 @@ class StorageNodeManagement extends FOGPage
                 ->set('graphcolor', $graphcolor);
             if (!$StorageNode->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add storage node failed!'));
+                throw new \Exception(_('Add storage node failed!'));
             }
             if ($StorageNode->get('isMaster')) {
                 $find = [
@@ -577,7 +577,7 @@ class StorageNodeManagement extends FOGPage
             } else {
                 self::$FOGSSH->disconnect();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -1110,20 +1110,20 @@ class StorageNodeManagement extends FOGPage
             filter_input(INPUT_POST, 'helloInterval')
         );
         if (!$storagenode) {
-            throw new Exception(self::$foglang['StorageNameRequired']);
+            throw new \Exception(self::$foglang['StorageNameRequired']);
         }
         $exists = self::getClass('StorageNodeManager')
             ->exists($storagenode, $this->obj->get('id'));
         if ($storagenode != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A storage node already exists with this name!')
             );
         }
         if (is_numeric($bandwidth)) {
             if ($bandwidth < 0) {
-                throw new Exception(
+                throw new \Exception(
                     _('Bandwidth should be numeric and greater than 0')
                 );
             }
@@ -1274,7 +1274,7 @@ class StorageNodeManagement extends FOGPage
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Storage Node Update Failed'));
+                throw new \Exception(_('Storage Node Update Failed'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'STORAGENODE_EDIT_SUCCESS';
@@ -1295,7 +1295,7 @@ class StorageNodeManagement extends FOGPage
                     ]
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :

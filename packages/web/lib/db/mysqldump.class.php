@@ -154,8 +154,8 @@ class Mysqldump
     );
 
     protected $pdoSettingsDefault = array(
-        PDO::ATTR_PERSISTENT => true,
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        \PDO::ATTR_PERSISTENT => true,
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
     );
 
     /**
@@ -188,7 +188,7 @@ class Mysqldump
 
         // This drops MYSQL dependency, only use the constant if it's defined.
         if ("mysql" === $this->dbType) {
-            $this->pdoSettingsDefault[PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = false;
+            $this->pdoSettingsDefault[\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = false;
         }
 
         $this->pdoSettings = array_replace_recursive($this->pdoSettingsDefault, $pdoSettings);
@@ -201,12 +201,12 @@ class Mysqldump
 
         $diff = array_diff(array_keys($this->dumpSettings), array_keys($this->dumpSettingsDefault));
         if (count($diff) > 0) {
-            throw new Exception("Unexpected value in dumpSettings: (".implode(",", $diff).")");
+            throw new \Exception("Unexpected value in dumpSettings: (".implode(",", $diff).")");
         }
 
         if (!is_array($this->dumpSettings['include-tables']) ||
             !is_array($this->dumpSettings['exclude-tables'])) {
-            throw new Exception("Include-tables and exclude-tables should be arrays");
+            throw new \Exception("Include-tables and exclude-tables should be arrays");
         }
 
         // If no include-views is passed in, dump the same views as tables, mimic mysqldump behaviour.
@@ -290,13 +290,13 @@ class Mysqldump
     public function restore($path)
     {
         if(!$path || !is_file($path)) {
-            throw new Exception("File {$path} does not exist.");
+            throw new \Exception("File {$path} does not exist.");
         }
 
         $handle = fopen($path, 'rb');
 
         if(!$handle) {
-            throw new Exception("Failed reading file {$path}. Check access permissions.");
+            throw new \Exception("Failed reading file {$path}. Check access permissions.");
         }
 
         if(!$this->dbHandler) {
@@ -336,14 +336,14 @@ class Mysqldump
     private function parseDsn($dsn)
     {
         if (empty($dsn) || (false === ($pos = strpos($dsn, ":")))) {
-            throw new Exception("Empty DSN string");
+            throw new \Exception("Empty DSN string");
         }
 
         $this->dsn = $dsn;
         $this->dbType = strtolower(substr($dsn, 0, $pos)); // always returns a string
 
         if (empty($this->dbType)) {
-            throw new Exception("Missing database type from DSN string");
+            throw new \Exception("Missing database type from DSN string");
         }
 
         $dsn = substr($dsn, $pos + 1);
@@ -355,13 +355,13 @@ class Mysqldump
 
         if (empty($this->dsnArray['host']) &&
             empty($this->dsnArray['unix_socket'])) {
-            throw new Exception("Missing host from DSN string");
+            throw new \Exception("Missing host from DSN string");
         }
         $this->host = (!empty($this->dsnArray['host'])) ?
             $this->dsnArray['host'] : $this->dsnArray['unix_socket'];
 
         if (empty($this->dsnArray['dbname'])) {
-            throw new Exception("Missing database name from DSN string");
+            throw new \Exception("Missing database name from DSN string");
         }
 
         $this->dbName = $this->dsnArray['dbname'];
@@ -380,12 +380,12 @@ class Mysqldump
         try {
             switch ($this->dbType) {
                 case 'sqlite':
-                    $this->dbHandler = @new PDO("sqlite:".$this->dbName, null, null, $this->pdoSettings);
+                    $this->dbHandler = @new \PDO("sqlite:".$this->dbName, null, null, $this->pdoSettings);
                     break;
                 case 'mysql':
                 case 'pgsql':
                 case 'dblib':
-                    $this->dbHandler = @new PDO(
+                    $this->dbHandler = @new \PDO(
                         $this->dsn,
                         $this->user,
                         $this->pass,
@@ -396,23 +396,23 @@ class Mysqldump
                         $this->dbHandler->exec($stmt);
                     }
                     // Store server version
-                    $this->version = $this->dbHandler->getAttribute(PDO::ATTR_SERVER_VERSION);
+                    $this->version = $this->dbHandler->getAttribute(\PDO::ATTR_SERVER_VERSION);
                     break;
                 default:
-                    throw new Exception("Unsupported database type (".$this->dbType.")");
+                    throw new \Exception("Unsupported database type (".$this->dbType.")");
             }
-        } catch (PDOException $e) {
-            throw new Exception(
+        } catch (\PDOException $e) {
+            throw new \Exception(
                 "Connection to ".$this->dbType." failed with message: ".
                 $e->getMessage()
             );
         }
 
         if (is_null($this->dbHandler)) {
-            throw new Exception("Connection to ".$this->dbType."failed");
+            throw new \Exception("Connection to ".$this->dbType."failed");
         }
 
-        $this->dbHandler->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+        $this->dbHandler->setAttribute(\PDO::ATTR_ORACLE_NULLS, \PDO::NULL_NATURAL);
         $this->typeAdapter = TypeAdapterFactory::create($this->dbType, $this->dbHandler, $this->dumpSettings);
     }
 
@@ -482,7 +482,7 @@ class Mysqldump
         // This check will be removed once include-tables supports regexps.
         if (0 < count($this->dumpSettings['include-tables'])) {
             $name = implode(",", $this->dumpSettings['include-tables']);
-            throw new Exception("Table (".$name.") not found in database");
+            throw new \Exception("Table (".$name.") not found in database");
         }
 
         $this->exportTables();
@@ -856,7 +856,7 @@ class Mysqldump
         $columns = $this->dbHandler->query(
             $this->typeAdapter->show_columns($tableName)
         );
-        $columns->setFetchMode(PDO::FETCH_ASSOC);
+        $columns->setFetchMode(\PDO::FETCH_ASSOC);
 
         foreach ($columns as $key => $col) {
             $types = $this->typeAdapter->parseColumnType($col);
@@ -1176,7 +1176,7 @@ class Mysqldump
         }
 
         $resultSet = $this->dbHandler->query($stmt);
-        $resultSet->setFetchMode(PDO::FETCH_ASSOC);
+        $resultSet->setFetchMode(\PDO::FETCH_ASSOC);
 
         $ignore = $this->dumpSettings['insert-ignore'] ? '  IGNORE' : '';
 
@@ -1390,7 +1390,7 @@ abstract class CompressManagerFactory
     {
         $c = ucfirst(strtolower($c));
         if (!CompressMethod::isValid($c)) {
-            throw new Exception("Compression method ($c) is not defined yet");
+            throw new \Exception("Compression method ($c) is not defined yet");
         }
 
         $method = __NAMESPACE__."\\"."Compress".$c;
@@ -1406,7 +1406,7 @@ class CompressBzip2 extends CompressManagerFactory
     public function __construct()
     {
         if (!function_exists("bzopen")) {
-            throw new Exception("Compression is enabled, but bzip2 lib is not installed or configured properly");
+            throw new \Exception("Compression is enabled, but bzip2 lib is not installed or configured properly");
         }
     }
 
@@ -1417,7 +1417,7 @@ class CompressBzip2 extends CompressManagerFactory
     {
         $this->fileHandler = bzopen($filename, "w");
         if (false === $this->fileHandler) {
-            throw new Exception("Output file is not writable");
+            throw new \Exception("Output file is not writable");
         }
 
         return true;
@@ -1427,7 +1427,7 @@ class CompressBzip2 extends CompressManagerFactory
     {
         $bytesWritten = bzwrite($this->fileHandler, $str);
         if (false === $bytesWritten) {
-            throw new Exception("Writting to file failed! Probably, there is no more free space left?");
+            throw new \Exception("Writting to file failed! Probably, there is no more free space left?");
         }
         return $bytesWritten;
     }
@@ -1445,7 +1445,7 @@ class CompressGzip extends CompressManagerFactory
     public function __construct()
     {
         if (!function_exists("gzopen")) {
-            throw new Exception("Compression is enabled, but gzip lib is not installed or configured properly");
+            throw new \Exception("Compression is enabled, but gzip lib is not installed or configured properly");
         }
     }
 
@@ -1456,7 +1456,7 @@ class CompressGzip extends CompressManagerFactory
     {
         $this->fileHandler = gzopen($filename, "wb");
         if (false === $this->fileHandler) {
-            throw new Exception("Output file is not writable");
+            throw new \Exception("Output file is not writable");
         }
 
         return true;
@@ -1466,7 +1466,7 @@ class CompressGzip extends CompressManagerFactory
     {
         $bytesWritten = gzwrite($this->fileHandler, $str);
         if (false === $bytesWritten) {
-            throw new Exception("Writting to file failed! Probably, there is no more free space left?");
+            throw new \Exception("Writting to file failed! Probably, there is no more free space left?");
         }
         return $bytesWritten;
     }
@@ -1488,7 +1488,7 @@ class CompressNone extends CompressManagerFactory
     {
         $this->fileHandler = fopen($filename, "wb");
         if (false === $this->fileHandler) {
-            throw new Exception("Output file is not writable");
+            throw new \Exception("Output file is not writable");
         }
 
         return true;
@@ -1498,7 +1498,7 @@ class CompressNone extends CompressManagerFactory
     {
         $bytesWritten = fwrite($this->fileHandler, $str);
         if (false === $bytesWritten) {
-            throw new Exception("Writting to file failed! Probably, there is no more free space left?");
+            throw new \Exception("Writting to file failed! Probably, there is no more free space left?");
         }
         return $bytesWritten;
     }
@@ -1522,7 +1522,7 @@ class CompressGzipstream extends CompressManagerFactory
     {
         $this->fileHandler = fopen($filename, "wb");
         if (false === $this->fileHandler) {
-            throw new Exception("Output file is not writable");
+            throw new \Exception("Output file is not writable");
         }
 
         $this->compressContext = deflate_init(ZLIB_ENCODING_GZIP, array('level' => 9));
@@ -1534,7 +1534,7 @@ class CompressGzipstream extends CompressManagerFactory
 
         $bytesWritten = fwrite($this->fileHandler, deflate_add($this->compressContext, $str, ZLIB_NO_FLUSH));
         if (false === $bytesWritten) {
-            throw new Exception("Writting to file failed! Probably, there is no more free space left?");
+            throw new \Exception("Writting to file failed! Probably, there is no more free space left?");
         }
         return $bytesWritten;
     }
@@ -1584,7 +1584,7 @@ abstract class TypeAdapterFactory
     {
         $c = ucfirst(strtolower($c));
         if (!TypeAdapter::isValid($c)) {
-            throw new Exception("Database type support for ($c) not yet available");
+            throw new \Exception("Database type support for ($c) not yet available");
         }
         $method = __NAMESPACE__."\\"."TypeAdapter".$c;
         return new $method($dbHandler, $dumpSettings);
@@ -1924,7 +1924,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     public function create_table($row)
     {
         if (!isset($row['Create Table'])) {
-            throw new Exception("Error getting table code, unknown output");
+            throw new \Exception("Error getting table code, unknown output");
         }
 
         $createTable = $row['Create Table'];
@@ -1950,7 +1950,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     {
         $ret = "";
         if (!isset($row['Create View'])) {
-            throw new Exception("Error getting view structure, unknown output");
+            throw new \Exception("Error getting view structure, unknown output");
         }
 
         $viewStmt = $row['Create View'];
@@ -1975,7 +1975,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     {
         $ret = "";
         if (!isset($row['SQL Original Statement'])) {
-            throw new Exception("Error getting trigger code, unknown output");
+            throw new \Exception("Error getting trigger code, unknown output");
         }
 
         $triggerStmt = $row['SQL Original Statement'];
@@ -1999,7 +1999,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     {
         $ret = "";
         if (!isset($row['Create Procedure'])) {
-            throw new Exception("Error getting procedure code, unknown output. ".
+            throw new \Exception("Error getting procedure code, unknown output. ".
                 "Please check 'https://bugs.mysql.com/bug.php?id=14564'");
         }
         $procedureStmt = $row['Create Procedure'];
@@ -2030,7 +2030,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     {
         $ret = "";
         if (!isset($row['Create Function'])) {
-            throw new Exception("Error getting function code, unknown output. ".
+            throw new \Exception("Error getting function code, unknown output. ".
                 "Please check 'https://bugs.mysql.com/bug.php?id=14564'");
         }
         $functionStmt = $row['Create Function'];
@@ -2077,7 +2077,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     {
         $ret = "";
         if (!isset($row['Create Event'])) {
-            throw new Exception("Error getting event code, unknown output. ".
+            throw new \Exception("Error getting event code, unknown output. ".
                 "Please check 'http://stackoverflow.com/questions/10853826/mysql-5-5-create-event-gives-syntax-error'");
         }
         $eventName = $row['Event'];
@@ -2381,7 +2381,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
     private function check_parameters($num_args, $expected_num_args, $method_name)
     {
         if ($num_args != $expected_num_args) {
-            throw new Exception("Unexpected parameter passed to $method_name");
+            throw new \Exception("Unexpected parameter passed to $method_name");
         }
         return;
     }

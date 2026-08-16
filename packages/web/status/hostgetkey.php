@@ -24,13 +24,13 @@ header('Content-Type: text/plain');
 try {
     FOGCore::getHostItem(false, true);
     if (!FOGCore::$Host->isValid()) {
-        throw new Exception(_('Host Invalid'));
+        throw new \Exception(_('Host Invalid'));
     }
     #if (FOGCore::$useragent) {
     #    throw new Exception(_('Accessed inappropriately'));
     #}
     if (!FOGCore::$Host->get('task')->isValid()) {
-        throw new Exception(_('Invalid Tasking'));
+        throw new \Exception(_('Invalid Tasking'));
     }
     /**
      * Aisle 016: this endpoint is unauthenticated and MAC-resolved, and the
@@ -48,10 +48,10 @@ try {
      * sees a message it already handles.
      */
     if (!FOGCore::hostKeySourceAllowed(filter_input(INPUT_SERVER, 'REMOTE_ADDR'))) {
-        throw new Exception(_('Invalid Tasking'));
+        throw new \Exception(_('Invalid Tasking'));
     }
     if (FOGCore::$Host->get('token') && FOGCore::$Host->get('tokenlock')) {
-        throw new Exception(_('Host token is currently in use'));
+        throw new \Exception(_('Host token is currently in use'));
     }
     if (!FOGCore::$Host->get('token')) {
         FOGCore::getClass('HostManager')->update(
@@ -62,7 +62,7 @@ try {
                 'tokenlock' => true
             ]
         );
-        throw new Exception(FOGCore::$Host->get('token'));
+        throw new \Exception(FOGCore::$Host->get('token'));
     }
     if (FOGCore::$Host->isValid() && !FOGCore::$Host->get('tokenlock')) {
         FOGCore::getClass('HostManager')->update(
@@ -70,9 +70,9 @@ try {
             '',
             ['tokenlock' => true]
         );
-        throw new Exception(FOGCore::$Host->get('token'));
+        throw new \Exception(FOGCore::$Host->get('token'));
     }
-} catch (Exception $e) {
+} catch (\Exception $e) {
     echo $e->getMessage();
     exit(1);
 }

@@ -83,9 +83,7 @@ class HostManager extends FOGManagerController
         if (empty($filter)) {
             return;
         }
-        Route::listem('inventory', $filter, false, 'OR');
-        $Inventories = json_decode(Route::getData());
-        $Inventories = $Inventories->data;
+        $Inventories = Route::getList('inventory', $filter, 'OR');
         if (count($Inventories ?: []) < 1) {
             return;
         }
@@ -207,7 +205,7 @@ class HostManager extends FOGManagerController
 
                 // Check if there is a tie for the most frequent host ID
                 if (count($mostFrequentHostIDs) > 1) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Unable to determine the suspected true host'). '.'
                         . ' ' . _('Most Frequent Host IDs') . ': '
                         . '[' . _('Host ID') . '] => ' . _('Count'). ': '

@@ -368,7 +368,7 @@ class FOGURLRequests extends FOGBase
         }
         $this->_windowSize = min(count($this->_requests), $this->_windowSize);
         if ($this->_windowSize < 2) {
-            throw new Exception(_('Window size must be greater than 1'));
+            throw new \Exception(_('Window size must be greater than 1'));
         }
         $timeout = $available
             ? $this->_aconntimeout / 1000

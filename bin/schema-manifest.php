@@ -65,7 +65,7 @@ function connect($root)
         fwrite(STDERR, "Could not read DATABASE_* from $config\n");
         exit(1);
     }
-    return new PDO(
+    return new \PDO(
         sprintf(
             'mysql:host=%s;dbname=%s',
             $vals['HOST'] ?: 'localhost',
@@ -73,7 +73,7 @@ function connect($root)
         ),
         $vals['USERNAME'],
         $vals['PASSWORD'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
 }
 
@@ -138,7 +138,7 @@ if ($cmd === 'generate') {
     $live = $pdo->query(
         'SELECT TABLE_NAME FROM information_schema.TABLES'
         . ' WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME'
-    )->fetchAll(PDO::FETCH_COLUMN);
+    )->fetchAll(\PDO::FETCH_COLUMN);
 
     $tables = [];
     foreach ($live as $table) {
@@ -147,7 +147,7 @@ if ($cmd === 'generate') {
         }
         $raw = $pdo->query(
             sprintf('SHOW CREATE TABLE `%s`', $table)
-        )->fetch(PDO::FETCH_NUM)[1];
+        )->fetch(\PDO::FETCH_NUM)[1];
         $create = $raw;
         // Reconciler only ever runs this when the table is absent, but
         // IF NOT EXISTS makes it harmless if the snapshot was stale.

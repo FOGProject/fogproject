@@ -243,12 +243,12 @@ class UserManagement extends FOGPage
         $serverFault = false;
         try {
             if (!preg_match($userPat, $user)) {
-                throw new Exception($userErr);
+                throw new \Exception($userErr);
             }
             $exists = self::getClass('UserManager')
                 ->exists($user);
             if ($exists) {
-                throw new Exception(
+                throw new \Exception(
                     _('A username already exists with this name!')
                 );
             }
@@ -261,7 +261,7 @@ class UserManagement extends FOGPage
                 ->set('token', $token);
             if (!$User->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add user failed!'));
+                throw new \Exception(_('Add user failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'USER_ADD_SUCCESS';
@@ -272,7 +272,7 @@ class UserManagement extends FOGPage
                     'id' => $User->get('id')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -409,14 +409,14 @@ class UserManagement extends FOGPage
             filter_input(INPUT_POST, 'display')
         );
         if (!preg_match($userPat, $user)) {
-            throw new Exception($userErr);
+            throw new \Exception($userErr);
         }
         $exists = self::getClass('UserManager')
             ->exists($user);
         if ($user != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A user already exists with this name')
             );
         }
@@ -687,7 +687,7 @@ class UserManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -724,7 +724,7 @@ class UserManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -782,6 +782,15 @@ class UserManagement extends FOGPage
                 $this->userGroup();
             }
         ];
+        // Site
+        $tabData[] = [
+            'name' => _('Site'),
+            'id' => 'user-site',
+            'generator' => function () {
+                $this->userSite();
+            }
+        ];
+
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -800,6 +809,9 @@ class UserManagement extends FOGPage
             function (&$serverFault) {
                 global $tab;
                 switch ($tab) {
+                    case 'user-site':
+                        $this->userSitePost();
+                        break;
                     case 'user-general':
                         $this->userGeneralPost();
                         break;
@@ -817,7 +829,7 @@ class UserManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('User update failed!'));
+                    throw new \Exception(_('User update failed!'));
                 }
                 if ('user-role' === $tab || 'user-group' === $tab) {
                     Authorization::resetCache();
@@ -870,5 +882,24 @@ class UserManagement extends FOGPage
                 ]
             ]
         );
+    }
+
+    /**
+     * Presents the site tab.
+     *
+     * @return void
+     */
+    public function userSite()
+    {
+        $this->renderSiteTab('user', $this->obj);
+    }
+    /**
+     * Updates the site.
+     *
+     * @return void
+     */
+    public function userSitePost()
+    {
+        $this->siteTabPost('user', $this->obj);
     }
 }

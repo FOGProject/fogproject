@@ -69,8 +69,33 @@ class OpenAPI extends FOGBase
 {
     /**
      * The OpenAPI specification version this document conforms to.
+     *
+     * 3.0.3 rather than 3.1.0, and the reason is that declaring 3.1 costs a
+     * second of blocking main thread every time an operation is expanded in
+     * the reference UI. Swagger UI resolves a 3.1 document through its
+     * JSON-Schema-2020-12 resolver, which re-resolves the WHOLE document each
+     * time a subtree is requested; the 3.0 path resolves the subtree alone.
+     * The difference is not subtle and it scales with the document, which
+     * this one does -- measured on the 1.6 lab, opening GET /availablekernels
+     * (a two-line operation with no parameters):
+     *
+     *   openapi: 3.1.0   1798ms, of which 1760ms is one blocking task
+     *   openapi: 3.0.3    156ms, of which  119ms is one blocking task
+     *
+     * Nothing is given up by saying 3.0.3. An audit of the generated document
+     * found exactly one 3.1-only construct in it -- the type-array spelling,
+     * in 70 places -- and no const, $schema, webhooks, prefixItems,
+     * unevaluatedProperties, schema-level examples or numeric
+     * exclusiveMinimum. Those 70 are re-spelled below as 3.0's `nullable`
+     * (for the null unions) and `oneOf` (for the genuine unions), which say
+     * the same thing to a client and are understood by considerably more
+     * tooling than 3.1 is.
+     *
+     * The one real cost: `nullable` is deprecated in 3.1, so if this document
+     * ever needs actual JSON Schema features, this decision has to be
+     * revisited rather than extended.
      */
-    const OAS_VERSION = '3.1.0';
+    const OAS_VERSION = '3.0.3';
     /**
      * Cache of the decoded schema manifest, so a 50-class walk reads and
      * parses commons/schema-expected.php once rather than once per class.
@@ -414,9 +439,9 @@ class OpenAPI extends FOGBase
             if (is_array($vars) && isset($vars['databaseFields'])) {
                 $result = $vars;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $result = null;
-        } catch (Error $e) {
+        } catch (\Error $e) {
             // A plugin class naming a parent that is not loaded raises Error,
             // not Exception, and one broken plugin must not take the whole
             // document down with it.
@@ -505,8 +530,9 @@ class OpenAPI extends FOGBase
             }
         }
         if ($nullable) {
-            // 3.1 spelling: null joins the type rather than a nullable flag.
-            $schema['type'] = [$schema['type'], 'null'];
+            // 3.0 spelling: a flag beside the type, rather than 3.1's null
+            // joining the type. See OAS_VERSION for why this document is 3.0.
+            $schema['nullable'] = true;
         }
         return $schema;
     }
@@ -729,13 +755,14 @@ class OpenAPI extends FOGBase
                 ],
                 '_lang' => ['type' => 'string'],
                 'data' => ['type' => 'array', 'items' => ['type' => 'object']],
-                'firstUrl' => ['type' => ['string', 'null']],
-                'prevUrl' => ['type' => ['string', 'null']],
+                'firstUrl' => ['type' => 'string', 'nullable' => true],
+                'prevUrl' => ['type' => 'string', 'nullable' => true],
                 'nextUrl' => [
-                    'type' => ['string', 'null'],
+                    'type' => 'string',
+                    'nullable' => true,
                     'description' => _('Null when this is the last page.')
                 ],
-                'lastUrl' => ['type' => ['string', 'null']]
+                'lastUrl' => ['type' => 'string', 'nullable' => true]
             ]
         ];
     }
@@ -951,14 +978,14 @@ class OpenAPI extends FOGBase
                                 'schema' => [
                                     'type' => 'object',
                                     'properties' => [
-                                        'taskTypeID' => ['type' => ['string', 'integer']],
+                                        'taskTypeID' => self::_oneOfTypes(['string', 'integer']),
                                         'taskName' => ['type' => 'string'],
-                                        'shutdown' => ['type' => ['string', 'boolean']],
-                                        'debug' => ['type' => ['string', 'boolean']],
-                                        'deploySnapins' => ['type' => ['string', 'integer', 'boolean']],
+                                        'shutdown' => self::_oneOfTypes(['string', 'boolean']),
+                                        'debug' => self::_oneOfTypes(['string', 'boolean']),
+                                        'deploySnapins' => self::_oneOfTypes(['string', 'integer', 'boolean']),
                                         'passreset' => ['type' => 'string'],
-                                        'sessionjoin' => ['type' => ['string', 'boolean']],
-                                        'wol' => ['type' => ['string', 'boolean']]
+                                        'sessionjoin' => self::_oneOfTypes(['string', 'boolean']),
+                                        'wol' => self::_oneOfTypes(['string', 'boolean'])
                                     ]
                                 ]
                             ]
@@ -1045,6 +1072,35 @@ class OpenAPI extends FOGBase
         }
         $permission = Authorization::resolveApiPermission($routeName, $class);
         return ('' === $permission || null === $permission) ? null : $permission;
+    }
+
+    /**
+     * A property that genuinely accepts more than one scalar type.
+     *
+     * 3.1 would spell this `type: [a, b]`. 3.0 has no type array, so it is
+     * oneOf -- and oneOf rather than anyOf because a JSON scalar is exactly
+     * one of these, never several at once. See OAS_VERSION for why this
+     * document is 3.0.
+     *
+     * These unions are real, not an artifact of the spelling: the task route
+     * reads its body through PHP's loose comparison, so shutdown accepts
+     * true and "1" alike, and documenting only one of them would understate
+     * what the server takes.
+     *
+     * @param array $types The accepted JSON types.
+     *
+     * @return array
+     */
+    private static function _oneOfTypes(array $types)
+    {
+        return [
+            'oneOf' => array_map(
+                function ($t) {
+                    return ['type' => $t];
+                },
+                $types
+            )
+        ];
     }
 
     /**

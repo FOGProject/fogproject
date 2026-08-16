@@ -202,7 +202,7 @@ class Schema extends FOGController
         $dump = self::getClass('Mysqldump');
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) {
-            throw new Exception(_('Could not read tmp file.'));
+            throw new \Exception(_('Could not read tmp file.'));
         }
         if ($remove_file) {
             while (ob_get_level()) {
@@ -239,7 +239,7 @@ class Schema extends FOGController
         set_time_limit(0);
 
         if (false === ($fh = fopen($file, 'rb'))) {
-            throw new Exception(_('Error Opening DB File'));
+            throw new \Exception(_('Error Opening DB File'));
         }
 
         $error = '';
@@ -459,7 +459,7 @@ class Schema extends FOGController
         $exists
     ) {
         if (!is_bool($exists)) {
-            throw new Exception(_('Exists item must be boolean'));
+            throw new \Exception(_('Exists item must be boolean'));
         }
         $string = sprintf(
             'CREATE DATABASE %s`%s`',
@@ -504,12 +504,12 @@ class Schema extends FOGController
         $autoin = ''
     ) {
         if (empty($name)) {
-            throw new Exception(_('Must have a name to create the table'));
+            throw new \Exception(_('Must have a name to create the table'));
         }
         $fieldCount = count($fields);
         $typeCount = count($types);
         if ($fieldCount !== $typeCount) {
-            throw new Exception(_('Fields and types must have equal count'));
+            throw new \Exception(_('Fields and types must have equal count'));
         }
         if (empty($engine)) {
             $engine = 'InnoDB';
@@ -656,7 +656,7 @@ class Schema extends FOGController
     public static function dropTable($name)
     {
         if (empty($name)) {
-            throw new Exception(_('Need the table name to drop'));
+            throw new \Exception(_('Need the table name to drop'));
         }
         return sprintf(
             'DROP TABLE IF EXISTS `%s`',
@@ -766,7 +766,7 @@ class Schema extends FOGController
                     // an admin on the updater page for a probe that cannot run.
                     continue;
                 }
-                $row = $res->fetch(PDO::FETCH_ASSOC)->get();
+                $row = $res->fetch(\PDO::FETCH_ASSOC)->get();
                 if (is_array($row) && isset($row['cnt']) && (int)$row['cnt'] < 1) {
                     return true;
                 }
@@ -795,7 +795,7 @@ class Schema extends FOGController
                 if (false !== $res->error) {
                     return $res->error;
                 }
-                $row = $res->fetch(PDO::FETCH_ASSOC)->get();
+                $row = $res->fetch(\PDO::FETCH_ASSOC)->get();
                 // Unreadable count is not "absent" -- inserting on a failed
                 // probe is how you end up with duplicates. Skip instead.
                 if (!is_array($row) || !isset($row['cnt'])) {

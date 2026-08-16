@@ -143,11 +143,13 @@ class BootItem extends Hook
          * inside the item label is an arrayed item of value [0] containing
          * the label so to tweak:
          */
-        Route::listem('pxemenuoptions');
-        $Menus = json_decode(
-            Route::getData()
-        );
-        foreach ($Menus as &$Menu) {
+        // getList(), not listem(): this loop used to iterate the paginated
+        // envelope instead of the rows beneath it, so $Menu->name was null
+        // every pass and the fog.local special-casing below never fired. The
+        // wrapper returns the rows, so there is no envelope left to hold
+        // wrongly. See ADR 0011.
+        $Menus = Route::getList('pxemenuoptions');
+        foreach ($Menus as $Menu) {
             if ($arguments['ipxe']['item-'.$Menu->name]
                 && $Menu->name == 'fog.local'
             ) {
@@ -167,7 +169,6 @@ class BootItem extends Hook
                     = $arguments['bootexittype']
                     . ' || goto MENU';
             }
-            unset($Menu);
         }
         // Default item is set to: 'ipxe' 'default'
         if ($arguments['ipxe']['default']) {

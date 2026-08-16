@@ -614,7 +614,7 @@ class SnapinManagement extends FOGPage
                     'title' => _('Snapin Create Fail')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Legacy UI behavior: SSH/SFTP RuntimeExceptions and
             // InvalidArgumentException both map to HTTP 400 here.
             // Route::createSnapinWithFile maps them differently.
@@ -1128,12 +1128,12 @@ class SnapinManagement extends FOGPage
         if ($snapin != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A snapin already exists with this name!')
             );
         }
         if (!$snapinfile) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s, %s, %s!',
                     _('A file'),
@@ -1189,7 +1189,7 @@ class SnapinManagement extends FOGPage
             self::$FOGSSH->password = $StorageNode->get('pass');
             self::$FOGSSH->host = $StorageNode->get('ip');
             if (!self::$FOGSSH->connect()) {
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         '%s: %s: %s.',
                         _('Storage Node'),
@@ -1202,7 +1202,7 @@ class SnapinManagement extends FOGPage
             $rdir = $StorageNode->get('snapinpath');
             if (!self::$FOGSSH->exists($rdir)) {
                 if (false === self::$FOGSSH->sftp_mkdir($rdir)) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Failed to add snapin')
                         . ' ' . $rdir . ' '
                         . _('does not exist and cannot be created')
@@ -1213,7 +1213,7 @@ class SnapinManagement extends FOGPage
                 // Non-recursive removal only; delete() would walk the
                 // directory when the unlink fails (035 / 2.3.1).
                 if (!self::$FOGSSH->unlinkFile($dest)) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Failed to delete existing snapin file')
                     );
                 }
@@ -1224,15 +1224,12 @@ class SnapinManagement extends FOGPage
                 // * At least here we can queue it
                 // * So it could be stopped before
                 // * Its actually deleted.
-                Route::listem(
+                $othersnapins = Route::getList(
                     'snapin',
                     ['file' => $this->obj->get('file')]
                 );
-                $othersnapins = json_decode(
-                    Route::getData()
-                );
                 $otherfiles = [];
-                foreach ($othersnapins->data as $osnapin) {
+                foreach ($othersnapins as $osnapin) {
                     if ($osnapin->id == $this->obj->get('id')) {
                         continue;
                     }
@@ -1486,7 +1483,7 @@ class SnapinManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Snapin update failed!'));
+                    throw new \Exception(_('Snapin update failed!'));
                 }
             }
         );
@@ -1572,11 +1569,16 @@ class SnapinManagement extends FOGPage
                 ]
             ));
         }
-        Route::names(
-            'storagegroup',
-            ['id' => $storagegroupsAssigned]
+        // asValue(): names() has no wrapper of its own, and its payload is
+        // a bare list with nothing to unwrap.
+        $storagegroupNames = Route::asValue(
+            function () use ($storagegroupsAssigned) {
+                Route::names(
+                    'storagegroup',
+                    ['id' => $storagegroupsAssigned]
+                );
+            }
         );
-        $storagegroupNames = json_decode(Route::getData());
         foreach ($storagegroupNames as &$storagegroup) {
             $storagegroups[$storagegroup->id] = $storagegroup->name;
             unset($storagegroup);

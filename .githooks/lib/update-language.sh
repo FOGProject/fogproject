@@ -50,9 +50,16 @@ if [ ! -d "$plugindir" ] || [ -z "$(ls -A "$plugindir" 2>/dev/null)" ]; then
     exit 1
 fi
 
+# vendor/ is excluded, not merely uninteresting. Third-party packages are full
+# of English prose in exceptions and docblocks; xgettext cannot tell that from
+# a FOG string, so without this every one of them lands in messages.pot and
+# then in all nine .po files, and a translator is asked to translate Composer's
+# error messages. It also makes the catalogue change whenever a dependency is
+# bumped, which is churn in a file nobody reads closely -- the same failure the
+# --no-wrap note below exists to prevent.
 xgettext --language=PHP --from-code=UTF-8 --output="$pot" \
     --omit-header --no-location \
-    $(find "$project_dir/packages/web/" -name "*.php")
+    $(find "$project_dir/packages/web/" -name "*.php" -not -path "*/vendor/*")
 
 # Sorting makes the file order-independent, so two machines that walked the
 # source tree in a different order still produce the same POT.

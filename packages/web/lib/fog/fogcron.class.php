@@ -35,7 +35,7 @@ class FOGCron extends FOGBase
     {
         $value = trim((string)$value);
         if (!preg_match('/^[0-9\*\/\-\,]+$/', $value)) {
-            throw new Exception(
+            throw new \Exception(
                 _('Invalid cron field value. Only digits, *, /, -, and commas are allowed.')
             );
         }

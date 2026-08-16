@@ -152,7 +152,7 @@ class StorageGroupManagement extends FOGPage
             $exists = self::getClass('StorageGroupManager')
                 ->exists($storagegroup);
             if ($exists) {
-                throw new Exception(
+                throw new \Exception(
                     _('A storage group exists with this name!')
                 );
             }
@@ -162,7 +162,7 @@ class StorageGroupManagement extends FOGPage
                 ->set('trustedcidrs', $trustedcidrs);
             if (!$StorageGroup->save()) {
                 $serverFault = true;
-                throw new Exception(self::$foglang['DBupfailed']);
+                throw new \Exception(self::$foglang['DBupfailed']);
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'STORAGEGROUP_ADD_SUCCESS';
@@ -172,7 +172,7 @@ class StorageGroupManagement extends FOGPage
                     'title' => _('Storage Group Create Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -310,7 +310,7 @@ class StorageGroupManagement extends FOGPage
         if ($storagegroup != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A storage group already exists with this name!')
             );
         }
@@ -840,7 +840,7 @@ class StorageGroupManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Storage Group Update Failed'));
+                    throw new \Exception(_('Storage Group Update Failed'));
                 }
             }
         );
@@ -967,11 +967,16 @@ class StorageGroupManagement extends FOGPage
                 ]
             ));
         }
-        Route::names(
-            'storagenode',
-            ['id' => $storagenodesAssigned]
+        // asValue(): names() has no wrapper of its own, and its payload is
+        // a bare list with nothing to unwrap.
+        $storagenodeNames = Route::asValue(
+            function () use ($storagenodesAssigned) {
+                Route::names(
+                    'storagenode',
+                    ['id' => $storagenodesAssigned]
+                );
+            }
         );
-        $storagenodeNames = json_decode(Route::getData());
         foreach ($storagenodeNames as &$storagenode) {
             $storagenodes[$storagenode->id] = $storagenode->name;
             unset($storagenode);

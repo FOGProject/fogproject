@@ -90,7 +90,7 @@ class SnapinReplicator extends FOGService
         try {
             self::$_repOn = self::getSetting('SNAPINREPLICATORGLOBALENABLED');
             if (self::$_repOn < 1) {
-                throw new Exception(_(' * Snapin replication is globally disabled'));
+                throw new \Exception(_(' * Snapin replication is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $skip = false;
@@ -103,13 +103,22 @@ class SnapinReplicator extends FOGService
                 );
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
-                Route::indiv(
+                // getItem(), not indiv(): a miss answers with null here
+                // rather than exiting the daemon child outright. Refs #907.
+                $StorageGroup = Route::getItem(
                     'storagegroup',
                     $myStorageGroupID
                 );
-                $StorageGroup = json_decode(
-                    Route::getData()
-                );
+                if (!$StorageGroup) {
+                    self::outall(
+                        sprintf(
+                            ' * %s: %d',
+                            _('Skipping, no such storage group'),
+                            $myStorageGroupID
+                        )
+                    );
+                    continue;
+                }
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -203,12 +212,9 @@ class SnapinReplicator extends FOGService
                     $find,
                     'snapinID'
                 );
-                Route::listem(
+                $Snapins = Route::getList(
                     'snapin',
                     ['id' => $snapinIDs]
-                );
-                $Snapins = json_decode(
-                    Route::getData()
                 );
                 /**
                  * Handles replicating of our ssl folder and contents.
@@ -232,7 +238,7 @@ class SnapinReplicator extends FOGService
                         $ssl
                     );
                 }
-                foreach ($Snapins->data as $Snapin) {
+                foreach ($Snapins as $Snapin) {
                     if (!Snapin::getPrimaryGroup($myStorageGroupID, $Snapin->id)) {
                         self::outall(
                             sprintf(
@@ -270,7 +276,7 @@ class SnapinReplicator extends FOGService
                         _('snapin replication')
                     )
                 );
-                foreach ($Snapins->data as $Snapin) {
+                foreach ($Snapins as $Snapin) {
                     $S = new Snapin($Snapin->id);
                     $this->replicateItems(
                         $myStorageGroupID,
@@ -281,7 +287,7 @@ class SnapinReplicator extends FOGService
                 }
                 unset($Snapins);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall(
                 sprintf(
                     ' * %s',

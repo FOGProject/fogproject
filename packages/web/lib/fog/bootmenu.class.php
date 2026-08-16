@@ -327,16 +327,22 @@ class BootMenu extends FOGBase
                     ['sysuuid' => $sysuuid]
                 );
             }
-            Route::indiv('host', self::$Host->get('id'));
-            $host = json_decode(Route::getData());
-            $host_items = self::generateIpxeItems($host);
-            foreach ($host_items as $item) {
-                $Send['hostinfo'][] = $item;
+            // getItem(), not indiv(): a miss answers null rather than
+            // reaching breakHead()'s exit, which on a boot request means the
+            // machine gets a truncated iPXE script instead of a menu.
+            $host = Route::getItem('host', self::$Host->get('id'));
+            if ($host) {
+                $host_items = self::generateIpxeItems($host);
+                foreach ($host_items as $item) {
+                    $Send['hostinfo'][] = $item;
+                }
             }
-            Route::listem('inventory', ['hostID' => self::$Host->get('id')]);
-            $inventory = json_decode(Route::getData());
-            if (!empty($inventory->data)) {
-                $inventory_items = self::generateIpxeItems($inventory->data[0]);
+            $inventory = Route::getList(
+                'inventory',
+                ['hostID' => self::$Host->get('id')]
+            );
+            if (!empty($inventory)) {
+                $inventory_items = self::generateIpxeItems($inventory[0]);
                 foreach ($inventory_items as $item) {
                     $Send['inventoryinfo'][] = $item;
                 }
@@ -463,19 +469,13 @@ class BootMenu extends FOGBase
             . "://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
-        Route::listem(
+        $StorageNodes = Route::getList(
             'storagenode',
             ['ip' => [$webserver, self::resolveHostname($webserver)]]
         );
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
-        if (count($StorageNodes->data ?: []) < 1) {
-            Route::listem('storagenode');
-            $StorageNodes = json_decode(
-                Route::getData()
-            );
-            foreach ($StorageNodes->data as &$StorageNode) {
+        if (count($StorageNodes) < 1) {
+            $StorageNodes = Route::getList('storagenode');
+            foreach ($StorageNodes as &$StorageNode) {
                 $hostname = self::resolveHostname($StorageNode->ip);
                 if ($hostname == $webserver
                     || $hostname == self::resolveHostname($webserver)
@@ -496,7 +496,7 @@ class BootMenu extends FOGBase
                 $StorageNode = new StorageNode(self::minId($storageNodeIDs));
             }
         } else {
-            $first = array_shift($StorageNodes->data);
+            $first = array_shift($StorageNodes);
             $StorageNode = new StorageNode($first->id);
         }
         if ($StorageNode->isValid()) {
@@ -806,15 +806,12 @@ class BootMenu extends FOGBase
                 (array)self::getProgressState()
             ),
         ];
-        Route::listem(
+        $Sessions = Route::getList(
             'multicastsession',
             $findWhere
         );
-        $Sessions = json_decode(
-            Route::getData()
-        );
         $MulticastSessionID = 0;
-        foreach ($Sessions->data as &$MulticastSession) {
+        foreach ($Sessions as &$MulticastSession) {
             if ($MulticastSession->sessclients < 1) {
                 $MulticastSessionID = 0;
                 unset($MulticastSession);
@@ -927,6 +924,34 @@ class BootMenu extends FOGBase
      *
      * @return void
      */
+    /**
+     * Tells the operator a seeded task type is missing, on screen.
+     *
+     * The three createImagePackage() callers below fetch a task type by its
+     * seeded id. getItem() answers null when the row is gone, where indiv()
+     * used to reach breakHead()'s exit -- which on a boot request truncates
+     * the iPXE script mid-stream, so the machine drops to a bare prompt with
+     * nothing said about why. See ADR 0011.
+     *
+     * @param int $id The task type id that could not be loaded.
+     *
+     * @return void
+     */
+    private function _noTaskType($id)
+    {
+        $this->_parseMe(
+            [
+                'fail' => [
+                    '#!ipxe',
+                    sprintf(
+                        'echo Task type %d is missing from this server.',
+                        $id
+                    ),
+                    'sleep 5',
+                ],
+            ]
+        );
+    }
     public function sesscreate()
     {
         $sessname = trim($_REQUEST['sessname']);
@@ -955,8 +980,11 @@ class BootMenu extends FOGBase
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
             $extraargs
         );
-        Route::indiv('tasktype', TaskType::MULTICAST);
-        $tasktype = json_decode(Route::getData());
+        $tasktype = Route::getItem('tasktype', TaskType::MULTICAST);
+        if (!$tasktype) {
+            $this->_noTaskType(TaskType::MULTICAST);
+            return;
+        }
         self::$Host->createImagePackage(
             $tasktype,
             $sessname,
@@ -1129,14 +1157,10 @@ class BootMenu extends FOGBase
         if ($imgFind === false) {
             $Images = false;
         } else {
-            Route::listem(
+            $Images = Route::getList(
                 'image',
                 $imgFind
             );
-            $Images = json_decode(
-                Route::getData()
-            );
-            $Images = $Images->data;
         }
         if (!$Images) {
             $Send['NoImages'] = [
@@ -1260,8 +1284,11 @@ class BootMenu extends FOGBase
             $extraargs
         );
         if (self::$Host->isValid() && !self::$Host->get('pending')) {
-            Route::indiv('tasktype', TaskType::MULTICAST);
-            $tasktype = json_decode(Route::getData());
+            $tasktype = Route::getItem('tasktype', TaskType::MULTICAST);
+            if (!$tasktype) {
+                $this->_noTaskType(TaskType::MULTICAST);
+                return;
+            }
             self::$Host->createImagePackage(
                 $tasktype,
                 $MultiSess->get('name'),
@@ -1498,8 +1525,18 @@ class BootMenu extends FOGBase
             return;
         }
         try {
-            Route::indiv('tasktype', TaskType::DEPLOY);
-            $tasktype = json_decode(Route::getData());
+            $tasktype = Route::getItem('tasktype', TaskType::DEPLOY);
+            if (!$tasktype) {
+                // Thrown rather than handed to _noTaskType(): the catch below
+                // already renders a message from the exception, and this is
+                // the one of the three sites that has one.
+                throw new \Exception(
+                    sprintf(
+                        _('Task type %d is missing from this server.'),
+                        TaskType::DEPLOY
+                    )
+                );
+            }
             self::$Host->createImagePackage(
                 $tasktype,
                 'AutoRegTask',
@@ -1510,7 +1547,7 @@ class BootMenu extends FOGBase
                 $_REQUEST['username']
             );
             $this->_chainBoot(false, true);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $Send['fail'] = [
                 '#!ipxe',
                 sprintf('echo %s', $e->getMessage()),
@@ -1656,7 +1693,7 @@ class BootMenu extends FOGBase
                     if (!($StorageNode instanceof StorageNode
                         && $StorageNode->isValid())
                     ) {
-                        throw new Exception(_('No valid storage nodes found'));
+                        throw new \Exception(_('No valid storage nodes found'));
                     }
                     $storage = escapeshellcmd(
                         sprintf(
@@ -2110,16 +2147,6 @@ class BootMenu extends FOGBase
             return;
         }
 
-        Route::listem(
-            'pxemenuoptions',
-            false,
-            false,
-            'AND',
-            'id'
-        );
-        $Menus = json_decode(
-            Route::getData()
-        );
         $ipxeGrabs = [
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_IPXE_BG_FILE',
@@ -2212,15 +2239,11 @@ class BootMenu extends FOGBase
                 4
             );
         }
-        Route::listem(
+        $Menus = Route::getList(
             'pxemenuoptions',
             ['regMenu' => $RegArrayOfStuff],
-            false,
             'AND',
             'id'
-        );
-        $Menus = json_decode(
-            Route::getData()
         );
         // pxeID 14 ("Enroll Secure Boot Key (MOK attended setup)") and
         // pxeID 15 ("Enroll Secure Boot Key (Unattended...)") are both
@@ -2251,9 +2274,9 @@ class BootMenu extends FOGBase
         if (isset($_REQUEST['platform'])
             && $_REQUEST['platform'] != 'efi'
         ) {
-            $Menus->data = array_values(
+            $Menus = array_values(
                 array_filter(
-                    $Menus->data,
+                    $Menus,
                     // By pxeName, not pxeID -- see _menuOpt(). Keyed by id,
                     // a BIOS client would have had an unrelated custom menu
                     // entry sitting at 14 or 15 hidden from it instead.
@@ -2289,9 +2312,9 @@ class BootMenu extends FOGBase
             || !file_exists($authDir . 'KEK.auth')
             || !file_exists($authDir . 'db.auth')
         ) {
-            $Menus->data = array_values(
+            $Menus = array_values(
                 array_filter(
-                    $Menus->data,
+                    $Menus,
                     function ($Menu) {
                         return 'fog.enrollsecurebootunattended' !== $Menu->name;
                     }
@@ -2309,7 +2332,7 @@ class BootMenu extends FOGBase
                     $desc
                 );
             },
-            $Menus->data
+            $Menus
         );
         $Send['default'] = [$this->_defaultChoice];
         array_map(
@@ -2319,7 +2342,7 @@ class BootMenu extends FOGBase
                     trim($Menu->args)
                 );
             },
-            $Menus->data
+            $Menus
         );
         $Send['bootme'] = [
             ':bootme',

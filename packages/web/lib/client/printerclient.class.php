@@ -91,12 +91,9 @@ class PrinterClient extends FOGClient
         } else {
             $default = array_shift($defaultName);
         }
-        Route::listem('printer');
-        $Printers = json_decode(
-            Route::getData()
-        );
+        $Printers = Route::getList('printer');
         $printers = [];
-        foreach ((array)$Printers->data as $Printer) {
+        foreach ($Printers as $Printer) {
             if (!in_array($Printer->id, $printerIDs)) {
                 continue;
             }

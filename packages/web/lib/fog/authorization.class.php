@@ -205,6 +205,7 @@ class Authorization extends FOGBase
         'roleuserassociation' => 'role',
         'scheduledtask' => 'task',
         'setting' => 'settings',
+        'site' => 'site',
         'snapin' => 'snapin',
         'snapinassociation' => 'snapin',
         'snapingroupassociation' => 'snapin',
@@ -261,7 +262,26 @@ class Authorization extends FOGBase
         if (null !== self::$_registry) {
             return self::$_registry;
         }
-        $registry = [
+        $registry = self::coreRegistry();
+        self::$HookManager->processEvent(
+            'PERMISSION_REGISTRY_DATA',
+            ['registry' => &$registry]
+        );
+        return self::$_registry = $registry;
+    }
+    /**
+     * The nodes core itself owns, before any plugin has contributed.
+     *
+     * Split out of registry() so purgePermissions() has something to test
+     * against that a plugin cannot influence. Deliberately NOT the
+     * post-hook result: a plugin that registered a node must not thereby
+     * be able to make that node unpurgeable, which is exactly backwards.
+     *
+     * @return array node => list of valid actions
+     */
+    public static function coreRegistry()
+    {
+        return [
             'host' => ['view', 'create', 'edit', 'delete', 'task'],
             'group' => ['view', 'create', 'edit', 'delete', 'task'],
             'image' => ['view', 'create', 'edit', 'delete', 'task'],
@@ -271,6 +291,11 @@ class Authorization extends FOGBase
             'user' => ['view', 'create', 'edit', 'delete'],
             'usergroup' => ['view', 'create', 'edit', 'delete'],
             'role' => ['view', 'create', 'edit', 'delete'],
+            // Sites came in from the site plugin. The node keeps the name
+            // the plugin registered so grants written against it survive
+            // the move -- a rename here would silently drop every existing
+            // site.* permission on upgrade.
+            'site' => ['view', 'create', 'edit', 'delete'],
             'storagenode' => ['view', 'create', 'edit', 'delete'],
             'storagegroup' => ['view', 'create', 'edit', 'delete'],
             'ipxe' => ['view', 'create', 'edit', 'delete'],
@@ -280,11 +305,21 @@ class Authorization extends FOGBase
             'report' => ['view', 'create'],
             'plugin' => ['view', 'edit', 'install']
         ];
-        self::$HookManager->processEvent(
-            'PERMISSION_REGISTRY_DATA',
-            ['registry' => &$registry]
-        );
-        return self::$_registry = $registry;
+    }
+    /**
+     * Is this registry node owned by core rather than by a plugin?
+     *
+     * @param string $node the registry node (e.g. 'host')
+     *
+     * @return bool
+     */
+    public static function isCoreOwnedNode($node)
+    {
+        $node = strtolower(trim((string)$node));
+        if ('' === $node) {
+            return false;
+        }
+        return array_key_exists($node, self::coreRegistry());
     }
     /**
      * Get the union of a user's permissions across all assigned roles.
@@ -334,7 +369,7 @@ class Authorization extends FOGBase
                 [],
                 ['userid' => $userID, 'usergroupid' => $userID]
             )
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         if (!is_array($rows) || count($rows) < 1) {
             // Zero role assignments, direct or group-sourced, grants
@@ -667,16 +702,31 @@ class Authorization extends FOGBase
     /**
      * Is a specific object within the acting user's object scope?
      *
-     * Object scope is an OPTIONAL boundary layered on top of the verb
-     * permission. It has no built-in meaning: a plugin (currently Site)
-     * enforces it by listening for OBJECT_SCOPE_CHECK and flipping
-     * 'allowed' to false for objects outside the user's scope. With no
-     * listener registered the boundary does not exist and every object is
-     * in scope, so this is inert on a stock install.
+     * Object scope is a boundary layered on top of the verb permission:
+     * the permission says what you may do, this says which objects you may
+     * do it to. Core owns it, and SiteScope answers it -- sites moved out
+     * of the site plugin and into core, so this is no longer inert on a
+     * stock install.
+     *
+     * It still stays out of the way on an install that has not configured
+     * sites. SiteScope allows everything when no sites exist, so a server
+     * that has never used them, or one running new code against a schema
+     * that has not been deployed yet, behaves exactly as before.
+     *
+     * OBJECT_SCOPE_CHECK is still fired, and still first. Third-party
+     * listeners keep the contract they were written against: flip
+     * 'allowed' to false to deny an object core would have allowed. What
+     * changed is that the core site decision is combined with AND
+     * afterwards, so a listener can deny past core but cannot GRANT past
+     * it -- for a security boundary the composition has to be deny-wins,
+     * or a plugin could hand out another site's hosts by setting a flag.
      *
      * Unrestricted users (global '*' holders) and requests with
      * no concrete single-object id (id < 1 — list, create, mass op) always
-     * pass; scope is only meaningful for one existing object.
+     * pass; scope is only meaningful for one existing object. The '*'
+     * short circuit is deliberately ahead of everything else: a full
+     * administrator is never subject to a site boundary, and that is
+     * structural here rather than a rule SiteScope has to remember.
      *
      * @param string   $node   the page/api node (e.g. 'host')
      * @param int      $id     the target object id
@@ -700,17 +750,71 @@ class Authorization extends FOGBase
                 0
             );
         }
+        $node = strtolower(trim((string)$node));
         $allowed = true;
         self::$HookManager->processEvent(
             'OBJECT_SCOPE_CHECK',
             [
-                'node' => strtolower(trim((string)$node)),
+                'node' => $node,
                 'id' => $id,
                 'userID' => (int)$userID,
                 'allowed' => &$allowed
             ]
         );
+        // Core's site boundary, applied after the event and combined with
+        // AND. Skipped when a listener has already denied -- deny is deny,
+        // and there is no reason to spend the query.
+        if ($allowed && !SiteScope::inScope($node, $id, (int)$userID)) {
+            $allowed = false;
+        }
         return (bool)$allowed;
+    }
+    /**
+     * The object ids a user may see for a listed node, or null when the
+     * list needs no narrowing at all.
+     *
+     * The list counterpart of objectInScope(), and the distinction the
+     * return type carries is the whole point: null means "no boundary
+     * applies -- leave the list alone", while an ARRAY narrows the list,
+     * and an EMPTY array is a real answer meaning the user may see
+     * nothing. Collapsing those two onto "empty" is the mistake that
+     * silently shows every host to a user with no site.
+     *
+     * null is returned for an unrestricted '*' holder, a node that is not
+     * site-scoped, an install with no sites configured, and a member of a
+     * catch-all site -- the same short circuits objectInScope() applies,
+     * so single objects and lists cannot disagree about who is scoped.
+     *
+     * @param string   $node   the node being listed
+     * @param int|null $userID acting user (defaults to current user)
+     *
+     * @return array|null ids to narrow to, or null for no restriction
+     */
+    public static function scopedObjectIDs($node, $userID = null)
+    {
+        if (self::_isUnrestricted($userID)) {
+            return null;
+        }
+        if (null === $userID) {
+            $userID = (
+                self::$FOGUser && self::$FOGUser->isValid() ?
+                (int)self::$FOGUser->get('id') :
+                0
+            );
+        }
+        $userID = (int)$userID;
+        $node = strtolower(trim((string)$node));
+        if (!SiteScope::isScopedNode($node)) {
+            return null;
+        }
+        // Same two short circuits as the single-object path: a server with
+        // no sites behaves as it always did, and a catch-all member is not
+        // narrowed to an enumerated list (which would stop covering
+        // objects created after the catch-all was made).
+        if (!SiteScope::anySitesExist() || SiteScope::isUnscoped($userID)) {
+            return null;
+        }
+        return SiteScope::allInScopeIDs($node, $userID);
     }
     /**
      * Enforce object scope for a management page request. Allowed →
@@ -808,7 +912,7 @@ class Authorization extends FOGBase
                 [],
                 ['perm' => (string)$permission]
             )
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         $roleIDs = [];
         foreach ((array)$rows as $row) {
@@ -889,7 +993,7 @@ class Authorization extends FOGBase
         $membership = [];
         $rows = self::$DB
             ->query('SELECT `ruaRoleID`, `ruaUserID` FROM `roleUserAssoc`')
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         foreach ((array)$rows as $row) {
             $membership[(int)$row['ruaRoleID']][] = (int)$row['ruaUserID'];
@@ -898,7 +1002,7 @@ class Authorization extends FOGBase
         $groupMembers = [];
         $rows = self::$DB
             ->query('SELECT `ugmGroupID`, `ugmUserID` FROM `userGroupMembers`')
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         foreach ((array)$rows as $row) {
             $groupMembers[(int)$row['ugmGroupID']][] = (int)$row['ugmUserID'];
@@ -907,7 +1011,7 @@ class Authorization extends FOGBase
         $groupRoles = [];
         $rows = self::$DB
             ->query('SELECT `rugGroupID`, `rugRoleID` FROM `roleUserGroupAssoc`')
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         foreach ((array)$rows as $row) {
             $groupRoles[(int)$row['rugGroupID']][] = (int)$row['rugRoleID'];
@@ -1079,7 +1183,7 @@ class Authorization extends FOGBase
         if (self::adminExistsGiven($changes)) {
             return;
         }
-        throw new Exception(
+        throw new \Exception(
             _('This would leave no account able to administer FOG.')
         );
     }
@@ -1144,11 +1248,11 @@ class Authorization extends FOGBase
     {
         $permName = trim((string)$permName);
         if ('' === $permName) {
-            throw new Exception(_('A permission name is required.'));
+            throw new \Exception(_('A permission name is required.'));
         }
         if ('*' === $permName) {
             if (!self::can('*')) {
-                throw new Exception(
+                throw new \Exception(
                     _('Only an administrator may grant full access.')
                 );
             }
@@ -1163,7 +1267,7 @@ class Authorization extends FOGBase
             }
         }
         if (!in_array($permName, $valid, true)) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     _('Unknown permission'),
@@ -1193,6 +1297,14 @@ class Authorization extends FOGBase
      * 'site', 'site.*', 'site.view', ... but never a sibling like
      * 'siteother' (the dot boundary is required).
      *
+     * A node core owns is never purged, whatever plugin name was passed.
+     * The two callers derive the prefix from `plugins.pName`, so a plugin
+     * sharing its name with a core node -- which is precisely what happens
+     * while a capability is being moved out of a plugin and into core --
+     * would otherwise delete live grants belonging to core on uninstall.
+     * The grants outlive the plugin on purpose in that case; the node has
+     * not left the registry, it changed owner.
+     *
      * @param string $nodePrefix the registry node (e.g. 'site')
      *
      * @return void
@@ -1201,6 +1313,9 @@ class Authorization extends FOGBase
     {
         $nodePrefix = strtolower(trim((string)$nodePrefix));
         if ('' === $nodePrefix) {
+            return;
+        }
+        if (self::isCoreOwnedNode($nodePrefix)) {
             return;
         }
         $names = array_values(
