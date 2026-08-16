@@ -211,6 +211,72 @@ class Route extends FOGBase
      */
     private static $_sensitiveMap = null;
     /**
+     * Fields the SERVER maintains: class => [friendly keys].
+     *
+     * edit() and create() copy a JSON body straight into a model's
+     * databaseFields, so before this list every column of every class in
+     * $validClasses was settable by anyone who could reach the route --
+     * and the route's own auth is thin: an api-enabled non-admin passes.
+     * Reported by Aisle Research alongside 020.
+     *
+     * A field belongs here when the server is its only legitimate writer
+     * AND it is a credential or telemetry. That is narrower than "looks
+     * important" on purpose:
+     *
+     *   - task telemetry is written by service/progress.php through the
+     *     ORM, never through this router, so nothing legitimate loses a
+     *     write. Left open, an api user can rewrite another host's
+     *     imaging progress -- and on dev-branch three of those five
+     *     fields reach the page unescaped.
+     *   - the host token set is what the fog-client protocol
+     *     authenticates with. Choosing a host's sec_tok is impersonating
+     *     that host. Every in-repo writer is server-side ORM
+     *     (fogpage.class.php, taskqueue.class.php).
+     *   - user.token is the API credential itself; writing it is taking
+     *     over that account's API access. Written by the UI reset and by
+     *     Route's own issue path, both server-side.
+     *
+     * Deliberately NOT here: host.ADPass, ADPassLegacy and productKey.
+     * They are secrets, and they are also things an admin legitimately
+     * sets through the API -- the emitter strips them from list output,
+     * which is a different question from who may write them. Nor
+     * user.password: User::set() hashes it, so a supplied one is a real
+     * and supported write.
+     *
+     * Read through serverOwnedFields(), never this property directly, or
+     * plugin-declared entries are skipped.
+     *
+     * @var array
+     */
+    public static $serverOwnedFields = [
+        'task' => [
+            'pct',
+            'bpm',
+            'timeElapsed',
+            'timeRemaining',
+            'dataCopied',
+            'dataTotal',
+            'percent',
+        ],
+        'host' => [
+            'pub_key',
+            'sec_tok',
+            'prev_sec_tok',
+            'sec_time',
+            'token',
+        ],
+        'user' => [
+            'token',
+        ],
+    ];
+    /**
+     * Memoized union of the list above and what plugins declare through
+     * API_SERVER_OWNED_FIELDS. Null until first built.
+     *
+     * @var array|null
+     */
+    private static $_serverOwnedMap = null;
+    /**
      * globalSettings rows whose VALUE is a credential.
      *
      * Settings are the odd one out: they are key/value rows, so the secret is
@@ -2763,17 +2829,32 @@ class Route extends FOGBase
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
                 );
             }
+            $serverOwned = self::serverOwnedFields($classname);
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
-                if (!isset($vars->$key)) {
-                    $val = $class->get($key);
-                } else {
-                    $val = $vars->$key;
-                }
                 if ($key == 'id') {
+                    unset($key);
                     continue;
                 }
-                $class->set($key, $val);
+                // A field the body did not mention is left exactly as
+                // loaded. It used to be re-set to its own current value,
+                // which looks like a no-op and is not: set() may
+                // transform, and User::set() hashes any non-override
+                // write to 'password'. So every PUT to a user re-hashed
+                // the stored hash and locked that account out for good.
+                // save() writes from $this->data for every databaseField
+                // regardless of what was set(), so skipping is otherwise
+                // byte-identical.
+                if (!isset($vars->$key)) {
+                    unset($key);
+                    continue;
+                }
+                if (in_array($key, $serverOwned, true)) {
+                    self::_refuseServerOwned($class, $key, $vars->$key);
+                    unset($key);
+                    continue;
+                }
+                $class->set($key, $vars->$key);
                 unset($key);
             }
             switch ($classname) {
@@ -3064,6 +3145,7 @@ class Route extends FOGBase
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
                 );
             }
+            $serverOwned = self::serverOwnedFields($classname);
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
                 if (property_exists($vars, $key)) {
@@ -3074,6 +3156,14 @@ class Route extends FOGBase
                 if ('id' == $key
                     || null === $val
                 ) {
+                    continue;
+                }
+                // Null passed above rather than the object: there is no
+                // stored value to compare a create against, so the test
+                // is whether a value was asked for at all.
+                if (in_array($key, $serverOwned, true)) {
+                    self::_refuseServerOwned(null, $key, $val);
+                    unset($key);
                     continue;
                 }
                 $class->set($key, $val);
@@ -4073,6 +4163,75 @@ class Route extends FOGBase
             'fields' => (array)$fields,
             'always' => (array)$always
         ];
+    }
+    /**
+     * The fields of a class that only the server may write.
+     *
+     * @param string $class The class name (any case).
+     *
+     * @return array friendly keys
+     */
+    public static function serverOwnedFields($class)
+    {
+        if (null === self::$_serverOwnedMap) {
+            $fields = self::$serverOwnedFields;
+            self::$HookManager->processEvent(
+                'API_SERVER_OWNED_FIELDS',
+                ['fields' => &$fields]
+            );
+            self::$_serverOwnedMap = (array)$fields;
+        }
+        $classname = strtolower((string)$class);
+        return isset(self::$_serverOwnedMap[$classname])
+            ? (array)self::$_serverOwnedMap[$classname]
+            : [];
+    }
+    /**
+     * Refuses a write to a server-maintained field.
+     *
+     * Answers 400 rather than dropping the field, so a caller that meant
+     * to set it learns that it did not happen -- silently ignoring a
+     * requested write is how a client ends up believing state it never
+     * achieved.
+     *
+     * But it refuses only an actual CHANGE. Reading an object and PUTting
+     * the whole thing back is ordinary REST, a single-entity GET returns
+     * these fields, and a body that carries a value identical to the
+     * stored one is asking for nothing. Rejecting that would break every
+     * round-tripping client to close a hole none of them are in.
+     *
+     * @param object $class The loaded object, or null on create.
+     * @param string $key   The friendly key being written.
+     * @param mixed  $value The value the body supplied.
+     *
+     * @return void
+     */
+    private static function _refuseServerOwned($class, $key, $value)
+    {
+        if (null !== $class) {
+            $stored = $class->get($key);
+            // Scalars only: a non-scalar can never equal a column value,
+            // and casting an array to string is a fatal.
+            if (is_scalar($value) || null === $value) {
+                if ((string)$value === (string)$stored) {
+                    return;
+                }
+            }
+        } elseif (null === $value
+            || (is_scalar($value) && '' === trim((string)$value))
+        ) {
+            // On create there is nothing to compare against, so the test
+            // is "did you ask for a value". An empty one is what the
+            // server was going to store anyway.
+            return;
+        }
+        self::setErrorMessage(
+            sprintf(
+                _('%s is maintained by the server and cannot be set'),
+                $key
+            ),
+            HTTPResponseCodes::HTTP_BAD_REQUEST
+        );
     }
     /**
      * Removes decrypted secrets from a related/list object so they are only
