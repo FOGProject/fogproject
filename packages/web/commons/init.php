@@ -420,12 +420,23 @@ class Initiator
         // "Cannot declare class Initiator", a bodyless 500 on that one table.
         // Nothing under service/ declares a class, so drop the directory rather
         // than special-case the one file.
+        //
+        // vendor/ is dropped for a related reason. Composer packages are
+        // PSR-4 and use bare .php, so today none of them matches $regext at
+        // all -- but "today" is the whole problem: a dependency that ships
+        // one file called anything.class.php would silently claim that map
+        // key, and third-party code winning a name collision against a FOG
+        // class is not a failure mode worth leaving open for the sake of two
+        // lines. Composer's own autoloader resolves everything under vendor/;
+        // this scan must never be a second route to it.
         $entryPoints = BASEPATH . 'service' . DS;
+        $vendor = BASEPATH . 'vendor' . DS;
         return array_values(
             array_filter(
                 array_column($matches, 0),
-                function ($path) use ($entryPoints) {
-                    return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0;
+                function ($path) use ($entryPoints, $vendor) {
+                    return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0
+                        && strncmp($path, $vendor, strlen($vendor)) !== 0;
                 }
             )
         );
