@@ -13,6 +13,36 @@ declare(strict_types=1);
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+/*
+ * Composer's PSR-4 loader for FOG\ => packages/web/src.
+ *
+ * Here, at file scope, because this is the one file every entry point
+ * reaches: the web UI, the API, the 41 fog-client endpoints under service/,
+ * status/, maintenance/, and all nine CLI daemons via
+ * packages/service/lib/service_lib.php all arrive through
+ * commons/base.inc.php -> require 'init.php'. There is no second bootstrap
+ * to keep in step.
+ *
+ * Loading here also fixes the chain order for free. spl_autoload_register is
+ * a queue, and this runs at include time while Initiator::autoload() is
+ * registered later inside the constructor -- so a real namespaced class in
+ * src/ is found by Composer first, and only a miss falls through to the
+ * short-name bridge below. That is the right precedence: the bridge is a
+ * compatibility shim, not the destination.
+ *
+ * Guarded because the file legitimately may not be there: a checkout that
+ * has not run `composer install`, and -- the case that actually matters --
+ * every server installed before this commit, whose web tree has no vendor/
+ * until the next upgrade re-lays it. FOG must boot without it.
+ */
+$fogComposerAutoload = __DIR__ . DIRECTORY_SEPARATOR . '..'
+    . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+if (is_readable($fogComposerAutoload)) {
+    require_once $fogComposerAutoload;
+}
+unset($fogComposerAutoload);
+
 class Initiator
 {
     private static $sanitizeItems;
@@ -420,12 +450,23 @@ class Initiator
         // "Cannot declare class Initiator", a bodyless 500 on that one table.
         // Nothing under service/ declares a class, so drop the directory rather
         // than special-case the one file.
+        //
+        // vendor/ is dropped for a related reason. Composer packages are
+        // PSR-4 and use bare .php, so today none of them matches $regext at
+        // all -- but "today" is the whole problem: a dependency that ships
+        // one file called anything.class.php would silently claim that map
+        // key, and third-party code winning a name collision against a FOG
+        // class is not a failure mode worth leaving open for the sake of two
+        // lines. Composer's own autoloader resolves everything under vendor/;
+        // this scan must never be a second route to it.
         $entryPoints = BASEPATH . 'service' . DS;
+        $vendor = BASEPATH . 'vendor' . DS;
         return array_values(
             array_filter(
                 array_column($matches, 0),
-                function ($path) use ($entryPoints) {
-                    return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0;
+                function ($path) use ($entryPoints, $vendor) {
+                    return strncmp($path, $entryPoints, strlen($entryPoints)) !== 0
+                        && strncmp($path, $vendor, strlen($vendor)) !== 0;
                 }
             )
         );
