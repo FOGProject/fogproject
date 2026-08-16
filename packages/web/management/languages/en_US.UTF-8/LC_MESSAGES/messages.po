@@ -1406,6 +1406,10 @@ msgid "Could not apply %s: %s"
 msgstr "Failed to update"
 
 #, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "Failed to create Snapin Job"
+
+#, fuzzy
 msgid "Could not create the staging directory."
 msgstr "Failed to create Snapin Job"
 

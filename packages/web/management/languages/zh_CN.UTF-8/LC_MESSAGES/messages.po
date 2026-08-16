@@ -1407,6 +1407,10 @@ msgid "Could not apply %s: %s"
 msgstr "无法更新"
 
 #, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "无法创建管理单元工作"
+
+#, fuzzy
 msgid "Could not create the staging directory."
 msgstr "无法创建管理单元工作"
 
