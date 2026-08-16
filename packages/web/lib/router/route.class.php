@@ -2394,25 +2394,29 @@ class Route extends FOGBase
                         $g = "GROUP BY `hosts`.`hostName`";
                         break;
                     case 'setting':
-                        // Deliberately no `settingValue` clause, and this
-                        // empty case is here to say so rather than leave a
-                        // gap that reads like an oversight.
+                        // The value IS matched -- searching "bzImage" to find
+                        // FOG_TFTP_PXE_KERNEL is the point of searching
+                        // settings at all, and a key-only search can never
+                        // do it.
                         //
-                        // A setting is found by its key, the way every other
-                        // entity is found by its name. Matching the value
-                        // made the result count carry information about a
-                        // field the response never contains -- and
-                        // globalSettings is where FOG keeps its credentials,
-                        // which is why maskSensitiveSetting() strips `value`
-                        // from this same user's API reads. A search that
-                        // answers questions about a field the API will not
-                        // show gives back what the masking withholds.
+                        // What must not happen is confirming a CREDENTIAL
+                        // value. globalSettings is also where FOG keeps its
+                        // passwords, maskSensitiveSetting() strips their
+                        // value from this same user's API reads, and a hit
+                        // here would answer the question that masking
+                        // refuses -- repeatedly, a few characters at a time.
+                        // So a credential row that matched ONLY on its value
+                        // is dropped below, after the query.
                         //
-                        // Excluding only the credential keys was the other
-                        // option and is worse: it needs a second copy of
-                        // isSensitiveSetting()'s rule living beside the
-                        // query, and the day the two drift nothing fails --
-                        // the values just quietly become findable again.
+                        // Dropped after rather than excluded in the WHERE on
+                        // purpose: an SQL-side exclusion needs a second copy
+                        // of isSensitiveSetting()'s rule (pattern, include
+                        // list, exempt list) written in a different dialect,
+                        // and the day the two drift nothing fails -- the
+                        // values just quietly become findable again. Calling
+                        // the real predicate keeps one rule in one place.
+                        $w = " OR `settingValue` LIKE :item3";
+                        $params['item3'] = $like;
                         break;
                     case 'storagenode':
                         $w = " OR `ngmHostname` LIKE :item3";
@@ -2451,6 +2455,27 @@ class Route extends FOGBase
                             '_api'
                         );
                         if (false !== $api) {
+                            continue;
+                        }
+                    }
+                    // A credential setting that matched only on its VALUE is
+                    // dropped: returning it would confirm a substring of a
+                    // value maskSensitiveSetting() refuses to show. Matching
+                    // its key still returns it -- searching "PASSWORD" should
+                    // find FOG_TFTP_FTP_PASSWORD, that is not a secret.
+                    //
+                    // Recomputed here rather than asked of the query, because
+                    // SQL cannot say which OR arm matched. stripos is the
+                    // same substring test the bound '%term%' performs. Where
+                    // the two can disagree -- a term containing % or _, which
+                    // LIKE treats as a wildcard and stripos does not -- the
+                    // disagreement drops the row, which is the safe direction.
+                    if ('setting' === $search) {
+                        $sid = (string)$val[$classVars['databaseFields']['id']];
+                        $skey = (string)$val[$classVars['databaseFields']['name']];
+                        $visible = false !== stripos($sid, $item)
+                            || false !== stripos($skey, $item);
+                        if (!$visible && self::isSensitiveSetting($skey)) {
                             continue;
                         }
                     }
