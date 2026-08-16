@@ -453,7 +453,7 @@ class HostManagement extends FOGPage
                 );
                 $code = HTTPResponseCodes::HTTP_ACCEPTED;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -991,19 +991,19 @@ class HostManagement extends FOGPage
                 $exists = self::getClass('HostManager')
                     ->exists($host);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A host already exists with this name!')
                     );
                 }
                 $MAC = new MACAddress($mac);
                 if (!$MAC->isValid()) {
-                    throw new Exception(_('MAC Format is invalid'));
+                    throw new \Exception(_('MAC Format is invalid'));
                 }
                 self::getClass('HostManager')->getHostByMacAddresses(
                     $MAC->__toString()
                 );
                 if (self::$Host->isValid()) {
-                    throw new Exception(
+                    throw new \Exception(
                         sprintf(
                             '%s: %s',
                             _('A host with this mac already exists with name'),
@@ -1041,7 +1041,7 @@ class HostManagement extends FOGPage
                     );
                 if (!self::$Host->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add host failed!'));
+                    throw new \Exception(_('Add host failed!'));
                 }
                 return self::$Host;
             }
@@ -1332,17 +1332,17 @@ class HostManagement extends FOGPage
         $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
         if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {
-                throw new Exception(_('Please enter a valid hostname'));
+                throw new \Exception(_('Please enter a valid hostname'));
             }
             if ($this->obj->getManager()->exists($host)) {
-                throw new Exception(_('Please use another hostname'));
+                throw new \Exception(_('Please use another hostname'));
             }
         }
         $Task = $this->obj->get('task');
         if ($Task->isValid()
             && $imageID != $this->obj->get('imageID')
         ) {
-            throw new Exception(_('Cannot change image when in tasking'));
+            throw new \Exception(_('Cannot change image when in tasking'));
         }
         $this->obj
             ->set('name', $host)
@@ -1545,12 +1545,12 @@ class HostManagement extends FOGPage
             );
             $mact = new MACAddress($mac);
             if (!$mact->isValid()) {
-                throw new Exception(_('MAC Address is invalid!'));
+                throw new \Exception(_('MAC Address is invalid!'));
             }
             $mace = self::getClass('MACAddressAssociationManager')
                 ->exists($mac, '', 'mac');
             if ($mace) {
-                throw new Exception(
+                throw new \Exception(
                     _('MAC Address already exists')
                 );
             }
@@ -1659,7 +1659,7 @@ class HostManagement extends FOGPage
             );
 
             if (count($hasPrimary ?: []) > 0) {
-                throw new Exception(
+                throw new \Exception(
                     _('Cannot delete the primary mac address, please reselect')
                 );
             }
@@ -1677,7 +1677,7 @@ class HostManagement extends FOGPage
             );
 
             if (count($toRemove ?: []) < 1) {
-                throw new Exception(
+                throw new \Exception(
                     _('No mac addresses to be removed')
                 );
             }
@@ -2494,7 +2494,7 @@ class HostManagement extends FOGPage
             );
             extract($items);
             if (!$action) {
-                throw new Exception(
+                throw new \Exception(
                     _('You must select an action to perform')
                 );
             }
@@ -3568,11 +3568,11 @@ class HostManagement extends FOGPage
                         break;
                 }
                 if (!$this->obj->isValid()) {
-                    throw new Exception(_('Host is not valid!'));
+                    throw new \Exception(_('Host is not valid!'));
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Host update failed!'));
+                    throw new \Exception(_('Host update failed!'));
                 }
             }
         );
@@ -3599,10 +3599,10 @@ class HostManagement extends FOGPage
         $groups_new = $items['groups_new'];
         try {
             if (!count($hosts ?: [])) {
-                throw new Exception(_('No hosts selected to be added'));
+                throw new \Exception(_('No hosts selected to be added'));
             }
             if (!count($groups ?: []) && !count($groups_new ?: [])) {
-                throw new Exception(_('No groups are being created or selected'));
+                throw new \Exception(_('No groups are being created or selected'));
             }
             if (count($groups ?: [])) {
                 foreach ($groups as &$group) {
@@ -3630,7 +3630,7 @@ class HostManagement extends FOGPage
                     'title' => _('Add Hosts to Groups Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $msg = json_encode(
                 [
@@ -4018,23 +4018,23 @@ class HostManagement extends FOGPage
             $image = $this->obj->getImage();
 
             if ($this->obj->get('pending') > 0) {
-                throw new Exception(_('Cannot task pending hosts'));
+                throw new \Exception(_('Cannot task pending hosts'));
             }
             if ($imagingTypes
                 && !$image->isValid()
             ) {
-                throw new Exception(_('Assigned image is invalid'));
+                throw new \Exception(_('Assigned image is invalid'));
             }
             if ($imagingTypes
                 && $image->get('isEnabled') < 1
             ) {
-                throw new Exception(_('Assigned image is not enabled'));
+                throw new \Exception(_('Assigned image is not enabled'));
             }
             if ($imagingTypes
                 && $iscapturetask
                 && $image->get('protected')
             ) {
-                throw new Exception(_('Assigned image is protected'));
+                throw new \Exception(_('Assigned image is protected'));
             }
             $labelClass = 'col-sm-3 col-form-label';
             $fields = [];
@@ -4230,7 +4230,7 @@ class HostManagement extends FOGPage
                 ]
             );
             $code = HTTPResponseCodes::HTTP_SUCCESS;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -4263,7 +4263,7 @@ class HostManagement extends FOGPage
             $TaskType = json_decode(Route::getData());
             // Pending check.
             if ($this->obj->get('pending')) {
-                throw new Exception(_('Pending hosts cannot be tasked'));
+                throw new \Exception(_('Pending hosts cannot be tasked'));
             }
             // Password reset setup
             $passreset = trim(
@@ -4272,7 +4272,7 @@ class HostManagement extends FOGPage
             if (TaskType::PASSWORD_RESET == $TaskType->id
                 && !$passreset
             ) {
-                throw new Exception(_('Password reset requires a user account'));
+                throw new \Exception(_('Password reset requires a user account'));
             }
 
             // Snapin setup
@@ -4334,15 +4334,15 @@ class HostManagement extends FOGPage
             if ($TaskType->isImagingTask) {
                 $Image = $this->obj->getImage();
                 if (!$Image->isValid()) {
-                    throw new Exception(_('Image is invalid'));
+                    throw new \Exception(_('Image is invalid'));
                 }
                 if (!$Image->get('isEnabled')) {
-                    throw new Exception(_('Image is not enabled'));
+                    throw new \Exception(_('Image is not enabled'));
                 }
                 if ($TaskType->isCapture
                     && $Image->get('protected')
                 ) {
-                    throw new Exception(_('Image is protected'));
+                    throw new \Exception(_('Image is protected'));
                 }
             }
 
@@ -4391,7 +4391,7 @@ class HostManagement extends FOGPage
                 }
                 if (!$ScheduledTask->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Failed to create scheduled task'));
+                    throw new \Exception(_('Failed to create scheduled task'));
                 }
             }
 
@@ -4403,7 +4403,7 @@ class HostManagement extends FOGPage
                     'title' => _('Create Task Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :

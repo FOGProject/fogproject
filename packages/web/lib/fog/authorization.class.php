@@ -322,7 +322,7 @@ class Authorization extends FOGBase
                 [],
                 ['userid' => $userID, 'usergroupid' => $userID]
             )
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         if (!is_array($rows) || count($rows) < 1) {
             // Zero role assignments, direct or group-sourced, grants
@@ -796,7 +796,7 @@ class Authorization extends FOGBase
                 [],
                 ['perm' => (string)$permission]
             )
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         $roleIDs = [];
         foreach ((array)$rows as $row) {
@@ -877,7 +877,7 @@ class Authorization extends FOGBase
         $membership = [];
         $rows = self::$DB
             ->query('SELECT `ruaRoleID`, `ruaUserID` FROM `roleUserAssoc`')
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         foreach ((array)$rows as $row) {
             $membership[(int)$row['ruaRoleID']][] = (int)$row['ruaUserID'];
@@ -886,7 +886,7 @@ class Authorization extends FOGBase
         $groupMembers = [];
         $rows = self::$DB
             ->query('SELECT `ugmGroupID`, `ugmUserID` FROM `userGroupMembers`')
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         foreach ((array)$rows as $row) {
             $groupMembers[(int)$row['ugmGroupID']][] = (int)$row['ugmUserID'];
@@ -895,7 +895,7 @@ class Authorization extends FOGBase
         $groupRoles = [];
         $rows = self::$DB
             ->query('SELECT `rugGroupID`, `rugRoleID` FROM `roleUserGroupAssoc`')
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
         foreach ((array)$rows as $row) {
             $groupRoles[(int)$row['rugGroupID']][] = (int)$row['rugRoleID'];
@@ -1067,7 +1067,7 @@ class Authorization extends FOGBase
         if (self::adminExistsGiven($changes)) {
             return;
         }
-        throw new Exception(
+        throw new \Exception(
             _('This would leave no account able to administer FOG.')
         );
     }
@@ -1132,11 +1132,11 @@ class Authorization extends FOGBase
     {
         $permName = trim((string)$permName);
         if ('' === $permName) {
-            throw new Exception(_('A permission name is required.'));
+            throw new \Exception(_('A permission name is required.'));
         }
         if ('*' === $permName) {
             if (!self::can('*')) {
-                throw new Exception(
+                throw new \Exception(
                     _('Only an administrator may grant full access.')
                 );
             }
@@ -1151,7 +1151,7 @@ class Authorization extends FOGBase
             }
         }
         if (!in_array($permName, $valid, true)) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     _('Unknown permission'),

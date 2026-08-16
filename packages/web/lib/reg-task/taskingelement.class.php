@@ -144,7 +144,7 @@ abstract class TaskingElement extends FOGBase
                         ->getMasterStorageNode();
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo Initiator::e($e->getMessage());
             exit;
         }
@@ -166,7 +166,7 @@ abstract class TaskingElement extends FOGBase
         $mac
     ) {
         if (!$Task->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s (%s)',
                     _('No Active Task found for Host'),
@@ -188,7 +188,7 @@ abstract class TaskingElement extends FOGBase
             Route::names($classname);
             $names = json_decode(Route::getData());
             if (count($names ?: []) <= 0) {
-                throw new Exception(
+                throw new \Exception(
                     _('There are no ' . $classname . 's on this server')
                 );
             }
@@ -199,7 +199,7 @@ abstract class TaskingElement extends FOGBase
                     $item->name
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
         exit;
@@ -216,7 +216,7 @@ abstract class TaskingElement extends FOGBase
     protected static function checkStorageGroup(&$StorageGroup)
     {
         if (!$StorageGroup->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 _('Invalid Storage Group')
             );
         }
@@ -237,7 +237,7 @@ abstract class TaskingElement extends FOGBase
             $getter = 'allnodes';
         }
         if (!count($StorageGroup->get($getter) ?: [])) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s, %s?',
                     _('Could not find a Storage Node in this group'),

@@ -302,7 +302,7 @@ class StorageGroup extends FOGController
             ]
         );
         if (empty($StorageNode) || !$StorageNode->isValid()) {
-            throw new Exception(_('No master nodes available'));
+            throw new \Exception(_('No master nodes available'));
         }
         return $StorageNode;
     }
@@ -355,7 +355,7 @@ class StorageGroup extends FOGController
             ]
         );
         if (empty($StorageNode) || !$StorageNode->isValid()) {
-            throw new Exception(_('No nodes available'));
+            throw new \Exception(_('No nodes available'));
         }
         return $StorageNode;
     }

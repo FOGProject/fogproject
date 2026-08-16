@@ -198,7 +198,7 @@ class FOGSSH
                 $this->login();
             }
             $this->_lastConnectionHash = $this->_currentConnectionHash;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             FOGCore::error($e->getMessage());
             return false;
         }
@@ -215,7 +215,7 @@ class FOGSSH
     public function ssherror($data)
     {
         $error = error_get_last();
-        throw new Exception(
+        throw new \Exception(
             sprintf(
                 '%s: %s, %s: %s, %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Type'),
@@ -264,8 +264,8 @@ class FOGSSH
             if ($this->auth_password($username, $password) === false) {
                 $this->ssherror($this->data);
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
         $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
@@ -309,14 +309,14 @@ class FOGSSH
         $sftp = $this->_sftp;
         $stream = @fopen("ssh2.sftp://$sftp$remotefile", 'w');
         if (!$stream) {
-            throw new Exception(_("Could not open file"). ": $remotefile");
+            throw new \Exception(_("Could not open file"). ": $remotefile");
         }
         $data_to_send = @file_get_contents($localfile);
         if (false === $data_to_send) {
-            throw new Exception(_("Could not open local file"). ": $localfile");
+            throw new \Exception(_("Could not open local file"). ": $localfile");
         }
         if (false === @fwrite($stream, $data_to_send)) {
-            throw new Exception(_("Could not send data from file"). ": $localfile");
+            throw new \Exception(_("Could not send data from file"). ": $localfile");
         }
 
         @fclose($stream);

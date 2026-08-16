@@ -1510,7 +1510,7 @@ class BootMenu extends FOGBase
                 $_REQUEST['username']
             );
             $this->_chainBoot(false, true);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $Send['fail'] = [
                 '#!ipxe',
                 sprintf('echo %s', $e->getMessage()),
@@ -1656,7 +1656,7 @@ class BootMenu extends FOGBase
                     if (!($StorageNode instanceof StorageNode
                         && $StorageNode->isValid())
                     ) {
-                        throw new Exception(_('No valid storage nodes found'));
+                        throw new \Exception(_('No valid storage nodes found'));
                     }
                     $storage = escapeshellcmd(
                         sprintf(

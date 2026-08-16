@@ -136,7 +136,7 @@ class UserGroupManagement extends FOGPage
                 $exists = self::getClass('UserGroupManager')
                     ->exists($usergroup);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A user group already exists with this name!')
                     );
                 }
@@ -145,7 +145,7 @@ class UserGroupManagement extends FOGPage
                     ->set('description', $description);
                 if (!$UserGroup->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add user group failed!'));
+                    throw new \Exception(_('Add user group failed!'));
                 }
                 return $UserGroup;
             }
@@ -241,7 +241,7 @@ class UserGroupManagement extends FOGPage
         if ($usergroup != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A user group with this name already exists!')
             );
         }
@@ -281,7 +281,7 @@ class UserGroupManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -318,7 +318,7 @@ class UserGroupManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -387,7 +387,7 @@ class UserGroupManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('User group update failed!'));
+                    throw new \Exception(_('User group update failed!'));
                 }
                 Authorization::resetCache();
             }

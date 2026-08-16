@@ -15,12 +15,10 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
-// The count this tree is expected to carry. Non-zero here on purpose: the
-// checker is landing one commit ahead of the rewrite, so this asserts that it
-// SEES the problem before the next commit asserts that it sees the fix. A
-// test that only ever asserted zero could be broken and green and nobody
-// would know.
-const EXPECT_SITES = 727;
+// Zero, and it stays zero. The previous commit set this to 727 and passed,
+// which is how we know the assertion has teeth rather than being green
+// because the checker is broken.
+const EXPECT_SITES = 0;
 
 $tool = dirname(__DIR__) . '/bin/prefix-global-classes.php';
 

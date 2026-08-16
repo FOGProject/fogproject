@@ -176,7 +176,7 @@ class ModuleManagement extends FOGPage
                 $exists = self::getClass('ModuleManager')
                     ->exists($module);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A module already exists with this name!')
                     );
                 }
@@ -187,7 +187,7 @@ class ModuleManagement extends FOGPage
                     ->set('isDefault', $isDefault);
                 if (!$Module->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add module failed!'));
+                    throw new \Exception(_('Add module failed!'));
                 }
                 return $Module;
             }
@@ -324,7 +324,7 @@ class ModuleManagement extends FOGPage
         $isDefault = (int)isset($_POST['isDefault']);
         if ($module != $this->obj->get('name')) {
             if ($this->obj->getManager()->exists($module)) {
-                throw new Exception(_('Please use another module name'));
+                throw new \Exception(_('Please use another module name'));
             }
         }
         // Set the module relative items.
@@ -417,7 +417,7 @@ class ModuleManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Module update failed!'));
+                    throw new \Exception(_('Module update failed!'));
                 }
             }
         );

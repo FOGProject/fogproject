@@ -878,7 +878,7 @@ class MulticastTask extends FOGService
                         } else {
                             $lvmscan = true;
                             $filename = 'd1p%d.%s';
-                            $iterator = new DirectoryIterator(
+                            $iterator = new \DirectoryIterator(
                                 $this->getImagePath()
                             );
                             foreach ($iterator as $fileInfo) {
@@ -906,7 +906,7 @@ class MulticastTask extends FOGService
                     default:
                         $lvmscan = true;
                         $filename = 'd1p%d.%s';
-                        $iterator = new DirectoryIterator(
+                        $iterator = new \DirectoryIterator(
                             $this->getImagePath()
                         );
                         foreach ($iterator as $fileInfo) {
@@ -933,7 +933,7 @@ class MulticastTask extends FOGService
             case 2:
                 $lvmscan = true;
                 $filename = 'd1p%d.%s';
-                $iterator = new DirectoryIterator(
+                $iterator = new \DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
@@ -959,7 +959,7 @@ class MulticastTask extends FOGService
             case 3:
                 $lvmscan = true;
                 $filename = 'd%dp%d.%s';
-                $iterator = new DirectoryIterator(
+                $iterator = new \DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
@@ -984,7 +984,7 @@ class MulticastTask extends FOGService
                 unset($iterator);
                 break;
             case 4:
-                $iterator = new DirectoryIterator(
+                $iterator = new \DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
@@ -1003,7 +1003,7 @@ class MulticastTask extends FOGService
              * the send loop below expands it into the sidecar's LV image
              * files in line order — the order the FOS client restores in.
              */
-            $iterator = new DirectoryIterator(
+            $iterator = new \DirectoryIterator(
                 $this->getImagePath()
             );
             foreach ($iterator as $fileInfo) {

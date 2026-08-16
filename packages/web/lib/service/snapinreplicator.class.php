@@ -90,7 +90,7 @@ class SnapinReplicator extends FOGService
         try {
             self::$_repOn = self::getSetting('SNAPINREPLICATORGLOBALENABLED');
             if (self::$_repOn < 1) {
-                throw new Exception(_(' * Snapin replication is globally disabled'));
+                throw new \Exception(_(' * Snapin replication is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $skip = false;
@@ -281,7 +281,7 @@ class SnapinReplicator extends FOGService
                 }
                 unset($Snapins);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall(
                 sprintf(
                     ' * %s',

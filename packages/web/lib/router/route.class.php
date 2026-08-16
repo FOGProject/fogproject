@@ -1859,7 +1859,7 @@ class Route extends FOGBase
                         'formatter' => function ($d, $row) use (&$StorageGroup) {
                             try {
                                 $sn = $StorageGroup->getMasterStorageNode();
-                            } catch (Exception $e) {
+                            } catch (\Exception $e) {
                                 $sn = new StorageNode();
                             }
                             return self::getter('storagenode', $sn);
@@ -2045,7 +2045,7 @@ class Route extends FOGBase
                 self::$data = $listData;
             }
             self::paginate(isset($pass_vars) ? $pass_vars : []);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2162,7 +2162,7 @@ class Route extends FOGBase
                 self::$countOnly = false;
             }
             self::$data = ['total' => self::$data['recordsFiltered']];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2279,7 +2279,7 @@ class Route extends FOGBase
                     [],
                     $params
                 )->fetch(
-                    PDO::FETCH_ASSOC,
+                    \PDO::FETCH_ASSOC,
                     'fetch_all'
                 )->get();
                 foreach ($vals as $val) {
@@ -2315,7 +2315,7 @@ class Route extends FOGBase
                 ['data' => &$data]
             );
             self::$data = $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2355,7 +2355,7 @@ class Route extends FOGBase
                     'classman' => &$classman
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2407,7 +2407,7 @@ class Route extends FOGBase
                     'class' => &$class
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2660,7 +2660,7 @@ class Route extends FOGBase
                 );
             }
             self::indiv($classname, $id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2884,7 +2884,7 @@ class Route extends FOGBase
                 );
             }
             self::indiv($classname, $id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3053,7 +3053,7 @@ class Route extends FOGBase
                         }
                     }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3092,7 +3092,7 @@ class Route extends FOGBase
             // here (they used to be expanded down in _buildSql, which also
             // caught internally-built filters -- see expandSearchWildcards).
             return self::expandSearchWildcards($find);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3129,7 +3129,7 @@ class Route extends FOGBase
                     $find = ['stateID' => $states];
             }
             self::listem($class, $find);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3167,7 +3167,7 @@ class Route extends FOGBase
             // runs the same removeItems map and fires DELETEMASS_API for plugins,
             // instead of a bare row delete that orphaned every association.
             return self::deletemass($class, $whereItems);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3625,7 +3625,7 @@ class Route extends FOGBase
                 ]
             );
             return $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4113,7 +4113,7 @@ class Route extends FOGBase
                 $orderby
             );
 
-            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 if (is_array($getField)) {
                     $row = [];
@@ -4127,7 +4127,7 @@ class Route extends FOGBase
                 unset($val);
             }
             self::$data = $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4519,7 +4519,7 @@ class Route extends FOGBase
             );
 
             return self::$DB->query($sqlResult['sql'], [], $sqlResult['params']);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4695,7 +4695,7 @@ class Route extends FOGBase
                 . '` ASC';
 
             return ['sql' => $sql, 'params' => $params];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4755,7 +4755,7 @@ class Route extends FOGBase
                 $operator,
                 $orderby
             );
-            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 $data[] = [
                     'id' => $val[$classVars['databaseFields']['id']],
@@ -4765,7 +4765,7 @@ class Route extends FOGBase
             }
 
             self::$data = $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4949,7 +4949,7 @@ class Route extends FOGBase
                     $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             }
             self::sendResponse($code);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()

@@ -44,7 +44,7 @@ function read_return_int($filename)
  */
 $getBytes = function ($dev) {
     if (!is_string($dev)) {
-        throw new Exception(_('Device must be a string'));
+        throw new \Exception(_('Device must be a string'));
     }
     $txpath = "/sys/class/net/$dev/statistics/tx_bytes";
     $rxpath = "/sys/class/net/$dev/statistics/rx_bytes";

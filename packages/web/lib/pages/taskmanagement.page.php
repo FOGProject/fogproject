@@ -1014,7 +1014,7 @@ class TaskManagement extends FOGPage
                     'title' => _('Task Cancel Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
@@ -1076,7 +1076,7 @@ class TaskManagement extends FOGPage
                     'title' => _('Task Cancel Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
@@ -1130,7 +1130,7 @@ class TaskManagement extends FOGPage
                     'title' => _('Task Cancel Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
@@ -1184,7 +1184,7 @@ class TaskManagement extends FOGPage
                     'title' => _('Task Cancel Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
@@ -1238,7 +1238,7 @@ class TaskManagement extends FOGPage
                     'title' => _('Queue Deletion Cancel Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'QUEUED_DELETION_CANCEL_FAIL';
             $msg = json_encode(

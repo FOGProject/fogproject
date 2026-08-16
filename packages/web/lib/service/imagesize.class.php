@@ -91,7 +91,7 @@ class ImageSize extends FOGService
             self::$_sizeOn = self::getSetting('IMAGESIZEGLOBALENABLED');
             self::$_sizeOn = self::getSetting('IMAGESIZEGLOBALENABLED');
             if (self::$_sizeOn < 1) {
-                throw new Exception(_(' * Image size is globally disabled'));
+                throw new \Exception(_(' * Image size is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $myStorageGroupID = $StorageNode->storagegroupID;
@@ -244,7 +244,7 @@ class ImageSize extends FOGService
                 )
             );
             unset($StorageNodes);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall(
                 sprintf(
                     ' * %s',

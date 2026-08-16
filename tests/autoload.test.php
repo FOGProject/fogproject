@@ -93,9 +93,9 @@ register_shutdown_function(
         if (!is_dir($tmp)) {
             return;
         }
-        $it = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($tmp, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
+        $it = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($tmp, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($it as $f) {
             $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
@@ -261,8 +261,8 @@ if ($bridged) {
     // every getClass()/Reflection consumer see one type. get_class() still
     // reports the declared name -- that asymmetry is why namespacing the
     // models is a separate problem from bridging their names.
-    $refFqcn = new ReflectionClass('FOG\Host');
-    $refShort = new ReflectionClass('Host');
+    $refFqcn = new \ReflectionClass('FOG\Host');
+    $refShort = new \ReflectionClass('Host');
     if ($refFqcn->getName() !== $refShort->getName()) {
         $failures[] = 'FOG\Host resolves to a different class entry than '
             . 'Host (' . $refFqcn->getName() . ' vs ' . $refShort->getName()

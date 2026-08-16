@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class UploadException extends Exception
+class UploadException extends \Exception
 {
     /**
      * Initializes the upload exception.

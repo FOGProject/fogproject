@@ -4363,7 +4363,7 @@ $this->schema[] = [
             . "WHERE `TABLE_SCHEMA` = DATABASE() "
             . "AND `TABLE_NAME` = 'roleUserAssoc' "
             . "GROUP BY `INDEX_NAME`"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $hasComposite = false;
         $lonely = [];
         foreach ((array)$indexes as $index) {
@@ -4455,7 +4455,7 @@ $this->schema[] = [
             . "SELECT 1 FROM `rolePermissions` `p` "
             . "WHERE `p`.`rpRoleID` = `r`.`rID`"
             . ")"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $values = [];
         foreach ((array)$techIDs as $row) {
             $rID = (int)$row['rID'];
@@ -4554,7 +4554,7 @@ $this->schema[] = [
         ];
         $techIDs = self::$DB->query(
             "SELECT `rID` FROM `roles` WHERE `rName` = 'Technician'"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $values = [];
         foreach ((array)$techIDs as $row) {
             $rID = (int)$row['rID'];

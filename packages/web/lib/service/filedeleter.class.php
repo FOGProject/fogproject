@@ -88,10 +88,10 @@ class FileDeleter extends FOGService
     private static function humanifyRun($diff, $unit)
     {
         if (!is_numeric($diff)) {
-            throw new Exception(_('Diff parameter must be numeric'));
+            throw new \Exception(_('Diff parameter must be numeric'));
         }
         if (!is_string($unit)) {
-            throw new Exception(_('Unit of time must be a string'));
+            throw new \Exception(_('Unit of time must be a string'));
         }
         $before = $after = '';
         if ($diff < 0) {
@@ -115,7 +115,7 @@ class FileDeleter extends FOGService
     }
     private static function formatRunTime($time)
     {
-        if (!$time instanceof DateTime) {
+        if (!$time instanceof \DateTime) {
             $time = self::niceDate($time);
         }
         $now = self::niceDate('now');
@@ -152,7 +152,7 @@ class FileDeleter extends FOGService
         try {
             self::$_schedOn = self::getSetting('FILEDELETEQUEUEGLOBALENABLED');
             if (self::$_schedOn < 1) {
-                throw new Exception(_(' * File delete queue is globally disabled'));
+                throw new \Exception(_(' * File delete queue is globally disabled'));
             }
             Route::active('filedeletequeue');
             $filedeletes = json_decode(Route::getData());
@@ -306,7 +306,7 @@ class FileDeleter extends FOGService
                     ->set('stateID', self::getCompleteState())
                     ->save();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall($e->getMessage());
         }
     }

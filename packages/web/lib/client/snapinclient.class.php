@@ -250,7 +250,7 @@ class SnapinClient extends FOGClient
             $tID = filter_input(INPUT_GET, 'taskid');
         }
         if (!is_numeric($tID)) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',
@@ -268,7 +268,7 @@ class SnapinClient extends FOGClient
                 ]
             ))
         ) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',
@@ -278,7 +278,7 @@ class SnapinClient extends FOGClient
         }
         $Snapin = $SnapinTask->getSnapin();
         if (!$Snapin->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',
@@ -395,7 +395,7 @@ class SnapinClient extends FOGClient
             $tID = filter_input(INPUT_GET, 'taskid');
         }
         if (!is_numeric($tID)) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',
@@ -405,7 +405,7 @@ class SnapinClient extends FOGClient
         }
         $SnapinTask = new SnapinTask($tID);
         if (!$SnapinTask->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',
@@ -422,7 +422,7 @@ class SnapinClient extends FOGClient
         // Same message as the isValid() failure above, so this is not an oracle
         // for "exists but belongs to someone else".
         if ((int)$SnapinTask->get('jobID') !== (int)$SnapinJob->get('id')) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',
@@ -432,7 +432,7 @@ class SnapinClient extends FOGClient
         }
         $Snapin = $SnapinTask->getSnapin();
         if (!$Snapin->isValid()) {
-            throw new Exception(_('Invalid Snapin'));
+            throw new \Exception(_('Invalid Snapin'));
         }
         $StorageGroup = $StorageNode = null;
         self::$HookManager->processEvent(
@@ -457,7 +457,7 @@ class SnapinClient extends FOGClient
         ) {
             $StorageGroup = $Snapin->getStorageGroup();
             if (!$StorageGroup->isValid()) {
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         '%s: %s',
                         '#!er',
@@ -473,7 +473,7 @@ class SnapinClient extends FOGClient
             if (!($StorageNode instanceof StorageNode
                 && $StorageNode->isValid())
             ) {
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         '%s: %s',
                         '#!er',
@@ -499,7 +499,7 @@ class SnapinClient extends FOGClient
         self::$FOGFTP->password = $pass;
         self::$FOGFTP->host = $host;
         if (!self::$FOGFTP->connect()) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',
@@ -539,7 +539,7 @@ class SnapinClient extends FOGClient
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
         if (($fh = fopen($SnapinFile, 'rb')) === false) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s',
                     '#!er',

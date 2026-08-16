@@ -425,15 +425,15 @@ class Initiator
             $matches = array_merge(
                 $matches,
                 iterator_to_array(
-                    new RegexIterator(
-                        new RecursiveIteratorIterator(
-                            new RecursiveDirectoryIterator(
+                    new \RegexIterator(
+                        new \RecursiveIteratorIterator(
+                            new \RecursiveDirectoryIterator(
                                 $root,
-                                FileSystemIterator::SKIP_DOTS
+                                \FileSystemIterator::SKIP_DOTS
                             )
                         ),
                         $regext,
-                        RegexIterator::GET_MATCH
+                        \RegexIterator::GET_MATCH
                     ),
                     false
                 )
@@ -571,7 +571,7 @@ class Initiator
     private static function _verCheck(): void
     {
         if (version_compare(phpversion(), '7.4', '<')) {
-            throw new Exception('FOG Requires PHP v7.4 or higher. You have PHP v' . phpversion());
+            throw new \Exception('FOG Requires PHP v7.4 or higher. You have PHP v' . phpversion());
         }
     }
 
@@ -580,7 +580,7 @@ class Initiator
         $requiredExtensions = ['gettext', 'mysqli'];
         $loadedExtensions = get_loaded_extensions();
         if (count(array_intersect($requiredExtensions, $loadedExtensions)) < count($requiredExtensions)) {
-            throw new Exception(_('Missing one or more extensions.'));
+            throw new \Exception(_('Missing one or more extensions.'));
         }
     }
 

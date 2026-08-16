@@ -181,7 +181,7 @@ class MulticastSession extends FOGController
     {
         $max = (int)self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
         if ($max > 0 && self::activeCount() >= $max) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     _('Server is only configured to run %d multicast tasks'),
                     $max
@@ -263,7 +263,7 @@ class MulticastSession extends FOGController
                 return $port;
             }
         }
-        throw new Exception(
+        throw new \Exception(
             _('Every configured multicast port is already in use')
         );
     }
