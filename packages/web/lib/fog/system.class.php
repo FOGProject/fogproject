@@ -62,23 +62,36 @@ class System
         define('FOG_VERSION', '1.6.0-beta.3409');
         define('FOG_CHANNEL', 'Beta');
         // Bumped by one for every element added to $this->schema in
-        // commons/schema.php. It is NOT the element count -- it has drifted
-        // well above it (289 elements at the time of writing) -- and nothing
-        // requires the two to agree. What it must never do is fall BELOW the
-        // element count: DatabaseManager::init() and schemaNeedsDeploy() test
+        // commons/schema.php, and it must never fall BELOW that element
+        // count. DatabaseManager::init() and schemaNeedsDeploy() test
         // `mySchema < FOG_SCHEMA` to decide whether to send the admin (or the
         // installer's token bootstrap) to the schema updater, and the updater
         // then does the real work with `count($this->schema) <= mySchema`. So
-        // this is the coarse gate and the count is the precise one; keeping the
-        // gate comfortably above the count is what makes a genuinely behind
-        // server get there at all.
+        // this is the coarse gate and the count is the precise one -- and a
+        // gate below the count means the admin is never sent to the updater
+        // at all, so the precise check never gets to run and the step sits
+        // there applying to nobody.
+        //
+        // That is not hypothetical: 18edea94f appended the element labelled
+        // 330 without touching this constant, leaving it at 329, and task
+        // type 26 reached no install until this bump. An earlier revision of
+        // this comment said the constant had "drifted well above" the count
+        // (289 at the time) and that nothing required the two to agree, which
+        // read as licence not to bump. They do have to agree, so tests/
+        // schema-gate.test.php now fails the build when they do not.
+        //
+        // The invariant the test pins, and the one to keep when appending:
+        // the highest `// N` label in commons/schema.php equals
+        // count($this->schema) equals this constant. The labels are not
+        // array indexes -- index 79 is written by a foreach over
+        // $keySequences, so the numbers only line up as counts.
         //
         // Corollary worth knowing before chasing a step that "did not run": a
         // database storing a vValue ABOVE the element count -- which is what a
         // 1.5.x carried count does, see SchemaReconciler's docstring -- is
         // permanently "up to date" from the updater's point of view and will
         // never run another indexed step, whatever this constant says.
-        define('FOG_SCHEMA', 329);
+        define('FOG_SCHEMA', 331);
         define('FOG_BCACHE_VER', 277);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
