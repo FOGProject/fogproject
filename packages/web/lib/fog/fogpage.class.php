@@ -494,6 +494,10 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['FOG Configuration'],
                 'fa fa-wrench'
             ],
+            'apidocs' => [
+                _('API Documentation'),
+                'fa fa-code'
+            ],
             'report' => [
                 self::$foglang['Reports'],
                 'fa fa-file-text'

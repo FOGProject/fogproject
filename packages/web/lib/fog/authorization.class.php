@@ -52,7 +52,11 @@ class Authorization extends FOGBase
      * @var array
      */
     const NODE_ALIASES = [
-        'about' => 'settings'
+        'about' => 'settings',
+        // The API reference lays out every class and field the API exposes,
+        // which is the same class of server information the settings pages
+        // carry, so it takes the same gate rather than a node of its own.
+        'apidocs' => 'settings'
     ];
     /**
      * Exact sub overrides that the naming conventions would misresolve.
@@ -136,6 +140,14 @@ class Authorization extends FOGBase
         'bandwidth' => null,
         'whoami' => null,
         'unisearch' => null,
+        // The API description, and its swagger.json alias. Public for the
+        // same reason status/info are: a client should be able to discover
+        // what it is talking to before it has credentials. Both expose only
+        // the shape of the API -- class names, field names, types, all
+        // already public in the source -- and no data. Declared here rather
+        // than left to the unknown-route fallback so the intent is recorded.
+        'openapi' => null,
+        'openapiSwaggerAlias' => null,
         'export' => 'settings.edit',
         'kernelUpdate' => 'settings.view',
         'initrdUpdate' => 'settings.view',
