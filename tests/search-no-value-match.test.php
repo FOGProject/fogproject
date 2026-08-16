@@ -1,23 +1,32 @@
 <?php
 /**
- * Universal search must not match a globalSettings value.
+ * Universal search may match a setting's value, but must not confirm a
+ * credential one.
  *
- * `Route::unisearch()` returns only an id and a name per row, so a setting's
- * value never appears in a response. It used to be matched anyway, with
- * `OR settingValue LIKE :item3`, and that is a different thing from
- * returning it: the number of results answers "does this value contain that
- * substring", which is exactly the question `maskSensitiveSetting()` exists
- * to refuse. globalSettings is where FOG keeps its credentials, so the
- * answer is worth having.
+ * Searching settings by VALUE is the point of searching settings: "bzImage"
+ * finds FOG_TFTP_PXE_KERNEL, and no key-only search ever can. So the value
+ * clause stays.
  *
- * Restoring the clause looks like a small usability improvement -- "let
- * admins find a setting by its value" -- and nothing about the code says
- * otherwise, which is why this test exists rather than a comment alone.
- * The empty `case 'setting':` in that switch carries the reasoning.
+ * globalSettings is also where FOG keeps its passwords, and
+ * Route::maskSensitiveSetting() strips their value from API reads. A hit on
+ * the value would answer the question that masking refuses -- and answer it
+ * repeatedly, a few characters at a time -- even though the value itself
+ * never appears in the response. So unisearch() drops a credential row that
+ * matched ONLY on its value, using Route::isSensitiveSetting() itself.
  *
- * Scoped to the query builder, not the whole file: `settingValue` is a real
- * column and legitimately appears in reads elsewhere. What must not come
- * back is matching it in a search.
+ * The invariant is the PAIR, which is why this test is conditional rather
+ * than a ban on either half:
+ *
+ *   matching settingValue  =>  calling isSensitiveSetting()
+ *
+ * Removing the drop while keeping the match is the regression that matters,
+ * and it is an easy one to make -- the drop lives thirty lines below the
+ * clause it guards, in the result loop, because SQL cannot report which OR
+ * arm matched. Removing both is merely a feature regression, and the second
+ * check names it so nobody re-adds the clause without the guard.
+ *
+ * Scoped to unisearch(), not the whole file: settingValue is a real column
+ * and legitimately appears in reads elsewhere.
  *
  * DB-free: reads the source.
  *
@@ -48,28 +57,30 @@ if (false === $end) {
 }
 $body = substr($src, $start, $end - $start);
 
+// Comments explain both halves, so they must not count as either half.
+$code = preg_replace('#//[^\n]*#', '', $body);
+
 $failures = [];
 $checks = 0;
 
-// Comments explain the absence, so they must not count as the thing itself.
-$code = preg_replace('#//[^\n]*#', '', $body);
+$matchesValue = (bool)preg_match('/settingValue/i', $code);
+$guards = (bool)preg_match('/isSensitiveSetting\s*\(/', $code);
 
 $checks++;
-if (preg_match('/settingValue/i', $code)) {
-    $failures[] = 'unisearch() references settingValue. The universal '
-        . 'search must match a setting by its KEY only -- matching the '
-        . 'value turns the result count into an oracle for credential '
-        . 'settings whose value the API deliberately masks.';
+if ($matchesValue && !$guards) {
+    $failures[] = 'unisearch() matches settingValue without calling '
+        . 'isSensitiveSetting(). Matching the value of a credential setting '
+        . 'confirms a substring of a value the API deliberately masks, so '
+        . 'the value clause may only ship alongside the drop that follows it '
+        . 'in the result loop.';
 }
 
-// The marker case is what makes the omission legible in the source. Losing
-// it is not a vulnerability, but it is how the next person re-adds the
-// clause without knowing there was a reason.
 $checks++;
-if (false === strpos($body, "case 'setting':")) {
-    $failures[] = "the explicit `case 'setting':` marker in unisearch()'s "
-        . 'switch is gone; it is what records that the missing value clause '
-        . 'is deliberate';
+if (!$matchesValue) {
+    $failures[] = 'unisearch() no longer matches settingValue, so a setting '
+        . 'can only be found by its key -- "bzImage" stops finding '
+        . 'FOG_TFTP_PXE_KERNEL. If that is deliberate, delete this check and '
+        . 'say why; do not just let it fail.';
 }
 
 if (count($failures)) {
@@ -80,5 +91,5 @@ if (count($failures)) {
     exit(1);
 }
 
-echo "ok  $checks search value-match checks\n";
+echo "ok  $checks setting value-match checks\n";
 exit(0);
