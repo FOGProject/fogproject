@@ -1798,7 +1798,7 @@ abstract class FOGPage extends FOGBase
                         ];
                     }
                 }
-                self::getClass('filedeletequeuemanager')
+                self::getClass('FileDeleteQueueManager')
                     ->insertBatch(
                         $insert_fields,
                         $insert_values

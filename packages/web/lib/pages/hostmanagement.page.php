@@ -1568,7 +1568,7 @@ class HostManagement extends FOGPage
                     ['primary' => 0]
                 );
             if ($primary) {
-                self::getClass('MACAddressASsociationManager')
+                self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
                             'id' => $primary,

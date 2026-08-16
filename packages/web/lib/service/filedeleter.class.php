@@ -209,7 +209,7 @@ class FileDeleter extends FOGService
                         $filedelete->createdTime
                     )
                 );
-                $Task = self::getClass('filedeletequeue', $filedelete->id)
+                $Task = self::getClass('FileDeleteQueue', $filedelete->id)
                     ->set('stateID', self::getProgressState())
                     ->save();
                 $StorageNodes = Route::getList(
