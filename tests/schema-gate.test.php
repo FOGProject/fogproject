@@ -41,6 +41,19 @@
  * a coarse gate and is allowed to run ahead of the count; only falling
  * behind breaks anything.
  *
+ * The label would be a leaky proxy on its own -- an element appended with no
+ * label at all would not raise the highest label, so the gate would still
+ * look covered while the element stranded. So the second check below refuses
+ * an unlabelled append. Together they close it: you cannot append without
+ * labelling, and you cannot label above FOG_SCHEMA.
+ *
+ * Counting the array for real was tried and rejected. commons/schema.php can
+ * be included against a stubbed $this and a fake DB, but it also wants ~35
+ * config constants and a couple of core classes, and every one of those is a
+ * thing an unrelated schema commit could add. A guard that fails for reasons
+ * unconnected to what it guards is a guard people learn to ignore, and these
+ * two textual checks are exact for every shape the file actually uses.
+ *
  * Usage: php tests/schema-gate.test.php
  * Exit status 0 = pass, 1 = fail.
  */
@@ -56,15 +69,18 @@ foreach ([$schemaFile, $systemFile] as $path) {
     }
 }
 
+$schemaSrc = file_get_contents($schemaFile);
+
 /*
  * Highest step label. Anchored to the start of the line so a number
  * mentioned inside a step's own explanatory comment -- which is indented --
- * cannot be mistaken for a label.
+ * cannot be mistaken for a label. Trailing prose is allowed: the file writes
+ * both `// 320` and `// 278 is #268 in 1.5.8`.
  */
 $labels = [];
 preg_match_all(
-    '/^\/\/ (\d+)$/m',
-    file_get_contents($schemaFile),
+    '/^\/\/ (\d+)(?:\D.*)?$/m',
+    $schemaSrc,
     $labels
 );
 if (!count($labels[1])) {
@@ -72,6 +88,59 @@ if (!count($labels[1])) {
     exit(1);
 }
 $highest = max(array_map('intval', $labels[1]));
+
+/*
+ * No unlabelled appends. Every top-level `$this->schema[] =` must have a
+ * `// N` line somewhere between it and the append before it -- true of all
+ * 296 of them today, and the thing that lets the highest label stand in for
+ * the element count.
+ *
+ * Deliberately "somewhere between" rather than "on the line directly above".
+ * Thirteen steps read a column out of information_schema first and branch on
+ * it (`$this->schema[] = count($column ?: []) ? [] : [...]`), so the label,
+ * the lookup and the append are three separate statements. Requiring
+ * adjacency would fail all thirteen and teach the next person that this test
+ * is noise.
+ *
+ * Only column-zero appends are checked. The one indented append is inside
+ * the foreach over $keySequences, which writes 35 elements (indexes 45-79)
+ * from a single line of source; it is covered by the `// 45 - 79 setup`
+ * label above the loop and cannot be counted from the text at all, which is
+ * the specific reason the labels rather than a static count are authoritative
+ * here.
+ */
+$lines = preg_split('/\r?\n/', $schemaSrc);
+$unlabelled = [];
+$seenLabel = false;
+foreach ($lines as $i => $line) {
+    if (preg_match('/^\/\/ \d+(?:\D.*)?$/', $line)) {
+        $seenLabel = true;
+        continue;
+    }
+    if (!preg_match('/^\$this->schema\[\] *=/', $line)) {
+        continue;
+    }
+    if (!$seenLabel) {
+        // Reported 1-indexed, to match what an editor shows.
+        $unlabelled[] = $i + 1;
+    }
+    $seenLabel = false;
+}
+
+if (count($unlabelled)) {
+    fwrite(
+        STDERR,
+        'FAIL: ' . count($unlabelled) . " append(s) in commons/schema.php\n"
+        . "  carry no `// N` step label, at line(s) "
+        . implode(', ', $unlabelled) . ".\n"
+        . "  An unlabelled element does not raise the highest label, so the\n"
+        . "  FOG_SCHEMA check below would still pass while that element sat\n"
+        . "  above the gate and applied to nobody. Put the step's number on\n"
+        . "  a line of its own above the append, as every other step does,\n"
+        . "  and raise FOG_SCHEMA to match.\n"
+    );
+    exit(1);
+}
 
 $const = [];
 if (!preg_match(
