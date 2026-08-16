@@ -73,14 +73,10 @@ class ServiceConfigurationPage extends FOGPage
             $notWhere
         );
 
-        Route::listem(
+        self::$_modules = Route::getList(
             'module',
             ['shortName' => $where]
         );
-        $Modules = json_decode(
-            Route::getData()
-        );
-        self::$_modules = $Modules->data;
     }
     /**
      * Presents the home for this page.

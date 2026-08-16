@@ -1224,15 +1224,12 @@ class SnapinManagement extends FOGPage
                 // * At least here we can queue it
                 // * So it could be stopped before
                 // * Its actually deleted.
-                Route::listem(
+                $othersnapins = Route::getList(
                     'snapin',
                     ['file' => $this->obj->get('file')]
                 );
-                $othersnapins = json_decode(
-                    Route::getData()
-                );
                 $otherfiles = [];
-                foreach ($othersnapins->data as $osnapin) {
+                foreach ($othersnapins as $osnapin) {
                     if ($osnapin->id == $this->obj->get('id')) {
                         continue;
                     }
@@ -1572,11 +1569,16 @@ class SnapinManagement extends FOGPage
                 ]
             ));
         }
-        Route::names(
-            'storagegroup',
-            ['id' => $storagegroupsAssigned]
+        // asValue(): names() has no wrapper of its own, and its payload is
+        // a bare list with nothing to unwrap.
+        $storagegroupNames = Route::asValue(
+            function () use ($storagegroupsAssigned) {
+                Route::names(
+                    'storagegroup',
+                    ['id' => $storagegroupsAssigned]
+                );
+            }
         );
-        $storagegroupNames = json_decode(Route::getData());
         foreach ($storagegroupNames as &$storagegroup) {
             $storagegroups[$storagegroup->id] = $storagegroup->name;
             unset($storagegroup);

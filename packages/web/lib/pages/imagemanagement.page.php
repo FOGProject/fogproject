@@ -1609,11 +1609,16 @@ class ImageManagement extends FOGPage
                 ]
             ));
         }
-        Route::names(
-            'storagegroup',
-            ['id' => $storagegroupsAssigned]
+        // asValue(): names() has no wrapper of its own, and its payload is
+        // a bare list with nothing to unwrap.
+        $storagegroupNames = Route::asValue(
+            function () use ($storagegroupsAssigned) {
+                Route::names(
+                    'storagegroup',
+                    ['id' => $storagegroupsAssigned]
+                );
+            }
         );
-        $storagegroupNames = json_decode(Route::getData());
         foreach ($storagegroupNames as &$storagegroup) {
             $storagegroups[$storagegroup->id] = $storagegroup->name;
             unset($storagegroup);
