@@ -8157,6 +8157,82 @@ localbootfiles=(
     secureboot/arm64-efi/ipxe-shimaa64.efi
     secureboot/arm64-efi/mmaa64.efi
 )
+# The ready-to-copy ESP kit: "src|dst", relative to $tftpdirdst and to the
+# published esp/ directory respectively.
+#
+# Everything above is a menu to choose from. This is the opposite -- one folder
+# an admin copies verbatim onto an ESP, with the files already carrying the names
+# the chain requires. It exists because two of those names are NOT free choices.
+#
+# shim picks its second stage by rewriting its OWN "-shim<arch>.efi" suffix to
+# ".efi". So snponly-shimx64.efi will load "snponly.efi" and nothing else, and it
+# has to be upstream's copy, because upstream's is what its embedded certificate
+# vouches for. That reserves "snponly.efi" -- and, if the other pair is ever used,
+# "ipxe.efi" too. FOG's own builds therefore cannot keep their natural names on an
+# ESP, hence the "local" prefix. It is not cosmetic: dropping FOG's ipxe.efi in
+# beside ipxe-shimx64.efi would have shim load an image it cannot verify.
+#
+# The kit is x86_64 and arm64 only, because those are the two architectures
+# upstream signs a shim for. i386 has no signed shim, so there is no Secure Boot
+# chain to assemble -- an i386 machine booting with Secure Boot off just takes
+# i386-efi/ipxe.efi from the menu above and needs none of this.
+#
+# Copied AFTER _signLocalIpxe() has run, so the local*.efi here already carry
+# FOG's signature wherever the server holds keys.
+localbootespfiles=(
+    "secureboot/snponly-shimx64.efi|snponly-shimx64.efi"
+    "secureboot/snponly.efi|snponly.efi"
+    "ipxe.efi|localipxe.efi"
+    "snp.efi|localsnp.efi"
+    "intel.efi|localintel.efi"
+    "realtek.efi|localrealtek.efi"
+    "secureboot/arm64-efi/snponly-shimaa64.efi|arm64-efi/snponly-shimaa64.efi"
+    "secureboot/arm64-efi/snponly.efi|arm64-efi/snponly.efi"
+    "arm64-efi/ipxe.efi|arm64-efi/localipxe.efi"
+    "arm64-efi/snp.efi|arm64-efi/localsnp.efi"
+    "arm64-efi/intel.efi|arm64-efi/localintel.efi"
+    "arm64-efi/realtek.efi|arm64-efi/localrealtek.efi"
+)
+# The kit's autoexec.ipxe, written into each architecture's directory.
+#
+# Static, not a template. default.ipxe is generated per install because it embeds
+# the server address; this has no per-server content at all -- it chains a sibling
+# by relative filename, and FOG's build carries the DHCP/next-server script
+# compiled in, so it finds the server by itself. iPXE resolves a bare filename
+# against the URI the running binary was loaded from, which on an ESP is the
+# directory this sits in.
+#
+# The fallback covers WHICH FILES GOT COPIED, not which driver works. Say it that
+# way in the docs too. `chain X || goto Y` only branches when the image fails to
+# LOAD -- absent, malformed, or rejected by shim's verification. Once an image
+# loads and runs, control never returns: FOG's embedded script ends its own
+# failure path with `prompt ... && shell || reboot`, so a binary that starts fine
+# but binds no NIC parks there. The next branch is never reached. That is the
+# difference from the net0/net1/net2 ladder in the netboot script, which works
+# because it stays inside one iPXE instance rather than handing off.
+#
+# Still worth having: it means one kit boots whether the admin copied the whole
+# folder or only the variant their hardware needs.
+_espAutoexecScript() {
+    cat <<'ESPAUTOEXEC'
+#!ipxe
+# Read off the ESP by upstream's signed loader, after shim has established MOK
+# trust. Chains FOG's own build, which carries the FOG boot script compiled in.
+#
+# The fallbacks fire only if a file is MISSING or fails verification -- not if it
+# loads and then finds no NIC. Copy the variant your hardware needs.
+chain localipxe.efi || goto trysnp
+:trysnp
+chain localsnp.efi || goto tryintel
+:tryintel
+chain localintel.efi || goto tryrealtek
+:tryrealtek
+chain localrealtek.efi || goto nolocalbinary
+:nolocalbinary
+echo No usable FOG iPXE binary found on this ESP.
+prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+ESPAUTOEXEC
+}
 # Publish the EFI binaries an ESP needs, under the web root.
 #
 # The machines this exists for cannot fetch a boot file over the network -- that
@@ -8225,6 +8301,29 @@ _publishLocalBootFiles() {
         else
             failed=1
         fi
+    done
+    # The ready-to-copy kit, on top of the menu above. Its sources are the same
+    # files, so a missing one is skipped here for the same reason: an HTTPS
+    # install stages no secureboot/ at all, which costs the kit its shim and
+    # leaves an unsigned-boot-only folder rather than a broken one.
+    local src dst
+    for rel in "${localbootespfiles[@]}"; do
+        src="${rel%%|*}"
+        dst="${rel#*|}"
+        [[ -f ${tftproot}/${src} ]] || continue
+        mkdir -p "${bootdir}/esp/$(dirname "$dst")" >>$error_log 2>&1
+        if cp -f "${tftproot}/${src}" "${bootdir}/esp/${dst}" >>$error_log 2>&1; then
+            copied=$((copied + 1))
+        else
+            failed=1
+        fi
+    done
+    # One per architecture directory, because iPXE looks for autoexec.ipxe beside
+    # the binary that is running, not at a fixed path.
+    local espdir
+    for espdir in "${bootdir}/esp" "${bootdir}/esp/arm64-efi"; do
+        [[ -d $espdir ]] || continue
+        _espAutoexecScript > "${espdir}/autoexec.ipxe" 2>>$error_log
     done
     # The same 404 stub the Secure Boot kit uses, in EVERY directory rather than
     # just the top one. DirectoryIndex names index.php in every variant

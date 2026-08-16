@@ -192,6 +192,47 @@ reason: they carry no boot script and fetch `autoexec.ipxe` from wherever they
 were loaded, which this directory does not provide. Both remain available over
 TFTP if you are assembling something deliberately.
 
+### `esp/` — the ready-to-copy kit
+
+Everything above is a menu. `esp/` is the opposite: **one folder you copy onto an
+EFI System Partition verbatim**, with the files already carrying the names the
+Secure Boot chain requires.
+
+```
+esp/snponly-shimx64.efi   point your boot manager at this
+esp/snponly.efi           shim loads this — do not rename it
+esp/autoexec.ipxe         chains FOG's build, with fallbacks
+esp/localipxe.efi         FOG's build, all drivers      ← the one that boots
+esp/localsnp.efi          FOG's build, firmware SNP
+esp/localintel.efi        FOG's build, Intel only
+esp/localrealtek.efi      FOG's build, Realtek only
+esp/arm64-efi/            the same set, aa64 shim
+```
+
+The chain is: shim → `snponly.efi` → `autoexec.ipxe` → one of the `local*.efi`.
+shim establishes MOK trust, so the FOG binary — signed with your Secure Boot key —
+loads; and because it carries FOG's boot script compiled in, it finds the server
+itself.
+
+**Two names are not yours to choose.** shim picks its second stage by rewriting
+its own `-shim<arch>.efi` suffix to `.efi`, so `snponly-shimx64.efi` will load
+`snponly.efi` and nothing else, and it must be upstream's copy — that is what
+shim's embedded certificate vouches for. This is why FOG's own builds are here
+under `local` names instead of their natural ones: putting FOG's `ipxe.efi` next
+to `ipxe-shimx64.efi` would have shim try to load an image it cannot verify.
+
+>[!important]
+>`autoexec.ipxe`'s fallbacks tell you **which files you copied**, not which
+>driver works. They fire only when a binary is missing or fails verification.
+>Once one loads and runs, control never comes back — a variant that starts but
+>finds no NIC stops at its own prompt rather than falling through to the next.
+>If `localipxe.efi` doesn't drive your NIC, replace it; the script won't do it
+>for you.
+
+x86_64 and arm64 only — those are the two architectures upstream signs a shim
+for. An i386 machine with Secure Boot off needs none of this; take
+`i386-efi/ipxe.efi` from the list above and point the boot manager straight at it.
+
 ### Notes
 
 Directory listing is off in every subdirectory; fetch files by name.
