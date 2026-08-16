@@ -145,7 +145,7 @@ abstract class TaskingElement extends FOGBase
                 }
             }
         } catch (\Exception $e) {
-            echo Initiator::e($e->getMessage());
+            echo \Initiator::e($e->getMessage());
             exit;
         }
     }

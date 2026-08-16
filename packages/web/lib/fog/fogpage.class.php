@@ -1229,8 +1229,8 @@ abstract class FOGPage extends FOGBase
             $pause,
             trim($class . ' reload-toggle'),
             'type="button" data-paused="0"'
-            . ' data-pause-label="' . Initiator::e($pause) . '"'
-            . ' data-resume-label="' . Initiator::e($resume) . '"'
+            . ' data-pause-label="' . \Initiator::e($pause) . '"'
+            . ' data-resume-label="' . \Initiator::e($resume) . '"'
         );
     }
     /**
@@ -1680,7 +1680,7 @@ abstract class FOGPage extends FOGBase
                 $name
             );
             $val = trim($val);
-            $this->dataReplace[] = Initiator::e($val);
+            $this->dataReplace[] = \Initiator::e($val);
             unset($val);
         }
     }
@@ -1708,7 +1708,7 @@ abstract class FOGPage extends FOGBase
             $escapedReplace = array_map(
                 function ($value) {
                     if (is_scalar($value) || $value === null) {
-                        return Initiator::e((string)$value);
+                        return \Initiator::e((string)$value);
                     }
                     return '';
                 },
@@ -1860,14 +1860,14 @@ abstract class FOGPage extends FOGBase
                 $useAD = $this->obj->get('useAD');
             }
             if (empty($ADDomain)) {
-                $ADDomain = Initiator::e($this->obj->get('ADDomain'));
+                $ADDomain = \Initiator::e($this->obj->get('ADDomain'));
             }
             if (empty($ADOU)) {
                 $ADOU = trim($this->obj->get('ADOU'));
-                $ADOU = str_replace(';', '', Initiator::e($ADOU));
+                $ADOU = str_replace(';', '', \Initiator::e($ADOU));
             }
             if (empty($ADUser)) {
-                $ADUser = Initiator::e($this->obj->get('ADUser'));
+                $ADUser = \Initiator::e($this->obj->get('ADUser'));
             }
             if (empty($ADPass)) {
                 $ADPass = (
@@ -1881,12 +1881,12 @@ abstract class FOGPage extends FOGBase
             array_filter(
                 explode(
                     '|',
-                    Initiator::e(self::getSetting('FOG_AD_DEFAULT_OU'))
+                    \Initiator::e(self::getSetting('FOG_AD_DEFAULT_OU'))
                 )
             )
         );
         $ADOU = trim($ADOU);
-        $ADOU = str_replace(';', '', Initiator::e($ADOU));
+        $ADOU = str_replace(';', '', \Initiator::e($ADOU));
         $optFound = $ADOU;
         if (count($OUs ?: []) > 1) {
             ob_start();
@@ -1904,11 +1904,11 @@ abstract class FOGPage extends FOGBase
                     $optFound = $ou;
                 }
                 echo '<option value="'
-                    . Initiator::e($ou)
+                    . \Initiator::e($ou)
                     . '"'
                     . ($optFound == $ou ? ' selected' : '')
                     . '>'
-                    . Initiator::e($ou)
+                    . \Initiator::e($ou)
                     . '</option>';
                 unset($OU);
             }
@@ -2037,7 +2037,7 @@ abstract class FOGPage extends FOGBase
                 'active-directory-form',
                 self::makeTabUpdateURL(
                     $node . '-active-directory',
-                    Initiator::e($this->obj->get('id'))
+                    \Initiator::e($this->obj->get('id'))
                 ),
                 'post',
                 'application/x-www-form-urlencoded',
@@ -2715,7 +2715,7 @@ abstract class FOGPage extends FOGBase
             'deleteModal',
             _('Delete')
             . ': '
-            . Initiator::e($this->obj->get('name')),
+            . \Initiator::e($this->obj->get('name')),
             _("Confirm you would like to delete this $node")
             . $extra,
             self::makeButton(
@@ -3300,7 +3300,7 @@ abstract class FOGPage extends FOGBase
                 throw new \Exception(
                     _('Failed to remove')
                     . ': '
-                    . Initiator::e($this->obj->get('name'))
+                    . \Initiator::e($this->obj->get('name'))
                 );
             }
             $hook = "{$ucnode}_DELETE_SUCCESS";
@@ -3309,7 +3309,7 @@ abstract class FOGPage extends FOGBase
                 [
                     'msg' => _('Successfully deleted')
                     . ': '
-                    . Initiator::e($this->obj->get('name')),
+                    . \Initiator::e($this->obj->get('name')),
                     'title' => _('Delete Success')
                 ]
             );
@@ -3459,7 +3459,7 @@ abstract class FOGPage extends FOGBase
         echo self::makeFormTag(
             '',
             'import-form',
-            Initiator::e($this->formAction),
+            \Initiator::e($this->formAction),
             'post',
             'multipart/form-data',
             true
@@ -4669,8 +4669,8 @@ abstract class FOGPage extends FOGBase
                 '<option value="%s"%s>%s</option>',
                 (
                     $useidsel ?
-                    Initiator::e($id) :
-                    Initiator::e($item)
+                    \Initiator::e($id) :
+                    \Initiator::e($item)
                 ),
                 (
                     $useidsel ? (
@@ -4685,8 +4685,8 @@ abstract class FOGPage extends FOGBase
                 ),
                 (
                     $addidtodisplay ?
-                    Initiator::e($item) . ' - (' . Initiator::e($id) . ')' :
-                    Initiator::e($item)
+                    \Initiator::e($item) . ' - (' . \Initiator::e($id) . ')' :
+                    \Initiator::e($item)
                 )
             );
             unset($item);
@@ -4805,7 +4805,7 @@ abstract class FOGPage extends FOGBase
             . '-form',
             self::makeTabUpdateURL(
                 $node . '-powermanagement',
-                Initiator::e($this->obj->get('id'))
+                \Initiator::e($this->obj->get('id'))
             ),
             'post',
             'application/x-www-form-urlencoded',
@@ -5247,17 +5247,17 @@ abstract class FOGPage extends FOGBase
         $opts = '<option value="">- '
             . (
                 $blankLabel !== '' ?
-                Initiator::e($blankLabel) :
+                \Initiator::e($blankLabel) :
                 self::$foglang['PleaseSelect']
             )
             . ' -</option>';
         foreach ($files as $file) {
             $opts .= '<option value="'
-                . Initiator::e($file)
+                . \Initiator::e($file)
                 . '"'
                 . ($file === $current ? ' selected' : '')
                 . '>'
-                . Initiator::e($file)
+                . \Initiator::e($file)
                 . (
                     $missing && $file === $current ?
                     ' (' . _('not found on disk') . ')' :
@@ -5318,7 +5318,7 @@ abstract class FOGPage extends FOGBase
             . 'placeholder="' . $placeholder . '" '
             . 'type="' . $type . '" '
             . 'id="' . $id . '" '
-            . 'value="' . Initiator::e($value) . '" '
+            . 'value="' . \Initiator::e($value) . '" '
             . ($required ? 'required ' : '')
             . ($readonly ? 'readonly ' : '')
             . ($disabled ? 'disabled ' : '')
@@ -5425,7 +5425,7 @@ abstract class FOGPage extends FOGBase
             . 'autocomplete="' . ($autocomplete ? 'on' : 'off') . '"'
             . ($extra ? " $extra" : '')
             . '>'
-            . Initiator::e($value)
+            . \Initiator::e($value)
             . '</textarea>';
     }
     /**

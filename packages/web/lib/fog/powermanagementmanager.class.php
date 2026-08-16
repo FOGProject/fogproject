@@ -57,7 +57,7 @@ class PowerManagementManager extends FOGManagerController
         foreach ((array) $types as $val => &$text) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                Initiator::e(trim($val)),
+                \Initiator::e(trim($val)),
                 (
                     (isset($template) && $template !== false)
                     && trim($template) === trim($val) ?
@@ -68,7 +68,7 @@ class PowerManagementManager extends FOGManagerController
                         ''
                     )
                 ),
-                Initiator::e($text)
+                \Initiator::e($text)
             );
         }
 

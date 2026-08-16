@@ -760,7 +760,7 @@ class Plugin extends FOGController
         // the new plugin stays invisible for up to five minutes: its manager,
         // page and hook classes do not resolve, installing it applies no
         // schema and registers no hooks, and it all reports success.
-        Initiator::forgetClassFileList();
+        \Initiator::forgetClassFileList();
 
         return ['name' => $name, 'upgrade' => null !== $backup];
     }

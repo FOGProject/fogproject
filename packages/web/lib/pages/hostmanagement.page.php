@@ -2803,7 +2803,7 @@ class HostManagement extends FOGPage
                     '',
                     'text',
                     '',
-                    Initiator::e($sysuuid),
+                    \Initiator::e($sysuuid),
                     false,
                     false,
                     -1,

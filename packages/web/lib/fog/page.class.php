@@ -532,9 +532,9 @@ class Page extends FOGBase
                         echo '<div class="app-content-header">';
                         echo '<div class="container-fluid">';
                         echo '<h1 id="sectionTitle">';
-                        echo Initiator::e($this->sectionTitle);
+                        echo \Initiator::e($this->sectionTitle);
                         echo '<small id="pageTitle">';
-                        echo Initiator::e($this->pageTitle);
+                        echo \Initiator::e($this->pageTitle);
                         echo '</small>';
                         echo '</h1>';
                         echo '</div>';

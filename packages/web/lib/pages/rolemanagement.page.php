@@ -359,7 +359,7 @@ class RoleManagement extends FOGPage
         foreach ($actions as $action) {
             $label = $actionLabels[$action] ?? ucfirst($action);
             echo '<th class="text-center">'
-                . Initiator::e($label)
+                . \Initiator::e($label)
                 . '</th>';
         }
         echo '</tr></thead>';
@@ -367,7 +367,7 @@ class RoleManagement extends FOGPage
         foreach ($registry as $rnode => $nodeActions) {
             $label = $nodeLabels[$rnode] ?? ucfirst($rnode);
             echo '<tr>';
-            echo '<td>' . Initiator::e($label) . '</td>';
+            echo '<td>' . \Initiator::e($label) . '</td>';
             foreach ($actions as $action) {
                 echo '<td class="text-center">';
                 if (in_array($action, (array)$nodeActions, true)) {

@@ -287,14 +287,14 @@ class ServerInfo extends FOGPage
                 $vendor = isset($NICVendorInfo[$nicname])
                     ? $NICVendorInfo[$nicname]
                     : '';
-                $macDisplay = Initiator::e($mac);
+                $macDisplay = \Initiator::e($mac);
                 if ($vendor !== '') {
                     // Mirror the OUI vendor icon used everywhere a MAC renders:
                     // an fa-info-circle whose tooltip carries the vendor name.
                     $macDisplay .= ' <i class="fa fa-info-circle text-muted '
                         . 'mac-vendor-icon" data-bs-toggle="tooltip" '
                         . 'data-bs-placement="right" data-container="body" title="'
-                        . Initiator::e($vendor)
+                        . \Initiator::e($vendor)
                         . '"></i>';
                 }
                 $fields[$NICMac[$nicname]] = $macDisplay;

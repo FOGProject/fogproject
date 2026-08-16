@@ -88,6 +88,7 @@ if (0 === count($paths)) {
 
 $pending = [];
 $converted = 0;
+$qualified = 0;
 $skipped = 0;
 
 foreach ($paths as $path) {
@@ -106,35 +107,63 @@ foreach ($paths as $path) {
     $src = file_get_contents($path);
     $info = inspect($src);
 
-    if (null === $info) {
-        // No type declared, or already namespaced. Nothing to do either way.
-        $skipped++;
-        continue;
+    if (null !== $info) {
+        if ('--check' === $mode) {
+            $pending[] = $path . '  (' . $info['name'] . ') -- not namespaced';
+            continue;
+        }
+        $src = convert($src, $info);
+        $converted++;
+        printf("converted %-58s %s\n", $path, $info['name']);
     }
 
+    // Second pass, and it runs on ALREADY-converted files too. See
+    // qualifyExcluded() for why this is not optional.
+    $refs = qualifyExcluded($src);
+    if (0 === count($refs['names'])) {
+        if (null === $info) {
+            $skipped++;
+        }
+        continue;
+    }
     if ('--check' === $mode) {
-        $pending[] = $path . '  (' . $info['name'] . ')';
+        $pending[] = sprintf(
+            '%s  -- %d unqualified reference(s) to excluded class(es): %s',
+            $path,
+            $refs['count'],
+            implode(', ', array_keys($refs['names']))
+        );
         continue;
     }
-
-    file_put_contents($path, convert($src, $info));
-    $converted++;
-    printf("converted %-58s %s\n", $path, $info['name']);
+    file_put_contents($path, $refs['src']);
+    $qualified += $refs['count'];
+    printf(
+        "qualified %-58s %d ref(s): %s\n",
+        $path,
+        $refs['count'],
+        implode(', ', array_keys($refs['names']))
+    );
+    $src = $refs['src'];
 }
 
 if ('--check' === $mode) {
     if (0 === count($pending)) {
-        printf("ok: nothing left to namespace (%d file(s) skipped)\n", $skipped);
+        printf("ok: nothing left to do (%d file(s) skipped)\n", $skipped);
         exit(0);
     }
-    fwrite(STDERR, count($pending) . " file(s) not yet namespaced:\n");
+    fwrite(STDERR, count($pending) . " file(s) need work:\n");
     foreach ($pending as $p) {
         fwrite(STDERR, "  $p\n");
     }
     exit(1);
 }
 
-printf("\n%d converted, %d skipped\n", $converted, $skipped);
+printf(
+    "\n%d converted, %d reference(s) qualified, %d skipped\n",
+    $converted,
+    $qualified,
+    $skipped
+);
 exit(0);
 
 /**
@@ -261,4 +290,145 @@ function convert($src, array $info)
     );
 
     return rtrim($out, "\n") . "\n" . $alias;
+}
+
+/**
+ * Backslash-prefix references to classes that are NEVER namespaced.
+ *
+ * The excluded files stay in the global namespace, so from inside
+ * `namespace FOG;` an unqualified `Initiator::e($x)` resolves to
+ * FOG\Initiator -- which does not exist and, in Initiator's case, never can:
+ * commons/init.php is not a *.class.php file, so it is not in the
+ * autoloader's map at all and no bridge can reach it.
+ *
+ * This is the one part of the migration that unit tests cannot catch. Class
+ * resolution passes, every source scan passes, and the application is still
+ * completely broken -- Initiator::e() is the output escaper, so it is on
+ * essentially every page. It was found by booting the tree against a live
+ * database, and it is why bin/... --check is wired into the test suite.
+ *
+ * Runs on already-converted files as well as newly converted ones, so it can
+ * be applied after the fact.
+ *
+ * @param string $src the file's contents
+ *
+ * @return array ['src' => string, 'count' => int, 'names' => array]
+ */
+function qualifyExcluded($src)
+{
+    static $excluded = null;
+    if (null === $excluded) {
+        $excluded = [];
+        foreach (EXCLUDE as $file) {
+            if (!is_readable($file)) {
+                continue;
+            }
+            foreach (declaredIn($file) as $name) {
+                $excluded[$name] = true;
+            }
+        }
+    }
+
+    $out = ['src' => $src, 'count' => 0, 'names' => []];
+    if (false === strpos($src, 'namespace ' . NS . ';')) {
+        return $out;
+    }
+
+    $tokens = token_get_all($src);
+    $count = count($tokens);
+    $pieces = [];
+    for ($i = 0; $i < $count; $i++) {
+        $token = $tokens[$i];
+        $text = is_array($token) ? $token[1] : $token;
+        if (!is_array($token)
+            || T_STRING !== $token[0]
+            || !isset($excluded[$token[1]])
+        ) {
+            $pieces[] = $text;
+            continue;
+        }
+        // Previous meaningful token decides whether this is a class
+        // reference at all.
+        $back = $i;
+        while (--$back >= 0
+            && is_array($tokens[$back])
+            && T_WHITESPACE === $tokens[$back][0]
+        ) {
+            continue;
+        }
+        $prev = isset($tokens[$back]) ? $tokens[$back] : null;
+        $skip = is_array($prev)
+            && in_array(
+                $prev[0],
+                [
+                    T_NS_SEPARATOR,      // already qualified
+                    T_OBJECT_OPERATOR,   // ->Initiator(...)
+                    T_DOUBLE_COLON,      // Foo::Initiator
+                    T_FUNCTION,          // function Initiator()
+                    T_CLASS,             // class Initiator
+                    T_INTERFACE,
+                    T_TRAIT,
+                    T_CONST,
+                ],
+                true
+            );
+        if ($skip) {
+            $pieces[] = $text;
+            continue;
+        }
+        $pieces[] = '\\' . $text;
+        $out['count']++;
+        $out['names'][$token[1]] = true;
+    }
+
+    $out['src'] = implode('', $pieces);
+    return $out;
+}
+
+/**
+ * Names of every class, interface and trait a file declares.
+ *
+ * @param string $file path to read
+ *
+ * @return array of string
+ */
+function declaredIn($file)
+{
+    $tokens = token_get_all(file_get_contents($file));
+    $count = count($tokens);
+    $names = [];
+    for ($i = 0; $i < $count; $i++) {
+        if (!is_array($tokens[$i])
+            || !in_array($tokens[$i][0], [T_CLASS, T_INTERFACE, T_TRAIT], true)
+        ) {
+            continue;
+        }
+        $back = $i;
+        while (--$back >= 0
+            && is_array($tokens[$back])
+            && T_WHITESPACE === $tokens[$back][0]
+        ) {
+            continue;
+        }
+        if (isset($tokens[$back])
+            && is_array($tokens[$back])
+            && T_DOUBLE_COLON === $tokens[$back][0]
+        ) {
+            continue;
+        }
+        $j = $i + 1;
+        while ($j < $count
+            && is_array($tokens[$j])
+            && T_WHITESPACE === $tokens[$j][0]
+        ) {
+            $j++;
+        }
+        if (isset($tokens[$j])
+            && is_array($tokens[$j])
+            && T_STRING === $tokens[$j][0]
+        ) {
+            $names[] = $tokens[$j][1];
+        }
+    }
+    return $names;
 }

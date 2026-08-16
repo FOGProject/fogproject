@@ -82,7 +82,7 @@ abstract class FOGClient extends FOGBase
                 $moduleid = filter_input(INPUT_GET, 'moduleid');
             }
             if ($moduleid) {
-                $this->shortName = Initiator::sanitizeItems(
+                $this->shortName = \Initiator::sanitizeItems(
                     $moduleid
                 );
                 switch ($this->shortName) {

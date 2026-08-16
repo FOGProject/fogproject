@@ -365,10 +365,10 @@ class FOGConfigurationPage extends FOGPage
                 . _('published as ca.cert.der and pinned by every fog-client')
                 . '</p>';
             if ($subject) {
-                $body .= '<pre>' . Initiator::e($subject) . '</pre>';
+                $body .= '<pre>' . \Initiator::e($subject) . '</pre>';
             }
             $body .= '<p><strong>' . _('SHA-256') . '</strong></p>';
-            $body .= '<pre>' . Initiator::e(
+            $body .= '<pre>' . \Initiator::e(
                 strtoupper(
                     implode(':', str_split(hash_file('sha256', $capem), 2))
                 )
@@ -400,8 +400,8 @@ class FOGConfigurationPage extends FOGPage
                 . 'run code in this web application can copy them.'
             ) . '</p><ul>';
             foreach ($exposed as $label => $path) {
-                $warn .= '<li><strong>' . Initiator::e($label) . '</strong> &mdash; <code>'
-                    . Initiator::e($path) . '</code></li>';
+                $warn .= '<li><strong>' . \Initiator::e($label) . '</strong> &mdash; <code>'
+                    . \Initiator::e($path) . '</code></li>';
             }
             $warn .= '</ul><p>' . _(
                 'Re-run the installer, which restricts them to root. If this '
@@ -423,7 +423,7 @@ class FOGConfigurationPage extends FOGPage
                 . 'of this web application but not from a compromise of the '
                 . 'machine. Moving it to a vault is a separate step:'
             ) . '</p>';
-            $body .= '<pre>' . Initiator::e(FOG_BASE_DIR . '/bin/fog-offline-ca-key /mnt/vault')
+            $body .= '<pre>' . \Initiator::e(FOG_BASE_DIR . '/bin/fog-offline-ca-key /mnt/vault')
                 . '</pre>';
             $body .= '<p>' . _(
                 'Nothing needs it day to day. Restore it only to issue a new '
@@ -498,7 +498,7 @@ class FOGConfigurationPage extends FOGPage
             )
         ) . '</p>';
         $body .= '<p><strong>' . _('Certificate SHA-256') . '</strong></p>';
-        $body .= '<pre>' . Initiator::e($fingerprint) . '</pre>';
+        $body .= '<pre>' . \Initiator::e($fingerprint) . '</pre>';
         $body .= '<p>' . _(
             'Check this value against what the enrolment tool shows before '
             . 'confirming, whether the certificate reached the client on a '
@@ -506,7 +506,7 @@ class FOGConfigurationPage extends FOGPage
             . 'the wrong key being trusted.'
         ) . '</p>';
         $body .= '<p><strong>' . _('Certificate SHA-1') . '</strong></p>';
-        $body .= '<pre>' . Initiator::e($fingerprintSha1) . '</pre>';
+        $body .= '<pre>' . \Initiator::e($fingerprintSha1) . '</pre>';
         $body .= '<p>' . _(
             'This is what MokManager\'s own View key screen shows after '
             . 'enrolling from the PXE menu -- that route never runs the '
@@ -527,8 +527,8 @@ class FOGConfigurationPage extends FOGPage
             }
             $body .= sprintf(
                 '<li><a href="%1$s/%2$s">%2$s</a></li>',
-                Initiator::e($kiturl),
-                Initiator::e($file)
+                \Initiator::e($kiturl),
+                \Initiator::e($file)
             );
         }
         $body .= '</ul>';
@@ -539,7 +539,7 @@ class FOGConfigurationPage extends FOGPage
                 . 'straight from the PXE boot menu, with no USB stick, are '
                 . 'in the Secure Boot guide:'
             ),
-            Initiator::e('https://docs.fogproject.org/en/latest/secure-boot-signing'),
+            \Initiator::e('https://docs.fogproject.org/en/latest/secure-boot-signing'),
             _('Secure Boot: signing FOS with your own key')
         ) . '</p>';
         echo $this->_box(_('Secure Boot'), $body, ['color' => 'info']);
@@ -1595,7 +1595,7 @@ class FOGConfigurationPage extends FOGPage
             . '">';
         foreach ($vals as $text => $val) {
             $html .= '<option value="'
-                . Initiator::e($val)
+                . \Initiator::e($val)
                 . '"'
                 . (
                     $val == $value ?
@@ -1603,7 +1603,7 @@ class FOGConfigurationPage extends FOGPage
                     ''
                 )
                 . '>'
-                . Initiator::e($text)
+                . \Initiator::e($text)
                 . '</option>';
         }
         $html .= '</select>';
@@ -1794,15 +1794,15 @@ class FOGConfigurationPage extends FOGPage
                     );
                     printf(
                         '<option value="%s"%s>%s [%s %s]</option>',
-                        Initiator::e($tz),
+                        \Initiator::e($tz),
                         (
                             $row['settingValue'] == $tz ?
                             ' selected' :
                             ''
                         ),
-                        Initiator::e($tz),
-                        Initiator::e($abbr),
-                        Initiator::e($offset)
+                        \Initiator::e($tz),
+                        \Initiator::e($abbr),
+                        \Initiator::e($offset)
                     );
                     unset(
                         $current_tz,
@@ -2433,7 +2433,7 @@ class FOGConfigurationPage extends FOGPage
                 . '<summary>' . (int) count($stats['cachedKeys'])
                 . ' ' . _('keys') . '</summary>'
                 . '<small class="text-muted">'
-                . Initiator::e(implode(', ', array_keys($stats['cachedKeys'])))
+                . \Initiator::e(implode(', ', array_keys($stats['cachedKeys'])))
                 . '</small></details></dd>';
         }
         echo '</dl>';
@@ -2489,8 +2489,8 @@ class FOGConfigurationPage extends FOGPage
         $first = true;
         foreach ($byCat as $cat => $catRows) {
             echo '<li class="settings-nav-item' . ($first ? ' active' : '') . '">'
-                . '<a href="#" data-cat="' . Initiator::e($cat) . '">'
-                . Initiator::e($cat)
+                . '<a href="#" data-cat="' . \Initiator::e($cat) . '">'
+                . \Initiator::e($cat)
                 . ' <span class="badge">' . count($catRows) . '</span>'
                 . '</a></li>';
             $first = false;
@@ -2503,12 +2503,12 @@ class FOGConfigurationPage extends FOGPage
         $first = true;
         foreach ($byCat as $cat => $catRows) {
             echo '<div class="settings-panel' . ($first ? ' active' : '') . '" '
-                . 'data-cat="' . Initiator::e($cat) . '">';
+                . 'data-cat="' . \Initiator::e($cat) . '">';
             // Doubles as a section heading on desktop and an accordion toggle
             // on mobile (see fog.about.settings.js / fog-default-ui.scss).
             echo '<h4 class="settings-panel-title" '
-                . 'data-cat="' . Initiator::e($cat) . '">'
-                . '<span>' . Initiator::e($cat) . '</span>'
+                . 'data-cat="' . \Initiator::e($cat) . '">'
+                . '<span>' . \Initiator::e($cat) . '</span>'
                 . '<i class="fa fa-chevron-down settings-panel-caret"></i>'
                 . '</h4>';
             echo '<div class="settings-panel-body">';
@@ -2537,15 +2537,15 @@ class FOGConfigurationPage extends FOGPage
                 }
                 echo '<div class="form-group settings-row" '
                     . 'data-search="'
-                    . Initiator::e($haystack)
+                    . \Initiator::e($haystack)
                     . '">';
                 echo '<label class="col-form-label settings-label" for="'
-                    . Initiator::e($row['settingKey']) . '"';
+                    . \Initiator::e($row['settingKey']) . '"';
                 if ($tip !== '') {
                     echo ' data-bs-toggle="tooltip" data-bs-placement="top" title="'
-                        . Initiator::e($tip) . '"';
+                        . \Initiator::e($tip) . '"';
                 }
-                echo '>' . Initiator::e($row['settingKey']);
+                echo '>' . \Initiator::e($row['settingKey']);
                 if ($wantsrefresh) {
                     // Visual marker only (no own tooltip); the label tooltip
                     // above already carries the reload note.
@@ -2873,14 +2873,14 @@ class FOGConfigurationPage extends FOGPage
                 }
                 printf(
                     '<option value="%s||%s"%s>%s</option>',
-                    Initiator::e(base64_encode($ip[$nodename])),
-                    Initiator::e($file),
+                    \Initiator::e(base64_encode($ip[$nodename])),
+                    \Initiator::e($file),
                     (
                         isset($_POST['logtype']) && $value == $_POST['logtype'] ?
                         ' selected' :
                         ''
                     ),
-                    Initiator::e($value)
+                    \Initiator::e($value)
                 );
                 unset($file);
             }
@@ -2905,7 +2905,7 @@ class FOGConfigurationPage extends FOGPage
         foreach ((array)$vals as $i => &$value) {
             printf(
                 '<option value="%s"%s>%s</option>',
-                Initiator::e($value),
+                \Initiator::e($value),
                 (
                     $value == filter_input(
                         INPUT_POST,
@@ -2915,7 +2915,7 @@ class FOGConfigurationPage extends FOGPage
                     ' selected' :
                     ''
                 ),
-                Initiator::e($value)
+                \Initiator::e($value)
             );
             unset($value);
         }

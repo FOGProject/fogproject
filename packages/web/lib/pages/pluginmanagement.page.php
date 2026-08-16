@@ -280,7 +280,7 @@ class PluginManagement extends FOGPage
         $blocked = self::uploadsBlocked();
         if ('' !== $blocked) {
             echo '<div class="alert alert-warning mb-0">'
-                . Initiator::e($blocked)
+                . \Initiator::e($blocked)
                 . '</div>';
             exit;
         }

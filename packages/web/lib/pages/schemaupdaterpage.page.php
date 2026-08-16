@@ -113,19 +113,19 @@ class SchemaUpdaterPage extends FOGPage
                     . '<a href="../management/index.php?node=logout" '
                     . 'class="alert-link">%s</a>'
                     . '</div></div>',
-                    Initiator::e(
+                    \Initiator::e(
                         sprintf(
                             _('Signed in as %s.'),
                             self::$FOGUser->get('name')
                         )
                     ),
-                    Initiator::e(
+                    \Initiator::e(
                         _(
                             'Applying a database schema update requires an '
                             . 'administrator account.'
                         )
                     ),
-                    Initiator::e(_('Log out and sign in as an administrator'))
+                    \Initiator::e(_('Log out and sign in as an administrator'))
                 );
                 return;
             }
@@ -154,7 +154,7 @@ class SchemaUpdaterPage extends FOGPage
         // this path, which is the whole of GH-927.
         if (self::installTokenParam()) {
             echo '<input type="hidden" name="fogtoken" value="'
-                . Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
+                . \Initiator::e(FOG_SCHEMA_INSTALL_TOKEN)
                 . '"/>';
         }
         echo '<div class="card" id="schema-modify">';

@@ -202,8 +202,8 @@ trait FOGPageRender
             'btn btn-secondary float-end',
             sprintf(
                 ' type="button" data-create-node="%s" data-assoc-action="%s" ',
-                Initiator::e($createNode),
-                Initiator::e(
+                \Initiator::e($createNode),
+                \Initiator::e(
                     self::makeTabUpdateURL($tabSlug, $ownerId)
                 )
             )
@@ -213,7 +213,7 @@ trait FOGPageRender
             $label,
             sprintf(
                 '<div id="%s-create-form"></div>',
-                Initiator::e($tabSlug)
+                \Initiator::e($tabSlug)
             ),
             self::makeButton(
                 "$tabSlug-create-cancel",
@@ -928,7 +928,7 @@ trait FOGPageRender
                         . 'than one.'
                     ),
                     count($current),
-                    Initiator::e(implode(', ', $names))
+                    \Initiator::e(implode(', ', $names))
                 )
                 . '</div>';
         }

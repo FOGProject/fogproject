@@ -41,7 +41,7 @@ class ServiceModule extends FOGClient
             $moduleid = filter_input(INPUT_GET, 'moduleid');
         }
         $mod = strtolower(
-            Initiator::sanitizeItems(
+            \Initiator::sanitizeItems(
                 $moduleid
             )
         );

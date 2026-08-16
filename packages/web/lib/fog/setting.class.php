@@ -129,13 +129,13 @@ class Setting extends FOGController
             }
             $options .= sprintf(
                 '<option value="%s"%s>%s</option>',
-                Initiator::e($value),
+                \Initiator::e($value),
                 (
                     strtolower($selected) == $value ?
                     ' selected' :
                     ''
                 ),
-                Initiator::e($show)
+                \Initiator::e($show)
             );
             unset($viewop);
         }

@@ -256,7 +256,7 @@ class TaskQueue extends TaskingElement
             );
             echo '##@GO';
         } catch (\Exception $e) {
-            echo Initiator::e($e->getMessage());
+            echo \Initiator::e($e->getMessage());
         }
     }
     /**
