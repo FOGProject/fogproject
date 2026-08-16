@@ -1,0 +1,27 @@
+{
+    "name": "fogproject/fogproject",
+    "description": "FOG Project - free open-source network computer cloning and management",
+    "type": "project",
+    "license": "GPL-3.0-only",
+    "homepage": "https://fogproject.org",
+    "support": {
+        "issues": "https://github.com/FOGProject/fogproject/issues",
+        "forum": "https://forums.fogproject.org"
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "FOG\\": "src/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "7.4.0"
+        },
+        "platform-check": false,
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
