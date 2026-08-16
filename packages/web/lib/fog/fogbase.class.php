@@ -292,6 +292,13 @@ abstract class FOGBase
         'printer',
         'role',
         'setting',
+        // Sites came in from the site plugin, which added itself here from
+        // its menu hook (`$arguments['searchPages'][] = $this->node`). Core
+        // pages are listed statically instead, and missing from this list a
+        // page renders "Index page of: SiteManagement" rather than its grid
+        // -- FOGPage::index() only takes the list branch for a node it finds
+        // here. No error, just the wrong half of an if.
+        'site',
         'snapin',
         'storagegroup',
         'storagenode',

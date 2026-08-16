@@ -1140,6 +1140,10 @@ msgstr "Verbindung zum FTP-Server nicht möglich"
 msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
 
+#, php-format
+msgid "Cannot filter %s on: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Es können keine Tasks auf ausstehende Hosts ausgeführt werden!"

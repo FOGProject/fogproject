@@ -210,9 +210,9 @@ class SiteManagement extends FOGPage
                 $description
             ),
             // A checkbox rather than a button, because the flag has two
-            // directions and a button only has one. Safe here despite
-            // save() dropping null-valued fields -- makeCatchAll() writes
-            // the column in SQL and never goes through save().
+            // directions and a button only has one. The value never reaches
+            // save() either way -- makeCatchAll() writes the column in SQL,
+            // for the reasons in Site::$additionalFields.
             self::makeLabel(
                 $labelClass,
                 'catchall',

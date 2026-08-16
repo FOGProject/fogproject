@@ -1083,6 +1083,10 @@ msgstr "FTP サーバーに接続できません"
 msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
 
+#, php-format
+msgid "Cannot filter %s on: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "保留中のホストにタスクを設定できません"

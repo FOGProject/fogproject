@@ -1144,6 +1144,10 @@ msgstr "Não é possível conectar ao banco de dados"
 msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
 
+#, php-format
+msgid "Cannot filter %s on: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Não é possível definir taskings para pendente ou artigos inválidos"

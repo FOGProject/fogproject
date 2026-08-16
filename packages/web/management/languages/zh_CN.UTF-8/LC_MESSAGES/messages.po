@@ -1144,6 +1144,10 @@ msgstr "无法连接到数据库"
 msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
 
+#, php-format
+msgid "Cannot filter %s on: %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "无法设置taskings未决的或无效的项目"
