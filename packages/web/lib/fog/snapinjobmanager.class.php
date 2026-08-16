@@ -114,7 +114,7 @@ class SnapinJobManager extends FOGManagerController
             if ($left > 0) {
                 continue;
             }
-            $Host = self::getClass('snapinjob', $jobID)->get('host');
+            $Host = self::getClass('SnapinJob', $jobID)->get('host');
             if (!is_object($Host) || !$Host->isValid()) {
                 continue;
             }

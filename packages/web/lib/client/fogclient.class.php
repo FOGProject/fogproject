@@ -98,7 +98,7 @@ abstract class FOGClient extends FOGBase
             if (!(isset($globalInfo[$this->shortName])
                 && $globalInfo[$this->shortName])
             ) {
-                throw new Exception('#!ng');
+                throw new \Exception('#!ng');
             }
             $find = [
                 'id' => self::$Host->get('modules'),
@@ -113,7 +113,7 @@ abstract class FOGClient extends FOGBase
                 if (!self::$Host->isValid()
                     && false === $hostnotrequired
                 ) {
-                    throw new Exception('#!nh');
+                    throw new \Exception('#!nh');
                 }
             }
             $validClientBrowserFiles = [
@@ -127,7 +127,7 @@ abstract class FOGClient extends FOGBase
             $scriptCheck = basename(self::$scriptname);
             $new = (self::$json || self::$newService);
             if ($new && !in_array($scriptCheck, $validClientBrowserFiles)) {
-                throw new Exception(_('Not allowed here'));
+                throw new \Exception(_('Not allowed here'));
             }
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
             if ($jsonSub && self::$json) {
@@ -135,7 +135,7 @@ abstract class FOGClient extends FOGBase
                 $script = trim($script);
                 $script = basename($script);
                 if ($script !== 'jobs.php') {
-                    throw new Exception(
+                    throw new \Exception(
                         json_encode(
                             $this->{$method}()
                         )
@@ -159,15 +159,17 @@ abstract class FOGClient extends FOGBase
                 'printerclient',
                 'servicemodule',
             ];
+            // Short name: matched against the bare module names above, which
+            // decide whether this module answers JSON or a raw body.
             $lowclass = strtolower(
-                get_class($this)
+                self::shortName($this)
             );
             $this->send = trim($this->send);
             if (in_array($lowclass, $nonJsonEncode)) {
-                throw new Exception($this->send);
+                throw new \Exception($this->send);
             }
             $this->sendData($this->send);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             global $json;
             global $newService;
             if (!$json && $newService) {

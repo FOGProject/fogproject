@@ -349,15 +349,15 @@ class PluginManagement extends FOGPage
         try {
             $blocked = self::uploadsBlocked();
             if ('' !== $blocked) {
-                throw new Exception($blocked);
+                throw new \Exception($blocked);
             }
             if (!isset($_FILES['pluginarchive'])
                 || !is_uploaded_file((string)$_FILES['pluginarchive']['tmp_name'])
             ) {
-                throw new Exception(_('No archive was uploaded.'));
+                throw new \Exception(_('No archive was uploaded.'));
             }
             if ($_FILES['pluginarchive']['error'] > 0) {
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         _('The upload failed (error %s). It may be larger than post_max_size, currently %s.'),
                         $_FILES['pluginarchive']['error'],
@@ -370,12 +370,12 @@ class PluginManagement extends FOGPage
                 basename((string)$_FILES['pluginarchive']['name'])
             );
             if (isset($staged['error'])) {
-                throw new Exception($staged['error']);
+                throw new \Exception($staged['error']);
             }
             $code = HTTPResponseCodes::HTTP_SUCCESS;
             $hook = 'PLUGIN_ARCHIVE_STAGED';
             $msg = json_encode($staged);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -433,12 +433,12 @@ class PluginManagement extends FOGPage
         try {
             $blocked = self::uploadsBlocked();
             if ('' !== $blocked) {
-                throw new Exception($blocked);
+                throw new \Exception($blocked);
             }
             $token = (string)filter_input(INPUT_POST, 'token');
             $result = Plugin::commitStaged($token);
             if (isset($result['error'])) {
-                throw new Exception($result['error']);
+                throw new \Exception($result['error']);
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PLUGIN_ARCHIVE_SUCCESS';
@@ -453,7 +453,7 @@ class PluginManagement extends FOGPage
                     'title' => _('Plugin Upload Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -502,7 +502,7 @@ class PluginManagement extends FOGPage
         foreach ($blockers as $name => $reason) {
             $reasons[] = sprintf('%s %s', $name, $reason);
         }
-        throw new Exception(implode('; ', $reasons));
+        throw new \Exception(implode('; ', $reasons));
     }
     /**
      * Just a place holder
@@ -540,7 +540,7 @@ class PluginManagement extends FOGPage
             $PluginManager = self::getClass('PluginManager');
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
-                throw new Exception(_('Activate plugins failed!'));
+                throw new \Exception(_('Activate plugins failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PLUGIN_ACTIVATE_SUCCESS';
@@ -554,7 +554,7 @@ class PluginManagement extends FOGPage
                     'title' => _('Plugin Activate Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -616,22 +616,19 @@ class PluginManagement extends FOGPage
             $PluginManager = self::getClass('PluginManager');
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
-                throw new Exception(_('Activate plugins failed!'));
+                throw new \Exception(_('Activate plugins failed!'));
             }
-            Route::listem(
+            $Plugins = Route::getList(
                 'plugin',
                 [
                     'id' => $plugins,
                     'installed' => ['',0,'0']
                 ]
             );
-            $Plugins = json_decode(
-                Route::getData()
-            );
-            foreach ($Plugins->data as &$Plugin) {
+            foreach ($Plugins as &$Plugin) {
                 $pluginObj = self::getClass('Plugin', $Plugin->id);
                 if (!$pluginObj->installdb()) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Failed to install ')
                         . $Plugin->name
                     );
@@ -640,7 +637,7 @@ class PluginManagement extends FOGPage
             }
             if (!$PluginManager->update($ids, '', $install)) {
                 $serverFault = true;
-                throw new Exception(_('Install plugins failed!'));
+                throw new \Exception(_('Install plugins failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PLUGIN_INSTALL_SUCCESS';
@@ -654,7 +651,7 @@ class PluginManagement extends FOGPage
                     'title' => _('Plugin Install Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -717,20 +714,17 @@ class PluginManagement extends FOGPage
             // Only update plugins that are actually installed (the reverse of
             // the install filter): updating a not-installed plugin is a no-op
             // for the admin's intent.
-            Route::listem(
+            $Plugins = Route::getList(
                 'plugin',
                 [
                     'id' => $plugins,
                     'installed' => 1
                 ]
             );
-            $Plugins = json_decode(
-                Route::getData()
-            );
-            foreach ($Plugins->data as &$Plugin) {
+            foreach ($Plugins as &$Plugin) {
                 $pluginObj = self::getClass('Plugin', $Plugin->id);
                 if (!$pluginObj->installdb()) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Failed to update ')
                         . $Plugin->name
                     );
@@ -749,7 +743,7 @@ class PluginManagement extends FOGPage
                     'title' => _('Plugin Update Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -809,7 +803,7 @@ class PluginManagement extends FOGPage
             $PluginManager = self::getClass('PluginManager');
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
-                throw new Exception(_('Deactivate plugins failed!'));
+                throw new \Exception(_('Deactivate plugins failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PLUGIN_DEACTIVATE_SUCCESS';
@@ -819,7 +813,7 @@ class PluginManagement extends FOGPage
                     'title' => _('Plugin Deactivate Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -888,32 +882,29 @@ class PluginManagement extends FOGPage
             $PluginManager = self::getClass('PluginManager');
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
-                throw new Exception(_('Deactivate plugins failed!'));
+                throw new \Exception(_('Deactivate plugins failed!'));
             }
-            Route::listem(
+            $Plugins = Route::getList(
                 'plugin',
                 [
                     'id' => $plugins,
                     'installed' => 1
                 ]
             );
-            $Plugins = json_decode(
-                Route::getData()
-            );
-            foreach ($Plugins->data as &$Plugin) {
+            foreach ($Plugins as &$Plugin) {
                 $installPlugin = self::getClass(
                     $Plugin->name
                     . 'Manager'
                 );
                 if (!method_exists($installPlugin, 'uninstall')) {
                     $serverFault = true;
-                    throw new Exception(
+                    throw new \Exception(
                         _('Unable to uninstall, no method exists for ')
                         . $Plugin->name
                     );
                 }
                 if (!$installPlugin->uninstall()) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Failed to uninstall ')
                         . $Plugin->name
                     );
@@ -924,7 +915,7 @@ class PluginManagement extends FOGPage
             }
             if (!$PluginManager->update($ids, '', $install)) {
                 $serverFault = true;
-                throw new Exception(_('Uninstall plugins failed!'));
+                throw new \Exception(_('Uninstall plugins failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PLUGIN_UNINSTALL_SUCCESS';
@@ -938,7 +929,7 @@ class PluginManagement extends FOGPage
                     'title' => _('Plugin Uninstall Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -1009,13 +1000,12 @@ class PluginManagement extends FOGPage
         $serverFault = false;
         try {
             if (!count($plugins)) {
-                throw new Exception(_('No plugins selected.'));
+                throw new \Exception(_('No plugins selected.'));
             }
-            Route::listem('plugin', ['id' => $plugins], true);
-            $rows = json_decode(Route::getData());
+            $rows = Route::getList('plugin', ['id' => $plugins]);
             $present = [];
             $forget = [];
-            foreach ((array)($rows->data ?? []) as $row) {
+            foreach ($rows as $row) {
                 if (Plugin::isMissing((string)$row->location)) {
                     $forget[(int)$row->id] = (string)$row->name;
                     continue;
@@ -1023,7 +1013,7 @@ class PluginManagement extends FOGPage
                 $present[] = $row->name;
             }
             if (count($present)) {
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         _('These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead.'),
                         implode(', ', $present)
@@ -1034,7 +1024,7 @@ class PluginManagement extends FOGPage
                 $plugin = self::getClass('Plugin', $id);
                 if (!$plugin->destroy()) {
                     $serverFault = true;
-                    throw new Exception(_('Failed to forget ') . $name);
+                    throw new \Exception(_('Failed to forget ') . $name);
                 }
                 // Same cleanup uninstall does. A row can reach here still
                 // marked installed -- the admin deleted the directory by hand
@@ -1054,7 +1044,7 @@ class PluginManagement extends FOGPage
                     )
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :

@@ -521,8 +521,8 @@ class Plugin extends FOGController
         // PharData reads .tar.gz without shelling out and, crucially, lets the
         // entry list be inspected before anything is extracted.
         try {
-            $phar = new PharData($archive, 0, null, Phar::TAR | Phar::GZ);
-        } catch (Exception $e) {
+            $phar = new \PharData($archive, 0, null, \Phar::TAR | \Phar::GZ);
+        } catch (\Exception $e) {
             return $fail(
                 sprintf(
                     _('%s is not a readable .tar.gz archive.'),
@@ -535,9 +535,9 @@ class Plugin extends FOGController
         $hasManifest = false;
         $fileCount = 0;
         try {
-            $walk = new RecursiveIteratorIterator(
+            $walk = new \RecursiveIteratorIterator(
                 $phar,
-                RecursiveIteratorIterator::SELF_FIRST
+                \RecursiveIteratorIterator::SELF_FIRST
             );
             foreach ($walk as $entry) {
                 $rel = str_replace('\\', '/', $entry->getPathname());
@@ -575,7 +575,7 @@ class Plugin extends FOGController
                     $hasManifest = true;
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $fail(_('The archive could not be read.'));
         }
         if (count($tops) !== 1) {
@@ -614,7 +614,7 @@ class Plugin extends FOGController
         }
         try {
             $phar->extractTo($dir, null, true);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $fail(_('The archive could not be extracted.'));
         }
         $staged = $dir . $top;
@@ -870,11 +870,10 @@ class Plugin extends FOGController
         // against. Paginating it would under-report both. Safe today only
         // because the POST body carries plugins[] and no DataTables length --
         // which is not a property worth relying on. See getPlugins().
-        Route::listem('plugin', false, true);
-        $rows = json_decode(Route::getData());
+        $rows = Route::getList('plugin');
         $batch = [];
         $active = [];
-        foreach ((array)($rows->data ?? []) as $row) {
+        foreach ($rows as $row) {
             $name = strtolower((string)$row->name);
             if (in_array((int)$row->id, $ids, true)) {
                 $batch[$name] = $row;
@@ -948,9 +947,8 @@ class Plugin extends FOGController
         // page size below the plugin count returned a short list -- and every
         // plugin past it looked new (see the id lookup below for what that
         // then did). Discovery wants every row, always.
-        Route::listem('plugin', false, true);
-        $rows = json_decode(Route::getData());
-        foreach ((array)($rows->data ?? []) as $row) {
+        $rows = Route::getList('plugin');
+        foreach ($rows as $row) {
             $existing[strtolower((string)$row->name)] = $row;
         }
         foreach ((array) $this->_getDirs() as $file) {
@@ -1111,10 +1109,12 @@ class Plugin extends FOGController
         // Asked of $manager rather than class_exists($wanted): getManager()
         // has already resolved it, and asking again would autoload the same
         // file a second time.
+        // Short name: $wanted is built from the plugins.pName database value,
+        // so comparing an FQCN against it would fail every plugin install.
         if (file_exists($managerFile)
-            && strcasecmp(get_class($manager), $wanted) !== 0
+            && strcasecmp(self::shortName($manager), $wanted) !== 0
         ) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     _('%s could not be loaded. Check that %s declares a class of that exact name.'),
                     $wanted,

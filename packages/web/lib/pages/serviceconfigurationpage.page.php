@@ -73,14 +73,10 @@ class ServiceConfigurationPage extends FOGPage
             $notWhere
         );
 
-        Route::listem(
+        self::$_modules = Route::getList(
             'module',
             ['shortName' => $where]
         );
-        $Modules = json_decode(
-            Route::getData()
-        );
-        self::$_modules = $Modules->data;
     }
     /**
      * Presents the home for this page.
@@ -274,10 +270,10 @@ class ServiceConfigurationPage extends FOGPage
                 $extra();
             }
             if (!$Service->save()) {
-                throw new Exception(_('Unable to update global setting'));
+                throw new \Exception(_('Unable to update global setting'));
             }
             if (!$Module->save()) {
-                throw new Exception(_('Unable to update module default setting'));
+                throw new \Exception(_('Unable to update module default setting'));
             }
         }
     }
@@ -742,7 +738,7 @@ class ServiceConfigurationPage extends FOGPage
                     'title' => _('Module Update Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'SERVICE_EDIT_FAIL';
             $msg = json_encode(

@@ -205,7 +205,7 @@ class FOGPageManager extends FOGBase
             } else {
                 self::resetRequest();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->debug(
                 _('Failed to Render Page: Node: %s, Error: %s'),
                 [
@@ -243,25 +243,25 @@ class FOGPageManager extends FOGBase
         }
         try {
             if (!($class instanceof FOGPage)) {
-                throw new Exception(self::$foglang['NotExtended']);
+                throw new \Exception(self::$foglang['NotExtended']);
             }
             if (!$class->node) {
-                throw new Exception(_('No node associated'));
+                throw new \Exception(_('No node associated'));
             }
             self::info(
                 sprintf(
                     _('Adding FOGPage: %s, Node: %s'),
-                    get_class($class),
+                    self::shortName($class),
                     $class->node
                 )
             );
             $this->_nodes[$class->node] = $class;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->debug(
                 _('Failed to add Page: Node: %s, Page Class: %s, Error: %s'),
                 [
                     $class->node,
-                    get_class($class),
+                    self::shortName($class),
                     $e->getMessage()
                 ]
             );

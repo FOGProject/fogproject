@@ -80,7 +80,7 @@ class GroupManagement extends FOGPage
         $labelClass = 'col-sm-3 col-form-label';
 
         // The fields to display
-        return [
+        $fields = [
             self::makeLabel(
                 $labelClass,
                 'group',
@@ -154,6 +154,8 @@ class GroupManagement extends FOGPage
                 $dev
             )
         ];
+
+        return self::fastmerge($fields, self::siteAddField($labelClass));
     }
     /**
      * Create a new group.
@@ -217,7 +219,7 @@ class GroupManagement extends FOGPage
                 $exists = self::getClass('GroupManager')
                     ->exists($group);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A group already exists with this name!')
                     );
                 }
@@ -230,8 +232,9 @@ class GroupManagement extends FOGPage
                     ->set('init', $init);
                 if (!$Group->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add group failed!'));
+                    throw new \Exception(_('Add group failed!'));
                 }
+                $this->siteAddPost('group', $Group);
                 return $Group;
             }
         );
@@ -694,7 +697,7 @@ class GroupManagement extends FOGPage
             $productKey = $key;
         } else {
             if (!self::productKeyIsValid($key)) {
-                throw new Exception(_('Invalid Windows product key'));
+                throw new \Exception(_('Invalid Windows product key'));
             }
             $productKey = self::productKeyFormat($key);
         }
@@ -718,7 +721,7 @@ class GroupManagement extends FOGPage
         );
         if ($group != $this->obj->get('name')) {
             if ($this->obj->getManager()->exists($group)) {
-                throw new Exception(_('Please use another group name'));
+                throw new \Exception(_('Please use another group name'));
             }
         }
         // Set the group relative items.
@@ -1642,7 +1645,7 @@ class GroupManagement extends FOGPage
             $dow = trim((string)filter_input(INPUT_POST, 'scheduleCronDOW'));
             $action = filter_input(INPUT_POST, 'action');
             if (!$action) {
-                throw new Exception(_('You must select an action to perform'));
+                throw new \Exception(_('You must select an action to perform'));
             }
             $items = [];
             if ($onDemand && $action === 'wol') {
@@ -1699,14 +1702,12 @@ class GroupManagement extends FOGPage
     public function groupInventory()
     {
         // Get this group's Host Inventory items.
-        Route::listem(
+        $inventories = Route::getList(
             'inventory',
             ['hostID' => $this->obj->get('hosts')],
-            false,
             'AND',
             'hostID'
         );
-        $inventories = json_decode(Route::getData());
 
         // Get the host names
         $hostnames = Route::getIds(
@@ -1734,7 +1735,7 @@ class GroupManagement extends FOGPage
             return;
         }
         // Loop and print the inventory data broken out by host names.
-        foreach ($inventories->data as $i => &$inventory) {
+        foreach ($inventories as $i => &$inventory) {
             if (!isset($hostnames[$i])) {
                 continue;
             }
@@ -2552,6 +2553,15 @@ class GroupManagement extends FOGPage
                 ]
             ]
         ];
+        // Site
+        $tabData[] = [
+            'name' => _('Site'),
+            'id' => 'group-site',
+            'generator' => function () {
+                $this->groupSite();
+            }
+        ];
+
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -2570,6 +2580,9 @@ class GroupManagement extends FOGPage
             function (&$serverFault) {
                 global $tab;
                 switch ($tab) {
+                    case 'group-site':
+                        $this->groupSitePost();
+                        break;
                     case 'group-general':
                         $this->groupGeneralPost();
                         break;
@@ -2597,7 +2610,7 @@ class GroupManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Group update failed!'));
+                    throw new \Exception(_('Group update failed!'));
                 }
             }
         );
@@ -2639,16 +2652,14 @@ class GroupManagement extends FOGPage
             ]
         ];
         // The items we're getting.
-        Route::listem(
+        $items = Route::getList(
             'tasktype',
             $key,
-            false,
             'AND',
             'id'
         );
-        $items = json_decode(Route::getData());
         // Loop 1, the basic non-advanced tasks.
-        foreach ($items->data as &$TaskType) {
+        foreach ($items as &$TaskType) {
             $taskTypeIterator($TaskType, 0);
             unset($TaskType);
         }
@@ -2661,7 +2672,7 @@ class GroupManagement extends FOGPage
         $data = [];
         $advanced = 1;
         // Loop 2, the advanced tasks.
-        foreach ($items->data as &$TaskType) {
+        foreach ($items as &$TaskType) {
             $taskTypeIterator($TaskType, 1);
             unset($TaskType);
         }
@@ -2810,8 +2821,14 @@ class GroupManagement extends FOGPage
                 ]
             ));
         }
-        Route::names('printer');
-        $printerNames = json_decode(Route::getData());
+        // asValue(): names() has no wrapper -- its payload is a bare list
+        // with no envelope to unwrap -- so this is here for the other half,
+        // a failure raising rather than ending the page.
+        $printerNames = Route::asValue(
+            function () {
+                Route::names('printer');
+            }
+        );
         foreach ($printerNames as &$printer) {
             $printers[$printer->id] = $printer->name;
             unset($printer);
@@ -2934,7 +2951,17 @@ class GroupManagement extends FOGPage
             [],
             $where,
             $addColumns,
-            $qStr
+            $qStr,
+            '',
+            '',
+            // Sorting the labels themselves gives all/none/some, because that
+            // is their alphabetical order. Rank them so the column sorts the
+            // way the tri-state reads: fully covered, then partial, then not
+            // covered. Done as an ORDER BY expression over the alias rather
+            // than a second CASE in the SELECT -- the coverage subquery is
+            // correlated and already evaluated three times per row, and MySQL
+            // does not fold identical copies of it together.
+            "FIELD(`groupAssoc`,'all','some','none')"
         );
     }
     /**
@@ -2948,15 +2975,12 @@ class GroupManagement extends FOGPage
         $hostCount = count($hostIDs);
         $data = [];
         if ($hostCount > 0) {
-            Route::listem(
+            $assocs = Route::getList(
                 'snapinassociation',
                 ['hostID' => $hostIDs],
-                false,
                 'AND',
                 'sequence'
             );
-            $assocs = json_decode(Route::getData());
-            $assocs = isset($assocs->data) ? $assocs->data : [];
             $counts = [];
             $minSeq = [];
             foreach ($assocs as $assoc) {
@@ -2982,9 +3006,7 @@ class GroupManagement extends FOGPage
                 }
             );
             if (count($shared) > 0) {
-                Route::listem('snapin', ['id' => $shared]);
-                $Snapins = json_decode(Route::getData());
-                $Snapins = isset($Snapins->data) ? $Snapins->data : [];
+                $Snapins = Route::getList('snapin', ['id' => $shared]);
                 $names = [];
                 foreach ($Snapins as $Snapin) {
                     $names[(int)$Snapin->id] = $Snapin->name;
@@ -3080,9 +3102,7 @@ class GroupManagement extends FOGPage
         $names = [];
         $order = [];
         if (count($hostIDs) > 0) {
-            Route::listem('host', ['id' => $hostIDs]);
-            $hosts = json_decode(Route::getData());
-            $hosts = isset($hosts->data) ? $hosts->data : [];
+            $hosts = Route::getList('host', ['id' => $hostIDs]);
             foreach ($hosts as $host) {
                 $names[(int)$host->id] = $host->name;
                 $order[] = (int)$host->id;
@@ -3145,13 +3165,13 @@ class GroupManagement extends FOGPage
             $hosts = $this->obj->get('hosts');
 
             if (!$TaskType->isValid()) {
-                throw new Exception(_('Task type is invalid'));
+                throw new \Exception(_('Task type is invalid'));
             }
             if (count($hosts ?: []) < 1) {
-                throw new Exception(_('There are no hosts to task'));
+                throw new \Exception(_('There are no hosts to task'));
             }
             if ($iscapturetask) {
-                throw new Exception(_('Groups cannot create capture tasks'));
+                throw new \Exception(_('Groups cannot create capture tasks'));
             }
 
             $labelClass = 'col-sm-3 col-form-label';
@@ -3326,7 +3346,7 @@ class GroupManagement extends FOGPage
                 ]
             );
             $code = HTTPResponseCodes::HTTP_SUCCESS;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -3365,18 +3385,15 @@ class GroupManagement extends FOGPage
                 $find
             );
             if (count($hosts ?: []) < 1) {
-                throw new Exception(_('No hosts available to be tasked'));
+                throw new \Exception(_('No hosts available to be tasked'));
             }
             $nhosts = [];
             $hostImages = [];
-            Route::listem(
+            $Hosts = Route::getList(
                 'host',
                 ['id' => $hosts]
             );
-            $Hosts = json_decode(
-                Route::getData()
-            );
-            foreach ($Hosts->data as &$host) {
+            foreach ($Hosts as &$host) {
                 if (!$host->imageID) {
                     continue;
                 }
@@ -3385,7 +3402,7 @@ class GroupManagement extends FOGPage
                 unset($host);
             }
             if (count($nhosts ?: []) < 1) {
-                throw new Exception(_('No hosts are assigned an image'));
+                throw new \Exception(_('No hosts are assigned an image'));
             }
 
             // Multicast task requires all hosts in the group to have the same
@@ -3397,7 +3414,7 @@ class GroupManagement extends FOGPage
                     )
                 );
                 if (count($hostImages ?: []) != 1) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('All hosts must have the same image assigned')
                     );
                 }
@@ -3406,7 +3423,7 @@ class GroupManagement extends FOGPage
             // Task Type setup
             $TaskType = self::getClass('TaskType', $type);
             if (!$TaskType->isValid()) {
-                throw new Exception(_('Task Type is invalid'));
+                throw new \Exception(_('Task Type is invalid'));
             }
 
             // Password reset setup
@@ -3416,7 +3433,7 @@ class GroupManagement extends FOGPage
             if (TaskType::PASSWORD_RESET == $type
                 && !$passreset
             ) {
-                throw new Exception(_('Password reset requires a user account'));
+                throw new \Exception(_('Password reset requires a user account'));
             }
 
             // Snapin setup
@@ -3468,14 +3485,23 @@ class GroupManagement extends FOGPage
             // Task Type Imaging Checks
             if ($TaskType->isImagingTask()) {
                 if ($TaskType->isCapture()) {
-                    throw new Exception(_('Groups cannot create capture tasks'));
+                    throw new \Exception(_('Groups cannot create capture tasks'));
                 }
             }
 
             // Actually create tasking
             if ($scheduleType == 'instant') {
-                Route::indiv('tasktype', $type);
-                $tasktype = json_decode(Route::getData());
+                // getItem(), not indiv(): a deleted task type used to end the
+                // response with a 404 rather than report it. Refs ADR 0011.
+                $tasktype = Route::getItem('tasktype', $type);
+                if (!$tasktype) {
+                    throw new \Exception(
+                        sprintf(
+                            _('Task type %d is missing from this server.'),
+                            $type
+                        )
+                    );
+                }
                 $this->obj->createImagePackage(
                     $tasktype,
                     $taskName,
@@ -3518,7 +3544,7 @@ class GroupManagement extends FOGPage
                 }
                 if (!$ScheduledTask->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Failed to create scheduled task'));
+                    throw new \Exception(_('Failed to create scheduled task'));
                 }
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
@@ -3529,7 +3555,7 @@ class GroupManagement extends FOGPage
                     'title' => _('Create Task Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -3581,5 +3607,24 @@ class GroupManagement extends FOGPage
     public function getSnapinHist()
     {
         $this->renderSnapinHistoryData($this->obj->get('hosts'));
+    }
+
+    /**
+     * Presents the site tab.
+     *
+     * @return void
+     */
+    public function groupSite()
+    {
+        $this->renderSiteTab('group', $this->obj);
+    }
+    /**
+     * Updates the site.
+     *
+     * @return void
+     */
+    public function groupSitePost()
+    {
+        $this->siteTabPost('group', $this->obj);
     }
 }

@@ -91,7 +91,7 @@ class ProcessLogin extends FOGPage
                 $rememberme
             );
             if (!self::$FOGUser->isValid()) {
-                throw new Exception(self::$foglang['InvalidLogin']);
+                throw new \Exception(self::$foglang['InvalidLogin']);
             }
             // Setup language stuff
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
@@ -122,7 +122,7 @@ class ProcessLogin extends FOGPage
                 BASEPATH . 'fog_login_accepted.log'
             );
             chmod(BASEPATH . 'fog_login_accepted.log', 0200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(
                 [
@@ -169,8 +169,13 @@ class ProcessLogin extends FOGPage
                 }
                 $selector = filter_input(INPUT_COOKIE, 'foguserauthsel');
                 $password = filter_input(INPUT_COOKIE, 'foguserauthpass');
-                Route::indiv('userauth', $id);
-                $userauth = json_decode(Route::getData());
+                // getItem(), not indiv(): a userauth row that vanished mid
+                // login used to end the response with a 404 instead of
+                // falling through to the normal "not authenticated" path.
+                $userauth = Route::getItem('userauth', $id);
+                if (!$userauth) {
+                    return self::mainLoginForm();
+                }
                 $current_date = self::niceDate()->format('Y-m-d H:i:s');
                 $expireTime = self::niceDate($userauth->expire)->format('Y-m-d H:i:s');
                 $isExpired = (bool)(

@@ -32,8 +32,14 @@ psrfix() {
     # octal-escaped. -z is not used because POSIX sh cannot read NUL
     # delimited input; a newline in a filename would still break this, and
     # nothing in this repo has one.
+    # vendor/ is excluded because reformatting third-party source is exactly
+    # the thing that makes a dependency unupdatable: the next `composer
+    # install` rewrites the files, the fixer rewrites them back, and the diff
+    # never settles. It also silently forks code whose whole value is being
+    # identical to what upstream published.
     git -c core.quotePath=false diff --cached --name-only \
-        --diff-filter=ACMR -- 'packages/web/*.php' |
+        --diff-filter=ACMR -- 'packages/web/*.php' \
+        ':(exclude)packages/web/vendor/*' |
     while IFS= read -r f; do
         [ -n "$f" ] || continue
 

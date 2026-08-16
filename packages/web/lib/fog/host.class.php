@@ -237,12 +237,17 @@ class Host extends FOGController
     public function save()
     {
         if (!$this->isHostnameSafe()) {
-            throw new Exception(
+            throw new \Exception(
                 _('Invalid hostname; must be 1-15 of these characters: ')
                 . 'a-z 0-9 ! @ # $ % ^ ( ) - \' { } . ~ _'
             );
         }
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
         if (array_key_exists('mac', $this->data)) {
             self::getClass('MACAddressAssociation')
                 ->set('mac', $this->get('mac'))
@@ -860,7 +865,7 @@ class Host extends FOGController
             if (-1 == $snapin) {
                 $snapins = $this->get('snapins');
                 if (count($snapins ?: []) <= 0) {
-                    throw new Exception(_('No snapins associated'));
+                    throw new \Exception(_('No snapins associated'));
                 }
             }
             $SnapinJob = $this->get('snapinjob');
@@ -875,7 +880,7 @@ class Host extends FOGController
                         ->format('Y-m-d H:i:s')
                     );
                 if (!$SnapinJob->save()) {
-                    throw new Exception(_('Failed to create Snapin Job'));
+                    throw new \Exception(_('Failed to create Snapin Job'));
                 }
             } elseif ((int)$SnapinJob->get('abortOnFail')
                 !== (int)(bool)$abortOnFailure
@@ -895,7 +900,7 @@ class Host extends FOGController
             // predate that guard still carry a snapinID of 0.
             $snapin = self::positiveIntIds((array)$snapin);
             if (count($snapin) < 1) {
-                throw new Exception(_('No snapins associated'));
+                throw new \Exception(_('No snapins associated'));
             }
             // The job id gets the same treatment as the snapin id above. A
             // task is only reachable through its job, so one inserted against
@@ -905,23 +910,18 @@ class Host extends FOGController
             // behind. See the matching guard in Group::createImagePackage().
             $snapinJobID = (int)$SnapinJob->get('id');
             if ($snapinJobID < 1) {
-                throw new Exception(_('Failed to create Snapin Job'));
+                throw new \Exception(_('Failed to create Snapin Job'));
             }
             $nextSequence = 1;
             // listem order is ASC by the requested field, so the last row has max sequence.
-            Route::listem(
+            $existingTasks = Route::getList(
                 'snapintask',
                 ['jobID' => $snapinJobID],
-                false,
                 'AND',
                 'sequence'
             );
-            $existingTasks = json_decode(Route::getData());
-            if (isset($existingTasks->data)
-                && count((array)$existingTasks->data) > 0
-            ) {
-                $dataArray = (array)$existingTasks->data;
-                $lastTask = end($dataArray);
+            if (count($existingTasks) > 0) {
+                $lastTask = end($existingTasks);
                 $nextSequence = max(1, (int)$lastTask->sequence + 1);
             }
             foreach ((array)$snapin as &$snapinID) {
@@ -940,10 +940,10 @@ class Host extends FOGController
                         $insert_values
                     );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             if ($error) {
                 $Task->cancel();
-                throw new Exception($e->getMessage());
+                throw new \Exception($e->getMessage());
             }
         }
         return $this;
@@ -991,7 +991,7 @@ class Host extends FOGController
         $serverFault = false;
         try {
             if (!$this->isValid()) {
-                throw new Exception(self::$foglang['HostNotValid']);
+                throw new \Exception(self::$foglang['HostNotValid']);
             }
             $Task = $this->get('task');
             // A non-imaging active task (e.g. a queued snapin task) must not
@@ -1007,7 +1007,7 @@ class Host extends FOGController
             }
             // Block only if the host is already in an imaging task.
             if ($Task->isValid() && $TaskType->isImagingTask) {
-                throw new Exception(self::$foglang['InTask']);
+                throw new \Exception(self::$foglang['InTask']);
             }
 
             // Snapin Tasking
@@ -1033,7 +1033,7 @@ class Host extends FOGController
                                 ->set('typeID', TaskType::ALL_SNAPINS);
                             if (!$Task->save()) {
                                 $serverFault = true;
-                                throw new Exception(_('Unable to update task'));
+                                throw new \Exception(_('Unable to update task'));
                             }
                         }
                         break;
@@ -1047,10 +1047,10 @@ class Host extends FOGController
             $isCapture = $TaskType->isCapture;
             if ($imagingTypes) {
                 if (!$Image->isValid()) {
-                    throw new Exception(self::$foglang['ImageNotValid']);
+                    throw new \Exception(self::$foglang['ImageNotValid']);
                 }
                 if (!$Image->get('isEnabled')) {
-                    throw new Exception(_('Image is not enabled'));
+                    throw new \Exception(_('Image is not enabled'));
                 }
                 // Let plugins pick the group/node before falling back to the
                 // image's primary group. Every other place that resolves a
@@ -1093,7 +1093,7 @@ class Host extends FOGController
                     $StorageGroup = $Image->getStorageGroup();
                 }
                 if (!$StorageGroup->isValid()) {
-                    throw new Exception(self::$foglang['ImageGroupNotValid']);
+                    throw new \Exception(self::$foglang['ImageGroupNotValid']);
                 }
                 // Only a hook-chosen group needs checking; the image's own
                 // group holds the image by definition. Without this the task
@@ -1111,7 +1111,7 @@ class Host extends FOGController
                         ]
                     );
                     if (count($inGroup ?: []) < 1) {
-                        throw new Exception(
+                        throw new \Exception(
                             sprintf(
                                 '%s: %s -> %s',
                                 _('Image is not replicated to this storage group'),
@@ -1136,7 +1136,7 @@ class Host extends FOGController
                         _('Could not find any'),
                         _('nodes containing this image')
                     );
-                    throw new Exception($msg);
+                    throw new \Exception($msg);
                 }
                 $imageTaskImgID = $this->get('imageID');
                 $hostsWithImgID = Route::getIds(
@@ -1156,7 +1156,7 @@ class Host extends FOGController
                     );
                     if (!$this->save()) {
                         $serverFault = true;
-                        throw new Exception(_('Could not update host'));
+                        throw new \Exception(_('Could not update host'));
                     }
                 }
                 $this->set('imageID', $imageTaskImgID);
@@ -1179,7 +1179,7 @@ class Host extends FOGController
                 $Task->set('imageID', $this->get('imageID'));
                 if (!$Task->save()) {
                     $serverFault = true;
-                    throw new Exception(self::$foglang['FailedTask']);
+                    throw new \Exception(self::$foglang['FailedTask']);
                 }
                 $this->set('task', $Task);
             }
@@ -1214,7 +1214,7 @@ class Host extends FOGController
                 // port, own local sender.
                 $mcGroupID = $StorageNode->get('storagegroupID');
                 if ($sessionjoin) {
-                    Route::listem(
+                    $MCSessions = Route::getList(
                         'multicastsession',
                         [
                             'name' => $taskName,
@@ -1222,13 +1222,9 @@ class Host extends FOGController
                             'storagegroupID' => $mcGroupID
                         ]
                     );
-                    $MCSessions = json_decode(
-                        Route::getData()
-                    );
-                    $MCSessions = $MCSessions->data;
                     $assoc = true;
                 } else {
-                    Route::listem(
+                    $MCSessions = Route::getList(
                         'multicastsession',
                         [
                             'image' => $Image->get('id'),
@@ -1236,10 +1232,6 @@ class Host extends FOGController
                             'storagegroupID' => $mcGroupID
                         ]
                     );
-                    $MCSessions = json_decode(
-                        Route::getData()
-                    );
-                    $MCSessions = $MCSessions->data;
                 }
                 $MultiSessJoin = array_values(
                     array_filter(
@@ -1254,7 +1246,7 @@ class Host extends FOGController
                     // part of the session.
                     if (!$MulticastSession->isJoinable()) {
                         if ($sessionjoin) {
-                            throw new Exception(
+                            throw new \Exception(
                                 _('That session has already started')
                                 . '. '
                                 . _('It can no longer be joined')
@@ -1298,7 +1290,7 @@ class Host extends FOGController
                         ->set('shutdown', (int)$shutdown);
                     if (!$MulticastSession->save()) {
                         $serverFault = true;
-                        throw new Exception(_('Failed to create multicast task'));
+                        throw new \Exception(_('Failed to create multicast task'));
                     }
                     $assoc = true;
                 }
@@ -1309,7 +1301,7 @@ class Host extends FOGController
                         ->save();
                     if (!$stat) {
                         $serverFault = true;
-                        throw new Exception(_('Unable to create association'));
+                        throw new \Exception(_('Unable to create association'));
                     }
                 }
             }
@@ -1327,7 +1319,7 @@ class Host extends FOGController
                     ->set('stateID', self::getCompleteState())
                     ->save();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $errcode = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $message = $e->getMessage();
             $title = _('Create Task Fail');
@@ -1344,7 +1336,7 @@ class Host extends FOGController
                 $message
             ));
             if (preg_match('#/service/ipxe/boot.php#', self::$scriptname)) {
-                throw new Exception($message);
+                throw new \Exception($message);
             }
             http_response_code($errcode);
             echo json_encode(
@@ -1448,14 +1440,14 @@ class Host extends FOGController
         $mac = self::parseMacList($mac);
         $count = count($mac ?: []);
         if ($count < 1) {
-            throw new Exception(_('No viable macs to use'));
+            throw new \Exception(_('No viable macs to use'));
         }
         if (is_array($mac) && $count > 0) {
             $mac = array_shift($mac);
         }
         $host = $mac->getHost();
         if ($host instanceof Host && $host->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     "%s: %s => %s",
                     _('MAC address is already in use by another host'),
@@ -1549,7 +1541,7 @@ class Host extends FOGController
                     $limit == 1 ? '' : 's',
                     _('per host')
                 );
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         '%s %d %s',
                         _('You are only allowed to assign'),
@@ -1605,15 +1597,12 @@ class Host extends FOGController
         if ($hostID < 1) {
             return;
         }
-        Route::listem(
+        $associations = Route::getList(
             'snapinassociation',
             ['hostID' => $hostID],
-            false,
             'AND',
             'sequence'
         );
-        $associations = json_decode(Route::getData());
-        $associations = isset($associations->data) ? $associations->data : [];
         $maxSequence = 0;
         $unsequenced = [];
         foreach ($associations as $association) {

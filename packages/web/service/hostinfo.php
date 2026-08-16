@@ -28,34 +28,31 @@ try {
     //    throw new Exception(_('Cannot view from browser'));
     //}
     if (!$Task->isValid()) {
-        throw new Exception(_('Invalid tasking!'));
+        throw new \Exception(_('Invalid tasking!'));
     }
     $hosttoken = filter_input(INPUT_POST, 'hosttoken');
     if (!$hosttoken) {
         $hosttoken = filter_input(INPUT_GET, 'hosttoken');
     }
     if (!$hosttoken) {
-        throw new Exception(_('No token passed to authenticate this host'));
+        throw new \Exception(_('No token passed to authenticate this host'));
     }
     if (!FOGCore::$Host->get('tokenlock')) {
-        throw new Exception(_('Have not locked the host for access'));
+        throw new \Exception(_('Have not locked the host for access'));
     }
     if ($hosttoken != FOGCore::$Host->get('token')) {
-        throw new Exception(_('Invalid token passed for host'));
+        throw new \Exception(_('Invalid token passed for host'));
     }
     $TaskType = $Task->getTaskType();
     $Image = $Task->getImage();
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {
-            Route::listem(
+            $ids = Route::getList(
                 'multicastsessionassociation',
                 ['taskID' => $Task->get('id')]
             );
-            $ids = json_decode(
-                Route::getData()
-            );
             $msIDs = [];
-            foreach ($ids->data as $id) {
+            foreach ($ids as $id) {
                 $msIDs[] = $id->msID;
             }
 
@@ -64,7 +61,7 @@ try {
                 FOGCore::maxId($msIDs)
             );
             if (!$MulticastSession->isValid()) {
-                throw new Exception(_('Invalid Multicast Session'));
+                throw new \Exception(_('Invalid Multicast Session'));
             }
             $taskImgID = $Task->get('imageID');
             $mcImgID = $MulticastSession->get('image');
@@ -290,7 +287,7 @@ try {
             'tokenlock' => false
         ]
     );
-} catch (Exception $e) {
+} catch (\Exception $e) {
     echo Initiator::e($e->getMessage());
     exit(1);
 }

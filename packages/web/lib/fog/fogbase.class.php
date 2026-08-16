@@ -292,6 +292,13 @@ abstract class FOGBase
         'printer',
         'role',
         'setting',
+        // Sites came in from the site plugin, which added itself here from
+        // its menu hook (`$arguments['searchPages'][] = $this->node`). Core
+        // pages are listed statically instead, and missing from this list a
+        // page renders "Index page of: SiteManagement" rather than its grid
+        // -- FOGPage::index() only takes the list branch for a node it finds
+        // here. No error, just the wrong half of an if.
+        'site',
         'snapin',
         'storagegroup',
         'storagenode',
@@ -509,13 +516,41 @@ abstract class FOGBase
         return filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
     }
     /**
+     * Returns a class' short name, with any namespace prefix stripped.
+     *
+     * Phase 3 of the refactor declares FOG's classes inside the FOG\
+     * namespace, at which point get_class() starts reporting 'FOG\Host'
+     * where it reports 'Host' today. That is harmless wherever the result
+     * is used as a class *reference* -- PHP resolves it either way -- but
+     * FOG also uses it as *data*: as a database column name, as a switch
+     * case, as an HTML attribute, as a Route::$validClasses lookup, and as
+     * the text written to the history table. In those positions the prefix
+     * is silently wrong, so every one of them derives its string here.
+     *
+     * On the current tree this is a no-op: with no namespace declared there
+     * is no prefix to strip. That is deliberate -- it lets the derivation
+     * sites be fixed and shipped ahead of the namespacing itself.
+     *
+     * tests/class-name-derivation.test.php holds the line.
+     *
+     * @param object|string $class object or class name to shorten
+     *
+     * @return string
+     */
+    public static function shortName($class)
+    {
+        $name = is_object($class) ? get_class($class) : (string) $class;
+        $pos = strrpos($name, '\\');
+        return false === $pos ? $name : substr($name, $pos + 1);
+    }
+    /**
      * Defines string as class name.
      *
      * @return string
      */
     public function __toString()
     {
-        return get_class($this);
+        return self::shortName($this);
     }
     /**
      * Returns the class after verifying reflection of the class.
@@ -531,7 +566,7 @@ abstract class FOGBase
     public static function getClass($class, $data = '', $props = false)
     {
         if (!is_string($class)) {
-            throw new Exception(_('Class name must be a string'));
+            throw new \Exception(_('Class name must be a string'));
         }
         // Get all args, even unnamed args.
         $args = func_get_args();
@@ -543,20 +578,11 @@ abstract class FOGBase
         // Test what the class is and return if it is Reflection.
         $lClass = strtolower($class);
         if ($lClass === 'reflectionclass') {
-            return new ReflectionClass(count($args ?: []) === 1 ? $args[0] : $args);
-        }
-
-        global $sub;
-        // If class is Storage, test if sub is group or node.
-        if ($class === 'Storage') {
-            $class = 'StorageNode';
-            if (preg_match('#storage[\-|_]group#i', $sub)) {
-                $class = 'StorageGroup';
-            }
+            return new \ReflectionClass(count($args ?: []) === 1 ? $args[0] : $args);
         }
 
         // Initiate Reflection item.
-        $obj = new ReflectionClass($class);
+        $obj = new \ReflectionClass($class);
 
         // If props is set to true return the properties of the class.
         if ($props === true) {
@@ -681,7 +707,7 @@ abstract class FOGBase
                     $mac
                 );
             }
-            throw new Exception($msg);
+            throw new \Exception($msg);
         }
 
         // If returnmacs parameter is true, return the macs as an array
@@ -703,7 +729,7 @@ abstract class FOGBase
                 } else {
                     $msg = _('Invalid Host');
                 }
-                throw new Exception($msg);
+                throw new \Exception($msg);
             }
         }
         return;
@@ -741,19 +767,16 @@ abstract class FOGBase
             'taskID' => self::$Host->get('task')->get('id'),
             'hostID' => self::$Host->get('id'),
         ];
-        Route::listem(
+        $NodeFails = Route::getList(
             'nodefailure',
             $find
-        );
-        $NodeFails = json_decode(
-            Route::getData()
         );
         $nodeRet = array_values(
             array_unique(
                 array_filter(
                     array_map(
                         $nodeFail,
-                        $NodeFails->data
+                        $NodeFails
                     )
                 )
             )
@@ -832,7 +855,8 @@ abstract class FOGBase
             '[%s] FOG %s: %s: %s',
             $date->format('l F d Y H:i:s'),
             $label,
-            __CLASS__,
+            // Log prefix, so the short name -- not 'FOG\FOGBase'.
+            self::shortName(__CLASS__),
             $data
         );
         if (self::$mySchema >= FOG_SCHEMA && self::getSetting($setting) > 0) {
@@ -988,7 +1012,7 @@ abstract class FOGBase
         $new_value
     ) {
         if (!is_string($key)) {
-            throw new Exception(_('Key must be a string or index'));
+            throw new \Exception(_('Key must be a string or index'));
         }
         $new = [];
         foreach ($array as $k => &$value) {
@@ -1018,7 +1042,7 @@ abstract class FOGBase
         $new_value
     ) {
         if (!is_string($key) && !is_numeric($key)) {
-            throw new Exception(_('Key must be a string or index'));
+            throw new \Exception(_('Key must be a string or index'));
         }
         $new = [];
         foreach ($array as $k => &$value) {
@@ -1042,7 +1066,7 @@ abstract class FOGBase
     protected static function arrayRemove($key, array &$array)
     {
         if (!(is_string($key) || is_array($key))) {
-            throw new Exception(_('Key must be an array of keys or a string.'));
+            throw new \Exception(_('Key must be an array of keys or a string.'));
         }
         if (is_array($key)) {
             foreach ($key as &$k) {
@@ -1298,19 +1322,19 @@ abstract class FOGBase
         //      $date = 'now';
         // }
         if ($utc || empty(self::$TimeZone)) {
-            $tz = new DateTimeZone('UTC');
+            $tz = new \DateTimeZone('UTC');
         } else {
             try {
-                $tz = new DateTimeZone(self::$TimeZone);
-            } catch (Exception $e) {
-                $tz = new DateTimeZone('UTC');
+                $tz = new \DateTimeZone(self::$TimeZone);
+            } catch (\Exception $e) {
+                $tz = new \DateTimeZone('UTC');
             }
         }
         //Added try catch to catch when an invalid date is being brought in
         try {
-            $niceDate = new DateTime($date, $tz);
-        } catch (Exception $e) {
-            throw new Exception("Given date of '$date' is invalid! Can't create nicedate!");
+            $niceDate = new \DateTime($date, $tz);
+        } catch (\Exception $e) {
+            throw new \Exception("Given date of '$date' is invalid! Can't create nicedate!");
             $niceDate = $date;
         }
         return $niceDate;
@@ -1327,7 +1351,7 @@ abstract class FOGBase
      */
     public static function formatTime($time, $format = false, $utc = false)
     {
-        if (!$time instanceof DateTime) {
+        if (!$time instanceof \DateTime) {
             $time = self::niceDate($time, $utc);
         }
         if ($format) {
@@ -1388,17 +1412,17 @@ abstract class FOGBase
     protected static function validDate($date, $format = '')
     {
         if ($format == 'N') {
-            if ($date instanceof DateTime) {
+            if ($date instanceof \DateTime) {
                 return $date->format('N') >= 0;
             } else {
                 return $date >= 0 && $date <= 7;
             }
         }
         try {
-            if (!$date instanceof DateTime) {
+            if (!$date instanceof \DateTime) {
                 $date = self::niceDate($date);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
         if (!$format) {
@@ -1407,9 +1431,9 @@ abstract class FOGBase
         if (empty(self::$TimeZone)) {
             self::$TimeZone = 'UTC';
         }
-        $tz = new DateTimeZone(self::$TimeZone);
+        $tz = new \DateTimeZone(self::$TimeZone);
 
-        return DateTime::createFromFormat(
+        return \DateTime::createFromFormat(
             $format,
             $date->format($format),
             $tz
@@ -1429,7 +1453,7 @@ abstract class FOGBase
     protected static function pluralize($count, $text, $space = false)
     {
         if (!is_bool($space)) {
-            throw new Exception(_('Space variable must be boolean'));
+            throw new \Exception(_('Space variable must be boolean'));
         }
 
         return sprintf(
@@ -1454,12 +1478,12 @@ abstract class FOGBase
     protected static function diff($start, $end, $ago = false)
     {
         if (!is_bool($ago)) {
-            throw new Exception(_('Ago must be boolean'));
+            throw new \Exception(_('Ago must be boolean'));
         }
-        if (!$start instanceof DateTime) {
+        if (!$start instanceof \DateTime) {
             $start = self::niceDate($start);
         }
-        if (!$end instanceof DateTime) {
+        if (!$end instanceof \DateTime) {
             $end = self::niceDate($end);
         }
         $Duration = $start->diff($end);
@@ -1547,10 +1571,10 @@ abstract class FOGBase
     protected static function humanify($diff, $unit)
     {
         if (!is_numeric($diff)) {
-            throw new Exception(_('Diff parameter must be numeric'));
+            throw new \Exception(_('Diff parameter must be numeric'));
         }
         if (!is_string($unit)) {
-            throw new Exception(_('Unit of time must be a string'));
+            throw new \Exception(_('Unit of time must be a string'));
         }
         $before = $after = '';
         if ($diff < 0) {
@@ -1585,10 +1609,10 @@ abstract class FOGBase
     protected static function arrayChangeKey(array &$array, $old_key, $new_key)
     {
         if (!is_string($old_key)) {
-            throw new Exception(_('Old key must be a string'));
+            throw new \Exception(_('Old key must be a string'));
         }
         if (!is_string($new_key)) {
-            throw new Exception(_('New key must be a string'));
+            throw new \Exception(_('New key must be a string'));
         }
         $array[$old_key] = (
             is_string($array[$old_key]) ?
@@ -1862,7 +1886,7 @@ abstract class FOGBase
             return '';
         }
         if (!self::productKeyIsValid($posted)) {
-            throw new Exception(_('Invalid Windows product key'));
+            throw new \Exception(_('Invalid Windows product key'));
         }
         return self::productKeyFormat($posted);
     }
@@ -1988,10 +2012,10 @@ abstract class FOGBase
     protected static function certEncrypt($data)
     {
         if (!self::$Host->isValid()) {
-            throw new Exception('#!ih');
+            throw new \Exception('#!ih');
         }
         if (!self::$Host->get('pub_key')) {
-            throw new Exception('#!ihc');
+            throw new \Exception('#!ihc');
         }
         return self::aesencrypt($data, self::$Host->get('pub_key'));
     }
@@ -2026,7 +2050,7 @@ abstract class FOGBase
             unset($path);
         }
         if (count($tmpssl ?: []) < 1) {
-            throw new Exception(_('Private key path not found'));
+            throw new \Exception(_('Private key path not found'));
         }
         $sslbase = str_replace(
             ['\\', '/'],
@@ -2051,15 +2075,15 @@ abstract class FOGBase
          */
         $sslfile = sprintf('%s%s.srvprivate.key', $sslbase, DS);
         if (!file_exists($sslfile)) {
-            throw new Exception(_('Private key not found'));
+            throw new \Exception(_('Private key not found'));
         }
         if (!is_readable($sslfile)) {
-            throw new Exception(_('Private key not readable'));
+            throw new \Exception(_('Private key not readable'));
         }
         $sslfilecontents = file_get_contents($sslfile);
         $priv_key = openssl_pkey_get_private($sslfilecontents);
         if (!$priv_key) {
-            throw new Exception(_('Private key failed'));
+            throw new \Exception(_('Private key failed'));
         }
         $a_key = openssl_pkey_get_details($priv_key);
         $chunkSize = ceil($a_key['bits'] / 8);
@@ -2078,7 +2102,7 @@ abstract class FOGBase
                     $padding
                 );
                 if (!$test) {
-                    throw new Exception(_('Failed to decrypt data on server'));
+                    throw new \Exception(_('Failed to decrypt data on server'));
                 }
                 $dataun .= $decrypt;
             }
@@ -2248,7 +2272,7 @@ abstract class FOGBase
         }
         try {
             if (!self::$Host->isValid()) {
-                throw new Exception('#!ih');
+                throw new \Exception('#!ih');
             }
             $datatosend = trim($datatosend);
             $curdate = self::niceDate();
@@ -2258,7 +2282,7 @@ abstract class FOGBase
                     ->set('pub_key', '')
                     ->save();
                 if (self::$newService || self::$json) {
-                    throw new Exception('#!ihc');
+                    throw new \Exception('#!ihc');
                 }
             }
             if (self::$newService) {
@@ -2271,7 +2295,7 @@ abstract class FOGBase
                 echo $datatosend;
                 exit;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             if (self::$json) {
                 //die($datatosend);
                 if ($e->getMessage() === '#!ihc') {
@@ -2288,7 +2312,7 @@ abstract class FOGBase
                     return $data;
                 }
             }
-            throw new Exception($e->getMessage());
+            throw new \Exception($e->getMessage());
         }
     }
     /**
@@ -2333,10 +2357,10 @@ abstract class FOGBase
         $level = 1
     ) {
         if (!is_string($txt)) {
-            throw new Exception(_('Txt must be a string'));
+            throw new \Exception(_('Txt must be a string'));
         }
         if (!is_int($level)) {
-            throw new Exception(_('Level must be an integer'));
+            throw new \Exception(_('Level must be an integer'));
         }
         if (self::$ajax) {
             return;
@@ -2364,7 +2388,7 @@ abstract class FOGBase
     protected static function logHistory($string)
     {
         if (!is_string($string)) {
-            throw new Exception(_('String must be a string'));
+            throw new \Exception(_('String must be a string'));
         }
         $string = sprintf(
             '[%s] %s',
@@ -2483,7 +2507,7 @@ abstract class FOGBase
         $repStr = "\n";
         $rows = self::$DB->query(
             "SELECT `settingKey`, `settingValue` FROM `globalSettings`"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
 
         $data = [];
         foreach ((array) $rows as $row) {
@@ -2643,7 +2667,7 @@ abstract class FOGBase
     public static function getSetting($key)
     {
         if (!is_string($key) && !is_array($key)) {
-            throw new Exception(_('Key must be a string or array of strings'));
+            throw new \Exception(_('Key must be a string or array of strings'));
         }
         $findStr = '\r\n';
         $repStr = "\n";
@@ -2686,7 +2710,7 @@ abstract class FOGBase
                 . "')";
 
             $rows = self::$DB->query($sql)
-                ->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+                ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
 
             foreach ((array) $rows as $row) {
                 self::$_settingsCache[$row['settingKey']] = [
@@ -3249,10 +3273,10 @@ abstract class FOGBase
         $size = filesize($path);
         if (is_dir($path)) {
             $size = 0;
-            $di = new RecursiveDirectoryIterator($path);
-            $rii = new RecursiveIteratorIterator(
+            $di = new \RecursiveDirectoryIterator($path);
+            $rii = new \RecursiveIteratorIterator(
                 $di,
-                FilesystemIterator::SKIP_DOTS
+                \FilesystemIterator::SKIP_DOTS
             );
             foreach ($rii as $file) {
                 $size += filesize($file);
@@ -3317,17 +3341,15 @@ abstract class FOGBase
         if ($macCount < 1) {
             return;
         }
-        Route::listem(
+        $StorageNodes = Route::getList(
             'storagenode',
             ['isEnabled' => 1]
         );
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
-        foreach ($StorageNodes->data as &$StorageNode) {
-            Route::indiv('storagenode', $StorageNode->id);
-            $StorageNode = json_decode(Route::getData());
-            if (!$StorageNode->online) {
+        foreach ($StorageNodes as &$StorageNode) {
+            // getItem(), not indiv(): a node deleted between the list and the
+            // fetch answers null here rather than ending the response.
+            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
+            if (!$StorageNode || !$StorageNode->online) {
                 continue;
             }
             $nodeURLs[] = sprintf(

@@ -90,18 +90,27 @@ class SnapinHash extends FOGService
         try {
             self::$_hashOn = self::getSetting('SNAPINHASHGLOBALENABLED');
             if (self::$_hashOn < 1) {
-                throw new Exception(_(' * Snapin hash is globally disabled'));
+                throw new \Exception(_(' * Snapin hash is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
-                Route::indiv(
+                // getItem(), not indiv(): a miss answers with null here
+                // rather than exiting the daemon child outright. Refs #907.
+                $StorageGroup = Route::getItem(
                     'storagegroup',
                     $myStorageGroupID
                 );
-                $StorageGroup = json_decode(
-                    Route::getData()
-                );
+                if (!$StorageGroup) {
+                    self::outall(
+                        sprintf(
+                            ' * %s: %d',
+                            _('Skipping, no such storage group'),
+                            $myStorageGroupID
+                        )
+                    );
+                    continue;
+                }
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -174,14 +183,11 @@ class SnapinHash extends FOGService
                         _('to update hash values as needed')
                     )
                 );
-                Route::listem(
+                $Snapins = Route::getList(
                     'snapin',
                     ['id' => $snapinIDs]
                 );
-                $Snapins = json_decode(
-                    Route::getData()
-                );
-                foreach ($Snapins->data as $Snapin) {
+                foreach ($Snapins as $Snapin) {
                     self::outall(
                         sprintf(
                             ' * %s: %s, %s: %d',
@@ -231,7 +237,7 @@ class SnapinHash extends FOGService
                     _('Completed')
                 )
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall(
                 sprintf(
                     ' * %s',

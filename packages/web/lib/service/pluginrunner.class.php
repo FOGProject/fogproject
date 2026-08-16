@@ -190,20 +190,17 @@ class PluginRunner extends FOGService
     private function _discoverTasks()
     {
         $tasks = [];
-        // inputoverride = true, for the same reason Plugin::getPlugins() sets
-        // it: without it listem() parses php://input for DataTables paging.
-        // There is no request behind a daemon, but the argument is cheap and
-        // leaving it off would make this depend on that staying true.
-        Route::listem(
+        // getList() always sets inputoverride, which is why the explicit
+        // argument is gone: without it listem() parses php://input for
+        // DataTables paging, and there is no request behind a daemon.
+        $plugins = Route::getList(
             'plugin',
             [
                 'installed' => 1,
                 'state' => 1
-            ],
-            true
+            ]
         );
-        $plugins = json_decode(Route::getData());
-        foreach ((array)($plugins->data ?? []) as $plugin) {
+        foreach ($plugins as $plugin) {
             $name = strtolower(trim((string)$plugin->name));
             $location = trim((string)$plugin->location);
             // A row whose code is not on disk. Plugin::isMissing() does not
@@ -283,7 +280,7 @@ class PluginRunner extends FOGService
                     microtime(true) - $started
                 )
             );
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // Throwable, not Exception: an Error walks past a catch on
             // Exception and would kill the child, which the supervisor then
             // re-forks straight back into the same failure (#815). A plugin
@@ -311,12 +308,12 @@ class PluginRunner extends FOGService
         try {
             self::$_runnerOn = self::getSetting('PLUGINRUNNERGLOBALENABLED');
             if (self::$_runnerOn < 1) {
-                throw new Exception(
+                throw new \Exception(
                     _('Plugin runner is globally disabled')
                 );
             }
             if (!self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                throw new Exception(_('The plugin system is disabled'));
+                throw new \Exception(_('The plugin system is disabled'));
             }
             // Every other daemon gates on this, and plugin tasks need it for
             // the same reason: without it each node in a group runs every
@@ -333,7 +330,7 @@ class PluginRunner extends FOGService
             $this->checkIfNodeMaster();
             $tasks = $this->_discoverTasks();
             if (!count($tasks)) {
-                throw new Exception(_('No plugin tasks to run'));
+                throw new \Exception(_('No plugin tasks to run'));
             }
             // Reached work, so the next idle spell is a state change and gets
             // logged immediately rather than waiting out IDLE_REPEAT. The
@@ -367,7 +364,7 @@ class PluginRunner extends FOGService
                 $this->_nextRun[$key] = self::niceDate()->getTimestamp()
                     + $interval;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->_logIdle($e->getMessage());
         }
     }

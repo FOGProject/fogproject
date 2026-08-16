@@ -35,18 +35,22 @@ class MulticastTask extends FOGService
         $myStorageNodeID,
         $queuedStates
     ) {
-        Route::indiv(
+        // getItem(), not indiv(): a miss answers with null here rather than
+        // exiting the forked daemon child outright. Refs #907.
+        $StorageNode = Route::getItem(
             'storagenode',
             $myStorageNodeID
         );
-        $StorageNode = json_decode(
-            Route::getData()
-        );
+        if (!$StorageNode) {
+            return;
+        }
         self::$HookManager->processEvent(
             'CHECK_NODE_MASTER',
             [
                 'StorageNode' => &$StorageNode,
-                'FOGServiceClass' => __CLASS__
+                // Short name: plugins receive this through the hook and
+                // compare it against a bare class name.
+                'FOGServiceClass' => self::shortName(__CLASS__)
             ]
         );
         if (!$StorageNode->isMaster) {
@@ -109,18 +113,15 @@ class MulticastTask extends FOGService
         // master evaluated every session and the only thing standing between
         // two groups and two udp-senders on one session was whether both
         // happened to hold the image file -- which replication makes likely.
-        Route::listem(
+        $Tasks = Route::getList(
             'multicastsession',
             [
                 'stateID' => $queuedStates,
                 'storagegroupID' => $myStorageGroupID
             ]
         );
-        $Tasks = json_decode(
-            Route::getData()
-        );
         $NewTasks = [];
-        foreach ($Tasks->data as $Task) {
+        foreach ($Tasks as $Task) {
             $find = ['msID' => $Task->id];
             $taskIDs = Route::getIds(
                 'multicastsessionassociation',
@@ -154,23 +155,19 @@ class MulticastTask extends FOGService
                 );
                 continue;
             }
-            // Route::indiv() answers a missing row with sendResponse(404),
-            // which ends in HTTPResponseCodes::breakHead()'s exit. That is
-            // correct for a web request and fatal here: it terminates the
-            // forked daemon child outright, with nothing written to
-            // multicast.log and no exception for the service loop to catch,
-            // so multicast stops dead until someone restarts the unit. All
-            // it takes is deleting an image while a session for it is still
-            // queued. Ask the same question indiv() is about to ask and skip
-            // the session instead -- the REST API's exit is load-bearing
-            // everywhere else, so the router is left alone.
+            // This guard stays, and it is narrower than it was. getItem()
+            // below ends the half of #907 that killed the daemon: a deleted
+            // image now answers null instead of reaching indiv()'s
+            // sendResponse(404) and breakHead()'s exit.
             //
-            // isValid(), not an existence check: indiv() gates on isValid()
-            // rather than on the row being present, so an image that exists
-            // but fails validation -- osID of 0, a blank name or path --
-            // takes the daemon down exactly as a deleted one does. Testing
-            // for existence alone would leave that half of the bug open.
-            // Refs #907.
+            // It does not end the other half. getItem() establishes
+            // *existence*, while indiv() gates on isValid(), so an image that
+            // is present but does not validate -- osID of 0, a blank name or
+            // path -- still reaches indiv() and still fails. It raises rather
+            // than exiting now, so the daemon survives, but the exception
+            // unwinds the whole collection pass and takes every other queued
+            // session with it. Testing validity here keeps the failure scoped
+            // to the one session it belongs to. Refs #907, ADR 0011.
             if (!self::getClass('Image', $Task->image)->isValid()) {
                 self::outall(
                     sprintf(
@@ -181,12 +178,9 @@ class MulticastTask extends FOGService
                 );
                 continue;
             }
-            Route::indiv(
+            $Image = Route::getItem(
                 'image',
                 $Task->image
-            );
-            $Image = json_decode(
-                Route::getData()
             );
             $fullPath = sprintf('%s/%s', $root, $Task->logpath);
             if (!file_exists($fullPath)) {
@@ -528,11 +522,17 @@ class MulticastTask extends FOGService
      */
     public function getPartitions()
     {
-        Route::indiv(
+        // getItem(), not indiv(): a session whose image was deleted while it
+        // was running used to exit the daemon child here. 0 is the same
+        // answer a whole-disk image gives -- send every file -- which is the
+        // conservative one when the partition cannot be determined. Refs #907.
+        $Image = Route::getItem(
             'image',
             $this->_MultiSess->get('image')
         );
-        $Image = json_decode(Route::getData());
+        if (!$Image) {
+            return 0;
+        }
         return (int)$Image->imagepartitiontype->type;
     }
     /**
@@ -878,7 +878,7 @@ class MulticastTask extends FOGService
                         } else {
                             $lvmscan = true;
                             $filename = 'd1p%d.%s';
-                            $iterator = new DirectoryIterator(
+                            $iterator = new \DirectoryIterator(
                                 $this->getImagePath()
                             );
                             foreach ($iterator as $fileInfo) {
@@ -906,7 +906,7 @@ class MulticastTask extends FOGService
                     default:
                         $lvmscan = true;
                         $filename = 'd1p%d.%s';
-                        $iterator = new DirectoryIterator(
+                        $iterator = new \DirectoryIterator(
                             $this->getImagePath()
                         );
                         foreach ($iterator as $fileInfo) {
@@ -933,7 +933,7 @@ class MulticastTask extends FOGService
             case 2:
                 $lvmscan = true;
                 $filename = 'd1p%d.%s';
-                $iterator = new DirectoryIterator(
+                $iterator = new \DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
@@ -959,7 +959,7 @@ class MulticastTask extends FOGService
             case 3:
                 $lvmscan = true;
                 $filename = 'd%dp%d.%s';
-                $iterator = new DirectoryIterator(
+                $iterator = new \DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
@@ -984,7 +984,7 @@ class MulticastTask extends FOGService
                 unset($iterator);
                 break;
             case 4:
-                $iterator = new DirectoryIterator(
+                $iterator = new \DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
@@ -1003,7 +1003,7 @@ class MulticastTask extends FOGService
              * the send loop below expands it into the sidecar's LV image
              * files in line order — the order the FOS client restores in.
              */
-            $iterator = new DirectoryIterator(
+            $iterator = new \DirectoryIterator(
                 $this->getImagePath()
             );
             foreach ($iterator as $fileInfo) {
@@ -1041,10 +1041,8 @@ class MulticastTask extends FOGService
         // every other one on this class, and self:: binds statically to
         // MulticastTask, so any subclass override is silently ignored. No
         // subclass ships today, but it makes the method untestable in
-        // isolation -- an override is skipped, the real one runs
-        // Route::indiv() on whatever session is loaded, and a miss exits the
-        // process outright (the #907 path), which reads as the harness dying
-        // for no reason. Behaviour in the daemon is unchanged.
+        // isolation -- an override is skipped and the real one queries
+        // whatever session is loaded. Behaviour in the daemon is unchanged.
         $partid = $this->getPartitions();
         if ($partid < 1) {
             $filelist = array_values((array)$filelist);

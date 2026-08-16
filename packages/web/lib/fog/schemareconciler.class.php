@@ -125,7 +125,7 @@ class SchemaReconciler extends FOGBase
         if (false !== $res->error) {
             return null;
         }
-        $rows = $res->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         if (!is_array($rows)) {
             return null;
         }

@@ -4363,7 +4363,7 @@ $this->schema[] = [
             . "WHERE `TABLE_SCHEMA` = DATABASE() "
             . "AND `TABLE_NAME` = 'roleUserAssoc' "
             . "GROUP BY `INDEX_NAME`"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $hasComposite = false;
         $lonely = [];
         foreach ((array)$indexes as $index) {
@@ -4455,7 +4455,7 @@ $this->schema[] = [
             . "SELECT 1 FROM `rolePermissions` `p` "
             . "WHERE `p`.`rpRoleID` = `r`.`rID`"
             . ")"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $values = [];
         foreach ((array)$techIDs as $row) {
             $rID = (int)$row['rID'];
@@ -4554,7 +4554,7 @@ $this->schema[] = [
         ];
         $techIDs = self::$DB->query(
             "SELECT `rID` FROM `roles` WHERE `rName` = 'Technician'"
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $values = [];
         foreach ((array)$techIDs as $row) {
             $rID = (int)$row['rID'];
@@ -5144,4 +5144,491 @@ $this->schema[] = [
     . "state, to check whether it succeeds outside UEFI Setup Mode. Not for "
     . "fleet use -- schedule against a single test host only.','shield','',"
     . "'mode=enrollsbforce','fog','1','both')",
+];
+// 331
+$this->schema[] = [
+    // Sites, moving out of the site plugin and into core (Phase 1).
+    //
+    // Deliberately NOT the plugin's DDL adopted in place, which is how
+    // roles came across at step 302. That worked because accesscontrol's
+    // roles table was already the shape core wanted. site's is not: its
+    // four association tables carry no unique key, so the same host can be
+    // in the same site twice, and their Name columns have no default,
+    // which breaks assocSetter's batch inserts under strict SQL mode -- the
+    // exact two problems steps 303 and 309 had to write repair closures
+    // for. Reconstructing (step 332) costs one migration and lets core
+    // start from the shape it would choose today.
+    //
+    // New table names throughout, because the plugin's tables have to stay
+    // readable until the reconstruct has run and been checked. `sites` vs
+    // `site` is not a typo.
+    //
+    // Empty and unread at this step. Nothing queries these until scope
+    // resolution moves into core, so this is inert on any server.
+    "CREATE TABLE IF NOT EXISTS `sites` ("
+    . "`siteID` INT NOT NULL AUTO_INCREMENT,"
+    . "`siteName` VARCHAR(255) NOT NULL,"
+    . "`siteDesc` LONGTEXT NOT NULL,"
+    // The catch-all marker, and the reason it is NULL rather than 0.
+    //
+    // A catch-all site means "no restriction": its members are in scope
+    // for everything. Two of them would be meaningless, and worse than
+    // meaningless -- a second one is indistinguishable from the first at
+    // the point of use, so a stray insert would silently widen what a
+    // whole set of users can see. That is a boundary invariant, so the
+    // engine holds it rather than the application: InnoDB allows any
+    // number of NULLs in a UNIQUE index but only one of a given value,
+    // so at most one row can ever carry the marker.
+    //
+    // Consequence a writer MUST honour: a site that is not the catch-all
+    // stores NULL, never 0. 0 is a value like any other, so the second
+    // site to store it collides -- and under FOGController::save() that
+    // collision is NOT an error. save() builds INSERT ... ON DUPLICATE KEY
+    // UPDATE (fogcontroller.class.php:557-562), so creating a second site
+    // with siteCatchAll = 0 would UPDATE the first one's row instead of
+    // inserting: a create that silently overwrites an unrelated site. That
+    // is the bug class three other tables here were repaired for.
+    //
+    // NULL avoids it structurally rather than by care. save() drops any
+    // field whose value is null before building the column list (:545),
+    // so a null marker is never in the INSERT at all, never participates
+    // in a key collision, and takes the column default -- which is NULL.
+    //
+    // The CHECK is the belt: it makes storing 0 a hard error rather than a
+    // silent overwrite, on every server new enough to enforce it (MariaDB
+    // 10.2+, MySQL 8.0.16+). Older servers parse CHECK and ignore it, so
+    // it cannot break the CREATE anywhere -- it just does not protect
+    // there, which is why the NULL convention above is the real rule and
+    // this is only the backstop.
+    . "`siteCatchAll` TINYINT(1) UNSIGNED NULL DEFAULT NULL,"
+    . "PRIMARY KEY (`siteID`),"
+    . "UNIQUE KEY `siteName` (`siteName`),"
+    . "UNIQUE KEY `siteCatchAll` (`siteCatchAll`),"
+    . "CONSTRAINT `siteCatchAllIsOneOrNull` CHECK (`siteCatchAll` = 1)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    // The four membership tables. Same shape as userGroupMembers (step
+    // 309): composite unique so a thing is in a site at most once, and a
+    // defaulted Name column so assocSetter's batch inserts survive strict
+    // SQL mode.
+    //
+    // Each also carries a plain index on the object column. Scope
+    // resolution asks both directions -- "which sites is this user in"
+    // when a request starts, and "is this host in any of them" per object
+    // -- and the composite unique only serves the site-leading half.
+    "CREATE TABLE IF NOT EXISTS `siteHostMembers` ("
+    . "`shmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`shmName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`shmSiteID` INT NOT NULL,"
+    . "`shmHostID` INT NOT NULL,"
+    . "PRIMARY KEY (`shmID`),"
+    . "UNIQUE KEY `shmSiteHost` (`shmSiteID`,`shmHostID`),"
+    . "KEY `shmHostID` (`shmHostID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `siteUserMembers` ("
+    . "`sumID` INT NOT NULL AUTO_INCREMENT,"
+    . "`sumName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`sumSiteID` INT NOT NULL,"
+    . "`sumUserID` INT NOT NULL,"
+    . "PRIMARY KEY (`sumID`),"
+    . "UNIQUE KEY `sumSiteUser` (`sumSiteID`,`sumUserID`),"
+    . "KEY `sumUserID` (`sumUserID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `siteGroupMembers` ("
+    . "`sgmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`sgmName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`sgmSiteID` INT NOT NULL,"
+    . "`sgmGroupID` INT NOT NULL,"
+    . "PRIMARY KEY (`sgmID`),"
+    . "UNIQUE KEY `sgmSiteGroup` (`sgmSiteID`,`sgmGroupID`),"
+    . "KEY `sgmGroupID` (`sgmGroupID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `siteUserGroupMembers` ("
+    . "`sugmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`sugmName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`sugmSiteID` INT NOT NULL,"
+    . "`sugmUserGroupID` INT NOT NULL,"
+    . "PRIMARY KEY (`sugmID`),"
+    . "UNIQUE KEY `sugmSiteUserGroup` (`sugmSiteID`,`sugmUserGroupID`),"
+    . "KEY `sugmUserGroupID` (`sugmUserGroupID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];
+// 332
+$this->schema[] = [
+    // Rebuild the site plugin's data as core's, then drop the plugin's
+    // tables -- but only on proof that everything was carried across.
+    //
+    // One closure rather than a list of statements, for two reasons. A
+    // server that never had the plugin has none of these tables, and
+    // "Table doesn't exist" is error 1146, which is NOT in the updater's
+    // skip list (1050, 1054, 1060, 1061, 1062, 1091) -- an unguarded
+    // INSERT ... SELECT would abort the whole update on every fresh
+    // install. And the drop has to see what the inserts actually wrote,
+    // which only holds if they run in one place.
+    //
+    // Ids are preserved: `sites`.`siteID` takes the plugin's `sID`. The
+    // table was created empty one step ago and this is its only writer, so
+    // there is nothing to collide with, and it means the four membership
+    // tables need no id translation at all. It also makes the whole step
+    // idempotent for free -- a re-run re-inserts the same ids and every
+    // row is ignored.
+    function () {
+        $tables = [
+            'site',
+            'siteHostAssoc',
+            'siteUserAssoc',
+            'siteGroupAssoc',
+            'siteUserGroupAssoc',
+        ];
+        // Checked one at a time rather than as a set. The plugin grew
+        // siteGroupAssoc and siteUserGroupAssoc in its own schema steps 5
+        // and 6, so an install that stopped applying them earlier has the
+        // first three and not the last two. That is a normal server, not a
+        // damaged one, and it must migrate what it has.
+        $present = [];
+        $rows = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` "
+            . "FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` IN ('" . implode("','", $tables) . "')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array)$rows as $row) {
+            $present[] = $row['t'];
+        }
+        if (!in_array('site', $present, true)) {
+            // Never had the plugin, or already migrated and dropped.
+            return true;
+        }
+
+        // Sites. Duplicate names are renamed rather than dropped: the
+        // plugin put no unique key on sName, core does, and two sites
+        // called "HQ" are two different sites with two different member
+        // lists -- INSERT IGNORE would silently discard one of them and
+        // take its members with it. The suffix is derived from how many
+        // lower-id rows share the name, so it is stable across re-runs and
+        // needs no window function (MariaDB 10.2+ only, and FOG runs on
+        // older).
+        //
+        // A rename that collides with a real existing name is left to the
+        // count gate below: the row is ignored, the counts disagree, and
+        // the plugin's tables survive for a human to sort out.
+        $dupRank = "(SELECT COUNT(*) FROM `site` `p` "
+            . "WHERE `p`.`sName` = `s`.`sName` AND `p`.`sID` < `s`.`sID`)";
+        self::$DB->query(
+            "INSERT IGNORE INTO `sites` (`siteID`, `siteName`, `siteDesc`) "
+            . "SELECT `s`.`sID`, "
+            . "CASE WHEN $dupRank = 0 THEN `s`.`sName` "
+            . "ELSE CONCAT(`s`.`sName`, ' (', $dupRank + 1, ')') END, "
+            . "`s`.`sDesc` "
+            . "FROM `site` `s`"
+        );
+
+        // Memberships. SELECT DISTINCT because the plugin's association
+        // tables carry no unique key, so the same host can be in the same
+        // site twice; core's tables do, so the duplicate would be ignored
+        // and the raw row counts would disagree on a database that is
+        // actually fine.
+        //
+        // Rows are carried across only when BOTH ends still exist. The
+        // plugin never cleaned up after a delete, so its tables hold links
+        // to sites, hosts and users that are long gone -- verified on a
+        // real install, where siteUserAssoc still granted a site to user 6,
+        // deleted at some point in the past.
+        //
+        // A dangling link is not merely untidy. users.uId is
+        // AUTO_INCREMENT, and InnoDB recomputes that counter as MAX(id)+1
+        // on restart, so an id CAN come round again once every row above it
+        // has also gone. A leftover row would then hand a brand new account
+        // the deleted one's site without anybody granting it. Remote, but
+        // this is the one moment the contents of a security boundary are
+        // being chosen, and carrying known-dead rows into it is a decision
+        // rather than an oversight.
+        //
+        // They are counted and logged, not treated as loss: excluded from
+        // the expected count as well as the insert, so they cannot block
+        // the drop and strand the tables on the servers that need tidying
+        // most.
+        $members = [
+            // core table => [core site col, core obj col, plugin table,
+            //                plugin site col, plugin obj col,
+            //                object's own table, object's own key]
+            'siteHostMembers' => [
+                'shmSiteID', 'shmHostID',
+                'siteHostAssoc', 'shaSiteID', 'shaHostID',
+                'hosts', 'hostID',
+            ],
+            'siteUserMembers' => [
+                'sumSiteID', 'sumUserID',
+                'siteUserAssoc', 'suaSiteID', 'suaUserID',
+                'users', 'uId',
+            ],
+            'siteGroupMembers' => [
+                'sgmSiteID', 'sgmGroupID',
+                'siteGroupAssoc', 'sgaSiteID', 'sgaGroupID',
+                'groups', 'groupID',
+            ],
+            'siteUserGroupMembers' => [
+                'sugmSiteID', 'sugmUserGroupID',
+                'siteUserGroupAssoc', 'sugaSiteID', 'sugaUserGroupID',
+                'userGroups', 'ugID',
+            ],
+        ];
+        // One WHERE for the insert, the expected count and the orphan
+        // count, so the three can never drift apart.
+        $live = function ($map) {
+            list(, , , $sSite, $sObj, $oTable, $oKey) = $map;
+            return "`$sSite` IN (SELECT `siteID` FROM `sites`) "
+                . "AND `$sObj` IN (SELECT `$oKey` FROM `$oTable`)";
+        };
+        foreach ($members as $dest => $map) {
+            list($dSite, $dObj, $src, $sSite, $sObj) = $map;
+            if (!in_array($src, $present, true)) {
+                continue;
+            }
+            self::$DB->query(
+                "INSERT IGNORE INTO `$dest` (`$dSite`, `$dObj`) "
+                . "SELECT DISTINCT `$sSite`, `$sObj` FROM `$src` "
+                . "WHERE " . $live($map)
+            );
+        }
+
+        // Aliased column + FETCH_ASSOC, matching Schema::_rowsMissing().
+        // get() with no field argument does not reduce a single-column row
+        // to a scalar, so the alias is what makes the value reachable.
+        $count = function ($sql) {
+            $row = self::$DB->query($sql)->fetch(\PDO::FETCH_ASSOC)->get();
+            return is_array($row) && isset($row['cnt']) ? (int)$row['cnt'] : 0;
+        };
+
+        // The gate. Counted per category so the log names which one is
+        // short, and compared as "what the source says should be there"
+        // against "what is there", both scoped to the sites that migrated.
+        $mismatch = [];
+        $orphans = 0;
+        $expected = $count("SELECT COUNT(*) AS `cnt` FROM `site`");
+        $actual = $count(
+            "SELECT COUNT(*) AS `cnt` FROM `sites` "
+            . "WHERE `siteID` IN (SELECT `sID` FROM `site`)"
+        );
+        if ($expected !== $actual) {
+            $mismatch[] = "sites: expected $expected, wrote $actual";
+        }
+        foreach ($members as $dest => $map) {
+            list($dSite, $dObj, $src, $sSite, $sObj) = $map;
+            if (!in_array($src, $present, true)) {
+                continue;
+            }
+            $expected = $count(
+                "SELECT COUNT(DISTINCT `$sSite`, `$sObj`) AS `cnt` "
+                . "FROM `$src` WHERE " . $live($map)
+            );
+            $actual = $count(
+                "SELECT COUNT(*) AS `cnt` FROM `$dest` "
+                . "WHERE `$dSite` IN (SELECT `sID` FROM `site`)"
+            );
+            if ($expected !== $actual) {
+                $mismatch[] = "$dest: expected $expected, wrote $actual";
+            }
+            $orphans += $count(
+                "SELECT COUNT(*) AS `cnt` FROM `$src` "
+                . "WHERE NOT (" . $live($map) . ")"
+            );
+        }
+
+        if ($orphans > 0) {
+            error_log(
+                sprintf(
+                    'FOG site migration: %d association row(s) pointed at a '
+                    . 'site, host, user or group that no longer exists and '
+                    . 'were not carried across. They were already '
+                    . 'unreachable.',
+                    $orphans
+                )
+            );
+        }
+
+        if (count($mismatch)) {
+            // Deliberately NOT a returned error string. That would abort
+            // the schema update and leave the admin unable to finish an
+            // upgrade over data that is still intact and still readable.
+            // Keeping the source tables is the whole remedy: the repair is
+            // a forward fix, and a forward fix needs its input.
+            error_log(
+                'FOG site migration: counts disagree, so the site plugin '
+                . 'tables have been KEPT rather than dropped -- '
+                . implode('; ', $mismatch)
+                . '. Core is using the new `sites` tables from now on; the '
+                . 'old ones are left only so the difference can be worked '
+                . 'out. Nothing is lost.'
+            );
+            return true;
+        }
+
+        foreach (array_reverse($tables) as $table) {
+            if (in_array($table, $present, true)) {
+                self::$DB->query("DROP TABLE IF EXISTS `$table`");
+            }
+        }
+        return true;
+    },
+];
+// 333
+$this->schema[] = [
+    // The catch-all site, and every user who is in no site joins it.
+    //
+    // This is what stops the changeover being a fleet-wide lockout. Sites
+    // become unconditional here: before, installing the plugin WAS the
+    // opt-in, and Site::inScope() denies a user with no sites (deny-all is
+    // the correct posture and is not changing). Make the boundary
+    // unconditional without this and every non-'*' user on every upgraded
+    // server is denied every host the moment they log in.
+    //
+    // Runs after the reconstruct, so a user the plugin had genuinely
+    // scoped keeps exactly the scope they had and is not touched here.
+    //
+    // A user who had the plugin installed but was never assigned to a site
+    // DOES join, which widens what they can see. That is deliberate. "No
+    // site" today means the plugin denies them every host, user and group
+    // in the system -- an account that cannot do anything is almost never
+    // what an admin intended, and far more likely a site they never got
+    // round to filling in. The alternative is upgrading a server into a
+    // state where working accounts silently stop working, which is the
+    // failure this whole step exists to prevent.
+    //
+    // Nothing is written to the host, group or usergroup tables. The
+    // catch-all means "no restriction", not "these particular objects" --
+    // it is a flag that scope resolution short circuits on. An enumerated
+    // membership list would look identical on the day of the upgrade and
+    // then quietly rot: the first host registered afterwards would belong
+    // to no site and so be invisible to everyone, which is a migration
+    // that appears to work and fails on day two, during the most common
+    // operation FOG performs.
+    function () {
+        $held = self::$DB->query(
+            "SELECT `siteID` AS `cnt` FROM `sites` "
+            . "WHERE `siteCatchAll` IS NOT NULL LIMIT 1"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (is_array($held) && isset($held['cnt'])) {
+            // Already present. Only reachable on a re-run, and a re-run
+            // must not re-add users an admin has since taken out.
+            return true;
+        }
+
+        // siteName is UNIQUE and a migrated site may already be called
+        // Everything, so take the first free spelling rather than letting
+        // the insert be ignored and the catch-all silently not exist.
+        $exists = function ($name) {
+            $row = self::$DB->query(
+                sprintf(
+                    "SELECT COUNT(*) AS `cnt` FROM `sites` "
+                    . "WHERE `siteName` = %s",
+                    self::$DB->escape($name)
+                )
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            return is_array($row) && isset($row['cnt']) && (int)$row['cnt'];
+        };
+        $name = 'Everything';
+        for ($n = 2; $exists($name); $n++) {
+            $name = "Everything ($n)";
+        }
+
+        self::$DB->query(
+            sprintf(
+                "INSERT INTO `sites` (`siteName`, `siteDesc`, `siteCatchAll`) "
+                . "VALUES (%s, %s, 1)",
+                self::$DB->escape($name),
+                self::$DB->escape(
+                    'Members of this site are not restricted to any site: '
+                    . 'they see every host, user and group, which is how FOG '
+                    . 'behaved before sites were built in. Created during the '
+                    . 'upgrade so existing accounts kept working. Safe to '
+                    . 'rename; remove members from it to start scoping them.'
+                )
+            )
+        );
+
+        // Read the id back rather than relying on a last-insert-id API.
+        // siteCatchAll is UNIQUE, so this identifies the row exactly, and
+        // it doubles as confirmation that the insert actually landed.
+        $row = self::$DB->query(
+            "SELECT `siteID` AS `cnt` FROM `sites` "
+            . "WHERE `siteCatchAll` IS NOT NULL LIMIT 1"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (!is_array($row) || !isset($row['cnt'])) {
+            return _('Could not create the catch-all site');
+        }
+        $siteID = (int)$row['cnt'];
+
+        // Users only, and only those in no site at all. `uId` is spelled
+        // with a capital I in this table -- see the CREATE in step 0.
+        self::$DB->query(
+            sprintf(
+                "INSERT IGNORE INTO `siteUserMembers` "
+                . "(`sumSiteID`, `sumUserID`) "
+                . "SELECT %d, `u`.`uId` FROM `users` `u` "
+                . "WHERE `u`.`uId` NOT IN "
+                . "(SELECT `sumUserID` FROM `siteUserMembers`)",
+                $siteID
+            )
+        );
+        return true;
+    },
+];
+// 334
+$this->schema[] = [
+    // Retire the site plugin's `plugins` row.
+    //
+    // The plugin's code is gone as of fog-plugins v1.6.5 -- sites are core
+    // now -- but deleting the directory does not delete the row that
+    // described it. Discovery only ever walks directories that exist, so
+    // nothing else will ever touch it, and Plugin Management goes on
+    // listing `site` as installed and active with no code behind it.
+    //
+    // Inert rather than dangerous: hooks are loaded from disk, so none of
+    // the plugin's four enforcement hooks can fire, and activationBlockers()
+    // already refuses to re-activate anything with "no code on disk". This
+    // is tidying a ghost, not closing a hole.
+    //
+    // A closure because the row must only go if it really is the bundled
+    // plugin we deleted. Three conditions, and each one is load bearing:
+    //
+    //   name = 'site'          the only plugin this release retired
+    //   location under the     an admin's own `site` plugin in
+    //     bundled root         FOG_PLUGIN_DIR is not ours to delete
+    //   directory absent       the code really is gone
+    //
+    // The last one is the reason isMissing()'s docblock warns against
+    // acting on absence generally: an unmounted external root makes every
+    // plugin look absent at once. Pinning to the bundled root -- which is
+    // inside the web tree the installer just re-laid -- takes that failure
+    // mode off the table, because if THAT is missing the server has bigger
+    // problems than a stale row.
+    function () {
+        $row = self::$DB->query(
+            "SELECT `pID` AS `id`, `pLocation` AS `loc` FROM `plugins` "
+            . "WHERE LOWER(`pName`) = 'site' LIMIT 1"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (!is_array($row) || empty($row['id'])) {
+            return true;
+        }
+        $loc = trim((string)($row['loc'] ?? ''));
+        $bundled = rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS;
+        if ('' === $loc || 0 !== strncmp($loc, $bundled, strlen($bundled))) {
+            return true;
+        }
+        if (is_dir($loc)) {
+            // Code still there, so the row is describing something real and
+            // this is not the state the step was written for -- someone put
+            // the plugin back deliberately, or an install ran the updater
+            // over an older web tree. A step runs once, so nothing revisits
+            // this; leaving a live plugin's row alone is the right way to
+            // spend that one chance.
+            return true;
+        }
+        self::$DB->query(
+            "DELETE FROM `plugins` WHERE `pID` = :id",
+            [],
+            ['id' => (int)$row['id']]
+        );
+        return true;
+    },
 ];

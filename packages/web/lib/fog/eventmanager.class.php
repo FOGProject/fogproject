@@ -55,15 +55,19 @@ class EventManager extends FOGBase
     {
         try {
             if (!is_string($event)) {
-                throw new Exception(_('Event must be a string'));
+                throw new \Exception(_('Event must be a string'));
             }
             if (!is_array($listener) && !is_object($listener)) {
-                throw new Exception(_('Listener must be an array or an object'));
+                throw new \Exception(_('Listener must be an array or an object'));
             }
-            switch (get_class($this)) {
+            // Short name: the cases below are bare class names and the
+            // default arm throws. A namespaced FQCN would hit that default
+            // for every register() call, so no hook and no event would ever
+            // register -- and the throw is caught and merely logged.
+            switch (self::shortName($this)) {
                 case 'EventManager':
                     if (!($listener instanceof Event)) {
-                        throw new Exception(_('Class must extend event'));
+                        throw new \Exception(_('Class must extend event'));
                     }
                     if (!isset($this->data[$event])) {
                         $this->data[$event] = [];
@@ -72,30 +76,30 @@ class EventManager extends FOGBase
                     break;
                 case 'HookManager':
                     if (!is_array($listener) || count($listener ?: []) !== 2) {
-                        throw new Exception(
+                        throw new \Exception(
                             _('Second paramater must be in [class,function]')
                         );
                     }
                     if (!($listener[0] instanceof Hook)) {
-                        throw new Exception(_('Class must extend hook'));
+                        throw new \Exception(_('Class must extend hook'));
                     }
                     if (!method_exists($listener[0], $listener[1])) {
                         $msg = sprintf(
                             '%s: %s->%s',
                             _('Method does not exist'),
-                            get_class($listener[0]),
+                            self::shortName($listener[0]),
                             $listener[1]
                         );
-                        throw new Exception($msg);
+                        throw new \Exception($msg);
                     }
                     $this->data[$event][] = $listener;
                     break;
                 default:
-                    throw new Exception(
+                    throw new \Exception(
                         _('Register must be managed from hooks or events')
                     );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $string = sprintf(
                 '%s: %s: %s, $s: %s, %s: %s',
                 _('Could not register'),
@@ -160,13 +164,13 @@ class EventManager extends FOGBase
         }
         try {
             if (!is_string($event)) {
-                throw new Exception(_('Event must be a string'));
+                throw new \Exception(_('Event must be a string'));
             }
             if (!is_array($eventData)) {
-                throw new Exception(_('Event Data must be an array'));
+                throw new \Exception(_('Event Data must be an array'));
             }
             if (!isset($this->data[$event])) {
-                throw new Exception(_('Event and data are not set'));
+                throw new \Exception(_('Event and data are not set'));
             }
             $runEvent = function ($element) use ($event, $eventData) {
                 if (!$element->active) {
@@ -178,7 +182,7 @@ class EventManager extends FOGBase
                 $runEvent($element);
                 unset($element);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $string = sprintf(
                 '%s: %s: %s, $s: %s',
                 _('Could not notify'),

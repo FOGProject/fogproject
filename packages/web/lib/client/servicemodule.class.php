@@ -51,7 +51,7 @@ class ServiceModule extends FOGClient
                 break;
         }
         if (!in_array($mod, $mods)) {
-            throw new Exception('#!um');
+            throw new \Exception('#!um');
         }
         $remArr = [
             'dircleanup',
@@ -108,7 +108,7 @@ class ServiceModule extends FOGClient
             )
         )
         ) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     "#!n%s\n",
                     in_array($mod, $globalDisabled) ?

@@ -91,7 +91,7 @@ class ImageReplicator extends FOGService
             // Check of status changed.
             self::$_repOn = self::getSetting('IMAGEREPLICATORGLOBALENABLED');
             if (self::$_repOn < 1) {
-                throw new Exception(_(' * Image replication is globally disabled'));
+                throw new \Exception(_(' * Image replication is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $skip = false;
@@ -104,13 +104,22 @@ class ImageReplicator extends FOGService
                 );
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
-                Route::indiv(
+                // getItem(), not indiv(): a miss answers with null here
+                // rather than exiting the daemon child outright. Refs #907.
+                $StorageGroup = Route::getItem(
                     'storagegroup',
                     $myStorageGroupID
                 );
-                $StorageGroup = json_decode(
-                    Route::getData()
-                );
+                if (!$StorageGroup) {
+                    self::outall(
+                        sprintf(
+                            ' * %s: %d',
+                            _('Skipping, no such storage group'),
+                            $myStorageGroupID
+                        )
+                    );
+                    continue;
+                }
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -205,12 +214,9 @@ class ImageReplicator extends FOGService
                     $find,
                     'imageID'
                 );
-                Route::listem(
+                $Images = Route::getList(
                     'image',
                     ['id' => $imageIDs]
-                );
-                $Images = json_decode(
-                    Route::getData()
                 );
                 /**
                  * Handles replicating of our dev/postinitscripts
@@ -242,7 +248,7 @@ class ImageReplicator extends FOGService
                         $scripts
                     );
                 }
-                foreach ($Images->data as $Image) {
+                foreach ($Images as $Image) {
                     if (!Image::getPrimaryGroup($myStorageGroupID, $Image->id)) {
                         self::outall(
                             sprintf(
@@ -280,7 +286,7 @@ class ImageReplicator extends FOGService
                         _('image replication')
                     )
                 );
-                foreach ($Images->data as $Image) {
+                foreach ($Images as $Image) {
                     $I = new Image($Image->id);
                     $this->replicateItems(
                         $myStorageGroupID,
@@ -291,7 +297,7 @@ class ImageReplicator extends FOGService
                 }
                 unset($Images);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall(
                 sprintf(
                     ' * %s',

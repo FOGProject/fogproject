@@ -200,7 +200,7 @@ class Task extends TaskType
              ->set('checkInTime', $curtime->format('Y-m-d H:i:s'))
              ->set('scheduledStartTime', '0000-00-00 00:00:00');
         if (!$this->save()) {
-            throw new Exception(_('Failed to update task'));
+            throw new \Exception(_('Failed to update task'));
         }
         return true;
     }
@@ -226,10 +226,11 @@ class Task extends TaskType
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
         ];
-        Route::listem(__CLASS__, $find);
-        $Tasks = json_decode(Route::getData());
+        // Short name: Route::listem() validates this against
+        // Route::$validClasses, a list of bare lowercase names.
+        $Tasks = Route::getList(self::shortName(__CLASS__), $find);
 
-        foreach ($Tasks->data as $Task) {
+        foreach ($Tasks as $Task) {
             $tid = (int) $Task->id;
             if ($tid === $myTaskID) {
                 continue;
@@ -363,7 +364,7 @@ class Task extends TaskType
             $store_update = true;
         }
         if ($store_update && !$this->save()) {
-            throw new Exception(_('Failed to update task'));
+            throw new \Exception(_('Failed to update task'));
         }
     }
     /**

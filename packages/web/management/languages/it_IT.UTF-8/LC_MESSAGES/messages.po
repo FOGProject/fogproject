@@ -80,6 +80,10 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, php-format
+msgid "%s is maintained by the server and cannot be set"
+msgstr ""
+
+#, php-format
 msgid "%s is not a readable .tar.gz archive."
 msgstr ""
 
@@ -184,6 +188,9 @@ msgstr ""
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
+msgid "A FOG username and password."
+msgstr ""
+
 msgid "A LDAP setup already exists with this name!"
 msgstr "Un'impostazione LDAP esiste già con questo nome!"
 
@@ -249,6 +256,10 @@ msgstr "Esiste già un ruolo con questo nome!"
 
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
+
+#, fuzzy
+msgid "A page of results."
+msgstr "Elencare tutte le regole"
 
 #, fuzzy
 msgid "A permission name is required."
@@ -343,6 +354,10 @@ msgstr "Non è possibile effettuare una connessione di database valida"
 msgid "API"
 msgstr "API?"
 
+#, fuzzy
+msgid "API Documentation"
+msgstr "Luogo"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
@@ -357,6 +372,9 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Accepts the same optional trailing filter segment as a list. Reports the true filtered total and ignores paging."
 msgstr ""
 
 msgid "Access"
@@ -421,6 +439,10 @@ msgid "Activated"
 msgstr "Attivo"
 
 msgid "Active"
+msgstr "Attivo"
+
+#, fuzzy, php-format
+msgid "Active %s"
 msgstr "Attivo"
 
 msgid "Active Directory"
@@ -679,6 +701,21 @@ msgstr "Già creato"
 msgid "Also confirm that the database is indeed running"
 msgstr "Confermare anche che il database sia in esecuzione"
 
+msgid "Also reachable as /active."
+msgstr ""
+
+msgid "Also reachable as /create and /new."
+msgstr ""
+
+msgid "Also reachable as /delete and /remove."
+msgstr ""
+
+msgid "Also reachable as /list and /all. A trailing filter segment accepts field:value pairs."
+msgstr ""
+
+msgid "Also reachable as /update and /edit. Send only the fields being changed."
+msgstr ""
+
 #, fuzzy
 msgid "An LDAP server already exists with this name!"
 msgstr "Un'impostazione LDAP esiste già con questo nome!"
@@ -686,6 +723,9 @@ msgstr "Un'impostazione LDAP esiste già con questo nome!"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "Un'immagine esiste già con questo nome!"
+
+msgid "An OpenAPI document."
+msgstr ""
 
 #, fuzzy
 msgid "An SQL error occurred"
@@ -705,9 +745,15 @@ msgstr "Un nome host con questo nome esiste già"
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
+msgid "An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "Esiste già un gruppo con questo nome!"
+
+msgid "An unpaged array."
+msgstr ""
 
 msgid "Annually"
 msgstr "Annualmente"
@@ -807,6 +853,12 @@ msgstr "Il tentativo di ping"
 msgid "Attempting to ping host"
 msgstr "Il tentativo di ping"
 
+msgid "Authenticated but not permitted."
+msgstr ""
+
+msgid "Authentication missing or invalid."
+msgstr ""
+
 msgid "Auto"
 msgstr "Auto"
 
@@ -838,6 +890,10 @@ msgstr "Venditore BIOS"
 msgid "BIOS Version"
 msgstr "Versione BIOS"
 
+#, fuzzy
+msgid "Bad request."
+msgstr "è richiesto"
+
 msgid "Bandwidth"
 msgstr "Larghezza di banda"
 
@@ -861,6 +917,9 @@ msgstr "Bind DN"
 
 msgid "Bind Password"
 msgstr "Bind Password"
+
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgstr ""
 
 #, fuzzy
 msgid "Boot Options"
@@ -986,6 +1045,10 @@ msgid "Cache Refreshed"
 msgstr "Predefinito: frequenza aggiornamento"
 
 #, fuzzy
+msgid "Cache state."
+msgstr "Predefinito: frequenza aggiornamento"
+
+#, fuzzy
 msgid "Cached keys"
 msgstr "Predefinito: frequenza aggiornamento"
 
@@ -1008,6 +1071,10 @@ msgstr "Elimina selezionato"
 
 #, fuzzy
 msgid "Cancel Selected Tasks"
+msgstr "Elimina selezionato"
+
+#, fuzzy, php-format
+msgid "Cancel a %s task"
 msgstr "Elimina selezionato"
 
 #, fuzzy
@@ -1037,6 +1104,10 @@ msgid "Cannot connect to ftp server"
 msgstr "Impossibile connettersi al server ftp"
 
 msgid "Cannot delete the primary mac address, please reselect"
+msgstr ""
+
+#, php-format
+msgid "Cannot filter %s on: %s"
 msgstr ""
 
 #, fuzzy
@@ -1103,6 +1174,9 @@ msgstr "Sistema seriale"
 #, fuzzy
 msgid "Case Version"
 msgstr "Ultima versione"
+
+msgid "Catch-All Site"
+msgstr ""
 
 msgid "Certificate SHA-1"
 msgstr ""
@@ -1222,6 +1296,9 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
+msgstr ""
+
 msgid "Command"
 msgstr "Comando"
 
@@ -1285,6 +1362,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Could not apply %s: %s"
 msgstr "Impossibile aggiornare l'host"
+
+#, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "Impossibile creare Snapin lavoro"
 
 #, fuzzy
 msgid "Could not create the staging directory."
@@ -1371,6 +1452,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Count"
+msgstr "Conte CPU"
+
+#, fuzzy, php-format
+msgid "Count %s"
 msgstr "Conte CPU"
 
 msgid "Create"
@@ -1502,6 +1587,10 @@ msgstr "Creazione utente fallita"
 msgid "Create Task Success"
 msgstr "Creazione utente riuscita"
 
+#, fuzzy, php-format
+msgid "Create a %s"
+msgstr "Crea nuovo %s"
+
 #, fuzzy
 msgid "Create new Session Task"
 msgstr "Crea nuovo snapin"
@@ -1509,6 +1598,10 @@ msgstr "Crea nuovo snapin"
 #, fuzzy
 msgid "Create new tasking"
 msgstr "Crea nuovo snapin"
+
+#, php-format
+msgid "Create or update a %s by natural key"
+msgstr ""
 
 #, fuzzy
 msgid "Create task form fail"
@@ -1680,6 +1773,10 @@ msgstr "Elimina gli host all'interno"
 
 msgid "Delete Success"
 msgstr "Eliminato con successo"
+
+#, fuzzy, php-format
+msgid "Delete a %s"
+msgstr "Cancellare i file"
 
 #, fuzzy
 msgid "Delete associated hosts"
@@ -2029,9 +2126,6 @@ msgstr "Esporta luoghi"
 msgid "Export OUs"
 msgstr "Esporta utenti"
 
-msgid "Export Sites"
-msgstr "Esporta Siti"
-
 #, fuzzy
 msgid "Export Subnet Groups"
 msgstr "Gruppi Export"
@@ -2052,6 +2146,10 @@ msgstr "Host Export"
 
 msgid "Export Windows Keys"
 msgstr "Esporta chiavi Windows"
+
+#, fuzzy
+msgid "Export the database"
+msgstr "Importa database"
 
 msgid "FOG"
 msgstr "NEBBIA"
@@ -2266,6 +2364,9 @@ msgstr "Campo e tipo devono avere lo stesso conteggio"
 msgid "Fields not defined for this class"
 msgstr "Campi del database definiti per questa classe"
 
+msgid "Fields withheld from list responses are returned here."
+msgstr ""
+
 msgid "File"
 msgstr "File"
 
@@ -2366,6 +2467,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Flush Settings Cache"
+msgstr "Impostazioni FOG"
+
+#, fuzzy
+msgid "Flush the settings cache"
 msgstr "Impostazioni FOG"
 
 msgid "For a live-USB enrolment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
@@ -2470,8 +2575,16 @@ msgstr "Generale"
 msgid "General Information"
 msgstr "Informazione generale"
 
+#, php-format
+msgid "Generated from this server's own routing and model metadata, so it describes the classes and routes this install exposes. The raw document is at %s."
+msgstr ""
+
 msgid "Generic LDAP"
 msgstr "LDAP Generico"
+
+#, php-format
+msgid "Get one %s by id"
+msgstr ""
 
 msgid "Getting image size for"
 msgstr "Ottenere la dimensione dell'immagine per"
@@ -2658,18 +2771,6 @@ msgid "Group Search DN"
 msgstr "Ricerca gruppo DN"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "Gruppo Snapins"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "Gruppo aggiornato!"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "Storia Snapin Host"
 
@@ -2686,10 +2787,6 @@ msgstr "Aggiornamento gruppo non riuscito"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "Aggiornamento gruppo non riuscito"
 
 msgid "Group Update Success"
@@ -2710,6 +2807,10 @@ msgstr "Aggiornamento del gruppo non riuscito!"
 
 msgid "Group updated!"
 msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+msgid "Grouped matches."
+msgstr "Host Luoghi"
 
 msgid "Groups"
 msgstr "gruppi"
@@ -2960,18 +3061,6 @@ msgid "Host Registration"
 msgstr "registrazione Host"
 
 #, fuzzy
-msgid "Host Site"
-msgstr "Lista Host"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "Aggiornamento host completato!"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "Sito aggiornato!"
-
-#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "Host associato"
 
@@ -2987,10 +3076,6 @@ msgstr "Aggiornamento Host completato"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "Aggiornamento Host completato"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "Aggiornamento Host completato"
 
 msgid "Host Update Success"
@@ -3100,6 +3185,14 @@ msgstr "Icona"
 
 msgid "Icon File not found"
 msgstr "File Icona non trovato"
+
+#, php-format
+msgid "Id and name pairs for %s"
+msgstr ""
+
+#, php-format
+msgid "Ids for %s"
+msgstr ""
 
 msgid "If credentials are correct"
 msgstr "Se le credenziali sono corrette"
@@ -3397,9 +3490,6 @@ msgstr "Importa Report"
 msgid "Import Reports"
 msgstr "Importa Report"
 
-msgid "Import Sites"
-msgstr "importa Siti"
-
 #, fuzzy
 msgid "Import Subnet Groups"
 msgstr "Gruppi di importazione"
@@ -3468,6 +3558,14 @@ msgid "Init FS"
 msgstr "Host Init"
 
 #, fuzzy
+msgid "Init images present on disk"
+msgstr "Non trovato su questo nodo"
+
+#, fuzzy
+msgid "Init images."
+msgstr "immagine non valido"
+
+#, fuzzy
 msgid "InitRD Versions"
 msgstr "Versione client"
 
@@ -3522,6 +3620,10 @@ msgstr "Interfaccia"
 
 msgid "Interface not ready, waiting for it to come up"
 msgstr "Interfaccia non pronta, in attesa che venga visualizzata"
+
+#, fuzzy
+msgid "Interface throughput"
+msgstr "Interfaccia"
 
 msgid "Invalid"
 msgstr "Non valido"
@@ -3775,6 +3877,14 @@ msgstr "versioni del kernel"
 msgid "Kernel Versions"
 msgstr "versioni del kernel"
 
+#, fuzzy
+msgid "Kernels present on disk"
+msgstr "versioni del kernel"
+
+#, fuzzy
+msgid "Kernels."
+msgstr "nocciolo"
+
 msgid "Kernels/Inits from location"
 msgstr "I kernel / INIT dalla posizione"
 
@@ -4004,6 +4114,10 @@ msgstr "Connessione Account Slack completata"
 msgid "List"
 msgstr "Elenca"
 
+#, fuzzy, php-format
+msgid "List %s"
+msgstr "Elencare tutti %s"
+
 #, php-format
 msgid "List All %s"
 msgstr "Elencare tutti %s"
@@ -4091,6 +4205,9 @@ msgstr "sedi"
 msgid "Log Viewer"
 msgstr "Log Viewer"
 
+msgid "Log contents."
+msgstr ""
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -4174,6 +4291,9 @@ msgstr "Menu principale"
 #, fuzzy
 msgid "Main navigation"
 msgstr "Regole di associazione"
+
+msgid "Maintained by the server. It may be sent back unchanged, but a request that would change it is refused."
+msgstr ""
 
 #, fuzzy
 msgid "Make default"
@@ -4490,7 +4610,14 @@ msgstr "Installazione via rete"
 msgid "Network Printer"
 msgstr "stampante di rete"
 
+#, fuzzy
+msgid "Network interface name."
+msgstr "Installazione via rete"
+
 msgid "Never - do not verify (insecure)"
+msgstr ""
+
+msgid "Never returned by the API."
 msgstr ""
 
 msgid "New"
@@ -4706,9 +4833,15 @@ msgstr "Un host già esiste con questo nome!"
 msgid "No storagegroups assigned to this snapin"
 msgstr "Il gruppo di archiviazione immagine assegnato non è valido"
 
+msgid "No such object."
+msgstr ""
+
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "Nessuna Imagine valida definita per questo host"
+
+msgid "No type information available for this column."
+msgstr ""
 
 msgid "No valid storage nodes found"
 msgstr "Nessun nodo di archiviazione valido trovato"
@@ -4791,6 +4924,9 @@ msgstr ""
 msgid "Nothing to do on Storage Node Named"
 msgstr "Nome Storage Node"
 
+msgid "Null when this is the last page."
+msgstr ""
+
 msgid "O/S"
 msgstr "O / S"
 
@@ -4863,6 +4999,9 @@ msgstr ""
 msgid "Old key must be a string"
 msgstr "Vecchia chiave deve essere una stringa"
 
+msgid "Omitted from list responses; returned only on a single GET by id."
+msgstr ""
+
 msgid "On"
 msgstr ""
 
@@ -4913,6 +5052,14 @@ msgstr "OpenLDAP"
 msgid "Operation field not set"
 msgstr "Campo operazione non impostato"
 
+#, php-format
+msgid "Operations on %1$s, stored in the %2$s table."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "Operations on %s."
+msgstr "Campo operazione non impostato"
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward."
 msgstr ""
 
@@ -4945,6 +5092,9 @@ msgid "PLUGIN OPTIONS"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
+msgstr ""
+
+msgid "Page size. Send it, together with start, on every list call: a request with no start is capped at MAX_ROWS and returns a partial result with truncated set."
 msgstr ""
 
 #, fuzzy
@@ -5018,7 +5168,15 @@ msgstr "Host in sospeso"
 msgid "Pending MAC Addresses"
 msgstr "Indirizzo MAC"
 
+#, fuzzy
+msgid "Pending MAC addresses"
+msgstr "Indirizzo MAC"
+
 msgid "Pending MACs"
+msgstr "sospeso MAC"
+
+#, fuzzy
+msgid "Pending MACs."
 msgstr "sospeso MAC"
 
 #, fuzzy
@@ -5449,6 +5607,10 @@ msgstr "Aggiunta tipo attività fallita"
 msgid "Queue Deletion Cancel Success"
 msgstr "Aggiunta tipo attività riuscita"
 
+#, php-format
+msgid "Queue a task against a %s"
+msgstr ""
+
 msgid "Queued"
 msgstr "In coda"
 
@@ -5458,6 +5620,9 @@ msgstr ""
 msgid "RESOURCES"
 msgstr ""
 
+msgid "REST API reference"
+msgstr ""
+
 msgid "RX"
 msgstr "RX"
 
@@ -5465,6 +5630,9 @@ msgid "Re-Transmit Hello Interval"
 msgstr ""
 
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
+msgstr ""
+
+msgid "Read a server log"
 msgstr ""
 
 #, fuzzy
@@ -5490,6 +5658,10 @@ msgstr "Record non trovato"
 
 #, fuzzy
 msgid "Refresh Settings Cache"
+msgstr "Stato servizio"
+
+#, fuzzy
+msgid "Refresh the settings cache"
 msgstr "Stato servizio"
 
 msgid "Register must be managed from hooks or events"
@@ -5594,6 +5766,10 @@ msgstr "Reset Token"
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
+#, php-format
+msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
 msgid "Result"
 msgstr "Risultati"
 
@@ -5608,6 +5784,9 @@ msgstr "Codice di ritorno"
 
 msgid "Returning value of key"
 msgstr "Tornando valore della chiave"
+
+msgid "Returns the same envelope as a list."
+msgstr ""
 
 msgid "Reverse"
 msgstr ""
@@ -5689,6 +5868,16 @@ msgstr "I percorsi devono essere un array o un'istanza di Traversable"
 msgid "Row"
 msgstr "Riga"
 
+msgid "Row offset. Only honoured when length is also sent -- the server reads start from inside the length branch."
+msgstr ""
+
+#, fuzzy
+msgid "Rows in this page."
+msgstr "nodi che contengono questa immagine"
+
+msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Running Windows"
 
@@ -5697,6 +5886,9 @@ msgstr ""
 
 msgid "SQL Error"
 msgstr "Errore SQL:"
+
+msgid "SQL dump."
+msgstr ""
 
 #, fuzzy
 msgid "SSH Connection Failed"
@@ -5716,6 +5908,9 @@ msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplic
 msgstr ""
 
 msgid "Save order"
+msgstr ""
+
+msgid "Save the site before setting catch-all"
 msgstr ""
 
 msgid "Saving data for"
@@ -5791,6 +5986,10 @@ msgstr ""
 msgid "Search"
 msgstr "Ricerca"
 
+#, fuzzy, php-format
+msgid "Search %s"
+msgstr "Ricerca"
+
 msgid "Search Base DN"
 msgstr "Cerca Base DN"
 
@@ -5809,6 +6008,9 @@ msgstr "Metodo di ricerca"
 
 msgid "Search Scope"
 msgstr "Scope di ricerca"
+
+msgid "Search every class at once"
+msgstr ""
 
 msgid "Search results returned false"
 msgstr "Risultati di ricerca che restituiscono false"
@@ -5875,9 +6077,24 @@ msgstr "Server Shell"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, fuzzy
+msgid "Server facts."
+msgstr "Informazione generale"
+
+#, fuzzy
+msgid "Server identity"
+msgstr "Server Shell"
+
 #, fuzzy, php-format
 msgid "Server is only configured to run %d multicast tasks"
 msgstr "Configurazione del servizio"
+
+msgid "Server status, export and metadata."
+msgstr ""
+
+#, fuzzy
+msgid "Server version"
+msgstr "versioni del kernel"
 
 msgid "Service"
 msgstr "Servizio"
@@ -5983,6 +6200,10 @@ msgstr "Modifica Impostazioni completata"
 msgid "Settings cache flushed"
 msgstr "Aggiornamento Impostazioni non riuscito"
 
+#, fuzzy
+msgid "Settings cache state"
+msgstr "Aggiornamento Impostazioni non riuscito"
+
 msgid "Settings successfully stored!"
 msgstr "Le impostazioni sono state memorizzate correttamente!"
 
@@ -6035,9 +6256,6 @@ msgstr ""
 #, fuzzy
 msgid "Site"
 msgstr "Siti"
-
-msgid "Site Association"
-msgstr "Associazione Sito"
 
 #, fuzzy
 msgid "Site Create Fail"
@@ -6112,6 +6330,13 @@ msgid "Skipping as there is nothing to do"
 msgstr "Non c'è nulla da replicare"
 
 msgid "Skipping unsafe queued delete path"
+msgstr ""
+
+#, fuzzy
+msgid "Skipping, no such storage group"
+msgstr "Snap in un gruppo di archiviazione"
+
+msgid "Skipping, no such task type"
 msgstr ""
 
 msgid "Skipping, not a PluginTask"
@@ -6556,6 +6781,9 @@ msgstr "Nodo di archiviazione aggiornato!"
 msgid "Storage Nodes"
 msgstr "Storage Node"
 
+msgid "Streams a full SQL dump as an attachment."
+msgstr ""
+
 msgid "String must be a string"
 msgstr "Stringa deve essere una stringa"
 
@@ -6617,6 +6845,10 @@ msgstr "Solo Sottoalbero"
 #, fuzzy
 msgid "Subtree and Below"
 msgstr "Sottoalbero e inferiore"
+
+#, fuzzy
+msgid "Success."
+msgstr "Accesso"
 
 #, fuzzy
 msgid "Successfully added hosts to the provided groups!"
@@ -6829,6 +7061,10 @@ msgstr "Aggiunta tipo attività riuscita!"
 msgid "Task state update failed!"
 msgstr "Aggiunta stato attività fallito"
 
+#, fuzzy, php-format
+msgid "Task type %d is missing from this server."
+msgstr "Non ci sono snapins su questo server"
+
 #, fuzzy
 msgid "Task type is invalid"
 msgstr "Tipo di attività non è valido"
@@ -6848,6 +7084,9 @@ msgstr "Terminale"
 
 msgid "Text"
 msgstr "Testo"
+
+msgid "Text to match across the class fields."
+msgstr ""
 
 #, fuzzy
 msgid "That group is already defined for this server!"
@@ -6875,6 +7114,10 @@ msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
 msgstr "L'impostazione \"nodo master\" definisce quale"
+
+#, fuzzy
+msgid "The API is disabled"
+msgstr "Il valore predefinito è disabilitato"
 
 msgid "The CA certificate path is too long (255 characters max)"
 msgstr ""
@@ -6928,6 +7171,17 @@ msgid "The configured LDAPS CA path cannot be read by the web server, so it is b
 msgstr ""
 
 #, fuzzy
+msgid "The count."
+msgstr "Conte CPU"
+
+msgid "The created object."
+msgstr ""
+
+#, fuzzy
+msgid "The created task."
+msgstr "Impossibile creare un'attività"
+
+#, fuzzy
 msgid "The current user is invalid."
 msgstr "Tipo di attività non è valido"
 
@@ -6954,6 +7208,10 @@ msgstr ""
 msgid "The node trying to be used is currently"
 msgstr "Il nodo che si sta cercando di essere utilizzato è attualmente"
 
+#, fuzzy
+msgid "The object."
+msgstr "oggetto"
+
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
@@ -6974,6 +7232,10 @@ msgstr ""
 
 msgid "The primary mac associated is"
 msgstr "Il MAC primario associato è"
+
+#, fuzzy
+msgid "The selected site no longer exists"
+msgstr "non è più in esecuzione"
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "Le impostazioni tendono ad essere le impostazioni globali che influenzano tutti gli host"
@@ -7054,10 +7316,17 @@ msgstr "Qui è possibile scaricare programmi di utilità come FOG Prep"
 msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
 
+#, fuzzy
+msgid "This FOG server"
+msgstr "IP di questo server"
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
 msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgstr ""
+
+msgid "This document"
 msgstr ""
 
 msgid "This host already exists"
@@ -7078,6 +7347,10 @@ msgstr ""
 msgid "This is a single run task that should run now."
 msgstr ""
 
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
+msgstr ""
+
 msgid "This is especially useful if you have multiple"
 msgstr "Ciò è particolarmente utile se si dispone di più"
 
@@ -7091,6 +7364,9 @@ msgstr "Questo non è il gruppo primario"
 msgid "This is the amount of physical disk space"
 msgstr ""
 
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
+msgstr ""
+
 msgid "This is the minimum space for the host this is deploying to."
 msgstr ""
 
@@ -7101,12 +7377,19 @@ msgstr ""
 msgid "This machine already registered as "
 msgstr "Già registrato come"
 
+#, fuzzy
+msgid "This node could not be found"
+msgstr "Impossibile leggere il file temporaneo"
+
 msgid "This node does not appear to be online"
 msgstr ""
 
 #, fuzzy
 msgid "This page allows you to upload a CSV file into fog."
 msgstr "Questa sezione consente di caricare l'utente"
+
+msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
+msgstr ""
 
 msgid "This section allows you to update"
 msgstr "Questa sezione ti consente di aggiornare"
@@ -7177,6 +7460,9 @@ msgstr ""
 msgid "Those images should be activated with the associated"
 msgstr "Queste immagini devono essere attivate con le relative"
 
+msgid "Throughput sample."
+msgstr ""
+
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -7239,8 +7525,14 @@ msgstr "Spazio su disco totale"
 msgid "Total Memory"
 msgstr "Memoria totale"
 
+msgid "Total rows in the table, unfiltered."
+msgstr ""
+
 msgid "Transmit"
 msgstr "Trasmettere"
+
+msgid "True only when the server capped an unbounded request at MAX_ROWS. Never set when the caller sent start/length."
+msgstr ""
 
 msgid "Trust anchor"
 msgstr ""
@@ -7351,6 +7643,16 @@ msgstr "Tra impostazioni host e globali"
 msgid "Unable to update task"
 msgstr "Impossibile aggiornare compito"
 
+msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
+msgstr ""
+
+#, fuzzy
+msgid "Unauthenticated."
+msgstr "Impossibile contattare il server"
+
+msgid "Unauthenticated. Also reachable as /system/status."
+msgstr ""
+
 msgid "Unauthorized"
 msgstr ""
 
@@ -7411,6 +7713,12 @@ msgstr "Approvare MAC selezionati"
 msgid "Unmark selected pending"
 msgstr "Approvare MAC selezionati"
 
+msgid "Unpaged and uncapped -- the cheap way to enumerate a large table. Accepts an optional trailing filter segment."
+msgstr ""
+
+msgid "Unpaged and uncapped. Accepts an optional trailing filter segment and an optional field name to return instead of the id."
+msgstr ""
+
 msgid "Unsafe hostname entered, please try again: "
 msgstr ""
 
@@ -7462,6 +7770,10 @@ msgstr "Aggiornamento Siti"
 msgid "Update Not Required"
 msgstr "Avanzata Login Richiesto"
 
+#, fuzzy, php-format
+msgid "Update a %s"
+msgstr "Aggiornare"
+
 #, fuzzy
 msgid "Update not required"
 msgstr "È richiesto un nome!"
@@ -7486,8 +7798,14 @@ msgstr ""
 msgid "Uploaded file too large."
 msgstr ""
 
+msgid "Upserts against the association keys rather than an id."
+msgstr ""
+
 msgid "Uptime"
 msgstr "uptime"
+
+msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
+msgstr ""
 
 #, fuzzy
 msgid "Use Display Name from Directory"
@@ -7619,22 +7937,6 @@ msgid "User Group Role Associations"
 msgstr "Regole di associazione"
 
 #, fuzzy
-msgid "User Group Site"
-msgstr "Gruppo Snapins"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "Aggiornamento gruppo non riuscito"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "Aggiornamento del gruppo completato"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "Gruppo aggiornato!"
-
-#, fuzzy
 msgid "User Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
 
@@ -7661,22 +7963,6 @@ msgstr "Attributo nome utente"
 
 msgid "User Password"
 msgstr "Password utente"
-
-#, fuzzy
-msgid "User Site"
-msgstr "Nuovo Sito"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "Aggiornamento della stampante non riuscito"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "Utente aggiornato con successo"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "Sito aggiornato!"
 
 msgid "User Tracker"
 msgstr "Tracker utente"
@@ -7761,6 +8047,10 @@ msgstr "La variabile contiene"
 
 msgid "Version"
 msgstr "Versione"
+
+#, fuzzy
+msgid "Version information."
+msgstr "FOG Informazioni sulla versione"
 
 #, fuzzy
 msgid "Versions"
@@ -8869,6 +9159,9 @@ msgstr ""
 #~ msgid "Export Rules"
 #~ msgstr "Importazione riuscita"
 
+#~ msgid "Export Sites"
+#~ msgstr "Esporta Siti"
+
 #~ msgid "Export Snapins"
 #~ msgstr "Export Snapins"
 
@@ -8908,6 +9201,22 @@ msgstr ""
 #~ msgid "Group Search DN did not return any results"
 #~ msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
 
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "Gruppo Snapins"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "Aggiornamento gruppo non riuscito"
+
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"
 
@@ -8931,8 +9240,24 @@ msgstr ""
 #~ msgstr "Aggiornamento ruolo non riuscito"
 
 #, fuzzy
+#~ msgid "Host Site"
+#~ msgstr "Lista Host"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "Aggiornamento host completato!"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "Sito aggiornato!"
+
+#, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "Storia Snapin Host"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "Aggiornamento Host completato"
 
 #~ msgid "Host module settings"
 #~ msgstr "Impostazioni del modulo host"
@@ -8986,6 +9311,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Rules"
 #~ msgstr "Importa Report"
+
+#~ msgid "Import Sites"
+#~ msgstr "importa Siti"
 
 #~ msgid "Import Snapins"
 #~ msgstr "Importa Snapins"
@@ -9120,6 +9448,9 @@ msgstr ""
 #~ msgid "Rule update failed!"
 #~ msgstr "Aggiornamento della stampante non è riuscito!"
 
+#~ msgid "Site Association"
+#~ msgstr "Associazione Sito"
+
 #~ msgid "Snapin Created"
 #~ msgstr "Snapin creato"
 
@@ -9177,6 +9508,22 @@ msgstr ""
 #~ msgstr "Aggiorna/Rimuovi stampanti"
 
 #, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "Gruppo Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "Gruppo aggiornato!"
+
+#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "Cleanup utente"
 
@@ -9187,6 +9534,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "Nuovo Sito"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "Aggiornamento della stampante non riuscito"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "Sito aggiornato!"
 
 #~ msgid "You have version"
 #~ msgstr "Hai l'ultima versione"
@@ -9206,10 +9569,6 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "es."
-
-#, fuzzy
-#~ msgid "its code is not on disk"
-#~ msgstr "Non trovato su questo nodo"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

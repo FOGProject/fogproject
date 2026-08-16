@@ -288,7 +288,7 @@ class SchemaUpdaterPage extends FOGPage
         $serverFault = false;
         try {
             if (!DatabaseManager::getLink()) {
-                throw new Exception(_('Database connection unavailable.'));
+                throw new \Exception(_('Database connection unavailable.'));
             }
             // Whether there is any INDEXED work. There may be none and still
             // be work to do: the reconcile and the required-row seed below are
@@ -502,7 +502,7 @@ class SchemaUpdaterPage extends FOGPage
                 || count($errors) > 0
             ) {
                 $serverFault = true;
-                throw new Exception(_('Unable to update schema'));
+                throw new \Exception(_('Unable to update schema'));
             }
             // Reported only once everything above has actually run, so a
             // server with no indexed steps left still gets its reconcile and
@@ -524,7 +524,7 @@ class SchemaUpdaterPage extends FOGPage
                     'title' => _('Schema Update Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :

@@ -100,7 +100,7 @@ abstract class FOGService extends FOGBase
     protected function checkIfNodeMaster()
     {
         self::getIPAddress();
-        Route::listem(
+        $StorageNodesFound = Route::getList(
             'storagenode',
             [
                 'isMaster' => 1,
@@ -117,13 +117,11 @@ abstract class FOGService extends FOGBase
         // was re-forked straight back into it. That is every non-master node
         // running the multicast daemon with the Location plugin on (#815).
         $MasterIDs = [];
-        $StorageNodesFound = json_decode(
-            Route::getData()
-        );
-        foreach ($StorageNodesFound->data as &$StorageNode) {
-            Route::indiv('storagenode', $StorageNode->id);
-            $StorageNode = json_decode(Route::getData());
-            if (!$StorageNode->online) {
+        foreach ($StorageNodesFound as &$StorageNode) {
+            // getItem(), not indiv(): a node that vanished between the list
+            // and the fetch used to exit the daemon child here. Refs #907.
+            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
+            if (!$StorageNode || !$StorageNode->online) {
                 continue;
             }
             $ip = self::resolveHostname(
@@ -147,7 +145,7 @@ abstract class FOGService extends FOGBase
         if (count($StorageNodes) > 0) {
             return $StorageNodes;
         }
-        throw new Exception(
+        throw new \Exception(
             _(' | This is not the master node')
         );
     }
@@ -194,7 +192,7 @@ abstract class FOGService extends FOGBase
         self::outall(
             sprintf(
                 'FOGService: %s - %s',
-                get_class($this),
+                self::shortName($this),
                 _('Waiting for mysql to be available')
             )
         );
@@ -220,7 +218,7 @@ abstract class FOGService extends FOGBase
             sprintf(
                 '===== FOG %s -- %s starting =====',
                 FOG_VERSION,
-                get_class($this)
+                self::shortName($this)
             )
         );
     }
@@ -326,7 +324,7 @@ abstract class FOGService extends FOGBase
         self::outall(
             sprintf(
                 ' * Starting %s Service',
-                get_class($this)
+                self::shortName($this)
             )
         );
         self::outall(
@@ -388,18 +386,24 @@ abstract class FOGService extends FOGBase
             $groupID = $Obj->get('storagegroups');
             $find['isMaster'] = [1];
         }
-        Route::indiv('storagenode', $myStorageNodeID);
-        $myStorageNode = json_decode(Route::getData());
+        // getItem(), not indiv(): the two throws below are what this method
+        // already uses to report "cannot sync from here", and a node that has
+        // been deleted belongs with them rather than exiting. Refs #907.
+        $myStorageNode = Route::getItem('storagenode', $myStorageNodeID);
+        if (!$myStorageNode) {
+            throw new \Exception(_('This node could not be found'));
+        }
         if (!$myStorageNode->isMaster) {
-            throw new Exception(_('This is not the master for this group'));
+            throw new \Exception(_('This is not the master for this group'));
         }
         if (!$myStorageNode->online) {
-            throw new Exception(_('This node does not appear to be online'));
+            throw new \Exception(_('This node does not appear to be online'));
         }
-        Route::listem('storagenode', $find);
-        $StorageNodes = json_decode(Route::getData());
-        $objType = get_class($Obj);
-        $groupOrNodeCount = count($StorageNodes->data ?: []);
+        $StorageNodes = Route::getList('storagenode', $find);
+        // Short name: compared to 'Snapin' below to pick between the
+        // snapin path fields and the image path fields.
+        $objType = self::shortName($Obj);
+        $groupOrNodeCount = count($StorageNodes);
         $counttest = 2;
         if (!$master) {
             $groupOrNodeCount--;
@@ -442,12 +446,16 @@ abstract class FOGService extends FOGBase
         $myFile = ($fileOverride ?: $Obj->get($fileField));
         $myAdd = "{$myDir}{$myFile}";
         $myAddItem = false;
-        foreach ($StorageNodes->data as $i => &$StorageNode) {
+        foreach ($StorageNodes as $i => &$StorageNode) {
             if ($StorageNode->id == $myStorageNodeID) {
                 continue;
             }
-            Route::indiv('storagenode', $StorageNode->id);
-            $StorageNode = json_decode(Route::getData());
+            // getItem(), not indiv(): a node that vanished between the list
+            // and the fetch used to exit the daemon child here. Refs #907.
+            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
+            if (!$StorageNode) {
+                continue;
+            }
             if ($master && $StorageNode->storagegroupID == $myStorageGroupID) {
                 continue;
             }

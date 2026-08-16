@@ -154,6 +154,17 @@ class Route extends FOGBase
      * @var int
      */
     private static $_deleteDepth = 0;
+    /**
+     * Nesting depth of the getX() result wrappers.
+     *
+     * Non-zero means a caller below the HTTP boundary is on the stack, so
+     * failed() rethrows instead of ending the response. A counter rather than
+     * a flag because listem() fires hooks that may re-enter Route, and the
+     * inner call must inherit the outer caller's context.
+     *
+     * @var int
+     */
+    private static $_rethrowDepth = 0;
     public static $sensitiveFields = [
         'host' => [
             'ADPass',
@@ -199,6 +210,72 @@ class Route extends FOGBase
      * @var array|null
      */
     private static $_sensitiveMap = null;
+    /**
+     * Fields the SERVER maintains: class => [friendly keys].
+     *
+     * edit() and create() copy a JSON body straight into a model's
+     * databaseFields, so before this list every column of every class in
+     * $validClasses was settable by anyone who could reach the route --
+     * and the route's own auth is thin: an api-enabled non-admin passes.
+     * Reported by Aisle Research alongside 020.
+     *
+     * A field belongs here when the server is its only legitimate writer
+     * AND it is a credential or telemetry. That is narrower than "looks
+     * important" on purpose:
+     *
+     *   - task telemetry is written by service/progress.php through the
+     *     ORM, never through this router, so nothing legitimate loses a
+     *     write. Left open, an api user can rewrite another host's
+     *     imaging progress -- and on dev-branch three of those five
+     *     fields reach the page unescaped.
+     *   - the host token set is what the fog-client protocol
+     *     authenticates with. Choosing a host's sec_tok is impersonating
+     *     that host. Every in-repo writer is server-side ORM
+     *     (fogpage.class.php, taskqueue.class.php).
+     *   - user.token is the API credential itself; writing it is taking
+     *     over that account's API access. Written by the UI reset and by
+     *     Route's own issue path, both server-side.
+     *
+     * Deliberately NOT here: host.ADPass, ADPassLegacy and productKey.
+     * They are secrets, and they are also things an admin legitimately
+     * sets through the API -- the emitter strips them from list output,
+     * which is a different question from who may write them. Nor
+     * user.password: User::set() hashes it, so a supplied one is a real
+     * and supported write.
+     *
+     * Read through serverOwnedFields(), never this property directly, or
+     * plugin-declared entries are skipped.
+     *
+     * @var array
+     */
+    public static $serverOwnedFields = [
+        'task' => [
+            'pct',
+            'bpm',
+            'timeElapsed',
+            'timeRemaining',
+            'dataCopied',
+            'dataTotal',
+            'percent',
+        ],
+        'host' => [
+            'pub_key',
+            'sec_tok',
+            'prev_sec_tok',
+            'sec_time',
+            'token',
+        ],
+        'user' => [
+            'token',
+        ],
+    ];
+    /**
+     * Memoized union of the list above and what plugins declare through
+     * API_SERVER_OWNED_FIELDS. Null until first built.
+     *
+     * @var array|null
+     */
+    private static $_serverOwnedMap = null;
     /**
      * globalSettings rows whose VALUE is a credential.
      *
@@ -280,6 +357,7 @@ class Route extends FOGBase
         'roleusergroupassociation',
         'scheduledtask',
         'setting',
+        'site',
         'snapin',
         'snapinassociation',
         'snapingroupassociation',
@@ -561,8 +639,18 @@ class Route extends FOGBase
         if (count($whereItems ?: []) < 1) {
             return;
         }
+        self::_assertNoSensitiveFilter($whereItems, $class);
         $classVars = self::getClass($class, '', true);
-        $valid = array_keys((array)$classVars['databaseFields']);
+        // Blocked fields are dropped from the advertised list as well as
+        // refused above -- an error that names them as valid alternatives
+        // would be telling the caller to retry with the one thing this
+        // refuses.
+        $valid = array_values(
+            array_diff(
+                array_keys((array)$classVars['databaseFields']),
+                self::unfilterableFields($class)
+            )
+        );
         $unknown = array_diff(array_keys($whereItems), $valid);
         if (count($unknown) < 1) {
             return;
@@ -577,6 +665,80 @@ class Route extends FOGBase
                         implode(', ', $unknown)
                     ),
                     'valid' => $valid
+                ]
+            )
+        );
+    }
+    /**
+     * Fields a REQUEST may never filter or search on.
+     *
+     * The same list the emitter strips, read from the same place, because
+     * two lists that must agree are two lists that will not. Plugin secrets
+     * declared through API_SENSITIVE_FIELDS are included by construction --
+     * sensitiveFieldMap() fires that event -- so a plugin gets this
+     * protection without knowing the rule exists.
+     *
+     * Both tiers, deliberately. 'always' is never returned at all; 'fields'
+     * is returned on a direct single-entity GET and stripped everywhere
+     * else. Filtering is neither: it is a question asked of every row at
+     * once, which is exactly the shape a single-GET exemption is not meant
+     * to cover.
+     *
+     * NOT the place for globalSettings values. A setting's value is
+     * ordinary configuration for all but a handful of keys, so it is
+     * filtered per ROW against isSensitiveSetting() rather than blocked
+     * per FIELD -- blocking the field would take "which setting holds
+     * bzImage" away to protect four passwords.
+     *
+     * @param string $class The entity being filtered.
+     *
+     * @return array friendly field names
+     */
+    public static function unfilterableFields($class)
+    {
+        $map = self::sensitiveFieldMap();
+        $classname = strtolower(trim((string)$class));
+        return array_values(
+            array_unique(
+                array_merge(
+                    (array)($map['always'][$classname] ?? []),
+                    (array)($map['fields'][$classname] ?? [])
+                )
+            )
+        );
+    }
+    /**
+     * Refuses a request that filters on a field the emitter would strip.
+     *
+     * Rejected rather than silently ignored. Dropping the key would answer
+     * with the UNFILTERED set, which is a worse surprise than an error --
+     * a caller asking for one host would get all of them. The field names
+     * are already public in the OpenAPI document, so naming them here tells
+     * an attacker nothing they could not read from /system/openapi.
+     *
+     * @param array  $whereItems The request-supplied filter.
+     * @param string $class      The entity being filtered.
+     *
+     * @return void
+     */
+    private static function _assertNoSensitiveFilter($whereItems, $class)
+    {
+        $blocked = array_intersect(
+            array_keys((array)$whereItems),
+            self::unfilterableFields($class)
+        );
+        if (count($blocked) < 1) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_BAD_REQUEST,
+            json_encode(
+                [
+                    'error' => sprintf(
+                        _('Cannot filter %s on: %s'),
+                        strtolower($class),
+                        implode(', ', $blocked)
+                    )
                 ]
             )
         );
@@ -961,6 +1123,33 @@ class Route extends FOGBase
      */
     public static function sendResponse($code, $msg = false)
     {
+        // The router is the HTTP boundary and is entitled to end the response:
+        // breakHead() sets the status and exits. That is still exactly what
+        // happens for every caller that reaches here normally.
+        //
+        // It is the wrong answer below that boundary, and this is called from
+        // well below it -- eleven classes under lib/service back the CLI
+        // daemons, where the exit ends the daemon process after writing an
+        // HTTP status line to stdout, and the client endpoints, where a
+        // non-2xx is invisible to the client and reads as a transport failure
+        // rather than an answer. multicasttask.class.php already carries a
+        // hand-rolled guard against exactly this (see #907); it had to
+        // duplicate indiv()'s own validity test to avoid calling it.
+        //
+        // So when a getX() result wrapper is on the stack, report the failure
+        // as an exception and let the caller decide. Those callers can catch
+        // and log; they cannot un-exit. See ADR 0011.
+        //
+        // The guard lives here rather than in the individual catch blocks
+        // because this is the single choke point -- 44 call sites in this
+        // class funnel through it, and paths like getsearchbody() end the
+        // response without ever reaching listem()'s own catch.
+        if (self::$_rethrowDepth > 0) {
+            throw new \RuntimeException(
+                is_string($msg) && $msg !== '' ? $msg : (string)$code,
+                (int)$code
+            );
+        }
         HTTPResponseCodes::breakHead(
             $code,
             $msg
@@ -975,6 +1164,13 @@ class Route extends FOGBase
     {
         self::$data = [
             'version' => FOG_VERSION,
+            // The paging bounds ride along here as well as in the OpenAPI
+            // document, because this is the endpoint a client can afford to
+            // call. The document is several hundred kilobytes and a client
+            // that wants to know how large a page it may ask for should not
+            // have to fetch all of it. Same source either way, so the two
+            // cannot disagree.
+            'paging' => OpenAPI::pagingLimits(),
             'msg' => _('success')
         ];
     }
@@ -1592,6 +1788,37 @@ class Route extends FOGBase
                         'removeFromQuery' => true
                     ];
                     break;
+                case 'site':
+                    // The four member counts Site::$sqlQueryStr computes.
+                    // removeFromQuery because they are aggregates of the
+                    // JOINs, not columns of `sites` -- selecting them again
+                    // by name would be an unknown-column error.
+                    //
+                    // The dt names are the plugin's, unchanged: they are
+                    // the DataTables field names fog.site.list.js binds to,
+                    // and a tidier spelling here would leave every column
+                    // rendering empty with nothing to say why.
+                    $columns[] = [
+                        'db' => 'shmMembers',
+                        'dt' => 'hostcount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sumMembers',
+                        'dt' => 'usercount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sgmMembers',
+                        'dt' => 'groupcount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sugmMembers',
+                        'dt' => 'usergroupcount',
+                        'removeFromQuery' => true
+                    ];
+                    break;
                 case 'inventory':
                     $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
                     $columns[] = [
@@ -1909,7 +2136,7 @@ class Route extends FOGBase
                         'formatter' => function ($d, $row) use (&$StorageGroup) {
                             try {
                                 $sn = $StorageGroup->getMasterStorageNode();
-                            } catch (Exception $e) {
+                            } catch (\Exception $e) {
                                 $sn = new StorageNode();
                             }
                             return self::getter('storagenode', $sn);
@@ -2024,6 +2251,35 @@ class Route extends FOGBase
                 ]
             );
 
+            // A field the emitter strips must not be searchable either.
+            //
+            // Marked unsearchable rather than dropped, because these columns
+            // are load bearing for callers that are not the API. listem() is
+            // shared with the web tier: product_keys.report.php calls
+            // listem('host') and has nothing to report without productKey.
+            // Removing the column would break the report to close a search;
+            // stripSensitive() at the emitter is what keeps it off the wire.
+            //
+            // Searching is the part with no legitimate use. The value never
+            // comes back, so a match can only ever be read as an answer about
+            // a value the caller is not allowed to see -- and DataTables
+            // filters are substring LIKEs, so the answer is repeatable one
+            // character at a time. host.sec_tok and user.token are stored in
+            // plaintext and matched exactly at authentication, which is what
+            // makes this worth closing rather than noting.
+            //
+            // Applied after CUSTOMIZE_DT_COLUMNS so a column a plugin adds
+            // for its own declared secret is covered too, and keyed on 'dt'
+            // because that is the name a DataTables request asks for.
+            $unsearchable = self::unfilterableFields($classname);
+            if (count($unsearchable)) {
+                foreach ($columns as $ci => $col) {
+                    if (in_array($col['dt'] ?? '', $unsearchable, true)) {
+                        $columns[$ci]['nosearch'] = true;
+                    }
+                }
+            }
+
             self::$data = FOGManagerController::complex(
                 isset($pass_vars) ? $pass_vars : '',
                 $table,
@@ -2051,6 +2307,11 @@ class Route extends FOGBase
                     'classname' => &$classname,
                     'classman' => &$classman
                 ]
+            );
+            self::_applySiteScope($classname);
+            self::_applySettingValueScope(
+                $classname,
+                isset($pass_vars) ? $pass_vars : []
             );
             self::$data['_lang'] = $classname;
             if (self::$getterDepth === 0
@@ -2095,7 +2356,7 @@ class Route extends FOGBase
                 self::$data = $listData;
             }
             self::paginate(isset($pass_vars) ? $pass_vars : []);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2212,7 +2473,7 @@ class Route extends FOGBase
                 self::$countOnly = false;
             }
             self::$data = ['total' => self::$data['recordsFiltered']];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2281,11 +2542,6 @@ class Route extends FOGBase
                 ) {
                     continue;
                 }
-                $data['_lang'][$search] = (
-                    $search != 'setting' ?
-                    _($search) :
-                    _('settings')
-                );
                 $searchfor = $search;
                 if ($search === 'ipxe') {
                     $searchfor = 'pxemenuoptions';
@@ -2294,6 +2550,28 @@ class Route extends FOGBase
                     $searchfor,
                     '',
                     true
+                );
+                // An entity with no `name` field has nothing for a universal
+                // search to match on or to label a result with. Skipped
+                // rather than special-cased, because this list is not ours
+                // alone: SEARCH_PAGES hands $searchPages to plugins BY
+                // REFERENCE and they append to it, so no amount of reading
+                // the core list can tell you what arrives here. The live
+                // example is the ntfy plugin, whose model is id/serverURL/
+                // topicEndpoint/credentials -- every unisearch emitted two
+                // "Undefined array key: name" warnings, built a SELECT with
+                // an empty backtick pair, got false back, and then
+                // foreach()ed over the false.
+                //
+                // Before the _lang stamp, so a skipped entity does not leave
+                // a heading behind for results it will never contribute.
+                if (!isset($classVars['databaseFields']['name'])) {
+                    continue;
+                }
+                $data['_lang'][$search] = (
+                    $search != 'setting' ?
+                    _($search) :
+                    _('settings')
                 );
                 $j = $w = $g = '';
                 $params = ['item1' => $like, 'item2' => $like];
@@ -2306,6 +2584,27 @@ class Route extends FOGBase
                         $g = "GROUP BY `hosts`.`hostName`";
                         break;
                     case 'setting':
+                        // The value IS matched -- searching "bzImage" to find
+                        // FOG_TFTP_PXE_KERNEL is the point of searching
+                        // settings at all, and a key-only search can never
+                        // do it.
+                        //
+                        // What must not happen is confirming a CREDENTIAL
+                        // value. globalSettings is also where FOG keeps its
+                        // passwords, maskSensitiveSetting() strips their
+                        // value from this same user's API reads, and a hit
+                        // here would answer the question that masking
+                        // refuses -- repeatedly, a few characters at a time.
+                        // So a credential row that matched ONLY on its value
+                        // is dropped below, after the query.
+                        //
+                        // Dropped after rather than excluded in the WHERE on
+                        // purpose: an SQL-side exclusion needs a second copy
+                        // of isSensitiveSetting()'s rule (pattern, include
+                        // list, exempt list) written in a different dialect,
+                        // and the day the two drift nothing fails -- the
+                        // values just quietly become findable again. Calling
+                        // the real predicate keeps one rule in one place.
                         $w = " OR `settingValue` LIKE :item3";
                         $params['item3'] = $like;
                         break;
@@ -2329,7 +2628,7 @@ class Route extends FOGBase
                     [],
                     $params
                 )->fetch(
-                    PDO::FETCH_ASSOC,
+                    \PDO::FETCH_ASSOC,
                     'fetch_all'
                 )->get();
                 foreach ($vals as $val) {
@@ -2349,6 +2648,27 @@ class Route extends FOGBase
                             continue;
                         }
                     }
+                    // A credential setting that matched only on its VALUE is
+                    // dropped: returning it would confirm a substring of a
+                    // value maskSensitiveSetting() refuses to show. Matching
+                    // its key still returns it -- searching "PASSWORD" should
+                    // find FOG_TFTP_FTP_PASSWORD, that is not a secret.
+                    //
+                    // Recomputed here rather than asked of the query, because
+                    // SQL cannot say which OR arm matched. stripos is the
+                    // same substring test the bound '%term%' performs. Where
+                    // the two can disagree -- a term containing % or _, which
+                    // LIKE treats as a wildcard and stripos does not -- the
+                    // disagreement drops the row, which is the safe direction.
+                    if ('setting' === $search) {
+                        $sid = (string)$val[$classVars['databaseFields']['id']];
+                        $skey = (string)$val[$classVars['databaseFields']['name']];
+                        $visible = false !== stripos($sid, $item)
+                            || false !== stripos($skey, $item);
+                        if (!$visible && self::isSensitiveSetting($skey)) {
+                            continue;
+                        }
+                    }
                     $data[$search][] = [
                         'id' => $val[$classVars['databaseFields']['id']],
                         'name' => $val[$classVars['databaseFields']['name']]
@@ -2365,7 +2685,7 @@ class Route extends FOGBase
                 ['data' => &$data]
             );
             self::$data = $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2405,7 +2725,8 @@ class Route extends FOGBase
                     'classman' => &$classman
                 ]
             );
-        } catch (Exception $e) {
+            self::_applySiteScope($classname);
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2457,7 +2778,7 @@ class Route extends FOGBase
                     'class' => &$class
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2515,17 +2836,32 @@ class Route extends FOGBase
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
                 );
             }
+            $serverOwned = self::serverOwnedFields($classname);
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
-                if (!isset($vars->$key)) {
-                    $val = $class->get($key);
-                } else {
-                    $val = $vars->$key;
-                }
                 if ($key == 'id') {
+                    unset($key);
                     continue;
                 }
-                $class->set($key, $val);
+                // A field the body did not mention is left exactly as
+                // loaded. It used to be re-set to its own current value,
+                // which looks like a no-op and is not: set() may
+                // transform, and User::set() hashes any non-override
+                // write to 'password'. So every PUT to a user re-hashed
+                // the stored hash and locked that account out for good.
+                // save() writes from $this->data for every databaseField
+                // regardless of what was set(), so skipping is otherwise
+                // byte-identical.
+                if (!isset($vars->$key)) {
+                    unset($key);
+                    continue;
+                }
+                if (in_array($key, $serverOwned, true)) {
+                    self::_refuseServerOwned($class, $key, $vars->$key);
+                    unset($key);
+                    continue;
+                }
+                $class->set($key, $vars->$key);
                 unset($key);
             }
             switch ($classname) {
@@ -2710,7 +3046,7 @@ class Route extends FOGBase
                 );
             }
             self::indiv($classname, $id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -2816,6 +3152,7 @@ class Route extends FOGBase
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
                 );
             }
+            $serverOwned = self::serverOwnedFields($classname);
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
                 if (property_exists($vars, $key)) {
@@ -2826,6 +3163,14 @@ class Route extends FOGBase
                 if ('id' == $key
                     || null === $val
                 ) {
+                    continue;
+                }
+                // Null passed above rather than the object: there is no
+                // stored value to compare a create against, so the test
+                // is whether a value was asked for at all.
+                if (in_array($key, $serverOwned, true)) {
+                    self::_refuseServerOwned(null, $key, $val);
+                    unset($key);
                     continue;
                 }
                 $class->set($key, $val);
@@ -2934,7 +3279,7 @@ class Route extends FOGBase
                 );
             }
             self::indiv($classname, $id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3071,9 +3416,13 @@ class Route extends FOGBase
                     $Tasks = json_decode(
                         Route::getData()
                     );
-                    foreach ($Tasks as &$Task) {
+                    // ->data, not the envelope: listem() returns the paginated
+                    // wrapper. Iterating the wrapper walked its own scalar
+                    // members, so $Task->id was null on every pass and this
+                    // cancelled nothing at all -- cancelling a group's tasks
+                    // reported success and left every task running.
+                    foreach ($Tasks->data as $Task) {
                         self::getClass('Task', $Task->id)->cancel();
-                        unset($Task);
                     }
                     break;
                 case 'host':
@@ -3103,7 +3452,7 @@ class Route extends FOGBase
                         }
                     }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3129,6 +3478,7 @@ class Route extends FOGBase
                 true
             );
             $find = [];
+            $classname = $class;
             $class = new $class;
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
@@ -3137,12 +3487,19 @@ class Route extends FOGBase
                 }
                 unset($key);
             }
+            // The other request-facing filter entry point. Intersecting with
+            // the class's own fields, which is all this used to do, admits
+            // every sensitive field -- they ARE the class's fields. Only
+            // _assertNoSensitiveFilter() is called, not the full key check:
+            // this body has always ignored keys it does not recognise, and
+            // starting to 400 on them would be a separate behaviour change.
+            self::_assertNoSensitiveFilter($find, $classname);
 
             // Request-supplied, so the caller-facing '*'/'+' wildcards apply
             // here (they used to be expanded down in _buildSql, which also
             // caught internally-built filters -- see expandSearchWildcards).
             return self::expandSearchWildcards($find);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3179,7 +3536,7 @@ class Route extends FOGBase
                     $find = ['stateID' => $states];
             }
             self::listem($class, $find);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3217,7 +3574,7 @@ class Route extends FOGBase
             // runs the same removeItems map and fires DELETEMASS_API for plugins,
             // instead of a bare row delete that orphaned every association.
             return self::deletemass($class, $whereItems);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3349,7 +3706,21 @@ class Route extends FOGBase
         if (!is_array($data)) {
             return $data;
         }
-        $classname = isset($data['_lang'])
+        // is_scalar, because '_lang' is not always the classname stamp this
+        // was written for. unisearch() builds it as an ARRAY -- a heading per
+        // entity plus 'AllResults' -- so the cast produced the literal string
+        // "Array", a PHP "Array to string conversion" warning on every
+        // universal search, and a classname of "array" that matches nothing
+        // in the sensitive map. Stripping therefore did nothing at all on
+        // that path while appearing to run.
+        //
+        // Falling through to $emitClassname is right for it: a multi-entity
+        // payload has no single classname, and guessing one would strip the
+        // wrong entity's fields. What keeps that safe is upstream -- the
+        // unisearch query selects exactly two columns and each row is rebuilt
+        // as ['id' => ..., 'name' => ...], so no secret can reach here. If
+        // that ever selects more, this needs a per-entity pass, not a cast.
+        $classname = isset($data['_lang']) && is_scalar($data['_lang'])
             ? strtolower((string)$data['_lang'])
             : self::$emitClassname;
         if ('' === $classname) {
@@ -3675,7 +4046,7 @@ class Route extends FOGBase
                 ]
             );
             return $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -3799,6 +4170,75 @@ class Route extends FOGBase
             'fields' => (array)$fields,
             'always' => (array)$always
         ];
+    }
+    /**
+     * The fields of a class that only the server may write.
+     *
+     * @param string $class The class name (any case).
+     *
+     * @return array friendly keys
+     */
+    public static function serverOwnedFields($class)
+    {
+        if (null === self::$_serverOwnedMap) {
+            $fields = self::$serverOwnedFields;
+            self::$HookManager->processEvent(
+                'API_SERVER_OWNED_FIELDS',
+                ['fields' => &$fields]
+            );
+            self::$_serverOwnedMap = (array)$fields;
+        }
+        $classname = strtolower((string)$class);
+        return isset(self::$_serverOwnedMap[$classname])
+            ? (array)self::$_serverOwnedMap[$classname]
+            : [];
+    }
+    /**
+     * Refuses a write to a server-maintained field.
+     *
+     * Answers 400 rather than dropping the field, so a caller that meant
+     * to set it learns that it did not happen -- silently ignoring a
+     * requested write is how a client ends up believing state it never
+     * achieved.
+     *
+     * But it refuses only an actual CHANGE. Reading an object and PUTting
+     * the whole thing back is ordinary REST, a single-entity GET returns
+     * these fields, and a body that carries a value identical to the
+     * stored one is asking for nothing. Rejecting that would break every
+     * round-tripping client to close a hole none of them are in.
+     *
+     * @param object $class The loaded object, or null on create.
+     * @param string $key   The friendly key being written.
+     * @param mixed  $value The value the body supplied.
+     *
+     * @return void
+     */
+    private static function _refuseServerOwned($class, $key, $value)
+    {
+        if (null !== $class) {
+            $stored = $class->get($key);
+            // Scalars only: a non-scalar can never equal a column value,
+            // and casting an array to string is a fatal.
+            if (is_scalar($value) || null === $value) {
+                if ((string)$value === (string)$stored) {
+                    return;
+                }
+            }
+        } elseif (null === $value
+            || (is_scalar($value) && '' === trim((string)$value))
+        ) {
+            // On create there is nothing to compare against, so the test
+            // is "did you ask for a value". An empty one is what the
+            // server was going to store anyway.
+            return;
+        }
+        self::setErrorMessage(
+            sprintf(
+                _('%s is maintained by the server and cannot be set'),
+                $key
+            ),
+            HTTPResponseCodes::HTTP_BAD_REQUEST
+        );
     }
     /**
      * Removes decrypted secrets from a related/list object so they are only
@@ -4163,7 +4603,7 @@ class Route extends FOGBase
                 $orderby
             );
 
-            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 if (is_array($getField)) {
                     $row = [];
@@ -4177,7 +4617,7 @@ class Route extends FOGBase
                 unset($val);
             }
             self::$data = $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4305,6 +4745,179 @@ class Route extends FOGBase
         $data = self::$data;
         self::$data = '';
         return is_array($data) ? $data : [];
+    }
+    /**
+     * Returns a list's rows directly as a PHP array.
+     *
+     * The listem() counterpart of getIds(), and the reason it exists is the
+     * same: `Route::listem(...); json_decode(Route::getData());` encodes the
+     * result to JSON only to decode it straight back, and leaves every caller
+     * holding the paginated envelope.
+     *
+     * That envelope is the DataTables and pagination contract and is not going
+     * anywhere -- but the rows live under its `data` key, and a caller that
+     * iterates the envelope instead walks its eleven scalar members (draw,
+     * recordsTotal, the page URLs...) and gets null for every field. It does
+     * not error, it warns. That mistake has shipped three times: the ou
+     * plugin never set ADOU on any client check-in, cancelling a group's tasks
+     * cancelled nothing, and the iPXE menu never applied its fog.local label.
+     *
+     * This returns the rows, so there is no envelope for a caller to hold
+     * wrongly. Every permission filter, hook, expand and pluginItems step
+     * still runs -- listem() does the work and this adds no policy.
+     *
+     * Failures rethrow rather than ending the response; see failed().
+     *
+     * @param string $class      The class to list.
+     * @param mixed  $whereItems The items to filter on.
+     * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby    How to order the returned rows.
+     *
+     * @throws \Exception When the underlying query fails.
+     *
+     * @return array The rows, or an empty array. Never null, so a foreach
+     *               over the result is always safe.
+     */
+    public static function getList(
+        $class,
+        $whereItems = false,
+        $operator = 'AND',
+        $orderby = 'name'
+    ) {
+        self::$_rethrowDepth++;
+        try {
+            // inputoverride stays true: an internal caller is not answering a
+            // DataTables POST, and without it listem() would read pagination
+            // out of php://input and silently page a result the caller asked
+            // for in full.
+            self::listem($class, $whereItems, true, $operator, $orderby);
+            $data = self::$data;
+            self::$data = '';
+        } finally {
+            self::$_rethrowDepth--;
+        }
+        if (is_array($data) && isset($data['data'])) {
+            $rows = is_array($data['data']) ? $data['data'] : [];
+        } else {
+            $rows = is_array($data) ? $data : [];
+        }
+        return self::objectify($rows);
+    }
+    /**
+     * Builds the object graph json_decode() would have produced, without the
+     * encode/decode round-trip.
+     *
+     * The idiom these wrappers replace ends in json_decode(), so its rows
+     * arrive as stdClass and every one of the ~190 call sites reads
+     * `$row->field`. Handing back raw arrays would make migrating them a
+     * rewrite rather than a swap, and a `$row->id` left behind on an array is
+     * a null read, not an error -- the same silent shape as the envelope bug
+     * this is meant to end.
+     *
+     * Mirrors json_decode()'s rule exactly: a list stays a list, an
+     * associative array becomes stdClass, scalars pass through untouched. An
+     * empty array stays an array, as json_decode('[]') does.
+     *
+     * @param mixed $value The value to convert.
+     *
+     * @return mixed
+     */
+    private static function objectify($value)
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+        // array_is_list() is PHP 8.1; the floor here is 7.4.
+        $isList = $value === []
+            || array_keys($value) === range(0, count($value) - 1);
+        $out = [];
+        foreach ($value as $key => $item) {
+            $out[$key] = self::objectify($item);
+        }
+        return $isList ? $out : (object)$out;
+    }
+    /**
+     * Returns one entity directly as a PHP object.
+     *
+     * The indiv() counterpart of getIds(). indiv()'s payload is flat -- there
+     * is no envelope on a single entity -- so this exists for the round-trip
+     * and for the not-found behaviour rather than for unwrapping.
+     *
+     * Existence is established first with an id-only query, deliberately.
+     * indiv() answers a row it cannot find with sendResponse(404), which
+     * reaches breakHead() and exits, and that is the right answer at the HTTP
+     * boundary. Rather than change it, this asks a cheap indexed question
+     * first so the wrapper can return null the way its callers need. One
+     * extra id-only query is the price of not making indiv() ambiguous.
+     *
+     * Failures rethrow rather than ending the response; see failed().
+     *
+     * @param string $class The class to fetch.
+     * @param mixed  $id    The id to fetch.
+     *
+     * @throws \Exception When the underlying query fails.
+     *
+     * @return object|null The entity, or null when no such row exists or the
+     *                     caller may not see it.
+     */
+    public static function getItem($class, $id)
+    {
+        self::$_rethrowDepth++;
+        try {
+            if (count(self::getIds($class, ['id' => $id])) === 0) {
+                return null;
+            }
+            self::indiv($class, $id);
+            $data = self::$data;
+            self::$data = '';
+        } finally {
+            self::$_rethrowDepth--;
+        }
+        // getter() builds an associative array; hand back the object graph so
+        // call sites read the same as the json_decode() form they replace.
+        return self::objectify($data);
+    }
+    /**
+     * Runs any router call as a value rather than as a response.
+     *
+     * getList() and getItem() cover listem() and indiv(), which is most of the
+     * tree, and they drop the envelope because their callers only ever wanted
+     * the rows. Some callers want the envelope: taskscheduler reads
+     * `->recordsFiltered` off active() for its task count and then iterates
+     * `->data`, so unwrapping would change what it does.
+     *
+     * This is the escape hatch for those, and for the helpers no wrapper
+     * covers -- active(), names(), availablekernels(), logfiles(). It returns
+     * exactly what `json_decode(Route::getData())` returned, envelope and all,
+     * so adopting it is a swap with no semantic change at all. What it adds is
+     * the part the daemons need: inside the callable, a failure raises instead
+     * of ending the process.
+     *
+     *     $tasks = Route::asValue(function () { Route::active('scheduledtask'); });
+     *     $tasks->recordsFiltered;   // reads exactly as before
+     *
+     * Prefer getList()/getItem() where they fit; they say more about intent
+     * and they remove the envelope that has now caused three silent bugs.
+     *
+     * @param callable $call Makes the router call. Its return value is
+     *                       ignored; the result is read from Route::$data,
+     *                       which is how every helper reports.
+     *
+     * @throws \Exception Whatever the call raised, rather than exiting.
+     *
+     * @return mixed
+     */
+    public static function asValue(callable $call)
+    {
+        self::$_rethrowDepth++;
+        try {
+            $call();
+            $data = self::$data;
+            self::$data = '';
+        } finally {
+            self::$_rethrowDepth--;
+        }
+        return self::objectify($data);
     }
     /**
      * Delete items in mass.
@@ -4530,6 +5143,22 @@ class Route extends FOGBase
                         'roleusergroupassociation' => $findWhere
                     ];
                     break;
+                case 'site':
+                    // Deleting a site clears its four membership lists.
+                    // Nothing stops the CATCH-ALL site being deleted here:
+                    // it is an ordinary site carrying a flag, and refusing
+                    // would be a rule the admin cannot see or undo. What it
+                    // costs is real though -- every user who relied on it
+                    // for blanket access falls back to their own sites, and
+                    // a user with none then sees nothing.
+                    $findWhere = ['siteID' => $itemIDs];
+                    $removeItems = [
+                        'sitehostmember' => $findWhere,
+                        'siteusermember' => $findWhere,
+                        'sitegroupmember' => $findWhere,
+                        'siteusergroupmember' => $findWhere
+                    ];
+                    break;
                 default:
                     $findWhere = [];
                     $removeItems = [];
@@ -4537,6 +5166,27 @@ class Route extends FOGBase
 
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
+            }
+
+            // Core site membership cleanup. Added after the switch rather
+            // than repeated across four of its cases, and before
+            // DELETEMASS_API so a listener still sees the full map.
+            //
+            // A leftover membership row is not merely untidy. InnoDB
+            // recomputes AUTO_INCREMENT as MAX(id)+1 on restart, so ids
+            // are reused -- a row left behind by a deleted host can later
+            // put an unrelated NEW host into the site the old one was in,
+            // granting access nobody asked for.
+            $siteMemberTables = [
+                'host' => 'sitehostmember',
+                'user' => 'siteusermember',
+                'group' => 'sitegroupmember',
+                'usergroup' => 'siteusergroupmember'
+            ];
+            if (isset($siteMemberTables[$classname])) {
+                $removeItems[$siteMemberTables[$classname]] = [
+                    $classname . 'ID' => $itemIDs
+                ];
             }
 
             self::$HookManager->processEvent(
@@ -4569,7 +5219,7 @@ class Route extends FOGBase
             );
 
             return self::$DB->query($sqlResult['sql'], [], $sqlResult['params']);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4595,6 +5245,160 @@ class Route extends FOGBase
      * @param string $orderby    How to order the returned values.
      *
      * @return string|array
+     */
+    /**
+     * Narrows a REST list/search payload to the acting user's site scope.
+     *
+     * The web UI path re-lists with the in-scope ids, which keeps the row
+     * counts honest. This path cannot: the payload has already been built
+     * by FOGManagerController::complex() from a SQL statement assembled
+     * from the request, so the boundary is applied to the rows that came
+     * back. The counts are rewritten to what survived, because leaving the
+     * unscoped totals in place would tell a site-restricted user how many
+     * objects exist outside their scope.
+     *
+     * On a payload capped by MAX_ROWS (flagged `truncated`) the rows are
+     * one page of the result set, so the rewritten count is a FLOOR on the
+     * in-scope total rather than the total. The flag rides along and says
+     * which of the two the consumer is holding. A true scoped count needs
+     * the boundary pushed into the query's WHERE clause, which is a larger
+     * change than this.
+     *
+     * @param string $classname the class being listed
+     *
+     * @return void
+     */
+    private static function _applySiteScope($classname)
+    {
+        $node = strtolower((string)$classname);
+        if (!SiteScope::isScopedNode($node)) {
+            return;
+        }
+        $scopeIDs = Authorization::scopedObjectIDs($node);
+        if (null === $scopeIDs) {
+            return;
+        }
+        // Snapshot by value rather than working through self::$data. The
+        // scope lookups issue their own queries, and anything that touches
+        // self::$data mid-method would otherwise blank out the payload
+        // being filtered.
+        $payload = self::$data;
+        if (empty($payload['data']) || !is_array($payload['data'])) {
+            return;
+        }
+        $allowed = array_flip(array_map('intval', $scopeIDs));
+        $kept = [];
+        foreach ($payload['data'] as $row) {
+            $id = (int)(
+                is_array($row) ?
+                ($row['id'] ?? 0) :
+                ($row->id ?? 0)
+            );
+            if (isset($allowed[$id])) {
+                $kept[] = $row;
+            }
+        }
+        if (count($kept) === count($payload['data'])) {
+            self::$data = $payload;
+            return;
+        }
+        $payload['data'] = array_values($kept);
+        $payload['recordsFiltered'] = count($kept);
+        $payload['recordsTotal'] = count($kept);
+        self::$data = $payload;
+    }
+    /**
+     * Drops credential settings that a grid search could only have matched
+     * on their value.
+     *
+     * The grid half of what unisearch() does inline. A setting's value stays
+     * searchable, because that is what searching settings is FOR -- finding
+     * FOG_TFTP_PXE_KERNEL by "bzImage" is the everyday case and a key-only
+     * search can never do it. What must not happen is a hit confirming a
+     * substring of a value maskSensitiveSetting() has blanked: the row comes
+     * back with an empty value, and its mere presence is the answer.
+     *
+     * Done here, on the rows, rather than as a NOT IN or NOT REGEXP in the
+     * WHERE. An SQL-side exclusion needs isSensitiveSetting()'s rule --
+     * pattern, include list, exempt list -- rewritten in another dialect,
+     * and when the two drift nothing fails; the values simply become
+     * findable again. Calling the predicate keeps one rule in one place.
+     *
+     * Three properties worth stating because each is load bearing:
+     *
+     *   - With NO search term this does nothing. A plain listing must still
+     *     return every setting with its value masked, exactly as before.
+     *   - A sensitive row matched on any VISIBLE field is kept. Searching
+     *     "PASSWORD" should still find FOG_TFTP_FTP_PASSWORD; the key was
+     *     never the secret.
+     *   - recordsTotal is rewritten as well as recordsFiltered. Leaving the
+     *     SQL count in place would answer the question the dropped row was
+     *     dropped for.
+     *
+     * @param string $classname The entity listed.
+     * @param array  $vars      The DataTables request body.
+     *
+     * @return void
+     */
+    private static function _applySettingValueScope($classname, $vars)
+    {
+        if ('setting' !== strtolower((string)$classname)) {
+            return;
+        }
+        $terms = [];
+        if ('' !== trim((string)($vars['search']['value'] ?? ''))) {
+            $terms[] = (string)$vars['search']['value'];
+        }
+        foreach ((array)($vars['columns'] ?? []) as $col) {
+            if ('' !== trim((string)($col['search']['value'] ?? ''))) {
+                $terms[] = (string)$col['search']['value'];
+            }
+        }
+        if (!count($terms)) {
+            return;
+        }
+        $payload = self::$data;
+        if (empty($payload['data']) || !is_array($payload['data'])) {
+            return;
+        }
+        $kept = [];
+        foreach ($payload['data'] as $row) {
+            $arr = (array)$row;
+            if (!self::isSensitiveSetting((string)($arr['name'] ?? ''))) {
+                $kept[] = $row;
+                continue;
+            }
+            // Every field EXCEPT the value, rather than a list of the four
+            // this class has today, so a column added later is covered by
+            // default instead of by remembering.
+            $visible = false;
+            foreach ($arr as $field => $cell) {
+                if ('value' === $field || !is_scalar($cell)) {
+                    continue;
+                }
+                foreach ($terms as $term) {
+                    if (false !== stripos((string)$cell, $term)) {
+                        $visible = true;
+                        break 2;
+                    }
+                }
+            }
+            if ($visible) {
+                $kept[] = $row;
+            }
+        }
+        if (count($kept) === count($payload['data'])) {
+            return;
+        }
+        $payload['data'] = array_values($kept);
+        $payload['recordsFiltered'] = count($kept);
+        $payload['recordsTotal'] = count($kept);
+        self::$data = $payload;
+    }
+    /**
+     * Builds the sql statement.
+     *
+     * @return array
      */
     private static function _buildSql(
         $sql,
@@ -4745,7 +5549,7 @@ class Route extends FOGBase
                 . '` ASC';
 
             return ['sql' => $sql, 'params' => $params];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4805,7 +5609,7 @@ class Route extends FOGBase
                 $operator,
                 $orderby
             );
-            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 $data[] = [
                     'id' => $val[$classVars['databaseFields']['id']],
@@ -4815,7 +5619,7 @@ class Route extends FOGBase
             }
 
             self::$data = $data;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()
@@ -4999,7 +5803,7 @@ class Route extends FOGBase
                     $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             }
             self::sendResponse($code);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
                 $e->getMessage()

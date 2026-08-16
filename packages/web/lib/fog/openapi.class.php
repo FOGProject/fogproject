@@ -69,8 +69,33 @@ class OpenAPI extends FOGBase
 {
     /**
      * The OpenAPI specification version this document conforms to.
+     *
+     * 3.0.3 rather than 3.1.0, and the reason is that declaring 3.1 costs a
+     * second of blocking main thread every time an operation is expanded in
+     * the reference UI. Swagger UI resolves a 3.1 document through its
+     * JSON-Schema-2020-12 resolver, which re-resolves the WHOLE document each
+     * time a subtree is requested; the 3.0 path resolves the subtree alone.
+     * The difference is not subtle and it scales with the document, which
+     * this one does -- measured on the 1.6 lab, opening GET /availablekernels
+     * (a two-line operation with no parameters):
+     *
+     *   openapi: 3.1.0   1798ms, of which 1760ms is one blocking task
+     *   openapi: 3.0.3    156ms, of which  119ms is one blocking task
+     *
+     * Nothing is given up by saying 3.0.3. An audit of the generated document
+     * found exactly one 3.1-only construct in it -- the type-array spelling,
+     * in 70 places -- and no const, $schema, webhooks, prefixItems,
+     * unevaluatedProperties, schema-level examples or numeric
+     * exclusiveMinimum. Those 70 are re-spelled below as 3.0's `nullable`
+     * (for the null unions) and `oneOf` (for the genuine unions), which say
+     * the same thing to a client and are understood by considerably more
+     * tooling than 3.1 is.
+     *
+     * The one real cost: `nullable` is deprecated in 3.1, so if this document
+     * ever needs actual JSON Schema features, this decision has to be
+     * revisited rather than extended.
      */
-    const OAS_VERSION = '3.1.0';
+    const OAS_VERSION = '3.0.3';
     /**
      * Cache of the decoded schema manifest, so a 50-class walk reads and
      * parses commons/schema-expected.php once rather than once per class.
@@ -99,12 +124,125 @@ class OpenAPI extends FOGBase
             'info' => self::_info(),
             'servers' => self::_servers(),
             'security' => self::_globalSecurity(),
+            'x-fog-paging' => self::pagingLimits(),
             'tags' => self::_tags(),
             'paths' => self::_paths(),
             'components' => [
                 'securitySchemes' => self::_securitySchemes(),
                 'parameters' => self::_commonParameters(),
                 'schemas' => self::_schemas()
+            ]
+        ];
+    }
+
+    /**
+     * The server's own paging bounds, so a client can size its requests from
+     * what this server does rather than from a number copied out of the
+     * source at some point in the past.
+     *
+     * Both are constants rather than settings today, which is exactly why
+     * they are worth publishing: nothing else exposes them, so a client had
+     * no way to learn them except by reading the PHP, and a number learned
+     * that way is wrong the moment either changes.
+     *
+     * Read through reflection rather than referenced directly so that a
+     * change to either constant reaches this without anyone remembering to
+     * update it here.
+     *
+     * Also served by system/info, which is the cheap way to read it -- this
+     * document is several hundred kilobytes and a client that only wants two
+     * integers should not have to fetch all of it.
+     *
+     * @return array
+     */
+    public static function pagingLimits()
+    {
+        $maxRows = null;
+        $expandMax = null;
+        try {
+            $manager = new \ReflectionClass('FOGManagerController');
+            if ($manager->hasConstant('MAX_ROWS')) {
+                $maxRows = (int)$manager->getConstant('MAX_ROWS');
+            }
+        } catch (\Exception $e) {
+            $maxRows = null;
+        } catch (\Error $e) {
+            $maxRows = null;
+        }
+        try {
+            $router = new \ReflectionClass('Route');
+            if ($router->hasConstant('EXPAND_MAX_ITEMS')) {
+                $expandMax = (int)$router->getConstant('EXPAND_MAX_ITEMS');
+            }
+        } catch (\Exception $e) {
+            $expandMax = null;
+        } catch (\Error $e) {
+            $expandMax = null;
+        }
+
+        return [
+            'maxRows' => $maxRows,
+            'expandMaxItems' => $expandMax,
+            'description' => implode(' ', [
+                'maxRows is the row cap applied to a list request that does',
+                'not carry a start parameter, that asks for length=-1, or',
+                'that sends a negative length. A request with an explicit',
+                'non-negative start and a positive length is served verbatim',
+                'and is not capped, so a client that always pages explicitly',
+                'never meets maxRows.',
+                'expandMaxItems is different: an ?expand request has its page',
+                'size clamped to this value even when a larger length was',
+                'asked for, so a page can come back smaller than requested.',
+                'Advance by the number of rows actually returned rather than',
+                'by the length you asked for, and follow nextUrl until it is',
+                'null.'
+            ])
+        ];
+    }
+
+    /**
+     * The shape of what pagingLimits() returns.
+     *
+     * Kept next to the producer so the two are read together. Publishing the
+     * bounds on system/info only helps a client that was generated from this
+     * document if the document says the key is there -- a generator builds
+     * its model from this property list, so an undescribed key is a key the
+     * generated client cannot see, which would defeat the point of putting
+     * the bounds on the cheap endpoint in the first place.
+     *
+     * Both integers are nullable because pagingLimits() reports null rather
+     * than a guess when reflection cannot find the constant.
+     *
+     * @return array
+     */
+    private static function _pagingSchema()
+    {
+        return [
+            'type' => 'object',
+            'description' => _('Server paging bounds. Also published as '
+                . 'x-fog-paging at the root of this document.'),
+            'properties' => [
+                'maxRows' => [
+                    'type' => 'integer',
+                    'nullable' => true,
+                    'description' => _('Row cap applied to a list request '
+                        . 'that omits start, asks for length=-1, or sends a '
+                        . 'negative length. An explicit non-negative start '
+                        . 'with a positive length is served verbatim.')
+                ],
+                'expandMaxItems' => [
+                    'type' => 'integer',
+                    'nullable' => true,
+                    'description' => _('Page size cap applied to an expand '
+                        . 'request even when a larger length was asked for, '
+                        . 'so a page can be smaller than requested. Advance '
+                        . 'by the rows returned, not the length requested.')
+                ],
+                'description' => [
+                    'type' => 'string',
+                    'description' => _('The same rules in prose, for a client '
+                        . 'reading this at runtime.')
+                ]
             ]
         ];
     }
@@ -301,9 +439,9 @@ class OpenAPI extends FOGBase
             if (is_array($vars) && isset($vars['databaseFields'])) {
                 $result = $vars;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $result = null;
-        } catch (Error $e) {
+        } catch (\Error $e) {
             // A plugin class naming a parent that is not loaded raises Error,
             // not Exception, and one broken plugin must not take the whole
             // document down with it.
@@ -392,8 +530,9 @@ class OpenAPI extends FOGBase
             }
         }
         if ($nullable) {
-            // 3.1 spelling: null joins the type rather than a nullable flag.
-            $schema['type'] = [$schema['type'], 'null'];
+            // 3.0 spelling: a flag beside the type, rather than 3.1's null
+            // joining the type. See OAS_VERSION for why this document is 3.0.
+            $schema['nullable'] = true;
         }
         return $schema;
     }
@@ -471,6 +610,11 @@ class OpenAPI extends FOGBase
             ? array_values((array)$vars['databaseFieldsRequired'])
             : [];
         $sensitive = self::_sensitiveFields($class);
+        // Read through Route for the same reason the sensitive tiers are:
+        // a plugin declares its own via API_SERVER_OWNED_FIELDS.
+        $serverOwned = method_exists('Route', 'serverOwnedFields')
+            ? array_map('strtolower', (array)Route::serverOwnedFields($class))
+            : [];
 
         $properties = [];
         foreach ($fields as $property => $column) {
@@ -495,6 +639,19 @@ class OpenAPI extends FOGBase
                 $schema['x-fog-sensitive'] = 'list';
                 $schema['description'] = _(
                     'Omitted from list responses; returned only on a single GET by id.'
+                );
+            }
+            // Server-maintained fields answer 400 to a write that would
+            // change them, so documenting them as settable would document
+            // a request the router refuses. readOnly rather than omitted:
+            // several are still RETURNED, and a client may legitimately
+            // send one back unchanged.
+            if (in_array(strtolower($property), $serverOwned, true)) {
+                $schema['x-fog-server-owned'] = true;
+                $schema['readOnly'] = true;
+                $schema['description'] = _(
+                    'Maintained by the server. It may be sent back unchanged, '
+                    . 'but a request that would change it is refused.'
                 );
             }
             $properties[$property] = $schema;
@@ -616,13 +773,14 @@ class OpenAPI extends FOGBase
                 ],
                 '_lang' => ['type' => 'string'],
                 'data' => ['type' => 'array', 'items' => ['type' => 'object']],
-                'firstUrl' => ['type' => ['string', 'null']],
-                'prevUrl' => ['type' => ['string', 'null']],
+                'firstUrl' => ['type' => 'string', 'nullable' => true],
+                'prevUrl' => ['type' => 'string', 'nullable' => true],
                 'nextUrl' => [
-                    'type' => ['string', 'null'],
+                    'type' => 'string',
+                    'nullable' => true,
                     'description' => _('Null when this is the last page.')
                 ],
-                'lastUrl' => ['type' => ['string', 'null']]
+                'lastUrl' => ['type' => 'string', 'nullable' => true]
             ]
         ];
     }
@@ -838,14 +996,14 @@ class OpenAPI extends FOGBase
                                 'schema' => [
                                     'type' => 'object',
                                     'properties' => [
-                                        'taskTypeID' => ['type' => ['string', 'integer']],
+                                        'taskTypeID' => self::_oneOfTypes(['string', 'integer']),
                                         'taskName' => ['type' => 'string'],
-                                        'shutdown' => ['type' => ['string', 'boolean']],
-                                        'debug' => ['type' => ['string', 'boolean']],
-                                        'deploySnapins' => ['type' => ['string', 'integer', 'boolean']],
+                                        'shutdown' => self::_oneOfTypes(['string', 'boolean']),
+                                        'debug' => self::_oneOfTypes(['string', 'boolean']),
+                                        'deploySnapins' => self::_oneOfTypes(['string', 'integer', 'boolean']),
                                         'passreset' => ['type' => 'string'],
-                                        'sessionjoin' => ['type' => ['string', 'boolean']],
-                                        'wol' => ['type' => ['string', 'boolean']]
+                                        'sessionjoin' => self::_oneOfTypes(['string', 'boolean']),
+                                        'wol' => self::_oneOfTypes(['string', 'boolean'])
                                     ]
                                 ]
                             ]
@@ -932,6 +1090,35 @@ class OpenAPI extends FOGBase
         }
         $permission = Authorization::resolveApiPermission($routeName, $class);
         return ('' === $permission || null === $permission) ? null : $permission;
+    }
+
+    /**
+     * A property that genuinely accepts more than one scalar type.
+     *
+     * 3.1 would spell this `type: [a, b]`. 3.0 has no type array, so it is
+     * oneOf -- and oneOf rather than anyOf because a JSON scalar is exactly
+     * one of these, never several at once. See OAS_VERSION for why this
+     * document is 3.0.
+     *
+     * These unions are real, not an artifact of the spelling: the task route
+     * reads its body through PHP's loose comparison, so shutdown accepts
+     * true and "1" alike, and documenting only one of them would understate
+     * what the server takes.
+     *
+     * @param array $types The accepted JSON types.
+     *
+     * @return array
+     */
+    private static function _oneOfTypes(array $types)
+    {
+        return [
+            'oneOf' => array_map(
+                function ($t) {
+                    return ['type' => $t];
+                },
+                $types
+            )
+        ];
     }
 
     /**
@@ -1103,17 +1290,21 @@ class OpenAPI extends FOGBase
                 'get' => self::_op(
                     '',
                     'status',
-                    _('Server version'),
-                    _('Unauthenticated. Also reachable as /system/status.'),
+                    _('Server version and paging bounds'),
+                    _('Unauthenticated. Also reachable as /system/status. The '
+                        . 'cheap way to read the paging bounds -- the same '
+                        . 'values appear as x-fog-paging on this document, '
+                        . 'which is several hundred kilobytes larger.'),
                     $json(
                         [
                             'type' => 'object',
                             'properties' => [
                                 'version' => ['type' => 'string'],
+                                'paging' => self::_pagingSchema(),
                                 'msg' => ['type' => 'string']
                             ]
                         ],
-                        _('Version information.')
+                        _('Version information and paging bounds.')
                     )
                 )
             ],
@@ -1268,8 +1459,205 @@ class OpenAPI extends FOGBase
                     '',
                     self::_messageResponse()
                 )
+            ],
+            '/snapin/createwithfile' => ['post' => self::_snapinCreateWithFileOp()],
+            '/storagegroup/{id}/uploadsnapinfiles' => [
+                'parameters' => [self::_idParameter()],
+                'post' => self::_uploadSnapinFilesOp()
             ]
         ];
+    }
+
+    /**
+     * POST /snapin/createwithfile.
+     *
+     * The two upload routes are the only operations in the document whose
+     * request is multipart rather than JSON, which is why they are written
+     * out here rather than falling out of the generic create shape -- the
+     * generic shape describes an application/json body built from the
+     * model's columns, and these take form fields and a binary.
+     *
+     * Field names, requiredness and status codes come from the endpoint's
+     * own published documentation on GH-823, not from reading the handler,
+     * so this describes the contract that was announced to callers.
+     *
+     * @return array
+     */
+    private static function _snapinCreateWithFileOp()
+    {
+        // $ref only if the snapin schema is actually in the document. The
+        // class list is mutable at runtime through API_VALID_CLASSES, so a
+        // plugin can remove snapin, and a fixed path is emitted either way
+        // -- a dangling $ref does not degrade, it stops the whole document
+        // resolving in any client that reads it.
+        $snapinSchema = in_array('snapin', self::_documentedClasses(), true)
+            ? ['$ref' => '#/components/schemas/' . self::schemaName('snapin')]
+            : ['type' => 'object'];
+        $op = self::_op(
+            '',
+            'snapinCreateWithFile',
+            _('Create a snapin and upload its file'),
+            _('multipart/form-data, not JSON. The file goes to the master '
+                . 'storage node of the group given, and FOGSnapinReplicator '
+                . 'propagates it to the rest of the group on its normal '
+                . 'cycle. A file already present under the same basename is '
+                . 'overwritten, matching the UI. Names matching /ssl/i are '
+                . 'refused -- that path is reserved.'),
+            [
+                '201' => [
+                    'description' => _('Created. The body is the new snapin, '
+                        . 'the same shape as GET /snapin/{id}.'),
+                    'content' => [
+                        'application/json' => ['schema' => $snapinSchema]
+                    ]
+                ],
+                '500' => [
+                    'description' => _('Transport to the master storage node '
+                        . 'failed, or the row would not save after the file '
+                        . 'had landed.'),
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['$ref' => '#/components/schemas/Error']
+                        ]
+                    ]
+                ]
+            ],
+            [],
+            [
+                'required' => true,
+                'content' => [
+                    'multipart/form-data' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'required' => ['snapinfile', 'snapin', 'storagegroup'],
+                            'properties' => [
+                                'snapinfile' => [
+                                    'type' => 'string',
+                                    'format' => 'binary',
+                                    'description' => _('The file itself.')
+                                ],
+                                'snapin' => [
+                                    'type' => 'string',
+                                    'description' => _('Name. Must be unique.')
+                                ],
+                                'storagegroup' => [
+                                    'type' => 'integer',
+                                    'description' => _('Id of the storage '
+                                        . 'group whose master receives the '
+                                        . 'file.')
+                                ],
+                                'description' => ['type' => 'string'],
+                                'packtype' => [
+                                    'type' => 'integer',
+                                    'default' => 0,
+                                    'description' => _('0 is a normal snapin, '
+                                        . '1 a snapin pack the client extracts '
+                                        . 'before running.')
+                                ],
+                                'rw' => [
+                                    'type' => 'string',
+                                    'description' => _('Run With interpreter.')
+                                ],
+                                'rwa' => [
+                                    'type' => 'string',
+                                    'description' => _('Run With arguments.')
+                                ],
+                                'args' => ['type' => 'string'],
+                                'action' => [
+                                    'type' => 'string',
+                                    'description' => _('reboot, shutdown, or '
+                                        . 'empty.')
+                                ],
+                                'timeout' => [
+                                    'type' => 'integer',
+                                    'default' => 0,
+                                    'description' => _('Seconds before the '
+                                        . 'client gives up. 0 is no timeout.')
+                                ],
+                                'isEnabled' => [
+                                    'type' => 'string',
+                                    'description' => _('Present means enabled.')
+                                ],
+                                'toReplicate' => [
+                                    'type' => 'string',
+                                    'description' => _('Present means include '
+                                        . 'in replication.')
+                                ],
+                                'isHidden' => [
+                                    'type' => 'string',
+                                    'description' => _('Present means hidden '
+                                        . 'from the UI list.')
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        );
+        // Grouped under snapin rather than system. _op() takes the tag from
+        // its class argument, which has to stay empty here so the operation
+        // id and the permission lookup both key off the fixed-route name,
+        // but a reader looking for this will open the snapin tag.
+        $op['tags'] = ['snapin'];
+        return $op;
+    }
+
+    /**
+     * POST /storagegroup/{id}/uploadsnapinfiles.
+     *
+     * @return array
+     */
+    private static function _uploadSnapinFilesOp()
+    {
+        $op = self::_op(
+            '',
+            'uploadSnapinFiles',
+            _('Upload snapin files to a storage group'),
+            _('multipart/form-data, not JSON. Transport only -- no snapin row '
+                . 'is created or touched, so this is how a caller pre-stages '
+                . 'files to attach later. The field name must be snapinfiles[] '
+                . 'even for a single file. Every file is validated before any '
+                . 'transfer begins, but a failure part way through a batch '
+                . 'leaves the earlier files in place.'),
+            [
+                '204' => ['description' => _('Every file was uploaded.')],
+                '500' => [
+                    'description' => _('Transport failed, or the group has no '
+                        . 'reachable master node.'),
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['$ref' => '#/components/schemas/Error']
+                        ]
+                    ]
+                ]
+            ],
+            [],
+            [
+                'required' => true,
+                'content' => [
+                    'multipart/form-data' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'required' => ['snapinfiles'],
+                            'properties' => [
+                                'snapinfiles' => [
+                                    'type' => 'array',
+                                    'items' => [
+                                        'type' => 'string',
+                                        'format' => 'binary'
+                                    ],
+                                    'description' => _('One or more files. The '
+                                        . 'field name carries the [] suffix on '
+                                        . 'the wire: snapinfiles[].')
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        );
+        $op['tags'] = ['storagegroup'];
+        return $op;
     }
 
     /**

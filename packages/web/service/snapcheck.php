@@ -23,11 +23,11 @@ require '../commons/base.inc.php';
 try {
     FOGCore::getHostItem(false);
     if (!FOGCore::$Host->isValid()) {
-        throw new Exception('#!ih');
+        throw new \Exception('#!ih');
     }
     $SnapinJob = FOGCore::$Host->get('snapinjob');
     if (!$SnapinJob->isValid()) {
-        throw new Exception(0);
+        throw new \Exception(0);
     }
     $find = [
         'stateID' => $FOGCore->getQueuedStates(),
@@ -57,7 +57,7 @@ try {
         $snapinnames = [count($snapins ?: []) ? 1 : 0];
     }
     echo implode(' ', $snapinnames);
-} catch (Exception $e) {
+} catch (\Exception $e) {
     // Aisle 021: escape the error text at the sink. Today the reflected MAC is
     // already neutralised upstream by stripAndDecodeItem(), so this is inert --
     // but that makes the safety of this echo an accident of a shared helper.

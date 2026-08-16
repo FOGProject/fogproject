@@ -177,14 +177,11 @@ class StorageGroup extends FOGController
         ];
         $nodeids = [];
         $testurls = [];
-        Route::listem(
+        $StorageNodes = Route::getList(
             'storagenode',
             $find
         );
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
-        foreach ($StorageNodes->data as &$StorageNode) {
+        foreach ($StorageNodes as &$StorageNode) {
             if ($StorageNode->maxClients < 1) {
                 continue;
             }
@@ -280,10 +277,14 @@ class StorageGroup extends FOGController
         $StorageNodes = json_decode(
             Route::getData()
         );
+        // $StorageNodes stays the paginated envelope on purpose: it is handed
+        // to MASTER_STORAGE_NODE below by reference, so its shape is surface a
+        // third-party plugin may already read. Only the per-row fetch moves --
+        // getItem() answers null for a node deleted between the list and the
+        // fetch, where indiv() ended the response outright. Refs ADR 0011.
         foreach ($StorageNodes->data as $StorageNode) {
-            Route::indiv('storagenode', $StorageNode->id);
-            $StorageNode = json_decode(Route::getData());
-            if (!$StorageNode->online) {
+            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
+            if (!$StorageNode || !$StorageNode->online) {
                 continue;
             }
             if ($masternode == null) {
@@ -302,7 +303,7 @@ class StorageGroup extends FOGController
             ]
         );
         if (empty($StorageNode) || !$StorageNode->isValid()) {
-            throw new Exception(_('No master nodes available'));
+            throw new \Exception(_('No master nodes available'));
         }
         return $StorageNode;
     }
@@ -325,10 +326,11 @@ class StorageGroup extends FOGController
         $StorageNodes = json_decode(
             Route::getData()
         );
+        // Envelope kept, per the note in getMasterStorageNode(): this one is
+        // handed to OPTIMAL_STORAGE_NODE by reference.
         foreach ($StorageNodes->data as &$StorageNode) {
-            Route::indiv('storagenode', $StorageNode->id);
-            $StorageNode = json_decode(Route::getData());
-            if (!$StorageNode->online) {
+            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
+            if (!$StorageNode || !$StorageNode->online) {
                 continue;
             }
             if (!$StorageNode->isEnabled) {
@@ -355,7 +357,7 @@ class StorageGroup extends FOGController
             ]
         );
         if (empty($StorageNode) || !$StorageNode->isValid()) {
-            throw new Exception(_('No nodes available'));
+            throw new \Exception(_('No nodes available'));
         }
         return $StorageNode;
     }
@@ -471,7 +473,12 @@ class StorageGroup extends FOGController
      */
     public function save()
     {
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
         // No assocSetter('StorageGroup', 'storagenode') here: it derived the
         // plural 'storagenodes', which is not in $additionalFields and has no
         // loader, so the key could never hold data and the call was dead.

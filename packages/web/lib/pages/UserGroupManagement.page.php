@@ -59,7 +59,7 @@ class UserGroupManagement extends FOGPage
 
         $labelClass = 'col-sm-3 col-form-label';
 
-        return [
+        $fields = [
             self::makeLabel(
                 $labelClass,
                 'usergroup',
@@ -85,6 +85,8 @@ class UserGroupManagement extends FOGPage
                 $description
             )
         ];
+
+        return self::fastmerge($fields, self::siteAddField($labelClass));
     }
     /**
      * Create new user group.
@@ -136,7 +138,7 @@ class UserGroupManagement extends FOGPage
                 $exists = self::getClass('UserGroupManager')
                     ->exists($usergroup);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A user group already exists with this name!')
                     );
                 }
@@ -145,8 +147,9 @@ class UserGroupManagement extends FOGPage
                     ->set('description', $description);
                 if (!$UserGroup->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add user group failed!'));
+                    throw new \Exception(_('Add user group failed!'));
                 }
+                $this->siteAddPost('usergroup', $UserGroup);
                 return $UserGroup;
             }
         );
@@ -241,7 +244,7 @@ class UserGroupManagement extends FOGPage
         if ($usergroup != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A user group with this name already exists!')
             );
         }
@@ -281,7 +284,7 @@ class UserGroupManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -318,7 +321,7 @@ class UserGroupManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -358,6 +361,15 @@ class UserGroupManagement extends FOGPage
                 $this->usergroupRoles();
             }
         ];
+        // Site
+        $tabData[] = [
+            'name' => _('Site'),
+            'id' => 'usergroup-site',
+            'generator' => function () {
+                $this->usergroupSite();
+            }
+        ];
+
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -376,6 +388,9 @@ class UserGroupManagement extends FOGPage
             function (&$serverFault) {
                 global $tab;
                 switch ($tab) {
+                    case 'usergroup-site':
+                        $this->usergroupSitePost();
+                        break;
                     case 'usergroup-general':
                         $this->usergroupGeneralPost();
                         break;
@@ -387,7 +402,7 @@ class UserGroupManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('User group update failed!'));
+                    throw new \Exception(_('User group update failed!'));
                 }
                 Authorization::resetCache();
             }
@@ -499,5 +514,24 @@ class UserGroupManagement extends FOGPage
                 ]
             ]
         );
+    }
+
+    /**
+     * Presents the site tab.
+     *
+     * @return void
+     */
+    public function usergroupSite()
+    {
+        $this->renderSiteTab('usergroup', $this->obj);
+    }
+    /**
+     * Updates the site.
+     *
+     * @return void
+     */
+    public function usergroupSitePost()
+    {
+        $this->siteTabPost('usergroup', $this->obj);
     }
 }
