@@ -125,6 +125,36 @@ class Page extends FOGBase
         'css/fog-default-ui.min.css'
     ];
     /**
+     * Scripts that must be executed at most once per browser session.
+     *
+     * renderPage() in fog.common.js re-adds every script a page declares on
+     * each AJAX navigation, and that is deliberate: FOG's page scripts are
+     * IIFEs that wire the new DOM the moment they run, so a page revisited
+     * without re-executing its script would render buttons that do nothing.
+     *
+     * A library is the opposite case. swagger-ui-bundle.js defines a global
+     * and touches nothing until it is called, so re-running it only builds a
+     * second copy of a 1.5MB module graph -- measured on the 1.6 lab with
+     * forced GC, and creating no Swagger instances at all, each re-execution
+     * kept ~3.5MB that collection never returned (10MB, 14, 18, 21, 24).
+     *
+     * Naming a script here means: never remove it on navigation, and add it
+     * only if it is not already loaded.
+     *
+     * The bar for this list is that the script has NO side effects at
+     * execution time. jscolor.js deliberately is NOT here despite looking
+     * similar: it scans the DOM for .jscolor inputs when it runs, so loading
+     * it once would leave the storage node edit page with no colour pickers
+     * the second time it is opened. If in doubt, leave a script out -- the
+     * cost of being wrong is silent, and it is missing behaviour rather than
+     * a visible error.
+     *
+     * @var array
+     */
+    protected static $onceJavascripts = [
+        'js/swagger-ui-bundle.js'
+    ];
+    /**
      * Javascripts that are common to every page.
      * Currently, the contents of this array is added to $javascripts for output.
      *
@@ -485,6 +515,12 @@ class Page extends FOGBase
                             'X-FOG-Common-JavaScripts: '
                             . json_encode(
                                 self::$commonJavascripts
+                            )
+                        );
+                        header(
+                            'X-FOG-Once-JavaScripts: '
+                            . json_encode(
+                                self::$onceJavascripts
                             )
                         );
                         header(
