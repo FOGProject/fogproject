@@ -2394,8 +2394,25 @@ class Route extends FOGBase
                         $g = "GROUP BY `hosts`.`hostName`";
                         break;
                     case 'setting':
-                        $w = " OR `settingValue` LIKE :item3";
-                        $params['item3'] = $like;
+                        // Deliberately no `settingValue` clause, and this
+                        // empty case is here to say so rather than leave a
+                        // gap that reads like an oversight.
+                        //
+                        // A setting is found by its key, the way every other
+                        // entity is found by its name. Matching the value
+                        // made the result count carry information about a
+                        // field the response never contains -- and
+                        // globalSettings is where FOG keeps its credentials,
+                        // which is why maskSensitiveSetting() strips `value`
+                        // from this same user's API reads. A search that
+                        // answers questions about a field the API will not
+                        // show gives back what the masking withholds.
+                        //
+                        // Excluding only the credential keys was the other
+                        // option and is worse: it needs a second copy of
+                        // isSensitiveSetting()'s rule living beside the
+                        // query, and the day the two drift nothing fails --
+                        // the values just quietly become findable again.
                         break;
                     case 'storagenode':
                         $w = " OR `ngmHostname` LIKE :item3";
