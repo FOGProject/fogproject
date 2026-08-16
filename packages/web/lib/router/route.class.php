@@ -1164,6 +1164,13 @@ class Route extends FOGBase
     {
         self::$data = [
             'version' => FOG_VERSION,
+            // The paging bounds ride along here as well as in the OpenAPI
+            // document, because this is the endpoint a client can afford to
+            // call. The document is several hundred kilobytes and a client
+            // that wants to know how large a page it may ask for should not
+            // have to fetch all of it. Same source either way, so the two
+            // cannot disagree.
+            'paging' => OpenAPI::pagingLimits(),
             'msg' => _('success')
         ];
     }

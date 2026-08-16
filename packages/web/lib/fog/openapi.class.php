@@ -124,12 +124,125 @@ class OpenAPI extends FOGBase
             'info' => self::_info(),
             'servers' => self::_servers(),
             'security' => self::_globalSecurity(),
+            'x-fog-paging' => self::pagingLimits(),
             'tags' => self::_tags(),
             'paths' => self::_paths(),
             'components' => [
                 'securitySchemes' => self::_securitySchemes(),
                 'parameters' => self::_commonParameters(),
                 'schemas' => self::_schemas()
+            ]
+        ];
+    }
+
+    /**
+     * The server's own paging bounds, so a client can size its requests from
+     * what this server does rather than from a number copied out of the
+     * source at some point in the past.
+     *
+     * Both are constants rather than settings today, which is exactly why
+     * they are worth publishing: nothing else exposes them, so a client had
+     * no way to learn them except by reading the PHP, and a number learned
+     * that way is wrong the moment either changes.
+     *
+     * Read through reflection rather than referenced directly so that a
+     * change to either constant reaches this without anyone remembering to
+     * update it here.
+     *
+     * Also served by system/info, which is the cheap way to read it -- this
+     * document is several hundred kilobytes and a client that only wants two
+     * integers should not have to fetch all of it.
+     *
+     * @return array
+     */
+    public static function pagingLimits()
+    {
+        $maxRows = null;
+        $expandMax = null;
+        try {
+            $manager = new \ReflectionClass('FOGManagerController');
+            if ($manager->hasConstant('MAX_ROWS')) {
+                $maxRows = (int)$manager->getConstant('MAX_ROWS');
+            }
+        } catch (\Exception $e) {
+            $maxRows = null;
+        } catch (\Error $e) {
+            $maxRows = null;
+        }
+        try {
+            $router = new \ReflectionClass('Route');
+            if ($router->hasConstant('EXPAND_MAX_ITEMS')) {
+                $expandMax = (int)$router->getConstant('EXPAND_MAX_ITEMS');
+            }
+        } catch (\Exception $e) {
+            $expandMax = null;
+        } catch (\Error $e) {
+            $expandMax = null;
+        }
+
+        return [
+            'maxRows' => $maxRows,
+            'expandMaxItems' => $expandMax,
+            'description' => implode(' ', [
+                'maxRows is the row cap applied to a list request that does',
+                'not carry a start parameter, that asks for length=-1, or',
+                'that sends a negative length. A request with an explicit',
+                'non-negative start and a positive length is served verbatim',
+                'and is not capped, so a client that always pages explicitly',
+                'never meets maxRows.',
+                'expandMaxItems is different: an ?expand request has its page',
+                'size clamped to this value even when a larger length was',
+                'asked for, so a page can come back smaller than requested.',
+                'Advance by the number of rows actually returned rather than',
+                'by the length you asked for, and follow nextUrl until it is',
+                'null.'
+            ])
+        ];
+    }
+
+    /**
+     * The shape of what pagingLimits() returns.
+     *
+     * Kept next to the producer so the two are read together. Publishing the
+     * bounds on system/info only helps a client that was generated from this
+     * document if the document says the key is there -- a generator builds
+     * its model from this property list, so an undescribed key is a key the
+     * generated client cannot see, which would defeat the point of putting
+     * the bounds on the cheap endpoint in the first place.
+     *
+     * Both integers are nullable because pagingLimits() reports null rather
+     * than a guess when reflection cannot find the constant.
+     *
+     * @return array
+     */
+    private static function _pagingSchema()
+    {
+        return [
+            'type' => 'object',
+            'description' => _('Server paging bounds. Also published as '
+                . 'x-fog-paging at the root of this document.'),
+            'properties' => [
+                'maxRows' => [
+                    'type' => 'integer',
+                    'nullable' => true,
+                    'description' => _('Row cap applied to a list request '
+                        . 'that omits start, asks for length=-1, or sends a '
+                        . 'negative length. An explicit non-negative start '
+                        . 'with a positive length is served verbatim.')
+                ],
+                'expandMaxItems' => [
+                    'type' => 'integer',
+                    'nullable' => true,
+                    'description' => _('Page size cap applied to an expand '
+                        . 'request even when a larger length was asked for, '
+                        . 'so a page can be smaller than requested. Advance '
+                        . 'by the rows returned, not the length requested.')
+                ],
+                'description' => [
+                    'type' => 'string',
+                    'description' => _('The same rules in prose, for a client '
+                        . 'reading this at runtime.')
+                ]
             ]
         ];
     }
@@ -1177,17 +1290,21 @@ class OpenAPI extends FOGBase
                 'get' => self::_op(
                     '',
                     'status',
-                    _('Server version'),
-                    _('Unauthenticated. Also reachable as /system/status.'),
+                    _('Server version and paging bounds'),
+                    _('Unauthenticated. Also reachable as /system/status. The '
+                        . 'cheap way to read the paging bounds -- the same '
+                        . 'values appear as x-fog-paging on this document, '
+                        . 'which is several hundred kilobytes larger.'),
                     $json(
                         [
                             'type' => 'object',
                             'properties' => [
                                 'version' => ['type' => 'string'],
+                                'paging' => self::_pagingSchema(),
                                 'msg' => ['type' => 'string']
                             ]
                         ],
-                        _('Version information.')
+                        _('Version information and paging bounds.')
                     )
                 )
             ],
