@@ -11,10 +11,15 @@
  * Two of the cases below are not about correctness of the membership query
  * at all, they are about it NOT RUNNING:
  *
- *   - a server with no sites yet must allow everything. That is the window
- *     between deploying this code and running the schema updater, and if it
- *     denied instead, the admin would be locked out of the very page that
- *     fixes it.
+ *   - a server with no site IN USE must allow everything. In use means "a
+ *     site other than the catch-all", and the distinction is the whole
+ *     point: schema step 333 creates the catch-all on every server that
+ *     upgrades, so a plain row count answers "sites exist" forever, on
+ *     installs that never had the plugin. Scoping would switch itself on
+ *     for a feature nobody turned on. It also covers the original reason
+ *     this short circuit exists -- the window between deploying this code
+ *     and running the schema updater, where denying would lock the admin
+ *     out of the very page that fixes it.
  *   - a catch-all member must be allowed without consulting membership,
  *     because the catch-all is a flag rather than a list. If it were
  *     satisfied by enumerating members it would look identical on upgrade
@@ -158,6 +163,11 @@ $scenario = function (array $tables) use ($dbProp) {
                 $hit = in_array($uid, (array)($tables['catchAll'] ?? []), true);
                 return ['cnt' => $hit ? 1 : 0];
             }
+            // The catch-all's id. Recognised before the plain count for the
+            // same reason -- both read `sites`.
+            if (false !== strpos($sql, 'IS NOT NULL LIMIT 1')) {
+                return ['cnt' => (int)($tables['catchAllID'] ?? 0)];
+            }
             if (false !== strpos($sql, 'FROM `sites`')) {
                 if (isset($tables['sitesThrows'])) {
                     throw new \Exception('no such table');
@@ -165,7 +175,16 @@ $scenario = function (array $tables) use ($dbProp) {
                 if (isset($tables['sitesErrors'])) {
                     return '__ERROR__';
                 }
+                // siteCount is the count of sites IN USE, so a fixture
+                // saying 0 is a server holding nothing but the catch-all
+                // as well as one holding no sites at all.
                 return ['cnt' => (int)($tables['siteCount'] ?? 0)];
+            }
+            if (0 === strpos($sql, 'INSERT')) {
+                if (isset($tables['insertErrors'])) {
+                    return '__ERROR__';
+                }
+                return ['cnt' => 1];
             }
             if (false !== strpos($sql, 'FROM `siteUserMembers` WHERE')) {
                 $uid = (int)$params['uid'];
@@ -232,6 +251,86 @@ check(
 check(
     'zero-site server: membership never queried',
     !$touchedMembership($db),
+    $failures,
+    $checks
+);
+
+/*
+ * 1a. And the question asked has to be the right one. Every fixture above
+ *     would pass just as happily against `SELECT COUNT(*) FROM sites`, so
+ *     the SQL itself is asserted: the catch-all row is created by schema
+ *     step 333 on every server that upgrades, so counting it makes "sites
+ *     exist" permanently true everywhere and switches deny-all on for
+ *     installs that never had the plugin.
+ */
+$countSql = '';
+foreach ($db->log as $sql) {
+    if (false !== strpos($sql, 'FROM `sites`')
+        && false === strpos($sql, 'INNER JOIN')
+    ) {
+        $countSql = $sql;
+    }
+}
+check(
+    'the in-use question excludes the catch-all row',
+    false !== strpos($countSql, '`siteCatchAll` IS NULL'),
+    $failures,
+    $checks
+);
+
+/*
+ * 1b. The catch-all id, and putting a user in it. This is what stops a
+ *     brand new account being the only one on the server in no site --
+ *     step 333 enrolled everybody who existed on upgrade day, and User
+ *     ::save() applies the same rule to everybody created afterwards.
+ */
+$db = $scenario(['siteCount' => 0, 'catchAllID' => 11]);
+check(
+    'catchAllID finds the catch-all',
+    SiteScope::catchAllID() === 11,
+    $failures,
+    $checks
+);
+check(
+    'joinCatchAll enrols the user',
+    SiteScope::joinCatchAll(4) === true,
+    $failures,
+    $checks
+);
+$insert = '';
+foreach ($db->log as $sql) {
+    if (0 === strpos($sql, 'INSERT')) {
+        $insert = $sql;
+    }
+}
+check(
+    // Membership is UNIQUE, so the database already answers "already a
+    // member" -- a check-then-insert would be a second round trip and a
+    // race besides.
+    'joinCatchAll inserts, ignoring an existing membership',
+    false !== strpos($insert, 'INSERT IGNORE INTO `siteUserMembers`'),
+    $failures,
+    $checks
+);
+$db = $scenario(['siteCount' => 0, 'catchAllID' => 0]);
+check(
+    'joinCatchAll does nothing without a catch-all',
+    SiteScope::joinCatchAll(4) === false,
+    $failures,
+    $checks
+);
+check(
+    'joinCatchAll issues no insert without a catch-all',
+    !preg_grep('/^INSERT/', $db->log),
+    $failures,
+    $checks
+);
+$db = $scenario(
+    ['siteCount' => 0, 'catchAllID' => 11, 'insertErrors' => true]
+);
+check(
+    'a failed enrolment reports failure rather than claiming success',
+    SiteScope::joinCatchAll(4) === false,
     $failures,
     $checks
 );

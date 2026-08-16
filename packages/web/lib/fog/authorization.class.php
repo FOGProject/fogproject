@@ -811,7 +811,7 @@ class Authorization extends FOGBase
         // no sites behaves as it always did, and a catch-all member is not
         // narrowed to an enumerated list (which would stop covering
         // objects created after the catch-all was made).
-        if (!SiteScope::anySitesExist() || SiteScope::isUnscoped($userID)) {
+        if (!SiteScope::sitesInUse() || SiteScope::isUnscoped($userID)) {
             return null;
         }
         return SiteScope::allInScopeIDs($node, $userID);

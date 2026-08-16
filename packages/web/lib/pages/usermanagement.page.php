@@ -75,7 +75,7 @@ class UserManagement extends FOGPage
 
         $labelClass = 'col-sm-3 col-form-label';
 
-        return [
+        $fields = [
             self::makeLabel(
                 $labelClass,
                 'user',
@@ -180,6 +180,10 @@ class UserManagement extends FOGPage
                 (isset($_POST['apienabled']) ? 'checked' : '')
             )
         ];
+
+        // A user created into no site at all sees nothing, so this one
+        // matters more than the group/usergroup equivalents.
+        return self::fastmerge($fields, self::siteAddField($labelClass));
     }
     /**
      * Page to enable creating a new user.
@@ -263,6 +267,7 @@ class UserManagement extends FOGPage
                 $serverFault = true;
                 throw new \Exception(_('Add user failed!'));
             }
+            $this->siteAddPost('user', $User);
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'USER_ADD_SUCCESS';
             $msg = json_encode(

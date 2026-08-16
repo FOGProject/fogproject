@@ -560,11 +560,31 @@ class User extends FOGController
      * assocSetter no-ops unless 'roles' has been loaded/set, so save
      * paths that never touch roles (e.g. password migration) are safe.
      *
+     * A brand new user is put in the catch-all site, but only while no real
+     * site exists. Schema step 333 enrolled every account that was on the
+     * server the day it upgraded; without this the next account created
+     * would be the only one on that server in no site at all, and site
+     * scope is deny-all, so it would see nothing. That asymmetry -- every
+     * old account works, every new one is blank -- is the bug. Once an
+     * admin has created a real site, which sites a new user belongs to is
+     * their decision and defaulting it to "all of them" would be an
+     * access-control call made by accident, so the gate stays.
+     *
+     * It lives here rather than in the creation pages because two of the
+     * four creation paths involve nobody clicking anything: a REST POST and
+     * the ldap plugin auto-provisioning on first login. FOGController::save
+     * fires no event, so a hook could not have covered them either.
+     *
      * @return bool
      */
     public function save()
     {
+        // Captured before the save, because that is what stamps the id on.
+        $isNew = (int)$this->get('id') < 1;
         parent::save();
+        if ($isNew && !SiteScope::sitesInUse()) {
+            SiteScope::joinCatchAll((int)$this->get('id'));
+        }
         return $this
             ->assocSetter('RoleUser', 'role')
             ->assocSetter('UserGroupMember', 'usergroup', true)
