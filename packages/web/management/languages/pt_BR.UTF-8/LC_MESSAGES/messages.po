@@ -3350,6 +3350,14 @@ msgstr "Formato MAC é inválido"
 msgid "MAC address is already in use by another host"
 msgstr "Endereço MAC já está em uso por outro host"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "Hosts selecionados aprovados com sucesso"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "Regra excluída com sucesso!"
+
 msgid "MB Asset"
 msgstr "Ativo da Placa-Mãe"
 
@@ -5619,6 +5627,13 @@ msgstr "Os itens abaixo são usados apenas para o cliente antigo."
 msgid "The clients will checkin with the server from time"
 msgstr "Os clientes farão checkin com o servidor de tempos em tempos"
 
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "Todos os MACs Pendentes aprovados."
+
+msgid "The following MACs have been deleted."
+msgstr ""
+
 msgid "The following errors occured"
 msgstr "Os seguintes erros ocorreram"
 
@@ -7096,9 +7111,6 @@ msgstr "você define o campo de largura de banda naquele nó para 1000"
 
 #~ msgid "Active Multi-cast Tasks"
 #~ msgstr "Tarefas de Multicast Ativas"
-
-#~ msgid "All Pending MACs approved."
-#~ msgstr "Todos os MACs Pendentes aprovados."
 
 #~ msgid "LDAP Connection  Name"
 #~ msgstr "Nome da Conexão LDAP"

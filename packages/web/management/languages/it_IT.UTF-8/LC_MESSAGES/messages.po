@@ -3437,6 +3437,14 @@ msgstr "MAC Format non è valido"
 msgid "MAC address is already in use by another host"
 msgstr "L'indirizzo MAC è già in uso da un altro host"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "Host selezionati approvati correttamente"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "Regola eliminazione del successo"
+
 msgid "MB Asset"
 msgstr "MB Asset"
 
@@ -5770,6 +5778,13 @@ msgstr "Gli elementi riportati di seguito sono utilizzati solo per il vecchio cl
 msgid "The clients will checkin with the server from time"
 msgstr "I clienti effettueranno il check-in con il server di tanto"
 
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "Tutti i Mac in sospeso approvati."
+
+msgid "The following MACs have been deleted."
+msgstr ""
+
 msgid "The following errors occured"
 msgstr "I seguenti errori si è verificato"
 
@@ -7298,9 +7313,6 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 #, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Aggiunta gruppo non riuscito!"
-
-#~ msgid "All Pending MACs approved."
-#~ msgstr "Tutti i Mac in sospeso approvati."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Impossibile leggere il file temporaneo"
