@@ -392,7 +392,7 @@ class PrinterManagement extends FOGPage
             case 'network':
                 return 'Network';
         }
-        throw new Exception(_('Please select a valid printer type.'));
+        throw new \Exception(_('Please select a valid printer type.'));
     }
     /**
      * Applies the default RAW port (9100) for port-based printer types when
@@ -520,21 +520,21 @@ class PrinterManagement extends FOGPage
                 );
 
                 if ($printer === '') {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Please enter a printer name.')
                     );
                 }
                 $exists = self::getClass('PrinterManager')
                     ->exists($printer);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A printer already exists with this name!')
                     );
                 }
                 $printertype = $this->_normalizePrinterType($config);
                 $port = $this->_defaultPrinterPort($printertype, $port);
                 if ($printertype === 'Local' && $ip === '') {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A TCP/IP port printer requires an IP address or hostname.')
                     );
                 }
@@ -549,7 +549,7 @@ class PrinterManagement extends FOGPage
                     ->set('ip', $ip);
                 if (!$Printer->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add printer failed!'));
+                    throw new \Exception(_('Add printer failed!'));
                 }
                 return $Printer;
             }
@@ -689,7 +689,7 @@ class PrinterManagement extends FOGPage
         );
 
         if ($printer === '') {
-            throw new Exception(
+            throw new \Exception(
                 _('Please enter a printer name.')
             );
         }
@@ -698,14 +698,14 @@ class PrinterManagement extends FOGPage
         if ($printer != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A printer already exists with this name!')
             );
         }
         $printertype = $this->_normalizePrinterType($config);
         $port = $this->_defaultPrinterPort($printertype, $port);
         if ($printertype === 'Local' && $ip === '') {
-            throw new Exception(
+            throw new \Exception(
                 _('A TCP/IP port printer requires an IP address or hostname.')
             );
         }
@@ -943,7 +943,7 @@ class PrinterManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Printer update failed!'));
+                    throw new \Exception(_('Printer update failed!'));
                 }
             }
         );

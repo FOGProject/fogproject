@@ -276,7 +276,7 @@ class DatabaseManager extends FOGCore
             return [];
         }
         $cols = [];
-        $rows = $res->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get('COLUMN_NAME');
+        $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get('COLUMN_NAME');
         foreach ((array)$rows as $col) {
             if (is_string($col) && $col !== '') {
                 $cols[] = strtolower($col);
@@ -335,7 +335,7 @@ class DatabaseManager extends FOGCore
         );
         $convert = self::$DB
             ->query($sql)
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get('Q');
         if (false !== $sql_modes) {
             $sql_modes = sprintf(

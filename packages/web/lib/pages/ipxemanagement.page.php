@@ -260,7 +260,7 @@ class IpxeManagement extends FOGPage
                 $exists = self::getClass('PXEMenuOptionsManager')
                     ->exists($ipxe);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A menu entry already exists with this name!')
                     );
                 }
@@ -282,7 +282,7 @@ class IpxeManagement extends FOGPage
                 }
                 if (!$iPXE->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add menu failed!'));
+                    throw new \Exception(_('Add menu failed!'));
                 }
                 return $iPXE;
             }
@@ -489,7 +489,7 @@ class IpxeManagement extends FOGPage
         $exists = self::getClass('PXEMenuOptionsManager')
             ->exists($ipxe);
         if ($this->obj->get('name') != $ipxe && $exists) {
-            throw new Exception(
+            throw new \Exception(
                 _('A menu entry already exists with this name!')
             );
         }
@@ -549,7 +549,7 @@ class IpxeManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Menu update failed!'));
+                    throw new \Exception(_('Menu update failed!'));
                 }
             }
         );

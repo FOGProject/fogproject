@@ -165,7 +165,7 @@ class FOGFTP
                 $this->pasv($this->passive);
             }
             $this->_lastConnectionHash = $this->_currentConnectionHash;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             FOGCore::error($e->getMessage());
             return false;
         }
@@ -225,7 +225,7 @@ class FOGFTP
     public function ftperror($data)
     {
         $error = error_get_last();
-        throw new Exception(
+        throw new \Exception(
             sprintf(
                 '%s: %s, %s: %s, %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Type'),
@@ -274,8 +274,8 @@ class FOGFTP
             if (ftp_login($this->_link, $username, $password) === false) {
                 $this->ftperror($this->data);
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
         $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
@@ -429,8 +429,8 @@ class FOGFTP
                 $autologin,
                 'ftp_ssl_connect'
             );
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
         return $this;
     }

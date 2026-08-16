@@ -163,7 +163,7 @@ class Snapin extends FOGController
     public function deleteFile()
     {
         if ($this->get('protected')) {
-            throw new Exception(self::$foglang['ProtectedSnapin']);
+            throw new \Exception(self::$foglang['ProtectedSnapin']);
         }
         foreach ($this->get('storagegroups') as $storagegroupID) {
             self::getClass('filedeletequeue')
@@ -283,7 +283,7 @@ class Snapin extends FOGController
             $groupids = Route::getIds('storagegroup', false);
             $groupids = [self::minId($groupids)];
             if (count($groupids) < 1) {
-                throw new Exception(_('No viable storage groups found'));
+                throw new \Exception(_('No viable storage groups found'));
             }
         }
         $primaryGroup = [];

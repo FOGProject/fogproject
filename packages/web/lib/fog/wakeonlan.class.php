@@ -53,7 +53,7 @@ class WakeOnLan extends FOGBase
         if (self::$_arrMAC === false
             || count(self::$_arrMAC) < 0
         ) {
-            throw new Exception(self::$foglang['InvalidMAC']);
+            throw new \Exception(self::$foglang['InvalidMAC']);
         }
         $BroadCast = self::fastmerge(
             (array) '255.255.255.255',

@@ -116,7 +116,7 @@ trait FOGPagePost
                     'title' => $successTitle
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -184,7 +184,7 @@ trait FOGPagePost
                 return $msg;
             }
             $payload['object'] = Route::stripSensitive($classname, $object);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $msg;
         }
         $encoded = json_encode($payload);
@@ -244,7 +244,7 @@ trait FOGPagePost
                     'title' => $successTitle
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -363,7 +363,7 @@ trait FOGPagePost
             unset($val);
         }
         if (!in_array($scheduleType, $scheduleTypes)) {
-            throw new Exception(_('Invalid scheduling type'));
+            throw new \Exception(_('Invalid scheduling type'));
         }
         $schedule = [
             'scheduleType' => $scheduleType,
@@ -381,7 +381,7 @@ trait FOGPagePost
                     filter_input(INPUT_POST, 'scheduleSingleTime')
                 );
                 if ($scheduleDeployTime < self::niceDate()) {
-                    throw new Exception(_('Scheduled time is in the past'));
+                    throw new \Exception(_('Scheduled time is in the past'));
                 }
                 $schedule['scheduleDeployTime'] = $scheduleDeployTime;
                 break;
@@ -407,19 +407,19 @@ trait FOGPagePost
                 $tmonth = FOGCron::checkMonthField($month);
                 $tdow = FOGCron::checkDOWField($dow);
                 if (!$tmin) {
-                    throw new Exception(_('Minutes field is invalid'));
+                    throw new \Exception(_('Minutes field is invalid'));
                 }
                 if (!$thour) {
-                    throw new Exception(_('Hours field is invalid'));
+                    throw new \Exception(_('Hours field is invalid'));
                 }
                 if (!$tdom) {
-                    throw new Exception(_('Day of Month field is invalid'));
+                    throw new \Exception(_('Day of Month field is invalid'));
                 }
                 if (!$tmonth) {
-                    throw new Exception(_('Month field is invalid'));
+                    throw new \Exception(_('Month field is invalid'));
                 }
                 if (!$tdow) {
-                    throw new Exception(_('Day of Week field is invalid'));
+                    throw new \Exception(_('Day of Week field is invalid'));
                 }
                 $schedule['min'] = $min;
                 $schedule['hour'] = $hour;

@@ -147,7 +147,7 @@ abstract class FOGService extends FOGBase
         if (count($StorageNodes) > 0) {
             return $StorageNodes;
         }
-        throw new Exception(
+        throw new \Exception(
             _(' | This is not the master node')
         );
     }
@@ -391,10 +391,10 @@ abstract class FOGService extends FOGBase
         Route::indiv('storagenode', $myStorageNodeID);
         $myStorageNode = json_decode(Route::getData());
         if (!$myStorageNode->isMaster) {
-            throw new Exception(_('This is not the master for this group'));
+            throw new \Exception(_('This is not the master for this group'));
         }
         if (!$myStorageNode->online) {
-            throw new Exception(_('This node does not appear to be online'));
+            throw new \Exception(_('This node does not appear to be online'));
         }
         Route::listem('storagenode', $find);
         $StorageNodes = json_decode(Route::getData());

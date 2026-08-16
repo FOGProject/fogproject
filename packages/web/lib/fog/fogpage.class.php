@@ -1563,7 +1563,7 @@ abstract class FOGPage extends FOGBase
                 }
             }
             echo '</table>';
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $e->getMessage();
         }
         return ob_get_clean()
@@ -1790,7 +1790,7 @@ abstract class FOGPage extends FOGBase
                 ]
             );
             $code = HTTPResponseCodes::HTTP_SUCCESS;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -2102,20 +2102,20 @@ abstract class FOGPage extends FOGBase
                 if ($msg == 'dl') {
                     $destFilename = $_SESSION['dest-kernel-file'];
                     if (preg_match('/\./', $destFilename)) {
-                        throw new Exception(_('Dot in Filename not allowed!'));
+                        throw new \Exception(_('Dot in Filename not allowed!'));
                     }
                     $dlUrl = $_SESSION['dl-kernel-file'];
                     if (!(0 === stripos($dlUrl, 'https://fogproject.org/') ||
                         0 === stripos($dlUrl, 'https://github.com/FOGProject/'))
                     ) {
-                        throw new Exception(_('Specified download URL not allowed!'));
+                        throw new \Exception(_('Specified download URL not allowed!'));
                     }
                     $fh = fopen(
                         $_SESSION['tmp-kernel-file'],
                         'wb'
                     );
                     if ($fh === false) {
-                        throw new Exception(
+                        throw new \Exception(
                             _('Error: Failed to open temp file')
                         );
                     }
@@ -2141,7 +2141,7 @@ abstract class FOGPage extends FOGBase
                         $fh
                     );
                     if ($httpCode < 200 || $httpCode > 299) {
-                        throw new Exception(
+                        throw new \Exception(
                             sprintf(
                                 '%s: %s (HTTP %d)',
                                 _('Error'),
@@ -2151,7 +2151,7 @@ abstract class FOGPage extends FOGBase
                         );
                     }
                     if (!file_exists($_SESSION['tmp-kernel-file'])) {
-                        throw new Exception(
+                        throw new \Exception(
                             _('Error: Failed to download kernel')
                         );
                     }
@@ -2165,7 +2165,7 @@ abstract class FOGPage extends FOGBase
                     // shipped to the TFTP server. The sprintf was also one
                     // argument long, swallowing the size it meant to report.
                     if ($filesize < 1048576) {
-                        throw new Exception(
+                        throw new \Exception(
                             sprintf(
                                 '%s: %s: %s - %s',
                                 _('Error'),
@@ -2186,7 +2186,7 @@ abstract class FOGPage extends FOGBase
                     // than to fail inside the signing helper, or to hand Secure
                     // Boot clients something that was never a kernel.
                     if (self::readMagic($_SESSION['tmp-kernel-file'], 2) !== 'MZ') {
-                        throw new Exception(
+                        throw new \Exception(
                             sprintf(
                                 '%s: %s',
                                 _('Error'),
@@ -2241,7 +2241,7 @@ abstract class FOGPage extends FOGBase
                     self::$FOGSSH->password = $tftpPass;
                     self::$FOGSSH->host = $tftpHost;
                     if (!self::$FOGSSH->connect()) {
-                        throw new Exception(_('Unable to connect to ssh'));
+                        throw new \Exception(_('Unable to connect to ssh'));
                     }
                     if (!self::$FOGSSH->exists($backuppath)) {
                         self::$FOGSSH->sftp_mkdir($backuppath);
@@ -2292,7 +2292,7 @@ abstract class FOGPage extends FOGBase
                     ));
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->jsonSend(HTTPResponseCodes::HTTP_BAD_REQUEST, json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -2410,7 +2410,7 @@ abstract class FOGPage extends FOGBase
             if ($lock !== false) {
                 fclose($lock);
             }
-            throw new Exception(
+            throw new \Exception(
                 _('Error: Could not lock the Secure Boot staging directory')
             );
         }
@@ -2419,7 +2419,7 @@ abstract class FOGPage extends FOGBase
             // Overwrites any leftover from a run that died mid-sign, which is
             // what we want: ours is the only kernel anyone is waiting on.
             if (!rename($tmpfile, $shared)) {
-                throw new Exception(
+                throw new \Exception(
                     _('Error: Could not stage the kernel for signing')
                 );
             }
@@ -2437,7 +2437,7 @@ abstract class FOGPage extends FOGBase
             );
             exec("sudo -n {$helper} 2>&1", $output, $retVal);
             if ($retVal !== 0) {
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         '%s: %s',
                         _('Error: Failed to sign the kernel for Secure Boot'),
@@ -2482,14 +2482,14 @@ abstract class FOGPage extends FOGBase
                     if (!(0 === stripos($dlUrl, 'https://fogproject.org/') ||
                         0 === stripos($dlUrl, 'https://github.com/FOGProject/'))
                     ) {
-                        throw new Exception(_('Specified download URL not allowed!'));
+                        throw new \Exception(_('Specified download URL not allowed!'));
                     }
                     $fh = fopen(
                         $_SESSION['tmp-initrd-file'],
                         'wb'
                     );
                     if ($fh === false) {
-                        throw new Exception(
+                        throw new \Exception(
                             _('Error: Failed to open temp file')
                         );
                     }
@@ -2511,7 +2511,7 @@ abstract class FOGPage extends FOGBase
                         $fh
                     );
                     if ($httpCode < 200 || $httpCode > 299) {
-                        throw new Exception(
+                        throw new \Exception(
                             sprintf(
                                 '%s: %s (HTTP %d)',
                                 _('Error'),
@@ -2521,7 +2521,7 @@ abstract class FOGPage extends FOGBase
                         );
                     }
                     if (!file_exists($_SESSION['tmp-initrd-file'])) {
-                        throw new Exception(
+                        throw new \Exception(
                             _('Error: Failed to download initrd')
                         );
                     }
@@ -2535,7 +2535,7 @@ abstract class FOGPage extends FOGBase
                     // shipped to the TFTP server. The sprintf was also one
                     // argument long, swallowing the size it meant to report.
                     if ($filesize < 1048576) {
-                        throw new Exception(
+                        throw new \Exception(
                             sprintf(
                                 '%s: %s: %s - %s',
                                 _('Error'),
@@ -2589,7 +2589,7 @@ abstract class FOGPage extends FOGBase
                     self::$FOGSSH->password = $tftpPass;
                     self::$FOGSSH->host = $tftpHost;
                     if (!self::$FOGSSH->connect()) {
-                        throw new Exception(_('Unable to connect to SSH'));
+                        throw new \Exception(_('Unable to connect to SSH'));
                     }
                     if (!self::$FOGSSH->exists($backuppath)) {
                         self::$FOGSSH->sftp_mkdir($backuppath);
@@ -2637,7 +2637,7 @@ abstract class FOGPage extends FOGBase
                     ));
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->jsonSend(HTTPResponseCodes::HTTP_BAD_REQUEST, json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -2815,7 +2815,7 @@ abstract class FOGPage extends FOGBase
              * destructive write instead of before it.
              */
             if (strlen($key) !== 64) {
-                throw new Exception('#!ihc');
+                throw new \Exception('#!ihc');
             }
             $secTok = (string)self::$Host->get('sec_tok');
             $prevTok = (string)self::$Host->get('prev_sec_tok');
@@ -2856,7 +2856,7 @@ abstract class FOGPage extends FOGBase
                 && !$matchesCurrent
                 && !$matchesPrev
             ) {
-                throw new Exception('#!ist');
+                throw new \Exception('#!ist');
             }
             $expire = self::niceDate(self::$Host->get('sec_time'));
             if (self::niceDate() > $expire
@@ -2914,7 +2914,7 @@ abstract class FOGPage extends FOGBase
             }
             self::$Host->save();
             echo $response;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             /**
              * These must go out as HTTP 200 with the error in the BODY.
              *
@@ -3128,7 +3128,7 @@ abstract class FOGPage extends FOGBase
                 true,
                 $array
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
         exit;
@@ -3244,7 +3244,7 @@ abstract class FOGPage extends FOGBase
         $serverFault = false;
         try {
             if ($this->obj->get('protected')) {
-                throw new Exception(_('Unable to remove protected items'));
+                throw new \Exception(_('Unable to remove protected items'));
             }
             if ($this->obj instanceof Group) {
                 if (isset($_POST['andHosts'])) {
@@ -3259,20 +3259,20 @@ abstract class FOGPage extends FOGBase
                     );
                     if ($hcount) {
                         $serverFault = true;
-                        throw new Exception(_('Failed to remove hosts'));
+                        throw new \Exception(_('Failed to remove hosts'));
                     }
                 }
             }
             if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
                 if (isset($_POST['andFile'])) {
                     if (!$this->obj->deleteFile()) {
-                        throw new Exception(_('Unable to delete file data'));
+                        throw new \Exception(_('Unable to delete file data'));
                     }
                 }
             }
             if (!$this->obj->destroy()) {
                 $serverFault = true;
-                throw new Exception(
+                throw new \Exception(
                     _('Failed to remove')
                     . ': '
                     . Initiator::e($this->obj->get('name'))
@@ -3288,7 +3288,7 @@ abstract class FOGPage extends FOGBase
                     'title' => _('Delete Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $hook = "{$ucnode}_DELETE_FAIL";
             $code = (
                 $serverFault ?
@@ -3933,7 +3933,7 @@ abstract class FOGPage extends FOGBase
                     $item->{$entry['apply']}($ids);
                 }
                 $applied = true;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 // Stay lenient: a failed association must not fail the row.
                 $warnings[] = sprintf(
                     _('Could not apply %s: %s'),
@@ -4250,7 +4250,7 @@ abstract class FOGPage extends FOGBase
             }
             if ($_FILES['file']['error'] > 0) {
                 $serverFault = true;
-                throw new Exception($_FILES['file']['error']);
+                throw new \Exception($_FILES['file']['error']);
             }
             $tmpf = pathinfo($_FILES['file']['tmp_name']);
             $file = sprintf(
@@ -4260,7 +4260,7 @@ abstract class FOGPage extends FOGBase
                 $tmpf['basename']
             );
             if (!file_exists($file)) {
-                throw new Exception(_('Could not find temp filename'));
+                throw new \Exception(_('Could not find temp filename'));
             }
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $uploadErrors = '';
@@ -4332,7 +4332,7 @@ abstract class FOGPage extends FOGBase
                     }
                     foreach ($required as $req) {
                         if (!array_key_exists($req, $headerMap)) {
-                            throw new Exception(
+                            throw new \Exception(
                                 sprintf(
                                     _('Header is missing the required "%s" column'),
                                     $req
@@ -4361,7 +4361,7 @@ abstract class FOGPage extends FOGBase
                         $importCount > $maxCols
                     )
                 ) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Invalid data being parsed')
                     );
                 }
@@ -4399,7 +4399,7 @@ abstract class FOGPage extends FOGBase
                         self::getClass('HostManager')
                             ->getHostByMacAddresses($macs);
                         if (self::$Host->isValid()) {
-                            throw new Exception(
+                            throw new \Exception(
                                 _('One or more macs are associated with a host')
                             );
                         }
@@ -4422,7 +4422,7 @@ abstract class FOGPage extends FOGBase
                         }
                     }
                     if ($ItemMan->exists($rowVals['name'])) {
-                        throw new Exception(
+                        throw new \Exception(
                             _('This host already exists')
                         );
                     }
@@ -4557,7 +4557,7 @@ abstract class FOGPage extends FOGBase
                     } else {
                         $numFailed++;
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $numFailed++;
                     $uploadErrors .= sprintf(
                         '%s #%s: %s<br/>',
@@ -4593,7 +4593,7 @@ abstract class FOGPage extends FOGBase
                     )
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $error = $e->getMessage();
             $code = (
                 $serverFault ?

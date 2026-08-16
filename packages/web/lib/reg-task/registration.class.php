@@ -73,7 +73,7 @@ class Registration extends FOGBase
             );
             $this->PriMAC = array_shift($this->MACs);
             if ($this->regExists($check)) {
-                throw new Exception();
+                throw new \Exception();
             }
             $this->macsimple = strtolower(
                 str_replace(
@@ -97,7 +97,7 @@ class Registration extends FOGBase
             } else {
                 $this->_quickRegAuto();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             die($e->getMessage());
         }
     }
@@ -113,7 +113,7 @@ class Registration extends FOGBase
         try {
             self::getClass('HostManager')->getHostByMacAddresses($this->PriMAC);
             if (self::$Host->isValid()) {
-                throw new Exception(
+                throw new \Exception(
                     _(
                         'This machine already registered as '
                         . self::$Host->get('name')
@@ -122,19 +122,19 @@ class Registration extends FOGBase
             }
             self::getClass('HostManager')->getHostByMacAddresses($this->MACs);
             if (self::$Host->isValid()) {
-                throw new Exception(
+                throw new \Exception(
                     _(
                         'This machine already registered as '
                         . self::$Host->get('name')
                     )
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
             return true;
         }
         if ($check === true) {
-            throw new Exception('#!ok');
+            throw new \Exception('#!ok');
         }
         return false;
     }
@@ -149,12 +149,12 @@ class Registration extends FOGBase
             $stripped = self::stripAndDecode($_POST);
             $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
             if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
-                throw new Exception(_('Invalid product key supplied'));
+                throw new \Exception(_('Invalid product key supplied'));
             }
             $host = filter_var($stripped['host'] ?? '');
             $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
             if (!$hostnameSafe) {
-                throw new Exception(
+                throw new \Exception(
                     _(
                         'Unsafe hostname entered, please try again: '
                         . $host
@@ -163,7 +163,7 @@ class Registration extends FOGBase
             }
             $hostnameExists = self::getClass('HostManager')->exists($host);
             if ($hostnameExists) {
-                throw new Exception(
+                throw new \Exception(
                     _(
                         'Hostname already used, please try again'
                     )
@@ -246,7 +246,7 @@ class Registration extends FOGBase
                     $productKey
                 );
             if (!self::$Host->save()) {
-                throw new Exception(
+                throw new \Exception(
                     _('Failed to create Host!')
                 );
             }
@@ -257,12 +257,12 @@ class Registration extends FOGBase
             );
             try {
                 if (!$doimage) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Done, without imaging!')
                     );
                 }
                 self::_deployHost();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 echo $e->getMessage();
             }
             self::getClass('Inventory')
@@ -271,7 +271,7 @@ class Registration extends FOGBase
                 ->set('other1', $other1)
                 ->set('other2', $other2)
                 ->save();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
     }
@@ -291,7 +291,7 @@ class Registration extends FOGBase
         $password = filter_var($stripped['password'] ?? '');
         $userTest = self::getClass('User')->passwordValidate($username, $password);
         if (!$userTest && !$quickReg) {
-            throw new Exception(
+            throw new \Exception(
                 _('Done, without imaging: Invalid Login.')
             );
         }
@@ -305,17 +305,17 @@ class Registration extends FOGBase
         $username = ($username ?: 'fog');
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 _('Done, without imaging! No image assigned.')
             );
         }
         if (!$Image->get('isEnabled')) {
-            throw new Exception(
+            throw new \Exception(
                 _('Done, without imaging! Image is not enabled.')
             );
         }
         if (!$Image->getStorageGroup()->isValid()) {
-            throw new Exception(
+            throw new \Exception(
                 _('Done, without imaging! Image not in storage group.')
             );
         }
@@ -331,11 +331,11 @@ class Registration extends FOGBase
             $username
         );
         if (!$task) {
-            throw new Exception(
+            throw new \Exception(
                 _('Done, without imaging! Failed to create tasking.')
             );
         }
-        throw new Exception(_('Done, with imaging'));
+        throw new \Exception(_('Done, with imaging'));
     }
     /**
      * Quick registration handler.
@@ -435,12 +435,12 @@ class Registration extends FOGBase
             if ($prodkeyget > 0) {
                 $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
                 if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
-                    throw new Exception(_('Invalid product key supplied'));
+                    throw new \Exception(_('Invalid product key supplied'));
                 }
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
-                throw new Exception(
+                throw new \Exception(
                     _('Failed to create Host!')
                 );
             }
@@ -451,15 +451,15 @@ class Registration extends FOGBase
             );
             try {
                 if (!$performimg) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Done, without imaging!')
                     );
                 }
                 self::_deployHost(true);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 echo $e->getMessage();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
     }
@@ -482,12 +482,12 @@ class Registration extends FOGBase
             if ($prodkeyget > 0) {
                 $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
                 if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
-                    throw new Exception(_('Invalid product key supplied'));
+                    throw new \Exception(_('Invalid product key supplied'));
                 }
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
-                throw new Exception(
+                throw new \Exception(
                     _('Failed to create Host!')
                 );
             }
@@ -496,10 +496,10 @@ class Registration extends FOGBase
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
             );
-            throw new Exception(
+            throw new \Exception(
                 _('Done, without imaging!')
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
     }

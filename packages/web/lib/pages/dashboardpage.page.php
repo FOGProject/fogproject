@@ -614,14 +614,14 @@ class DashboardPage extends FOGPage
                 ':start' => $start->format('Y-m-d H:i:s'),
                 ':end' => $end->format('Y-m-d H:i:s')
             ]
-        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $counts = [];
         foreach ((array)$rows as $row) {
             $counts[$row['d']] = (int)$row['c'];
         }
         // Emit a continuous, zero-filled series so every day has a point.
-        $int = new DateInterval('P1D');
-        $period = new DatePeriod($start, $int, $end);
+        $int = new \DateInterval('P1D');
+        $period = new \DatePeriod($start, $int, $end);
         $data = [];
         foreach ($period as $date) {
             $key = $date->format('Y-m-d');

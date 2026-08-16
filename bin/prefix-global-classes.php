@@ -59,8 +59,8 @@ function collectFiles($root, array $paths)
     if (count($paths) > 0) {
         foreach ($paths as $p) {
             if (is_dir($p)) {
-                $it = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($p, FilesystemIterator::SKIP_DOTS)
+                $it = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($p, \FilesystemIterator::SKIP_DOTS)
                 );
                 foreach ($it as $f) {
                     $candidates[] = $f->getPathname();
@@ -186,8 +186,8 @@ function findRefs(array $tokens)
 
         // The runtime decides, not a list kept here.
         try {
-            $ref = new ReflectionClass($t[1]);
-        } catch (Throwable $e) {
+            $ref = new \ReflectionClass($t[1]);
+        } catch (\Throwable $e) {
             continue;
         }
         if (!$ref->isInternal()) {

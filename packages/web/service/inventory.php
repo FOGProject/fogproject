@@ -33,7 +33,7 @@ try {
     // host.
     FOGCore::getHostItem(false);
     if (!FOGCore::$Host->isValid()) {
-        throw new Exception(_('Invalid Host'));
+        throw new \Exception(_('Invalid Host'));
     }
     $Inventory = FOGCore::$Host->get('inventory');
     if (!$Inventory instanceof Inventory
@@ -127,12 +127,12 @@ try {
             ->set('hdserial', $hdserial);
     }
     if (!$Inventory->save()) {
-        throw new Exception(
+        throw new \Exception(
             _('Failed to create inventory for this host')
         );
     }
     echo _('Done');
-} catch (Exception $e) {
+} catch (\Exception $e) {
     echo Initiator::e($e->getMessage());
 }
 exit;

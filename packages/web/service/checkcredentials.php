@@ -105,24 +105,24 @@ try {
     $username = $readParam('username');
     $username = base64_decode($username, true);
     if (!is_string($username)) {
-        throw new Exception('#!il');
+        throw new \Exception('#!il');
     }
     $username = trim($username);
     $password = $readParam('password');
     $password = base64_decode($password, true);
     if (!is_string($password)) {
-        throw new Exception('#!il');
+        throw new \Exception('#!il');
     }
     $password = trim($password);
     $userTest = FOGCore::getClass('User')
         ->passwordValidate($username, $password);
     if (!$userTest) {
         $recordBadAttempt();
-        throw new Exception('#!il');
+        throw new \Exception('#!il');
     }
     $clearAttempts();
     echo '#!ok';
-} catch (Exception $e) {
+} catch (\Exception $e) {
     if ($e->getMessage() !== '#!il') {
         $recordBadAttempt();
     }

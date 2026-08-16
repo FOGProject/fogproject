@@ -301,9 +301,9 @@ class OpenAPI extends FOGBase
             if (is_array($vars) && isset($vars['databaseFields'])) {
                 $result = $vars;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $result = null;
-        } catch (Error $e) {
+        } catch (\Error $e) {
             // A plugin class naming a parent that is not loaded raises Error,
             // not Exception, and one broken plugin must not take the whole
             // document down with it.

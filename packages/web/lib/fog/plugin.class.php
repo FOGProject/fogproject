@@ -521,8 +521,8 @@ class Plugin extends FOGController
         // PharData reads .tar.gz without shelling out and, crucially, lets the
         // entry list be inspected before anything is extracted.
         try {
-            $phar = new PharData($archive, 0, null, Phar::TAR | Phar::GZ);
-        } catch (Exception $e) {
+            $phar = new \PharData($archive, 0, null, \Phar::TAR | \Phar::GZ);
+        } catch (\Exception $e) {
             return $fail(
                 sprintf(
                     _('%s is not a readable .tar.gz archive.'),
@@ -535,9 +535,9 @@ class Plugin extends FOGController
         $hasManifest = false;
         $fileCount = 0;
         try {
-            $walk = new RecursiveIteratorIterator(
+            $walk = new \RecursiveIteratorIterator(
                 $phar,
-                RecursiveIteratorIterator::SELF_FIRST
+                \RecursiveIteratorIterator::SELF_FIRST
             );
             foreach ($walk as $entry) {
                 $rel = str_replace('\\', '/', $entry->getPathname());
@@ -575,7 +575,7 @@ class Plugin extends FOGController
                     $hasManifest = true;
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $fail(_('The archive could not be read.'));
         }
         if (count($tops) !== 1) {
@@ -614,7 +614,7 @@ class Plugin extends FOGController
         }
         try {
             $phar->extractTo($dir, null, true);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $fail(_('The archive could not be extracted.'));
         }
         $staged = $dir . $top;
@@ -1114,7 +1114,7 @@ class Plugin extends FOGController
         if (file_exists($managerFile)
             && strcasecmp(get_class($manager), $wanted) !== 0
         ) {
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     _('%s could not be loaded. Check that %s declares a class of that exact name.'),
                     $wanted,

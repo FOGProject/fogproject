@@ -123,7 +123,7 @@ class MACAddress extends FOGBase
              * If the mac address is not valid throw Invalid MAC message.
              */
             if (!$this->isValid()) {
-                throw new Exception("#!im\n");
+                throw new \Exception("#!im\n");
             }
             /**
              * Split the normalized mac into an array using 2 characters
@@ -151,7 +151,7 @@ class MACAddress extends FOGBase
                 str_repeat(chr(255), 6),
                 str_repeat($hwAddr, 16)
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::$FOGCore->debug(
                 sprintf(
                     '%s MAC: %s',

@@ -89,7 +89,7 @@ class HookManager extends EventManager
         foreach ((array) $this->data[$event] as &$function) {
             $active = false;
             $className = get_class($function[0]);
-            $refClass = new ReflectionClass($className);
+            $refClass = new \ReflectionClass($className);
             $filename = $refClass->getFileName();
             if (!method_exists($function[0], $function[1])) {
                 continue;

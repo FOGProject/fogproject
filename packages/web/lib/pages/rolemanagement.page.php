@@ -177,7 +177,7 @@ class RoleManagement extends FOGPage
                 $exists = self::getClass('RoleManager')
                     ->exists($role);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A role already exists with this name!')
                     );
                 }
@@ -186,7 +186,7 @@ class RoleManagement extends FOGPage
                     ->set('description', $description);
                 if (!$Role->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add role failed!'));
+                    throw new \Exception(_('Add role failed!'));
                 }
                 return $Role;
             }
@@ -282,7 +282,7 @@ class RoleManagement extends FOGPage
         if ($role != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(
+            throw new \Exception(
                 _('A role with this name already exists!')
             );
         }
@@ -461,7 +461,7 @@ class RoleManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -499,7 +499,7 @@ class RoleManagement extends FOGPage
             ]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -577,7 +577,7 @@ class RoleManagement extends FOGPage
             ['groupRoles' => $groupRoles]
         );
         if (!$adminRemains) {
-            throw new Exception(
+            throw new \Exception(
                 _('This change would leave no user with administrator access.')
             );
         }
@@ -658,7 +658,7 @@ class RoleManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Role update failed!'));
+                    throw new \Exception(_('Role update failed!'));
                 }
                 Authorization::resetCache();
             }
