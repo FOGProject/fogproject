@@ -67,10 +67,13 @@
             });
     }
 
-    function render(specUrl) {
+    function render(specUrl, mount) {
         SwaggerUIBundle({
             url: specUrl,
-            dom_id: '#apidocs-container',
+            // domNode rather than dom_id, because the node this renders into
+            // is one we own and keep (see boot()), not the server-rendered
+            // container, which is thrown away on every page navigation.
+            domNode: mount,
             deepLinking: true,
             presets: [SwaggerUIBundle.presets.apis],
             // BaseLayout deliberately, not StandaloneLayout. The latter adds
@@ -119,10 +122,52 @@
         }
         container.setAttribute('data-apidocs-booted', '1');
 
+        /**
+         * Reuse the console this session already built, rather than building
+         * a second one.
+         *
+         * Every visit to this page used to construct a fresh SwaggerUIBundle,
+         * and the previous one was never taken down: FOG's AJAX navigation
+         * replaces the page with ajaxPageWrapper.empty().html(data), which
+         * tears the DOM out from under React without unmounting it, and the
+         * bundle exposes no unmount API to call even if there were somewhere
+         * to call it from. Measured on the 1.6 lab with forced GC, bouncing
+         * between the dashboard and this page: 10MB, 32, 52, 70, 90 -- a flat
+         * ~20MB per visit that collection never reclaimed.
+         *
+         * The retainer lives inside the bundle and is tied to deepLinking
+         * (with it off, an instance is fully collectable; with it on, ~5MB
+         * survives per instance, and more once the re-executed bundle is held
+         * alive too). Rather than hunt a reference we cannot reach from here,
+         * this stops creating the second instance at all: the rendered node is
+         * kept and moved into each new container. One instance per session, so
+         * nothing accumulates, and coming back to the page is now a DOM move
+         * rather than a full re-render.
+         *
+         * Kept on window deliberately, not in this closure. renderPage() in
+         * fog.common.js re-adds every node script on each navigation, so this
+         * file is re-executed each visit and a closure variable would be a
+         * fresh, empty one every time.
+         */
+        var cached = window.fogApidocsConsole;
+        if (cached && cached.getAttribute('data-spec-url') === specUrl) {
+            container.appendChild(cached);
+            return;
+        }
+
+        // Our own node inside the server-rendered container. The container is
+        // replaced on every navigation; this is what survives.
+        var mount = document.createElement('div');
+        mount.setAttribute('data-spec-url', specUrl);
+        container.appendChild(mount);
+
         var tries = 0;
         (function waitForBundle() {
             if (typeof SwaggerUIBundle !== 'undefined') {
-                render(specUrl);
+                render(specUrl, mount);
+                // Only cache once it has actually rendered, so a failed load
+                // is retried on the next visit instead of being remembered.
+                window.fogApidocsConsole = mount;
                 return;
             }
             tries += 1;
