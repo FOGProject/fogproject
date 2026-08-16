@@ -1149,6 +1149,11 @@ while [[ -z $blGo ]]; do
                     # the same reason _resignRefind and _resignKernels are: a node
                     # does not hold the signing key.
                     _signLocalIpxe
+                    # Separate call, not folded into the one above: that returns
+                    # early when there was nothing left to sign, and the web root
+                    # is rebuilt from scratch every run by configureHttpd -- so
+                    # publishing has to happen even on a run that signed nothing.
+                    _publishLocalBootFiles
                     configureFTP
                     configureSnapins
                     # After configureSnapins, whose recursive chown over $snapindir

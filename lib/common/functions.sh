@@ -5812,18 +5812,6 @@ EOF
                         # would never run. It also has to repeat the fastcgi body (a
                         # location cannot be nested inside another) or nginx, finding no
                         # handler, would serve the PHP source as a static file.
-                        # The signed-pxe-boot-files symlink _publishSecureBootKit()
-                        # points at $tftpdirdst. nginx follows symlinks by default,
-                        # so this exists only to guarantee no directory listing:
-                        # autoindex is off by default too, but it is inheritable,
-                        # and a site that turned it on at http level would
-                        # otherwise expose the whole TFTP tree here.
-                        #
-                        # ^~ so it beats the regex locations below and these stay
-                        # plain static files -- nothing here should reach PHP.
-                        echo "    location ^~ ${webroot}service/secureboot/signed-pxe-boot-files/ {" >> "$etcconf"
-                        echo "        autoindex off;" >> "$etcconf"
-                        echo "    }" >> "$etcconf"
                         echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
                         echo "        allow 127.0.0.1;" >> "$etcconf"
                         echo "        allow ::1;" >> "$etcconf"
@@ -5876,18 +5864,6 @@ EOF
                         echo "    gzip_vary on;" >> "$etcconf"
                         echo "    error_page 500 502 503 504 /50x.html;" >> "$etcconf"
                         # See the first server block -- installer-only, same-machine only.
-                        # The signed-pxe-boot-files symlink _publishSecureBootKit()
-                        # points at $tftpdirdst. nginx follows symlinks by default,
-                        # so this exists only to guarantee no directory listing:
-                        # autoindex is off by default too, but it is inheritable,
-                        # and a site that turned it on at http level would
-                        # otherwise expose the whole TFTP tree here.
-                        #
-                        # ^~ so it beats the regex locations below and these stay
-                        # plain static files -- nothing here should reach PHP.
-                        echo "    location ^~ ${webroot}service/secureboot/signed-pxe-boot-files/ {" >> "$etcconf"
-                        echo "        autoindex off;" >> "$etcconf"
-                        echo "    }" >> "$etcconf"
                         echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
                         echo "        allow 127.0.0.1;" >> "$etcconf"
                         echo "        allow ::1;" >> "$etcconf"
@@ -5985,18 +5961,6 @@ EOF
                         echo "    gzip_vary on;" >> "$etcconf"
                         echo "    error_page 500 502 503 504 /50x.html;" >> "$etcconf"
                         # See the first server block -- installer-only, same-machine only.
-                        # The signed-pxe-boot-files symlink _publishSecureBootKit()
-                        # points at $tftpdirdst. nginx follows symlinks by default,
-                        # so this exists only to guarantee no directory listing:
-                        # autoindex is off by default too, but it is inheritable,
-                        # and a site that turned it on at http level would
-                        # otherwise expose the whole TFTP tree here.
-                        #
-                        # ^~ so it beats the regex locations below and these stay
-                        # plain static files -- nothing here should reach PHP.
-                        echo "    location ^~ ${webroot}service/secureboot/signed-pxe-boot-files/ {" >> "$etcconf"
-                        echo "        autoindex off;" >> "$etcconf"
-                        echo "    }" >> "$etcconf"
                         echo "    location ~ ^${webrootre}maintenance/ {" >> "$etcconf"
                         echo "        allow 127.0.0.1;" >> "$etcconf"
                         echo "        allow ::1;" >> "$etcconf"
@@ -6202,29 +6166,6 @@ EOF
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi
-                        # service/secureboot/signed-pxe-boot-files is the symlink
-                        # _publishSecureBootKit() points at $tftpdirdst, so a
-                        # machine with no PXE firmware can fetch a signed loader
-                        # for its ESP over HTTP. Serve the files, never a listing.
-                        #
-                        # -Indexes has to be said out loud. "+FollowSymLinks"
-                        # MERGES with whatever the base config granted, and on a
-                        # stock distro that is "Options Indexes FollowSymLinks" on
-                        # /var/www/html -- which would make this link a browsable
-                        # index of the whole TFTP tree. Stating it here means the
-                        # behaviour no longer depends on the distro.
-                        #
-                        # Emitted for the published webroot path too, for the same
-                        # GH-529 reason as the block above: apache matches
-                        # <Directory> on the unresolved path.
-                        echo "    <Directory ${webdirdest%/}/service/secureboot/signed-pxe-boot-files>" >> "$etcconf"
-                        echo "        Options -Indexes +FollowSymLinks" >> "$etcconf"
-                        echo "    </Directory>" >> "$etcconf"
-                        if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
-                            echo "    <Directory ${docroot%/}/${webrootbare}/service/secureboot/signed-pxe-boot-files>" >> "$etcconf"
-                            echo "        Options -Indexes +FollowSymLinks" >> "$etcconf"
-                            echo "    </Directory>" >> "$etcconf"
-                        fi
                         echo "    <IfModule mod_deflate.c>" >> "$etcconf"
                         echo "        <IfModule mod_filter.c>" >> "$etcconf"
                         echo "            AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml" >> "$etcconf"
@@ -6260,29 +6201,6 @@ EOF
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
                             echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                            echo "    </Directory>" >> "$etcconf"
-                        fi
-                        # service/secureboot/signed-pxe-boot-files is the symlink
-                        # _publishSecureBootKit() points at $tftpdirdst, so a
-                        # machine with no PXE firmware can fetch a signed loader
-                        # for its ESP over HTTP. Serve the files, never a listing.
-                        #
-                        # -Indexes has to be said out loud. "+FollowSymLinks"
-                        # MERGES with whatever the base config granted, and on a
-                        # stock distro that is "Options Indexes FollowSymLinks" on
-                        # /var/www/html -- which would make this link a browsable
-                        # index of the whole TFTP tree. Stating it here means the
-                        # behaviour no longer depends on the distro.
-                        #
-                        # Emitted for the published webroot path too, for the same
-                        # GH-529 reason as the block above: apache matches
-                        # <Directory> on the unresolved path.
-                        echo "    <Directory ${webdirdest%/}/service/secureboot/signed-pxe-boot-files>" >> "$etcconf"
-                        echo "        Options -Indexes +FollowSymLinks" >> "$etcconf"
-                        echo "    </Directory>" >> "$etcconf"
-                        if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
-                            echo "    <Directory ${docroot%/}/${webrootbare}/service/secureboot/signed-pxe-boot-files>" >> "$etcconf"
-                            echo "        Options -Indexes +FollowSymLinks" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi
                         echo "    <IfModule mod_deflate.c>" >> "$etcconf"
@@ -6353,29 +6271,6 @@ EOF
                             echo "    <Directory ${docroot%/}/${webrootbare}>" >> "$etcconf"
                             echo "        Options +FollowSymLinks" >> "$etcconf"
                             echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                            echo "    </Directory>" >> "$etcconf"
-                        fi
-                        # service/secureboot/signed-pxe-boot-files is the symlink
-                        # _publishSecureBootKit() points at $tftpdirdst, so a
-                        # machine with no PXE firmware can fetch a signed loader
-                        # for its ESP over HTTP. Serve the files, never a listing.
-                        #
-                        # -Indexes has to be said out loud. "+FollowSymLinks"
-                        # MERGES with whatever the base config granted, and on a
-                        # stock distro that is "Options Indexes FollowSymLinks" on
-                        # /var/www/html -- which would make this link a browsable
-                        # index of the whole TFTP tree. Stating it here means the
-                        # behaviour no longer depends on the distro.
-                        #
-                        # Emitted for the published webroot path too, for the same
-                        # GH-529 reason as the block above: apache matches
-                        # <Directory> on the unresolved path.
-                        echo "    <Directory ${webdirdest%/}/service/secureboot/signed-pxe-boot-files>" >> "$etcconf"
-                        echo "        Options -Indexes +FollowSymLinks" >> "$etcconf"
-                        echo "    </Directory>" >> "$etcconf"
-                        if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
-                            echo "    <Directory ${docroot%/}/${webrootbare}/service/secureboot/signed-pxe-boot-files>" >> "$etcconf"
-                            echo "        Options -Indexes +FollowSymLinks" >> "$etcconf"
                             echo "    </Directory>" >> "$etcconf"
                         fi
                         echo "    <IfModule mod_deflate.c>" >> "$etcconf"
@@ -7586,36 +7481,10 @@ _publishSecureBootKit() {
         mkdir -p "${kitdir}/arm64-efi" >>$error_log 2>&1
         cp -f "${mmsrc}/arm64-efi/mmaa64.efi" "${kitdir}/arm64-efi/" >>$error_log 2>&1
     fi
-    # The TFTP tree over HTTP, for a machine that cannot netboot.
-    #
-    # _signLocalIpxe() signs the iPXE binaries in place under $tftpdirdst, but
-    # that tree is not web-served -- and the machines this exists for are exactly
-    # the ones that cannot fetch a boot file over the network. Assembling their
-    # ESP needs the binaries over HTTP, which until now meant every admin hand-
-    # rolling their own symlinks into the document root.
-    #
-    # A link rather than copies of the matrix: it cannot drift from what TFTP
-    # serves, it costs nothing, and every compatibility variant comes with it.
-    #
-    # -n as well as -f: without it, ln -sf onto an existing link-to-a-directory
-    # creates the new link INSIDE the target instead of replacing the link, so a
-    # second run would drop one into $tftpdirdst itself.
-    #
-    # Listing it is suppressed in the web server config rather than here -- see
-    # the signed-pxe-boot-files <Directory> and location blocks in
-    # configureHttpd(). An index.php cannot do that job: it would have to live in
-    # $tftpdirdst, where TFTP would serve it too.
-    #
-    # Nothing FOG puts in that tree is sensitive -- iPXE binaries, default.ipxe,
-    # autoexec.ipxe and upstream's signed Secure Boot set, every one of them
-    # already served unauthenticated over TFTP, and bzImage is already served
-    # MOK-signed over unauthenticated HTTP from service/ipxe. What changes is
-    # reach, not sensitivity: HTTP travels further than UDP/69 usually does. The
-    # exposure covers the whole directory as it will be, not a fixed list, so
-    # docs/SUPPORTED_CUSTOMIZATIONS.md tells admins not to use it as a scratch
-    # area. No symlink is ever created inside $tftpdirdst -- autoexec.ipxe uses
-    # hard links -- so FollowSymLinks has nothing to follow back out.
-    ln -sfn "${tftpdirdst%/}" "${kitdir}/signed-pxe-boot-files" >>$error_log 2>&1
+    # The local-boot/ subdirectory is NOT created here. It holds copies of the
+    # signed iPXE binaries, and the signing happens later in the run -- see
+    # _publishLocalBootFiles(), which runs after _signLocalIpxe(). Creating it
+    # from here would publish unsigned copies.
     # Keep the directory from being browsable, matching service/ipxe.
     echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
     chmod 0644 "${kitdir}"/MOK.der "${kitdir}"/*.desktop "${kitdir}"/index.php >>$error_log 2>&1
@@ -8197,6 +8066,87 @@ _signLocalIpxe() {
         echo " * At least one iPXE binary could not be signed. See $error_log."
         echo "   Netboot is unaffected. A machine booting one of these from its"
         echo "   own ESP with Secure Boot on will fail until this is fixed."
+        return 0
+    fi
+    echo "Done"
+}
+# Publish the EFI binaries an ESP needs, under the web root.
+#
+# The machines _signLocalIpxe() exists for cannot fetch a boot file over the
+# network -- that is the whole problem -- so the binaries have to be reachable
+# over HTTP to get onto their ESP in the first place. The TFTP tree is not
+# web-served, which until now meant every admin hand-rolling their own symlinks
+# into the document root.
+#
+# COPIES, not a symlink to $tftpdirdst, which was the first attempt. Three
+# reasons, and the last two are what settled it:
+#
+#   1. SELinux. setSELinuxContext() labels the TFTP tree tftpdir_t, and httpd_t
+#      has no rule permitting it to read that type -- so a symlink 403s on every
+#      enforcing host. That is the same failure GH-963 fixed in the other
+#      direction, where tftpd_t could not read default_t. Relabelling to
+#      public_content_t would fix it, but widens the tree to ftpd, rsync and
+#      samba as well, to serve a feature that needs none of them. Files created
+#      here inherit the web root's own label and need no policy change at all.
+#   2. No vhost changes. A real directory takes an index.php that 404s, exactly
+#      as this kit directory and service/ipxe already do, so nothing has to be
+#      added to configureHttpd(). A symlink needed Options -Indexes emitted in
+#      all three Apache variants, and rested on apache matching <Directory>
+#      against the unresolved path (GH-529) -- a dependency that fails OPEN,
+#      exposing a listing of the whole TFTP tree, if it is ever wrong.
+#   3. Narrower. A link publishes the tree as it will be; this publishes a fixed
+#      set of *.efi. Nothing an admin later drops into $tftpdirdst becomes
+#      web-reachable, so there is no standing rule against using that directory.
+#
+# The cost is about 26MB duplicated -- 45 FOG binaries and the 10 upstream
+# Secure Boot ones -- on a server that stores images in tens of gigabytes.
+#
+# Everything here is public by nature: FOG's own binaries, and upstream's signed
+# shim and loader, which are downloadable from fog-ipxe's release assets anyway.
+# FOG already serves the MOK-signed bzImage over unauthenticated HTTP from
+# service/ipxe, so this is not a new class of exposure.
+#
+# secureboot/ IS included, unlike in _signLocalIpxe() where it is pruned: the ESP
+# chain starts at upstream's shim, so a client needs those binaries even though
+# FOG must not re-sign them.
+_publishLocalBootFiles() {
+    # Gated exactly as _publishSecureBootKit() is, so this directory exists only
+    # when the kit around it does -- that function removes the whole kit when
+    # there is no MOK to publish, which would take this with it.
+    [[ -z $secureBootMokCert ]] && return 0
+    local tftproot="${tftpdirdst%/}"
+    [[ -d $tftproot ]] || return 0
+    local bootdir="${webdirdest%/}/service/secureboot/local-boot"
+    dots "Publishing local ESP boot files"
+    # Rebuilt rather than updated in place: a variant dropped upstream should
+    # disappear here too, and a stale copy must not outlive the binary it came
+    # from. Deliberately NOT conditional on _signLocalIpxe() having signed
+    # anything this run -- configureHttpd() rm -rf's the web root every run, so
+    # on an unchanged server there is nothing to sign and still nothing here.
+    rm -rf "$bootdir" >>$error_log 2>&1
+    mkdir -p "$bootdir" >>$error_log 2>&1
+    local rel fpath failed=0
+    # Relative paths preserved, so i386-efi/, arm64-efi/, 10secdelay/, autoexec/
+    # and secureboot/ keep their meaning -- a client picking a variant needs the
+    # same layout it would have seen over TFTP.
+    while IFS= read -r fpath; do
+        rel="${fpath#$tftproot/}"
+        mkdir -p "${bootdir}/$(dirname "$rel")" >>$error_log 2>&1
+        cp -f "$fpath" "${bootdir}/${rel}" >>$error_log 2>&1 || failed=1
+    done < <(find "$tftproot" -type f -name '*.efi' -print 2>>$error_log)
+    # The same 404 stub the kit directory uses, which is what keeps this from
+    # being browsable without touching a vhost. DirectoryIndex already names
+    # index.php in every variant configureHttpd() emits.
+    echo '<?php header("HTTP/1.1 404 Not Found");' > "${bootdir}/index.php"
+    find "$bootdir" -type d -exec chmod 755 {} \; >>$error_log 2>&1
+    find "$bootdir" ! -type d -exec chmod 644 {} \; >>$error_log 2>&1
+    # _publishSecureBootKit()'s own chown -R ran before this directory existed.
+    chown -R "${apacheuser}":"${apacheuser}" "$bootdir" >>$error_log 2>&1
+    if [[ $failed -ne 0 ]]; then
+        echo "Failed"
+        echo " * At least one binary could not be copied to $bootdir."
+        echo "   Netboot is unaffected; assembling an ESP from that URL will be"
+        echo "   missing files. See $error_log."
         return 0
     fi
     echo "Done"

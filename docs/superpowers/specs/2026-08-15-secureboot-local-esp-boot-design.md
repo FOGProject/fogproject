@@ -60,8 +60,8 @@ Also out of scope:
 ## Decision
 
 **Sign FOG's own iPXE binaries in place under `$tftpdirdst`, on the same trigger
-`_resignRefind()` already uses, and expose the tree over HTTP through one
-non-browsable symlink beside `MOK.der`.**
+`_resignRefind()` already uses, and publish copies of every `.efi` into a
+non-browsable directory beside `MOK.der`.**
 
 No new install flag. No forced build.
 
@@ -156,63 +156,65 @@ That is after `configureTFTPandPXE` (1121) has populated `$tftpdirdst` and after
 `_resignRefind` documents — sign what actually ends up on disk, not what was
 there before a restore overwrote it.
 
-### 2. HTTP exposure
+### 2. `_publishLocalBootFiles()`
 
-`Add-ipxeEfi`-style client tooling needs these binaries over HTTP; `/tftpboot` is
-not web-served. Today that gap is filled by hand-made symlinks in
-`/var/www/html`, which every admin has to recreate.
+The machines this exists for cannot fetch a boot file over the network — that is
+the whole problem — so the binaries have to be reachable over HTTP to get onto
+an ESP at all. The TFTP tree is not web-served, which today means every admin
+hand-rolling symlinks into the document root.
 
-In `_publishSecureBootKit()` (7431), beside `MOK.der`:
+A new function copies every `*.efi` from `$tftpdirdst` into
+`${webdirdest}/service/secureboot/local-boot/`, preserving relative layout so
+`i386-efi/`, `arm64-efi/`, `10secdelay/`, `autoexec/` and `secureboot/` keep
+their meaning. `secureboot/` **is** included here, unlike in `_signLocalIpxe()`
+where it is pruned: the chain starts at upstream's shim, so a client needs those
+binaries even though FOG must not re-sign them.
 
-```
-ln -sfn "$tftpdirdst" "${kitdir}/signed-pxe-boot-files"
-```
+Measured against the real release assets: **55 files, 27MB** — 45 FOG binaries
+plus upstream's 10.
 
-One link rather than per-file copies: it cannot drift, it costs nothing, and the
-whole variant matrix is reachable through it.
+Called from `installfog.sh` immediately after `_signLocalIpxe`, as a **separate**
+call rather than folded into it. `_signLocalIpxe` returns early when there is
+nothing left to sign, and `configureHttpd` rebuilds the web root from scratch on
+every run — so folding them together would leave the directory missing on any
+run that signed nothing.
 
-Ordering is already correct — `_publishSecureBootKit` runs from `downloadfiles()`
-(6927), and it already assumes `$tftpdirdst` is populated, since it copies
-`mmx64.efi` out of `${tftpdirdst}/secureboot`.
+Browsability is handled by an `index.php` returning 404, the identical stub
+`_publishSecureBootKit()` and `service/ipxe` already use. `DirectoryIndex
+index.php` is already emitted in every vhost variant, so **no web server config
+changes are needed at all**.
 
-`chown -R` on the kit dir is safe: GNU `chown -R` defaults to `-P` and does not
-traverse symlinks, so it changes the link and not `/tftpboot`.
+### 3. Why copies rather than a symlink
 
-### 3. The link must not be browsable
+A symlink to `$tftpdirdst` was the first design. Three things killed it:
 
-`Options +FollowSymLinks` is stated explicitly on `$webdirdest`
-(`functions.sh:6153-6156`) and the comment there records that FOG already relies
-on symlinks in the web tree. Per the GH-529 note directly below it, Apache
-matches `<Directory>` on the **unresolved** path, so a link under
-`service/secureboot/` stays inside that block and is followed.
+1. **SELinux.** `setSELinuxContext()` labels the TFTP tree `tftpdir_t`, and
+   `httpd_t` has no rule permitting it to read that type — so the link 403s on
+   every enforcing host (Alma/Rocky/RHEL/Fedora), while working fine on
+   Debian/Ubuntu/Arch/Alpine, which ship no SELinux. That is the same failure
+   GH-963 fixed in the other direction, where `tftpd_t` could not read
+   `default_t`. Relabelling to `public_content_t` would fix it, but widens the
+   tree to ftpd, rsync and samba to serve a feature needing none of them, and
+   means editing a recent security fix. Files created under `$webdirdest`
+   inherit the web root's own label and need no policy change.
+2. **It deleted the whole vhost diff.** The symlink needed `Options -Indexes`
+   in all three Apache variants plus `autoindex off` in three nginx blocks —
+   about 40 lines across nine sites in the most delicate function in the
+   installer. A real directory needs none of it.
+3. **It removed a dependency that fails open.** The symlink rested on Apache
+   matching `<Directory>` against the *unresolved* path (GH-529). If that were
+   ever wrong the block would not match, the inherited `Indexes` would apply, and
+   a listing of the entire TFTP tree would be exposed. It was also the one risk
+   that could not be verified without a running Apache.
 
-But `+FollowSymLinks` merges with inherited options, and the same comment records
-that distro stock config grants `Options Indexes FollowSymLinks` on
-`/var/www/html`. Left alone, the link would expose a browsable index of
-`/tftpboot`. Suppress it explicitly, so the behaviour is deterministic rather
-than dependent on the distro's base config.
+A fourth benefit fell out: publishing a fixed set of `*.efi` is **narrower** than
+publishing the tree. Nothing an admin later drops into `$tftpdirdst` becomes
+web-reachable, so there is no standing rule against using that directory.
 
-**Apache** — emit alongside the existing `<Directory $webdirdest>` blocks. Note
-there are three vhost-writing sites (6153, 6190, 6260); all three need it:
-
-```apache
-<Directory ${webdirdest}/service/secureboot/signed-pxe-boot-files>
-    Options -Indexes +FollowSymLinks
-</Directory>
-```
-
-**nginx** — FOG generates nginx config too (5778-5910), with
-`location ^~ ${webroot}service/ipxe/` (5895) as the precedent:
-
-```nginx
-location ^~ ${webroot}service/secureboot/signed-pxe-boot-files/ {
-    autoindex off;
-}
-```
-
-`autoindex` is off by default in nginx, so this is belt-and-braces — state it
-anyway so neither server depends on a default that a hardened or customised base
-config might have changed.
+The cost is ~27MB duplicated on a server that stores images in tens of
+gigabytes, and copies that could drift if someone hand-edits the TFTP tree
+between installs — weak, since the installer rebuilds both every run and the copy
+happens immediately after signing.
 
 ## Rejected alternatives
 
@@ -223,7 +225,8 @@ config might have changed.
 | A dedicated `ipxescript-localboot` embed that skips `next-server` | Less flexible, not more — breaks multi-FOG-server deployments, and proxy DHCP already covers the failsafe case. Would also force a fog-ipxe change and `$ipxeVer` coordination. |
 | Sign only a hand-picked local-boot subset | The subset has to be guessed up front, and the variants exist precisely because hardware needs differ. |
 | Gate signing behind a flag | Signing was never the expensive part. A flag means a Secure Boot site that wants local ESP boot has to know it exists. |
-| Publish signed copies into `service/secureboot/` | Duplicates the whole matrix and lets the copies drift from `/tftpboot`. |
+| Symlink `service/secureboot/…` to `$tftpdirdst` | The original design. 403s under SELinux, needed ~40 lines of vhost changes across nine sites, and depended on GH-529 behaviour that fails open. Replaced by copies — see Design §3. |
+| Relabel the TFTP tree `public_content_t` | Would make the symlink work, but widens the tree to ftpd/rsync/samba for a feature needing none of them, and means editing GH-963's recent fix. |
 | Also publish the two-line ESP `autoexec.ipxe` | Deferred, not rejected. The client-side tooling writes it today, and it is two lines. Worth revisiting if a "copy this directory to your ESP" kit is wanted later. |
 
 ## Resolved during implementation
@@ -237,82 +240,72 @@ config might have changed.
 - **Nothing stamps or verifies `/tftpboot` contents**, so no re-stamping is
   needed. `_stampFogSum` is only ever applied to `${webdirdest}/service/ipxe/*`,
   which is why `_resignKernels` had to re-stamp and this does not.
-- **The three Apache blocks were not refactored into a helper.** They were
-  already three byte-identical copies; matching that pattern keeps the diff
-  surgical and reviewable rather than mixing a refactor into a feature. The
-  helper is still worth extracting — six copies is past the point where it pays
-  — but as its own change.
+- **No web server config changes are needed.** This started as vhost edits in
+  nine sites; moving from a symlink to copies removed all of them, so the three
+  byte-identical Apache `<Directory>` blocks stay as they were. Extracting them
+  into a helper is still worth doing, but as its own change.
 - **The `find` prune expression is verified**, against a mock tree of the real
   shape: 45 `.efi` matched (5 names × 3 arches × 3 embed variants), zero from
   `secureboot/`, zero non-PE artifacts (`.kpxe`/`.lkrn`/`.usb`/`.iso`/`.ipxe`),
   and correct with a trailing slash on `$tftpdirdst`.
-- **`ln -sfn` is verified idempotent** — two runs leave one link in the kit dir
-  and nothing nested inside `$tftpdirdst`. Without `-n`, the second run would
-  have created the link *inside* the directory the first one points at.
+- **The publish loop is verified against the real release assets**, not a mock:
+  unpacking `fog-ipxe-v2.0.0-fog.6.tar.gz` and the Secure Boot asset over one
+  tree and running the loop produces **55 `.efi`, 27MB**, with the shim,
+  `mmx64.efi`, FOG's `ipxe.efi` and the arm64 variants all present, the
+  subdirectory layout preserved, and zero non-`.efi` files copied.
+- **The SELinux gap was found by reading, before any test run.** A symlink would
+  have 403'd on every enforcing host, and the default test distro is
+  `ubuntu:24.04` — which ships no SELinux and would have passed. See Design §3.
 
 ## Remaining risks
 
-- **The index suppression depends on Apache matching `<Directory>` on the
-  unresolved path.** That is what the GH-529 comment at `functions.sh:6158-6163`
-  records, and the block is written on that basis — but it is load-bearing here,
-  because if Apache resolved the link instead, the block would not match and the
-  inherited `Indexes` would leak a `/tftpboot` listing. Verification step 3 is
-  the check that matters. Untestable without a running Apache.
 - **`sbsign` across 45 files** is expected to take seconds, and there is a `dots`
   line so it is not silent — but it has not been timed on real hardware. If it
   turns out slow, the progress line is already in place to build on.
-- **Exposing `/tftpboot` over HTTP** — researched below and cleared, with one
-  documentation follow-up rather than a code change.
+- **The published directory adds ~27MB to the web root.** Bounded and known, but
+  it is disk that previous releases did not use.
+- **Exposing the binaries over HTTP** — researched below and cleared.
 
 ## Security review of the HTTP exposure
 
 Researched rather than assumed, because "it is already on TFTP" is only half an
 argument — reachability changes even when content sensitivity does not.
 
-**Nothing sensitive is in the tree.** Full inventory: the release-asset iPXE
-binaries, `default.ipxe` (generated at `functions.sh:1528`, containing only the
-server IP and the `boot.php` URL), the `autoexec.ipxe` hard links, and
-`secureboot/` — upstream's signed shim/loader plus `mmx64.efi`.
-`TFTP_FTP_PASSWORD` lives in `$webdirdest/lib/fog/config.class.php`, not here.
-`${tftpdirdst}.prev` and `${tftpdirdst}.fogbackup` are *siblings* of the
-directory, not children, so the link does not reach them.
+**Everything published is public by nature.** The set is FOG's own iPXE binaries
+and upstream's signed shim and loader. The latter are downloadable from
+fog-ipxe's release assets regardless; the former are already served
+unauthenticated over TFTP.
 
-**No traversal.** Nothing creates a symlink inside `$tftpdirdst` — `autoexec.ipxe`
-uses hard links (`ln -f`, `functions.sh:1780`), deliberately, because
-`in.tftpd -s` chroots and an absolute symlink would not resolve after it. So
-`FollowSymLinks` has nothing to follow back out of the tree. The known Apache
-symlink risk is a *shared hosting* problem — an untrusted tenant linking to
-another tenant's files — and there is no untrusted user who can write to the FOG
-web root or the TFTP tree.
-
-**No write path.** Apache serves read-only, and `in.tftpd -s` without `-c` was
-read-only already.
-
-**FOG already does exactly this, and that is the decisive point.**
+**Not a new class of exposure for FOG, which is the decisive point.**
 `_resignKernels()` signs `bzImage`, which lives at `$webdirdest/service/ipxe/`
 and is fetched by every client over `$_booturl` — `self::$httpproto`,
-`bootmenu.class.php:462` — with no authentication. MOK-signed boot artifacts
-served over unauthenticated HTTP is already normal FOG operation. The
-`secureboot/` binaries are upstream's public releases; the identical files are
-downloadable from fog-ipxe's own release assets. Nothing here becomes public
-that was not already.
+`bootmenu.class.php:462` — with no authentication. MOK-signed boot artifacts over
+unauthenticated HTTP is already how FOG works.
 
-**HTTP is the recommended transport for this, not a downgrade.** iPXE's own docs
-favour HTTP over TFTP, and UEFI HTTP Boot is a firmware standard. No CVE exists
-for exposing PXE artifacts over HTTP; FOG's actual CVEs are elsewhere
-(command injection in `export.php`, auth bypass, world-readable `.fogsettings`).
+**Nothing sensitive can reach the published directory.** Only `*.efi` is copied,
+so `default.ipxe`, `autoexec.ipxe`, the `MANIFEST` and the BIOS artifacts stay
+out. `TFTP_FTP_PASSWORD` lives in `$webdirdest/lib/fog/config.class.php`, never
+in the TFTP tree. Because the set is fixed rather than a view of a directory,
+anything an admin later drops into `$tftpdirdst` is **not** published — which is
+the main advantage the copy model has over the symlink it replaced.
+
+**No traversal, no symlink semantics.** The published directory is a plain
+directory of regular files. Nothing depends on `FollowSymLinks`, and the Apache
+symlink risk — a shared-hosting problem where an untrusted tenant links to
+another tenant's files — never enters into it.
+
+**No write path.** Apache serves read-only; `in.tftpd -s` without `-c` already
+was.
+
+**HTTP is the recommended transport here**, not a downgrade — iPXE's own docs
+favour it over TFTP, and UEFI HTTP Boot is a firmware standard. No CVE exists for
+exposing PXE artifacts over HTTP; FOG's actual CVEs are elsewhere (command
+injection in `export.php`, auth bypass, world-readable `.fogsettings`).
 
 **The one real delta is reach.** TFTP is UDP/69 and LAN-scoped in practice; HTTP
-goes as far as the web server does, which on an internet-facing server is
-further. Content sensitivity is unchanged; reachability is not.
-
-**Residual, handled by documentation.** The link exposes the directory as it
-will be, not a fixed file list, so anything an admin later drops into the TFTP
-tree becomes web-reachable. FOG has form for this failure mode — the login-leak
-issue in ≤1.5.10.41.4 was logs landing on the web root. Addressed with a section
-in `docs/SUPPORTED_CUSTOMIZATIONS.md` stating that the tree is HTTP-reachable and
-must not be used as a scratch area, and noting that an admin who does not want it
-published can delete the symlink after each install.
+goes as far as the web server does. Content sensitivity is unchanged.
+`docs/SUPPORTED_CUSTOMIZATIONS.md` documents the directory, notes it is rebuilt
+every run, and tells an admin who does not want it published to delete it.
 
 ## Verification
 
@@ -322,9 +315,15 @@ published can delete the symlink after each install.
    only upstream's signature.
 2. Re-run the installer; confirm nothing is re-signed (the `sbverify` guard hits)
    and no second signature is stacked.
-3. `curl` a binary through `https://<server>/fog/service/secureboot/signed-pxe-boot-files/ipxe.efi`
-   and confirm it downloads; `curl` the directory itself and confirm it does
-   **not** return an index.
+3. `curl` a binary through
+   `https://<server>/fog/service/secureboot/local-boot/ipxe.efi` and confirm it
+   downloads and is a PE image; `curl` the directory itself and confirm the
+   `index.php` stub 404s rather than returning a listing. Confirm
+   `secureboot/snponly-shimx64.efi` is fetchable from there too, since the ESP
+   chain starts with it.
+3b. Repeat on an SELinux-enforcing distro (Alma/Rocky). Copies should need no
+   policy change, but this is the case the symlink design failed, so it is worth
+   proving rather than assuming.
 4. Assemble an ESP on an already-enrolled machine — shim, snponly as `ipxe.efi`,
    the two-line `autoexec.ipxe`, the signed build as `localipxe.efi` — set the
    boot manager path to the shim, and confirm it reaches the FOG menu with Secure

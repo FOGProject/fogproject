@@ -134,39 +134,35 @@ mid-install.
 
 ---
 
-## The TFTP tree is reachable over HTTP
+## Local ESP boot files
 
-**Not a customization point — a property to know about before you put anything
-there.**
+**Not a customization point — a generated directory, rebuilt on every run.**
 
-Your TFTP directory (`/tftpboot`, or `/var/lib/tftpboot`, `/srv/tftp`,
-`/var/tftpboot` depending on the distro) is published under the web root as a
-symlink:
+Machines whose firmware has no PXE boot option, and machines you would rather
+not have to reorder the boot menu on for every task, can be booted into FOG from
+an iPXE binary on their own EFI System Partition. Under Secure Boot those
+binaries need a signature, so the installer signs FOG's own iPXE builds with your
+Secure Boot key and publishes copies here:
 
 ```
-<webroot>/service/secureboot/signed-pxe-boot-files  ->  /tftpboot
+<webroot>/service/secureboot/local-boot/
 ```
 
-That is how a machine with no PXE boot option in its firmware fetches a signed
-iPXE binary for its own EFI System Partition — those machines cannot get a boot
-file over the network any other way. The link is recreated on every install.
+It holds every `.efi` from the TFTP tree — all the compatibility variants,
+`i386-efi/`, `arm64-efi/`, `10secdelay/`, `autoexec/`, and upstream's signed
+`secureboot/` shim and loader — laid out exactly as TFTP serves them, so you can
+pick the variant a given machine needs. Roughly 26MB. Directory listing is off;
+fetch files by name.
 
-Directory listing is switched off for it (`Options -Indexes` on Apache,
-`autoindex off` on nginx), so the contents are not browsable, but **any file in
-that tree can be downloaded by anyone who can reach your web server**. Nothing
-FOG puts there is sensitive — iPXE binaries, `default.ipxe`, `autoexec.ipxe`,
-and upstream's signed Secure Boot binaries, all of which were already served
-unauthenticated over TFTP. But the exposure applies to the whole directory, now
-and in future.
+**The directory is deleted and rebuilt on every install**, so nothing you put in
+it survives. It is a publication of the TFTP tree, not a place to keep things —
+edit the originals under your TFTP directory instead, and they will be re-signed
+and republished on the next run.
 
-**So do not use the TFTP directory as a scratch or staging area.** Anything you
-drop in there — a backup, a key, a capture, a config you were mid-way through
-editing — becomes web-reachable. HTTP reaches considerably further than TFTP
-does in most networks. Put working files anywhere else.
-
-If you would rather not publish the tree at all, delete the symlink after each
-install; nothing but local-ESP boot depends on it. Bear in mind it comes back
-on the next run.
+Nothing here is secret. These are the same binaries TFTP already serves
+unauthenticated, and FOG already serves the signed FOS kernel over HTTP from
+`service/ipxe/`. If you do not want them published, delete the directory after
+an install; only local-ESP boot depends on it, and it comes back on the next run.
 
 ---
 
