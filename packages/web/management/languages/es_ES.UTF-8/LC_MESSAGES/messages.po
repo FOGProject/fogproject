@@ -3824,6 +3824,14 @@ msgstr "MAC Address inválida!"
 msgid "MAC address is already in use by another host"
 msgstr "La dirección MAC ya está en uso por otro host"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "Borrar equipos seleccionados"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "Borrado con éxito!"
+
 msgid "MB Asset"
 msgstr ""
 
@@ -6396,6 +6404,12 @@ msgid "The below items are only used for the old client."
 msgstr ""
 
 msgid "The clients will checkin with the server from time"
+msgstr ""
+
+msgid "The following MACs have been approved."
+msgstr ""
+
+msgid "The following MACs have been deleted."
 msgstr ""
 
 #, fuzzy

@@ -3350,6 +3350,14 @@ msgstr "MAC格式无效"
 msgid "MAC address is already in use by another host"
 msgstr "MAC地址已被其他主机使用"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "已批准所选主机"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "规则删除成功！"
+
 msgid "MB Asset"
 msgstr "主板资产"
 
@@ -5619,6 +5627,13 @@ msgstr "以下选项仅适用于旧版客户端"
 msgid "The clients will checkin with the server from time"
 msgstr "客户会不时与服务器进行签到"
 
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "所有待定的MAC批准"
+
+msgid "The following MACs have been deleted."
+msgstr ""
+
 msgid "The following errors occured"
 msgstr "出现以下错误"
 
@@ -7107,9 +7122,6 @@ msgstr "你将该节点的带宽字段设置为1000"
 #, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "添加管理单元失败！"
-
-#~ msgid "All Pending MACs approved."
-#~ msgstr "所有待定的MAC批准"
 
 #~ msgid "Could not read temp file"
 #~ msgstr "无法读取临时文件"

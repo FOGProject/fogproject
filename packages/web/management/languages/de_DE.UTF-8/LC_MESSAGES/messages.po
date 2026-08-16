@@ -3822,6 +3822,14 @@ msgstr "MAC-Format ist ungültig"
 msgid "MAC address is already in use by another host"
 msgstr "Die MAC-Adresse wird bereits von einem andern Host verwendet"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "ausgewählte Hosts erfolgreich freigegeben"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "Regel erfolgreich gelöscht"
+
 msgid "MB Asset"
 msgstr "Mainboard-Asset"
 
@@ -6410,6 +6418,13 @@ msgstr "Die unten aufgeführten Elemente werden nur für alte Clients genutzt"
 msgid "The clients will checkin with the server from time"
 msgstr "Die Clients prüfen von Zeit zu Zeit,"
 
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "Alle ausstehenden MACs freigegeben."
+
+msgid "The following MACs have been deleted."
+msgstr ""
+
 msgid "The following errors occured"
 msgstr "Die folgenden Fehler sind aufgetreten"
 
@@ -8111,9 +8126,6 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Gruppe hinzufügen fehlgeschlagen!"
-
-#~ msgid "All Pending MACs approved."
-#~ msgstr "Alle ausstehenden MACs freigegeben."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Temporäre Datei konnte nicht gelesen werden."

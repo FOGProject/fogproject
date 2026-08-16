@@ -205,30 +205,43 @@ class Pending_MAC_List extends ReportManagementPage
             array('id' => $pendmac),
             'mac'
         );
+        /**
+         * Built per branch rather than interpolating the action word into a
+         * _() call. gettext extracts the literal source string, so the msgid
+         * in the catalog was "MACs $msg successfully" while the string looked
+         * up at runtime was "MACs approved successfully" -- a lookup that can
+         * never match, leaving both lines permanently untranslated. Also
+         * unavoidable for translators, who need the whole sentence to inflect
+         * it. Initialized so a POST with neither button set does not warn.
+         */
+        $title = '';
+        $body = '';
         if (isset($_POST['approvependmac'])) {
             self::getClass('MACAddressAssociationManager')->update(
                 array('id' => $pendmac),
                 '',
                 array('pending' => 0)
             );
-            $msg = 'approved';
+            $title = _('MACs approved successfully');
+            $body = _('The following MACs have been approved.');
         }
         if (isset($_POST['delpendmac'])) {
             self::getClass('MACAddressAssociationManager')->destroy(
                 array('id' => $pendmac)
             );
-            $msg = 'deleted';
+            $title = _('MACs deleted successfully');
+            $body = _('The following MACs have been deleted.');
         }
         unset($pendmac);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-success">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
-        echo _("MACs $msg successfully");
+        echo $title;
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body text-center">';
-        echo _("The follow MACs have been {$msg}.");
+        echo $body;
         echo '<br/>';
         echo '<ul class="nav nav-pills nav-stacked">';
         echo '<li><a href="#">';

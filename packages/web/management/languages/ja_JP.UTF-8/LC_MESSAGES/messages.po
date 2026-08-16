@@ -3330,6 +3330,14 @@ msgstr "MAC アドレス形式が無効です"
 msgid "MAC address is already in use by another host"
 msgstr "MAC アドレスは別のホストで既に使用されています"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "選択したホストを承認しました"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "ルールを削除しました！"
+
 msgid "MB Asset"
 msgstr "MB 資産タグ"
 
@@ -5591,6 +5599,13 @@ msgstr "以下の項目は旧クライアントでのみ使用されます。"
 
 msgid "The clients will checkin with the server from time"
 msgstr "クライアントは一定時間ごとにサーバーへチェックインします"
+
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "保留中のすべての MAC アドレスを承認しました"
+
+msgid "The following MACs have been deleted."
+msgstr ""
 
 msgid "The following errors occured"
 msgstr "次のエラーが発生しました"

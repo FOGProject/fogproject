@@ -3368,6 +3368,14 @@ msgstr "Le format de l'adresse MAC est invalide"
 msgid "MAC address is already in use by another host"
 msgstr "L'adresse MAC est déjà utilisée par un autre hôte"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "Les machines sélectionnés ont été approuvés avec succès"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "Règle supprimée avec succès !"
+
 msgid "MB Asset"
 msgstr "Actif de la carte mère"
 
@@ -5648,6 +5656,13 @@ msgstr "Les éléments ci-dessous ne sont utilisés que pour l'ancien client."
 msgid "The clients will checkin with the server from time"
 msgstr "Les clients s'enregistreront auprès du serveur de temps"
 
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "Tous les MACs en attente approuvés."
+
+msgid "The following MACs have been deleted."
+msgstr ""
+
 msgid "The following errors occured"
 msgstr "Les erreurs suivantes se sont produites"
 
@@ -7145,9 +7160,6 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 
 #~ msgid "Add ou failed!"
 #~ msgstr "L'ajout OU a échoué !"
-
-#~ msgid "All Pending MACs approved."
-#~ msgstr "Tous les MACs en attente approuvés."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Impossible de lire le fichier temporaire"

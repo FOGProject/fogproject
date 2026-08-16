@@ -3309,6 +3309,12 @@ msgstr ""
 msgid "MAC address is already in use by another host"
 msgstr ""
 
+msgid "MACs approved successfully"
+msgstr ""
+
+msgid "MACs deleted successfully"
+msgstr ""
+
 msgid "MB Asset"
 msgstr ""
 
@@ -5566,6 +5572,12 @@ msgid "The below items are only used for the old client."
 msgstr ""
 
 msgid "The clients will checkin with the server from time"
+msgstr ""
+
+msgid "The following MACs have been approved."
+msgstr ""
+
+msgid "The following MACs have been deleted."
 msgstr ""
 
 msgid "The following errors occured"

@@ -3823,6 +3823,14 @@ msgstr "MAC Format is invalid"
 msgid "MAC address is already in use by another host"
 msgstr "MAC address is already in use by another host"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "saved successfully"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "Install / Update Successful!"
+
 msgid "MB Asset"
 msgstr "MB Asset"
 
@@ -6408,6 +6416,13 @@ msgstr "This setting defines the username used for the ssh client."
 msgid "The clients will checkin with the server from time"
 msgstr ""
 
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "All Pending MACs approved."
+
+msgid "The following MACs have been deleted."
+msgstr ""
+
 msgid "The following errors occured"
 msgstr "The following errors occured"
 
@@ -8107,9 +8122,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Add snapin failed!"
-
-#~ msgid "All Pending MACs approved."
-#~ msgstr "All Pending MACs approved."
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Could not read temp file"
