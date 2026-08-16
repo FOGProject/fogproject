@@ -244,6 +244,9 @@ msgstr ""
 msgid "A server URL and topic endpoint are required"
 msgstr ""
 
+msgid "A site already exists with this name!"
+msgstr ""
+
 msgid "A snapin already exists with this name!"
 msgstr ""
 
@@ -469,6 +472,9 @@ msgid "Add selected"
 msgstr ""
 
 msgid "Add selected to group"
+msgstr ""
+
+msgid "Add site failed!"
 msgstr ""
 
 msgid "Add slack account failed!"
@@ -1010,6 +1016,9 @@ msgstr ""
 msgid "Case Version"
 msgstr ""
 
+msgid "Catch-All Site"
+msgstr ""
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1323,6 +1332,9 @@ msgid "Create New Role"
 msgstr ""
 
 msgid "Create New Scheduled"
+msgstr ""
+
+msgid "Create New Site"
 msgstr ""
 
 msgid "Create New Snapin"
@@ -2295,10 +2307,16 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
+msgid "Group Association"
+msgstr ""
+
 msgid "Group Associations"
 msgstr ""
 
 msgid "Group BIOS Exit"
+msgstr ""
+
+msgid "Group Count"
 msgstr ""
 
 msgid "Group Create Fail"
@@ -2540,6 +2558,9 @@ msgid "Host Associations"
 msgstr ""
 
 msgid "Host BIOS Exit Type"
+msgstr ""
+
+msgid "Host Count"
 msgstr ""
 
 msgid "Host Create Fail"
@@ -5464,6 +5485,51 @@ msgstr ""
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
+msgid "Site Create Fail"
+msgstr ""
+
+msgid "Site Create Success"
+msgstr ""
+
+msgid "Site Description"
+msgstr ""
+
+msgid "Site Group Associations"
+msgstr ""
+
+msgid "Site Host Associations"
+msgstr ""
+
+msgid "Site Management"
+msgstr ""
+
+msgid "Site Name"
+msgstr ""
+
+msgid "Site Update Fail"
+msgstr ""
+
+msgid "Site Update Success"
+msgstr ""
+
+msgid "Site User Associations"
+msgstr ""
+
+msgid "Site User Group Associations"
+msgstr ""
+
+msgid "Site added!"
+msgstr ""
+
+msgid "Site update failed!"
+msgstr ""
+
+msgid "Site updated!"
+msgstr ""
+
+msgid "Sites"
+msgstr ""
+
 msgid "Size"
 msgstr ""
 
@@ -6398,6 +6464,9 @@ msgstr ""
 msgid "This is the amount of physical disk space"
 msgstr ""
 
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
+msgstr ""
+
 msgid "This is the minimum space for the host this is deploying to."
 msgstr ""
 
@@ -6857,6 +6926,9 @@ msgstr ""
 msgid "User Cleanup"
 msgstr ""
 
+msgid "User Count"
+msgstr ""
+
 msgid "User Create Fail"
 msgstr ""
 
@@ -6873,6 +6945,9 @@ msgid "User Group Association"
 msgstr ""
 
 msgid "User Group Associations"
+msgstr ""
+
+msgid "User Group Count"
 msgstr ""
 
 msgid "User Group Create Fail"

@@ -43,6 +43,12 @@ trait FOGPageRender
      * @param string $createNode optional node owning a create form (e.g. 'group').
      *                          When given, the tab grows a "Create New X" button
      *                          and the modal it opens. See renderAssocCreate().
+     * @param string $noun     optional display noun for that button, for the
+     *                          nodes where ucfirst() reads badly -- 'usergroup'
+     *                          becomes "Usergroup", 'ou' becomes "Ou". Forwarded
+     *                          to renderAssocCreate(), which has always taken
+     *                          one; without this pass-through a tab could only
+     *                          reach it by calling that helper itself.
      *
      * @return void
      */
@@ -53,7 +59,8 @@ trait FOGPageRender
         $delItem,
         $sendClass = 'btn btn-primary float-end',
         $helpBlock = '',
-        $createNode = ''
+        $createNode = '',
+        $noun = ''
     ) {
         $this->headerData = [
             $colHeader,
@@ -89,7 +96,8 @@ trait FOGPageRender
                 $tabSlug,
                 $createNode,
                 $buttons,
-                $this->obj->get('id')
+                $this->obj->get('id'),
+                $noun
             );
         }
 

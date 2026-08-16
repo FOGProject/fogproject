@@ -1631,6 +1631,37 @@ class Route extends FOGBase
                         'removeFromQuery' => true
                     ];
                     break;
+                case 'site':
+                    // The four member counts Site::$sqlQueryStr computes.
+                    // removeFromQuery because they are aggregates of the
+                    // JOINs, not columns of `sites` -- selecting them again
+                    // by name would be an unknown-column error.
+                    //
+                    // The dt names are the plugin's, unchanged: they are
+                    // the DataTables field names fog.site.list.js binds to,
+                    // and a tidier spelling here would leave every column
+                    // rendering empty with nothing to say why.
+                    $columns[] = [
+                        'db' => 'shmMembers',
+                        'dt' => 'hostcount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sumMembers',
+                        'dt' => 'usercount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sgmMembers',
+                        'dt' => 'groupcount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sugmMembers',
+                        'dt' => 'usergroupcount',
+                        'removeFromQuery' => true
+                    ];
+                    break;
                 case 'inventory':
                     $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
                     $columns[] = [

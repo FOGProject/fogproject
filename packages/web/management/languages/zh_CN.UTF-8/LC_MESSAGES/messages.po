@@ -296,6 +296,10 @@ msgid "A server URL and topic endpoint are required"
 msgstr ""
 
 #, fuzzy
+msgid "A site already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 msgid "A snapin already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -566,6 +570,10 @@ msgstr "打印机"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "打印机"
+
+#, fuzzy
+msgid "Add site failed!"
+msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Add slack account failed!"
@@ -1203,6 +1211,9 @@ msgstr "系统序列"
 msgid "Case Version"
 msgstr "最新版本"
 
+msgid "Catch-All Site"
+msgstr ""
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1575,6 +1586,10 @@ msgstr "新建%s"
 
 #, fuzzy
 msgid "Create New Scheduled"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Create New Site"
 msgstr "新建%s"
 
 #, fuzzy
@@ -2700,11 +2715,19 @@ msgid "Group"
 msgstr "组"
 
 #, fuzzy
+msgid "Group Association"
+msgstr "存储节点创建"
+
+#, fuzzy
 msgid "Group Associations"
 msgstr "存储节点创建"
 
 #, fuzzy
 msgid "Group BIOS Exit"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Group Count"
 msgstr "出口Snapins"
 
 #, fuzzy
@@ -3006,6 +3029,10 @@ msgstr "无关联的节点"
 #, fuzzy
 msgid "Host BIOS Exit Type"
 msgstr "主持人EFI退出类型"
+
+#, fuzzy
+msgid "Host Count"
+msgstr "主机列表"
 
 #, fuzzy
 msgid "Host Create Fail"
@@ -6450,6 +6477,66 @@ msgid "Signing is already done on this server. The remaining work is per-client 
 msgstr ""
 
 #, fuzzy
+msgid "Site Create Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Site Create Success"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Site Description"
+msgstr "打印机说明"
+
+#, fuzzy
+msgid "Site Group Associations"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "无关联的节点"
+
+#, fuzzy
+msgid "Site Management"
+msgstr "存储管理"
+
+#, fuzzy
+msgid "Site Name"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Site User Group Associations"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Site added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Sites"
+msgstr "分钟"
+
+#, fuzzy
 msgid "Size"
 msgstr "最大尺寸"
 
@@ -7546,6 +7633,9 @@ msgstr "|这不是主要组"
 msgid "This is the amount of physical disk space"
 msgstr ""
 
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
+msgstr ""
+
 msgid "This is the minimum space for the host this is deploying to."
 msgstr ""
 
@@ -8076,6 +8166,10 @@ msgid "User Cleanup"
 msgstr "用户清理"
 
 #, fuzzy
+msgid "User Count"
+msgstr "CPU计数"
+
+#, fuzzy
 msgid "User Create Fail"
 msgstr "用户创建"
 
@@ -8098,6 +8192,10 @@ msgstr "存储节点创建"
 #, fuzzy
 msgid "User Group Associations"
 msgstr "存储节点创建"
+
+#, fuzzy
+msgid "User Group Count"
+msgstr "出口Snapins"
 
 #, fuzzy
 msgid "User Group Create Fail"
@@ -9240,10 +9338,6 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-#~ msgid "A site already exists with this name!"
-#~ msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
 #~ msgid "A value already exists with this content!"
 #~ msgstr "图像已经存在具有此名称！"
 
@@ -9344,10 +9438,6 @@ msgstr ""
 #~ msgstr "添加管理单元失败！"
 
 #, fuzzy
-#~ msgid "Add site failed!"
-#~ msgstr "添加管理单元失败！"
-
-#, fuzzy
 #~ msgid "Admin Group"
 #~ msgstr "修改组"
 
@@ -9384,10 +9474,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Create New Rule"
-#~ msgstr "新建%s"
-
-#, fuzzy
-#~ msgid "Create New Site"
 #~ msgstr "新建%s"
 
 #, fuzzy
@@ -9461,14 +9547,6 @@ msgstr ""
 #~ msgstr "重启"
 
 #, fuzzy
-#~ msgid "Group Association"
-#~ msgstr "存储节点创建"
-
-#, fuzzy
-#~ msgid "Group Count"
-#~ msgstr "出口Snapins"
-
-#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "主机位置"
 
@@ -9495,10 +9573,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Associated"
 #~ msgstr "无关联的节点"
-
-#, fuzzy
-#~ msgid "Host Count"
-#~ msgstr "主机列表"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -9739,66 +9813,6 @@ msgstr ""
 #~ msgstr "图像协会"
 
 #, fuzzy
-#~ msgid "Site Create Fail"
-#~ msgstr "打印机更新失败！"
-
-#, fuzzy
-#~ msgid "Site Create Success"
-#~ msgstr "打印机已经存在"
-
-#, fuzzy
-#~ msgid "Site Description"
-#~ msgstr "打印机说明"
-
-#, fuzzy
-#~ msgid "Site Group Associations"
-#~ msgstr "存储节点创建"
-
-#, fuzzy
-#~ msgid "Site Host Associations"
-#~ msgstr "无关联的节点"
-
-#, fuzzy
-#~ msgid "Site Management"
-#~ msgstr "存储管理"
-
-#, fuzzy
-#~ msgid "Site Name"
-#~ msgstr "打印机名称"
-
-#, fuzzy
-#~ msgid "Site Update Fail"
-#~ msgstr "打印机更新失败！"
-
-#, fuzzy
-#~ msgid "Site Update Success"
-#~ msgstr "安装/升级成功！"
-
-#, fuzzy
-#~ msgid "Site User Associations"
-#~ msgstr "图像协会"
-
-#, fuzzy
-#~ msgid "Site User Group Associations"
-#~ msgstr "存储节点创建"
-
-#, fuzzy
-#~ msgid "Site added!"
-#~ msgstr "打印机名称"
-
-#, fuzzy
-#~ msgid "Site update failed!"
-#~ msgstr "打印机更新失败！"
-
-#, fuzzy
-#~ msgid "Site updated!"
-#~ msgstr "打印机更新！"
-
-#, fuzzy
-#~ msgid "Sites"
-#~ msgstr "分钟"
-
-#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "更新管理单元"
 
@@ -9859,14 +9873,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "删除选定的打印机"
-
-#, fuzzy
-#~ msgid "User Count"
-#~ msgstr "CPU计数"
-
-#, fuzzy
-#~ msgid "User Group Count"
-#~ msgstr "出口Snapins"
 
 #, fuzzy
 #~ msgid "User Group Site"
