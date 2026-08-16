@@ -1307,4 +1307,15 @@
         hostHistoryImageTable.search(Common.search).draw();
         hostHistorySnapinTable.search(Common.search).draw();
     }
+
+    // ---------------------------------------------------------------
+    // SITE TAB
+    // Single dropdown, so registerSelectTab rather than the grid wiring.
+    // node:'site' adds the create-and-select button when the user holds
+    // site.create; without it the tab is just the select and Update.
+    $.registerSelectTab({
+        slug: 'host-site',
+        send: 'site-send',
+        node: 'site'
+    });
 })(jQuery);

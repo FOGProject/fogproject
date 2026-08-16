@@ -6632,6 +6632,10 @@ msgid "Signing is already done on this server. The remaining work is per-client 
 msgstr ""
 
 #, fuzzy
+msgid "Site"
+msgstr "minutos"
+
+#, fuzzy
 msgid "Site Create Fail"
 msgstr "actualización de la impresora ha fallado!"
 
@@ -7693,6 +7697,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "Error, es una imagen asociada con este anfitrión"
 
+msgid "The selected site no longer exists"
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -7807,6 +7814,10 @@ msgid "This is a single run task that should not run now."
 msgstr ""
 
 msgid "This is a single run task that should run now."
+msgstr ""
+
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
 msgstr ""
 
 msgid "This is especially useful if you have multiple"
@@ -9982,10 +9993,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-#~ msgid "Site"
-#~ msgstr "minutos"
 
 #, fuzzy
 #~ msgid "Site Association"

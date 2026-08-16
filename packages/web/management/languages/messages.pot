@@ -5485,6 +5485,9 @@ msgstr ""
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
+msgid "Site"
+msgstr ""
+
 msgid "Site Create Fail"
 msgstr ""
 
@@ -6348,6 +6351,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+msgid "The selected site no longer exists"
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -6450,6 +6456,10 @@ msgid "This is a single run task that should not run now."
 msgstr ""
 
 msgid "This is a single run task that should run now."
+msgstr ""
+
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
 msgstr ""
 
 msgid "This is especially useful if you have multiple"

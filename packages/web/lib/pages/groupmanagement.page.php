@@ -2550,6 +2550,15 @@ class GroupManagement extends FOGPage
                 ]
             ]
         ];
+        // Site
+        $tabData[] = [
+            'name' => _('Site'),
+            'id' => 'group-site',
+            'generator' => function () {
+                $this->groupSite();
+            }
+        ];
+
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -2568,6 +2577,9 @@ class GroupManagement extends FOGPage
             function (&$serverFault) {
                 global $tab;
                 switch ($tab) {
+                    case 'group-site':
+                        $this->groupSitePost();
+                        break;
                     case 'group-general':
                         $this->groupGeneralPost();
                         break;
@@ -3582,5 +3594,24 @@ class GroupManagement extends FOGPage
     public function getSnapinHist()
     {
         $this->renderSnapinHistoryData($this->obj->get('hosts'));
+    }
+
+    /**
+     * Presents the site tab.
+     *
+     * @return void
+     */
+    public function groupSite()
+    {
+        $this->renderSiteTab('group', $this->obj);
+    }
+    /**
+     * Updates the site.
+     *
+     * @return void
+     */
+    public function groupSitePost()
+    {
+        $this->siteTabPost('group', $this->obj);
     }
 }
