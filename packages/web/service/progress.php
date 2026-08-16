@@ -25,7 +25,7 @@ try {
     $Task = FOGCore::$Host->get('task');
     $TaskType = new TaskType($Task->get('typeID'));
     if (!$Task->isValid()) {
-        throw new Exception(
+        throw new \Exception(
             sprintf(
                 '%s: %s (%s)',
                 _('No Active Task found for Host'),
@@ -36,7 +36,7 @@ try {
     }
     $Image = $Task->getImage();
     if (!$Image->isValid()) {
-        throw new Exception(_('Invalid image'));
+        throw new \Exception(_('Invalid image'));
     }
     $statusRaw = base64_decode(
         (string)
@@ -48,7 +48,7 @@ try {
         true
     );
     if (false === $statusRaw) {
-        throw new Exception(_('Invalid status payload'));
+        throw new \Exception(_('Invalid status payload'));
     }
     $imagingTasks = $TaskType->isImagingTask();
     if ($imagingTasks) {
@@ -91,7 +91,7 @@ try {
             )
         )->save();
     }
-} catch (Exception $e) {
+} catch (\Exception $e) {
     echo Initiator::e($e->getMessage());
 }
 exit;

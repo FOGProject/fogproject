@@ -91,7 +91,7 @@ class ProcessLogin extends FOGPage
                 $rememberme
             );
             if (!self::$FOGUser->isValid()) {
-                throw new Exception(self::$foglang['InvalidLogin']);
+                throw new \Exception(self::$foglang['InvalidLogin']);
             }
             // Setup language stuff
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
@@ -122,7 +122,7 @@ class ProcessLogin extends FOGPage
                 BASEPATH . 'fog_login_accepted.log'
             );
             chmod(BASEPATH . 'fog_login_accepted.log', 0200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(
                 [

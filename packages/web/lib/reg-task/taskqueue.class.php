@@ -56,7 +56,7 @@ class TaskQueue extends TaskingElement
         }
         try {
             self::getHostItem(false);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return;
         }
         if (!self::$Host->isValid()) {
@@ -98,7 +98,7 @@ class TaskQueue extends TaskingElement
         try {
             $elapsed = self::niceDate()->getTimestamp()
                 - self::niceDate($checkin)->getTimestamp();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return;
         }
         // Bound to one day so a stale prior task of the same type can't be
@@ -133,7 +133,7 @@ class TaskQueue extends TaskingElement
                         $msID
                     );
                     if (!$MulticastSession->isValid()) {
-                        throw new Exception(_('Invalid Multicast Session'));
+                        throw new \Exception(_('Invalid Multicast Session'));
                     }
                     if ($MulticastSession->get('clients') < 0) {
                         $clients = 1;
@@ -144,10 +144,10 @@ class TaskQueue extends TaskingElement
                         ->set('clients', $clients)
                         ->set('stateID', self::getProgressState());
                     if (!$MulticastSession->save()) {
-                        throw new Exception(_('Failed to update Session'));
+                        throw new \Exception(_('Failed to update Session'));
                     }
                     if (!self::$Host->isValid()) {
-                        throw new Exception('##@GO');
+                        throw new \Exception('##@GO');
                     }
                     self::$Host->set(
                         'imageID',
@@ -193,7 +193,7 @@ class TaskQueue extends TaskingElement
                             _('On reboot we will try to find a new node'),
                             _('automatically')
                         );
-                        throw new Exception($msg);
+                        throw new \Exception($msg);
                     }
                     $totalSlots = $this->StorageNode->get('maxClients');
                     $usedSlots = $this->StorageNode->getUsedSlotCount();
@@ -216,7 +216,7 @@ class TaskQueue extends TaskingElement
                             _('Got in line at'),
                             $MyLineTime->format('Y-m-d H:i:s')
                         );
-                        throw new Exception($msg);
+                        throw new \Exception($msg);
                     }
                     
                     if ($groupOpenSlots <= $inFront) {
@@ -229,30 +229,30 @@ class TaskQueue extends TaskingElement
                             _('Got in line at'),
                             $MyLineTime->format('Y-m-d H:i:s')
                         );
-                        throw new Exception($msg);
+                        throw new \Exception($msg);
                     }
                 }
                 $this->Task
                     ->set('storagenodeID', $this->StorageNode->get('id'));
                 if (!$this->imageLog(true)) {
-                    throw new Exception(_('Failed to update/create image log'));
+                    throw new \Exception(_('Failed to update/create image log'));
                 }
             }
             $this->Task
                 ->set('stateID', self::getProgressState())
                 ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'));
             if (!$this->Task->save()) {
-                throw new Exception(_('Failed to update Task'));
+                throw new \Exception(_('Failed to update Task'));
             }
             if (!$this->taskLog()) {
-                throw new Exception(_('Failed to update/create task log'));
+                throw new \Exception(_('Failed to update/create task log'));
             }
             self::$EventManager->notify(
                 'HOST_CHECKIN',
                 ['Host' => &self::$Host]
             );
             echo '##@GO';
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo Initiator::e($e->getMessage());
         }
     }
@@ -451,7 +451,7 @@ class TaskQueue extends TaskingElement
         self::$FOGSSH->password = $this->StorageNode->get('pass');
         self::$FOGSSH->host = $this->StorageNode->get('ip');
         if (!self::$FOGSSH->connect()) {
-            throw new Exception(_('Unable to connect to ssh during move upload'));
+            throw new \Exception(_('Unable to connect to ssh during move upload'));
         }
         // Move any existing image aside instead of deleting it up front. If the
         // rename below fails we can put it back, rather than having destroyed
@@ -462,7 +462,7 @@ class TaskQueue extends TaskingElement
             self::$FOGSSH->delete($backup);
             if (!self::$FOGSSH->sftp_rename($dest, $backup)) {
                 self::$FOGSSH->disconnect();
-                throw new Exception(
+                throw new \Exception(
                     sprintf(
                         '%s: %s',
                         _('Unable to move the existing image aside'),
@@ -477,7 +477,7 @@ class TaskQueue extends TaskingElement
                 self::$FOGSSH->sftp_rename($backup, $dest);
             }
             self::$FOGSSH->disconnect();
-            throw new Exception(
+            throw new \Exception(
                 sprintf(
                     '%s: %s -> %s. %s',
                     _('Unable to move the captured image into place'),
@@ -561,7 +561,7 @@ class TaskQueue extends TaskingElement
                 ->set('percent', 100)
                 ->set('stateID', self::getCompleteState());
             if (!self::$Host->isValid()) {
-                throw new Exception('##');
+                throw new \Exception('##');
             }
             $updatedHost = self::getClass('HostManager')->update(
                 ['id' => self::$Host->get('id')],
@@ -569,10 +569,10 @@ class TaskQueue extends TaskingElement
                 $updateFields
             );
             if (!$updatedHost) {
-                throw new Exception(_('Failed to update host'));
+                throw new \Exception(_('Failed to update host'));
             }
             if (!$this->Task->save()) {
-                throw new Exception(_('Failed to update Task'));
+                throw new \Exception(_('Failed to update Task'));
             }
             self::$HookManager->processEvent(
                 'HOST_TASKING_COMPLETE',
@@ -582,11 +582,11 @@ class TaskQueue extends TaskingElement
                 ]
             );
             if (!$this->taskLog()) {
-                throw new Exception(_('Failed to update task log'));
+                throw new \Exception(_('Failed to update task log'));
             }
             if ($this->imagingTask) {
                 if (!$this->imageLog(false)) {
-                    throw new Exception(_('Failed to update imaging log'));
+                    throw new \Exception(_('Failed to update imaging log'));
                 }
             }
             self::$EventManager->notify(
@@ -594,7 +594,7 @@ class TaskQueue extends TaskingElement
                 ['HostName' => self::$Host->get('name')]
             );
             echo '##';
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo $e->getMessage();
         }
     }

@@ -101,7 +101,7 @@ class PingHosts extends FOGService
         try {
             self::$_pingOn = self::getSetting('PINGHOSTGLOBALENABLED');
             if (self::$_pingOn < 1) {
-                throw new Exception(_(' * Ping hosts is globally disabled'));
+                throw new \Exception(_(' * Ping hosts is globally disabled'));
             }
             $webServerIP = self::resolveHostName(
                 self::$_fogWeb
@@ -111,7 +111,7 @@ class PingHosts extends FOGService
             );
             self::getIPAddress();
             if (!in_array($webServerIP, self::$ips)) {
-                throw new Exception(
+                throw new \Exception(
                     _('I am not the fog web server')
                 );
             }
@@ -179,7 +179,7 @@ class PingHosts extends FOGService
                     );
             }
             self::outall(' * All hosts updated');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall($e->getMessage());
         }
     }

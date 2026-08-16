@@ -26,7 +26,7 @@ try {
         Route::getData()
     );
     if (count($groupnames ?: []) < 1) {
-        throw new Exception(
+        throw new \Exception(
             _('There are no groups on this server')
         );
     }
@@ -38,7 +38,7 @@ try {
         );
         unset($group);
     }
-} catch (Exception $e) {
+} catch (\Exception $e) {
     echo $e->getMessage();
 }
 exit;

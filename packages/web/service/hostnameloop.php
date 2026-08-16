@@ -37,10 +37,10 @@ try {
             _('The primary mac associated is'),
             $Host->get('mac')->__toString()
         );
-        throw new Exception($msg);
+        throw new \Exception($msg);
     }
     $msg = '#!ok';
-} catch (Exception $e) {
+} catch (\Exception $e) {
     $msg = $e->getMessage();
 }
 echo $msg;

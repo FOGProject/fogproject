@@ -322,7 +322,7 @@ class MulticastManager extends FOGService
 
                 // If disabled, state and restart loop.
                 if (self::$_mcOn < 1) {
-                    throw new Exception(
+                    throw new \Exception(
                         _(' * Multicast service is globally disabled')
                     );
                 }
@@ -799,7 +799,7 @@ class MulticastManager extends FOGService
                     );
                     $Task->clearSenderRef();
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 self::outall($e->getMessage());
             }
             if ($first) {

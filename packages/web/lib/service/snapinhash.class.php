@@ -90,7 +90,7 @@ class SnapinHash extends FOGService
         try {
             self::$_hashOn = self::getSetting('SNAPINHASHGLOBALENABLED');
             if (self::$_hashOn < 1) {
-                throw new Exception(_(' * Snapin hash is globally disabled'));
+                throw new \Exception(_(' * Snapin hash is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $myStorageGroupID = $StorageNode->storagegroupID;
@@ -231,7 +231,7 @@ class SnapinHash extends FOGService
                     _('Completed')
                 )
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall(
                 sprintf(
                     ' * %s',

@@ -34,8 +34,8 @@ if (!is_dir($root)) {
 }
 
 $files = [];
-$rii = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS)
+$rii = new \RecursiveIteratorIterator(
+    new \RecursiveDirectoryIterator($root, \RecursiveDirectoryIterator::SKIP_DOTS)
 );
 foreach ($rii as $f) {
     if (!$f->isDir() && substr($f->getFilename(), -4) === '.php') {

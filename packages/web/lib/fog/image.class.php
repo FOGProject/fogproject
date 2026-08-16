@@ -202,7 +202,7 @@ class Image extends FOGController
     public function deleteFile()
     {
         if ($this->get('protected')) {
-            throw new Exception(self::$foglang['ProtectedImage']);
+            throw new \Exception(self::$foglang['ProtectedImage']);
         }
         foreach ($this->get('storagegroups') as $storagegroupID) {
             self::getClass('filedeletequeue')
@@ -318,7 +318,7 @@ class Image extends FOGController
             $groupids = Route::getIds('storagegroup', false);
             $groupids = [self::minId($groupids)];
             if (count($groupids) < 1) {
-                throw new Exception(_('No viable storage groups found'));
+                throw new \Exception(_('No viable storage groups found'));
             }
         }
         $primaryGroup = [];

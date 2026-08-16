@@ -877,10 +877,10 @@ class FOGConfigurationPage extends FOGPage
         $_SESSION['dl-' . $type . '-file'] = $file;
         try {
             if (empty($dstName)) {
-                throw new Exception(_('A filename is required!'));
+                throw new \Exception(_('A filename is required!'));
             }
             if (empty($file)) {
-                throw new Exception(
+                throw new \Exception(
                     _('No external data to download the file from')
                 );
             }
@@ -891,7 +891,7 @@ class FOGConfigurationPage extends FOGPage
                     'title' => _('Download Starting')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->_jsonExit(
                 HTTPResponseCodes::HTTP_BAD_REQUEST,
                 [
@@ -1153,7 +1153,7 @@ class FOGConfigurationPage extends FOGPage
                     $set = intval($set) < 1 ? 0 : 1;
                 } elseif (isset($needstobenumeric[$name])) {
                     if (isset($needstobenumeric[$name]) && !is_numeric($set)) {
-                        throw new Exception(
+                        throw new \Exception(
                             $name . ' ' . _('value must be numeric')
                         );
                     }
@@ -1172,7 +1172,7 @@ class FOGConfigurationPage extends FOGPage
                 ];
                 if (!$SettingMan->insertBatch($insert_fields, $items)) {
                     $serverFault = true;
-                    throw new Exception(_('Settings update failed!'));
+                    throw new \Exception(_('Settings update failed!'));
                 }
                 // Writes globalSettings directly rather than through
                 // setSetting(), so nothing invalidated the shared settings
@@ -1186,7 +1186,7 @@ class FOGConfigurationPage extends FOGPage
                     'title' => _('iPXE Config Update Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -1769,7 +1769,7 @@ class FOGConfigurationPage extends FOGPage
                 break;
             case 'FOG_TZ_INFO':
                 $dt = self::niceDate('now');
-                $tzIDs = DateTimeZone::listIdentifiers();
+                $tzIDs = \DateTimeZone::listIdentifiers();
                 ob_start();
                 echo '<select class="form-control" name="'
                     . $row['settingID']
@@ -2135,7 +2135,7 @@ class FOGConfigurationPage extends FOGPage
                         $set = 0;
                     }
                     if (!is_numeric($set)) {
-                        throw new Exception(
+                        throw new \Exception(
                             $name . ' ' . _('value must be numeric')
                         );
                     }
@@ -2146,14 +2146,14 @@ class FOGConfigurationPage extends FOGPage
                                 && $set >= $constraint['min']
                                 && $set <= $constraint['max']);
                         if (!$inRange) {
-                            throw new Exception(
+                            throw new \Exception(
                                 $name . ' ' . _('value is not in the required range')
                             );
                         }
                     }
                 } elseif (isset($needstobeip[$name])) {
                     if (!filter_var($set, FILTER_VALIDATE_IP) and $set != 0 and $set) {
-                        throw new Exception(
+                        throw new \Exception(
                             $name . ' ' . _('value must be a valid IP Address')
                         );
                     }
@@ -2171,7 +2171,7 @@ class FOGConfigurationPage extends FOGPage
                         break;
                     case 'FOG_MEMORY_LIMIT':
                         if ($set < 128) {
-                            throw new Exception(
+                            throw new \Exception(
                                 _('Memory limit cannot be less than 128')
                             );
                         }
@@ -2212,17 +2212,17 @@ class FOGConfigurationPage extends FOGPage
                         ];
                         $extensionCheck = strtolower(pathinfo($set, PATHINFO_EXTENSION));
                         if (!in_array($extensionCheck, $validExtensions)) {
-                            throw new Exception(
+                            throw new \Exception(
                                 _('Upload file extension must be, jpg, jpeg, or png')
                             );
                         }
                         if ($width != 650) {
-                            throw new Exception(
+                            throw new \Exception(
                                 _('Width must be 650 pixels.')
                             );
                         }
                         if ($height != 120) {
-                            throw new Exception(
+                            throw new \Exception(
                                 _('Height must be 120 pixels.')
                             );
                         }
@@ -2241,7 +2241,7 @@ class FOGConfigurationPage extends FOGPage
                         if (!move_uploaded_file($src, $dest)) {
                             self::setSetting('FOG_CLIENT_BANNER_SHA', '');
                             $set = '';
-                            throw new Exception(_('Failed to install logo file'));
+                            throw new \Exception(_('Failed to install logo file'));
                         } else {
                             self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
                         }
@@ -2258,7 +2258,7 @@ class FOGConfigurationPage extends FOGPage
                 ];
                 if (!$SettingMan->insertBatch($insert_fields, $items)) {
                     $serverFault = true;
-                    throw new Exception(_('Settings update failed!'));
+                    throw new \Exception(_('Settings update failed!'));
                 }
                 // This saver writes globalSettings directly (insertBatch /
                 // Setting->save()) rather than through setSetting(), so
@@ -2281,7 +2281,7 @@ class FOGConfigurationPage extends FOGPage
                     'title' => _('Settings Update Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -2314,7 +2314,7 @@ class FOGConfigurationPage extends FOGPage
                     'title' => _('Cache Flushed')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->_jsonExit(
                 HTTPResponseCodes::HTTP_BAD_REQUEST,
                 [
@@ -2345,7 +2345,7 @@ class FOGConfigurationPage extends FOGPage
                     'title' => _('Cache Refreshed')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->_jsonExit(
                 HTTPResponseCodes::HTTP_BAD_REQUEST,
                 [
@@ -2464,7 +2464,7 @@ class FOGConfigurationPage extends FOGPage
             . '`settingValue`, `settingCategory` FROM `' . $table . '` '
             . 'ORDER BY `settingCategory` ASC, `settingKey` ASC';
         $rows = self::$DB->query($sql)
-            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
 
         $byCat = [];
@@ -2842,7 +2842,7 @@ class FOGConfigurationPage extends FOGPage
                 $files[$StorageNode->name] = array_filter(
                     (array)$files[$StorageNode->name]
                 );
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $files[$StorageNode->name] = [
                     $e->getMessage() => null,
                 ];
@@ -3095,7 +3095,7 @@ class FOGConfigurationPage extends FOGPage
                 $data = '';
                 self::getClass('Mysqldump')->start($tmpfile);
                 if (!file_exists($tmpfile) || !is_readable($tmpfile)) {
-                    throw new Exception(_('Could not read file from tmp folder.'));
+                    throw new \Exception(_('Could not read file from tmp folder.'));
                 }
                 $fh = fopen($tmpfile, 'rb');
                 while (!feof($fh)) {
@@ -3120,25 +3120,25 @@ class FOGConfigurationPage extends FOGPage
 
                 // Basic size sanity (e.g., 10 MB cap; adjust as you like)
                 if (!isset($_FILES['dbFile']['size']) || $_FILES['dbFile']['size'] > (10 * 1024 * 1024)) {
-                    throw new Exception(_('Uploaded file too large.'));
+                    throw new \Exception(_('Uploaded file too large.'));
                 }
 
                 // Must be an uploaded file
                 if (!is_uploaded_file($_FILES['dbFile']['tmp_name'])) {
-                    throw new Exception(_('Invalid upload.'));
+                    throw new \Exception(_('Invalid upload.'));
                 }
 
                 // Move to a safe temp file we control
                 $dest = sys_get_temp_dir() . DS . 'fog_import_' . bin2hex(random_bytes(8)) . '.sql';
                 if (!move_uploaded_file($_FILES['dbFile']['tmp_name'], $dest)) {
-                    throw new Exception(_('Failed to move uploaded file.'));
+                    throw new \Exception(_('Failed to move uploaded file.'));
                 }
 
                 // Quick sniff: must look like SQL dump (CREATE/INSERT or mysqldump header)
                 $head = file_get_contents($dest, false, null, 0, 4096);
                 if ($head === false || !preg_match('/(CREATE\s+TABLE|INSERT\s+INTO|mysqldump)/i', $head)) {
                     @unlink($dest);
-                    throw new Exception(_('Not a recognizable SQL dump.'));
+                    throw new \Exception(_('Not a recognizable SQL dump.'));
                 }
 
                 // Now import
@@ -3149,7 +3149,7 @@ class FOGConfigurationPage extends FOGPage
                 }
                 if (true !== $result) {
                     $serverFault = true;
-                    throw new Exception(_('Import failed!'));
+                    throw new \Exception(_('Import failed!'));
                 }
                 $code = HTTPResponseCodes::HTTP_ACCEPTED;
                 $hook = 'CONFIG_IMPORT_SUCCESS';
@@ -3160,7 +3160,7 @@ class FOGConfigurationPage extends FOGPage
                     ]
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :

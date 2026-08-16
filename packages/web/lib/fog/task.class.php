@@ -200,7 +200,7 @@ class Task extends TaskType
              ->set('checkInTime', $curtime->format('Y-m-d H:i:s'))
              ->set('scheduledStartTime', '0000-00-00 00:00:00');
         if (!$this->save()) {
-            throw new Exception(_('Failed to update task'));
+            throw new \Exception(_('Failed to update task'));
         }
         return true;
     }
@@ -363,7 +363,7 @@ class Task extends TaskType
             $store_update = true;
         }
         if ($store_update && !$this->save()) {
-            throw new Exception(_('Failed to update task'));
+            throw new \Exception(_('Failed to update task'));
         }
     }
     /**

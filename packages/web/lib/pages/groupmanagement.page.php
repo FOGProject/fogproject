@@ -217,7 +217,7 @@ class GroupManagement extends FOGPage
                 $exists = self::getClass('GroupManager')
                     ->exists($group);
                 if ($exists) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('A group already exists with this name!')
                     );
                 }
@@ -230,7 +230,7 @@ class GroupManagement extends FOGPage
                     ->set('init', $init);
                 if (!$Group->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Add group failed!'));
+                    throw new \Exception(_('Add group failed!'));
                 }
                 return $Group;
             }
@@ -694,7 +694,7 @@ class GroupManagement extends FOGPage
             $productKey = $key;
         } else {
             if (!self::productKeyIsValid($key)) {
-                throw new Exception(_('Invalid Windows product key'));
+                throw new \Exception(_('Invalid Windows product key'));
             }
             $productKey = self::productKeyFormat($key);
         }
@@ -718,7 +718,7 @@ class GroupManagement extends FOGPage
         );
         if ($group != $this->obj->get('name')) {
             if ($this->obj->getManager()->exists($group)) {
-                throw new Exception(_('Please use another group name'));
+                throw new \Exception(_('Please use another group name'));
             }
         }
         // Set the group relative items.
@@ -1642,7 +1642,7 @@ class GroupManagement extends FOGPage
             $dow = trim((string)filter_input(INPUT_POST, 'scheduleCronDOW'));
             $action = filter_input(INPUT_POST, 'action');
             if (!$action) {
-                throw new Exception(_('You must select an action to perform'));
+                throw new \Exception(_('You must select an action to perform'));
             }
             $items = [];
             if ($onDemand && $action === 'wol') {
@@ -2597,7 +2597,7 @@ class GroupManagement extends FOGPage
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Group update failed!'));
+                    throw new \Exception(_('Group update failed!'));
                 }
             }
         );
@@ -3145,13 +3145,13 @@ class GroupManagement extends FOGPage
             $hosts = $this->obj->get('hosts');
 
             if (!$TaskType->isValid()) {
-                throw new Exception(_('Task type is invalid'));
+                throw new \Exception(_('Task type is invalid'));
             }
             if (count($hosts ?: []) < 1) {
-                throw new Exception(_('There are no hosts to task'));
+                throw new \Exception(_('There are no hosts to task'));
             }
             if ($iscapturetask) {
-                throw new Exception(_('Groups cannot create capture tasks'));
+                throw new \Exception(_('Groups cannot create capture tasks'));
             }
 
             $labelClass = 'col-sm-3 col-form-label';
@@ -3326,7 +3326,7 @@ class GroupManagement extends FOGPage
                 ]
             );
             $code = HTTPResponseCodes::HTTP_SUCCESS;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -3365,7 +3365,7 @@ class GroupManagement extends FOGPage
                 $find
             );
             if (count($hosts ?: []) < 1) {
-                throw new Exception(_('No hosts available to be tasked'));
+                throw new \Exception(_('No hosts available to be tasked'));
             }
             $nhosts = [];
             $hostImages = [];
@@ -3385,7 +3385,7 @@ class GroupManagement extends FOGPage
                 unset($host);
             }
             if (count($nhosts ?: []) < 1) {
-                throw new Exception(_('No hosts are assigned an image'));
+                throw new \Exception(_('No hosts are assigned an image'));
             }
 
             // Multicast task requires all hosts in the group to have the same
@@ -3397,7 +3397,7 @@ class GroupManagement extends FOGPage
                     )
                 );
                 if (count($hostImages ?: []) != 1) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('All hosts must have the same image assigned')
                     );
                 }
@@ -3406,7 +3406,7 @@ class GroupManagement extends FOGPage
             // Task Type setup
             $TaskType = self::getClass('TaskType', $type);
             if (!$TaskType->isValid()) {
-                throw new Exception(_('Task Type is invalid'));
+                throw new \Exception(_('Task Type is invalid'));
             }
 
             // Password reset setup
@@ -3416,7 +3416,7 @@ class GroupManagement extends FOGPage
             if (TaskType::PASSWORD_RESET == $type
                 && !$passreset
             ) {
-                throw new Exception(_('Password reset requires a user account'));
+                throw new \Exception(_('Password reset requires a user account'));
             }
 
             // Snapin setup
@@ -3468,7 +3468,7 @@ class GroupManagement extends FOGPage
             // Task Type Imaging Checks
             if ($TaskType->isImagingTask()) {
                 if ($TaskType->isCapture()) {
-                    throw new Exception(_('Groups cannot create capture tasks'));
+                    throw new \Exception(_('Groups cannot create capture tasks'));
                 }
             }
 
@@ -3518,7 +3518,7 @@ class GroupManagement extends FOGPage
                 }
                 if (!$ScheduledTask->save()) {
                     $serverFault = true;
-                    throw new Exception(_('Failed to create scheduled task'));
+                    throw new \Exception(_('Failed to create scheduled task'));
                 }
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
@@ -3529,7 +3529,7 @@ class GroupManagement extends FOGPage
                     'title' => _('Create Task Success')
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :

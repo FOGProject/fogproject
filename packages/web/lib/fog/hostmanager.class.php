@@ -207,7 +207,7 @@ class HostManager extends FOGManagerController
 
                 // Check if there is a tie for the most frequent host ID
                 if (count($mostFrequentHostIDs) > 1) {
-                    throw new Exception(
+                    throw new \Exception(
                         _('Unable to determine the suspected true host'). '.'
                         . ' ' . _('Most Frequent Host IDs') . ': '
                         . '[' . _('Host ID') . '] => ' . _('Count'). ': '

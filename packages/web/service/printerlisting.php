@@ -26,14 +26,14 @@ try {
         Route::getData()
     );
     if (count($printernames ?: []) < 1) {
-        throw new Exception("#!np\n");
+        throw new \Exception("#!np\n");
     }
     echo "#!ok\n";
     foreach ((array)$printernames as $index => $printer) {
         echo "#printer{$index}={$printer->name}\n";
         unset($printer);
     }
-} catch (Exception $e) {
+} catch (\Exception $e) {
     echo $e->getMessage();
 }
 exit;

@@ -85,7 +85,7 @@ class TaskScheduler extends FOGService
         try {
             self::$_schedOn = self::getSetting('SCHEDULERGLOBALENABLED');
             if (self::$_schedOn < 1) {
-                throw new Exception(_(' * Task Scheduler is globally disabled'));
+                throw new \Exception(_(' * Task Scheduler is globally disabled'));
             }
             $findWhere = [
                 'stateID' => self::getQueuedStates(),
@@ -138,7 +138,7 @@ class TaskScheduler extends FOGService
             $ptaskcount = $PMTasks->recordsFiltered;
             $taskCount = $staskcount + $ptaskcount;
             if ($taskCount <= 0) {
-                throw new Exception(' * No tasks found!');
+                throw new \Exception(' * No tasks found!');
             }
             self::outall(
                 sprintf(
@@ -292,7 +292,7 @@ class TaskScheduler extends FOGService
                     )
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             self::outall($e->getMessage());
         }
     }
