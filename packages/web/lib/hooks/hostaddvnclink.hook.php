@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Add host VNC link
  *
@@ -74,13 +77,21 @@ class HostAddVNCLink extends Hook
             $arguments['data']['data'][$i]['vnclink'] = sprintf(
                 '<a href="vnc://%s:%d" target="_blank" title='
                 . '"%s: %s">%s</a>',
-                Initiator::e($data['name']),
+                \Initiator::e($data['name']),
                 self::$_port,
                 _('Open VNC Connection To'),
-                Initiator::e($data['name']),
+                \Initiator::e($data['name']),
                 _('VNC')
             );
             unset($data);
         }
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\HostAddVNCLink', 'HostAddVNCLink');

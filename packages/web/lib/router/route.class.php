@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org/
  */
+
+namespace FOG;
+
 class Route extends FOGBase
 {
     /**
@@ -555,7 +558,7 @@ class Route extends FOGBase
          * webroot. AltoRouter wants it without the trailing slash, and an
          * install served from the document root itself wants it empty.
          */
-        self::$router = new AltoRouter(
+        self::$router = new \AltoRouter(
             [],
             rtrim(self::$_webrootbase, '/')
         );
@@ -1837,7 +1840,7 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . '(' . $d . ') - ' . Initiator::e($row['hostName'])
+                                . '(' . $d . ') - ' . \Initiator::e($row['hostName'])
                                 . '</a>';
                         }
                     ];
@@ -2203,7 +2206,7 @@ class Route extends FOGBase
                         'db' => 'utUserName',
                         'dt' => 'username',
                         'formatter' => function ($d, $row) {
-                            return Initiator::e($d);
+                            return \Initiator::e($d);
                         }
                     ];
                     $columns[] = [
@@ -2216,7 +2219,7 @@ class Route extends FOGBase
                             );
                         },
                         'formatter' => function ($d, $row) {
-                            return Initiator::e(self::rel('Host', $d)->get('name'));
+                            return \Initiator::e(self::rel('Host', $d)->get('name'));
                         }
                     ];
                     $columns[] = [
@@ -5926,7 +5929,7 @@ class Route extends FOGBase
                     }
                     // Escaped because this is text straight out of the GitHub
                     // feed and DataTables renders cell data as HTML.
-                    $k_i_type = Initiator::e($k_i_type);
+                    $k_i_type = \Initiator::e($k_i_type);
                     if ($k_hint === ' (experimental)') {
                         // The badge replaces the plain text rather than sitting
                         // next to it -- appending one leaves the cell reading
@@ -6027,3 +6030,11 @@ class Route extends FOGBase
         ];
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\Route', 'Route');

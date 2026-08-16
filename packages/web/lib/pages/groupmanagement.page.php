@@ -12,6 +12,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Group management page
  *
@@ -321,7 +324,7 @@ class GroupManagement extends FOGPage
         if ($info['value'] === '') {
             return _('(empty on all)');
         }
-        return Initiator::e($info['value']) . ' ' . _('(all)');
+        return \Initiator::e($info['value']) . ' ' . _('(all)');
     }
     /**
      * Summary box of the members' current Active Directory state, shown above
@@ -401,7 +404,7 @@ class GroupManagement extends FOGPage
         } elseif ($info['value'] === '' || $info['value'] === '0') {
             $text = _('(default on all)');
         } else {
-            $text = Initiator::e($info['value']) . ' ' . _('min (all)');
+            $text = \Initiator::e($info['value']) . ' ' . _('min (all)');
         }
         // Server-rendered from the members' current values, so it goes stale as
         // soon as the card is applied over AJAX (the tab is never re-rendered).
@@ -412,9 +415,9 @@ class GroupManagement extends FOGPage
         // picks. data-alo-min is what keeps the JS from hardcoding the rule.
         return '<p class="form-text help-block-tight" id="alo-shared-hint"'
             . ' data-alo-min="' . self::ALO_MIN_MINUTES . '"'
-            . ' data-hosts-label="' . Initiator::e(_('Hosts:')) . '"'
-            . ' data-default-label="' . Initiator::e(_('(default on all)')) . '"'
-            . ' data-min-label="' . Initiator::e(_('min (all)')) . '">'
+            . ' data-hosts-label="' . \Initiator::e(_('Hosts:')) . '"'
+            . ' data-default-label="' . \Initiator::e(_('(default on all)')) . '"'
+            . ' data-min-label="' . \Initiator::e(_('min (all)')) . '">'
             . _('Hosts:') . ' ' . $text
             . '</p>';
     }
@@ -1405,9 +1408,9 @@ class GroupManagement extends FOGPage
             // the same way makeReloadToggle() hands its labels over. Translation
             // stays here; the JS only picks.
             . '<p class="form-text help-block-tight" id="enforce-shared-hint"'
-            . ' data-hosts-label="' . Initiator::e(_('Hosts:')) . '"'
-            . ' data-enabled-label="' . Initiator::e(_('enabled (all)')) . '"'
-            . ' data-disabled-label="' . Initiator::e(_('disabled (all)')) . '">'
+            . ' data-hosts-label="' . \Initiator::e(_('Hosts:')) . '"'
+            . ' data-enabled-label="' . \Initiator::e(_('enabled (all)')) . '"'
+            . ' data-disabled-label="' . \Initiator::e(_('disabled (all)')) . '">'
             . _('Hosts:') . ' ' . $enfText
             . '</p>';
         $fields = [
@@ -2851,7 +2854,7 @@ class GroupManagement extends FOGPage
         } else {
             $defText = (
                 isset($printers[$def['value']])
-                ? Initiator::e($printers[$def['value']])
+                ? \Initiator::e($printers[$def['value']])
                 : ('#' . $def['value'])
             ) . ' ' . _('(all)');
         }
@@ -3628,3 +3631,11 @@ class GroupManagement extends FOGPage
         $this->siteTabPost('group', $this->obj);
     }
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\GroupManagement', 'GroupManagement');

@@ -135,6 +135,9 @@ msgstr ""
 msgid ", Arguments = %s"
 msgstr "Arguments du noyau"
 
+msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 heure"
@@ -1653,6 +1656,9 @@ msgstr "utilisateur créé"
 msgid "Create a %s"
 msgstr "Créer un nouveau %s"
 
+msgid "Create a snapin and upload its file"
+msgstr ""
+
 #, fuzzy
 msgid "Create new Session Task"
 msgstr "Créer un nouveau %s"
@@ -1685,6 +1691,9 @@ msgstr "Créé par"
 
 msgid "Created by FOG Reg on"
 msgstr "Créé par FOG Reg sur"
+
+msgid "Created. The body is the new snapin, the same shape as GET /snapin/{id}."
+msgstr ""
 
 msgid "Credentials"
 msgstr ""
@@ -2157,6 +2166,10 @@ msgstr "Événement doit être une chaîne"
 
 msgid "Every configured multicast port is already in use"
 msgstr ""
+
+#, fuzzy
+msgid "Every file was uploaded."
+msgstr "Aucun fichier a été téléchargé"
 
 msgid "Exists item must be boolean"
 msgstr ""
@@ -3297,6 +3310,9 @@ msgstr "Icône Fichier introuvable"
 
 #, php-format
 msgid "Id and name pairs for %s"
+msgstr ""
+
+msgid "Id of the storage group whose master receives the file."
 msgstr ""
 
 #, php-format
@@ -4743,6 +4759,10 @@ msgstr ""
 msgid "Name"
 msgstr "prénom"
 
+#, fuzzy
+msgid "Name. Must be unique."
+msgstr "Vous devez entrer un nom"
+
 msgid "Need the table name to drop"
 msgstr ""
 
@@ -5213,6 +5233,9 @@ msgstr ""
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+msgid "One or more files. The field name carries the [] suffix on the wire: snapinfiles[]."
+msgstr ""
+
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Erreur, est une image associée à cet hôte"
@@ -5287,6 +5310,9 @@ msgid "PLUGIN OPTIONS"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
+msgstr ""
+
+msgid "Page size cap applied to an expand request even when a larger length was asked for, so a page can be smaller than requested. Advance by the rows returned, not the length requested."
 msgstr ""
 
 msgid "Page size. Send it, together with start, on every list call: a request with no start is capped at MAX_ROWS and returns a partial result with truncated set."
@@ -5681,6 +5707,16 @@ msgstr ""
 
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
+
+msgid "Present means enabled."
+msgstr ""
+
+msgid "Present means hidden from the UI list."
+msgstr ""
+
+#, fuzzy
+msgid "Present means include in replication."
+msgstr "snapin Replicator"
 
 #, fuzzy
 msgid "Primary"
@@ -6090,6 +6126,9 @@ msgstr ""
 msgid "Row"
 msgstr "Rangée"
 
+msgid "Row cap applied to a list request that omits start, asks for length=-1, or sends a negative length. An explicit non-negative start with a positive length is served verbatim."
+msgstr ""
+
 msgid "Row offset. Only honoured when length is also sent -- the server reads start from inside the length branch."
 msgstr ""
 
@@ -6098,6 +6137,13 @@ msgid "Rows in this page."
 msgstr "Impossible de trouver des noeuds contenant cette image"
 
 msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgstr ""
+
+#, fuzzy
+msgid "Run With arguments."
+msgstr "Snapin Run With Argument"
+
+msgid "Run With interpreter."
 msgstr ""
 
 #, fuzzy
@@ -6252,6 +6298,9 @@ msgstr "État du service"
 msgid "Second paramater must be in [class,function]"
 msgstr ""
 
+msgid "Seconds before the client gives up. 0 is no timeout."
+msgstr ""
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -6319,11 +6368,14 @@ msgstr "serveur Shell"
 msgid "Server is only configured to run %d multicast tasks"
 msgstr "Configuration du service"
 
+msgid "Server paging bounds. Also published as x-fog-paging at the root of this document."
+msgstr ""
+
 msgid "Server status, export and metadata."
 msgstr ""
 
 #, fuzzy
-msgid "Server version"
+msgid "Server version and paging bounds"
 msgstr "Kernel versions"
 
 msgid "Service"
@@ -7472,6 +7524,9 @@ msgstr "Impossible de créer la tâche"
 msgid "The current user is invalid."
 msgstr "Type de tâche n'est pas valide"
 
+msgid "The file itself."
+msgstr ""
+
 #, fuzzy
 msgid "The image associated does not have a valid OS!"
 msgstr "Le nœud de stockage des groupes de stockage associé est pas valide"
@@ -7519,6 +7574,9 @@ msgid "The plugin will run but its JS and CSS will 404."
 msgstr ""
 
 msgid "The primary mac associated is"
+msgstr ""
+
+msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
 #, fuzzy
@@ -7829,6 +7887,13 @@ msgstr ""
 msgid "Transmit"
 msgstr "Transmettre"
 
+#, fuzzy
+msgid "Transport failed, or the group has no reachable master node."
+msgstr "Groupe de stockage Mise à jour"
+
+msgid "Transport to the master storage node failed, or the row would not save after the file had landed."
+msgstr ""
+
 msgid "True only when the server capped an unbounded request at MAX_ROWS. Never set when the caller sent start/length."
 msgstr ""
 
@@ -7952,7 +8017,7 @@ msgstr ""
 msgid "Unauthenticated."
 msgstr "Erreur serveur contactant"
 
-msgid "Unauthenticated. Also reachable as /system/status."
+msgid "Unauthenticated. Also reachable as /system/status. The cheap way to read the paging bounds -- the same values appear as x-fog-paging on this document, which is several hundred kilobytes larger."
 msgstr ""
 
 msgid "Unauthorized"
@@ -8099,6 +8164,10 @@ msgstr ""
 
 msgid "Upload plugin"
 msgstr ""
+
+#, fuzzy
+msgid "Upload snapin files to a storage group"
+msgstr "Storage Group Snapin"
 
 msgid "Uploaded file too large."
 msgstr ""
@@ -8365,7 +8434,7 @@ msgid "Version"
 msgstr "Version"
 
 #, fuzzy
-msgid "Version information."
+msgid "Version information and paging bounds."
 msgstr "FOG Informations de version"
 
 #, fuzzy
@@ -9012,6 +9081,12 @@ msgstr ""
 msgid "month"
 msgstr "Mensuel"
 
+msgid "multipart/form-data, not JSON. The file goes to the master storage node of the group given, and FOGSnapinReplicator propagates it to the rest of the group on its normal cycle. A file already present under the same basename is overwritten, matching the UI. Names matching /ssl/i are refused -- that path is reserved."
+msgstr ""
+
+msgid "multipart/form-data, not JSON. Transport only -- no snapin row is created or touched, so this is how a caller pre-stages files to attach later. The field name must be snapinfiles[] even for a single file. Every file is validated before any transfer begins, but a failure part way through a batch leaves the earlier files in place."
+msgstr ""
+
 msgid "multiple places to get your image"
 msgstr ""
 
@@ -9114,6 +9189,9 @@ msgid "re-run the installer and check the installation log for a key generation 
 msgstr ""
 
 msgid "read-only"
+msgstr ""
+
+msgid "reboot, shutdown, or empty."
 msgstr ""
 
 msgid "recommended"

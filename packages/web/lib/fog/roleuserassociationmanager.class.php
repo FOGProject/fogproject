@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+namespace FOG;
+
 /**
  * Role user association manager class.
  *
@@ -28,3 +31,11 @@ class RoleUserAssociationManager extends FOGManagerController
      */
     public $tablename = 'roleUserAssoc';
 }
+
+/*
+ * Compatibility alias. Every consumer of this class' name -- core,
+ * bundled plugins and third-party plugins alike -- keeps working
+ * unqualified through this, so no call site had to be edited.
+ * Supported for all of 1.6; see docs/adr/0013.
+ */
+class_alias(__NAMESPACE__ . '\\RoleUserAssociationManager', 'RoleUserAssociationManager');
