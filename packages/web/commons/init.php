@@ -13,6 +13,36 @@ declare(strict_types=1);
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+/*
+ * Composer's PSR-4 loader for FOG\ => packages/web/src.
+ *
+ * Here, at file scope, because this is the one file every entry point
+ * reaches: the web UI, the API, the 41 fog-client endpoints under service/,
+ * status/, maintenance/, and all nine CLI daemons via
+ * packages/service/lib/service_lib.php all arrive through
+ * commons/base.inc.php -> require 'init.php'. There is no second bootstrap
+ * to keep in step.
+ *
+ * Loading here also fixes the chain order for free. spl_autoload_register is
+ * a queue, and this runs at include time while Initiator::autoload() is
+ * registered later inside the constructor -- so a real namespaced class in
+ * src/ is found by Composer first, and only a miss falls through to the
+ * short-name bridge below. That is the right precedence: the bridge is a
+ * compatibility shim, not the destination.
+ *
+ * Guarded because the file legitimately may not be there: a checkout that
+ * has not run `composer install`, and -- the case that actually matters --
+ * every server installed before this commit, whose web tree has no vendor/
+ * until the next upgrade re-lays it. FOG must boot without it.
+ */
+$fogComposerAutoload = __DIR__ . DIRECTORY_SEPARATOR . '..'
+    . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+if (is_readable($fogComposerAutoload)) {
+    require_once $fogComposerAutoload;
+}
+unset($fogComposerAutoload);
+
 class Initiator
 {
     private static $sanitizeItems;
