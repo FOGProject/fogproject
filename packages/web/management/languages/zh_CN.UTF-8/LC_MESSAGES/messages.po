@@ -185,6 +185,9 @@ msgstr ""
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
+msgid "A FOG username and password."
+msgstr ""
+
 #, fuzzy
 msgid "A LDAP setup already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -257,6 +260,10 @@ msgstr "图像已经存在具有此名称！"
 
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
+
+#, fuzzy
+msgid "A page of results."
+msgstr "列表中的所有%s"
 
 #, fuzzy
 msgid "A permission name is required."
@@ -356,6 +363,10 @@ msgstr ""
 msgid "API"
 msgstr ""
 
+#, fuzzy
+msgid "API Documentation"
+msgstr "位置"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
@@ -370,6 +381,9 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Accepts the same optional trailing filter segment as a list. Reports the true filtered total and ignores paging."
 msgstr ""
 
 msgid "Access"
@@ -435,6 +449,10 @@ msgid "Activated"
 msgstr "活性"
 
 msgid "Active"
+msgstr "活性"
+
+#, fuzzy, php-format
+msgid "Active %s"
 msgstr "活性"
 
 msgid "Active Directory"
@@ -707,6 +725,21 @@ msgstr "已注册为"
 msgid "Also confirm that the database is indeed running"
 msgstr "检查数据库运行"
 
+msgid "Also reachable as /active."
+msgstr ""
+
+msgid "Also reachable as /create and /new."
+msgstr ""
+
+msgid "Also reachable as /delete and /remove."
+msgstr ""
+
+msgid "Also reachable as /list and /all. A trailing filter segment accepts field:value pairs."
+msgstr ""
+
+msgid "Also reachable as /update and /edit. Send only the fields being changed."
+msgstr ""
+
 #, fuzzy
 msgid "An LDAP server already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -714,6 +747,9 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "An OU already exists with this name!"
 msgstr "图像已经存在具有此名称！"
+
+msgid "An OpenAPI document."
+msgstr ""
 
 #, fuzzy
 msgid "An SQL error occurred"
@@ -733,9 +769,15 @@ msgstr "使用此名称的主机名已经存在。"
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
+msgid "An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
+msgstr ""
+
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "图像已经存在具有此名称！"
+
+msgid "An unpaged array."
+msgstr ""
 
 msgid "Annually"
 msgstr "每年"
@@ -838,6 +880,12 @@ msgstr "尝试ping"
 msgid "Attempting to ping host"
 msgstr "尝试ping"
 
+msgid "Authenticated but not permitted."
+msgstr ""
+
+msgid "Authentication missing or invalid."
+msgstr ""
+
 msgid "Auto"
 msgstr "汽车"
 
@@ -869,6 +917,10 @@ msgstr "BIOS供应商"
 msgid "BIOS Version"
 msgstr "BIOS版本"
 
+#, fuzzy
+msgid "Bad request."
+msgstr "%s是必需的"
+
 msgid "Bandwidth"
 msgstr "带宽"
 
@@ -893,6 +945,9 @@ msgstr ""
 #, fuzzy
 msgid "Bind Password"
 msgstr "域密码"
+
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgstr ""
 
 #, fuzzy
 msgid "Boot Options"
@@ -1025,6 +1080,10 @@ msgid "Cache Refreshed"
 msgstr "默认刷新频率"
 
 #, fuzzy
+msgid "Cache state."
+msgstr "默认刷新频率"
+
+#, fuzzy
 msgid "Cached keys"
 msgstr "默认刷新频率"
 
@@ -1047,6 +1106,10 @@ msgstr "删除所选"
 
 #, fuzzy
 msgid "Cancel Selected Tasks"
+msgstr "删除所选"
+
+#, fuzzy, php-format
+msgid "Cancel a %s task"
 msgstr "删除所选"
 
 #, fuzzy
@@ -1271,6 +1334,9 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "管理单元命令"
@@ -1433,6 +1499,10 @@ msgstr ""
 msgid "Count"
 msgstr "CPU计数"
 
+#, fuzzy, php-format
+msgid "Count %s"
+msgstr "CPU计数"
+
 msgid "Create"
 msgstr "创建"
 
@@ -1563,6 +1633,10 @@ msgstr "用户创建"
 msgid "Create Task Success"
 msgstr "用户创建"
 
+#, fuzzy, php-format
+msgid "Create a %s"
+msgstr "新建%s"
+
 #, fuzzy
 msgid "Create new Session Task"
 msgstr "新建%s"
@@ -1570,6 +1644,10 @@ msgstr "新建%s"
 #, fuzzy
 msgid "Create new tasking"
 msgstr "新建%s"
+
+#, php-format
+msgid "Create or update a %s by natural key"
+msgstr ""
 
 #, fuzzy
 msgid "Create task form fail"
@@ -1744,6 +1822,10 @@ msgstr "删除组内的所有主机"
 #, fuzzy
 msgid "Delete Success"
 msgstr "用户创建"
+
+#, fuzzy, php-format
+msgid "Delete a %s"
+msgstr "删除的文件数据"
 
 #, fuzzy
 msgid "Delete associated hosts"
@@ -2128,6 +2210,10 @@ msgstr "主机出口"
 msgid "Export Windows Keys"
 msgstr "Windows 8的"
 
+#, fuzzy
+msgid "Export the database"
+msgstr "日期"
+
 msgid "FOG"
 msgstr "雾"
 
@@ -2347,6 +2433,9 @@ msgstr "场和值不具有相等的参数。"
 msgid "Fields not defined for this class"
 msgstr "该类定义没有数据库字段"
 
+msgid "Fields withheld from list responses are returned here."
+msgstr ""
+
 msgid "File"
 msgstr "文件"
 
@@ -2451,6 +2540,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Flush Settings Cache"
+msgstr "FOG设置"
+
+#, fuzzy
+msgid "Flush the settings cache"
 msgstr "FOG设置"
 
 msgid "For a live-USB enrolment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
@@ -2559,7 +2652,15 @@ msgstr "一般"
 msgid "General Information"
 msgstr "一般信息"
 
+#, php-format
+msgid "Generated from this server's own routing and model metadata, so it describes the classes and routes this install exposes. The raw document is at %s."
+msgstr ""
+
 msgid "Generic LDAP"
+msgstr ""
+
+#, php-format
+msgid "Get one %s by id"
 msgstr ""
 
 msgid "Getting image size for"
@@ -2809,6 +2910,10 @@ msgstr "用户更新失败"
 #, fuzzy
 msgid "Group updated!"
 msgstr "集团补充"
+
+#, fuzzy
+msgid "Grouped matches."
+msgstr "主机位置"
 
 msgid "Groups"
 msgstr "组"
@@ -3210,6 +3315,14 @@ msgstr "图标"
 msgid "Icon File not found"
 msgstr "图标文件未找到"
 
+#, php-format
+msgid "Id and name pairs for %s"
+msgstr ""
+
+#, php-format
+msgid "Ids for %s"
+msgstr ""
+
 msgid "If credentials are correct"
 msgstr ""
 
@@ -3598,6 +3711,14 @@ msgid "Init FS"
 msgstr "主机列表"
 
 #, fuzzy
+msgid "Init images present on disk"
+msgstr "图片没有节点发现"
+
+#, fuzzy
+msgid "Init images."
+msgstr "图片无效"
+
+#, fuzzy
 msgid "InitRD Versions"
 msgstr "CPU版本"
 
@@ -3653,6 +3774,10 @@ msgstr "接口"
 
 msgid "Interface not ready, waiting for it to come up"
 msgstr ""
+
+#, fuzzy
+msgid "Interface throughput"
+msgstr "接口"
 
 #, fuzzy
 msgid "Invalid"
@@ -3920,6 +4045,14 @@ msgstr "内核版本"
 msgid "Kernel Versions"
 msgstr "内核版本"
 
+#, fuzzy
+msgid "Kernels present on disk"
+msgstr "内核版本"
+
+#, fuzzy
+msgid "Kernels."
+msgstr "核心"
+
 msgid "Kernels/Inits from location"
 msgstr "从位置仁/ Inits"
 
@@ -4166,6 +4299,10 @@ msgstr "链接松弛账户"
 msgid "List"
 msgstr "线"
 
+#, fuzzy, php-format
+msgid "List %s"
+msgstr "列表中的所有%s"
+
 #, php-format
 msgid "List All %s"
 msgstr "列表中的所有%s"
@@ -4261,6 +4398,9 @@ msgstr "位置"
 
 msgid "Log Viewer"
 msgstr "日志查看器"
+
+msgid "Log contents."
+msgstr ""
 
 msgid "Log out and sign in as an administrator"
 msgstr ""
@@ -4667,7 +4807,14 @@ msgstr "网络打印机"
 msgid "Network Printer"
 msgstr "网络打印机"
 
+#, fuzzy
+msgid "Network interface name."
+msgstr "网络打印机"
+
 msgid "Never - do not verify (insecure)"
+msgstr ""
+
+msgid "Never returned by the API."
 msgstr ""
 
 msgid "New"
@@ -4892,9 +5039,15 @@ msgstr "图像已经存在具有此名称！"
 msgid "No storagegroups assigned to this snapin"
 msgstr "分配图像存储组无效"
 
+msgid "No such object."
+msgstr ""
+
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "没有找到主机定义图片"
+
+msgid "No type information available for this column."
+msgstr ""
 
 #, fuzzy
 msgid "No valid storage nodes found"
@@ -4983,6 +5136,9 @@ msgstr ""
 msgid "Nothing to do on Storage Node Named"
 msgstr "存储节点名称"
 
+msgid "Null when this is the last page."
+msgstr ""
+
 msgid "O/S"
 msgstr "O / S"
 
@@ -5056,6 +5212,9 @@ msgstr ""
 msgid "Old key must be a string"
 msgstr "事件必须是字符串"
 
+msgid "Omitted from list responses; returned only on a single GET by id."
+msgstr ""
+
 msgid "On"
 msgstr ""
 
@@ -5109,6 +5268,14 @@ msgstr ""
 msgid "Operation field not set"
 msgstr "操作字段没有设置： %s"
 
+#, php-format
+msgid "Operations on %1$s, stored in the %2$s table."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "Operations on %s."
+msgstr "操作字段没有设置： %s"
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward."
 msgstr ""
 
@@ -5141,6 +5308,9 @@ msgid "PLUGIN OPTIONS"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
+msgstr ""
+
+msgid "Page size. Send it, together with start, on every list call: a request with no start is capped at MAX_ROWS and returns a partial result with truncated set."
 msgstr ""
 
 #, fuzzy
@@ -5219,7 +5389,15 @@ msgstr "待主机"
 msgid "Pending MAC Addresses"
 msgstr "MAC地址列表"
 
+#, fuzzy
+msgid "Pending MAC addresses"
+msgstr "MAC地址列表"
+
 msgid "Pending MACs"
+msgstr "待定的MAC"
+
+#, fuzzy
+msgid "Pending MACs."
 msgstr "待定的MAC"
 
 #, fuzzy
@@ -5663,6 +5841,10 @@ msgstr "用户创建"
 msgid "Queue Deletion Cancel Success"
 msgstr "用户创建"
 
+#, php-format
+msgid "Queue a task against a %s"
+msgstr ""
+
 msgid "Queued"
 msgstr "排队"
 
@@ -5672,6 +5854,9 @@ msgstr ""
 msgid "RESOURCES"
 msgstr ""
 
+msgid "REST API reference"
+msgstr ""
+
 msgid "RX"
 msgstr "RX"
 
@@ -5679,6 +5864,9 @@ msgid "Re-Transmit Hello Interval"
 msgstr ""
 
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
+msgstr ""
+
+msgid "Read a server log"
 msgstr ""
 
 #, fuzzy
@@ -5705,6 +5893,10 @@ msgstr "未发现记录，错误： %s"
 
 #, fuzzy
 msgid "Refresh Settings Cache"
+msgstr "服务状态"
+
+#, fuzzy
+msgid "Refresh the settings cache"
 msgstr "服务状态"
 
 msgid "Register must be managed from hooks or events"
@@ -5814,6 +6006,10 @@ msgstr "访问令牌"
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
+#, php-format
+msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
 #, fuzzy
 msgid "Result"
 msgstr "结果"
@@ -5830,6 +6026,9 @@ msgstr "返回代码"
 
 msgid "Returning value of key"
 msgstr "返回键的值"
+
+msgid "Returns the same envelope as a list."
+msgstr ""
 
 msgid "Reverse"
 msgstr ""
@@ -5912,6 +6111,16 @@ msgstr ""
 msgid "Row"
 msgstr "行"
 
+msgid "Row offset. Only honoured when length is also sent -- the server reads start from inside the length branch."
+msgstr ""
+
+#, fuzzy
+msgid "Rows in this page."
+msgstr "找不到包含该图像的任何节点"
+
+msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "运行版本"
@@ -5922,6 +6131,9 @@ msgstr ""
 #, fuzzy
 msgid "SQL Error"
 msgstr "SQL错误："
+
+msgid "SQL dump."
+msgstr ""
 
 #, fuzzy
 msgid "SSH Connection Failed"
@@ -6018,6 +6230,10 @@ msgstr ""
 msgid "Search"
 msgstr "搜索"
 
+#, fuzzy, php-format
+msgid "Search %s"
+msgstr "搜索"
+
 #, fuzzy
 msgid "Search Base DN"
 msgstr "搜索"
@@ -6040,6 +6256,9 @@ msgstr "搜索"
 #, fuzzy
 msgid "Search Scope"
 msgstr "搜索"
+
+msgid "Search every class at once"
+msgstr ""
 
 msgid "Search results returned false"
 msgstr ""
@@ -6106,9 +6325,24 @@ msgstr "服务器外壳"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, fuzzy
+msgid "Server facts."
+msgstr "一般信息"
+
+#, fuzzy
+msgid "Server identity"
+msgstr "服务器外壳"
+
 #, fuzzy, php-format
 msgid "Server is only configured to run %d multicast tasks"
 msgstr "服务配置"
+
+msgid "Server status, export and metadata."
+msgstr ""
+
+#, fuzzy
+msgid "Server version"
+msgstr "内核版本"
 
 msgid "Service"
 msgstr "服务"
@@ -6216,6 +6450,10 @@ msgstr "安装/升级成功！"
 
 #, fuzzy
 msgid "Settings cache flushed"
+msgstr "设置更新"
+
+#, fuzzy
+msgid "Settings cache state"
 msgstr "设置更新"
 
 #, fuzzy
@@ -6828,6 +7066,9 @@ msgstr "存储节点更新"
 msgid "Storage Nodes"
 msgstr "存储节点"
 
+msgid "Streams a full SQL dump as an attachment."
+msgstr ""
+
 #, fuzzy
 msgid "String must be a string"
 msgstr "事件必须是字符串"
@@ -6889,6 +7130,10 @@ msgstr ""
 
 msgid "Subtree and Below"
 msgstr ""
+
+#, fuzzy
+msgid "Success."
+msgstr "访问"
 
 #, fuzzy
 msgid "Successfully added hosts to the provided groups!"
@@ -7137,6 +7382,9 @@ msgstr "串行"
 msgid "Text"
 msgstr "文本"
 
+msgid "Text to match across the class fields."
+msgstr ""
+
 #, fuzzy
 msgid "That group is already defined for this server!"
 msgstr "图像已经存在具有此名称！"
@@ -7164,6 +7412,10 @@ msgstr ""
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "此设置定义"
+
+#, fuzzy
+msgid "The API is disabled"
+msgstr "捐款将被禁用"
 
 msgid "The CA certificate path is too long (255 characters max)"
 msgstr ""
@@ -7217,6 +7469,17 @@ msgid "The configured LDAPS CA path cannot be read by the web server, so it is b
 msgstr ""
 
 #, fuzzy
+msgid "The count."
+msgstr "CPU计数"
+
+msgid "The created object."
+msgstr ""
+
+#, fuzzy
+msgid "The created task."
+msgstr "无法创建任务"
+
+#, fuzzy
 msgid "The current user is invalid."
 msgstr "任务类型无效"
 
@@ -7243,6 +7506,10 @@ msgstr ""
 
 msgid "The node trying to be used is currently"
 msgstr ""
+
+#, fuzzy
+msgid "The object."
+msgstr "目的"
 
 msgid "The path requested is already in use by another image!"
 msgstr ""
@@ -7348,10 +7615,16 @@ msgstr ""
 msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
 
+msgid "This FOG server"
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
 msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgstr ""
+
+msgid "This document"
 msgstr ""
 
 #, fuzzy
@@ -7403,6 +7676,9 @@ msgstr ""
 #, fuzzy
 msgid "This page allows you to upload a CSV file into fog."
 msgstr "此设置定义代理用户名使用。"
+
+msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
+msgstr ""
 
 msgid "This section allows you to update"
 msgstr ""
@@ -7477,6 +7753,9 @@ msgstr ""
 msgid "Those images should be activated with the associated"
 msgstr "没有与此主机关联snapins"
 
+msgid "Throughput sample."
+msgstr ""
+
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -7540,8 +7819,14 @@ msgstr "总磁盘空间"
 msgid "Total Memory"
 msgstr "总内存"
 
+msgid "Total rows in the table, unfiltered."
+msgstr ""
+
 msgid "Transmit"
 msgstr "发送"
+
+msgid "True only when the server capped an unbounded request at MAX_ROWS. Never set when the caller sent start/length."
+msgstr ""
 
 msgid "Trust anchor"
 msgstr ""
@@ -7656,6 +7941,16 @@ msgstr "无法更新"
 msgid "Unable to update task"
 msgstr "无法更新任务"
 
+msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
+msgstr ""
+
+#, fuzzy
+msgid "Unauthenticated."
+msgstr "服务器连接出错"
+
+msgid "Unauthenticated. Also reachable as /system/status."
+msgstr ""
+
 msgid "Unauthorized"
 msgstr ""
 
@@ -7719,6 +8014,12 @@ msgstr "批准选定主机"
 msgid "Unmark selected pending"
 msgstr "批准选定主机"
 
+msgid "Unpaged and uncapped -- the cheap way to enumerate a large table. Accepts an optional trailing filter segment."
+msgstr ""
+
+msgid "Unpaged and uncapped. Accepts an optional trailing filter segment and an optional field name to return instead of the id."
+msgstr ""
+
 msgid "Unsafe hostname entered, please try again: "
 msgstr ""
 
@@ -7770,6 +8071,10 @@ msgstr "更新打印机"
 msgid "Update Not Required"
 msgstr "高级需要登录"
 
+#, fuzzy, php-format
+msgid "Update a %s"
+msgstr "更新"
+
 #, fuzzy
 msgid "Update not required"
 msgstr "图像名是必需的！"
@@ -7794,8 +8099,14 @@ msgstr ""
 msgid "Uploaded file too large."
 msgstr ""
 
+msgid "Upserts against the association keys rather than an id."
+msgstr ""
+
 msgid "Uptime"
 msgstr "正常运行时间"
+
+msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
+msgstr ""
 
 #, fuzzy
 msgid "Use Display Name from Directory"
@@ -8080,6 +8391,10 @@ msgstr ""
 
 msgid "Version"
 msgstr "版"
+
+#, fuzzy
+msgid "Version information."
+msgstr "FOG版本信息"
 
 #, fuzzy
 msgid "Versions"
@@ -9589,10 +9904,6 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "我面前"
-
-#, fuzzy
-#~ msgid "its code is not on disk"
-#~ msgstr "图片没有节点发现"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

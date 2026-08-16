@@ -157,6 +157,9 @@ msgstr ""
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
+msgid "A FOG username and password."
+msgstr ""
+
 msgid "A LDAP setup already exists with this name!"
 msgstr ""
 
@@ -212,6 +215,9 @@ msgid "A module already exists with this name!"
 msgstr ""
 
 msgid "A name must be defined if using the \"name\" property"
+msgstr ""
+
+msgid "A page of results."
 msgstr ""
 
 msgid "A permission name is required."
@@ -292,6 +298,9 @@ msgstr ""
 msgid "API"
 msgstr ""
 
+msgid "API Documentation"
+msgstr ""
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
@@ -306,6 +315,9 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Accepts the same optional trailing filter segment as a list. Reports the true filtered total and ignores paging."
 msgstr ""
 
 msgid "Access"
@@ -363,6 +375,10 @@ msgid "Activated"
 msgstr ""
 
 msgid "Active"
+msgstr ""
+
+#, php-format
+msgid "Active %s"
 msgstr ""
 
 msgid "Active Directory"
@@ -588,10 +604,28 @@ msgstr ""
 msgid "Also confirm that the database is indeed running"
 msgstr ""
 
+msgid "Also reachable as /active."
+msgstr ""
+
+msgid "Also reachable as /create and /new."
+msgstr ""
+
+msgid "Also reachable as /delete and /remove."
+msgstr ""
+
+msgid "Also reachable as /list and /all. A trailing filter segment accepts field:value pairs."
+msgstr ""
+
+msgid "Also reachable as /update and /edit. Send only the fields being changed."
+msgstr ""
+
 msgid "An LDAP server already exists with this name!"
 msgstr ""
 
 msgid "An OU already exists with this name!"
+msgstr ""
+
+msgid "An OpenAPI document."
 msgstr ""
 
 msgid "An SQL error occurred"
@@ -609,7 +643,13 @@ msgstr ""
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
+msgid "An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
+msgstr ""
+
 msgid "An ou already exists with this name!"
+msgstr ""
+
+msgid "An unpaged array."
 msgstr ""
 
 msgid "Annually"
@@ -696,6 +736,12 @@ msgstr ""
 msgid "Attempting to ping host"
 msgstr ""
 
+msgid "Authenticated but not permitted."
+msgstr ""
+
+msgid "Authentication missing or invalid."
+msgstr ""
+
 msgid "Auto"
 msgstr ""
 
@@ -723,6 +769,9 @@ msgstr ""
 msgid "BIOS Version"
 msgstr ""
 
+msgid "Bad request."
+msgstr ""
+
 msgid "Bandwidth"
 msgstr ""
 
@@ -745,6 +794,9 @@ msgid "Bind DN"
 msgstr ""
 
 msgid "Bind Password"
+msgstr ""
+
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
 msgstr ""
 
 msgid "Boot Options"
@@ -858,6 +910,9 @@ msgstr ""
 msgid "Cache Refreshed"
 msgstr ""
 
+msgid "Cache state."
+msgstr ""
+
 msgid "Cached keys"
 msgstr ""
 
@@ -877,6 +932,10 @@ msgid "Cancel Selected"
 msgstr ""
 
 msgid "Cancel Selected Tasks"
+msgstr ""
+
+#, php-format
+msgid "Cancel a %s task"
 msgstr ""
 
 msgid "Cancel the selected tasks."
@@ -1069,6 +1128,9 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -1201,6 +1263,10 @@ msgstr ""
 msgid "Count"
 msgstr ""
 
+#, php-format
+msgid "Count %s"
+msgstr ""
+
 msgid "Create"
 msgstr ""
 
@@ -1301,10 +1367,18 @@ msgstr ""
 msgid "Create Task Success"
 msgstr ""
 
+#, php-format
+msgid "Create a %s"
+msgstr ""
+
 msgid "Create new Session Task"
 msgstr ""
 
 msgid "Create new tasking"
+msgstr ""
+
+#, php-format
+msgid "Create or update a %s by natural key"
 msgstr ""
 
 msgid "Create task form fail"
@@ -1458,6 +1532,10 @@ msgid "Delete MAC Listings"
 msgstr ""
 
 msgid "Delete Success"
+msgstr ""
+
+#, php-format
+msgid "Delete a %s"
 msgstr ""
 
 msgid "Delete associated hosts"
@@ -1790,6 +1868,9 @@ msgstr ""
 msgid "Export Windows Keys"
 msgstr ""
 
+msgid "Export the database"
+msgstr ""
+
 msgid "FOG"
 msgstr ""
 
@@ -1981,6 +2062,9 @@ msgstr ""
 msgid "Fields not defined for this class"
 msgstr ""
 
+msgid "Fields withheld from list responses are returned here."
+msgstr ""
+
 msgid "File"
 msgstr ""
 
@@ -2066,6 +2150,9 @@ msgid "First row is a header"
 msgstr ""
 
 msgid "Flush Settings Cache"
+msgstr ""
+
+msgid "Flush the settings cache"
 msgstr ""
 
 msgid "For a live-USB enrolment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
@@ -2164,7 +2251,15 @@ msgstr ""
 msgid "General Information"
 msgstr ""
 
+#, php-format
+msgid "Generated from this server's own routing and model metadata, so it describes the classes and routes this install exposes. The raw document is at %s."
+msgstr ""
+
 msgid "Generic LDAP"
+msgstr ""
+
+#, php-format
+msgid "Get one %s by id"
 msgstr ""
 
 msgid "Getting image size for"
@@ -2363,6 +2458,9 @@ msgid "Group update failed!"
 msgstr ""
 
 msgid "Group updated!"
+msgstr ""
+
+msgid "Grouped matches."
 msgstr ""
 
 msgid "Groups"
@@ -2699,6 +2797,14 @@ msgstr ""
 msgid "Icon File not found"
 msgstr ""
 
+#, php-format
+msgid "Id and name pairs for %s"
+msgstr ""
+
+#, php-format
+msgid "Ids for %s"
+msgstr ""
+
 msgid "If credentials are correct"
 msgstr ""
 
@@ -3019,6 +3125,12 @@ msgstr ""
 msgid "Init FS"
 msgstr ""
 
+msgid "Init images present on disk"
+msgstr ""
+
+msgid "Init images."
+msgstr ""
+
 msgid "InitRD Versions"
 msgstr ""
 
@@ -3065,6 +3177,9 @@ msgid "Interface"
 msgstr ""
 
 msgid "Interface not ready, waiting for it to come up"
+msgstr ""
+
+msgid "Interface throughput"
 msgstr ""
 
 msgid "Invalid"
@@ -3297,6 +3412,12 @@ msgstr ""
 msgid "Kernel Versions"
 msgstr ""
 
+msgid "Kernels present on disk"
+msgstr ""
+
+msgid "Kernels."
+msgstr ""
+
 msgid "Kernels/Inits from location"
 msgstr ""
 
@@ -3499,6 +3620,10 @@ msgid "List"
 msgstr ""
 
 #, php-format
+msgid "List %s"
+msgstr ""
+
+#, php-format
 msgid "List All %s"
 msgstr ""
 
@@ -3575,6 +3700,9 @@ msgid "Locations"
 msgstr ""
 
 msgid "Log Viewer"
+msgstr ""
+
+msgid "Log contents."
 msgstr ""
 
 msgid "Log out and sign in as an administrator"
@@ -3922,7 +4050,13 @@ msgstr ""
 msgid "Network Printer"
 msgstr ""
 
+msgid "Network interface name."
+msgstr ""
+
 msgid "Never - do not verify (insecure)"
+msgstr ""
+
+msgid "Never returned by the API."
 msgstr ""
 
 msgid "New"
@@ -4118,7 +4252,13 @@ msgstr ""
 msgid "No storagegroups assigned to this snapin"
 msgstr ""
 
+msgid "No such object."
+msgstr ""
+
 msgid "No token passed to authenticate this host"
+msgstr ""
+
+msgid "No type information available for this column."
 msgstr ""
 
 msgid "No valid storage nodes found"
@@ -4196,6 +4336,9 @@ msgstr ""
 msgid "Nothing to do on Storage Node Named"
 msgstr ""
 
+msgid "Null when this is the last page."
+msgstr ""
+
 msgid "O/S"
 msgstr ""
 
@@ -4256,6 +4399,9 @@ msgstr ""
 msgid "Old key must be a string"
 msgstr ""
 
+msgid "Omitted from list responses; returned only on a single GET by id."
+msgstr ""
+
 msgid "On"
 msgstr ""
 
@@ -4304,6 +4450,14 @@ msgstr ""
 msgid "Operation field not set"
 msgstr ""
 
+#, php-format
+msgid "Operations on %1$s, stored in the %2$s table."
+msgstr ""
+
+#, php-format
+msgid "Operations on %s."
+msgstr ""
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward."
 msgstr ""
 
@@ -4335,6 +4489,9 @@ msgid "PLUGIN OPTIONS"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
+msgstr ""
+
+msgid "Page size. Send it, together with start, on every list call: a request with no start is capped at MAX_ROWS and returns a partial result with truncated set."
 msgstr ""
 
 msgid "Paged"
@@ -4400,7 +4557,13 @@ msgstr ""
 msgid "Pending MAC Addresses"
 msgstr ""
 
+msgid "Pending MAC addresses"
+msgstr ""
+
 msgid "Pending MACs"
+msgstr ""
+
+msgid "Pending MACs."
 msgstr ""
 
 msgid "Pending Mac List"
@@ -4775,6 +4938,10 @@ msgstr ""
 msgid "Queue Deletion Cancel Success"
 msgstr ""
 
+#, php-format
+msgid "Queue a task against a %s"
+msgstr ""
+
 msgid "Queued"
 msgstr ""
 
@@ -4784,6 +4951,9 @@ msgstr ""
 msgid "RESOURCES"
 msgstr ""
 
+msgid "REST API reference"
+msgstr ""
+
 msgid "RX"
 msgstr ""
 
@@ -4791,6 +4961,9 @@ msgid "Re-Transmit Hello Interval"
 msgstr ""
 
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
+msgstr ""
+
+msgid "Read a server log"
 msgstr ""
 
 msgid "Real Time"
@@ -4812,6 +4985,9 @@ msgid "Record not found"
 msgstr ""
 
 msgid "Refresh Settings Cache"
+msgstr ""
+
+msgid "Refresh the settings cache"
 msgstr ""
 
 msgid "Register must be managed from hooks or events"
@@ -4908,6 +5084,10 @@ msgstr ""
 msgid "Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger"
 msgstr ""
 
+#, php-format
+msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
 msgid "Result"
 msgstr ""
 
@@ -4921,6 +5101,9 @@ msgid "Return code"
 msgstr ""
 
 msgid "Returning value of key"
+msgstr ""
+
+msgid "Returns the same envelope as a list."
 msgstr ""
 
 msgid "Reverse"
@@ -4989,6 +5172,15 @@ msgstr ""
 msgid "Row"
 msgstr ""
 
+msgid "Row offset. Only honoured when length is also sent -- the server reads start from inside the length branch."
+msgstr ""
+
+msgid "Rows in this page."
+msgstr ""
+
+msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgstr ""
+
 msgid "Running Windows"
 msgstr ""
 
@@ -4996,6 +5188,9 @@ msgid "SHA-256"
 msgstr ""
 
 msgid "SQL Error"
+msgstr ""
+
+msgid "SQL dump."
 msgstr ""
 
 msgid "SSH Connection Failed"
@@ -5079,6 +5274,10 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+#, php-format
+msgid "Search %s"
+msgstr ""
+
 msgid "Search Base DN"
 msgstr ""
 
@@ -5095,6 +5294,9 @@ msgid "Search Method"
 msgstr ""
 
 msgid "Search Scope"
+msgstr ""
+
+msgid "Search every class at once"
 msgstr ""
 
 msgid "Search results returned false"
@@ -5154,8 +5356,20 @@ msgstr ""
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+msgid "Server facts."
+msgstr ""
+
+msgid "Server identity"
+msgstr ""
+
 #, php-format
 msgid "Server is only configured to run %d multicast tasks"
+msgstr ""
+
+msgid "Server status, export and metadata."
+msgstr ""
+
+msgid "Server version"
 msgstr ""
 
 msgid "Service"
@@ -5244,6 +5458,9 @@ msgid "Settings Update Success"
 msgstr ""
 
 msgid "Settings cache flushed"
+msgstr ""
+
+msgid "Settings cache state"
 msgstr ""
 
 msgid "Settings successfully stored!"
@@ -5756,6 +5973,9 @@ msgstr ""
 msgid "Storage Nodes"
 msgstr ""
 
+msgid "Streams a full SQL dump as an attachment."
+msgstr ""
+
 msgid "String must be a string"
 msgstr ""
 
@@ -5802,6 +6022,9 @@ msgid "Subtree Only"
 msgstr ""
 
 msgid "Subtree and Below"
+msgstr ""
+
+msgid "Success."
 msgstr ""
 
 msgid "Successfully added hosts to the provided groups!"
@@ -6009,6 +6232,9 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
+msgid "Text to match across the class fields."
+msgstr ""
+
 msgid "That group is already defined for this server!"
 msgstr ""
 
@@ -6031,6 +6257,9 @@ msgid "The \"CSV (All)\" button exports every item that matches the current sear
 msgstr ""
 
 msgid "The 'Is Master Node' setting defines which"
+msgstr ""
+
+msgid "The API is disabled"
 msgstr ""
 
 msgid "The CA certificate path is too long (255 characters max)"
@@ -6081,6 +6310,15 @@ msgstr ""
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
+msgid "The count."
+msgstr ""
+
+msgid "The created object."
+msgstr ""
+
+msgid "The created task."
+msgstr ""
+
 msgid "The current user is invalid."
 msgstr ""
 
@@ -6104,6 +6342,9 @@ msgid "The manual enrolment steps below are unaffected."
 msgstr ""
 
 msgid "The node trying to be used is currently"
+msgstr ""
+
+msgid "The object."
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
@@ -6198,10 +6439,16 @@ msgstr ""
 msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
 
+msgid "This FOG server"
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
 msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
+msgstr ""
+
+msgid "This document"
 msgstr ""
 
 msgid "This host already exists"
@@ -6247,6 +6494,9 @@ msgid "This node does not appear to be online"
 msgstr ""
 
 msgid "This page allows you to upload a CSV file into fog."
+msgstr ""
+
+msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
 msgstr ""
 
 msgid "This section allows you to update"
@@ -6315,6 +6565,9 @@ msgstr ""
 msgid "Those images should be activated with the associated"
 msgstr ""
 
+msgid "Throughput sample."
+msgstr ""
+
 msgid "Tick if the file's first row names the columns. Header rows are auto-detected even when unticked; leave the file header-less to import by column order."
 msgstr ""
 
@@ -6372,7 +6625,13 @@ msgstr ""
 msgid "Total Memory"
 msgstr ""
 
+msgid "Total rows in the table, unfiltered."
+msgstr ""
+
 msgid "Transmit"
+msgstr ""
+
+msgid "True only when the server capped an unbounded request at MAX_ROWS. Never set when the caller sent start/length."
 msgstr ""
 
 msgid "Trust anchor"
@@ -6465,6 +6724,15 @@ msgstr ""
 msgid "Unable to update task"
 msgstr ""
 
+msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
+msgstr ""
+
+msgid "Unauthenticated."
+msgstr ""
+
+msgid "Unauthenticated. Also reachable as /system/status."
+msgstr ""
+
 msgid "Unauthorized"
 msgstr ""
 
@@ -6518,6 +6786,12 @@ msgstr ""
 msgid "Unmark selected pending"
 msgstr ""
 
+msgid "Unpaged and uncapped -- the cheap way to enumerate a large table. Accepts an optional trailing filter segment."
+msgstr ""
+
+msgid "Unpaged and uncapped. Accepts an optional trailing filter segment and an optional field name to return instead of the id."
+msgstr ""
+
 msgid "Unsafe hostname entered, please try again: "
 msgstr ""
 
@@ -6560,6 +6834,10 @@ msgstr ""
 msgid "Update Not Required"
 msgstr ""
 
+#, php-format
+msgid "Update a %s"
+msgstr ""
+
 msgid "Update not required"
 msgstr ""
 
@@ -6581,7 +6859,13 @@ msgstr ""
 msgid "Uploaded file too large."
 msgstr ""
 
+msgid "Upserts against the association keys rather than an id."
+msgstr ""
+
 msgid "Uptime"
+msgstr ""
+
+msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
 msgstr ""
 
 msgid "Use Display Name from Directory"
@@ -6819,6 +7103,9 @@ msgid "Variable contains"
 msgstr ""
 
 msgid "Version"
+msgstr ""
+
+msgid "Version information."
 msgstr ""
 
 msgid "Versions"

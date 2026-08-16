@@ -828,10 +828,10 @@ abstract class FOGPage extends FOGBase
             case 'schema':
             case 'service':
             case 'hwinfo':
-            // A single read-only page, not a managed entity. Without this it
-            // takes the default list/add pair above and advertises "List All
-            // Apidocss" and "Create New Apidocs" -- two subs that do not
-            // exist, on a node with nothing to list or create.
+                // A single read-only page, not a managed entity. Without this it
+                // takes the default list/add pair above and advertises "List All
+                // Apidocss" and "Create New Apidocs" -- two subs that do not
+                // exist, on a node with nothing to list or create.
             case 'apidocs':
                 $menu = [];
                 break;
