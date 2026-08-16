@@ -1355,8 +1355,14 @@ installFOGServices() {
     dots "Creating FOG plugin runner log directory"
     mkdir -p $servicelogs/plugins >>$error_log 2>&1
     chown ${apacheuser}:${apacheuser} $servicelogs/plugins >>$error_log 2>&1
-    setSELinuxContext "$servicelogs/plugins" httpd_sys_rw_content_t
     errorStat $?
+    # Outside the dots/errorStat pair, like every other caller: setSELinuxContext
+    # prints its own "Setting SELinux context" line, so calling it between them
+    # ran that line into ours ("...directory.... * Setting SELinux context...OK"
+    # with our OK stranded on the next line) AND left errorStat reporting the
+    # labelling result instead of whether the directory was created -- a failed
+    # mkdir or chown here would have printed OK.
+    setSELinuxContext "$servicelogs/plugins" httpd_sys_rw_content_t
     # servicemaster.log is where service_lib.php writes every daemon's start,
     # stop and fatal lines, and where PHP's own error_log is pointed. The
     # runner has to be able to append to it or its supervisor lines silently
