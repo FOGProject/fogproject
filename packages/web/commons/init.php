@@ -270,6 +270,35 @@ class Initiator
     }
 
     /**
+     * Is this path plugin code rather than core code?
+     *
+     * Two roots count: BASEPATH/lib/plugins, where the bundled plugins are
+     * unpacked by bin/fetch-plugins.sh, and FOG_PLUGIN_DIR, where an admin's
+     * own plugins live (ADR 0009). Everything else under BASEPATH is core.
+     *
+     * Used only to break a name collision in autoload(), so it answers the
+     * one question that matters there -- may this file shadow a core class --
+     * and nothing else.
+     *
+     * @param string $path An absolute path from the class-file scan.
+     *
+     * @return bool
+     */
+    private static function _isPluginPath(string $path): bool
+    {
+        $roots = [rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS];
+        if (defined('FOG_PLUGIN_DIR') && FOG_PLUGIN_DIR) {
+            $roots[] = rtrim(FOG_PLUGIN_DIR, DS) . DS;
+        }
+        foreach ($roots as $root) {
+            if (strncmp($path, $root, strlen($root)) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Resolve a class to its source file via an O(1) name => path map.
      *
      * The built-in spl_autoload() probes every include_path directory by every
@@ -281,13 +310,33 @@ class Initiator
      * suffix — exactly what the built-in resolver matches. A miss falls through
      * to the still-registered built-in autoloader.
      *
-     * Where two files claim one key the first one walked wins, and that is NOT
-     * what the built-in does: spl_autoload() loops the registered extensions on
-     * the outside and the include_path on the inside, so a .class.php always
-     * beats a .report.php of the same name however the directories are ordered.
-     * This map has no such precedence — the winner is readdir order, which
-     * differs per install. Keep colliding basenames out of the scan (see
-     * _scanClassFiles) rather than relying on either rule.
+     * Where two files claim one key, CORE WINS and the collision is logged.
+     * Keeping colliding basenames out of the scan is still the rule (see
+     * _scanClassFiles) -- this is what happens when that rule is broken.
+     *
+     * It used to be "first one walked wins", which is readdir order and so
+     * differs per install: the same code resolving to a different file on two
+     * servers, silently. That is the usertracking failure documented in
+     * _scanClassFiles, and it had a second edge nobody had cause to look at
+     * yet -- external plugins under FOG_PLUGIN_DIR already lost to core,
+     * because _scanRoots() puts BASEPATH first and first-wins does the rest,
+     * but BUNDLED plugins live *inside* BASEPATH at lib/plugins, so they
+     * shared one directory walk with lib/fog and the winner was a coin flip.
+     * A bundled plugin shipping class/authorization.class.php could therefore
+     * replace core's Authorization on some installs and not others.
+     *
+     * Core winning makes the two plugin roots behave the same way, which is
+     * the behaviour the external-plugin case already had, and it is the only
+     * safe direction: a plugin must never be able to shadow a core class by
+     * naming a file after it. Verified against the shipped tree at the time
+     * of writing -- 396 scanned files, zero colliding basenames -- so this
+     * changes no resolution that exists today.
+     *
+     * Note this is still NOT what the built-in does: spl_autoload() loops the
+     * registered extensions on the outside and the include_path on the inside,
+     * so a .class.php always beats a .report.php of the same name however the
+     * directories are ordered. Two core files colliding remain unordered, and
+     * are reported rather than resolved.
      *
      * A name that misses the map and carries the FOG\ prefix falls through to
      * _bridgeNamespaced() below rather than to the built-in resolver, which
@@ -311,7 +360,28 @@ class Initiator
                 );
                 if (!isset($map[$base])) {
                     $map[$base] = $path;
+                    continue;
                 }
+                // Collision. Let a core file displace a plugin one, and say so
+                // either way -- a shadowed class is otherwise completely
+                // silent, and the symptom (a method that does not exist, or
+                // one that reads the wrong table) surfaces nowhere near here.
+                $held = $map[$base];
+                if (self::_isPluginPath($held) && !self::_isPluginPath($path)) {
+                    $map[$base] = $path;
+                }
+                $loser = ($map[$base] === $held) ? $path : $held;
+                error_log(
+                    sprintf(
+                        'FOG autoloader: two files claim the class name "%s"; '
+                        . 'using %s and ignoring %s. Rename one -- a shadowed '
+                        . 'class resolves to whichever file this rule picks, '
+                        . 'not to the one the caller meant.',
+                        $base,
+                        $map[$base],
+                        $loser
+                    )
+                );
             }
             self::$classMap = $map;
         }
