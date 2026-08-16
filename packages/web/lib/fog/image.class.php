@@ -128,7 +128,12 @@ class Image extends FOGController
      */
     public function save()
     {
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
         // isDirty(), not isPopulated(): isPopulated() is also true when
         // 'hosts' was merely lazy-loaded for reading, which would make an
         // unrelated image save (e.g. renaming it) re-run this whole
