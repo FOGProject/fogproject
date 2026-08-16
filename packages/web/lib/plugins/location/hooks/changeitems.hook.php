@@ -298,10 +298,10 @@ class ChangeItems extends Hook
                 $initrd = $arguments['initrd'];
             }
             $arguments['webserver'] = $ip;
-            $arguments['memdisk'] = "http://${ip}/fog/service/ipxe/$memdisk";
-            $arguments['memtest'] = "http://${ip}/fog/service/ipxe/$memtest";
-            $arguments['bzImage'] = "http://${ip}/fog/service/ipxe/$bzImage";
-            $arguments['imagefile'] = "http://${ip}/fog/service/ipxe/$initrd";
+            $arguments['memdisk'] = "http://{$ip}/fog/service/ipxe/$memdisk";
+            $arguments['memtest'] = "http://{$ip}/fog/service/ipxe/$memtest";
+            $arguments['bzImage'] = "http://{$ip}/fog/service/ipxe/$bzImage";
+            $arguments['imagefile'] = "http://{$ip}/fog/service/ipxe/$initrd";
             unset($Location);
         }
     }
