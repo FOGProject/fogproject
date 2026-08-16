@@ -101,16 +101,19 @@ class SnapinClient extends FOGClient
                     ),
                     'jobID' => $SnapinJob->get('id')
                 ];
-                Route::listem(
+                // getList() sets inputoverride, which the old call left off.
+                // That is the one behaviour change here and it is deliberate:
+                // this runs inside the client's POST, so without it listem()
+                // parses php://input -- and folds in ?length/?start -- and a
+                // request carrying either would silently truncate the snapin
+                // list the client is about to run.
+                $SnapinTasks = Route::getList(
                     'snapintask',
                     $find,
-                    false,
                     'AND',
                     'sequence'
                 );
-                $SnapinTasks = json_decode(Route::getData());
-                $SnapinTasks = isset($SnapinTasks->data) ? $SnapinTasks->data : [];
-                if (count($SnapinTasks ?: []) < 1) {
+                if (count($SnapinTasks) < 1) {
                     $SnapinJob
                         ->set('stateID', self::getCancelledState())
                         ->save();
