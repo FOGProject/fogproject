@@ -1212,6 +1212,9 @@ msgstr "Serial System"
 msgid "Case Version"
 msgstr "Dernière version"
 
+msgid "Catch-All Site"
+msgstr ""
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1406,6 +1409,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Could not apply %s: %s"
 msgstr "Impossible de mettre à jour"
+
+#, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "Échec de la création d'emploi Snapin"
 
 #, fuzzy
 msgid "Could not create the staging directory."
@@ -2184,10 +2191,6 @@ msgid "Export OUs"
 msgstr "Les utilisateurs d'exportation"
 
 #, fuzzy
-msgid "Export Sites"
-msgstr "Imprimantes Export"
-
-#, fuzzy
 msgid "Export Subnet Groups"
 msgstr "Groupes d'exportation"
 
@@ -2853,18 +2856,6 @@ msgid "Group Search DN"
 msgstr "Recherche d'hôte"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "Export SnapIns"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "Groupe ajouté"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "snapin Histoire"
 
@@ -2882,10 +2873,6 @@ msgstr "Groupe create a échoué"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "Groupe create a échoué"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "Groupe create a échoué"
 
 #, fuzzy
@@ -3168,18 +3155,6 @@ msgid "Host Registration"
 msgstr "Enregistrement de l'hôte"
 
 #, fuzzy
-msgid "Host Site"
-msgstr "Liste des hôtes"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "Installation / Mise à jour réussie!"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "Service de mise à jour!"
-
-#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "Aucun noeud associé"
 
@@ -3197,10 +3172,6 @@ msgstr "Mise à jour de l'hôte a échoué"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "Mise à jour de l'hôte a échoué"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "Mise à jour de l'hôte a échoué"
 
 #, fuzzy
@@ -3634,10 +3605,6 @@ msgstr "Hôtes d'importation"
 #, fuzzy
 msgid "Import Reports"
 msgstr "Hôtes d'importation"
-
-#, fuzzy
-msgid "Import Sites"
-msgstr "Imprimantes d'importation"
 
 #, fuzzy
 msgid "Import Subnet Groups"
@@ -6156,6 +6123,9 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Enregistrement des données pour %s l'objet"
@@ -6510,10 +6480,6 @@ msgstr ""
 #, fuzzy
 msgid "Site"
 msgstr "minutes"
-
-#, fuzzy
-msgid "Site Association"
-msgstr "Association Image"
 
 #, fuzzy
 msgid "Site Create Fail"
@@ -7544,6 +7510,10 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+#, fuzzy
+msgid "The selected site no longer exists"
+msgstr " n'existe plus"
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -7658,6 +7628,10 @@ msgstr ""
 msgid "This is a single run task that should run now."
 msgstr ""
 
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
+msgstr ""
+
 msgid "This is especially useful if you have multiple"
 msgstr ""
 
@@ -7670,6 +7644,9 @@ msgid "This is not the primary group"
 msgstr " | Cela ne veut pas le groupe principal"
 
 msgid "This is the amount of physical disk space"
+msgstr ""
+
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
@@ -8258,22 +8235,6 @@ msgid "User Group Role Associations"
 msgstr "Association Image"
 
 #, fuzzy
-msgid "User Group Site"
-msgstr "Export SnapIns"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "Groupe create a échoué"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "Groupe ajouté"
-
-#, fuzzy
 msgid "User Group Update Fail"
 msgstr "Groupe create a échoué"
 
@@ -8301,22 +8262,6 @@ msgstr "Nom d'utilisateur"
 
 msgid "User Password"
 msgstr "Mot de passe de l'utilisateur"
-
-#, fuzzy
-msgid "User Site"
-msgstr "Ajouter New Snapin"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "mise à jour de l'imprimante a échoué!"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "Installation / Mise à jour réussie!"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "Service de mise à jour!"
 
 msgid "User Tracker"
 msgstr "Tracker utilisateur"
@@ -9578,6 +9523,10 @@ msgstr ""
 #~ msgid "Export Rules"
 #~ msgstr "Réussi"
 
+#, fuzzy
+#~ msgid "Export Sites"
+#~ msgstr "Imprimantes Export"
+
 #~ msgid "Export Snapins"
 #~ msgstr "Export SnapIns"
 
@@ -9615,6 +9564,22 @@ msgstr ""
 #~ msgstr "hôte Lieu"
 
 #, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "Export SnapIns"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "utilisateur créé"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "Groupe ajouté"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "Groupe create a échoué"
+
+#, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "hôte description de"
 
@@ -9639,8 +9604,24 @@ msgstr ""
 #~ msgstr "mise à jour de l'utilisateur a échoué"
 
 #, fuzzy
+#~ msgid "Host Site"
+#~ msgstr "Liste des hôtes"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "Service de mise à jour!"
+
+#, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "snapin Histoire"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "Mise à jour de l'hôte a échoué"
 
 #, fuzzy
 #~ msgid "Host module settings"
@@ -9695,6 +9676,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Rules"
 #~ msgstr "Hôtes d'importation"
+
+#, fuzzy
+#~ msgid "Import Sites"
+#~ msgstr "Imprimantes d'importation"
 
 #~ msgid "Import Snapins"
 #~ msgstr "Importer SnapIns"
@@ -9833,6 +9818,10 @@ msgstr ""
 #~ msgstr "mise à jour de l'imprimante a échoué!"
 
 #, fuzzy
+#~ msgid "Site Association"
+#~ msgstr "Association Image"
+
+#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "snapin mise à jour"
 
@@ -9895,6 +9884,22 @@ msgstr ""
 #~ msgstr "Supprimer les imprimantes sélectionnées"
 
 #, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "Export SnapIns"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "Groupe create a échoué"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "utilisateur créé"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "Groupe ajouté"
+
+#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "Nettoyage de l'utilisateur"
 
@@ -9905,6 +9910,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "Ajouter New Snapin"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "Service de mise à jour!"
 
 #, fuzzy
 #~ msgid "You have version"

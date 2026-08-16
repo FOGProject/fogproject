@@ -5326,30 +5326,59 @@ $this->schema[] = [
         // tables carry no unique key, so the same host can be in the same
         // site twice; core's tables do, so the duplicate would be ignored
         // and the raw row counts would disagree on a database that is
-        // actually fine. Rows pointing at a site that no longer exists are
-        // excluded here and counted separately below -- they are already
-        // unusable, and letting them block the drop would strand the
-        // tables on exactly the servers that need tidying most.
+        // actually fine.
+        //
+        // Rows are carried across only when BOTH ends still exist. The
+        // plugin never cleaned up after a delete, so its tables hold links
+        // to sites, hosts and users that are long gone -- verified on a
+        // real install, where siteUserAssoc still granted a site to user 6,
+        // deleted at some point in the past.
+        //
+        // A dangling link is not merely untidy. users.uId is
+        // AUTO_INCREMENT, and InnoDB recomputes that counter as MAX(id)+1
+        // on restart, so an id CAN come round again once every row above it
+        // has also gone. A leftover row would then hand a brand new account
+        // the deleted one's site without anybody granting it. Remote, but
+        // this is the one moment the contents of a security boundary are
+        // being chosen, and carrying known-dead rows into it is a decision
+        // rather than an oversight.
+        //
+        // They are counted and logged, not treated as loss: excluded from
+        // the expected count as well as the insert, so they cannot block
+        // the drop and strand the tables on the servers that need tidying
+        // most.
         $members = [
-            // core table => [core site col, core obj col,
-            //                plugin table, plugin site col, plugin obj col]
+            // core table => [core site col, core obj col, plugin table,
+            //                plugin site col, plugin obj col,
+            //                object's own table, object's own key]
             'siteHostMembers' => [
                 'shmSiteID', 'shmHostID',
                 'siteHostAssoc', 'shaSiteID', 'shaHostID',
+                'hosts', 'hostID',
             ],
             'siteUserMembers' => [
                 'sumSiteID', 'sumUserID',
                 'siteUserAssoc', 'suaSiteID', 'suaUserID',
+                'users', 'uId',
             ],
             'siteGroupMembers' => [
                 'sgmSiteID', 'sgmGroupID',
                 'siteGroupAssoc', 'sgaSiteID', 'sgaGroupID',
+                'groups', 'groupID',
             ],
             'siteUserGroupMembers' => [
                 'sugmSiteID', 'sugmUserGroupID',
                 'siteUserGroupAssoc', 'sugaSiteID', 'sugaUserGroupID',
+                'userGroups', 'ugID',
             ],
         ];
+        // One WHERE for the insert, the expected count and the orphan
+        // count, so the three can never drift apart.
+        $live = function ($map) {
+            list(, , , $sSite, $sObj, $oTable, $oKey) = $map;
+            return "`$sSite` IN (SELECT `siteID` FROM `sites`) "
+                . "AND `$sObj` IN (SELECT `$oKey` FROM `$oTable`)";
+        };
         foreach ($members as $dest => $map) {
             list($dSite, $dObj, $src, $sSite, $sObj) = $map;
             if (!in_array($src, $present, true)) {
@@ -5358,7 +5387,7 @@ $this->schema[] = [
             self::$DB->query(
                 "INSERT IGNORE INTO `$dest` (`$dSite`, `$dObj`) "
                 . "SELECT DISTINCT `$sSite`, `$sObj` FROM `$src` "
-                . "WHERE `$sSite` IN (SELECT `siteID` FROM `sites`)"
+                . "WHERE " . $live($map)
             );
         }
 
@@ -5389,8 +5418,8 @@ $this->schema[] = [
                 continue;
             }
             $expected = $count(
-                "SELECT COUNT(DISTINCT `$sSite`, `$sObj`) AS `cnt` FROM `$src` "
-                . "WHERE `$sSite` IN (SELECT `siteID` FROM `sites`)"
+                "SELECT COUNT(DISTINCT `$sSite`, `$sObj`) AS `cnt` "
+                . "FROM `$src` WHERE " . $live($map)
             );
             $actual = $count(
                 "SELECT COUNT(*) AS `cnt` FROM `$dest` "
@@ -5401,16 +5430,17 @@ $this->schema[] = [
             }
             $orphans += $count(
                 "SELECT COUNT(*) AS `cnt` FROM `$src` "
-                . "WHERE `$sSite` NOT IN (SELECT `siteID` FROM `sites`)"
+                . "WHERE NOT (" . $live($map) . ")"
             );
         }
 
         if ($orphans > 0) {
             error_log(
                 sprintf(
-                    'FOG site migration: %d association row(s) referenced a '
-                    . 'site that does not exist and were not carried across. '
-                    . 'They were already unreachable.',
+                    'FOG site migration: %d association row(s) pointed at a '
+                    . 'site, host, user or group that no longer exists and '
+                    . 'were not carried across. They were already '
+                    . 'unreachable.',
                     $orphans
                 )
             );
@@ -5438,6 +5468,108 @@ $this->schema[] = [
                 self::$DB->query("DROP TABLE IF EXISTS `$table`");
             }
         }
+        return true;
+    },
+];
+// 333
+$this->schema[] = [
+    // The catch-all site, and every user who is in no site joins it.
+    //
+    // This is what stops the changeover being a fleet-wide lockout. Sites
+    // become unconditional here: before, installing the plugin WAS the
+    // opt-in, and Site::inScope() denies a user with no sites (deny-all is
+    // the correct posture and is not changing). Make the boundary
+    // unconditional without this and every non-'*' user on every upgraded
+    // server is denied every host the moment they log in.
+    //
+    // Runs after the reconstruct, so a user the plugin had genuinely
+    // scoped keeps exactly the scope they had and is not touched here.
+    //
+    // A user who had the plugin installed but was never assigned to a site
+    // DOES join, which widens what they can see. That is deliberate. "No
+    // site" today means the plugin denies them every host, user and group
+    // in the system -- an account that cannot do anything is almost never
+    // what an admin intended, and far more likely a site they never got
+    // round to filling in. The alternative is upgrading a server into a
+    // state where working accounts silently stop working, which is the
+    // failure this whole step exists to prevent.
+    //
+    // Nothing is written to the host, group or usergroup tables. The
+    // catch-all means "no restriction", not "these particular objects" --
+    // it is a flag that scope resolution short circuits on. An enumerated
+    // membership list would look identical on the day of the upgrade and
+    // then quietly rot: the first host registered afterwards would belong
+    // to no site and so be invisible to everyone, which is a migration
+    // that appears to work and fails on day two, during the most common
+    // operation FOG performs.
+    function () {
+        $held = self::$DB->query(
+            "SELECT `siteID` AS `cnt` FROM `sites` "
+            . "WHERE `siteCatchAll` IS NOT NULL LIMIT 1"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (is_array($held) && isset($held['cnt'])) {
+            // Already present. Only reachable on a re-run, and a re-run
+            // must not re-add users an admin has since taken out.
+            return true;
+        }
+
+        // siteName is UNIQUE and a migrated site may already be called
+        // Everything, so take the first free spelling rather than letting
+        // the insert be ignored and the catch-all silently not exist.
+        $exists = function ($name) {
+            $row = self::$DB->query(
+                sprintf(
+                    "SELECT COUNT(*) AS `cnt` FROM `sites` "
+                    . "WHERE `siteName` = %s",
+                    self::$DB->escape($name)
+                )
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            return is_array($row) && isset($row['cnt']) && (int)$row['cnt'];
+        };
+        $name = 'Everything';
+        for ($n = 2; $exists($name); $n++) {
+            $name = "Everything ($n)";
+        }
+
+        self::$DB->query(
+            sprintf(
+                "INSERT INTO `sites` (`siteName`, `siteDesc`, `siteCatchAll`) "
+                . "VALUES (%s, %s, 1)",
+                self::$DB->escape($name),
+                self::$DB->escape(
+                    'Members of this site are not restricted to any site: '
+                    . 'they see every host, user and group, which is how FOG '
+                    . 'behaved before sites were built in. Created during the '
+                    . 'upgrade so existing accounts kept working. Safe to '
+                    . 'rename; remove members from it to start scoping them.'
+                )
+            )
+        );
+
+        // Read the id back rather than relying on a last-insert-id API.
+        // siteCatchAll is UNIQUE, so this identifies the row exactly, and
+        // it doubles as confirmation that the insert actually landed.
+        $row = self::$DB->query(
+            "SELECT `siteID` AS `cnt` FROM `sites` "
+            . "WHERE `siteCatchAll` IS NOT NULL LIMIT 1"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (!is_array($row) || !isset($row['cnt'])) {
+            return _('Could not create the catch-all site');
+        }
+        $siteID = (int)$row['cnt'];
+
+        // Users only, and only those in no site at all. `uId` is spelled
+        // with a capital I in this table -- see the CREATE in step 0.
+        self::$DB->query(
+            sprintf(
+                "INSERT IGNORE INTO `siteUserMembers` "
+                . "(`sumSiteID`, `sumUserID`) "
+                . "SELECT %d, `u`.`uId` FROM `users` `u` "
+                . "WHERE `u`.`uId` NOT IN "
+                . "(SELECT `sumUserID` FROM `siteUserMembers`)",
+                $siteID
+            )
+        );
         return true;
     },
 ];

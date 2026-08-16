@@ -291,6 +291,7 @@ class Route extends FOGBase
         'roleusergroupassociation',
         'scheduledtask',
         'setting',
+        'site',
         'snapin',
         'snapinassociation',
         'snapingroupassociation',
@@ -1630,6 +1631,37 @@ class Route extends FOGBase
                         'removeFromQuery' => true
                     ];
                     break;
+                case 'site':
+                    // The four member counts Site::$sqlQueryStr computes.
+                    // removeFromQuery because they are aggregates of the
+                    // JOINs, not columns of `sites` -- selecting them again
+                    // by name would be an unknown-column error.
+                    //
+                    // The dt names are the plugin's, unchanged: they are
+                    // the DataTables field names fog.site.list.js binds to,
+                    // and a tidier spelling here would leave every column
+                    // rendering empty with nothing to say why.
+                    $columns[] = [
+                        'db' => 'shmMembers',
+                        'dt' => 'hostcount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sumMembers',
+                        'dt' => 'usercount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sgmMembers',
+                        'dt' => 'groupcount',
+                        'removeFromQuery' => true
+                    ];
+                    $columns[] = [
+                        'db' => 'sugmMembers',
+                        'dt' => 'usergroupcount',
+                        'removeFromQuery' => true
+                    ];
+                    break;
                 case 'inventory':
                     $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
                     $columns[] = [
@@ -2090,6 +2122,7 @@ class Route extends FOGBase
                     'classman' => &$classman
                 ]
             );
+            self::_applySiteScope($classname);
             self::$data['_lang'] = $classname;
             if (self::$getterDepth === 0
                 && self::expandRequested()
@@ -2443,6 +2476,7 @@ class Route extends FOGBase
                     'classman' => &$classman
                 ]
             );
+            self::_applySiteScope($classname);
         } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
@@ -4745,6 +4779,22 @@ class Route extends FOGBase
                         'roleusergroupassociation' => $findWhere
                     ];
                     break;
+                case 'site':
+                    // Deleting a site clears its four membership lists.
+                    // Nothing stops the CATCH-ALL site being deleted here:
+                    // it is an ordinary site carrying a flag, and refusing
+                    // would be a rule the admin cannot see or undo. What it
+                    // costs is real though -- every user who relied on it
+                    // for blanket access falls back to their own sites, and
+                    // a user with none then sees nothing.
+                    $findWhere = ['siteID' => $itemIDs];
+                    $removeItems = [
+                        'sitehostmember' => $findWhere,
+                        'siteusermember' => $findWhere,
+                        'sitegroupmember' => $findWhere,
+                        'siteusergroupmember' => $findWhere
+                    ];
+                    break;
                 default:
                     $findWhere = [];
                     $removeItems = [];
@@ -4752,6 +4802,27 @@ class Route extends FOGBase
 
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
+            }
+
+            // Core site membership cleanup. Added after the switch rather
+            // than repeated across four of its cases, and before
+            // DELETEMASS_API so a listener still sees the full map.
+            //
+            // A leftover membership row is not merely untidy. InnoDB
+            // recomputes AUTO_INCREMENT as MAX(id)+1 on restart, so ids
+            // are reused -- a row left behind by a deleted host can later
+            // put an unrelated NEW host into the site the old one was in,
+            // granting access nobody asked for.
+            $siteMemberTables = [
+                'host' => 'sitehostmember',
+                'user' => 'siteusermember',
+                'group' => 'sitegroupmember',
+                'usergroup' => 'siteusergroupmember'
+            ];
+            if (isset($siteMemberTables[$classname])) {
+                $removeItems[$siteMemberTables[$classname]] = [
+                    $classname . 'ID' => $itemIDs
+                ];
             }
 
             self::$HookManager->processEvent(
@@ -4810,6 +4881,72 @@ class Route extends FOGBase
      * @param string $orderby    How to order the returned values.
      *
      * @return string|array
+     */
+    /**
+     * Narrows a REST list/search payload to the acting user's site scope.
+     *
+     * The web UI path re-lists with the in-scope ids, which keeps the row
+     * counts honest. This path cannot: the payload has already been built
+     * by FOGManagerController::complex() from a SQL statement assembled
+     * from the request, so the boundary is applied to the rows that came
+     * back. The counts are rewritten to what survived, because leaving the
+     * unscoped totals in place would tell a site-restricted user how many
+     * objects exist outside their scope.
+     *
+     * On a payload capped by MAX_ROWS (flagged `truncated`) the rows are
+     * one page of the result set, so the rewritten count is a FLOOR on the
+     * in-scope total rather than the total. The flag rides along and says
+     * which of the two the consumer is holding. A true scoped count needs
+     * the boundary pushed into the query's WHERE clause, which is a larger
+     * change than this.
+     *
+     * @param string $classname the class being listed
+     *
+     * @return void
+     */
+    private static function _applySiteScope($classname)
+    {
+        $node = strtolower((string)$classname);
+        if (!SiteScope::isScopedNode($node)) {
+            return;
+        }
+        $scopeIDs = Authorization::scopedObjectIDs($node);
+        if (null === $scopeIDs) {
+            return;
+        }
+        // Snapshot by value rather than working through self::$data. The
+        // scope lookups issue their own queries, and anything that touches
+        // self::$data mid-method would otherwise blank out the payload
+        // being filtered.
+        $payload = self::$data;
+        if (empty($payload['data']) || !is_array($payload['data'])) {
+            return;
+        }
+        $allowed = array_flip(array_map('intval', $scopeIDs));
+        $kept = [];
+        foreach ($payload['data'] as $row) {
+            $id = (int)(
+                is_array($row) ?
+                ($row['id'] ?? 0) :
+                ($row->id ?? 0)
+            );
+            if (isset($allowed[$id])) {
+                $kept[] = $row;
+            }
+        }
+        if (count($kept) === count($payload['data'])) {
+            self::$data = $payload;
+            return;
+        }
+        $payload['data'] = array_values($kept);
+        $payload['recordsFiltered'] = count($kept);
+        $payload['recordsTotal'] = count($kept);
+        self::$data = $payload;
+    }
+    /**
+     * Builds the sql statement.
+     *
+     * @return array
      */
     private static function _buildSql(
         $sql,

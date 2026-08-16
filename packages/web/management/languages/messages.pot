@@ -1016,6 +1016,9 @@ msgstr ""
 msgid "Case Version"
 msgstr ""
 
+msgid "Catch-All Site"
+msgstr ""
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1187,6 +1190,9 @@ msgstr ""
 
 #, php-format
 msgid "Could not apply %s: %s"
+msgstr ""
+
+msgid "Could not create the catch-all site"
 msgstr ""
 
 msgid "Could not create the staging directory."
@@ -1847,9 +1853,6 @@ msgstr ""
 msgid "Export OUs"
 msgstr ""
 
-msgid "Export Sites"
-msgstr ""
-
 msgid "Export Subnet Groups"
 msgstr ""
 
@@ -2415,15 +2418,6 @@ msgstr ""
 msgid "Group Search DN"
 msgstr ""
 
-msgid "Group Site"
-msgstr ""
-
-msgid "Group Site Update Success"
-msgstr ""
-
-msgid "Group Site Updated!"
-msgstr ""
-
 msgid "Group Snapin Assignment"
 msgstr ""
 
@@ -2437,9 +2431,6 @@ msgid "Group Update Location Fail"
 msgstr ""
 
 msgid "Group Update OU Fail"
-msgstr ""
-
-msgid "Group Update Site Fail"
 msgstr ""
 
 msgid "Group Update Success"
@@ -2671,15 +2662,6 @@ msgstr ""
 msgid "Host Registration"
 msgstr ""
 
-msgid "Host Site"
-msgstr ""
-
-msgid "Host Site Update Success"
-msgstr ""
-
-msgid "Host Site Updated!"
-msgstr ""
-
 msgid "Host Snapin Associations"
 msgstr ""
 
@@ -2693,9 +2675,6 @@ msgid "Host Update Location Fail"
 msgstr ""
 
 msgid "Host Update OU Fail"
-msgstr ""
-
-msgid "Host Update Site Fail"
 msgstr ""
 
 msgid "Host Update Success"
@@ -3061,9 +3040,6 @@ msgid "Import Report"
 msgstr ""
 
 msgid "Import Reports"
-msgstr ""
-
-msgid "Import Sites"
 msgstr ""
 
 msgid "Import Subnet Groups"
@@ -5211,6 +5187,9 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 msgid "Saving data for"
 msgstr ""
 
@@ -5507,9 +5486,6 @@ msgid "Signing is already done on this server. The remaining work is per-client 
 msgstr ""
 
 msgid "Site"
-msgstr ""
-
-msgid "Site Association"
 msgstr ""
 
 msgid "Site Create Fail"
@@ -6375,6 +6351,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+msgid "The selected site no longer exists"
+msgstr ""
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -6479,6 +6458,10 @@ msgstr ""
 msgid "This is a single run task that should run now."
 msgstr ""
 
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
+msgstr ""
+
 msgid "This is especially useful if you have multiple"
 msgstr ""
 
@@ -6489,6 +6472,9 @@ msgid "This is not the primary group"
 msgstr ""
 
 msgid "This is the amount of physical disk space"
+msgstr ""
+
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
@@ -6992,18 +6978,6 @@ msgstr ""
 msgid "User Group Role Associations"
 msgstr ""
 
-msgid "User Group Site"
-msgstr ""
-
-msgid "User Group Site Update Fail"
-msgstr ""
-
-msgid "User Group Site Update Success"
-msgstr ""
-
-msgid "User Group Site Updated!"
-msgstr ""
-
 msgid "User Group Update Fail"
 msgstr ""
 
@@ -7026,18 +7000,6 @@ msgid "User Name Attribute"
 msgstr ""
 
 msgid "User Password"
-msgstr ""
-
-msgid "User Site"
-msgstr ""
-
-msgid "User Site Update Fail"
-msgstr ""
-
-msgid "User Site Update Success"
-msgstr ""
-
-msgid "User Site Updated!"
 msgstr ""
 
 msgid "User Tracker"

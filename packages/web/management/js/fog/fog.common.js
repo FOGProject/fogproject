@@ -3377,6 +3377,11 @@ function clearAllIntervals(){
     /** UPDATE SCRIPTS **/
     var scripts = JSON.parse(req.getResponseHeader('X-FOG-JavaScripts'));
     var commonScripts = JSON.parse(req.getResponseHeader('X-FOG-Common-JavaScripts'));
+    // Libraries that must execute at most once per session. Defaults to empty
+    // so a response from an older server (or any handler that does not send
+    // the header) keeps exactly the previous behaviour.
+    var onceHeader = req.getResponseHeader('X-FOG-Once-JavaScripts');
+    var onceScripts = onceHeader ? JSON.parse(onceHeader) : [];
 
     scripts.forEach(function(value, index){
       if(scripts[index] == null) { delete scripts[index]; return; }
@@ -3388,6 +3393,13 @@ function clearAllIntervals(){
       commonScripts[index] = commonScripts[index] + (commonScripts[index].indexOf("?v") === -1 ? "?ver=" + assetVersion : "");
     });
 
+    // Same version suffix as the other two lists, so the comparisons below are
+    // against the src actually sitting in the DOM.
+    onceScripts.forEach(function(value, index){
+      if(onceScripts[index] == null) { delete onceScripts[index]; return; }
+      onceScripts[index] = onceScripts[index] + (onceScripts[index].indexOf("?v") === -1 ? "?ver=" + assetVersion : "");
+    });
+
     // Determine the currently loaded scripts.
     var loadedScripts = [];
     $("#scripts").find("script").each(function(index, element){
@@ -3396,14 +3408,24 @@ function clearAllIntervals(){
 
     // Calculate the script delta:
     var scriptDelta = {};
-    // -> If a script is loaded and it isn't a script common to every page, remove it.
+    // -> If a script is loaded and it is neither common to every page nor a
+    //    load-once library, remove it.
     for(var scriptIndex in loadedScripts){
       var script = loadedScripts[scriptIndex];
-      if (commonScripts.indexOf(script) === -1) scriptDelta[script] = -1;
+      if (commonScripts.indexOf(script) === -1 && onceScripts.indexOf(script) === -1) scriptDelta[script] = -1;
     }
-    // -> Reload all scripts this page needs.
+    // -> Reload all scripts this page needs. Re-executing them is the point:
+    //    FOG's page scripts are IIFEs that wire up the DOM when they run, and
+    //    the DOM they wired has just been replaced, so skipping this would
+    //    leave a revisited page with controls that do nothing.
+    //
+    //    A load-once library is the exception. It has no side effects at
+    //    execution time, so a second copy buys nothing and costs a retained
+    //    module graph -- ~3.5MB per re-execution for swagger-ui-bundle.js,
+    //    measured with forced GC. Add it only if it is not already there.
     for(var scriptIndex in scripts){
       var script = scripts[scriptIndex];
+      if (onceScripts.indexOf(script) !== -1 && loadedScripts.indexOf(script) !== -1) continue;
       scriptDelta[script] = 1;
     }
 

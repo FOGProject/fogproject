@@ -1211,6 +1211,9 @@ msgstr "系统序列"
 msgid "Case Version"
 msgstr "最新版本"
 
+msgid "Catch-All Site"
+msgstr ""
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1405,6 +1408,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Could not apply %s: %s"
 msgstr "无法更新"
+
+#, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "无法创建管理单元工作"
 
 #, fuzzy
 msgid "Could not create the staging directory."
@@ -2183,10 +2190,6 @@ msgid "Export OUs"
 msgstr "导出用户"
 
 #, fuzzy
-msgid "Export Sites"
-msgstr "出口打印机"
-
-#, fuzzy
 msgid "Export Subnet Groups"
 msgstr "出口组"
 
@@ -2852,18 +2855,6 @@ msgid "Group Search DN"
 msgstr "主机搜索"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "集团补充"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "历史管理单元"
 
@@ -2881,10 +2872,6 @@ msgstr "集团创建失败"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "集团创建失败"
 
 #, fuzzy
@@ -3167,18 +3154,6 @@ msgid "Host Registration"
 msgstr "主机注册"
 
 #, fuzzy
-msgid "Host Site"
-msgstr "主机列表"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "服务更新！"
-
-#, fuzzy
 msgid "Host Snapin Associations"
 msgstr "无关联的节点"
 
@@ -3196,10 +3171,6 @@ msgstr "主机更新失败"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "主机更新失败"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "主机更新失败"
 
 #, fuzzy
@@ -3633,10 +3604,6 @@ msgstr "进口主机"
 #, fuzzy
 msgid "Import Reports"
 msgstr "进口主机"
-
-#, fuzzy
-msgid "Import Sites"
-msgstr "进口打印机"
 
 #, fuzzy
 msgid "Import Subnet Groups"
@@ -6155,6 +6122,9 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "保存数据%s对象"
@@ -6509,10 +6479,6 @@ msgstr ""
 #, fuzzy
 msgid "Site"
 msgstr "分钟"
-
-#, fuzzy
-msgid "Site Association"
-msgstr "图像协会"
 
 #, fuzzy
 msgid "Site Create Fail"
@@ -7543,6 +7509,10 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+#, fuzzy
+msgid "The selected site no longer exists"
+msgstr "不复存在"
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
 
@@ -7657,6 +7627,10 @@ msgstr ""
 msgid "This is a single run task that should run now."
 msgstr ""
 
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
+msgstr ""
+
 msgid "This is especially useful if you have multiple"
 msgstr ""
 
@@ -7669,6 +7643,9 @@ msgid "This is not the primary group"
 msgstr "|这不是主要组"
 
 msgid "This is the amount of physical disk space"
+msgstr ""
+
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
@@ -8257,22 +8234,6 @@ msgid "User Group Role Associations"
 msgstr "图像协会"
 
 #, fuzzy
-msgid "User Group Site"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "集团补充"
-
-#, fuzzy
 msgid "User Group Update Fail"
 msgstr "集团创建失败"
 
@@ -8300,22 +8261,6 @@ msgstr "用户名"
 
 msgid "User Password"
 msgstr "用户密码"
-
-#, fuzzy
-msgid "User Site"
-msgstr "添加新的管理单元"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "服务更新！"
 
 msgid "User Tracker"
 msgstr "用户跟踪"
@@ -9577,6 +9522,10 @@ msgstr ""
 #~ msgid "Export Rules"
 #~ msgstr "成功"
 
+#, fuzzy
+#~ msgid "Export Sites"
+#~ msgstr "出口打印机"
+
 #~ msgid "Export Snapins"
 #~ msgstr "出口Snapins"
 
@@ -9614,6 +9563,22 @@ msgstr ""
 #~ msgstr "主机位置"
 
 #, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "主机描述"
 
@@ -9638,8 +9603,24 @@ msgstr ""
 #~ msgstr "用户更新失败"
 
 #, fuzzy
+#~ msgid "Host Site"
+#~ msgstr "主机列表"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "服务更新！"
+
+#, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "历史管理单元"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "主机更新失败"
 
 #, fuzzy
 #~ msgid "Host module settings"
@@ -9694,6 +9675,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Rules"
 #~ msgstr "进口主机"
+
+#, fuzzy
+#~ msgid "Import Sites"
+#~ msgstr "进口打印机"
 
 #~ msgid "Import Snapins"
 #~ msgstr "进口Snapins"
@@ -9832,6 +9817,10 @@ msgstr ""
 #~ msgstr "打印机更新失败！"
 
 #, fuzzy
+#~ msgid "Site Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
 #~ msgid "Snapin Created"
 #~ msgstr "更新管理单元"
 
@@ -9894,6 +9883,22 @@ msgstr ""
 #~ msgstr "删除选定的打印机"
 
 #, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "集团创建失败"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "用户创建"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "集团补充"
+
+#, fuzzy
 #~ msgid "User Role"
 #~ msgstr "用户清理"
 
@@ -9904,6 +9909,22 @@ msgstr ""
 #, fuzzy
 #~ msgid "User Role Update Success"
 #~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "添加新的管理单元"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "安装/升级成功！"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "服务更新！"
 
 #, fuzzy
 #~ msgid "You have version"

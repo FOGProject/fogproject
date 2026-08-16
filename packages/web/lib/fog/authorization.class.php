@@ -205,6 +205,7 @@ class Authorization extends FOGBase
         'roleuserassociation' => 'role',
         'scheduledtask' => 'task',
         'setting' => 'settings',
+        'site' => 'site',
         'snapin' => 'snapin',
         'snapinassociation' => 'snapin',
         'snapingroupassociation' => 'snapin',
@@ -290,6 +291,11 @@ class Authorization extends FOGBase
             'user' => ['view', 'create', 'edit', 'delete'],
             'usergroup' => ['view', 'create', 'edit', 'delete'],
             'role' => ['view', 'create', 'edit', 'delete'],
+            // Sites came in from the site plugin. The node keeps the name
+            // the plugin registered so grants written against it survive
+            // the move -- a rename here would silently drop every existing
+            // site.* permission on upgrade.
+            'site' => ['view', 'create', 'edit', 'delete'],
             'storagenode' => ['view', 'create', 'edit', 'delete'],
             'storagegroup' => ['view', 'create', 'edit', 'delete'],
             'ipxe' => ['view', 'create', 'edit', 'delete'],
@@ -696,16 +702,31 @@ class Authorization extends FOGBase
     /**
      * Is a specific object within the acting user's object scope?
      *
-     * Object scope is an OPTIONAL boundary layered on top of the verb
-     * permission. It has no built-in meaning: a plugin (currently Site)
-     * enforces it by listening for OBJECT_SCOPE_CHECK and flipping
-     * 'allowed' to false for objects outside the user's scope. With no
-     * listener registered the boundary does not exist and every object is
-     * in scope, so this is inert on a stock install.
+     * Object scope is a boundary layered on top of the verb permission:
+     * the permission says what you may do, this says which objects you may
+     * do it to. Core owns it, and SiteScope answers it -- sites moved out
+     * of the site plugin and into core, so this is no longer inert on a
+     * stock install.
+     *
+     * It still stays out of the way on an install that has not configured
+     * sites. SiteScope allows everything when no sites exist, so a server
+     * that has never used them, or one running new code against a schema
+     * that has not been deployed yet, behaves exactly as before.
+     *
+     * OBJECT_SCOPE_CHECK is still fired, and still first. Third-party
+     * listeners keep the contract they were written against: flip
+     * 'allowed' to false to deny an object core would have allowed. What
+     * changed is that the core site decision is combined with AND
+     * afterwards, so a listener can deny past core but cannot GRANT past
+     * it -- for a security boundary the composition has to be deny-wins,
+     * or a plugin could hand out another site's hosts by setting a flag.
      *
      * Unrestricted users (global '*' holders) and requests with
      * no concrete single-object id (id < 1 — list, create, mass op) always
-     * pass; scope is only meaningful for one existing object.
+     * pass; scope is only meaningful for one existing object. The '*'
+     * short circuit is deliberately ahead of everything else: a full
+     * administrator is never subject to a site boundary, and that is
+     * structural here rather than a rule SiteScope has to remember.
      *
      * @param string   $node   the page/api node (e.g. 'host')
      * @param int      $id     the target object id
@@ -729,17 +750,71 @@ class Authorization extends FOGBase
                 0
             );
         }
+        $node = strtolower(trim((string)$node));
         $allowed = true;
         self::$HookManager->processEvent(
             'OBJECT_SCOPE_CHECK',
             [
-                'node' => strtolower(trim((string)$node)),
+                'node' => $node,
                 'id' => $id,
                 'userID' => (int)$userID,
                 'allowed' => &$allowed
             ]
         );
+        // Core's site boundary, applied after the event and combined with
+        // AND. Skipped when a listener has already denied -- deny is deny,
+        // and there is no reason to spend the query.
+        if ($allowed && !SiteScope::inScope($node, $id, (int)$userID)) {
+            $allowed = false;
+        }
         return (bool)$allowed;
+    }
+    /**
+     * The object ids a user may see for a listed node, or null when the
+     * list needs no narrowing at all.
+     *
+     * The list counterpart of objectInScope(), and the distinction the
+     * return type carries is the whole point: null means "no boundary
+     * applies -- leave the list alone", while an ARRAY narrows the list,
+     * and an EMPTY array is a real answer meaning the user may see
+     * nothing. Collapsing those two onto "empty" is the mistake that
+     * silently shows every host to a user with no site.
+     *
+     * null is returned for an unrestricted '*' holder, a node that is not
+     * site-scoped, an install with no sites configured, and a member of a
+     * catch-all site -- the same short circuits objectInScope() applies,
+     * so single objects and lists cannot disagree about who is scoped.
+     *
+     * @param string   $node   the node being listed
+     * @param int|null $userID acting user (defaults to current user)
+     *
+     * @return array|null ids to narrow to, or null for no restriction
+     */
+    public static function scopedObjectIDs($node, $userID = null)
+    {
+        if (self::_isUnrestricted($userID)) {
+            return null;
+        }
+        if (null === $userID) {
+            $userID = (
+                self::$FOGUser && self::$FOGUser->isValid() ?
+                (int)self::$FOGUser->get('id') :
+                0
+            );
+        }
+        $userID = (int)$userID;
+        $node = strtolower(trim((string)$node));
+        if (!SiteScope::isScopedNode($node)) {
+            return null;
+        }
+        // Same two short circuits as the single-object path: a server with
+        // no sites behaves as it always did, and a catch-all member is not
+        // narrowed to an enumerated list (which would stop covering
+        // objects created after the catch-all was made).
+        if (!SiteScope::anySitesExist() || SiteScope::isUnscoped($userID)) {
+            return null;
+        }
+        return SiteScope::allInScopeIDs($node, $userID);
     }
     /**
      * Enforce object scope for a management page request. Allowed →

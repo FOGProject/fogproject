@@ -110,6 +110,39 @@
     return POLL_SLOW - ((new Date().getTime() - startTime) % POLL_SLOW);
   }
 
+  /**
+   * Is this widget still on the page?
+   *
+   * Every chart below polls by rescheduling itself with setTimeout from its
+   * own complete handler, and nothing ever stopped those chains. FOG's AJAX
+   * navigation replaces the page body and cancels intervals -- fog.common.js
+   * wraps window.setInterval and calls clearAllIntervals() in doPageLoad --
+   * but it does not and cannot generically cancel timeouts, which are also
+   * used for debounces and for deferring work by a tick. So a setTimeout
+   * chain outlived the page that started it, and every visit to the dashboard
+   * left another one running for the life of the tab.
+   *
+   * Measured on the 1.6 lab: one dashboard visit, then five and a half
+   * minutes sitting on Host Management, produced 122 requests with nothing to
+   * draw into. The bandwidth chain is the expensive one -- POLL_BW is 2.5s,
+   * so roughly 24 requests a minute, per dashboard visit, indefinitely. It
+   * answers 200, which is why it was never noticed; the only visible symptom
+   * was the disk usage chain's 400 once every five minutes, because
+   * $('.nodeid') is not on the page either and the endpoint reports a missing
+   * node id as "Node is unavailable".
+   *
+   * Checked per widget rather than by tracking timers centrally, which keeps
+   * it local and self-healing: a chain ends the first time it wakes up on a
+   * page that no longer has its chart.
+   *
+   * @param {string} sel The widget's container selector.
+   *
+   * @return {boolean}
+   */
+  function alive(sel) {
+    return !!document.querySelector(sel);
+  }
+
   // Humanize a byte count using binary units.
   function humanBytes(v) {
     var units = [' iB', ' KiB', ' MiB', ' GiB', ' TiB', ' PiB', ' EiB', ' ZiB', ' YiB'];
@@ -248,6 +281,9 @@
     };
 
     function poll() {
+      if (!alive(SEL)) {
+        return;
+      }
       boxLoad(SEL, true);
       Pace.ignore(function () {
         $.ajax({
@@ -373,6 +409,9 @@
     };
 
     function poll() {
+      if (!alive(SEL)) {
+        return;
+      }
       boxLoad(SEL, true);
       Pace.ignore(function () {
         $.ajax({
@@ -462,6 +501,9 @@
     };
 
     function poll() {
+      if (!alive(SEL)) {
+        return;
+      }
       boxLoad(SEL, true);
       Pace.ignore(function () {
         $.ajax({
@@ -600,6 +642,9 @@
     }
 
     function fetchData() {
+      if (!alive(SEL)) {
+        return;
+      }
       ajax = $.ajax({
         url: BASE + '&sub=bandwidth',
         type: 'post',

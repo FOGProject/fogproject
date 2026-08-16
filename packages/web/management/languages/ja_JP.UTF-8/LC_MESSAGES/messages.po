@@ -1148,6 +1148,10 @@ msgstr "シャーシシリアル"
 msgid "Case Version"
 msgstr "シャーシバージョン"
 
+#, fuzzy
+msgid "Catch-All Site"
+msgstr "サイトを作成"
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1332,6 +1336,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Could not apply %s: %s"
 msgstr "見つかりませんでした"
+
+#, fuzzy
+msgid "Could not create the catch-all site"
+msgstr "スナップインジョブの作成に失敗しました"
 
 #, fuzzy
 msgid "Could not create the staging directory."
@@ -2091,9 +2099,6 @@ msgstr "ロケーションをエクスポート"
 msgid "Export OUs"
 msgstr "ユーザーをエクスポート"
 
-msgid "Export Sites"
-msgstr "サイトをエクスポート"
-
 #, fuzzy
 msgid "Export Subnet Groups"
 msgstr "サブネットグループをエクスポート"
@@ -2729,18 +2734,6 @@ msgid "Group Search DN"
 msgstr "グループ検索 DN"
 
 #, fuzzy
-msgid "Group Site"
-msgstr "グループイメージ"
-
-#, fuzzy
-msgid "Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "Group Site Updated!"
-msgstr "サイトを更新しました！"
-
-#, fuzzy
 msgid "Group Snapin Assignment"
 msgstr "グループ スナップイン"
 
@@ -2757,10 +2750,6 @@ msgstr "グループの更新に失敗しました"
 
 #, fuzzy
 msgid "Group Update OU Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "Group Update Site Fail"
 msgstr "グループの更新に失敗しました"
 
 msgid "Group Update Success"
@@ -3031,17 +3020,6 @@ msgstr "ホスト プロダクトキー"
 msgid "Host Registration"
 msgstr "ホスト登録"
 
-msgid "Host Site"
-msgstr "ホスト サイト"
-
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "サイトを更新しました！"
-
 #, fuzzy
 msgid "Host Snapin Associations"
 msgstr "スナップインロケーション"
@@ -3058,10 +3036,6 @@ msgstr "ホストの更新に失敗しました"
 
 #, fuzzy
 msgid "Host Update OU Fail"
-msgstr "ホストの更新に失敗しました"
-
-#, fuzzy
-msgid "Host Update Site Fail"
 msgstr "ホストの更新に失敗しました"
 
 msgid "Host Update Success"
@@ -3471,9 +3445,6 @@ msgstr "レポートをインポートしますか？"
 
 msgid "Import Reports"
 msgstr "レポートをインポート"
-
-msgid "Import Sites"
-msgstr "サイトをインポート"
 
 #, fuzzy
 msgid "Import Subnet Groups"
@@ -5872,6 +5843,9 @@ msgstr "保存は完了しましたが、有効な ID が割り当てられま�
 msgid "Save order"
 msgstr "Initrd を保存"
 
+msgid "Save the site before setting catch-all"
+msgstr ""
+
 msgid "Saving data for"
 msgstr "次のデータを保存しています:"
 
@@ -6213,9 +6187,6 @@ msgstr ""
 
 msgid "Site"
 msgstr "サイト"
-
-msgid "Site Association"
-msgstr "サイトの関連付け"
 
 msgid "Site Create Fail"
 msgstr "サイトの作成に失敗しました"
@@ -7178,6 +7149,10 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
 
+#, fuzzy
+msgid "The selected site no longer exists"
+msgstr "選択したプリンターを追加"
+
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
 
@@ -7289,6 +7264,10 @@ msgstr "これは一度だけ実行されるタスクであり、現在は実行
 msgid "This is a single run task that should run now."
 msgstr "これは一度だけ実行されるタスクであり、現在実行される予定です。"
 
+#, php-format
+msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
+msgstr ""
+
 msgid "This is especially useful if you have multiple"
 msgstr "複数ある場合に特に便利です"
 
@@ -7299,6 +7278,9 @@ msgid "This is not the primary group"
 msgstr "これはプライマリグループではありません"
 
 msgid "This is the amount of physical disk space"
+msgstr ""
+
+msgid "This is the catch-all site. Its members are in scope for everything, including hosts registered after they joined."
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
@@ -7872,22 +7854,6 @@ msgid "User Group Role Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
-msgid "User Group Site"
-msgstr "ユーザーを更新しました！"
-
-#, fuzzy
-msgid "User Group Site Update Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "User Group Site Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "User Group Site Updated!"
-msgstr "サイトを更新しました！"
-
-#, fuzzy
 msgid "User Group Update Fail"
 msgstr "グループの更新に失敗しました"
 
@@ -7914,22 +7880,6 @@ msgstr "ユーザー名属性"
 
 msgid "User Password"
 msgstr "ユーザーパスワード"
-
-#, fuzzy
-msgid "User Site"
-msgstr "ユーザーフィルター"
-
-#, fuzzy
-msgid "User Site Update Fail"
-msgstr "サイトの更新に失敗しました"
-
-#, fuzzy
-msgid "User Site Update Success"
-msgstr "サイトを更新しました"
-
-#, fuzzy
-msgid "User Site Updated!"
-msgstr "サイトを更新しました！"
 
 msgid "User Tracker"
 msgstr "ユーザートラッカー"
@@ -9268,9 +9218,6 @@ msgstr ""
 #~ msgid "Create Rule?"
 #~ msgstr "ルールを作成しますか？"
 
-#~ msgid "Create Site"
-#~ msgstr "サイトを作成"
-
 #, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "関連付けられたノードがありません"
@@ -9461,6 +9408,9 @@ msgstr ""
 #~ msgid "Export Printers"
 #~ msgstr "プリンターをエクスポート"
 
+#~ msgid "Export Sites"
+#~ msgstr "サイトをエクスポート"
+
 #~ msgid "Extension"
 #~ msgstr "拡張子"
 
@@ -9623,6 +9573,22 @@ msgstr ""
 #~ msgid "Group Search DN did not return any results"
 #~ msgstr "グループ検索 DN は結果を返しませんでした"
 
+#, fuzzy
+#~ msgid "Group Site"
+#~ msgstr "グループイメージ"
+
+#, fuzzy
+#~ msgid "Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
+#, fuzzy
+#~ msgid "Group Update Site Fail"
+#~ msgstr "グループの更新に失敗しました"
+
 #~ msgid "Group general"
 #~ msgstr "グループ全般"
 
@@ -9707,6 +9673,17 @@ msgstr ""
 #~ msgid "Host Screen Resolution"
 #~ msgstr "ホスト画面解像度"
 
+#~ msgid "Host Site"
+#~ msgstr "ホスト サイト"
+
+#, fuzzy
+#~ msgid "Host Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "Host Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
 #~ msgid "Host Snapins"
 #~ msgstr "ホスト スナップイン"
 
@@ -9718,6 +9695,10 @@ msgstr ""
 
 #~ msgid "Host Unassociated Snapins"
 #~ msgstr "ホストに関連付けられていないスナップイン"
+
+#, fuzzy
+#~ msgid "Host Update Site Fail"
+#~ msgstr "ホストの更新に失敗しました"
 
 #~ msgid "Host Virus History"
 #~ msgstr "ホスト ウイルス 履歴"
@@ -9829,6 +9810,9 @@ msgstr ""
 
 #~ msgid "Import Printers"
 #~ msgstr "プリンターをインポート"
+
+#~ msgid "Import Sites"
+#~ msgstr "サイトをインポート"
 
 #~ msgid "Included Items"
 #~ msgstr "含まれる項目"
@@ -10586,6 +10570,9 @@ msgstr ""
 #~ msgid "Shutdown after install"
 #~ msgstr "インストール後にシャットダウン"
 
+#~ msgid "Site Association"
+#~ msgstr "サイトの関連付け"
+
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
 
@@ -10919,8 +10906,40 @@ msgstr ""
 #~ msgid "User General"
 #~ msgstr "ユーザー全般"
 
+#, fuzzy
+#~ msgid "User Group Site"
+#~ msgstr "ユーザーを更新しました！"
+
+#, fuzzy
+#~ msgid "User Group Site Update Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Group Site Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "User Group Site Updated!"
+#~ msgstr "サイトを更新しました！"
+
 #~ msgid "User Password (confirm)"
 #~ msgstr "ユーザーパスワード（確認）"
+
+#, fuzzy
+#~ msgid "User Site"
+#~ msgstr "ユーザーフィルター"
+
+#, fuzzy
+#~ msgid "User Site Update Fail"
+#~ msgstr "サイトの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "User Site Update Success"
+#~ msgstr "サイトを更新しました"
+
+#, fuzzy
+#~ msgid "User Site Updated!"
+#~ msgstr "サイトを更新しました！"
 
 #~ msgid "User Tracking"
 #~ msgstr "ユーザー追跡"
