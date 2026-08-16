@@ -1324,8 +1324,205 @@ class OpenAPI extends FOGBase
                     '',
                     self::_messageResponse()
                 )
+            ],
+            '/snapin/createwithfile' => ['post' => self::_snapinCreateWithFileOp()],
+            '/storagegroup/{id}/uploadsnapinfiles' => [
+                'parameters' => [self::_idParameter()],
+                'post' => self::_uploadSnapinFilesOp()
             ]
         ];
+    }
+
+    /**
+     * POST /snapin/createwithfile.
+     *
+     * The two upload routes are the only operations in the document whose
+     * request is multipart rather than JSON, which is why they are written
+     * out here rather than falling out of the generic create shape -- the
+     * generic shape describes an application/json body built from the
+     * model's columns, and these take form fields and a binary.
+     *
+     * Field names, requiredness and status codes come from the endpoint's
+     * own published documentation on GH-823, not from reading the handler,
+     * so this describes the contract that was announced to callers.
+     *
+     * @return array
+     */
+    private static function _snapinCreateWithFileOp()
+    {
+        // $ref only if the snapin schema is actually in the document. The
+        // class list is mutable at runtime through API_VALID_CLASSES, so a
+        // plugin can remove snapin, and a fixed path is emitted either way
+        // -- a dangling $ref does not degrade, it stops the whole document
+        // resolving in any client that reads it.
+        $snapinSchema = in_array('snapin', self::_documentedClasses(), true)
+            ? ['$ref' => '#/components/schemas/' . self::schemaName('snapin')]
+            : ['type' => 'object'];
+        $op = self::_op(
+            '',
+            'snapinCreateWithFile',
+            _('Create a snapin and upload its file'),
+            _('multipart/form-data, not JSON. The file goes to the master '
+                . 'storage node of the group given, and FOGSnapinReplicator '
+                . 'propagates it to the rest of the group on its normal '
+                . 'cycle. A file already present under the same basename is '
+                . 'overwritten, matching the UI. Names matching /ssl/i are '
+                . 'refused -- that path is reserved.'),
+            [
+                '201' => [
+                    'description' => _('Created. The body is the new snapin, '
+                        . 'the same shape as GET /snapin/{id}.'),
+                    'content' => [
+                        'application/json' => ['schema' => $snapinSchema]
+                    ]
+                ],
+                '500' => [
+                    'description' => _('Transport to the master storage node '
+                        . 'failed, or the row would not save after the file '
+                        . 'had landed.'),
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['$ref' => '#/components/schemas/Error']
+                        ]
+                    ]
+                ]
+            ],
+            [],
+            [
+                'required' => true,
+                'content' => [
+                    'multipart/form-data' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'required' => ['snapinfile', 'snapin', 'storagegroup'],
+                            'properties' => [
+                                'snapinfile' => [
+                                    'type' => 'string',
+                                    'format' => 'binary',
+                                    'description' => _('The file itself.')
+                                ],
+                                'snapin' => [
+                                    'type' => 'string',
+                                    'description' => _('Name. Must be unique.')
+                                ],
+                                'storagegroup' => [
+                                    'type' => 'integer',
+                                    'description' => _('Id of the storage '
+                                        . 'group whose master receives the '
+                                        . 'file.')
+                                ],
+                                'description' => ['type' => 'string'],
+                                'packtype' => [
+                                    'type' => 'integer',
+                                    'default' => 0,
+                                    'description' => _('0 is a normal snapin, '
+                                        . '1 a snapin pack the client extracts '
+                                        . 'before running.')
+                                ],
+                                'rw' => [
+                                    'type' => 'string',
+                                    'description' => _('Run With interpreter.')
+                                ],
+                                'rwa' => [
+                                    'type' => 'string',
+                                    'description' => _('Run With arguments.')
+                                ],
+                                'args' => ['type' => 'string'],
+                                'action' => [
+                                    'type' => 'string',
+                                    'description' => _('reboot, shutdown, or '
+                                        . 'empty.')
+                                ],
+                                'timeout' => [
+                                    'type' => 'integer',
+                                    'default' => 0,
+                                    'description' => _('Seconds before the '
+                                        . 'client gives up. 0 is no timeout.')
+                                ],
+                                'isEnabled' => [
+                                    'type' => 'string',
+                                    'description' => _('Present means enabled.')
+                                ],
+                                'toReplicate' => [
+                                    'type' => 'string',
+                                    'description' => _('Present means include '
+                                        . 'in replication.')
+                                ],
+                                'isHidden' => [
+                                    'type' => 'string',
+                                    'description' => _('Present means hidden '
+                                        . 'from the UI list.')
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        );
+        // Grouped under snapin rather than system. _op() takes the tag from
+        // its class argument, which has to stay empty here so the operation
+        // id and the permission lookup both key off the fixed-route name,
+        // but a reader looking for this will open the snapin tag.
+        $op['tags'] = ['snapin'];
+        return $op;
+    }
+
+    /**
+     * POST /storagegroup/{id}/uploadsnapinfiles.
+     *
+     * @return array
+     */
+    private static function _uploadSnapinFilesOp()
+    {
+        $op = self::_op(
+            '',
+            'uploadSnapinFiles',
+            _('Upload snapin files to a storage group'),
+            _('multipart/form-data, not JSON. Transport only -- no snapin row '
+                . 'is created or touched, so this is how a caller pre-stages '
+                . 'files to attach later. The field name must be snapinfiles[] '
+                . 'even for a single file. Every file is validated before any '
+                . 'transfer begins, but a failure part way through a batch '
+                . 'leaves the earlier files in place.'),
+            [
+                '204' => ['description' => _('Every file was uploaded.')],
+                '500' => [
+                    'description' => _('Transport failed, or the group has no '
+                        . 'reachable master node.'),
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['$ref' => '#/components/schemas/Error']
+                        ]
+                    ]
+                ]
+            ],
+            [],
+            [
+                'required' => true,
+                'content' => [
+                    'multipart/form-data' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'required' => ['snapinfiles'],
+                            'properties' => [
+                                'snapinfiles' => [
+                                    'type' => 'array',
+                                    'items' => [
+                                        'type' => 'string',
+                                        'format' => 'binary'
+                                    ],
+                                    'description' => _('One or more files. The '
+                                        . 'field name carries the [] suffix on '
+                                        . 'the wire: snapinfiles[].')
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        );
+        $op['tags'] = ['storagegroup'];
+        return $op;
     }
 
     /**
