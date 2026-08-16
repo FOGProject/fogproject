@@ -473,7 +473,12 @@ class StorageGroup extends FOGController
      */
     public function save()
     {
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
         // No assocSetter('StorageGroup', 'storagenode') here: it derived the
         // plural 'storagenodes', which is not in $additionalFields and has no
         // loader, so the key could never hold data and the call was dead.

@@ -581,7 +581,12 @@ class User extends FOGController
     {
         // Captured before the save, because that is what stamps the id on.
         $isNew = (int)$this->get('id') < 1;
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
         if ($isNew && !SiteScope::sitesInUse()) {
             SiteScope::joinCatchAll((int)$this->get('id'));
         }

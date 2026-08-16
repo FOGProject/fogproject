@@ -132,7 +132,12 @@ class Module extends FOGController
      */
     public function save()
     {
-        parent::save();
+        // Propagate a failed write rather than reporting success; the
+        // association work below has no row to attach to either. See
+        // tests/save-propagates-failure.test.php.
+        if (!parent::save()) {
+            return false;
+        }
         return $this
             ->assocSetter('Module', 'host')
             ->load();
