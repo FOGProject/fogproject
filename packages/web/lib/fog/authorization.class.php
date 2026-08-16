@@ -261,7 +261,26 @@ class Authorization extends FOGBase
         if (null !== self::$_registry) {
             return self::$_registry;
         }
-        $registry = [
+        $registry = self::coreRegistry();
+        self::$HookManager->processEvent(
+            'PERMISSION_REGISTRY_DATA',
+            ['registry' => &$registry]
+        );
+        return self::$_registry = $registry;
+    }
+    /**
+     * The nodes core itself owns, before any plugin has contributed.
+     *
+     * Split out of registry() so purgePermissions() has something to test
+     * against that a plugin cannot influence. Deliberately NOT the
+     * post-hook result: a plugin that registered a node must not thereby
+     * be able to make that node unpurgeable, which is exactly backwards.
+     *
+     * @return array node => list of valid actions
+     */
+    public static function coreRegistry()
+    {
+        return [
             'host' => ['view', 'create', 'edit', 'delete', 'task'],
             'group' => ['view', 'create', 'edit', 'delete', 'task'],
             'image' => ['view', 'create', 'edit', 'delete', 'task'],
@@ -280,11 +299,21 @@ class Authorization extends FOGBase
             'report' => ['view', 'create'],
             'plugin' => ['view', 'edit', 'install']
         ];
-        self::$HookManager->processEvent(
-            'PERMISSION_REGISTRY_DATA',
-            ['registry' => &$registry]
-        );
-        return self::$_registry = $registry;
+    }
+    /**
+     * Is this registry node owned by core rather than by a plugin?
+     *
+     * @param string $node the registry node (e.g. 'host')
+     *
+     * @return bool
+     */
+    public static function isCoreOwnedNode($node)
+    {
+        $node = strtolower(trim((string)$node));
+        if ('' === $node) {
+            return false;
+        }
+        return array_key_exists($node, self::coreRegistry());
     }
     /**
      * Get the union of a user's permissions across all assigned roles.
@@ -1193,6 +1222,14 @@ class Authorization extends FOGBase
      * 'site', 'site.*', 'site.view', ... but never a sibling like
      * 'siteother' (the dot boundary is required).
      *
+     * A node core owns is never purged, whatever plugin name was passed.
+     * The two callers derive the prefix from `plugins.pName`, so a plugin
+     * sharing its name with a core node -- which is precisely what happens
+     * while a capability is being moved out of a plugin and into core --
+     * would otherwise delete live grants belonging to core on uninstall.
+     * The grants outlive the plugin on purpose in that case; the node has
+     * not left the registry, it changed owner.
+     *
      * @param string $nodePrefix the registry node (e.g. 'site')
      *
      * @return void
@@ -1201,6 +1238,9 @@ class Authorization extends FOGBase
     {
         $nodePrefix = strtolower(trim((string)$nodePrefix));
         if ('' === $nodePrefix) {
+            return;
+        }
+        if (self::isCoreOwnedNode($nodePrefix)) {
             return;
         }
         $names = array_values(
