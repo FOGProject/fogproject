@@ -213,6 +213,32 @@ self::$HookManager->processEvent('EVENT_NAME', ['data' => &$data]);
   - Per-entity files: `fog.{entity}.{sub}.js` (e.g., `fog.host.edit.js`)
 - AJAX hits `?node=...&sub=...` for HTML fragments or JSON, and `/api/` for REST
 
+### Polling widgets must guard on their own widget
+
+`doPageLoad()` cancels `setInterval` (it wraps it and clears the ids in
+`clearAllIntervals()`). It does **not** cancel `setTimeout` and cannot —
+`setTimeout` is also every debounce and next-tick deferral in the codebase.
+
+So **any `setTimeout` chain that reschedules itself outlives its page**, and
+every visit starts another one that runs for the life of the tab. Nothing
+errors; the requests answer 200 and draw into nothing. One dashboard visit
+plus 5½ minutes elsewhere used to cost 122 requests.
+
+Guard at the top of the polling function, before the request — returning early
+also ends the chain, because the reschedule lives in the `complete` handler:
+
+```js
+function poll() {
+    if (!document.querySelector(SEL)) { return; }   // or document.body.contains(el)
+    $.ajax({ /* ... */ complete: function() { timer = setTimeout(poll, POLL_MS); } });
+}
+```
+
+Per widget, not centrally — four charts get four guards. Prefer `setInterval`
+if the poll can be written that way; it is already torn down for you. Full
+reasoning and the rejected alternatives:
+`docs/adr/0012-self-rescheduling-polls-guard-on-their-own-widget.md`.
+
 ---
 
 ## Coding Conventions

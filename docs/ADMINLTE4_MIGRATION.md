@@ -6,8 +6,9 @@
 This is the working plan for moving FOG's web UI from AdminLTE 2 / Bootstrap 3 to
 **AdminLTE 4 / Bootstrap 5**, with native dark mode, fixing pages in place.
 
-> Lives in tracked `docs/` (not `docs/adr/`, which is gitignored and reserved
-> for local-only working notes) so it can travel on the migration branch.
+> Lives in `docs/` rather than `docs/adr/` because it is a working plan for one
+> branch, not a decision record. (`docs/adr/` was local-only when this was
+> written; it is tracked now.)
 
 ## Decisions (locked)
 
