@@ -471,6 +471,50 @@ Global configuration lives in the `globalSettings` table.
 
 ---
 
+## 7a. Class names and the `FOG\` namespace
+
+Since 1.6 beta, FOG's own classes are declared in the **`FOG\`** namespace —
+`FOG\Host`, `FOG\FOGController`, `FOG\Hook`. Every one of them is also aliased
+back into the global namespace, so **your plugin keeps working exactly as it is**
+(ADR 0013).
+
+`class MyHook extends Hook`, `new Host($id)`, `$obj instanceof Host`,
+`self::getClass('HelloWorldManager')`, `is_subclass_of($c, 'PluginTask')` — all
+of these resolve through the alias, unchanged, on every version of 1.6. The
+aliases are the 1.6 plugin ABI and are supported for the whole of 1.6.
+
+Two things to know:
+
+- **`FOG\Foo` is the forward-compatible spelling.** Prefer it in new code. Bare
+  `Foo` works for all of 1.6 and is what to write if you also support earlier
+  1.6 betas.
+
+- **⚠️ `get_class($this)` now returns `FOG\Foo`, not `Foo`.** If your plugin
+  *produces* a class name and then uses it as data — compares it to a literal,
+  builds a database column name or an array key from it, puts it in a filename
+  or a log line — it must be updated. Use `FOGBase::shortName()`:
+
+  ```php
+  // Before: 'FOG\HelloWorld' on 1.6, and the comparison silently fails.
+  if (get_class($this) === 'HelloWorld') { /* ... */ }
+
+  // After: 'HelloWorld' on every version, namespaced or not.
+  if (self::shortName($this) === 'HelloWorld') { /* ... */ }
+  ```
+
+  `shortName()` accepts an object or a class-name string, strips any namespace
+  prefix, and is a no-op on a name that has none — so the same code is correct
+  before and after.
+
+  This is the **only** source-level change 1.6 asks of a plugin, and it affects
+  only plugins that *produce* a class name. Consuming one — which is what nearly
+  all plugin code does — needs no change at all.
+
+**Deprecation window.** The global aliases are supported for all of 1.6. The
+earliest they could be reviewed for removal is 1.7, with at least one minor
+release of notice before it happens. Adopting `FOG\` names now costs nothing and
+removes the question later.
+
 ## 8. Security & output conventions
 
 - **Output:** wrap every user‑controlled value with `Initiator::e($value)` when
