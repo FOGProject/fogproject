@@ -5145,3 +5145,110 @@ $this->schema[] = [
     . "fleet use -- schedule against a single test host only.','shield','',"
     . "'mode=enrollsbforce','fog','1','both')",
 ];
+// 331
+$this->schema[] = [
+    // Sites, moving out of the site plugin and into core (Phase 1).
+    //
+    // Deliberately NOT the plugin's DDL adopted in place, which is how
+    // roles came across at step 302. That worked because accesscontrol's
+    // roles table was already the shape core wanted. site's is not: its
+    // four association tables carry no unique key, so the same host can be
+    // in the same site twice, and their Name columns have no default,
+    // which breaks assocSetter's batch inserts under strict SQL mode -- the
+    // exact two problems steps 303 and 309 had to write repair closures
+    // for. Reconstructing (step 332) costs one migration and lets core
+    // start from the shape it would choose today.
+    //
+    // New table names throughout, because the plugin's tables have to stay
+    // readable until the reconstruct has run and been checked. `sites` vs
+    // `site` is not a typo.
+    //
+    // Empty and unread at this step. Nothing queries these until scope
+    // resolution moves into core, so this is inert on any server.
+    "CREATE TABLE IF NOT EXISTS `sites` ("
+    . "`siteID` INT NOT NULL AUTO_INCREMENT,"
+    . "`siteName` VARCHAR(255) NOT NULL,"
+    . "`siteDesc` LONGTEXT NOT NULL,"
+    // The catch-all marker, and the reason it is NULL rather than 0.
+    //
+    // A catch-all site means "no restriction": its members are in scope
+    // for everything. Two of them would be meaningless, and worse than
+    // meaningless -- a second one is indistinguishable from the first at
+    // the point of use, so a stray insert would silently widen what a
+    // whole set of users can see. That is a boundary invariant, so the
+    // engine holds it rather than the application: InnoDB allows any
+    // number of NULLs in a UNIQUE index but only one of a given value,
+    // so at most one row can ever carry the marker.
+    //
+    // Consequence a writer MUST honour: a site that is not the catch-all
+    // stores NULL, never 0. 0 is a value like any other, so the second
+    // site to store it collides -- and under FOGController::save() that
+    // collision is NOT an error. save() builds INSERT ... ON DUPLICATE KEY
+    // UPDATE (fogcontroller.class.php:557-562), so creating a second site
+    // with siteCatchAll = 0 would UPDATE the first one's row instead of
+    // inserting: a create that silently overwrites an unrelated site. That
+    // is the bug class three other tables here were repaired for.
+    //
+    // NULL avoids it structurally rather than by care. save() drops any
+    // field whose value is null before building the column list (:545),
+    // so a null marker is never in the INSERT at all, never participates
+    // in a key collision, and takes the column default -- which is NULL.
+    //
+    // The CHECK is the belt: it makes storing 0 a hard error rather than a
+    // silent overwrite, on every server new enough to enforce it (MariaDB
+    // 10.2+, MySQL 8.0.16+). Older servers parse CHECK and ignore it, so
+    // it cannot break the CREATE anywhere -- it just does not protect
+    // there, which is why the NULL convention above is the real rule and
+    // this is only the backstop.
+    . "`siteCatchAll` TINYINT(1) UNSIGNED NULL DEFAULT NULL,"
+    . "PRIMARY KEY (`siteID`),"
+    . "UNIQUE KEY `siteName` (`siteName`),"
+    . "UNIQUE KEY `siteCatchAll` (`siteCatchAll`),"
+    . "CONSTRAINT `siteCatchAllIsOneOrNull` CHECK (`siteCatchAll` = 1)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    // The four membership tables. Same shape as userGroupMembers (step
+    // 309): composite unique so a thing is in a site at most once, and a
+    // defaulted Name column so assocSetter's batch inserts survive strict
+    // SQL mode.
+    //
+    // Each also carries a plain index on the object column. Scope
+    // resolution asks both directions -- "which sites is this user in"
+    // when a request starts, and "is this host in any of them" per object
+    // -- and the composite unique only serves the site-leading half.
+    "CREATE TABLE IF NOT EXISTS `siteHostMembers` ("
+    . "`shmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`shmName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`shmSiteID` INT NOT NULL,"
+    . "`shmHostID` INT NOT NULL,"
+    . "PRIMARY KEY (`shmID`),"
+    . "UNIQUE KEY `shmSiteHost` (`shmSiteID`,`shmHostID`),"
+    . "KEY `shmHostID` (`shmHostID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `siteUserMembers` ("
+    . "`sumID` INT NOT NULL AUTO_INCREMENT,"
+    . "`sumName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`sumSiteID` INT NOT NULL,"
+    . "`sumUserID` INT NOT NULL,"
+    . "PRIMARY KEY (`sumID`),"
+    . "UNIQUE KEY `sumSiteUser` (`sumSiteID`,`sumUserID`),"
+    . "KEY `sumUserID` (`sumUserID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `siteGroupMembers` ("
+    . "`sgmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`sgmName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`sgmSiteID` INT NOT NULL,"
+    . "`sgmGroupID` INT NOT NULL,"
+    . "PRIMARY KEY (`sgmID`),"
+    . "UNIQUE KEY `sgmSiteGroup` (`sgmSiteID`,`sgmGroupID`),"
+    . "KEY `sgmGroupID` (`sgmGroupID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `siteUserGroupMembers` ("
+    . "`sugmID` INT NOT NULL AUTO_INCREMENT,"
+    . "`sugmName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`sugmSiteID` INT NOT NULL,"
+    . "`sugmUserGroupID` INT NOT NULL,"
+    . "PRIMARY KEY (`sugmID`),"
+    . "UNIQUE KEY `sugmSiteUserGroup` (`sugmSiteID`,`sugmUserGroupID`),"
+    . "KEY `sugmUserGroupID` (`sugmUserGroupID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];
