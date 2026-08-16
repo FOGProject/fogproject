@@ -226,7 +226,9 @@ class Task extends TaskType
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
         ];
-        $Tasks = Route::getList(__CLASS__, $find);
+        // Short name: Route::listem() validates this against
+        // Route::$validClasses, a list of bare lowercase names.
+        $Tasks = Route::getList(self::shortName(__CLASS__), $find);
 
         foreach ($Tasks as $Task) {
             $tid = (int) $Task->id;

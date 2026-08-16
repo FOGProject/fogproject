@@ -1109,8 +1109,10 @@ class Plugin extends FOGController
         // Asked of $manager rather than class_exists($wanted): getManager()
         // has already resolved it, and asking again would autoload the same
         // file a second time.
+        // Short name: $wanted is built from the plugins.pName database value,
+        // so comparing an FQCN against it would fail every plugin install.
         if (file_exists($managerFile)
-            && strcasecmp(get_class($manager), $wanted) !== 0
+            && strcasecmp(self::shortName($manager), $wanted) !== 0
         ) {
             throw new \Exception(
                 sprintf(

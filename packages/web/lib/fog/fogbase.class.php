@@ -516,13 +516,41 @@ abstract class FOGBase
         return filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
     }
     /**
+     * Returns a class' short name, with any namespace prefix stripped.
+     *
+     * Phase 3 of the refactor declares FOG's classes inside the FOG\
+     * namespace, at which point get_class() starts reporting 'FOG\Host'
+     * where it reports 'Host' today. That is harmless wherever the result
+     * is used as a class *reference* -- PHP resolves it either way -- but
+     * FOG also uses it as *data*: as a database column name, as a switch
+     * case, as an HTML attribute, as a Route::$validClasses lookup, and as
+     * the text written to the history table. In those positions the prefix
+     * is silently wrong, so every one of them derives its string here.
+     *
+     * On the current tree this is a no-op: with no namespace declared there
+     * is no prefix to strip. That is deliberate -- it lets the derivation
+     * sites be fixed and shipped ahead of the namespacing itself.
+     *
+     * tests/class-name-derivation.test.php holds the line.
+     *
+     * @param object|string $class object or class name to shorten
+     *
+     * @return string
+     */
+    public static function shortName($class)
+    {
+        $name = is_object($class) ? get_class($class) : (string) $class;
+        $pos = strrpos($name, '\\');
+        return false === $pos ? $name : substr($name, $pos + 1);
+    }
+    /**
      * Defines string as class name.
      *
      * @return string
      */
     public function __toString()
     {
-        return get_class($this);
+        return self::shortName($this);
     }
     /**
      * Returns the class after verifying reflection of the class.
@@ -836,7 +864,8 @@ abstract class FOGBase
             '[%s] FOG %s: %s: %s',
             $date->format('l F d Y H:i:s'),
             $label,
-            __CLASS__,
+            // Log prefix, so the short name -- not 'FOG\FOGBase'.
+            self::shortName(__CLASS__),
             $data
         );
         if (self::$mySchema >= FOG_SCHEMA && self::getSetting($setting) > 0) {
