@@ -21,11 +21,16 @@
  */
 require '../commons/base.inc.php';
 try {
-    Route::names('group');
-    $groupnames = json_decode(
-        Route::getData()
+    // asValue(): names() has no wrapper, and its payload is a bare list with
+    // no envelope to unwrap. What this buys is that a router failure raises
+    // into the catch below rather than reaching breakHead()'s exit. See
+    // ADR 0011.
+    $groupnames = Route::asValue(
+        function () {
+            Route::names('group');
+        }
     );
-    if (count($groupnames ?: []) < 1) {
+    if (count((array)$groupnames) < 1) {
         throw new \Exception(
             _('There are no groups on this server')
         );
