@@ -177,6 +177,13 @@ chains to, and MokManager — the first stages of a Secure Boot chain. These are
 never re-signed by FOG. They are absent on an HTTPS-only install, which does not
 stage them.
 
+>[!warning]
+>`secureboot/ipxe.efi` is not a shortcut. It is upstream's signed build and it
+>does carry iPXE's own NIC drivers, so it looks like the one file you need — but
+>booted locally off an ESP it does not load them. Use it only as a chain stage
+>that hands off to one of FOG's binaries above, never as the binary that has to
+>bring up the network.
+
 `snponly.efi` is deliberately **not** published even though TFTP serves it. It
 binds only the device iPXE was loaded from, and booted off an ESP that device is
 the disk — so it never finds a NIC. It is the right binary for netboot and the

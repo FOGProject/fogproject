@@ -24,10 +24,26 @@ bcdedit {bootmgr}
   -> EFI\localipxe.efi          FOG's own build               UNSIGNED -> stops here
 ```
 
-Upstream's `snponly.efi` cannot finish the job itself. It binds the firmware's
-UEFI SNP protocol, and this class of hardware frequently does not provide one —
-which is the same reason its firmware has no PXE option. The chain has to reach
-a binary carrying iPXE's own NIC drivers, and that binary is FOG's own build.
+**Neither of upstream's signed binaries can finish the job.** This is the part
+worth reading twice, because the obvious objection — "upstream already signs an
+all-drivers build, just use that" — looks correct and is not.
+
+`snponly.efi` binds the firmware's UEFI SNP protocol, and this class of hardware
+frequently does not provide one, which is the same reason its firmware has no PXE
+option in the first place.
+
+`ipxe.efi` — the second chain `secureboot/stage.sh` stages, reached through
+`ipxe-shimx64.efi` — *is* built with iPXE's own NIC drivers, and the natural
+reading is that it therefore covers the SNP-less case. **Tested, and it does
+not: booted locally off an ESP, it does not load its drivers.** So both upstream
+paths dead-end on exactly the hardware this feature exists for, and the chain has
+to reach FOG's own build.
+
+That result is not derivable from the source tree or from either project's
+documentation — it took hardware to find, so it is recorded here rather than
+left to be rediscovered. It also means the two `ipxe-shim*` entries upstream
+ships are only ever a first-and-second stage that chainloads onward, never the
+binary that actually drives the NIC.
 
 Once shim has run, its security policy override stays installed for the rest of
 the boot, so a MOK-signed binary loads. FOG already publishes and enrols a MOK
@@ -311,6 +327,13 @@ happens immediately after signing.
 - **The SELinux gap was found by reading, before any test run.** A symlink would
   have 403'd on every enforcing host, and the default test distro is
   `ubuntu:24.04` — which ships no SELinux and would have passed. See Design §3.
+- **Upstream's signed all-drivers `ipxe.efi` does not load its drivers when
+  booted locally off an ESP** — tested on hardware. This closes the one question
+  that could have collapsed the whole design: if that binary worked, FOG would
+  need to sign nothing and could ship upstream's pair plus a two-line
+  `autoexec.ipxe`. It does not, so the chain genuinely has to reach FOG's own
+  build. Recorded in the Problem section because nothing in either source tree
+  predicts it.
 
 ## Remaining risks
 

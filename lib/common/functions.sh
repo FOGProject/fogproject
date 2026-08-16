@@ -8122,6 +8122,14 @@ _signLocalIpxe() {
 # shim.c rewrites its own "-shim<arch>.efi" suffix to ".efi" to pick its second
 # stage, so snponly-shimx64.efi loads snponly.efi and ipxe-shimx64.efi loads
 # ipxe.efi -- the pairs have to travel together or neither works.
+#
+# Do not mistake upstream's secureboot/ipxe.efi for a replacement for the FOG
+# binaries above. It is built with iPXE's own NIC drivers and looks like it makes
+# all of this unnecessary -- sign nothing, ship upstream's pair and a two-line
+# autoexec.ipxe. Tested on hardware: booted locally off an ESP it does NOT load
+# those drivers. Both upstream loaders therefore dead-end on exactly the hardware
+# this feature exists for, which is why the chain has to reach FOG's own build.
+# Nothing in either source tree predicts this; it took a machine to find.
 localbootfiles=(
     ipxe.efi
     snp.efi
