@@ -90,11 +90,8 @@ class DashboardPage extends FOGPage
         if (self::$ajax) {
             return;
         }
-        Route::listem('storagenode');
-        $Nodes = json_decode(
-            Route::getData()
-        );
-        foreach ($Nodes->data as &$StorageNode) {
+        $Nodes = Route::getList('storagenode');
+        foreach ($Nodes as &$StorageNode) {
             if (!($StorageNode->isEnabled && $StorageNode->isGraphEnabled)) {
                 continue;
             }
@@ -129,12 +126,8 @@ class DashboardPage extends FOGPage
             self::$_nodeColors[] = $StorageNode->graphcolor;
             unset($StorageNode);
         }
-        Route::listem('storagegroup');
-        $Groups = json_decode(
-            Route::getData()
-        );
-        $Groups = $Groups->data;
-        foreach ((array)$Groups as &$StorageGroup) {
+        $Groups = Route::getList('storagegroup');
+        foreach ($Groups as &$StorageGroup) {
             self::$_groupOpts .= sprintf(
                 '<option value="%s">%s</option>',
                 Initiator::e($StorageGroup->id),
@@ -749,13 +742,10 @@ class DashboardPage extends FOGPage
     public function nodeversions()
     {
         header('Content-type: application/json');
-        Route::listem('storagenode');
-        $Nodes = json_decode(
-            Route::getData()
-        );
+        $Nodes = Route::getList('storagenode');
         $ids = [];
         $urls = [];
-        foreach ($Nodes->data as &$StorageNode) {
+        foreach ($Nodes as &$StorageNode) {
             if (!($StorageNode->isEnabled && $StorageNode->isGraphEnabled)) {
                 continue;
             }

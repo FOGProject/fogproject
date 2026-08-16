@@ -2103,9 +2103,7 @@ class HostManagement extends FOGPage
         $snapinIDs = (array)$this->obj->get('snapins');
         $names = [];
         if (count($snapinIDs) > 0) {
-            Route::listem('snapin', ['id' => $snapinIDs]);
-            $Snapins = json_decode(Route::getData());
-            $Snapins = isset($Snapins->data) ? $Snapins->data : [];
+            $Snapins = Route::getList('snapin', ['id' => $snapinIDs]);
             foreach ($Snapins as $Snapin) {
                 $names[$Snapin->id] = $Snapin->name;
             }
@@ -3875,16 +3873,14 @@ class HostManagement extends FOGPage
             ]
         ];
         // The items we're getting.
-        Route::listem(
+        $items = Route::getList(
             'tasktype',
             $key,
-            false,
             'AND',
             'id'
         );
-        $items = json_decode(Route::getData());
         // Loop 1, the basic non-advanced tasks.
-        foreach ($items->data as &$TaskType) {
+        foreach ($items as &$TaskType) {
             $taskTypeIterator($TaskType, 0);
             unset($TaskType);
         }
@@ -3897,7 +3893,7 @@ class HostManagement extends FOGPage
         $data = [];
         $advanced = 1;
         // Loop 2, the advanced tasks.
-        foreach ($items->data as &$TaskType) {
+        foreach ($items as &$TaskType) {
             $taskTypeIterator($TaskType, 1);
             unset($TaskType);
         }
@@ -3998,8 +3994,17 @@ class HostManagement extends FOGPage
             if (!is_numeric($type) || $type < 1) {
                 $type = 1;
             }
-            Route::indiv('tasktype', $type);
-            $TaskType = json_decode(Route::getData());
+            // getItem(), not indiv(): a deleted task type used to end the
+            // response with a 404 rather than report it. Refs ADR 0011.
+            $TaskType = Route::getItem('tasktype', $type);
+            if (!$TaskType) {
+                throw new \Exception(
+                    sprintf(
+                        _('Task type %d is missing from this server.'),
+                        $type
+                    )
+                );
+            }
 
             $this->title = $TaskType->name
                 . ' '
@@ -4259,8 +4264,17 @@ class HostManagement extends FOGPage
                 $type = 1;
             }
 
-            Route::indiv('tasktype', $type);
-            $TaskType = json_decode(Route::getData());
+            // getItem(), not indiv(): a deleted task type used to end the
+            // response with a 404 rather than report it. Refs ADR 0011.
+            $TaskType = Route::getItem('tasktype', $type);
+            if (!$TaskType) {
+                throw new \Exception(
+                    sprintf(
+                        _('Task type %d is missing from this server.'),
+                        $type
+                    )
+                );
+            }
             // Pending check.
             if ($this->obj->get('pending')) {
                 throw new \Exception(_('Pending hosts cannot be tasked'));
@@ -4519,11 +4533,16 @@ class HostManagement extends FOGPage
                 ]
             ));
         }
-        Route::names(
-            'printer',
-            ['id' => $printersAssigned]
+        // asValue(): names() has no wrapper of its own, and its payload is a
+        // bare list with nothing to unwrap.
+        $printerNames = Route::asValue(
+            function () use ($printersAssigned) {
+                Route::names(
+                    'printer',
+                    ['id' => $printersAssigned]
+                );
+            }
         );
-        $printerNames = json_decode(Route::getData());
         foreach ($printerNames as $printer) {
             $printers[$printer->id] = $printer->name;
         }

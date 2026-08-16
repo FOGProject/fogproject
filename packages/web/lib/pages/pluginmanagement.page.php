@@ -618,17 +618,14 @@ class PluginManagement extends FOGPage
                 $serverFault = true;
                 throw new \Exception(_('Activate plugins failed!'));
             }
-            Route::listem(
+            $Plugins = Route::getList(
                 'plugin',
                 [
                     'id' => $plugins,
                     'installed' => ['',0,'0']
                 ]
             );
-            $Plugins = json_decode(
-                Route::getData()
-            );
-            foreach ($Plugins->data as &$Plugin) {
+            foreach ($Plugins as &$Plugin) {
                 $pluginObj = self::getClass('Plugin', $Plugin->id);
                 if (!$pluginObj->installdb()) {
                     throw new \Exception(
@@ -717,17 +714,14 @@ class PluginManagement extends FOGPage
             // Only update plugins that are actually installed (the reverse of
             // the install filter): updating a not-installed plugin is a no-op
             // for the admin's intent.
-            Route::listem(
+            $Plugins = Route::getList(
                 'plugin',
                 [
                     'id' => $plugins,
                     'installed' => 1
                 ]
             );
-            $Plugins = json_decode(
-                Route::getData()
-            );
-            foreach ($Plugins->data as &$Plugin) {
+            foreach ($Plugins as &$Plugin) {
                 $pluginObj = self::getClass('Plugin', $Plugin->id);
                 if (!$pluginObj->installdb()) {
                     throw new \Exception(
@@ -890,17 +884,14 @@ class PluginManagement extends FOGPage
                 $serverFault = true;
                 throw new \Exception(_('Deactivate plugins failed!'));
             }
-            Route::listem(
+            $Plugins = Route::getList(
                 'plugin',
                 [
                     'id' => $plugins,
                     'installed' => 1
                 ]
             );
-            $Plugins = json_decode(
-                Route::getData()
-            );
-            foreach ($Plugins->data as &$Plugin) {
+            foreach ($Plugins as &$Plugin) {
                 $installPlugin = self::getClass(
                     $Plugin->name
                     . 'Manager'
@@ -1011,11 +1002,10 @@ class PluginManagement extends FOGPage
             if (!count($plugins)) {
                 throw new \Exception(_('No plugins selected.'));
             }
-            Route::listem('plugin', ['id' => $plugins], true);
-            $rows = json_decode(Route::getData());
+            $rows = Route::getList('plugin', ['id' => $plugins]);
             $present = [];
             $forget = [];
-            foreach ((array)($rows->data ?? []) as $row) {
+            foreach ($rows as $row) {
                 if (Plugin::isMissing((string)$row->location)) {
                     $forget[(int)$row->id] = (string)$row->name;
                     continue;

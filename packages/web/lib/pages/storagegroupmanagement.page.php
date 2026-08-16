@@ -967,11 +967,16 @@ class StorageGroupManagement extends FOGPage
                 ]
             ));
         }
-        Route::names(
-            'storagenode',
-            ['id' => $storagenodesAssigned]
+        // asValue(): names() has no wrapper of its own, and its payload is
+        // a bare list with nothing to unwrap.
+        $storagenodeNames = Route::asValue(
+            function () use ($storagenodesAssigned) {
+                Route::names(
+                    'storagenode',
+                    ['id' => $storagenodesAssigned]
+                );
+            }
         );
-        $storagenodeNames = json_decode(Route::getData());
         foreach ($storagenodeNames as &$storagenode) {
             $storagenodes[$storagenode->id] = $storagenode->name;
             unset($storagenode);

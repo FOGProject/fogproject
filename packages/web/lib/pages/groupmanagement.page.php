@@ -1699,14 +1699,12 @@ class GroupManagement extends FOGPage
     public function groupInventory()
     {
         // Get this group's Host Inventory items.
-        Route::listem(
+        $inventories = Route::getList(
             'inventory',
             ['hostID' => $this->obj->get('hosts')],
-            false,
             'AND',
             'hostID'
         );
-        $inventories = json_decode(Route::getData());
 
         // Get the host names
         $hostnames = Route::getIds(
@@ -1734,7 +1732,7 @@ class GroupManagement extends FOGPage
             return;
         }
         // Loop and print the inventory data broken out by host names.
-        foreach ($inventories->data as $i => &$inventory) {
+        foreach ($inventories as $i => &$inventory) {
             if (!isset($hostnames[$i])) {
                 continue;
             }
@@ -2639,16 +2637,14 @@ class GroupManagement extends FOGPage
             ]
         ];
         // The items we're getting.
-        Route::listem(
+        $items = Route::getList(
             'tasktype',
             $key,
-            false,
             'AND',
             'id'
         );
-        $items = json_decode(Route::getData());
         // Loop 1, the basic non-advanced tasks.
-        foreach ($items->data as &$TaskType) {
+        foreach ($items as &$TaskType) {
             $taskTypeIterator($TaskType, 0);
             unset($TaskType);
         }
@@ -2661,7 +2657,7 @@ class GroupManagement extends FOGPage
         $data = [];
         $advanced = 1;
         // Loop 2, the advanced tasks.
-        foreach ($items->data as &$TaskType) {
+        foreach ($items as &$TaskType) {
             $taskTypeIterator($TaskType, 1);
             unset($TaskType);
         }
@@ -2810,8 +2806,14 @@ class GroupManagement extends FOGPage
                 ]
             ));
         }
-        Route::names('printer');
-        $printerNames = json_decode(Route::getData());
+        // asValue(): names() has no wrapper -- its payload is a bare list
+        // with no envelope to unwrap -- so this is here for the other half,
+        // a failure raising rather than ending the page.
+        $printerNames = Route::asValue(
+            function () {
+                Route::names('printer');
+            }
+        );
         foreach ($printerNames as &$printer) {
             $printers[$printer->id] = $printer->name;
             unset($printer);
@@ -2948,15 +2950,12 @@ class GroupManagement extends FOGPage
         $hostCount = count($hostIDs);
         $data = [];
         if ($hostCount > 0) {
-            Route::listem(
+            $assocs = Route::getList(
                 'snapinassociation',
                 ['hostID' => $hostIDs],
-                false,
                 'AND',
                 'sequence'
             );
-            $assocs = json_decode(Route::getData());
-            $assocs = isset($assocs->data) ? $assocs->data : [];
             $counts = [];
             $minSeq = [];
             foreach ($assocs as $assoc) {
@@ -2982,9 +2981,7 @@ class GroupManagement extends FOGPage
                 }
             );
             if (count($shared) > 0) {
-                Route::listem('snapin', ['id' => $shared]);
-                $Snapins = json_decode(Route::getData());
-                $Snapins = isset($Snapins->data) ? $Snapins->data : [];
+                $Snapins = Route::getList('snapin', ['id' => $shared]);
                 $names = [];
                 foreach ($Snapins as $Snapin) {
                     $names[(int)$Snapin->id] = $Snapin->name;
@@ -3080,9 +3077,7 @@ class GroupManagement extends FOGPage
         $names = [];
         $order = [];
         if (count($hostIDs) > 0) {
-            Route::listem('host', ['id' => $hostIDs]);
-            $hosts = json_decode(Route::getData());
-            $hosts = isset($hosts->data) ? $hosts->data : [];
+            $hosts = Route::getList('host', ['id' => $hostIDs]);
             foreach ($hosts as $host) {
                 $names[(int)$host->id] = $host->name;
                 $order[] = (int)$host->id;
@@ -3369,14 +3364,11 @@ class GroupManagement extends FOGPage
             }
             $nhosts = [];
             $hostImages = [];
-            Route::listem(
+            $Hosts = Route::getList(
                 'host',
                 ['id' => $hosts]
             );
-            $Hosts = json_decode(
-                Route::getData()
-            );
-            foreach ($Hosts->data as &$host) {
+            foreach ($Hosts as &$host) {
                 if (!$host->imageID) {
                     continue;
                 }
@@ -3474,8 +3466,17 @@ class GroupManagement extends FOGPage
 
             // Actually create tasking
             if ($scheduleType == 'instant') {
-                Route::indiv('tasktype', $type);
-                $tasktype = json_decode(Route::getData());
+                // getItem(), not indiv(): a deleted task type used to end the
+                // response with a 404 rather than report it. Refs ADR 0011.
+                $tasktype = Route::getItem('tasktype', $type);
+                if (!$tasktype) {
+                    throw new \Exception(
+                        sprintf(
+                            _('Task type %d is missing from this server.'),
+                            $type
+                        )
+                    );
+                }
                 $this->obj->createImagePackage(
                     $tasktype,
                     $taskName,

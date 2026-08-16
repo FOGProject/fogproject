@@ -134,15 +134,15 @@ class FOGConfigurationPage extends FOGPage
         $this->title = _('FOG Version Information');
 
         // Get our storage node urls.
-        Route::listem('storagenode');
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
-        $StorageNodes = $StorageNodes->data;
+        $StorageNodes = Route::getList('storagenode');
         ob_start();
         foreach ($StorageNodes as &$StorageNode) {
-            Route::indiv('storagenode', $StorageNode->id);
-            $StorageNode = json_decode(Route::getData());
+            // getItem(), not indiv(): a node deleted between the list and the
+            // fetch answers null rather than ending the page mid-render.
+            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
+            if (!$StorageNode) {
+                continue;
+            }
             $id = str_replace(' ', '_', $StorageNode->name);
             $url = filter_var(
                 sprintf(
@@ -1139,11 +1139,11 @@ class FOGConfigurationPage extends FOGPage
             $items = [];
             foreach ($vars as $key => &$val) {
                 $id = self::_settingIdFor($key);
-                Route::indiv('setting', $id);
+                $Service = Route::getItem('setting', $id);
                 $set = trim($val);
-                $Service = json_decode(
-                    Route::getData()
-                );
+                if (!$Service) {
+                    continue;
+                }
                 $name = trim($Service->name);
                 $val = trim($Service->value);
                 if ($val == $set) {
@@ -2110,13 +2110,13 @@ class FOGConfigurationPage extends FOGPage
                 // because the $_FILES lookup below is keyed by what the form
                 // actually sent.
                 $id = self::_settingIdFor($key);
-                Route::indiv('setting', $id);
+                $Setting = Route::getItem('setting', $id);
                 if (!isset($_FILES[$key]) || !$_FILES[$key]) {
                     $set = trim(filter_var($val));
                 }
-                $Setting = json_decode(
-                    Route::getData()
-                );
+                if (!$Setting) {
+                    continue;
+                }
                 $name = trim($Setting->name);
                 $val = trim($Setting->value);
                 if ($val && $val == ($set ?? '')) {
@@ -2584,10 +2584,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function logviewer()
     {
-        Route::listem('storagegroup');
-        $StorageGroups = json_decode(
-            Route::getData()
-        );
+        $StorageGroups = Route::getList('storagegroup');
 
         // Log selector.
         $logtype = _('error');
@@ -2616,7 +2613,7 @@ class FOGConfigurationPage extends FOGPage
             );
             $files[$StorageNode->name][_($str)] = $log;
         };
-        foreach ($StorageGroups->data as &$StorageGroup) {
+        foreach ($StorageGroups as &$StorageGroup) {
             if (count($StorageGroup->enablednodes ?: []) < 1) {
                 continue;
             }
