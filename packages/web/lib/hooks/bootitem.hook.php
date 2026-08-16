@@ -147,7 +147,11 @@ class BootItem extends Hook
         $Menus = json_decode(
             Route::getData()
         );
-        foreach ($Menus as &$Menu) {
+        // ->data, not the envelope: listem() returns the paginated wrapper and
+        // the rows live under it. Iterating the wrapper walked its own scalar
+        // members (draw, recordsTotal, the page URLs...) instead, so $Menu->name
+        // was null every pass and the fog.local special-casing below never fired.
+        foreach ($Menus->data as $Menu) {
             if ($arguments['ipxe']['item-'.$Menu->name]
                 && $Menu->name == 'fog.local'
             ) {
@@ -167,7 +171,6 @@ class BootItem extends Hook
                     = $arguments['bootexittype']
                     . ' || goto MENU';
             }
-            unset($Menu);
         }
         // Default item is set to: 'ipxe' 'default'
         if ($arguments['ipxe']['default']) {
