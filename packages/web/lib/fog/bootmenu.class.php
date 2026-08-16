@@ -1958,7 +1958,7 @@ class BootMenu extends FOGBase
                 );
             }
         }
-        return ["item${hotkey}${name} ${desc}"];
+        return ["item{$hotkey}{$name} {$desc}"];
     }
     /**
      * The options of the menu

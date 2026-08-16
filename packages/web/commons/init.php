@@ -512,7 +512,7 @@ class Initiator
                         new \RecursiveIteratorIterator(
                             new \RecursiveDirectoryIterator(
                                 $root,
-                                \FileSystemIterator::SKIP_DOTS
+                                \FilesystemIterator::SKIP_DOTS
                             )
                         ),
                         $regext,
