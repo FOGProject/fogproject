@@ -83,6 +83,67 @@ if (!$matchesValue) {
         . 'say why; do not just let it fail.';
 }
 
+/*
+ * The grid path needs the same treatment and cannot borrow the same code:
+ * unisearch() has the term and the row in one loop, while a DataTables list
+ * builds its payload in FOGManagerController::complex() and only gets it
+ * back afterwards. So Route::_applySettingValueScope() does it on the
+ * returned rows, and these pin the three properties that make it correct
+ * rather than merely present.
+ */
+$scope = null;
+$scopeStart = strpos($src, 'private static function _applySettingValueScope(');
+if (false === $scopeStart) {
+    $checks++;
+    $failures[] = 'Route::_applySettingValueScope() is gone, so a DataTables '
+        . 'search on /fog/setting/list can match a credential value again';
+} else {
+    $scopeEnd = strpos($src, "\n    private static function ", $scopeStart + 10);
+    $scope = false === $scopeEnd
+        ? substr($src, $scopeStart)
+        : substr($src, $scopeStart, $scopeEnd - $scopeStart);
+
+    $checks++;
+    if (false === strpos($scope, 'isSensitiveSetting(')) {
+        $failures[] = '_applySettingValueScope() no longer calls '
+            . 'isSensitiveSetting(), so it is deciding what counts as a '
+            . 'credential from some second copy of the rule';
+    }
+
+    // No search term at all must be a no-op: a plain listing has to keep
+    // returning every setting, values masked, as it always has.
+    $checks++;
+    if (false === strpos($scope, 'if (!count($terms)) {')) {
+        $failures[] = '_applySettingValueScope() lost its early return for a '
+            . 'request with no search terms, so a plain settings list would '
+            . 'start hiding credential rows entirely';
+    }
+
+    // The count is the leak. Rewriting recordsFiltered alone leaves
+    // recordsTotal answering the question the dropped row was dropped for.
+    $checks++;
+    if (false === strpos($scope, "recordsTotal")
+        || false === strpos($scope, "recordsFiltered")
+    ) {
+        $failures[] = '_applySettingValueScope() does not rewrite BOTH '
+            . 'recordsFiltered and recordsTotal; a stale total reports the '
+            . 'dropped row and defeats the drop';
+    }
+}
+
+$checks++;
+$listem = strpos($src, 'public static function listem(');
+$listemEnd = false === $listem
+    ? false
+    : strpos($src, "\n    public static function ", $listem + 10);
+$listemBody = false === $listem
+    ? ''
+    : substr($src, $listem, ($listemEnd ?: strlen($src)) - $listem);
+if (false === strpos($listemBody, '_applySettingValueScope(')) {
+    $failures[] = 'listem() no longer calls _applySettingValueScope(), so the '
+        . 'helper exists but nothing runs it';
+}
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
     foreach ($failures as $f) {
