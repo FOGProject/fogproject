@@ -510,6 +510,15 @@ abstract class FOGManagerController extends FOGBase
      * word by word on any field. It's possible to do here performance on large
      * databases would be very poor
      *
+     * Two column flags suppress a column here, and they mean different
+     * things. 'removeFromQuery' says the column is not a real column of the
+     * table -- an aggregate or a formatter's invention -- so naming it in
+     * SQL is an error. 'nosearch' says the column IS real and IS selected,
+     * but must never be matched against: Route::listem() sets it on every
+     * field the emitter strips, so a caller cannot use match/no-match to
+     * learn a value the response refuses to contain. The searchable flag in
+     * the request cannot serve for this -- the client sends it.
+     *
      * @param array $request  Data sent to server by DataTables
      * @param array $columns  Column information array
      * @param array $bindings Array of values for PDO bindings, used in the
@@ -537,6 +546,7 @@ abstract class FOGManagerController extends FOGBase
                     || $requestColumn['searchable'] != 'true'
                     || !isset($column['db'])
                     || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
+                    || (isset($column['nosearch']) && $column['nosearch'])
                 ) {
                     continue;
                 }
@@ -556,6 +566,7 @@ abstract class FOGManagerController extends FOGBase
                     || $str == ''
                     || !isset($column['db'])
                     || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
+                    || (isset($column['nosearch']) && $column['nosearch'])
                 ) {
                     continue;
                 }
