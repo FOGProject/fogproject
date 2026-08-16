@@ -1149,10 +1149,14 @@ while [[ -z $blGo ]]; do
                     # the same reason _resignRefind and _resignKernels are: a node
                     # does not hold the signing key.
                     _signLocalIpxe
-                    # Separate call, not folded into the one above: that returns
-                    # early when there was nothing left to sign, and the web root
-                    # is rebuilt from scratch every run by configureHttpd -- so
-                    # publishing has to happen even on a run that signed nothing.
+                    # Separate call, not folded into the one above, because the
+                    # two do not share a trigger. Signing needs Secure Boot keys;
+                    # publishing does not -- booting a machine from an iPXE
+                    # binary on its own ESP predates Secure Boot, and unsigned
+                    # copies still work on every machine booting with it off. The
+                    # web root is also rebuilt from scratch every run by
+                    # configureHttpd, so publishing has to happen even on a run
+                    # that signed nothing.
                     _publishLocalBootFiles
                     configureFTP
                     configureSnapins

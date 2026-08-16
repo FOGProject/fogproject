@@ -7487,10 +7487,11 @@ _publishSecureBootKit() {
         mkdir -p "${kitdir}/arm64-efi" >>$error_log 2>&1
         cp -f "${mmsrc}/arm64-efi/mmaa64.efi" "${kitdir}/arm64-efi/" >>$error_log 2>&1
     fi
-    # The local-boot/ subdirectory is NOT created here. It holds copies of the
-    # signed iPXE binaries, and the signing happens later in the run -- see
-    # _publishLocalBootFiles(), which runs after _signLocalIpxe(). Creating it
-    # from here would publish unsigned copies.
+    # The iPXE binaries for local ESP boot are NOT published here. They live in
+    # service/localboot, a sibling -- see _publishLocalBootFiles(). Deliberately
+    # outside this directory, because the rm -rf above removes the whole kit
+    # when there is no MOK, and local ESP boot is still wanted on a server with
+    # no Secure Boot keys at all.
     # Keep the directory from being browsable, matching service/ipxe.
     echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
     chmod 0644 "${kitdir}"/MOK.der "${kitdir}"/*.desktop "${kitdir}"/index.php >>$error_log 2>&1
@@ -8076,13 +8077,98 @@ _signLocalIpxe() {
     fi
     echo "Done"
 }
+# The binaries an ESP needs, relative to $tftpdirdst -- a CURATED list, not a
+# sweep of every *.efi in the tree. The tree carries 45 FOG binaries (5 names x
+# 3 architectures x 3 embed variants) and publishing all of them says nothing
+# about which one an admin should reach for. This says it.
+#
+# Kept, per architecture -- x86_64 at the root, i386-efi/, arm64-efi/:
+#
+#   ipxe.efi      iPXE's own NIC drivers, all of them. The primary choice, and
+#                 the one the Secure Boot chain has to reach: a machine that
+#                 cannot netboot usually cannot because its firmware provides no
+#                 UEFI SNP protocol, so a binary that needs one is no use to it.
+#   snp.efi       Drives the NIC through the firmware's SNP protocol instead,
+#                 binding every SNP device it can see. For firmware that does
+#                 provide one and hardware iPXE's own drivers do not cover.
+#   intel.efi     Single-vendor native builds, for the case where the
+#   realtek.efi   all-drivers build misbehaves on that specific NIC.
+#
+# Plus 10secdelay/ipxe.efi per architecture: identical to ipxe.efi but for a
+# "sleep 10" ahead of DHCP, which is what makes a link come up on a switch
+# running STP or port power-save. That is a network-side problem, so it applies
+# to a locally-booted binary exactly as it does to a netbooted one -- but only
+# the primary is published in that flavour. Needing both the delay AND a
+# fallback driver is rare enough to copy by hand off TFTP.
+#
+# Deliberately NOT published:
+#
+#   snponly.efi   Binds ONLY the device iPXE was loaded from. Loaded off an ESP
+#                 that device is the disk, so it never finds a NIC. It is the
+#                 right binary for netboot and the wrong one here -- which is
+#                 exactly the kind of mistake an uncurated directory invites.
+#                 (Upstream's secureboot/snponly.efi below is a different case:
+#                 it only has to read autoexec.ipxe off the same ESP and chain
+#                 onward, so it needs no NIC of its own.)
+#   autoexec/     The EMBED-less builds. They carry no boot script and fetch
+#                 autoexec.ipxe from wherever they were loaded -- which this
+#                 does not publish, so they would arrive inert. Still on TFTP
+#                 for anyone assembling that setup deliberately.
+#   .kpxe/.lkrn/  BIOS artifacts. Not PE images, and an ESP cannot boot them.
+#   .usb/.iso
+#
+# The upstream secureboot/ set is published whole. It is only ten files and each
+# one is a stage of a chain: shim, the loader it hands off to, and MokManager.
+# shim.c rewrites its own "-shim<arch>.efi" suffix to ".efi" to pick its second
+# stage, so snponly-shimx64.efi loads snponly.efi and ipxe-shimx64.efi loads
+# ipxe.efi -- the pairs have to travel together or neither works.
+localbootfiles=(
+    ipxe.efi
+    snp.efi
+    intel.efi
+    realtek.efi
+    10secdelay/ipxe.efi
+    i386-efi/ipxe.efi
+    i386-efi/snp.efi
+    i386-efi/intel.efi
+    i386-efi/realtek.efi
+    10secdelay/i386-efi/ipxe.efi
+    arm64-efi/ipxe.efi
+    arm64-efi/snp.efi
+    arm64-efi/intel.efi
+    arm64-efi/realtek.efi
+    10secdelay/arm64-efi/ipxe.efi
+    secureboot/snponly.efi
+    secureboot/snponly-shimx64.efi
+    secureboot/ipxe.efi
+    secureboot/ipxe-shimx64.efi
+    secureboot/mmx64.efi
+    secureboot/arm64-efi/snponly.efi
+    secureboot/arm64-efi/snponly-shimaa64.efi
+    secureboot/arm64-efi/ipxe.efi
+    secureboot/arm64-efi/ipxe-shimaa64.efi
+    secureboot/arm64-efi/mmaa64.efi
+)
 # Publish the EFI binaries an ESP needs, under the web root.
 #
-# The machines _signLocalIpxe() exists for cannot fetch a boot file over the
-# network -- that is the whole problem -- so the binaries have to be reachable
-# over HTTP to get onto their ESP in the first place. The TFTP tree is not
-# web-served, which until now meant every admin hand-rolling their own symlinks
-# into the document root.
+# The machines this exists for cannot fetch a boot file over the network -- that
+# is the whole problem -- so the binaries have to be reachable over HTTP to get
+# onto their ESP in the first place. The TFTP tree is not web-served, which until
+# now meant every admin hand-rolling their own symlinks into the document root.
+#
+# NOT gated on Secure Boot, and not gated on _signLocalIpxe() having signed
+# anything. Booting a machine from an iPXE binary on its own ESP is a plain
+# feature that predates Secure Boot by years -- firmware with no PXE option, or a
+# queued task that would otherwise need the boot order changed. Secure Boot only
+# added the requirement for a signature. So a server with no Secure Boot keys
+# publishes the same directory with unsigned binaries in it, and those work on
+# every machine booting with Secure Boot off. Signing, where keys exist, has
+# already happened in place upstream of this by the time it runs.
+#
+# That is also why this lives at service/localboot/ rather than under
+# service/secureboot/: _publishSecureBootKit() rm -rf's its whole kit directory
+# when there is no MOK to publish, which would take this with it on exactly the
+# servers that still want it.
 #
 # COPIES, not a symlink to $tftpdirdst, which was the first attempt. Three
 # reasons, and the last two are what settled it:
@@ -8095,62 +8181,61 @@ _signLocalIpxe() {
 #      samba as well, to serve a feature that needs none of them. Files created
 #      here inherit the web root's own label and need no policy change at all.
 #   2. No vhost changes. A real directory takes an index.php that 404s, exactly
-#      as this kit directory and service/ipxe already do, so nothing has to be
+#      as the Secure Boot kit and service/ipxe already do, so nothing has to be
 #      added to configureHttpd(). A symlink needed Options -Indexes emitted in
 #      all three Apache variants, and rested on apache matching <Directory>
 #      against the unresolved path (GH-529) -- a dependency that fails OPEN,
 #      exposing a listing of the whole TFTP tree, if it is ever wrong.
-#   3. Narrower. A link publishes the tree as it will be; this publishes a fixed
-#      set of *.efi. Nothing an admin later drops into $tftpdirdst becomes
+#   3. Narrower. A link publishes the tree as it will be; this publishes the
+#      fixed list above. Nothing an admin later drops into $tftpdirdst becomes
 #      web-reachable, so there is no standing rule against using that directory.
-#
-# The cost is about 26MB duplicated -- 45 FOG binaries and the 10 upstream
-# Secure Boot ones -- on a server that stores images in tens of gigabytes.
 #
 # Everything here is public by nature: FOG's own binaries, and upstream's signed
 # shim and loader, which are downloadable from fog-ipxe's release assets anyway.
 # FOG already serves the MOK-signed bzImage over unauthenticated HTTP from
 # service/ipxe, so this is not a new class of exposure.
-#
-# secureboot/ IS included, unlike in _signLocalIpxe() where it is pruned: the ESP
-# chain starts at upstream's shim, so a client needs those binaries even though
-# FOG must not re-sign them.
 _publishLocalBootFiles() {
-    # Gated exactly as _publishSecureBootKit() is, so this directory exists only
-    # when the kit around it does -- that function removes the whole kit when
-    # there is no MOK to publish, which would take this with it.
-    [[ -z $secureBootMokCert ]] && return 0
     local tftproot="${tftpdirdst%/}"
     [[ -d $tftproot ]] || return 0
-    local bootdir="${webdirdest%/}/service/secureboot/local-boot"
+    local bootdir="${webdirdest%/}/service/localboot"
     dots "Publishing local ESP boot files"
     # Rebuilt rather than updated in place: a variant dropped upstream should
     # disappear here too, and a stale copy must not outlive the binary it came
-    # from. Deliberately NOT conditional on _signLocalIpxe() having signed
-    # anything this run -- configureHttpd() rm -rf's the web root every run, so
-    # on an unchanged server there is nothing to sign and still nothing here.
+    # from. Safe to do unconditionally -- configureHttpd() rm -rf's the whole web
+    # root every run, so there is never anything here worth keeping.
     rm -rf "$bootdir" >>$error_log 2>&1
     mkdir -p "$bootdir" >>$error_log 2>&1
-    local rel fpath failed=0
-    # Relative paths preserved, so i386-efi/, arm64-efi/, 10secdelay/, autoexec/
-    # and secureboot/ keep their meaning -- a client picking a variant needs the
-    # same layout it would have seen over TFTP.
-    while IFS= read -r fpath; do
-        rel="${fpath#$tftproot/}"
+    local rel dir copied=0 failed=0
+    for rel in "${localbootfiles[@]}"; do
+        # Missing is not a failure. An HTTPS install stages no Secure Boot
+        # binaries at all -- downloadipxesecureboot() skips it -- so the
+        # secureboot/ entries are absent on those servers by design.
+        [[ -f ${tftproot}/${rel} ]] || continue
         mkdir -p "${bootdir}/$(dirname "$rel")" >>$error_log 2>&1
-        cp -f "$fpath" "${bootdir}/${rel}" >>$error_log 2>&1 || failed=1
-    done < <(find "$tftproot" -type f -name '*.efi' -print 2>>$error_log)
-    # The same 404 stub the kit directory uses, which is what keeps this from
-    # being browsable without touching a vhost. DirectoryIndex already names
-    # index.php in every variant configureHttpd() emits.
-    echo '<?php header("HTTP/1.1 404 Not Found");' > "${bootdir}/index.php"
+        if cp -f "${tftproot}/${rel}" "${bootdir}/${rel}" >>$error_log 2>&1; then
+            copied=$((copied + 1))
+        else
+            failed=1
+        fi
+    done
+    # The same 404 stub the Secure Boot kit uses, in EVERY directory rather than
+    # just the top one. DirectoryIndex names index.php in every variant
+    # configureHttpd() emits, but it only suppresses a listing where an
+    # index.php actually exists -- and mod_autoindex is live on a stock
+    # /var/www/html, because the "Options +FollowSymLinks" emitted there MERGES
+    # with the distro's own "Options Indexes FollowSymLinks" rather than
+    # replacing it. Without a stub per directory, arm64-efi/ and friends list.
+    while IFS= read -r dir; do
+        echo '<?php header("HTTP/1.1 404 Not Found");' > "${dir}/index.php"
+    done < <(find "$bootdir" -type d -print 2>>$error_log)
     find "$bootdir" -type d -exec chmod 755 {} \; >>$error_log 2>&1
     find "$bootdir" ! -type d -exec chmod 644 {} \; >>$error_log 2>&1
-    # _publishSecureBootKit()'s own chown -R ran before this directory existed.
+    # _publishSecureBootKit()'s own chown -R does not reach here; this is a
+    # sibling of that directory, not a child of it.
     chown -R "${apacheuser}":"${apacheuser}" "$bootdir" >>$error_log 2>&1
-    if [[ $failed -ne 0 ]]; then
+    if [[ $failed -ne 0 || $copied -eq 0 ]]; then
         echo "Failed"
-        echo " * At least one binary could not be copied to $bootdir."
+        echo " * Could not publish the local ESP boot files to $bootdir."
         echo "   Netboot is unaffected; assembling an ESP from that URL will be"
         echo "   missing files. See $error_log."
         return 0

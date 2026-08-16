@@ -60,8 +60,13 @@ Also out of scope:
 ## Decision
 
 **Sign FOG's own iPXE binaries in place under `$tftpdirdst`, on the same trigger
-`_resignRefind()` already uses, and publish copies of every `.efi` into a
-non-browsable directory beside `MOK.der`.**
+`_resignRefind()` already uses, and publish copies of a curated subset into a
+non-browsable `service/localboot/` directory.**
+
+Signing is gated on Secure Boot keys; publishing is not. Local ESP boot is an
+older, plainer feature that Secure Boot only added a signature requirement to, so
+a server with no keys publishes the same directory unsigned and it works on every
+machine booting with Secure Boot off.
 
 No new install flag. No forced build.
 
@@ -163,26 +168,60 @@ the whole problem — so the binaries have to be reachable over HTTP to get onto
 an ESP at all. The TFTP tree is not web-served, which today means every admin
 hand-rolling symlinks into the document root.
 
-A new function copies every `*.efi` from `$tftpdirdst` into
-`${webdirdest}/service/secureboot/local-boot/`, preserving relative layout so
-`i386-efi/`, `arm64-efi/`, `10secdelay/`, `autoexec/` and `secureboot/` keep
-their meaning. `secureboot/` **is** included here, unlike in `_signLocalIpxe()`
-where it is pruned: the chain starts at upstream's shim, so a client needs those
-binaries even though FOG must not re-sign them.
+A new function copies a **curated list** of binaries from `$tftpdirdst` into
+`${webdirdest}/service/localboot/`, preserving relative layout so `i386-efi/`,
+`arm64-efi/`, `10secdelay/` and `secureboot/` keep their meaning.
 
-Measured against the real release assets: **55 files, 27MB** — 45 FOG binaries
-plus upstream's 10.
+**Curated, not a sweep.** The tree carries 45 FOG binaries — 5 names × 3
+architectures × 3 embed variants — and publishing all of them says nothing about
+which one an admin should reach for. The list is an explicit array in
+`functions.sh`, 25 entries, ~12MB:
+
+- Per architecture: `ipxe.efi` (iPXE's own drivers — the primary, and the stage
+  the Secure Boot chain has to reach), `snp.efi` (firmware SNP, for hardware
+  iPXE's drivers do not cover), `intel.efi` / `realtek.efi` (single-vendor
+  fallbacks), and `10secdelay/ipxe.efi` (the STP/power-save link-up workaround,
+  primary only).
+- `secureboot/` whole — ten files, each a stage of a chain. `shim.c` rewrites its
+  own `-shim<arch>.efi` suffix to `.efi` to pick its second stage, so
+  `snponly-shimx64.efi` loads `snponly.efi` and `ipxe-shimx64.efi` loads
+  `ipxe.efi`; the pairs must travel together. Included here although
+  `_signLocalIpxe()` prunes them from signing — the chain starts at upstream's
+  shim, so a client needs them even though FOG must not re-sign them.
+
+Excluded, with reasons: **`snponly.efi`** binds only the device iPXE was loaded
+from, and booted off an ESP that device is the disk, so it never finds a NIC —
+right for netboot, wrong here, and exactly the kind of mistake an uncurated
+directory invites. (Upstream's `secureboot/snponly.efi` is a different case: it
+only reads `autoexec.ipxe` off the same ESP and chains onward, needing no NIC of
+its own.) **`autoexec/`** are the EMBED-less builds, which fetch an
+`autoexec.ipxe` this does not publish, so they would arrive inert. BIOS artifacts
+(`.kpxe`/`.lkrn`/`.usb`/`.iso`) are not PE images and an ESP cannot boot them.
+
+**Not gated on Secure Boot.** Local ESP boot predates Secure Boot by years —
+firmware with no PXE option, or a queued task that would otherwise need a
+boot-order change. Secure Boot only added the requirement for a *signature*. So
+the directory is published whether or not the server holds signing keys; without
+them the binaries are simply unsigned, which is what every machine booting with
+Secure Boot off needs anyway. That is also why it sits at `service/localboot/`
+rather than under `service/secureboot/`: `_publishSecureBootKit()` `rm -rf`s its
+whole kit directory when there is no MOK, which would take this with it on
+precisely the servers that still want it.
 
 Called from `installfog.sh` immediately after `_signLocalIpxe`, as a **separate**
-call rather than folded into it. `_signLocalIpxe` returns early when there is
-nothing left to sign, and `configureHttpd` rebuilds the web root from scratch on
-every run — so folding them together would leave the directory missing on any
-run that signed nothing.
+call rather than folded into it, because the two do not share a trigger: signing
+needs keys, publishing does not. `configureHttpd` also rebuilds the web root from
+scratch on every run, so publishing has to happen even on a run that signed
+nothing.
 
 Browsability is handled by an `index.php` returning 404, the identical stub
-`_publishSecureBootKit()` and `service/ipxe` already use. `DirectoryIndex
-index.php` is already emitted in every vhost variant, so **no web server config
-changes are needed at all**.
+`_publishSecureBootKit()` and `service/ipxe` already use — written into **every**
+directory, not just the top one. `DirectoryIndex index.php` is already emitted in
+every vhost variant, but it only suppresses a listing where an `index.php`
+actually exists, and `mod_autoindex` is live on a stock `/var/www/html` because
+the `Options +FollowSymLinks` emitted there *merges* with the distro's own
+`Options Indexes FollowSymLinks` rather than replacing it. With a stub per
+directory, **no web server config changes are needed at all**.
 
 ### 3. Why copies rather than a symlink
 
@@ -207,11 +246,13 @@ A symlink to `$tftpdirdst` was the first design. Three things killed it:
    a listing of the entire TFTP tree would be exposed. It was also the one risk
    that could not be verified without a running Apache.
 
-A fourth benefit fell out: publishing a fixed set of `*.efi` is **narrower** than
+A fourth benefit fell out: publishing a fixed list is **narrower** than
 publishing the tree. Nothing an admin later drops into `$tftpdirdst` becomes
-web-reachable, so there is no standing rule against using that directory.
+web-reachable, so there is no standing rule against using that directory. It also
+made curation possible at all — a link publishes whatever is there, whereas a
+list can leave out the variants that cannot work from an ESP.
 
-The cost is ~27MB duplicated on a server that stores images in tens of
+The cost is ~12MB duplicated on a server that stores images in tens of
 gigabytes, and copies that could drift if someone hand-edits the TFTP tree
 between installs — weak, since the installer rebuilds both every run and the copy
 happens immediately after signing.
@@ -223,7 +264,8 @@ happens immediately after signing.
 | Always build and embed the CA | 10-25 min per install, no warm path, aarch64 cross-compiler as a hard prereq on every distro. Undoes the release-asset speedup for a benefit the release asset already provides. |
 | A `--build-ipxe` flag for the force-build case | The only gap it serves is a site serving netboot over HTTP that wants its ESP file to reach a private-CA HTTPS server. The better answer there is an FQDN and a public cert. Revisit if it turns up in practice. |
 | A dedicated `ipxescript-localboot` embed that skips `next-server` | Less flexible, not more — breaks multi-FOG-server deployments, and proxy DHCP already covers the failsafe case. Would also force a fog-ipxe change and `$ipxeVer` coordination. |
-| Sign only a hand-picked local-boot subset | The subset has to be guessed up front, and the variants exist precisely because hardware needs differ. |
+| Sign only a hand-picked local-boot subset | Signing is in place under `$tftpdirdst` and costs nothing per file, so restricting it would only make a variant fetched by hand off TFTP useless. *Publishing* is curated — see Design §2 — because there the list is advice, not just bytes. |
+| Publish every `*.efi` in the tree | The first implementation. 55 files and 27MB, including `snponly.efi`, which cannot work from an ESP, and the `autoexec/` builds, which arrive inert without an `autoexec.ipxe` beside them. A directory that offers a wrong answer next to the right one is worse than a shorter directory. |
 | Gate signing behind a flag | Signing was never the expensive part. A flag means a Secure Boot site that wants local ESP boot has to know it exists. |
 | Symlink `service/secureboot/…` to `$tftpdirdst` | The original design. 403s under SELinux, needed ~40 lines of vhost changes across nine sites, and depended on GH-529 behaviour that fails open. Replaced by copies — see Design §3. |
 | Relabel the TFTP tree `public_content_t` | Would make the symlink work, but widens the tree to ftpd/rsync/samba for a feature needing none of them, and means editing GH-963's recent fix. |
@@ -248,11 +290,24 @@ happens immediately after signing.
   shape: 45 `.efi` matched (5 names × 3 arches × 3 embed variants), zero from
   `secureboot/`, zero non-PE artifacts (`.kpxe`/`.lkrn`/`.usb`/`.iso`/`.ipxe`),
   and correct with a trailing slash on `$tftpdirdst`.
-- **The publish loop is verified against the real release assets**, not a mock:
-  unpacking `fog-ipxe-v2.0.0-fog.6.tar.gz` and the Secure Boot asset over one
-  tree and running the loop produces **55 `.efi`, 27MB**, with the shim,
-  `mmx64.efi`, FOG's `ipxe.efi` and the arm64 variants all present, the
-  subdirectory layout preserved, and zero non-`.efi` files copied.
+- **The publish loop is verified against a mock tree built from the generators
+  themselves** — `buildipxe.sh`'s own `cp` lines and `secureboot/stage.sh`'s
+  `install` lines — which reproduces the 55 `.efi` the earlier run measured
+  against the real release assets. Against it the curated list publishes **25
+  files**, with zero FOG `snponly.efi`, zero `autoexec/`, and nothing that is not
+  a `.efi` or an `index.php`. Also checked: re-running is byte-identical, a
+  trailing slash on `$tftpdirdst` is handled, an HTTPS install with no
+  `secureboot/` staged publishes 15 files and still reports success, and an empty
+  tree reports failure rather than silently publishing nothing.
+- **Every directory gets the 404 stub, not just the top one.** `DirectoryIndex`
+  only suppresses a listing where an `index.php` exists, and the Apache
+  `Options +FollowSymLinks` this installer emits *merges* with a stock
+  `/var/www/html`'s `Options Indexes FollowSymLinks` rather than replacing it —
+  so `arm64-efi/`, `i386-efi/`, `10secdelay/` and `secureboot/` would each have
+  listed. Caught in review of the first implementation.
+- **The published set is curated rather than swept.** See Design §2. The first
+  implementation published all 55 `.efi`, which put `snponly.efi` — unusable from
+  an ESP — directly beside the binary an admin actually wants.
 - **The SELinux gap was found by reading, before any test run.** A symlink would
   have 403'd on every enforcing host, and the default test distro is
   `ubuntu:24.04` — which ships no SELinux and would have passed. See Design §3.
@@ -261,9 +316,16 @@ happens immediately after signing.
 
 - **`sbsign` across 45 files** is expected to take seconds, and there is a `dots`
   line so it is not silent — but it has not been timed on real hardware. If it
-  turns out slow, the progress line is already in place to build on.
-- **The published directory adds ~27MB to the web root.** Bounded and known, but
+  turns out slow, the progress line is already in place to build on. Note the
+  asymmetry: signing still covers the whole tree, because it is in place and
+  costs nothing per file, so a variant fetched by hand off TFTP is still signed.
+  Only publishing is curated.
+- **The published directory adds ~12MB to the web root.** Bounded and known, but
   it is disk that previous releases did not use.
+- **The curated list names files by path**, so a rename in `fog-ipxe` drops an
+  entry silently — a missing source file is skipped, not reported, because that
+  is also how an HTTPS install's absent `secureboot/` has to behave. The "nothing
+  was copied" branch catches a total break, not a single lost variant.
 - **Exposing the binaries over HTTP** — researched below and cleared.
 
 ## Security review of the HTTP exposure
@@ -282,12 +344,15 @@ and is fetched by every client over `$_booturl` — `self::$httpproto`,
 `bootmenu.class.php:462` — with no authentication. MOK-signed boot artifacts over
 unauthenticated HTTP is already how FOG works.
 
-**Nothing sensitive can reach the published directory.** Only `*.efi` is copied,
-so `default.ipxe`, `autoexec.ipxe`, the `MANIFEST` and the BIOS artifacts stay
-out. `TFTP_FTP_PASSWORD` lives in `$webdirdest/lib/fog/config.class.php`, never
-in the TFTP tree. Because the set is fixed rather than a view of a directory,
-anything an admin later drops into `$tftpdirdst` is **not** published — which is
-the main advantage the copy model has over the symlink it replaced.
+**Nothing sensitive can reach the published directory.** Files are copied by
+name from an explicit list, so `default.ipxe`, `autoexec.ipxe`, the `MANIFEST`
+and the BIOS artifacts stay out — not because a filter excludes them, but because
+nothing names them. `TFTP_FTP_PASSWORD` lives in
+`$webdirdest/lib/fog/config.class.php`, never in the TFTP tree. Because the set is
+a fixed list rather than a view of a directory, anything an admin later drops into
+`$tftpdirdst` is **not** published — the main advantage the copy model has over
+the symlink it replaced, and the reason there is no standing rule about what may
+live in the TFTP directory.
 
 **No traversal, no symlink semantics.** The published directory is a plain
 directory of regular files. Nothing depends on `FollowSymLinks`, and the Apache
@@ -316,12 +381,17 @@ every run, and tells an admin who does not want it published to delete it.
 2. Re-run the installer; confirm nothing is re-signed (the `sbverify` guard hits)
    and no second signature is stacked.
 3. `curl` a binary through
-   `https://<server>/fog/service/secureboot/local-boot/ipxe.efi` and confirm it
-   downloads and is a PE image; `curl` the directory itself and confirm the
-   `index.php` stub 404s rather than returning a listing. Confirm
+   `https://<server>/fog/service/localboot/ipxe.efi` and confirm it downloads and
+   is a PE image; `curl` the directory itself and confirm the `index.php` stub
+   404s rather than returning a listing. Confirm
    `secureboot/snponly-shimx64.efi` is fetchable from there too, since the ESP
    chain starts with it.
-3b. Repeat on an SELinux-enforcing distro (Alma/Rocky). Copies should need no
+3b. `curl` **each subdirectory** — `arm64-efi/`, `i386-efi/`, `10secdelay/`,
+   `10secdelay/i386-efi/`, `10secdelay/arm64-efi/`, `secureboot/`,
+   `secureboot/arm64-efi/` — and confirm every one 404s rather than listing. This
+   is the check the first implementation would have failed; the stub was only
+   written at the top level.
+3c. Repeat on an SELinux-enforcing distro (Alma/Rocky). Copies should need no
    policy change, but this is the case the symlink design failed, so it is worth
    proving rather than assuming.
 4. Assemble an ESP on an already-enrolled machine — shim, snponly as `ipxe.efi`,
@@ -330,3 +400,8 @@ every run, and tells an admin who does not want it published to delete it.
    Boot on.
 5. Confirm an un-enrolled machine still netboots to the menu and can still run
    *Enroll Secure Boot Key*. This is the regression that matters most.
+6. **On a server with no Secure Boot keys at all**, confirm `service/localboot/`
+   is still published, holds the same 25 files unsigned, and that one of them
+   boots a machine from its ESP with Secure Boot off. This is the case the first
+   implementation skipped entirely — it gated publishing on `$secureBootMokCert`,
+   so a non-Secure-Boot server got nothing.
