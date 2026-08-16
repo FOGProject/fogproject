@@ -237,6 +237,85 @@ class SiteScope extends FOGBase
         );
     }
     /**
+     * Is this node subject to a site boundary at all?
+     *
+     * Public so the single-object and list paths can agree on the answer
+     * rather than each keeping a copy of the node list.
+     *
+     * @param string $node the node
+     *
+     * @return bool
+     */
+    public static function isScopedNode($node)
+    {
+        $node = strtolower(trim((string)$node));
+        return isset(self::$_nodes[$node]) || 'task' === $node;
+    }
+    /**
+     * Every object id of a node that lies in the user's sites.
+     *
+     * The list counterpart of inScope(). Callers use it to push the
+     * boundary into the query that builds a list, rather than fetching a
+     * page and discarding rows afterwards -- discarding rows leaves the
+     * row COUNTS describing objects the user cannot see, which both looks
+     * broken and tells them how much exists outside their scope.
+     *
+     * Returns [] for a user with no sites, which is deny-all and must be
+     * passed on as such rather than read as "no filter".
+     *
+     * @param string $node   the node (host|user|group|usergroup)
+     * @param int    $userID the acting user id
+     *
+     * @return array int object ids
+     */
+    public static function allInScopeIDs($node, $userID)
+    {
+        $node = strtolower(trim((string)$node));
+        if (!self::isScopedNode($node)) {
+            return [];
+        }
+        $siteIDs = self::userSiteIDs($userID);
+        if (empty($siteIDs)) {
+            return [];
+        }
+        if ('task' === $node) {
+            // Tasks have no membership table of their own; they inherit
+            // the site of the host they run against. Done as one join
+            // rather than by resolving each task, because this feeds a
+            // list and a per-row lookup here is the grid query storm.
+            $sql = sprintf(
+                'SELECT DISTINCT `taskID` AS `oid` FROM `tasks` '
+                . 'WHERE `taskHostID` IN ('
+                . 'SELECT `shmHostID` FROM `siteHostMembers` '
+                . 'WHERE `shmSiteID` IN (%s))',
+                implode(',', $siteIDs)
+            );
+        } else {
+            list($table, $siteCol, $objCol) = self::$_nodes[$node];
+            $sql = sprintf(
+                'SELECT DISTINCT `%s` AS `oid` FROM `%s` WHERE `%s` IN (%s)',
+                $objCol,
+                $table,
+                $siteCol,
+                implode(',', $siteIDs)
+            );
+        }
+        $ids = [];
+        try {
+            $res = self::$DB->query($sql);
+            if (false === $res->error) {
+                $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+                foreach ((array)$rows as $row) {
+                    $ids[] = (int)$row['oid'];
+                }
+            }
+        } catch (\Exception $e) {
+            // Unreadable membership cannot be read as permission.
+            return [];
+        }
+        return $ids;
+    }
+    /**
      * Is a single object within a user's site scope?
      *
      * Order matters here and is not arbitrary. The two allow-everything
