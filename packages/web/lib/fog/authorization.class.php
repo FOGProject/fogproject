@@ -250,6 +250,27 @@ class Authorization extends FOGBase
      */
     private static $_unmappedLogged = [];
     /**
+     * Permissions declared by plugin-contributed routes, name => permission.
+     *
+     * A null value means "no permission check", and Route only ever passes
+     * null for a route it also declared public -- an unauthenticated caller
+     * has no permissions to check, so demanding one would deny every request
+     * including the ones the route exists to serve.
+     *
+     * Populated in Route::defineRoutes(), which is the one place a route and
+     * its permission are decided together. A route absent from here reaches
+     * the unmapped branch of resolveApiPermission() and is denied.
+     *
+     * @var array
+     */
+    private static $_declaredRoutePermissions = [];
+    /**
+     * Exempt nodes after the plugin hook, or null before it has fired.
+     *
+     * @var array|null
+     */
+    private static $_exemptNodes = null;
+    /**
      * The permission registry: registry node => list of valid actions.
      *
      * Plugins can add their own nodes/actions through the
@@ -451,7 +472,7 @@ class Authorization extends FOGBase
         if (isset($globals[$sub])) {
             return $globals[$sub];
         }
-        if ('' === $node || in_array($node, self::EXEMPT_NODES, true)) {
+        if ('' === $node || in_array($node, self::exemptNodes(), true)) {
             return null;
         }
         $aliases = self::NODE_ALIASES;
@@ -582,11 +603,104 @@ class Authorization extends FOGBase
      *
      * @return string|null the required permission, null = no check
      */
+    /**
+     * Page nodes that are never permission-checked, core's plus any a plugin
+     * has contributed.
+     *
+     * Closes ADR 0009's second gap. EXEMPT_NODES is a const, so a plugin
+     * could not append to it, and every page a plugin adds is therefore
+     * permission-checked -- correct for a settings page, impossible for the
+     * one page an authentication provider needs: the surface a visitor
+     * reaches BEFORE they have a session.
+     *
+     * The const stays exactly as it was, so "what does core exempt" is still
+     * answerable by reading one array. Plugin entries are merged on top here.
+     *
+     * A plugin may only exempt a node nothing else owns. Exempting a node
+     * that is in the permission registry -- core's or another plugin's --
+     * is refused, because the two are contradictory instructions about the
+     * same node and the permissive one would win. That check is what stops
+     * this being a way to turn the gate off on 'host'.
+     *
+     * @return array
+     */
+    public static function exemptNodes()
+    {
+        if (null !== self::$_exemptNodes) {
+            return self::$_exemptNodes;
+        }
+        $nodes = self::EXEMPT_NODES;
+        $extra = [];
+        if (self::$HookManager) {
+            self::$HookManager->processEvent(
+                'PAGE_EXEMPT_NODES',
+                ['nodes' => &$extra]
+            );
+        }
+        $registry = self::registry();
+        foreach ((array)$extra as $node) {
+            $node = strtolower(trim((string)$node));
+            if ('' === $node || in_array($node, $nodes, true)) {
+                continue;
+            }
+            if (isset($registry[$node]) || isset(self::NODE_ALIASES[$node])) {
+                error_log(
+                    sprintf(
+                        'FOG exempt node: refusing "%s" -- it is a registered '
+                        . 'permission node, so exempting it would silently '
+                        . 'turn off a check something else asked for. Use a '
+                        . 'node of its own for the pre-authentication page.',
+                        $node
+                    )
+                );
+                continue;
+            }
+            $nodes[] = $node;
+        }
+        return self::$_exemptNodes = array_values(array_unique($nodes));
+    }
+    /**
+     * Record the permission a plugin-contributed route requires.
+     *
+     * Called by Route::defineRoutes() for each validated plugin route. A
+     * route that declared nothing is simply never registered here, which is
+     * what makes "declares nothing" mean "denied" rather than "allowed".
+     *
+     * @param string      $routeName  The prefixed route name Route registered.
+     * @param string|null $permission The permission, or null for a public route.
+     *
+     * @return void
+     */
+    public static function declareRoutePermission($routeName, $permission)
+    {
+        $routeName = (string)$routeName;
+        if ('' === $routeName
+            || array_key_exists($routeName, self::API_ROUTE_PERMISSIONS)
+            || isset(self::API_ROUTE_ACTIONS[$routeName])
+        ) {
+            // Never let a declaration land on a core route's name.
+            return;
+        }
+        if (null !== $permission
+            && (!is_string($permission) || '' === $permission)
+        ) {
+            return;
+        }
+        self::$_declaredRoutePermissions[$routeName] = $permission;
+    }
     public static function resolveApiPermission($routeName, $class = '')
     {
         $routeName = (string)$routeName;
         if (array_key_exists($routeName, self::API_ROUTE_PERMISSIONS)) {
             return self::API_ROUTE_PERMISSIONS[$routeName];
+        }
+        // Core's table is consulted first on purpose: a plugin cannot
+        // redeclare the permission of a core route even if it manages to
+        // register a route under the same name. Route stamps its own prefix
+        // on plugin names so that should be impossible, and this makes it
+        // impossible twice.
+        if (array_key_exists($routeName, self::$_declaredRoutePermissions)) {
+            return self::$_declaredRoutePermissions[$routeName];
         }
         if (!isset(self::API_ROUTE_ACTIONS[$routeName])) {
             // A route name nothing claims. This used to return null, which
