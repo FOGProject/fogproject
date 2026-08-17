@@ -59,16 +59,34 @@ class_alias(__NAMESPACE__ . '\Host', 'Host');
 This alias is **the 1.6 plugin ABI.** It is supported for all of 1.6. Removing
 it is a breaking change and cannot happen before 1.7.
 
-### 3. Four files are never converted
+### 3. Three files are never converted
 
-`lib/db/mysqldump.class.php`, `lib/router/altorouter.class.php` and
-`lib/router/altotransformer.class.php` are vendored, and are swap candidates for
-their Packagist releases; hand-editing them makes those swaps harder, and
-`mysqldump.class.php` declares thirteen types in one file besides.
-`commons/init.php` is the autoloader, and a namespaced autoloader that has to
-load itself is a bootstrap problem in exchange for nothing.
+`lib/router/altorouter.class.php` and `lib/router/altotransformer.class.php`
+keep upstream's name, authorship and MIT license, and moving someone else's
+class into `FOG\` misattributes it. `commons/init.php` is the autoloader, and a
+namespaced autoloader that has to load itself is a bootstrap problem in
+exchange for nothing.
 
-References to those four from converted files are backslash-qualified.
+References to those three from converted files are backslash-qualified.
+
+**Amended after the fact.** This section originally listed four files and gave
+"vendored, and swap candidates for their Packagist releases" as the reason for
+three of them. Both halves of that turned out to be wrong in opposite
+directions, and the entries have been corrected rather than left:
+
+- `lib/db/mysqldump.class.php` **was** a vendored copy — upstream v2.12 with
+  one substantive local change in 2388 lines — and the swap happened. It is now
+  a short FOG subclass of `ifsnop/mysqldump-php` and is converted like any other
+  core class, so it is off this list. That also retired the "thirteen types in
+  one file" clause, which was the last thing in the tree making PSR-4
+  impossible.
+- The two altorouter files are a **fork**, not a copy. 324 of 357 code lines
+  differ from every upstream tag and from `master`: `__call()` for
+  `->get()`/`->post()`/…, on which `route.class.php` depends in 29 places,
+  fluent setters, transformers, default params and case-insensitive matching.
+  Taking the Packagist release would mean reimplementing the fork on top of it.
+  No swap is coming; the reason for the exclusion is the license and the
+  attribution, not a pending change.
 
 ## Why flat, when mirroring the directories is the obvious instinct
 
