@@ -199,20 +199,28 @@ EFI System Partition verbatim**, with the files already carrying the names the
 Secure Boot chain requires.
 
 ```
-esp/snponly-shimx64.efi   point your boot manager at this
-esp/snponly.efi           shim loads this — do not rename it
+esp/snponly-shimx64.efi   point your boot manager at EITHER shim
+esp/snponly.efi             …this one loads snponly.efi
+esp/ipxe-shimx64.efi      point your boot manager at EITHER shim
+esp/ipxe.efi                …this one loads ipxe.efi
 esp/autoexec.ipxe         chains FOG's build, with fallbacks
-esp/fogipxe.efi         FOG's build, all drivers      ← the one that boots
-esp/fogsnp.efi          FOG's build, firmware SNP
-esp/fogintel.efi        FOG's build, Intel only
-esp/fogrealtek.efi      FOG's build, Realtek only
-esp/arm64-efi/            the same set, aa64 shim
+esp/fogipxe.efi           FOG's build, all drivers      ← the one that boots
+esp/fogsnp.efi            FOG's build, firmware SNP
+esp/fogintel.efi          FOG's build, Intel only
+esp/fogrealtek.efi        FOG's build, Realtek only
+esp/arm64-efi/            the same set, aa64 shims
 ```
 
-The chain is: shim → `snponly.efi` → `autoexec.ipxe` → one of the `fog*.efi`.
-shim establishes MOK trust, so the FOG binary — signed with your Secure Boot key —
+The chain is: shim → its loader → `autoexec.ipxe` → one of the `fog*.efi`. shim
+establishes MOK trust, so the FOG binary — signed with your Secure Boot key —
 loads; and because it carries FOG's boot script compiled in, it finds the server
 itself.
+
+**Both shims are published; pick whichever your firmware gets along with.**
+`snponly-shimx64.efi` loads `snponly.efi`, `ipxe-shimx64.efi` loads `ipxe.efi`.
+Neither loader needs to drive a NIC — each only reads `autoexec.ipxe` out of the
+same folder and chains onward — so the choice is about which shim your firmware
+accepts, not about network hardware. One `autoexec.ipxe` serves both.
 
 **Two names are not yours to choose.** shim picks its second stage by rewriting
 its own `-shim<arch>.efi` suffix to `.efi`, so `snponly-shimx64.efi` will load

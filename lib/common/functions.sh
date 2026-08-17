@@ -8179,15 +8179,33 @@ localbootfiles=(
 #
 # Copied AFTER _signLocalIpxe() has run, so the fog*.efi here already carry
 # FOG's signature wherever the server holds keys.
+# BOTH shim pairs ship, not just the snponly one. Each shim derives its own
+# second stage from its own filename, so the two are independent entry points and
+# an admin picks whichever their firmware gets along with -- point the boot
+# manager at snponly-shimx64.efi or at ipxe-shimx64.efi, and the rest follows.
+#
+# Neither stage 2 needs a NIC. Both only read autoexec.ipxe out of this same
+# directory and chain onward, which is why upstream's ipxe.efi is fine HERE
+# despite not driving a NIC when booted locally as a final stage. One
+# autoexec.ipxe serves both, because both resolve it against the directory they
+# were loaded from.
+#
+# This is also the collision the fog* prefix exists to avoid: upstream's
+# ipxe.efi has to keep its own name for ipxe-shimx64.efi to find it, so FOG's
+# all-drivers build cannot be called ipxe.efi in this directory.
 localbootespfiles=(
     "secureboot/snponly-shimx64.efi|snponly-shimx64.efi"
     "secureboot/snponly.efi|snponly.efi"
+    "secureboot/ipxe-shimx64.efi|ipxe-shimx64.efi"
+    "secureboot/ipxe.efi|ipxe.efi"
     "ipxe.efi|fogipxe.efi"
     "snp.efi|fogsnp.efi"
     "intel.efi|fogintel.efi"
     "realtek.efi|fogrealtek.efi"
     "secureboot/arm64-efi/snponly-shimaa64.efi|arm64-efi/snponly-shimaa64.efi"
     "secureboot/arm64-efi/snponly.efi|arm64-efi/snponly.efi"
+    "secureboot/arm64-efi/ipxe-shimaa64.efi|arm64-efi/ipxe-shimaa64.efi"
+    "secureboot/arm64-efi/ipxe.efi|arm64-efi/ipxe.efi"
     "arm64-efi/ipxe.efi|arm64-efi/fogipxe.efi"
     "arm64-efi/snp.efi|arm64-efi/fogsnp.efi"
     "arm64-efi/intel.efi|arm64-efi/fogintel.efi"
