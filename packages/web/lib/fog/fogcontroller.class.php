@@ -1224,12 +1224,26 @@ abstract class FOGController extends FOGBase
     public function isValid()
     {
         try {
+            // The same opt-out save() honors (GH-1153): a key ending in "id"
+            // that the model has declared is not a foreign key gets the
+            // generic non-empty check, not the integer one. Without this an
+            // OIDC provider whose clientId is "fog-web" is valid enough to
+            // save and then invalid forever after, so its login button
+            // silently never renders. Built here rather than read in the
+            // loop because key() has to run over the declared names too.
+            $notInt = [];
+            foreach ($this->databaseFieldsNotInt as $strKey) {
+                $notInt[$this->key($strKey)] = true;
+            }
+
             foreach ($this->databaseFieldsRequired as &$key) {
                 $key = $this->key($key);
                 $val = $this->get($key);
 
                 // If key ends with ID (case-insensitive), require integer >= 1
-                if (strtolower(substr($key, -2)) === 'id') {
+                if (strtolower(substr($key, -2)) === 'id'
+                    && !isset($notInt[$key])
+                ) {
                     if (filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
                         throw new \Exception(self::$foglang['RequiredDB'] . ": " . $key);
                     }
