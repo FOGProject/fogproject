@@ -1646,23 +1646,9 @@ fetchipxeasset() {
     cd $cwd
     return $stat
 }
-# Does this server compile its own iPXE?
-#
-# One predicate, replacing three separate `$httpproto == https` tests that had
-# quietly become three different questions wearing the same clothes: whether to
-# download the release asset, whether to stage Secure Boot binaries, and
-# whether to compile. Only the last one is about compiling.
-#
-# The trade the old test encoded is real but much narrower than it looked. iPXE
-# validates TLS strictly and cannot be told to trust a private CA, so serving
-# boot.php over HTTPS from a FOG-PKI certificate needs the CA compiled in
-# (TRUST=) -- and a locally rebuilt binary is not upstream's SIGNED one, so it
-# costs the Secure Boot shim and makes onboarding harder, not easier. What was
-# wrong was inferring that from "the web UI uses HTTPS", which says nothing
-# about the netboot transport and nothing about what the certificate chains to.
-#
-# So: the build happens iff the admin asked for it. A public certificate with
-# HTTPS netboot never builds -- iPXE's crosscert path validates it already.
+# The CA that gets compiled into a locally built iPXE. $sslcachain when there
+# is one, so an external CA's chain is embedded rather than FOG's own root --
+# buildipxe.sh takes it as CERT=/TRUST=, its only per-site input.
 _resolveIpxeTrust() {
     [[ -n $sslcachain && -f $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
 }
@@ -2936,7 +2922,10 @@ _firewallPortList() {
     # firewalld path, the ufw path, the iptables instructions and the
     # "here is what you still need to open" message all read this.
     echo "80/tcp HTTP (web UI, client check-in, iPXE boot)"
-    [[ $httpproto == https ]] && echo "443/tcp HTTPS (web UI, client check-in)"
+    # Unconditional: both web servers emit their :443 vhost in BOTH arms, so
+    # 443 is listening on every install whatever httpproto says. Gating this on
+    # httpproto told admins to leave closed a port their server was serving on.
+    echo "443/tcp HTTPS (web UI, client check-in)"
     [[ $noTftpBuild != 1 ]] && echo "69/udp TFTP (PXE boot)"
     echo "21/tcp FTP (image/snapin replication, node operations)"
     # Passive data. vsftpd is pinned to this range by configureFTP() for
@@ -2975,7 +2964,8 @@ _configureFirewalld() {
         esac
         firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
-    [[ $httpproto == https ]] && { firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1; }
+    # See _firewallPortList: 443 listens on every install.
+    firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1
     # No named service for these two.
     firewall-cmd --permanent --add-port=${ftppasvmin}-${ftppasvmax}/tcp >>$error_log 2>&1 || failed=1
     firewall-cmd --permanent --add-port=${mcastportmin}-${mcastportmax}/udp >>$error_log 2>&1 || failed=1
@@ -4190,7 +4180,10 @@ _hardenPkiPermissions() {
     # Web CA key above is FOG's whatever the leaf's provenance, and an earlier
     # version of this loop skipped both, leaving a CA key at 775 on exactly the
     # servers whose admins had thought hardest about certificates.
-    if [[ $acmeLeaf != yes && -n $sslprivkey && -f $sslprivkey ]]; then
+    # publicWebCert joins acmeLeaf here for the same reason it does in
+    # _createWebLeaf: a publicly-issued leaf came from outside FOG too, and its
+    # renewal writes this key as whatever user that process runs as.
+    if [[ $acmeLeaf != yes && $publicWebCert != yes && -n $sslprivkey && -f $sslprivkey ]]; then
         chown root:root "$sslprivkey" >>$error_log 2>&1
         chmod 0600 "$sslprivkey" >>$error_log 2>&1
     fi
@@ -5777,8 +5770,17 @@ _createWebLeaf() {
     leafdir="${webdir}/leaf"
     stamp="${leafdir}/.webLeaf.sans"
 
-    if [[ $acmeLeaf == yes && $recreateKeys != yes && $recreateCA != yes ]]; then
-        echo " * Web certificate is externally managed (acmeLeaf=yes) -- leaving it in place."
+    # OR, never an implication. The two keys answer different questions --
+    # acmeLeaf is WHO MANAGES the leaf file, publicWebCert is WHAT IT CHAINS TO
+    # -- and all four combinations are real (internal ACME with step-ca is
+    # acmeLeaf=yes with publicWebCert=no). Either one means the certificate was
+    # issued outside FOG, so FOG should use it and not touch it. Making one
+    # imply the other would silently mutate a setting the admin set.
+    if [[ ( $acmeLeaf == yes || $publicWebCert == yes ) \
+        && $recreateKeys != yes && $recreateCA != yes ]]; then
+        local why="acmeLeaf=yes"
+        [[ $acmeLeaf != yes ]] && why="publicWebCert=yes"
+        echo " * Web certificate is externally managed (${why}) -- leaving it in place."
         echo "   Re-issue it yourself if you changed --hostname/--extra-server-name,"
         echo "   or the certificate will not cover the new name."
         return 0
@@ -6322,7 +6324,12 @@ EOF
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
                     echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
-                    if [[ $httpproto != https ]]; then
+                    # Whether :80 SERVES the site or redirects away from it is
+                    # the redirect's decision, not $httpproto's. 443 listens
+                    # either way -- see the ssl server block emitted in both
+                    # arms below -- so an admin can move to HTTPS whenever they
+                    # like without this being on.
+                    if [[ $httpsRedirect != yes ]]; then
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -6387,7 +6394,19 @@ EOF
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
-                        echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
+                        # HSTS follows the redirect, and only the redirect.
+                        #
+                        # This used to be emitted on the :443 server in BOTH
+                        # arms -- including on a plain-HTTP install -- which
+                        # made it the one setting an admin could not take back.
+                        # A browser that has seen this header refuses plain HTTP
+                        # to this host for six months, from its own cache; no
+                        # server-side change reaches it, so turning the redirect
+                        # off did nothing for anyone who had already visited.
+                        # That is the redirect's semantics with a memory, so it
+                        # belongs to the redirect's key.
+                        [[ $httpsRedirect == yes ]] && \
+                            echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
                         [[ -n $nginxhttp2directive ]] && echo "$nginxhttp2directive" >> "$etcconf"
                         echo "    gzip on;" >> "$etcconf"
                         echo "    gzip_types text/css text/javascript application/javascript application/json image/svg+xml;" >> "$etcconf"
@@ -6443,7 +6462,7 @@ EOF
                         # verification, so it survives one. That tolerance is
                         # load-bearing and undocumented anywhere else: if a FOS
                         # fetch ever drops -k, its path has to be added here too.
-                        if [[ $netbootproto != "$httpproto" ]]; then
+                        if [[ $netbootproto != https ]]; then
                             local nbdir
                             for nbdir in ipxe secureboot; do
                                 echo "    location ^~ ${webroot}service/${nbdir}/ {" >> "$etcconf"
@@ -6520,7 +6539,19 @@ EOF
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
-                        echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
+                        # HSTS follows the redirect, and only the redirect.
+                        #
+                        # This used to be emitted on the :443 server in BOTH
+                        # arms -- including on a plain-HTTP install -- which
+                        # made it the one setting an admin could not take back.
+                        # A browser that has seen this header refuses plain HTTP
+                        # to this host for six months, from its own cache; no
+                        # server-side change reaches it, so turning the redirect
+                        # off did nothing for anyone who had already visited.
+                        # That is the redirect's semantics with a memory, so it
+                        # belongs to the redirect's key.
+                        [[ $httpsRedirect == yes ]] && \
+                            echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
                         [[ -n $nginxhttp2directive ]] && echo "$nginxhttp2directive" >> "$etcconf"
                         echo "    gzip on;" >> "$etcconf"
                         echo "    gzip_types text/css text/javascript application/javascript application/json image/svg+xml;" >> "$etcconf"
@@ -6640,7 +6671,8 @@ EOF
                     echo "        Require local" >> "$etcconf"
                     echo "    </LocationMatch>" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
-                    if [[ $httpproto == https ]]; then
+                    # See the nginx branch: the redirect is its own setting now.
+                    if [[ $httpsRedirect == yes ]]; then
                         echo "    RewriteEngine On" >> "$etcconf"
                         echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                         echo "    RewriteRule .* - [F]" >> "$etcconf"
@@ -6667,7 +6699,7 @@ EOF
                         # RewriteRule. Multiple RewriteConds are ANDed by
                         # default, which is what is wanted: skip the redirect
                         # only when the request is for neither directory.
-                        if [[ $netbootproto != "$httpproto" ]]; then
+                        if [[ $netbootproto != https ]]; then
                             local nbdir
                             for nbdir in ipxe secureboot; do
                                 echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/" >> "$etcconf"

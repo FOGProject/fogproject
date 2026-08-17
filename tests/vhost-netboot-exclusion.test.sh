@@ -102,10 +102,45 @@ else
     bad "nginx 308 is not directly inside a 'location / {' block -- every exclusion above it is dead code"
 fi
 
-# 4. Both exclusion sets stay behind the netbootproto guard, so an install
-#    whose netboot already runs on HTTPS is not given pointless carve-outs.
-want 2 'if [[ $netbootproto != "$httpproto" ]]; then' \
-    "both exclusion sets are guarded on netbootproto differing from httpproto"
+# 4. Both exclusion sets stay behind a netbootproto guard, so an install whose
+#    netboot already runs on HTTPS is not given pointless carve-outs.
+#
+#    The guard is `!= https`, not `!= "$httpproto"`. What would catch iPXE is
+#    the REDIRECT, and the redirect is its own setting now -- comparing against
+#    httpproto stopped meaning anything once httpproto became https for
+#    everyone regardless of whether a redirect is emitted.
+want 2 'if [[ $netbootproto != https ]]; then' \
+    "both exclusion sets are guarded on netboot not already being https"
+
+# 5. The redirect itself, and HSTS with it, are gated on httpsRedirect -- not
+#    on httpproto, which is now https on every install.
+want 1 'if [[ $httpsRedirect != yes ]]; then' \
+    "nginx serves :80 normally unless the redirect is on"
+
+want 1 'if [[ $httpsRedirect == yes ]]; then' \
+    "apache emits its rewrite only when the redirect is on"
+
+# HSTS is the one setting an admin cannot take back: a browser that has seen it
+# refuses plain HTTP to this host for six months from its own cache. It used to
+# be emitted on the :443 server in BOTH arms, including on a plain-HTTP
+# install. It must never be emitted unconditionally again.
+want 2 '[[ $httpsRedirect == yes ]] && \' \
+    "both HSTS emissions are gated on the redirect"
+
+# Counted rather than pattern-matched against the continuation line: the guard
+# above already proves there are exactly two guarded emissions, and this asserts
+# there are exactly two emissions in total -- so none can be sitting unguarded.
+want 2 'add_header Strict-Transport-Security max-age=15768000;' \
+    "there are no HSTS emissions beyond the two guarded ones"
+
+# 6. 443 is in the firewall list unconditionally: both web servers emit their
+#    :443 vhost in both arms, so the port is listening on every install.
+if grep -qF 'echo "443/tcp HTTPS (web UI, client check-in)"' "$FUNCS" && \
+   ! grep -qF '[[ $httpproto == https ]] && echo "443/tcp' "$FUNCS"; then
+    ok "443/tcp is advertised on every install, not only under https"
+else
+    bad "443/tcp is still gated on httpproto"
+fi
 
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
