@@ -6789,11 +6789,32 @@ configureHttpd() {
     sed -i 's/.*max_input_vars\ \=.*$/max_input_vars\ \=\ 250000/g' $phpini >>$error_log 2>&1
     errorStat $?
     dots "Testing and removing symbolic links if found"
+    # GH-1146: $webdirdest IS ${docroot}fog/, so unlinking it here left the
+    # "Backing up old data" test below with nothing to find. No
+    # fog_web_<ver>.BACKUP was written, and the management/other/ carry-forward
+    # further down -- which reads that directory -- silently did nothing, on
+    # every install whose web root is a symlink. The only trace was a find(1)
+    # complaint in the error log. Remember where the link pointed so the tree
+    # is still reachable once the link itself is gone.
+    priorwebdir=""
     if [[ -h ${docroot}fog ]]; then
+        priorwebdir=$(readlink -f "${docroot}fog" 2>>$error_log)
         rm -f ${docroot}fog >>$error_log 2>&1
     fi
     if [[ -h ${docroot}${webroot} ]]; then
+        [[ -z $priorwebdir ]] && priorwebdir=$(readlink -f "${docroot}${webroot}" 2>>$error_log)
         rm -f ${docroot}${webroot} >>$error_log 2>&1
+    fi
+    # A link pointing at the document root itself, or at one of its parents,
+    # is not a FOG tree to copy aside -- it is somebody's whole web server.
+    # GH-953 is the standing reminder of what taking a path like that at face
+    # value costs. Nothing below reads $priorwebdir once it is cleared.
+    if [[ -n $priorwebdir ]]; then
+        case "${docroot%/}/" in
+            "${priorwebdir%/}/"*)
+                priorwebdir=""
+                ;;
+        esac
     fi
     errorStat $?
     dots "Backing up old data"
@@ -6804,6 +6825,14 @@ configureHttpd() {
         cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         rm -rf ${backupPath}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
         rm -rf "$webdirdest" >>$error_log 2>&1
+    elif [[ -n $priorwebdir && -d $priorwebdir ]]; then
+        # Copy only, no removal. The branch above deletes $webdirdest because
+        # the new tree is about to be written over that exact path.
+        # $priorwebdir is somewhere else the admin chose, and it was already
+        # being left behind before this fix -- backing it up is the gain here,
+        # and deleting it would be a new behaviour nobody asked for.
+        cp -RT "$priorwebdir" "${backupPath}/fog_web_${version}.BACKUP" >>$error_log 2>&1
+        rm -rf ${backupPath}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
     fi
     if [[ $osid -eq 2 ]]; then
         # GH-953: this removed ${docroot} -- the whole document root, taking any
