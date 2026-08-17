@@ -6363,6 +6363,10 @@ msgid "Site Granted To User Groups"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
+msgid "Site Grants"
+msgstr "Creazione stampante riuscita"
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "Storage Node Creato"
 
@@ -6407,6 +6411,13 @@ msgstr "aggiornato stampante!"
 
 msgid "Sites"
 msgstr "Siti"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "Crea nuovo %s"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 msgid "Size"
 msgstr "Dimensione"
@@ -8325,6 +8336,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."

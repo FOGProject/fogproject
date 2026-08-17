@@ -629,7 +629,93 @@ class RoleManagement extends FOGPage
                 $this->roleUserGroups();
             }
         ];
+
+        // Sites granted. Hidden without site.view for the same reason the
+        // POST takes site.edit: this is a second door onto somebody else's
+        // association, and role.edit is not the right that opens it. An
+        // install using no sites has nothing to show here either.
+        if (Authorization::can('site.view')) {
+            $tabData[] = [
+                'name' => _('Site Grants'),
+                'id' => 'role-site',
+                'generator' => function () {
+                    $this->roleSites();
+                }
+            ];
+        }
         $this->renderEditTabs($tabData, $this->obj);
+    }
+    /**
+     * Present the sites this role grants.
+     *
+     * The other end of the Site page's "Granted To -> Roles" tab. Both
+     * write `siteRoleGrants`, so there is no second source of truth to
+     * drift -- the same reasoning every other association tab in FOG is
+     * editable from both ends for.
+     *
+     * @return void
+     */
+    public function roleSites()
+    {
+        $this->renderAssocTab(
+            'role-site',
+            _('Sites This Role Grants'),
+            _('Site Name'),
+            'site'
+        );
+    }
+    /**
+     * Update the sites this role grants.
+     *
+     * Two things are different from every other tab on this page.
+     *
+     * It writes through the Site, not through $this->obj: assocSetter()
+     * derives the column it diffs on from the owning class name, so the
+     * grant table is driven from a Site whichever end is being looked at.
+     *
+     * And it takes `site.edit` rather than riding in on the role.edit
+     * right that reached this POST. Granting a site to a role is not a
+     * change to the role -- it widens what everyone holding the role can
+     * see, INCLUDING the person making the change if they hold it. Without
+     * this gate, role.edit alone would be a route to widening your own
+     * scope, which the Site page itself does not hand out. Same reasoning
+     * as the LDAP plugin's group tabs, which gate on ldapgroup.edit.
+     *
+     * @return void
+     */
+    public function roleSitePost()
+    {
+        if (!Authorization::can('site.edit')) {
+            throw new \Exception(
+                _('You do not have permission to change site grants.')
+            );
+        }
+        $this->assocPostInverse('Site', 'addGrantRole', 'removeGrantRole');
+        // Who can see what just changed, and both answers are cached.
+        SiteScope::forgetCaches();
+    }
+    /**
+     * Gets the list of sites this role grants.
+     *
+     * @return void
+     */
+    public function getSitesList()
+    {
+        return $this->assocItemsList(
+            'site',
+            'siterolegrant',
+            'siteRoleGrants',
+            '`sites`.`siteID`',
+            '`siteRoleGrants`.`srgSiteID`',
+            '`siteRoleGrants`.`srgRoleID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
     }
     /**
      * Update the edit elements.
@@ -658,6 +744,9 @@ class RoleManagement extends FOGPage
                         break;
                     case 'role-usergroup':
                         $this->roleUserGroupPost();
+                        break;
+                    case 'role-site':
+                        $this->roleSitePost();
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;

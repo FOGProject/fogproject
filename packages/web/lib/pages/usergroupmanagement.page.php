@@ -373,6 +373,20 @@ class UserGroupManagement extends FOGPage
             }
         ];
 
+        // Site grants -- the opposite direction from the tab above, hence
+        // the longer label. Hidden without site.view for the same reason
+        // the POST takes site.edit: this is a second door onto somebody
+        // else's association.
+        if (Authorization::can('site.view')) {
+            $tabData[] = [
+                'name' => _('Site Grants'),
+                'id' => 'usergroup-sitegrant',
+                'generator' => function () {
+                    $this->usergroupSiteGrants();
+                }
+            ];
+        }
+
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -393,6 +407,9 @@ class UserGroupManagement extends FOGPage
                 switch ($tab) {
                     case 'usergroup-site':
                         $this->usergroupSitePost();
+                        break;
+                    case 'usergroup-sitegrant':
+                        $this->usergroupSiteGrantPost();
                         break;
                     case 'usergroup-general':
                         $this->usergroupGeneralPost();
@@ -536,6 +553,79 @@ class UserGroupManagement extends FOGPage
     public function usergroupSitePost()
     {
         $this->siteTabPost('usergroup', $this->obj);
+    }
+
+    /**
+     * Presents the sites this user group grants to its members.
+     *
+     * Deliberately NOT the "Site" tab above, which sits two entries away
+     * and is the easiest thing on this page to confuse it with. That one
+     * says which site this user group BELONGS TO -- it is an object a
+     * site-scoped admin can see and edit. This one says which sites its
+     * MEMBERS GET. Same page, same word, opposite direction, which is why
+     * the labels and the box titles both spell it out rather than relying
+     * on the reader to hold the distinction.
+     *
+     * The other end of the Site page's "Granted To -> User Groups" tab.
+     * Both write `siteUserGroupGrants`.
+     *
+     * @return void
+     */
+    public function usergroupSiteGrants()
+    {
+        $this->renderAssocTab(
+            'usergroup-sitegrant',
+            _("Sites Granted To This User Group's Members"),
+            _('Site Name'),
+            'site'
+        );
+    }
+    /**
+     * Updates the sites this user group grants to its members.
+     *
+     * Written through the Site, and gated on site.edit rather than the
+     * usergroup.edit right that reached this POST -- granting a site to a
+     * user group widens what every member can see, including the person
+     * making the change if they are one. See RoleManagement::roleSitePost().
+     *
+     * @return void
+     */
+    public function usergroupSiteGrantPost()
+    {
+        if (!Authorization::can('site.edit')) {
+            throw new \Exception(
+                _('You do not have permission to change site grants.')
+            );
+        }
+        $this->assocPostInverse(
+            'Site',
+            'addGrantUserGroup',
+            'removeGrantUserGroup'
+        );
+        SiteScope::forgetCaches();
+    }
+    /**
+     * Gets the list of sites this user group grants.
+     *
+     * @return void
+     */
+    public function getSitesList()
+    {
+        return $this->assocItemsList(
+            'site',
+            'siteusergroupgrant',
+            'siteUserGroupGrants',
+            '`sites`.`siteID`',
+            '`siteUserGroupGrants`.`suggSiteID`',
+            '`siteUserGroupGrants`.`suggGroupID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
     }
 }
 

@@ -6598,6 +6598,10 @@ msgid "Site Granted To User Groups"
 msgstr "Neuen Schlüssel erstellen"
 
 #, fuzzy
+msgid "Site Grants"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "Speicherknoten erstellt"
 
@@ -6644,6 +6648,13 @@ msgstr "Drucker aktualisiert!"
 #, fuzzy
 msgid "Sites"
 msgstr "Sites"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "Neuen Schlüssel erstellen"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 #, fuzzy
 msgid "Size"
@@ -8651,6 +8662,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."

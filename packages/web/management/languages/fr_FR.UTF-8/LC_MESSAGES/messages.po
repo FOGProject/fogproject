@@ -6599,6 +6599,10 @@ msgid "Site Granted To User Groups"
 msgstr "Créer un nouveau %s"
 
 #, fuzzy
+msgid "Site Grants"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "Nœud de stockage Créé"
 
@@ -6645,6 +6649,13 @@ msgstr "Imprimante mis à jour!"
 #, fuzzy
 msgid "Sites"
 msgstr "minutes"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "Créer un nouveau %s"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 #, fuzzy
 msgid "Size"
@@ -8650,6 +8661,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."
