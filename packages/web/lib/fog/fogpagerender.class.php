@@ -8,9 +8,12 @@
  * without bound. A trait's methods compile into the using class exactly as
  * if declared there (same $this, same access to inherited statics like
  * self::$HookManager), so behaviour is identical and every existing call
- * site keeps resolving unchanged. The file is named FOGPageRender.class.php
+ * site keeps resolving unchanged. The file carries the `.class.php` suffix
  * so the existing filename-keyed autoloader resolves `use FOGPageRender;`
- * with no autoloader change.
+ * with no autoloader change. Its basename is lowercase like every other
+ * class file (GH-1136): the autoloader lowercases both the map key and the
+ * lookup, so case buys nothing here and a CamelCase name collides with its
+ * own lowercased copy after an --oldcopy upgrade.
  *
  * @category Page
  * @package  FOGProject
