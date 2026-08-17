@@ -2,7 +2,7 @@
 /**
  * A site: a named group of hosts, users, groups and user groups.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Site
  * @package  FOGProject

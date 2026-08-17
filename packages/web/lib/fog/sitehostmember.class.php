@@ -2,7 +2,7 @@
 /**
  * Membership association between site -> host links.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SiteHostMember
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * OpenAPI description of the FOG REST API, generated from FOG's own metadata.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category OpenAPI
  * @package  FOGProject

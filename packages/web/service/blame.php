@@ -2,7 +2,7 @@
 /**
  * Sets the blame of a storage node thats problematic.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Blame
  * @package  FOGProject

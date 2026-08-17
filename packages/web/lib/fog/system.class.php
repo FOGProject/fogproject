@@ -2,7 +2,7 @@
 /**
  * System, the basic system layout.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * This just presents the system variables
  *

@@ -4,7 +4,7 @@
  * Generates and diffs the expected-structure manifest used by
  * SchemaReconciler.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SchemaManifest
  * @package  FOGProject

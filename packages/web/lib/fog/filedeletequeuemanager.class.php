@@ -2,7 +2,7 @@
 /**
  * File Delete Queue handler class (informative).
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FileDeleteQueueManager
  * @package  FOGProject

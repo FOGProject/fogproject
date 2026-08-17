@@ -2,7 +2,7 @@
 /**
  * Resolves whether an object is inside a user's site scope.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SiteScope
  * @package  FOGProject

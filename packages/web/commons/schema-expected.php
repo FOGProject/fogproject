@@ -13,7 +13,7 @@
  *
  * Consumed by SchemaReconciler::reconcile().
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SchemaExpected
  * @package  FOGProject

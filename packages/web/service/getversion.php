@@ -6,7 +6,7 @@
  * If the client update is disabled, it should return 0.0.0
  * as all clients use a numerical system of which 0.0.0 is below.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Getversion
  * @package  FOGProject

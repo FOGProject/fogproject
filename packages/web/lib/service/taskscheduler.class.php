@@ -2,7 +2,7 @@
 /**
  * Handles scheduled tasks and performs other "ondemand" related tasks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category TaskSchedule
  * @package  FOGProject

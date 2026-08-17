@@ -2,7 +2,7 @@
 /**
  * Boot menu for the fog pxe system
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Bootmenu
  * @package  FOGProject

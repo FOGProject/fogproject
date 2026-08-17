@@ -2,7 +2,7 @@
 /**
  * Reports Host product keys
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ProductKeys
  * @package  FOGProject

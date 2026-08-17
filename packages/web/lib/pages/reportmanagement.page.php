@@ -2,7 +2,7 @@
 /**
  * Displays 'reports' for the admins.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ReportManagement
  * @package  FOGProject

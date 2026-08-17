@@ -2,7 +2,7 @@
 /**
  * Redirects calls to lib/fog/index.php to main page.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Redirect
  * @package  FOGProject

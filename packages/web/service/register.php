@@ -4,7 +4,7 @@
  * host register information.  Particularly
  * useful for adding additional mac addresses.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Register
  * @package  FOGProject

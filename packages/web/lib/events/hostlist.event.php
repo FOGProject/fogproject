@@ -2,7 +2,7 @@
 /**
  * Host list event
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category HostList_Event
  * @package  FOGProject
