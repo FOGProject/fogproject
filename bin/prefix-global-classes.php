@@ -70,8 +70,18 @@ function collectFiles($root, array $paths)
             $candidates[] = $p;
         }
     } else {
+        // --cached --others --exclude-standard, not a bare ls-files: a file
+        // that is written but not yet `git add`ed is exactly the one being
+        // checked, and a bare listing cannot see it. That gap let a new test
+        // file ship a bare ReflectionClass -- green locally, red the moment
+        // the merge made it tracked. --exclude-standard keeps .gitignore
+        // honoured, so vendor/ and lib/plugins stay out.
         $out = [];
-        exec('git -C ' . escapeshellarg($root) . ' ls-files', $out);
+        exec(
+            'git -C ' . escapeshellarg($root)
+            . ' ls-files --cached --others --exclude-standard',
+            $out
+        );
         foreach ($out as $rel) {
             $candidates[] = $root . DIRECTORY_SEPARATOR . $rel;
         }

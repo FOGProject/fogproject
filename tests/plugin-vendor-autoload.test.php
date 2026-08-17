@@ -123,7 +123,7 @@ if (class_exists('AcmeShared\Other')) {
 if (!class_exists('Firebase\JWT\JWT')) {
     $fails[] = "core's own vendored Firebase\\JWT\\JWT stopped resolving";
 } else {
-    $file = (new ReflectionClass('Firebase\JWT\JWT'))->getFileName();
+    $file = (new \ReflectionClass('Firebase\JWT\JWT'))->getFileName();
     if (false !== strpos($file, 'ccc-conflicts-core')) {
         $fails[] = "a plugin's vendored copy displaced core's: Firebase\\JWT"
             . "\\JWT loaded from $file";
