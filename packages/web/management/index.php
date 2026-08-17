@@ -19,6 +19,15 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+/*
+ * The web UI is the one entry point that needs a session created for a
+ * visitor who arrives without a cookie -- the login form's CSRF token has to
+ * live somewhere before anyone has logged in. Every other entry point either
+ * presents an existing session cookie or does not use sessions at all, so
+ * Initiator only starts one when this is defined or a cookie is present.
+ */
+define('FOG_WANTS_SESSION', true);
+
 require '../commons/base.inc.php';
 
 // Initialize required classes
