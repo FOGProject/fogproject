@@ -1617,8 +1617,15 @@ configureUDPCast() {
     cd $udpcastout
     grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$error_log 2>&1
     if [[ $? -eq 0 ]]; then
-        wget -qO config.guess "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$error_log 2>&1
-        wget -qO config.sub "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$error_log 2>&1
+        # Bounded, and the retry count cut right down. wget defaults to
+        # --tries=20 with no connect timeout at all, so on a Pi that cannot
+        # reach savannah this sat here for twenty full SYN retry cycles, twice,
+        # silently. Both files are a few KB, so a 30 second read timeout cannot
+        # cut a legitimate transfer short.
+        wget -qO config.guess --connect-timeout=$inetConnectTimeout --read-timeout=30 --tries=2 \
+            "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$error_log 2>&1
+        wget -qO config.sub --connect-timeout=$inetConnectTimeout --read-timeout=30 --tries=2 \
+            "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$error_log 2>&1
         chmod +x config.guess config.sub >>$error_log 2>&1
     fi
     errorStat $?
@@ -7319,7 +7326,10 @@ downloadfiles() {
     dots "Downloading kernel, init and fog-client binaries"
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
     fosURL="https://github.com/FOGProject/fos/releases/download"
-    fileversions=$(curl -sL -H "Accept: application/vnd.github+json" 'https://api.github.com/repos/FOGProject/fos/releases/latest' | jq '.tag_name, .body' | paste -sd '|')
+    # Bounded like every other fetch here. This one takes --max-time as well as
+    # --connect-timeout because it is a few KB of JSON, not a tarball, so there
+    # is no legitimate slow-link case for it to break.
+    fileversions=$(curl -sL --connect-timeout $inetConnectTimeout --max-time $inetMaxTime -H "Accept: application/vnd.github+json" 'https://api.github.com/repos/FOGProject/fos/releases/latest' | jq '.tag_name, .body' | paste -sd '|')
     tag_name="$(echo $fileversions | awk -F'|' '{print $1}')"
     fileversion="$(echo $fileversions | awk -F'|' '{print $2}')"
     kern_version=$(echo -e $fileversion | sed -n 's/.*Linux kernel \([0-9.]*\).*/\1/p')
@@ -7346,14 +7356,28 @@ downloadfiles() {
         # make sure we download the most recent hash file to start with
         if [[ -f $hashfile && ! $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
             rm -f $hashfile
-            curl --silent -kOL $hashurl >>$error_log 2>&1
+            curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                --speed-time 30 --speed-limit 1024 $hashurl >>$error_log 2>&1
         fi
-        while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
+        # Eight URLs, ten rounds, two curls each: 160 connects, none of them
+        # bounded, all of them silent under one "Downloading kernel, init and
+        # fog-client binaries" line. On a host with no route out that was the
+        # single longest stall the installer could produce. --connect-timeout
+        # bounds an unreachable host and --speed-time/--speed-limit a transfer
+        # that opens and then stops; --max-time is deliberately absent, because
+        # these are multi-megabyte kernels and a slow link must still finish.
+        # When checkInternetConnection has already established the host is
+        # unreachable there is nothing to retry FOR, so make one attempt.
+        tries=10
+        [[ $internet_ok -ne 1 ]] && tries=1
+        while [[ $checksum -ne 0 && $cnt -lt $tries ]]; do
             [[ -f $hashfile ]] && sha256sum -c $hashfile >>$error_log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]; then
-                curl --silent -kOL $url >>$error_log
-                curl --silent -kOL $hashurl >>$error_log
+                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $url >>$error_log
+                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $hashurl >>$error_log
             fi
             let cnt+=1
         done
@@ -8020,7 +8044,8 @@ _ensureEfitools() {
     # without them.
     $packageinstaller gcc make gnu-efi-devel libuuid-devel openssl-devel \
         help2man perl-File-Slurp >>$error_log 2>&1
-    if ! curl -fsSL "$url" -o "${work}/efitools.tar.gz" >>$error_log 2>&1; then
+    if ! curl -fsSL --connect-timeout $inetConnectTimeout \
+        --speed-time 30 --speed-limit 1024 "$url" -o "${work}/efitools.tar.gz" >>$error_log 2>&1; then
         echo "Failed"
         echo " * Could not download efitools ${ver} from ${url}."
         rm -rf "$work" >>$error_log 2>&1
