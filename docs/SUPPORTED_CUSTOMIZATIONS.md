@@ -203,11 +203,17 @@ esp/snponly-shimx64.efi   point your boot manager at EITHER shim
 esp/snponly.efi             …this one loads snponly.efi
 esp/ipxe-shimx64.efi      point your boot manager at EITHER shim
 esp/ipxe.efi                …this one loads ipxe.efi
-esp/autoexec.ipxe         chains FOG's build, with fallbacks
+esp/mmx64.efi             MokManager — how you enrol the key
+esp/autoexec.ipxe         chains the standard set, with fallbacks
+esp/autoexec-10sec.ipxe   chains the 10-second-delay set instead
 esp/fogipxe.efi           FOG's build, all drivers      ← the one that boots
 esp/fogsnp.efi            FOG's build, firmware SNP
 esp/fogintel.efi          FOG's build, Intel only
 esp/fogrealtek.efi        FOG's build, Realtek only
+esp/fogipxe10sec.efi      the same four, each waiting 10s
+esp/fogsnp10sec.efi         before DHCP
+esp/fogintel10sec.efi
+esp/fogrealtek10sec.efi
 esp/arm64-efi/            the same set, aa64 shims
 ```
 
@@ -221,6 +227,25 @@ itself.
 Neither loader needs to drive a NIC — each only reads `autoexec.ipxe` out of the
 same folder and chains onward — so the choice is about which shim your firmware
 accepts, not about network hardware. One `autoexec.ipxe` serves both.
+
+**`mmx64.efi` is not optional.** shim launches MokManager from its own directory
+when it cannot verify the next stage, and that is the only way to enrol your key
+— shim's `MokList` is a boot-services-only variable, so nothing in a running OS
+can write it. Without MokManager beside the shim, an ESP that has not been
+enrolled yet is a dead end with no route out.
+
+**Two sets of binaries, two scripts.** The `10sec` binaries are identical except
+that each waits 10 seconds before DHCP, which is what lets a link come up on a
+switch running STP or port power-save. iPXE runs exactly the file called
+`autoexec.ipxe` and has no way to ask you which set you want, so choosing means
+swapping the file: rename `autoexec-10sec.ipxe` over `autoexec.ipxe`.
+
+>[!note]
+>The delay has to live in the binary, not the script — `sleep` is an optional
+>iPXE command that FOG's own builds enable but upstream's signed loader may not,
+>and the loader is what runs `autoexec.ipxe`. Booting a `fog*.efi` directly from
+>your boot manager reads no script at all, so there the embedded delay is the
+>only route to one.
 
 **Two names are not yours to choose.** shim picks its second stage by rewriting
 its own `-shim<arch>.efi` suffix to `.efi`, so `snponly-shimx64.efi` will load

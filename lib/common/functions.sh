@@ -8193,23 +8193,39 @@ localbootfiles=(
 # This is also the collision the fog* prefix exists to avoid: upstream's
 # ipxe.efi has to keep its own name for ipxe-shimx64.efi to find it, so FOG's
 # all-drivers build cannot be called ipxe.efi in this directory.
+# MokManager ships too. shim launches mm<arch>.efi FROM ITS OWN DIRECTORY when it
+# cannot verify the next stage, and that is the only way to enrol a MOK -- shim's
+# MokList is a boot-services-only variable, so nothing in a running OS can write
+# it. Without mmx64.efi beside the shim, an ESP that has not been enrolled yet is
+# a dead end with no route out of it. Found the hard way: it had to be downloaded
+# by hand.
 localbootespfiles=(
     "secureboot/snponly-shimx64.efi|snponly-shimx64.efi"
     "secureboot/snponly.efi|snponly.efi"
     "secureboot/ipxe-shimx64.efi|ipxe-shimx64.efi"
     "secureboot/ipxe.efi|ipxe.efi"
+    "secureboot/mmx64.efi|mmx64.efi"
     "ipxe.efi|fogipxe.efi"
     "snp.efi|fogsnp.efi"
     "intel.efi|fogintel.efi"
     "realtek.efi|fogrealtek.efi"
+    "10secdelay/ipxe.efi|fogipxe10sec.efi"
+    "10secdelay/snp.efi|fogsnp10sec.efi"
+    "10secdelay/intel.efi|fogintel10sec.efi"
+    "10secdelay/realtek.efi|fogrealtek10sec.efi"
     "secureboot/arm64-efi/snponly-shimaa64.efi|arm64-efi/snponly-shimaa64.efi"
     "secureboot/arm64-efi/snponly.efi|arm64-efi/snponly.efi"
     "secureboot/arm64-efi/ipxe-shimaa64.efi|arm64-efi/ipxe-shimaa64.efi"
     "secureboot/arm64-efi/ipxe.efi|arm64-efi/ipxe.efi"
+    "secureboot/arm64-efi/mmaa64.efi|arm64-efi/mmaa64.efi"
     "arm64-efi/ipxe.efi|arm64-efi/fogipxe.efi"
     "arm64-efi/snp.efi|arm64-efi/fogsnp.efi"
     "arm64-efi/intel.efi|arm64-efi/fogintel.efi"
     "arm64-efi/realtek.efi|arm64-efi/fogrealtek.efi"
+    "10secdelay/arm64-efi/ipxe.efi|arm64-efi/fogipxe10sec.efi"
+    "10secdelay/arm64-efi/snp.efi|arm64-efi/fogsnp10sec.efi"
+    "10secdelay/arm64-efi/intel.efi|arm64-efi/fogintel10sec.efi"
+    "10secdelay/arm64-efi/realtek.efi|arm64-efi/fogrealtek10sec.efi"
 )
 # The kit's autoexec.ipxe, written into each architecture's directory.
 #
@@ -8231,21 +8247,36 @@ localbootespfiles=(
 #
 # Still worth having: it means one kit boots whether the admin copied the whole
 # folder or only the variant their hardware needs.
+# $1 is the binary-set suffix: empty for the standard set, "10sec" for the
+# delayed one. Two scripts are written per architecture rather than one with a
+# branch, because iPXE runs exactly the file called autoexec.ipxe and there is no
+# way for it to ask which set you want -- choosing means swapping the file.
 _espAutoexecScript() {
-    cat <<'ESPAUTOEXEC'
+    local sfx="$1" note
+    if [[ -n $sfx ]]; then
+        note="# THE 10-SECOND-DELAY SET. Each binary waits 10s before DHCP, which is what
+# lets a link come up on a switch running STP or port power-save. Rename this
+# over autoexec.ipxe to use it."
+    else
+        note="# The standard set. If the link is not up in time on your switch -- STP or
+# port power-save -- rename autoexec-10sec.ipxe over this file instead."
+    fi
+    cat <<ESPAUTOEXEC
 #!ipxe
 # Read off the ESP by upstream's signed loader, after shim has established MOK
 # trust. Chains FOG's own build, which carries the FOG boot script compiled in.
 #
+${note}
+#
 # The fallbacks fire only if a file is MISSING or fails verification -- not if it
 # loads and then finds no NIC. Copy the variant your hardware needs.
-chain fogipxe.efi || goto trysnp
+chain fogipxe${sfx}.efi || goto trysnp
 :trysnp
-chain fogsnp.efi || goto tryintel
+chain fogsnp${sfx}.efi || goto tryintel
 :tryintel
-chain fogintel.efi || goto tryrealtek
+chain fogintel${sfx}.efi || goto tryrealtek
 :tryrealtek
-chain fogrealtek.efi || goto nofogbinary
+chain fogrealtek${sfx}.efi || goto nofogbinary
 :nofogbinary
 echo No usable FOG iPXE binary found on this ESP.
 prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
@@ -8341,7 +8372,8 @@ _publishLocalBootFiles() {
     local espdir
     for espdir in "${bootdir}/esp" "${bootdir}/esp/arm64-efi"; do
         [[ -d $espdir ]] || continue
-        _espAutoexecScript > "${espdir}/autoexec.ipxe" 2>>$error_log
+        _espAutoexecScript "" > "${espdir}/autoexec.ipxe" 2>>$error_log
+        _espAutoexecScript "10sec" > "${espdir}/autoexec-10sec.ipxe" 2>>$error_log
     done
     # The same 404 stub the Secure Boot kit uses, in EVERY directory rather than
     # just the top one. DirectoryIndex names index.php in every variant
