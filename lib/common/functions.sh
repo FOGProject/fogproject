@@ -5206,7 +5206,45 @@ _createCommLeaf() {
     commLeafKey="$sslpath/.srvprivate.key"
     commLeafPem="$sslpath/.srvpublic.crt"
 
+    # Already present: keep it, whoever issued it. This is also the supported
+    # way to run a comm leaf issued OUTSIDE FOG -- drop the certificate at
+    # $sslpath/.srvpublic.crt with its key at $sslpath/.srvprivate.key and FOG
+    # leaves both alone from then on.
+    #
+    # Checked with the same modulus test the adopt branch below uses, and for
+    # the same reason it gives: a certificate that does not pair with this key
+    # publishes a public key nothing on this server can decrypt against. Every
+    # registered fog-client encrypts to that public half, so a mismatch here
+    # does not degrade anything -- it locks out every client at once, and
+    # FOGBase::certDecrypt() reports it per client as a failed authorize with
+    # nothing pointing back at the certificate. Silently keeping whatever was
+    # there was the one path into this state.
     if [[ -f $commLeafPem ]]; then
+        local haveMod wantMod
+        haveMod=$(openssl x509 -noout -modulus -in "$commLeafPem" 2>/dev/null | openssl md5 2>/dev/null)
+        wantMod=$(openssl rsa -noout -modulus -in "$commLeafKey" 2>/dev/null | openssl md5 2>/dev/null)
+        # No key yet is not a mismatch. An install that has the certificate but
+        # not the key is mid-migration, not broken -- _separateCommKey runs
+        # after this and is what settles that case.
+        if [[ -f $commLeafKey && -n $haveMod && -n $wantMod && $haveMod != "$wantMod" ]]; then
+            echo
+            echo "  ###################################################################"
+            echo "  # WARNING: the client communication certificate does not match    #"
+            echo "  # the client communication private key.                           #"
+            echo "  #                                                                 #"
+            echo "  #   certificate: $commLeafPem"
+            echo "  #   private key: $commLeafKey"
+            echo "  #                                                                 #"
+            echo "  # Every registered fog-client encrypts to the key in that          #"
+            echo "  # certificate, so while these disagree NO client can authenticate #"
+            echo "  # -- it surfaces per host as a failed check-in, not as anything   #"
+            echo "  # naming these files.                                             #"
+            echo "  #                                                                 #"
+            echo "  # Put back the certificate that pairs with this key, or supply    #"
+            echo "  # both halves together if you issue this leaf outside FOG.        #"
+            echo "  ###################################################################"
+            echo
+        fi
         return 0
     fi
     # An existing server already has this certificate, under the web root where
