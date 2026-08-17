@@ -154,8 +154,10 @@ $scenario = function (array $tables) use ($dbProp) {
     $db = new FakeDB(
         function ($sql, $params) use ($tables) {
             // Catch-all membership -- checked before the plain sites count
-            // because both mention `sites`.
-            if (false !== strpos($sql, 'INNER JOIN `sites`')) {
+            // because both mention `sites`, and before the membership arm
+            // because it now EMBEDS the membership union as a subquery
+            // (that is what makes a grant of the catch-all site work).
+            if (false !== strpos($sql, 'IS NOT NULL AND `s`.`siteID` IN (')) {
                 if (isset($tables['catchAllThrows'])) {
                     throw new \Exception('no such table');
                 }
@@ -188,9 +190,19 @@ $scenario = function (array $tables) use ($dbProp) {
             }
             if (false !== strpos($sql, 'FROM `siteUserMembers` WHERE')) {
                 $uid = (int)$params['uid'];
+                // One query, four arms: `userSites` is what the direct arm
+                // contributes and `inheritedSites` is what the three grant
+                // arms contribute. Kept as separate fixture keys so a case
+                // can say "this user reaches the site ONLY by inheritance"
+                // and mean it. Deduped, because the SQL is UNION and not
+                // UNION ALL.
                 $out = [];
-                foreach ((array)($tables['userSites'][$uid] ?? []) as $s) {
-                    $out[] = ['sumSiteID' => $s];
+                $seen = array_values(array_unique(array_merge(
+                    (array)($tables['userSites'][$uid] ?? []),
+                    (array)($tables['inheritedSites'][$uid] ?? [])
+                )));
+                foreach ($seen as $s) {
+                    $out[] = ['siteID' => $s];
                 }
                 return $out;
             }
@@ -223,7 +235,7 @@ $scenario = function (array $tables) use ($dbProp) {
 $touchedMembership = function (FakeDB $db) {
     foreach ($db->log as $sql) {
         if (preg_match('/`site(Host|User|Group|UserGroup)Members`/', $sql)
-            && false === strpos($sql, 'INNER JOIN `sites`')
+            && false === strpos($sql, 'IS NOT NULL AND `s`.`siteID` IN (')
         ) {
             return true;
         }
@@ -656,6 +668,153 @@ $otherUser = SiteScope::inScope('host', 5, 4);
 check(
     'catch-all user allowed, other user denied, same request',
     $catchAllUser === true && $otherUser === false,
+    $failures,
+    $checks
+);
+
+/*
+ * 12. Inherited membership. A site reaches a user directly, through a user
+ *     group, or through a role -- and a role reaches a user two ways, so
+ *     four arms. These cases prove the behaviour; case 13 pins the SQL,
+ *     because the fake answers one union query and cannot tell which arm
+ *     produced a row.
+ */
+$scenario(
+    [
+        'siteCount' => 2,
+        'userSites' => [7 => []],
+        'inheritedSites' => [7 => [2]],
+        'members' => [5],
+    ]
+);
+check(
+    'a user with no direct membership is scoped by inheritance alone',
+    SiteScope::inScope('host', 5, 7) === true,
+    $failures,
+    $checks
+);
+
+$scenario(
+    [
+        'siteCount' => 2,
+        'userSites' => [7 => []],
+        'inheritedSites' => [7 => [2]],
+        'members' => [],
+    ]
+);
+check(
+    'inheritance still denies an object outside the inherited site',
+    SiteScope::inScope('host', 5, 7) === false,
+    $failures,
+    $checks
+);
+
+// Union, not union all: the same site reached twice is one id. Anything
+// downstream doing in_array() would not notice, but filterInScope() and the
+// IN () it builds would carry the duplicate into SQL.
+$scenario(
+    [
+        'siteCount' => 2,
+        'userSites' => [7 => [2]],
+        'inheritedSites' => [7 => [2, 3]],
+        'members' => [5],
+    ]
+);
+check(
+    'a site reached both directly and by inheritance appears once',
+    SiteScope::userSiteIDs(7) === [2, 3],
+    $failures,
+    $checks
+);
+
+// The property that makes this separable from Phase 1: no arrangement of
+// grants can take a site away. Direct membership survives an empty
+// inheritance set.
+$scenario(
+    [
+        'siteCount' => 2,
+        'userSites' => [7 => [2]],
+        'inheritedSites' => [7 => []],
+        'members' => [5],
+    ]
+);
+check(
+    'inheritance never narrows: direct membership stands alone',
+    SiteScope::userSiteIDs(7) === [2],
+    $failures,
+    $checks
+);
+
+$scenario(['siteCount' => 2, 'userSites' => [7 => []], 'members' => [5]]);
+check(
+    'no membership and no grant is still deny-all',
+    SiteScope::inScope('host', 5, 7) === false,
+    $failures,
+    $checks
+);
+
+/*
+ * 13. The arms themselves. The fixtures above would pass against a query
+ *     that read one table, so the shape is pinned here: four arms, the
+ *     joins each one needs, and UNION rather than UNION ALL.
+ */
+$db = $scenario(['siteCount' => 2, 'userSites' => [7 => []], 'members' => []]);
+SiteScope::userSiteIDs(7);
+$armSql = '';
+foreach ($db->log as $sql) {
+    if (0 === strpos($sql, 'SELECT `sumSiteID` AS `siteID`')) {
+        $armSql = $sql;
+        break;
+    }
+}
+$flat = preg_replace('/\s+/', ' ', $armSql);
+foreach ([
+    'direct membership' => 'FROM `siteUserMembers` WHERE `sumUserID` = :uid',
+    'user group grant' => 'FROM `siteUserGroupGrants` INNER JOIN '
+        . '`userGroupMembers` ON `ugmGroupID` = `suggGroupID`',
+    'role grant, role held directly' => 'FROM `siteRoleGrants` INNER JOIN '
+        . '`roleUserAssoc` ON `ruaRoleID` = `srgRoleID`',
+    'role grant, role held via a user group' => 'INNER JOIN '
+        . '`roleUserGroupAssoc` ON `rugRoleID` = `srgRoleID` INNER JOIN '
+        . '`userGroupMembers` ON `ugmGroupID` = `rugGroupID`',
+] as $what => $fragment) {
+    check(
+        "userSiteIDs() carries the $what arm",
+        false !== strpos($flat, $fragment),
+        $failures,
+        $checks
+    );
+}
+check(
+    'the arms are UNION, not UNION ALL -- the result is a set',
+    3 === substr_count($flat, ' UNION ')
+    && false === strpos($flat, 'UNION ALL'),
+    $failures,
+    $checks
+);
+
+/*
+ * 13a. And isUnscoped() asks the SAME question, over the same SQL. If it
+ *      kept its own copy reading only direct membership, granting a role
+ *      the catch-all site would put the catch-all's id in the user's list
+ *      while leaving isUnscoped() false -- so the user would be scoped to
+ *      the one site that means "no restriction", and see nothing.
+ */
+$db = $scenario(['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => []], 'members' => []]);
+SiteScope::inScope('host', 5, 7);
+$catchAllSql = '';
+foreach ($db->log as $sql) {
+    if (false !== strpos($sql, 'IS NOT NULL AND `s`.`siteID` IN (')) {
+        $catchAllSql = $sql;
+        break;
+    }
+}
+$flatCatch = preg_replace('/\s+/', ' ', $catchAllSql);
+check(
+    'the catch-all check embeds the same four arms',
+    false !== strpos($flatCatch, '`siteUserGroupGrants`')
+    && false !== strpos($flatCatch, '`siteRoleGrants`')
+    && 3 === substr_count($flatCatch, ' UNION '),
     $failures,
     $checks
 );

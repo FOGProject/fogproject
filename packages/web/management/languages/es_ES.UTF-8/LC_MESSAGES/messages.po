@@ -2785,6 +2785,10 @@ msgstr "información de LDAP actualizado!"
 msgid "Got in line at"
 msgstr ""
 
+#, fuzzy
+msgid "Granted To"
+msgstr "Creado"
+
 msgid "Grants"
 msgstr ""
 
@@ -6739,6 +6743,14 @@ msgstr "Impresora ya existe"
 #, fuzzy
 msgid "Site Description"
 msgstr "Descripción de la impresora"
+
+#, fuzzy
+msgid "Site Granted To Roles"
+msgstr "Impresora ya existe"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Site Group Associations"

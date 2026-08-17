@@ -211,7 +211,12 @@ if ($cmd === 'generate') {
         . " *\n"
         . " * Consumed by SchemaReconciler::reconcile().\n"
         . " *\n"
-        . " * PHP version 5\n"
+        // The enforced floor, not the historic boilerplate. The 727-file
+        // sweep off "PHP version 5" fixed the manifest but not the generator
+        // that writes it, so the next regeneration silently reverted the file
+        // and failed tests/php-version-docblocks.test.php -- a generated
+        // artifact drifting back because only its output was corrected.
+        . " * PHP version 7.4+\n"
         . " *\n"
         . " * @category SchemaExpected\n"
         . " * @package  FOGProject\n"

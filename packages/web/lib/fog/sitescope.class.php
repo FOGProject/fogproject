@@ -259,27 +259,91 @@ class SiteScope extends FOGBase
     {
         $userID = (int)$userID;
         if (!array_key_exists($userID, self::$_catchAll)) {
+            // Asks the same reachability question userSiteIDs() asks, over
+            // the same SQL, rather than keeping a second copy of the arms.
+            // If these two ever disagreed the failure would be silent and
+            // backwards: granting a role the catch-all site would put its
+            // id in the user's list while leaving isUnscoped() false, so
+            // the user would be scoped to a site nothing is explicitly
+            // assigned to -- which is deny-all wearing the name of the
+            // site that means "no restriction".
             self::$_catchAll[$userID] = self::_count(
-                'SELECT COUNT(*) AS `cnt` FROM `siteUserMembers` `m` '
-                . 'INNER JOIN `sites` `s` ON `s`.`siteID` = `m`.`sumSiteID` '
-                . 'WHERE `m`.`sumUserID` = :uid '
-                . 'AND `s`.`siteCatchAll` IS NOT NULL',
-                ['uid' => $userID]
+                'SELECT COUNT(*) AS `cnt` FROM `sites` `s` '
+                . 'WHERE `s`.`siteCatchAll` IS NOT NULL '
+                . 'AND `s`.`siteID` IN (' . self::_reachableSitesSql() . ')',
+                self::_reachableSitesParams($userID)
             ) > 0;
         }
         return self::$_catchAll[$userID];
     }
     /**
+     * The SQL answering "which sites can this user reach, and how".
+     *
+     * Four arms, and the count is not arbitrary. A site reaches a user
+     * directly, through a user group, or through a role -- and a role
+     * itself reaches a user by two paths, assigned to them or assigned to
+     * a group they are in. Authorization::getPermissions() already grants
+     * permissions along both of those role paths, so a role that granted
+     * its site only when assigned directly would produce a user holding
+     * the permission to edit hosts and no hosts to edit.
+     *
+     * UNION rather than UNION ALL: the result is a set. That is what makes
+     * "most open wins" true by construction instead of by a precedence
+     * rule somebody has to remember, and it is why inheritance can only
+     * ever ADD sites -- no configuration of grants can take away a site a
+     * direct membership already gave.
+     *
+     * Separate placeholder names per arm because the layer binds by name,
+     * so one name reused across four arms binds once and leaves three
+     * unbound.
+     *
+     * @return string the SQL
+     */
+    private static function _reachableSitesSql()
+    {
+        return 'SELECT `sumSiteID` AS `siteID` FROM `siteUserMembers` '
+            . 'WHERE `sumUserID` = :uid '
+            . 'UNION '
+            . 'SELECT `suggSiteID` FROM `siteUserGroupGrants` '
+            . 'INNER JOIN `userGroupMembers` '
+            . 'ON `ugmGroupID` = `suggGroupID` '
+            . 'WHERE `ugmUserID` = :uidgroup '
+            . 'UNION '
+            . 'SELECT `srgSiteID` FROM `siteRoleGrants` '
+            . 'INNER JOIN `roleUserAssoc` ON `ruaRoleID` = `srgRoleID` '
+            . 'WHERE `ruaUserID` = :uidrole '
+            . 'UNION '
+            . 'SELECT `srgSiteID` FROM `siteRoleGrants` '
+            . 'INNER JOIN `roleUserGroupAssoc` ON `rugRoleID` = `srgRoleID` '
+            . 'INNER JOIN `userGroupMembers` ON `ugmGroupID` = `rugGroupID` '
+            . 'WHERE `ugmUserID` = :uidrolegroup';
+    }
+    /**
+     * The bindings _reachableSitesSql() expects.
+     *
+     * @param int $userID the acting user id
+     *
+     * @return array
+     */
+    private static function _reachableSitesParams($userID)
+    {
+        $userID = (int)$userID;
+        return [
+            'uid' => $userID,
+            'uidgroup' => $userID,
+            'uidrole' => $userID,
+            'uidrolegroup' => $userID
+        ];
+    }
+    /**
      * The site ids a user belongs to. Empty means deny-all, not allow-all.
      *
-     * Direct membership only, matching what the plugin enforced. This is
-     * deliberately the ONLY place that answers "which sites is this user
-     * in", so that inherited membership -- via a user group, or via a role
-     * -- is one more UNION arm here and not a second rule somewhere else.
-     * Both joins already exist (`userGroupMembers`, `roleUserAssoc`); what
-     * is missing is the site-side edge, and adding one is a schema step
-     * plus an arm in this query. Nothing else in this class changes,
-     * because everything downstream consumes the list this returns.
+     * Direct membership, plus membership inherited from a user group or a
+     * role. This is deliberately the ONLY place that answers "which sites
+     * is this user in", so each way of reaching a site is one more UNION
+     * arm in _reachableSitesSql() and not a second rule somewhere else.
+     * Nothing else in this class changes, because everything downstream
+     * consumes the list this returns.
      *
      * Note that inherited membership only ever ADDS sites. Union semantics
      * are what make "most open wins" true by construction rather than by a
@@ -298,15 +362,17 @@ class SiteScope extends FOGBase
         $ids = [];
         try {
             $res = self::$DB->query(
-                'SELECT `sumSiteID` FROM `siteUserMembers` '
-                . 'WHERE `sumUserID` = :uid',
+                self::_reachableSitesSql(),
                 [],
-                ['uid' => $userID]
+                self::_reachableSitesParams($userID)
             );
             if (false === $res->error) {
                 $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
                 foreach ((array)$rows as $row) {
-                    $ids[] = (int)$row['sumSiteID'];
+                    // Aliased to `siteID` by the first arm; a UNION takes
+                    // its column names from the leading SELECT, so the
+                    // three grant arms land under the same key.
+                    $ids[] = (int)$row['siteID'];
                 }
             }
         } catch (\Exception $e) {

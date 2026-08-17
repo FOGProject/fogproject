@@ -5632,3 +5632,58 @@ $this->schema[] = [
         return true;
     },
 ];
+// 335
+$this->schema[] = [
+    // Site scope inherited from a role or a user group.
+    //
+    // Today a site is assigned one user at a time (`siteUserMembers`), so a
+    // fifty-person helpdesk covering two sites is a hundred rows kept by
+    // hand, and a new starter is out of scope until somebody remembers
+    // them. Both facts needed to fix that already exist -- the user is in a
+    // user group and holds a role -- and neither carries a site.
+    //
+    // GRANT, not MEMBER, and the two are not the same relation even though
+    // they hold the same two ids. `siteUserGroupMembers` means "this user
+    // group IS IN this site": it is one of the objects the site contains,
+    // and a site-scoped admin may see and edit it. `siteUserGroupGrants`
+    // means "members of this user group GET this site": holding it is what
+    // puts you in scope. Overloading one table for both would save a table
+    // and cost the ability to grant somebody access to a site without also
+    // making their group an editable object inside it -- which is the
+    // distinction sites exist to draw. It would also never fail loudly; it
+    // would just quietly widen what site-scoped admins can reach.
+    //
+    // Empty and unread at this step. Nothing queries these until
+    // SiteScope::userSiteIDs() grows its arms, so this is inert on any
+    // server that applies it.
+    //
+    // Shape copied from the four membership tables deliberately, `*Name`
+    // column included even though nothing reads it: Route::ids() orders by
+    // name and assocSetter() derives its column from the class name, so a
+    // table that departs from the pattern stops working with the shared
+    // association machinery.
+    //
+    // The UNIQUE covers every non-id column but the name. That is the case
+    // where FOGController::save()'s INSERT ... ON DUPLICATE KEY UPDATE has
+    // nothing to destroy -- it can only rewrite the row it matched on --
+    // rather than the silent-overwrite bug class the site tables above
+    // needed repair closures for.
+    "CREATE TABLE IF NOT EXISTS `siteRoleGrants` ("
+    . "`srgID` INT NOT NULL AUTO_INCREMENT,"
+    . "`srgName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`srgSiteID` INT NOT NULL,"
+    . "`srgRoleID` INT NOT NULL,"
+    . "PRIMARY KEY (`srgID`),"
+    . "UNIQUE KEY `srgSiteRole` (`srgSiteID`,`srgRoleID`),"
+    . "KEY `srgRoleID` (`srgRoleID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `siteUserGroupGrants` ("
+    . "`suggID` INT NOT NULL AUTO_INCREMENT,"
+    . "`suggName` VARCHAR(60) NOT NULL DEFAULT '',"
+    . "`suggSiteID` INT NOT NULL,"
+    . "`suggGroupID` INT NOT NULL,"
+    . "PRIMARY KEY (`suggID`),"
+    . "UNIQUE KEY `suggSiteGroup` (`suggSiteID`,`suggGroupID`),"
+    . "KEY `suggGroupID` (`suggGroupID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC",
+];

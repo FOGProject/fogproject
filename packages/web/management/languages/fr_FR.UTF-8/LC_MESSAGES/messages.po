@@ -2732,6 +2732,10 @@ msgstr "Emplacement Mise à jour"
 msgid "Got in line at"
 msgstr ""
 
+#, fuzzy
+msgid "Granted To"
+msgstr "Créé par"
+
 msgid "Grants"
 msgstr ""
 
@@ -6585,6 +6589,14 @@ msgstr "Imprimante existe déjà"
 #, fuzzy
 msgid "Site Description"
 msgstr "Printer description"
+
+#, fuzzy
+msgid "Site Granted To Roles"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "Créer un nouveau %s"
 
 #, fuzzy
 msgid "Site Group Associations"

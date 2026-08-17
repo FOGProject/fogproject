@@ -80,6 +80,13 @@ class Site extends FOGController
         'hosts',
         'groups',
         'usergroups',
+        // The grant side. `usergroups` above means "this user group is an
+        // OBJECT in this site"; `grantusergroups` means "members of this
+        // user group GET this site". Same pair of ids, opposite question,
+        // which is why they are separate tables and separate fields --
+        // see SiteUserGroupGrant.
+        'grantroles',
+        'grantusergroups',
         'catchall'
     ];
     /**
@@ -213,6 +220,60 @@ class Site extends FOGController
         return $this->addRemItem('usergroups', (array)$removeArray, 'diff');
     }
     /**
+     * Grant this site to a role.
+     *
+     * Everyone holding the role is in scope for this site, including
+     * through a user group that holds it -- SiteScope resolves both paths.
+     *
+     * @param array $addArray The roles to grant to.
+     *
+     * @return object
+     */
+    public function addGrantRole($addArray)
+    {
+        return $this->addRemItem('grantroles', (array)$addArray, 'merge');
+    }
+    /**
+     * Stop granting this site to a role.
+     *
+     * @param array $removeArray The roles to stop granting to.
+     *
+     * @return object
+     */
+    public function removeGrantRole($removeArray)
+    {
+        return $this->addRemItem('grantroles', (array)$removeArray, 'diff');
+    }
+    /**
+     * Grant this site to a user group.
+     *
+     * Not the same act as adding the user group to the site: that makes it
+     * an object the site contains, this puts its members in scope.
+     *
+     * @param array $addArray The user groups to grant to.
+     *
+     * @return object
+     */
+    public function addGrantUserGroup($addArray)
+    {
+        return $this->addRemItem('grantusergroups', (array)$addArray, 'merge');
+    }
+    /**
+     * Stop granting this site to a user group.
+     *
+     * @param array $removeArray The user groups to stop granting to.
+     *
+     * @return object
+     */
+    public function removeGrantUserGroup($removeArray)
+    {
+        return $this->addRemItem(
+            'grantusergroups',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
      * Stores/updates the site.
      *
      * @return object
@@ -232,6 +293,8 @@ class Site extends FOGController
             ->assocSetter('SiteHostMember', 'host', true)
             ->assocSetter('SiteGroupMember', 'group', true)
             ->assocSetter('SiteUserGroupMember', 'usergroup', true)
+            ->assocSetter('SiteRoleGrant', 'grantrole', true)
+            ->assocSetter('SiteUserGroupGrant', 'grantusergroup', true)
             ->load();
     }
     /**
@@ -338,6 +401,36 @@ class Site extends FOGController
         $this->set(
             'usergroups',
             (array)Route::getIds('siteusergroupmember', $find, 'usergroupID')
+        );
+    }
+    /**
+     * Load the roles this site is granted to.
+     *
+     * @return void
+     */
+    protected function loadGrantroles()
+    {
+        $find = ['siteID' => $this->get('id')];
+        $this->set(
+            'grantroles',
+            (array)Route::getIds('siterolegrant', $find, 'grantroleID')
+        );
+    }
+    /**
+     * Load the user groups this site is granted to.
+     *
+     * @return void
+     */
+    protected function loadGrantusergroups()
+    {
+        $find = ['siteID' => $this->get('id')];
+        $this->set(
+            'grantusergroups',
+            (array)Route::getIds(
+                'siteusergroupgrant',
+                $find,
+                'grantusergroupID'
+            )
         );
     }
     /**

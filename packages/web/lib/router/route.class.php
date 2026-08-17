@@ -5390,7 +5390,13 @@ class Route extends FOGBase
                         'sitehostmember' => $findWhere,
                         'siteusermember' => $findWhere,
                         'sitegroupmember' => $findWhere,
-                        'siteusergroupmember' => $findWhere
+                        'siteusergroupmember' => $findWhere,
+                        // ...and the two grant lists. A grant naming a
+                        // site that no longer exists would keep putting
+                        // its holders "in scope" for an id that resolves
+                        // to nothing, which reads as deny-all.
+                        'siterolegrant' => $findWhere,
+                        'siteusergroupgrant' => $findWhere
                     ];
                     break;
                 default:
@@ -5421,6 +5427,26 @@ class Route extends FOGBase
                 $removeItems[$siteMemberTables[$classname]] = [
                     $classname . 'ID' => $itemIDs
                 ];
+            }
+
+            // The grant side of the same cleanup, and the same id-reuse
+            // hazard with a sharper edge: a grant row left behind by a
+            // deleted role can later put every holder of an unrelated NEW
+            // role into the site the old one granted. Membership leaks one
+            // object into a site; a stale grant leaks a whole population.
+            //
+            // Its own map rather than an entry in the one above because
+            // that one derives the column as "{$classname}ID", and these
+            // columns are grantroleID and grantusergroupID -- the "grant"
+            // prefix being what keeps them distinct from the membership
+            // sense of the same two ids.
+            $siteGrantTables = [
+                'role' => ['siterolegrant', 'grantroleID'],
+                'usergroup' => ['siteusergroupgrant', 'grantusergroupID']
+            ];
+            if (isset($siteGrantTables[$classname])) {
+                list($grantTable, $grantCol) = $siteGrantTables[$classname];
+                $removeItems[$grantTable] = [$grantCol => $itemIDs];
             }
 
             self::$HookManager->processEvent(

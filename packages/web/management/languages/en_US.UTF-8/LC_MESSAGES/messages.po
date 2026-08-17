@@ -2730,6 +2730,10 @@ msgstr "Location Updated"
 msgid "Got in line at"
 msgstr ""
 
+#, fuzzy
+msgid "Granted To"
+msgstr "Created By"
+
 msgid "Grants"
 msgstr ""
 
@@ -6583,6 +6587,14 @@ msgstr "Printer already exists"
 #, fuzzy
 msgid "Site Description"
 msgstr "Printer Description"
+
+#, fuzzy
+msgid "Site Granted To Roles"
+msgstr "Printer already exists"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "Create New %s"
 
 #, fuzzy
 msgid "Site Group Associations"
