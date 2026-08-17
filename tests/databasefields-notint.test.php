@@ -147,21 +147,6 @@ function isIntColumn($type)
     return (bool)preg_match('#^\s*(tiny|small|medium|big)?int\b#i', $type);
 }
 
-/*
- * Genuine foreign keys whose COLUMN is mistyped, rather than string ids the
- * model got wrong. taskLog.taskID is mediumtext while tasks.taskID is
- * int(11) -- a schema wart, not a modelling one, and the values in it are
- * numeric, so save() coercing them to int is the correct reading. Declaring
- * them "not int" would state something untrue to quiet a test.
- *
- * Fixing the column is a migration and a FOG_SCHEMA bump, deliberately not
- * bundled with this. Listed here so the wart is written down rather than
- * silently tolerated by a looser rule.
- */
-$textColumnedForeignKeys = [
-    'taskLog.taskID',
-];
-
 $manifest = require $web . '/commons/schema-expected.php';
 $tables = $manifest['tables'] ?? [];
 if (count($tables) < 1) {
@@ -236,9 +221,6 @@ foreach ($iter as $file) {
             continue;
         }
         if (!isset($columns[$column])) {
-            continue;
-        }
-        if (in_array($table . '.' . $column, $textColumnedForeignKeys, true)) {
             continue;
         }
         $declared = in_array(strtolower($key), $notInt, true);

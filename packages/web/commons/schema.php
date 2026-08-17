@@ -5687,3 +5687,71 @@ $this->schema[] = [
     . "KEY `suggGroupID` (`suggGroupID`)"
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
+// 336
+$this->schema[] = [
+    // taskLog.taskID becomes the integer it always held. GH-1155.
+    //
+    // It is a foreign key to `tasks`.`taskID`, an int(11), but the column
+    // was mediumtext. The values are numeric only because
+    // FOGController::save() coerces them on the way in -- a behaviour of the
+    // PHP layer, not a constraint of the database -- and three things follow
+    // from the type:
+    //
+    //   no index is possible without a prefix length, so the table has none
+    //     on taskID at all and "the log for task N" is a full scan that
+    //     adding an ordinary index cannot fix;
+    //   a join to `tasks` compares text to int, so MySQL converts per row
+    //     and could not use an index even if one existed;
+    //   under that conversion '60abc' = 60 is true, so a junk value matches
+    //     a real task.
+    //
+    // A closure, not a bare ALTER, for one reason: MySQL's own conversion
+    // turns a non-numeric value into 0 with nothing but a warning, and 0 is
+    // a task id that does not exist. Rows like that are unreadable either
+    // way, but they should be counted and named in the log rather than
+    // rewritten in silence -- an audit table quietly gaining rows that point
+    // at task zero is worse than one that says how many it could not read.
+    //
+    // Idempotent: if the column is already an integer there is nothing to
+    // do, so a re-run converges rather than failing on the second ALTER.
+    function () {
+        $type = self::$DB->query(
+            "SELECT LOWER(`DATA_TYPE`) AS `t` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'taskLog' AND `COLUMN_NAME` = 'taskID' LIMIT 1"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (!is_array($type) || !isset($type['t'])) {
+            // No such table or column on this server; nothing to convert.
+            return true;
+        }
+        if (strpos((string)$type['t'], 'int') !== false) {
+            return true;
+        }
+        $bad = self::$DB->query(
+            "SELECT COUNT(*) AS `n` FROM `taskLog` WHERE `taskID` REGEXP '[^0-9]'"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        $n = (int)($bad['n'] ?? 0);
+        if ($n > 0) {
+            error_log(
+                sprintf(
+                    'FOG taskLog migration: %d row(s) held a non-numeric '
+                    . 'taskID and now read 0. They pointed at no task before '
+                    . 'the conversion either -- MySQL would have made the '
+                    . 'same change on its own, silently.',
+                    $n
+                )
+            );
+            self::$DB->query(
+                "UPDATE `taskLog` SET `taskID` = 0 WHERE `taskID` REGEXP '[^0-9]'"
+            );
+        }
+        self::$DB->query(
+            "ALTER TABLE `taskLog` MODIFY `taskID` INT(11) NOT NULL"
+        );
+        self::$DB->query(
+            "ALTER TABLE `taskLog` ADD KEY `taskID` (`taskID`)"
+        );
+
+        return true;
+    },
+];
