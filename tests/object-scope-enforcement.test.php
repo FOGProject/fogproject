@@ -155,7 +155,7 @@ $scenario = function (
 ) use ($dbProp, $hookProp, $permProp) {
     $db = new FakeDB(
         function ($sql, $params) use ($tables) {
-            if (false !== strpos($sql, 'INNER JOIN `sites`')) {
+            if (false !== strpos($sql, 'IS NOT NULL AND `s`.`siteID` IN (')) {
                 $uid = (int)$params['uid'];
                 $hit = in_array($uid, (array)($tables['catchAll'] ?? []), true);
                 return ['cnt' => $hit ? 1 : 0];
@@ -167,7 +167,7 @@ $scenario = function (
                 $uid = (int)$params['uid'];
                 $out = [];
                 foreach ((array)($tables['userSites'][$uid] ?? []) as $s) {
-                    $out[] = ['sumSiteID' => $s];
+                    $out[] = ['siteID' => $s];
                 }
                 return $out;
             }
