@@ -45,6 +45,41 @@ class Route extends FOGBase
      */
     private static $_webrootbase = '/fog/';
     /**
+     * Where a plugin-contributed route must live.
+     *
+     * A reserved mount point rather than "anywhere core is not currently
+     * using" (ADR 0009, Phase 2). Core mints new top-level paths from
+     * $validClasses, so today's free path is not tomorrow's, and a plugin
+     * route that silently started shadowing -- or worse, being shadowed by --
+     * a core one on upgrade would be a very quiet failure. Under /ext/ the
+     * two namespaces cannot meet, which also means declaring a plugin route
+     * public can never open a core path by exact-match coincidence.
+     *
+     * 'ext' and not 'plugin': 'plugin' is already an API class, so /plugin/
+     * belongs to core's CRUD routes for it.
+     *
+     * @var string
+     */
+    const PLUGIN_ROUTE_PREFIX = '/ext/';
+    /**
+     * Prefix stamped on a plugin route's name before it is registered.
+     *
+     * The route NAME is what resolveApiPermission() keys on, so an
+     * unprefixed plugin name could land on a core mapping: a route called
+     * 'status' would inherit API_ROUTE_PERMISSIONS['status'] = null and skip
+     * the permission check entirely. Core owns the namespace; plugins get
+     * their own.
+     *
+     * @var string
+     */
+    const PLUGIN_ROUTE_NAME_PREFIX = 'ext:';
+    /**
+     * Validated plugin routes, or null before the hook has been fired.
+     *
+     * @var array|null
+     */
+    private static $_pluginRoutes = null;
+    /**
      * AltoRouter object container.
      *
      * @var AltoRouter
@@ -489,6 +524,25 @@ class Route extends FOGBase
             // renamed OpenAPI. Same handler, same document.
             $webrootbase . 'swagger.json'
         ];
+        /**
+         * A plugin may declare one of its /ext/ routes reachable without API
+         * auth -- an IdP redirecting a browser back to a callback carries no
+         * token and no session, so the request must be answerable before
+         * either exists. Only an exact literal path can be declared this way
+         * (see _validatePluginRoute), matching how the /system endpoints are
+         * handled rather than the parent-path rule the wildcard routes use.
+         *
+         * Being unauthenticated here does NOT mean unguarded: the handler
+         * still runs behind whatever it checks for itself, and the route
+         * carries no permission, so nothing in FOG's data is reachable
+         * through it that the plugin did not deliberately expose.
+         */
+        foreach (self::pluginRoutes() as $pluginRoute) {
+            if ('public' !== $pluginRoute['auth']) {
+                continue;
+            }
+            $unauthexact[] = $webrootbase . ltrim($pluginRoute['path'], '/');
+        }
         $requripath = strtok((string)self::$requesturi, '?');
         $requribase = dirname($requripath);
         $isunauth = in_array($requribase, $unauthprefixes)
@@ -786,6 +840,147 @@ class Route extends FOGBase
         return $whereItems;
     }
     /**
+     * Routes contributed by plugins, validated and normalised.
+     *
+     * Closes ADR 0009's first gap: every plugin-facing router hook until now
+     * mutated a CLASS LIST, so a plugin could add a resource but never a
+     * path. An OIDC callback is not a CRUD shape on any class, and neither is
+     * most of what a provider needs.
+     *
+     * Fired once and memoised, because the answer is needed twice and in two
+     * different phases -- before authentication, to know which paths are
+     * declared public, and again at defineRoutes() to register them.
+     *
+     * Shape of an entry, as a plugin supplies it:
+     *
+     *   [
+     *     'name'       => 'oidcCallback',
+     *     'method'     => 'GET',                     // default GET
+     *     'path'       => '/ext/oidc/callback',      // must be under /ext/
+     *     'handler'    => [OidcRoutes::class, 'callback'],
+     *     'auth'       => 'public',                  // default 'required'
+     *     'permission' => 'oidc.view'                // when auth is required
+     *   ]
+     *
+     * Everything about the validation below fails closed. A malformed entry
+     * is dropped, an unrecognised 'auth' becomes 'required', and a route that
+     * declares no permission is still registered but resolves to a
+     * permission no role can hold (see Authorization::resolveApiPermission),
+     * so it answers 403 with a log line naming the fix rather than 404 with
+     * nothing. Silence is the one outcome not on offer.
+     *
+     * @return array
+     */
+    public static function pluginRoutes()
+    {
+        if (self::$_pluginRoutes !== null) {
+            return self::$_pluginRoutes;
+        }
+        $declared = [];
+        self::$HookManager->processEvent(
+            'API_PLUGIN_ROUTES',
+            ['routes' => &$declared]
+        );
+        $routes = [];
+        $seen = [];
+        foreach ((array)$declared as $entry) {
+            $route = self::_validatePluginRoute((array)$entry, $seen);
+            if ($route === null) {
+                continue;
+            }
+            $seen[$route['name']] = true;
+            $routes[] = $route;
+        }
+        self::$_pluginRoutes = $routes;
+        return self::$_pluginRoutes;
+    }
+    /**
+     * Check one plugin route declaration, or reject it.
+     *
+     * @param array $entry The declaration as the plugin supplied it.
+     * @param array $seen  Names already taken, as name => true.
+     *
+     * @return array|null The normalised route, or null to drop it.
+     */
+    private static function _validatePluginRoute(array $entry, array $seen)
+    {
+        $reject = function ($why) use ($entry) {
+            error_log(
+                sprintf(
+                    'FOG plugin route: ignoring %s -- %s',
+                    isset($entry['path']) && is_string($entry['path'])
+                        ? $entry['path']
+                        : '(no path)',
+                    $why
+                )
+            );
+            return null;
+        };
+        $name = isset($entry['name']) ? (string)$entry['name'] : '';
+        $path = isset($entry['path']) ? (string)$entry['path'] : '';
+        if ('' === $name || !preg_match('#^[A-Za-z][A-Za-z0-9_]*$#', $name)) {
+            return $reject('the name must be a bare identifier');
+        }
+        $name = self::PLUGIN_ROUTE_NAME_PREFIX . $name;
+        if (isset($seen[$name])) {
+            return $reject(sprintf('another plugin already registered %s', $name));
+        }
+        if (0 !== strpos($path, self::PLUGIN_ROUTE_PREFIX)
+            || false !== strpos($path, '..')
+        ) {
+            return $reject(
+                sprintf('a plugin route must live under %s', self::PLUGIN_ROUTE_PREFIX)
+            );
+        }
+        if (!isset($entry['handler']) || !is_callable($entry['handler'])) {
+            return $reject('the handler is not callable');
+        }
+        $method = strtoupper(
+            isset($entry['method']) ? (string)$entry['method'] : 'GET'
+        );
+        if (!preg_match('#^(GET|POST|PUT|PATCH|DELETE|HEAD)(\|(GET|POST|PUT|PATCH|DELETE|HEAD))*$#', $method)) {
+            return $reject(sprintf('unsupported method %s', $method));
+        }
+        // Anything but the exact string 'public' is 'required'. A typo must
+        // not open a route, and neither must a truthy value someone thought
+        // meant "needs auth".
+        $auth = (isset($entry['auth']) && 'public' === $entry['auth'])
+            ? 'public'
+            : 'required';
+        if ('public' === $auth && false !== strpos($path, '[')) {
+            // The unauthenticated test is an exact string comparison against
+            // the request URI, so a path with router parameters in it cannot
+            // be matched there -- it would be declared public and then still
+            // demand auth, which is worse than refusing.
+            error_log(
+                sprintf(
+                    'FOG plugin route: %s cannot be public because it has URL '
+                    . 'parameters; treating it as authenticated. Split the '
+                    . 'literal part into its own route if it must be reachable '
+                    . 'before login.',
+                    $path
+                )
+            );
+            $auth = 'required';
+        }
+        $permission = null;
+        if ('required' === $auth
+            && isset($entry['permission'])
+            && is_string($entry['permission'])
+            && '' !== $entry['permission']
+        ) {
+            $permission = $entry['permission'];
+        }
+        return [
+            'name' => $name,
+            'method' => $method,
+            'path' => $path,
+            'handler' => $entry['handler'],
+            'auth' => $auth,
+            'permission' => $permission,
+        ];
+    }
+    /**
      * Defines our standard routes.
      *
      * @return void
@@ -928,6 +1123,42 @@ class Route extends FOGBase
             [__CLASS__, 'delete'],
             'delete'
         );
+        /**
+         * Plugin routes go on LAST, so a core path always matches first --
+         * AltoRouter returns the first route that matches, and the /ext/
+         * mount point means the two sets cannot overlap anyway. Belt and
+         * braces on purpose: this is a seam that lets third-party code answer
+         * a URL, and it should be safe for two independent reasons.
+         *
+         * The permission each declares is handed to Authorization here rather
+         * than read from the route later, so there is exactly one moment at
+         * which a route and its permission are decided together.
+         */
+        foreach (self::pluginRoutes() as $route) {
+            self::$router->map(
+                $route['method'],
+                $route['path'],
+                $route['handler'],
+                $route['name']
+            );
+            if ('public' === $route['auth']) {
+                // Declared public: no permission, because there is no
+                // authenticated user to hold one.
+                Authorization::declareRoutePermission($route['name'], null);
+            } elseif (null !== $route['permission']) {
+                Authorization::declareRoutePermission(
+                    $route['name'],
+                    $route['permission']
+                );
+            }
+            // No third branch, and the absence is the point. A route that
+            // declared no permission is registered but NOT declared here, so
+            // resolveApiPermission() finds nothing and denies it. Passing null
+            // through instead would read as "public" and hand an undeclared
+            // route a free pass -- which is precisely the inversion this seam
+            // must not have, and is what the gate test caught when this code
+            // did exactly that.
+        }
     }
     /**
      * Sets the matches variable

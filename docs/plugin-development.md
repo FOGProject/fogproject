@@ -569,6 +569,78 @@ so a package with side effects at load time may have executed before a refusal
 takes effect. Keep boot-time side effects out of vendored code you expect FOG
 to load.
 
+## 7c. Authentication extension points
+
+Three seams a plugin can use to add a way of signing in. Each is gated, and in
+every case **declaring nothing means denied** — none of them is a way to make
+something reachable by accident.
+
+### A route — `API_PLUGIN_ROUTES`
+
+```php
+self::$HookManager->register('API_PLUGIN_ROUTES', function ($args) {
+    $args['routes'][] = [
+        'name'       => 'oidcCallback',           // bare identifier
+        'method'     => 'GET',
+        'path'       => '/ext/oidc/callback',     // must be under /ext/
+        'handler'    => ['FOG\OidcRoutes', 'callback'],
+        'auth'       => 'public',                 // default 'required'
+    ];
+    $args['routes'][] = [
+        'name'       => 'oidcConfig',
+        'method'     => 'POST',
+        'path'       => '/ext/oidc/config',
+        'handler'    => ['FOG\OidcRoutes', 'saveConfig'],
+        'permission' => 'oidc.edit',              // required when not public
+    ];
+});
+```
+
+| Rule | Why |
+|---|---|
+| Path must start with `/ext/` | Core mints new top-level paths from its API class list, so today's free path is not tomorrow's. Under `/ext/` the two namespaces cannot meet |
+| Route name is registered as `ext:<name>` | The name is what the permission layer keys on; without a prefix a route called `status` would inherit core's "no check" |
+| `auth` is `'public'` only when it is exactly that string | A typo, or a truthy value someone thought meant "needs auth", must not open a route |
+| A public route must be a literal path | The unauthenticated test is an exact string match, so a path with `[i:id]` in it cannot be expressed there |
+| No `permission` and not public → **403**, not 404 | The route still registers, so you get a log line telling you what to declare instead of a silent miss |
+
+Registered after every core route, so a core path always matches first.
+
+### A session-less page node — `PAGE_EXEMPT_NODES`
+
+Every page node is permission-checked. That is right for a settings page and
+impossible for the page a visitor reaches *before* they have a session.
+
+```php
+self::$HookManager->register('PAGE_EXEMPT_NODES', function ($args) {
+    $args['nodes'][] = 'oidcstart';
+});
+```
+
+You may only exempt a node **nothing else owns**. A node that is in the
+permission registry — core's or another plugin's — is refused, because
+"exempt" and "check this permission" are contradictory instructions about the
+same node and the permissive one would win. Give the pre-authentication page a
+node of its own.
+
+### A login button — `LOGIN_PAGE_PROVIDERS`
+
+```php
+self::$HookManager->register('LOGIN_PAGE_PROVIDERS', function ($args) {
+    $args['providers'][] = [
+        'label' => _('Sign in with Acme'),
+        'url'   => '/fog/ext/oidc/start',
+        'icon'  => 'fa fa-key',
+    ];
+});
+```
+
+The start URL must be a **site-absolute path** or an **`https://` URL**.
+`javascript:`, `data:`, protocol-relative `//host` and plain `http://` are all
+refused — this is the one page every unauthenticated visitor sees. Label and
+icon are escaped; the icon is additionally restricted to plain class
+characters.
+
 ## 8. Security & output conventions
 
 - **Output:** wrap every user‑controlled value with `Initiator::e($value)` when
