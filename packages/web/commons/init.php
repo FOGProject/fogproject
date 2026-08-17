@@ -164,6 +164,9 @@ class Initiator
         spl_autoload_register([self::class, 'autoload']);
         spl_autoload_register();
 
+        // Last in the chain on purpose -- see the method.
+        self::_registerPluginAutoloaders();
+
         /*
          * Start a session only when there is one to resume or something has
          * asked for one.
@@ -323,6 +326,178 @@ class Initiator
             }
         }
         return false;
+    }
+
+    /**
+     * Let a plugin ship its own Composer dependencies.
+     *
+     * ADR 0009 left this out, and the Phase 2 plan first read that absence as
+     * "plugins cannot use Composer". They can: an autoloader is an
+     * spl_autoload_register callback and several coexist in one process, so a
+     * plugin could always have required its own vendor/autoload.php from a
+     * file body FOG already includes. What was missing is core doing it in a
+     * defined order, with a defined answer when two of them disagree.
+     *
+     * Registered LAST, after core's Composer loader (file scope, above),
+     * Initiator::autoload() and the built-in resolver. That ordering is the
+     * real protection: even if the collision check below were wrong, core
+     * still answers first for any name it can serve, so a plugin's vendor
+     * copy cannot displace a class core provides.
+     *
+     * The collision check is what makes shipping a dependency in core mean
+     * something. Two plugins vendoring different majors of one package both
+     * declare the same class names, and whichever registered first wins --
+     * the other then runs against a version it was never tested against, with
+     * nothing said. For a JWT library that is a security bug rather than an
+     * inconvenience, which is why core ships firebase/php-jwt and a plugin is
+     * expected to depend on it instead of carrying its own.
+     *
+     * A refused plugin is unregistered, not fatal: the rest of FOG, and the
+     * plugin's own PHP, keep working. Only its vendored classes stop
+     * resolving, which is the visible failure the silent version-skew was not.
+     *
+     * Caveat worth knowing: Composer's `files` autoload runs at require time,
+     * so a refused plugin may already have executed those before we could
+     * unregister it. Preventing that would mean parsing the vendor tree
+     * instead of loading it, which buys less than it costs.
+     *
+     * @return void
+     */
+    private static function _registerPluginAutoloaders(): void
+    {
+        if (!class_exists('\Composer\Autoload\ClassLoader', false)) {
+            // No core vendor/ -- an install predating Phase 0, or a checkout
+            // that never ran composer install. Nothing to register against.
+            return;
+        }
+        $claimed = [];
+        foreach (self::_composerLoaders() as $loader) {
+            foreach (self::_claimsOf($loader) as $claim) {
+                $claimed[$claim] = 'FOG core';
+            }
+        }
+        foreach (self::_pluginVendorAutoloads() as $plugin => $file) {
+            $loader = require $file;
+            if (!$loader instanceof \Composer\Autoload\ClassLoader) {
+                error_log(
+                    sprintf(
+                        'FOG plugin autoloader: %s did not return a Composer '
+                        . 'ClassLoader. Regenerate it with `composer install`.',
+                        $file
+                    )
+                );
+                continue;
+            }
+            $claims = self::_claimsOf($loader);
+            $conflicts = array_intersect($claims, array_keys($claimed));
+            if (count($conflicts) > 0) {
+                $loader->unregister();
+                $first = reset($conflicts);
+                error_log(
+                    sprintf(
+                        'FOG plugin autoloader: refusing %s -- it vendors %s, '
+                        . 'already provided by %s (%d name(s) in common). Two '
+                        . 'copies of one package resolve to whichever loaded '
+                        . 'first, silently. Depend on the provided copy, or '
+                        . 'raise it with the FOG project if core should ship '
+                        . 'a different version.',
+                        $file,
+                        preg_replace('#^(ns|class):#', '', (string) $first),
+                        $claimed[$first],
+                        count($conflicts)
+                    )
+                );
+                continue;
+            }
+            foreach ($claims as $claim) {
+                $claimed[$claim] = $plugin;
+            }
+        }
+    }
+
+    /**
+     * Every Composer ClassLoader currently in the autoload chain.
+     *
+     * Read out of spl_autoload_functions() rather than tracked in a property,
+     * so it sees core's loader however it got there -- including on a tree
+     * where something else required vendor/autoload.php first.
+     *
+     * @return \Composer\Autoload\ClassLoader[]
+     */
+    private static function _composerLoaders(): array
+    {
+        $loaders = [];
+        foreach ((array) spl_autoload_functions() as $fn) {
+            if (is_array($fn)
+                && isset($fn[0])
+                && $fn[0] instanceof \Composer\Autoload\ClassLoader
+            ) {
+                $loaders[] = $fn[0];
+            }
+        }
+        return $loaders;
+    }
+
+    /**
+     * The class names a loader claims, as comparable strings.
+     *
+     * Namespace prefixes and classmap entries both, because a package can be
+     * autoloaded either way -- PSR-4 for the normal case, a classmap for one
+     * that predates it. `optimize-autoloader` adds a classmap without
+     * dropping the prefixes, so an optimised tree is caught by either.
+     *
+     * @param \Composer\Autoload\ClassLoader $loader The loader to inspect.
+     *
+     * @return string[]
+     */
+    private static function _claimsOf($loader): array
+    {
+        $claims = [];
+        foreach (array_keys($loader->getPrefixesPsr4()) as $ns) {
+            $claims[] = 'ns:' . strtolower($ns);
+        }
+        foreach (array_keys($loader->getPrefixes()) as $ns) {
+            $claims[] = 'ns:' . strtolower($ns);
+        }
+        foreach (array_keys($loader->getClassMap()) as $class) {
+            $claims[] = 'class:' . strtolower($class);
+        }
+        return array_values(array_unique($claims));
+    }
+
+    /**
+     * Plugin name => its vendor/autoload.php, for every plugin that has one.
+     *
+     * Both plugin roots, one level deep: a plugin is a directory, its
+     * dependencies are vendor/ inside it. Sorted so the order two plugins are
+     * offered in is a property of their names rather than of readdir -- the
+     * same per-install nondeterminism the class map had before core-wins.
+     *
+     * @return array<string,string>
+     */
+    private static function _pluginVendorAutoloads(): array
+    {
+        $found = [];
+        $roots = [rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins'];
+        if (defined('FOG_PLUGIN_DIR') && FOG_PLUGIN_DIR) {
+            $roots[] = rtrim(FOG_PLUGIN_DIR, DS);
+        }
+        foreach ($roots as $root) {
+            if (!is_dir($root)) {
+                continue;
+            }
+            foreach ((array) scandir($root) as $entry) {
+                if ('.' === $entry || '..' === $entry) {
+                    continue;
+                }
+                $file = $root . DS . $entry . DS . 'vendor' . DS . 'autoload.php';
+                if (is_readable($file)) {
+                    $found[$entry] = $file;
+                }
+            }
+        }
+        ksort($found);
+        return $found;
     }
 
     /**
