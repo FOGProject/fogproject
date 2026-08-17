@@ -32,15 +32,14 @@ $root = dirname(__DIR__);
 chdir($root);
 
 /*
- * Vendored libraries are exempt, the same three that bin/namespace-fog-classes
- * .php refuses to touch. They are swap candidates for their Packagist releases
- * (ifsnop/mysqldump-php, altorouter/altorouter), so hand-editing them to
- * silence a notice makes the swap harder and would be reverted by it anyway.
- * Upstream's own deprecations are upstream's to fix, or ours to fix by taking
- * a newer release.
+ * Vendored libraries are exempt, the same ones bin/namespace-fog-classes.php
+ * refuses to touch. altorouter/altorouter is still a swap candidate for its
+ * Packagist release, so hand-editing it to silence a notice makes the swap
+ * harder and would be reverted by it anyway. Upstream's own deprecations are
+ * upstream's to fix, or ours to fix by taking a newer release -- which is what
+ * the mysqldump swap did, and why that file is no longer on this list.
  */
 const VENDORED = [
-    'packages/web/lib/db/mysqldump.class.php',
     'packages/web/lib/router/altorouter.class.php',
     'packages/web/lib/router/altotransformer.class.php',
 ];

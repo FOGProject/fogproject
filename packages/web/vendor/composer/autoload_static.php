@@ -7,6 +7,10 @@ namespace Composer\Autoload;
 class ComposerStaticInitf1e42438574b3ce50c0c9ee957f57472
 {
     public static $prefixLengthsPsr4 = array (
+        'I' =>
+        array (
+            'Ifsnop\\' => 7,
+        ),
         'F' =>
         array (
             'Firebase\\JWT\\' => 13,
@@ -15,6 +19,10 @@ class ComposerStaticInitf1e42438574b3ce50c0c9ee957f57472
     );
 
     public static $prefixDirsPsr4 = array (
+        'Ifsnop\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/ifsnop/mysqldump-php/src/Ifsnop',
+        ),
         'Firebase\\JWT\\' =>
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
@@ -35,6 +43,7 @@ class ComposerStaticInitf1e42438574b3ce50c0c9ee957f57472
         'Firebase\\JWT\\JWTExceptionWithPayloadInterface' => __DIR__ . '/..' . '/firebase/php-jwt/src/JWTExceptionWithPayloadInterface.php',
         'Firebase\\JWT\\Key' => __DIR__ . '/..' . '/firebase/php-jwt/src/Key.php',
         'Firebase\\JWT\\SignatureInvalidException' => __DIR__ . '/..' . '/firebase/php-jwt/src/SignatureInvalidException.php',
+        'Ifsnop\\Mysqldump\\Mysqldump' => __DIR__ . '/..' . '/ifsnop/mysqldump-php/src/Ifsnop/Mysqldump/Mysqldump.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

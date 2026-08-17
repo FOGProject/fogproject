@@ -15,4 +15,5 @@ return array(
     'Firebase\\JWT\\JWTExceptionWithPayloadInterface' => $vendorDir . '/firebase/php-jwt/src/JWTExceptionWithPayloadInterface.php',
     'Firebase\\JWT\\Key' => $vendorDir . '/firebase/php-jwt/src/Key.php',
     'Firebase\\JWT\\SignatureInvalidException' => $vendorDir . '/firebase/php-jwt/src/SignatureInvalidException.php',
+    'Ifsnop\\Mysqldump\\Mysqldump' => $vendorDir . '/ifsnop/mysqldump-php/src/Ifsnop/Mysqldump/Mysqldump.php',
 );

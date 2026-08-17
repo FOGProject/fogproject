@@ -39,11 +39,14 @@
  *
  * Four things are checked:
  *   1. A representative class from each scan root resolves.
- *   2. The Mysqldump side-effect: twelve of the thirteen types in
- *      lib/db/mysqldump.class.php are reachable ONLY once Mysqldump itself
- *      has loaded. Pinned deliberately -- it is the single fact that stops
- *      the legacy autoloader ever being replaced wholesale by PSR-4, and it
- *      should break a test rather than a customer if someone tries.
+ *   2. Composer's autoloader is registered and reaches vendor/. Mysqldump
+ *      is the proof: it is a FOG class whose parent lives in a package, so
+ *      it cannot resolve unless both loaders are in the chain and in the
+ *      right order. This check used to pin the opposite -- that twelve
+ *      extra types were reachable only as a side effect of loading the
+ *      2388-line vendored copy of that library, the single fact that made
+ *      the tree PSR-4-hostile. The swap to ifsnop/mysqldump-php removed
+ *      it, so the check now pins the arrangement that replaced it.
  *   3. Every autoloadable file declares a class matching its own filename.
  *      All four discovery paths derive the class name arithmetically from
  *      the basename and none of them parses source for a `class` token, so
@@ -166,21 +169,21 @@ if (!method_exists('Initiator', 'classFileList')) {
 $failures = [];
 
 /*
- * 2 first, because it is the only check whose result depends on what has
- * already been loaded. Running it after the sample below -- which loads
- * Mysqldump -- would make it pass for the wrong reason.
+ * 2. Mysqldump is a FOG class extending a Composer package, so resolving it
+ * exercises both loaders: the FOG map finds mysqldump.class.php, and
+ * declaring the class then needs Composer to supply the parent. Either half
+ * missing is silent until somebody takes a backup -- a fatal on a page that
+ * has already sent its headers, which is a bodyless 500.
  */
-if (class_exists('CompressGzip')) {
-    $failures[] = 'CompressGzip resolved on its own; it is declared inside '
-        . 'mysqldump.class.php and should only be reachable once Mysqldump '
-        . 'has loaded';
-}
 if (!class_exists('Mysqldump')) {
-    $failures[] = 'Mysqldump did not resolve';
-} elseif (!class_exists('CompressGzip', false)) {
-    $failures[] = 'CompressGzip is not declared after loading Mysqldump; '
-        . 'mysqldump.class.php no longer declares its twelve extra types, so '
-        . 'the one-file-many-classes constraint on PSR-4 may have lifted';
+    $failures[] = 'Mysqldump did not resolve; either the FOG class map has '
+        . 'lost lib/db/mysqldump.class.php or commons/init.php is no longer '
+        . "requiring vendor/autoload.php, so the parent class it extends "
+        . 'cannot be found';
+} elseif (!is_subclass_of('Mysqldump', 'Ifsnop\Mysqldump\Mysqldump')) {
+    $failures[] = 'Mysqldump resolved but is not a subclass of '
+        . 'Ifsnop\Mysqldump\Mysqldump; the Composer package has been '
+        . 're-vendored by hand, which is what ADR 0013 exists to prevent';
 }
 
 // 1. One name per scan root, plus the two base classes everything descends
