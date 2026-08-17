@@ -6598,6 +6598,10 @@ msgid "Site Granted To User Groups"
 msgstr "新建%s"
 
 #, fuzzy
+msgid "Site Grants"
+msgstr "打印机已经存在"
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "存储节点创建"
 
@@ -6644,6 +6648,13 @@ msgstr "打印机更新！"
 #, fuzzy
 msgid "Sites"
 msgstr "分钟"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "新建%s"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 #, fuzzy
 msgid "Size"
@@ -8649,6 +8660,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."

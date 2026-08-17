@@ -5597,6 +5597,9 @@ msgstr ""
 msgid "Site Granted To User Groups"
 msgstr ""
 
+msgid "Site Grants"
+msgstr ""
+
 msgid "Site Group Associations"
 msgstr ""
 
@@ -5631,6 +5634,12 @@ msgid "Site updated!"
 msgstr ""
 
 msgid "Sites"
+msgstr ""
+
+msgid "Sites Granted To This User Group's Members"
+msgstr ""
+
+msgid "Sites This Role Grants"
 msgstr ""
 
 msgid "Size"
@@ -7347,6 +7356,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."

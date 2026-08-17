@@ -277,6 +277,69 @@ trait FOGPagePost
     }
 
     /**
+     * The same POST, written from the other end of the association.
+     *
+     * assocPost() calls a method on the page's own object. That only works
+     * when the page's class is the one the association table is keyed to --
+     * assocSetter() derives the column it diffs on from the OWNING class
+     * name, so `siteRoleGrants` can be driven from a Site and not from a
+     * Role, whichever end an administrator happens to be looking at.
+     *
+     * So this inverts it: for each id the tab submitted, load THAT object
+     * and call its add/remove with the page object's id. One table, one
+     * writer, two doors -- which is the property that keeps the two ends
+     * from drifting, and the reason every other association tab in FOG is
+     * editable from both.
+     *
+     * The caller is responsible for the permission check. A reverse tab is
+     * a second door onto somebody else's association, so it must take that
+     * association's permission and not merely the edit right that got the
+     * admin onto this page.
+     *
+     * @param string $ownerClass   class owning the association (e.g. 'Site')
+     * @param string $addMethod    its add method (e.g. 'addGrantRole')
+     * @param string $removeMethod its remove method (e.g. 'removeGrantRole')
+     *
+     * @return void
+     */
+    protected function assocPostInverse($ownerClass, $addMethod, $removeMethod)
+    {
+        self::checkAuthAndCSRF();
+        $subjectID = (int)$this->obj->get('id');
+        if ($subjectID < 1) {
+            return;
+        }
+        $method = '';
+        $items = [];
+        if (isset($_POST['confirmadd'])) {
+            $method = $addMethod;
+            $items = filter_input_array(
+                INPUT_POST,
+                ['additems' => ['flags' => FILTER_REQUIRE_ARRAY]]
+            );
+            $items = $items['additems'];
+        } elseif (isset($_POST['confirmdel'])) {
+            $method = $removeMethod;
+            $items = filter_input_array(
+                INPUT_POST,
+                ['remitems' => ['flags' => FILTER_REQUIRE_ARRAY]]
+            );
+            $items = $items['remitems'];
+        }
+        if ('' === $method) {
+            return;
+        }
+        foreach (self::positiveIntIds($items) as $ownerID) {
+            $owner = self::getClass($ownerClass, $ownerID);
+            if (!$owner->isValid()) {
+                continue;
+            }
+            $owner->{$method}([$subjectID]);
+            $owner->save();
+        }
+    }
+
+    /**
      * Handles a standard association add/remove POST: reads the additems /
      * remitems arrays and dispatches them to the object's add/remove methods.
      * When $orderMethod is supplied, also honours a snapinorder array (used by

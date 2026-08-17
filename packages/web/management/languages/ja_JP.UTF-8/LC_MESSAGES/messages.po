@@ -6303,6 +6303,10 @@ msgid "Site Granted To User Groups"
 msgstr "新しいサブネットグループを作成しますか？"
 
 #, fuzzy
+msgid "Site Grants"
+msgstr "サイト全般"
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "グループの関連付け"
 
@@ -6343,6 +6347,13 @@ msgstr "サイトを更新しました！"
 
 msgid "Sites"
 msgstr "サイト"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "新しいサブネットグループを作成しますか？"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 msgid "Size"
 msgstr "サイズ"
@@ -8247,6 +8258,10 @@ msgstr ""
 
 #, fuzzy
 msgid "You do not have permission to change LDAP group associations."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
+#, fuzzy
+msgid "You do not have permission to change site grants."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 msgid "You do not have permission to perform this action."
@@ -10710,9 +10725,6 @@ msgstr ""
 
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
-
-#~ msgid "Site General"
-#~ msgstr "サイト全般"
 
 #~ msgid "Snapin Args"
 #~ msgstr "スナップイン引数"
