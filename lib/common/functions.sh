@@ -3617,6 +3617,13 @@ _installNodeWebCert() {
     # would mint a new keypair and a new certificate for no reason.
     if [[ -f $chain && -f $sslpubcert ]] && \
         openssl verify -CAfile "$chain" "$sslpubcert" >>$error_log 2>&1; then
+        # Still point $sslcachain at it. writeUpdateFile runs BEFORE this
+        # function on a node (installfog.sh), so the assignment in the success
+        # branch below is never persisted -- which means on every LATER run
+        # $sslcachain arrives from .fogsettings still naming the node's own
+        # self-signed CA, and _resolveTrustAnchor would anchor out of the wrong
+        # file on exactly the runs that take this early return.
+        sslcachain="$chain"
         return 0
     fi
     dots "Requesting a web certificate from the master"
@@ -3668,39 +3675,112 @@ _caTrustLayout() {
     fi
     return 0
 }
-# Which certificate this box should anchor, which is not the same file in both
-# roles. Sets $trustAnchorPem; returns 1 when there is nothing to anchor yet.
+# Split a PEM bundle into one file per certificate, $2/c1.pem, c2.pem, ...
+# Returns 1 when the source yielded no certificate at all.
 #
-# A master holds the root itself, and the root is what to anchor -- not the Web
-# intermediate. Anchoring the root is what makes the intermediate and every
-# leaf beneath it verify, and it is the same certificate ca.cert.der publishes
-# and fog-client pins, so one certificate describes this server's trust
-# wherever that trust is stated.
+# openssl cannot do this itself. `openssl x509` reads only the FIRST certificate
+# in a bundle and silently ignores the rest -- it does not warn and it does not
+# fail, which is exactly how a multi-certificate anchor gets truncated to one
+# certificate with nothing in any log to say so.
+_splitPemBundle() {
+    local src="$1" dir="$2" f found=1
+    [[ -n $src && -f $src && -n $dir && -d $dir ]] || return 1
+    awk -v d="$dir" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
+        "$src" 2>>$error_log
+    for f in "$dir"/c*.pem; do
+        [[ -f $f ]] && { found=0; break; }
+    done
+    return $found
+}
+# Print the self-signed (root) certificate out of a PEM bundle. Returns 1 when
+# the bundle has none, which is a normal state -- a chain the master sent
+# without a root -- and not an error.
 #
-# A storage node never receives the root's key and only ever gets a chain from
-# the master. fog-sign-node-cert writes that chain issuer-first with the root
-# appended when the master has one, so the LAST certificate in it is the root
-# where a root was sent and the Web intermediate where it was not. Either is a
-# correct anchor for the certificates this node will be served.
+# Selected by subject == issuer, never by position. The writers of these bundles
+# do NOT agree on order: createWebIntermediateCA and fog-sign-node-cert both
+# write issuer-first with the root appended, while validateExternalCA writes the
+# root FIRST. A "last certificate in the file" rule therefore picks the root on
+# a FOG-generated CA and the INTERMEDIATE on an external one -- which is how a
+# storage node of an external-CA master came to anchor an intermediate.
+# _writeWebChainFiles selects the same way, for the same reason.
+_rootFromChain() {
+    local bundle="$1" tmpd f subj issuer st=1
+    [[ -n $bundle && -f $bundle ]] || return 1
+    tmpd=$(mktemp -d) || return 1
+    if _splitPemBundle "$bundle" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+            issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+            [[ -z $subj ]] && continue
+            # -subject prints "subject=..." and -issuer "issuer=...", so compare
+            # the values rather than the whole line.
+            if [[ ${subj#subject=} == "${issuer#issuer=}" ]]; then
+                cat "$f"
+                st=0
+                break
+            fi
+        done
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    return $st
+}
+# Which certificates this box should anchor. Sets $trustAnchorPem to a bundle;
+# returns 1 when there is nothing to anchor yet.
+#
+# Two certificates can matter here and they are not always the same one, which
+# is what this used to get wrong. It anchored $rootCAPem on a master, full stop.
+# That is right only while FOG issues the web certificate itself:
+#
+#   * $rootCAPem is FOG's own root. It signs the client-communication leaf and
+#     every storage-node certificate whatever the vhost is serving, and it is
+#     what ca.cert.der publishes and fog-client pins.
+#   * The root the SERVED chain terminates in is a different certificate as soon
+#     as --external-ca/--web-ca-root is in play, because validateExternalCA
+#     deliberately never touches $rootCAPem (see its comment). So the store held
+#     FOG's root while the vhost served the admin's chain, and every HTTPS call
+#     made on this server to this server still failed to verify -- the exact
+#     failure this whole mechanism exists to remove.
+#
+# Anchoring both, deduplicated, is correct in every combination: on a FOG-issued
+# install they are the same certificate and the bundle collapses to one, and on
+# an external-CA install both are genuinely needed.
+#
+# One code path for master and node now. A node has no root of its own, so
+# $rootCAPem simply is not there and the chain supplies everything; the branch
+# only ever existed because the master case skipped the chain entirely.
 _resolveTrustAnchor() {
     trustAnchorPem=""
-    if [[ $installtype == [Ss] ]]; then
-        [[ -n $sslcachain && -f $sslcachain ]] || return 1
-        local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
-        # The chain normally lands in this directory, so it normally exists --
-        # but $sslcachain is admin-overridable and can point anywhere, and a
-        # failed redirect here would look exactly like "nothing to anchor".
-        mkdir -p "$(dirname "$out")" >>$error_log 2>&1
-        # Split off the last PEM block. openssl x509 reads only the first
-        # certificate in a bundle, so it cannot do this itself.
-        awk '/-----BEGIN CERTIFICATE-----/{n++; cert[n]=""} n{cert[n]=cert[n] $0 "\n"} END{printf "%s", cert[n]}' \
-            "$sslcachain" > "$out" 2>>$error_log
-        [[ -s $out ]] || return 1
-        trustAnchorPem="$out"
-    else
-        [[ -n $rootCAPem && -f $rootCAPem ]] || return 1
-        trustAnchorPem="$rootCAPem"
+    local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+    local chainroot fp seen=""
+    # The chain normally lands in this directory, so it normally exists -- but
+    # $sslcachain is admin-overridable and can point anywhere, and a failed
+    # redirect here would look exactly like "nothing to anchor".
+    mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+    : > "$out" 2>>$error_log || return 1
+
+    if [[ -n $rootCAPem && -f $rootCAPem ]]; then
+        fp=$(openssl x509 -in "$rootCAPem" -noout -fingerprint -sha256 2>/dev/null)
+        if [[ -n $fp ]]; then
+            cat "$rootCAPem" >> "$out" 2>>$error_log
+            seen="$fp"
+        fi
     fi
+    if [[ -n $sslcachain && -f $sslcachain ]]; then
+        chainroot=$(_rootFromChain "$sslcachain")
+        if [[ -n $chainroot ]]; then
+            fp=$(printf '%s\n' "$chainroot" \
+                | openssl x509 -noout -fingerprint -sha256 2>/dev/null)
+            # Fingerprint, not a path comparison: on a FOG-issued install these
+            # are the same certificate reached by two different routes, and
+            # comparing filenames would append it twice.
+            if [[ -n $fp && $fp != "$seen" ]]; then
+                printf '%s\n' "$chainroot" >> "$out" 2>>$error_log
+            fi
+        fi
+    fi
+    [[ -s $out ]] || return 1
+    trustAnchorPem="$out"
     return 0
 }
 # Anchor this server's own CA in this server's own system trust store.
@@ -3741,6 +3821,13 @@ _installCATrustAnchor() {
     # here rejects a malformed anchor at the point it can be attributed,
     # instead of at refresh time where the store blames some other certificate.
     #
+    # Per certificate, not `openssl x509 -in "$anchor"` over the whole file:
+    # that reads only the FIRST certificate of a bundle and discards the rest
+    # silently. $trustAnchorPem carries two certificates on an external-CA
+    # install, and the single-shot form would have written FOG's root and
+    # dropped the admin's -- reintroducing the bug _resolveTrustAnchor was just
+    # changed to fix, with nothing to show for it in any log.
+    #
     # Staged through a temp file and moved into place only once openssl is
     # happy. Whether a failed `openssl x509 -out` leaves an empty file behind
     # varies by version, and a zero-byte .crt sitting in the anchor directory
@@ -3753,7 +3840,19 @@ _installCATrustAnchor() {
     # replacement. That is the whole reason this is not named after the CA's
     # fingerprint or its date.
     local staged="${caTrustDir}/.fog-server-ca.crt.$$"
-    if openssl x509 -in "$anchor" -out "$staged" >>$error_log 2>&1 && [[ -s $staged ]]; then
+    local tmpd f
+    tmpd=$(mktemp -d) || return 0
+    : > "$staged" 2>>$error_log || st=1
+    if [[ $st -eq 0 ]] && _splitPemBundle "$anchor" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            openssl x509 -in "$f" >> "$staged" 2>>$error_log || st=1
+        done
+    else
+        st=1
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    if [[ $st -eq 0 && -s $staged ]]; then
         chmod 0644 "$staged" >>$error_log 2>&1
         mv -f "$staged" "${caTrustDir}/fog-server-ca.crt" >>$error_log 2>&1 || st=1
         [[ $st -eq 0 ]] && { $caTrustCmd >>$error_log 2>&1 || st=1; }
@@ -5253,12 +5352,14 @@ _writeWebChainFiles() {
     # Every certificate in the chain file except self-signed ones. A self-signed
     # certificate in here is the root, and it is the one thing that must not be
     # sent. Splitting on the PEM boundary rather than trusting the file's order,
-    # because validateExternalCA and createWebIntermediateCA both write it
-    # root-first while an admin-supplied chain may be in any order at all.
+    # because the writers disagree -- createWebIntermediateCA and
+    # fog-sign-node-cert write issuer-first with the root appended, while
+    # validateExternalCA writes the root FIRST -- and an admin-supplied chain
+    # may be in any order at all. _rootFromChain selects the other way round off
+    # the same property, so neither reader depends on the order.
     local tmpd f
     tmpd=$(mktemp -d) || return 0
-    awk -v d="$tmpd" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
-        "$sslcachain" 2>>$error_log
+    _splitPemBundle "$sslcachain" "$tmpd"
     for f in "$tmpd"/c*.pem; do
         [[ -f $f ]] || continue
         subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
