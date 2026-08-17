@@ -93,7 +93,34 @@ class Initiator
         spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php');
         spl_autoload_register();
 
-        if (session_status() !== PHP_SESSION_ACTIVE) {
+        /*
+         * Start a session only when there is one to resume or something has
+         * asked for one.
+         *
+         * This used to be unconditional, and 59 entry points reach it through
+         * commons/base.inc.php -- including every file under service/ and
+         * status/, the API and the iPXE endpoints. None of those can carry a
+         * cookie back, so each request allocated a session that was written
+         * once, never read again, and left for gc to clean up. A PXE boot or
+         * a fleet of fog-clients polling on a timer is a steady stream of
+         * them.
+         *
+         * Browser flows are unaffected: the login page GET declares
+         * FOG_WANTS_SESSION and creates the session, and every request after
+         * that presents the cookie, so the first arm matches. The API accepts
+         * a session cookie when a browser sends one and falls back to token
+         * auth when it does not -- both still work, because the cookie is
+         * exactly the signal being tested.
+         *
+         * Safe because nothing on the browser-less paths uses session state:
+         * there is not one $_SESSION write under service/, status/, lib/
+         * reg-task, lib/client or lib/service, and setMessage() already
+         * returns early when no session is active (fogbase.class.php).
+         */
+        $hasSession = isset($_COOKIE[session_name()]);
+        if (session_status() !== PHP_SESSION_ACTIVE
+            && ($hasSession || defined('FOG_WANTS_SESSION'))
+        ) {
             session_start();
         }
     }
