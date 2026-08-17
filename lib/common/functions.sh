@@ -5334,6 +5334,86 @@ _collectPkiNames() {
 # netbootproto=https on every upgraded install in existence, which is precisely
 # the configuration that cannot work behind a private CA. Keying on what the
 # admin actually declared removes the whole class.
+# The one place an admin is asked how this server should handle TLS, netboot
+# and the iPXE build -- shown together, with what each costs.
+#
+# This replaces "would you like to enable secure HTTPS on your FOG server?",
+# which asked about $httpproto and silently also decided whether Secure Boot
+# binaries were staged and whether iPXE was rebuilt. Four named modes are
+# honest about a four-dimensional choice in a way one yes/no cannot be.
+#
+# A preset, not a replacement for the model: it writes the same keys
+# --https-redirect/--public-web-cert/--rebuild-ipxe-with-my-ca write, and an
+# admin who passed any of those (or --install-mode) is not asked at all -- they
+# have already answered.
+#
+# Guarded on `! -t 0` as well as $autoaccept, following the schema-update prompt
+# in this file: a piped or cron-driven install has no one to answer, and a read
+# there returns instantly with empty input rather than blocking.
+promptInstallMode() {
+    [[ -n $sinstallMode ]] && return 0
+    [[ -n $shttpsRedirect || -n $spublicWebCert || -n $srebuildIpxeWithMyCA ]] && return 0
+    [[ -n $autoaccept || ! -t 0 ]] && return 0
+
+    local answer=""
+    echo
+    echo " * How should this server handle HTTPS, netboot and Secure Boot?"
+    echo
+    echo "   1) standard     (default) HTTPS web UI and API, netboot over HTTP."
+    echo "                   Secure Boot binaries staged. No redirect, no rebuild."
+    echo "                   Right for almost everyone, including FOG's own CA."
+    echo
+    echo "   2) http-only    Plain HTTP everywhere. Simplest, and what FOG did"
+    echo "                   before 1.6."
+    echo
+    echo "   3) public-cert  Your web certificate chains to a PUBLIC root (Let's"
+    echo "                   Encrypt, a commercial CA). Netboot can then use"
+    echo "                   HTTPS with no rebuild, because iPXE cross-certifies"
+    echo "                   public roots on its own. Needs an FQDN, not an IP."
+    echo
+    echo "   4) embed-ca     Rebuild iPXE with your own CA compiled in, so"
+    echo "                   netboot can use HTTPS behind a private CA."
+    echo "                   CAUTION: adds 10-25 minutes to this install AND to"
+    echo "                   every future update, with no warm path. The result"
+    echo "                   is not upstream's signed binary, so each machine"
+    echo "                   needs this server's MOK enrolled BEFORE it can"
+    echo "                   netboot at all. Most sites want 1 or 3 instead."
+    echo
+    read -p " * Choose 1-4, or press Enter for standard: " answer
+    case $answer in
+        2|http-only)   sinstallMode="http-only" ;;
+        3|public-cert) sinstallMode="public-cert" ;;
+        4|embed-ca)    sinstallMode="embed-ca" ;;
+        # Anything else, including empty and a typo, takes the safe default.
+        # There is no wrong answer to re-ask for here: standard is what an
+        # admin who is not sure should get.
+        *)             sinstallMode="standard" ;;
+    esac
+    _applyInstallMode
+    echo
+    echo " * Using install mode: $sinstallMode"
+    echo "   web=$httpproto netboot=${netbootproto:-http} redirect=${httpsRedirect:-no}"
+    echo "   publicWebCert=${publicWebCert:-no} rebuildIpxeWithMyCA=${rebuildIpxeWithMyCA:-no}"
+    echo
+}
+# The preset itself, factored out so installfog.sh's flag handling and the
+# prompt above cannot drift apart.
+_applyInstallMode() {
+    case $sinstallMode in
+        standard)
+            httpproto="https"; netbootproto="http"; publicWebCert="no"; rebuildIpxeWithMyCA="no"
+            ;;
+        http-only)
+            httpproto="http"; netbootproto="http"; publicWebCert="no"; rebuildIpxeWithMyCA="no"
+            ;;
+        public-cert)
+            httpproto="https"; netbootproto="https"; publicWebCert="yes"; rebuildIpxeWithMyCA="no"
+            ;;
+        embed-ca)
+            httpproto="https"; netbootproto="https"; publicWebCert="no"; rebuildIpxeWithMyCA="yes"
+            ;;
+    esac
+}
 _resolveNetbootProto() {
     [[ -n $netbootproto ]] && return 0
     if [[ $publicWebCert == yes || $rebuildIpxeWithMyCA == yes ]]; then

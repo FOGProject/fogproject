@@ -836,20 +836,7 @@ httpproto="https"
 # keys an admin could set individually. Applied BEFORE the discrete flags, so
 # `--install-mode public-cert --no-rebuild-ipxe-with-my-ca` means what it reads
 # like -- each discrete key overrides its own field and nothing else.
-case $sinstallMode in
-    standard)
-        httpproto="https"; netbootproto="http"; publicWebCert="no"; rebuildIpxeWithMyCA="no"
-        ;;
-    http-only)
-        httpproto="http"; netbootproto="http"; publicWebCert="no"; rebuildIpxeWithMyCA="no"
-        ;;
-    public-cert)
-        httpproto="https"; netbootproto="https"; publicWebCert="yes"; rebuildIpxeWithMyCA="no"
-        ;;
-    embed-ca)
-        httpproto="https"; netbootproto="https"; publicWebCert="no"; rebuildIpxeWithMyCA="yes"
-        ;;
-esac
+_applyInstallMode
 
 # evaluation of command line options
 [[ -n $shttpsRedirect ]] && httpsRedirect=$shttpsRedirect
@@ -1064,7 +1051,15 @@ case $sendreports in
         echo "No"
         ;;
 esac
+# Echoed for unattended runs too, so `installfog.sh -y` leaves a record of what
+# it resolved rather than only what was passed.
+echo " * Web protocol: $httpproto"
+echo " * Netboot (PXE) protocol: ${netbootproto:-http (resolved during install)}"
+echo -n " * Force HTTP->HTTPS redirect: "; [[ $httpsRedirect == yes ]] && echo "Yes" || echo "No"
+echo -n " * Web certificate chains to a public root: "; [[ $publicWebCert == yes ]] && echo "Yes" || echo "No"
+echo -n " * Rebuild iPXE with your CA: "; [[ $rebuildIpxeWithMyCA == yes ]] && echo "Yes (adds 10-25 min)" || echo "No"
 echo
+promptInstallMode
 while [[ -z $blGo ]]; do
     echo
     [[ -n $autoaccept ]] && blGo="y"
