@@ -182,6 +182,9 @@ msgstr ""
 msgid "A broadcast already exists with this name!"
 msgstr ""
 
+msgid "A client ID is required"
+msgstr ""
+
 msgid "A dmi field must be set!"
 msgstr ""
 
@@ -237,6 +240,9 @@ msgid "A port must be specified"
 msgstr ""
 
 msgid "A printer already exists with this name!"
+msgstr ""
+
+msgid "A provider already exists with this name!"
 msgstr ""
 
 msgid "A role already exists with this name!"
@@ -472,6 +478,12 @@ msgstr ""
 msgid "Add printer failed!"
 msgstr ""
 
+msgid "Add provider failed!"
+msgstr ""
+
+msgid "Add provider group failed!"
+msgstr ""
+
 msgid "Add pushbullet account failed!"
 msgstr ""
 
@@ -651,6 +663,9 @@ msgstr ""
 msgid "An image with this name already exists!"
 msgstr ""
 
+msgid "An issuer URL is required"
+msgstr ""
+
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
@@ -670,6 +685,15 @@ msgid "Anyone signing in through one of these directory groups is placed in this
 msgstr ""
 
 msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups is placed in this user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone whose group claim carries this value receives these roles on sign in. Roles are recomputed from the provider each time, so removing someone from the group downgrades them at their next login."
 msgstr ""
 
 msgid "Applications"
@@ -859,6 +883,9 @@ msgid "Buildroot Version"
 msgstr ""
 
 msgid "Bulk load failed"
+msgstr ""
+
+msgid "Button Icon"
 msgstr ""
 
 msgid "Bypass Bitlocker Detection"
@@ -1128,7 +1155,13 @@ msgstr ""
 msgid "Client Count"
 msgstr ""
 
+msgid "Client ID"
+msgstr ""
+
 msgid "Client Management"
+msgstr ""
+
+msgid "Client Secret"
 msgstr ""
 
 msgid "Client Settings"
@@ -1344,7 +1377,13 @@ msgstr ""
 msgid "Create New OU"
 msgstr ""
 
+msgid "Create New OpenID Connect Provider"
+msgstr ""
+
 msgid "Create New Printer"
+msgstr ""
+
+msgid "Create New Provider Group"
 msgstr ""
 
 msgid "Create New Role"
@@ -1390,6 +1429,9 @@ msgid "Create Task Fail"
 msgstr ""
 
 msgid "Create Task Success"
+msgstr ""
+
+msgid "Create Users On First Login"
 msgstr ""
 
 #, php-format
@@ -1777,6 +1819,10 @@ msgid "Engineer"
 msgstr ""
 
 msgid "Enrolment kit"
+msgstr ""
+
+#, php-format
+msgid "Enter a valid %s name"
 msgstr ""
 
 msgid "Equipment Loan"
@@ -2356,6 +2402,12 @@ msgstr ""
 msgid "Group BIOS Exit"
 msgstr ""
 
+msgid "Group Claim"
+msgstr ""
+
+msgid "Group Claim Value"
+msgstr ""
+
 msgid "Group Count"
 msgstr ""
 
@@ -2821,6 +2873,9 @@ msgid "Id and name pairs for %s"
 msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
+msgstr ""
+
+msgid "Identity Provider"
 msgstr ""
 
 #, php-format
@@ -3391,6 +3446,12 @@ msgid "Is Pack"
 msgstr ""
 
 msgid "Is a"
+msgstr ""
+
+msgid "Issuer"
+msgstr ""
+
+msgid "Issuer URL"
 msgstr ""
 
 msgid "It can no longer be joined"
@@ -4122,6 +4183,10 @@ msgstr ""
 msgid "No Data Available"
 msgstr ""
 
+#, php-format
+msgid "No FOG account exists for %s"
+msgstr ""
+
 msgid "No Host found for MAC Address"
 msgstr ""
 
@@ -4264,6 +4329,9 @@ msgid "No role assigned"
 msgstr ""
 
 msgid "No settings match your search."
+msgstr ""
+
+msgid "No sign-in was in progress; please start again"
 msgstr ""
 
 msgid "No snapins associated"
@@ -4479,6 +4547,30 @@ msgstr ""
 msgid "Open VNC Connection To"
 msgstr ""
 
+msgid "OpenID Connect"
+msgstr ""
+
+msgid "OpenID Connect Group Management"
+msgstr ""
+
+msgid "OpenID Connect Groups"
+msgstr ""
+
+msgid "OpenID Connect Provider Create Fail"
+msgstr ""
+
+msgid "OpenID Connect Provider Create Success"
+msgstr ""
+
+msgid "OpenID Connect Provider Update Fail"
+msgstr ""
+
+msgid "OpenID Connect Provider Update Success"
+msgstr ""
+
+msgid "OpenID Connect Providers"
+msgstr ""
+
 msgid "OpenLDAP"
 msgstr ""
 
@@ -4674,6 +4766,9 @@ msgstr ""
 msgid "Please confirm you would like to dissociate the selected directory groups"
 msgstr ""
 
+msgid "Please confirm you would like to dissociate the selected provider groups"
+msgstr ""
+
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -4717,6 +4812,9 @@ msgid "Please select a valid printer type."
 msgstr ""
 
 msgid "Please select an LDAP server!"
+msgstr ""
+
+msgid "Please select an identity provider!"
 msgstr ""
 
 msgid "Please select an option"
@@ -4860,6 +4958,9 @@ msgstr ""
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
+msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
+msgstr ""
+
 msgid "Present means enabled."
 msgstr ""
 
@@ -4974,6 +5075,57 @@ msgstr ""
 msgid "Protected"
 msgstr ""
 
+msgid "Provider Group"
+msgstr ""
+
+msgid "Provider Group Associations"
+msgstr ""
+
+msgid "Provider Group Create Fail"
+msgstr ""
+
+msgid "Provider Group Create Success"
+msgstr ""
+
+msgid "Provider Group Role Associations"
+msgstr ""
+
+msgid "Provider Group Update Fail"
+msgstr ""
+
+msgid "Provider Group Update Success"
+msgstr ""
+
+msgid "Provider Group User Group Associations"
+msgstr ""
+
+msgid "Provider Group associations updated!"
+msgstr ""
+
+msgid "Provider Groups"
+msgstr ""
+
+msgid "Provider added!"
+msgstr ""
+
+msgid "Provider group added!"
+msgstr ""
+
+msgid "Provider group update failed!"
+msgstr ""
+
+msgid "Provider group updated!"
+msgstr ""
+
+msgid "Provider update failed!"
+msgstr ""
+
+msgid "Provider updated!"
+msgstr ""
+
+msgid "Providers"
+msgstr ""
+
 msgid "Pushbullet Accounts"
 msgstr ""
 
@@ -5035,6 +5187,9 @@ msgstr ""
 msgid "Record not found"
 msgstr ""
 
+msgid "Redirect URI"
+msgstr ""
+
 msgid "Refresh Settings Cache"
 msgstr ""
 
@@ -5074,6 +5229,9 @@ msgid "Remove Fail"
 msgstr ""
 
 msgid "Remove LDAP Group Associations"
+msgstr ""
+
+msgid "Remove Provider Group Associations"
 msgstr ""
 
 msgid "Remove associated files"
@@ -5329,6 +5487,9 @@ msgstr ""
 msgid "Schema updated successfully!"
 msgstr ""
 
+msgid "Scopes"
+msgstr ""
+
 msgid "Screen Height"
 msgstr ""
 
@@ -5570,6 +5731,13 @@ msgid "Sign In"
 msgstr ""
 
 msgid "Sign in to start your session"
+msgstr ""
+
+#, php-format
+msgid "Sign in with %s"
+msgstr ""
+
+msgid "Sign-in failed"
 msgstr ""
 
 #, php-format
@@ -6330,7 +6498,13 @@ msgstr ""
 msgid "Text to match across the class fields."
 msgstr ""
 
+msgid "That group is already defined for this provider!"
+msgstr ""
+
 msgid "That group is already defined for this server!"
+msgstr ""
+
+msgid "That identity provider is not enabled"
 msgstr ""
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
@@ -6372,7 +6546,25 @@ msgstr ""
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
+msgid "The FOG account could not be created"
+msgstr ""
+
+msgid "The FOG account for this identity no longer exists"
+msgstr ""
+
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid "The ID token carries no subject"
+msgstr ""
+
+msgid "The ID token could not be verified"
+msgstr ""
+
+msgid "The ID token names a different issuer"
+msgstr ""
+
+msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -6420,6 +6612,33 @@ msgstr ""
 msgid "The file itself."
 msgstr ""
 
+msgid "The identity provider could not be reached"
+msgstr ""
+
+#, php-format
+msgid "The identity provider refused the sign-in (%s)"
+msgstr ""
+
+#, php-format
+msgid "The identity provider returned no ID token (%s)"
+msgstr ""
+
+msgid "The identity provider sent an unreadable response"
+msgstr ""
+
+msgid "The identity provider sent an unreadable token response"
+msgstr ""
+
+msgid "The identity provider sent an unreasonably large response"
+msgstr ""
+
+#, php-format
+msgid "The identity provider sent no %s claim"
+msgstr ""
+
+msgid "The identity provider sent no code"
+msgstr ""
+
 msgid "The image associated does not have a valid OS!"
 msgstr ""
 
@@ -6427,6 +6646,18 @@ msgid "The image storage group assigned is not valid"
 msgstr ""
 
 msgid "The installers for the fog client"
+msgstr ""
+
+msgid "The issuer URL is too long"
+msgstr ""
+
+msgid "The issuer URL must not carry a query string or fragment"
+msgstr ""
+
+msgid "The issuer URL must use https"
+msgstr ""
+
+msgid "The issuer must be a full URL"
 msgstr ""
 
 msgid "The key will be assigned to registered hosts when a"
@@ -6463,6 +6694,13 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+#, php-format
+msgid "The provider published no https %s"
+msgstr ""
+
+msgid "The provider returned a configuration for a different issuer"
+msgstr ""
+
 msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
@@ -6470,6 +6708,12 @@ msgid "The selected site no longer exists"
 msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
+msgstr ""
+
+msgid "The sign-in could not be verified"
+msgstr ""
+
+msgid "The sign-in took too long; please start again"
 msgstr ""
 
 msgid "The staged plugin no longer matches its manifest."
@@ -6557,6 +6801,12 @@ msgid "This document"
 msgstr ""
 
 msgid "This host already exists"
+msgstr ""
+
+msgid "This identity is linked to a different FOG account"
+msgstr ""
+
+msgid "This identity is linked to more than one FOG account"
 msgstr ""
 
 msgid "This installation process may take a few minutes"
@@ -6893,6 +7143,9 @@ msgstr ""
 msgid "Unknown filter field(s) for %s: %s"
 msgstr ""
 
+msgid "Unknown identity provider"
+msgstr ""
+
 msgid "Unknown permission"
 msgstr ""
 
@@ -7180,6 +7433,9 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
+msgid "Username Claim"
+msgstr ""
+
 msgid "Username must begin with 2 numbers or letters."
 msgstr ""
 
@@ -7356,6 +7612,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change provider group associations."
 msgstr ""
 
 msgid "You do not have permission to change site grants."
@@ -7545,6 +7804,9 @@ msgstr ""
 msgid "filesize"
 msgstr ""
 
+msgid "fog-admins"
+msgstr ""
+
 msgid "for Microsoft Windows to images"
 msgstr ""
 
@@ -7558,6 +7820,9 @@ msgid "function on client computers."
 msgstr ""
 
 msgid "group"
+msgstr ""
+
+msgid "group claim"
 msgstr ""
 
 msgid "has been cancelled"
@@ -7740,6 +8005,9 @@ msgstr ""
 msgid "keys"
 msgstr ""
 
+msgid "leave to keep the current one"
+msgstr ""
+
 msgid "limited to 1Mbps on that node"
 msgstr ""
 
@@ -7796,6 +8064,9 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no reason given"
+msgstr ""
+
 msgid "no response from server"
 msgstr ""
 
@@ -7827,6 +8098,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "off means an account must already exist"
 msgstr ""
 
 msgid "old"
@@ -7876,6 +8150,9 @@ msgid "reboot, shutdown, or empty."
 msgstr ""
 
 msgid "recommended"
+msgstr ""
+
+msgid "register this at your provider"
 msgstr ""
 
 msgid "second"
@@ -8026,6 +8303,9 @@ msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""
 
 msgid "used"
+msgstr ""
+
+msgid "user claim"
 msgstr ""
 
 msgid "user failed to login"

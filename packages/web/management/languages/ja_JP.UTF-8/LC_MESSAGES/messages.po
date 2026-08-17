@@ -202,6 +202,10 @@ msgid "A broadcast already exists with this name!"
 msgstr "この名前のブロードキャストは既に存在します！"
 
 #, fuzzy
+msgid "A client ID is required"
+msgstr "名前は必須です！"
+
+#, fuzzy
 msgid "A dmi field must be set!"
 msgstr "名前を設定する必要があります"
 
@@ -265,6 +269,10 @@ msgid "A port must be specified"
 msgstr "指定する必要があります"
 
 msgid "A printer already exists with this name!"
+msgstr "この名前のプリンターは既に存在します！"
+
+#, fuzzy
+msgid "A provider already exists with this name!"
 msgstr "この名前のプリンターは既に存在します！"
 
 msgid "A role already exists with this name!"
@@ -529,6 +537,14 @@ msgid "Add printer failed!"
 msgstr "プリンターの追加に失敗しました！"
 
 #, fuzzy
+msgid "Add provider failed!"
+msgstr "プリンターの追加に失敗しました！"
+
+#, fuzzy
+msgid "Add provider group failed!"
+msgstr "グループの追加に失敗しました！"
+
+#, fuzzy
 msgid "Add pushbullet account failed!"
 msgstr "Pushbullet アカウントを追加"
 
@@ -732,6 +748,10 @@ msgstr "この名前のイメージは既に存在します！"
 msgid "An image with this name already exists!"
 msgstr "その名前のホストは既に存在します"
 
+#, fuzzy
+msgid "An issuer URL is required"
+msgstr "ユーザー名は必須です！"
+
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
@@ -752,6 +772,15 @@ msgid "Anyone signing in through one of these directory groups is placed in this
 msgstr ""
 
 msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups is placed in this user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone whose group claim carries this value receives these roles on sign in. Roles are recomputed from the provider each time, so removing someone from the group downgrades them at their next login."
 msgstr ""
 
 msgid "Applications"
@@ -964,6 +993,9 @@ msgstr "MB バージョン"
 #, fuzzy
 msgid "Bulk load failed"
 msgstr "読み込みに失敗しました"
+
+msgid "Button Icon"
+msgstr ""
 
 msgid "Bypass Bitlocker Detection"
 msgstr ""
@@ -1266,8 +1298,16 @@ msgstr "クライアント"
 msgid "Client Count"
 msgstr "クライアント数"
 
+#, fuzzy
+msgid "Client ID"
+msgstr "クライアント"
+
 msgid "Client Management"
 msgstr "クライアント管理"
+
+#, fuzzy
+msgid "Client Secret"
+msgstr "クライアント設定"
 
 msgid "Client Settings"
 msgstr "クライアント設定"
@@ -1515,8 +1555,16 @@ msgstr "新しいキーを作成"
 msgid "Create New OU"
 msgstr "新しい %s を作成"
 
+#, fuzzy
+msgid "Create New OpenID Connect Provider"
+msgstr "新しい LDAP を作成"
+
 msgid "Create New Printer"
 msgstr "新しいプリンターを作成"
+
+#, fuzzy
+msgid "Create New Provider Group"
+msgstr "新しいサブネットグループを作成しますか？"
 
 #, fuzzy
 msgid "Create New Role"
@@ -1576,6 +1624,9 @@ msgstr "タスク状態を作成"
 #, fuzzy
 msgid "Create Task Success"
 msgstr "タスクタイプを作成"
+
+msgid "Create Users On First Login"
+msgstr ""
 
 #, fuzzy, php-format
 msgid "Create a %s"
@@ -2016,6 +2067,10 @@ msgstr "担当者"
 
 msgid "Enrolment kit"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Enter a valid %s name"
+msgstr "有効なホスト名を入力してください"
 
 msgid "Equipment Loan"
 msgstr "機器貸出"
@@ -2650,6 +2705,14 @@ msgid "Group BIOS Exit"
 msgstr "グループ EFI 終了方法"
 
 #, fuzzy
+msgid "Group Claim"
+msgstr "グループ名"
+
+#, fuzzy
+msgid "Group Claim Value"
+msgstr "グループ名"
+
+#, fuzzy
 msgid "Group Count"
 msgstr "グループ自動ログアウト"
 
@@ -3192,6 +3255,9 @@ msgid "Id and name pairs for %s"
 msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
+msgstr ""
+
+msgid "Identity Provider"
 msgstr ""
 
 #, php-format
@@ -3826,6 +3892,13 @@ msgstr "パック"
 
 msgid "Is a"
 msgstr "次の種類です"
+
+msgid "Issuer"
+msgstr ""
+
+#, fuzzy
+msgid "Issuer URL"
+msgstr "サーバーシェル"
 
 msgid "It can no longer be joined"
 msgstr ""
@@ -4652,6 +4725,10 @@ msgstr "データなし"
 msgid "No Data Available"
 msgstr "利用可能なデータがありません"
 
+#, php-format
+msgid "No FOG account exists for %s"
+msgstr ""
+
 msgid "No Host found for MAC Address"
 msgstr "MAC アドレスに一致するホストが見つかりません"
 
@@ -4809,6 +4886,9 @@ msgid "No role assigned"
 msgstr "関連付けられたノードがありません"
 
 msgid "No settings match your search."
+msgstr ""
+
+msgid "No sign-in was in progress; please start again"
 msgstr ""
 
 #, fuzzy
@@ -5048,6 +5128,38 @@ msgstr "オープンソースのコンピュータークローニングソリュ
 msgid "Open VNC Connection To"
 msgstr "次への VNC 接続を開く"
 
+#, fuzzy
+msgid "OpenID Connect"
+msgstr "次への VNC 接続を開く"
+
+#, fuzzy
+msgid "OpenID Connect Group Management"
+msgstr "サブネットグループ管理"
+
+#, fuzzy
+msgid "OpenID Connect Groups"
+msgstr "次への VNC 接続を開く"
+
+#, fuzzy
+msgid "OpenID Connect Provider Create Fail"
+msgstr "プリンターの作成に失敗しました"
+
+#, fuzzy
+msgid "OpenID Connect Provider Create Success"
+msgstr "プリンターの作成に成功しました"
+
+#, fuzzy
+msgid "OpenID Connect Provider Update Fail"
+msgstr "LDAP の更新に失敗しました"
+
+#, fuzzy
+msgid "OpenID Connect Provider Update Success"
+msgstr "LDAP を更新しました"
+
+#, fuzzy
+msgid "OpenID Connect Providers"
+msgstr "次への VNC 接続を開く"
+
 msgid "OpenLDAP"
 msgstr "OpenLDAP"
 
@@ -5263,6 +5375,10 @@ msgstr "削除してもよろしいですか"
 msgid "Please confirm you would like to dissociate the selected directory groups"
 msgstr ""
 
+#, fuzzy
+msgid "Please confirm you would like to dissociate the selected provider groups"
+msgstr "削除してもよろしいですか"
+
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -5313,6 +5429,10 @@ msgstr "有効な LDAP ポートを選択してください"
 
 #, fuzzy
 msgid "Please select an LDAP server!"
+msgstr "使用する LDAP ポートを選択してください"
+
+#, fuzzy
+msgid "Please select an identity provider!"
 msgstr "使用する LDAP ポートを選択してください"
 
 msgid "Please select an option"
@@ -5486,6 +5606,9 @@ msgstr ""
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
+msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
+msgstr ""
+
 msgid "Present means enabled."
 msgstr ""
 
@@ -5607,6 +5730,73 @@ msgstr "FOG Project"
 msgid "Protected"
 msgstr "保護済み"
 
+#, fuzzy
+msgid "Provider Group"
+msgstr "プライマリグループ"
+
+#, fuzzy
+msgid "Provider Group Associations"
+msgstr "グループの関連付け"
+
+#, fuzzy
+msgid "Provider Group Create Fail"
+msgstr "グループの作成に失敗しました"
+
+#, fuzzy
+msgid "Provider Group Create Success"
+msgstr "グループの作成に成功しました"
+
+#, fuzzy
+msgid "Provider Group Role Associations"
+msgstr "グループの関連付け"
+
+#, fuzzy
+msgid "Provider Group Update Fail"
+msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+msgid "Provider Group Update Success"
+msgstr "グループの更新に成功しました"
+
+#, fuzzy
+msgid "Provider Group User Group Associations"
+msgstr "グループの関連付け"
+
+#, fuzzy
+msgid "Provider Group associations updated!"
+msgstr "ロケーションを更新しました！"
+
+#, fuzzy
+msgid "Provider Groups"
+msgstr "プライマリグループ"
+
+#, fuzzy
+msgid "Provider added!"
+msgstr "プリンターを追加しました！"
+
+#, fuzzy
+msgid "Provider group added!"
+msgstr "ユーザーを追加しました！"
+
+#, fuzzy
+msgid "Provider group update failed!"
+msgstr "ユーザーの更新に失敗しました！"
+
+#, fuzzy
+msgid "Provider group updated!"
+msgstr "ユーザーを更新しました！"
+
+#, fuzzy
+msgid "Provider update failed!"
+msgstr "プリンターの更新に失敗しました！"
+
+#, fuzzy
+msgid "Provider updated!"
+msgstr "プリンターを更新しました！"
+
+msgid "Providers"
+msgstr ""
+
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet アカウント"
 
@@ -5674,6 +5864,9 @@ msgstr "パーセント"
 msgid "Record not found"
 msgstr "レコードが見つかりません"
 
+msgid "Redirect URI"
+msgstr ""
+
 msgid "Refresh Settings Cache"
 msgstr ""
 
@@ -5717,6 +5910,10 @@ msgstr "削除に失敗しました"
 
 #, fuzzy
 msgid "Remove LDAP Group Associations"
+msgstr "グループの関連付け"
+
+#, fuzzy
+msgid "Remove Provider Group Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
@@ -5996,6 +6193,9 @@ msgstr ""
 msgid "Schema updated successfully!"
 msgstr "iPXE 設定を更新しました！"
 
+msgid "Scopes"
+msgstr ""
+
 #, fuzzy
 msgid "Screen Height"
 msgstr "画面の高さ（ピクセル）"
@@ -6274,6 +6474,14 @@ msgstr "署名済み"
 
 msgid "Sign in to start your session"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Sign in with %s"
+msgstr "スナップイン実行時の引数"
+
+#, fuzzy
+msgid "Sign-in failed"
+msgstr "イメージ処理に失敗しました。"
 
 #, php-format
 msgid "Signed in as %s."
@@ -7121,8 +7329,16 @@ msgid "Text to match across the class fields."
 msgstr ""
 
 #, fuzzy
+msgid "That group is already defined for this provider!"
+msgstr "このグループは既にサブネットグループで使用されています。"
+
+#, fuzzy
 msgid "That group is already defined for this server!"
 msgstr "このグループは既にサブネットグループで使用されています。"
+
+#, fuzzy
+msgid "That identity provider is not enabled"
+msgstr "イメージが有効ではないためタスクを設定できません"
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
@@ -7168,7 +7384,28 @@ msgstr "このサーバーにはグループがありません"
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
+#, fuzzy
+msgid "The FOG account could not be created"
+msgstr "強制終了できませんでした"
+
+#, fuzzy
+msgid "The FOG account for this identity no longer exists"
+msgstr "選択したプリンターを追加"
+
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid "The ID token carries no subject"
+msgstr ""
+
+#, fuzzy
+msgid "The ID token could not be verified"
+msgstr "強制終了できませんでした"
+
+msgid "The ID token names a different issuer"
+msgstr ""
+
+msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -7220,6 +7457,34 @@ msgid "The file itself."
 msgstr ""
 
 #, fuzzy
+msgid "The identity provider could not be reached"
+msgstr "強制終了できませんでした"
+
+#, php-format
+msgid "The identity provider refused the sign-in (%s)"
+msgstr ""
+
+#, php-format
+msgid "The identity provider returned no ID token (%s)"
+msgstr ""
+
+msgid "The identity provider sent an unreadable response"
+msgstr ""
+
+msgid "The identity provider sent an unreadable token response"
+msgstr ""
+
+msgid "The identity provider sent an unreasonably large response"
+msgstr ""
+
+#, php-format
+msgid "The identity provider sent no %s claim"
+msgstr ""
+
+msgid "The identity provider sent no code"
+msgstr ""
+
+#, fuzzy
 msgid "The image associated does not have a valid OS!"
 msgstr "ストレージグループに関連付けられたストレージノードが無効です"
 
@@ -7228,6 +7493,18 @@ msgstr "割り当てられたイメージのストレージグループが無効
 
 msgid "The installers for the fog client"
 msgstr "FOG クライアント用インストーラー"
+
+msgid "The issuer URL is too long"
+msgstr ""
+
+msgid "The issuer URL must not carry a query string or fragment"
+msgstr ""
+
+msgid "The issuer URL must use https"
+msgstr ""
+
+msgid "The issuer must be a full URL"
+msgstr ""
 
 msgid "The key will be assigned to registered hosts when a"
 msgstr "キーは、登録済みホストに次の場合割り当てられます"
@@ -7268,6 +7545,13 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
 
+#, php-format
+msgid "The provider published no https %s"
+msgstr ""
+
+msgid "The provider returned a configuration for a different issuer"
+msgstr ""
+
 msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
@@ -7277,6 +7561,13 @@ msgstr "選択したプリンターを追加"
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
+
+#, fuzzy
+msgid "The sign-in could not be verified"
+msgstr "強制終了できませんでした"
+
+msgid "The sign-in took too long; please start again"
+msgstr ""
 
 #, fuzzy
 msgid "The staged plugin no longer matches its manifest."
@@ -7370,6 +7661,12 @@ msgstr ""
 
 msgid "This host already exists"
 msgstr "このホストは既に存在します"
+
+msgid "This identity is linked to a different FOG account"
+msgstr ""
+
+msgid "This identity is linked to more than one FOG account"
+msgstr ""
 
 msgid "This installation process may take a few minutes"
 msgstr "このインストール処理には数分かかる場合があります"
@@ -7738,6 +8035,9 @@ msgstr ""
 msgid "Unknown filter field(s) for %s: %s"
 msgstr ""
 
+msgid "Unknown identity provider"
+msgstr ""
+
 #, fuzzy
 msgid "Unknown permission"
 msgstr "不明なデータベースエラー"
@@ -8072,6 +8372,10 @@ msgid "Username"
 msgstr "ユーザー名"
 
 #, fuzzy
+msgid "Username Claim"
+msgstr "ユーザー名"
+
+#, fuzzy
 msgid "Username must begin with 2 numbers or letters."
 msgstr "ユーザー名は 3 文字以上で指定してください"
 
@@ -8258,6 +8562,10 @@ msgstr ""
 
 #, fuzzy
 msgid "You do not have permission to change LDAP group associations."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
+#, fuzzy
+msgid "You do not have permission to change provider group associations."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 #, fuzzy
@@ -8460,6 +8768,10 @@ msgstr "ファイル"
 msgid "filesize"
 msgstr "ファイルサイズ"
 
+#, fuzzy
+msgid "fog-admins"
+msgstr "ドメイン名"
+
 msgid "for Microsoft Windows to images"
 msgstr "Microsoft Windows 用にイメージへ"
 
@@ -8475,6 +8787,10 @@ msgstr "クライアントコンピューター上の機能。"
 
 msgid "group"
 msgstr "グループ"
+
+#, fuzzy
+msgid "group claim"
+msgstr "グループ名"
 
 msgid "has been cancelled"
 msgstr "キャンセルされました"
@@ -8675,6 +8991,10 @@ msgstr "キー"
 msgid "keys"
 msgstr ""
 
+#, fuzzy
+msgid "leave to keep the current one"
+msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
+
 msgid "limited to 1Mbps on that node"
 msgstr "そのノードで 1 Mbps に制限されます"
 
@@ -8731,6 +9051,9 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no reason given"
+msgstr ""
+
 msgid "no response from server"
 msgstr ""
 
@@ -8766,6 +9089,10 @@ msgstr ""
 
 msgid "of how much disk space the image is using."
 msgstr ""
+
+#, fuzzy
+msgid "off means an account must already exist"
+msgstr "このホストは既に存在します"
 
 msgid "old"
 msgstr ""
@@ -8816,6 +9143,9 @@ msgstr ""
 #, fuzzy
 msgid "recommended"
 msgstr "推奨"
+
+msgid "register this at your provider"
+msgstr ""
 
 msgid "second"
 msgstr "秒"
@@ -8978,6 +9308,10 @@ msgstr "より多くのドライバーを含む新しいカーネルへ更新し
 msgid "used"
 msgstr "使用済み"
 
+#, fuzzy
+msgid "user claim"
+msgstr "ユーザー名"
+
 msgid "user failed to login"
 msgstr "ユーザーのログインに失敗しました"
 
@@ -9087,9 +9421,6 @@ msgstr ""
 
 #~ msgid "A subnetgroup already exists with this name!"
 #~ msgstr "この名前のサブネットグループは既に存在します！"
-
-#~ msgid "A user name is required!"
-#~ msgstr "ユーザー名は必須です！"
 
 #~ msgid "AD Domain"
 #~ msgstr "AD ドメイン"
@@ -9280,9 +9611,6 @@ msgstr ""
 
 #~ msgid "Cannot create tasking as image is not enabled"
 #~ msgstr "イメージが有効ではないためタスクを作成できません"
-
-#~ msgid "Cannot set tasking as image is not enabled"
-#~ msgstr "イメージが有効ではないためタスクを設定できません"
 
 #~ msgid "Cannot set tasking to invalid hosts"
 #~ msgstr "無効なホストにタスクを設定できません"
@@ -10752,9 +11080,6 @@ msgstr ""
 
 #~ msgid "Snapin Return Detail"
 #~ msgstr "スナップイン戻り値の詳細"
-
-#~ msgid "Snapin Run With Args"
-#~ msgstr "スナップイン実行時の引数"
 
 #~ msgid "Snapin State"
 #~ msgstr "スナップイン状態"

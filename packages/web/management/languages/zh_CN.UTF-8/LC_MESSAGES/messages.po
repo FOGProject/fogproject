@@ -215,6 +215,10 @@ msgid "A broadcast already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+msgid "A client ID is required"
+msgstr "图像名是必需的！"
+
+#, fuzzy
 msgid "A dmi field must be set!"
 msgstr "事件必须是字符串"
 
@@ -285,6 +289,10 @@ msgstr "没有指定的图像"
 
 #, fuzzy
 msgid "A printer already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "A provider already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
@@ -566,6 +574,14 @@ msgid "Add printer failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
+msgid "Add provider failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Add provider group failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
 msgid "Add pushbullet account failed!"
 msgstr "链接Pushbullet账户"
 
@@ -776,6 +792,10 @@ msgstr "图像已经存在具有此名称！"
 msgid "An image with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
+#, fuzzy
+msgid "An issuer URL is required"
+msgstr "%s是必需的"
+
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
@@ -796,6 +816,15 @@ msgid "Anyone signing in through one of these directory groups is placed in this
 msgstr ""
 
 msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups is placed in this user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone whose group claim carries this value receives these roles on sign in. Roles are recomputed from the provider each time, so removing someone from the group downgrades them at their next login."
 msgstr ""
 
 #, fuzzy
@@ -1021,6 +1050,9 @@ msgstr "CPU版本"
 #, fuzzy
 msgid "Bulk load failed"
 msgstr "加载失败： %s"
+
+msgid "Button Icon"
+msgstr ""
 
 msgid "Bypass Bitlocker Detection"
 msgstr ""
@@ -1331,8 +1363,16 @@ msgstr "客户"
 msgid "Client Count"
 msgstr "客户端计数"
 
+#, fuzzy
+msgid "Client ID"
+msgstr "客户"
+
 msgid "Client Management"
 msgstr "客户管理"
+
+#, fuzzy
+msgid "Client Secret"
+msgstr "设置"
 
 #, fuzzy
 msgid "Client Settings"
@@ -1595,7 +1635,15 @@ msgid "Create New OU"
 msgstr "新建%s"
 
 #, fuzzy
+msgid "Create New OpenID Connect Provider"
+msgstr "新建%s"
+
+#, fuzzy
 msgid "Create New Printer"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Create New Provider Group"
 msgstr "新建%s"
 
 #, fuzzy
@@ -1657,6 +1705,9 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Create Task Success"
 msgstr "用户创建"
+
+msgid "Create Users On First Login"
+msgstr ""
 
 #, fuzzy, php-format
 msgid "Create a %s"
@@ -2101,6 +2152,10 @@ msgstr "工程师"
 
 msgid "Enrolment kit"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Enter a valid %s name"
+msgstr "请输入一个有效的主机名"
 
 msgid "Equipment Loan"
 msgstr "器材信贷"
@@ -2767,6 +2822,14 @@ msgid "Group BIOS Exit"
 msgstr "出口Snapins"
 
 #, fuzzy
+msgid "Group Claim"
+msgstr "组名称"
+
+#, fuzzy
+msgid "Group Claim Value"
+msgstr "组名称"
+
+#, fuzzy
 msgid "Group Count"
 msgstr "出口Snapins"
 
@@ -3331,6 +3394,9 @@ msgid "Id and name pairs for %s"
 msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
+msgstr ""
+
+msgid "Identity Provider"
 msgstr ""
 
 #, php-format
@@ -4014,6 +4080,13 @@ msgstr "是"
 
 msgid "Is a"
 msgstr "是"
+
+msgid "Issuer"
+msgstr ""
+
+#, fuzzy
+msgid "Issuer URL"
+msgstr "服务器外壳"
 
 msgid "It can no longer be joined"
 msgstr ""
@@ -4876,6 +4949,10 @@ msgstr "没有数据"
 msgid "No Data Available"
 msgstr "不可用"
 
+#, php-format
+msgid "No FOG account exists for %s"
+msgstr ""
+
 msgid "No Host found for MAC Address"
 msgstr "找不到主机MAC地址"
 
@@ -5038,6 +5115,9 @@ msgid "No role assigned"
 msgstr "无关联的节点"
 
 msgid "No settings match your search."
+msgstr ""
+
+msgid "No sign-in was in progress; please start again"
 msgstr ""
 
 #, fuzzy
@@ -5288,6 +5368,35 @@ msgstr "开源计算机克隆解决方案"
 msgid "Open VNC Connection To"
 msgstr ""
 
+msgid "OpenID Connect"
+msgstr ""
+
+#, fuzzy
+msgid "OpenID Connect Group Management"
+msgstr "集团管理"
+
+msgid "OpenID Connect Groups"
+msgstr ""
+
+#, fuzzy
+msgid "OpenID Connect Provider Create Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "OpenID Connect Provider Create Success"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "OpenID Connect Provider Update Fail"
+msgstr "LDAP服务器名称"
+
+#, fuzzy
+msgid "OpenID Connect Provider Update Success"
+msgstr "用户创建"
+
+msgid "OpenID Connect Providers"
+msgstr ""
+
 msgid "OpenLDAP"
 msgstr ""
 
@@ -5509,6 +5618,10 @@ msgstr "请确认您要删除"
 msgid "Please confirm you would like to dissociate the selected directory groups"
 msgstr ""
 
+#, fuzzy
+msgid "Please confirm you would like to dissociate the selected provider groups"
+msgstr "请确认您要删除"
+
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -5561,6 +5674,10 @@ msgstr "选择一个有效的图像"
 
 #, fuzzy
 msgid "Please select an LDAP server!"
+msgstr "请选择一个选项"
+
+#, fuzzy
+msgid "Please select an identity provider!"
 msgstr "请选择一个选项"
 
 msgid "Please select an option"
@@ -5737,6 +5854,9 @@ msgstr ""
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
+msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
+msgstr ""
+
 msgid "Present means enabled."
 msgstr ""
 
@@ -5866,6 +5986,73 @@ msgstr "目的"
 msgid "Protected"
 msgstr "受保护"
 
+#, fuzzy
+msgid "Provider Group"
+msgstr "主要组"
+
+#, fuzzy
+msgid "Provider Group Associations"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Provider Group Create Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "Provider Group Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Provider Group Role Associations"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Provider Group Update Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "Provider Group Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Provider Group User Group Associations"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Provider Group associations updated!"
+msgstr "更新位置"
+
+#, fuzzy
+msgid "Provider Groups"
+msgstr "主要组"
+
+#, fuzzy
+msgid "Provider added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Provider group added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Provider group update failed!"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Provider group updated!"
+msgstr "用户更新"
+
+#, fuzzy
+msgid "Provider update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Provider updated!"
+msgstr "打印机更新！"
+
+msgid "Providers"
+msgstr ""
+
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet账户"
 
@@ -5935,6 +6122,9 @@ msgstr "接收"
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
 
+msgid "Redirect URI"
+msgstr ""
+
 #, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "服务状态"
@@ -5979,6 +6169,10 @@ msgstr "去除"
 
 #, fuzzy
 msgid "Remove LDAP Group Associations"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Remove Provider Group Associations"
 msgstr "图像协会"
 
 #, fuzzy
@@ -6278,6 +6472,9 @@ msgstr ""
 msgid "Schema updated successfully!"
 msgstr "安装/升级成功！"
 
+msgid "Scopes"
+msgstr ""
+
 msgid "Screen Height"
 msgstr ""
 
@@ -6565,6 +6762,14 @@ msgstr "签"
 
 msgid "Sign in to start your session"
 msgstr ""
+
+#, php-format
+msgid "Sign in with %s"
+msgstr ""
+
+#, fuzzy
+msgid "Sign-in failed"
+msgstr "加载失败： %s"
 
 #, php-format
 msgid "Signed in as %s."
@@ -7479,8 +7684,16 @@ msgid "Text to match across the class fields."
 msgstr ""
 
 #, fuzzy
+msgid "That group is already defined for this provider!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 msgid "That group is already defined for this server!"
 msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "That identity provider is not enabled"
+msgstr "图片未启用"
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
@@ -7527,7 +7740,28 @@ msgstr "有此服务器上没有组。"
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
+#, fuzzy
+msgid "The FOG account could not be created"
+msgstr "无法读取临时文件"
+
+#, fuzzy
+msgid "The FOG account for this identity no longer exists"
+msgstr "不复存在"
+
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid "The ID token carries no subject"
+msgstr ""
+
+#, fuzzy
+msgid "The ID token could not be verified"
+msgstr "无法读取临时文件"
+
+msgid "The ID token names a different issuer"
+msgstr ""
+
+msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -7580,6 +7814,34 @@ msgid "The file itself."
 msgstr ""
 
 #, fuzzy
+msgid "The identity provider could not be reached"
+msgstr "无法读取临时文件"
+
+#, php-format
+msgid "The identity provider refused the sign-in (%s)"
+msgstr ""
+
+#, php-format
+msgid "The identity provider returned no ID token (%s)"
+msgstr ""
+
+msgid "The identity provider sent an unreadable response"
+msgstr ""
+
+msgid "The identity provider sent an unreadable token response"
+msgstr ""
+
+msgid "The identity provider sent an unreasonably large response"
+msgstr ""
+
+#, php-format
+msgid "The identity provider sent no %s claim"
+msgstr ""
+
+msgid "The identity provider sent no code"
+msgstr ""
+
+#, fuzzy
 msgid "The image associated does not have a valid OS!"
 msgstr "存储组相关联的存储节点无效"
 
@@ -7589,6 +7851,18 @@ msgstr "分配图像存储组无效"
 #, fuzzy
 msgid "The installers for the fog client"
 msgstr "此设置定义使用SSH客户端的用户名。"
+
+msgid "The issuer URL is too long"
+msgstr ""
+
+msgid "The issuer URL must not carry a query string or fragment"
+msgstr ""
+
+msgid "The issuer URL must use https"
+msgstr ""
+
+msgid "The issuer must be a full URL"
+msgstr ""
 
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
@@ -7628,6 +7902,13 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+#, php-format
+msgid "The provider published no https %s"
+msgstr ""
+
+msgid "The provider returned a configuration for a different issuer"
+msgstr ""
+
 msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
@@ -7636,6 +7917,13 @@ msgid "The selected site no longer exists"
 msgstr "不复存在"
 
 msgid "The settings tend to be global which affects all hosts."
+msgstr ""
+
+#, fuzzy
+msgid "The sign-in could not be verified"
+msgstr "无法读取临时文件"
+
+msgid "The sign-in took too long; please start again"
 msgstr ""
 
 msgid "The staged plugin no longer matches its manifest."
@@ -7733,6 +8021,12 @@ msgstr ""
 #, fuzzy
 msgid "This host already exists"
 msgstr "打印机已经存在"
+
+msgid "This identity is linked to a different FOG account"
+msgstr ""
+
+msgid "This identity is linked to more than one FOG account"
+msgstr ""
 
 msgid "This installation process may take a few minutes"
 msgstr ""
@@ -8115,6 +8409,9 @@ msgstr ""
 msgid "Unknown filter field(s) for %s: %s"
 msgstr ""
 
+msgid "Unknown identity provider"
+msgstr ""
+
 #, fuzzy
 msgid "Unknown permission"
 msgstr "发生未知上传错误。返回代码："
@@ -8458,6 +8755,10 @@ msgstr "用户/通道名称"
 msgid "Username"
 msgstr "用户名"
 
+#, fuzzy
+msgid "Username Claim"
+msgstr "用户名"
+
 msgid "Username must begin with 2 numbers or letters."
 msgstr ""
 
@@ -8660,6 +8961,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change provider group associations."
 msgstr ""
 
 msgid "You do not have permission to change site grants."
@@ -8875,6 +9179,10 @@ msgstr "失败"
 msgid "filesize"
 msgstr "文件大小"
 
+#, fuzzy
+msgid "fog-admins"
+msgstr "域名"
+
 msgid "for Microsoft Windows to images"
 msgstr ""
 
@@ -8890,6 +9198,10 @@ msgstr ""
 
 msgid "group"
 msgstr "组"
+
+#, fuzzy
+msgid "group claim"
+msgstr "组名称"
 
 #, fuzzy
 msgid "has been cancelled"
@@ -9106,6 +9418,9 @@ msgstr "DMI关键"
 msgid "keys"
 msgstr ""
 
+msgid "leave to keep the current one"
+msgstr ""
+
 msgid "limited to 1Mbps on that node"
 msgstr ""
 
@@ -9167,6 +9482,9 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no reason given"
+msgstr ""
+
 msgid "no response from server"
 msgstr ""
 
@@ -9205,6 +9523,10 @@ msgstr ""
 
 msgid "of how much disk space the image is using."
 msgstr ""
+
+#, fuzzy
+msgid "off means an account must already exist"
+msgstr "打印机已经存在"
 
 msgid "old"
 msgstr ""
@@ -9254,6 +9576,9 @@ msgid "reboot, shutdown, or empty."
 msgstr ""
 
 msgid "recommended"
+msgstr ""
+
+msgid "register this at your provider"
 msgstr ""
 
 #, fuzzy
@@ -9427,6 +9752,10 @@ msgstr ""
 
 msgid "used"
 msgstr ""
+
+#, fuzzy
+msgid "user claim"
+msgstr "用户名"
 
 msgid "user failed to login"
 msgstr "用户登录失败"

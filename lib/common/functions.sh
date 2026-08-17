@@ -576,10 +576,29 @@ backupDB() {
     # install skips the step instead of reporting a failure it did not have.
     local dbbackupstat=0
     local dbbackupfile=""
-    if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
+    # Ask the database whether there is anything to dump, rather than asking
+    # the filesystem whether configureHttpd happened to leave a
+    # fog_web_<ver>.BACKUP behind. That directory was only ever a proxy for
+    # "this is an upgrade", and it is a broken one: configureHttpd removes
+    # ${docroot}fog when it is a SYMLINK and then tests `-d $webdirdest` --
+    # the same path -- to decide whether to make the backup, so on any
+    # install whose web root is a symlink the directory never appears and the
+    # pre-upgrade dump was silently skipped on every run.
+    #
+    # SHOW TABLES is also the honest question. The dump has nothing to do with
+    # the web tree, and a leftover .fogsettings pointing at a database that
+    # does not exist yet would make an $doupdate-based gate report a failure
+    # it did not have. configureMySql has run by here, so $sqloptionsuser and
+    # $snmysqlpass are settled; a fresh install has no tables and still skips.
+    local dbhastables=""
+    dbhastables=$(mysql $sqloptionsuser --password="${snmysqlpass}" --skip-column-names --execute="SHOW TABLES" $mysqldbname 2>>$error_log | head -n 1)
+    if [[ -n $dbhastables ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$error_log 2>&1
         url="${httpproto}://$ipaddress$webroot/maintenance/backup_db.php"
-        dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql"
+        # %H, not %I: %I is the 12-hour clock with no AM/PM marker, so an
+        # update run at 05:57 and one at 17:57 on the same day produced the
+        # same filename and the second silently overwrote the first.
+        dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%H%M%S").sql"
         curl -skf "$url" | jq -r '. | ._content' > "$dbbackupfile"
         # Both halves of the pipeline matter, and so does the result: a dump
         # that is empty or the literal "null" is jq faithfully reporting that

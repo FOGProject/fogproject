@@ -212,6 +212,10 @@ msgid "A broadcast already exists with this name!"
 msgstr "Un broadcast esiste già con questo nome!"
 
 #, fuzzy
+msgid "A client ID is required"
+msgstr "È richiesto un nome di gruppo!"
+
+#, fuzzy
 msgid "A dmi field must be set!"
 msgstr "Campo chiave deve essere una stringa"
 
@@ -276,6 +280,10 @@ msgid "A port must be specified"
 msgstr "deve essere specificato"
 
 msgid "A printer already exists with this name!"
+msgstr "Nome stampante già esistente on questo nome!"
+
+#, fuzzy
+msgid "A provider already exists with this name!"
 msgstr "Nome stampante già esistente on questo nome!"
 
 #, fuzzy
@@ -544,6 +552,14 @@ msgid "Add printer failed!"
 msgstr "Aggiunta stampante non riuscita!"
 
 #, fuzzy
+msgid "Add provider failed!"
+msgstr "Aggiunta stampante non riuscita!"
+
+#, fuzzy
+msgid "Add provider group failed!"
+msgstr "Aggiunta gruppo non riuscito!"
+
+#, fuzzy
 msgid "Add pushbullet account failed!"
 msgstr "Connessione Pushbullet Account fallita"
 
@@ -748,6 +764,10 @@ msgstr "Un'immagine esiste già con questo nome!"
 msgid "An image with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
 
+#, fuzzy
+msgid "An issuer URL is required"
+msgstr "%s è richiesto"
+
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
@@ -768,6 +788,15 @@ msgid "Anyone signing in through one of these directory groups is placed in this
 msgstr ""
 
 msgid "Anyone signing in through one of these directory groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups is placed in this user group. Membership granted this way is recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone signing in through one of these provider groups receives this role. Roles granted this way are recomputed on every sign in."
+msgstr ""
+
+msgid "Anyone whose group claim carries this value receives these roles on sign in. Roles are recomputed from the provider each time, so removing someone from the group downgrades them at their next login."
 msgstr ""
 
 msgid "Applications"
@@ -982,6 +1011,9 @@ msgstr "Versione client"
 #, fuzzy
 msgid "Bulk load failed"
 msgstr "Caricamento non riuscito"
+
+msgid "Button Icon"
+msgstr ""
 
 msgid "Bypass Bitlocker Detection"
 msgstr ""
@@ -1284,8 +1316,16 @@ msgstr "Cliente"
 msgid "Client Count"
 msgstr "Conte client"
 
+#, fuzzy
+msgid "Client ID"
+msgstr "Cliente"
+
 msgid "Client Management"
 msgstr "client Management"
+
+#, fuzzy
+msgid "Client Secret"
+msgstr "Impostazioni Client"
 
 msgid "Client Settings"
 msgstr "Impostazioni Client"
@@ -1534,8 +1574,16 @@ msgid "Create New OU"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
+msgid "Create New OpenID Connect Provider"
+msgstr "Crea nuova stampante"
+
+#, fuzzy
 msgid "Create New Printer"
 msgstr "Crea nuova stampante"
+
+#, fuzzy
+msgid "Create New Provider Group"
+msgstr "Crea nuovo %s"
 
 #, fuzzy
 msgid "Create New Role"
@@ -1596,6 +1644,9 @@ msgstr "Creazione utente fallita"
 #, fuzzy
 msgid "Create Task Success"
 msgstr "Creazione utente riuscita"
+
+msgid "Create Users On First Login"
+msgstr ""
 
 #, fuzzy, php-format
 msgid "Create a %s"
@@ -2034,6 +2085,10 @@ msgstr "Ingegnere"
 
 msgid "Enrolment kit"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Enter a valid %s name"
+msgstr "Si prega di inserire un nome host valido"
 
 msgid "Equipment Loan"
 msgstr "attrezzature di prestito"
@@ -2679,6 +2734,14 @@ msgid "Group BIOS Exit"
 msgstr "Gruppo Snapins"
 
 #, fuzzy
+msgid "Group Claim"
+msgstr "Nome del gruppo"
+
+#, fuzzy
+msgid "Group Claim Value"
+msgstr "Nome del gruppo"
+
+#, fuzzy
 msgid "Group Count"
 msgstr "Gruppo Snapins"
 
@@ -3223,6 +3286,9 @@ msgid "Id and name pairs for %s"
 msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
+msgstr ""
+
+msgid "Identity Provider"
 msgstr ""
 
 #, php-format
@@ -3871,6 +3937,13 @@ msgstr "È Pack"
 
 msgid "Is a"
 msgstr "È un"
+
+msgid "Issuer"
+msgstr ""
+
+#, fuzzy
+msgid "Issuer URL"
+msgstr "Server Shell"
 
 msgid "It can no longer be joined"
 msgstr ""
@@ -4700,6 +4773,10 @@ msgstr "Nessun dato"
 msgid "No Data Available"
 msgstr "Non disponibile"
 
+#, php-format
+msgid "No FOG account exists for %s"
+msgstr ""
+
 msgid "No Host found for MAC Address"
 msgstr "Nessun Host trovato per MAC Address"
 
@@ -4855,6 +4932,9 @@ msgid "No role assigned"
 msgstr "Nessun nodo associato"
 
 msgid "No settings match your search."
+msgstr ""
+
+msgid "No sign-in was in progress; please start again"
 msgstr ""
 
 #, fuzzy
@@ -5095,6 +5175,35 @@ msgstr "Open Source Computer Clonazione Soluzione"
 msgid "Open VNC Connection To"
 msgstr ""
 
+msgid "OpenID Connect"
+msgstr ""
+
+#, fuzzy
+msgid "OpenID Connect Group Management"
+msgstr "Direzione del Gruppo"
+
+msgid "OpenID Connect Groups"
+msgstr ""
+
+#, fuzzy
+msgid "OpenID Connect Provider Create Fail"
+msgstr "Creazione stampante fallita"
+
+#, fuzzy
+msgid "OpenID Connect Provider Create Success"
+msgstr "Creazione stampante riuscita"
+
+#, fuzzy
+msgid "OpenID Connect Provider Update Fail"
+msgstr "LDAP Server modificato!"
+
+#, fuzzy
+msgid "OpenID Connect Provider Update Success"
+msgstr "LDAP Creazione Riusciata"
+
+msgid "OpenID Connect Providers"
+msgstr ""
+
 msgid "OpenLDAP"
 msgstr "OpenLDAP"
 
@@ -5309,6 +5418,10 @@ msgstr "Conferma che desideri eliminare"
 msgid "Please confirm you would like to dissociate the selected directory groups"
 msgstr ""
 
+#, fuzzy
+msgid "Please confirm you would like to dissociate the selected provider groups"
+msgstr "Conferma che desideri eliminare"
+
 msgid "Please confirm you would like to unset the default printer from  the selected hosts"
 msgstr ""
 
@@ -5360,6 +5473,10 @@ msgstr "Selezionare un'immagine valida"
 
 #, fuzzy
 msgid "Please select an LDAP server!"
+msgstr "per favore selezionate un'opzione"
+
+#, fuzzy
+msgid "Please select an identity provider!"
 msgstr "per favore selezionate un'opzione"
 
 msgid "Please select an option"
@@ -5531,6 +5648,9 @@ msgstr ""
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
+msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
+msgstr ""
+
 msgid "Present means enabled."
 msgstr ""
 
@@ -5654,6 +5774,73 @@ msgstr "oggetto"
 msgid "Protected"
 msgstr "Protetta"
 
+#, fuzzy
+msgid "Provider Group"
+msgstr "Gruppo primario"
+
+#, fuzzy
+msgid "Provider Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "Provider Group Create Fail"
+msgstr "Creazione Gruppo fallita"
+
+#, fuzzy
+msgid "Provider Group Create Success"
+msgstr "Creazione Gruppo completata"
+
+#, fuzzy
+msgid "Provider Group Role Associations"
+msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "Provider Group Update Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "Provider Group Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "Provider Group User Group Associations"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "Provider Group associations updated!"
+msgstr "Posizione aggiornata!"
+
+#, fuzzy
+msgid "Provider Groups"
+msgstr "Gruppo primario"
+
+#, fuzzy
+msgid "Provider added!"
+msgstr "Stampante aggiunta"
+
+#, fuzzy
+msgid "Provider group added!"
+msgstr "Utente aggiunto!"
+
+#, fuzzy
+msgid "Provider group update failed!"
+msgstr "Aggiornamento utente non riuscita"
+
+#, fuzzy
+msgid "Provider group updated!"
+msgstr "Utente aggiornato"
+
+#, fuzzy
+msgid "Provider update failed!"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Provider updated!"
+msgstr "aggiornato stampante!"
+
+msgid "Providers"
+msgstr ""
+
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Conti"
 
@@ -5722,6 +5909,9 @@ msgstr "Ricevere"
 msgid "Record not found"
 msgstr "Record non trovato"
 
+msgid "Redirect URI"
+msgstr ""
+
 #, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "Stato servizio"
@@ -5766,6 +5956,10 @@ msgstr "Rimozione fallita"
 
 #, fuzzy
 msgid "Remove LDAP Group Associations"
+msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "Remove Provider Group Associations"
 msgstr "Regole di associazione"
 
 #, fuzzy
@@ -6053,6 +6247,9 @@ msgstr ""
 msgid "Schema updated successfully!"
 msgstr "Impostazioni iPXE aggiornate correttamente!"
 
+msgid "Scopes"
+msgstr ""
+
 msgid "Screen Height"
 msgstr ""
 
@@ -6331,6 +6528,14 @@ msgstr "firmato"
 
 msgid "Sign in to start your session"
 msgstr ""
+
+#, php-format
+msgid "Sign in with %s"
+msgstr ""
+
+#, fuzzy
+msgid "Sign-in failed"
+msgstr "Caricamento non riuscito"
 
 #, php-format
 msgid "Signed in as %s."
@@ -7194,8 +7399,16 @@ msgid "Text to match across the class fields."
 msgstr ""
 
 #, fuzzy
+msgid "That group is already defined for this provider!"
+msgstr "Un host già esiste con questo nome!"
+
+#, fuzzy
 msgid "That group is already defined for this server!"
 msgstr "Un host già esiste con questo nome!"
+
+#, fuzzy
+msgid "That identity provider is not enabled"
+msgstr "L'immagine non è abilitato"
 
 msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
 msgstr ""
@@ -7241,7 +7454,28 @@ msgstr "Non ci sono gruppi su questo server"
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
+#, fuzzy
+msgid "The FOG account could not be created"
+msgstr "Impossibile leggere il file temporaneo"
+
+#, fuzzy
+msgid "The FOG account for this identity no longer exists"
+msgstr "non è più in esecuzione"
+
 msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgstr ""
+
+msgid "The ID token carries no subject"
+msgstr ""
+
+#, fuzzy
+msgid "The ID token could not be verified"
+msgstr "Impossibile leggere il file temporaneo"
+
+msgid "The ID token names a different issuer"
+msgstr ""
+
+msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -7294,6 +7528,34 @@ msgid "The file itself."
 msgstr ""
 
 #, fuzzy
+msgid "The identity provider could not be reached"
+msgstr "Impossibile leggere il file temporaneo"
+
+#, php-format
+msgid "The identity provider refused the sign-in (%s)"
+msgstr ""
+
+#, php-format
+msgid "The identity provider returned no ID token (%s)"
+msgstr ""
+
+msgid "The identity provider sent an unreadable response"
+msgstr ""
+
+msgid "The identity provider sent an unreadable token response"
+msgstr ""
+
+msgid "The identity provider sent an unreasonably large response"
+msgstr ""
+
+#, php-format
+msgid "The identity provider sent no %s claim"
+msgstr ""
+
+msgid "The identity provider sent no code"
+msgstr ""
+
+#, fuzzy
 msgid "The image associated does not have a valid OS!"
 msgstr "Il nodo di archiviazione gruppi di archiviazione associato non è valido"
 
@@ -7302,6 +7564,18 @@ msgstr "Il gruppo di archiviazione immagine assegnato non è valido"
 
 msgid "The installers for the fog client"
 msgstr "Installatori per fog client"
+
+msgid "The issuer URL is too long"
+msgstr ""
+
+msgid "The issuer URL must not carry a query string or fragment"
+msgstr ""
+
+msgid "The issuer URL must use https"
+msgstr ""
+
+msgid "The issuer must be a full URL"
+msgstr ""
 
 msgid "The key will be assigned to registered hosts when a"
 msgstr "La chiave verrà assegnata agli host registrati quando una"
@@ -7341,6 +7615,13 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr "Il MAC primario associato è"
 
+#, php-format
+msgid "The provider published no https %s"
+msgstr ""
+
+msgid "The provider returned a configuration for a different issuer"
+msgstr ""
+
 msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
@@ -7350,6 +7631,13 @@ msgstr "non è più in esecuzione"
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "Le impostazioni tendono ad essere le impostazioni globali che influenzano tutti gli host"
+
+#, fuzzy
+msgid "The sign-in could not be verified"
+msgstr "Impossibile leggere il file temporaneo"
+
+msgid "The sign-in took too long; please start again"
+msgstr ""
 
 msgid "The staged plugin no longer matches its manifest."
 msgstr ""
@@ -7442,6 +7730,12 @@ msgstr ""
 
 msgid "This host already exists"
 msgstr "Questo host esiste già"
+
+msgid "This identity is linked to a different FOG account"
+msgstr ""
+
+msgid "This identity is linked to more than one FOG account"
+msgstr ""
 
 msgid "This installation process may take a few minutes"
 msgstr "Questo processo di installazione impiegherà alcuni minuti"
@@ -7812,6 +8106,9 @@ msgstr ""
 msgid "Unknown filter field(s) for %s: %s"
 msgstr ""
 
+msgid "Unknown identity provider"
+msgstr ""
+
 #, fuzzy
 msgid "Unknown permission"
 msgstr "Si è verificato errore di caricamento sconosciuto"
@@ -8143,6 +8440,10 @@ msgstr "Utente / Nome canale"
 msgid "Username"
 msgstr "Nome utente"
 
+#, fuzzy
+msgid "Username Claim"
+msgstr "Nome utente"
+
 msgid "Username must begin with 2 numbers or letters."
 msgstr ""
 
@@ -8336,6 +8637,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change provider group associations."
 msgstr ""
 
 msgid "You do not have permission to change site grants."
@@ -8541,6 +8845,10 @@ msgstr "File con"
 msgid "filesize"
 msgstr "dimensione del file"
 
+#, fuzzy
+msgid "fog-admins"
+msgstr "Nome del dominio"
+
 msgid "for Microsoft Windows to images"
 msgstr "per Microsoft Windows per immagini"
 
@@ -8555,6 +8863,10 @@ msgstr "funziona sui computer client."
 
 msgid "group"
 msgstr "gruppo"
+
+#, fuzzy
+msgid "group claim"
+msgstr "Nome del gruppo"
 
 msgid "has been cancelled"
 msgstr "è stato cancellato"
@@ -8755,6 +9067,9 @@ msgstr "chiave"
 msgid "keys"
 msgstr ""
 
+msgid "leave to keep the current one"
+msgstr ""
+
 msgid "limited to 1Mbps on that node"
 msgstr "limitata a 1Mbps su quel nodo"
 
@@ -8812,6 +9127,9 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no reason given"
+msgstr ""
+
 msgid "no response from server"
 msgstr ""
 
@@ -8847,6 +9165,10 @@ msgstr ""
 
 msgid "of how much disk space the image is using."
 msgstr ""
+
+#, fuzzy
+msgid "off means an account must already exist"
+msgstr "Questo host esiste già"
 
 msgid "old"
 msgstr ""
@@ -8897,6 +9219,9 @@ msgstr ""
 #, fuzzy
 msgid "recommended"
 msgstr "Consigliato"
+
+msgid "register this at your provider"
+msgstr ""
 
 msgid "second"
 msgstr "secondo"
@@ -9057,6 +9382,10 @@ msgstr "aggiornare ad un nuovo kernel che abbia maggiori driver built in"
 
 msgid "used"
 msgstr ""
+
+#, fuzzy
+msgid "user claim"
+msgstr "Nome utente"
 
 msgid "user failed to login"
 msgstr "utente non connesso"
