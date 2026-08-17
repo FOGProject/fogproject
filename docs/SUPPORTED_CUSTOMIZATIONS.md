@@ -282,6 +282,63 @@ an install; only local-ESP boot depends on it, and it comes back on the next run
 
 ---
 
+## Custom iPXE binaries in the TFTP tree
+
+**Automatic**, since 1.6.
+
+FOG ships around 55 binaries into your TFTP root (`/tftpboot` on most
+distributions): `snponly.efi`, `ipxe.efi`, `undionly.kkpxe`, the `i386-efi/`
+and `arm64-efi/` variants, and the `10secdelay/` and `autoexec/` sets.
+
+If you replace one of those with your own build, **it is no longer overwritten
+on the next install or update.** FOG records the checksum of every file it
+writes, in `.fog-ipxe-manifest` at the root of the tree, and skips any file
+whose contents no longer match what FOG last put there. Files it skips are
+listed by name at the end of the run.
+
+>[!note]
+>Protection starts from the **first run after upgrading to this version**.
+>Before that there is no manifest, so a binary you replaced earlier is
+>overwritten once, and protected from then on. Keep a copy elsewhere if that
+>matters to you.
+
+To go back to FOG's version, delete your file — the next run reinstalls it.
+
+A file under a name FOG does not ship — `custom.ipxe`, your own
+`myloader.efi` — has always been safe and still is. Nothing removes files from
+the TFTP root.
+
+| Customization | What happens |
+|---|---|
+| Replaced one of FOG's binaries | Kept; named in the run's output |
+| Added a file under a new name | Kept; FOG never touches it |
+| Deleted your replacement | FOG's version is reinstalled next run |
+
+### `stock/` — the binaries FOG published
+
+When you use `--rebuild-ipxe-with-my-ca`, FOG compiles iPXE with your CA
+embedded and those builds take the normal top-level names, so your DHCP
+configuration needs no change. The binaries FOG *downloaded* are kept
+alongside, in `stock/`, so you can compare against them or fall back to one
+without re-running the installer.
+
+`secureboot/` is deliberately **not** copied there: those are Microsoft's and
+iPXE's signed shim and loader, and a second copy outside the signing sweep's
+exclusion would get a FOG signature added to it.
+
+### Signing
+
+Every `.efi` under the TFTP root that does not already carry this server's
+signature is signed for Secure Boot, including binaries you built yourself.
+`sbsign` *appends*, so your own signature survives and the binary gains one
+this server's MOK also vouches for — which is what lets a custom build boot on
+a machine enrolled against FOG.
+
+`secureboot/` is excluded, always. Those two stages are what the whole chain
+hangs off and are already signed by their vendors.
+
+---
+
 ## What is NOT automatically preserved
 
 Listed plainly so none of it is a surprise.
@@ -289,7 +346,9 @@ Listed plainly so none of it is a surprise.
 - **Edits inside the FOG-managed vhost block.** They are overwritten on the
   next run. Move them outside the markers.
 - **Direct edits to `default.ipxe`.** Regenerated every run; there is no
-  supported hook point for pre-boot customization yet.
+  supported hook point for pre-boot customization yet. This is the one file in
+  the TFTP root the manifest above does not protect, because FOG has to rewrite
+  it to keep the netboot URL correct.
 - **A kernel-signing key rotated after a generation was captured.** Restoring
   that generation re-signs with the *current* key, which is correct, but any
   client enrolled against the old key still needs re-enrollment.

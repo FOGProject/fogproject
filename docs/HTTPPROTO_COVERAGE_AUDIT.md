@@ -402,27 +402,34 @@ Four further defects in the same path, all fixed on this branch:
 `--web-ca-cert` / `--web-ca-key` / `--web-ca-root` were also **not persisted** in
 `.fogsettings`, unlike the `--ca-*` trio they mirror. Now added.
 
-## B5. What Phase 2 must carry out of this
+## B5. What Phase 2 had to carry out of this
 
-1. **`functions.sh:1630`, `:1701`, `:1728` must be re-keyed onto
-   `$netbootproto`.** They gate the iPXE release download, the Secure Boot
-   staging and the 10–25 minute local rebuild on `httpproto`. Flipping the
-   default without this forces a source build on every install and stages **no
-   Secure Boot binaries at all**. This is the single largest blast radius in the
-   change.
-2. **Split the redirect out of `httpproto` into `httpsRedirect`** — and take HSTS
-   with it (§B2).
-3. **`_resolveNetbootProto` (`functions.sh:5058`) inverts under the new default.**
-   It currently drops to HTTP only when `httpproto == https` *and* neither
-   `externalca` nor `caCreated` is set. `caCreated` is persisted, so on any
-   re-run of an existing server it is `yes` — meaning once `httpproto` defaults
-   to `https`, every upgraded install resolves `netbootproto=https`. #1116's
-   model (default HTTP, steered to HTTPS only by `publicWebCert` or
-   `rebuildIpxeWithMyCA`) replaces this function outright; it must not merely be
-   tweaked.
-4. **Fix `input.sh` alongside `installfog.sh:695`**, or the new default never
-   takes effect on a fresh install (§B1).
-5. **Document `--netboot-proto` in `usage()`.**
+>[!note]
+>**All five were discharged by Phase 2 (#1119).** Kept here as the record of
+>what the audit handed forward and how each was answered, not as outstanding
+>work.
+
+1. **The three `httpproto` gates.** ✅ Replaced by `_needsLocalIpxeBuild()`,
+   which tests `rebuildIpxeWithMyCA` alone. The release asset now downloads on
+   every install, and Secure Boot binaries stage in every mode — that gate had
+   meant **every `-S` install staged none at all**.
+2. **Split the redirect out into `httpsRedirect`.** ✅ Both vhost branches now
+   gate on it, **and HSTS moved with it** — it had been emitted on the nginx
+   `:443` server in both arms, including on plain-HTTP installs. Also
+   unconditional now: `443/tcp` in the firewall advice, since both web servers
+   have always emitted their `:443` vhost in both arms.
+3. **`_resolveNetbootProto` inverts under the new default.** ✅ Replaced
+   outright, not tweaked. It keyed on the persisted `caCreated`, so with
+   `httpproto` defaulting to `https` every upgraded install would have resolved
+   `netbootproto=https`. It now keys only on `publicWebCert` /
+   `rebuildIpxeWithMyCA`, and **reports the outcome** — it previously emitted
+   nothing at all.
+4. **Fix `input.sh` alongside the default.** ✅ Its HTTPS question was removed
+   rather than repaired: it set `httpproto`, which no longer varies. The four
+   `--install-mode` presets are asked once instead, with their costs shown.
+5. **Document `--netboot-proto`.** ✅ Done, along with every new flag —
+   `tests/install-settings-resolution.test.sh` now asserts that each is both
+   accepted *and* documented.
 
 ---
 
