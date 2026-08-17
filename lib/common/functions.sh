@@ -4265,6 +4265,22 @@ writeUpdateFile() {
         blexports installtype snmysqlexternal snmysqluser snmysqlpass snmysqlhost
         mysqldbname installlang storageLocation fogupdateloaded docroot webroot
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
+        # What httpproto used to conflate, as three independent keys.
+        #
+        # httpsRedirect is what -S/--force-https has always MEANT -- its own
+        # help text says "serve both HTTP and HTTPS without redirecting" -- and
+        # is seeded once from a pre-existing httpproto=https (installfog.sh).
+        # Persisting it is what makes that migration one-shot: an admin who
+        # turns the redirect off must not have the next upgrade turn it back on
+        # by re-reading httpproto.
+        #
+        # publicWebCert is a persisted STATEMENT, never a measurement. FOG adds
+        # its own CA to the host trust store by default, so a plain openssl
+        # probe answers "trusted" for FOG's own leaf -- exactly the case that
+        # needs the rebuild -- and a value re-derived every run from a store
+        # other software also writes to is not something to hang a 25-minute
+        # build on.
+        httpsRedirect publicWebCert rebuildIpxeWithMyCA
         sslpath backupPath php_ver sslprivkey sslcakey sslcapem sslcachain
         externalca extcacert extcakey extcaroot sslcsr sslpubcert sendreports webserver
         # The Web-zone counterparts of the three above. Persisted for the same
