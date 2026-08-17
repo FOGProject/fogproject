@@ -1531,7 +1531,39 @@ configureDefaultiPXEfile() {
     # (FOGBase::$httpproto reads $_SERVER['HTTPS']), so chaining over HTTP here
     # makes the whole boot sequence HTTP with no PHP change.
     _resolveNetbootProto
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    # HTTPS netboot has to address this server by NAME, never by IP.
+    #
+    # A certificate is issued to a name. Public CAs will not issue for a
+    # private IP at all, and even where the chain itself validates, iPXE still
+    # fails the handshake on a name mismatch -- so an https:// URL built from
+    # $ipaddress cannot work, whatever the certificate is. HTTP does not care,
+    # which is why this has never mattered before.
+    local nbhost="$ipaddress"
+    if [[ $netbootproto == https ]]; then
+        nbhost="${hostname:-$ipaddress}"
+        # validip echoes 0 for a valid IPv4 literal, 1 otherwise.
+        if [[ -z $hostname || $(validip "$nbhost") -eq 0 ]]; then
+            echo "Failed"
+            echo
+            echo " ###################################################################"
+            echo " # HTTPS netboot needs a hostname, and this server has only an IP.  #"
+            echo " #                                                                 #"
+            echo " # A certificate is issued to a NAME. Public CAs will not issue for #"
+            echo " # a private IP, and iPXE fails the handshake on a name mismatch    #"
+            echo " # even after the chain validates -- so every PXE client would stop #"
+            echo " # at the TLS handshake.                                            #"
+            echo " #                                                                 #"
+            echo " # Set a resolvable hostname with --hostname, or put netboot back   #"
+            echo " # on HTTP with --netboot-proto http.                               #"
+            echo " ###################################################################"
+            echo
+            # Fatal on purpose. Writing this file with an IP would produce an
+            # install that completes cleanly and cannot boot anything.
+            [[ -z $exitFail ]] && exit 1
+            return 1
+        fi
+    fi
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://${nbhost}${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
@@ -1614,6 +1646,26 @@ fetchipxeasset() {
     cd $cwd
     return $stat
 }
+# Does this server compile its own iPXE?
+#
+# One predicate, replacing three separate `$httpproto == https` tests that had
+# quietly become three different questions wearing the same clothes: whether to
+# download the release asset, whether to stage Secure Boot binaries, and
+# whether to compile. Only the last one is about compiling.
+#
+# The trade the old test encoded is real but much narrower than it looked. iPXE
+# validates TLS strictly and cannot be told to trust a private CA, so serving
+# boot.php over HTTPS from a FOG-PKI certificate needs the CA compiled in
+# (TRUST=) -- and a locally rebuilt binary is not upstream's SIGNED one, so it
+# costs the Secure Boot shim and makes onboarding harder, not easier. What was
+# wrong was inferring that from "the web UI uses HTTPS", which says nothing
+# about the netboot transport and nothing about what the certificate chains to.
+#
+# So: the build happens iff the admin asked for it. A public certificate with
+# HTTPS netboot never builds -- iPXE's crosscert path validates it already.
+_needsLocalIpxeBuild() {
+    [[ $rebuildIpxeWithMyCA == yes ]]
+}
 downloadipxe() {
     # iPXE binaries used to be 70 files committed to this repository. They are
     # now a release asset, verified and unpacked into the same staging tree the
@@ -1624,13 +1676,15 @@ downloadipxe() {
     local tarball="fog-ipxe-${ipxeVer}.tar.gz"
     local dest=$(readlink -f $tftpdirsrc)
     dots "Downloading iPXE binaries (${ipxeVer})"
-    # An HTTPS install is about to rebuild these from source anyway, and the
-    # rebuild writes to this same directory. Downloading first would be wasted
-    # bandwidth on every such install.
-    if [[ "x$httpproto" = "xhttps" ]]; then
-        echo "Skipped (built locally)"
-        return 0
-    fi
+    # Downloaded on EVERY install, including one that is about to rebuild.
+    #
+    # This used to skip whenever httpproto was https, on the reasoning that a
+    # rebuild overwrites these anyway. Two things were wrong with that. The
+    # obvious one: httpproto had nothing to do with whether a rebuild happens.
+    # The one that mattered more: it meant a rebuilding server never had a
+    # pristine copy of the published binaries at all, so there was nothing to
+    # preserve into stock/ and no way back to a stock binary short of
+    # re-running the installer with the rebuild turned off.
     if ! fetchipxeasset "$tarball" "$dest"; then
         # Guidance first: errorStat exits before returning unless $exitFail is
         # set, so anything printed after it is never seen.
@@ -1692,16 +1746,28 @@ downloadipxesecureboot() {
     local tarball="fog-ipxe-secureboot-${ipxeVer}.tar.gz"
     local dest=$(readlink -f $tftpdirsrc)
     dots "Downloading iPXE Secure Boot binaries (${ipxeVer})"
-    # These are upstream's generic signed binaries, so they cannot carry this
-    # server's CA -- which is the whole reason an HTTPS install rebuilds iPXE
-    # locally. A signed binary cannot be rebuilt without invalidating the
-    # signature, so Secure Boot and HTTPS are mutually exclusive here. Staging
-    # them anyway would leave an admin a directory that looks usable and fails
-    # at the client with a TLS error.
-    if [[ "x$httpproto" = "xhttps" ]]; then
-        echo "Skipped (not usable with HTTPS)"
-        return 0
-    fi
+    # Staged in EVERY mode. This used to skip whenever httpproto was https,
+    # under the heading "Secure Boot and HTTPS are mutually exclusive here" --
+    # the reasoning being that upstream's generic signed binaries cannot carry
+    # this server's CA, and a signed binary cannot be rebuilt without
+    # invalidating the signature.
+    #
+    # The premise is true and the conclusion does not follow, which testing has
+    # now established both ways:
+    #
+    #   * Upstream iPXE defines CROSSCERT unconditionally in config/crypto.h,
+    #     and FOG's overlay replaces only general.h/settings.h/console.h. So
+    #     upstream's signed binaries DO validate a publicly-issued certificate
+    #     at boot, with no rebuild and no embedded CA. Confirmed in production
+    #     against a Let's Encrypt vhost.
+    #   * And where the certificate is private, netboot simply stays on HTTP --
+    #     which has nothing to do with whether a Secure Boot chain is available
+    #     for the machines that need one.
+    #
+    # The practical effect of the old gate was that every -S install staged no
+    # Secure Boot binaries at all, so the feature was missing precisely on the
+    # servers whose admins had gone furthest out of their way to configure TLS.
+    # See #1116 finding 1.
     # Deliberately NOT fatal, unlike downloadipxe above. A missing Secure Boot
     # set costs nothing to any client that boots today, so failing the whole
     # install over it would be a regression for every site that does not use it.
@@ -1725,12 +1791,28 @@ configureTFTPandPXE() {
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$error_log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$error_log 2>&1
     sslpath=${sslpath//\/$}
-    if [[ "x$httpproto" = "xhttps" ]]; then
+    if _needsLocalIpxeBuild; then
         # The one case a release asset cannot serve: CERT=/TRUST= bake this
         # server's CA into the binary so iPXE can fetch boot.php over TLS,
         # which makes it a per-server artifact by definition. Everything else
         # about the build is identical everywhere, which is why every other
         # install just downloads. See GH-959.
+        # Said before the 10-25 minutes start, not after. A rebuilt binary is
+        # not upstream's SIGNED one, so it cannot be the first stage of a
+        # Secure Boot chain -- the shim will only load what its embedded
+        # certificate vouches for. The chain has to hand off to a MOK-signed
+        # FOG build instead, which means enrolling the MOK on each machine
+        # FIRST. Rebuilding therefore makes Secure Boot onboarding harder, not
+        # easier, and an existing HTTPS install is usually better off moving
+        # away from it.
+        echo
+        echo " * Rebuilding iPXE with your CA embedded (--rebuild-ipxe-with-my-ca)."
+        echo "   This takes 10-25 minutes and has no warm path."
+        echo "   The result is NOT upstream's signed binary, so Secure Boot"
+        echo "   machines must have this server's MOK enrolled before they can"
+        echo "   netboot at all. If your web certificate chains to a PUBLIC"
+        echo "   root, you do not need this -- use --public-web-cert instead."
+        echo
         prepareiPXEsource || return 1
         dots "Compiling iPXE binaries trusting your SSL certificate"
         [[ -n $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
