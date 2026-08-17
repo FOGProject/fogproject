@@ -546,18 +546,42 @@ The brief is right that this is the part that matters. Three properties:
    administrator to an external identity. `VERIFIED` the shape of that guard
    already exists — `assertAdminRemainsAfterDelete()` — and PR 2.5 adds the
    sibling assertion rather than inventing a mechanism.
-3. **Non-browser consumers are untouched.** The fog client, storage nodes and
-   API tokens do not redirect; `VERIFIED` they never enter `validatePw()` at
-   all, so an IdP outage cannot reach them.
+3. **Non-browser consumers are untouched.** ⚠️ **Half wrong as written, and
+   corrected here rather than repeated.** The fog client, storage nodes and
+   `fog-user-token` API auth never touch a password or an auth source
+   (`route.class.php:1312`), so an IdP outage cannot reach them — and a token
+   is therefore a second, weaker way in. But API **basic** auth *is* affected:
+   `passwordValidate()` fires `USER_LOGGING_IN` and applies the same
+   external-account gate as the browser. A directory-owned account cannot use
+   basic auth while its directory is down.
 
 ```bash
 php tests/break-glass-auth-sources.test.php
 ```
 
-### PR 2.6 — docs + ADR 0014
+**Two things the plan did not anticipate, both settled in #1134:**
 
-`docs/plugin-development.md` gains the extension points; ADR 0014 records the
-core/plugin split and why the library is in core.
+- **The login path was already safe**, so the messy case never arose. LDAP
+  returns early for an account that exists and is not already its own, and
+  OIDC stamps only accounts it provisioned. Nothing converts an existing local
+  account at login. What was open was the *deliberate* administrative paths —
+  a REST `PUT /fog/user/{id}` (uAuthSource is an ordinary field, absent from
+  `Route::$serverOwnedFields`), a plugin's own `save()`, and the CSV import —
+  which is why the guard sits on `User::save()` rather than on a caller.
+- **The guard preserves rather than requires.** It refuses only when a
+  locally-authenticating administrator exists now. An install that has already
+  moved everybody to a directory has nothing left to protect, and refusing its
+  operations would brick it to defend a property it gave up.
+
+### PR 2.6 — docs + ADR 0014 ✅ DONE
+
+`docs/plugin-development.md` §7c gains *What an auth plugin owes the install*
+— the three rules a provider author gets wrong by omission — and ADR 0014
+records the core/plugin split, the four seams as an ABI, why the library is in
+core (a judgment call, not a necessity), and break-glass as a core invariant.
+
+User-facing documentation goes to `FOGProject/fog-docs`, not here: only the
+ADR and the plugin-author guide are fogproject's.
 
 ---
 
