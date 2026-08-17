@@ -7487,6 +7487,11 @@ _publishSecureBootKit() {
         mkdir -p "${kitdir}/arm64-efi" >>$error_log 2>&1
         cp -f "${mmsrc}/arm64-efi/mmaa64.efi" "${kitdir}/arm64-efi/" >>$error_log 2>&1
     fi
+    # The iPXE binaries for local ESP boot are NOT published here. They live in
+    # service/localboot, a sibling -- see _publishLocalBootFiles(). Deliberately
+    # outside this directory, because the rm -rf above removes the whole kit
+    # when there is no MOK, and local ESP boot is still wanted on a server with
+    # no Secure Boot keys at all.
     # Keep the directory from being browsable, matching service/ipxe.
     echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
     chmod 0644 "${kitdir}"/MOK.der "${kitdir}"/*.desktop "${kitdir}"/index.php >>$error_log 2>&1
@@ -7971,6 +7976,425 @@ _resignRefind() {
         echo " * At least one rEFInd binary could not be signed. See $error_log."
         echo "   Secure Boot clients will fail with SECURITY VIOLATION when they"
         echo "   exit the boot menu until this is fixed."
+        return 0
+    fi
+    echo "Done"
+}
+# Sign FOG's own iPXE binaries so one can be chainloaded from a machine's ESP
+# under Secure Boot.
+#
+# Some machines cannot netboot at all -- firmware with no PXE boot option -- and
+# for the rest, a queued task otherwise needs the boot order changed to reach the
+# network, which is the commoner problem. Both have been handled for years by
+# putting an iPXE .efi on the ESP and pointing the boot manager at it. Secure
+# Boot broke that: the chain has to start at a Microsoft-signed shim, and FOG's
+# binaries carry no signature shim will accept, so it has nowhere to land.
+#
+#   \EFI\snponly-shimx64.efi   upstream signed shim
+#   \EFI\ipxe.efi              upstream signed snponly, no script compiled in
+#   \EFI\autoexec.ipxe         two lines, read off the ESP
+#   \EFI\fogipxe.efi           FOG's own build -- what this function signs
+#
+# Upstream's snponly.efi cannot finish the job itself: it binds the firmware's
+# UEFI SNP protocol, which this class of hardware frequently does not provide --
+# the same reason its firmware has no PXE option -- so the chain has to reach a
+# binary carrying iPXE's own NIC drivers, and that one is ours. Once shim has run
+# its security policy override stays installed for the rest of the boot, so a
+# MOK-signed image loads, and the MOK is the one _publishSecureBootKit() already
+# publishes and clients already enrol.
+#
+# This is NOT on the netboot path and must not become one. Enrolment depends on
+# an un-enrolled machine reaching the FOG menu to run MokManager, and a
+# MOK-signed binary there could not load, because the MOK is not enrolled yet.
+# Signing in place is safe for the same reason it is invisible: an appended PE
+# signature changes nothing for a client booting with Secure Boot off, which is
+# every client that boots these files today.
+#
+# No build is involved, because the release asset is not a vanilla iPXE build --
+# fog-ipxe's workflow runs buildipxe.sh with no arguments and ships its output
+# verbatim, so these already carry FOG's embedded boot scripts, config overlays
+# and the whole variant matrix. The only per-site input to a build is the CA, and
+# an HTTPS-with-your-own-CA install has already compiled locally before this runs.
+_signLocalIpxe() {
+    [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
+    local tftproot="${tftpdirdst%/}"
+    [[ -d $tftproot ]] || return 0
+    if ! command -v sbsign >/dev/null 2>&1 || ! command -v sbverify >/dev/null 2>&1; then
+        # _resignKernels() has already warned about the missing tools in this
+        # same run; saying it twice helps nobody.
+        return 0
+    fi
+    local fpath certpem anchorpem failed=0 signed=0
+    certpem=$(_secureBootCertPem) || return 0
+    # Verified against the anchor, signed with the leaf -- the same split-PKI
+    # handling _resignRefind() uses. See _secureBootAnchorPem().
+    anchorpem=$(_secureBootAnchorPem) || anchorpem="$certpem"
+    local addcert=()
+    [[ -n $secureBootMokCert ]] \
+        && [[ "$(readlink -f "$secureBootMokCert" 2>/dev/null)" != "$(readlink -f "$certpem" 2>/dev/null)" ]] \
+        && addcert=(--addcert "$secureBootMokCert")
+    # secureboot/ is pruned: that directory is upstream's signed shim and loader,
+    # delivered as a separate release asset by downloadipxesecureboot(). They are
+    # already signed by Microsoft and by iPXE, they are the two stages the whole
+    # chain hangs off, and adding a signature of ours to them buys nothing.
+    #
+    # *.efi only. The BIOS artifacts beside them -- .kpxe, .lkrn, .usb, .iso --
+    # are not PE images and Secure Boot does not apply to them.
+    #
+    # Read from a process substitution rather than a pipe so the loop runs in
+    # this shell and $signed/$failed survive it.
+    while IFS= read -r fpath; do
+        # Already carrying OUR signature. Either this run has nothing to do, or
+        # an admin dropped in their own signed copy -- leave both alone. This is
+        # also what stops a re-run stacking a second signature, and it verifies
+        # against the anchor rather than the signing cert so that a rotated leaf
+        # does not restart the stacking.
+        sbverify --cert "$anchorpem" "$fpath" >/dev/null 2>&1 && continue
+        [[ $signed -eq 0 ]] && dots "Signing iPXE binaries for Secure Boot"
+        signed=1
+        # Signed via a temporary rather than in place: sbsign reads its input
+        # while writing its output, so input and --output must differ. The
+        # temporary is created in the same directory so it inherits the same
+        # SELinux context, and takes the original's ownership and mode.
+        if sbsign --key "$secureBootKey" --cert "$certpem" "${addcert[@]}" \
+                --output "${fpath}.signing" "$fpath" >>$error_log 2>&1; then
+            chown --reference="$fpath" "${fpath}.signing" >>$error_log 2>&1
+            chmod --reference="$fpath" "${fpath}.signing" >>$error_log 2>&1
+            mv -f "${fpath}.signing" "$fpath" >>$error_log 2>&1 || failed=1
+        else
+            rm -f "${fpath}.signing" >>$error_log 2>&1
+            failed=1
+        fi
+    done < <(find "$tftproot" -path "${tftproot}/secureboot" -prune -o \
+                -type f -name '*.efi' -print 2>>$error_log)
+    [[ $signed -eq 0 ]] && return 0
+    if [[ $failed -ne 0 ]]; then
+        echo "Failed"
+        echo " * At least one iPXE binary could not be signed. See $error_log."
+        echo "   Netboot is unaffected. A machine booting one of these from its"
+        echo "   own ESP with Secure Boot on will fail until this is fixed."
+        return 0
+    fi
+    echo "Done"
+}
+# The binaries an ESP needs, relative to $tftpdirdst -- a CURATED list, not a
+# sweep of every *.efi in the tree. The tree carries 45 FOG binaries (5 names x
+# 3 architectures x 3 embed variants) and publishing all of them says nothing
+# about which one an admin should reach for. This says it.
+#
+# Kept, per architecture -- x86_64 at the root, i386-efi/, arm64-efi/:
+#
+#   ipxe.efi      iPXE's own NIC drivers, all of them. The primary choice, and
+#                 the one the Secure Boot chain has to reach: a machine that
+#                 cannot netboot usually cannot because its firmware provides no
+#                 UEFI SNP protocol, so a binary that needs one is no use to it.
+#   snp.efi       Drives the NIC through the firmware's SNP protocol instead,
+#                 binding every SNP device it can see. For firmware that does
+#                 provide one and hardware iPXE's own drivers do not cover.
+#   intel.efi     Single-vendor native builds, for the case where the
+#   realtek.efi   all-drivers build misbehaves on that specific NIC.
+#
+# Plus 10secdelay/ipxe.efi per architecture: identical to ipxe.efi but for a
+# "sleep 10" ahead of DHCP, which is what makes a link come up on a switch
+# running STP or port power-save. That is a network-side problem, so it applies
+# to a locally-booted binary exactly as it does to a netbooted one -- but only
+# the primary is published in that flavour. Needing both the delay AND a
+# fallback driver is rare enough to copy by hand off TFTP.
+#
+# Deliberately NOT published:
+#
+#   snponly.efi   Binds ONLY the device iPXE was loaded from. Loaded off an ESP
+#                 that device is the disk, so it never finds a NIC. It is the
+#                 right binary for netboot and the wrong one here -- which is
+#                 exactly the kind of mistake an uncurated directory invites.
+#                 (Upstream's secureboot/snponly.efi below is a different case:
+#                 it only has to read autoexec.ipxe off the same ESP and chain
+#                 onward, so it needs no NIC of its own.)
+#   autoexec/     The EMBED-less builds. They carry no boot script and fetch
+#                 autoexec.ipxe from wherever they were loaded -- which this
+#                 does not publish, so they would arrive inert. Still on TFTP
+#                 for anyone assembling that setup deliberately.
+#   .kpxe/.lkrn/  BIOS artifacts. Not PE images, and an ESP cannot boot them.
+#   .usb/.iso
+#
+# The upstream secureboot/ set is published whole. It is only ten files and each
+# one is a stage of a chain: shim, the loader it hands off to, and MokManager.
+# shim.c rewrites its own "-shim<arch>.efi" suffix to ".efi" to pick its second
+# stage, so snponly-shimx64.efi loads snponly.efi and ipxe-shimx64.efi loads
+# ipxe.efi -- the pairs have to travel together or neither works.
+#
+# Do not mistake upstream's secureboot/ipxe.efi for a replacement for the FOG
+# binaries above. It is built with iPXE's own NIC drivers and looks like it makes
+# all of this unnecessary -- sign nothing, ship upstream's pair and a two-line
+# autoexec.ipxe. Tested on hardware: booted locally off an ESP it does NOT load
+# those drivers. Both upstream loaders therefore dead-end on exactly the hardware
+# this feature exists for, which is why the chain has to reach FOG's own build.
+# Nothing in either source tree predicts this; it took a machine to find.
+localbootfiles=(
+    ipxe.efi
+    snp.efi
+    intel.efi
+    realtek.efi
+    10secdelay/ipxe.efi
+    i386-efi/ipxe.efi
+    i386-efi/snp.efi
+    i386-efi/intel.efi
+    i386-efi/realtek.efi
+    10secdelay/i386-efi/ipxe.efi
+    arm64-efi/ipxe.efi
+    arm64-efi/snp.efi
+    arm64-efi/intel.efi
+    arm64-efi/realtek.efi
+    10secdelay/arm64-efi/ipxe.efi
+    secureboot/snponly.efi
+    secureboot/snponly-shimx64.efi
+    secureboot/ipxe.efi
+    secureboot/ipxe-shimx64.efi
+    secureboot/mmx64.efi
+    secureboot/arm64-efi/snponly.efi
+    secureboot/arm64-efi/snponly-shimaa64.efi
+    secureboot/arm64-efi/ipxe.efi
+    secureboot/arm64-efi/ipxe-shimaa64.efi
+    secureboot/arm64-efi/mmaa64.efi
+)
+# The ready-to-copy ESP kit: "src|dst", relative to $tftpdirdst and to the
+# published esp/ directory respectively.
+#
+# Everything above is a menu to choose from. This is the opposite -- one folder
+# an admin copies verbatim onto an ESP, with the files already carrying the names
+# the chain requires. It exists because two of those names are NOT free choices.
+#
+# shim picks its second stage by rewriting its OWN "-shim<arch>.efi" suffix to
+# ".efi". So snponly-shimx64.efi will load "snponly.efi" and nothing else, and it
+# has to be upstream's copy, because upstream's is what its embedded certificate
+# vouches for. That reserves "snponly.efi" -- and, if the other pair is ever used,
+# "ipxe.efi" too. FOG's own builds therefore cannot keep their natural names on an
+# ESP, hence the "fog" prefix. It is not cosmetic: dropping FOG's ipxe.efi in
+# beside ipxe-shimx64.efi would have shim load an image it cannot verify.
+#
+# The kit is x86_64 and arm64 only, because those are the two architectures
+# upstream signs a shim for. i386 has no signed shim, so there is no Secure Boot
+# chain to assemble -- an i386 machine booting with Secure Boot off just takes
+# i386-efi/ipxe.efi from the menu above and needs none of this.
+#
+# Copied AFTER _signLocalIpxe() has run, so the fog*.efi here already carry
+# FOG's signature wherever the server holds keys.
+# BOTH shim pairs ship, not just the snponly one. Each shim derives its own
+# second stage from its own filename, so the two are independent entry points and
+# an admin picks whichever their firmware gets along with -- point the boot
+# manager at snponly-shimx64.efi or at ipxe-shimx64.efi, and the rest follows.
+#
+# Neither stage 2 needs a NIC. Both only read autoexec.ipxe out of this same
+# directory and chain onward, which is why upstream's ipxe.efi is fine HERE
+# despite not driving a NIC when booted locally as a final stage. One
+# autoexec.ipxe serves both, because both resolve it against the directory they
+# were loaded from.
+#
+# This is also the collision the fog* prefix exists to avoid: upstream's
+# ipxe.efi has to keep its own name for ipxe-shimx64.efi to find it, so FOG's
+# all-drivers build cannot be called ipxe.efi in this directory.
+# MokManager ships too. shim launches mm<arch>.efi FROM ITS OWN DIRECTORY when it
+# cannot verify the next stage, and that is the only way to enrol a MOK -- shim's
+# MokList is a boot-services-only variable, so nothing in a running OS can write
+# it. Without mmx64.efi beside the shim, an ESP that has not been enrolled yet is
+# a dead end with no route out of it. Found the hard way: it had to be downloaded
+# by hand.
+localbootespfiles=(
+    "secureboot/snponly-shimx64.efi|snponly-shimx64.efi"
+    "secureboot/snponly.efi|snponly.efi"
+    "secureboot/ipxe-shimx64.efi|ipxe-shimx64.efi"
+    "secureboot/ipxe.efi|ipxe.efi"
+    "secureboot/mmx64.efi|mmx64.efi"
+    "ipxe.efi|fogipxe.efi"
+    "snp.efi|fogsnp.efi"
+    "intel.efi|fogintel.efi"
+    "realtek.efi|fogrealtek.efi"
+    "10secdelay/ipxe.efi|fogipxe10sec.efi"
+    "10secdelay/snp.efi|fogsnp10sec.efi"
+    "10secdelay/intel.efi|fogintel10sec.efi"
+    "10secdelay/realtek.efi|fogrealtek10sec.efi"
+    "secureboot/arm64-efi/snponly-shimaa64.efi|arm64-efi/snponly-shimaa64.efi"
+    "secureboot/arm64-efi/snponly.efi|arm64-efi/snponly.efi"
+    "secureboot/arm64-efi/ipxe-shimaa64.efi|arm64-efi/ipxe-shimaa64.efi"
+    "secureboot/arm64-efi/ipxe.efi|arm64-efi/ipxe.efi"
+    "secureboot/arm64-efi/mmaa64.efi|arm64-efi/mmaa64.efi"
+    "arm64-efi/ipxe.efi|arm64-efi/fogipxe.efi"
+    "arm64-efi/snp.efi|arm64-efi/fogsnp.efi"
+    "arm64-efi/intel.efi|arm64-efi/fogintel.efi"
+    "arm64-efi/realtek.efi|arm64-efi/fogrealtek.efi"
+    "10secdelay/arm64-efi/ipxe.efi|arm64-efi/fogipxe10sec.efi"
+    "10secdelay/arm64-efi/snp.efi|arm64-efi/fogsnp10sec.efi"
+    "10secdelay/arm64-efi/intel.efi|arm64-efi/fogintel10sec.efi"
+    "10secdelay/arm64-efi/realtek.efi|arm64-efi/fogrealtek10sec.efi"
+)
+# The kit's autoexec.ipxe, written into each architecture's directory.
+#
+# Static, not a template. default.ipxe is generated per install because it embeds
+# the server address; this has no per-server content at all -- it chains a sibling
+# by relative filename, and FOG's build carries the DHCP/next-server script
+# compiled in, so it finds the server by itself. iPXE resolves a bare filename
+# against the URI the running binary was loaded from, which on an ESP is the
+# directory this sits in.
+#
+# The fallback covers WHICH FILES GOT COPIED, not which driver works. Say it that
+# way in the docs too. `chain X || goto Y` only branches when the image fails to
+# LOAD -- absent, malformed, or rejected by shim's verification. Once an image
+# loads and runs, control never returns: FOG's embedded script ends its own
+# failure path with `prompt ... && shell || reboot`, so a binary that starts fine
+# but binds no NIC parks there. The next branch is never reached. That is the
+# difference from the net0/net1/net2 ladder in the netboot script, which works
+# because it stays inside one iPXE instance rather than handing off.
+#
+# Still worth having: it means one kit boots whether the admin copied the whole
+# folder or only the variant their hardware needs.
+# $1 is the binary-set suffix: empty for the standard set, "10sec" for the
+# delayed one. Two scripts are written per architecture rather than one with a
+# branch, because iPXE runs exactly the file called autoexec.ipxe and there is no
+# way for it to ask which set you want -- choosing means swapping the file.
+_espAutoexecScript() {
+    local sfx="$1" note
+    if [[ -n $sfx ]]; then
+        note="# THE 10-SECOND-DELAY SET. Each binary waits 10s before DHCP, which is what
+# lets a link come up on a switch running STP or port power-save. Rename this
+# over autoexec.ipxe to use it."
+    else
+        note="# The standard set. If the link is not up in time on your switch -- STP or
+# port power-save -- rename autoexec-10sec.ipxe over this file instead."
+    fi
+    cat <<ESPAUTOEXEC
+#!ipxe
+# Read off the ESP by upstream's signed loader, after shim has established MOK
+# trust. Chains FOG's own build, which carries the FOG boot script compiled in.
+#
+${note}
+#
+# The fallbacks fire only if a file is MISSING or fails verification -- not if it
+# loads and then finds no NIC. Copy the variant your hardware needs.
+chain fogipxe${sfx}.efi || goto trysnp
+:trysnp
+chain fogsnp${sfx}.efi || goto tryintel
+:tryintel
+chain fogintel${sfx}.efi || goto tryrealtek
+:tryrealtek
+chain fogrealtek${sfx}.efi || goto nofogbinary
+:nofogbinary
+echo No usable FOG iPXE binary found on this ESP.
+prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+ESPAUTOEXEC
+}
+# Publish the EFI binaries an ESP needs, under the web root.
+#
+# The machines this exists for cannot fetch a boot file over the network -- that
+# is the whole problem -- so the binaries have to be reachable over HTTP to get
+# onto their ESP in the first place. The TFTP tree is not web-served, which until
+# now meant every admin hand-rolling their own symlinks into the document root.
+#
+# NOT gated on Secure Boot, and not gated on _signLocalIpxe() having signed
+# anything. Booting a machine from an iPXE binary on its own ESP is a plain
+# feature that predates Secure Boot by years -- firmware with no PXE option, or a
+# queued task that would otherwise need the boot order changed. Secure Boot only
+# added the requirement for a signature. So a server with no Secure Boot keys
+# publishes the same directory with unsigned binaries in it, and those work on
+# every machine booting with Secure Boot off. Signing, where keys exist, has
+# already happened in place upstream of this by the time it runs.
+#
+# That is also why this lives at service/localboot/ rather than under
+# service/secureboot/: _publishSecureBootKit() rm -rf's its whole kit directory
+# when there is no MOK to publish, which would take this with it on exactly the
+# servers that still want it.
+#
+# COPIES, not a symlink to $tftpdirdst, which was the first attempt. Three
+# reasons, and the last two are what settled it:
+#
+#   1. SELinux. setSELinuxContext() labels the TFTP tree tftpdir_t, and httpd_t
+#      has no rule permitting it to read that type -- so a symlink 403s on every
+#      enforcing host. That is the same failure GH-963 fixed in the other
+#      direction, where tftpd_t could not read default_t. Relabelling to
+#      public_content_t would fix it, but widens the tree to ftpd, rsync and
+#      samba as well, to serve a feature that needs none of them. Files created
+#      here inherit the web root's own label and need no policy change at all.
+#   2. No vhost changes. A real directory takes an index.php that 404s, exactly
+#      as the Secure Boot kit and service/ipxe already do, so nothing has to be
+#      added to configureHttpd(). A symlink needed Options -Indexes emitted in
+#      all three Apache variants, and rested on apache matching <Directory>
+#      against the unresolved path (GH-529) -- a dependency that fails OPEN,
+#      exposing a listing of the whole TFTP tree, if it is ever wrong.
+#   3. Narrower. A link publishes the tree as it will be; this publishes the
+#      fixed list above. Nothing an admin later drops into $tftpdirdst becomes
+#      web-reachable, so there is no standing rule against using that directory.
+#
+# Everything here is public by nature: FOG's own binaries, and upstream's signed
+# shim and loader, which are downloadable from fog-ipxe's release assets anyway.
+# FOG already serves the MOK-signed bzImage over unauthenticated HTTP from
+# service/ipxe, so this is not a new class of exposure.
+_publishLocalBootFiles() {
+    local tftproot="${tftpdirdst%/}"
+    [[ -d $tftproot ]] || return 0
+    local bootdir="${webdirdest%/}/service/localboot"
+    dots "Publishing local ESP boot files"
+    # Rebuilt rather than updated in place: a variant dropped upstream should
+    # disappear here too, and a stale copy must not outlive the binary it came
+    # from. Safe to do unconditionally -- configureHttpd() rm -rf's the whole web
+    # root every run, so there is never anything here worth keeping.
+    rm -rf "$bootdir" >>$error_log 2>&1
+    mkdir -p "$bootdir" >>$error_log 2>&1
+    local rel dir copied=0 failed=0
+    for rel in "${localbootfiles[@]}"; do
+        # Missing is not a failure. An HTTPS install stages no Secure Boot
+        # binaries at all -- downloadipxesecureboot() skips it -- so the
+        # secureboot/ entries are absent on those servers by design.
+        [[ -f ${tftproot}/${rel} ]] || continue
+        mkdir -p "${bootdir}/$(dirname "$rel")" >>$error_log 2>&1
+        if cp -f "${tftproot}/${rel}" "${bootdir}/${rel}" >>$error_log 2>&1; then
+            copied=$((copied + 1))
+        else
+            failed=1
+        fi
+    done
+    # The ready-to-copy kit, on top of the menu above. Its sources are the same
+    # files, so a missing one is skipped here for the same reason: an HTTPS
+    # install stages no secureboot/ at all, which costs the kit its shim and
+    # leaves an unsigned-boot-only folder rather than a broken one.
+    local src dst
+    for rel in "${localbootespfiles[@]}"; do
+        src="${rel%%|*}"
+        dst="${rel#*|}"
+        [[ -f ${tftproot}/${src} ]] || continue
+        mkdir -p "${bootdir}/esp/$(dirname "$dst")" >>$error_log 2>&1
+        if cp -f "${tftproot}/${src}" "${bootdir}/esp/${dst}" >>$error_log 2>&1; then
+            copied=$((copied + 1))
+        else
+            failed=1
+        fi
+    done
+    # One per architecture directory, because iPXE looks for autoexec.ipxe beside
+    # the binary that is running, not at a fixed path.
+    local espdir
+    for espdir in "${bootdir}/esp" "${bootdir}/esp/arm64-efi"; do
+        [[ -d $espdir ]] || continue
+        _espAutoexecScript "" > "${espdir}/autoexec.ipxe" 2>>$error_log
+        _espAutoexecScript "10sec" > "${espdir}/autoexec-10sec.ipxe" 2>>$error_log
+    done
+    # The same 404 stub the Secure Boot kit uses, in EVERY directory rather than
+    # just the top one. DirectoryIndex names index.php in every variant
+    # configureHttpd() emits, but it only suppresses a listing where an
+    # index.php actually exists -- and mod_autoindex is live on a stock
+    # /var/www/html, because the "Options +FollowSymLinks" emitted there MERGES
+    # with the distro's own "Options Indexes FollowSymLinks" rather than
+    # replacing it. Without a stub per directory, arm64-efi/ and friends list.
+    while IFS= read -r dir; do
+        echo '<?php header("HTTP/1.1 404 Not Found");' > "${dir}/index.php"
+    done < <(find "$bootdir" -type d -print 2>>$error_log)
+    find "$bootdir" -type d -exec chmod 755 {} \; >>$error_log 2>&1
+    find "$bootdir" ! -type d -exec chmod 644 {} \; >>$error_log 2>&1
+    # _publishSecureBootKit()'s own chown -R does not reach here; this is a
+    # sibling of that directory, not a child of it.
+    chown -R "${apacheuser}":"${apacheuser}" "$bootdir" >>$error_log 2>&1
+    if [[ $failed -ne 0 || $copied -eq 0 ]]; then
+        echo "Failed"
+        echo " * Could not publish the local ESP boot files to $bootdir."
+        echo "   Netboot is unaffected; assembling an ESP from that URL will be"
+        echo "   missing files. See $error_log."
         return 0
     fi
     echo "Done"
