@@ -476,6 +476,85 @@ class Site extends FOGController
         );
     }
     /**
+     * The site ids a host belongs to.
+     *
+     * The inverse of loadHosts(), for the two callers that hold a host and
+     * want its site rather than a site and its hosts.
+     *
+     * @param int $hostID the host id
+     *
+     * @return array int site ids
+     */
+    public static function hostSiteIDs($hostID)
+    {
+        $hostID = (int)$hostID;
+        if ($hostID < 1) {
+            return [];
+        }
+        return array_map(
+            'intval',
+            (array)Route::getIds('sitehostmember', ['hostID' => $hostID], 'siteID')
+        );
+    }
+    /**
+     * The names of the sites a host belongs to, for CSV export.
+     *
+     * Returns an array although a host has at most one site, because the
+     * exporter formats every association label the same way and a bare
+     * string would be iterated character by character.
+     *
+     * @param object $host the host being exported
+     *
+     * @return array the site names
+     */
+    public static function hostSiteNames($host)
+    {
+        $names = [];
+        foreach (self::hostSiteIDs($host->get('id')) as $siteID) {
+            $site = self::getClass('Site', $siteID);
+            if ($site->isValid()) {
+                $names[] = $site->get('name');
+            }
+        }
+        return $names;
+    }
+    /**
+     * Puts a host in one site on CSV import, replacing whatever it was in.
+     *
+     * A host has a single site, so this is a set rather than an add: any
+     * existing membership is cleared and only the first resolved id is
+     * used. Importing a row whose site column names two sites is a
+     * malformed row, not a request for two sites, and taking the first is
+     * what the retired Site plugin did.
+     *
+     * Written through the Site entity rather than by inserting rows so it
+     * shares the deduplication and the cascade the Site page goes through.
+     *
+     * @param object $host the host being imported
+     * @param array  $ids  the resolved site ids
+     *
+     * @return void
+     */
+    public static function applyHostSite($host, $ids)
+    {
+        $hostID = (int)$host->get('id');
+        $ids = array_values(array_filter(array_map('intval', (array)$ids)));
+        if ($hostID < 1 || count($ids) < 1) {
+            return;
+        }
+        $wanted = $ids[0];
+        foreach (self::hostSiteIDs($hostID) as $current) {
+            if ($current === $wanted) {
+                return;
+            }
+            self::getClass('Site', $current)->removeHost([$hostID])->save();
+        }
+        $site = self::getClass('Site', $wanted);
+        if ($site->isValid()) {
+            $site->addHost([$hostID])->save();
+        }
+    }
+    /**
      * Destroy this particular object.
      *
      * @param string $key the key to destroy for match
