@@ -159,22 +159,76 @@ first.**
 
 ---
 
-## Library choice: `firebase/php-jwt`
+## Library choice: `firebase/php-jwt` v6.10.0 — now `VERIFIED`, and it cost more than expected
 
-Recommended. `INFERRED` on the version facts — I have not fetched Packagist
-from this box and the plan must not pretend otherwise; **PR 2.1 begins by
-verifying them.**
+PR 2.1 verified the Packagist facts, as this section told it to. Two of them
+came back differently, and both are recorded here because they are the kind of
+thing a later reader will otherwise assume was never checked.
 
-| Candidate | Runtime deps | Fit |
+| Candidate | Runtime deps | Fit under the 7.4 pin |
 |---|---|---|
-| **`firebase/php-jwt`** | **none** | JWT decode + `JWK::parseKeySet()` for JWKS in one small package |
-| `web-token/jwt-framework` | many (PSR container, HTTP client, …) | Complete and correct, and far more than a relying party needs |
-| `lcobucci/jwt` | a few | Modern, but recent majors have moved past a 7.4 floor |
+| **`firebase/php-jwt` v6.10.0** | **none** (`require` is `php` alone) | JWT decode + `JWK::parseKeySet()` in one 100 KB package. **Chosen** |
+| `firebase/php-jwt` ≥ 6.10.1 | none | `VERIFIED` requires `php ^8.0`. Unreachable at our floor |
+| `lcobucci/jwt` 4.3.0 | `lcobucci/clock` | `VERIFIED` resolves clean on 7.4, no advisories — but **no JWKS parsing**, so JWK→PEM becomes ours |
+| `web-token/jwt-library` | many | `VERIFIED` latest needs PHP ≥ 8.2, and the 7.4-era line carries four open advisories |
 | hand-rolled | none | This is how `alg: none` ships. Not on the table |
+
+### Finding 1 — v6.10.0 (2023-12-01) is the last release that runs on PHP 7.4
+
+`VERIFIED` by resolving against `config.platform.php = 7.4.0`. Everything from
+6.10.1 onward requires `php ^8.0`. So the floor, not the library, is what dates
+the dependency. What we forgo between 6.10.0 and 6.11.1 is `VERIFIED` from the
+upstream release notes and contains **no security fix**: a `CachedKeySet`
+rate-limit expiry fix, PHP 8.4 deprecation mitigations, octet-typed JWK
+support, and an error-message wording change.
+
+The 8.4 item is the only one with teeth — v6.10.0 uses the implicit-nullable
+form (`string $defaultAlg = null`) that 8.4 deprecates. FOG sets
+`error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE)` (`init.php:658`), so it is
+silent in FOG's own runtime, but it is real and it is on the list of things a
+floor bump would fix.
+
+### Finding 2 — Composer refuses to install it, and that is the interesting part
+
+`VERIFIED`: **every** php-jwt release below 7.0.0 is covered by
+**CVE-2025-45769** (`PKSA-y2cr-5h3j-g3ys`, low), and Composer 2.10 blocks
+advisory-affected packages *by default*. `composer require` fails outright
+until `config.policy.advisories.ignore-id` names that id. This is not a warning
+to wave through; without the line, the next person to regenerate `vendor/`
+gets an error that reads as though the package no longer exists.
+
+The advisory is *"php-jwt contains weak encryption"* — upstream added minimum
+key-length validation, and the fix shipped in 7.0.0, which requires PHP 8.0
+(it uses `str_starts_with()`).
+
+**The fix does not apply to FOG's path, and this is worth stating precisely,
+because "we accepted a CVE" deserves better than a shrug.** Upstream's
+validation has two halves:
+
+- The **HMAC** half rejects a secret shorter than the digest. Irrelevant here:
+  the allow-list below is `RS256`/`ES256` only, so `HS*` never runs.
+- The **RSA** half is guarded by `if ($key = openssl_pkey_get_private($keyMaterial))`
+  on the verification path. `VERIFIED` empirically: `openssl_pkey_get_private()`
+  returns `false` for public key material, whether a PEM or an
+  `OpenSSLAsymmetricKey`. A relying party verifying an IdP's token with a
+  public key from a JWKS therefore **never reaches the length check, even on
+  7.x.** Upgrading would not close this for us.
+
+So the residual risk of pinning 6.10.0 is: FOG would accept an IdP signing with
+an undersized RSA key. That check is ours to write either way — it joins the
+claims checks below, which the library was never going to do for us.
+
+**The honest medium-term answer is a PHP floor bump, and it is deliberately not
+made here.** PHP 7.4 has been end-of-life since November 2022; php-jwt is
+simply the first dependency to make that visible. Raising the floor to 8.0 is a
+project-wide decision that touches the installer, `Initiator::_verCheck()`
+(`init.php:683`), `CONTRIBUTING.md` and every install on Debian 11 / Ubuntu
+20.04 / stock RHEL 8 — far more than Phase 2 should decide as a side effect.
+Recorded as the next open question instead.
 
 It lives in core `vendor/` — decided, not forced; see *Open decisions*.
 
-The deciding property is **zero runtime dependencies**, for two reasons that
+The deciding property was **zero runtime dependencies**, for two reasons that
 are specific to FOG rather than general good taste:
 
 1. Phase 0 chose **committed `vendor/`**, so every transitive dependency is a
@@ -202,16 +256,16 @@ The tree boots and `sh tests/run-all.sh` passes after every commit.
 php tests/ipxe-auth-no-session.test.php    # ok
 ```
 
-### PR 2.1 — add the library, nothing uses it
+### PR 2.1 — add the library, nothing uses it ✅ DONE
 
-Verify the Packagist facts first, then `composer require` under the 7.4
-platform pin and commit `vendor/`.
+`firebase/php-jwt` v6.10.0 committed to `packages/web/vendor/`, with the
+advisory acceptance from *Finding 2* and a gate that pins both. Nothing in FOG
+loads it yet.
 
 ```bash
-cd packages/web && composer show firebase/php-jwt | grep -E 'versions|requires'
-composer validate --strict && git status --porcelain packages/web/vendor | head
-php -r 'require "packages/web/vendor/autoload.php";
-        var_dump(class_exists("Firebase\\JWT\\JWT"));'   # true
+cd packages/web && composer validate         # clean but for the pre-existing version-field warning
+php tests/vendor-committed.test.php          # ok
+podman run --rm -v .../vendor:/src:ro php:7.4-cli ...   # 17 files, 0 lint failures
 sh tests/run-all.sh
 ```
 
@@ -399,6 +453,17 @@ working-1.6 only.** A plugin using it will not run on 1.5.x, where
 ---
 
 ## Open decisions
+
+**Does the 1.6 line raise its PHP floor from 7.4 to 8.0?** Surfaced by PR 2.1
+(see *Finding 1*), not created by it. 7.4 has been end-of-life since November
+2022, and the floor is now costing real things: a JWT library frozen at
+December 2023, an accepted CVE that a supported release would not carry, and
+PHP 8.4 deprecations we suppress rather than fix. Against that: the installer
+enforces no minimum at all (`functions.sh:2323` only *detects* the version),
+`Initiator::_verCheck()` admits 7.4 deliberately, and stock Debian 11 /
+Ubuntu 20.04 / RHEL 8 would stop installing. **Not Phase 2's decision** —
+recorded so it is made on purpose rather than by the next dependency.
+
 
 **Where does `firebase/php-jwt` live? DECIDED 2026-08-16: core `vendor/`.**
 Not forced by G4 — chosen, on the CVE argument, and reversible. Tom's reason:
