@@ -122,7 +122,7 @@ $check(
  * present: catchAllID() is what it preselects, and sitesInUse() is what
  * decides whether preselecting is appropriate at all.
  */
-$render = $read('lib/fog/FOGPageRender.class.php');
+$render = $read('lib/fog/fogpagerender.class.php');
 $field = $bodyOf($render, 'protected static function siteAddField(');
 $check(
     'FOGPageRender::siteAddField() is gone',
@@ -152,7 +152,7 @@ if (null !== $field) {
  * granted, which is the bug this whole file is about, reintroduced from
  * the other end.
  */
-$post = $read('lib/fog/FOGPagePost.class.php');
+$post = $read('lib/fog/fogpagepost.class.php');
 $addPost = $bodyOf($post, 'protected function siteAddPost(');
 $check(
     'FOGPagePost::siteAddPost() is gone',
@@ -176,7 +176,7 @@ if (null !== $addPost) {
 $pages = [
     'user' => 'lib/pages/usermanagement.page.php',
     'group' => 'lib/pages/groupmanagement.page.php',
-    'usergroup' => 'lib/pages/UserGroupManagement.page.php',
+    'usergroup' => 'lib/pages/usergroupmanagement.page.php',
 ];
 foreach ($pages as $node => $path) {
     $src = $read($path);

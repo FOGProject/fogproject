@@ -6816,10 +6816,32 @@ configureHttpd() {
             dots "Copying back old web folder as is";
             cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
             errorStat $?
+            # GH-1136: this runs on the tree just restored from the backup,
+            # and the new tree is laid over it below -- so anything left
+            # CamelCase here reappears beside its own lowercased copy, and
+            # the autoloader (which keys on the lowercased basename stem)
+            # then picks between them by directory read order. The shipped
+            # tree carries no CamelCase class file, which is what makes the
+            # rename converge rather than duplicate.
+            # Three fixes to the loop itself while here: lowercase the
+            # BASENAME only (lowercasing the whole path breaks any
+            # $webdirdest containing an uppercase letter -- the mv target
+            # directory does not exist); parenthesise the -name arms,
+            # because find's -o binds looser than the implicit -a and only
+            # the first arm was getting -type f; and read null-delimited so
+            # a path containing a space stays one item. .page.php and
+            # .report.php are autoloaded on the same lowercased key as the
+            # other three and belong in the same sweep.
             dots "Ensuring all classes are lowercased"
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php" -o -name "*[A-Z]*\.event\.php" -o -name "*[A-Z]*\.hook\.php" 2>>$error_log); do
-                mv "$i" "$(echo $i | tr A-Z a-z)" >>$error_log 2>&1
-            done
+            find "$webdirdest" -type f \( \
+                -name "*[A-Z]*.class.php" -o \
+                -name "*[A-Z]*.event.php" -o \
+                -name "*[A-Z]*.hook.php" -o \
+                -name "*[A-Z]*.page.php" -o \
+                -name "*[A-Z]*.report.php" \) -print0 2>>$error_log |
+                while IFS= read -r -d '' i; do
+                    mv "$i" "$(dirname "$i")/$(basename "$i" | tr 'A-Z' 'a-z')" >>$error_log 2>&1
+                done
             errorStat $?
         fi
     fi

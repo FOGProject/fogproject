@@ -51,7 +51,7 @@ Notes:
 - **`tabFields()`** (`fogpage.class.php:4287`) — AdminLTE `nav-tabs-custom` block
   → BS5/AL4 card-tabs (`nav-item`/`nav-link`, drop `caret`, dropdown restructure).
 - **`renderCreateForm()`/`renderAddForm()`/`renderAddModalForm()`**
-  (`FOGPageRender.class.php:282/339/392`) — `box-solid`/`box-primary` scaffolds →
+  (`fogpagerender.class.php:282/339/392`) — `box-solid`/`box-primary` scaffolds →
   `card`.
 - **`makeButton`/`makeSplitButton`/`makeModal`** (`fogpage.class.php:946/992/1058`)
   — button + modal markup (`close`→`btn-close`, `data-*`→`data-bs-*`).
