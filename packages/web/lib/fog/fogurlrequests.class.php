@@ -773,6 +773,15 @@ class FOGURLRequests extends FOGBase
     ) {
         $this->_reset();
         $output = [];
+        // Floor the timeout at a second. 1.5 carried this and 1.6 dropped it,
+        // which let a caller pass 0.1 and get a literal 100ms fsockopen --
+        // long enough for a loopback answer and not for a NAS on a switched
+        // network, so hosts that were merely unhurried came back "offline".
+        // A probe whose false-negative rate depends on switch latency is not
+        // measuring what it claims to.
+        if (!is_numeric($timeout) || $timeout < 1) {
+            $timeout = 1;
+        }
         // When no port is passed the probe falls back to the ssh port, so it
         // has to honour FOG_SSH_PORT the same way FOGSSH::connect() does.
         // Assuming 22 made every node look offline on installs that moved ssh
