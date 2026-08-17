@@ -2,7 +2,7 @@
 /**
  * Pending MAC report.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Pending_MAC_List
  * @package  FOGProject

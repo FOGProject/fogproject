@@ -2,7 +2,7 @@
 /**
  * Base class for background work a plugin declares.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category PluginTask
  * @package  FOGProject

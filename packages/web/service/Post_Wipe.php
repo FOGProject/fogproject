@@ -2,7 +2,7 @@
 /**
  * Check out other tasks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Other_Complete
  * @package  FOGProject

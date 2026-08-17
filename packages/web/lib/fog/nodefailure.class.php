@@ -2,7 +2,7 @@
 /**
  * The node failure class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category NodeFailure
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * Presents the FOG Kernels version that the clients will use.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category KernelVersion
  * @package  FOGProject

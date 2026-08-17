@@ -2,7 +2,7 @@
 /**
  * Role user group association manager class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category RoleUserGroupAssociationManager
  * @package  FOGProject

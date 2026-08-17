@@ -2,7 +2,7 @@
 /**
  * Authorization service — native role-based permission checks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Authorization
  * @package  FOGProject

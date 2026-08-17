@@ -2,7 +2,7 @@
 /**
  * Membership association between user group -> user links.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category UserGroupMember
  * @package  FOGProject

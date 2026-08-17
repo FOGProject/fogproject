@@ -2,7 +2,7 @@
 /**
  * Snapin List report
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Snapin_List
  * @package  FOGProject

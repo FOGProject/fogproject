@@ -2,7 +2,7 @@
 /**
  * Prints all the hooks so we can debug
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category HookDebugger
  * @package  FOGProject

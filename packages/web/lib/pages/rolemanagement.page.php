@@ -2,7 +2,7 @@
 /**
  * Role management page — native role-based access control.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category RoleManagement
  * @package  FOGProject

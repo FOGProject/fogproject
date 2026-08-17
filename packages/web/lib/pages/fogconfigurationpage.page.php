@@ -2,7 +2,7 @@
 /**
  * The FOG Configuration Page display.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGConfigurationPage
  * @package  FOGProject

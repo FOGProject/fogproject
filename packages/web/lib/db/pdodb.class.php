@@ -2,7 +2,7 @@
 /**
  * PDODB, the database connector.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * This is what communicates between FOG and the Database.
  *

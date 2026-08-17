@@ -3,7 +3,7 @@
  * Used for the ou plugin and only checks if it is enabled
  * or not.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category OUcheck
  * @package  FOGProject

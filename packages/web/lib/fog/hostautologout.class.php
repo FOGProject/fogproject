@@ -2,7 +2,7 @@
 /**
  * Presents the client with auto logout info.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category HostAutoLogout
  * @package  FOGProject

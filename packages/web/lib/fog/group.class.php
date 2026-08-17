@@ -2,7 +2,7 @@
 /**
  * Main class for group objects.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Group
  * @package  FOGProject

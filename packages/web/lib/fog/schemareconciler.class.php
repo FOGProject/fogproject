@@ -2,7 +2,7 @@
 /**
  * Repairs a database whose structure has fallen behind this release.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SchemaReconciler
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * Issues web and code-signing certificates to registered storage nodes.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category NodeCert
  * @package  FOGProject

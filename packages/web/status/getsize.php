@@ -2,7 +2,7 @@
 /**
  * Get's size of file passed.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Gethash
  * @package  FOGProject
@@ -13,7 +13,7 @@
 /**
  * Get's size of file passed.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Gethash
  * @package  FOGProject

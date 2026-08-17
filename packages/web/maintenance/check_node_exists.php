@@ -2,7 +2,7 @@
 /**
  * Check if the node exists and return it
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Check_Node_Exists
  * @package  FOGProject
@@ -13,7 +13,7 @@
 /**
  * Check if the node exists and return it
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Check_Node_Exists
  * @package  FOGProject

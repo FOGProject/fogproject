@@ -2,7 +2,7 @@
 /**
  * FOGController, individual SQL getters/setters.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * Gets and sets data for an individual object.
  * Generates the SQL Statements more specifically.

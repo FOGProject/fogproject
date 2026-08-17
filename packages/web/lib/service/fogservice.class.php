@@ -2,7 +2,7 @@
 /**
  * Handles the fog linux services
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGService
  * @package  FOGProject

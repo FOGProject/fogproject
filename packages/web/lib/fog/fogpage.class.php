@@ -3,7 +3,7 @@
  * Presents many defaults for the pages and is
  * the calling point by all other page items.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGPage
  * @package  FOGProject

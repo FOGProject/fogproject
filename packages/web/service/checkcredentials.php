@@ -2,7 +2,7 @@
 /**
  * Checks credentials for init based calls
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category CheckCredentials
  * @package  FOGProject
