@@ -6356,7 +6356,11 @@ EOF
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$error_log 2>&1
     errorStat $?
-    [[ $httpproto == https ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
+    # "Forced SSL" describes the REDIRECT, so it follows httpsRedirect. Left on
+    # httpproto it would print on every install, since httpproto is https for
+    # everyone now -- labelling a plain HTTPS-available server as one that
+    # forces HTTPS, which is the opposite of what this line is for.
+    [[ $httpsRedirect == yes ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
     # $extraServerNames is a space-joined string (see --extra-server-name).
     # Computed once here and reused by both the nginx server_name lines below
     # and Apache's vhostaliases, so an admin's extra name(s) reach every vhost
