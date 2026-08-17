@@ -391,15 +391,67 @@ php tests/ipxe-auth-no-session.test.php
 
 ### PR 2.4 — the OIDC plugin: discovery, callback, claim → role mapping
 
-Provider config in a plugin-owned table via the `schema()` contract.
-**Default deny**: a successful IdP login for an unknown user fails with a
-clear message naming the account, and JIT provisioning is a setting that
-ships **off**. Claims map to **RBAC roles**, never to the legacy `type` field
-— `USER_TYPE_HOOK` rewrites `type` (`user.class.php:172`), so anything
-derived from it is not a decision anyone controls.
+Lives in `FOGProject/fog-plugins`, not here, and is **split in two**. The
+configuration half is inert on its own, and splitting means the
+security-critical half arrives in a diff somebody can read rather than at the
+end of a very long one.
+
+#### PR 2.4a — the provider row ✅ DONE (fog-plugins #7)
+
+Provider config in a plugin-owned table via the `schema()` contract, plus the
+management page, the permission node and the API surface. Nothing signs
+anybody in yet.
+
+Three findings from building it, all worth carrying into 2.4b:
+
+- **`FOGURLRequests` cannot be used for the token exchange.** It sets
+  `CURLOPT_SSL_VERIFYPEER => false` and `VERIFYHOST => false` as defaults
+  (`fogurlrequests.class.php:79-80`, `:160-161`) — correct for reaching a
+  storage node with a self-signed certificate, and disqualifying here, where
+  TLS to the provider *is* the security model. 2.4b brings its own fetch that
+  turns verification on explicitly and fails closed, rather than passing an
+  override into a class whose default is "do not verify": one refactor of
+  those defaults and the plugin stops verifying with no error.
+- **`/ext/…` routes get no session.** `api/index.php` does not define
+  `FOG_WANTS_SESSION`, and a visitor clicking the login button has no cookie
+  yet, so the #1113 gate correctly declines to start one. The `state`, `nonce`
+  and PKCE verifier need somewhere to live, so the two browser-facing handlers
+  call `session_start()` themselves — a handler mid-redirect knows it is a
+  browser, which is exactly the judgement the gate exists to stop *browser-less*
+  callers making. Documented in `docs/plugin-development.md` §7c rather than
+  added to the route contract as a flag.
+- **The rules belong in the model, not the page.** The REST API reaches the
+  same columns, and every way a provider row can be wrong is silent: an
+  `http://` issuer lets somebody on the path serve their own signing keys, and
+  a scope list missing `openid` produces a login that completes and returns no
+  ID token.
 
 ```bash
-curl -sk "$FOG/oidc/callback"                 # 400, not a 500 or a session
+php tests/oidc-provider-safety.test.php       # in fog-plugins
+# verified failing by accepting an http:// issuer (4) and by defaulting
+# just-in-time provisioning on (1)
+```
+
+#### PR 2.4b — the flow
+
+Discovery, start, callback, ID token verification against the JWKS, and claim
+→ role mapping. **Default deny**: a successful IdP login for an unknown user
+fails with a clear message naming the account, and JIT provisioning is the
+setting that ships **off** (already a column, already defaulted off, pinned by
+2.4a's gate). Claims map to **RBAC roles**, never to the legacy `type` field —
+`USER_TYPE_HOOK` rewrites `type` (`user.class.php:172`), so anything derived
+from it is not a decision anyone controls.
+
+Identity matching, settled before building: the configured claim (default
+`preferred_username`) matches `users.uName`, **and** `sub` is recorded on the
+first successful login; thereafter the stored `sub` wins and a mismatch
+refuses the login. Name alone is what most integrations do and it is
+reassignable — a departed user's name reissued by the provider inherits their
+FOG account. `sub` alone is unimpeachable and matches no account that exists
+today, so every install would start with nobody linked.
+
+```bash
+curl -sk "$FOG/ext/oidc/callback"             # 400, not a 500 or a session
 curl -sk "$FOG/management/index.php" | grep -c 'Sign in with'
 ```
 

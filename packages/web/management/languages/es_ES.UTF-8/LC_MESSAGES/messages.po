@@ -375,6 +375,9 @@ msgstr "Acción"
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
+msgid "API route is not mapped to a permission"
+msgstr ""
+
 msgid "API?"
 msgstr ""
 
@@ -5388,6 +5391,9 @@ msgid "One or more macs are associated with a host"
 msgstr "Error, es una imagen asociada con este anfitrión"
 
 msgid "Online"
+msgstr ""
+
+msgid "Only administrators may use it until the plugin declares a permission for the route."
 msgstr ""
 
 msgid "Only administrators may use it until the plugin registers a matching permission node."
