@@ -130,7 +130,34 @@ class DatabaseManager extends FOGCore
             'dbrunning.php',
             'checkcredentials.php',
             'getversion.php',
-            'kernelvers.php'
+            'kernelvers.php',
+            /**
+             * The installer's pre-upgrade database dump, and it has to be
+             * here or it is never taken when it matters.
+             *
+             * Everything not on this list is sent to the schema updater
+             * while the schema is out of date -- which is precisely the
+             * state the dump exists to let you roll back OUT of. So the one
+             * situation where you most want a backup was the one situation
+             * guaranteed not to produce one. GH-1147 is what that looks like
+             * in practice: a reconcile failed, which stopped the schema
+             * version being recorded, which bounced this endpoint, and the
+             * installer asked the admin to press Enter to continue an
+             * upgrade with no dump taken.
+             *
+             * Safe to run against a schema that is not current. Mysqldump
+             * reads whatever structure is actually there; nothing in this
+             * path needs the schema to match FOG_SCHEMA, and a dump of a
+             * half-migrated database is still exactly the dump you want.
+             *
+             * Not a widening of what is reachable. backup_db.php gates
+             * itself on the request being same-machine, and the whole
+             * maintenance/ directory is additionally gated by the web
+             * server (`Require local` for apache, and the matching nginx
+             * location), so this changes only whether a request that has
+             * ALREADY passed both of those is redirected away.
+             */
+            'backup_db.php'
         ];
         /**
          * The script filename
