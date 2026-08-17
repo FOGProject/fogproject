@@ -46,17 +46,20 @@ const NS = 'FOG';
 /**
  * Never converted, each for its own reason.
  *
- * The two vendored libraries are swap candidates for their Packagist
- * releases (ifsnop/mysqldump-php and altorouter/altorouter, both of which
- * still carry their real namespace commented out at the top). Hand-editing
- * them here would make those swaps harder, and mysqldump.class.php declares
- * thirteen types in one file besides.
+ * altorouter.class.php is still a hand-copied vendored library and still a
+ * swap candidate for its Packagist release (it carries its real namespace
+ * commented out at the top). Hand-editing it here would make that swap
+ * harder. altotransformer.class.php is its companion.
+ *
+ * mysqldump.class.php came off this list when the swap it was waiting for
+ * happened: it is now a short FOG subclass of the Composer package, so it
+ * is namespaced like any other FOG class and the library it wraps lives
+ * under vendor/, which this tool never walks.
  *
  * Initiator IS the autoloader. A namespaced autoloader that has to load
  * itself is a bootstrap problem in exchange for nothing.
  */
 const EXCLUDE = [
-    'packages/web/lib/db/mysqldump.class.php',
     'packages/web/lib/router/altorouter.class.php',
     'packages/web/lib/router/altotransformer.class.php',
     'packages/web/commons/init.php',

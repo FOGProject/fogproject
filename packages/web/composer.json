@@ -11,7 +11,8 @@
     },
     "require": {
         "php": ">=7.4",
-        "firebase/php-jwt": "^6.10"
+        "firebase/php-jwt": "^6.10",
+        "ifsnop/mysqldump-php": "^2.13"
     },
     "autoload": {
         "psr-4": {

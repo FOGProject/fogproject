@@ -28,5 +28,14 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'ifsnop/mysqldump-php' => array(
+            'pretty_version' => 'v2.13',
+            'version' => '2.13.0.0',
+            'reference' => 'd328c86e17f3a2d8d45d2c9846bd13b6713dcb20',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ifsnop/mysqldump-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
     ),
 );
