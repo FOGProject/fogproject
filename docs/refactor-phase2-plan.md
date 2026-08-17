@@ -9,9 +9,9 @@ Baseline: `working-1.6` @ `5d8a7e4f6`. Every claim is marked `VERIFIED`
 core; the OIDC provider ships as a plugin on top of a new extension point.
 Option B rests on **G1-G3** — a plugin can register neither a route, nor a
 session-less node, nor a login-page contribution. (An earlier revision also
-leaned on G4; that argument was wrong and has been withdrawn. Where the JWT
-library lives is now an open decision, not a forced one.) The rejected option
-A is in *Alternatives*.
+leaned on G4; that argument was wrong and has been withdrawn.) The JWT library
+is in core as a **decision** rather than a constraint — see *Open decisions*.
+The rejected option A is in *Alternatives*.
 
 ---
 
@@ -172,8 +172,7 @@ verifying them.**
 | `lcobucci/jwt` | a few | Modern, but recent majors have moved past a 7.4 floor |
 | hand-rolled | none | This is how `alg: none` ships. Not on the table |
 
-Where it lives — core `vendor/` or the plugin's own — is an **open decision**
-(see *Open decisions*); the choice of package is the same either way.
+It lives in core `vendor/` — decided, not forced; see *Open decisions*.
 
 The deciding property is **zero runtime dependencies**, for two reasons that
 are specific to FOG rather than general good taste:
@@ -401,8 +400,10 @@ working-1.6 only.** A plugin using it will not run on 1.5.x, where
 
 ## Open decisions
 
-**Where does `firebase/php-jwt` live — core `vendor/`, or the OIDC plugin's
-own?** Open, and no longer forced by G4.
+**Where does `firebase/php-jwt` live? DECIDED 2026-08-16: core `vendor/`.**
+Not forced by G4 — chosen, on the CVE argument, and reversible. Tom's reason:
+FOG should be able to accept an OIDC login without the library being
+somebody's optional download.
 
 | | Core (tier 2) | OIDC plugin |
 |---|---|---|
@@ -411,12 +412,12 @@ own?** Open, and no longer forced by G4.
 | Cost to non-SSO installs | ships a library they never load | nothing |
 | Precedent set | "core provides security primitives" | "plugins own their dependencies" |
 
-Recommendation: **core**, on the CVE argument — an auth library that several
-providers would each vendor is the clearest possible tier-2 case, and a
-silently-stale JWT verifier is the failure nobody notices. But this is a
-judgment call about what FOG wants to guarantee, not a technical constraint,
-and it is reversible: moving the package later is a `composer.json` change in
-one repo or the other.
+So `firebase/php-jwt` is **tier 2** — core ships it and guarantees it, and a
+provider plugin depends on it rather than vendoring its own copy. PR 2.1a's
+collision check is what makes that guarantee enforceable instead of a
+convention: a plugin vendoring a second copy is refused, not silently first-
+wins. Reversible if it turns out wrong — moving the package later is a
+`composer.json` change in one repo or the other.
 
 ## Which claim, if false, would hurt most?
 
