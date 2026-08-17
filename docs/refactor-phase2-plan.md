@@ -295,7 +295,7 @@ php tests/plugin-vendor-autoload.test.php
 # verified failing both with the call removed and with the check neutered
 ```
 
-### PR 2.2 — the extension point (this is the phase's real deliverable)
+### PR 2.2 — the extension point (this is the phase's real deliverable) ✅ DONE
 
 Three seams, each closing one gap, each independently useful:
 
@@ -309,9 +309,40 @@ Three seams, each closing one gap, each independently useful:
 - **G3** — a `LOGIN_PAGE_PROVIDERS` hook contributing a button (label, icon,
   start URL) to the login form.
 
-Gate: a fixture plugin in `tests/` registers a route, an exempt node and a
-button, and the test asserts all three take effect — and, crucially, that a
-plugin route which did **not** declare itself session-less is still gated.
+Landed with a fourth thing the plan did not anticipate, and which turned out
+to matter more than any of the three: `resolveApiPermission()` **already**
+returned `null` — no check — for a route name it did not recognise, described
+in a comment as matching the unregistered-page stance that had since been
+tightened everywhere else. Harmless while nothing could add a route; an open
+default the moment something could. Flipped to deny first, in its own commit,
+after verifying all 29 core route names are mapped.
+
+The seam then enforces, rather than trusts:
+
+- Plugin routes live under a reserved `/ext/` mount point, so a plugin path and
+  a core path cannot collide — which also means declaring one public can never
+  open a core path by exact-match coincidence. Not `/plugin/`: that is already
+  an API class.
+- Route names are registered as `ext:<name>`, because the name is what the
+  permission layer keys on and an unprefixed `status` would inherit core's
+  "no check".
+- A route declaring no permission is registered but not declared, so it answers
+  403 with a diagnostic instead of 404 with silence.
+- `EXEMPT_NODES` stays a `const`; plugin entries merge on top and a node in the
+  permission registry is refused, so this cannot be used to turn the gate off
+  on `host`.
+- Login-button start URLs must be site-absolute or `https://`.
+
+Gate: `tests/plugin-extension-points.test.php`, driving all three seams with a
+stub hook manager and no database.
+
+```bash
+php tests/plugin-extension-points.test.php
+# 8 route fixtures, incl. one declaring nothing (must be DENIED), one with a
+# misspelt auth, one at /system/export, one with ../ in the path
+# verified failing with: any-truthy auth accepted; the /ext/ check removed;
+# the exempt-node registry guard removed; the provider URL check removed
+```
 
 ```bash
 php tests/plugin-extension-points.test.php
