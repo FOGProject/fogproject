@@ -2,7 +2,7 @@
 /**
  * Handles file deletetion queued tasks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FileDeleter
  * @package  FOGProject

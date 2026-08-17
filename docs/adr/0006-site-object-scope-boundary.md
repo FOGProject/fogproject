@@ -85,3 +85,66 @@ client could flip it and escape filtering; `$apiRequest` cannot be spoofed.
   get an off record count — never out-of-scope data, only a wrong total.
 - Unrestricted users (implicit admins, `*` holders) are unaffected; the
   boundary only ever narrows a user who already holds a restricting role.
+
+## Amendment — scope is inherited from a role or a user group (schema 335)
+
+This ADR describes assignment as explicit and per-user, and for the plugin it
+was. Core keeps that as the base case and adds two ways a site can reach a user
+without naming them.
+
+### Grant is a different relation from membership
+
+`siteUserGroupMembers` and `siteUserGroupGrants` hold the same two ids in the
+same order and answer opposite questions:
+
+| | Means |
+|---|---|
+| **Member** | this user group **is in** the site — one of the objects it contains, visible and editable to that site's admins |
+| **Grant** | members of this user group **get** the site — holding it is what puts you in scope |
+
+They are separate tables because overloading one would cost the ability to grant
+somebody access to a site without also making the group they arrived through an
+editable object inside it, and it would never fail loudly — it would quietly
+widen what site-scoped admins can reach. Roles have no membership sense, so
+`siteRoleGrants` has no counterpart.
+
+### Four arms, in one place
+
+`SiteScope::userSiteIDs()` remains the only answer to "which sites is this user
+in". It now unions four reachability paths: direct membership, a grant to a user
+group the user is in, and a grant to a role — held directly, or held through a
+user group.
+
+The fourth exists because `Authorization::getPermissions()` already grants
+permissions along both role paths. A role that granted its site only when
+assigned directly would produce a user holding the permission to edit hosts and
+no hosts to edit.
+
+`UNION`, not `UNION ALL`: the result is a set, so "most open wins" is true by
+construction rather than by a precedence rule. The consequence that matters is
+that inheritance can only ever **add** sites — no arrangement of grants takes
+away a site a direct membership already gave, so no user on any install loses
+access.
+
+### `isUnscoped()` asks over the same SQL
+
+Not tidiness. Its original query read direct membership only, so granting a role
+the **catch-all** site would have put the catch-all's id in the user's list while
+leaving `isUnscoped()` false — and because catch-all membership short-circuits
+above the per-site query, the user would have been scoped to the one site that
+means "no restriction", and seen nothing. Single-sourcing the SQL makes the two
+answers unable to disagree.
+
+### Consequences
+
+- Deleting a role or a user group clears its grants, and deleting a site clears
+  both grant lists. A grant row surviving its subject is worse than a stale
+  membership row: AUTO_INCREMENT ids are reused, so it can put every holder of
+  an unrelated new role into the site the old one granted.
+- The grant classes are not in `Route::$validClasses`, matching the four
+  membership classes. `Route::getIds()` does not need it, and adding them would
+  be two new REST resources — an access-control surface, and a separate
+  decision.
+- Nothing changes on upgrade day. Both tables start empty, three of the four
+  arms return nothing, and `userSiteIDs()` answers exactly what it answered
+  before until an administrator creates a grant.

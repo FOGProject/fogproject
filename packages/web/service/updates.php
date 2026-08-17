@@ -2,7 +2,7 @@
 /**
  * Legacy client handles module updates
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Updates
  * @package  FOGProject

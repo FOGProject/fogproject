@@ -2,7 +2,7 @@
 /**
  * API Documentation Page
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * Renders this server's own OpenAPI description, with a working try-it
  * console.

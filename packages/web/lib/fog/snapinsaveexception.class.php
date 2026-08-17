@@ -6,7 +6,7 @@
  * RuntimeExceptions (SSH/SFTP), which the UI's addPost preserves as 400
  * for backwards compatibility while the API maps to 500.
  *
- * PHP version 7.4
+ * PHP version 7.4+
  *
  * @category SnapinSaveException
  * @package  FOGProject

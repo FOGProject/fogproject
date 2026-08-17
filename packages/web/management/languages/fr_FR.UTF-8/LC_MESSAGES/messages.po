@@ -378,6 +378,9 @@ msgstr "Emplacement"
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
+msgid "API route is not mapped to a permission"
+msgstr ""
+
 msgid "API?"
 msgstr ""
 
@@ -2728,6 +2731,10 @@ msgstr "Emplacement Mise à jour"
 
 msgid "Got in line at"
 msgstr ""
+
+#, fuzzy
+msgid "Granted To"
+msgstr "Créé par"
 
 msgid "Grants"
 msgstr ""
@@ -5259,6 +5266,9 @@ msgstr "Erreur, est une image associée à cet hôte"
 msgid "Online"
 msgstr ""
 
+msgid "Only administrators may use it until the plugin declares a permission for the route."
+msgstr ""
+
 msgid "Only administrators may use it until the plugin registers a matching permission node."
 msgstr ""
 
@@ -6581,6 +6591,18 @@ msgid "Site Description"
 msgstr "Printer description"
 
 #, fuzzy
+msgid "Site Granted To Roles"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Site Grants"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "Nœud de stockage Créé"
 
@@ -6627,6 +6649,13 @@ msgstr "Imprimante mis à jour!"
 #, fuzzy
 msgid "Sites"
 msgstr "minutes"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "Créer un nouveau %s"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 #, fuzzy
 msgid "Size"
@@ -7832,6 +7861,9 @@ msgstr " | Cela ne veut pas le groupe principal"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG without its identity provider."
+msgstr ""
+
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
@@ -8629,6 +8661,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."

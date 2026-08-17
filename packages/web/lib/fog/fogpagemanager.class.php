@@ -2,7 +2,7 @@
 /**
  * Manages and presents the page items
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGPageManager
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * Tracks users logging in and out
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category UserTrack
  * @package  FOGProject

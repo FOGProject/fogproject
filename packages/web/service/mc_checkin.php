@@ -2,7 +2,7 @@
 /**
  * Multicast check in
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Multicast_Checkin
  * @package  FOGProject

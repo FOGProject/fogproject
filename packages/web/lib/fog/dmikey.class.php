@@ -2,7 +2,7 @@
 /**
  * DMI Key tracker.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category DMIKey
  * @package  FOGProject

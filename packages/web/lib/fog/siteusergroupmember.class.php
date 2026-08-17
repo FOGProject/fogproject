@@ -2,7 +2,7 @@
 /**
  * Membership association between site -> user group links.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SiteUserGroupMember
  * @package  FOGProject

@@ -7,13 +7,26 @@ namespace Composer\Autoload;
 class ComposerStaticInitf1e42438574b3ce50c0c9ee957f57472
 {
     public static $prefixLengthsPsr4 = array (
+        'I' =>
+        array (
+            'Ifsnop\\' => 7,
+        ),
         'F' =>
         array (
+            'Firebase\\JWT\\' => 13,
             'FOG\\' => 4,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'Ifsnop\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/ifsnop/mysqldump-php/src/Ifsnop',
+        ),
+        'Firebase\\JWT\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
         'FOG\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
@@ -22,6 +35,15 @@ class ComposerStaticInitf1e42438574b3ce50c0c9ee957f57472
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Firebase\\JWT\\BeforeValidException' => __DIR__ . '/..' . '/firebase/php-jwt/src/BeforeValidException.php',
+        'Firebase\\JWT\\CachedKeySet' => __DIR__ . '/..' . '/firebase/php-jwt/src/CachedKeySet.php',
+        'Firebase\\JWT\\ExpiredException' => __DIR__ . '/..' . '/firebase/php-jwt/src/ExpiredException.php',
+        'Firebase\\JWT\\JWK' => __DIR__ . '/..' . '/firebase/php-jwt/src/JWK.php',
+        'Firebase\\JWT\\JWT' => __DIR__ . '/..' . '/firebase/php-jwt/src/JWT.php',
+        'Firebase\\JWT\\JWTExceptionWithPayloadInterface' => __DIR__ . '/..' . '/firebase/php-jwt/src/JWTExceptionWithPayloadInterface.php',
+        'Firebase\\JWT\\Key' => __DIR__ . '/..' . '/firebase/php-jwt/src/Key.php',
+        'Firebase\\JWT\\SignatureInvalidException' => __DIR__ . '/..' . '/firebase/php-jwt/src/SignatureInvalidException.php',
+        'Ifsnop\\Mysqldump\\Mysqldump' => __DIR__ . '/..' . '/ifsnop/mysqldump-php/src/Ifsnop/Mysqldump/Mysqldump.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

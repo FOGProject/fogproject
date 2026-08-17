@@ -2,7 +2,7 @@
 /**
  * Handler of the user as authenticated
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category User
  * @package  FOGProject
@@ -24,6 +24,26 @@ namespace FOG;
 class User extends FOGController
 {
     const PATTERN = '/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[\w0-9][\w0-9\s\-\.]*[\w0-9]$/i';
+    /**
+     * A session established by presenting a local password.
+     *
+     * The default, and the one that must never stop working: break-glass
+     * depends on password login remaining reachable when an identity
+     * provider is not.
+     *
+     * @var string
+     */
+    const AUTH_SOURCE_PASSWORD = 'password';
+    /**
+     * A session whose provenance was supplied but unusable.
+     *
+     * Recorded rather than guessed. A provider handing over something that
+     * is not a plain slug is a bug in that provider, and "unknown" is the
+     * honest entry in an audit trail.
+     *
+     * @var string
+     */
+    const AUTH_SOURCE_UNKNOWN = 'unknown';
     /**
      * The users table
      *
@@ -264,19 +284,75 @@ class User extends FOGController
         return $this;
     }
     /**
+     * How this session was established, or '' when there is no session.
+     *
+     * Read this rather than users.uAuthSource when the question is about the
+     * REQUEST. uAuthSource is a property of the ACCOUNT -- where its identity
+     * lives -- and the two genuinely differ: an account homed in LDAP or an
+     * IdP can still be carrying a local password, and the point of asking is
+     * usually to find out which of the two got someone in just now.
+     *
+     * @return string
+     */
+    public static function sessionAuthSource()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return '';
+        }
+        return (string)($_SESSION['FOG_AUTH_SOURCE'] ?? '');
+    }
+    /**
+     * Reduce a caller-supplied auth source to something safe to record.
+     *
+     * Normalised, not trusted: the value reaches the history table and a
+     * session key, and a provider plugin supplies it. Anything that is not a
+     * plain slug is recorded as unknown rather than passed through, because
+     * "we do not know how this session was made" is a fact worth keeping and
+     * is safer than storing whatever was handed over.
+     *
+     * Public so it can be exercised without a database; nothing else calls it.
+     *
+     * @param string $source The value as supplied.
+     *
+     * @return string
+     */
+    public static function normalizeAuthSource($source)
+    {
+        $source = strtolower(trim((string)$source));
+        if (!preg_match('#^[a-z0-9][a-z0-9_-]{0,31}$#', $source)) {
+            return self::AUTH_SOURCE_UNKNOWN;
+        }
+        return $source;
+    }
+    /**
      * Turns an already-proven identity into a logged-in browser session.
      *
      * The other half of the authenticate() split. Everything here needs a
      * session to exist and a browser to carry it, so nothing here may run
      * for the iPXE callers.
      *
+     * $source records WHICH mechanism proved the identity, and it exists for
+     * two later jobs rather than for its own sake. Audit: "logged in" in the
+     * history table cannot presently distinguish a password from an identity
+     * provider, so an install adopting SSO loses the ability to answer how
+     * someone got in. Break-glass: an IdP outage must leave local password
+     * login working, and the checks that guarantee that need to be able to
+     * count sessions by how they were made, not by what the account looks
+     * like.
+     *
+     * Defaults to 'password' so every existing caller -- validatePw() and
+     * whatever third-party code calls it -- keeps the meaning it already had.
+     *
+     * @param string $source Slug naming the mechanism, e.g. 'password', 'oidc'.
+     *
      * @return self
      */
-    public function establishSession()
+    public function establishSession($source = self::AUTH_SOURCE_PASSWORD)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
+        $source = self::normalizeAuthSource($source);
         if (self::$FOGUser->isValid()) {
             $type = self::$FOGUser->get('type');
             self::$HookManager->processEvent(
@@ -290,11 +366,13 @@ class User extends FOGController
                 ->set('type', $type);
         }
         $_SESSION['FOG_USER'] = $this->get('id');
+        $_SESSION['FOG_AUTH_SOURCE'] = $source;
         self::log(
             sprintf(
-                '%s %s.',
+                '%s %s (%s).',
                 $this->get('name'),
-                _('user successfully logged in')
+                _('user successfully logged in'),
+                $source
             ),
             0,
             0,
@@ -631,6 +709,7 @@ class User extends FOGController
      */
     public function save()
     {
+        $this->_assertAuthSourceKeepsBreakGlass();
         // Captured before the save, because that is what stamps the id on.
         $isNew = (int)$this->get('id') < 1;
         // Propagate a failed write rather than reporting success; the
@@ -646,6 +725,62 @@ class User extends FOGController
             ->assocSetter('RoleUser', 'role')
             ->assocSetter('UserGroupMember', 'usergroup', true)
             ->load();
+    }
+    /**
+     * Refuses to hand the last local administrator to a directory.
+     *
+     * Writing users.uAuthSource takes local password login away from the
+     * account it is written to (see passwordValidate() above). Doing that to
+     * the last administrator who still has one leaves the install reachable
+     * only while its identity provider is: an outage, an expired client
+     * secret or a mistyped issuer then locks everybody out of their own
+     * server, with no way back in that does not involve the database.
+     *
+     * It sits on save() rather than on each caller because there are three
+     * ways to get here and they have nothing in common: a REST
+     * PUT /fog/user/{id} (uAuthSource is an ordinary field and is not in
+     * Route::$serverOwnedFields), a plugin's own set()/save(), and the CSV
+     * import. Guarding the write is what makes it a standing property
+     * instead of something each new caller has to remember. Delete is
+     * covered separately, by Authorization::assertAdminRemainsAfterDelete().
+     *
+     * Neither bundled auth plugin can reach this: LDAP returns early for an
+     * account that exists and is not already its own, and OIDC stamps only
+     * accounts it created itself. It is the deliberate administrative paths
+     * that were open.
+     *
+     * @throws Exception when the last local administrator would be lost
+     * @return void
+     */
+    private function _assertAuthSourceKeepsBreakGlass()
+    {
+        $id = (int)$this->get('id');
+        /*
+         * A row with no id yet is a new account, which cannot take a login
+         * away from anybody. It cannot quietly become an update either:
+         * users.uName carries a plain KEY and not a UNIQUE one, so there is
+         * no INSERT ... ON DUPLICATE KEY UPDATE by name to ride in on, and
+         * the CSV import refuses a name that already exists before it gets
+         * this far.
+         */
+        if ($id < 1 || !$this->isDirty('authsource')) {
+            return;
+        }
+        $pending = trim((string)$this->get('authsource'));
+        // Clearing it only ever gives an account its password back.
+        if ('' === $pending) {
+            return;
+        }
+        /*
+         * No need to read the stored value to spot a no-op: an account that
+         * is already external stays external under the simulated change, so
+         * the answer is the same with and without it and the assertion
+         * passes. That covers a round-tripping PUT and a re-stamp from one
+         * provider to another without a second query.
+         */
+        Authorization::assertLocalAdminRemains(
+            ['authSources' => [$id => $pending]]
+        );
     }
     /**
      * Adds roles to the user.

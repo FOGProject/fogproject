@@ -13,7 +13,7 @@
  *
  * Consumed by SchemaReconciler::reconcile().
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SchemaExpected
  * @package  FOGProject
@@ -637,6 +637,15 @@ return [
                 'shmHostID' => 'int(11) NOT NULL',
             ],
         ],
+        'siteRoleGrants' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteRoleGrants` ( `srgID` int(11) NOT NULL AUTO_INCREMENT, `srgName` varchar(60) NOT NULL DEFAULT \'\', `srgSiteID` int(11) NOT NULL, `srgRoleID` int(11) NOT NULL, PRIMARY KEY (`srgID`), UNIQUE KEY `srgSiteRole` (`srgSiteID`,`srgRoleID`), KEY `srgRoleID` (`srgRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'srgID' => 'int(11) NOT NULL',
+                'srgName' => 'varchar(60) NOT NULL DEFAULT \'\'',
+                'srgSiteID' => 'int(11) NOT NULL',
+                'srgRoleID' => 'int(11) NOT NULL',
+            ],
+        ],
         'sites' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `sites` ( `siteID` int(11) NOT NULL AUTO_INCREMENT, `siteName` varchar(255) NOT NULL, `siteDesc` longtext NOT NULL, `siteCatchAll` tinyint(1) unsigned DEFAULT NULL, PRIMARY KEY (`siteID`), UNIQUE KEY `siteName` (`siteName`), UNIQUE KEY `siteCatchAll` (`siteCatchAll`), CONSTRAINT `siteCatchAllIsOneOrNull` CHECK (`siteCatchAll` = 1) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -644,6 +653,15 @@ return [
                 'siteName' => 'varchar(255) NOT NULL',
                 'siteDesc' => 'longtext NOT NULL',
                 'siteCatchAll' => 'tinyint(1) unsigned DEFAULT NULL',
+            ],
+        ],
+        'siteUserGroupGrants' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserGroupGrants` ( `suggID` int(11) NOT NULL AUTO_INCREMENT, `suggName` varchar(60) NOT NULL DEFAULT \'\', `suggSiteID` int(11) NOT NULL, `suggGroupID` int(11) NOT NULL, PRIMARY KEY (`suggID`), UNIQUE KEY `suggSiteGroup` (`suggSiteID`,`suggGroupID`), KEY `suggGroupID` (`suggGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'suggID' => 'int(11) NOT NULL',
+                'suggName' => 'varchar(60) NOT NULL DEFAULT \'\'',
+                'suggSiteID' => 'int(11) NOT NULL',
+                'suggGroupID' => 'int(11) NOT NULL',
             ],
         ],
         'siteUserGroupMembers' => [

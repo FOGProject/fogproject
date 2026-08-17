@@ -10,7 +10,9 @@
         "forum": "https://forums.fogproject.org"
     },
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "firebase/php-jwt": "^6.10",
+        "ifsnop/mysqldump-php": "^2.13"
     },
     "autoload": {
         "psr-4": {
@@ -23,6 +25,13 @@
         },
         "platform-check": false,
         "optimize-autoloader": true,
-        "sort-packages": true
+        "sort-packages": true,
+        "policy": {
+            "advisories": {
+                "ignore-id": [
+                    "PKSA-y2cr-5h3j-g3ys"
+                ]
+            }
+        }
     }
 }

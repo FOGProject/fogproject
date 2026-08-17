@@ -2,7 +2,7 @@
 /**
  * Presents Hardware/Software information of the server.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category HardwareInfo
  * @package  FOGProject

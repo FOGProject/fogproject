@@ -2,7 +2,7 @@
 /**
  * Processes the current login.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ProcessLogin
  * @package  FOGProject
@@ -300,9 +300,92 @@ class ProcessLogin extends FOGPage
             true
         );
         echo '</form>';
+        echo self::loginProviders();
         echo '</div>';
         echo '</div>';
         echo '</div>';
+    }
+    /**
+     * "Sign in with ..." buttons contributed by authentication plugins.
+     *
+     * Closes ADR 0009's third gap. This page fired exactly two hooks --
+     * USER_TYPE_HOOK before the credential check and LoginSuccess after it --
+     * and neither contributes markup, so a provider had nowhere to put a
+     * button. Password login is the only thing a visitor could ever be
+     * offered.
+     *
+     * A provider supplies a label, a start URL and optionally an icon class:
+     *
+     *   $providers[] = [
+     *       'label' => _('Sign in with Acme'),
+     *       'url'   => '/fog/ext/oidc/start',
+     *       'icon'  => 'fa fa-key'
+     *   ];
+     *
+     * The URL is the only part with teeth, and it is checked rather than
+     * trusted: a same-origin absolute path, or an https:// URL, and nothing
+     * else. Without that, a plugin -- or anything that can register a hook --
+     * could put a javascript: or data: URI on the one page every
+     * unauthenticated visitor sees. http:// is refused too: an authentication
+     * handshake that starts in clear text is not one worth starting.
+     *
+     * Everything rendered goes through Initiator::e(), including the icon
+     * class, which is attacker-supplied markup as much as the label is.
+     *
+     * @return string
+     */
+    public static function loginProviders()
+    {
+        $providers = [];
+        if (self::$HookManager) {
+            self::$HookManager->processEvent(
+                'LOGIN_PAGE_PROVIDERS',
+                ['providers' => &$providers]
+            );
+        }
+        $buttons = [];
+        foreach ((array)$providers as $provider) {
+            if (!is_array($provider)) {
+                continue;
+            }
+            $label = isset($provider['label']) ? trim((string)$provider['label']) : '';
+            $url = isset($provider['url']) ? trim((string)$provider['url']) : '';
+            $icon = isset($provider['icon']) ? trim((string)$provider['icon']) : '';
+            if ('' === $label || '' === $url) {
+                continue;
+            }
+            // A path must be site-absolute and must not be protocol-relative
+            // ("//evil.example" is a URL, not a path). Anything else has to
+            // spell out https.
+            $sameOrigin = 0 === strpos($url, '/') && 0 !== strpos($url, '//');
+            if (!$sameOrigin && 0 !== stripos($url, 'https://')) {
+                error_log(
+                    sprintf(
+                        'FOG login provider: refusing "%s" -- a start URL must '
+                        . 'be a site-absolute path or an https:// URL.',
+                        $label
+                    )
+                );
+                continue;
+            }
+            if (!preg_match('#^[A-Za-z0-9 _-]*$#', $icon)) {
+                $icon = '';
+            }
+            $buttons[] = '<a class="btn btn-outline-secondary w-100 mb-2"'
+                . ' href="' . \Initiator::e($url) . '">'
+                . ('' === $icon
+                    ? ''
+                    : '<span class="' . \Initiator::e($icon) . ' me-2"></span>')
+                . \Initiator::e($label)
+                . '</a>';
+        }
+        if (0 === count($buttons)) {
+            return '';
+        }
+        return '<div class="text-center text-muted my-3">'
+            . \Initiator::e(_('or'))
+            . '</div>'
+            . implode('', $buttons);
     }
 }
 

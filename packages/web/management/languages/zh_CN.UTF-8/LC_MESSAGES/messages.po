@@ -377,6 +377,9 @@ msgstr "位置"
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
+msgid "API route is not mapped to a permission"
+msgstr ""
+
 msgid "API?"
 msgstr ""
 
@@ -2727,6 +2730,10 @@ msgstr "更新位置"
 
 msgid "Got in line at"
 msgstr ""
+
+#, fuzzy
+msgid "Granted To"
+msgstr "由...制作"
 
 msgid "Grants"
 msgstr ""
@@ -5258,6 +5265,9 @@ msgstr "错误，与此主机关联的图像"
 msgid "Online"
 msgstr ""
 
+msgid "Only administrators may use it until the plugin declares a permission for the route."
+msgstr ""
+
 msgid "Only administrators may use it until the plugin registers a matching permission node."
 msgstr ""
 
@@ -6580,6 +6590,18 @@ msgid "Site Description"
 msgstr "打印机说明"
 
 #, fuzzy
+msgid "Site Granted To Roles"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Site Grants"
+msgstr "打印机已经存在"
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "存储节点创建"
 
@@ -6626,6 +6648,13 @@ msgstr "打印机更新！"
 #, fuzzy
 msgid "Sites"
 msgstr "分钟"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "新建%s"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 #, fuzzy
 msgid "Size"
@@ -7831,6 +7860,9 @@ msgstr "|这不是主要组"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG without its identity provider."
+msgstr ""
+
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
@@ -8628,6 +8660,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."

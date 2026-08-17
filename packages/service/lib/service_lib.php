@@ -2,7 +2,7 @@
 /**
  * Service library
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Service_Lib
  * @package  FOGProject

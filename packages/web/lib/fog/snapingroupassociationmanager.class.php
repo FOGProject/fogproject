@@ -2,7 +2,7 @@
 /**
  * Snapin group association manager class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SnapinGroupAssociationManager
  * @package  FOGProject

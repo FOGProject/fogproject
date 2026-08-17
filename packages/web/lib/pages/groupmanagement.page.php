@@ -2,7 +2,7 @@
 /**
  * Group management page
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * The group represented to the GUI
  *

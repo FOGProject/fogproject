@@ -124,10 +124,12 @@ The running example, `helloworld`, manages a trivial entity with a `name` and a
 │   ├── addhelloworldmenuitem.hook.php # menu entry + search/objects
 │   ├── addhelloworldjs.hook.php       # JS injection
 │   └── addhelloworldapi.hook.php      # REST API exposure
-└── js/
-    ├── fog.helloworld.list.js
-    ├── fog.helloworld.add.js
-    └── fog.helloworld.edit.js
+├── js/
+│   ├── fog.helloworld.list.js
+│   ├── fog.helloworld.add.js
+│   └── fog.helloworld.edit.js
+└── vendor/                        # optional — Composer dependencies, see 7b
+    └── autoload.php
 ```
 
 The directory name **is** the plugin's machine name and routing `node`. Keep it
@@ -421,7 +423,14 @@ safe. A closure step may return a string to signal a hard error and stop.
 
 Seed data (e.g. default `globalSettings` rows) is just another step — return the
 `INSERT` SQL, or a closure for anything that needs runtime values (see
-`accesscontrolmanager`'s `schema()` for the closure pattern).
+`persistentgroupsmanager`'s `schema()` for the closure pattern).
+
+**Retiring a table works the same way: append a `DROP`, never delete the
+`CREATE`.** Deleting step 3 renumbers everything after it, so an install that
+had applied four steps now believes it has applied a different four. The same
+goes for *editing* a step in place — an install that already passed it never
+sees the change, which is invisible until somebody upgrades from an older
+version. The `ldap` plugin's steps 10–16 exist to repair exactly that.
 
 > **Legacy note.** Older plugins implement a destructive `install()` that calls
 > `uninstall()` (drop) then recreates. New plugins should implement `schema()`
@@ -514,6 +523,197 @@ Two things to know:
 earliest they could be reviewed for removal is 1.7, with at least one minor
 release of notice before it happens. Adopting `FOG\` names now costs nothing and
 removes the question later.
+
+## 7b. Composer dependencies
+
+Your plugin may ship its own `vendor/`. Put it beside `config/`, exactly where
+`composer install` leaves it, and FOG registers it at boot:
+
+```
+<root>/helloworld/
+├── composer.json
+├── vendor/
+│   └── autoload.php               # FOG requires this if it is present
+├── config/
+...
+```
+
+Nothing else is needed — no hook, no manifest entry. Run `composer install` in
+your plugin directory, ship the resulting `vendor/` inside the archive, and
+your packages are autoloadable everywhere your plugin's PHP runs.
+
+Two rules make that safe.
+
+**Core wins.** Plugin loaders are registered last, after core's own Composer
+loader and after FOG's class map. A name core can resolve is resolved by core,
+whatever your `vendor/` contains.
+
+**One copy of a package, project-wide.** A plugin whose `vendor/` claims a
+namespace or class name already provided by core — or by a plugin that loaded
+earlier — is **refused**: its loader is unregistered and a line explaining why
+goes to the PHP error log. Only that plugin's vendored classes stop resolving;
+the rest of it, and the rest of FOG, keep working.
+
+This is not tidiness. Two plugins vendoring different majors of one package
+both declare the same class names, and whichever registered first wins — the
+other silently runs against a version it was never tested against. For an
+authentication or crypto library that is a security bug, so FOG makes it a
+loud failure instead.
+
+**What core provides, depend on rather than vendor:**
+
+| Package | Since | For |
+|---|---|---|
+| `firebase/php-jwt` | 1.6.0 | JWT decode and JWKS parsing |
+
+Declare it in your `composer.json` as usual and mark it `"replace"`-free — just
+do not commit your own copy into `vendor/`. If you need a version core does not
+ship, raise it with the project rather than working around it; a second copy is
+exactly what the refusal is there to stop.
+
+**Caveat.** Composer's `files` autoload runs the moment the file is required,
+so a package with side effects at load time may have executed before a refusal
+takes effect. Keep boot-time side effects out of vendored code you expect FOG
+to load.
+
+## 7c. Authentication extension points
+
+Three seams a plugin can use to add a way of signing in. Each is gated, and in
+every case **declaring nothing means denied** — none of them is a way to make
+something reachable by accident.
+
+### A route — `API_PLUGIN_ROUTES`
+
+```php
+self::$HookManager->register('API_PLUGIN_ROUTES', function ($args) {
+    $args['routes'][] = [
+        'name'       => 'oidcCallback',           // bare identifier
+        'method'     => 'GET',
+        'path'       => '/ext/oidc/callback',     // must be under /ext/
+        'handler'    => ['FOG\OidcRoutes', 'callback'],
+        'auth'       => 'public',                 // default 'required'
+    ];
+    $args['routes'][] = [
+        'name'       => 'oidcConfig',
+        'method'     => 'POST',
+        'path'       => '/ext/oidc/config',
+        'handler'    => ['FOG\OidcRoutes', 'saveConfig'],
+        'permission' => 'oidc.edit',              // required when not public
+    ];
+});
+```
+
+| Rule | Why |
+|---|---|
+| Path must start with `/ext/` | Core mints new top-level paths from its API class list, so today's free path is not tomorrow's. Under `/ext/` the two namespaces cannot meet |
+| Route name is registered as `ext:<name>` | The name is what the permission layer keys on; without a prefix a route called `status` would inherit core's "no check" |
+| `auth` is `'public'` only when it is exactly that string | A typo, or a truthy value someone thought meant "needs auth", must not open a route |
+| A public route must be a literal path | The unauthenticated test is an exact string match, so a path with `[i:id]` in it cannot be expressed there |
+| No `permission` and not public → **403**, not 404 | The route still registers, so you get a log line telling you what to declare instead of a silent miss |
+
+Registered after every core route, so a core path always matches first.
+
+### A session-less page node — `PAGE_EXEMPT_NODES`
+
+Every page node is permission-checked. That is right for a settings page and
+impossible for the page a visitor reaches *before* they have a session.
+
+```php
+self::$HookManager->register('PAGE_EXEMPT_NODES', function ($args) {
+    $args['nodes'][] = 'oidcstart';
+});
+```
+
+You may only exempt a node **nothing else owns**. A node that is in the
+permission registry — core's or another plugin's — is refused, because
+"exempt" and "check this permission" are contradictory instructions about the
+same node and the permissive one would win. Give the pre-authentication page a
+node of its own.
+
+### A login button — `LOGIN_PAGE_PROVIDERS`
+
+```php
+self::$HookManager->register('LOGIN_PAGE_PROVIDERS', function ($args) {
+    $args['providers'][] = [
+        'label' => _('Sign in with Acme'),
+        'url'   => '/fog/ext/oidc/start',
+        'icon'  => 'fa fa-key',
+    ];
+});
+```
+
+The start URL must be a **site-absolute path** or an **`https://` URL**.
+`javascript:`, `data:`, protocol-relative `//host` and plain `http://` are all
+refused — this is the one page every unauthenticated visitor sees. Label and
+icon are escaped; the icon is additionally restricted to plain class
+characters.
+
+### Turning a proven identity into a session — `establishSession($source)`
+
+Once your callback has proven who somebody is, hand the identity to FOG and
+**say how you proved it**:
+
+```php
+$user = self::getClass('User', $uid);
+$user->establishSession('oidc');
+```
+
+`$source` names the mechanism, not the account. It is recorded in the login
+history entry and kept in the session, where `User::sessionAuthSource()` reads
+it back. Two things need it: an audit that can distinguish an identity-provider
+sign-in from a local password one, and the break-glass rule that local password
+login keeps working when a provider is down — which has to be able to count
+sessions by how they were made.
+
+It is deliberately **not** the same thing as `users.uAuthSource`. That column is
+a property of the *account* and says which directory owns it; `$source` is a
+property of *this request*. An account owned by LDAP can still be signed in by
+something else, and that is exactly the case worth being able to see.
+
+Use a plain lowercase slug, up to 32 characters of `a-z0-9_-` starting
+alphanumeric — normally just your plugin's name. Anything else is recorded as
+`unknown` rather than passed through, because the value reaches an audit trail.
+Omitting the argument means `password`, so existing callers are unchanged.
+
+### What an auth plugin owes the install
+
+Three rules. The first two are enforced — you will get an exception, not a
+warning — and the third is a pattern you will get wrong by omission if nobody
+tells you it exists. All three are ADR 0014.
+
+**Only stamp `users.uAuthSource` on accounts you created.** Writing that column
+takes local password login away from the account (`User::passwordValidate()`
+refuses a local credential for any account carrying one). On an account you
+provisioned that is correct — its password is a token nobody has seen, and the
+stamp stops the leftover row becoming a login after your plugin is removed. On
+an account an admin created it silently removes their password, which is the
+thing an identity-provider outage has to fall back on. Both bundled plugins
+check: LDAP returns early for an account that exists and is not already its
+own, and OIDC stamps only what it provisioned itself.
+
+**`User::save()` can throw.** Core refuses a write that would leave nobody able
+to administer FOG without a directory — so the very first account you try to
+convert on a fresh install, which is usually `fog`, is exactly the one that
+will be refused. Let the exception reach the user with your own context added;
+do not catch and continue, because continuing means reporting a sign-in that
+did not happen.
+
+**Record what you granted, or you cannot take it back.** A directory is
+authoritative and is re-read on every login, so removing somebody from a group
+has to downgrade them next time. That needs an answer to "which of this user's
+roles are mine to remove?", and the two obvious answers are both wrong:
+
+- *Remove everything not currently granted* — silently revokes whatever an
+  admin attached by hand, and leaves no way to give a directory user anything
+  extra.
+- *Derive the managed set from your mapping tables* — deleting a mapping stops
+  the role being yours, so it is never taken away. Removing a mapping would
+  leave everyone who had it holding the role forever.
+
+So keep a per-user record of what you granted (`ldapUserGrant`,
+`oidcUserGrant`) and diff against **that**. It survives the mapping being
+deleted, which is the whole point. Write it *after* the user is saved — a
+just-provisioned account has no id before then.
 
 ## 8. Security & output conventions
 
@@ -709,13 +909,14 @@ on disk and adding new executable code to the server are different authorities.
 - **`helloworld`** — this guide's minimal, complete CRUD example.
 - **`subnetgroup`** — a clean real CRUD plugin (model→class relationship,
   Export/Import, `schema()`).
-- **`site`** — a five‑table plugin, and the reference for object scoping via
-  `OBJECT_SCOPE_CHECK`. Its `schema()` shows how to retire a table you shipped
-  (steps are immutable: step 3 creates it, step 4 drops it).
 - **`persistentgroups`** — a plugin that is nothing but a `schema()` closure
   step (it installs a MySQL trigger). No page, no model, no hooks: proof that
   none of those are mandatory.
 - **`ldap`** — authentication/integration plugin (custom hooks beyond CRUD).
+- **`oidc`** — the reference for §7c. A plugin that adds a *route* rather than
+  a resource, contributes a login button, and turns a proven identity into a
+  session. Also a six‑table plugin: provider, identity links, groups, two
+  association tables and the grant record.
 
 When in doubt, copy the closest existing plugin and adapt it — the conventions
 above are followed consistently across all of them.

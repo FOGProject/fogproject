@@ -2,7 +2,7 @@
 /**
  * A site: a named group of hosts, users, groups and user groups.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Site
  * @package  FOGProject
@@ -80,6 +80,13 @@ class Site extends FOGController
         'hosts',
         'groups',
         'usergroups',
+        // The grant side. `usergroups` above means "this user group is an
+        // OBJECT in this site"; `grantusergroups` means "members of this
+        // user group GET this site". Same pair of ids, opposite question,
+        // which is why they are separate tables and separate fields --
+        // see SiteUserGroupGrant.
+        'grantroles',
+        'grantusergroups',
         'catchall'
     ];
     /**
@@ -213,6 +220,60 @@ class Site extends FOGController
         return $this->addRemItem('usergroups', (array)$removeArray, 'diff');
     }
     /**
+     * Grant this site to a role.
+     *
+     * Everyone holding the role is in scope for this site, including
+     * through a user group that holds it -- SiteScope resolves both paths.
+     *
+     * @param array $addArray The roles to grant to.
+     *
+     * @return object
+     */
+    public function addGrantRole($addArray)
+    {
+        return $this->addRemItem('grantroles', (array)$addArray, 'merge');
+    }
+    /**
+     * Stop granting this site to a role.
+     *
+     * @param array $removeArray The roles to stop granting to.
+     *
+     * @return object
+     */
+    public function removeGrantRole($removeArray)
+    {
+        return $this->addRemItem('grantroles', (array)$removeArray, 'diff');
+    }
+    /**
+     * Grant this site to a user group.
+     *
+     * Not the same act as adding the user group to the site: that makes it
+     * an object the site contains, this puts its members in scope.
+     *
+     * @param array $addArray The user groups to grant to.
+     *
+     * @return object
+     */
+    public function addGrantUserGroup($addArray)
+    {
+        return $this->addRemItem('grantusergroups', (array)$addArray, 'merge');
+    }
+    /**
+     * Stop granting this site to a user group.
+     *
+     * @param array $removeArray The user groups to stop granting to.
+     *
+     * @return object
+     */
+    public function removeGrantUserGroup($removeArray)
+    {
+        return $this->addRemItem(
+            'grantusergroups',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
      * Stores/updates the site.
      *
      * @return object
@@ -232,6 +293,8 @@ class Site extends FOGController
             ->assocSetter('SiteHostMember', 'host', true)
             ->assocSetter('SiteGroupMember', 'group', true)
             ->assocSetter('SiteUserGroupMember', 'usergroup', true)
+            ->assocSetter('SiteRoleGrant', 'grantrole', true)
+            ->assocSetter('SiteUserGroupGrant', 'grantusergroup', true)
             ->load();
     }
     /**
@@ -341,6 +404,36 @@ class Site extends FOGController
         );
     }
     /**
+     * Load the roles this site is granted to.
+     *
+     * @return void
+     */
+    protected function loadGrantroles()
+    {
+        $find = ['siteID' => $this->get('id')];
+        $this->set(
+            'grantroles',
+            (array)Route::getIds('siterolegrant', $find, 'grantroleID')
+        );
+    }
+    /**
+     * Load the user groups this site is granted to.
+     *
+     * @return void
+     */
+    protected function loadGrantusergroups()
+    {
+        $find = ['siteID' => $this->get('id')];
+        $this->set(
+            'grantusergroups',
+            (array)Route::getIds(
+                'siteusergroupgrant',
+                $find,
+                'grantusergroupID'
+            )
+        );
+    }
+    /**
      * Load the catch-all flag.
      *
      * Read in SQL because `catchall` is not a database field -- see the
@@ -381,6 +474,85 @@ class Site extends FOGController
             'hosts',
             (array)Route::getIds('sitehostmember', $find, 'hostID')
         );
+    }
+    /**
+     * The site ids a host belongs to.
+     *
+     * The inverse of loadHosts(), for the two callers that hold a host and
+     * want its site rather than a site and its hosts.
+     *
+     * @param int $hostID the host id
+     *
+     * @return array int site ids
+     */
+    public static function hostSiteIDs($hostID)
+    {
+        $hostID = (int)$hostID;
+        if ($hostID < 1) {
+            return [];
+        }
+        return array_map(
+            'intval',
+            (array)Route::getIds('sitehostmember', ['hostID' => $hostID], 'siteID')
+        );
+    }
+    /**
+     * The names of the sites a host belongs to, for CSV export.
+     *
+     * Returns an array although a host has at most one site, because the
+     * exporter formats every association label the same way and a bare
+     * string would be iterated character by character.
+     *
+     * @param object $host the host being exported
+     *
+     * @return array the site names
+     */
+    public static function hostSiteNames($host)
+    {
+        $names = [];
+        foreach (self::hostSiteIDs($host->get('id')) as $siteID) {
+            $site = self::getClass('Site', $siteID);
+            if ($site->isValid()) {
+                $names[] = $site->get('name');
+            }
+        }
+        return $names;
+    }
+    /**
+     * Puts a host in one site on CSV import, replacing whatever it was in.
+     *
+     * A host has a single site, so this is a set rather than an add: any
+     * existing membership is cleared and only the first resolved id is
+     * used. Importing a row whose site column names two sites is a
+     * malformed row, not a request for two sites, and taking the first is
+     * what the retired Site plugin did.
+     *
+     * Written through the Site entity rather than by inserting rows so it
+     * shares the deduplication and the cascade the Site page goes through.
+     *
+     * @param object $host the host being imported
+     * @param array  $ids  the resolved site ids
+     *
+     * @return void
+     */
+    public static function applyHostSite($host, $ids)
+    {
+        $hostID = (int)$host->get('id');
+        $ids = array_values(array_filter(array_map('intval', (array)$ids)));
+        if ($hostID < 1 || count($ids) < 1) {
+            return;
+        }
+        $wanted = $ids[0];
+        foreach (self::hostSiteIDs($hostID) as $current) {
+            if ($current === $wanted) {
+                return;
+            }
+            self::getClass('Site', $current)->removeHost([$hostID])->save();
+        }
+        $site = self::getClass('Site', $wanted);
+        if ($site->isValid()) {
+            $site->addHost([$hostID])->save();
+        }
     }
     /**
      * Destroy this particular object.

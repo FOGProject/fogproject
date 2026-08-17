@@ -3,7 +3,7 @@
  * Presents many defaults for the pages and is
  * the calling point by all other page items.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGPage
  * @package  FOGProject
@@ -3578,6 +3578,27 @@ abstract class FOGPage extends FOGBase
                         'bulkclass' => 'ModuleAssociation',
                         'parentkey' => 'hostID',
                         'childkey' => 'moduleID',
+                    ],
+                    // Single-valued, and the only entry here that is: a
+                    // host has one site, so import replaces rather than
+                    // adds. Host has no `site` field to name in 'get' /
+                    // 'apply' -- the membership lives in its own table
+                    // rather than on the host row -- so both go through
+                    // Site's statics.
+                    //
+                    // Restored here after the Site plugin was retired into
+                    // core: its addsiteimport.hook.php registered this
+                    // label and did not come across, so between then and
+                    // now, exporting a host and re-importing it silently
+                    // dropped which site it was in.
+                    'site' => [
+                        'class' => 'Site',
+                        'namefield' => 'name',
+                        'get' => [Site::class, 'hostSiteNames'],
+                        'apply' => [Site::class, 'applyHostSite'],
+                        'bulkclass' => 'SiteHostMember',
+                        'parentkey' => 'hostID',
+                        'childkey' => 'siteID',
                     ],
                 ];
                 break;

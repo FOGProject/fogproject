@@ -2,7 +2,7 @@
 /**
  * Add host VNC link.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Add VNC Link
  * @package  FOGProject

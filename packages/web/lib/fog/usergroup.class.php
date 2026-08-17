@@ -2,7 +2,7 @@
 /**
  * UserGroup — a named group of users for role assignment.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category UserGroup
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * Runs background work declared by installed, active plugins.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category PluginRunner
  * @package  FOGProject

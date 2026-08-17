@@ -2,7 +2,7 @@
 /**
  * Authorization service — native role-based permission checks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Authorization
  * @package  FOGProject
@@ -250,6 +250,27 @@ class Authorization extends FOGBase
      */
     private static $_unmappedLogged = [];
     /**
+     * Permissions declared by plugin-contributed routes, name => permission.
+     *
+     * A null value means "no permission check", and Route only ever passes
+     * null for a route it also declared public -- an unauthenticated caller
+     * has no permissions to check, so demanding one would deny every request
+     * including the ones the route exists to serve.
+     *
+     * Populated in Route::defineRoutes(), which is the one place a route and
+     * its permission are decided together. A route absent from here reaches
+     * the unmapped branch of resolveApiPermission() and is denied.
+     *
+     * @var array
+     */
+    private static $_declaredRoutePermissions = [];
+    /**
+     * Exempt nodes after the plugin hook, or null before it has fired.
+     *
+     * @var array|null
+     */
+    private static $_exemptNodes = null;
+    /**
      * The permission registry: registry node => list of valid actions.
      *
      * Plugins can add their own nodes/actions through the
@@ -451,7 +472,7 @@ class Authorization extends FOGBase
         if (isset($globals[$sub])) {
             return $globals[$sub];
         }
-        if ('' === $node || in_array($node, self::EXEMPT_NODES, true)) {
+        if ('' === $node || in_array($node, self::exemptNodes(), true)) {
             return null;
         }
         $aliases = self::NODE_ALIASES;
@@ -582,16 +603,141 @@ class Authorization extends FOGBase
      *
      * @return string|null the required permission, null = no check
      */
+    /**
+     * Page nodes that are never permission-checked, core's plus any a plugin
+     * has contributed.
+     *
+     * Closes ADR 0009's second gap. EXEMPT_NODES is a const, so a plugin
+     * could not append to it, and every page a plugin adds is therefore
+     * permission-checked -- correct for a settings page, impossible for the
+     * one page an authentication provider needs: the surface a visitor
+     * reaches BEFORE they have a session.
+     *
+     * The const stays exactly as it was, so "what does core exempt" is still
+     * answerable by reading one array. Plugin entries are merged on top here.
+     *
+     * A plugin may only exempt a node nothing else owns. Exempting a node
+     * that is in the permission registry -- core's or another plugin's --
+     * is refused, because the two are contradictory instructions about the
+     * same node and the permissive one would win. That check is what stops
+     * this being a way to turn the gate off on 'host'.
+     *
+     * @return array
+     */
+    public static function exemptNodes()
+    {
+        if (null !== self::$_exemptNodes) {
+            return self::$_exemptNodes;
+        }
+        $nodes = self::EXEMPT_NODES;
+        $extra = [];
+        if (self::$HookManager) {
+            self::$HookManager->processEvent(
+                'PAGE_EXEMPT_NODES',
+                ['nodes' => &$extra]
+            );
+        }
+        $registry = self::registry();
+        foreach ((array)$extra as $node) {
+            $node = strtolower(trim((string)$node));
+            if ('' === $node || in_array($node, $nodes, true)) {
+                continue;
+            }
+            if (isset($registry[$node]) || isset(self::NODE_ALIASES[$node])) {
+                error_log(
+                    sprintf(
+                        'FOG exempt node: refusing "%s" -- it is a registered '
+                        . 'permission node, so exempting it would silently '
+                        . 'turn off a check something else asked for. Use a '
+                        . 'node of its own for the pre-authentication page.',
+                        $node
+                    )
+                );
+                continue;
+            }
+            $nodes[] = $node;
+        }
+        return self::$_exemptNodes = array_values(array_unique($nodes));
+    }
+    /**
+     * Record the permission a plugin-contributed route requires.
+     *
+     * Called by Route::defineRoutes() for each validated plugin route. A
+     * route that declared nothing is simply never registered here, which is
+     * what makes "declares nothing" mean "denied" rather than "allowed".
+     *
+     * @param string      $routeName  The prefixed route name Route registered.
+     * @param string|null $permission The permission, or null for a public route.
+     *
+     * @return void
+     */
+    public static function declareRoutePermission($routeName, $permission)
+    {
+        $routeName = (string)$routeName;
+        if ('' === $routeName
+            || array_key_exists($routeName, self::API_ROUTE_PERMISSIONS)
+            || isset(self::API_ROUTE_ACTIONS[$routeName])
+        ) {
+            // Never let a declaration land on a core route's name.
+            return;
+        }
+        if (null !== $permission
+            && (!is_string($permission) || '' === $permission)
+        ) {
+            return;
+        }
+        self::$_declaredRoutePermissions[$routeName] = $permission;
+    }
     public static function resolveApiPermission($routeName, $class = '')
     {
         $routeName = (string)$routeName;
         if (array_key_exists($routeName, self::API_ROUTE_PERMISSIONS)) {
             return self::API_ROUTE_PERMISSIONS[$routeName];
         }
+        // Core's table is consulted first on purpose: a plugin cannot
+        // redeclare the permission of a core route even if it manages to
+        // register a route under the same name. Route stamps its own prefix
+        // on plugin names so that should be impossible, and this makes it
+        // impossible twice.
+        if (array_key_exists($routeName, self::$_declaredRoutePermissions)) {
+            return self::$_declaredRoutePermissions[$routeName];
+        }
         if (!isset(self::API_ROUTE_ACTIONS[$routeName])) {
-            // Unknown route (plugin-added): allow, matching the
-            // unregistered-page compatibility stance.
-            return null;
+            // A route name nothing claims. This used to return null, which
+            // means "no check", on the grounds that it matched the
+            // unregistered-page compatibility stance -- but that stance was
+            // tightened below and in resolvePagePermission(), leaving this
+            // the last allow-by-default in the file.
+            //
+            // It was very nearly harmless while it lasted, because nothing
+            // could add a route: defineRoutes() is core-only and all 29 of
+            // its route names are listed in API_ROUTE_ACTIONS or
+            // API_ROUTE_PERMISSIONS, so this branch was unreachable on a
+            // stock install. The plugin route seam is what makes it
+            // reachable, and an "open unless declared" default is exactly
+            // the wrong way round for a seam whose whole job is letting
+            // third-party code answer a URL.
+            //
+            // Deny the same way the class branch below does: require a
+            // permission no role can be granted, so an administrator keeps
+            // working and a restricted role does not get a free pass. A
+            // plugin route declares its permission when it registers (see
+            // Route::pluginRoutes), and that declaration is what lands in
+            // API_ROUTE_PERMISSIONS' plugin-supplied counterpart, so a
+            // route reaching here declared nothing.
+            if (!isset(self::$_unmappedLogged['route:' . $routeName])) {
+                self::$_unmappedLogged['route:' . $routeName] = true;
+                error_log(
+                    sprintf(
+                        '%s: %s. %s',
+                        _('API route is not mapped to a permission'),
+                        $routeName,
+                        _('Only administrators may use it until the plugin '
+                            . 'declares a permission for the route.')
+                    )
+                );
+            }
+            return 'unmapped.route.' . $routeName;
         }
         $class = strtolower(trim((string)$class));
         $entity = self::API_CLASS_ENTITIES[$class] ?? self::_pluginEntity($class);
@@ -965,9 +1111,27 @@ class Authorization extends FOGBase
      *                         list of specific groups.
      * - 'removeGroups'     => [groupID, ...] groups about to be deleted —
      *                         their memberships and role assignments vanish.
+     * - 'localOnly'        => true count only administrators who can
+     *                         authenticate without an external identity
+     *                         provider (see below).
+     * - 'authSources'      => [userID => 'source'] proposed users.uAuthSource
+     *                         values, '' meaning local. Only consulted under
+     *                         'localOnly'.
      *
      * A user is an effective administrator when they hold '*', counting
      * roles reached both directly and through any group they belong to.
+     *
+     * Under 'localOnly' they must also carry an empty users.uAuthSource.
+     * That column makes an account unable to log in with a local password
+     * (see User::passwordValidate()), so an install whose every
+     * administrator carries one has no way in at all while its directory is
+     * unreachable. This is the question the break-glass guards ask; every
+     * other caller wants the plain one.
+     *
+     * A fog-user-token deliberately does NOT count. It reaches the API and
+     * not the UI, and it is a bearer secret that can be rotated, revoked or
+     * simply lost -- an install whose only remaining way in is a token
+     * somebody may no longer have is not one this guard should call safe.
      *
      * @param array $changes the proposed changes (see above)
      *
@@ -992,6 +1156,9 @@ class Authorization extends FOGBase
             (array)($changes['excludeUsers'] ?? [])
         );
         $users = array_diff($allUsers, $special, $exclude);
+        if (!empty($changes['localOnly'])) {
+            $users = array_diff($users, self::_externalUsers($changes));
+        }
         // Direct membership as roleID => [userIDs].
         $membership = [];
         $rows = self::$DB
@@ -1100,6 +1267,109 @@ class Authorization extends FOGBase
         return false;
     }
     /**
+     * The user ids whose identity is owned by an external provider, after
+     * applying any proposed users.uAuthSource changes.
+     *
+     * Reads the column directly rather than going through Route::getIds()
+     * for the reason rolesHolding() does: an auth source is an opaque
+     * plugin-chosen string, and the query builder rewrites '*' and '+' in a
+     * scalar filter value into a SQL LIKE wildcard. This is a query whose
+     * wrong answer unlocks -- or bricks -- the install, so it owns its SQL.
+     *
+     * @param array $changes the proposed changes; 'authSources' is honoured
+     *
+     * @return array user ids
+     */
+    private static function _externalUsers($changes = [])
+    {
+        $rows = self::$DB
+            ->query('SELECT `uID`, `uAuthSource` FROM `users`')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        $stored = [];
+        foreach ((array)$rows as $row) {
+            $stored[(int)$row['uID']] = (string)$row['uAuthSource'];
+        }
+        return self::externalUsersGiven(
+            $stored,
+            (array)($changes['authSources'] ?? [])
+        );
+    }
+    /**
+     * Which of these accounts an external provider would own.
+     *
+     * The decision half of _externalUsers(), split out because it is the
+     * part with rules in it and the only part testable without a database:
+     * a proposed source REPLACES the stored one rather than adding to it,
+     * and an empty (or whitespace) source means local. Getting either
+     * backwards would make the break-glass guards answer confidently and
+     * wrongly, in the direction that locks an install out.
+     *
+     * @param array $stored   userID => stored users.uAuthSource
+     * @param array $proposed userID => proposed users.uAuthSource
+     *
+     * @return array user ids
+     */
+    public static function externalUsersGiven(array $stored, array $proposed)
+    {
+        foreach ($proposed as $uid => $source) {
+            $stored[(int)$uid] = (string)$source;
+        }
+        $external = [];
+        foreach ($stored as $uid => $source) {
+            if ('' !== trim((string)$source)) {
+                $external[] = (int)$uid;
+            }
+        }
+        return $external;
+    }
+    /**
+     * Is there an administrator who can sign in without a directory?
+     *
+     * @param array $changes the proposed changes (see adminExistsGiven())
+     *
+     * @return bool
+     */
+    public static function localAdminExists($changes = [])
+    {
+        $changes['localOnly'] = true;
+        return self::adminExistsGiven($changes);
+    }
+    /**
+     * Refuses a change that would leave nobody able to administer FOG
+     * without its directory.
+     *
+     * PRESERVES rather than REQUIRES, and the difference matters: it only
+     * refuses when a locally-authenticating administrator exists right now.
+     * An install that has deliberately moved every administrator to a
+     * directory has nothing left for this to protect, and refusing its
+     * operations would brick it to defend a property it already gave up.
+     *
+     * So the rule is "do not be the operation that removes the last one",
+     * which is the same standing property assertAdminRemainsAfterDelete()
+     * holds for administrators in general.
+     *
+     * @param array $changes the proposed changes (see adminExistsGiven())
+     *
+     * @throws Exception when the last local administrator would be lost
+     * @return void
+     */
+    public static function assertLocalAdminRemains($changes = [])
+    {
+        if (!self::localAdminExists()) {
+            return;
+        }
+        if (self::localAdminExists($changes)) {
+            return;
+        }
+        throw new \Exception(
+            _(
+                'This would leave no account able to administer FOG without '
+                . 'its identity provider.'
+            )
+        );
+    }
+    /**
      * Builds the adminExistsGiven() change map for deleting rows of an
      * RBAC-relevant class, then refuses the delete if it would leave the
      * install with no effective administrator.
@@ -1133,6 +1403,13 @@ class Authorization extends FOGBase
         switch (strtolower((string)$classname)) {
             case 'user':
                 $changes = ['excludeUsers' => $ids];
+                // Deleting an administrator can also be what takes away the
+                // last account able to sign in without the directory, and
+                // the check below would not notice: it counts every
+                // administrator, so an install left with nothing but
+                // directory-sourced admins passes it while being one
+                // outage away from locked out.
+                self::assertLocalAdminRemains($changes);
                 break;
             case 'role':
                 $changes = ['removeRoles' => $ids];

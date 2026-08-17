@@ -7,7 +7,7 @@
  *
  * Most of the accessible elements are handled from the event class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Hook
  * @package  FOGProject

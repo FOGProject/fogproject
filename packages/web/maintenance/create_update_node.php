@@ -2,7 +2,7 @@
 /**
  * Creates or updates nodes.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Create_Update_Node
  * @package  FOGProject
@@ -13,7 +13,7 @@
 /**
  * Creates or updates nodes.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Create_Update_Node
  * @package  FOGProject

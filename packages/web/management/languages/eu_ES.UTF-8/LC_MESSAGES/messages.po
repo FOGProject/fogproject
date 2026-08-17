@@ -373,6 +373,9 @@ msgstr "Ort"
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
+msgid "API route is not mapped to a permission"
+msgstr ""
+
 msgid "API?"
 msgstr "API?"
 
@@ -2724,6 +2727,10 @@ msgstr "Standort aktualisiert"
 
 msgid "Got in line at"
 msgstr ""
+
+#, fuzzy
+msgid "Granted To"
+msgstr "Erstellt von"
 
 msgid "Grants"
 msgstr ""
@@ -5258,6 +5265,9 @@ msgstr "Eine oder mehrere MACs sind mit einem Host verknüpft"
 msgid "Online"
 msgstr ""
 
+msgid "Only administrators may use it until the plugin declares a permission for the route."
+msgstr ""
+
 msgid "Only administrators may use it until the plugin registers a matching permission node."
 msgstr ""
 
@@ -6580,6 +6590,18 @@ msgid "Site Description"
 msgstr "Site Beschreibung"
 
 #, fuzzy
+msgid "Site Granted To Roles"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "Neuen Schlüssel erstellen"
+
+#, fuzzy
+msgid "Site Grants"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "Speicherknoten erstellt"
 
@@ -6626,6 +6648,13 @@ msgstr "Drucker aktualisiert!"
 #, fuzzy
 msgid "Sites"
 msgstr "Sites"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "Neuen Schlüssel erstellen"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 #, fuzzy
 msgid "Size"
@@ -7834,6 +7863,9 @@ msgstr "Dies ist nicht die primäre Gruppe"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG without its identity provider."
+msgstr ""
+
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
@@ -8630,6 +8662,9 @@ msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."

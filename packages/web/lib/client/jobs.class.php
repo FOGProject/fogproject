@@ -2,7 +2,7 @@
 /**
  * Tells the client if there's a task waiting for the host
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Jobs
  * @package  FOGProject

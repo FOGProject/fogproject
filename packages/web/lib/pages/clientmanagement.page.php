@@ -2,7 +2,7 @@
 /**
  * Client Management Page
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * Presents the client page where users can download the FOG Client and
  * related utilities as needed.

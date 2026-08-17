@@ -349,6 +349,9 @@ msgstr "詳細ドキュメント"
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
+msgid "API route is not mapped to a permission"
+msgstr ""
+
 msgid "API?"
 msgstr "API？"
 
@@ -2611,6 +2614,10 @@ msgstr "ロケーションを更新しました！"
 
 msgid "Got in line at"
 msgstr "キューに登録されました:"
+
+#, fuzzy
+msgid "Granted To"
+msgstr "ジョブ作成時刻"
 
 msgid "Grants"
 msgstr ""
@@ -5019,6 +5026,9 @@ msgstr "1 つ以上の MAC アドレスがホストに関連付けられてい�
 msgid "Online"
 msgstr ""
 
+msgid "Only administrators may use it until the plugin declares a permission for the route."
+msgstr ""
+
 msgid "Only administrators may use it until the plugin registers a matching permission node."
 msgstr ""
 
@@ -6285,6 +6295,18 @@ msgid "Site Description"
 msgstr "サイトの説明"
 
 #, fuzzy
+msgid "Site Granted To Roles"
+msgstr "サイトを作成しました"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "新しいサブネットグループを作成しますか？"
+
+#, fuzzy
+msgid "Site Grants"
+msgstr "サイト全般"
+
+#, fuzzy
 msgid "Site Group Associations"
 msgstr "グループの関連付け"
 
@@ -6325,6 +6347,13 @@ msgstr "サイトを更新しました！"
 
 msgid "Sites"
 msgstr "サイト"
+
+#, fuzzy
+msgid "Sites Granted To This User Group's Members"
+msgstr "新しいサブネットグループを作成しますか？"
+
+msgid "Sites This Role Grants"
+msgstr ""
 
 msgid "Size"
 msgstr "サイズ"
@@ -7464,6 +7493,9 @@ msgstr ""
 msgid "This will set the configuration level to all hosts in this group"
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
+msgid "This would leave no account able to administer FOG without its identity provider."
+msgstr ""
+
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
@@ -8226,6 +8258,10 @@ msgstr ""
 
 #, fuzzy
 msgid "You do not have permission to change LDAP group associations."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
+#, fuzzy
+msgid "You do not have permission to change site grants."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 msgid "You do not have permission to perform this action."
@@ -10689,9 +10725,6 @@ msgstr ""
 
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
-
-#~ msgid "Site General"
-#~ msgstr "サイト全般"
 
 #~ msgid "Snapin Args"
 #~ msgstr "スナップイン引数"

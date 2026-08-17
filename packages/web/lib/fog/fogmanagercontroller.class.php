@@ -2,7 +2,7 @@
 /**
  * FOG Manager Controller, main object mass getter.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGManagerController
  * @package  FOGProject

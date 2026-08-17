@@ -36,4 +36,22 @@ $(function() {
         send: 'site-send',
         node: 'site'
     });
+
+    // ---------------------------------------------------------------
+    // SITE GRANTS TAB
+    // Not the tab above. That one picks the site this user group BELONGS
+    // to; this one lists the sites its MEMBERS GET. Grid, not dropdown,
+    // because a user group can grant several. Rendered only when the user
+    // holds site.view, so guard on the table existing.
+    var ugSiteGrantsTable = null;
+    if ($('#usergroup-sitegrant').length > 0) {
+        ugSiteGrantsTable = $.registerAssociationTab({
+            slug: 'usergroup-sitegrant',
+            item: 'site',
+            sub: 'getSitesList'
+        });
+        if (Common.search && Common.search.length > 0) {
+            ugSiteGrantsTable.search(Common.search).draw();
+        }
+    }
 });

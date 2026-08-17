@@ -2,7 +2,7 @@
 /**
  * Role association between user group -> role links.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category RoleUserGroupAssociation
  * @package  FOGProject
