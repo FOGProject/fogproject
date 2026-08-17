@@ -6041,14 +6041,50 @@ EOF
                         # publicly chainable, so the redirect must NOT catch
                         # iPXE's own fetches -- otherwise it lands right back
                         # on the HTTPS it cannot validate and boot fails.
+                        #
+                        # The rule is "every path iPXE ITSELF fetches", which is
+                        # two directories, not one:
+                        #
+                        #   service/ipxe/       boot.php, advanced.php, the
+                        #                       kernel and init (fetched
+                        #                       relative to boot.php's own URI),
+                        #                       refind, grub, the menu artwork.
+                        #   service/secureboot/ MOK.der, which BootMenu imgfetches
+                        #                       so MokManager can enrol it from
+                        #                       memory, and mmx64.efi /
+                        #                       arm64-efi/mmaa64.efi, which it
+                        #                       chains. See BootMenu's Secure
+                        #                       Boot entries.
+                        #
+                        # Everything else FOS reaches under ${web} is fetched by
+                        # curl -Lks, which follows the redirect and skips
+                        # verification, so it survives one. That tolerance is
+                        # load-bearing and undocumented anywhere else: if a FOS
+                        # fetch ever drops -k, its path has to be added here too.
                         if [[ $netbootproto != "$httpproto" ]]; then
-                            echo "    location ^~ ${webroot}service/ipxe/ {" >> "$etcconf"
-                            echo "        root ${docroot};" >> "$etcconf"
-                            echo "        index index.php;" >> "$etcconf"
-                            echo "        try_files \$uri \$uri/ =404;" >> "$etcconf"
-                            echo "        include ${phploc};" >> "$etcconf"
-                            echo "    }" >> "$etcconf"
+                            local nbdir
+                            for nbdir in ipxe secureboot; do
+                                echo "    location ^~ ${webroot}service/${nbdir}/ {" >> "$etcconf"
+                                echo "        root ${docroot};" >> "$etcconf"
+                                echo "        index index.php;" >> "$etcconf"
+                                echo "        try_files \$uri \$uri/ =404;" >> "$etcconf"
+                                echo "        include ${phploc};" >> "$etcconf"
+                                echo "    }" >> "$etcconf"
+                            done
                         fi
+                        # The CA itself, always reachable over plain HTTP --
+                        # independent of netboot transport, because the client
+                        # that needs this is one that trusts nothing yet.
+                        # Redirecting it to HTTPS makes fetching the CA require
+                        # already trusting the CA. Apache's branch has had this
+                        # exemption since GH-529; nginx never did, so on nginx
+                        # the bootstrap was simply broken.
+                        #
+                        # `location =` is an exact match and beats both the `^~`
+                        # prefixes above and `location /`, whatever their order.
+                        echo "    location = ${webroot}management/other/ca.cert.der {" >> "$etcconf"
+                        echo "        root ${docroot};" >> "$etcconf"
+                        echo "    }" >> "$etcconf"
                         # The redirect is a `location`, NOT a server-level
                         # `return`. nginx runs a server-level return in the
                         # server rewrite phase, which is BEFORE location
@@ -6237,12 +6273,23 @@ EOF
                         # is stripped for you; it has been wrong here since
                         # 2017. Apache's MergeSlashes normally hides it, which
                         # is why it went unreported for so long.
-                        # See the nginx branch: iPXE's own fetches must not be
-                        # redirected to an HTTPS it cannot validate. The
-                        # condition goes immediately before the rule it guards,
-                        # since RewriteCond applies only to the next RewriteRule.
+                        # See the nginx branch for the full reasoning: every
+                        # path iPXE ITSELF fetches must not be redirected to an
+                        # HTTPS it cannot validate, and that is two directories
+                        # -- service/ipxe/ and service/secureboot/, the latter
+                        # because BootMenu imgfetches MOK.der and chains
+                        # mmx64.efi / arm64-efi/mmaa64.efi out of it.
+                        #
+                        # The conditions go immediately before the rule they
+                        # guard, since RewriteCond applies only to the next
+                        # RewriteRule. Multiple RewriteConds are ANDed by
+                        # default, which is what is wanted: skip the redirect
+                        # only when the request is for neither directory.
                         if [[ $netbootproto != "$httpproto" ]]; then
-                            echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/ipxe/" >> "$etcconf"
+                            local nbdir
+                            for nbdir in ipxe secureboot; do
+                                echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/" >> "$etcconf"
+                            done
                         fi
                         echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
