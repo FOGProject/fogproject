@@ -589,9 +589,41 @@ class Authorization extends FOGBase
             return self::API_ROUTE_PERMISSIONS[$routeName];
         }
         if (!isset(self::API_ROUTE_ACTIONS[$routeName])) {
-            // Unknown route (plugin-added): allow, matching the
-            // unregistered-page compatibility stance.
-            return null;
+            // A route name nothing claims. This used to return null, which
+            // means "no check", on the grounds that it matched the
+            // unregistered-page compatibility stance -- but that stance was
+            // tightened below and in resolvePagePermission(), leaving this
+            // the last allow-by-default in the file.
+            //
+            // It was very nearly harmless while it lasted, because nothing
+            // could add a route: defineRoutes() is core-only and all 29 of
+            // its route names are listed in API_ROUTE_ACTIONS or
+            // API_ROUTE_PERMISSIONS, so this branch was unreachable on a
+            // stock install. The plugin route seam is what makes it
+            // reachable, and an "open unless declared" default is exactly
+            // the wrong way round for a seam whose whole job is letting
+            // third-party code answer a URL.
+            //
+            // Deny the same way the class branch below does: require a
+            // permission no role can be granted, so an administrator keeps
+            // working and a restricted role does not get a free pass. A
+            // plugin route declares its permission when it registers (see
+            // Route::pluginRoutes), and that declaration is what lands in
+            // API_ROUTE_PERMISSIONS' plugin-supplied counterpart, so a
+            // route reaching here declared nothing.
+            if (!isset(self::$_unmappedLogged['route:' . $routeName])) {
+                self::$_unmappedLogged['route:' . $routeName] = true;
+                error_log(
+                    sprintf(
+                        '%s: %s. %s',
+                        _('API route is not mapped to a permission'),
+                        $routeName,
+                        _('Only administrators may use it until the plugin '
+                            . 'declares a permission for the route.')
+                    )
+                );
+            }
+            return 'unmapped.route.' . $routeName;
         }
         $class = strtolower(trim((string)$class));
         $entity = self::API_CLASS_ENTITIES[$class] ?? self::_pluginEntity($class);
