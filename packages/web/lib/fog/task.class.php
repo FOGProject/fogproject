@@ -2,7 +2,7 @@
 /**
  * Task handler class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Task
  * @package  FOGProject

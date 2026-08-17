@@ -2,7 +2,7 @@
 /**
  * Displays tasks to the user.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category TaskManagementPage
  * @package  FOGProject

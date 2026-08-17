@@ -2,7 +2,7 @@
 /**
  * Checks for any jobs for the host
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Jobs
  * @package  FOGProject

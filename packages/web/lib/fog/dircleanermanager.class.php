@@ -2,7 +2,7 @@
 /**
  * Directory Cleaner Manager deals with mass Dir Cleaner items.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category DirCleanerManager
  * @package  FOGProject

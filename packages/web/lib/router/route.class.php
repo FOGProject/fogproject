@@ -2,7 +2,7 @@
 /**
  * Creates our routes for api configuration.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Route
  * @package  FOGProject

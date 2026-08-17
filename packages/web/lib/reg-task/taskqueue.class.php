@@ -2,7 +2,7 @@
 /**
  * The queue handling system for FOG's checkin/checkout processes.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category TaskQueue
  * @package  FOGProject

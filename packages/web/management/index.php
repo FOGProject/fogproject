@@ -2,7 +2,7 @@
 /**
  * The main index presenter
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Index_Page
  * @package  FOGProject

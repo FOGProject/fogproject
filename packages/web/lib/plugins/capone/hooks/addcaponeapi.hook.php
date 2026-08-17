@@ -2,7 +2,7 @@
 /**
  * Injects capone stuff into the api system.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddCaponeAPI
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * Adds the location choice to groups.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddLocationGroup
  * @package  FOGProject

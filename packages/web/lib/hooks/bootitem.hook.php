@@ -2,7 +2,7 @@
 /**
  * How to edit the boot menu via hooks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category BootItem
  * @package  FOGProject

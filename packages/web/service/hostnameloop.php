@@ -3,7 +3,7 @@
  * Hostname loop simply checks the host doesn't
  * already exist.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Hostnameloop
  * @package  FOGProject

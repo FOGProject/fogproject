@@ -2,7 +2,7 @@
 /**
  * Fileintegrity class handling file integrity.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FileIntegrity
  * @package  FOGProject

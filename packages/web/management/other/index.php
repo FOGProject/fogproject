@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * Presents the page the same to all.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Index
  * @package  FOGProject

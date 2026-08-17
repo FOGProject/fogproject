@@ -2,7 +2,7 @@
 /**
  * Adds the location stuff to task page.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddLocationTasks
  * @package  FOGProject

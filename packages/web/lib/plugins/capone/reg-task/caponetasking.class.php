@@ -2,7 +2,7 @@
 /**
  * This is only used for capone plugin.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category CaponeTasking
  * @package  FOGProject

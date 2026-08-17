@@ -2,7 +2,7 @@
 /**
  * Adds the site report type.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddSiteType
  * @package  FOGProject

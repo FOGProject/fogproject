@@ -2,7 +2,7 @@
 /**
  * Handles the session in db.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category MulticastSession
  * @package  FOGProject

@@ -10,7 +10,7 @@
  * Also the file will need to be readable by everybody:
  * chmod +r <filename>
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category LogViewerHook
  * @package  FOGProject

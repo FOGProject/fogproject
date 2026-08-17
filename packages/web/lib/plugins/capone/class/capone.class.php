@@ -2,7 +2,7 @@
 /**
  * Handles the database for Capone plugin
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Capone
  * @package  FOGProject

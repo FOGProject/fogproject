@@ -2,7 +2,7 @@
 /**
  * Prints the inventory of all items.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Inventory_Report
  * @package  FOGProject

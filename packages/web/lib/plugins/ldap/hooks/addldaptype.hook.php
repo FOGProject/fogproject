@@ -2,7 +2,7 @@
 /**
  * Adds the ldap type to the reports/exports items
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddLDAPType
  * @package  FOGProject

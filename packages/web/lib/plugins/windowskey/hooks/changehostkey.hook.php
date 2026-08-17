@@ -3,7 +3,7 @@
  * Adds the windows key in the image to the host on
  * deploy completion.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ChangeHostKey
  * @package  FOGProject

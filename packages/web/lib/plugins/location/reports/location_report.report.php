@@ -2,7 +2,7 @@
 /**
  * Test report
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Location_Report
  * @package  FOGProject

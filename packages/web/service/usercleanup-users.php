@@ -2,7 +2,7 @@
 /**
  * Cleans up users; only good for Windows XP
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Usercleanup_Users
  * @package  FOGProject

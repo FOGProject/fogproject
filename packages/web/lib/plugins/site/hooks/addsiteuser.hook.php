@@ -2,7 +2,7 @@
 /**
  * Associate Users to a Site.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddSiteUSer
  * @package  FOGProject

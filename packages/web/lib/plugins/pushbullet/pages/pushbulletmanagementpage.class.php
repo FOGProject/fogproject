@@ -2,7 +2,7 @@
 /**
  * Page presenter for pushbullet plugin
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category PushbulletManagementPage
  * @package  FOGProject

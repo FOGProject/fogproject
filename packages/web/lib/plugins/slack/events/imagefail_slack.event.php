@@ -2,7 +2,7 @@
 /**
  * The event to call when imaging task fails
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ImageFail_Slack
  * @package  FOGProject
