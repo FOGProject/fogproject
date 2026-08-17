@@ -189,6 +189,49 @@ if (strpos($squashed, $build) !== false
 }
 
 // ---------------------------------------------------------------
+// 1b. isValid() honors the same opt-out -- the half GH-1153 missed.
+//
+// save() and isValid() each carry their own copy of the "ends in id, so
+// it is a foreign key" inference, and only save()'s was fixed. The half
+// that was missed is the quieter one: the object saves, and then every
+// later isValid() says no. An enabled OIDC provider whose clientId is
+// "fog-web" simply had no login button, with nothing logged anywhere.
+// ---------------------------------------------------------------
+$at = strpos($squashed, 'publicfunctionisValid(){');
+$checks++;
+if ($at === false) {
+    $failures[] = 'FOGController::isValid() not found';
+    $isValidBody = '';
+} else {
+    $end = strpos($squashed, 'publicfunction', $at + 20);
+    $isValidBody = substr(
+        $squashed,
+        $at,
+        $end === false ? null : $end - $at
+    );
+}
+
+$checks++;
+if ($isValidBody !== '' && strpos($isValidBody, $build) === false) {
+    $failures[] = 'FOGController::isValid() does not build the $notInt lookup';
+}
+
+$vBranch = "if(strtolower(substr(\$key,-2))==='id'&&!isset(\$notInt[\$key]))";
+$checks++;
+if ($isValidBody !== '' && strpos($isValidBody, $vBranch) === false) {
+    $failures[] = 'isValid()\'s foreign-key branch does not exclude $notInt keys';
+}
+
+$checks++;
+if ($isValidBody !== ''
+    && strpos($isValidBody, $build) !== false
+    && strpos($isValidBody, $vBranch) !== false
+    && strpos($isValidBody, $build) > strpos($isValidBody, $vBranch)
+) {
+    $failures[] = 'isValid() builds $notInt after the branch that reads it';
+}
+
+// ---------------------------------------------------------------
 // 2. Every model's *id keys match their column's actual type.
 // ---------------------------------------------------------------
 $iter = new \RecursiveIteratorIterator(
