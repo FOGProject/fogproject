@@ -4267,6 +4267,13 @@ writeUpdateFile() {
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
         sslpath backupPath php_ver sslprivkey sslcakey sslcapem sslcachain
         externalca extcacert extcakey extcaroot sslcsr sslpubcert sendreports webserver
+        # The Web-zone counterparts of the three above. Persisted for the same
+        # reason they are: without this, a re-run with no flags falls into
+        # validateExternalCA's "reuse a previously imported CA" branch, which
+        # happens to serve the same bytes but has lost any record that the
+        # admin ever pointed FOG at an external CA -- and _resolveTrustAnchor
+        # now needs to know which root the served chain belongs to.
+        webExtCACert webExtCAKey webExtCARoot
         # GH-850: recorded so `grep fogprogramdir .fogsettings` answers "where
         # does this install live" -- but it is a RECORD, not a control. The
         # installer re-asserts the value it resolved from /etc/fog/fog.conf or
@@ -5446,23 +5453,59 @@ _createWebLeaf() {
     # well-formed certificate that no client will accept. Left undetected it
     # surfaces as a browser error days later with nothing connecting it to the
     # rename.
-    if [[ -n $sslcachain && -e $sslcachain ]] && \
-        ! openssl verify -CAfile "$rootCAPem" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
+    #
+    # Verified against the root the CHAIN terminates in, not against
+    # $rootCAPem. Under --external-ca the leaf chains to the ADMIN's root while
+    # $rootCAPem is still FOG's own -- validateExternalCA never reassigns it --
+    # so the old form failed on every external-CA install and printed the box
+    # below unconditionally, telling the admin to delete a Web zone that was
+    # working correctly.
+    #
+    # -trusted, not -CAfile. -CAfile ADDS to the default trust locations rather
+    # than replacing them, and _installCATrustAnchor puts FOG's own CA into this
+    # host's store by default, so a -CAfile test can answer "verified" out of
+    # the system store instead of out of the file it was handed. -trusted is the
+    # documented "only this file" form.
+    local vtmp
+    local vroot=""
+    vtmp=$(mktemp -d 2>>$error_log)
+    if [[ -n $vtmp && -n $sslcachain && -e $sslcachain ]]; then
+        _rootFromChain "$sslcachain" > "${vtmp}/root.pem" 2>>$error_log
+        if [[ -s ${vtmp}/root.pem ]]; then
+            vroot="${vtmp}/root.pem"
+        elif [[ -n $rootCAPem && -f $rootCAPem ]]; then
+            # A chain carrying no root of its own. FOG's is the only anchor
+            # available, and for a FOG-issued leaf it is also the right one.
+            vroot="$rootCAPem"
+        fi
+    fi
+    if [[ -n $vroot ]] && \
+        ! openssl verify -trusted "$vroot" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
         echo
         echo "  ###################################################################"
         echo "  # WARNING: the web certificate does not verify against the CA     #"
-        echo "  # that issued it. The usual cause is a name outside that CA's     #"
-        echo "  # name constraints -- this server was renamed, or gained an       #"
-        echo "  # --extra-server-name, after the CA was created.                  #"
-        echo "  #                                                                 #"
-        echo "  # Re-run with the name permitted:                                 #"
-        echo "  #   --internal-domain <domain>                                    #"
-        echo "  # A CA is never re-issued once it exists, so also remove it so    #"
-        echo "  # the new constraints take effect:                                #"
-        echo "  #   rm -rf $(_pkiZoneDir web)"
+        echo "  # that issued it.                                                 #"
+        if [[ $externalca == yes ]]; then
+            echo "  #                                                                 #"
+            echo "  # This server uses an external CA, so check that the leaf, the    #"
+            echo "  # intermediate and the root you supplied really belong together:  #"
+            echo "  #   --web-ca-cert / --web-ca-key / --web-ca-root                   #"
+            echo "  # Nothing under the FOG PKI tree needs removing for this.         #"
+        else
+            echo "  # The usual cause is a name outside that CA's name constraints    #"
+            echo "  # -- this server was renamed, or gained an --extra-server-name,   #"
+            echo "  # after the CA was created.                                       #"
+            echo "  #                                                                 #"
+            echo "  # Re-run with the name permitted:                                 #"
+            echo "  #   --internal-domain <domain>                                    #"
+            echo "  # A CA is never re-issued once it exists, so also remove it so    #"
+            echo "  # the new constraints take effect:                                #"
+            echo "  #   rm -rf $(_pkiZoneDir web)"
+        fi
         echo "  ###################################################################"
         echo
     fi
+    [[ -n $vtmp ]] && rm -rf "$vtmp" >>$error_log 2>&1
     return 0
 }
 FOG_MANAGED_BEGIN='# === FOG MANAGED BLOCK -- DO NOT EDIT BETWEEN THESE LINES (see docs/SUPPORTED_CUSTOMIZATIONS.md) ==='
