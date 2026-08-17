@@ -5676,7 +5676,7 @@ $this->schema[] = [
     . "PRIMARY KEY (`srgID`),"
     . "UNIQUE KEY `srgSiteRole` (`srgSiteID`,`srgRoleID`),"
     . "KEY `srgRoleID` (`srgRoleID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "CREATE TABLE IF NOT EXISTS `siteUserGroupGrants` ("
     . "`suggID` INT NOT NULL AUTO_INCREMENT,"
     . "`suggName` VARCHAR(60) NOT NULL DEFAULT '',"
@@ -5685,5 +5685,5 @@ $this->schema[] = [
     . "PRIMARY KEY (`suggID`),"
     . "UNIQUE KEY `suggSiteGroup` (`suggSiteID`,`suggGroupID`),"
     . "KEY `suggGroupID` (`suggGroupID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
