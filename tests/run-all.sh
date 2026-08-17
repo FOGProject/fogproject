@@ -51,9 +51,16 @@ for t in "$testdir"/*.test.php; do
     run_one "$t" php
 done
 
+# bash, not sh. Every *.test.sh here carries a #!/bin/bash shebang and uses
+# bash-only constructs -- [[ ]], arrays, ${BASH_SOURCE[0]} -- because the code
+# they exercise (lib/common/functions.sh) is itself bash and cannot be sourced
+# by anything else. Running them with `sh` works only where /bin/sh happens to
+# BE bash; on Debian and Ubuntu it is dash, and there every one of them died on
+# "Bad substitution" at the line that locates the repo, before running a single
+# assertion. That reads as a failing test suite rather than a mis-invoked one.
 for t in "$testdir"/*.test.sh; do
     [ -f "$t" ] || continue
-    run_one "$t" sh
+    run_one "$t" bash
 done
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"

@@ -3617,6 +3617,13 @@ _installNodeWebCert() {
     # would mint a new keypair and a new certificate for no reason.
     if [[ -f $chain && -f $sslpubcert ]] && \
         openssl verify -CAfile "$chain" "$sslpubcert" >>$error_log 2>&1; then
+        # Still point $sslcachain at it. writeUpdateFile runs BEFORE this
+        # function on a node (installfog.sh), so the assignment in the success
+        # branch below is never persisted -- which means on every LATER run
+        # $sslcachain arrives from .fogsettings still naming the node's own
+        # self-signed CA, and _resolveTrustAnchor would anchor out of the wrong
+        # file on exactly the runs that take this early return.
+        sslcachain="$chain"
         return 0
     fi
     dots "Requesting a web certificate from the master"
@@ -3668,39 +3675,112 @@ _caTrustLayout() {
     fi
     return 0
 }
-# Which certificate this box should anchor, which is not the same file in both
-# roles. Sets $trustAnchorPem; returns 1 when there is nothing to anchor yet.
+# Split a PEM bundle into one file per certificate, $2/c1.pem, c2.pem, ...
+# Returns 1 when the source yielded no certificate at all.
 #
-# A master holds the root itself, and the root is what to anchor -- not the Web
-# intermediate. Anchoring the root is what makes the intermediate and every
-# leaf beneath it verify, and it is the same certificate ca.cert.der publishes
-# and fog-client pins, so one certificate describes this server's trust
-# wherever that trust is stated.
+# openssl cannot do this itself. `openssl x509` reads only the FIRST certificate
+# in a bundle and silently ignores the rest -- it does not warn and it does not
+# fail, which is exactly how a multi-certificate anchor gets truncated to one
+# certificate with nothing in any log to say so.
+_splitPemBundle() {
+    local src="$1" dir="$2" f found=1
+    [[ -n $src && -f $src && -n $dir && -d $dir ]] || return 1
+    awk -v d="$dir" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
+        "$src" 2>>$error_log
+    for f in "$dir"/c*.pem; do
+        [[ -f $f ]] && { found=0; break; }
+    done
+    return $found
+}
+# Print the self-signed (root) certificate out of a PEM bundle. Returns 1 when
+# the bundle has none, which is a normal state -- a chain the master sent
+# without a root -- and not an error.
 #
-# A storage node never receives the root's key and only ever gets a chain from
-# the master. fog-sign-node-cert writes that chain issuer-first with the root
-# appended when the master has one, so the LAST certificate in it is the root
-# where a root was sent and the Web intermediate where it was not. Either is a
-# correct anchor for the certificates this node will be served.
+# Selected by subject == issuer, never by position. The writers of these bundles
+# do NOT agree on order: createWebIntermediateCA and fog-sign-node-cert both
+# write issuer-first with the root appended, while validateExternalCA writes the
+# root FIRST. A "last certificate in the file" rule therefore picks the root on
+# a FOG-generated CA and the INTERMEDIATE on an external one -- which is how a
+# storage node of an external-CA master came to anchor an intermediate.
+# _writeWebChainFiles selects the same way, for the same reason.
+_rootFromChain() {
+    local bundle="$1" tmpd f subj issuer st=1
+    [[ -n $bundle && -f $bundle ]] || return 1
+    tmpd=$(mktemp -d) || return 1
+    if _splitPemBundle "$bundle" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+            issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+            [[ -z $subj ]] && continue
+            # -subject prints "subject=..." and -issuer "issuer=...", so compare
+            # the values rather than the whole line.
+            if [[ ${subj#subject=} == "${issuer#issuer=}" ]]; then
+                cat "$f"
+                st=0
+                break
+            fi
+        done
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    return $st
+}
+# Which certificates this box should anchor. Sets $trustAnchorPem to a bundle;
+# returns 1 when there is nothing to anchor yet.
+#
+# Two certificates can matter here and they are not always the same one, which
+# is what this used to get wrong. It anchored $rootCAPem on a master, full stop.
+# That is right only while FOG issues the web certificate itself:
+#
+#   * $rootCAPem is FOG's own root. It signs the client-communication leaf and
+#     every storage-node certificate whatever the vhost is serving, and it is
+#     what ca.cert.der publishes and fog-client pins.
+#   * The root the SERVED chain terminates in is a different certificate as soon
+#     as --external-ca/--web-ca-root is in play, because validateExternalCA
+#     deliberately never touches $rootCAPem (see its comment). So the store held
+#     FOG's root while the vhost served the admin's chain, and every HTTPS call
+#     made on this server to this server still failed to verify -- the exact
+#     failure this whole mechanism exists to remove.
+#
+# Anchoring both, deduplicated, is correct in every combination: on a FOG-issued
+# install they are the same certificate and the bundle collapses to one, and on
+# an external-CA install both are genuinely needed.
+#
+# One code path for master and node now. A node has no root of its own, so
+# $rootCAPem simply is not there and the chain supplies everything; the branch
+# only ever existed because the master case skipped the chain entirely.
 _resolveTrustAnchor() {
     trustAnchorPem=""
-    if [[ $installtype == [Ss] ]]; then
-        [[ -n $sslcachain && -f $sslcachain ]] || return 1
-        local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
-        # The chain normally lands in this directory, so it normally exists --
-        # but $sslcachain is admin-overridable and can point anywhere, and a
-        # failed redirect here would look exactly like "nothing to anchor".
-        mkdir -p "$(dirname "$out")" >>$error_log 2>&1
-        # Split off the last PEM block. openssl x509 reads only the first
-        # certificate in a bundle, so it cannot do this itself.
-        awk '/-----BEGIN CERTIFICATE-----/{n++; cert[n]=""} n{cert[n]=cert[n] $0 "\n"} END{printf "%s", cert[n]}' \
-            "$sslcachain" > "$out" 2>>$error_log
-        [[ -s $out ]] || return 1
-        trustAnchorPem="$out"
-    else
-        [[ -n $rootCAPem && -f $rootCAPem ]] || return 1
-        trustAnchorPem="$rootCAPem"
+    local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+    local chainroot fp seen=""
+    # The chain normally lands in this directory, so it normally exists -- but
+    # $sslcachain is admin-overridable and can point anywhere, and a failed
+    # redirect here would look exactly like "nothing to anchor".
+    mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+    : > "$out" 2>>$error_log || return 1
+
+    if [[ -n $rootCAPem && -f $rootCAPem ]]; then
+        fp=$(openssl x509 -in "$rootCAPem" -noout -fingerprint -sha256 2>/dev/null)
+        if [[ -n $fp ]]; then
+            cat "$rootCAPem" >> "$out" 2>>$error_log
+            seen="$fp"
+        fi
     fi
+    if [[ -n $sslcachain && -f $sslcachain ]]; then
+        chainroot=$(_rootFromChain "$sslcachain")
+        if [[ -n $chainroot ]]; then
+            fp=$(printf '%s\n' "$chainroot" \
+                | openssl x509 -noout -fingerprint -sha256 2>/dev/null)
+            # Fingerprint, not a path comparison: on a FOG-issued install these
+            # are the same certificate reached by two different routes, and
+            # comparing filenames would append it twice.
+            if [[ -n $fp && $fp != "$seen" ]]; then
+                printf '%s\n' "$chainroot" >> "$out" 2>>$error_log
+            fi
+        fi
+    fi
+    [[ -s $out ]] || return 1
+    trustAnchorPem="$out"
     return 0
 }
 # Anchor this server's own CA in this server's own system trust store.
@@ -3741,6 +3821,13 @@ _installCATrustAnchor() {
     # here rejects a malformed anchor at the point it can be attributed,
     # instead of at refresh time where the store blames some other certificate.
     #
+    # Per certificate, not `openssl x509 -in "$anchor"` over the whole file:
+    # that reads only the FIRST certificate of a bundle and discards the rest
+    # silently. $trustAnchorPem carries two certificates on an external-CA
+    # install, and the single-shot form would have written FOG's root and
+    # dropped the admin's -- reintroducing the bug _resolveTrustAnchor was just
+    # changed to fix, with nothing to show for it in any log.
+    #
     # Staged through a temp file and moved into place only once openssl is
     # happy. Whether a failed `openssl x509 -out` leaves an empty file behind
     # varies by version, and a zero-byte .crt sitting in the anchor directory
@@ -3753,7 +3840,19 @@ _installCATrustAnchor() {
     # replacement. That is the whole reason this is not named after the CA's
     # fingerprint or its date.
     local staged="${caTrustDir}/.fog-server-ca.crt.$$"
-    if openssl x509 -in "$anchor" -out "$staged" >>$error_log 2>&1 && [[ -s $staged ]]; then
+    local tmpd f
+    tmpd=$(mktemp -d) || return 0
+    : > "$staged" 2>>$error_log || st=1
+    if [[ $st -eq 0 ]] && _splitPemBundle "$anchor" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            openssl x509 -in "$f" >> "$staged" 2>>$error_log || st=1
+        done
+    else
+        st=1
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    if [[ $st -eq 0 && -s $staged ]]; then
         chmod 0644 "$staged" >>$error_log 2>&1
         mv -f "$staged" "${caTrustDir}/fog-server-ca.crt" >>$error_log 2>&1 || st=1
         [[ $st -eq 0 ]] && { $caTrustCmd >>$error_log 2>&1 || st=1; }
@@ -4168,6 +4267,13 @@ writeUpdateFile() {
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
         sslpath backupPath php_ver sslprivkey sslcakey sslcapem sslcachain
         externalca extcacert extcakey extcaroot sslcsr sslpubcert sendreports webserver
+        # The Web-zone counterparts of the three above. Persisted for the same
+        # reason they are: without this, a re-run with no flags falls into
+        # validateExternalCA's "reuse a previously imported CA" branch, which
+        # happens to serve the same bytes but has lost any record that the
+        # admin ever pointed FOG at an external CA -- and _resolveTrustAnchor
+        # now needs to know which root the served chain belongs to.
+        webExtCACert webExtCAKey webExtCARoot
         # GH-850: recorded so `grep fogprogramdir .fogsettings` answers "where
         # does this install live" -- but it is a RECORD, not a control. The
         # installer re-asserts the value it resolved from /etc/fog/fog.conf or
@@ -5100,7 +5206,45 @@ _createCommLeaf() {
     commLeafKey="$sslpath/.srvprivate.key"
     commLeafPem="$sslpath/.srvpublic.crt"
 
+    # Already present: keep it, whoever issued it. This is also the supported
+    # way to run a comm leaf issued OUTSIDE FOG -- drop the certificate at
+    # $sslpath/.srvpublic.crt with its key at $sslpath/.srvprivate.key and FOG
+    # leaves both alone from then on.
+    #
+    # Checked with the same modulus test the adopt branch below uses, and for
+    # the same reason it gives: a certificate that does not pair with this key
+    # publishes a public key nothing on this server can decrypt against. Every
+    # registered fog-client encrypts to that public half, so a mismatch here
+    # does not degrade anything -- it locks out every client at once, and
+    # FOGBase::certDecrypt() reports it per client as a failed authorize with
+    # nothing pointing back at the certificate. Silently keeping whatever was
+    # there was the one path into this state.
     if [[ -f $commLeafPem ]]; then
+        local haveMod wantMod
+        haveMod=$(openssl x509 -noout -modulus -in "$commLeafPem" 2>/dev/null | openssl md5 2>/dev/null)
+        wantMod=$(openssl rsa -noout -modulus -in "$commLeafKey" 2>/dev/null | openssl md5 2>/dev/null)
+        # No key yet is not a mismatch. An install that has the certificate but
+        # not the key is mid-migration, not broken -- _separateCommKey runs
+        # after this and is what settles that case.
+        if [[ -f $commLeafKey && -n $haveMod && -n $wantMod && $haveMod != "$wantMod" ]]; then
+            echo
+            echo "  ###################################################################"
+            echo "  # WARNING: the client communication certificate does not match    #"
+            echo "  # the client communication private key.                           #"
+            echo "  #                                                                 #"
+            echo "  #   certificate: $commLeafPem"
+            echo "  #   private key: $commLeafKey"
+            echo "  #                                                                 #"
+            echo "  # Every registered fog-client encrypts to the key in that          #"
+            echo "  # certificate, so while these disagree NO client can authenticate #"
+            echo "  # -- it surfaces per host as a failed check-in, not as anything   #"
+            echo "  # naming these files.                                             #"
+            echo "  #                                                                 #"
+            echo "  # Put back the certificate that pairs with this key, or supply    #"
+            echo "  # both halves together if you issue this leaf outside FOG.        #"
+            echo "  ###################################################################"
+            echo
+        fi
         return 0
     fi
     # An existing server already has this certificate, under the web root where
@@ -5253,12 +5397,14 @@ _writeWebChainFiles() {
     # Every certificate in the chain file except self-signed ones. A self-signed
     # certificate in here is the root, and it is the one thing that must not be
     # sent. Splitting on the PEM boundary rather than trusting the file's order,
-    # because validateExternalCA and createWebIntermediateCA both write it
-    # root-first while an admin-supplied chain may be in any order at all.
+    # because the writers disagree -- createWebIntermediateCA and
+    # fog-sign-node-cert write issuer-first with the root appended, while
+    # validateExternalCA writes the root FIRST -- and an admin-supplied chain
+    # may be in any order at all. _rootFromChain selects the other way round off
+    # the same property, so neither reader depends on the order.
     local tmpd f
     tmpd=$(mktemp -d) || return 0
-    awk -v d="$tmpd" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
-        "$sslcachain" 2>>$error_log
+    _splitPemBundle "$sslcachain" "$tmpd"
     for f in "$tmpd"/c*.pem; do
         [[ -f $f ]] || continue
         subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
@@ -5345,23 +5491,59 @@ _createWebLeaf() {
     # well-formed certificate that no client will accept. Left undetected it
     # surfaces as a browser error days later with nothing connecting it to the
     # rename.
-    if [[ -n $sslcachain && -e $sslcachain ]] && \
-        ! openssl verify -CAfile "$rootCAPem" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
+    #
+    # Verified against the root the CHAIN terminates in, not against
+    # $rootCAPem. Under --external-ca the leaf chains to the ADMIN's root while
+    # $rootCAPem is still FOG's own -- validateExternalCA never reassigns it --
+    # so the old form failed on every external-CA install and printed the box
+    # below unconditionally, telling the admin to delete a Web zone that was
+    # working correctly.
+    #
+    # -trusted, not -CAfile. -CAfile ADDS to the default trust locations rather
+    # than replacing them, and _installCATrustAnchor puts FOG's own CA into this
+    # host's store by default, so a -CAfile test can answer "verified" out of
+    # the system store instead of out of the file it was handed. -trusted is the
+    # documented "only this file" form.
+    local vtmp
+    local vroot=""
+    vtmp=$(mktemp -d 2>>$error_log)
+    if [[ -n $vtmp && -n $sslcachain && -e $sslcachain ]]; then
+        _rootFromChain "$sslcachain" > "${vtmp}/root.pem" 2>>$error_log
+        if [[ -s ${vtmp}/root.pem ]]; then
+            vroot="${vtmp}/root.pem"
+        elif [[ -n $rootCAPem && -f $rootCAPem ]]; then
+            # A chain carrying no root of its own. FOG's is the only anchor
+            # available, and for a FOG-issued leaf it is also the right one.
+            vroot="$rootCAPem"
+        fi
+    fi
+    if [[ -n $vroot ]] && \
+        ! openssl verify -trusted "$vroot" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
         echo
         echo "  ###################################################################"
         echo "  # WARNING: the web certificate does not verify against the CA     #"
-        echo "  # that issued it. The usual cause is a name outside that CA's     #"
-        echo "  # name constraints -- this server was renamed, or gained an       #"
-        echo "  # --extra-server-name, after the CA was created.                  #"
-        echo "  #                                                                 #"
-        echo "  # Re-run with the name permitted:                                 #"
-        echo "  #   --internal-domain <domain>                                    #"
-        echo "  # A CA is never re-issued once it exists, so also remove it so    #"
-        echo "  # the new constraints take effect:                                #"
-        echo "  #   rm -rf $(_pkiZoneDir web)"
+        echo "  # that issued it.                                                 #"
+        if [[ $externalca == yes ]]; then
+            echo "  #                                                                 #"
+            echo "  # This server uses an external CA, so check that the leaf, the    #"
+            echo "  # intermediate and the root you supplied really belong together:  #"
+            echo "  #   --web-ca-cert / --web-ca-key / --web-ca-root                   #"
+            echo "  # Nothing under the FOG PKI tree needs removing for this.         #"
+        else
+            echo "  # The usual cause is a name outside that CA's name constraints    #"
+            echo "  # -- this server was renamed, or gained an --extra-server-name,   #"
+            echo "  # after the CA was created.                                       #"
+            echo "  #                                                                 #"
+            echo "  # Re-run with the name permitted:                                 #"
+            echo "  #   --internal-domain <domain>                                    #"
+            echo "  # A CA is never re-issued once it exists, so also remove it so    #"
+            echo "  # the new constraints take effect:                                #"
+            echo "  #   rm -rf $(_pkiZoneDir web)"
+        fi
         echo "  ###################################################################"
         echo
     fi
+    [[ -n $vtmp ]] && rm -rf "$vtmp" >>$error_log 2>&1
     return 0
 }
 FOG_MANAGED_BEGIN='# === FOG MANAGED BLOCK -- DO NOT EDIT BETWEEN THESE LINES (see docs/SUPPORTED_CUSTOMIZATIONS.md) ==='
@@ -5897,14 +6079,50 @@ EOF
                         # publicly chainable, so the redirect must NOT catch
                         # iPXE's own fetches -- otherwise it lands right back
                         # on the HTTPS it cannot validate and boot fails.
+                        #
+                        # The rule is "every path iPXE ITSELF fetches", which is
+                        # two directories, not one:
+                        #
+                        #   service/ipxe/       boot.php, advanced.php, the
+                        #                       kernel and init (fetched
+                        #                       relative to boot.php's own URI),
+                        #                       refind, grub, the menu artwork.
+                        #   service/secureboot/ MOK.der, which BootMenu imgfetches
+                        #                       so MokManager can enrol it from
+                        #                       memory, and mmx64.efi /
+                        #                       arm64-efi/mmaa64.efi, which it
+                        #                       chains. See BootMenu's Secure
+                        #                       Boot entries.
+                        #
+                        # Everything else FOS reaches under ${web} is fetched by
+                        # curl -Lks, which follows the redirect and skips
+                        # verification, so it survives one. That tolerance is
+                        # load-bearing and undocumented anywhere else: if a FOS
+                        # fetch ever drops -k, its path has to be added here too.
                         if [[ $netbootproto != "$httpproto" ]]; then
-                            echo "    location ^~ ${webroot}service/ipxe/ {" >> "$etcconf"
-                            echo "        root ${docroot};" >> "$etcconf"
-                            echo "        index index.php;" >> "$etcconf"
-                            echo "        try_files \$uri \$uri/ =404;" >> "$etcconf"
-                            echo "        include ${phploc};" >> "$etcconf"
-                            echo "    }" >> "$etcconf"
+                            local nbdir
+                            for nbdir in ipxe secureboot; do
+                                echo "    location ^~ ${webroot}service/${nbdir}/ {" >> "$etcconf"
+                                echo "        root ${docroot};" >> "$etcconf"
+                                echo "        index index.php;" >> "$etcconf"
+                                echo "        try_files \$uri \$uri/ =404;" >> "$etcconf"
+                                echo "        include ${phploc};" >> "$etcconf"
+                                echo "    }" >> "$etcconf"
+                            done
                         fi
+                        # The CA itself, always reachable over plain HTTP --
+                        # independent of netboot transport, because the client
+                        # that needs this is one that trusts nothing yet.
+                        # Redirecting it to HTTPS makes fetching the CA require
+                        # already trusting the CA. Apache's branch has had this
+                        # exemption since GH-529; nginx never did, so on nginx
+                        # the bootstrap was simply broken.
+                        #
+                        # `location =` is an exact match and beats both the `^~`
+                        # prefixes above and `location /`, whatever their order.
+                        echo "    location = ${webroot}management/other/ca.cert.der {" >> "$etcconf"
+                        echo "        root ${docroot};" >> "$etcconf"
+                        echo "    }" >> "$etcconf"
                         # The redirect is a `location`, NOT a server-level
                         # `return`. nginx runs a server-level return in the
                         # server rewrite phase, which is BEFORE location
@@ -6093,12 +6311,23 @@ EOF
                         # is stripped for you; it has been wrong here since
                         # 2017. Apache's MergeSlashes normally hides it, which
                         # is why it went unreported for so long.
-                        # See the nginx branch: iPXE's own fetches must not be
-                        # redirected to an HTTPS it cannot validate. The
-                        # condition goes immediately before the rule it guards,
-                        # since RewriteCond applies only to the next RewriteRule.
+                        # See the nginx branch for the full reasoning: every
+                        # path iPXE ITSELF fetches must not be redirected to an
+                        # HTTPS it cannot validate, and that is two directories
+                        # -- service/ipxe/ and service/secureboot/, the latter
+                        # because BootMenu imgfetches MOK.der and chains
+                        # mmx64.efi / arm64-efi/mmaa64.efi out of it.
+                        #
+                        # The conditions go immediately before the rule they
+                        # guard, since RewriteCond applies only to the next
+                        # RewriteRule. Multiple RewriteConds are ANDed by
+                        # default, which is what is wanted: skip the redirect
+                        # only when the request is for neither directory.
                         if [[ $netbootproto != "$httpproto" ]]; then
-                            echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/ipxe/" >> "$etcconf"
+                            local nbdir
+                            for nbdir in ipxe secureboot; do
+                                echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/" >> "$etcconf"
+                            done
                         fi
                         echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
