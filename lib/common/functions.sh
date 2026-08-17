@@ -576,6 +576,9 @@ backupDB() {
     # install skips the step instead of reporting a failure it did not have.
     local dbbackupstat=0
     local dbbackupfile=""
+    # Declared here, not where it is set: the block that sets it is skipped
+    # entirely on a fresh install, and the prompt at the bottom reads it.
+    local dbwhy=""
     # Ask the database whether there is anything to dump, rather than asking
     # the filesystem whether configureHttpd happened to leave a
     # fog_web_<ver>.BACKUP behind. That directory was only ever a proxy for
@@ -599,13 +602,68 @@ backupDB() {
         # update run at 05:57 and one at 17:57 on the same day produced the
         # same filename and the second silently overwrote the first.
         dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%H%M%S").sql"
-        curl -skf "$url" | jq -r '. | ._content' > "$dbbackupfile"
-        # Both halves of the pipeline matter, and so does the result: a dump
-        # that is empty or the literal "null" is jq faithfully reporting that
-        # the response had no _content.
-        [[ ${PIPESTATUS[0]} -ne 0 || ${PIPESTATUS[1]} -ne 0 ]] && dbbackupstat=1
-        [[ ! -s $dbbackupfile ]] && dbbackupstat=1
-        [[ $(head -c 4 "$dbbackupfile" 2>/dev/null) == null ]] && dbbackupstat=1
+        # --max-redirs 0 rather than -L, and the status captured rather than
+        # left to -f. -f fails only on 4xx and 5xx, so a REDIRECT used to
+        # reach the guards below as a clean exit 0 with an empty body, and
+        # nothing anywhere named it: a 3xx is not an error to the web server
+        # either, so it lands in access_log and there is nothing to grep for.
+        # That is how GH-1147 presented -- backup_db.php answering
+        # "308 -> ?node=schema" because the schema was stale, and this step
+        # able to say only "Failed". Following the redirect instead would
+        # trade an empty body for an HTML one that jq chokes on just as
+        # silently; an unfollowed redirect is never a valid dump, so it is
+        # named as its own failure.
+        # Body to a temporary file rather than straight down a pipe to jq, so
+        # that curl's status, the HTTP status and jq's status are three
+        # separate answerable questions. Down a pipe only the first and last
+        # are available, and PIPESTATUS cannot distinguish the case that
+        # actually happened below.
+        local dbraw="${dbbackupfile}.raw"
+        local dbcurlerr="${dbbackupfile}.curlerr"
+        local dbhttpcode=""
+        local dbcurlstat=0
+        local dbjqstat=0
+        dbhttpcode=$(curl -sk --max-redirs 0 -w '%{http_code}' -o "$dbraw" "$url" 2>"$dbcurlerr")
+        dbcurlstat=$?
+        jq -r '. | ._content' < "$dbraw" > "$dbbackupfile" 2>>"$dbcurlerr"
+        dbjqstat=$?
+        # Ordered most specific first, so the message names the earliest
+        # thing that went wrong rather than its downstream effect. A redirect
+        # is called out on its own: -f fails only on 4xx and 5xx, so a 3xx
+        # used to arrive here as a clean exit 0 with an empty body, and
+        # nothing anywhere named it -- a 3xx is not an error to the web
+        # server either, so it lands in access_log with nothing to grep for.
+        # That is exactly how GH-1147 presented: backup_db.php answering
+        # "308 -> ?node=schema" because the schema was stale, and this step
+        # able to say only "Failed".
+        #
+        # --max-redirs 0 rather than -L on purpose. Following the bounce
+        # would trade an empty body for an HTML one that jq chokes on just as
+        # silently; an unfollowed redirect is never a valid dump, so it is
+        # named as its own failure.
+        #
+        # A dump that is empty or the literal "null" is jq faithfully
+        # reporting that the response had no _content, which is a different
+        # fault from jq failing to parse at all -- so they read differently.
+        dbwhy=""
+        if [[ $dbcurlstat -ne 0 ]]; then
+            dbwhy="curl exited $dbcurlstat requesting $url: $(head -c 200 "$dbcurlerr" 2>/dev/null)"
+        elif [[ $dbhttpcode -ge 300 ]]; then
+            dbwhy="HTTP $dbhttpcode from $url -- a redirect or an error, not a dump"
+        elif [[ $dbjqstat -ne 0 ]]; then
+            dbwhy="HTTP $dbhttpcode but the response is not the expected JSON: $(head -c 200 "$dbraw" 2>/dev/null)"
+        elif [[ ! -s $dbbackupfile ]]; then
+            dbwhy="HTTP $dbhttpcode but the dump is empty -- no ._content in the response"
+        elif [[ $(head -c 4 "$dbbackupfile" 2>/dev/null) == null ]]; then
+            dbwhy="HTTP $dbhttpcode but ._content was null"
+        fi
+        if [[ -n $dbwhy ]]; then
+            dbbackupstat=1
+            # Written only on the failure path; a successful backup stays as
+            # quiet as it has always been.
+            echo "Database backup failed: $dbwhy" >>$error_log 2>&1
+        fi
+        rm -f "$dbraw" "$dbcurlerr" >/dev/null 2>&1
     fi
     if [[ -z $dbbackupfile ]]; then
         # No prior install to back up. Saying "Done" over a step that never ran
@@ -615,8 +673,15 @@ backupDB() {
         echo "Failed"
         if [[ -z $autoaccept ]]; then
             echo
-            echo "    We were not able to backup the current database! Just press"
-            echo "    [Enter] to proceed anyway or Ctrl+C to stop the installer."
+            echo "    We were not able to backup the current database!"
+            # The reason, on screen and not only in the log. This prompt asks
+            # an administrator to approve continuing an upgrade with no dump
+            # to roll back to; it should say what went wrong before it asks.
+            [[ -n $dbwhy ]] && echo "    Reason: $dbwhy"
+            echo
+            echo "    Proceeding means this upgrade has no pre-upgrade dump to"
+            echo "    restore from. Press [Enter] to proceed anyway, or Ctrl+C"
+            echo "    to stop the installer."
             read
         fi
     else
