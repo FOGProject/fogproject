@@ -432,7 +432,7 @@ php tests/oidc-provider-safety.test.php       # in fog-plugins
 # just-in-time provisioning on (1)
 ```
 
-#### PR 2.4b — the flow
+#### PR 2.4b — the flow ✅ DONE (fog-plugins #8)
 
 Discovery, start, callback, ID token verification against the JWKS, and claim
 → role mapping. **Default deny**: a successful IdP login for an unknown user
@@ -450,10 +450,47 @@ reassignable — a departed user's name reissued by the provider inherits their
 FOG account. `sub` alone is unimpeachable and matches no account that exists
 today, so every install would start with nobody linked.
 
+Split once more on the same reasoning as 2.4a: **claim → role mapping moved
+to 2.4c.** With JIT provisioning off — the default, and the only mode that
+exists — a user must already exist in FOG with roles an admin assigned, so
+nothing in the flow needs to map a claim to a role. 2.4b therefore stands
+alone as a complete, safe feature (SSO sign-in for existing accounts, default
+deny for everyone else) and the flow arrives in a diff worth reading closely.
+
+Three things the shape of the code is load-bearing for, each of which leaves
+a *working* sign-in if it regresses and so is pinned by the gate:
+
+- the flow values are cleared from the session **before** any validation can
+  fail — clearing them after a successful sign-in leaves a usable `state` and
+  PKCE verifier behind after every failure, which is the same authorization
+  code being presentable twice;
+- the discovery document must name the issuer that was asked for —
+  `FOGURLRequests` follows redirects, and every endpoint used, including the
+  one the client secret is posted to, comes out of that document;
+- the identity already in the session is cleared before the new one is
+  established — `User::establishSession()` prefers the boot-time `$FOGUser`
+  when it is valid, and **both** halves have to go, because emptying
+  `$_SESSION` leaves the static that establishSession() actually reads.
+
 ```bash
-curl -sk "$FOG/ext/oidc/callback"             # 400, not a 500 or a session
+php tests/oidc-flow-safety.test.php           # in fog-plugins
+# verified failing by removing the nonce check and by moving the session
+# clear inside the try block
+curl -sk "$FOG/ext/oidc/callback"             # redirect to login + message,
+                                              # never a 500 or a session
 curl -sk "$FOG/management/index.php" | grep -c 'Sign in with'
 ```
+
+#### PR 2.4c — claim → role mapping and JIT provisioning
+
+Claims map to **RBAC roles**, never to the legacy `type` field —
+`USER_TYPE_HOOK` rewrites `type` (`user.class.php:172`), so anything derived
+from it is not a decision anyone controls. Shaped like the LDAP plugin's
+`LDAPGroups` + two association tables, because granting a role or a user
+group is an ordinary association and the shared association tab needs the
+group itself to be the owning object. Turning JIT provisioning on becomes
+meaningful at the same moment: a created account with no roles is not
+useful, so the column stays inert until this lands.
 
 ### PR 2.5 — break-glass, and the test that proves it
 
