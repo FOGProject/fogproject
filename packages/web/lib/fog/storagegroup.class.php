@@ -258,6 +258,55 @@ class StorageGroup extends FOGController
         return array_sum($maxClients);
     }
     /**
+     * Picks a node without consulting the availability probe.
+     *
+     * The probe is a TCP connect to the node's ssh or web port. Neither says
+     * anything about whether the image share works, so it is useful for
+     * choosing BETWEEN nodes and must not be what decides an admin may not
+     * create a task at all. 1.5 fell back to min($nodes) here for exactly
+     * that reason; 1.6 threw instead, which turned an unprobeable node -- a
+     * NAS with ssh switched off is the common one -- into "No master nodes
+     * available" and no capture task (forums 18217).
+     *
+     * Unlike 1.5 this is not silent. A node picked here is a node FOG could
+     * not reach on either port, so the task may well fail later; saying so
+     * once, with the group and node named, is the difference between a
+     * puzzling failure and an obvious one.
+     *
+     * @param array  $ids    candidate node ids
+     * @param string $reason what the probe failed to find
+     *
+     * @return int|null the chosen node id
+     */
+    private function _fallbackNode($ids, $reason)
+    {
+        $ids = array_values(array_filter(array_map('intval', (array)$ids)));
+        if (count($ids) < 1) {
+            return null;
+        }
+        $chosen = min($ids);
+        // error_log, not self::error(). The latter writes only when its
+        // logging setting is switched on, and returns without printing
+        // anything at all on an ajax request -- which is how tasking runs.
+        // A warning nobody sees is the silence this exists to end, so it goes
+        // to the web server's log unconditionally.
+        error_log(
+            sprintf(
+                'FOG storage node availability: %s. Group %s (id %d); '
+                . 'node id %d chosen anyway. The probe is a reachability '
+                . 'test, not a test of the image share, so tasking '
+                . 'continues -- if the task fails, check that this node is '
+                . 'reachable.',
+                $reason,
+                $this->get('name'),
+                (int)$this->get('id'),
+                $chosen
+            )
+        );
+
+        return $chosen;
+    }
+    /**
      * Get's the groups master storage node
      *
      * @return object
@@ -285,7 +334,9 @@ class StorageGroup extends FOGController
         // third-party plugin may already read. Only the per-row fetch moves --
         // getItem() answers null for a node deleted between the list and the
         // fetch, where indiv() ended the response outright. Refs ADR 0011.
+        $masterIds = [];
         foreach ($StorageNodes->data as $StorageNode) {
+            $masterIds[] = (int)$StorageNode->id;
             $StorageNode = Route::getItem('storagenode', $StorageNode->id);
             if (!$StorageNode || !$StorageNode->online) {
                 continue;
@@ -296,7 +347,20 @@ class StorageGroup extends FOGController
             }
             unset($StorageNode);
         }
-        $StorageNode = empty($masternode) ? null : new StorageNode($masternode->id);
+        $masterId = empty($masternode) ? null : (int)$masternode->id;
+        if ($masterId === null) {
+            // Enabled masters first: an unreachable master is still the node
+            // this group is configured to capture to, so preferring it over
+            // an arbitrary member keeps the degraded answer the same shape as
+            // the healthy one.
+            $masterId = $this->_fallbackNode(
+                count($masterIds) > 0 ? $masterIds : $this->get($getter),
+                count($masterIds) > 0
+                    ? _('no enabled master node answered the probe')
+                    : _('the group has no enabled master node')
+            );
+        }
+        $StorageNode = empty($masterId) ? null : new StorageNode($masterId);
         self::$HookManager->processEvent(
             'MASTER_STORAGE_NODE',
             [
@@ -350,7 +414,14 @@ class StorageGroup extends FOGController
             unset($StorageNode);
         }
         unset($StorageNode);
-        $StorageNode = empty($winner) ? null : new StorageNode($winner->id);
+        $winnerId = empty($winner) ? null : (int)$winner->id;
+        if ($winnerId === null) {
+            $winnerId = $this->_fallbackNode(
+                $this->get($getter),
+                _('no node in the group answered the probe')
+            );
+        }
+        $StorageNode = empty($winnerId) ? null : new StorageNode($winnerId);
         self::$HookManager->processEvent(
             'OPTIMAL_STORAGE_NODE',
             [
