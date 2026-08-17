@@ -709,6 +709,7 @@ class User extends FOGController
      */
     public function save()
     {
+        $this->_assertAuthSourceKeepsBreakGlass();
         // Captured before the save, because that is what stamps the id on.
         $isNew = (int)$this->get('id') < 1;
         // Propagate a failed write rather than reporting success; the
@@ -724,6 +725,62 @@ class User extends FOGController
             ->assocSetter('RoleUser', 'role')
             ->assocSetter('UserGroupMember', 'usergroup', true)
             ->load();
+    }
+    /**
+     * Refuses to hand the last local administrator to a directory.
+     *
+     * Writing users.uAuthSource takes local password login away from the
+     * account it is written to (see passwordValidate() above). Doing that to
+     * the last administrator who still has one leaves the install reachable
+     * only while its identity provider is: an outage, an expired client
+     * secret or a mistyped issuer then locks everybody out of their own
+     * server, with no way back in that does not involve the database.
+     *
+     * It sits on save() rather than on each caller because there are three
+     * ways to get here and they have nothing in common: a REST
+     * PUT /fog/user/{id} (uAuthSource is an ordinary field and is not in
+     * Route::$serverOwnedFields), a plugin's own set()/save(), and the CSV
+     * import. Guarding the write is what makes it a standing property
+     * instead of something each new caller has to remember. Delete is
+     * covered separately, by Authorization::assertAdminRemainsAfterDelete().
+     *
+     * Neither bundled auth plugin can reach this: LDAP returns early for an
+     * account that exists and is not already its own, and OIDC stamps only
+     * accounts it created itself. It is the deliberate administrative paths
+     * that were open.
+     *
+     * @throws Exception when the last local administrator would be lost
+     * @return void
+     */
+    private function _assertAuthSourceKeepsBreakGlass()
+    {
+        $id = (int)$this->get('id');
+        /*
+         * A row with no id yet is a new account, which cannot take a login
+         * away from anybody. It cannot quietly become an update either:
+         * users.uName carries a plain KEY and not a UNIQUE one, so there is
+         * no INSERT ... ON DUPLICATE KEY UPDATE by name to ride in on, and
+         * the CSV import refuses a name that already exists before it gets
+         * this far.
+         */
+        if ($id < 1 || !$this->isDirty('authsource')) {
+            return;
+        }
+        $pending = trim((string)$this->get('authsource'));
+        // Clearing it only ever gives an account its password back.
+        if ('' === $pending) {
+            return;
+        }
+        /*
+         * No need to read the stored value to spot a no-op: an account that
+         * is already external stays external under the simulated change, so
+         * the answer is the same with and without it and the assertion
+         * passes. That covers a round-tripping PUT and a re-stamp from one
+         * provider to another without a second query.
+         */
+        Authorization::assertLocalAdminRemains(
+            ['authSources' => [$id => $pending]]
+        );
     }
     /**
      * Adds roles to the user.

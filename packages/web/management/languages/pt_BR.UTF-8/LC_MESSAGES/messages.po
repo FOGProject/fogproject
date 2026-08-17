@@ -7837,6 +7837,9 @@ msgstr " | Este não é o grupo primário"
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
+msgid "This would leave no account able to administer FOG without its identity provider."
+msgstr ""
+
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 
