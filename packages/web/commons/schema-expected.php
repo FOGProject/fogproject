@@ -551,7 +551,7 @@ return [
             ],
         ],
         'rolePermissions' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `rolePermissions` ( `rpID` int(11) NOT NULL AUTO_INCREMENT, `rpRoleID` int(11) NOT NULL, `rpName` varchar(64) NOT NULL, PRIMARY KEY (`rpID`), UNIQUE KEY `rpRolePerm` (`rpRoleID`,`rpName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `rolePermissions` ( `rpID` int(11) NOT NULL AUTO_INCREMENT, `rpRoleID` int(11) NOT NULL, `rpName` varchar(64) NOT NULL, PRIMARY KEY (`rpID`), UNIQUE KEY `rpRolePerm` (`rpRoleID`,`rpName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'rpID' => 'int(11) NOT NULL',
                 'rpRoleID' => 'int(11) NOT NULL',
@@ -559,7 +559,7 @@ return [
             ],
         ],
         'roles' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `roles` ( `rID` int(11) NOT NULL AUTO_INCREMENT, `rName` varchar(255) NOT NULL, `rDesc` longtext NOT NULL, `rCreatedBy` varchar(40) NOT NULL, `rCreatedTime` timestamp NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`rID`), UNIQUE KEY `rName` (`rName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `roles` ( `rID` int(11) NOT NULL AUTO_INCREMENT, `rName` varchar(255) NOT NULL, `rDesc` longtext NOT NULL, `rCreatedBy` varchar(40) NOT NULL, `rCreatedTime` timestamp NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`rID`), UNIQUE KEY `rName` (`rName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'rID' => 'int(11) NOT NULL',
                 'rName' => 'varchar(255) NOT NULL',
@@ -569,7 +569,7 @@ return [
             ],
         ],
         'roleUserAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `roleUserAssoc` ( `ruaID` int(11) NOT NULL AUTO_INCREMENT, `ruaName` varchar(60) NOT NULL DEFAULT \'\', `ruaRoleID` int(11) NOT NULL, `ruaUserID` int(11) NOT NULL, PRIMARY KEY (`ruaID`), UNIQUE KEY `ruaRoleUser` (`ruaRoleID`,`ruaUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `roleUserAssoc` ( `ruaID` int(11) NOT NULL AUTO_INCREMENT, `ruaName` varchar(60) NOT NULL DEFAULT \'\', `ruaRoleID` int(11) NOT NULL, `ruaUserID` int(11) NOT NULL, PRIMARY KEY (`ruaID`), UNIQUE KEY `ruaRoleUser` (`ruaRoleID`,`ruaUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ruaID' => 'int(11) NOT NULL',
                 'ruaName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -578,7 +578,7 @@ return [
             ],
         ],
         'roleUserGroupAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `roleUserGroupAssoc` ( `rugID` int(11) NOT NULL AUTO_INCREMENT, `rugName` varchar(60) NOT NULL DEFAULT \'\', `rugGroupID` int(11) NOT NULL, `rugRoleID` int(11) NOT NULL, PRIMARY KEY (`rugID`), UNIQUE KEY `rugGroupRole` (`rugGroupID`,`rugRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `roleUserGroupAssoc` ( `rugID` int(11) NOT NULL AUTO_INCREMENT, `rugName` varchar(60) NOT NULL DEFAULT \'\', `rugGroupID` int(11) NOT NULL, `rugRoleID` int(11) NOT NULL, PRIMARY KEY (`rugID`), UNIQUE KEY `rugGroupRole` (`rugGroupID`,`rugRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'rugID' => 'int(11) NOT NULL',
                 'rugName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -620,7 +620,7 @@ return [
             ],
         ],
         'siteGroupMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `siteGroupMembers` ( `sgmID` int(11) NOT NULL AUTO_INCREMENT, `sgmName` varchar(60) NOT NULL DEFAULT \'\', `sgmSiteID` int(11) NOT NULL, `sgmGroupID` int(11) NOT NULL, PRIMARY KEY (`sgmID`), UNIQUE KEY `sgmSiteGroup` (`sgmSiteID`,`sgmGroupID`), KEY `sgmGroupID` (`sgmGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteGroupMembers` ( `sgmID` int(11) NOT NULL AUTO_INCREMENT, `sgmName` varchar(60) NOT NULL DEFAULT \'\', `sgmSiteID` int(11) NOT NULL, `sgmGroupID` int(11) NOT NULL, PRIMARY KEY (`sgmID`), UNIQUE KEY `sgmSiteGroup` (`sgmSiteID`,`sgmGroupID`), KEY `sgmGroupID` (`sgmGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sgmID' => 'int(11) NOT NULL',
                 'sgmName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -629,7 +629,7 @@ return [
             ],
         ],
         'siteHostMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `siteHostMembers` ( `shmID` int(11) NOT NULL AUTO_INCREMENT, `shmName` varchar(60) NOT NULL DEFAULT \'\', `shmSiteID` int(11) NOT NULL, `shmHostID` int(11) NOT NULL, PRIMARY KEY (`shmID`), UNIQUE KEY `shmSiteHost` (`shmSiteID`,`shmHostID`), KEY `shmHostID` (`shmHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteHostMembers` ( `shmID` int(11) NOT NULL AUTO_INCREMENT, `shmName` varchar(60) NOT NULL DEFAULT \'\', `shmSiteID` int(11) NOT NULL, `shmHostID` int(11) NOT NULL, PRIMARY KEY (`shmID`), UNIQUE KEY `shmSiteHost` (`shmSiteID`,`shmHostID`), KEY `shmHostID` (`shmHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'shmID' => 'int(11) NOT NULL',
                 'shmName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -638,7 +638,7 @@ return [
             ],
         ],
         'siteRoleGrants' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `siteRoleGrants` ( `srgID` int(11) NOT NULL AUTO_INCREMENT, `srgName` varchar(60) NOT NULL DEFAULT \'\', `srgSiteID` int(11) NOT NULL, `srgRoleID` int(11) NOT NULL, PRIMARY KEY (`srgID`), UNIQUE KEY `srgSiteRole` (`srgSiteID`,`srgRoleID`), KEY `srgRoleID` (`srgRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteRoleGrants` ( `srgID` int(11) NOT NULL AUTO_INCREMENT, `srgName` varchar(60) NOT NULL DEFAULT \'\', `srgSiteID` int(11) NOT NULL, `srgRoleID` int(11) NOT NULL, PRIMARY KEY (`srgID`), UNIQUE KEY `srgSiteRole` (`srgSiteID`,`srgRoleID`), KEY `srgRoleID` (`srgRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'srgID' => 'int(11) NOT NULL',
                 'srgName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -647,7 +647,7 @@ return [
             ],
         ],
         'sites' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `sites` ( `siteID` int(11) NOT NULL AUTO_INCREMENT, `siteName` varchar(255) NOT NULL, `siteDesc` longtext NOT NULL, `siteCatchAll` tinyint(1) unsigned DEFAULT NULL, PRIMARY KEY (`siteID`), UNIQUE KEY `siteName` (`siteName`), UNIQUE KEY `siteCatchAll` (`siteCatchAll`), CONSTRAINT `siteCatchAllIsOneOrNull` CHECK (`siteCatchAll` = 1) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `sites` ( `siteID` int(11) NOT NULL AUTO_INCREMENT, `siteName` varchar(255) NOT NULL, `siteDesc` longtext NOT NULL, `siteCatchAll` tinyint(1) unsigned DEFAULT NULL, PRIMARY KEY (`siteID`), UNIQUE KEY `siteName` (`siteName`), UNIQUE KEY `siteCatchAll` (`siteCatchAll`), CONSTRAINT `siteCatchAllIsOneOrNull` CHECK (`siteCatchAll` = 1) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'siteID' => 'int(11) NOT NULL',
                 'siteName' => 'varchar(255) NOT NULL',
@@ -656,7 +656,7 @@ return [
             ],
         ],
         'siteUserGroupGrants' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserGroupGrants` ( `suggID` int(11) NOT NULL AUTO_INCREMENT, `suggName` varchar(60) NOT NULL DEFAULT \'\', `suggSiteID` int(11) NOT NULL, `suggGroupID` int(11) NOT NULL, PRIMARY KEY (`suggID`), UNIQUE KEY `suggSiteGroup` (`suggSiteID`,`suggGroupID`), KEY `suggGroupID` (`suggGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserGroupGrants` ( `suggID` int(11) NOT NULL AUTO_INCREMENT, `suggName` varchar(60) NOT NULL DEFAULT \'\', `suggSiteID` int(11) NOT NULL, `suggGroupID` int(11) NOT NULL, PRIMARY KEY (`suggID`), UNIQUE KEY `suggSiteGroup` (`suggSiteID`,`suggGroupID`), KEY `suggGroupID` (`suggGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'suggID' => 'int(11) NOT NULL',
                 'suggName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -665,7 +665,7 @@ return [
             ],
         ],
         'siteUserGroupMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserGroupMembers` ( `sugmID` int(11) NOT NULL AUTO_INCREMENT, `sugmName` varchar(60) NOT NULL DEFAULT \'\', `sugmSiteID` int(11) NOT NULL, `sugmUserGroupID` int(11) NOT NULL, PRIMARY KEY (`sugmID`), UNIQUE KEY `sugmSiteUserGroup` (`sugmSiteID`,`sugmUserGroupID`), KEY `sugmUserGroupID` (`sugmUserGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserGroupMembers` ( `sugmID` int(11) NOT NULL AUTO_INCREMENT, `sugmName` varchar(60) NOT NULL DEFAULT \'\', `sugmSiteID` int(11) NOT NULL, `sugmUserGroupID` int(11) NOT NULL, PRIMARY KEY (`sugmID`), UNIQUE KEY `sugmSiteUserGroup` (`sugmSiteID`,`sugmUserGroupID`), KEY `sugmUserGroupID` (`sugmUserGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sugmID' => 'int(11) NOT NULL',
                 'sugmName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -674,7 +674,7 @@ return [
             ],
         ],
         'siteUserMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserMembers` ( `sumID` int(11) NOT NULL AUTO_INCREMENT, `sumName` varchar(60) NOT NULL DEFAULT \'\', `sumSiteID` int(11) NOT NULL, `sumUserID` int(11) NOT NULL, PRIMARY KEY (`sumID`), UNIQUE KEY `sumSiteUser` (`sumSiteID`,`sumUserID`), KEY `sumUserID` (`sumUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `siteUserMembers` ( `sumID` int(11) NOT NULL AUTO_INCREMENT, `sumName` varchar(60) NOT NULL DEFAULT \'\', `sumSiteID` int(11) NOT NULL, `sumUserID` int(11) NOT NULL, PRIMARY KEY (`sumID`), UNIQUE KEY `sumSiteUser` (`sumSiteID`,`sumUserID`), KEY `sumUserID` (`sumUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sumID' => 'int(11) NOT NULL',
                 'sumName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -845,7 +845,7 @@ return [
             ],
         ],
         'userGroupMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `userGroupMembers` ( `ugmID` int(11) NOT NULL AUTO_INCREMENT, `ugmName` varchar(60) NOT NULL DEFAULT \'\', `ugmGroupID` int(11) NOT NULL, `ugmUserID` int(11) NOT NULL, PRIMARY KEY (`ugmID`), UNIQUE KEY `ugmGroupUser` (`ugmGroupID`,`ugmUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `userGroupMembers` ( `ugmID` int(11) NOT NULL AUTO_INCREMENT, `ugmName` varchar(60) NOT NULL DEFAULT \'\', `ugmGroupID` int(11) NOT NULL, `ugmUserID` int(11) NOT NULL, PRIMARY KEY (`ugmID`), UNIQUE KEY `ugmGroupUser` (`ugmGroupID`,`ugmUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ugmID' => 'int(11) NOT NULL',
                 'ugmName' => 'varchar(60) NOT NULL DEFAULT \'\'',
@@ -854,7 +854,7 @@ return [
             ],
         ],
         'userGroups' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `userGroups` ( `ugID` int(11) NOT NULL AUTO_INCREMENT, `ugName` varchar(255) NOT NULL, `ugDesc` longtext NOT NULL, `ugCreatedBy` varchar(40) NOT NULL, `ugCreatedTime` timestamp NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`ugID`), UNIQUE KEY `ugName` (`ugName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `userGroups` ( `ugID` int(11) NOT NULL AUTO_INCREMENT, `ugName` varchar(255) NOT NULL, `ugDesc` longtext NOT NULL, `ugCreatedBy` varchar(40) NOT NULL, `ugCreatedTime` timestamp NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`ugID`), UNIQUE KEY `ugName` (`ugName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ugID' => 'int(11) NOT NULL',
                 'ugName' => 'varchar(255) NOT NULL',
