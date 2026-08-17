@@ -148,6 +148,50 @@ if ($cmd === 'generate') {
         $raw = $pdo->query(
             sprintf('SHOW CREATE TABLE `%s`', $table)
         )->fetch(\PDO::FETCH_NUM)[1];
+
+        // Normalize the UCA-14.0.0 collations back to _general_ci, here on
+        // $raw so that BOTH things derived from it are covered -- the CREATE
+        // below and the per-column definitions further down, which are parsed
+        // out of $raw separately and reach the server by their own route
+        // (Pass 3 of SchemaReconciler::plan() builds ALTER TABLE ... ADD
+        // COLUMN from them). Normalizing only the CREATE would leave the
+        // column path able to ship the same unusable name.
+        //
+        // MariaDB 11.4 made utf8mb3_uca1400_ai_ci the DEFAULT collation for
+        // the Unicode charsets, so a table created there without an explicit
+        // COLLATE gets it and SHOW CREATE TABLE prints it back explicitly.
+        // These strings are executed verbatim on any install missing the
+        // table or the column, and no MariaDB below 11.4 -- nor any version
+        // of MySQL, which has never had them -- can execute that. Generating
+        // on 11.4+ therefore shipped `1273 Unknown collation` to every older
+        // server, and because a failed reconcile also stops the schema
+        // version being recorded, those servers then 308-redirected every
+        // request to ?node=schema, taking the installer's pre-upgrade
+        // database dump down with them. GH-1147.
+        //
+        // Normalized rather than stripped, deliberately. Stripping would let
+        // each target server apply its own default, which on 11.4+ is the
+        // uca1400 collation again -- reintroducing the bug for anyone
+        // upgrading there, and leaving these tables on a different collation
+        // from the rest, which raises "Illegal mix of collations" on a
+        // varchar join across the split. Naming it keeps one collation across
+        // the whole schema by construction.
+        //
+        // Only the collation is rewritten; CHARSET=utf8mb3 is left alone, as
+        // utf8mb3_general_ci is that charset's own default collation and the
+        // two agree.
+        //
+        // Note this cannot be caught by the person introducing it: on the
+        // generating server every one of these statements is valid. Only an
+        // older server ever sees the failure, which is why
+        // tests/schema-portable-collation.test.php checks the committed file
+        // rather than trusting the generator to have been run correctly.
+        $raw = preg_replace(
+            '/\b(utf8(?:mb3|mb4)?)_uca\d+_[a-z0-9_]+\b/i',
+            '$1_general_ci',
+            $raw
+        );
+
         $create = $raw;
         // Reconciler only ever runs this when the table is absent, but
         // IF NOT EXISTS makes it harmless if the snapshot was stale.
@@ -160,36 +204,6 @@ if ($cmd === 'generate') {
         // Strip the live auto-increment counter. It is install-specific
         // state, not structure, and has no business in a checked-in file.
         $create = preg_replace('/ AUTO_INCREMENT=\d+/i', '', $create);
-
-        // Normalize the UCA-14.0.0 collations back to _general_ci.
-        //
-        // MariaDB 11.4 made utf8mb3_uca1400_ai_ci the DEFAULT collation for
-        // the Unicode charsets, so a table created there without an explicit
-        // COLLATE gets it and SHOW CREATE TABLE prints it back explicitly.
-        // These strings are executed verbatim by SchemaReconciler::plan() on
-        // any install missing the table, and no MariaDB below 11.4 -- nor any
-        // version of MySQL, which has never had them -- can execute that.
-        // Regenerating on an 11.4 box shipped `1273 Unknown collation` to
-        // every older server, and because a failed reconcile also stops the
-        // schema version being recorded, those servers then 308-redirected
-        // every request to ?node=schema, taking the installer's pre-upgrade
-        // database dump down with them.
-        //
-        // Normalized rather than stripped, deliberately. Stripping would let
-        // each target server apply its own default, which on 11.4+ is the
-        // uca1400 collation again -- reintroducing the bug for anyone
-        // upgrading there, and leaving these tables on a different collation
-        // from the fifty-four that already say _general_ci. Naming it keeps
-        // one collation across the whole schema by construction.
-        //
-        // Only the collation is rewritten; CHARSET=utf8mb3 is left alone, as
-        // utf8mb3_general_ci is the charset's own default collation and the
-        // two agree.
-        $create = preg_replace(
-            '/\b(utf8(?:mb3|mb4)?)_uca\d+_[a-z0-9_]+\b/i',
-            '$1_general_ci',
-            $create
-        );
 
         // Column definitions come from SHOW CREATE TABLE, not from
         // information_schema. COLUMN_DEFAULT is not portable: MariaDB 10.2+
