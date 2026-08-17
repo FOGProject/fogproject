@@ -815,14 +815,16 @@ abstract class FOGPage extends FOGBase
         $refNode = _($refNode);
         $menu = [];
         $menu = [
+            /**
+             * No _() around the sprintf: $refNode was already translated on
+             * its own above, and a msgid built at runtime can never match the
+             * literal xgettext extracted -- so the outer call was a guaranteed
+             * miss that returned its own argument. Dropping it changes nothing
+             * at runtime and stops the line claiming to be translatable.
+             */
             'list' => sprintf(
                 self::$foglang['ListAll'],
-                _(
-                    sprintf(
-                        '%ss',
-                        $refNode
-                    )
-                )
+                sprintf('%ss', $refNode)
             ),
             'add' => sprintf(
                 self::$foglang['CreateNew'],
@@ -998,7 +1000,7 @@ abstract class FOGPage extends FOGBase
             if ($node == 'ipxe') {
                 $this->title = _('All Boot Menu Items');
             } else {
-                $this->title = _('All ' . $this->childClass . 's');
+                $this->title = sprintf(_('All %s'), $this->childClass . 's');
             }
             $this->indexDivDisplay();
         } else {
@@ -2716,7 +2718,7 @@ abstract class FOGPage extends FOGBase
             _('Delete')
             . ': '
             . \Initiator::e($this->obj->get('name')),
-            _("Confirm you would like to delete this $node")
+            sprintf(_('Confirm you would like to delete this %s'), $node)
             . $extra,
             self::makeButton(
                 'closeDeleteModal',
@@ -2744,8 +2746,11 @@ abstract class FOGPage extends FOGBase
     {
         return self::makeModal(
             "{$item}DelModal",
-            _("Remove $item Associations"),
-            _("Please confirm you would like to dissociate the selected {$item}s"),
+            sprintf(_('Remove %s Associations'), $item),
+            sprintf(
+                _('Please confirm you would like to dissociate the selected %s'),
+                $item . 's'
+            ),
             self::makeButton(
                 "close{$item}DeleteModal",
                 _('Cancel'),
@@ -5514,7 +5519,10 @@ abstract class FOGPage extends FOGBase
             $this->attributes[] = [];
         }
 
-        $this->title = _('Export '. ucfirst(strtolower($this->childClass)) . 's');
+        $this->title = sprintf(
+            _('Export %s'),
+            ucfirst(strtolower($this->childClass)) . 's'
+        );
 
         echo '<div class="card">';
         echo '<div class="card-header">';

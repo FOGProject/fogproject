@@ -3195,7 +3195,7 @@ class HostManagement extends FOGPage
                     self::makeLabel(
                         $labelClass,
                         'inventory-gpu-vendor-' . $i,
-                        _("GPU-$i Vendor")
+                        sprintf(_('GPU-%d Vendor'), $i)
                     )
                 ] = self::makeInput(
                     'form-control',
@@ -3215,7 +3215,7 @@ class HostManagement extends FOGPage
                     self::makeLabel(
                         $labelClass,
                         'inventory-gpu-product-' . $i,
-                        _("GPU-$i Product")
+                        sprintf(_('GPU-%d Product'), $i)
                     )
                 ] = self::makeInput(
                     'form-control',

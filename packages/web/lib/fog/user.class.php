@@ -235,7 +235,81 @@ class User extends FOGController
         return $passValid;
     }
     /**
+     * Proves an identity, and does nothing else.
+     *
+     * Split out of validatePw() because proving who someone is and giving
+     * them a browser session are two different things, and only one of them
+     * belongs to a caller that has no browser. The iPXE boot menu and
+     * service/ipxe/advanced.php both want a yes/no about a credential; they
+     * went through validatePw(), which unconditionally started a PHP session
+     * and stamped $_SESSION['FOG_USER'] -- so a PXE menu login minted a
+     * server-side authenticated session that nothing would ever present a
+     * cookie for. Harmless-looking, but it is an authenticated session
+     * created by a request that cannot hold one.
+     *
+     * No session, no cookies, no login history entry: passwordValidate()
+     * touches none of those with $remember false, which is what makes this
+     * split clean rather than a reimplementation.
+     *
+     * @param string $username the username
+     * @param string $password the password
+     *
+     * @return self populated on success, an invalid User otherwise
+     */
+    public function authenticate($username, $password)
+    {
+        if (!$this->passwordValidate($username, $password, false)) {
+            return new self(0);
+        }
+        return $this;
+    }
+    /**
+     * Turns an already-proven identity into a logged-in browser session.
+     *
+     * The other half of the authenticate() split. Everything here needs a
+     * session to exist and a browser to carry it, so nothing here may run
+     * for the iPXE callers.
+     *
+     * @return self
+     */
+    public function establishSession()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        if (self::$FOGUser->isValid()) {
+            $type = self::$FOGUser->get('type');
+            self::$HookManager->processEvent(
+                'USER_TYPE_HOOK',
+                ['type' => &$type]
+            );
+            $this
+                ->set('id', self::$FOGUser->get('id'))
+                ->set('name', self::$FOGUser->get('name'))
+                ->set('password', '', true)
+                ->set('type', $type);
+        }
+        $_SESSION['FOG_USER'] = $this->get('id');
+        self::log(
+            sprintf(
+                '%s %s.',
+                $this->get('name'),
+                _('user successfully logged in')
+            ),
+            0,
+            0,
+            $this,
+            0
+        );
+        $this->_isLoggedIn();
+        return $this;
+    }
+    /**
      * Validates only the user and password
+     *
+     * Authenticates AND establishes a session, which is what every existing
+     * caller expects. Kept whole so third-party callers keep working; the
+     * two halves are available separately above.
      *
      * @param string $username the username
      * @param string $password the password
@@ -263,32 +337,7 @@ class User extends FOGController
             if (!$test) {
                 return new self(0);
             }
-            if (self::$FOGUser->isValid()) {
-                $type = self::$FOGUser->get('type');
-                self::$HookManager->processEvent(
-                    'USER_TYPE_HOOK',
-                    ['type' => &$type]
-                );
-                $this
-                    ->set('id', self::$FOGUser->get('id'))
-                    ->set('name', self::$FOGUser->get('name'))
-                    ->set('password', '', true)
-                    ->set('type', $type);
-            }
-            $_SESSION['FOG_USER'] = $this->get('id');
-            self::log(
-                sprintf(
-                    '%s %s.',
-                    $this->get('name'),
-                    _('user successfully logged in')
-                ),
-                0,
-                0,
-                $this,
-                0
-            );
-            $this->_isLoggedIn();
-            return $this;
+            return $this->establishSession();
         }
         self::log(
             sprintf(

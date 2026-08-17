@@ -117,18 +117,18 @@ class Registration extends FOGBase
             self::getClass('HostManager')->getHostByMacAddresses($this->PriMAC);
             if (self::$Host->isValid()) {
                 throw new \Exception(
-                    _(
-                        'This machine already registered as '
-                        . self::$Host->get('name')
+                    sprintf(
+                        _('This machine already registered as %s'),
+                        self::$Host->get('name')
                     )
                 );
             }
             self::getClass('HostManager')->getHostByMacAddresses($this->MACs);
             if (self::$Host->isValid()) {
                 throw new \Exception(
-                    _(
-                        'This machine already registered as '
-                        . self::$Host->get('name')
+                    sprintf(
+                        _('This machine already registered as %s'),
+                        self::$Host->get('name')
                     )
                 );
             }
@@ -158,9 +158,9 @@ class Registration extends FOGBase
             $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
             if (!$hostnameSafe) {
                 throw new \Exception(
-                    _(
-                        'Unsafe hostname entered, please try again: '
-                        . $host
+                    sprintf(
+                        _('Unsafe hostname entered, please try again: %s'),
+                        $host
                     )
                 );
             }

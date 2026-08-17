@@ -177,7 +177,7 @@ abstract class FOGService extends FOGBase
         }
         foreach (self::$ips as &$ip) {
             self::outall(
-                _("Interface Ready with IP Address: $ip")
+                sprintf(_('Interface Ready with IP Address: %s'), $ip)
             );
             unset($ip);
         }
@@ -415,7 +415,7 @@ abstract class FOGService extends FOGBase
         if ($groupOrNodeCount < $counttest) {
             self::outall(
                 ' * ' . _('Not syncing') . ' ' . $objType . ' '
-                . _('between') . ' ' . _("{$itemType}s")
+                . _('between') . ' ' . _($itemType) . 's'
             );
             self::outall(
                 ' | ' . $objType . ' ' . _('Name') . ': ' . $Obj->get('name')
@@ -431,7 +431,7 @@ abstract class FOGService extends FOGBase
             . (
                 $groupOrNodeCount == 1 ?
                 _($itemType) :
-                _("{$itemType}s")
+                _($itemType) . 's'
             )
         );
         $nfilename = ($fileOverride ?: $Obj->get('name'));
@@ -496,7 +496,7 @@ abstract class FOGService extends FOGBase
             if (!file_exists($myAdd) || !is_readable($myAdd)) {
                 self::outall(
                     ' * ' . _('Not syncing') . ' ' . $objType
-                    . ' ' . _('between') . ' ' . _("{$itemType}s")
+                    . ' ' . _('between') . ' ' . _($itemType) . 's'
                 );
                 self::outall(
                     ' | ' . ($fileOverride ? _('File') : _($objType))
