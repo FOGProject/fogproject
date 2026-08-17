@@ -890,10 +890,25 @@ updateDB() {
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$error_log 2>&1
     errorStat $?
     dots "Granting access to fogstorage database user"
-    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, '999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
+    # The probe writes a throwaway row to find out whether fogstorage still
+    # holds INSERT; a failure here is read as "the grants need redoing", which
+    # is what sends the installer off to ask for the database root password.
+    #
+    # So the row has to be valid, and the marker cannot live in taskID. That
+    # column used to be mediumtext and took the literal '999test'; schema 336
+    # made it the int(11) it always held, and under STRICT_TRANS_TABLES -- the
+    # MariaDB default -- inserting a non-numeric string into it is error 1265,
+    # not a warning. The probe then failed on a server whose grants were
+    # perfectly correct, and every upgrade demanded a root password nobody
+    # needed to type. Reported on a 1.6 server at schema 336 while two nodes
+    # still on the old column type were unaffected.
+    #
+    # createdBy is varchar(30), so the marker goes there and the DELETE keys
+    # on it. taskID 0 points at no task, which is what a throwaway row should.
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, 0, 3, '127.0.0.1', NOW(), 'fog-install-probe');" >/dev/null 2>&1
     connect_as_fogstorage=$?
     if [[ $connect_as_fogstorage -eq 0 ]]; then
-        mysql $sqloptionsuser --password="${snmysqlpass}" --execute="DELETE FROM $mysqldbname.taskLog WHERE taskID='999test' AND ip='127.0.0.1';" >/dev/null 2>&1
+        mysql $sqloptionsuser --password="${snmysqlpass}" --execute="DELETE FROM $mysqldbname.taskLog WHERE createdBy='fog-install-probe' AND ip='127.0.0.1';" >/dev/null 2>&1
         echo "Skipped"
         return
     fi
