@@ -440,6 +440,64 @@ class SiteManagement extends FOGPage
         $this->assocPost('addUserGroup', 'removeUserGroup');
     }
     /**
+     * Presents the roles this site is granted to.
+     *
+     * Separate from the four association tabs above because it answers the
+     * opposite question. Those say which objects the site CONTAINS; this
+     * says who the site is GIVEN TO -- everyone holding the role is in
+     * scope for it, including through a user group that holds the role.
+     *
+     * @return void
+     */
+    public function siteGrantRoles()
+    {
+        $this->renderAssocTab(
+            'site-grantrole',
+            _('Site Granted To Roles'),
+            _('Role Name'),
+            'role',
+            'btn btn-primary float-end',
+            '',
+            'role'
+        );
+    }
+    /**
+     * Updates the roles this site is granted to.
+     *
+     * @return void
+     */
+    public function siteGrantRolePost()
+    {
+        $this->assocPost('addGrantRole', 'removeGrantRole');
+    }
+    /**
+     * Presents the user groups this site is granted to.
+     *
+     * @return void
+     */
+    public function siteGrantUserGroups()
+    {
+        $this->renderAssocTab(
+            'site-grantusergroup',
+            _('Site Granted To User Groups'),
+            _('User Group Name'),
+            'usergroup',
+            'btn btn-primary float-end',
+            '',
+            'usergroup',
+            _('User Group')
+        );
+    }
+    /**
+     * Updates the user groups this site is granted to.
+     *
+     * @return void
+     */
+    public function siteGrantUserGroupPost()
+    {
+        $this->assocPost('addGrantUserGroup', 'removeGrantUserGroup');
+    }
+    /**
      * Edit existing item.
      *
      * @return void
@@ -491,6 +549,35 @@ class SiteManagement extends FOGPage
                 ]
             ]
         ];
+
+        // Grants sit in their own group rather than beside the four
+        // associations, because the two read alike and mean opposite
+        // things. "User Group Association" puts a user group IN this site
+        // as an object; "Granted To User Groups" puts its members in scope
+        // for it. Same picker, same list of names, and mixing them into one
+        // row of tabs is how somebody grants a site while meaning to
+        // catalogue one.
+        $tabData[] = [
+            'tabs' => [
+                'name' => _('Granted To'),
+                'tabData' => [
+                    [
+                        'name' => _('Roles'),
+                        'id' => 'site-grantrole',
+                        'generator' => function () {
+                            $this->siteGrantRoles();
+                        }
+                    ],
+                    [
+                        'name' => _('User Groups'),
+                        'id' => 'site-grantusergroup',
+                        'generator' => function () {
+                            $this->siteGrantUserGroups();
+                        }
+                    ]
+                ]
+            ]
+        ];
         $this->renderEditTabs($tabData, $this->obj);
     }
     /**
@@ -523,6 +610,12 @@ class SiteManagement extends FOGPage
                         break;
                     case 'site-usergroup':
                         $this->siteUserGroupPost();
+                        break;
+                    case 'site-grantrole':
+                        $this->siteGrantRolePost();
+                        break;
+                    case 'site-grantusergroup':
+                        $this->siteGrantUserGroupPost();
                 }
                 if (!$this->obj->save()) {
                     $serverFault = true;
@@ -614,6 +707,61 @@ class SiteManagement extends FOGPage
             '`userGroups`.`ugID`',
             '`siteUserGroupMembers`.`sugmUserGroupID`',
             '`siteUserGroupMembers`.`sugmSiteID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
+     * Gets the list of roles this site is granted to.
+     *
+     * Its own endpoint rather than a flag on getRolesList, because the
+     * `association` column is what the tab ticks and it has to come from
+     * the GRANT table -- reusing the membership list here would tick boxes
+     * from the wrong relation.
+     *
+     * @return void
+     */
+    public function getGrantRolesList()
+    {
+        return $this->assocItemsList(
+            'role',
+            'siterolegrant',
+            'siteRoleGrants',
+            '`roles`.`rID`',
+            '`siteRoleGrants`.`srgRoleID`',
+            '`siteRoleGrants`.`srgSiteID`',
+            [
+                [
+                    'db' => 'siteAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
+     * Gets the list of user groups this site is granted to.
+     *
+     * Separate from getUserGroupsList() for the same reason, and the pair
+     * is the one place the two senses are most likely to be confused: same
+     * node, same names, different relation.
+     *
+     * @return void
+     */
+    public function getGrantUserGroupsList()
+    {
+        return $this->assocItemsList(
+            'usergroup',
+            'siteusergroupgrant',
+            'siteUserGroupGrants',
+            '`userGroups`.`ugID`',
+            '`siteUserGroupGrants`.`suggGroupID`',
+            '`siteUserGroupGrants`.`suggSiteID`',
             [
                 [
                     'db' => 'siteAssoc',

@@ -52,7 +52,7 @@ class SiteUserGroupGrant extends FOGController
         'id' => 'suggID',
         'name' => 'suggName',
         'siteID' => 'suggSiteID',
-        'usergroupID' => 'suggGroupID'
+        'grantusergroupID' => 'suggGroupID'
     ];
     /**
      * The required fields.
@@ -61,7 +61,7 @@ class SiteUserGroupGrant extends FOGController
      */
     protected $databaseFieldsRequired = [
         'siteID',
-        'usergroupID'
+        'grantusergroupID'
     ];
 }
 

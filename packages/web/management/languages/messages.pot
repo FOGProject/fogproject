@@ -2326,6 +2326,9 @@ msgstr ""
 msgid "Got in line at"
 msgstr ""
 
+msgid "Granted To"
+msgstr ""
+
 msgid "Grants"
 msgstr ""
 
@@ -5586,6 +5589,12 @@ msgid "Site Create Success"
 msgstr ""
 
 msgid "Site Description"
+msgstr ""
+
+msgid "Site Granted To Roles"
+msgstr ""
+
+msgid "Site Granted To User Groups"
 msgstr ""
 
 msgid "Site Group Associations"

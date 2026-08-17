@@ -2731,6 +2731,10 @@ msgstr "更新位置"
 msgid "Got in line at"
 msgstr ""
 
+#, fuzzy
+msgid "Granted To"
+msgstr "由...制作"
+
 msgid "Grants"
 msgstr ""
 
@@ -6584,6 +6588,14 @@ msgstr "打印机已经存在"
 #, fuzzy
 msgid "Site Description"
 msgstr "打印机说明"
+
+#, fuzzy
+msgid "Site Granted To Roles"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "新建%s"
 
 #, fuzzy
 msgid "Site Group Associations"

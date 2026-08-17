@@ -50,7 +50,7 @@ class SiteRoleGrant extends FOGController
         'id' => 'srgID',
         'name' => 'srgName',
         'siteID' => 'srgSiteID',
-        'roleID' => 'srgRoleID'
+        'grantroleID' => 'srgRoleID'
     ];
     /**
      * The required fields.
@@ -59,7 +59,7 @@ class SiteRoleGrant extends FOGController
      */
     protected $databaseFieldsRequired = [
         'siteID',
-        'roleID'
+        'grantroleID'
     ];
 }
 

@@ -2643,6 +2643,10 @@ msgstr "Posizione aggiornata!"
 msgid "Got in line at"
 msgstr ""
 
+#, fuzzy
+msgid "Granted To"
+msgstr "Creato da"
+
 msgid "Grants"
 msgstr ""
 
@@ -6349,6 +6353,14 @@ msgstr "Creazione stampante riuscita"
 
 msgid "Site Description"
 msgstr "Descrizione Sito"
+
+#, fuzzy
+msgid "Site Granted To Roles"
+msgstr "Creazione stampante riuscita"
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "Crea nuovo %s"
 
 #, fuzzy
 msgid "Site Group Associations"

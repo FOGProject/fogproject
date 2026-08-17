@@ -2728,6 +2728,10 @@ msgstr "Standort aktualisiert"
 msgid "Got in line at"
 msgstr ""
 
+#, fuzzy
+msgid "Granted To"
+msgstr "Erstellt von"
+
 msgid "Grants"
 msgstr ""
 
@@ -6584,6 +6588,14 @@ msgstr "Drucker hinzufügen erfolgreich."
 #, fuzzy
 msgid "Site Description"
 msgstr "Site Beschreibung"
+
+#, fuzzy
+msgid "Site Granted To Roles"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+msgid "Site Granted To User Groups"
+msgstr "Neuen Schlüssel erstellen"
 
 #, fuzzy
 msgid "Site Group Associations"
