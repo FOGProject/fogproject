@@ -641,6 +641,33 @@ refused — this is the one page every unauthenticated visitor sees. Label and
 icon are escaped; the icon is additionally restricted to plain class
 characters.
 
+### Turning a proven identity into a session — `establishSession($source)`
+
+Once your callback has proven who somebody is, hand the identity to FOG and
+**say how you proved it**:
+
+```php
+$user = self::getClass('User', $uid);
+$user->establishSession('oidc');
+```
+
+`$source` names the mechanism, not the account. It is recorded in the login
+history entry and kept in the session, where `User::sessionAuthSource()` reads
+it back. Two things need it: an audit that can distinguish an identity-provider
+sign-in from a local password one, and the break-glass rule that local password
+login keeps working when a provider is down — which has to be able to count
+sessions by how they were made.
+
+It is deliberately **not** the same thing as `users.uAuthSource`. That column is
+a property of the *account* and says which directory owns it; `$source` is a
+property of *this request*. An account owned by LDAP can still be signed in by
+something else, and that is exactly the case worth being able to see.
+
+Use a plain lowercase slug, up to 32 characters of `a-z0-9_-` starting
+alphanumeric — normally just your plugin's name. Anything else is recorded as
+`unknown` rather than passed through, because the value reaches an audit trail.
+Omitting the argument means `password`, so existing callers are unchanged.
+
 ## 8. Security & output conventions
 
 - **Output:** wrap every user‑controlled value with `Initiator::e($value)` when
