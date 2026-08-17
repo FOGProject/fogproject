@@ -67,6 +67,18 @@ abstract class FOGController extends FOGBase
      */
     protected $databaseFieldsRequired = [];
     /**
+     * Keys that end in "id" but do not hold a foreign key.
+     *
+     * save() infers "this is an integer id" from the key's name, which is
+     * right for all 95 real foreign keys in the tree and wrong for a string
+     * identifier that happens to end the same way -- an OIDC client id, a
+     * system UUID. The name is a proxy for the column's type, and the model
+     * is the only thing that knows the actual type, so it says so here.
+     *
+     * @var array
+     */
+    protected $databaseFieldsNotInt = [];
+    /**
      * Additional elements unrelated to DB side directly for object.
      *
      * @var array
@@ -461,6 +473,14 @@ abstract class FOGController extends FOGBase
                 $required[$reqKeyNorm] = true;
             }
 
+            // The model's own list of keys that end in "id" without being a
+            // foreign key. Normalized the same way, so the branch below can
+            // ask about $key directly.
+            $notInt = [];
+            foreach ($this->databaseFieldsNotInt as $strKey) {
+                $notInt[$this->key($strKey)] = true;
+            }
+
             foreach ($this->databaseFields as $rawKey => $column) {
                 $key = $this->key($rawKey);
                 $column = trim($column);
@@ -484,8 +504,14 @@ abstract class FOGController extends FOGBase
                     $val = (int)$validId;
                 }
 
-                // Keys ending with "id" (case-insensitive)
-                elseif (strtolower(substr($key, -2)) === 'id') {
+                // Keys ending with "id" (case-insensitive), unless the model
+                // has said this one is a string. Without that exclusion a
+                // required string id throws "Required database field is
+                // empty" while holding a perfectly good value, and an
+                // optional one is silently rewritten to 0.
+                elseif (strtolower(substr($key, -2)) === 'id'
+                    && !isset($notInt[$key])
+                ) {
                     $isRequired = isset($required[$key]);
                     $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
 
