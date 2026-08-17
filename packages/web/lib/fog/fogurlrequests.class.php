@@ -68,13 +68,39 @@ class FOGURLRequests extends FOGBase
      */
     private $_response = array();
     /**
+     * The TLS options used for a FOG-owned host, and only for one.
+     *
+     * A storage node presents whatever certificate the installer generated
+     * for it -- self-signed, or signed by the CA this server minted -- and it
+     * is addressed by bare IP, so no certificate could name it correctly
+     * anyway. Verification there would break replication on every install and
+     * buy nothing: the node's address came out of this server's own database.
+     *
+     * Applied by host, not by caller, so a new caller cannot inherit it by
+     * accident. See isFogHost().
+     *
+     * @var array
+     */
+    const NODE_TLS_OPTIONS = array(
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+    );
+    /**
      * Curl options to all url requests.
+     *
+     * Verification is ON. It used to be off for every request this class
+     * made, which was written for the storage-node traffic above and then
+     * silently applied to everything else -- the GitHub kernel/init listing,
+     * the fogproject.org version check, the kernel download itself. Those all
+     * present ordinary publicly-signed certificates, so there was nothing to
+     * gain and a machine-in-the-middle to lose, and the failure mode is
+     * invisible: a substituted response looks exactly like a real one.
      *
      * @var array
      */
     public $options = array(
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_RETURNTRANSFER => true,
     );
     /**
@@ -150,9 +176,11 @@ class FOGURLRequests extends FOGBase
     {
         $this->_windowSize = 20;
         $this->_callback = '';
+        // Same defaults as the property; the exemption for FOG's own nodes
+        // is applied per URL in _getOptions().
         $this->options = array(
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_RETURNTRANSFER => true,
         );
         $this->_response = array();
@@ -453,12 +481,95 @@ class FOGURLRequests extends FOGBase
             $options[CURLOPT_POST] = 1;
             $options[CURLOPT_POSTFIELDS] = $request->postData;
         }
+        /**
+         * Every host this install owns: its storage nodes, and itself.
+         *
+         * The FOG server is included because several of these requests are
+         * this server calling its own status endpoints, and its certificate
+         * is the installer's self-signed one.
+         *
+         * Note the 'ip' argument. This read used to be
+         * getSubObjectIDs('StorageNode', array('isEnabled' => 1)) with no
+         * field, and getSubObjectIDs() defaults $getField to 'id' -- so the
+         * list it produced was storage node IDs, not addresses, and the
+         * pattern below was matching '#1|2|5#' against the whole URL. The
+         * only consequence was a proxy that was applied essentially never
+         * (any URL containing one of those digits looked like a node), which
+         * is why nobody noticed. It is not survivable now that the same
+         * answer decides whether a certificate is verified.
+         *
+         * isEnabled is no longer filtered on either: a node an admin is
+         * still creating is contacted by the storage node page, and a node
+         * absent from this list gets its certificate verified, which for a
+         * node addressed by bare IP means it is unreachable.
+         */
+        $hosts = self::getSubObjectIDs('StorageNode', array(), 'ip');
+        $hosts[] = self::getSetting('FOG_WEB_HOST');
+        $hosts = array_merge($hosts, array('127.0.0.1', '::1', 'localhost'));
+        $hosts = array_values(
+            array_unique(
+                array_filter(
+                    array_map(
+                        function ($host) {
+                            return strtolower(trim((string)$host));
+                        },
+                        $hosts
+                    ),
+                    'strlen'
+                )
+            )
+        );
+        $isFogHost = self::isFogHost($url, $hosts);
         if ($headers) {
             $options[CURLOPT_HEADER] = 0;
-            $options[CURLOPT_HTTPHEADER] = (array)$headers;
+            /*
+             * The CSRF token goes to FOG's own hosts only. It is added so
+             * that a status endpoint on a storage node accepts the POST; on
+             * any other host it is a credential handed to a third party for
+             * no purpose. Same reasoning as the cookie below.
+             */
+            $options[CURLOPT_HTTPHEADER] = $isFogHost
+                ? (array)$headers
+                : array_values(
+                    array_filter(
+                        (array)$headers,
+                        function ($header) {
+                            return 0 !== stripos(
+                                (string)$header,
+                                'X-CSRF-Token:'
+                            );
+                        }
+                    )
+                );
         }
-        if (!isset($options[CURLOPT_COOKIE])) {
+        /*
+         * The session cookie goes to FOG's own hosts only.
+         *
+         * This used to be sent on every request this class made, which meant
+         * the signed-in administrator's PHP session id was handed to
+         * api.github.com on every kernel listing and to fogproject.org on
+         * every version check. It is here because a node's status endpoint
+         * needs the caller's session to authorise the request -- that is a
+         * reason to send it to a node, and not a reason to send it anywhere
+         * else.
+         */
+        if ($isFogHost && !isset($options[CURLOPT_COOKIE])) {
             $options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
+        }
+        /*
+         * The TLS exemption for FOG's own nodes. Applied here rather than in
+         * the defaults so it is decided by the URL: a caller cannot acquire
+         * it by not thinking about it, which is how every request this class
+         * made ended up unverified in the first place.
+         *
+         * Skipped when the caller named CURLOPT_SSL_VERIFYPEER itself --
+         * $request->options already wins over $this->options above, and an
+         * explicit choice must not be overwritten by an implicit one.
+         */
+        if ($isFogHost
+            && !isset($request->options[CURLOPT_SSL_VERIFYPEER])
+        ) {
+            $options = self::NODE_TLS_OPTIONS + $options;
         }
         list($ip, $password, $port, $username) = self::getSubObjectIDs(
             'Service',
@@ -477,12 +588,7 @@ class FOGURLRequests extends FOGBase
             false,
             false
         );
-        $IPs = self::getSubObjectIDs('StorageNode', array('isEnabled' => 1));
-        $pat = sprintf(
-            '#%s#i',
-            implode('|', $IPs)
-        );
-        if (!preg_match($pat, $url)) {
+        if (!$isFogHost) {
             if ($ip) {
                 $options[CURLOPT_PROXYAUTH] = CURLAUTH_BASIC;
                 $options[CURLOPT_PROXYPORT] = $port;
@@ -498,6 +604,36 @@ class FOGURLRequests extends FOGBase
         }
 
         return $options;
+    }
+    /**
+     * Whether a URL addresses a host this FOG install owns.
+     *
+     * The host is compared whole and exactly, because this answer decides
+     * whether the connection's certificate is verified. Substring or pattern
+     * matching would let an attacker-chosen URL that merely CONTAINS a node
+     * address opt itself out of verification -- which is what the regex this
+     * replaces did: unanchored, with the dots unescaped, so a node at
+     * 10.0.0.5 also matched https://example.com/?ref=10.0.0.5.
+     *
+     * Public and static so it can be exercised directly: it needs no
+     * database, and the cases that matter are the ones that must NOT match.
+     *
+     * @param string $url   the URL about to be requested
+     * @param array  $hosts the hosts this install owns, already lowercased
+     *
+     * @return bool
+     */
+    public static function isFogHost($url, array $hosts)
+    {
+        $host = parse_url((string)$url, PHP_URL_HOST);
+        if (!is_string($host) || '' === $host) {
+            return false;
+        }
+        // parse_url keeps the brackets on an IPv6 literal; the stored value
+        // has none.
+        $host = strtolower(trim($host, '[]'));
+
+        return in_array($host, $hosts, true);
     }
     /**
      * Function simply ensures the url is valid.
