@@ -483,7 +483,7 @@ curl -sk "$FOG/ext/oidc/callback"             # redirect to login + message,
 curl -sk "$FOG/management/index.php" | grep -c 'Sign in with'
 ```
 
-#### PR 2.4c — claim → role mapping and JIT provisioning
+#### PR 2.4c — claim → role mapping and JIT provisioning ✅ DONE (fog-plugins #9)
 
 Claims map to **RBAC roles**, never to the legacy `type` field —
 `USER_TYPE_HOOK` rewrites `type` (`user.class.php:172`), so anything derived
@@ -492,7 +492,46 @@ from it is not a decision anyone controls. Shaped like the LDAP plugin's
 group is an ordinary association and the shared association tab needs the
 group itself to be the owning object. Turning JIT provisioning on becomes
 meaningful at the same moment: a created account with no roles is not
-useful, so the column stays inert until this lands.
+useful, so the column stayed inert until this landed.
+
+Four tables, not three. `oidcUserGrant` records what the plugin granted each
+user, and it is the piece that is easy to leave out and impossible to add
+later without a migration. The sync has to answer "which of this user's roles
+are ours to remove?", and both answers available without a record are wrong:
+removing everything not currently granted revokes what an admin attached by
+hand, and deriving the managed set from the mapping tables means deleting a
+mapping stops the role being ours — so removing a mapping leaves everyone who
+had it holding the role forever. The LDAP plugin learned this the same way.
+
+Two decisions worth carrying forward:
+
+- **A provisioned account IS stamped with `users.uAuthSource`; an
+  admin-created one is not.** This looks like a contradiction of 2.4's
+  decision and is not. The stamp refuses local password login for the row it
+  is on. On an account this flow created that is correct — its password is a
+  random token nobody has seen, so there is no local login to protect, and
+  the stamp stops the leftover row becoming one if the plugin is removed. On
+  an account an admin created it would take away exactly the password login
+  break-glass depends on. The distinction is *who made the row*.
+- **A scalar group claim is one value and is never split.** Every delimiter
+  worth guessing is legal inside a group name, and a wrong split invents a
+  value that can match a mapping nobody wrote. Providers that emit a
+  delimited string are a per-provider option if anybody asks; guessing is
+  not.
+
+The claim lookup joins `OIDCGroups` with raw bound SQL for the reason 2.4b
+used it for the subject: `_buildSql()` turns `*` and `+` in a scalar filter
+value into a SQL `LIKE` wildcard, and a claim value of `*` would otherwise
+collect every mapping the provider has.
+
+`OIDCGroups` carries a unique index on (provider, name) where `OIDCProviders`
+deliberately carries none. The index is safe here because the key covers
+every non-id column of the table, so the `ON DUPLICATE KEY UPDATE` half of a
+save can only rewrite what it matched on.
+
+Left out on purpose, and still open: the reverse-direction tabs on the Role
+and User Group pages (LDAP has `addldapgrouptabs.hook.php`). They read the
+same data from the other end. Worth doing, not worth doubling this diff.
 
 ### PR 2.5 — break-glass, and the test that proves it
 
