@@ -404,14 +404,16 @@ anybody in yet.
 
 Three findings from building it, all worth carrying into 2.4b:
 
-- **`FOGURLRequests` cannot be used for the token exchange.** It sets
-  `CURLOPT_SSL_VERIFYPEER => false` and `VERIFYHOST => false` as defaults
-  (`fogurlrequests.class.php:79-80`, `:160-161`) — correct for reaching a
-  storage node with a self-signed certificate, and disqualifying here, where
-  TLS to the provider *is* the security model. 2.4b brings its own fetch that
-  turns verification on explicitly and fails closed, rather than passing an
-  override into a class whose default is "do not verify": one refactor of
-  those defaults and the plugin stops verifying with no error.
+- **`FOGURLRequests` could not be used for the token exchange — so it was
+  fixed instead.** It defaulted `CURLOPT_SSL_VERIFYPEER` and `VERIFYHOST` to
+  false for *every* request, which is correct for reaching a storage node by
+  bare IP with a self-signed certificate and disqualifying for an OIDC token
+  exchange, where TLS to the provider *is* the security model. Rather than
+  give the plugin a private HTTP client, the class now verifies by default
+  and exempts only hosts this install owns — decided by the URL's host, so a
+  new caller cannot inherit the exemption by not thinking about it. It also
+  stopped attaching the signed-in administrator's session cookie and CSRF
+  token to third-party requests. 2.4b uses `FOGURLRequests` directly.
 - **`/ext/…` routes get no session.** `api/index.php` does not define
   `FOG_WANTS_SESSION`, and a visitor clicking the login button has no cookie
   yet, so the #1113 gate correctly declines to start one. The `state`, `nonce`
