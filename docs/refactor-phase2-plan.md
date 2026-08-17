@@ -5,10 +5,13 @@ Plan only. Nothing here is implemented except PR 2.0, which already landed.
 Baseline: `working-1.6` @ `5d8a7e4f6`. Every claim is marked `VERIFIED`
 (I opened the file, `file:line` given), `INFERRED`, or `UNKNOWN`.
 
-**Shape decision, agreed before planning: option B.** The auth seams and the
-JWT library live in core; the OIDC provider ships as a plugin on top of a new
-extension point. The reasoning and the rejected option A are in
-*Alternatives*.
+**Shape decision, agreed before planning: option B.** The auth seams live in
+core; the OIDC provider ships as a plugin on top of a new extension point.
+Option B rests on **G1-G3** — a plugin can register neither a route, nor a
+session-less node, nor a login-page contribution. (An earlier revision also
+leaned on G4; that argument was wrong and has been withdrawn. Where the JWT
+library lives is now an open decision, not a forced one.) The rejected option
+A is in *Alternatives*.
 
 ---
 
@@ -76,17 +79,50 @@ OIDC callback must be explicitly exempted, and today only core can exempt it.
 before the credential check) and `LoginSuccess` (`:107`, after it). Neither
 contributes markup. A "Sign in with…" button has nowhere to come from.
 
-### G4 — a plugin has no Composer story. `VERIFIED` (Phase 0)
+### G4 — nothing *loads* a plugin's Composer autoloader. `VERIFIED`
 
-Phase 0's plan states it outright: a plugin *"must not ship its own `vendor/`
-into `/opt/fog/plugins` and expect it to load — nothing registers it."*
-`packages/web/composer.json` has one `psr-4` root, `FOG\ => src/`, and
-`"require": {"php": ">=7.4"}` — no runtime dependency yet.
+**Corrected 2026-08-16.** An earlier revision of this plan said plugins "have
+no Composer story" and used that to force the shape decision. That was too
+strong, and the correction matters because the wrong version was doing
+load-bearing work.
 
-**Consequence, and it is the load-bearing one for the shape decision: the JWT
-and JWKS library must live in core's `vendor/` no matter where the OIDC code
-lives.** A "pure plugin" OIDC is not available. The only real question was how
-much sits beside the library in core, which is what B answers.
+What is actually true: **nothing in core loads a plugin's
+`vendor/autoload.php`.** That is a missing feature, not an impossibility.
+`VERIFIED`:
+
+- Core registers its own Composer autoloader in six lines
+  (`commons/init.php:39-44`), guarded by `is_readable()`. Nothing about them
+  is special to core.
+- Composer autoloaders are `spl_autoload_register` callbacks; several
+  coexist in one process.
+- Plugin config files are `include`d (`plugin.class.php:347`), so a plugin's
+  file body runs, and `FOG_PLUGIN_DIR` is already an autoload root
+  (`init.php:317-318`).
+
+So a plugin could `require` its own `vendor/autoload.php` **today**,
+unspecified and unordered. No bundled plugin does; `VERIFIED` none carries a
+`vendor/` or `composer.json`.
+
+**The real problem is collision, not capability.** Two plugins vendoring
+different majors of the same package both declare the same class names, and
+whichever autoloader registered first wins — the other plugin silently runs
+against a version it was never tested against. For a JWT library that is a
+security bug, not an inconvenience.
+
+That argues for three tiers, and PR 2.1a below adds the first and third:
+
+| Tier | What | For |
+|---|---|---|
+| 1 | Core loads `<plugin>/vendor/autoload.php` when present | Ordinary plugin dependencies |
+| 2 | Core ships a small set of **guaranteed** packages plugins may depend on rather than vendor | Where one shared version genuinely matters |
+| 3 | Collision detection — refuse/log a plugin vendor re-declaring a provided class | Makes tier 1 fail loudly, not silently |
+
+**Consequence for the shape decision — weaker than the earlier revision
+claimed, and stated honestly:** the JWT library does **not** have to be in
+core. Putting it there is a tier-2 judgment call, justified by one CVE
+response and one version for a security-critical dependency that several auth
+providers would otherwise each vendor. **G1–G3 are what option B actually
+rests on; G4 no longer carries it.** See *Open decisions*.
 
 ### Not a gap: plugins can own tables. `VERIFIED`
 
@@ -136,6 +172,9 @@ verifying them.**
 | `lcobucci/jwt` | a few | Modern, but recent majors have moved past a 7.4 floor |
 | hand-rolled | none | This is how `alg: none` ships. Not on the table |
 
+Where it lives — core `vendor/` or the plugin's own — is an **open decision**
+(see *Open decisions*); the choice of package is the same either way.
+
 The deciding property is **zero runtime dependencies**, for two reasons that
 are specific to FOG rather than general good taste:
 
@@ -175,6 +214,23 @@ composer validate --strict && git status --porcelain packages/web/vendor | head
 php -r 'require "packages/web/vendor/autoload.php";
         var_dump(class_exists("Firebase\\JWT\\JWT"));'   # true
 sh tests/run-all.sh
+```
+
+### PR 2.1a — let a plugin have its own `vendor/`
+
+Closes G4 properly rather than working around it. Core loads
+`<plugin>/vendor/autoload.php` when present, mirroring the six lines it
+already runs for itself, **plus** the collision check that makes it safe: a
+plugin vendor re-declaring a class core or another plugin already provides is
+refused and logged, not silently first-wins.
+
+Independent of OIDC — every plugin author benefits, and it is the honest
+answer to "why can't my plugin use Composer".
+
+```bash
+php tests/plugin-vendor-autoload.test.php
+# fixture plugin with its own vendor/ resolves its class
+# second fixture vendoring a conflicting version is REFUSED, not silently shadowed
 ```
 
 ### PR 2.2 — the extension point (this is the phase's real deliverable)
@@ -342,6 +398,25 @@ working-1.6 only.** A plugin using it will not run on 1.5.x, where
    not hypothetical.
 
 ---
+
+## Open decisions
+
+**Where does `firebase/php-jwt` live — core `vendor/`, or the OIDC plugin's
+own?** Open, and no longer forced by G4.
+
+| | Core (tier 2) | OIDC plugin |
+|---|---|---|
+| CVE response | one bump, every install | each provider plugin, separately |
+| Version skew across providers | impossible | two auth plugins can disagree; PR 2.1a's check turns that into a refusal rather than a silent wrong version |
+| Cost to non-SSO installs | ships a library they never load | nothing |
+| Precedent set | "core provides security primitives" | "plugins own their dependencies" |
+
+Recommendation: **core**, on the CVE argument — an auth library that several
+providers would each vendor is the clearest possible tier-2 case, and a
+silently-stale JWT verifier is the failure nobody notices. But this is a
+judgment call about what FOG wants to guarantee, not a technical constraint,
+and it is reversible: moving the package later is a `composer.json` change in
+one repo or the other.
 
 ## Which claim, if false, would hurt most?
 
