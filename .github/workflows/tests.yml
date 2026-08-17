@@ -1,0 +1,23 @@
+name: Tests
+
+# A pull_request trigger can only fire from the repository the PR is opened
+# against, so this stub has to live here even though every other fogproject
+# workflow lives in FOGProject/fog-workflows. It is deliberately six lines:
+# all of the logic is in the reusable workflow, so fixing the runner does not
+# mean editing this file on three branches.
+#
+# For pull_request events GitHub reads workflows from the merge of head into
+# base, so one copy on each BASE branch (working-1.6, dev-branch, stable)
+# covers every PR opened against it -- the contributor's branch needs
+# nothing.
+#
+# Not a push trigger, and not because of caution: the runaway that put ~30
+# commits on dev-branch in 20 minutes happened because the triggered
+# workflow pushed a commit back here. This one only reads.
+
+on:
+  pull_request:
+
+jobs:
+  suite:
+    uses: FOGProject/fog-workflows/.github/workflows/fogproject-tests.yml@main
