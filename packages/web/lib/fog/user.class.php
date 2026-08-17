@@ -25,6 +25,26 @@ class User extends FOGController
 {
     const PATTERN = '/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[\w0-9][\w0-9\s\-\.]*[\w0-9]$/i';
     /**
+     * A session established by presenting a local password.
+     *
+     * The default, and the one that must never stop working: break-glass
+     * depends on password login remaining reachable when an identity
+     * provider is not.
+     *
+     * @var string
+     */
+    const AUTH_SOURCE_PASSWORD = 'password';
+    /**
+     * A session whose provenance was supplied but unusable.
+     *
+     * Recorded rather than guessed. A provider handing over something that
+     * is not a plain slug is a bug in that provider, and "unknown" is the
+     * honest entry in an audit trail.
+     *
+     * @var string
+     */
+    const AUTH_SOURCE_UNKNOWN = 'unknown';
+    /**
      * The users table
      *
      * @var string
@@ -264,19 +284,75 @@ class User extends FOGController
         return $this;
     }
     /**
+     * How this session was established, or '' when there is no session.
+     *
+     * Read this rather than users.uAuthSource when the question is about the
+     * REQUEST. uAuthSource is a property of the ACCOUNT -- where its identity
+     * lives -- and the two genuinely differ: an account homed in LDAP or an
+     * IdP can still be carrying a local password, and the point of asking is
+     * usually to find out which of the two got someone in just now.
+     *
+     * @return string
+     */
+    public static function sessionAuthSource()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return '';
+        }
+        return (string)($_SESSION['FOG_AUTH_SOURCE'] ?? '');
+    }
+    /**
+     * Reduce a caller-supplied auth source to something safe to record.
+     *
+     * Normalised, not trusted: the value reaches the history table and a
+     * session key, and a provider plugin supplies it. Anything that is not a
+     * plain slug is recorded as unknown rather than passed through, because
+     * "we do not know how this session was made" is a fact worth keeping and
+     * is safer than storing whatever was handed over.
+     *
+     * Public so it can be exercised without a database; nothing else calls it.
+     *
+     * @param string $source The value as supplied.
+     *
+     * @return string
+     */
+    public static function normalizeAuthSource($source)
+    {
+        $source = strtolower(trim((string)$source));
+        if (!preg_match('#^[a-z0-9][a-z0-9_-]{0,31}$#', $source)) {
+            return self::AUTH_SOURCE_UNKNOWN;
+        }
+        return $source;
+    }
+    /**
      * Turns an already-proven identity into a logged-in browser session.
      *
      * The other half of the authenticate() split. Everything here needs a
      * session to exist and a browser to carry it, so nothing here may run
      * for the iPXE callers.
      *
+     * $source records WHICH mechanism proved the identity, and it exists for
+     * two later jobs rather than for its own sake. Audit: "logged in" in the
+     * history table cannot presently distinguish a password from an identity
+     * provider, so an install adopting SSO loses the ability to answer how
+     * someone got in. Break-glass: an IdP outage must leave local password
+     * login working, and the checks that guarantee that need to be able to
+     * count sessions by how they were made, not by what the account looks
+     * like.
+     *
+     * Defaults to 'password' so every existing caller -- validatePw() and
+     * whatever third-party code calls it -- keeps the meaning it already had.
+     *
+     * @param string $source Slug naming the mechanism, e.g. 'password', 'oidc'.
+     *
      * @return self
      */
-    public function establishSession()
+    public function establishSession($source = self::AUTH_SOURCE_PASSWORD)
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
+        $source = self::normalizeAuthSource($source);
         if (self::$FOGUser->isValid()) {
             $type = self::$FOGUser->get('type');
             self::$HookManager->processEvent(
@@ -290,11 +366,13 @@ class User extends FOGController
                 ->set('type', $type);
         }
         $_SESSION['FOG_USER'] = $this->get('id');
+        $_SESSION['FOG_AUTH_SOURCE'] = $source;
         self::log(
             sprintf(
-                '%s %s.',
+                '%s %s (%s).',
                 $this->get('name'),
-                _('user successfully logged in')
+                _('user successfully logged in'),
+                $source
             ),
             0,
             0,

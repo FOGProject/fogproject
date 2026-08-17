@@ -349,14 +349,43 @@ php tests/plugin-extension-points.test.php
 sh tests/run-all.sh
 ```
 
-### PR 2.3 — `establishSession()` grows a provenance argument
+### PR 2.3 — `establishSession()` grows a provenance argument ✅ DONE
 
 An IdP-established session must be distinguishable from a password one, for
 audit and for break-glass. Extends the login history entry and the session
 with the auth source. No behaviour change for the password path.
 
+Landed as `establishSession($source = self::AUTH_SOURCE_PASSWORD)`, writing
+`$_SESSION['FOG_AUTH_SOURCE']` and appending `(<source>)` to the history
+entry. Two things the plan did not spell out and that the implementation
+had to settle:
+
+- **The value is normalised, not trusted.** A provider plugin supplies it and
+  it lands in an audit trail, so anything that is not a plain slug
+  (`^[a-z0-9][a-z0-9_-]{0,31}$`, case-folded and trimmed) is recorded as
+  `unknown` rather than passed through. The normalisation is a separate
+  public static — `User::normalizeAuthSource()` — purely so it can be tested
+  without a database; `establishSession()` itself writes a history row and
+  cannot be exercised DB-free.
+- **`logout()` needs no line of its own,** and the gate pins why rather than
+  adding a redundant-looking one: `session_unset()` empties `$_SESSION`
+  wholesale, so this key and every future one are cleared without anyone
+  remembering to. If that ever becomes a selective unset, provenance would
+  survive a logout and describe the *next* session — so the test fails on
+  the wholesale clear disappearing.
+
+Worth restating because it is the distinction the whole PR rests on:
+`users.uAuthSource` is a property of the **account** (which directory owns
+it), `$_SESSION['FOG_AUTH_SOURCE']` is a property of the **request** (what
+proved it this time). Break-glass in 2.5 needs the second one.
+
 ```bash
 grep -n 'function establishSession' -A5 packages/web/lib/fog/user.class.php
+php tests/session-provenance.test.php
+# 13 normaliser cases + the 32-char boundary; static pins on the session
+# stamp, on validatePw() still taking the default, and on logout()'s
+# wholesale clear
+# verified failing with: normalizeAuthSource() bypassed in establishSession()
 php tests/ipxe-auth-no-session.test.php
 ```
 
