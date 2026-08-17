@@ -2,7 +2,7 @@
 /**
  * Client Update Manager handles the mass client update stuff.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ClientUpdaterManager
  * @package  FOGProject

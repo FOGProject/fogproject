@@ -2,7 +2,7 @@
 /**
  * Manager class for Capone
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category CaponeManager
  * @package  FOGProject

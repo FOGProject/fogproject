@@ -2,7 +2,7 @@
 /**
  * Get's files stored as requested
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Getfiles
  * @package  FOGProject
@@ -13,7 +13,7 @@
 /**
  * Get's files stored as requested
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Getfiles
  * @package  FOGProject

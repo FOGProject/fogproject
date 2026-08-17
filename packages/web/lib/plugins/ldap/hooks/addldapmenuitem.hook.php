@@ -2,7 +2,7 @@
 /**
  * Adds the menu item for this plugin
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddLDAPMenuItem
  * @package  FOGProject

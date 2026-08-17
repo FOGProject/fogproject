@@ -2,7 +2,7 @@
 /**
  * Adds task type edit menu item.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category AddTasktypeeditMenuItem
  * @package  FOGProject

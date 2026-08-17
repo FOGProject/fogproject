@@ -2,7 +2,7 @@
 /**
  * Access Control plugin
  *
- * PHP version 7
+ * PHP version 7.4+
  *
  * @category AccessControlManagementPage
  * @package  FOGProject

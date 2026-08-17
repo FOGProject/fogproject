@@ -3,7 +3,7 @@
  * HookManager handles registering and loading
  * events and hooks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category HookManager
  * @package  FOGProject

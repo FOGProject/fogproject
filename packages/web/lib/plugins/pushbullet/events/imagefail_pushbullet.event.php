@@ -2,7 +2,7 @@
 /**
  * Pushes notification on imaging failure.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ImageFail_PushBullet
  * @package  FOGProject

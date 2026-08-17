@@ -2,7 +2,7 @@
 /**
  * Processes URL requests for our needs.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGURLRequests
  * @package  FOGProject

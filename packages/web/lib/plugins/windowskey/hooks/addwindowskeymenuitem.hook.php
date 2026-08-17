@@ -2,7 +2,7 @@
 /**
  * Adds the windows keys menu item.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddWindowsKeyMenuItem
  * @package  FOGProject

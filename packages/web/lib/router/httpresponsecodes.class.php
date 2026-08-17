@@ -2,7 +2,7 @@
 /**
  * Builds the response codes.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category HTTPResponseCodes
  * @package  FOGProject

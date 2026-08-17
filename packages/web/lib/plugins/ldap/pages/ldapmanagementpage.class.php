@@ -2,7 +2,7 @@
 /**
  * The ldap management page
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category LDAPPluginHook
  * @package  FOGProject
@@ -15,7 +15,7 @@
 /**
  * The ldap management page
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category LDAPPluginHook
  * @package  FOGProject

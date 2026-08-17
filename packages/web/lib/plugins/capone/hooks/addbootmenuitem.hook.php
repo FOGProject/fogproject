@@ -2,7 +2,7 @@
 /**
  * Creates the capone menu item.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category AddBootMenuItem
  * @package  FOGProject

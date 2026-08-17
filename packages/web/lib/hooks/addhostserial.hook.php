@@ -2,7 +2,7 @@
 /**
  * The host serial hook.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddHostSerial
  * @package  FOGProject

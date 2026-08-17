@@ -2,7 +2,7 @@
 /**
  * Site plugin
  *
- * PHP version 7
+ * PHP version 7.4+
  *
  * @category SiteUserRestriction
  * @package  FOGProject

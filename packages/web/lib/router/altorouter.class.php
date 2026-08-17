@@ -4,7 +4,7 @@
  * Based on klein.php and uses elements of Sinatra for regex
  * matching for routes.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category AltoRouter
  * @package  AltoRouter

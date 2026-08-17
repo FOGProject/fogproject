@@ -2,7 +2,7 @@
 /**
  * The event to call when snapin completes
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SnapinComplete_Slack
  * @package  FOGProject

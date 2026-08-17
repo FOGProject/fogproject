@@ -2,7 +2,7 @@
 /**
  * Database Manager Handles communication from fog to db class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * This is what communicates with fog to the db class.
  *

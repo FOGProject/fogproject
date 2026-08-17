@@ -2,7 +2,7 @@
 /**
  * Adds the Access control menu item.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddAccessControlMenuItem
  * @package  FOGProject

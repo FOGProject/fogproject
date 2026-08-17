@@ -2,7 +2,7 @@
 /**
  * A basic interface to define how client classes should operate
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGClientSend
  * @package  FOGProject

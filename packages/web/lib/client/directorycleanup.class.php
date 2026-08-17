@@ -2,7 +2,7 @@
 /**
  * Cleans directories but only for legacy client
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category DirectoryCleanup
  * @package  FOGProject

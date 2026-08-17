@@ -2,7 +2,7 @@
 /**
  * Changes access control index div data.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AccessControlIndexDiv
  * @package  FOGProject

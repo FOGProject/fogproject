@@ -2,7 +2,7 @@
 /**
  * Prints equipment loan.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Equipment_Loan
  * @package  FOGProject

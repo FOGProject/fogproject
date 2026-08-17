@@ -2,7 +2,7 @@
 /**
  * Add task type type reporter.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category AddTaskTypeType
  * @package  FOGProject

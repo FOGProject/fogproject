@@ -2,7 +2,7 @@
 /**
  * FOGSubMenu.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * This file enables side menus and notes.
  *

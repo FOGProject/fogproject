@@ -2,7 +2,7 @@
 /**
  * FOGBase, the base class for pretty much all of fog.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * This gives all the rest of the classes a common frame to work from.
  *

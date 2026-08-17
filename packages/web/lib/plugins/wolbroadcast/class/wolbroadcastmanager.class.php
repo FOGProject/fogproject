@@ -2,7 +2,7 @@
 /**
  * Manager class for wolbroadcast
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category WolbroadcastManager
  * @package  FOGProject

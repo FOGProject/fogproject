@@ -2,7 +2,7 @@
 /**
  * The host object (main item FOG deals with
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Host
  * @package  FOGProject

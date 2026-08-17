@@ -2,7 +2,7 @@
 /**
  * Checks the database is running
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Dbrunning
  * @package  FOGProject
