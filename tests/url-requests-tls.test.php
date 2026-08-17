@@ -109,7 +109,8 @@ $verifyOff = preg_match_all(
     $offs
 );
 $exemption = '';
-if (preg_match('#const NODE_TLS_OPTIONS = \[.*?\];#s', $src, $m)) {
+// Either array syntax: working-1.6 writes [], dev-branch writes array().
+if (preg_match('#const NODE_TLS_OPTIONS = (?:\[|array\().*?;#s', $src, $m)) {
     $exemption = $m[0];
 }
 if ('' === $exemption) {

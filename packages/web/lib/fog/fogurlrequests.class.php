@@ -82,7 +82,7 @@ class FOGURLRequests extends FOGBase
      * nothing: the node's address came out of this server's own database.
      *
      * Applied by host, not by caller, so a new caller cannot inherit it by
-     * accident. See _isFogHost().
+     * accident. See isFogHost().
      *
      * @var array
      */
