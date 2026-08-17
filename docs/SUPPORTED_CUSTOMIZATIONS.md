@@ -202,14 +202,14 @@ Secure Boot chain requires.
 esp/snponly-shimx64.efi   point your boot manager at this
 esp/snponly.efi           shim loads this — do not rename it
 esp/autoexec.ipxe         chains FOG's build, with fallbacks
-esp/localipxe.efi         FOG's build, all drivers      ← the one that boots
-esp/localsnp.efi          FOG's build, firmware SNP
-esp/localintel.efi        FOG's build, Intel only
-esp/localrealtek.efi      FOG's build, Realtek only
+esp/fogipxe.efi         FOG's build, all drivers      ← the one that boots
+esp/fogsnp.efi          FOG's build, firmware SNP
+esp/fogintel.efi        FOG's build, Intel only
+esp/fogrealtek.efi      FOG's build, Realtek only
 esp/arm64-efi/            the same set, aa64 shim
 ```
 
-The chain is: shim → `snponly.efi` → `autoexec.ipxe` → one of the `local*.efi`.
+The chain is: shim → `snponly.efi` → `autoexec.ipxe` → one of the `fog*.efi`.
 shim establishes MOK trust, so the FOG binary — signed with your Secure Boot key —
 loads; and because it carries FOG's boot script compiled in, it finds the server
 itself.
@@ -218,7 +218,7 @@ itself.
 its own `-shim<arch>.efi` suffix to `.efi`, so `snponly-shimx64.efi` will load
 `snponly.efi` and nothing else, and it must be upstream's copy — that is what
 shim's embedded certificate vouches for. This is why FOG's own builds are here
-under `local` names instead of their natural ones: putting FOG's `ipxe.efi` next
+under `fog` names instead of their natural ones: putting FOG's `ipxe.efi` next
 to `ipxe-shimx64.efi` would have shim try to load an image it cannot verify.
 
 >[!important]
@@ -226,7 +226,7 @@ to `ipxe-shimx64.efi` would have shim try to load an image it cannot verify.
 >driver works. They fire only when a binary is missing or fails verification.
 >Once one loads and runs, control never comes back — a variant that starts but
 >finds no NIC stops at its own prompt rather than falling through to the next.
->If `localipxe.efi` doesn't drive your NIC, replace it; the script won't do it
+>If `fogipxe.efi` doesn't drive your NIC, replace it; the script won't do it
 >for you.
 
 x86_64 and arm64 only — those are the two architectures upstream signs a shim

@@ -7993,7 +7993,7 @@ _resignRefind() {
 #   \EFI\snponly-shimx64.efi   upstream signed shim
 #   \EFI\ipxe.efi              upstream signed snponly, no script compiled in
 #   \EFI\autoexec.ipxe         two lines, read off the ESP
-#   \EFI\localipxe.efi         FOG's own build -- what this function signs
+#   \EFI\fogipxe.efi           FOG's own build -- what this function signs
 #
 # Upstream's snponly.efi cannot finish the job itself: it binds the firmware's
 # UEFI SNP protocol, which this class of hardware frequently does not provide --
@@ -8169,7 +8169,7 @@ localbootfiles=(
 # has to be upstream's copy, because upstream's is what its embedded certificate
 # vouches for. That reserves "snponly.efi" -- and, if the other pair is ever used,
 # "ipxe.efi" too. FOG's own builds therefore cannot keep their natural names on an
-# ESP, hence the "local" prefix. It is not cosmetic: dropping FOG's ipxe.efi in
+# ESP, hence the "fog" prefix. It is not cosmetic: dropping FOG's ipxe.efi in
 # beside ipxe-shimx64.efi would have shim load an image it cannot verify.
 #
 # The kit is x86_64 and arm64 only, because those are the two architectures
@@ -8177,21 +8177,21 @@ localbootfiles=(
 # chain to assemble -- an i386 machine booting with Secure Boot off just takes
 # i386-efi/ipxe.efi from the menu above and needs none of this.
 #
-# Copied AFTER _signLocalIpxe() has run, so the local*.efi here already carry
+# Copied AFTER _signLocalIpxe() has run, so the fog*.efi here already carry
 # FOG's signature wherever the server holds keys.
 localbootespfiles=(
     "secureboot/snponly-shimx64.efi|snponly-shimx64.efi"
     "secureboot/snponly.efi|snponly.efi"
-    "ipxe.efi|localipxe.efi"
-    "snp.efi|localsnp.efi"
-    "intel.efi|localintel.efi"
-    "realtek.efi|localrealtek.efi"
+    "ipxe.efi|fogipxe.efi"
+    "snp.efi|fogsnp.efi"
+    "intel.efi|fogintel.efi"
+    "realtek.efi|fogrealtek.efi"
     "secureboot/arm64-efi/snponly-shimaa64.efi|arm64-efi/snponly-shimaa64.efi"
     "secureboot/arm64-efi/snponly.efi|arm64-efi/snponly.efi"
-    "arm64-efi/ipxe.efi|arm64-efi/localipxe.efi"
-    "arm64-efi/snp.efi|arm64-efi/localsnp.efi"
-    "arm64-efi/intel.efi|arm64-efi/localintel.efi"
-    "arm64-efi/realtek.efi|arm64-efi/localrealtek.efi"
+    "arm64-efi/ipxe.efi|arm64-efi/fogipxe.efi"
+    "arm64-efi/snp.efi|arm64-efi/fogsnp.efi"
+    "arm64-efi/intel.efi|arm64-efi/fogintel.efi"
+    "arm64-efi/realtek.efi|arm64-efi/fogrealtek.efi"
 )
 # The kit's autoexec.ipxe, written into each architecture's directory.
 #
@@ -8221,14 +8221,14 @@ _espAutoexecScript() {
 #
 # The fallbacks fire only if a file is MISSING or fails verification -- not if it
 # loads and then finds no NIC. Copy the variant your hardware needs.
-chain localipxe.efi || goto trysnp
+chain fogipxe.efi || goto trysnp
 :trysnp
-chain localsnp.efi || goto tryintel
+chain fogsnp.efi || goto tryintel
 :tryintel
-chain localintel.efi || goto tryrealtek
+chain fogintel.efi || goto tryrealtek
 :tryrealtek
-chain localrealtek.efi || goto nolocalbinary
-:nolocalbinary
+chain fogrealtek.efi || goto nofogbinary
+:nofogbinary
 echo No usable FOG iPXE binary found on this ESP.
 prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
 ESPAUTOEXEC

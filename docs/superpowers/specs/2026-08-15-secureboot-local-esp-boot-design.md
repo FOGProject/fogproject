@@ -21,7 +21,7 @@ bcdedit {bootmgr}
   -> EFI\snponly-shimx64.efi    upstream signed shim          OK
   -> EFI\ipxe.efi               upstream signed snponly       OK
   -> EFI\autoexec.ipxe          plain text, read off the ESP  OK
-  -> EFI\localipxe.efi          FOG's own build               UNSIGNED -> stops here
+  -> EFI\fogipxe.efi          FOG's own build               UNSIGNED -> stops here
 ```
 
 **Neither of upstream's signed binaries can finish the job.** This is the part
@@ -283,7 +283,7 @@ boot manager -> snponly-shimx64.efi   upstream shim
              -> snponly.efi           upstream loader, in the SAME folder
                                       (MOK trust is established from here on)
              -> autoexec.ipxe         read from the binary's own directory
-             -> localipxe.efi         FOG's build, MOK-signed, FOG script embedded
+             -> fogipxe.efi         FOG's build, MOK-signed, FOG script embedded
 ```
 
 **Two of those names are not free choices**, which is the whole reason the kit
@@ -292,7 +292,7 @@ to `.efi`, so `snponly-shimx64.efi` will load `snponly.efi` and nothing else, an
 it has to be upstream's copy because that is what shim's embedded certificate
 vouches for. That reserves `snponly.efi` — and `ipxe.efi` for the other pair. So
 FOG's own builds cannot keep their natural names on an ESP; they ship as
-`localipxe.efi`, `localsnp.efi`, `localintel.efi`, `localrealtek.efi`. Not
+`fogipxe.efi`, `fogsnp.efi`, `fogintel.efi`, `fogrealtek.efi`. Not
 cosmetic: dropping FOG's `ipxe.efi` beside `ipxe-shimx64.efi` would have shim try
 to load an image it cannot verify.
 
@@ -473,7 +473,7 @@ every run, and tells an admin who does not want it published to delete it.
    policy change, but this is the case the symlink design failed, so it is worth
    proving rather than assuming.
 4. Assemble an ESP on an already-enrolled machine — shim, snponly as `ipxe.efi`,
-   the two-line `autoexec.ipxe`, the signed build as `localipxe.efi` — set the
+   the two-line `autoexec.ipxe`, the signed build as `fogipxe.efi` — set the
    boot manager path to the shim, and confirm it reaches the FOG menu with Secure
    Boot on.
 5. Confirm an un-enrolled machine still netboots to the menu and can still run
