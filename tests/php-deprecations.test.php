@@ -32,17 +32,17 @@ $root = dirname(__DIR__);
 chdir($root);
 
 /*
- * Vendored libraries are exempt, the same ones bin/namespace-fog-classes.php
- * refuses to touch. altorouter/altorouter is still a swap candidate for its
- * Packagist release, so hand-editing it to silence a notice makes the swap
- * harder and would be reverted by it anyway. Upstream's own deprecations are
- * upstream's to fix, or ours to fix by taking a newer release -- which is what
- * the mysqldump swap did, and why that file is no longer on this list.
+ * Nothing is exempt any more. This list held the three hand-vendored library
+ * files, on the argument that upstream's deprecations were upstream's to fix
+ * and hand-editing them would be reverted by the swap each was waiting for.
+ * Both halves of that have since been settled: mysqldump.class.php took its
+ * Packagist release and is now a short subclass, and the two altorouter files
+ * turned out to be a fork rather than a copy -- 324 of 357 code lines differ
+ * from every upstream tag -- so there is no swap coming and no upstream to
+ * defer to. All three are FOG's to keep clean, and all three are already
+ * clean, which is why removing the exemption costs nothing.
  */
-const VENDORED = [
-    'packages/web/lib/router/altorouter.class.php',
-    'packages/web/lib/router/altotransformer.class.php',
-];
+const VENDORED = [];
 
 $files = array_filter(
     explode("\n", (string) shell_exec('git ls-files "*.php"')),

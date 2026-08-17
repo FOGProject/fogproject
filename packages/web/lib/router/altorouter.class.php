@@ -12,11 +12,39 @@
  * @license  http://opensource.org/licenses/MIT MIT
  * @link     https://github.com/dannyvankooten/AltoRouter
  */
+// The upstream namespace, kept commented out from the original file. It is
+// NOT a Composer swap waiting to happen -- see the class docblock.
 //namespace AltoRouter;
 /**
  * An api map/routing mechanism. Simplified and small.
  * Based on klein.php and uses elements of Sinatra for regex
  * matching for routes.
+ *
+ * FOG's copy is a FORK of altorouter/altorouter, not a vendored copy of it,
+ * and the distinction was recorded the wrong way round until 1.6.0. The
+ * commented-out namespace line above reads like the one in
+ * mysqldump.class.php did, so three places said this file was waiting for
+ * its Packagist release the way that one was. It is not. Measured against
+ * every upstream tag and against master, 324 of 357 code lines differ:
+ *
+ *  - __call() maps ->get()/->post()/->put()/->delete()/->patch() onto
+ *    map(). route.class.php is built on it in 29 places; upstream has no
+ *    such method and every one of those calls would be a fatal.
+ *  - every setter returns $this. The route table is defined as one chained
+ *    expression, which upstream cannot express.
+ *  - transformers, default params and case-insensitive matching, none of
+ *    them upstream. Their hooks sit inside generate() and match() and in
+ *    the regex assembly, so a subclass could not add them without
+ *    overriding those methods whole -- more override than there is file.
+ *  - exception messages go through _() so they are translated.
+ *
+ * So taking the Packagist release would mean reimplementing the fork on top
+ * of it, which is more code than the fork and more fragile. This file is
+ * FOG's to maintain, under the MIT license and attribution it came with.
+ *
+ * addTransformer() and the AltoTransformer interface have no caller in the
+ * tree. Left in place: they are part of the fork's shape and removing them
+ * is a separate decision from correcting what this file is.
  *
  * @category AltoRouter
  * @package  AltoRouter

@@ -375,6 +375,16 @@ Batch E is the exclusion list, and it needs stating explicitly:
   and `lib/router/altorouter.class.php` (vendored `altorouter/altorouter`) — both
   are swap candidates for their Packagist releases per the Phase 0.3 follow-ups.
   Namespacing them by hand makes those swaps harder, not easier.
+
+  **Both follow-ups are now closed, in opposite directions**, and the exclusion
+  list has moved with them (see ADR 0013 §3). `mysqldump.class.php` really was a
+  vendored copy of v2.12 with one substantive local change, the swap happened, and
+  it is now a converted FOG subclass — which also removed the "13 classes in one
+  file" fact this list cites. `altorouter.class.php` is a **fork**, not a copy:
+  324 of 357 code lines differ from every upstream tag and from `master`, and
+  `route.class.php` depends in 29 places on a `__call()` upstream does not have.
+  It stays excluded, but because of the license and attribution it carries, not
+  because a swap is pending.
 - `Initiator` (`commons/init.php`) — it *is* the autoloader. A namespaced
   autoloader that has to load itself is a bootstrap problem for no benefit.
 - Anything under `packages/web/vendor/`.

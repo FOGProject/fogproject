@@ -46,15 +46,18 @@ const NS = 'FOG';
 /**
  * Never converted, each for its own reason.
  *
- * altorouter.class.php is still a hand-copied vendored library and still a
- * swap candidate for its Packagist release (it carries its real namespace
- * commented out at the top). Hand-editing it here would make that swap
- * harder. altotransformer.class.php is its companion.
+ * altorouter.class.php and its companion altotransformer.class.php are a
+ * FORK of altorouter/altorouter, not a vendored copy: 324 of 357 code lines
+ * differ from every upstream tag and from master, and route.class.php is
+ * built on 29 calls to a method upstream does not have. They are excluded
+ * because they keep upstream's name, authorship and MIT license, and moving
+ * someone else's class into FOG\ misattributes it. The reasoning is in the
+ * class docblock; the swap that used to be the reason is not happening.
  *
- * mysqldump.class.php came off this list when the swap it was waiting for
- * happened: it is now a short FOG subclass of the Composer package, so it
- * is namespaced like any other FOG class and the library it wraps lives
- * under vendor/, which this tool never walks.
+ * mysqldump.class.php came off this list when its swap did happen: it is now
+ * a short FOG subclass of the Composer package, so it is namespaced like any
+ * other FOG class and the library it wraps lives under vendor/, which this
+ * tool never walks.
  *
  * Initiator IS the autoloader. A namespaced autoloader that has to load
  * itself is a bootstrap problem in exchange for nothing.
