@@ -1663,8 +1663,173 @@ fetchipxeasset() {
 #
 # So: the build happens iff the admin asked for it. A public certificate with
 # HTTPS netboot never builds -- iPXE's crosscert path validates it already.
+_resolveIpxeTrust() {
+    [[ -n $sslcachain && -f $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
+}
+# What a built tree is built FROM: the iPXE release tag, and the exact bytes of
+# the CA that got compiled into it.
+#
+# The CA half is not decoration. TRUST=/CERT= bakes the certificate into the
+# binary, so --recreate-ca, switching to an external CA, or rotating the
+# intermediate all leave a binary trusting a CA that no longer signs anything --
+# at an unchanged iPXE tag. A version-only check would skip that rebuild, and
+# the failure lands at a PXE client as a TLS error with nothing on the server to
+# connect it to the cause.
+_ipxeBuildStampValue() {
+    local sum=""
+    [[ -n $ipxetrust && -f $ipxetrust ]] && \
+        sum=$(sha256sum "$ipxetrust" 2>/dev/null | cut -d' ' -f1)
+    printf 'ipxe=%s ca=%s' "${ipxeVer:-unknown}" "${sum:-none}"
+}
+# Does this server compile its own iPXE?
+#
+# One predicate, replacing three separate `$httpproto == https` tests that had
+# quietly become three different questions wearing the same clothes: whether to
+# download the release asset, whether to stage Secure Boot binaries, and
+# whether to compile. Only the last one is about compiling.
+#
+# The trade the old test encoded is real but much narrower than it looked. iPXE
+# validates TLS strictly and cannot be told to trust a private CA, so serving
+# boot.php over HTTPS from a FOG-PKI certificate needs the CA compiled in
+# (TRUST=) -- and a locally rebuilt binary is not upstream's SIGNED one, so it
+# costs the Secure Boot shim and makes onboarding harder, not easier. What was
+# wrong was inferring that from "the web UI uses HTTPS", which says nothing
+# about the netboot transport and nothing about what the certificate chains to.
+#
+# So: the build happens iff the admin asked for it. A public certificate with
+# HTTPS netboot never builds -- iPXE's crosscert path validates it already.
+#
+# And then only when the result would actually differ. buildipxe.sh does
+# `git clean -fd && git reset --hard && touch crypto/rootcert.c`, so every
+# invocation is a cold rebuild of eight make passes -- 10-25 minutes, on every
+# install AND every update, to reproduce bytes that are usually identical.
+#
+# Equality against a stamp, not an ordering comparison, the same shape
+# bin/fetch-plugins.sh uses for the plugin tree. Deliberately NOT its other
+# clause though: there, a populated directory with no stamp means "someone else
+# put this here, leave it alone". Here the same state means an install that
+# predates the stamp, whose binaries came from the old always-rebuild flow --
+# so a missing stamp has to mean rebuild, or the first run after this lands
+# would skip the very build it exists to schedule.
 _needsLocalIpxeBuild() {
-    [[ $rebuildIpxeWithMyCA == yes ]]
+    [[ $rebuildIpxeWithMyCA == yes ]] || return 1
+    _resolveIpxeTrust
+    local stamp="${tftpdirdst%/}/.fog-ipxe-build"
+    local want
+    want="$(_ipxeBuildStampValue)"
+    [[ -f $stamp && -n $want && "$(cat "$stamp" 2>/dev/null)" == "$want" ]] && return 1
+    return 0
+}
+# Keep a pristine copy of the published binaries when we are about to replace
+# them with locally built ones.
+#
+# The rebuild writes into the same staging tree the download unpacked into, so
+# without this the stock binaries are simply gone -- and an admin who wanted to
+# compare, or to fall back, had no copy and no way to get one except re-running
+# the installer with the rebuild off.
+#
+# Copied inside $tftpdirsrc so the normal copy loop carries it to $tftpdirdst
+# with everything else, and so it inherits the same ownership, SELinux labelling
+# and signing sweep. No separate path to keep in step.
+#
+# secureboot/ is excluded, and that exclusion is load-bearing rather than tidy:
+# _signLocalIpxe() prunes exactly "$tftproot/secureboot" and nothing deeper, so
+# a copy of it under stock/ would fall outside the prune and FOG would add its
+# own signature to Microsoft's and iPXE's signed shim and loader -- the two
+# stages the whole Secure Boot chain hangs off.
+_preserveStockIpxe() {
+    local src="${tftpdirsrc%/}" entry base
+    [[ -d $src ]] || return 0
+    dots "Preserving stock iPXE binaries"
+    rm -rf "${src}/stock" >>$error_log 2>&1
+    mkdir -p "${src}/stock" >>$error_log 2>&1
+    for entry in "$src"/*; do
+        [[ -e $entry ]] || continue
+        base=$(basename "$entry")
+        case $base in
+            stock|secureboot) continue ;;
+        esac
+        cp -a "$entry" "${src}/stock/" >>$error_log 2>&1
+    done
+    errorStat $?
+}
+# Copy the staged tree into place WITHOUT destroying an admin's own binaries.
+#
+# The historic loop was `find -type f -exec cp -Rfv {} $tftpdirdst/{}`, which
+# overwrites unconditionally. A file whose name is not in the staging tree
+# survives -- nothing deletes it -- but any of the ~55 names FOG does ship was
+# destroyed on every single run. That is the whole set an admin is most likely
+# to have replaced: snponly.efi, ipxe.efi, undionly.kkpxe.
+#
+# The customization machinery that would have protected it covers only the WEB
+# tree; both backupPreservedCustomizations and restorePreservedCustomizations
+# hardcode $webdirdest/service/ipxe. The TFTP tree was assumed safe "by
+# construction", which holds for new names and is false for colliding ones.
+#
+# So: record the checksum of every file FOG writes here, and skip a destination
+# whose current checksum no longer matches what FOG last wrote.
+#
+# A sidecar manifest rather than the fogsum XATTR the kernel path uses, and the
+# difference matters. That mechanism no-ops entirely when the `attr` binary is
+# absent or the filesystem does not carry extended attributes -- it degrades to
+# "unknown", which is correctly treated as "not modified". For kernels that is
+# survivable because they are backed up regardless. Here there is no backup, so
+# a silent degradation means silently overwriting the admin's binary while
+# reporting that it is protected. A TFTP root is also exactly the sort of path
+# that ends up on a mount without xattr support.
+#
+# The manifest lists only checksums of public boot binaries, so serving it over
+# TFTP alongside them gives nothing away.
+#
+# Protection begins with the FIRST run after this lands: before that there is no
+# manifest, nothing can be compared, and a file with no entry is treated as
+# FOG's -- the same "unknown is not modified" rule the kernel path uses, and the
+# only choice that lets an ordinary upgrade still update anything.
+_copyIpxeTree() {
+    local src="${tftpdirsrc%/}" dst="${tftpdirdst%/}"
+    local manifest="${dst}/.fog-ipxe-manifest"
+    local rel target sum recorded have
+    declare -A fogsums=()
+    ipxeSkipped=""
+    [[ -d $src ]] || return 0
+    if [[ -f $manifest ]]; then
+        while IFS='|' read -r sum rel; do
+            [[ -n $sum && -n $rel ]] && fogsums["$rel"]="$sum"
+        done < "$manifest"
+    fi
+    while IFS= read -r rel; do
+        rel="${rel#./}"
+        [[ -z $rel || $rel == "." ]] && continue
+        mkdir -p "${dst}/${rel}" >>$error_log 2>&1
+    done < <(cd "$src" && find . -type d 2>>$error_log)
+    local staging="${manifest}.new"
+    : > "$staging" 2>>$error_log
+    while IFS= read -r rel; do
+        rel="${rel#./}"
+        [[ -z $rel ]] && continue
+        # Never manage our own bookkeeping.
+        case $rel in
+            .fog-ipxe-manifest|.fog-ipxe-manifest.new|.fog-ipxe-build) continue ;;
+        esac
+        target="${dst}/${rel}"
+        recorded="${fogsums[$rel]:-}"
+        if [[ -f $target && -n $recorded ]]; then
+            have=$(sha256sum "$target" 2>/dev/null | cut -d' ' -f1)
+            if [[ -n $have && $have != "$recorded" ]]; then
+                ipxeSkipped="${ipxeSkipped}${ipxeSkipped:+ }${rel}"
+                # Carry the ORIGINAL sum forward, not the admin's. Recording
+                # theirs would make the file match on the next run and be
+                # quietly overwritten then instead.
+                printf '%s|%s\n' "$recorded" "$rel" >> "$staging" 2>>$error_log
+                continue
+            fi
+        fi
+        cp -f "${src}/${rel}" "$target" >>$error_log 2>&1 || continue
+        sum=$(sha256sum "$target" 2>/dev/null | cut -d' ' -f1)
+        [[ -n $sum ]] && printf '%s|%s\n' "$sum" "$rel" >> "$staging" 2>>$error_log
+    done < <(cd "$src" && find . -type f 2>>$error_log)
+    mv -f "$staging" "$manifest" >>$error_log 2>&1
+    return 0
 }
 downloadipxe() {
     # iPXE binaries used to be 70 files committed to this repository. They are
@@ -1814,19 +1979,40 @@ configureTFTPandPXE() {
         echo "   root, you do not need this -- use --public-web-cert instead."
         echo
         prepareiPXEsource || return 1
+        # Before the build, while the staging tree still holds what the release
+        # asset unpacked. Afterwards these bytes no longer exist anywhere.
+        _preserveStockIpxe
         dots "Compiling iPXE binaries trusting your SSL certificate"
-        [[ -n $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
+        _resolveIpxeTrust
         # Second argument is the output directory: build straight into the
         # staging tree the copy loop below already reads, so a locally built
         # binary lands exactly where a downloaded one would.
         "${buildipxesrc}/buildipxe.sh" "${ipxetrust}" "$(readlink -f $tftpdirsrc)" >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
-        errorStat $?
+        local buildstat=$?
+        errorStat $buildstat
+        # Recorded only on success, and only after the copy loop below has
+        # actually put the result in place -- a stamp written for a build that
+        # failed would suppress every retry.
+        [[ $buildstat -eq 0 ]] && ipxeBuildStampPending="$(_ipxeBuildStampValue)"
         cd $workingdir
     fi
-    cd $tftpdirsrc
-    find -type d -exec mkdir -p $tftpdirdst/{} \; >>$error_log 2>&1
-    find -type f -exec cp -Rfv {} $tftpdirdst/{} \; >>$error_log 2>&1
-    cd $workingdir
+    _copyIpxeTree
+    if [[ -n $ipxeBuildStampPending ]]; then
+        printf '%s' "$ipxeBuildStampPending" > "${tftpdirdst%/}/.fog-ipxe-build" 2>>$error_log
+        ipxeBuildStampPending=""
+    fi
+    # Named, not counted. "3 files preserved" tells an admin nothing they can
+    # act on; declining to update snponly.efi is something they need to know
+    # about by name, because it means their replacement is now the one every
+    # PXE client gets and FOG's newer copy is not being installed.
+    if [[ -n $ipxeSkipped ]]; then
+        local skipped
+        echo " * Kept your own copies of these iPXE files (not overwritten):"
+        for skipped in $ipxeSkipped; do
+            echo "     ${skipped}"
+        done
+        echo "   Delete one to have FOG's version installed on the next run."
+    fi
     # iPXE resolves the bare name "autoexec.ipxe" against its current working
     # URI -- the TFTP directory the running .efi was itself fetched from -- not
     # against a fixed path. So our EMBED-less binaries under autoexec/ look
@@ -8430,15 +8616,29 @@ _signLocalIpxe() {
     #
     # Read from a process substitution rather than a pipe so the loop runs in
     # this shell and $signed/$failed survive it.
+    local count=0
     while IFS= read -r fpath; do
-        # Already carrying OUR signature. Either this run has nothing to do, or
-        # an admin dropped in their own signed copy -- leave both alone. This is
-        # also what stops a re-run stacking a second signature, and it verifies
-        # against the anchor rather than the signing cert so that a rotated leaf
-        # does not restart the stacking.
+        # Already carrying OUR signature: nothing to do. This is what stops a
+        # re-run stacking a second signature, and it verifies against the anchor
+        # rather than the signing cert so a rotated leaf does not restart the
+        # stacking.
+        #
+        # Note what this test does NOT skip, because it is deliberate rather
+        # than incidental: a binary the admin built and signed with their OWN
+        # CA does not verify against FOG's anchor, so it falls through and gets
+        # signed here too. That is wanted. sbsign APPENDS to the signature list
+        # rather than replacing it, so their signature survives intact and the
+        # binary gains one this server's MOK vouches for -- which is what lets a
+        # custom build boot on a machine enrolled against FOG.
+        #
+        # It also means the sweep below is a sweep, not a list: anything an
+        # admin dropped anywhere under the TFTP root gets the same treatment,
+        # including the stock/ copies kept when a rebuild replaces the published
+        # binaries.
         sbverify --cert "$anchorpem" "$fpath" >/dev/null 2>&1 && continue
         [[ $signed -eq 0 ]] && dots "Signing iPXE binaries for Secure Boot"
         signed=1
+        count=$((count + 1))
         # Signed via a temporary rather than in place: sbsign reads its input
         # while writing its output, so input and --output must differ. The
         # temporary is created in the same directory so it inherits the same
@@ -8462,7 +8662,10 @@ _signLocalIpxe() {
         echo "   own ESP with Secure Boot on will fail until this is fixed."
         return 0
     fi
-    echo "Done"
+    # Counted so "everything is signed" is observable rather than assumed. A
+    # run that signs nothing prints nothing at all (the early return above), so
+    # a number here means work actually happened.
+    echo "Done (${count})"
 }
 # The binaries an ESP needs, relative to $tftpdirdst -- a CURATED list, not a
 # sweep of every *.efi in the tree. The tree carries 45 FOG binaries (5 names x
