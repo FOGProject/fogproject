@@ -7470,6 +7470,9 @@ msgstr ""
 msgid "This will set the configuration level to all hosts in this group"
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
+msgid "This would leave no account able to administer FOG without its identity provider."
+msgstr ""
+
 msgid "This would leave no account able to administer FOG."
 msgstr ""
 

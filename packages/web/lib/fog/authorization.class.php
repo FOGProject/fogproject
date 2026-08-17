@@ -1111,9 +1111,27 @@ class Authorization extends FOGBase
      *                         list of specific groups.
      * - 'removeGroups'     => [groupID, ...] groups about to be deleted —
      *                         their memberships and role assignments vanish.
+     * - 'localOnly'        => true count only administrators who can
+     *                         authenticate without an external identity
+     *                         provider (see below).
+     * - 'authSources'      => [userID => 'source'] proposed users.uAuthSource
+     *                         values, '' meaning local. Only consulted under
+     *                         'localOnly'.
      *
      * A user is an effective administrator when they hold '*', counting
      * roles reached both directly and through any group they belong to.
+     *
+     * Under 'localOnly' they must also carry an empty users.uAuthSource.
+     * That column makes an account unable to log in with a local password
+     * (see User::passwordValidate()), so an install whose every
+     * administrator carries one has no way in at all while its directory is
+     * unreachable. This is the question the break-glass guards ask; every
+     * other caller wants the plain one.
+     *
+     * A fog-user-token deliberately does NOT count. It reaches the API and
+     * not the UI, and it is a bearer secret that can be rotated, revoked or
+     * simply lost -- an install whose only remaining way in is a token
+     * somebody may no longer have is not one this guard should call safe.
      *
      * @param array $changes the proposed changes (see above)
      *
@@ -1138,6 +1156,9 @@ class Authorization extends FOGBase
             (array)($changes['excludeUsers'] ?? [])
         );
         $users = array_diff($allUsers, $special, $exclude);
+        if (!empty($changes['localOnly'])) {
+            $users = array_diff($users, self::_externalUsers($changes));
+        }
         // Direct membership as roleID => [userIDs].
         $membership = [];
         $rows = self::$DB
@@ -1246,6 +1267,109 @@ class Authorization extends FOGBase
         return false;
     }
     /**
+     * The user ids whose identity is owned by an external provider, after
+     * applying any proposed users.uAuthSource changes.
+     *
+     * Reads the column directly rather than going through Route::getIds()
+     * for the reason rolesHolding() does: an auth source is an opaque
+     * plugin-chosen string, and the query builder rewrites '*' and '+' in a
+     * scalar filter value into a SQL LIKE wildcard. This is a query whose
+     * wrong answer unlocks -- or bricks -- the install, so it owns its SQL.
+     *
+     * @param array $changes the proposed changes; 'authSources' is honoured
+     *
+     * @return array user ids
+     */
+    private static function _externalUsers($changes = [])
+    {
+        $rows = self::$DB
+            ->query('SELECT `uID`, `uAuthSource` FROM `users`')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        $stored = [];
+        foreach ((array)$rows as $row) {
+            $stored[(int)$row['uID']] = (string)$row['uAuthSource'];
+        }
+        return self::externalUsersGiven(
+            $stored,
+            (array)($changes['authSources'] ?? [])
+        );
+    }
+    /**
+     * Which of these accounts an external provider would own.
+     *
+     * The decision half of _externalUsers(), split out because it is the
+     * part with rules in it and the only part testable without a database:
+     * a proposed source REPLACES the stored one rather than adding to it,
+     * and an empty (or whitespace) source means local. Getting either
+     * backwards would make the break-glass guards answer confidently and
+     * wrongly, in the direction that locks an install out.
+     *
+     * @param array $stored   userID => stored users.uAuthSource
+     * @param array $proposed userID => proposed users.uAuthSource
+     *
+     * @return array user ids
+     */
+    public static function externalUsersGiven(array $stored, array $proposed)
+    {
+        foreach ($proposed as $uid => $source) {
+            $stored[(int)$uid] = (string)$source;
+        }
+        $external = [];
+        foreach ($stored as $uid => $source) {
+            if ('' !== trim((string)$source)) {
+                $external[] = (int)$uid;
+            }
+        }
+        return $external;
+    }
+    /**
+     * Is there an administrator who can sign in without a directory?
+     *
+     * @param array $changes the proposed changes (see adminExistsGiven())
+     *
+     * @return bool
+     */
+    public static function localAdminExists($changes = [])
+    {
+        $changes['localOnly'] = true;
+        return self::adminExistsGiven($changes);
+    }
+    /**
+     * Refuses a change that would leave nobody able to administer FOG
+     * without its directory.
+     *
+     * PRESERVES rather than REQUIRES, and the difference matters: it only
+     * refuses when a locally-authenticating administrator exists right now.
+     * An install that has deliberately moved every administrator to a
+     * directory has nothing left for this to protect, and refusing its
+     * operations would brick it to defend a property it already gave up.
+     *
+     * So the rule is "do not be the operation that removes the last one",
+     * which is the same standing property assertAdminRemainsAfterDelete()
+     * holds for administrators in general.
+     *
+     * @param array $changes the proposed changes (see adminExistsGiven())
+     *
+     * @throws Exception when the last local administrator would be lost
+     * @return void
+     */
+    public static function assertLocalAdminRemains($changes = [])
+    {
+        if (!self::localAdminExists()) {
+            return;
+        }
+        if (self::localAdminExists($changes)) {
+            return;
+        }
+        throw new \Exception(
+            _(
+                'This would leave no account able to administer FOG without '
+                . 'its identity provider.'
+            )
+        );
+    }
+    /**
      * Builds the adminExistsGiven() change map for deleting rows of an
      * RBAC-relevant class, then refuses the delete if it would leave the
      * install with no effective administrator.
@@ -1279,6 +1403,13 @@ class Authorization extends FOGBase
         switch (strtolower((string)$classname)) {
             case 'user':
                 $changes = ['excludeUsers' => $ids];
+                // Deleting an administrator can also be what takes away the
+                // last account able to sign in without the directory, and
+                // the check below would not notice: it counts every
+                // administrator, so an install left with nothing but
+                // directory-sourced admins passes it while being one
+                // outage away from locked out.
+                self::assertLocalAdminRemains($changes);
                 break;
             case 'role':
                 $changes = ['removeRoles' => $ids];
