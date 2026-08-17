@@ -423,7 +423,14 @@ safe. A closure step may return a string to signal a hard error and stop.
 
 Seed data (e.g. default `globalSettings` rows) is just another step — return the
 `INSERT` SQL, or a closure for anything that needs runtime values (see
-`accesscontrolmanager`'s `schema()` for the closure pattern).
+`persistentgroupsmanager`'s `schema()` for the closure pattern).
+
+**Retiring a table works the same way: append a `DROP`, never delete the
+`CREATE`.** Deleting step 3 renumbers everything after it, so an install that
+had applied four steps now believes it has applied a different four. The same
+goes for *editing* a step in place — an install that already passed it never
+sees the change, which is invisible until somebody upgrades from an older
+version. The `ldap` plugin's steps 10–16 exist to repair exactly that.
 
 > **Legacy note.** Older plugins implement a destructive `install()` that calls
 > `uninstall()` (drop) then recreates. New plugins should implement `schema()`
@@ -668,6 +675,46 @@ alphanumeric — normally just your plugin's name. Anything else is recorded as
 `unknown` rather than passed through, because the value reaches an audit trail.
 Omitting the argument means `password`, so existing callers are unchanged.
 
+### What an auth plugin owes the install
+
+Three rules. The first two are enforced — you will get an exception, not a
+warning — and the third is a pattern you will get wrong by omission if nobody
+tells you it exists. All three are ADR 0014.
+
+**Only stamp `users.uAuthSource` on accounts you created.** Writing that column
+takes local password login away from the account (`User::passwordValidate()`
+refuses a local credential for any account carrying one). On an account you
+provisioned that is correct — its password is a token nobody has seen, and the
+stamp stops the leftover row becoming a login after your plugin is removed. On
+an account an admin created it silently removes their password, which is the
+thing an identity-provider outage has to fall back on. Both bundled plugins
+check: LDAP returns early for an account that exists and is not already its
+own, and OIDC stamps only what it provisioned itself.
+
+**`User::save()` can throw.** Core refuses a write that would leave nobody able
+to administer FOG without a directory — so the very first account you try to
+convert on a fresh install, which is usually `fog`, is exactly the one that
+will be refused. Let the exception reach the user with your own context added;
+do not catch and continue, because continuing means reporting a sign-in that
+did not happen.
+
+**Record what you granted, or you cannot take it back.** A directory is
+authoritative and is re-read on every login, so removing somebody from a group
+has to downgrade them next time. That needs an answer to "which of this user's
+roles are mine to remove?", and the two obvious answers are both wrong:
+
+- *Remove everything not currently granted* — silently revokes whatever an
+  admin attached by hand, and leaves no way to give a directory user anything
+  extra.
+- *Derive the managed set from your mapping tables* — deleting a mapping stops
+  the role being yours, so it is never taken away. Removing a mapping would
+  leave everyone who had it holding the role forever.
+
+So keep a per-user record of what you granted (`ldapUserGrant`,
+`oidcUserGrant`) and diff against **that**. It survives the mapping being
+deleted, which is the whole point. Write it *after* the user is saved — a
+just-provisioned account has no id before then.
+
 ## 8. Security & output conventions
 
 - **Output:** wrap every user‑controlled value with `Initiator::e($value)` when
@@ -862,13 +909,14 @@ on disk and adding new executable code to the server are different authorities.
 - **`helloworld`** — this guide's minimal, complete CRUD example.
 - **`subnetgroup`** — a clean real CRUD plugin (model→class relationship,
   Export/Import, `schema()`).
-- **`site`** — a five‑table plugin, and the reference for object scoping via
-  `OBJECT_SCOPE_CHECK`. Its `schema()` shows how to retire a table you shipped
-  (steps are immutable: step 3 creates it, step 4 drops it).
 - **`persistentgroups`** — a plugin that is nothing but a `schema()` closure
   step (it installs a MySQL trigger). No page, no model, no hooks: proof that
   none of those are mandatory.
 - **`ldap`** — authentication/integration plugin (custom hooks beyond CRUD).
+- **`oidc`** — the reference for §7c. A plugin that adds a *route* rather than
+  a resource, contributes a login button, and turns a proven identity into a
+  session. Also a six‑table plugin: provider, identity links, groups, two
+  association tables and the grant record.
 
 When in doubt, copy the closest existing plugin and adapt it — the conventions
 above are followed consistently across all of them.
