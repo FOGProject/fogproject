@@ -1,0 +1,68 @@
+name: Sync generated files and version
+
+# Merge-triggered trigger stub. All the logic lives in FOGProject/fog-workflows'
+# update-lang-fix-psr-and-sync-version.yml; this file exists only because GitHub
+# Actions has no cross-repo merge trigger, so something has to live here to react
+# to a merge.
+#
+# The pre-commit hook cannot cover this. It is client-side, so a PR merged
+# through GitHub's web UI (squash, merge commit or rebase) never runs it and
+# FOG_VERSION goes stale until the daily sweep fires at 10:10 UTC. This closes
+# that window.
+#
+# pull_request_target, NOT push -- and that distinction is the whole safety
+# argument, not caution. The sweep pushes its fixup commit straight to the
+# branch, and a direct push is not a PR merge, so it cannot re-fire this stub.
+# The 2026-07-28 runaway that put ~30 commits on dev-branch in about 20 minutes
+# was a push-triggered stub doing exactly that. The schedule in fog-workflows
+# stays exactly as it is, and remains the backstop for direct pushes and for
+# rc-*/feature-* branches.
+#
+# pull_request_target rather than pull_request because secrets are withheld from
+# fork PRs, and the reusable workflow needs FOG_WORKFLOWS_PRIVATE_KEY to mint its
+# App token. The usual pull_request_target hazard does not apply here: nothing
+# checks out the PR head. The reusable workflow checks out FOGProject/fogproject
+# at the base branch -- code a maintainer has already merged.
+#
+# One file, identical on every branch that carries it, for the same reason
+# tests.yml is: fixing it should not mean editing it on three branches. GitHub
+# reads this from the PR's BASE branch, so each branch's copy only ever acts on
+# merges into that branch, and the allowlist below is what scopes it.
+
+on:
+  pull_request_target:
+    types: [closed]
+
+concurrency:
+  group: fog-sync-on-merge-${{ github.event.pull_request.base.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # An allowlist, not "not stable". Branches cut from working-1.6 inherit this
+    # file, and an rc-*/feature-* branch must NOT be merge-synced: fog-version.sh
+    # reports drift on every run for rc (it increments off the committed suffix
+    # rather than a commit count), so a per-merge sync would bump the RC suffix
+    # on every merge. Those stay on the daily sweep. stable is excluded because
+    # its version is owned entirely by fog-workflows' stable-releases.yml.
+    #
+    # `closed` fires on abandoned PRs too, hence the merged check -- and the
+    # reusable workflow uses its `branch` input verbatim, with no validation
+    # against its own watched list, so constraining it is this file's job.
+    if: >-
+      github.event.pull_request.merged == true
+      && contains(fromJson('["working-1.6", "dev-branch"]'), github.event.pull_request.base.ref)
+
+    # Least privilege, stated rather than inherited. Everything the reusable
+    # workflow writes -- the commit, the push, and the version badge -- uses a
+    # GitHub App token, so nothing on this path needs a writable GITHUB_TOKEN. A
+    # called workflow can never hold more permission than its caller, so leaving
+    # this to the repo-wide default would make the effective permission whatever
+    # that happens to be. See fos' create_release.yml for the same reasoning.
+    permissions:
+      contents: read
+
+    uses: FOGProject/fog-workflows/.github/workflows/update-lang-fix-psr-and-sync-version.yml@main
+    with:
+      branch: ${{ github.event.pull_request.base.ref }}
+    secrets: inherit
