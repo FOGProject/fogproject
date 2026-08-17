@@ -539,7 +539,7 @@ class SchemaUpdaterPage extends FOGPage
                     'title' => _('Schema Update Fail')
                 ]
             );
-            if ($serverfault) {
+            if ($serverFault) {
                 $fatal = implode("\n", $errors);
                 error_log(
                     $fatal,

@@ -161,6 +161,36 @@ if ($cmd === 'generate') {
         // state, not structure, and has no business in a checked-in file.
         $create = preg_replace('/ AUTO_INCREMENT=\d+/i', '', $create);
 
+        // Normalize the UCA-14.0.0 collations back to _general_ci.
+        //
+        // MariaDB 11.4 made utf8mb3_uca1400_ai_ci the DEFAULT collation for
+        // the Unicode charsets, so a table created there without an explicit
+        // COLLATE gets it and SHOW CREATE TABLE prints it back explicitly.
+        // These strings are executed verbatim by SchemaReconciler::plan() on
+        // any install missing the table, and no MariaDB below 11.4 -- nor any
+        // version of MySQL, which has never had them -- can execute that.
+        // Regenerating on an 11.4 box shipped `1273 Unknown collation` to
+        // every older server, and because a failed reconcile also stops the
+        // schema version being recorded, those servers then 308-redirected
+        // every request to ?node=schema, taking the installer's pre-upgrade
+        // database dump down with them.
+        //
+        // Normalized rather than stripped, deliberately. Stripping would let
+        // each target server apply its own default, which on 11.4+ is the
+        // uca1400 collation again -- reintroducing the bug for anyone
+        // upgrading there, and leaving these tables on a different collation
+        // from the fifty-four that already say _general_ci. Naming it keeps
+        // one collation across the whole schema by construction.
+        //
+        // Only the collation is rewritten; CHARSET=utf8mb3 is left alone, as
+        // utf8mb3_general_ci is the charset's own default collation and the
+        // two agree.
+        $create = preg_replace(
+            '/\b(utf8(?:mb3|mb4)?)_uca\d+_[a-z0-9_]+\b/i',
+            '$1_general_ci',
+            $create
+        );
+
         // Column definitions come from SHOW CREATE TABLE, not from
         // information_schema. COLUMN_DEFAULT is not portable: MariaDB 10.2+
         // returns string defaults WITH their quotes while older MySQL
