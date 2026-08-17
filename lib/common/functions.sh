@@ -5057,27 +5057,87 @@ _collectPkiNames() {
 # the web UI gets real HTTPS while netboot fetches stay on HTTP, which is the
 # same exposure a default HTTP install already has, on a pre-boot network.
 #
-# Public CA is the exception -- there the crosscert path works, so netboot
-# follows $httpproto like everything else. There is no reliable way to detect
-# "this certificate chains to a public root" from the file alone, so this
-# defaults conservatively and --netboot-proto overrides it in either direction.
+# There are exactly two ways HTTPS netboot can work, and both are now stated
+# rather than guessed at:
 #
-# Keyed on a FRESH install using FOG's own PKI, not on "is this CA private".
-# An existing server keeps whatever it has been doing: one running HTTPS
-# netboot against a private CA has a TRUST=-rebuilt iPXE to make it work, and
-# silently dropping it to HTTP on the next update would break a working setup
-# to fix a problem its admin does not have. --netboot-proto lets such a server
-# adopt the new behavior deliberately.
+#   publicWebCert=yes        iPXE's crosscert path validates a public root.
+#   rebuildIpxeWithMyCA=yes  the CA is compiled into the binary.
 #
-# On a fresh HTTPS install with FOG's own CA there is nothing to preserve --
-# HTTPS netboot simply fails there -- so HTTP is a strict improvement.
+# So netboot defaults to HTTP and is steered to HTTPS by either of those, and
+# nothing else. An explicit --netboot-proto always wins, in either direction.
+#
+# This replaced a test keyed on $caCreated, which was a trap rather than a bug
+# while httpproto defaulted to http: $caCreated is a PERSISTED key, so it is
+# "yes" on every re-run of an existing server. The moment httpproto defaults to
+# https -- which it now does, for everyone -- that old test resolved
+# netbootproto=https on every upgraded install in existence, which is precisely
+# the configuration that cannot work behind a private CA. Keying on what the
+# admin actually declared removes the whole class.
 _resolveNetbootProto() {
     [[ -n $netbootproto ]] && return 0
-    if [[ $httpproto == https && $externalca != yes && $caCreated != yes ]]; then
-        netbootproto="http"
+    if [[ $publicWebCert == yes || $rebuildIpxeWithMyCA == yes ]]; then
+        netbootproto="https"
     else
-        netbootproto="$httpproto"
+        netbootproto="http"
     fi
+}
+# Say out loud what just got decided.
+#
+# _resolveNetbootProto used to emit nothing at all -- no dots, no echo -- so an
+# admin who asked for HTTPS and got HTTP netboot had no way to learn that from
+# the install, and the divergence only surfaced later as "why is my PXE traffic
+# in the clear". This is the user-facing half of the whole change: the point of
+# splitting the protocols is that the admin gets to choose, and a choice nobody
+# is told about is not one.
+#
+# Printed after the vhost is settled, not inside _resolveNetbootProto, because
+# that runs from configureDefaultiPXEfile() in the middle of writing a file and
+# has no business owning several lines of output.
+_reportNetbootProto() {
+    if [[ $netbootproto == https ]]; then
+        # Legal, and worth saying: forcing HTTPS netboot with neither of the
+        # two things that make it work is the one combination that produces a
+        # server which looks configured and cannot boot a client. Warned, not
+        # refused -- an admin may have arranged trust some way FOG cannot see.
+        if [[ $publicWebCert != yes && $rebuildIpxeWithMyCA != yes ]]; then
+            echo
+            echo " ###################################################################"
+            echo " # WARNING: netboot is set to HTTPS, but neither                   #"
+            echo " # --public-web-cert nor --rebuild-ipxe-with-my-ca is set.         #"
+            echo " #                                                                 #"
+            echo " # iPXE cannot be told to trust a private CA. Unless this server's #"
+            echo " # certificate chains to a PUBLIC root, or the iPXE binaries were  #"
+            echo " # built elsewhere with your CA embedded, every PXE client will    #"
+            echo " # fail at the TLS handshake with nothing logged on the server.    #"
+            echo " #                                                                 #"
+            echo " # If that is not what you meant: --netboot-proto http             #"
+            echo " ###################################################################"
+            echo
+        fi
+        return 0
+    fi
+    echo
+    echo " * Netboot (PXE) is using HTTP, not HTTPS."
+    if [[ $httpproto == https ]]; then
+        echo "   Your web UI and API are HTTPS; only iPXE's own fetches are not."
+    fi
+    echo "   iPXE validates TLS strictly and cannot be told to trust a private"
+    echo "   CA, so an HTTPS netboot against one simply fails. HTTP here is the"
+    echo "   same exposure a default install has always had, on a pre-boot"
+    echo "   network."
+    echo
+    echo " * Secure Boot binaries ARE staged on this server, in every mode."
+    echo "   That used to be skipped on any HTTPS install. To enrol a machine,"
+    echo "   boot it and choose 'Enroll Secure Boot Key' from the FOG menu."
+    echo
+    echo " * To move netboot onto HTTPS, tell FOG which is true:"
+    echo "     --public-web-cert          your certificate chains to a public"
+    echo "                                root (needs an FQDN, not an IP)"
+    echo "     --rebuild-ipxe-with-my-ca  rebuild iPXE with your CA embedded"
+    echo "                                (slow, and its MOK must be enrolled"
+    echo "                                 before a client can netboot)"
+    echo "   Or force it outright with --netboot-proto https."
+    echo
 }
 # Issue an intermediate CA from the root. Shared by both zones so their
 # certificates differ only in subject, location and constraints, never in

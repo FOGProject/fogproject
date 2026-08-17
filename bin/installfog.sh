@@ -1305,6 +1305,11 @@ while [[ -z $blGo ]]; do
                     updateStorageNodeCredentials
                     recordGitUpdateSettings
                     setupFogReporting
+                    # Last, so it is the part still on screen. An admin who
+                    # asked for HTTPS and got HTTP netboot has to be told; the
+                    # resolution used to happen silently in the middle of
+                    # writing default.ipxe.
+                    _reportNetbootProto
                     echo
                     echo " * Setup complete"
                     echo
