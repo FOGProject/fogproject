@@ -269,7 +269,7 @@ podman run --rm -v .../vendor:/src:ro php:7.4-cli ...   # 17 files, 0 lint failu
 sh tests/run-all.sh
 ```
 
-### PR 2.1a — let a plugin have its own `vendor/`
+### PR 2.1a — let a plugin have its own `vendor/` ✅ DONE
 
 Closes G4 properly rather than working around it. Core loads
 `<plugin>/vendor/autoload.php` when present, mirroring the six lines it
@@ -280,10 +280,19 @@ refused and logged, not silently first-wins.
 Independent of OIDC — every plugin author benefits, and it is the honest
 answer to "why can't my plugin use Composer".
 
+Landed as `Initiator::_registerPluginAutoloaders()`, called last in the
+constructor so plugin loaders sit behind core's Composer loader, the FOG class
+map and the built-in resolver. That ordering is the real protection: even with
+the collision check wrong, core answers first for any name it can serve.
+Documented for plugin authors in `docs/plugin-development.md` §7b.
+
 ```bash
 php tests/plugin-vendor-autoload.test.php
-# fixture plugin with its own vendor/ resolves its class
-# second fixture vendoring a conflicting version is REFUSED, not silently shadowed
+# four fixture plugins in a throwaway FOG_PLUGIN_DIR:
+#   its own vendor/ resolves; a second claiming the same namespace is REFUSED;
+#   one vendoring a package CORE provides is refused and core's copy wins;
+#   one with no vendor/ is silent
+# verified failing both with the call removed and with the check neutered
 ```
 
 ### PR 2.2 — the extension point (this is the phase's real deliverable)

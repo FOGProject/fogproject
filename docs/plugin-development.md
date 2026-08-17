@@ -124,10 +124,12 @@ The running example, `helloworld`, manages a trivial entity with a `name` and a
 │   ├── addhelloworldmenuitem.hook.php # menu entry + search/objects
 │   ├── addhelloworldjs.hook.php       # JS injection
 │   └── addhelloworldapi.hook.php      # REST API exposure
-└── js/
-    ├── fog.helloworld.list.js
-    ├── fog.helloworld.add.js
-    └── fog.helloworld.edit.js
+├── js/
+│   ├── fog.helloworld.list.js
+│   ├── fog.helloworld.add.js
+│   └── fog.helloworld.edit.js
+└── vendor/                        # optional — Composer dependencies, see 7b
+    └── autoload.php
 ```
 
 The directory name **is** the plugin's machine name and routing `node`. Keep it
@@ -514,6 +516,58 @@ Two things to know:
 earliest they could be reviewed for removal is 1.7, with at least one minor
 release of notice before it happens. Adopting `FOG\` names now costs nothing and
 removes the question later.
+
+## 7b. Composer dependencies
+
+Your plugin may ship its own `vendor/`. Put it beside `config/`, exactly where
+`composer install` leaves it, and FOG registers it at boot:
+
+```
+<root>/helloworld/
+├── composer.json
+├── vendor/
+│   └── autoload.php               # FOG requires this if it is present
+├── config/
+...
+```
+
+Nothing else is needed — no hook, no manifest entry. Run `composer install` in
+your plugin directory, ship the resulting `vendor/` inside the archive, and
+your packages are autoloadable everywhere your plugin's PHP runs.
+
+Two rules make that safe.
+
+**Core wins.** Plugin loaders are registered last, after core's own Composer
+loader and after FOG's class map. A name core can resolve is resolved by core,
+whatever your `vendor/` contains.
+
+**One copy of a package, project-wide.** A plugin whose `vendor/` claims a
+namespace or class name already provided by core — or by a plugin that loaded
+earlier — is **refused**: its loader is unregistered and a line explaining why
+goes to the PHP error log. Only that plugin's vendored classes stop resolving;
+the rest of it, and the rest of FOG, keep working.
+
+This is not tidiness. Two plugins vendoring different majors of one package
+both declare the same class names, and whichever registered first wins — the
+other silently runs against a version it was never tested against. For an
+authentication or crypto library that is a security bug, so FOG makes it a
+loud failure instead.
+
+**What core provides, depend on rather than vendor:**
+
+| Package | Since | For |
+|---|---|---|
+| `firebase/php-jwt` | 1.6.0 | JWT decode and JWKS parsing |
+
+Declare it in your `composer.json` as usual and mark it `"replace"`-free — just
+do not commit your own copy into `vendor/`. If you need a version core does not
+ship, raise it with the project rather than working around it; a second copy is
+exactly what the refusal is there to stop.
+
+**Caveat.** Composer's `files` autoload runs the moment the file is required,
+so a package with side effects at load time may have executed before a refusal
+takes effect. Keep boot-time side effects out of vendored code you expect FOG
+to load.
 
 ## 8. Security & output conventions
 
