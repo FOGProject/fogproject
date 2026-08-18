@@ -4324,11 +4324,23 @@ class Route extends FOGBase
      * body). The original request line still carries the query string, so fall
      * back to parsing REQUEST_URI when $_GET has not been populated.
      *
+     * Apache's rewrite carries QSA and never had the problem; nginx's
+     * try_files fallback did, and the installer now appends $is_args$args to
+     * fix it at the source. This stays because a server that has not re-run
+     * the installer keeps its old vhost, and because a handler cannot tell
+     * which of the two it is running under.
+     *
+     * Public, not protected, because plugins register handlers on this same
+     * router and hit the same problem the moment they read a query parameter
+     * -- the OIDC plugin's ?provider= is how this was found. A plugin calling
+     * filter_input(INPUT_GET, ...) on a routed path silently sees nothing, so
+     * the working answer has to be reachable rather than re-invented.
+     *
      * @param string $key The parameter name to read.
      *
      * @return string|null The raw value, or null when absent.
      */
-    protected static function queryParam($key)
+    public static function queryParam($key)
     {
         $val = filter_input(INPUT_GET, $key);
         if ($val !== null && $val !== false) {

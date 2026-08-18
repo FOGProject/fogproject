@@ -6117,7 +6117,16 @@ EOF
                         echo "        try_files \$uri =404;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "    location ~ ^${webrootre}(.*)\$ {" >> "$etcconf"
-                        echo "        try_files \$uri \$uri/ ${webroot}api/index.php;" >> "$etcconf"
+                        # $is_args$args, because a try_files fallback to a
+                        # plain URI hands the router an EMPTY query string.
+                        # Apache's rewrite carries QSA and always has, so
+                        # every routed endpoint that reads a query parameter
+                        # -- the API's expand/start/length, and the OIDC
+                        # plugin's provider/state/code -- worked there and
+                        # silently saw nothing here. Route::queryParam()
+                        # re-parses REQUEST_URI to survive the old vhosts
+                        # this leaves behind; that fallback stays.
+                        echo "        try_files \$uri \$uri/ ${webroot}api/index.php\$is_args\$args;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
@@ -6169,7 +6178,16 @@ EOF
                         echo "        try_files \$uri =404;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "    location ~ ^${webrootre}(.*)\$ {" >> "$etcconf"
-                        echo "        try_files \$uri \$uri/ ${webroot}api/index.php;" >> "$etcconf"
+                        # $is_args$args, because a try_files fallback to a
+                        # plain URI hands the router an EMPTY query string.
+                        # Apache's rewrite carries QSA and always has, so
+                        # every routed endpoint that reads a query parameter
+                        # -- the API's expand/start/length, and the OIDC
+                        # plugin's provider/state/code -- worked there and
+                        # silently saw nothing here. Route::queryParam()
+                        # re-parses REQUEST_URI to survive the old vhosts
+                        # this leaves behind; that fallback stays.
+                        echo "        try_files \$uri \$uri/ ${webroot}api/index.php\$is_args\$args;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
@@ -6302,7 +6320,16 @@ EOF
                         echo "        try_files \$uri =404;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "    location ~ ^${webrootre}(.*)\$ {" >> "$etcconf"
-                        echo "        try_files \$uri \$uri/ ${webroot}api/index.php;" >> "$etcconf"
+                        # $is_args$args, because a try_files fallback to a
+                        # plain URI hands the router an EMPTY query string.
+                        # Apache's rewrite carries QSA and always has, so
+                        # every routed endpoint that reads a query parameter
+                        # -- the API's expand/start/length, and the OIDC
+                        # plugin's provider/state/code -- worked there and
+                        # silently saw nothing here. Route::queryParam()
+                        # re-parses REQUEST_URI to survive the old vhosts
+                        # this leaves behind; that fallback stays.
+                        echo "        try_files \$uri \$uri/ ${webroot}api/index.php\$is_args\$args;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
