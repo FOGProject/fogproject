@@ -6440,9 +6440,18 @@ _resolveWebLeafPaths() {
         || $sslprivkey == "${webdir}/.webLeaf.key" ]]; then
         sslprivkey="${leafdir}/.webLeaf.key"
     fi
+    # The fourth comparison repairs a server whose $sslpubcert was pointed at
+    # _writeWebChainFiles()'s own output. That path is FOG's derived bundle and
+    # can never be a legitimate input, so naming it means something adopted it
+    # by accident -- which is exactly what createSSLCA() did from the vhost.
+    # Deliberately the exact path and not "any file with a chain in it": an
+    # ACME client's own fullchain.pem is a real and supported value here, and
+    # repointing that at FOG's leaf would swap the admin's certificate for one
+    # nothing is renewing.
     if [[ -z $sslpubcert \
         || "$(readlink -f "$sslpubcert" 2>/dev/null)" == "$(readlink -f "$webdirdest/management/other/ssl/srvpublic.crt" 2>/dev/null)" \
-        || $sslpubcert == "${webdir}/.webLeaf.pem" ]]; then
+        || $sslpubcert == "${webdir}/.webLeaf.pem" \
+        || $sslpubcert == "${leafdir}/.webFullChain.pem" ]]; then
         sslpubcert="${leafdir}/.webLeaf.pem"
     fi
 }
@@ -6528,7 +6537,23 @@ _writeWebChainFiles() {
     # Assemble beside the live file, not over it. This bundle is what the web
     # server serves, so a bad one costs the server its start-up; keeping the
     # previous chain is always better than installing a broken one.
-    cat "$sslpubcert" "$chainonly" > "${fullchain}.new" 2>>$error_log || return 0
+    # The LEAF out of $sslpubcert, not the whole file: `openssl x509` reads only
+    # the first certificate, which is the leaf in any bundle a web server will
+    # accept.
+    #
+    # Load-bearing rather than tidy. $sslpubcert is admin-overridable, and one
+    # value in particular is this function's own output -- createSSLCA() adopts
+    # whatever path the live vhost names, which is $fullchain on every server
+    # FOG has already configured. `cat "$sslpubcert" "$chainonly"` then fed the
+    # bundle its own contents plus one more intermediate, once per install.
+    # Fourteen certificates in, browsers still shrugged and iPXE did not: it
+    # validates a chain pairwise from the trusted root upwards, so the second
+    # copy of the intermediate is checked against the first as its issuer,
+    # fails, and every HTTPS netboot dies at boot.php with "Permission denied".
+    # Reading only the leaf makes the loop structurally impossible and collapses
+    # an already-grown bundle back to leaf+chain on the next run.
+    { openssl x509 -in "$sslpubcert" 2>>$error_log; cat "$chainonly"; } \
+        > "${fullchain}.new" 2>>$error_log || return 0
     # The first certificate in the bundle is the leaf the web server will pair
     # with $sslprivkey. Check that here rather than let the web server discover
     # it at start-up: openssl x509 reads only the first certificate, which is
@@ -6963,13 +6988,28 @@ _detectExternalCertManagement() {
                 ;;
         esac
     done
-    # 2. The live vhost serving a leaf from outside $sslpath. FOG issues into
-    #    $sslpath and nowhere else, so anywhere else is the admin's file. This
-    #    is the signal that fires on a novhost=yes install, where FOG never
-    #    wrote the vhost and $sslpubcert still names FOG's own unused leaf.
+    # 2. The live vhost serving a leaf from outside the paths FOG issues into.
+    #    Anywhere else is the admin's file. This is the signal that fires on a
+    #    novhost=yes install, where FOG never wrote the vhost and $sslpubcert
+    #    still names FOG's own unused leaf.
+    #
+    #    $sslpath alone WAS the whole test, on the stated premise that "FOG
+    #    issues into $sslpath and nowhere else". That premise died when the
+    #    zoned PKI moved FOG's own web leaf to $fogprogramdir/pki/web/leaf, and
+    #    the test did not follow. So on an ordinary FOG-issued HTTPS server the
+    #    vhost named a certificate FOG had issued, in a tree FOG owns, and this
+    #    concluded the admin managed it: acmeLeaf=yes recorded on a server
+    #    nothing external was touching, and $sslpubcert repointed at
+    #    _writeWebChainFiles()'s own output. See that function for what the
+    #    second half then did to the served chain.
+    #
+    #    Matched on the pki/ tree rather than on each zone's leaf directory:
+    #    the question is "did FOG write this", and every zone under pki/ is
+    #    FOG's, including ones added later.
     vhostcert=$(_vhostCertPath)
-    if [[ -n $vhostcert && -n $sslpath && $vhostcert != "$sslpath"* ]]; then
-        echo "the vhost serves $vhostcert, outside FOG's $sslpath"
+    if [[ -n $vhostcert && -n $sslpath && $vhostcert != "$sslpath"* \
+        && $vhostcert != "${fogprogramdir%/}/pki/"* ]]; then
+        echo "the vhost serves $vhostcert, outside FOG's $sslpath and PKI tree"
         return 0
     fi
     # 3. A leaf sitting at FOG's own path that FOG's own CA did not sign --
